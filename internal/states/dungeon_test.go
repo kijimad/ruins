@@ -32,25 +32,25 @@ func TestDoActionUIActions(t *testing.T) {
 	var _ es.ActionHandler[w.World] = &DungeonState{}
 
 	tests := []struct {
-		name              string
-		action            inputmapper.ActionID
-		expectedType      es.TransType
-		shouldHaveFunc    bool
-		expectedStateType string
+		name           string
+		action         inputmapper.ActionID
+		expectedType   es.TransType
+		shouldHaveFunc bool
+		expectedState  es.State[w.World]
 	}{
 		{
-			name:              "ダンジョンメニューを開く",
-			action:            inputmapper.ActionOpenDungeonMenu,
-			expectedType:      es.TransPush,
-			shouldHaveFunc:    true,
-			expectedStateType: "*states.PersistentMessageState",
+			name:           "ダンジョンメニューを開く",
+			action:         inputmapper.ActionOpenDungeonMenu,
+			expectedType:   es.TransPush,
+			shouldHaveFunc: true,
+			expectedState:  &ChoiceMenuState{},
 		},
 		{
-			name:              "所持品を開く",
-			action:            inputmapper.ActionOpenInventory,
-			expectedType:      es.TransPush,
-			shouldHaveFunc:    true,
-			expectedStateType: "*states.ItemActionState",
+			name:           "所持品を開く",
+			action:         inputmapper.ActionOpenInventory,
+			expectedType:   es.TransPush,
+			shouldHaveFunc: true,
+			expectedState:  &ItemActionState{},
 		},
 		{
 			name:           "未知のアクション",
@@ -81,8 +81,7 @@ func TestDoActionUIActions(t *testing.T) {
 				require.NotNil(t, newState, "NewStateFunc が nil を返しました")
 
 				// ステートの型を検証
-				actualType := fmt.Sprintf("%T", newState)
-				assert.Equal(t, tt.expectedStateType, actualType, "期待するステート型と異なります")
+				assert.IsType(t, tt.expectedState, newState, "期待するステート型と異なります")
 			}
 		})
 	}
@@ -409,7 +408,7 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			require.NotNil(t, newState, "NewStateFunc が nil を返しました")
 
 			// ステートが正しい型であることを検証
-			assert.IsType(t, &PersistentMessageState{}, newState, "期待するステート型と異なります")
+			assert.IsType(t, &ChoiceMenuState{}, newState, "期待するステート型と異なります")
 		})
 	}
 }

@@ -62,16 +62,17 @@ func (d *Detail) Open() {
 	d.page = 0
 }
 
-// HandleInput は表示中のキー入力を処理し、UI を作り直すべきなら true を返す。
-// ページ数は provide の内容から自身で算出する。表示中でなければ何もしない
-func (d *Detail) HandleInput(world w.World) bool {
+// HandleInput は表示中のキー入力を処理する。ページ数は provide の内容から自身で算出する。
+// 表示中でなければ何もしない。
+// error は Overlay インターフェースに合わせた形で、詳細モーダルでは常に nil
+func (d *Detail) HandleInput(world w.World) error {
 	if !d.active {
-		return false
+		return nil
 	}
 	ki := input.GetSharedKeyboardInput()
 	if ki.IsKeyJustPressed(ebiten.KeyEscape) || ki.IsKeyJustPressed(ebiten.KeyX) || ki.IsEnterJustPressedOnce() {
 		d.active = false
-		return true
+		return nil
 	}
 	total := 1
 	if content, ok := d.provide(world); ok {
@@ -80,12 +81,10 @@ func (d *Detail) HandleInput(world w.World) bool {
 	switch {
 	case ki.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) && d.page > 0:
 		d.page--
-		return true
 	case ki.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) && d.page < total-1:
 		d.page++
-		return true
 	}
-	return false
+	return nil
 }
 
 // Window は現在の内容から詳細ウィンドウを rect の位置へ組み立てる。対象が無ければ nil を返す

@@ -91,9 +91,17 @@ func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Conta
 	}
 
 	stretch := make([]bool, columns)
-	// 最後の列を伸縮させて親コンテナの幅を埋める
+	// 幅0の列があればそこを伸縮させて親コンテナの幅を埋める。無ければ最後の列を伸縮させる。
+	// 幅0は「ここを伸ばす」印で、名前を伸ばして右側の数値列をまとめたい表で使う
+	stretchIdx := columns - 1
+	for i, cw := range columnWidths {
+		if cw == 0 {
+			stretchIdx = i
+			break
+		}
+	}
 	if columns > 0 {
-		stretch[columns-1] = true
+		stretch[stretchIdx] = true
 	}
 
 	return widget.NewContainer(
@@ -154,6 +162,15 @@ func addSelectableRow(container *widget.Container, columnWidths []int, values []
 }
 
 func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res resources.UIResources) {
+	addDataRowColored(container, columnWidths, values, aligns, theme.TextPrimary, res)
+}
+
+// NewTableRowColored はデータ行を指定色の文字で描く。詳細モーダルで条件可否を色分けする用途に使う
+func NewTableRowColored(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
+	addDataRowColored(container, columnWidths, values, aligns, textColor, res)
+}
+
+func addDataRowColored(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
 	row := newRowContainer(columnWidths, image.NewNineSliceColor(theme.Transparent))
 
 	for i, value := range values {
@@ -170,7 +187,7 @@ func addDataRow(container *widget.Container, columnWidths []int, values []string
 		}
 
 		textWidget := widget.NewText(
-			widget.TextOpts.Text(value, &res.Text.BodyFace, theme.TextPrimary),
+			widget.TextOpts.Text(value, &res.Text.BodyFace, textColor),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(gridData),

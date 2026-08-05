@@ -3,14 +3,13 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -25,14 +24,6 @@ import (
 // ダンジョンからの直達ショートカットは持たず、ダンジョンメニューから開く。
 
 const characterMenuKey = "character"
-
-// characterSub は画面タブメニュー内のサブステート
-type characterSub string
-
-const (
-	charSubBrowse      characterSub = "browse"       // タブとカーソルの操作
-	charSubEquipSelect characterSub = "equip_select" // 装備するアイテムの選択
-)
 
 // charTab は画面タブの種別。装備と命令は編集可能、以降は読み取り専用の情報タブ
 type charTab string
@@ -96,172 +87,69 @@ func characterTabLabels() []string {
 // CharacterState は画面タブメニューのステート。主人公と仲間で同じ画面を使い、対象を切り替えられる
 type CharacterState struct {
 	es.BaseState[w.World]
-	target     ecs.Entity // 表示対象のキャラクター。ゼロ値なら主人公
-	subState   characterSub
-	detail     menuscreen.Detail // 詳細モーダルの表示状態とページ送り
-	rebuild    bool              // 次フレームで UI を作り直すか
-	mount      *hooks.Mount[characterProps]
-	equipMount *hooks.Mount[charEquipProps]
-	widget     *ebitenui.UI
+	target ecs.Entity            // 表示対象のキャラクター。ゼロ値なら主人公
+	detail menuscreen.Detail     // 詳細モーダル。overlay として Screen に登録する
+	equip  characterEquipOverlay // 装備選択。overlay として Screen に登録する
+	screen *menurt.Screen[CharacterProps]
 }
 
 var _ es.State[w.World] = &CharacterState{}
 var _ Configurable = &CharacterState{}
+var _ menurt.ExtraInput = &CharacterState{}
 
 // StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
 func (st *CharacterState) StateConfig() StateConfig {
 	return StateConfig{BlurBackground: false}
 }
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *CharacterState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *CharacterState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが終了する際に呼ばれる
-func (st *CharacterState) OnStop(_ w.World) error { return nil }
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *CharacterState) OnStart(_ w.World) error {
-	st.subState = charSubBrowse
-	st.mount = hooks.NewMount[characterProps]()
-	st.equipMount = hooks.NewMount[charEquipProps]()
 	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.equip = newCharacterEquipOverlay(&st.detail)
+	// detail を equip より前に登録する。装備選択中に x で開いた詳細が入力を優先する
+	st.screen = menurt.NewScreen[CharacterProps](st, &st.detail, &st.equip)
+	st.screen.WithSystems(&gs.StatsChangedSystem{}, &gs.WeightDirtySystem{})
 	return nil
 }
 
-// Update はステートの更新処理
+// Update はステートの更新処理を Screen へ委譲する
 func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) {
-	for _, updater := range []w.Updater{
-		&gs.StatsChangedSystem{},
-		&gs.WeightDirtySystem{},
-	} {
-		if sys, ok := world.Updaters[updater.String()]; ok {
-			if err := sys.Update(world); err != nil {
-				return es.Transition[w.World]{}, err
-			}
-		}
-	}
-
-	if st.detail.Active() {
-		// 詳細表示中はページ送りと閉じるだけを扱い、通常のメニュー入力は止める
-		if st.detail.HandleInput(world) {
-			st.rebuild = true
-		}
-	} else if action, ok := st.handleInput(); ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.dispatch(action)
-	}
-
-	st.mount.SetProps(st.fetchProps(world))
-	props := st.mount.GetProps()
-
-	// 画面タブのカーソル。装備 + 情報タブ。左右キーはタブ切替に読み替える
-	itemCounts := make([]int, 0, 2+len(props.InfoTabs))
-	skips := make([][]bool, 0, 2+len(props.InfoTabs))
-	itemCounts = append(itemCounts, len(props.EquipSlots))
-	skips = append(skips, make([]bool, len(props.EquipSlots)))
-	itemCounts = append(itemCounts, len(props.Commands))
-	skips = append(skips, make([]bool, len(props.Commands)))
-	for _, tab := range props.InfoTabs {
-		itemCounts = append(itemCounts, len(tab.Items))
-		s := make([]bool, len(tab.Items))
-		for i, item := range tab.Items {
-			s[i] = item.IsHeader
-		}
-		skips = append(skips, s)
-	}
-	hooks.UseTabMenu(st.mount.Store(), characterMenuKey, hooks.TabMenuConfig{
-		TabCount:   len(itemCounts),
-		ItemCounts: itemCounts,
-		Skips:      skips,
-	})
-
-	// 装備選択サブステートのカーソル
-	if st.subState == charSubEquipSelect {
-		eprops := st.equipMount.GetProps()
-		hooks.UseTabMenu(st.equipMount.Store(), "char_equip", hooks.TabMenuConfig{
-			TabCount:   1,
-			ItemCounts: []int{len(eprops.Items)},
-		})
-	}
-	menuDirty := st.mount.Update()
-	equipDirty := st.equipMount.Update()
-	if menuDirty || equipDirty || st.widget == nil || st.rebuild {
-		st.widget = st.buildUI(world)
-		st.rebuild = false
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world)
 }
 
-// Draw はステートの描画処理
+// Draw はステートの描画を Screen へ委譲する
 func (st *CharacterState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
 }
 
-// dispatch は現在のサブステートにアクションを送る
-func (st *CharacterState) dispatch(action inputmapper.ActionID) {
-	switch st.subState {
-	case charSubBrowse:
-		st.mount.Dispatch(action)
-	case charSubEquipSelect:
-		st.equipMount.Dispatch(action)
-	}
-}
-
-// handleInput はキー入力を Action に変換する。詳細モーダルの入力は Update 側で detail が扱う
-func (st *CharacterState) handleInput() (inputmapper.ActionID, bool) {
+// ExtraInput は共通入力に加える独自キーを返す。装備選択中は overlay が入力を専有するため
+// Screen はこれを呼ばない。対象切替の , . と詳細の x を画面固有キーとしてここで読む
+func (st *CharacterState) ExtraInput() (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
-	switch st.subState {
-	case charSubBrowse, charSubEquipSelect:
-		// 対象切替は閲覧中のみ。character 固有のキーなので共有入力ではなくここで読む。
-		// 角括弧はキーボード配列で物理位置が変わり片方が別のキーコードになるため使わず、配列に依存しない , . を使う
-		if st.subState == charSubBrowse {
-			if ki.IsKeyJustPressed(ebiten.KeyComma) {
-				return inputmapper.ActionMenuSubjectPrev, true
-			}
-			if ki.IsKeyJustPressed(ebiten.KeyPeriod) {
-				return inputmapper.ActionMenuSubjectNext, true
-			}
-		}
-		if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-			return inputmapper.ActionOpenItemDetail, true
-		}
-		return HandleMenuInput()
+	if ki.IsKeyJustPressed(ebiten.KeyComma) {
+		return inputmapper.ActionMenuSubjectPrev, true
+	}
+	if ki.IsKeyJustPressed(ebiten.KeyPeriod) {
+		return inputmapper.ActionMenuSubjectNext, true
+	}
+	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
+		return inputmapper.ActionOpenItemDetail, true
 	}
 	return "", false
 }
 
-// DoAction は Action を実行する
+// DoAction は閲覧中の Action を実行する
 func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	switch st.subState {
-	case charSubEquipSelect:
-		return st.doEquipSelect(world, action)
-	case charSubBrowse:
-		return st.doBrowse(world, action)
-	}
-	return es.Transition[w.World]{Type: es.TransNone}, nil
-}
-
-func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
 		// 命令タブには行ごとの詳細が無いので x を無視する
-		if charTabAt(st.currentTabIndex()) == charTabCommand {
+		if charTabAt(st.screen.Selection().TabIndex) == charTabCommand {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		st.detail.Open()
-		st.rebuild = true
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)
@@ -278,76 +166,38 @@ func (st *CharacterState) doBrowse(world w.World, action inputmapper.ActionID) (
 	}
 }
 
-// onBrowseSelect は閲覧中の Enter を処理する。装備タブは外す/装備選択、命令タブはポリシー変更や解雇、情報タブは詳細モーダルを開く
+// onBrowseSelect は閲覧中の Enter を処理する。装備タブは外す・装備選択、命令タブはポリシー変更や解雇、情報タブは詳細を開く
 func (st *CharacterState) onBrowseSelect(world w.World) error {
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
-	props := st.mount.GetProps()
-	switch charTabAt(menuState.TabIndex) {
+	cursor := st.screen.Selection()
+	props := st.screen.Props()
+	switch charTabAt(cursor.TabIndex) {
 	case charTabEquip:
-		if menuState.ItemIndex >= len(props.EquipSlots) {
+		if cursor.ItemIndex >= len(props.EquipSlots) {
 			return nil
 		}
-		slot := props.EquipSlots[menuState.ItemIndex]
+		slot := props.EquipSlots[cursor.ItemIndex]
 		// 装備済みスロットは Enter で外す。空スロットは Enter で装備選択を開く
 		if slot.Entity != nil {
 			if err := st.unequipSlot(world, slot); err != nil {
 				return err
 			}
 		} else {
-			st.openEquipSelect(world, slot)
+			st.equip.Open(world, slot)
 		}
-		st.rebuild = true
 	case charTabCommand:
-		if menuState.ItemIndex >= len(props.Commands) {
+		if cursor.ItemIndex >= len(props.Commands) {
 			return nil
 		}
-		row := props.Commands[menuState.ItemIndex]
+		row := props.Commands[cursor.ItemIndex]
 		if row.Kind == cmdDismiss {
 			st.dismissTarget(world)
 		} else {
 			st.cycleCommand(world, row.Kind)
 		}
-		st.rebuild = true
 	default:
-		// 情報タブは Enter で詳細モーダルを開く
 		st.detail.Open()
-		st.rebuild = true
 	}
 	return nil
-}
-
-func (st *CharacterState) doEquipSelect(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	switch action {
-	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-		st.subState = charSubBrowse
-		st.rebuild = true
-	case inputmapper.ActionMenuSelect:
-		if err := st.executeEquip(world); err != nil {
-			return es.Transition[w.World]{}, err
-		}
-		st.subState = charSubBrowse
-		st.rebuild = true
-	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
-		st.rebuild = true
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatch で処理される。装備選択は単一タブなのでタブ切替は何もしない
-	default:
-		return es.Transition[w.World]{}, fmt.Errorf("装備選択: 未対応のアクション: %s", action)
-	}
-	return es.Transition[w.World]{Type: es.TransNone}, nil
-}
-
-// openEquipSelect は空スロットに対して装備選択サブステートを開く
-func (st *CharacterState) openEquipSelect(world w.World, slot equipItemData) {
-	st.equipMount = hooks.NewMount[charEquipProps]()
-	st.equipMount.SetProps(charEquipProps{
-		Items:             equipableForSlot(world, slot.SlotNumber),
-		SlotNumber:        slot.SlotNumber,
-		PreviousEquipment: slot.Entity,
-		TargetMember:      slot.Member,
-	})
-	st.subState = charSubEquipSelect
 }
 
 // unequipSlot は装備済みスロットのアイテムを外して持ち物へ戻す
@@ -359,32 +209,12 @@ func (st *CharacterState) unequipSlot(world w.World, slot equipItemData) error {
 	if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Member); err != nil {
 		return err
 	}
-	st.logEquipChange(world, slot.Member, itemName, "を外した。")
-	return nil
-}
-
-// executeEquip は装備選択で選んだアイテムを装着する
-func (st *CharacterState) executeEquip(world w.World) error {
-	props := st.equipMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "char_equip")
-	if menuState.ItemIndex >= len(props.Items) {
-		return nil
-	}
-	item := props.Items[menuState.ItemIndex]
-	itemName := query.GetEntityName(item, world)
-
-	if props.PreviousEquipment != nil {
-		if err := lifecycle.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember); err != nil {
-			return err
-		}
-	}
-	lifecycle.MoveToEquip(world, item, props.TargetMember, props.SlotNumber)
-	st.logEquipChange(world, props.TargetMember, itemName, "を装備した。")
+	logEquipChange(world, slot.Member, itemName, "を外した。")
 	return nil
 }
 
 // logEquipChange は装備の着脱をゲームログに出す。対象キャラ名とアイテム名を添える
-func (st *CharacterState) logEquipChange(world w.World, member ecs.Entity, itemName, verb string) {
+func logEquipChange(world w.World, member ecs.Entity, itemName, verb string) {
 	memberName := ""
 	if world.ECS.Alive(member) && world.Components.Name.Has(member) {
 		memberName = query.GetEntityName(member, world)
@@ -397,11 +227,108 @@ func (st *CharacterState) logEquipChange(world w.World, member ecs.Entity, itemN
 		Log()
 }
 
+// switchMember は表示対象を dir 方向の隣のキャラへ巡回で切り替える
+func (st *CharacterState) switchMember(world w.World, dir int) {
+	members := characterMembers(world)
+	if len(members) <= 1 {
+		return
+	}
+	cur := st.resolveTarget(world)
+	// resolveTarget は主人公か生存メンバーを返すため cur は必ず members に含まれる。
+	// 万一含まれなくても idx は 0 のまま、すなわち主人公を起点に巡回する
+	idx := 0
+	for i, m := range members {
+		if m == cur {
+			idx = i
+			break
+		}
+	}
+	st.target = members[(idx+dir+len(members))%len(members)]
+}
+
+// Fetch は表示対象のスナップショットを組む
+func (st *CharacterState) Fetch(world w.World) CharacterProps {
+	target := st.resolveTarget(world)
+	if !world.ECS.Alive(target) {
+		return CharacterProps{}
+	}
+	name := ""
+	if world.Components.Name.Has(target) {
+		name = query.GetEntityName(target, world)
+	}
+	return CharacterProps{
+		TargetName:  name,
+		HasMultiple: len(characterMembers(world)) > 1,
+		EquipSlots:  memberEquipSlots(world, target),
+		Commands:    fetchCommandRows(world, target),
+		InfoTabs:    st.fetchInfoTabs(world, target),
+	}
+}
+
+// Menu は装備・命令・情報タブのカーソル構成を返す。情報タブの見出し行はカーソルを飛ばす
+func (st *CharacterState) Menu(props CharacterProps) menurt.MenuConfig {
+	itemCounts := make([]int, 0, 2+len(props.InfoTabs))
+	skips := make([][]bool, 0, 2+len(props.InfoTabs))
+	itemCounts = append(itemCounts, len(props.EquipSlots))
+	skips = append(skips, make([]bool, len(props.EquipSlots)))
+	itemCounts = append(itemCounts, len(props.Commands))
+	skips = append(skips, make([]bool, len(props.Commands)))
+	for _, tab := range props.InfoTabs {
+		itemCounts = append(itemCounts, len(tab.Items))
+		s := make([]bool, len(tab.Items))
+		for i, item := range tab.Items {
+			s[i] = item.IsHeader
+		}
+		skips = append(skips, s)
+	}
+	return menurt.MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, Skips: skips}
+}
+
+// detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
+// 装備選択中は候補、閲覧中は装備中アイテム・空スロット・情報行を出し分ける。命令タブは詳細を持たない
+func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+	if st.equip.Active() {
+		item, ok := st.equip.selectedItem()
+		if !ok {
+			return menuscreen.DetailContent{}, false
+		}
+		return entityDetailContent(world, item), true
+	}
+
+	cursor := st.screen.Selection()
+	props := st.screen.Props()
+	switch charTabAt(cursor.TabIndex) {
+	case charTabEquip:
+		if cursor.ItemIndex >= len(props.EquipSlots) {
+			return menuscreen.DetailContent{}, false
+		}
+		slot := props.EquipSlots[cursor.ItemIndex]
+		if slot.Entity != nil {
+			return entityDetailContent(world, *slot.Entity), true
+		}
+		// 空スロットは性能行を持たず、案内だけ出す。Rows を空で与え entity 解決を避ける
+		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: "何も装備していない", Rows: []menuscreen.SpecRow{}}, true
+	case charTabCommand:
+		return menuscreen.DetailContent{}, false
+	default:
+		infoIdx := cursor.TabIndex - charFirstInfoTab
+		if infoIdx < 0 || infoIdx >= len(props.InfoTabs) {
+			return menuscreen.DetailContent{}, false
+		}
+		items := props.InfoTabs[infoIdx].Items
+		if cursor.ItemIndex >= len(items) {
+			return menuscreen.DetailContent{}, false
+		}
+		return infoDetailContent(items[cursor.ItemIndex]), true
+	}
+}
+
 // ================
 // Props
 // ================
 
-type characterProps struct {
+// CharacterProps は画面の表示 props。menurt.Screen の型引数として渡す
+type CharacterProps struct {
 	TargetName  string // 表示対象のキャラクター名
 	HasMultiple bool   // 切り替え可能な仲間がいるか
 	EquipSlots  []equipItemData
@@ -424,24 +351,6 @@ type charEquipProps struct {
 	SlotNumber        gc.EquipmentSlotNumber
 	PreviousEquipment *ecs.Entity
 	TargetMember      ecs.Entity
-}
-
-func (st *CharacterState) fetchProps(world w.World) characterProps {
-	target := st.resolveTarget(world)
-	if !world.ECS.Alive(target) {
-		return characterProps{}
-	}
-	name := ""
-	if world.Components.Name.Has(target) {
-		name = query.GetEntityName(target, world)
-	}
-	return characterProps{
-		TargetName:  name,
-		HasMultiple: len(characterMembers(world)) > 1,
-		EquipSlots:  memberEquipSlots(world, target),
-		Commands:    fetchCommandRows(world, target),
-		InfoTabs:    st.fetchInfoTabs(world, target),
-	}
 }
 
 // ================
@@ -497,7 +406,13 @@ func nextPolicy[T comparable](all []T, cur T) T {
 
 // cycleCommand は対象の指定ポリシーを次の値へ進める。SquadAI のフィールドはポインタ経由で直接書き換える
 func (st *CharacterState) cycleCommand(world w.World, kind commandKind) {
-	squad := query.GetSquadAI(world, st.resolveTarget(world))
+	target := st.resolveTarget(world)
+	// resolveTarget は主人公不在の稀な経路で死亡エンティティを返しうる。GetSquadAI は死亡 Get で
+	// panic するので生存を確認してから触る
+	if !world.ECS.Alive(target) {
+		return
+	}
+	squad := query.GetSquadAI(world, target)
 	if squad == nil {
 		return
 	}
@@ -520,19 +435,15 @@ func (st *CharacterState) cycleCommand(world w.World, kind commandKind) {
 // dismissTarget は現在の対象を解雇し、表示を主人公へ戻す
 func (st *CharacterState) dismissTarget(world w.World) {
 	target := st.resolveTarget(world)
+	if !world.ECS.Alive(target) {
+		return
+	}
 	if err := lifecycle.DismissSquadMember(world, target); err != nil {
 		return
 	}
 	st.target = ecs.Entity{}
 }
 
-// currentTabIndex は現在の画面タブの番号を返す
-func (st *CharacterState) currentTabIndex() int {
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
-	return menuState.TabIndex
-}
-
-// buildCommandTable は命令タブの本文を組み立てる。ポリシー行と解雇行を並べ、対象が仲間でなければ案内を出す
 // resolveTarget は表示対象を返す。未指定または死亡時は主人公にフォールバックする
 func (st *CharacterState) resolveTarget(world w.World) ecs.Entity {
 	if world.ECS.Alive(st.target) {
@@ -552,26 +463,6 @@ func characterMembers(world w.World) []ecs.Entity {
 	}
 	members = append(members, query.SquadMembers(world)...)
 	return members
-}
-
-// switchMember は表示対象を dir 方向の隣のキャラへ巡回で切り替える
-func (st *CharacterState) switchMember(world w.World, dir int) {
-	members := characterMembers(world)
-	if len(members) <= 1 {
-		return
-	}
-	cur := st.resolveTarget(world)
-	// resolveTarget は主人公か生存メンバーを返すため cur は必ず members に含まれる。
-	// 万一含まれなくても idx は 0 のまま、すなわち主人公を起点に巡回する
-	idx := 0
-	for i, m := range members {
-		if m == cur {
-			idx = i
-			break
-		}
-	}
-	st.target = members[(idx+dir+len(members))%len(members)]
-	st.rebuild = true
 }
 
 // memberEquipSlots はプレイヤーの全装備スロットを列挙する
@@ -648,73 +539,6 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 		}
 	}
 	return query.SortEntities(world, items)
-}
-
-// ================
-// buildUI
-// ================
-
-// buildUI は現在の state から描画に必要なデータを取り出し、純粋描画の buildCharacterUI へ渡す。
-// 詳細と装備選択のオーバーレイ窓は world とコントローラを要するため、ここで重ねる
-func (st *CharacterState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.mount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
-
-	ui := buildCharacterUI(props, characterSelection{TabIndex: menuState.TabIndex, ItemIndex: menuState.ItemIndex}, res)
-
-	if st.subState == charSubEquipSelect {
-		equipProps := st.equipMount.GetProps()
-		equipState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "char_equip")
-		ui.AddWindow(buildEquipSelectWindow(world, equipProps, equipState.ItemIndex, res))
-	}
-	if st.detail.Active() {
-		if win := st.detail.Window(world, getCenterWinRect(world)); win != nil {
-			ui.AddWindow(win)
-		}
-	}
-
-	return ui
-}
-
-// detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
-// 装備選択中は候補、閲覧中は装備中アイテム・空スロット・情報行を出し分ける。命令タブは詳細を持たない
-func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
-	if st.subState == charSubEquipSelect {
-		props := st.equipMount.GetProps()
-		menuState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "char_equip")
-		if menuState.ItemIndex >= len(props.Items) {
-			return menuscreen.DetailContent{}, false
-		}
-		return entityDetailContent(world, props.Items[menuState.ItemIndex]), true
-	}
-
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, characterMenuKey)
-	props := st.mount.GetProps()
-	switch charTabAt(menuState.TabIndex) {
-	case charTabEquip:
-		if menuState.ItemIndex >= len(props.EquipSlots) {
-			return menuscreen.DetailContent{}, false
-		}
-		slot := props.EquipSlots[menuState.ItemIndex]
-		if slot.Entity != nil {
-			return entityDetailContent(world, *slot.Entity), true
-		}
-		// 空スロットは性能行を持たず、案内だけ出す。Rows を空で与え entity 解決を避ける
-		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: "何も装備していない", Rows: []menuscreen.SpecRow{}}, true
-	case charTabCommand:
-		return menuscreen.DetailContent{}, false
-	default:
-		infoIdx := menuState.TabIndex - charFirstInfoTab
-		if infoIdx < 0 || infoIdx >= len(props.InfoTabs) {
-			return menuscreen.DetailContent{}, false
-		}
-		items := props.InfoTabs[infoIdx].Items
-		if menuState.ItemIndex >= len(items) {
-			return menuscreen.DetailContent{}, false
-		}
-		return infoDetailContent(items[menuState.ItemIndex]), true
-	}
 }
 
 // entityDetailContent はエンティティの名前・説明・性能を詳細内容にする

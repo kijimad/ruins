@@ -117,6 +117,13 @@ func (n *tabMenuNav) reduce(s TabMenuState, a inputmapper.ActionID) TabMenuState
 	}
 }
 
+// SetTab は指定タブへ直接カーソルを移す。新タブの先頭選択可能行へカーソルを置き、範囲外はクランプする。
+// キー再生を避けてタブを設定する用途に使う。UseTabMenu と同じ nav ロジックを通す
+func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) {
+	nav := &tabMenuNav{config: config}
+	store.states[keyPrefix] = nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)})
+}
+
 // UseTabMenu は再利用可能なタブメニュー状態管理を提供する
 // ReactのカスタムHooksに相当するパターンで、複数のUseStateを組み合わせる
 // keyPrefixは状態キーの接頭辞で、複数のタブメニューを区別するために使う

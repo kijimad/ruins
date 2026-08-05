@@ -1,6 +1,7 @@
 package states
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -33,6 +34,35 @@ func TestVerbByAction_直達アクションを動詞へ対応づける(t *testin
 			assert.Equal(t, tt.ok, ok)
 			assert.Equal(t, tt.want, got)
 		})
+	}
+}
+
+// TestVerbList_各動詞が直達キーとアクションを持ち往復する は verbList を単一の真実にした不変条件を守る。
+// ExtraInput と verbByAction はこの一覧から導くので、動詞を1行足すだけで直達が効く。
+// キーやアクションを欠く行や、アクションが自身へ戻らない不整合を検知し、silent failure を防ぐ
+func TestVerbList_各動詞が直達キーとアクションを持ち往復する(t *testing.T) {
+	t.Parallel()
+	seenKey := map[string]verbID{}
+	seenAction := map[inputmapper.ActionID]verbID{}
+	for _, v := range verbList {
+		require.NotZero(t, v.Key, "動詞 %s は直達キーを持つ", v.ID)
+		require.NotEmpty(t, v.Action, "動詞 %s は直達アクションを持つ", v.ID)
+		require.NotNil(t, v.Accept, "動詞 %s は Accept を持つ。nil だと Fetch で panic する", v.ID)
+
+		// 直達キーは一意。重複すると ExtraInput のループで先勝ちして片方が黙って隠れる
+		keyID := fmt.Sprintf("%d/%t", v.Key, v.Shift)
+		prevKey, dupKey := seenKey[keyID]
+		assert.False(t, dupKey, "直達キーが重複する: %s と %s", prevKey, v.ID)
+		seenKey[keyID] = v.ID
+
+		// アクションも一意。verbByAction は先勝ちなので重複すると片方へ届かない
+		prevAction, dupAction := seenAction[v.Action]
+		assert.False(t, dupAction, "アクションが重複する: %s と %s", prevAction, v.ID)
+		seenAction[v.Action] = v.ID
+
+		got, ok := verbByAction(v.Action)
+		assert.True(t, ok, "動詞 %s のアクションが対応づく", v.ID)
+		assert.Equal(t, v.ID, got, "動詞 %s のアクションは自身の動詞へ戻る", v.ID)
 	}
 }
 

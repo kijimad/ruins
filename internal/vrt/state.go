@@ -49,13 +49,13 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 	t.Helper()
 
 	// World初期化・状態構築・描画はいずれも ebitenui のグローバル描画状態に触れて並行アクセス安全でない。
-	// InitVRTWorld が内部で withUILock を取るので、構築から描画まではもう1つの withUILock 区間にする。
-	// withUILock は非再入なのでネストさせず2区間に分ける。両区間とも同じロックなので ebitenui グローバルへの
+	// InitVRTWorld が内部で WithUILock を取るので、構築から描画まではもう1つの WithUILock 区間にする。
+	// WithUILock は非再入なのでネストさせず2区間に分ける。両区間とも同じロックなので ebitenui グローバルへの
 	// 同時アクセスは起きない。mutex待機中に ebitenui の時間ベースアニメーション（Caretブリンク等）が進むのも防ぐ
 	world := InitVRTWorld(t)
 
 	var out *image.NRGBA
-	withUILock(func() {
+	WithUILock(func() {
 		states := buildStates(world)
 		require.NotEmpty(t, states, "ステートが1つ以上必要")
 
@@ -89,14 +89,14 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 // InitVRTWorld はVRT用のワールドを初期化する。固定シードで再現性を保証する。
 // テスト・ベンチ双方から使えるよう testing.TB を受ける。
 //
-// maingame.InitWorld 経由で ebitenui のグローバルな NineSlice キャッシュを触るため withUILock で
+// maingame.InitWorld 経由で ebitenui のグローバルな NineSlice キャッシュを触るため WithUILock で
 // 直列化する。触らないと並列ゴールデンテストの初期化と描画が同時にこのキャッシュへアクセスして
-// data race になる。withUILock は非再入なので、renderState はこの関数を描画の withUILock 区間の外側で呼ぶ。
+// data race になる。WithUILock は非再入なので、renderState はこの関数を描画の WithUILock 区間の外側で呼ぶ。
 func InitVRTWorld(tb testing.TB) w.World {
 	tb.Helper()
 
 	var world w.World
-	withUILock(func() {
+	WithUILock(func() {
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		cfg.LogLevel = "ignore"

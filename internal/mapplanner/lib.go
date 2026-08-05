@@ -507,6 +507,17 @@ var (
 		},
 	}
 
+	// PlannerTypeDebugTown は街用NPCと収納箱をスポーン地点の隣に固定配置したデバッグ用テンプレート。
+	// 狭い部屋なので入ってすぐデバッグ物へ触れられる。敵の抑止は敵テーブルの無い DungeonDebugTown 側で
+	// 行うため、ここに特別扱いは要らない。UseFixedPortalPos で手続き的なポータル配置はしない
+	PlannerTypeDebugTown = PlannerType{
+		Name:              "デバッグ街",
+		UseFixedPortalPos: true,
+		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeDebugTown, seed)
+		},
+	}
+
 	// AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。
 	// ランダム選択用のPlannerTypeRandomは含まない
 	AllPlannerTypes = []PlannerType{
@@ -521,12 +532,24 @@ var (
 		PlannerTypeTownPlaza,
 		PlannerTypeBossFloor,
 	}
+
+	// debugPlannerTypes は名前指定でのみ使うデバッグ専用プランナー。ランダム選択や
+	// マップ生成ギャラリーの対象にはせず、PlannerTypeByName の解決だけで使えるようにする
+	debugPlannerTypes = []PlannerType{
+		PlannerTypeDebugTown,
+	}
 )
 
 // PlannerTypeByName は名前から PlannerType を引く。対象は PlannerFunc を持つ AllPlannerTypes で、
 // 見つからなければ ok=false を返す。デバッグでプランナー名を指定してフロアを生成するときに使う。
 func PlannerTypeByName(name string) (PlannerType, bool) {
 	for _, pt := range AllPlannerTypes {
+		if pt.Name == name {
+			return pt, true
+		}
+	}
+	// デバッグ専用プランナーも名前で引けるようにする。ギャラリーやランダム選択には含めない
+	for _, pt := range debugPlannerTypes {
 		if pt.Name == name {
 			return pt, true
 		}
