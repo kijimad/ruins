@@ -28,7 +28,7 @@ func TestShopMenuState_FetchProps(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetch(world)
+	props := state.Fetch(world)
 
 	assert.Len(t, props.Tabs, 2, "タブは2つ（購入、売却）")
 	assert.Equal(t, "buy", props.Tabs[0].ID)

@@ -47,7 +47,7 @@ func TestCharacterState_装備スロットは武器5と防具7の合計12(t *tes
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	props := state.fetch(world)
+	props := state.Fetch(world)
 	assert.Len(t, props.EquipSlots, 12, "武器5スロットと防具7スロット")
 }
 
@@ -60,7 +60,7 @@ func TestCharacterState_情報タブは能力スキル効果健康基本の5つ(
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	props := state.fetch(world)
+	props := state.Fetch(world)
 	labels := make([]string, len(props.InfoTabs))
 	for i, tab := range props.InfoTabs {
 		labels[i] = tab.Label
@@ -77,7 +77,7 @@ func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *test
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	props := state.fetch(world)
+	props := state.Fetch(world)
 	var skillTab statusTabData
 	for _, tab := range props.InfoTabs {
 		if tab.ID == tabSkills {

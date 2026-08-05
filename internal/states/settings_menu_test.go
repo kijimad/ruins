@@ -17,7 +17,7 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetch(world)
+	props := state.Fetch(world)
 
 	require.Len(t, props.Items, 2)
 	assert.Equal(t, "言語", props.Items[0].Label)

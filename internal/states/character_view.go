@@ -7,6 +7,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -15,7 +16,7 @@ import (
 
 // buildCharacterUI は人物画面のタブ本体を props と選択位置だけから組み立てる。
 // state に触れない純粋描画で、詳細や装備選択のオーバーレイ窓は呼び出し側が重ねる
-func buildCharacterUI(props characterProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+func buildCharacterUI(props CharacterProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 見出しは対象キャラ名。仲間がいれば左右矢印で切替可能を示す。
 	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
 	header := props.TargetName

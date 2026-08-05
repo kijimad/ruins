@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -20,7 +21,7 @@ import (
 // MainMenuState はメインメニューのゲームステート
 type MainMenuState struct {
 	es.BaseState[w.World]
-	screen Screen[mainMenuProps]
+	screen menurt.Screen[MainMenuProps]
 }
 
 // State interface ================
@@ -41,7 +42,7 @@ func (st *MainMenuState) OnStart(world w.World) error {
 	// シングルトンエンティティを再構築する
 	world.InitSingleton()
 
-	st.screen = NewScreen[mainMenuProps](st)
+	st.screen = menurt.NewScreen[MainMenuProps](st)
 	return nil
 }
 
@@ -82,8 +83,8 @@ func (st *MainMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
 // Props
 // ================
 
-// mainMenuProps はメインメニューのProps
-type mainMenuProps struct {
+// MainMenuProps はメインメニューのProps
+type MainMenuProps struct {
 	Items []mainMenuItem
 }
 
@@ -93,7 +94,8 @@ type mainMenuItem struct {
 	Transition es.Transition[w.World]
 }
 
-func (st *MainMenuState) fetch(world w.World) mainMenuProps {
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+func (st *MainMenuState) Fetch(world w.World) MainMenuProps {
 	var startFuncs []es.StateFactory[w.World]
 	if world.Config.SkipOpening {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
@@ -101,7 +103,7 @@ func (st *MainMenuState) fetch(world w.World) mainMenuProps {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
 	}
 
-	return mainMenuProps{
+	return MainMenuProps{
 		Items: []mainMenuItem{
 			{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},
 			{Label: "デモ", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}},
@@ -112,8 +114,9 @@ func (st *MainMenuState) fetch(world w.World) mainMenuProps {
 	}
 }
 
-func (st *MainMenuState) menu(props mainMenuProps) MenuConfig {
-	return MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
+// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
+func (st *MainMenuState) Menu(props MainMenuProps) menurt.MenuConfig {
+	return menurt.MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
 }
 
 func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
@@ -129,7 +132,8 @@ func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
 // buildUI
 // ================
 
-func (st *MainMenuState) view(_ w.World, props mainMenuProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
+func (st *MainMenuState) View(_ w.World, props MainMenuProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	itemIndex := sel.ItemIndex
 
 	rootContainer := widget.NewContainer(

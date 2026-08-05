@@ -12,6 +12,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
@@ -27,7 +28,7 @@ import (
 type ShopMenuState struct {
 	es.BaseState[w.World]
 	detail menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen Screen[shopProps]
+	screen menurt.Screen[ShopProps]
 }
 
 // State interface ================
@@ -45,7 +46,7 @@ var _ es.ActionHandler[w.World] = &ShopMenuState{}
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.screen = NewScreen[shopProps](st, &st.detail)
+	st.screen = menurt.NewScreen[ShopProps](st, &st.detail)
 	return nil
 }
 
@@ -66,7 +67,7 @@ func (st *ShopMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bo
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		return inputmapper.ActionOpenItemDetail, true
 	}
-	return HandleMenuInput()
+	return menurt.HandleMenuInput()
 }
 
 // DoAction はActionを実行する
@@ -92,7 +93,8 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 // Props
 // ================
 
-type shopProps struct {
+// ShopProps は画面の表示 props。menurt.Screen の型引数として渡す
+type ShopProps struct {
 	Tabs []shopTabData
 }
 
@@ -112,7 +114,8 @@ type shopItemData struct {
 	Disabled bool
 }
 
-func (st *ShopMenuState) fetch(world w.World) shopProps {
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+func (st *ShopMenuState) Fetch(world w.World) ShopProps {
 	var currency int
 	buyPriceMod, sellPriceMod := consts.PercentBase, consts.PercentBase
 	query.Player(world, func(playerEntity ecs.Entity) {
@@ -124,17 +127,18 @@ func (st *ShopMenuState) fetch(world w.World) shopProps {
 		}
 	})
 
-	return shopProps{
+	return ShopProps{
 		Tabs: st.createTabs(world, currency, buyPriceMod, sellPriceMod),
 	}
 }
 
-func (st *ShopMenuState) menu(props shopProps) MenuConfig {
+// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
+func (st *ShopMenuState) Menu(props ShopProps) menurt.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menurt.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
 func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, sellPriceMod consts.Percent) []shopTabData {
@@ -264,7 +268,8 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // buildUI
 // ================
 
-func (st *ShopMenuState) view(_ w.World, props shopProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
+func (st *ShopMenuState) View(_ w.World, props ShopProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {

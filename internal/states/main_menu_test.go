@@ -26,7 +26,7 @@ func TestMainMenuState_項目と遷移の対応(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetch(world)
+	props := state.Fetch(world)
 
 	require.Len(t, props.Items, 5, "メニュー項目は5つ")
 	assert.Equal(t, "開始", props.Items[0].Label)

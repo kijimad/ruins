@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
@@ -92,7 +93,7 @@ type CharacterState struct {
 	target ecs.Entity            // 表示対象のキャラクター。ゼロ値なら主人公
 	detail menuscreen.Detail     // 詳細モーダル。overlay として Screen に登録する
 	equip  characterEquipOverlay // 装備選択。overlay として Screen に登録する
-	screen Screen[characterProps]
+	screen menurt.Screen[CharacterProps]
 }
 
 var _ es.State[w.World] = &CharacterState{}
@@ -108,7 +109,7 @@ func (st *CharacterState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.equip = newCharacterEquipOverlay(&st.detail)
 	// detail を equip より前に登録する。装備選択中に x で開いた詳細が入力を優先する
-	st.screen = NewScreen[characterProps](st, &st.detail, &st.equip)
+	st.screen = menurt.NewScreen[CharacterProps](st, &st.detail, &st.equip)
 	st.screen.WithSystems(&gs.StatsChangedSystem{}, &gs.WeightDirtySystem{})
 	return nil
 }
@@ -137,7 +138,7 @@ func (st *CharacterState) HandleInput(_ *config.Config) (inputmapper.ActionID, b
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		return inputmapper.ActionOpenItemDetail, true
 	}
-	return HandleMenuInput()
+	return menurt.HandleMenuInput()
 }
 
 // DoAction は閲覧中の Action を実行する
@@ -247,17 +248,17 @@ func (st *CharacterState) switchMember(world w.World, dir int) {
 	st.target = members[(idx+dir+len(members))%len(members)]
 }
 
-// fetch は表示対象のスナップショットを組む
-func (st *CharacterState) fetch(world w.World) characterProps {
+// Fetch は表示対象のスナップショットを組む
+func (st *CharacterState) Fetch(world w.World) CharacterProps {
 	target := st.resolveTarget(world)
 	if !world.ECS.Alive(target) {
-		return characterProps{}
+		return CharacterProps{}
 	}
 	name := ""
 	if world.Components.Name.Has(target) {
 		name = query.GetEntityName(target, world)
 	}
-	return characterProps{
+	return CharacterProps{
 		TargetName:  name,
 		HasMultiple: len(characterMembers(world)) > 1,
 		EquipSlots:  memberEquipSlots(world, target),
@@ -266,8 +267,8 @@ func (st *CharacterState) fetch(world w.World) characterProps {
 	}
 }
 
-// menu は装備・命令・情報タブのカーソル構成を返す。情報タブの見出し行はカーソルを飛ばす
-func (st *CharacterState) menu(props characterProps) MenuConfig {
+// Menu は装備・命令・情報タブのカーソル構成を返す。情報タブの見出し行はカーソルを飛ばす
+func (st *CharacterState) Menu(props CharacterProps) menurt.MenuConfig {
 	itemCounts := make([]int, 0, 2+len(props.InfoTabs))
 	skips := make([][]bool, 0, 2+len(props.InfoTabs))
 	itemCounts = append(itemCounts, len(props.EquipSlots))
@@ -282,11 +283,11 @@ func (st *CharacterState) menu(props characterProps) MenuConfig {
 		}
 		skips = append(skips, s)
 	}
-	return MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, Skips: skips}
+	return menurt.MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, Skips: skips}
 }
 
-// view は現在タブの本体を純粋描画へ委譲する。overlay の窓は Screen が重ねる
-func (st *CharacterState) view(_ w.World, props characterProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+// View は現在タブの本体を純粋描画へ委譲する。overlay の窓は Screen が重ねる
+func (st *CharacterState) View(_ w.World, props CharacterProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	return buildCharacterUI(props, sel, res)
 }
 
@@ -333,7 +334,8 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 // Props
 // ================
 
-type characterProps struct {
+// CharacterProps は画面の表示 props。menurt.Screen の型引数として渡す
+type CharacterProps struct {
 	TargetName  string // 表示対象のキャラクター名
 	HasMultiple bool   // 切り替え可能な仲間がいるか
 	EquipSlots  []equipItemData

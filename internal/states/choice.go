@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -20,8 +21,8 @@ type Choice struct {
 	Header bool
 }
 
-// choiceProps は選択メニューの表示スナップショット
-type choiceProps struct {
+// ChoiceProps は選択メニューの表示スナップショット
+type ChoiceProps struct {
 	Title   string
 	Choices []Choice
 }
@@ -32,7 +33,7 @@ type choiceProps struct {
 type ChoiceMenuState struct {
 	es.BaseState[w.World]
 	provide func(world w.World) (title string, choices []Choice)
-	screen  Screen[choiceProps]
+	screen  menurt.Screen[ChoiceProps]
 }
 
 var (
@@ -50,7 +51,7 @@ func (st *ChoiceMenuState) StateConfig() StateConfig { return StateConfig{BlurBa
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ChoiceMenuState) OnStart(_ w.World) error {
-	st.screen = NewScreen[choiceProps](st)
+	st.screen = menurt.NewScreen[ChoiceProps](st)
 	return nil
 }
 
@@ -85,24 +86,24 @@ func (st *ChoiceMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
-// fetch は現在の選択肢を表示スナップショットへ射影する
-func (st *ChoiceMenuState) fetch(world w.World) choiceProps {
+// Fetch は現在の選択肢を表示スナップショットへ射影する
+func (st *ChoiceMenuState) Fetch(world w.World) ChoiceProps {
 	title, choices := st.provide(world)
-	return choiceProps{Title: title, Choices: choices}
+	return ChoiceProps{Title: title, Choices: choices}
 }
 
-// menu は単一タブの選択リストとして構成を返す。見出し行はカーソルを飛ばし、多い画面はページ送りする
-func (st *ChoiceMenuState) menu(props choiceProps) MenuConfig {
+// Menu は単一タブの選択リストとして構成を返す。見出し行はカーソルを飛ばし、多い画面はページ送りする
+func (st *ChoiceMenuState) Menu(props ChoiceProps) menurt.MenuConfig {
 	skips := make([]bool, len(props.Choices))
 	for i, c := range props.Choices {
 		skips[i] = c.Header
 	}
-	return MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuItemsPerPage, Skips: [][]bool{skips}}
+	return menurt.MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuItemsPerPage, Skips: [][]bool{skips}}
 }
 
-// view は選択肢の1カラム一覧を中央パネルに組む純粋描画。メインメニューやセーブロードと同じ簡易メニューの
+// View は選択肢の1カラム一覧を中央パネルに組む純粋描画。メインメニューやセーブロードと同じ簡易メニューの
 // 見た目に揃え、エントリ数相応の大きさに縮む。多いときはページ送りしてはみ出さない
-func (st *ChoiceMenuState) view(_ w.World, props choiceProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ChoiceMenuState) View(_ w.World, props ChoiceProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	rows := make([]menuRow, len(props.Choices))
 	for i, c := range props.Choices {
 		rows[i] = menuRow{Cells: []string{c.Label}, Header: c.Header}

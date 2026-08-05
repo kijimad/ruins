@@ -12,6 +12,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -178,7 +179,7 @@ type ItemActionState struct {
 	es.BaseState[w.World]
 	initialVerb verbID            // 開いた直後に表示する動詞タブ
 	detail      menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen      Screen[itemActionProps]
+	screen      menurt.Screen[ItemActionProps]
 }
 
 var _ es.State[w.World] = &ItemActionState{}
@@ -199,7 +200,7 @@ func NewItemActionState(initial verbID) es.StateFactory[w.World] {
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.screen = NewScreen[itemActionProps](st, &st.detail)
+	st.screen = menurt.NewScreen[ItemActionProps](st, &st.detail)
 	return nil
 }
 
@@ -236,7 +237,7 @@ func (st *ItemActionState) HandleInput(_ *config.Config) (inputmapper.ActionID, 
 	if ki.IsKeyJustPressed(ebiten.KeyT) {
 		return inputmapper.ActionVerbUse, true
 	}
-	return HandleMenuInput()
+	return menurt.HandleMenuInput()
 }
 
 // DoAction は Action を実行する
@@ -291,7 +292,8 @@ func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World
 // Props
 // ================
 
-type itemActionProps struct {
+// ItemActionProps は画面の表示 props。menurt.Screen の型引数として渡す
+type ItemActionProps struct {
 	Tabs []verbTabData
 }
 
@@ -310,7 +312,8 @@ type itemActionEntry struct {
 	Desc   string
 }
 
-func (st *ItemActionState) fetch(world w.World) itemActionProps {
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+func (st *ItemActionState) Fetch(world w.World) ItemActionProps {
 	player, err := query.GetPlayerEntity(world)
 	var backpack []ecs.Entity
 	if err == nil {
@@ -329,7 +332,7 @@ func (st *ItemActionState) fetch(world w.World) itemActionProps {
 		}
 		tabs[i] = verbTabData{ID: verb.ID, Label: verb.Label, Key: verb.KeyHint, Items: items}
 	}
-	return itemActionProps{Tabs: tabs}
+	return ItemActionProps{Tabs: tabs}
 }
 
 // playerBackpackItems はプレイヤーのバックパック内アイテムを表示順に返す
@@ -365,7 +368,8 @@ func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {
 // buildUI
 // ================
 
-func (st *ItemActionState) view(_ w.World, props itemActionProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
+func (st *ItemActionState) View(_ w.World, props ItemActionProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -384,15 +388,16 @@ func (st *ItemActionState) view(_ w.World, props itemActionProps, sel Selection,
 	})
 }
 
-func (st *ItemActionState) menu(props itemActionProps) MenuConfig {
+// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
+func (st *ItemActionState) Menu(props ItemActionProps) menurt.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage, InitialTab: verbTabIndex(st.initialVerb)}
+	return menurt.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage, InitialTab: verbTabIndex(st.initialVerb)}
 }
 
-func (st *ItemActionState) buildItemList(props itemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+func (st *ItemActionState) buildItemList(props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	if tabIndex >= len(props.Tabs) {
 		return styled.NewVerticalContainer()
 	}

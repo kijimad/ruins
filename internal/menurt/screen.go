@@ -1,4 +1,10 @@
-package states
+// Package menurt はメニュー画面の共通ランタイムを提供する。
+//
+// 各メニュー state から UI 機構、mount・widget・rebuild・overlay の入力ゲートと重ね、を Screen へ
+// 集約し、state は Fetch・Menu・View と既存の DoAction を提供するだけにする。MVU の Model/View/Update
+// に対応し、Screen がループを所有する。state package とは別 package にすることで、Model 契約を
+// コンパイラに強制させ、state から Screen 内部へ触れられないようにする。詳細は docs/design/20260804_87.md。
+package menurt
 
 import (
 	"github.com/ebitenui/ebitenui"
@@ -11,11 +17,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	w "github.com/kijimaD/ruins/internal/world"
 )
-
-// メニュー画面の共通ランタイム。各 state から UI 機構、mount・widget・rebuild・
-// overlay の入力ゲートと重ね、を Screen へ集約し、state は Fetch・Menu・View と
-// 既存の HandleInput・DoAction を提供するだけにする。MVU の Model/View/Update に対応し、
-// Screen がループを所有する。詳細は docs/design/20260804_87.md。
 
 // Selection は描画に要るカーソル位置。どのタブのどの行を強調するかを表す
 type Selection struct {
@@ -34,15 +35,15 @@ type MenuConfig struct {
 	InitialTab   int      // 初回に寄せるタブ番号。0 なら先頭のまま。1度だけ適用する。TabCount 未満を前提とする
 }
 
-// screenModel はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
+// Model はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
 // DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。入力変換は既定で
 // HandleMenuInput を使い、独自キーが要る state だけ customInput を実装して上書きする
-type screenModel[P any] interface {
+type Model[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
-	fetch(world w.World) P
-	menu(props P) MenuConfig
-	view(world w.World, props P, sel Selection, res resources.UIResources) *ebitenui.UI
+	Fetch(world w.World) P
+	Menu(props P) MenuConfig
+	View(world w.World, props P, sel Selection, res resources.UIResources) *ebitenui.UI
 }
 
 // customInput は既定のメニュー入力に加えて独自キーを扱う state が満たす任意契約。
@@ -55,7 +56,7 @@ type customInput interface {
 // 毎フレームの手順を回す。state は構造体にこれを値で埋め込み、Update と Draw を委譲する。
 // コピーすると overlay のポインタが旧実体を指すため、コピーせず OnStart で NewScreen して使う
 type Screen[P any] struct {
-	model    screenModel[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
+	model    Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
 	mount    *hooks.Mount[P]
 	widget   *ebitenui.UI
 	rebuild  bool
@@ -67,7 +68,7 @@ type Screen[P any] struct {
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
 // 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す。追加 systems は WithSystems で登録する
-func NewScreen[P any](model screenModel[P], overlays ...menuscreen.Overlay) Screen[P] {
+func NewScreen[P any](model Model[P], overlays ...menuscreen.Overlay) Screen[P] {
 	return Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
 }
 
@@ -142,9 +143,9 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		s.mount.Dispatch(action)
 	}
 
-	props := m.fetch(world)
+	props := m.Fetch(world)
 	s.mount.SetProps(props)
-	cfg := m.menu(props)
+	cfg := m.Menu(props)
 	if cfg.TabCount > 0 {
 		hooks.UseTabMenu(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{
 			TabCount:     cfg.TabCount,
@@ -164,10 +165,10 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	dirty := s.mount.Update()
 	s.sel = s.selection(cfg)
 	if dirty || s.widget == nil || s.rebuild {
-		s.widget = m.view(world, props, s.sel, world.Resources.UIResources)
+		s.widget = m.View(world, props, s.sel, world.Resources.UIResources)
 		for _, ov := range s.overlays {
 			if ov.Active() {
-				if win := ov.Window(world, getCenterWinRect(world)); win != nil {
+				if win := ov.Window(world, menuscreen.CenterWindowRect(world)); win != nil {
 					s.widget.AddWindow(win)
 				}
 			}
@@ -183,7 +184,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 // UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する。
 // 構成は model から導出するので呼び出し側は tab 番号だけを渡す
 func (s *Screen[P]) SetTab(tab int) {
-	s.setTab(s.model.menu(s.Props()), tab)
+	s.setTab(s.model.Menu(s.Props()), tab)
 }
 
 // setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する

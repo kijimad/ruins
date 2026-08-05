@@ -12,6 +12,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -27,7 +28,7 @@ type TavernMenuState struct {
 	es.BaseState[w.World]
 	actionWin  menuscreen.ActionWindow // 雇用のアクション選択。overlay として Screen に登録する
 	detail     menuscreen.Detail       // 候補の能力・費用を出す詳細モーダル。overlay として Screen に登録する
-	screen     Screen[tavernProps]
+	screen     menurt.Screen[TavernProps]
 	candidates []tavernCandidate
 }
 
@@ -45,7 +46,7 @@ var _ es.ActionHandler[w.World] = &TavernMenuState{}
 func (st *TavernMenuState) OnStart(world w.World) error {
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.screen = NewScreen[tavernProps](st, &st.detail, &st.actionWin)
+	st.screen = menurt.NewScreen[TavernProps](st, &st.detail, &st.actionWin)
 	st.candidates = generateCandidates(world.Config.RNG)
 	return nil
 }
@@ -67,7 +68,7 @@ func (st *TavernMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, 
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		return inputmapper.ActionOpenItemDetail, true
 	}
-	return HandleMenuInput()
+	return menurt.HandleMenuInput()
 }
 
 // DoAction はアクションを実行してステート遷移を返す
@@ -169,7 +170,8 @@ func calculateHiringCost(a gc.Abilities) int {
 // Props
 // ================
 
-type tavernProps struct {
+// TavernProps は画面の表示 props。menurt.Screen の型引数として渡す
+type TavernProps struct {
 	Candidates []tavernCandidateData
 	Currency   int
 }
@@ -182,7 +184,8 @@ type tavernCandidateData struct {
 	CanAfford bool
 }
 
-func (st *TavernMenuState) fetch(world w.World) tavernProps {
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+func (st *TavernMenuState) Fetch(world w.World) TavernProps {
 	var currency int
 	query.Player(world, func(playerEntity ecs.Entity) {
 		currency = query.GetCurrency(world, playerEntity)
@@ -200,7 +203,7 @@ func (st *TavernMenuState) fetch(world w.World) tavernProps {
 		})
 	}
 
-	return tavernProps{
+	return TavernProps{
 		Candidates: candidates,
 		Currency:   currency,
 	}
@@ -210,8 +213,9 @@ func (st *TavernMenuState) fetch(world w.World) tavernProps {
 // Window
 // ================
 
-func (st *TavernMenuState) menu(props tavernProps) MenuConfig {
-	return MenuConfig{Key: "tavern", TabCount: 1, ItemCounts: []int{len(props.Candidates)}}
+// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
+func (st *TavernMenuState) Menu(props TavernProps) menurt.MenuConfig {
+	return menurt.MenuConfig{Key: "tavern", TabCount: 1, ItemCounts: []int{len(props.Candidates)}}
 }
 
 // actionWindowContent は現在カーソルが当たっている候補の見出しと選択肢を返す。アクション窓の唯一の定義点。
@@ -268,7 +272,8 @@ func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {
 // buildUI
 // ================
 
-func (st *TavernMenuState) view(_ w.World, props tavernProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
+func (st *TavernMenuState) View(_ w.World, props TavernProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	content := styled.NewVerticalContainer()
 	content.AddChild(newCurrencyRow(props.Currency, res))
 	content.AddChild(st.buildCandidateTable(props.Candidates, sel.ItemIndex, res))

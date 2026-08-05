@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -18,14 +19,14 @@ import (
 // ComponentDebugState はコンポーネント数を一覧表示するデバッグ用ステート
 type ComponentDebugState struct {
 	es.BaseState[w.World]
-	screen Screen[componentDebugProps]
+	screen menurt.Screen[ComponentDebugProps]
 }
 
 var _ es.State[w.World] = &ComponentDebugState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ComponentDebugState) OnStart(_ w.World) error {
-	st.screen = NewScreen[componentDebugProps](st)
+	st.screen = menurt.NewScreen[ComponentDebugProps](st)
 	return nil
 }
 
@@ -61,7 +62,8 @@ func NewComponentDebugState() (es.State[w.World], error) {
 // Props
 // ================
 
-type componentDebugProps struct {
+// ComponentDebugProps は画面の表示 props。menurt.Screen の型引数として渡す
+type ComponentDebugProps struct {
 	Items []componentDebugItem
 	Total int
 }
@@ -71,7 +73,8 @@ type componentDebugItem struct {
 	Count int
 }
 
-func (st *ComponentDebugState) fetch(world w.World) componentDebugProps {
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+func (st *ComponentDebugState) Fetch(world w.World) ComponentDebugProps {
 	// Ark に登録された全コンポーネントを走査し、種類ごとの保有エンティティ数を集計する
 	ids := ecs.ComponentIDs(world.ECS)
 	items := make([]componentDebugItem, 0, len(ids))
@@ -99,18 +102,20 @@ func (st *ComponentDebugState) fetch(world w.World) componentDebugProps {
 		return cmp.Compare(b.Count, a.Count)
 	})
 
-	return componentDebugProps{Items: items, Total: total}
+	return ComponentDebugProps{Items: items, Total: total}
 }
 
-func (st *ComponentDebugState) menu(props componentDebugProps) MenuConfig {
-	return MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuItemsPerPage}
+// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
+func (st *ComponentDebugState) Menu(props ComponentDebugProps) menurt.MenuConfig {
+	return menurt.MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuItemsPerPage}
 }
 
 // ================
 // view
 // ================
 
-func (st *ComponentDebugState) view(_ w.World, props componentDebugProps, sel Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
+func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(props.Items))
