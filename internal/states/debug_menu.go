@@ -139,23 +139,34 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	return "", choices
 }
 
-func spawnPropNearPlayer(world w.World, name string) error {
+// playerGridElement はプレイヤーの GridElement を返す。位置を持たない文脈ではエラーにする。
+// GridElement 不在の Get は Ark で panic するため、デバッグスポーンの前に弾く
+func playerGridElement(world w.World) (*gc.GridElement, error) {
 	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return nil, err
+	}
+	if !world.Components.GridElement.Has(player) {
+		return nil, fmt.Errorf("プレイヤーが位置を持たないためスポーンできない")
+	}
+	return world.Components.GridElement.Get(player), nil
+}
+
+func spawnPropNearPlayer(world w.World, name string) error {
+	playerGrid, err := playerGridElement(world)
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(player)
 	_, err = lifecycle.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
 	return err
 }
 
 // spawnStorageWithItems はプレイヤーの隣にアイテム入り木箱をスポーンする
 func spawnStorageWithItems(world w.World) error {
-	player, err := query.GetPlayerEntity(world)
+	playerGrid, err := playerGridElement(world)
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(player)
 	storageEntity, err := lifecycle.SpawnProp(world, "木箱", playerGrid.X+2, playerGrid.Y)
 	if err != nil {
 		return err
@@ -179,11 +190,10 @@ func spawnStorageWithItems(world w.World) error {
 
 // spawnEnemyNearPlayer はプレイヤーから少し離れた位置に敵をスポーンする
 func spawnEnemyNearPlayer(world w.World, name string) error {
-	player, err := query.GetPlayerEntity(world)
+	playerGrid, err := playerGridElement(world)
 	if err != nil {
 		return err
 	}
-	playerGrid := world.Components.GridElement.Get(player)
 	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: playerGrid.X + 8, Y: playerGrid.Y}, name)
 	return err
 }

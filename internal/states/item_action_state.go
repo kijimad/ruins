@@ -188,11 +188,12 @@ type ItemActionState struct {
 	es.BaseState[w.World]
 	initialVerb verbID            // 開いた直後に表示する動詞タブ
 	detail      menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen      menurt.Screen[ItemActionProps]
+	screen      *menurt.Screen[ItemActionProps]
 }
 
 var _ es.State[w.World] = &ItemActionState{}
 var _ Configurable = &ItemActionState{}
+var _ menurt.ExtraInput = &ItemActionState{}
 
 // StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
 func (st *ItemActionState) StateConfig() StateConfig {
@@ -249,17 +250,16 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionOpenItemDetail:
 		st.detail.Open()
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse:
-		// 開いている間の動詞キーは対応タブへジャンプする
-		if v, ok := verbByAction(action); ok {
-			st.jumpToTab(v)
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.executeSelected(world)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
+		// 動詞の直達キーは対応タブへジャンプする。verbList から導くので動詞追加で列挙は要らない
+		if v, ok := verbByAction(action); ok {
+			st.jumpToTab(v)
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		}
 		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
 	}
 }
@@ -270,23 +270,23 @@ func (st *ItemActionState) jumpToTab(target verbID) {
 
 // executeSelected は選択中アイテムへ現在の動詞を適用する。Exec を持たない調べるは詳細モーダルを開く
 func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World], error) {
-	sel := st.screen.Selection()
+	cursor := st.screen.Selection()
 	vs := verbList
-	if sel.TabIndex >= len(vs) {
+	if cursor.TabIndex >= len(vs) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
-	verb := vs[sel.TabIndex]
+	verb := vs[cursor.TabIndex]
 	if verb.Exec == nil {
 		st.detail.Open()
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 
 	props := st.screen.Props()
-	tab := props.Tabs[sel.TabIndex]
-	if sel.ItemIndex >= len(tab.Items) {
+	tab := props.Tabs[cursor.TabIndex]
+	if cursor.ItemIndex >= len(tab.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
-	return verb.Exec(world, tab.Items[sel.ItemIndex].Entity)
+	return verb.Exec(world, tab.Items[cursor.ItemIndex].Entity)
 }
 
 // ================
@@ -370,7 +370,7 @@ func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ItemActionState) View(_ w.World, props ItemActionProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ItemActionState) View(_ w.World, props ItemActionProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -383,8 +383,8 @@ func (st *ItemActionState) View(_ w.World, props ItemActionProps, sel menurt.Sel
 	// タイトルは置かず、タブ帯から始める。詳細は x のモーダルで見る
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
-		TabIndex:  sel.TabIndex,
-		Content:   st.buildItemList(props, sel.TabIndex, sel.ItemIndex, res),
+		TabIndex:  cursor.TabIndex,
+		Content:   st.buildItemList(props, cursor.TabIndex, cursor.ItemIndex, res),
 		Footer:    menuNavHint(true, "x 詳細"),
 	})
 }
@@ -415,14 +415,14 @@ func (st *ItemActionState) buildItemList(props ItemActionProps, tabIndex, itemIn
 // detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
 func (st *ItemActionState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {
 	props := st.screen.Props()
-	sel := st.screen.Selection()
-	if sel.TabIndex >= len(props.Tabs) {
+	cursor := st.screen.Selection()
+	if cursor.TabIndex >= len(props.Tabs) {
 		return menuscreen.DetailContent{}, false
 	}
-	items := props.Tabs[sel.TabIndex].Items
-	if sel.ItemIndex >= len(items) {
+	items := props.Tabs[cursor.TabIndex].Items
+	if cursor.ItemIndex >= len(items) {
 		return menuscreen.DetailContent{}, false
 	}
-	item := items[sel.ItemIndex]
+	item := items[cursor.ItemIndex]
 	return menuscreen.DetailContent{Name: item.Name, Desc: item.Desc, Entity: item.Entity}, true
 }

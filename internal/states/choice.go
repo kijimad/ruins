@@ -34,7 +34,7 @@ type ChoiceProps struct {
 type ChoiceMenuState struct {
 	es.BaseState[w.World]
 	provide func(world w.World) (title string, choices []Choice)
-	screen  menurt.Screen[ChoiceProps]
+	screen  *menurt.Screen[ChoiceProps]
 }
 
 var (
@@ -104,14 +104,14 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menurt.MenuConfig {
 
 // View は選択肢の1カラム一覧を中央パネルに組む純粋描画。メインメニューやセーブロードと同じ簡易メニューの
 // 見た目に揃え、エントリ数相応の大きさに縮む。多いときはページ送りしてはみ出さない
-func (st *ChoiceMenuState) View(_ w.World, props ChoiceProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ChoiceMenuState) View(_ w.World, props ChoiceProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	rows := make([]menuRow, len(props.Choices))
 	for i, c := range props.Choices {
 		rows[i] = menuRow{Cells: []string{c.Label}, Header: c.Header}
 	}
 	// 単一タブのコマンドメニューなので行間を空け、ページ表示は複数ページのときだけ出す。
 	// メインメニューと先頭位置・行間を揃える
-	list := renderMenuList(sel.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
+	list := renderMenuList(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
 	return newPanelScreenUI(res, props.Title, list, menuNavHint(false))
 }
 

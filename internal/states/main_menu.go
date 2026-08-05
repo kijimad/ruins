@@ -21,7 +21,7 @@ import (
 // MainMenuState はメインメニューのゲームステート
 type MainMenuState struct {
 	es.BaseState[w.World]
-	screen menurt.Screen[MainMenuProps]
+	screen *menurt.Screen[MainMenuProps]
 }
 
 // State interface ================
@@ -133,8 +133,8 @@ func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *MainMenuState) View(_ w.World, props MainMenuProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
-	itemIndex := sel.ItemIndex
+func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+	itemIndex := cursor.ItemIndex
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

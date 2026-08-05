@@ -85,17 +85,18 @@ func TestCraftMenuState_DoAction_Navigation(t *testing.T) {
 	}
 }
 
-func TestCraftMenuState_DoAction_MenuSelectで合成を試みる(t *testing.T) {
+func TestCraftMenuState_DoAction_未選択のSelectは合成せず何もしない(t *testing.T) {
 	t.Parallel()
 
 	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// 選択で即合成を試みる。合成できるレシピが無ければ何もせず結果モーダルも開かない
+	// Update を回していないのでカーソルは未確定。未選択の Select は合成せず結果モーダルも開かない。
+	// カーソルを載せてからの合成の副作用は結合テストで別途検証する
 	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
 	require.NoError(t, err)
-	assert.Equal(t, es.TransNone, transition.Type, "選択はTransNone")
+	assert.Equal(t, es.TransNone, transition.Type, "未選択の選択はTransNone")
 	assert.False(t, state.result.Active(), "合成できなければ結果モーダルは開かない")
 }
 

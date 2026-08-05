@@ -31,13 +31,14 @@ type CraftMenuState struct {
 	detail       menuscreen.Detail // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
 	result       menuscreen.Detail // 合成結果の詳細モーダル。overlay として Screen に登録する
 	resultEntity ecs.Entity        // 直近で合成したアイテム
-	screen       menurt.Screen[CraftProps]
+	screen       *menurt.Screen[CraftProps]
 }
 
 // State interface ================
 
 var _ es.State[w.World] = &CraftMenuState{}
 var _ Configurable = &CraftMenuState{}
+var _ menurt.ExtraInput = &CraftMenuState{}
 
 // StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
 func (st *CraftMenuState) StateConfig() StateConfig {
@@ -227,15 +228,15 @@ func (st *CraftMenuState) craftSelected(world w.World) error {
 // selectedRecipe は現在カーソルが当たっているレシピを返す
 func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 	props := st.screen.Props()
-	sel := st.screen.Selection()
-	if sel.TabIndex >= len(props.Tabs) {
+	cursor := st.screen.Selection()
+	if cursor.TabIndex >= len(props.Tabs) {
 		return craftItemData{}, false
 	}
-	items := props.Tabs[sel.TabIndex].Items
-	if sel.ItemIndex >= len(items) {
+	items := props.Tabs[cursor.TabIndex].Items
+	if cursor.ItemIndex >= len(items) {
 		return craftItemData{}, false
 	}
-	return items[sel.ItemIndex], true
+	return items[cursor.ItemIndex], true
 }
 
 // resultDetailContent は直近で合成したアイテムを詳細モーダルの内容にする
@@ -251,7 +252,7 @@ func (st *CraftMenuState) resultDetailContent(world w.World) (menuscreen.DetailC
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *CraftMenuState) View(_ w.World, props CraftProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *CraftMenuState) View(_ w.World, props CraftProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -259,8 +260,8 @@ func (st *CraftMenuState) View(_ w.World, props CraftProps, sel menurt.Selection
 	}
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
-		TabIndex:  sel.TabIndex,
-		Content:   st.buildItemContainer(props.Tabs, sel.TabIndex, sel.ItemIndex, res),
+		TabIndex:  cursor.TabIndex,
+		Content:   st.buildItemContainer(props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
 		Footer:    menuNavHint(true, "x 詳細"),
 	})
 }

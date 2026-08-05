@@ -83,17 +83,18 @@ func TestShopMenuState_DoAction_Navigation(t *testing.T) {
 	}
 }
 
-func TestShopMenuState_DoAction_MenuSelectで売買を試みる(t *testing.T) {
+func TestShopMenuState_DoAction_未選択のSelectは売買せず何もしない(t *testing.T) {
 	t.Parallel()
 
 	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// 選択で即売買を試みる。商品未選択なら何もせず TransNone を返す
+	// Update を回していないのでカーソルは未確定。商品未選択の Select は売買せず TransNone を返す。
+	// カーソルを載せてからの売買の副作用は結合テストで別途検証する
 	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
 	require.NoError(t, err)
-	assert.Equal(t, es.TransNone, transition.Type, "選択はTransNone")
+	assert.Equal(t, es.TransNone, transition.Type, "未選択の選択はTransNone")
 }
 
 func TestShopMenuState_detailContent_選択なしは表示しない(t *testing.T) {

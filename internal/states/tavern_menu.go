@@ -27,12 +27,13 @@ type TavernMenuState struct {
 	es.BaseState[w.World]
 	actionWin  menuscreen.ActionWindow // 雇用のアクション選択。overlay として Screen に登録する
 	detail     menuscreen.Detail       // 候補の能力・費用を出す詳細モーダル。overlay として Screen に登録する
-	screen     menurt.Screen[TavernProps]
+	screen     *menurt.Screen[TavernProps]
 	candidates []tavernCandidate
 }
 
 var _ es.State[w.World] = &TavernMenuState{}
 var _ Configurable = &TavernMenuState{}
+var _ menurt.ExtraInput = &TavernMenuState{}
 
 // StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
 func (st *TavernMenuState) StateConfig() StateConfig {
@@ -236,11 +237,11 @@ func (st *TavernMenuState) actionWindowContent(_ w.World) (string, []menuscreen.
 // selectedCandidate は現在カーソルが当たっている雇用候補を返す
 func (st *TavernMenuState) selectedCandidate() (tavernCandidateData, bool) {
 	props := st.screen.Props()
-	sel := st.screen.Selection()
-	if sel.ItemIndex >= len(props.Candidates) {
+	cursor := st.screen.Selection()
+	if cursor.ItemIndex >= len(props.Candidates) {
 		return tavernCandidateData{}, false
 	}
-	return props.Candidates[sel.ItemIndex], true
+	return props.Candidates[cursor.ItemIndex], true
 }
 
 // hireCandidate は idx 番目の候補を雇用し、候補リストから取り除く。所持金が足りなければ何もしない
@@ -270,10 +271,10 @@ func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *TavernMenuState) View(_ w.World, props TavernProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *TavernMenuState) View(_ w.World, props TavernProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	content := styled.NewVerticalContainer()
 	content.AddChild(newCurrencyRow(props.Currency, res))
-	content.AddChild(st.buildCandidateTable(props.Candidates, sel.ItemIndex, res))
+	content.AddChild(st.buildCandidateTable(props.Candidates, cursor.ItemIndex, res))
 	return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false, "x 詳細")})
 }
 

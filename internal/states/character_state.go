@@ -90,11 +90,12 @@ type CharacterState struct {
 	target ecs.Entity            // 表示対象のキャラクター。ゼロ値なら主人公
 	detail menuscreen.Detail     // 詳細モーダル。overlay として Screen に登録する
 	equip  characterEquipOverlay // 装備選択。overlay として Screen に登録する
-	screen menurt.Screen[CharacterProps]
+	screen *menurt.Screen[CharacterProps]
 }
 
 var _ es.State[w.World] = &CharacterState{}
 var _ Configurable = &CharacterState{}
+var _ menurt.ExtraInput = &CharacterState{}
 
 // StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
 func (st *CharacterState) StateConfig() StateConfig {
@@ -167,14 +168,14 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 
 // onBrowseSelect は閲覧中の Enter を処理する。装備タブは外す・装備選択、命令タブはポリシー変更や解雇、情報タブは詳細を開く
 func (st *CharacterState) onBrowseSelect(world w.World) error {
-	sel := st.screen.Selection()
+	cursor := st.screen.Selection()
 	props := st.screen.Props()
-	switch charTabAt(sel.TabIndex) {
+	switch charTabAt(cursor.TabIndex) {
 	case charTabEquip:
-		if sel.ItemIndex >= len(props.EquipSlots) {
+		if cursor.ItemIndex >= len(props.EquipSlots) {
 			return nil
 		}
-		slot := props.EquipSlots[sel.ItemIndex]
+		slot := props.EquipSlots[cursor.ItemIndex]
 		// 装備済みスロットは Enter で外す。空スロットは Enter で装備選択を開く
 		if slot.Entity != nil {
 			if err := st.unequipSlot(world, slot); err != nil {
@@ -184,10 +185,10 @@ func (st *CharacterState) onBrowseSelect(world w.World) error {
 			st.equip.Open(world, slot)
 		}
 	case charTabCommand:
-		if sel.ItemIndex >= len(props.Commands) {
+		if cursor.ItemIndex >= len(props.Commands) {
 			return nil
 		}
-		row := props.Commands[sel.ItemIndex]
+		row := props.Commands[cursor.ItemIndex]
 		if row.Kind == cmdDismiss {
 			st.dismissTarget(world)
 		} else {
@@ -294,14 +295,14 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 		return entityDetailContent(world, item), true
 	}
 
-	sel := st.screen.Selection()
+	cursor := st.screen.Selection()
 	props := st.screen.Props()
-	switch charTabAt(sel.TabIndex) {
+	switch charTabAt(cursor.TabIndex) {
 	case charTabEquip:
-		if sel.ItemIndex >= len(props.EquipSlots) {
+		if cursor.ItemIndex >= len(props.EquipSlots) {
 			return menuscreen.DetailContent{}, false
 		}
-		slot := props.EquipSlots[sel.ItemIndex]
+		slot := props.EquipSlots[cursor.ItemIndex]
 		if slot.Entity != nil {
 			return entityDetailContent(world, *slot.Entity), true
 		}
@@ -310,15 +311,15 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 	case charTabCommand:
 		return menuscreen.DetailContent{}, false
 	default:
-		infoIdx := sel.TabIndex - charFirstInfoTab
+		infoIdx := cursor.TabIndex - charFirstInfoTab
 		if infoIdx < 0 || infoIdx >= len(props.InfoTabs) {
 			return menuscreen.DetailContent{}, false
 		}
 		items := props.InfoTabs[infoIdx].Items
-		if sel.ItemIndex >= len(items) {
+		if cursor.ItemIndex >= len(items) {
 			return menuscreen.DetailContent{}, false
 		}
-		return infoDetailContent(items[sel.ItemIndex]), true
+		return infoDetailContent(items[cursor.ItemIndex]), true
 	}
 }
 
@@ -405,7 +406,13 @@ func nextPolicy[T comparable](all []T, cur T) T {
 
 // cycleCommand は対象の指定ポリシーを次の値へ進める。SquadAI のフィールドはポインタ経由で直接書き換える
 func (st *CharacterState) cycleCommand(world w.World, kind commandKind) {
-	squad := query.GetSquadAI(world, st.resolveTarget(world))
+	target := st.resolveTarget(world)
+	// resolveTarget は主人公不在の稀な経路で死亡エンティティを返しうる。GetSquadAI は死亡 Get で
+	// panic するので生存を確認してから触る
+	if !world.ECS.Alive(target) {
+		return
+	}
+	squad := query.GetSquadAI(world, target)
 	if squad == nil {
 		return
 	}
@@ -428,6 +435,9 @@ func (st *CharacterState) cycleCommand(world w.World, kind commandKind) {
 // dismissTarget は現在の対象を解雇し、表示を主人公へ戻す
 func (st *CharacterState) dismissTarget(world w.World) {
 	target := st.resolveTarget(world)
+	if !world.ECS.Alive(target) {
+		return
+	}
 	if err := lifecycle.DismissSquadMember(world, target); err != nil {
 		return
 	}

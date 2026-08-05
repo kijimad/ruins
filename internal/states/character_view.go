@@ -16,7 +16,7 @@ import (
 
 // View は人物画面のタブ本体を props と選択位置だけから組み立てる純粋描画。world には触れず、
 // 詳細や装備選択のオーバーレイ窓は Screen が重ねる。menurt.Model の View 部にあたる
-func (st *CharacterState) View(_ w.World, props CharacterProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *CharacterState) View(_ w.World, props CharacterProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 見出しは対象キャラ名。仲間がいれば左右矢印で切替可能を示す。
 	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
 	header := props.TargetName
@@ -26,12 +26,12 @@ func (st *CharacterState) View(_ w.World, props CharacterProps, sel menurt.Selec
 
 	// コンテンツは現在タブの中身。装備は編集可能、以降は読み取り専用の情報タブ
 	var content *widget.Container
-	if charTabAt(sel.TabIndex) == charTabEquip {
-		content = buildEquipList(props.EquipSlots, sel.ItemIndex, res)
-	} else if charTabAt(sel.TabIndex) == charTabCommand {
-		content = buildCommandTable(props.Commands, sel.ItemIndex, res)
-	} else if infoIdx := sel.TabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
-		content = buildInfoTable(props.InfoTabs[infoIdx], sel.ItemIndex, res)
+	if charTabAt(cursor.TabIndex) == charTabEquip {
+		content = buildEquipList(props.EquipSlots, cursor.ItemIndex, res)
+	} else if charTabAt(cursor.TabIndex) == charTabCommand {
+		content = buildCommandTable(props.Commands, cursor.ItemIndex, res)
+	} else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
+		content = buildInfoTable(props.InfoTabs[infoIdx], cursor.ItemIndex, res)
 	} else {
 		content = widget.NewContainer()
 	}
@@ -44,7 +44,7 @@ func (st *CharacterState) View(_ w.World, props CharacterProps, sel menurt.Selec
 	return newTabScreenUI(res, tabScreen{
 		Header:    header,
 		TabLabels: characterTabLabels(),
-		TabIndex:  sel.TabIndex,
+		TabIndex:  cursor.TabIndex,
 		Content:   content,
 		Footer:    menuNavHint(true, extras...),
 	})

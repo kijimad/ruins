@@ -27,7 +27,7 @@ import (
 // CharacterJobState はキャラクター職業選択画面のステート
 type CharacterJobState struct {
 	es.BaseState[w.World]
-	screen     menurt.Screen[JobMenuProps]
+	screen     *menurt.Screen[JobMenuProps]
 	playerName string // TODO: どうにかする。キャラメイクは複数のstateで構成され、前の決定事項を保持する必要がある...
 }
 
@@ -154,8 +154,8 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *CharacterJobState) View(_ w.World, props JobMenuProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
-	itemIndex := sel.ItemIndex
+func (st *CharacterJobState) View(_ w.World, props JobMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+	itemIndex := cursor.ItemIndex
 
 	// 3行グリッド: タイトル(固定) / メインエリア(伸縮) / フッター(固定)
 	rootContainer := widget.NewContainer(

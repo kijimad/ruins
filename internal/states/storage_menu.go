@@ -36,13 +36,14 @@ type StorageMenuState struct {
 	es.BaseState[w.World]
 	storageEntity ecs.Entity
 	detail        menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen        menurt.Screen[StorageProps]
+	screen        *menurt.Screen[StorageProps]
 }
 
 // State interface ================
 
 var _ es.State[w.World] = &StorageMenuState{}
 var _ Configurable = &StorageMenuState{}
+var _ menurt.ExtraInput = &StorageMenuState{}
 
 // StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
 func (st *StorageMenuState) StateConfig() StateConfig {
@@ -178,9 +179,9 @@ func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Enti
 
 func (st *StorageMenuState) executeTransfer(world w.World) error {
 	props := st.screen.Props()
-	sel := st.screen.Selection()
-	tabIndex := sel.TabIndex
-	itemIndex := sel.ItemIndex
+	cursor := st.screen.Selection()
+	tabIndex := cursor.TabIndex
+	itemIndex := cursor.ItemIndex
 
 	if tabIndex >= len(props.Tabs) {
 		return nil
@@ -220,7 +221,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *StorageMenuState) View(_ w.World, props StorageProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *StorageMenuState) View(_ w.World, props StorageProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -228,8 +229,8 @@ func (st *StorageMenuState) View(_ w.World, props StorageProps, sel menurt.Selec
 	}
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
-		TabIndex:  sel.TabIndex,
-		Content:   st.buildActiveListContainer(props, sel.TabIndex, sel.ItemIndex, res),
+		TabIndex:  cursor.TabIndex,
+		Content:   st.buildActiveListContainer(props, cursor.TabIndex, cursor.ItemIndex, res),
 		Footer:    menuNavHint(true, "x 詳細"),
 	})
 }
@@ -250,15 +251,15 @@ func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailConte
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
 func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {
 	props := st.screen.Props()
-	sel := st.screen.Selection()
-	if sel.TabIndex >= len(props.Tabs) {
+	cursor := st.screen.Selection()
+	if cursor.TabIndex >= len(props.Tabs) {
 		return ecs.Entity{}, false
 	}
-	items := props.Tabs[sel.TabIndex].Items
-	if sel.ItemIndex >= len(items) {
+	items := props.Tabs[cursor.TabIndex].Items
+	if cursor.ItemIndex >= len(items) {
 		return ecs.Entity{}, false
 	}
-	return items[sel.ItemIndex].Entity, true
+	return items[cursor.ItemIndex].Entity, true
 }
 
 func (st *StorageMenuState) buildActiveListContainer(props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

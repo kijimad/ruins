@@ -20,7 +20,7 @@ import (
 // メインメニューから push される。現状は設定項目が無く、将来の設定（音量など）を追加する土台。
 type SettingsMenuState struct {
 	es.BaseState[w.World]
-	screen menurt.Screen[SettingsMenuProps]
+	screen *menurt.Screen[SettingsMenuProps]
 }
 
 // State interface ================
@@ -109,11 +109,11 @@ func (st *SettingsMenuState) Menu(props SettingsMenuProps) menurt.MenuConfig {
 // focusedItem は現在カーソルが当たっている項目を返す
 func (st *SettingsMenuState) focusedItem() (settingsMenuItem, bool) {
 	props := st.screen.Props()
-	sel := st.screen.Selection()
-	if sel.ItemIndex < 0 || sel.ItemIndex >= len(props.Items) {
+	cursor := st.screen.Selection()
+	if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(props.Items) {
 		return settingsMenuItem{}, false
 	}
-	return props.Items[sel.ItemIndex], true
+	return props.Items[cursor.ItemIndex], true
 }
 
 func (st *SettingsMenuState) handleSelection() es.Transition[w.World] {
@@ -183,13 +183,13 @@ func languageChoices(_ w.World) (string, []Choice) {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *SettingsMenuState) View(_ w.World, props SettingsMenuProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *SettingsMenuState) View(_ w.World, props SettingsMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
 	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {
 		rows[i] = menuRow{Cells: []string{item.Label, item.Value}}
 	}
-	table := renderMenuList(sel.ItemIndex, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
+	table := renderMenuList(cursor.ItemIndex, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
 
 	menuContainer := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.Image),

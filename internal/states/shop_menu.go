@@ -27,13 +27,14 @@ import (
 type ShopMenuState struct {
 	es.BaseState[w.World]
 	detail menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen menurt.Screen[ShopProps]
+	screen *menurt.Screen[ShopProps]
 }
 
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}
 var _ Configurable = &ShopMenuState{}
+var _ menurt.ExtraInput = &ShopMenuState{}
 
 // StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
 func (st *ShopMenuState) StateConfig() StateConfig {
@@ -250,15 +251,15 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 // selectedShopItem は現在カーソルが当たっている商品を返す
 func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 	props := st.screen.Props()
-	sel := st.screen.Selection()
-	if sel.TabIndex >= len(props.Tabs) {
+	cursor := st.screen.Selection()
+	if cursor.TabIndex >= len(props.Tabs) {
 		return shopItemData{}, false
 	}
-	items := props.Tabs[sel.TabIndex].Items
-	if sel.ItemIndex >= len(items) {
+	items := props.Tabs[cursor.TabIndex].Items
+	if cursor.ItemIndex >= len(items) {
 		return shopItemData{}, false
 	}
-	return items[sel.ItemIndex], true
+	return items[cursor.ItemIndex], true
 }
 
 // ================
@@ -266,7 +267,7 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ShopMenuState) View(_ w.World, props ShopProps, sel menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ShopMenuState) View(_ w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -274,8 +275,8 @@ func (st *ShopMenuState) View(_ w.World, props ShopProps, sel menurt.Selection, 
 	}
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
-		TabIndex:  sel.TabIndex,
-		Content:   st.buildItemContainer(props.Tabs, sel.TabIndex, sel.ItemIndex, res),
+		TabIndex:  cursor.TabIndex,
+		Content:   st.buildItemContainer(props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
 		Footer:    menuNavHint(true, "x 詳細"),
 	})
 }
@@ -297,15 +298,15 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
 // selectedDetail は現在カーソルが当たっている商品と、その raw 由来の性能を解決する
 func (st *ShopMenuState) selectedDetail(world w.World) (shopItemData, gc.EntitySpec, bool) {
 	props := st.screen.Props()
-	sel := st.screen.Selection()
-	if sel.TabIndex >= len(props.Tabs) {
+	cursor := st.screen.Selection()
+	if cursor.TabIndex >= len(props.Tabs) {
 		return shopItemData{}, gc.EntitySpec{}, false
 	}
-	items := props.Tabs[sel.TabIndex].Items
-	if sel.ItemIndex >= len(items) {
+	items := props.Tabs[cursor.TabIndex].Items
+	if cursor.ItemIndex >= len(items) {
 		return shopItemData{}, gc.EntitySpec{}, false
 	}
-	item := items[sel.ItemIndex]
+	item := items[cursor.ItemIndex]
 	s, err := raw.NewItemSpec(world.Resources.RawMaster, item.Label)
 	if err != nil {
 		return shopItemData{}, gc.EntitySpec{}, false
