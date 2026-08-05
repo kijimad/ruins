@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-05 16:20:35</td>
+            <td class="headerValue">2026-08-05 16:36:18</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -305,7 +305,7 @@
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 default:</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return newActionChoiceMenu(actions), nil },</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                                 func() (es.State[w.World], error) { return NewChoiceMenu(sameTileActionChoices), nil },</span></span>
 <span id="L247"><span class="lineNum">     247</span>              :                         }}, nil</span>
 <span id="L248"><span class="lineNum">     248</span>              :                 }</span>
 <span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>

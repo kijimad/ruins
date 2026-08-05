@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-05 16:20:35</td>
+            <td class="headerValue">2026-08-05 16:36:18</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,9 +84,9 @@
 <span id="L22"><span class="lineNum">      22</span>              : // キューへ append する、World 初期化、NineSlice キャッシュ、描画のいずれもこのグローバル状態に触れる。</span>
 <span id="L23"><span class="lineNum">      23</span>              : var ebitenuiMu sync.Mutex</span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : // withUILock は ebitenuiMu を取得して fn を実行する。ebitenui のグローバル状態に触れる</span>
+<span id="L25"><span class="lineNum">      25</span>              : // WithUILock は ebitenuiMu を取得して fn を実行する。ebitenui のグローバル状態に触れる</span>
 <span id="L26"><span class="lineNum">      26</span>              : // 生成・初期化・描画をこのヘルパに通し、ロックを取る箇所を1つに集約する。</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 : func withUILock(fn func()) {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 : func WithUILock(fn func()) {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         ebitenuiMu.Lock()</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         defer ebitenuiMu.Unlock()</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         fn()</span></span>
@@ -110,7 +110,7 @@
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         var img *image.NRGBA</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         withUILock(func() {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         WithUILock(func() {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 root := buildFn()</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 ui := &amp;ebitenui.UI{Container: root}</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 screen := ebiten.NewImage(width, height)</span></span>
@@ -135,7 +135,7 @@
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         var img *image.NRGBA</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         withUILock(func() {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         WithUILock(func() {</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                 drawFn := setupFn()</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 screen := ebiten.NewImage(width, height)</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 drawFn(screen)</span></span>

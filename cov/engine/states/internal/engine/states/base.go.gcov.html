@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryMed">84.2&nbsp;%</td>
+            <td class="headerCovTableEntry">19</td>
             <td class="headerCovTableEntry">16</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-05 16:20:35</td>
+            <td class="headerValue">2026-08-05 16:36:18</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,22 +82,31 @@
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         bs.trans = nil</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              : // ConsumeTransition は遷移を消費して返す</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : func (bs *BaseState[T]) ConsumeTransition() Transition[T] {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         if bs.trans != nil {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 next := *bs.trans</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 bs.trans = nil</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 return next</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         return Transition[T]{Type: TransNone}</span></span>
-<span id="L31"><span class="lineNum">      31</span>              : }</span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : // StateWithTransition はtransition管理機能を持つstateのインターフェース</span>
-<span id="L34"><span class="lineNum">      34</span>              : type StateWithTransition[T any] interface {</span>
-<span id="L35"><span class="lineNum">      35</span>              :         State[T]</span>
-<span id="L36"><span class="lineNum">      36</span>              :         GetTransition() *Transition[T]</span>
-<span id="L37"><span class="lineNum">      37</span>              :         ClearTransition()</span>
-<span id="L38"><span class="lineNum">      38</span>              : }</span>
+<span id="L23"><span class="lineNum">      23</span>              : // OnPause は既定で何もしない。一時停止で処理が要る state だけが上書きする</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 : func (bs *BaseState[T]) OnPause(_ T) error { return nil }</span></span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // OnResume は既定で何もしない。再開で処理が要る state だけが上書きする</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 : func (bs *BaseState[T]) OnResume(_ T) error { return nil }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : // OnStop は既定で何もしない。終了で後片付けが要る state だけが上書きする</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 : func (bs *BaseState[T]) OnStop(_ T) error { return nil }</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // ConsumeTransition は遷移を消費して返す</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 : func (bs *BaseState[T]) ConsumeTransition() Transition[T] {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :         if bs.trans != nil {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 next := *bs.trans</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 bs.trans = nil</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return next</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return Transition[T]{Type: TransNone}</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : }</span>
+<span id="L41"><span class="lineNum">      41</span>              : </span>
+<span id="L42"><span class="lineNum">      42</span>              : // StateWithTransition はtransition管理機能を持つstateのインターフェース</span>
+<span id="L43"><span class="lineNum">      43</span>              : type StateWithTransition[T any] interface {</span>
+<span id="L44"><span class="lineNum">      44</span>              :         State[T]</span>
+<span id="L45"><span class="lineNum">      45</span>              :         GetTransition() *Transition[T]</span>
+<span id="L46"><span class="lineNum">      46</span>              :         ClearTransition()</span>
+<span id="L47"><span class="lineNum">      47</span>              : }</span>
         </pre>
               </td>
             </tr>
