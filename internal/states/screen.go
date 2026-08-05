@@ -70,9 +70,6 @@ func (s *Screen[P]) WithSystems(systems ...w.Updater) *Screen[P] {
 	return s
 }
 
-// MarkDirty は次フレームでの UI 再構築を要求する。ドメイン操作で表示が変わったときに呼ぶ
-func (s *Screen[P]) MarkDirty() { s.rebuild = true }
-
 // Open は overlay を開いて再描画を要求する。overlay の Open メソッドを渡すことで、
 // 開いたのに UI の作り直しを忘れる取りこぼしを構造的に防ぐ
 func (s *Screen[P]) Open(open func()) {
@@ -120,8 +117,10 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 		} else if tr.Type != es.TransNone {
 			return tr, nil
 		}
-		// 遷移が確定したフレームは上で return 済み。ここに来るのは遷移なしのフレームだけで、
-		// そのときだけカーソル移動やタブ切替を mount へ配送する
+		// 遷移なしで入力を消費したフレームは表示が変わりうるので再構築を要求する。カーソル移動や
+		// タブ切替は下の mount.Update が dirty を返すが、ドメイン操作は mount の外を変えるため
+		// 検知できない。ここで一律 dirty にし、state 側の再構築の取りこぼしを構造的に防ぐ
+		s.rebuild = true
 		s.mount.Dispatch(action)
 	}
 

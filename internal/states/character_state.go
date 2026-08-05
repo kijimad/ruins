@@ -185,7 +185,6 @@ func (st *CharacterState) onBrowseSelect(world w.World) error {
 		} else {
 			st.equip.Open(world, slot)
 		}
-		st.screen.MarkDirty()
 	case charTabCommand:
 		if sel.ItemIndex >= len(props.Commands) {
 			return nil
@@ -196,7 +195,6 @@ func (st *CharacterState) onBrowseSelect(world w.World) error {
 		} else {
 			st.cycleCommand(world, row.Kind)
 		}
-		st.screen.MarkDirty()
 	default:
 		st.screen.Open(st.detail.Open)
 	}
@@ -247,7 +245,6 @@ func (st *CharacterState) switchMember(world w.World, dir int) {
 		}
 	}
 	st.target = members[(idx+dir+len(members))%len(members)]
-	st.screen.MarkDirty()
 }
 
 // fetch は表示対象のスナップショットを組む
