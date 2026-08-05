@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.7%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.3%)</option>
 				
@@ -609,7 +609,7 @@
 				
 				<option value="file276">github.com/kijimaD/ruins/internal/world/lifecycle/inventory.go (80.8%)</option>
 				
-				<option value="file277">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (75.7%)</option>
+				<option value="file277">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (78.3%)</option>
 				
 				<option value="file278">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (75.1%)</option>
 				
@@ -1531,7 +1531,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -54178,8 +54178,10 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
-// squadPlacementMaxRadius はステージ遷移で隊員を再配置するときの空きタイル探索の最大半径。
-// 街や遺跡入口の密集地でも近くの空きを拾えるだけの広さを確保する。
+// squadPlacementMaxRadius は隊員配置の空きタイル探索で優先する近傍リングの半径。
+// 通常はこの範囲で隣接タイルへ収める。SpatialIndex が無くマップ寸法を引けない場面、
+// テストなどではこの半径を上限に使う。密集地でマップ寸法が引ける場面では
+// findPlacementTile がマップ全体まで探索を広げる。
 const squadPlacementMaxRadius = 6
 
 // MoveToBackpack はエンティティをバックパックに移動する。
@@ -54411,14 +54413,14 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 // tileAvailable はtileが配置可能かを返す。範囲外・進入不可・キャラ占有・除外指定なら不可。
 // SpatialIndex が未構築(nil)のときは範囲と衝突を判定できないため、除外指定だけで可否を決める。
 func tileAvailable(si *gc.SpatialIndex, tile consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) bool <span class="cov8" title="1">{
-        if tile.X &lt; 0 || tile.Y &lt; 0 </span><span class="cov0" title="0">{
+        if tile.X &lt; 0 || tile.Y &lt; 0 </span><span class="cov8" title="1">{
                 return false
         }</span>
         <span class="cov8" title="1">if si != nil </span><span class="cov8" title="1">{
                 if tile.X &gt;= si.MapWidth || tile.Y &gt;= si.MapHeight </span><span class="cov0" title="0">{
                         return false
                 }</span>
-                <span class="cov8" title="1">if si.IsBlockPass(tile) </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if si.IsBlockPass(tile) </span><span class="cov8" title="1">{
                         return false
                 }</span>
                 <span class="cov8" title="1">if _, occupied := si.CharacterAt(tile); occupied </span><span class="cov8" title="1">{
@@ -54428,8 +54430,9 @@ func tileAvailable(si *gc.SpatialIndex, tile consts.Coord[consts.Tile], exclude 
         <span class="cov8" title="1">return !exclude[gc.GridElement{Coord: tile}]</span>
 }
 
-// findNearbyEmptyTile はcenterから近い順に空きタイルを探す。隣接(半径1)から外側へリングを
-// 広げ、maxRadius まで探す。密集地でも遠くの空きを拾えるようにするための拡張探索。
+// findNearbyEmptyTile はcenterに近いリングから順に空きタイルを探す。隣接(半径1)から外側へ
+// チェビシェフ距離のリングを広げ、maxRadius まで探す。内側リングが先に埋まるが、同一リング内の
+// 走査順はラスタースキャンで、厳密なユークリッド最短ではない。密集地でも遠くの空きを拾える。
 // 見つからなければ ok=false を返す。呼び出し側が最終手段の退避先を決める。
 func findNearbyEmptyTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool, maxRadius int) (consts.Coord[consts.Tile], bool) <span class="cov8" title="1">{
         si := query.GetSpatialIndex(world)
@@ -54437,7 +54440,7 @@ func findNearbyEmptyTile(world w.World, center consts.Coord[consts.Tile], exclud
                 for dy := -r; dy &lt;= r; dy++ </span><span class="cov8" title="1">{
                         for dx := -r; dx &lt;= r; dx++ </span><span class="cov8" title="1">{
                                 // リングの外周だけを見る。内側の半径は前の反復で探索済み
-                                if dx &gt; -r &amp;&amp; dx &lt; r &amp;&amp; dy &gt; -r &amp;&amp; dy &lt; r </span><span class="cov0" title="0">{
+                                if dx &gt; -r &amp;&amp; dx &lt; r &amp;&amp; dy &gt; -r &amp;&amp; dy &lt; r </span><span class="cov8" title="1">{
                                         continue</span>
                                 }
                                 <span class="cov8" title="1">tile := center.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
@@ -54448,6 +54451,22 @@ func findNearbyEmptyTile(world w.World, center consts.Coord[consts.Tile], exclud
                 }
         }
         <span class="cov0" title="0">return consts.Coord[consts.Tile]{}, false</span>
+}
+
+// findPlacementTile は隊員の配置先を探す。center 近傍を優先しつつ、近傍が埋まっていれば
+// マップ全体へ探索を広げて空きを拾う。リング探索は内側のリングから走査するので、範囲を広げても
+// 近いリングから埋まり、近傍が空いていれば隣接タイルへ収まる。地図全体が埋まっている極限だけ
+// ok=false を返し、呼び出し側が最終手段の退避先を決める。
+func findPlacementTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) (consts.Coord[consts.Tile], bool) <span class="cov8" title="1">{
+        maxRadius := squadPlacementMaxRadius
+        // マップ寸法が引けるなら、地図全体を覆う半径まで探索を広げる。どのタイルを中心にしても
+        // 幅と高さの大きい方ぶんのリングでマップ全体を走査できる。近傍優先はリング探索の性質で保たれる。
+        if si := query.GetSpatialIndex(world); si != nil </span><span class="cov8" title="1">{
+                if mapRadius := max(int(si.MapWidth), int(si.MapHeight)); mapRadius &gt; maxRadius </span><span class="cov8" title="1">{
+                        maxRadius = mapRadius
+                }</span>
+        }
+        <span class="cov8" title="1">return findNearbyEmptyTile(world, center, exclude, maxRadius)</span>
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
@@ -54484,7 +54503,7 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error <s
         exclude := map[gc.GridElement]bool{}
         for _, member := range query.SquadMembers(world) </span><span class="cov8" title="1">{
                 memberGrid := world.Components.GridElement.Get(member)
-                dest, ok := findNearbyEmptyTile(world, pos, exclude, squadPlacementMaxRadius)
+                dest, ok := findPlacementTile(world, pos, exclude)
                 if !ok </span><span class="cov0" title="0">{
                         dest = pos
                 }</span>
@@ -54679,9 +54698,9 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
         <span class="cov8" title="1">leaderGrid := world.Components.GridElement.Get(leader)
 
         // リーダーの近くの空きタイルを探す。街や遺跡入口など密集地では隣接が埋まっていることが
-        // あるため、近い順に外側へ広げて探す。それでも無ければリーダーと同じタイルへ退避させ、
-        // 生成そのものは失敗させない。重なっても次の移動で追従処理が空きへ散らす。
-        spawnPos, ok := findNearbyEmptyTile(world, leaderGrid.Coord, nil, squadPlacementMaxRadius)
+        // あるため、近い順に外側へ広げ、必要ならマップ全体まで探す。それでも無ければリーダーと同じ
+        // タイルへ退避させ、生成そのものは失敗させない。重なっても次の移動で追従処理が空きへ散らす。
+        spawnPos, ok := findPlacementTile(world, leaderGrid.Coord, nil)
         if !ok </span><span class="cov0" title="0">{
                 spawnPos = leaderGrid.Coord
         }</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-05 16:36:18</td>
+            <td class="headerValue">2026-08-05 16:46:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -242,9 +242,9 @@
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         leaderGrid := world.Components.GridElement.Get(leader)</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         // リーダーの近くの空きタイルを探す。街や遺跡入口など密集地では隣接が埋まっていることが</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         // あるため、近い順に外側へ広げて探す。それでも無ければリーダーと同じタイルへ退避させ、</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         // 生成そのものは失敗させない。重なっても次の移動で追従処理が空きへ散らす。</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         spawnPos, ok := findNearbyEmptyTile(world, leaderGrid.Coord, nil, squadPlacementMaxRadius)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         // あるため、近い順に外側へ広げ、必要ならマップ全体まで探す。それでも無ければリーダーと同じ</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         // タイルへ退避させ、生成そのものは失敗させない。重なっても次の移動で追従処理が空きへ散らす。</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         spawnPos, ok := findPlacementTile(world, leaderGrid.Coord, nil)</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC tlaBgUNC">           0 :                 spawnPos = leaderGrid.Coord</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         }</span></span>
