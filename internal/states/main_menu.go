@@ -7,7 +7,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -27,7 +26,6 @@ type MainMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &MainMenuState{}
-var _ es.ActionHandler[w.World] = &MainMenuState{}
 
 // OnStart はステート開始時の処理を行う
 func (st *MainMenuState) OnStart(world w.World) error {
@@ -43,13 +41,13 @@ func (st *MainMenuState) OnStart(world w.World) error {
 	// シングルトンエンティティを再構築する
 	world.InitSingleton()
 
-	st.screen = NewScreen[mainMenuProps]()
+	st.screen = NewScreen[mainMenuProps](st)
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はスクリーンに描画する
@@ -63,11 +61,6 @@ func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
 
 	st.screen.Draw(screen)
 	return nil
-}
-
-// HandleInput はキー入力をActionに変換する
-func (st *MainMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する

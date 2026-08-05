@@ -51,13 +51,13 @@ func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.result = menuscreen.NewDetail(st.resultDetailContent)
 	// result を先に登録する。合成結果が開いている間はそちらが入力を専有する
-	st.screen = NewScreen[craftProps](&st.result, &st.detail)
+	st.screen = NewScreen[craftProps](st, &st.result, &st.detail)
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はゲームステートの描画処理を行う

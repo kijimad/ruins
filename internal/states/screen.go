@@ -35,20 +35,27 @@ type MenuConfig struct {
 }
 
 // screenModel はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
-// HandleInput・DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う
+// DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。入力変換は既定で
+// HandleMenuInput を使い、独自キーが要る state だけ customInput を実装して上書きする
 type screenModel[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
-	HandleInput(cfg *config.Config) (inputmapper.ActionID, bool)
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
 	fetch(world w.World) P
 	menu(props P) MenuConfig
 	view(world w.World, props P, sel Selection, res resources.UIResources) *ebitenui.UI
 }
 
+// customInput は既定のメニュー入力に加えて独自キーを扱う state が満たす任意契約。
+// Screen は model がこれを満たすときだけ HandleInput を呼び、満たさなければ HandleMenuInput を使う
+type customInput interface {
+	HandleInput(cfg *config.Config) (inputmapper.ActionID, bool)
+}
+
 // Screen はメニューの UI ランタイム。mount・widget・rebuild と overlay・systems を保持し、
 // 毎フレームの手順を回す。state は構造体にこれを値で埋め込み、Update と Draw を委譲する。
 // コピーすると overlay のポインタが旧実体を指すため、コピーせず OnStart で NewScreen して使う
 type Screen[P any] struct {
+	model    screenModel[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
 	mount    *hooks.Mount[P]
 	widget   *ebitenui.UI
 	rebuild  bool
@@ -58,10 +65,10 @@ type Screen[P any] struct {
 	seeded   bool      // 初期タブへ寄せたか
 }
 
-// NewScreen は overlay を優先順位順に登録して Screen を作る。overlay はポインタで渡し、
-// state が保持する実体と同一を指す。追加 systems は WithSystems で登録する
-func NewScreen[P any](overlays ...menuscreen.Overlay) Screen[P] {
-	return Screen[P]{mount: hooks.NewMount[P](), overlays: overlays}
+// NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
+// 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す。追加 systems は WithSystems で登録する
+func NewScreen[P any](model screenModel[P], overlays ...menuscreen.Overlay) Screen[P] {
+	return Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
 }
 
 // WithSystems は毎フレーム回す systems を登録する
@@ -90,9 +97,20 @@ func (s *Screen[P]) activeOverlay() menuscreen.Overlay {
 	return nil
 }
 
+// readAction は1フレームの入力を Action に変換する。model が customInput を満たすときはその独自変換を、
+// 満たさないときは共通の HandleMenuInput を使う。既定入力を Screen に集約し、独自キーが要る state
+// だけが customInput で上書きする
+func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
+	if h, ok := s.model.(customInput); ok {
+		return h.HandleInput(world.Config)
+	}
+	return HandleMenuInput()
+}
+
 // Update はメニュー1フレームを進める。systems 実行、入力ゲート、Fetch/SetProps、
 // UseTabMenu、dirty なら View 再構築と overlay 重ね、widget.Update、の順で回す
-func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.World], error) {
+func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
+	m := s.model
 	// systems は登録済みインスタンスを名前で引いて回す。状態を持つ system を壊さない
 	for _, u := range s.systems {
 		if sys, ok := world.Updaters[u.String()]; ok {
@@ -111,7 +129,7 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 		if dirty {
 			s.rebuild = true
 		}
-	} else if action, ok := m.HandleInput(world.Config); ok {
+	} else if action, ok := s.readAction(world); ok {
 		if tr, err := m.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if tr.Type != es.TransNone {
@@ -137,7 +155,7 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 		// 初回だけ指定タブへ寄せる
 		if !s.seeded {
 			if cfg.InitialTab > 0 {
-				s.SetTab(cfg, cfg.InitialTab)
+				s.setTab(cfg, cfg.InitialTab)
 			}
 			s.seeded = true
 		}
@@ -162,8 +180,14 @@ func (s *Screen[P]) Update(world w.World, m screenModel[P]) (es.Transition[w.Wor
 }
 
 // SetTab は指定タブへ直接カーソルを移して再描画を要求する。キー再生をせずにタブを設定する。
-// UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する
-func (s *Screen[P]) SetTab(cfg MenuConfig, tab int) {
+// UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する。
+// 構成は model から導出するので呼び出し側は tab 番号だけを渡す
+func (s *Screen[P]) SetTab(tab int) {
+	s.setTab(s.model.menu(s.Props()), tab)
+}
+
+// setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する
+func (s *Screen[P]) setTab(cfg MenuConfig, tab int) {
 	if cfg.TabCount == 0 || tab < 0 || tab >= cfg.TabCount {
 		return
 	}

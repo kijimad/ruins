@@ -108,14 +108,14 @@ func (st *CharacterState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.equip = newCharacterEquipOverlay(&st.detail)
 	// detail を equip より前に登録する。装備選択中に x で開いた詳細が入力を優先する
-	st.screen = NewScreen[characterProps](&st.detail, &st.equip)
+	st.screen = NewScreen[characterProps](st, &st.detail, &st.equip)
 	st.screen.WithSystems(&gs.StatsChangedSystem{}, &gs.WeightDirtySystem{})
 	return nil
 }
 
 // Update はステートの更新処理を Screen へ委譲する
 func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はステートの描画を Screen へ委譲する

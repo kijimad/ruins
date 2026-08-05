@@ -45,14 +45,14 @@ var _ es.ActionHandler[w.World] = &TavernMenuState{}
 func (st *TavernMenuState) OnStart(world w.World) error {
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.screen = NewScreen[tavernProps](&st.detail, &st.actionWin)
+	st.screen = NewScreen[tavernProps](st, &st.detail, &st.actionWin)
 	st.candidates = generateCandidates(world.Config.RNG)
 	return nil
 }
 
 // Update はステートの更新処理を行う
 func (st *TavernMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はステートの描画処理を行う

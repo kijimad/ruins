@@ -82,14 +82,3 @@ func TestNewMainMenuState(t *testing.T) {
 	_, ok := state.(*MainMenuState)
 	assert.True(t, ok, "MainMenuState型である")
 }
-
-func TestMainMenuState_HandleInput(t *testing.T) {
-	t.Parallel()
-
-	state := &MainMenuState{}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	// HandleInput は HandleMenuInput を呼び出す。キー未入力では何も返さない
-	_, _ = state.HandleInput(world.Config)
-}

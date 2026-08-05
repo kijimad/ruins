@@ -5,7 +5,6 @@ import (
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -37,9 +36,8 @@ type ChoiceMenuState struct {
 }
 
 var (
-	_ es.State[w.World]         = &ChoiceMenuState{}
-	_ es.ActionHandler[w.World] = &ChoiceMenuState{}
-	_ Configurable              = &ChoiceMenuState{}
+	_ es.State[w.World] = &ChoiceMenuState{}
+	_ Configurable      = &ChoiceMenuState{}
 )
 
 // NewChoiceMenu は選択肢を返す provide を受け取り選択メニューを作る
@@ -52,24 +50,19 @@ func (st *ChoiceMenuState) StateConfig() StateConfig { return StateConfig{BlurBa
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ChoiceMenuState) OnStart(_ w.World) error {
-	st.screen = NewScreen[choiceProps]()
+	st.screen = NewScreen[choiceProps](st)
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *ChoiceMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はゲームステートの描画処理を行う
 func (st *ChoiceMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	st.screen.Draw(screen)
 	return nil
-}
-
-// HandleInput はキー入力を Action に変換する
-func (st *ChoiceMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	return HandleMenuInput()
 }
 
 // DoAction は Action を実行する。選択で現在行の Run を呼び、その遷移を返す

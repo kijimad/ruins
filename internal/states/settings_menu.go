@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/logger"
@@ -26,17 +25,16 @@ type SettingsMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &SettingsMenuState{}
-var _ es.ActionHandler[w.World] = &SettingsMenuState{}
 
 // OnStart はステート開始時の処理を行う。メインメニューの上に重なるためワールドは操作しない
 func (st *SettingsMenuState) OnStart(_ w.World) error {
-	st.screen = NewScreen[settingsMenuProps]()
+	st.screen = NewScreen[settingsMenuProps](st)
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *SettingsMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はスクリーンに描画する
@@ -49,11 +47,6 @@ func (st *SettingsMenuState) Draw(world w.World, screen *ebiten.Image) error {
 
 	st.screen.Draw(screen)
 	return nil
-}
-
-// HandleInput はキー入力をActionに変換する
-func (st *SettingsMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する

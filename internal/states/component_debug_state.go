@@ -7,7 +7,6 @@ import (
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -26,24 +25,19 @@ var _ es.State[w.World] = &ComponentDebugState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ComponentDebugState) OnStart(_ w.World) error {
-	st.screen = NewScreen[componentDebugProps]()
+	st.screen = NewScreen[componentDebugProps](st)
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *ComponentDebugState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はゲームステートの描画処理を行う
 func (st *ComponentDebugState) Draw(_ w.World, screen *ebiten.Image) error {
 	st.screen.Draw(screen)
 	return nil
-}
-
-// HandleInput はキー入力を Action に変換する
-func (st *ComponentDebugState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する

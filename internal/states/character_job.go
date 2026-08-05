@@ -7,7 +7,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -43,17 +42,16 @@ func NewCharacterJobState(playerName string) es.StateFactory[w.World] {
 // State interface ================
 
 var _ es.State[w.World] = &CharacterJobState{}
-var _ es.ActionHandler[w.World] = &CharacterJobState{}
 
 // OnStart はステート開始時の処理を行う
 func (st *CharacterJobState) OnStart(_ w.World) error {
-	st.screen = NewScreen[jobMenuProps]()
+	st.screen = NewScreen[jobMenuProps](st)
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はスクリーンに描画する
@@ -61,11 +59,6 @@ func (st *CharacterJobState) Draw(_ w.World, screen *ebiten.Image) error {
 	screen.Fill(theme.ScreenBackground)
 	st.screen.Draw(screen)
 	return nil
-}
-
-// HandleInput はキー入力をActionに変換する
-func (st *CharacterJobState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する

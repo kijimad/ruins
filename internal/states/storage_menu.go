@@ -54,14 +54,14 @@ var _ es.ActionHandler[w.World] = &StorageMenuState{}
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.screen = NewScreen[storageProps](&st.detail)
+	st.screen = NewScreen[storageProps](st, &st.detail)
 	st.screen.WithSystems(&gs.WeightDirtySystem{})
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はゲームステートの描画処理を行う

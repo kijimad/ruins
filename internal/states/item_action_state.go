@@ -199,13 +199,13 @@ func NewItemActionState(initial verbID) es.StateFactory[w.World] {
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.screen = NewScreen[itemActionProps](&st.detail)
+	st.screen = NewScreen[itemActionProps](st, &st.detail)
 	return nil
 }
 
 // Update はステートの更新処理
 func (st *ItemActionState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はステートの描画処理
@@ -263,7 +263,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 }
 
 func (st *ItemActionState) jumpToTab(target verbID) {
-	st.screen.SetTab(st.menu(st.screen.Props()), verbTabIndex(target))
+	st.screen.SetTab(verbTabIndex(target))
 }
 
 // executeSelected は選択中アイテムへ現在の動詞を適用する。Exec を持たない調べるは詳細モーダルを開く

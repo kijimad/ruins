@@ -184,13 +184,3 @@ func TestNewCharacterJobState(t *testing.T) {
 
 	assert.Equal(t, playerName, state.playerName, "プレイヤー名が設定される")
 }
-
-func TestCharacterJobState_HandleInput(t *testing.T) {
-	t.Parallel()
-
-	state := &CharacterJobState{playerName: "TestPlayer"}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	_, _ = state.HandleInput(world.Config)
-}

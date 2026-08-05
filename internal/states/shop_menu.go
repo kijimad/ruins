@@ -45,13 +45,13 @@ var _ es.ActionHandler[w.World] = &ShopMenuState{}
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.screen = NewScreen[shopProps](&st.detail)
+	st.screen = NewScreen[shopProps](st, &st.detail)
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	return st.screen.Update(world, st)
+	return st.screen.Update(world)
 }
 
 // Draw はゲームステートの描画処理を行う
