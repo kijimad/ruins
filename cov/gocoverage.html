@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.7%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.3%)</option>
 				
@@ -405,9 +405,9 @@
 				
 				<option value="file174">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
-				<option value="file175">github.com/kijimaD/ruins/internal/raw/raw.go (84.8%)</option>
+				<option value="file175">github.com/kijimaD/ruins/internal/raw/raw.go (88.1%)</option>
 				
-				<option value="file176">github.com/kijimaD/ruins/internal/raw/validate.go (89.8%)</option>
+				<option value="file176">github.com/kijimaD/ruins/internal/raw/validate.go (90.4%)</option>
 				
 				<option value="file177">github.com/kijimaD/ruins/internal/raw/weighted.go (93.3%)</option>
 				
@@ -1521,7 +1521,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -35269,23 +35269,23 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
 }
 
 // FindDisassembly は指定された名前の分解定義を返す。propとitemの両方を探す
-func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) <span class="cov0" title="0">{
-        if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string </span><span class="cov0" title="0">{ return p.Name }</span>, name); ok &amp;&amp; prop.Disassembly != nil <span class="cov0" title="0">{
+func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) <span class="cov8" title="1">{
+        if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string </span><span class="cov8" title="1">{ return p.Name }</span>, name); ok &amp;&amp; prop.Disassembly != nil <span class="cov8" title="1">{
                 return prop.Disassembly, true
         }</span>
-        <span class="cov0" title="0">if item, ok := findByKey(raws.Items, func(i oapi.Item) string </span><span class="cov0" title="0">{ return i.Name }</span>, name); ok &amp;&amp; item.Disassembly != nil <span class="cov0" title="0">{
+        <span class="cov8" title="1">if item, ok := findByKey(raws.Items, func(i oapi.Item) string </span><span class="cov8" title="1">{ return i.Name }</span>, name); ok &amp;&amp; item.Disassembly != nil <span class="cov8" title="1">{
                 return item.Disassembly, true
         }</span>
-        <span class="cov0" title="0">return nil, false</span>
+        <span class="cov8" title="1">return nil, false</span>
 }
 
 // FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す
-func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) <span class="cov0" title="0">{
-        item, ok := findByKey(raws.Items, func(i oapi.Item) string </span><span class="cov0" title="0">{ return i.Name }</span>, name)
-        <span class="cov0" title="0">if !ok || item.DisassemblyTool == nil </span><span class="cov0" title="0">{
+func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) <span class="cov8" title="1">{
+        item, ok := findByKey(raws.Items, func(i oapi.Item) string </span><span class="cov8" title="1">{ return i.Name }</span>, name)
+        <span class="cov8" title="1">if !ok || item.DisassemblyTool == nil </span><span class="cov8" title="1">{
                 return nil, false
         }</span>
-        <span class="cov0" title="0">return item.DisassemblyTool, true</span>
+        <span class="cov8" title="1">return item.DisassemblyTool, true</span>
 }
 
 // GetProfession は指定されたIDの職業データを返す
@@ -35418,7 +35418,7 @@ func ValidateRaws(raws oapi.Raws) error <span class="cov8" title="1">{
 // スキーマ検証は名前の参照整合を見ないため、ここで補う。実行時の解決失敗を
 // ロード時エラーに前倒しする
 func ValidateReferences(raws oapi.Raws) error <span class="cov8" title="1">{
-        if err := validateDisassemblyReferences(raws); err != nil </span><span class="cov0" title="0">{
+        if err := validateDisassemblyReferences(raws); err != nil </span><span class="cov8" title="1">{
                 return err
         }</span>
         <span class="cov8" title="1">if err := validateDropTableReferences(raws); err != nil </span><span class="cov0" title="0">{

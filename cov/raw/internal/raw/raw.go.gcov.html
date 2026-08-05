@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">84.5&nbsp;%</td>
+            <td class="headerCovTableEntryMed">86.8&nbsp;%</td>
             <td class="headerCovTableEntry">605</td>
-            <td class="headerCovTableEntry">511</td>
+            <td class="headerCovTableEntry">525</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-04 15:21:18</td>
+            <td class="headerValue">2026-08-05 00:01:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -776,27 +776,27 @@
 <span id="L714"><span class="lineNum">     714</span>              : }</span>
 <span id="L715"><span class="lineNum">     715</span>              : </span>
 <span id="L716"><span class="lineNum">     716</span>              : // FindDisassembly は指定された名前の分解定義を返す。propとitemの両方を探す</span>
-<span id="L717"><span class="lineNum">     717</span> <span class="tlaUNC tlaBgUNC">           0 : func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {</span></span>
-<span id="L718"><span class="lineNum">     718</span> <span class="tlaUNC">           0 :         if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name); ok &amp;&amp; prop.Disassembly != nil {</span></span>
-<span id="L719"><span class="lineNum">     719</span> <span class="tlaUNC">           0 :                 return prop.Disassembly, true</span></span>
-<span id="L720"><span class="lineNum">     720</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L721"><span class="lineNum">     721</span> <span class="tlaUNC">           0 :         if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name); ok &amp;&amp; item.Disassembly != nil {</span></span>
-<span id="L722"><span class="lineNum">     722</span> <span class="tlaUNC">           0 :                 return item.Disassembly, true</span></span>
-<span id="L723"><span class="lineNum">     723</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L724"><span class="lineNum">     724</span> <span class="tlaUNC">           0 :         return nil, false</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">           1 : func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">           3 :         if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name); ok &amp;&amp; prop.Disassembly != nil {</span></span>
+<span id="L719"><span class="lineNum">     719</span> <span class="tlaGNC">           1 :                 return prop.Disassembly, true</span></span>
+<span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L721"><span class="lineNum">     721</span> <span class="tlaGNC">           3 :         if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name); ok &amp;&amp; item.Disassembly != nil {</span></span>
+<span id="L722"><span class="lineNum">     722</span> <span class="tlaGNC">           1 :                 return item.Disassembly, true</span></span>
+<span id="L723"><span class="lineNum">     723</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L724"><span class="lineNum">     724</span> <span class="tlaGNC">           1 :         return nil, false</span></span>
 <span id="L725"><span class="lineNum">     725</span>              : }</span>
 <span id="L726"><span class="lineNum">     726</span>              : </span>
 <span id="L727"><span class="lineNum">     727</span>              : // FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す</span>
-<span id="L728"><span class="lineNum">     728</span> <span class="tlaUNC">           0 : func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {</span></span>
-<span id="L729"><span class="lineNum">     729</span> <span class="tlaUNC">           0 :         item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)</span></span>
-<span id="L730"><span class="lineNum">     730</span> <span class="tlaUNC">           0 :         if !ok || item.DisassemblyTool == nil {</span></span>
-<span id="L731"><span class="lineNum">     731</span> <span class="tlaUNC">           0 :                 return nil, false</span></span>
-<span id="L732"><span class="lineNum">     732</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC">           0 :         return item.DisassemblyTool, true</span></span>
+<span id="L728"><span class="lineNum">     728</span> <span class="tlaGNC">           1 : func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {</span></span>
+<span id="L729"><span class="lineNum">     729</span> <span class="tlaGNC">           2 :         item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)</span></span>
+<span id="L730"><span class="lineNum">     730</span> <span class="tlaGNC">           2 :         if !ok || item.DisassemblyTool == nil {</span></span>
+<span id="L731"><span class="lineNum">     731</span> <span class="tlaGNC">           1 :                 return nil, false</span></span>
+<span id="L732"><span class="lineNum">     732</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L733"><span class="lineNum">     733</span> <span class="tlaGNC">           1 :         return item.DisassemblyTool, true</span></span>
 <span id="L734"><span class="lineNum">     734</span>              : }</span>
 <span id="L735"><span class="lineNum">     735</span>              : </span>
 <span id="L736"><span class="lineNum">     736</span>              : // GetProfession は指定されたIDの職業データを返す</span>
-<span id="L737"><span class="lineNum">     737</span> <span class="tlaGNC tlaBgGNC">           1 : func GetProfession(raws oapi.Raws, id string) (oapi.Profession, error) {</span></span>
+<span id="L737"><span class="lineNum">     737</span> <span class="tlaGNC">           1 : func GetProfession(raws oapi.Raws, id string) (oapi.Profession, error) {</span></span>
 <span id="L738"><span class="lineNum">     738</span> <span class="tlaGNC">           2 :         prof, ok := findByKey(raws.Professions, func(p oapi.Profession) string { return p.Id }, id)</span></span>
 <span id="L739"><span class="lineNum">     739</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
 <span id="L740"><span class="lineNum">     740</span> <span class="tlaGNC">           1 :                 return oapi.Profession{}, NewKeyNotFoundError(id, &quot;Professions&quot;)</span></span>
