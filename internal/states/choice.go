@@ -8,6 +8,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -112,4 +113,33 @@ func (st *ChoiceMenuState) View(_ w.World, props ChoiceProps, sel menurt.Selecti
 	// メインメニューと先頭位置・行間を揃える
 	list := renderMenuList(sel.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
 	return newPanelScreenUI(res, props.Title, list, menuNavHint(false))
+}
+
+// pushChoice は指定ファクトリの state を push する Choice.Run を返す。選択メニューの共通部品
+func pushChoice(factory es.StateFactory[w.World]) func(w.World) (es.Transition[w.World], error) {
+	return func(_ w.World) (es.Transition[w.World], error) {
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{factory}}, nil
+	}
+}
+
+// popAfter は fn を実行して閉じる Choice.Run を返す
+func popAfter(fn func(w.World) error) func(w.World) (es.Transition[w.World], error) {
+	return func(world w.World) (es.Transition[w.World], error) {
+		if err := fn(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	}
+}
+
+// stayAfter は fn を実行してメニューに留まる Choice.Run を返す。敵やPropの連続スポーンに使う
+func stayAfter(fn func(w.World) error) func(w.World) (es.Transition[w.World], error) {
+	return func(world w.World) (es.Transition[w.World], error) {
+		return es.Transition[w.World]{Type: es.TransNone}, fn(world)
+	}
+}
+
+// pushMessage は指定メッセージ画面を push する Choice.Run を返す
+func pushMessage(md *messagedata.MessageData) func(w.World) (es.Transition[w.World], error) {
+	return pushChoice(func() (es.State[w.World], error) { return NewMessageState(md) })
 }
