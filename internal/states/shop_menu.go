@@ -76,7 +76,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.screen.Open(st.detail.Open)
+		st.detail.Open()
 	case inputmapper.ActionMenuSelect:
 		if err := st.buySellSelected(world); err != nil {
 			return es.Transition[w.World]{}, err

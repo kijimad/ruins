@@ -61,9 +61,9 @@ func (o *characterEquipOverlay) selectedItem() (ecs.Entity, bool) {
 
 // HandleInput は装備選択中の入力を処理する。毎フレーム呼ばれるので自前カーソル mount の維持もここで行う。
 // x で詳細を入れ子に開き、Enter で装着して閉じ、Esc で閉じる
-func (o *characterEquipOverlay) HandleInput(world w.World) (bool, error) {
+func (o *characterEquipOverlay) HandleInput(world w.World) error {
 	if !o.active {
-		return false, nil
+		return nil
 	}
 	props := o.mount.GetProps()
 	hooks.UseTabMenu(o.mount.Store(), "char_equip", hooks.TabMenuConfig{
@@ -72,31 +72,25 @@ func (o *characterEquipOverlay) HandleInput(world w.World) (bool, error) {
 	})
 
 	ki := input.GetSharedKeyboardInput()
-	dirty := false
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		o.detail.Open()
-		dirty = true
 	} else if action, ok := menurt.HandleMenuInput(); ok {
 		switch action {
 		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 			o.active = false
-			dirty = true
 		case inputmapper.ActionMenuSelect:
 			if err := o.execute(world); err != nil {
-				return false, err
+				return err
 			}
 			o.active = false
-			dirty = true
 		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 			o.mount.Dispatch(action)
 		default:
 			// 装備選択中は上記以外のアクションを扱わない
 		}
 	}
-	if o.mount.Update() {
-		dirty = true
-	}
-	return dirty, nil
+	o.mount.Update()
+	return nil
 }
 
 // execute は選んだ候補を装着する。既存の装備があれば持ち物へ戻す

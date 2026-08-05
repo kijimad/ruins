@@ -248,7 +248,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.screen.Open(st.detail.Open)
+		st.detail.Open()
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse:
 		// 開いている間の動詞キーは対応タブへジャンプする
@@ -278,7 +278,7 @@ func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World
 	}
 	verb := vs[sel.TabIndex]
 	if verb.Exec == nil {
-		st.screen.Open(st.detail.Open)
+		st.detail.Open()
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 

@@ -77,9 +77,9 @@ func (st *TavernMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.screen.Open(st.detail.Open)
+		st.detail.Open()
 	case inputmapper.ActionMenuSelect:
-		st.screen.Open(st.actionWin.Open)
+		st.actionWin.Open()
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理
 	default:

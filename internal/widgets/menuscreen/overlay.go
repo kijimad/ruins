@@ -13,8 +13,8 @@ import (
 type Overlay interface {
 	// Active は overlay を表示中かを返す
 	Active() bool
-	// HandleInput は表示中のキー入力を処理する。UI を作り直すべきなら第1返り値を true にする
-	HandleInput(world w.World) (dirty bool, err error)
+	// HandleInput は表示中のキー入力を処理する。Screen は毎フレーム再構築するので dirty は返さない
+	HandleInput(world w.World) error
 	// Window は overlay のウィンドウを rect の位置へ組み立てる。対象が無ければ nil を返す
 	Window(world w.World, rect image.Rectangle) *widget.Window
 }

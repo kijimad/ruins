@@ -40,9 +40,9 @@ func (a *ActionWindow) Open() {
 
 // HandleInput は表示中のキー入力を処理する。UI を作り直すべきなら第1返り値を true にする。
 // Enter で選択肢の Run を実行して閉じ、Esc で閉じる。Run のエラーはそのまま返す
-func (a *ActionWindow) HandleInput(world w.World) (bool, error) {
+func (a *ActionWindow) HandleInput(world w.World) error {
 	if !a.active {
-		return false, nil
+		return nil
 	}
 	ki := input.GetSharedKeyboardInput()
 	_, actions, ok := a.provide(world)
@@ -53,21 +53,17 @@ func (a *ActionWindow) HandleInput(world w.World) (bool, error) {
 	switch {
 	case ki.IsKeyJustPressed(ebiten.KeyEscape):
 		a.active = false
-		return true, nil
 	case ki.IsEnterJustPressedOnce():
 		a.active = false
 		if ok && a.index >= 0 && a.index < n && actions[a.index].Run != nil {
-			return true, actions[a.index].Run(world)
+			return actions[a.index].Run(world)
 		}
-		return true, nil
 	case ki.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) && n > 0:
 		a.index = (a.index - 1 + n) % n
-		return true, nil
 	case ki.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) && n > 0:
 		a.index = (a.index + 1) % n
-		return true, nil
 	}
-	return false, nil
+	return nil
 }
 
 // Window は現在の選択肢からウィンドウを rect の位置へ組み立てる。対象が無ければ nil を返す
