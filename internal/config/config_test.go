@@ -74,6 +74,10 @@ func TestLoad(t *testing.T) {
 	assert.Positive(t, cfg.User.WindowHeight)
 	assert.Positive(t, cfg.TargetFPS)
 }
+
+// 以下は環境変数を書き換えて Load の挙動を検証するため、
+// t.Setenv の制約上 t.Parallel は呼ばない。
+
 func TestLoad_RUINS_PROFILEを指定するとそのプロファイルになる(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", dir)
@@ -101,6 +105,9 @@ func TestLoad_検証に失敗する設定はエラーを返す(t *testing.T) {
 
 	cfg, err := Load()
 	assert.Nil(t, cfg)
+	// Load は Validate のエラーを「設定の検証に失敗しました」でラップして返すため、
+	// ラップの事実と検証エラーの種類の両方をアサートする。
+	assert.ErrorContains(t, err, "設定の検証に失敗しました")
 	assert.ErrorIs(t, err, errWindowWidthTooSmall)
 }
 
