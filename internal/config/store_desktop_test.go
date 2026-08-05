@@ -3,6 +3,7 @@
 package config
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -56,6 +57,59 @@ func TestSettingsExistAt(t *testing.T) {
 	assert.True(t, ok)
 }
 
+func TestWriteSettingsTo_親ディレクトリがファイルだとエラー(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	blocker := filepath.Join(dir, "blocker")
+	require.NoError(t, os.WriteFile(blocker, []byte("x"), 0o644))
+
+	err := writeSettingsTo(filepath.Join(blocker, "subdir", "settings.toml"), []byte("x"))
+	assert.ErrorContains(t, err, "設定ディレクトリの作成に失敗しました")
+}
+
+func TestWriteSettingsTo_一時ファイル用パスがディレクトリだとエラー(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "settings.toml")
+	require.NoError(t, os.Mkdir(path+".tmp", 0o755))
+
+	err := writeSettingsTo(path, []byte("x"))
+	assert.ErrorContains(t, err, "設定ファイルの書き込みに失敗しました")
+}
+
+func TestWriteSettingsTo_書き込み先がディレクトリだとエラー(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "settings.toml")
+	require.NoError(t, os.Mkdir(path, 0o755))
+
+	err := writeSettingsTo(path, []byte("x"))
+	assert.ErrorContains(t, err, "設定ファイルの置き換えに失敗しました")
+}
+
+func TestReadSettingsFrom_ディレクトリを指定するとエラー(t *testing.T) {
+	t.Parallel()
+
+	_, ok, err := readSettingsFrom(t.TempDir())
+	assert.False(t, ok)
+	assert.ErrorContains(t, err, "設定ファイルの読み込みに失敗しました")
+}
+
+func TestSettingsExistAt_親ディレクトリがファイルだとエラー(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	blocker := filepath.Join(dir, "blocker")
+	require.NoError(t, os.WriteFile(blocker, []byte("x"), 0o644))
+
+	ok, err := settingsExistAt(filepath.Join(blocker, "x"))
+	assert.False(t, ok)
+	assert.ErrorContains(t, err, "設定ファイルの存在確認に失敗しました")
+}
+
 // 以下は XDG_CONFIG_HOME を書き換えてパス解決を検証するため、
 // t.Setenv の制約上 t.Parallel は呼ばない。
 
@@ -66,6 +120,45 @@ func TestUserConfigPath_XDG_CONFIG_HOME配下にruinsディレクトリを作る
 	path, err := userConfigPath()
 	require.NoError(t, err)
 	assert.Equal(t, filepath.Join(dir, "ruins", "settings.toml"), path)
+}
+
+func TestUserConfigPath_XDG_CONFIG_HOMEもHOMEも未設定だとエラー(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	_, err := userConfigPath()
+	assert.ErrorContains(t, err, "設定ディレクトリの取得に失敗しました")
+}
+
+func TestReadSettings_WriteSettings_SettingsExist_パス解決に失敗するとエラーを返す(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	_, _, err := readSettings()
+	require.ErrorContains(t, err, "設定ディレクトリの取得に失敗しました")
+
+	err = writeSettings([]byte("x"))
+	require.ErrorContains(t, err, "設定ディレクトリの取得に失敗しました")
+
+	_, err = settingsExist()
+	require.ErrorContains(t, err, "設定ディレクトリの取得に失敗しました")
+}
+
+func TestSaveUserConfig_パス解決に失敗するとエラーを返す(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	c := &Config{User: DefaultUserConfig()}
+	err := c.SaveUserConfig()
+	assert.ErrorContains(t, err, "設定ディレクトリの取得に失敗しました")
+}
+
+func TestEnsureUserConfigFile_存在確認に失敗するとエラーを返す(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	err := EnsureUserConfigFile()
+	assert.ErrorContains(t, err, "設定ディレクトリの取得に失敗しました")
 }
 
 func TestWriteSettings_ReadSettings_SettingsExist_ラウンドトリップ(t *testing.T) {
@@ -156,6 +249,15 @@ func TestLoadUserConfig_保存済み設定を読み込んで上書きする(t *t
 	require.NoError(t, c.loadUserConfig())
 	assert.Equal(t, 1280, c.User.WindowWidth)
 	assert.Equal(t, 720, c.User.WindowHeight) // 保存に無いフィールドはデフォルトが残る
+}
+
+func TestLoadUserConfig_パス解決に失敗するとエラーを返す(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	c := &Config{User: DefaultUserConfig()}
+	err := c.loadUserConfig()
+	assert.ErrorContains(t, err, "設定ディレクトリの取得に失敗しました")
 }
 
 func TestLoadUserConfig_不正なTOMLはエラーを返す(t *testing.T) {

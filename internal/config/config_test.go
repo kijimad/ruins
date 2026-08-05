@@ -74,6 +74,36 @@ func TestLoad(t *testing.T) {
 	assert.Positive(t, cfg.User.WindowHeight)
 	assert.Positive(t, cfg.TargetFPS)
 }
+func TestLoad_RUINS_PROFILEを指定するとそのプロファイルになる(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", dir)
+	t.Setenv("RUINS_PROFILE", "development")
+
+	cfg, err := Load()
+	require.NoError(t, err)
+	assert.Equal(t, ProfileDevelopment, cfg.Profile)
+}
+
+func TestLoad_環境変数の値が不正だとエラーを返す(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", dir)
+	t.Setenv("RUINS_TARGET_FPS", "invalid")
+
+	cfg, err := Load()
+	assert.Nil(t, cfg)
+	assert.ErrorContains(t, err, "設定の読み込みに失敗しました")
+}
+
+func TestLoad_検証に失敗する設定はエラーを返す(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", dir)
+	t.Setenv("RUINS_WINDOW_WIDTH", "100")
+
+	cfg, err := Load()
+	assert.Nil(t, cfg)
+	assert.ErrorIs(t, err, errWindowWidthTooSmall)
+}
+
 func TestValidate(t *testing.T) {
 	t.Parallel()
 
