@@ -33,13 +33,7 @@ type ShopMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}
-var _ Configurable = &ShopMenuState{}
 var _ menurt.ExtraInput = &ShopMenuState{}
-
-// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
-func (st *ShopMenuState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {

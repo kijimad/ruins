@@ -37,13 +37,7 @@ type CraftMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &CraftMenuState{}
-var _ Configurable = &CraftMenuState{}
 var _ menurt.ExtraInput = &CraftMenuState{}
-
-// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
-func (st *CraftMenuState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
