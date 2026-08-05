@@ -14,8 +14,6 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// デバッグメニューの選択肢とスポーン補助をまとめる。開発用の動作確認を1箇所に集約する。
-
 // debugEnterPlanners はデバッグでプランナー単位に生成して試すフロアプランナーの一覧。
 // マップ生成の見た目を試す用途なので、遺跡定義でなくプランナー、すなわち大部屋・小部屋などで選ぶ。
 var debugEnterPlanners = []mapplanner.PlannerType{
@@ -26,7 +24,7 @@ var debugEnterPlanners = []mapplanner.PlannerType{
 	mapplanner.PlannerTypeForest,
 }
 
-// NewDebugMenuState は新しいDebugMenuStateインスタンスを作成するファクトリー関数
+// NewDebugMenuState はデバッグメニューを選択メニューとして作る
 func NewDebugMenuState() (es.State[w.World], error) {
 	return NewChoiceMenu(debugMenuChoices), nil
 }
@@ -141,7 +139,6 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	return "", choices
 }
 
-// spawnPropNearPlayer はプレイヤーの隣にPropをスポーンする
 func spawnPropNearPlayer(world w.World, name string) error {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
@@ -164,7 +161,6 @@ func spawnStorageWithItems(world w.World) error {
 		return err
 	}
 
-	// アイテムを収納に格納する
 	items := []struct {
 		name  string
 		count int

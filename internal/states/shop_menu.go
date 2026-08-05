@@ -61,7 +61,7 @@ func (st *ShopMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// HandleInput はキー入力をActionに変換する。アクション窓の入力は Update 側で actionWin が扱う
+// HandleInput はキー入力をActionに変換する。x で選択中商品の詳細モーダルを開く
 func (st *ShopMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {

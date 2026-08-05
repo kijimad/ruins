@@ -143,7 +143,7 @@ type menuListOpts struct {
 
 // renderMenuList は一覧を共通の作法で組む唯一の入口。ページ送り・ページ表示・空行埋め・
 // 行間をここに集約し、各メニューは行データ menuRow と列幅を渡すだけにする。これにより
-// ページ送り忘れ・行間ずれを構造的に防ぐ。業界標準の「データ＋行デリゲート」型。
+// ページ送り忘れ・行間ずれを構造的に防ぐ。
 // 列幅と行の値は呼び出し側が対で用意する。全幅の一覧では列幅の合計を menuRowWidth に揃える
 func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) *widget.Container {
 	// 列幅と行の値の対応を検査する。ずれると列が既定幅へ無言で落ちて崩れるため、内部の呼び出し

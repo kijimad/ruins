@@ -38,7 +38,7 @@ func (a *ActionWindow) Open() {
 	a.index = 0
 }
 
-// HandleInput は表示中のキー入力を処理する。UI を作り直すべきなら第1返り値を true にする。
+// HandleInput は表示中のキー入力を処理する。
 // Enter で選択肢の Run を実行して閉じ、Esc で閉じる。Run のエラーはそのまま返す
 func (a *ActionWindow) HandleInput(world w.World) error {
 	if !a.active {

@@ -3,7 +3,7 @@
 // 各メニュー state から UI 機構、mount・widget・overlay の入力ゲートと重ね、を Screen へ
 // 集約し、state は Fetch・Menu・View と既存の DoAction を提供するだけにする。MVU の Model/View/Update
 // に対応し、Screen がループを所有する。state package とは別 package にすることで、Model 契約を
-// コンパイラに強制させ、state から Screen 内部へ触れられないようにする。詳細は docs/design/20260804_87.md。
+// コンパイラに強制させ、state から Screen 内部へ触れられないようにする。
 package menurt
 
 import (
@@ -138,7 +138,6 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 			ItemsPerPage: cfg.ItemsPerPage,
 			Skips:        cfg.Skips,
 		})
-		// 初回だけ指定タブへ寄せる
 		if !s.seeded {
 			if cfg.InitialTab > 0 {
 				s.setTab(cfg, cfg.InitialTab)

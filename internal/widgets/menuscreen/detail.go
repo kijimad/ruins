@@ -62,8 +62,8 @@ func (d *Detail) Open() {
 	d.page = 0
 }
 
-// HandleInput は表示中のキー入力を処理し、UI を作り直すべきなら第1返り値を true にする。
-// ページ数は provide の内容から自身で算出する。表示中でなければ何もしない。
+// HandleInput は表示中のキー入力を処理する。ページ数は provide の内容から自身で算出する。
+// 表示中でなければ何もしない。
 // error は Overlay インターフェースに合わせた形で、詳細モーダルでは常に nil
 func (d *Detail) HandleInput(world w.World) error {
 	if !d.active {
