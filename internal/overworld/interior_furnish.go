@@ -74,12 +74,27 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		}
 	}
 
+	// 窓を開口部として立てる。壁の切れ目に窓エンティティを置き、閉状態で通行を遮り、開閉に関わらず視線は
+	// 通す。向きは扉と同じ doorOrientation で壁の走る方向から決める。窓タイルだけが wallSet から抜けており、
+	// 軸方向の隣接は壁のまま残るので向き判定は機能する
+	for wv := range site.Windows {
+		wc := consts.Coord[consts.Tile]{X: g.offsetX + wv.X, Y: g.offsetY + wv.Y}
+		if _, err := lifecycle.SpawnWindow(world, wc, doorOrientation(wallSet, wv)); err != nil {
+			return nil, nil, fmt.Errorf("内装の窓配置に失敗: %w", err)
+		}
+		occupied[wc] = true
+	}
+
 	// 家具と装飾を spawn する。写像できる Ref だけを建物の内側へ置く。坪庭の観葉もここで庭の土の上へ乗る。
 	// 写像は interior.PropRawName が持つ単一のソースで、VRT の描画も同じ判定を共有する。収納家具には戦利品を
 	// 格納するので、建物ごとに別ストリーム 0x4 の決定的 RNG で引く。グローバル乱数でなく建物ローカルで
 	// 決定的にし、再訪で一致させる
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
 	for _, p := range placed {
+		// 窓は開口部として上で窓エンティティを立てた。装飾 prop として二重に置かない
+		if p.Ref == "window" {
+			continue
+		}
 		name, ok := interior.PropRawName(p.Ref)
 		if !ok {
 			continue // raw の無い戦利品や装飾は置かない

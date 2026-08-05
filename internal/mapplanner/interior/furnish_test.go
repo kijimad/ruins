@@ -128,6 +128,35 @@ func TestFurnishBuilding_部屋が退化しない(t *testing.T) {
 	}
 }
 
+// TestFurnishBuilding_窓は壁でなく開口部になる は、前壁の窓が Walls から除外され床の切れ目になることを
+// 多 seed/facility で固定する。窓の下に壁が残ると視線が通らないので、窓タイルが壁でないことを保証する。
+func TestFurnishBuilding_窓は壁でなく開口部になる(t *testing.T) {
+	t.Parallel()
+
+	windowsSeen := 0
+	for _, fac := range []FacilityKind{"house", "store", "clinic"} {
+		for fp := consts.Tile(17); fp <= 20; fp++ {
+			doors := map[string]Vec{"北": {X: fp / 2, Y: 0}, "西": {X: 0, Y: fp / 2}}
+			for dside, door := range doors {
+				for seed := range uint64(30) {
+					footprint := Rect{X: 0, Y: 0, W: fp, H: fp}
+					site, _ := FurnishBuilding(seed, footprint, door, fac)
+
+					wallSet := map[Vec]bool{}
+					for _, w := range site.Walls() {
+						wallSet[w] = true
+					}
+					for wv := range site.Windows {
+						windowsSeen++
+						assert.Falsef(t, wallSet[wv], "%s fp=%d 玄関=%s seed=%d の窓 %+v が壁に含まれる", fac, fp, dside, seed, wv)
+					}
+				}
+			}
+		}
+	}
+	assert.Positive(t, windowsSeen, "少なくとも1つは窓が生成され、テストが空振りしていない")
+}
+
 // TestFurnishBuilding_民家の入口は玄関に開く は建物の入口が必ず玄関の部屋へ開くことを本番サイズの多 seed で
 // 固定する。玄関を建物の奥に置き入口が居室へ開いていた退行を止める。玄関は街路のある北・西の両辺を舐める。
 func TestFurnishBuilding_民家の入口は玄関に開く(t *testing.T) {

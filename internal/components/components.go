@@ -333,6 +333,7 @@ type Door struct {
 	IsOpen      bool            // 開いているかどうか
 	Orientation DoorOrientation // 扉の向き
 	Locked      bool            // ロック中は開閉不可
+	SeeThrough  bool            // 開閉に関わらず常に視線が通る窓。true のとき BlockView を付けない
 }
 
 // DoorOrientation は扉の向き

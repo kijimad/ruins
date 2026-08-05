@@ -86,11 +86,14 @@ func UnlockAllDoors(world w.World) int {
 // updateDoorState は扉の向きと開閉状態に応じて、状態を更新する
 func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOrientation, isOpen bool) error {
 	doorComp := world.Components.Door.Get(doorEntity)
+	// BlockPass/BlockView の Add/Remove は archetype を変え doorComp ポインタを無効化する。
+	// 変更前にフラグを退避する。Ark strict semantics
+	seeThrough := doorComp.SeeThrough
 	doorComp.Orientation = orientation
 	doorComp.IsOpen = isOpen
 
-	// スプライトキーを更新
-	if world.Components.SpriteRender.Has(doorEntity) {
+	// スプライトキーを更新する。窓は開閉スプライトを持たず単一スプライトなので差し替えない
+	if !seeThrough && world.Components.SpriteRender.Has(doorEntity) {
 		spriteRender := world.Components.SpriteRender.Get(doorEntity)
 
 		if isOpen {
@@ -108,19 +111,19 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 		}
 	}
 
-	// BlockPass / BlockView を更新
+	// BlockPass は開で外し閉で足す。BlockView は窓では触らない。窓は開閉に関わらず視線を通す
 	if isOpen {
 		if world.Components.BlockPass.Has(doorEntity) {
 			world.Components.BlockPass.Remove(doorEntity)
 		}
-		if world.Components.BlockView.Has(doorEntity) {
+		if !seeThrough && world.Components.BlockView.Has(doorEntity) {
 			world.Components.BlockView.Remove(doorEntity)
 		}
 	} else {
 		if !world.Components.BlockPass.Has(doorEntity) {
 			world.Components.BlockPass.Add(doorEntity, &gc.BlockPass{})
 		}
-		if !world.Components.BlockView.Has(doorEntity) {
+		if !seeThrough && !world.Components.BlockView.Has(doorEntity) {
 			world.Components.BlockView.Add(doorEntity, &gc.BlockView{})
 		}
 	}
@@ -192,6 +195,31 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 		Door: &gc.Door{
 			IsOpen:      false,
 			Orientation: orientation,
+		},
+		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor}},
+	}), nil
+}
+
+// SpawnWindow は窓を生成する。扉と同じく開閉できるが、開閉に関わらず視線を通す。
+// BlockView を付けず、Door.SeeThrough を立てて開閉トグルでも BlockView を触らせない。
+// スプライトは開閉共通の単一 window を使う。
+func SpawnWindow(world w.World, pos consts.Coord[consts.Tile], orientation gc.DoorOrientation) (ecs.Entity, error) {
+	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
+		Name:        &gc.Name{Name: "窓"},
+		Description: &gc.Description{Description: "開閉できる窓。閉じていても視線は通る"},
+		GridElement: &gc.GridElement{Coord: pos},
+		SpriteRender: &gc.SpriteRender{
+			SpriteSheetName: fieldSpriteSheet,
+			SpriteKey:       "window",
+			Depth:           gc.DepthNumTaller,
+		},
+		Fixed:           &gc.Fixed{},
+		BlockPass:       &gc.BlockPass{}, // 初期は閉。BlockView は付けない
+		LocationOnField: &gc.LocationOnField{},
+		Door: &gc.Door{
+			IsOpen:      false,
+			Orientation: orientation,
+			SeeThrough:  true,
 		},
 		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor}},
 	}), nil
