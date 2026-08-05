@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.7%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.7%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.3%)</option>
 				
@@ -517,7 +517,7 @@
 				
 				<option value="file230">github.com/kijimaD/ruins/internal/systems/turn_system.go (84.4%)</option>
 				
-				<option value="file231">github.com/kijimaD/ruins/internal/systems/vision.go (50.0%)</option>
+				<option value="file231">github.com/kijimaD/ruins/internal/systems/vision.go (70.0%)</option>
 				
 				<option value="file232">github.com/kijimaD/ruins/internal/systems/visual_effect.go (17.6%)</option>
 				
@@ -1521,7 +1521,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1611,7 +1611,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -48692,7 +48692,7 @@ func (sys *VisionSystem) Update(world w.World) error <span class="cov0" title="0
                         continue</span>
                 }
 
-                <span class="cov0" title="0">vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row})
+                <span class="cov0" title="0">vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex)
                 field.ExploredTiles[gridElement] = true
                 visibleTiles[gridElement] = true</span>
         }
@@ -48880,8 +48880,9 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
         }
 }
 
-// calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する
-func calculateLightSourceDarkness(world w.World, tile consts.Coord[int]) gc.LightInfo <span class="cov0" title="0">{
+// calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する。
+// 光源からタイルへの視線が壁で遮られている光源は寄与しない。壁の裏へ光が漏れるのを防ぐ。
+func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool) gc.LightInfo <span class="cov8" title="1">{
         minDarkness := 1.0 // 完全に暗い状態からスタート
 
         // 加重平均用の累積値
@@ -48890,7 +48891,7 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int]) gc.Ligh
 
         // 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない
         lightQuery := query.ActiveFilter2[gc.LightSource, gc.GridElement](world).Query()
-        for lightQuery.Next() </span><span class="cov0" title="0">{
+        for lightQuery.Next() </span><span class="cov8" title="1">{
                 lightEntity := lightQuery.Entity()
                 lightSource := world.Components.LightSource.Get(lightEntity)
 
@@ -48899,32 +48900,38 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int]) gc.Ligh
                         continue</span>
                 }
 
-                <span class="cov0" title="0">lightGrid := world.Components.GridElement.Get(lightEntity)
+                <span class="cov8" title="1">lightGrid := world.Components.GridElement.Get(lightEntity)
 
                 // 距離計算（タイル単位）
                 distance := geometry.Distance(float64(tile.X), float64(tile.Y), float64(lightGrid.X), float64(lightGrid.Y))
 
                 // 光源範囲内かチェック
-                if distance &lt;= float64(lightSource.Radius) </span><span class="cov0" title="0">{
+                if distance &lt;= float64(lightSource.Radius) </span><span class="cov8" title="1">{
+                        // 光源からタイルまでの視線が壁で遮られているなら、この光は届かない。
+                        // プレイヤー視界と同じ遮蔽判定を光源起点で行い、壁の裏へ光が漏れるのを防ぐ。
+                        if !bresenhamLineOfSight(int(lightGrid.X), int(lightGrid.Y), tile.X, tile.Y, blockIndex) </span><span class="cov8" title="1">{
+                                continue</span>
+                        }
+
                         // 光源中心（距離0-1タイル）も周囲と同じ明るさにする
-                        if distance &lt; 1.0 </span><span class="cov0" title="0">{
+                        <span class="cov8" title="1">if distance &lt; 1.0 </span><span class="cov0" title="0">{
                                 distance = 1.0
                         }</span>
 
                         // 距離の正規化
-                        <span class="cov0" title="0">normalizedDistance := distance / float64(lightSource.Radius)
+                        <span class="cov8" title="1">normalizedDistance := distance / float64(lightSource.Radius)
 
                         // 光源中心から滑らかに暗くなる
                         // 中心付近も少し暗くする（最小暗闇レベル0.3）
                         darkness := math.Pow(normalizedDistance, 1.5)*0.6 + 0.3
 
                         // 暗闇レベルは最も明るい光源を採用
-                        if darkness &lt; minDarkness </span><span class="cov0" title="0">{
+                        if darkness &lt; minDarkness </span><span class="cov8" title="1">{
                                 minDarkness = darkness
                         }</span>
 
                         // 光の強さを重みとして使用する。近いほど強い
-                        <span class="cov0" title="0">weight := 1.0 - normalizedDistance
+                        <span class="cov8" title="1">weight := 1.0 - normalizedDistance
 
                         // 加重平均のための累積
                         totalR += float64(lightSource.Color.R) * weight
@@ -48935,14 +48942,14 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int]) gc.Ligh
         }
 
         // 加重平均を計算
-        <span class="cov0" title="0">var finalR, finalG, finalB uint8
-        if totalWeight &gt; 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">var finalR, finalG, finalB uint8
+        if totalWeight &gt; 0 </span><span class="cov8" title="1">{
                 finalR = uint8(math.Min(255, totalR/totalWeight))
                 finalG = uint8(math.Min(255, totalG/totalWeight))
                 finalB = uint8(math.Min(255, totalB/totalWeight))
         }</span>
 
-        <span class="cov0" title="0">return gc.LightInfo{
+        <span class="cov8" title="1">return gc.LightInfo{
                 Darkness: minDarkness,
                 Color:    color.RGBA{R: finalR, G: finalG, B: finalB, A: 255},
         }</span>
