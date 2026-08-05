@@ -8,7 +8,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -225,9 +224,9 @@ func (st *ItemActionState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// HandleInput はキー入力を Action に変換する。詳細モーダルの入力は Update 側で detail が扱う。
-// 動詞ショートカットは verbList から導くので、動詞追加は verbList の1行で足りる
-func (st *ItemActionState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+// ExtraInput は共通入力に加える動詞ショートカットを返す。verbList から導くので追加は1行で足りる。
+// Shift 無しの x は動詞でなく詳細モーダルを開く
+func (st *ItemActionState) ExtraInput() (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
 	shift := ki.IsKeyPressed(ebiten.KeyShift)
 	// Shift 無しの x は動詞でなく詳細モーダルを開く。Shift+x の調べるとキーを共有するので先に分ける
@@ -239,7 +238,7 @@ func (st *ItemActionState) HandleInput(_ *config.Config) (inputmapper.ActionID, 
 			return v.Action, true
 		}
 	}
-	return menurt.HandleMenuInput()
+	return "", false
 }
 
 // DoAction は Action を実行する

@@ -5,7 +5,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
@@ -123,9 +122,9 @@ func (st *CharacterState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// HandleInput は閲覧中のキー入力を Action に変換する。装備選択中は overlay が入力を専有するため
-// Screen はこれを呼ばない。対象切替の , . と詳細の x は画面固有キーとしてここで読む
-func (st *CharacterState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+// ExtraInput は共通入力に加える独自キーを返す。装備選択中は overlay が入力を専有するため
+// Screen はこれを呼ばない。対象切替の , . と詳細の x を画面固有キーとしてここで読む
+func (st *CharacterState) ExtraInput() (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
 	if ki.IsKeyJustPressed(ebiten.KeyComma) {
 		return inputmapper.ActionMenuSubjectPrev, true
@@ -136,7 +135,7 @@ func (st *CharacterState) HandleInput(_ *config.Config) (inputmapper.ActionID, b
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		return inputmapper.ActionOpenItemDetail, true
 	}
-	return menurt.HandleMenuInput()
+	return "", false
 }
 
 // DoAction は閲覧中の Action を実行する

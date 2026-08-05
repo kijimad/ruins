@@ -8,7 +8,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -40,8 +39,6 @@ func (st *TavernMenuState) StateConfig() StateConfig {
 	return StateConfig{BlurBackground: false}
 }
 
-var _ es.ActionHandler[w.World] = &TavernMenuState{}
-
 // OnStart はステートが開始する際に呼ばれる
 func (st *TavernMenuState) OnStart(world w.World) error {
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
@@ -62,13 +59,13 @@ func (st *TavernMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// HandleInput は入力を処理してアクションIDを返す
-func (st *TavernMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+// ExtraInput は共通入力に加える独自キーを返す。x で選択中候補の詳細モーダルを開く
+func (st *TavernMenuState) ExtraInput() (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		return inputmapper.ActionOpenItemDetail, true
 	}
-	return menurt.HandleMenuInput()
+	return "", false
 }
 
 // DoAction はアクションを実行してステート遷移を返す

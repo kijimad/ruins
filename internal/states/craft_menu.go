@@ -7,7 +7,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
@@ -45,8 +44,6 @@ func (st *CraftMenuState) StateConfig() StateConfig {
 	return StateConfig{BlurBackground: false}
 }
 
-var _ es.ActionHandler[w.World] = &CraftMenuState{}
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
@@ -67,13 +64,13 @@ func (st *CraftMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// HandleInput はキー入力をActionに変換する
-func (st *CraftMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+// ExtraInput は共通入力に加える独自キーを返す。x で選択中の詳細モーダルを開く
+func (st *CraftMenuState) ExtraInput() (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		return inputmapper.ActionOpenItemDetail, true
 	}
-	return menurt.HandleMenuInput()
+	return "", false
 }
 
 // DoAction はActionを実行する

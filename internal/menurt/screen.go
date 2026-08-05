@@ -9,7 +9,6 @@ package menurt
 import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -36,8 +35,8 @@ type MenuConfig struct {
 }
 
 // Model はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
-// DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。入力変換は既定で
-// HandleMenuInput を使い、独自キーが要る state だけ customInput を実装して上書きする
+// DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。共通のメニュー入力は
+// Screen が HandleMenuInput で必ず適用し、独自キーが要る state だけ extraInput でその分を足す
 type Model[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
@@ -46,10 +45,10 @@ type Model[P any] interface {
 	View(world w.World, props P, sel Selection, res resources.UIResources) *ebitenui.UI
 }
 
-// customInput は既定のメニュー入力に加えて独自キーを扱う state が満たす任意契約。
-// Screen は model がこれを満たすときだけ HandleInput を呼び、満たさなければ HandleMenuInput を使う
-type customInput interface {
-	HandleInput(cfg *config.Config) (inputmapper.ActionID, bool)
+// extraInput は共通のメニュー入力に加えて独自キーを扱う state が満たす任意契約。
+// 返すのは独自キーの分だけでよい。共通の HandleMenuInput は Screen が必ず後段で適用する
+type extraInput interface {
+	ExtraInput() (inputmapper.ActionID, bool)
 }
 
 // Screen はメニューの UI ランタイム。mount・widget と overlay・systems を保持し、毎フレームの
@@ -91,12 +90,13 @@ func (s *Screen[P]) activeOverlay() menuscreen.Overlay {
 	return nil
 }
 
-// readAction は1フレームの入力を Action に変換する。model が customInput を満たすときはその独自変換を、
-// 満たさないときは共通の HandleMenuInput を使う。既定入力を Screen に集約し、独自キーが要る state
-// だけが customInput で上書きする
-func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
-	if h, ok := s.model.(customInput); ok {
-		return h.HandleInput(world.Config)
+// readAction は1フレームの入力を Action に変換する。独自キーを持つ state は extraInput でその分だけを
+// 返し、共通の HandleMenuInput は必ず後段で適用する。共通入力を Screen に集約し、state には追加分だけ書かせる
+func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) {
+	if h, ok := s.model.(extraInput); ok {
+		if action, ok := h.ExtraInput(); ok {
+			return action, true
+		}
 	}
 	return HandleMenuInput()
 }
@@ -119,7 +119,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		if err := ov.HandleInput(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	} else if action, ok := s.readAction(world); ok {
+	} else if action, ok := s.readAction(); ok {
 		if tr, err := m.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if tr.Type != es.TransNone {
