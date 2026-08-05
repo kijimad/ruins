@@ -6,14 +6,12 @@ import (
 	"slices"
 
 	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/widgets/pagination"
+	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -21,59 +19,25 @@ import (
 // ComponentDebugState はコンポーネント数を一覧表示するデバッグ用ステート
 type ComponentDebugState struct {
 	es.BaseState[w.World]
-	mount  *hooks.Mount[componentDebugProps]
-	widget *ebitenui.UI
+	screen *menurt.Screen[ComponentDebugProps]
 }
 
 var _ es.State[w.World] = &ComponentDebugState{}
 
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *ComponentDebugState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *ComponentDebugState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが停止される際に呼ばれる
-func (st *ComponentDebugState) OnStop(_ w.World) error { return nil }
-
 // OnStart はステートが開始される際に呼ばれる
 func (st *ComponentDebugState) OnStart(_ w.World) error {
-	st.mount = hooks.NewMount[componentDebugProps]()
+	st.screen = menurt.NewScreen[ComponentDebugProps](st)
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *ComponentDebugState) Update(world w.World) (es.Transition[w.World], error) {
-	action, ok := HandleMenuInput()
-	if ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.mount.Dispatch(action)
-	}
-
-	props := st.fetchProps(world)
-	st.mount.SetProps(props)
-
-	hooks.UseTabMenu(st.mount.Store(), "compdbg", hooks.TabMenuConfig{
-		TabCount:     1,
-		ItemCounts:   []int{len(props.Items)},
-		ItemsPerPage: menuItemsPerPage,
-	})
-
-	if st.mount.Update() {
-		st.widget = st.buildUI(world)
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world)
 }
 
 // Draw はゲームステートの描画処理を行う
 func (st *ComponentDebugState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
 }
 
@@ -98,7 +62,8 @@ func NewComponentDebugState() (es.State[w.World], error) {
 // Props
 // ================
 
-type componentDebugProps struct {
+// ComponentDebugProps は画面の表示 props。menurt.Screen の型引数として渡す
+type ComponentDebugProps struct {
 	Items []componentDebugItem
 	Total int
 }
@@ -108,7 +73,8 @@ type componentDebugItem struct {
 	Count int
 }
 
-func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+func (st *ComponentDebugState) Fetch(world w.World) ComponentDebugProps {
 	// Ark に登録された全コンポーネントを走査し、種類ごとの保有エンティティ数を集計する
 	ids := ecs.ComponentIDs(world.ECS)
 	items := make([]componentDebugItem, 0, len(ids))
@@ -136,57 +102,32 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
 		return cmp.Compare(b.Count, a.Count)
 	})
 
-	return componentDebugProps{Items: items, Total: total}
+	return ComponentDebugProps{Items: items, Total: total}
+}
+
+// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
+func (st *ComponentDebugState) Menu(props ComponentDebugProps) menurt.MenuConfig {
+	return menurt.MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuItemsPerPage}
 }
 
 // ================
-// buildUI
+// view
 // ================
 
-func (st *ComponentDebugState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.mount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, "compdbg")
-	itemIndex := menuState.ItemIndex
-
-	root := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-		widget.ContainerOpts.Layout(
-			widget.NewGridLayout(
-				widget.GridLayoutOpts.Columns(1),
-				widget.GridLayoutOpts.Spacing(0, theme.Space2),
-				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
-				widget.GridLayoutOpts.Padding(&widget.Insets{
-					Top:    theme.Space3,
-					Bottom: theme.Space3,
-					Left:   theme.Space3,
-					Right:  theme.Space3,
-				}),
-			),
-		),
-	)
-
-	// Row 0: タイトル
-	root.AddChild(styled.NewTitleText(fmt.Sprintf("コンポーネント (合計: %d)", props.Total), res))
-
-	// Row 1: リスト
-	container := styled.NewVerticalContainer()
-
-	pg := pagination.New(itemIndex, len(props.Items), menuItemsPerPage)
-	container.AddChild(newPageIndicator(pg, res))
-
-	columnWidths := []int{160, 60}
+// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
+func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-	table := styled.NewTableContainer(columnWidths, res)
-
-	for _, entry := range pagination.VisibleEntries(props.Items, pg) {
-		styled.NewTableRow(table, columnWidths,
-			[]string{entry.Item.Name, fmt.Sprintf("%d", entry.Item.Count)},
-			aligns, new(pg.IsSelectedInPage(entry.Index)), res,
-		)
+	rows := make([]menuRow, len(props.Items))
+	for i, it := range props.Items {
+		rows[i] = menuRow{Cells: []string{it.Name, fmt.Sprintf("%d", it.Count)}}
 	}
-	container.AddChild(table)
-	root.AddChild(container)
+	container := renderMenuList(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
 
-	return &ebitenui.UI{Container: root}
+	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
+	return newTabScreenUI(res, tabScreen{
+		Header:  fmt.Sprintf("コンポーネント (合計: %d)", props.Total),
+		Content: container,
+		Footer:  menuNavHint(false),
+	})
 }

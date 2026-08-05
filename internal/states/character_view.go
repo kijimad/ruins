@@ -2,25 +2,21 @@ package states
 
 import (
 	"fmt"
+	"image"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// characterSelection は人物画面の描画に必要なカーソル位置。どのタブのどの行を強調するかを表す
-type characterSelection struct {
-	TabIndex  int
-	ItemIndex int
-}
-
-// buildCharacterUI は人物画面のタブ本体を props と選択位置だけから組み立てる。
-// state に触れない純粋描画で、詳細や装備選択のオーバーレイ窓は呼び出し側が重ねる
-func buildCharacterUI(props characterProps, sel characterSelection, res resources.UIResources) *ebitenui.UI {
+// View は人物画面のタブ本体を props と選択位置だけから組み立てる純粋描画。world には触れず、
+// 詳細や装備選択のオーバーレイ窓は Screen が重ねる。menurt.Model の View 部にあたる
+func (st *CharacterState) View(_ w.World, props CharacterProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 見出しは対象キャラ名。仲間がいれば左右矢印で切替可能を示す。
 	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
 	header := props.TargetName
@@ -30,12 +26,12 @@ func buildCharacterUI(props characterProps, sel characterSelection, res resource
 
 	// コンテンツは現在タブの中身。装備は編集可能、以降は読み取り専用の情報タブ
 	var content *widget.Container
-	if charTabAt(sel.TabIndex) == charTabEquip {
-		content = buildEquipList(props.EquipSlots, sel.ItemIndex, res)
-	} else if charTabAt(sel.TabIndex) == charTabCommand {
-		content = buildCommandTable(props.Commands, sel.ItemIndex, res)
-	} else if infoIdx := sel.TabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
-		content = buildInfoTable(props.InfoTabs[infoIdx], sel.ItemIndex, res)
+	if charTabAt(cursor.TabIndex) == charTabEquip {
+		content = buildEquipList(props.EquipSlots, cursor.ItemIndex, res)
+	} else if charTabAt(cursor.TabIndex) == charTabCommand {
+		content = buildCommandTable(props.Commands, cursor.ItemIndex, res)
+	} else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
+		content = buildInfoTable(props.InfoTabs[infoIdx], cursor.ItemIndex, res)
 	} else {
 		content = widget.NewContainer()
 	}
@@ -48,7 +44,7 @@ func buildCharacterUI(props characterProps, sel characterSelection, res resource
 	return newTabScreenUI(res, tabScreen{
 		Header:    header,
 		TabLabels: characterTabLabels(),
-		TabIndex:  sel.TabIndex,
+		TabIndex:  cursor.TabIndex,
 		Content:   content,
 		Footer:    menuNavHint(true, extras...),
 	})
@@ -56,47 +52,29 @@ func buildCharacterUI(props characterProps, sel characterSelection, res resource
 
 // buildEquipList は装備タブの一覧を組み立てる。左にスロット名、右に装備名を並べ、未装備は空欄にする
 func buildEquipList(slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-	// 情報タブと開始位置を揃えるため、先頭に同じページ表示行を必ず置く
-	container.AddChild(newPageIndicatorRow(itemIndex, len(slots), res))
-	if len(slots) == 0 {
-		container.AddChild(styled.NewDescriptionText("装備スロットがありません", res))
-		return container
-	}
-
-	columnWidths := []int{110, 220}
+	columnWidths := []int{120, 220}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
-	table := styled.NewTableContainer(columnWidths, res)
+	rows := make([]menuRow, len(slots))
 	for i, slot := range slots {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{slot.SlotLabel, slot.ItemName}, aligns, &isSelected, res)
+		rows[i] = menuRow{Cells: []string{slot.SlotLabel, slot.ItemName}}
 	}
-	container.AddChild(table)
-	return container
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "装備スロットがありません"}, res)
 }
 
 // buildCommandTable は命令タブの一覧を組み立てる。左に指示名、右に現在の値を並べる
-func buildCommandTable(rows []commandRow, itemIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-	container.AddChild(newPageIndicatorRow(itemIndex, len(rows), res))
-	if len(rows) == 0 {
-		container.AddChild(styled.NewDescriptionText("この対象に隊列指示はない", res))
-		return container
-	}
-	columnWidths := []int{120, 160}
+func buildCommandTable(cmdRows []commandRow, itemIndex int, res resources.UIResources) *widget.Container {
+	columnWidths := []int{180, 160}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
-	table := styled.NewTableContainer(columnWidths, res)
-	for i, row := range rows {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{string(row.Kind), row.Value}, aligns, &isSelected, res)
+	rows := make([]menuRow, len(cmdRows))
+	for i, row := range cmdRows {
+		rows[i] = menuRow{Cells: []string{string(row.Kind), row.Value}}
 	}
-	container.AddChild(table)
-	return container
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "この対象に隊列指示はない"}, res)
 }
 
-// buildEquipSelectWindow は装備選択のサブウィンドウを組み立てる。
+// buildEquipSelectWindow は装備選択のサブウィンドウを rect の位置へ組み立てる。
 // 候補名は world から引くため world を受け取るが、選択状態は selectedIndex で明示的に渡す
-func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) *widget.Window {
+func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex int, rect image.Rectangle, res resources.UIResources) *widget.Window {
 	content := styled.NewWindowContainer(res)
 	title := styled.NewWindowHeaderContainer("装備を選ぶ", res)
 	win := styled.NewSmallWindow(title, content)
@@ -107,6 +85,6 @@ func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex i
 		name := world.Components.Name.Get(entity).Name
 		content.AddChild(styled.NewListItemText(name, theme.TextSecondary, i == selectedIndex, res))
 	}
-	win.SetLocation(getCenterWinRect(world))
+	win.SetLocation(rect)
 	return win
 }

@@ -16,6 +16,19 @@ var (
 		},
 	}
 
+	// DungeonDebugTown は街用NPCと収納箱をテンプレートで固定配置するデバッグ用定義。
+	// 敵・アイテムテーブルを空にして、共通の敵配置プランナーを自然に空振りさせ、敵を湧かせない
+	DungeonDebugTown = &DungeonDefinition{
+		name:        "デバッグ街",
+		totalFloors: 1,
+		enemyTable:  "",
+		itemTable:   "",
+		baseTemp:    20,
+		plannerPool: []PlannerWeight{
+			{PlannerType: mapplanner.PlannerTypeDebugTown, Weight: 1},
+		},
+	}
+
 	// DungeonForest は森ダンジョン定義
 	DungeonForest = &DungeonDefinition{
 		name:        "亡者の森",
@@ -119,6 +132,7 @@ func GetAllDungeonNames() []string {
 // internalDefinitions は選択画面に表示しない内部用の定義
 var internalDefinitions = []StageDefinition{
 	DungeonDebug,
+	DungeonDebugTown,
 	DungeonOverworld,
 	DungeonCubeInterior,
 }

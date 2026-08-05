@@ -1,4 +1,4 @@
-package states
+package menurt
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"

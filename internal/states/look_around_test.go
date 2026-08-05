@@ -12,15 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLookAroundState_StateConfig(t *testing.T) {
-	t.Parallel()
-
-	state := &LookAroundState{}
-	config := state.StateConfig()
-
-	assert.False(t, config.BlurBackground, "LookAroundStateはブラーを適用しない")
-}
-
 func TestLookAroundState_OnStart(t *testing.T) {
 	t.Parallel()
 

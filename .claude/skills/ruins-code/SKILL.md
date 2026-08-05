@@ -32,6 +32,17 @@ Go のベテランとして、シンプルさとテストしやすさを最優�
 - linter ルールは無視設定しない。
 - 生成ファイル（`*_gen.go`）は手編集しない。生成元を直して再生成する。
 
+## メニュー画面
+
+メニュー系 state は共通ランタイム `states.Screen[Props]` の上に載せ、state と描画を分離する。設計は `docs/design/20260804_87.md`。
+
+- state 構造体に `widget *ebitenui.UI`・`rebuild bool`・`*hooks.Mount` を直接持たせない。これらは UI ランタイムで、`Screen[Props]` が保持する。state はドメイン状態だけを持つ。
+- `Update` は `st.screen.Update(world, st)` へ、`Draw` は `st.screen.Draw(screen)` へ委譲する。6手順の骨格を各 state に写経しない。
+- `view` は state を読まない。`view(world, props, sel, res)` の引数だけから widget を組む純粋関数にする。`st.` を読み始めたら分離できていない合図。現在値は `st.screen.Props()`・`st.screen.Selection()` から取る。
+- 詳細モーダルやアクション窓は `menuscreen.Overlay` として `NewScreen` に登録する。入力ゲートと重ねは Screen が扱う。入れ子や第2カーソルの変則画面も Overlay の合成で表現し、Screen 本体に画面固有の条件分岐を足さない。`isXxxScreen` 相当のフラグが Screen に生えたら誤った抽象の警報。
+- 「本文＋選択肢」の単純メニューは `states.ChoiceMenu` を使う。`messagedata` はナラティブのメッセージ提示に用途を限り、メニューには使わない。
+- テキスト入力フォームなど list メニューに素直に載らない画面は無理に載せず bespoke で残す。
+
 ## テスト
 
 - 極力 `github.com/stretchr/testify` のアサート（`assert.Error` / `require.Error` 等）を使う。`t.Error()` / `t.Fatal()` は使わない。

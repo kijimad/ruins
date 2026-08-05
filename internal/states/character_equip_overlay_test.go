@@ -1,0 +1,110 @@
+package states
+
+import (
+	"testing"
+
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+// newEquipOverlayForTest は detail を使わない装備選択 overlay を用意する。execute は detail に触れない
+func newEquipOverlayForTest() characterEquipOverlay {
+	detail := menuscreen.NewDetail(func(w.World) (menuscreen.DetailContent, bool) {
+		return menuscreen.DetailContent{}, false
+	})
+	return newCharacterEquipOverlay(&detail)
+}
+
+func TestCharacterEquipOverlay_Openで候補を読み込み選択中になる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+	sword, err := lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
+	require.NoError(t, err)
+
+	o := newEquipOverlayForTest()
+	require.False(t, o.Active(), "開く前は非アクティブ")
+
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Member: player})
+	require.True(t, o.Active(), "Open で装備選択中になる")
+
+	got, ok := o.selectedItem()
+	require.True(t, ok, "候補が選択できる")
+	assert.Equal(t, sword, got, "先頭候補は所持する鉄の剣。カーソル未操作なので index 0")
+}
+
+func TestCharacterEquipOverlay_executeで空きスロットに候補を装着する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+	sword, err := lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
+	require.NoError(t, err)
+
+	o := newEquipOverlayForTest()
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Member: player})
+	require.NoError(t, o.execute(world))
+
+	// 鉄の剣が武器1スロットへ装備され、持ち物から外れる
+	weapons := query.GetWeapons(world, player)
+	require.NotNil(t, weapons[0], "武器1スロットが埋まる")
+	assert.Equal(t, sword, *weapons[0], "装着したのは鉄の剣")
+	assert.False(t, world.Components.LocationInBackpack.Has(sword), "装着後は持ち物から外れる")
+}
+
+func TestCharacterEquipOverlay_executeで既存装備を持ち物へ戻す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+
+	// 先に1本装備しておく。これが差し替えで持ち物へ戻る旧装備になる
+	old, err := lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
+	require.NoError(t, err)
+	lifecycle.MoveToEquip(world, old, player, gc.SlotWeapon1)
+	require.False(t, world.Components.LocationInBackpack.Has(old), "旧装備は一旦持ち物から外れている")
+
+	// 別の武器を持ち、旧装備を PreviousEquipment に持つスロットで開く
+	fresh, err := lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
+	require.NoError(t, err)
+	o := newEquipOverlayForTest()
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Member: player, Entity: &old})
+
+	got, ok := o.selectedItem()
+	require.True(t, ok)
+	assert.Equal(t, fresh, got, "候補は持ち物に残る新しい武器だけ")
+
+	require.NoError(t, o.execute(world))
+
+	assert.True(t, world.Components.LocationInBackpack.Has(old), "旧装備が持ち物へ戻る")
+	assert.False(t, world.Components.LocationInBackpack.Has(fresh), "新装備が持ち物から外れる")
+	weapons := query.GetWeapons(world, player)
+	require.NotNil(t, weapons[0], "武器1スロットが埋まる")
+	assert.Equal(t, fresh, *weapons[0], "武器1スロットは差し替え後の武器")
+}
+
+// TestCharacterEquipOverlay_候補が無ければ何もしない は空スロットでも候補ゼロなら execute が無害なことを検証する
+func TestCharacterEquipOverlay_候補が無ければ何もしない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	require.NoError(t, err)
+
+	o := newEquipOverlayForTest()
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Member: player})
+
+	_, ok := o.selectedItem()
+	assert.False(t, ok, "装備候補が無ければ選択できない")
+	require.NoError(t, o.execute(world), "候補が無くても execute はエラーにせず何もしない")
+
+	weapons := query.GetWeapons(world, player)
+	assert.Nil(t, weapons[0], "武器1スロットは空のまま")
+}

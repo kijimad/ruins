@@ -7,11 +7,11 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -21,20 +21,12 @@ import (
 // MainMenuState はメインメニューのゲームステート
 type MainMenuState struct {
 	es.BaseState[w.World]
-	menuMount *hooks.Mount[mainMenuProps]
-	widget    *ebitenui.UI
+	screen *menurt.Screen[MainMenuProps]
 }
 
 // State interface ================
 
 var _ es.State[w.World] = &MainMenuState{}
-var _ es.ActionHandler[w.World] = &MainMenuState{}
-
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *MainMenuState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *MainMenuState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
 func (st *MainMenuState) OnStart(world w.World) error {
@@ -50,40 +42,13 @@ func (st *MainMenuState) OnStart(world w.World) error {
 	// シングルトンエンティティを再構築する
 	world.InitSingleton()
 
-	st.menuMount = hooks.NewMount[mainMenuProps]()
+	st.screen = menurt.NewScreen[MainMenuProps](st)
 	return nil
 }
 
-// OnStop はステートが停止される際に呼ばれる
-func (st *MainMenuState) OnStop(_ w.World) error { return nil }
-
 // Update はゲームステートの更新処理を行う
 func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.menuMount.Dispatch(action)
-	}
-
-	// Props更新
-	st.menuMount.SetProps(st.fetchProps(world))
-	props := st.menuMount.GetProps()
-	hooks.UseTabMenu(st.menuMount.Store(), "menu", hooks.TabMenuConfig{
-		TabCount:   1,
-		ItemCounts: []int{len(props.Items)},
-	})
-
-	// dirty判定とUI再構築
-	if st.menuMount.Update() || st.widget == nil {
-		st.widget = st.buildUI(world)
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world)
 }
 
 // Draw はスクリーンに描画する
@@ -95,13 +60,8 @@ func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
 	}
 	screen.DrawImage(bgImage, nil)
 
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
-}
-
-// HandleInput はキー入力をActionに変換する
-func (st *MainMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する
@@ -123,8 +83,8 @@ func (st *MainMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
 // Props
 // ================
 
-// mainMenuProps はメインメニューのProps
-type mainMenuProps struct {
+// MainMenuProps はメインメニューのProps
+type MainMenuProps struct {
 	Items []mainMenuItem
 }
 
@@ -134,7 +94,8 @@ type mainMenuItem struct {
 	Transition es.Transition[w.World]
 }
 
-func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+func (st *MainMenuState) Fetch(world w.World) MainMenuProps {
 	var startFuncs []es.StateFactory[w.World]
 	if world.Config.SkipOpening {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
@@ -142,7 +103,7 @@ func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
 	}
 
-	return mainMenuProps{
+	return MainMenuProps{
 		Items: []mainMenuItem{
 			{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},
 			{Label: "デモ", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}},
@@ -153,37 +114,34 @@ func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
 	}
 }
 
-func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
-	props := st.menuMount.GetProps()
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
-	if !ok {
-		return es.Transition[w.World]{}, fmt.Errorf("menuの取得に失敗")
-	}
-	itemIndex := menuState.ItemIndex
+// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
+func (st *MainMenuState) Menu(props MainMenuProps) menurt.MenuConfig {
+	return menurt.MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
+}
 
+func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
+	props := st.screen.Props()
+	itemIndex := st.screen.Selection().ItemIndex
 	if itemIndex >= len(props.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
-
 	return props.Items[itemIndex].Transition, nil
 }
 
 // ================
-// buildUI
+// View
 // ================
 
-func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.menuMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
-	itemIndex := menuState.ItemIndex
+// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
+func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+	itemIndex := cursor.ItemIndex
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
 	menuContainer := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Stretch: true,
@@ -191,11 +149,12 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 			widget.WidgetOpts.MinSize(200, 0),
 		),
 	)
+	// 行は共通ヘルパで組み、縦幅・行間・幅を他メニューと揃える
+	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {
-		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(item.Label, theme.TextSecondary, isSelected, res)
-		menuContainer.AddChild(itemWidget)
+		rows[i] = menuRow{Cells: []string{item.Label}}
 	}
+	menuContainer.AddChild(renderMenuList(itemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
 
 	// バージョン表示テキストを作成
 	versionInfo := []string{}

@@ -8,10 +8,10 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
+	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -25,85 +25,42 @@ import (
 // TavernMenuState は酒場の雇用画面のゲームステート
 type TavernMenuState struct {
 	es.BaseState[w.World]
-	actionWin  menuscreen.ActionWindow // 雇用のアクション選択ウィンドウ
-	rebuild    bool                    // 次フレームで UI を作り直すか
-	menuMount  *hooks.Mount[tavernProps]
-	widget     *ebitenui.UI
+	actionWin  menuscreen.ActionWindow // 雇用のアクション選択。overlay として Screen に登録する
+	detail     menuscreen.Detail       // 候補の能力・費用を出す詳細モーダル。overlay として Screen に登録する
+	screen     *menurt.Screen[TavernProps]
 	candidates []tavernCandidate
 }
 
 var _ es.State[w.World] = &TavernMenuState{}
-var _ Configurable = &TavernMenuState{}
-
-// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
-func (st *TavernMenuState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
-
-var _ es.ActionHandler[w.World] = &TavernMenuState{}
-
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *TavernMenuState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *TavernMenuState) OnResume(_ w.World) error { return nil }
-
-// OnStop はステートが終了する際に呼ばれる
-func (st *TavernMenuState) OnStop(_ w.World) error { return nil }
+var _ menurt.ExtraInput = &TavernMenuState{}
 
 // OnStart はステートが開始する際に呼ばれる
 func (st *TavernMenuState) OnStart(world w.World) error {
-	st.menuMount = hooks.NewMount[tavernProps]()
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
+	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.screen = menurt.NewScreen[TavernProps](st, &st.detail, &st.actionWin)
 	st.candidates = generateCandidates(world.Config.RNG)
 	return nil
 }
 
 // Update はステートの更新処理を行う
 func (st *TavernMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	if st.actionWin.Active() {
-		dirty, err := st.actionWin.HandleInput(world)
-		if err != nil {
-			return es.Transition[w.World]{}, err
-		}
-		if dirty {
-			st.rebuild = true
-		}
-	} else if action, ok := st.HandleInput(world.Config); ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.menuMount.Dispatch(action)
-	}
-
-	props := st.fetchProps(world)
-	st.menuMount.SetProps(props)
-
-	hooks.UseTabMenu(st.menuMount.Store(), "tavern", hooks.TabMenuConfig{
-		TabCount:   1,
-		ItemCounts: []int{len(props.Candidates)},
-	})
-
-	if st.menuMount.Update() || st.widget == nil || st.rebuild {
-		st.widget = st.buildUI(world)
-		st.rebuild = false
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world)
 }
 
 // Draw はステートの描画処理を行う
 func (st *TavernMenuState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
 }
 
-// HandleInput は入力を処理してアクションIDを返す
-func (st *TavernMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	return HandleMenuInput()
+// ExtraInput は共通入力に加える独自キーを返す。x で選択中候補の詳細モーダルを開く
+func (st *TavernMenuState) ExtraInput() (inputmapper.ActionID, bool) {
+	ki := input.GetSharedKeyboardInput()
+	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
+		return inputmapper.ActionOpenItemDetail, true
+	}
+	return "", false
 }
 
 // DoAction はアクションを実行してステート遷移を返す
@@ -111,9 +68,10 @@ func (st *TavernMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case inputmapper.ActionOpenItemDetail:
+		st.detail.Open()
 	case inputmapper.ActionMenuSelect:
 		st.actionWin.Open()
-		st.rebuild = true
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理
 	default:
@@ -204,7 +162,8 @@ func calculateHiringCost(a gc.Abilities) int {
 // Props
 // ================
 
-type tavernProps struct {
+// TavernProps は画面の表示 props。menurt.Screen の型引数として渡す
+type TavernProps struct {
 	Candidates []tavernCandidateData
 	Currency   int
 }
@@ -217,7 +176,8 @@ type tavernCandidateData struct {
 	CanAfford bool
 }
 
-func (st *TavernMenuState) fetchProps(world w.World) tavernProps {
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+func (st *TavernMenuState) Fetch(world w.World) TavernProps {
 	var currency int
 	query.Player(world, func(playerEntity ecs.Entity) {
 		currency = query.GetCurrency(world, playerEntity)
@@ -235,7 +195,7 @@ func (st *TavernMenuState) fetchProps(world w.World) tavernProps {
 		})
 	}
 
-	return tavernProps{
+	return TavernProps{
 		Candidates: candidates,
 		Currency:   currency,
 	}
@@ -244,6 +204,11 @@ func (st *TavernMenuState) fetchProps(world w.World) tavernProps {
 // ================
 // Window
 // ================
+
+// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
+func (st *TavernMenuState) Menu(props TavernProps) menurt.MenuConfig {
+	return menurt.MenuConfig{Key: "tavern", TabCount: 1, ItemCounts: []int{len(props.Candidates)}}
+}
 
 // actionWindowContent は現在カーソルが当たっている候補の見出しと選択肢を返す。アクション窓の唯一の定義点。
 // 雇用の実行内容も Run に閉じ込め、雇用・閉じるを1箇所で定義する
@@ -265,12 +230,12 @@ func (st *TavernMenuState) actionWindowContent(_ w.World) (string, []menuscreen.
 
 // selectedCandidate は現在カーソルが当たっている雇用候補を返す
 func (st *TavernMenuState) selectedCandidate() (tavernCandidateData, bool) {
-	props := st.menuMount.GetProps()
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "tavern")
-	if !ok || menuState.ItemIndex >= len(props.Candidates) {
+	props := st.screen.Props()
+	cursor := st.screen.Selection()
+	if cursor.ItemIndex >= len(props.Candidates) {
 		return tavernCandidateData{}, false
 	}
-	return props.Candidates[menuState.ItemIndex], true
+	return props.Candidates[cursor.ItemIndex], true
 }
 
 // hireCandidate は idx 番目の候補を雇用し、候補リストから取り除く。所持金が足りなければ何もしない
@@ -296,50 +261,35 @@ func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {
 }
 
 // ================
-// buildUI
+// View
 // ================
 
-func (st *TavernMenuState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.menuMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "tavern")
-	itemIndex := menuState.ItemIndex
-
+// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
+func (st *TavernMenuState) View(_ w.World, props TavernProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	content := styled.NewVerticalContainer()
 	content.AddChild(newCurrencyRow(props.Currency, res))
-	content.AddChild(st.buildCandidateTable(props.Candidates, itemIndex, res))
-
-	eui := newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false)})
-
-	if st.actionWin.Active() {
-		if win := st.actionWin.Window(world, getCenterWinRect(world)); win != nil {
-			eui.AddWindow(win)
-		}
-	}
-
-	return eui
+	content.AddChild(st.buildCandidateTable(props.Candidates, cursor.ItemIndex, res))
+	return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false, "x 詳細")})
 }
 
+// buildCandidateTable は雇用候補を名前のみの1カラムで並べる。能力・費用は x の詳細モーダルで見る
 func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {
-	container := styled.NewVerticalContainer()
-
-	if len(candidates) == 0 {
-		container.AddChild(styled.NewDescriptionText("雇用できる候補がいません", res))
-		return container
-	}
-
-	columnWidths := []int{20, 60, 180, 80}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
-
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableHeaderRow(table, columnWidths, []string{"", "名前", "能力", "費用"}, res)
-
+	rows := make([]menuRow, len(candidates))
 	for i, c := range candidates {
-		isSelected := i == selectedIndex
-		costStr := query.FormatCurrency(c.Cost)
-		styled.NewTableRow(table, columnWidths, []string{"", c.Name, c.Stats, costStr}, aligns, &isSelected, res)
+		rows[i] = menuRow{Cells: []string{c.Name}}
 	}
+	return renderMenuList(selectedIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: "雇用できる候補がいません"}, res)
+}
 
-	container.AddChild(table)
-	return container
+// detailContent は現在カーソルが当たっている候補の能力と費用を返す。詳細モーダルの唯一の定義点
+func (st *TavernMenuState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {
+	c, ok := st.selectedCandidate()
+	if !ok {
+		return menuscreen.DetailContent{}, false
+	}
+	return menuscreen.DetailContent{
+		Name: c.Name,
+		Desc: c.Stats,
+		Rows: []menuscreen.SpecRow{{Label: "費用", Value: query.FormatCurrency(c.Cost)}},
+	}, true
 }

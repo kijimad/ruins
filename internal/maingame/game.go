@@ -15,7 +15,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/screeneffect"
-	"github.com/kijimaD/ruins/internal/states"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -80,23 +79,10 @@ func (game *MainGame) Draw(screen *ebiten.Image) {
 		target = screen
 	}
 
-	// stateを描画し、必要に応じてブラーオーバーレイを適用する
-	stateList := game.StateMachine.GetStates()
-	for i, state := range stateList {
+	// state をスタックの下から順に描画する
+	for _, state := range game.StateMachine.GetStates() {
 		if err := state.Draw(game.World, target); err != nil {
 			log.Fatal(err)
-		}
-
-		// 最初のstate描画後にブラー処理を呼び出す
-		if i == 0 {
-			applyBlur := len(stateList) > 1
-			if applyBlur {
-				topState := stateList[len(stateList)-1]
-				if cfg, ok := topState.(states.Configurable); ok && !cfg.StateConfig().BlurBackground {
-					applyBlur = false
-				}
-			}
-			applyBlurOverlay(target, len(stateList), applyBlur)
 		}
 	}
 

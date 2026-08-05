@@ -180,9 +180,9 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	leaderGrid := world.Components.GridElement.Get(leader)
 
 	// リーダーの近くの空きタイルを探す。街や遺跡入口など密集地では隣接が埋まっていることが
-	// あるため、近い順に外側へ広げて探す。それでも無ければリーダーと同じタイルへ退避させ、
-	// 生成そのものは失敗させない。重なっても次の移動で追従処理が空きへ散らす。
-	spawnPos, ok := findNearbyEmptyTile(world, leaderGrid.Coord, nil, squadPlacementMaxRadius)
+	// あるため、近い順に外側へ広げ、必要ならマップ全体まで探す。それでも無ければリーダーと同じ
+	// タイルへ退避させ、生成そのものは失敗させない。重なっても次の移動で追従処理が空きへ散らす。
+	spawnPos, ok := findPlacementTile(world, leaderGrid.Coord, nil)
 	if !ok {
 		spawnPos = leaderGrid.Coord
 	}

@@ -31,12 +31,6 @@ type OverworldMapState struct {
 }
 
 var _ es.State[w.World] = &OverworldMapState{}
-var _ Configurable = &OverworldMapState{}
-
-// StateConfig はこのステートの設定を返す。俯瞰図は自前で背景を塗るのでぼかしは使わない。
-func (st *OverworldMapState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
 
 // OnPause はステートが一時停止される際に呼ばれる。
 func (st *OverworldMapState) OnPause(_ w.World) error { return nil }

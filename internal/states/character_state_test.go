@@ -28,16 +28,14 @@ func TestEquipableForSlot_所持する装備品が候補に出る(t *testing.T) 
 	assert.NotEmpty(t, equipableForSlot(world, gc.SlotHead), "頭防具を所持していれば頭スロットの候補に出る")
 }
 
-func TestCharacterState_OnStartで各マウントを初期化する(t *testing.T) {
+func TestCharacterState_OnStartが成功し閲覧から始まる(t *testing.T) {
 	t.Parallel()
 
 	state := &CharacterState{}
 	world := testutil.InitTestWorld(t)
 
 	require.NoError(t, state.OnStart(world))
-	assert.NotNil(t, state.mount)
-	assert.NotNil(t, state.equipMount)
-	assert.Equal(t, charSubBrowse, state.subState, "初期状態は閲覧")
+	assert.False(t, state.equip.Active(), "初期状態は閲覧で装備選択は開いていない")
 }
 
 func TestCharacterState_装備スロットは武器5と防具7の合計12(t *testing.T) {
@@ -49,7 +47,7 @@ func TestCharacterState_装備スロットは武器5と防具7の合計12(t *tes
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	props := state.fetchProps(world)
+	props := state.Fetch(world)
 	assert.Len(t, props.EquipSlots, 12, "武器5スロットと防具7スロット")
 }
 
@@ -62,7 +60,7 @@ func TestCharacterState_情報タブは能力スキル効果健康基本の5つ(
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	props := state.fetchProps(world)
+	props := state.Fetch(world)
 	labels := make([]string, len(props.InfoTabs))
 	for i, tab := range props.InfoTabs {
 		labels[i] = tab.Label
@@ -79,7 +77,7 @@ func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *test
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
-	props := state.fetchProps(world)
+	props := state.Fetch(world)
 	var skillTab statusTabData
 	for _, tab := range props.InfoTabs {
 		if tab.ID == tabSkills {

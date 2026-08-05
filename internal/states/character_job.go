@@ -7,12 +7,11 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -28,8 +27,7 @@ import (
 // CharacterJobState はキャラクター職業選択画面のステート
 type CharacterJobState struct {
 	es.BaseState[w.World]
-	menuMount  *hooks.Mount[jobMenuProps]
-	widget     *ebitenui.UI
+	screen     *menurt.Screen[JobMenuProps]
 	playerName string // TODO: どうにかする。キャラメイクは複数のstateで構成され、前の決定事項を保持する必要がある...
 }
 
@@ -45,62 +43,23 @@ func NewCharacterJobState(playerName string) es.StateFactory[w.World] {
 // State interface ================
 
 var _ es.State[w.World] = &CharacterJobState{}
-var _ es.ActionHandler[w.World] = &CharacterJobState{}
-
-// OnPause はステートが一時停止される際に呼ばれる
-func (st *CharacterJobState) OnPause(_ w.World) error { return nil }
-
-// OnResume はステートが再開される際に呼ばれる
-func (st *CharacterJobState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
-func (st *CharacterJobState) OnStart(world w.World) error {
-	st.menuMount = hooks.NewMount[jobMenuProps]()
-	st.menuMount.SetProps(st.fetchProps(world))
+func (st *CharacterJobState) OnStart(_ w.World) error {
+	st.screen = menurt.NewScreen[JobMenuProps](st)
 	return nil
 }
 
-// OnStop はステートが停止される際に呼ばれる
-func (st *CharacterJobState) OnStop(_ w.World) error { return nil }
-
 // Update はゲームステートの更新処理を行う
 func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], error) {
-	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
-		if transition, err := st.DoAction(world, action); err != nil {
-			return es.Transition[w.World]{}, err
-		} else if transition.Type != es.TransNone {
-			return transition, nil
-		}
-		st.menuMount.Dispatch(action)
-	}
-
-	// Props更新。職業データは静的なのでOnStartでセット済み
-	props := st.menuMount.GetProps()
-	hooks.UseTabMenu(st.menuMount.Store(), "job", hooks.TabMenuConfig{
-		TabCount:   1,
-		ItemCounts: []int{len(props.Items)},
-	})
-
-	// dirty判定とUI再構築
-	if st.menuMount.Update() || st.widget == nil {
-		st.widget = st.buildUI(world)
-	}
-
-	st.widget.Update()
-	return st.ConsumeTransition(), nil
+	return st.screen.Update(world)
 }
 
 // Draw はスクリーンに描画する
 func (st *CharacterJobState) Draw(_ w.World, screen *ebiten.Image) error {
 	screen.Fill(theme.ScreenBackground)
-	st.widget.Draw(screen)
+	st.screen.Draw(screen)
 	return nil
-}
-
-// HandleInput はキー入力をActionに変換する
-func (st *CharacterJobState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する
@@ -122,8 +81,8 @@ func (st *CharacterJobState) DoAction(world w.World, action inputmapper.ActionID
 // Props
 // ================
 
-// jobMenuProps は職業選択メニューのProps
-type jobMenuProps struct {
+// JobMenuProps は職業選択メニューのProps
+type JobMenuProps struct {
 	Items []jobMenuItem
 }
 
@@ -132,23 +91,24 @@ type jobMenuItem struct {
 	Profession oapi.Profession
 }
 
-func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+func (st *CharacterJobState) Fetch(world w.World) JobMenuProps {
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	items := make([]jobMenuItem, len(professions))
 	for i := range professions {
 		items[i] = jobMenuItem{Profession: professions[i]}
 	}
-	return jobMenuProps{Items: items}
+	return JobMenuProps{Items: items}
+}
+
+// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
+func (st *CharacterJobState) Menu(props JobMenuProps) menurt.MenuConfig {
+	return menurt.MenuConfig{Key: "job", TabCount: 1, ItemCounts: []int{len(props.Items)}}
 }
 
 func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.World], error) {
-	props := st.menuMount.GetProps()
-	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "job")
-	if !ok {
-		return es.Transition[w.World]{}, fmt.Errorf("jobの取得に失敗")
-	}
-	itemIndex := menuState.ItemIndex
-
+	props := st.screen.Props()
+	itemIndex := st.screen.Selection().ItemIndex
 	if itemIndex >= len(props.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
@@ -190,14 +150,12 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 }
 
 // ================
-// buildUI
+// View
 // ================
 
-func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-	props := st.menuMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "job")
-	itemIndex := menuState.ItemIndex
+// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
+func (st *CharacterJobState) View(_ w.World, props JobMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+	itemIndex := cursor.ItemIndex
 
 	// 3行グリッド: タイトル(固定) / メインエリア(伸縮) / フッター(固定)
 	rootContainer := widget.NewContainer(
@@ -228,13 +186,13 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	)
 	titleContainer.AddChild(titleLabel)
 
-	// メインエリア: 左右分割
+	// メインエリア: 左右分割。左の一覧は他メニューと同じ密なテーブル行で縦幅と行間を揃える
 	leftContainer := styled.NewVerticalContainer()
+	rows := make([]menuRow, len(props.Items))
 	for i := range props.Items {
-		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(props.Items[i].Profession.Name, theme.TextSecondary, isSelected, res)
-		leftContainer.AddChild(itemWidget)
+		rows[i] = menuRow{Cells: []string{props.Items[i].Profession.Name}}
 	}
+	leftContainer.AddChild(renderMenuList(itemIndex, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
 	rightContainer := st.buildDetailPanel(props, itemIndex, res)
 	mainContainer := styled.NewWSplitContainer(leftContainer, rightContainer)
 
@@ -276,9 +234,9 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 }
 
 // buildDetailPanel は選択中の職業の詳細パネルを構築する
-func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int, res resources.UIResources) *widget.Container {
+func (st *CharacterJobState) buildDetailPanel(props JobMenuProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 	)
 
 	if itemIndex >= len(props.Items) {

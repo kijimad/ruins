@@ -7,6 +7,9 @@ description = '街用の地形パレット'
 r = 'floor'
 
 [palette.props]
+[palette.props.K]
+id = '木箱'
+tile = 'floor'
 
 [palette.npcs]
 [palette.npcs.'$']

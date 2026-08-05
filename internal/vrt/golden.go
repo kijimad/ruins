@@ -22,9 +22,9 @@ import (
 // キューへ append する、World 初期化、NineSlice キャッシュ、描画のいずれもこのグローバル状態に触れる。
 var ebitenuiMu sync.Mutex
 
-// withUILock は ebitenuiMu を取得して fn を実行する。ebitenui のグローバル状態に触れる
+// WithUILock は ebitenuiMu を取得して fn を実行する。ebitenui のグローバル状態に触れる
 // 生成・初期化・描画をこのヘルパに通し、ロックを取る箇所を1つに集約する。
-func withUILock(fn func()) {
+func WithUILock(fn func()) {
 	ebitenuiMu.Lock()
 	defer ebitenuiMu.Unlock()
 	fn()
@@ -48,7 +48,7 @@ func AssertContainerGolden(t *testing.T, buildFn func() *widget.Container, width
 	t.Helper()
 
 	var img *image.NRGBA
-	withUILock(func() {
+	WithUILock(func() {
 		root := buildFn()
 		ui := &ebitenui.UI{Container: root}
 		screen := ebiten.NewImage(width, height)
@@ -73,7 +73,7 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 	t.Helper()
 
 	var img *image.NRGBA
-	withUILock(func() {
+	WithUILock(func() {
 		drawFn := setupFn()
 		screen := ebiten.NewImage(width, height)
 		drawFn(screen)
