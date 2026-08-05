@@ -138,6 +138,48 @@ func TestMovePlayerToPosition_複数隊員が重複しない位置に配置さ�
 		"隊員同士は重複しない位置に配置される")
 }
 
+func TestMovePlayerToPosition_地図端の密集でも隊員が重ならず散る(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	require.NoError(t, err)
+
+	// 隊員を多数連れる。近傍リングだけでは全員を収めきれない数にする
+	const numMembers = 15
+	for range numMembers {
+		_, err := SpawnSquadMember(world, player, "隊員", testAbilities(), "player")
+		require.NoError(t, err)
+	}
+
+	// 地図端 (24,0) の近傍リング(squadPlacementMaxRadius)を壁で埋める。
+	// 近傍6タイル探索で打ち切る旧フォールバックでは、空きが尽きて全員が (24,0) へ潰れていた。
+	target := consts.Coord[consts.Tile]{X: 24, Y: 0}
+	for dx := -squadPlacementMaxRadius; dx <= squadPlacementMaxRadius; dx++ {
+		for dy := -squadPlacementMaxRadius; dy <= squadPlacementMaxRadius; dy++ {
+			x, y := int(target.X)+dx, int(target.Y)+dy
+			if x < 0 || y < 0 {
+				continue
+			}
+			wall := world.ECS.NewEntity()
+			world.Components.GridElement.Add(wall, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}})
+			world.Components.BlockPass.Add(wall, &gc.BlockPass{})
+		}
+	}
+	query.InvalidateSpatialIndex(world)
+
+	require.NoError(t, MovePlayerToPosition(world, target))
+
+	// マップ全体へ探索を広げるので、全隊員が別々のタイルへ散る。1タイルへ重ならない
+	seen := map[gc.GridElement]bool{}
+	for _, m := range query.SquadMembers(world) {
+		g := *world.Components.GridElement.Get(m)
+		assert.False(t, seen[g], "隊員が同じタイル (%d,%d) に重なっている", g.X, g.Y)
+		seen[g] = true
+	}
+	assert.Len(t, seen, numMembers, "全隊員が別々のタイルに配置される")
+}
+
 func TestUnequipAll(t *testing.T) {
 	t.Parallel()
 

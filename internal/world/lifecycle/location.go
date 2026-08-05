@@ -11,8 +11,10 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// squadPlacementMaxRadius はステージ遷移で隊員を再配置するときの空きタイル探索の最大半径。
-// 街や遺跡入口の密集地でも近くの空きを拾えるだけの広さを確保する。
+// squadPlacementMaxRadius は隊員配置の空きタイル探索で優先する近傍リングの半径。
+// 通常はこの範囲で隣接タイルへ収める。SpatialIndex が無くマップ寸法を引けない場面、
+// テストなどではこの半径を上限に使う。密集地でマップ寸法が引ける場面では
+// findPlacementTile がマップ全体まで探索を広げる。
 const squadPlacementMaxRadius = 6
 
 // MoveToBackpack はエンティティをバックパックに移動する。
@@ -283,6 +285,23 @@ func findNearbyEmptyTile(world w.World, center consts.Coord[consts.Tile], exclud
 	return consts.Coord[consts.Tile]{}, false
 }
 
+// findPlacementTile は隊員の配置先を探す。center 近傍を優先しつつ、密集で近傍が埋まっていれば
+// マップ全体へ探索を広げて最寄りの空きを拾う。リング探索は近い順に走査するので、範囲を広げても
+// 最も近い空きから埋まり、近傍が空いていれば従来どおり隣接タイルへ収まる。地図全体が埋まっている
+// 極限だけ ok=false を返し、呼び出し側が最終手段の退避先を決める。
+// これで地図端や壁の密集で近傍6タイルが尽きても、全員が1タイルへ重なるのを防ぐ。
+func findPlacementTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) (consts.Coord[consts.Tile], bool) {
+	maxRadius := squadPlacementMaxRadius
+	// マップ寸法が引けるなら、地図全体を覆う半径まで探索を広げる。どのタイルを中心にしても
+	// 幅+高さぶんのリングでマップ全体を走査できる。近傍優先はリング探索の性質で保たれる。
+	if si := query.GetSpatialIndex(world); si != nil {
+		if mapRadius := int(si.MapWidth) + int(si.MapHeight); mapRadius > maxRadius {
+			maxRadius = mapRadius
+		}
+	}
+	return findNearbyEmptyTile(world, center, exclude, maxRadius)
+}
+
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
 func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	var playerEntity ecs.Entity
@@ -317,7 +336,7 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	exclude := map[gc.GridElement]bool{}
 	for _, member := range query.SquadMembers(world) {
 		memberGrid := world.Components.GridElement.Get(member)
-		dest, ok := findNearbyEmptyTile(world, pos, exclude, squadPlacementMaxRadius)
+		dest, ok := findPlacementTile(world, pos, exclude)
 		if !ok {
 			dest = pos
 		}
