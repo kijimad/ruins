@@ -29,7 +29,6 @@ type MainGame struct {
 	World          w.World
 	StateMachine   es.StateMachine[w.World]
 	screenPipeline *screeneffect.Pipeline
-	menuLayer      menuLayer
 }
 
 // NewMainGame はMainGameを初期化する
@@ -95,13 +94,13 @@ func (game *MainGame) Draw(screen *ebiten.Image) {
 		}
 	}
 	if len(states) > 1 {
-		layer := game.menuLayer.Begin(bounds.Dx(), bounds.Dy())
+		layer := game.screenPipeline.BeginOverlay(bounds.Dx(), bounds.Dy())
 		for _, state := range states[1:] {
 			if err := state.Draw(game.World, layer); err != nil {
 				log.Fatal(err)
 			}
 		}
-		game.menuLayer.Composite(target, menuAlpha)
+		game.screenPipeline.CompositeOverlay(target, menuAlpha)
 	}
 
 	if game.World.Config.ShowMonitor {
