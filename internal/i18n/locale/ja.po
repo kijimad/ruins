@@ -1,4 +1,5 @@
 # 日本語翻訳。原文の英語 msgid に対する訳を持つ。既定言語なので未訳を残さない。
+# ソース位置コメント #: は抽出ツールが生成する欄なので手書きしない。doc 90 の抽出ツール導入時にまとめて付与する。
 msgid ""
 msgstr ""
 "Language: ja\n"
@@ -7,22 +8,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: internal/states/main_menu.go
 msgid "Start"
 msgstr "開始"
 
-#: internal/states/main_menu.go
 msgid "Demo"
 msgstr "デモ"
 
-#: internal/states/main_menu.go
 msgid "Load"
 msgstr "読込"
 
-#: internal/states/main_menu.go
 msgid "Settings"
 msgstr "設定"
 
-#: internal/states/main_menu.go
 msgid "Quit"
 msgstr "終了"
