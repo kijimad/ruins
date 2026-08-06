@@ -23,8 +23,14 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	require.Len(t, props.Items, 2)
 	assert.Equal(t, "言語", props.Items[0].Label)
 	assert.Equal(t, settingsItemLanguage, props.Items[0].Kind)
+	// 現在言語の表示は UserSettings 由来にする。既定 ja では日本語表示
+	assert.Equal(t, "日本語", props.Items[0].Value)
 	assert.Equal(t, "戻る", props.Items[1].Label)
 	assert.Equal(t, settingsItemBack, props.Items[1].Kind)
+
+	// UserSettings を en へ切り替えると表示も追従する
+	query.GetUserSettings(world).Language = "en"
+	assert.Equal(t, "English", state.Fetch(world).Items[0].Value, "表示は config でなく UserSettings を引く")
 }
 
 func TestNewLanguageMenuState_選択メニューで言語プリセット分の選択肢を持つ(t *testing.T) {

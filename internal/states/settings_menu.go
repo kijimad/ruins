@@ -96,7 +96,7 @@ type settingsMenuItem struct {
 func (st *SettingsMenuState) Fetch(world w.World) SettingsMenuProps {
 	return SettingsMenuProps{
 		Items: []settingsMenuItem{
-			{Kind: settingsItemLanguage, Label: "言語", Value: currentLanguageLabel(world.Config.User.Language)},
+			{Kind: settingsItemLanguage, Label: "言語", Value: currentLanguageLabel(query.GetUserSettings(world).Language)},
 			{Kind: settingsItemBack, Label: "戻る"},
 		},
 	}
