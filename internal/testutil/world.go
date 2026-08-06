@@ -70,6 +70,10 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	world.Config.RNG = rand.New(rand.NewPCG(world.Config.Seed, 0))
 	world.Resources.SetScreenDimensions(960, 720)
 
+	// 翻訳器へ config の言語を反映する。InitWorld と同じ扱いにし、テスト世界を実行時と揃える。
+	// 翻訳器の初期値は源泉言語 en なので、config 既定の ja を反映して日本語で描画する。
+	require.NoError(tb, world.Resources.I18N.SetLanguage(world.Config.User.Language))
+
 	// RawMasterのみを共有リソースから取得（一度だけ読み込む）
 	rawMasterOnce.Do(func() {
 		rw, err := loader.LoadRaws()

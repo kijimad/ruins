@@ -62,11 +62,11 @@ func TestTranslator_SetLanguage_未対応言語はエラー(t *testing.T) {
 	require.Error(t, err, "未対応の言語はエラーにする")
 }
 
-func TestNewDefault_既定はja(t *testing.T) {
+func TestNewDefault_源泉言語はen(t *testing.T) {
 	t.Parallel()
 	tr := NewDefault()
-	assert.Equal(t, "ja", tr.Language(), "既定言語は ja")
-	assert.Equal(t, "開始", tr.T("Start"), "既定で日本語訳を返す")
+	assert.Equal(t, "en", tr.Language(), "源泉言語は en")
+	assert.Equal(t, "Start", tr.T("Start"), "源泉言語では原文の英語を返す")
 }
 
 func TestTranslator_独立インスタンスは干渉しない(t *testing.T) {

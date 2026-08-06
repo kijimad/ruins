@@ -10,8 +10,9 @@ import (
 //go:embed locale/*.po
 var localeFS embed.FS
 
-// defaultLang は既定の実行時言語。日本語プレイヤー向けなので ja にする。
-const defaultLang = "ja"
+// defaultLang は源泉言語。原文が英語なので en にする。config が言語を選ぶ前の初期値であり、
+// 実行時の表示言語は config.User.Language が決める。日本語プレイヤーには config 既定の ja が適用される。
+const defaultLang = "en"
 
 // Translator は現在言語の訳を引く。gotext の Po を包む薄い層で、グローバル state を持たない。
 // Resources が保持し、呼び出し側は res.I18N.T で引く。ワールドごとに独立するので並行テストでもレースしない。
@@ -30,8 +31,9 @@ func New(lang string) (*Translator, error) {
 	return tr, nil
 }
 
-// NewDefault は既定言語 ja の Translator を返す。埋め込みは静的なので、解析失敗はプログラムの誤りとして panic する。
-// 解析可能性はテストで担保する。
+// NewDefault は源泉言語 en の Translator を返す。config が言語を選ぶ前の初期値として使う。
+// en は原文をそのまま返すので埋め込みの解析に依存せず失敗しないが、将来の既定変更に備えて解析失敗は
+// プログラムの誤りとして panic する。解析可能性はテストで担保する。
 func NewDefault() *Translator {
 	tr, err := New(defaultLang)
 	if err != nil {
