@@ -22,3 +22,21 @@ msgstr "設定"
 
 msgid "Quit"
 msgstr "終了"
+
+msgid "Consumables"
+msgstr "道具"
+
+msgid "Weapons"
+msgstr "武器"
+
+msgid "Armor"
+msgstr "防具"
+
+msgid "Materials"
+msgstr "材料"
+
+msgid "x Details"
+msgstr "x 詳細"
+
+msgid "No recipes"
+msgstr "(レシピなし)"
