@@ -1,8 +1,6 @@
 package maingame
 
 import (
-	"log"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/screeneffect"
@@ -31,7 +29,9 @@ func (r *renderer) Draw(screen *ebiten.Image, states []es.State[w.World], world 
 
 	for _, state := range states {
 		if err := state.Draw(world, r.frame); err != nil {
-			log.Fatal(err)
+			// Draw は Ebiten インターフェースのため戻り値を返せない。panic にして
+			// スタックトレースを残す。log.Fatal は os.Exit で defer を飛ばすため使わない。
+			panic(err)
 		}
 	}
 

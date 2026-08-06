@@ -34,6 +34,11 @@ func (p *Pipeline) Apply(dst, src *ebiten.Image) {
 		dst.DrawImage(src, nil)
 		return
 	}
+	if len(active) == 1 {
+		// 1枚だけなら中間バッファは要らない。dst へ直接かける。
+		active[0].Apply(dst, src)
+		return
+	}
 
 	b := dst.Bounds()
 	p.ensureScratch(b.Dx(), b.Dy())
