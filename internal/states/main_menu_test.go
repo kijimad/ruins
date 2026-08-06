@@ -41,6 +41,23 @@ func TestMainMenuState_項目と遷移の対応(t *testing.T) {
 	assert.Equal(t, es.TransQuit, props.Items[4].Transition.Type, "終了は Quit")
 }
 
+func TestMainMenuState_言語切替でラベルが変わる(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	// 既定 ja では日本語ラベルを返す
+	assert.Equal(t, "開始", state.Fetch(world).Items[0].Label, "既定 ja は日本語")
+
+	// en へ切り替えると原文の英語ラベルになる。i18n.T が原文 msgid へフォールバックする経路
+	require.NoError(t, world.Resources.I18N.SetLanguage("en"))
+	en := state.Fetch(world)
+	assert.Equal(t, "Start", en.Items[0].Label, "en は英語原文")
+	assert.Equal(t, "Settings", en.Items[3].Label, "en は英語原文")
+}
+
 func TestMainMenuState_DoAction_Cancel(t *testing.T) {
 	t.Parallel()
 
