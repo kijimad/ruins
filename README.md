@@ -59,7 +59,7 @@ $ make help
 
 | status | 件数 |
 |---|---|
-| draft | 4 |
+| draft | 5 |
 | done | 80 |
 
 ### 未完了
@@ -70,6 +70,7 @@ $ make help
 | [79](docs/design/20260731_79.md) | draft | 施設内装の生成 —— doc 70 の未着手バックログ | 1/33 | worldgen |
 | [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |
 | [85](docs/design/20260803_85.md) | draft | コード監査: ダンジョン生成・リロード・セーブ 2026-08-03 | 5/5 | worldgen, combat, save, ecs |
+| [89](docs/design/20260805_89.md) | draft | 天気システムを設計する | 0/7 | gamedesign, worldgen, ecs |
 
 
 ## Reference
