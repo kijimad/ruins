@@ -16,6 +16,9 @@ const defaultLang = "en"
 
 // Translator は現在言語の訳を引く。gotext の Po を包む薄い層で、グローバル state を持たない。
 // Resources が保持し、呼び出し側は res.I18N.T で引く。ワールドごとに独立するので並行テストでもレースしない。
+//
+// 単一ゴルーチンからの利用を前提にする。T と SetLanguage の並行呼び出しは保護しない。
+// 各ワールドが独立した Translator を持つので、ワールドをまたいで共有しなければレースは起きない。
 type Translator struct {
 	lang string
 	po   *gotext.Po
@@ -53,6 +56,8 @@ func (tr *Translator) SetLanguage(lang string) error {
 		if err != nil {
 			return fmt.Errorf("ja.po の読み込みに失敗した: %w", err)
 		}
+		// gotext の Parse はエラーを返さず内部で握り潰す設計なので、ここで解析失敗は検知できない。
+		// 埋め込み ja.po の妥当性はテストで担保する。
 		po.Parse(data)
 	default:
 		return fmt.Errorf("未対応の言語: %s", lang)
@@ -62,26 +67,14 @@ func (tr *Translator) SetLanguage(lang string) error {
 	return nil
 }
 
-// gotext の Get 系は可変引数で printf 整形する。訳を引くだけのここでは整形せず msgid を渡すが、
-// 直接呼ぶと go vet の printf 検査が非定数の書式文字列として誤検知する。メソッド値を介して呼び、
-// 整形を伴わない翻訳呼び出しであることを明示して誤検知を避ける。変数差し込みは呼び出し側で行う。
-
 // T は原文の英語 msgid に対応する現在言語の訳を返す。未訳なら原文を返す。
+//
+// gotext の Get は可変引数で printf 整形する。整形しないここでは msgid をそのまま渡すが、直接呼ぶと
+// go vet の printf 検査が非定数の書式文字列として誤検知する。メソッド値を介して呼び回避する。
+// 文脈つき TC や複数形 TN、変数差し込みは、会話やログを英語化する後続の領域で必要になってから足す。
 func (tr *Translator) T(msgid string) string {
 	get := tr.po.Get
 	return get(msgid)
-}
-
-// TC は文脈つきの訳を返す。同じ原文の曖昧さを解く。gettext の msgctxt に対応する。
-func (tr *Translator) TC(ctxt, msgid string) string {
-	getC := tr.po.GetC
-	return getC(msgid, ctxt)
-}
-
-// TN は複数形の訳を返す。n で語形を選ぶ。gettext の msgid_plural に対応する。
-func (tr *Translator) TN(msgid, plural string, n int) string {
-	getN := tr.po.GetN
-	return getN(msgid, plural, n)
 }
 
 // Language は現在の言語コードを返す。
