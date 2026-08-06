@@ -59,10 +59,10 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/20260724_67.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
-| draft | [施設内装の生成 —— doc 70 の未着手バックログ](docs/design/20260731_79.md) | 1/33 | worldgen |
-| draft | [OSS 調査 2026-08](docs/design/20260801_81.md) | 0/5 | meta, worldgen, combat, ui |
-| draft | [コード監査: ダンジョン生成・リロード・セーブ 2026-08-03](docs/design/20260803_85.md) | 5/5 | worldgen, combat, save, ecs |
+| draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
+| draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
+| draft | [OSS 調査 2026-08](docs/design/260801002222.md) | 0/5 | meta, worldgen, combat, ui |
+| draft | [コード監査: ダンジョン生成・リロード・セーブ 2026-08-03](docs/design/260803144226.md) | 5/5 | worldgen, combat, save, ecs |
 
 
 ## Reference
