@@ -32,7 +32,7 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menur
 	} else if charTabAt(cursor.TabIndex) == charTabCommand {
 		content = buildCommandTable(world, props.Commands, cursor.ItemIndex, res)
 	} else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
-		content = buildInfoTable(props.InfoTabs[infoIdx], cursor.ItemIndex, res)
+		content = buildInfoTable(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)
 	} else {
 		content = widget.NewContainer()
 	}

@@ -68,11 +68,11 @@ func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []stat
 	}
 
 	return []statusTabData{
-		{ID: tabAbilities, Label: "能力", Items: st.createAbilityItems(world, player)},
-		{ID: tabSkills, Label: "スキル", Items: st.createSkillItems(world, player)},
-		{ID: tabEffects, Label: "効果", Items: st.createEffectItems(world, player)},
-		{ID: tabHealth, Label: "健康", Items: st.createHealthItems(world, player)},
-		{ID: tabBasic, Label: "基本", Items: st.createBasicItems(world, player, envTemp, professionName)},
+		{ID: tabAbilities, Label: query.T(world, "Abilities"), Items: st.createAbilityItems(world, player)},
+		{ID: tabSkills, Label: query.T(world, "Skills"), Items: st.createSkillItems(world, player)},
+		{ID: tabEffects, Label: query.T(world, "Effects"), Items: st.createEffectItems(world, player)},
+		{ID: tabHealth, Label: query.T(world, "Health"), Items: st.createHealthItems(world, player)},
+		{ID: tabBasic, Label: query.T(world, "Basic"), Items: st.createBasicItems(world, player, envTemp, professionName)},
 	}
 }
 
@@ -80,23 +80,23 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 	items := []statusItemData{}
 
 	if professionName != "" {
-		items = append(items, statusItemData{Label: "職業", Value: professionName, Description: "職業"})
+		items = append(items, statusItemData{Label: query.T(world, "Profession"), Value: professionName, Description: query.T(world, "Profession")})
 	}
 	if query.AliveHas(world, world.Components.HP, playerEntity) {
 		hp := world.Components.HP.Get(playerEntity)
-		items = append(items, statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: "体力。0になると死亡する"})
+		items = append(items, statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: query.T(world, "HP. You die at 0")})
 	}
 	if query.AliveHas(world, world.Components.WeightCapacity, playerEntity) {
 		cw := world.Components.WeightCapacity.Get(playerEntity)
-		items = append(items, statusItemData{Label: "最大重量", Value: cw.Max.KgString(), Description: "所持可能な最大重量"})
+		items = append(items, statusItemData{Label: query.T(world, "Max weight"), Value: cw.Max.KgString(), Description: query.T(world, "Maximum weight you can carry")})
 	}
 	if query.AliveHas(world, world.Components.Hunger, playerEntity) {
 		hunger := world.Components.Hunger.Get(playerEntity)
-		items = append(items, statusItemData{Label: "空腹度", Value: hunger.GetLevel().String(), Description: "空腹度。高いと行動に支障が出る"})
+		items = append(items, statusItemData{Label: query.T(world, "Hunger"), Value: hunger.GetLevel().String(), Description: query.T(world, "Hunger. High hunger hinders actions")})
 	}
 	items = append(items,
-		statusItemData{Label: "環境気温", Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: "現在地の気温"},
-		statusItemData{Label: "時間帯", Value: query.GetGameTime(world).GetTimeOfDay().String(), Description: "現在の時間帯。屋外では気温に影響する"},
+		statusItemData{Label: query.T(world, "Ambient temperature"), Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: query.T(world, "Temperature at current location")},
+		statusItemData{Label: query.T(world, "Time of day"), Value: query.GetGameTime(world).GetTimeOfDay().String(), Description: query.T(world, "Current time of day. Affects temperature outdoors")},
 	)
 	return items
 }
@@ -106,12 +106,12 @@ func (st *CharacterState) createAbilityItems(world w.World, playerEntity ecs.Ent
 	if query.AliveHas(world, world.Components.Abilities, playerEntity) {
 		abils := world.Components.Abilities.Get(playerEntity)
 		items = append(items,
-			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: "体力。HPとSPの最大値に影響する"},
-			statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: "筋力。近接攻撃のダメージに影響する"},
-			statusItemData{Label: consts.SensationLabel, Value: fmt.Sprintf("%d", abils.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", abils.Sensation.Modifier), Description: "感覚。射撃攻撃のダメージに影響する"},
-			statusItemData{Label: consts.DexterityLabel, Value: fmt.Sprintf("%d", abils.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", abils.Dexterity.Modifier), Description: "器用さ。命中率に影響する"},
-			statusItemData{Label: consts.AgilityLabel, Value: fmt.Sprintf("%d", abils.Agility.Total), Modifier: fmt.Sprintf("(%+d)", abils.Agility.Modifier), Description: "敏捷。回避率と行動速度に影響する"},
-			statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", abils.Defense.Total), Modifier: fmt.Sprintf("(%+d)", abils.Defense.Modifier), Description: "防御。被ダメージを軽減する"},
+			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: query.T(world, "Vitality. Affects max HP and SP")},
+			statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: query.T(world, "Strength. Affects melee attack damage")},
+			statusItemData{Label: consts.SensationLabel, Value: fmt.Sprintf("%d", abils.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", abils.Sensation.Modifier), Description: query.T(world, "Sensation. Affects ranged attack damage")},
+			statusItemData{Label: consts.DexterityLabel, Value: fmt.Sprintf("%d", abils.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", abils.Dexterity.Modifier), Description: query.T(world, "Dexterity. Affects accuracy")},
+			statusItemData{Label: consts.AgilityLabel, Value: fmt.Sprintf("%d", abils.Agility.Total), Modifier: fmt.Sprintf("(%+d)", abils.Agility.Modifier), Description: query.T(world, "Agility. Affects evasion and action speed")},
+			statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", abils.Defense.Total), Modifier: fmt.Sprintf("(%+d)", abils.Defense.Modifier), Description: query.T(world, "Defense. Reduces damage taken")},
 		)
 	}
 	return items
@@ -124,7 +124,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 	}
 	skills := world.Components.Skills.Get(playerEntity)
 	for _, cat := range gc.SkillCategories {
-		items = append(items, statusItemData{Label: cat.Name, IsHeader: true, Description: fmt.Sprintf("%sカテゴリのスキル", cat.Name)})
+		items = append(items, statusItemData{Label: cat.Name, IsHeader: true, Description: query.T(world, "%s category skills", cat.Name)})
 		for _, id := range cat.IDs {
 			s := skills.Get(id)
 			expFrac := 0
@@ -137,8 +137,8 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 				Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
 				Description: info.Summary,
 				Details: []statusDetailRow{
-					{Label: "獲得条件", Value: info.GainedBy},
-					{Label: "効果", Value: info.Effect},
+					{Label: query.T(world, "Gained by"), Value: info.GainedBy},
+					{Label: query.T(world, "Effect"), Value: info.Effect},
 				},
 			})
 		}
@@ -153,49 +153,49 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	}
 	e := world.Components.CharModifiers.Get(playerEntity)
 
-	items = append(items, statusItemData{Label: "戦闘", IsHeader: true, Description: "戦闘に関する効果"})
+	items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
 	for _, id := range gc.AllSkillIDs {
 		if mult, ok := e.WeaponDamage[id]; ok {
 			name := gc.SkillName(id)
-			items = append(items, statusItemData{Label: name + "攻撃力", Value: fmt.Sprintf("%d%%", mult), Description: fmt.Sprintf("%s武器のダメージ倍率", name), Details: sourceToDetails(e.Sources, gc.WeaponDamageKey(id))})
+			items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s weapon damage multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponDamageKey(id))})
 		}
 	}
 	for _, id := range gc.AllSkillIDs {
 		if mult, ok := e.WeaponAccuracy[id]; ok {
 			name := gc.SkillName(id)
-			items = append(items, statusItemData{Label: name + "命中", Value: fmt.Sprintf("%d%%", mult), Description: fmt.Sprintf("%s武器の命中倍率", name), Details: sourceToDetails(e.Sources, gc.WeaponAccuracyKey(id))})
+			items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponAccuracyKey(id))})
 		}
 	}
 	for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {
 		if mult, ok := e.ElementResist[elem]; ok {
-			items = append(items, statusItemData{Label: elem.String() + "耐性", Value: fmt.Sprintf("%d%%", mult), Description: fmt.Sprintf("%s属性ダメージの倍率。低いほど軽減される", elem.String()), Details: sourceToDetails(e.Sources, gc.ElementResistKey(elem))})
+			items = append(items, statusItemData{Label: query.T(world, "%s resistance", elem.String()), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s element damage multiplier. Lower reduces more", elem.String()), Details: sourceToDetails(e.Sources, gc.ElementResistKey(elem))})
 		}
 	}
 
-	items = append(items, statusItemData{Label: "生存", IsHeader: true, Description: "生存に関する効果"})
+	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
 	items = append(items,
-		statusItemData{Label: "低体温進行", Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: "低体温の進行速度。低いほど遅くなる", Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
-		statusItemData{Label: "高体温進行", Value: fmt.Sprintf("%d%%", e.HeatProgress), Description: "高体温の進行速度。低いほど遅くなる", Details: sourceToDetails(e.Sources, gc.ModHeatProgress)},
-		statusItemData{Label: "空腹進行", Value: fmt.Sprintf("%d%%", e.HungerProgress), Description: "空腹の進行速度。低いほど遅くなる", Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},
-		statusItemData{Label: "回復効果", Value: fmt.Sprintf("%d%%", e.HealingEffect), Description: "回復アイテムの効果倍率。高いほど多く回復する", Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},
+		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
+		statusItemData{Label: query.T(world, "Hyperthermia progress"), Value: fmt.Sprintf("%d%%", e.HeatProgress), Description: query.T(world, "Hyperthermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHeatProgress)},
+		statusItemData{Label: query.T(world, "Hunger progress"), Value: fmt.Sprintf("%d%%", e.HungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},
+		statusItemData{Label: query.T(world, "Healing effect"), Value: fmt.Sprintf("%d%%", e.HealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},
 	)
 
-	items = append(items, statusItemData{Label: "行動", IsHeader: true, Description: "行動に関する効果"})
+	items = append(items, statusItemData{Label: query.T(world, "Action"), IsHeader: true, Description: query.T(world, "Action effects")})
 	items = append(items,
-		statusItemData{Label: "移動速度", Value: fmt.Sprintf("%d%%", e.MoveCost), Description: "移動時のAPコスト倍率。低いほど少ないAPで移動できる", Details: sourceToDetails(e.Sources, gc.ModMoveCost)},
-		statusItemData{Label: "発見", Value: fmt.Sprintf("%d%%", e.Exploration), Description: "アイテム発見率の倍率。高いほど見つけやすい", Details: sourceToDetails(e.Sources, gc.ModExploration)},
-		statusItemData{Label: "被発見", Value: fmt.Sprintf("%d%%", e.EnemyVision), Description: "敵に発見される距離の倍率。低いほど見つかりにくい", Details: sourceToDetails(e.Sources, gc.ModEnemyVision)},
-		statusItemData{Label: "暗所視界", Value: fmt.Sprintf("%d%%", e.NightVision), Description: "暗所での視界の倍率。高いほど見える", Details: sourceToDetails(e.Sources, gc.ModNightVision)},
+		statusItemData{Label: query.T(world, "Move speed"), Value: fmt.Sprintf("%d%%", e.MoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: sourceToDetails(e.Sources, gc.ModMoveCost)},
+		statusItemData{Label: query.T(world, "Discovery"), Value: fmt.Sprintf("%d%%", e.Exploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: sourceToDetails(e.Sources, gc.ModExploration)},
+		statusItemData{Label: query.T(world, "Detection"), Value: fmt.Sprintf("%d%%", e.EnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: sourceToDetails(e.Sources, gc.ModEnemyVision)},
+		statusItemData{Label: query.T(world, "Night vision"), Value: fmt.Sprintf("%d%%", e.NightVision), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: sourceToDetails(e.Sources, gc.ModNightVision)},
 	)
 
-	items = append(items, statusItemData{Label: "生産", IsHeader: true, Description: "生産・取引に関する効果"})
+	items = append(items, statusItemData{Label: query.T(world, "Production"), IsHeader: true, Description: query.T(world, "Production and trade effects")})
 	items = append(items,
-		statusItemData{Label: "素材消費", Value: fmt.Sprintf("%d%%", e.CraftCost), Description: "合成時の素材消費量倍率。低いほど素材が節約できる", Details: sourceToDetails(e.Sources, gc.ModCraftCost)},
-		statusItemData{Label: "合成品質", Value: fmt.Sprintf("%d%%", e.SmithQuality), Description: "調合時の品質倍率。高いほど良い品ができる", Details: sourceToDetails(e.Sources, gc.ModSmithQuality)},
-		statusItemData{Label: "買値", Value: fmt.Sprintf("%d%%", e.BuyPrice), Description: "買い物の価格倍率。低いほど安く買える", Details: sourceToDetails(e.Sources, gc.ModBuyPrice)},
-		statusItemData{Label: "売値", Value: fmt.Sprintf("%d%%", e.SellPrice), Description: "売却の価格倍率。高いほど高く売れる", Details: sourceToDetails(e.Sources, gc.ModSellPrice)},
-		statusItemData{Label: "最大重量", Value: fmt.Sprintf("%d%%", e.MaxWeight), Description: "所持可能な最大重量の倍率", Details: sourceToDetails(e.Sources, gc.ModMaxWeight)},
-		statusItemData{Label: "最大荷重", Value: fmt.Sprintf("%d%%", e.HeavyArmor), Description: "最大荷重倍率", Details: sourceToDetails(e.Sources, gc.ModHeavyArmor)},
+		statusItemData{Label: query.T(world, "Material cost"), Value: fmt.Sprintf("%d%%", e.CraftCost), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: sourceToDetails(e.Sources, gc.ModCraftCost)},
+		statusItemData{Label: query.T(world, "Craft quality"), Value: fmt.Sprintf("%d%%", e.SmithQuality), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: sourceToDetails(e.Sources, gc.ModSmithQuality)},
+		statusItemData{Label: query.T(world, "Buy price"), Value: fmt.Sprintf("%d%%", e.BuyPrice), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: sourceToDetails(e.Sources, gc.ModBuyPrice)},
+		statusItemData{Label: query.T(world, "Sell price"), Value: fmt.Sprintf("%d%%", e.SellPrice), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: sourceToDetails(e.Sources, gc.ModSellPrice)},
+		statusItemData{Label: query.T(world, "Max weight"), Value: fmt.Sprintf("%d%%", e.MaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: sourceToDetails(e.Sources, gc.ModMaxWeight)},
+		statusItemData{Label: query.T(world, "Max load"), Value: fmt.Sprintf("%d%%", e.HeavyArmor), Description: query.T(world, "Max load multiplier"), Details: sourceToDetails(e.Sources, gc.ModHeavyArmor)},
 	)
 	return items
 }
@@ -220,9 +220,9 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 		}
 		value := conditionStr.String()
 		if value == "" {
-			value = "正常"
+			value = query.T(world, "Normal")
 		}
-		items = append(items, statusItemData{Label: part.String(), Value: value, Description: getHealthPartDescription(part), BodyPart: part})
+		items = append(items, statusItemData{Label: part.String(), Value: value, Description: query.T(world, getHealthPartDescription(part)), BodyPart: part})
 	}
 	return items
 }
@@ -230,19 +230,19 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 func getHealthPartDescription(part gc.BodyPart) string {
 	switch part {
 	case gc.BodyPartTorso:
-		return "胴体"
+		return "Torso"
 	case gc.BodyPartHead:
-		return "頭部"
+		return "Head"
 	case gc.BodyPartArms:
-		return "腕"
+		return "Arms"
 	case gc.BodyPartHands:
-		return "手"
+		return "Hands"
 	case gc.BodyPartLegs:
-		return "脚"
+		return "Legs"
 	case gc.BodyPartFeet:
-		return "足"
+		return "Feet"
 	case gc.BodyPartWholeBody:
-		return "全身"
+		return "Whole body"
 	default:
 		return ""
 	}
@@ -266,7 +266,7 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 
 // buildInfoTable は読み取り専用タブのアイテム一覧をテーブルで組み立てる
 // buildInfoTable は情報タブの一覧を組み立てる。能力タブは補正列を加える
-func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
+func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
 	hasModifier := tab.ID == tabAbilities
 	var columnWidths []int
 	var aligns []styled.TextAlign
@@ -290,5 +290,5 @@ func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources)
 		}
 		rows[i] = menuRow{Cells: cells, Header: it.IsHeader}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(項目なし)"}, res)
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries")}, res)
 }
