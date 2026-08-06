@@ -95,8 +95,7 @@ func loadOpaqueImage(path string) (*ebiten.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	// NRGBA へ変換してから、透明でない画素のアルファだけ 255 にする。NRGBA は非乗算なので
-	// アルファを上げても RGB はそのままで、見た目の色が保たれる。
+	// NRGBA へ変換してから、透明でない画素のアルファだけ 255 にする。
 	b := src.Bounds()
 	dst := stdimage.NewNRGBA(b)
 	draw.Draw(dst, b, src, b.Min, draw.Src)
