@@ -133,6 +133,7 @@ type ProgressBarResources struct {
 // PanelResources はパネルリソースを管理する
 type PanelResources struct {
 	Image        *image.NineSlice
+	ImageOpaque  *image.NineSlice
 	ImageTrans   *image.NineSlice
 	TitleBar     *image.NineSlice
 	SelectionBar *image.NineSlice
@@ -642,6 +643,11 @@ func newPanelResources() (*PanelResources, error) {
 		return nil, err
 	}
 
+	io, err := loadImageNineSliceOpaque("assets/graphics/panel-idle.png", 40, 40)
+	if err != nil {
+		return nil, err
+	}
+
 	it, err := loadImageNineSlice("assets/graphics/list-idle-trans.png", 40, 40)
 	if err != nil {
 		return nil, err
@@ -659,6 +665,7 @@ func newPanelResources() (*PanelResources, error) {
 
 	return &PanelResources{
 		Image:        i,
+		ImageOpaque:  io,
 		ImageTrans:   it,
 		TitleBar:     t,
 		SelectionBar: sb,

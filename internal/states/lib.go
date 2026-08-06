@@ -47,7 +47,7 @@ func newMenuListTable(columnWidths []int, res resources.UIResources) *widget.Con
 // 大きめモーダルの newTabScreenUI と違い、項目数が少ない画面がエントリ数相応の大きさに収まる
 func newPanelScreenUI(res resources.UIResources, title string, content *widget.Container, footer string) *ebitenui.UI {
 	panel := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageOpaque),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,
@@ -100,7 +100,7 @@ func newTabScreenUI(res resources.UIResources, p tabScreen) *ebitenui.UI {
 	}
 
 	root := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageOpaque),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
 			widget.GridLayoutOpts.Spacing(0, theme.Space2),

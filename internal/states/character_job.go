@@ -236,7 +236,7 @@ func (st *CharacterJobState) View(_ w.World, props JobMenuProps, cursor menurt.S
 // buildDetailPanel は選択中の職業の詳細パネルを構築する
 func (st *CharacterJobState) buildDetailPanel(props JobMenuProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageOpaque),
 	)
 
 	if itemIndex >= len(props.Items) {
