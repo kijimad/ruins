@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -107,7 +107,7 @@
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(playerEntity) {</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;プレイヤーがGridElementを持っていません&quot;)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;player does not have GridElement&quot;)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC tlaBgGNC">           1 :         playerGrid := world.Components.GridElement.Get(playerEntity)</span></span>
@@ -168,7 +168,7 @@
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMoveEast:</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                 st.moveCursor(world, 1, 0)</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;未対応のアクション: %s&quot;, action)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unsupported action: %s&quot;, action)</span></span>
 <span id="L110"><span class="lineNum">     110</span>              :         }</span>
 <span id="L111"><span class="lineNum">     111</span>              : </span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         return st.ConsumeTransition(), nil</span></span>
@@ -285,7 +285,7 @@
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L224"><span class="lineNum">     224</span>              : </span>
 <span id="L225"><span class="lineNum">     225</span>              :         // 座標表示</span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         drawText(fmt.Sprintf(&quot;座標: %s&quot;, st.cursor))</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         drawText(fmt.Sprintf(&quot;%s: %s&quot;, query.T(world, &quot;Coord&quot;), st.cursor))</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         y += 5</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         // 視界内かどうかをチェック</span></span>
@@ -297,7 +297,7 @@
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         inVision := query.IsInVision(world, playerGrid.Coord, st.cursor)</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         if !inVision {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(&quot;暗闇&quot;)</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(query.T(world, &quot;Darkness&quot;))</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                 return nil</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L241"><span class="lineNum">     241</span>              : </span>
@@ -305,7 +305,7 @@
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC tlaBgGNC">           1 :         entities := query.GetEntitiesAt(world, st.cursor.X, st.cursor.Y)</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         if len(entities) == 0 {</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(&quot;何もありません&quot;)</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(query.T(world, &quot;Nothing here&quot;))</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC tlaBgGNC">           1 :         } else {</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           2 :                 for _, entity := range entities {</span></span>
 <span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                         st.drawEntityInfo(world, entity, drawText)</span></span>
@@ -320,7 +320,7 @@
 <span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         // 操作説明</span></span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         y = panelY + panelHeight - 30</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         drawText(&quot;WASD/矢印: 移動  X/Esc: 閉じる&quot;)</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         drawText(query.T(world, &quot;WASD/Arrows: Move  X/Esc: Close&quot;))</span></span>
 <span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L264"><span class="lineNum">     264</span>              : }</span>
@@ -350,7 +350,7 @@
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 hp := world.Components.HP.Get(entity)</span></span>
 <span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                 label := &quot;HP&quot;</span></span>
 <span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 if world.Components.Fixed.Has(entity) {</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC tlaBgUNC">           0 :                         label = &quot;耐久&quot;</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC tlaBgUNC">           0 :                         label = query.T(world, &quot;Durability&quot;)</span></span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">           1 :                 drawText(fmt.Sprintf(&quot;  %s: %d/%d&quot;, label, hp.Current, hp.Max))</span></span>
 <span id="L294"><span class="lineNum">     294</span>              :         }</span>
@@ -371,10 +371,10 @@
 <span id="L309"><span class="lineNum">     309</span>              :         }</span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC tlaBgGNC">           1 :         *y += 5</span></span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         if blocked {</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(&quot;移動コスト: 不可&quot;)</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC tlaBgUNC">           0 :                 drawText(query.T(world, &quot;Move cost&quot;) + &quot;: &quot; + query.T(world, &quot;Impassable&quot;))</span></span>
 <span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC tlaBgGNC">           1 :         } else {</span></span>
 <span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                 cost := consts.StandardActionCost + totalAdd</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 drawText(fmt.Sprintf(&quot;移動コスト: %d&quot;, cost))</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 drawText(fmt.Sprintf(&quot;%s: %d&quot;, query.T(world, &quot;Move cost&quot;), cost))</span></span>
 <span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L317"><span class="lineNum">     317</span>              : }</span>
 <span id="L318"><span class="lineNum">     318</span>              : </span>
@@ -384,15 +384,15 @@
 <span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           2 :                 if world.Components.TileTemperature.Has(entity) {</span></span>
 <span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                         temp := world.Components.TileTemperature.Get(entity)</span></span>
 <span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                         *y += 5</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :                         drawText(fmt.Sprintf(&quot;気温修正: %+d&quot;, temp.Total()))</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :                         drawText(fmt.Sprintf(&quot;%s: %+d&quot;, query.T(world, &quot;Temperature modifier&quot;), temp.Total()))</span></span>
 <span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                         if temp.Shelter != 0 {</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC tlaBgUNC">           0 :                                 drawText(fmt.Sprintf(&quot;  屋内: %+d&quot;, temp.Shelter))</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC tlaBgUNC">           0 :                                 drawText(fmt.Sprintf(&quot;  %s: %+d&quot;, query.T(world, &quot;Indoor&quot;), temp.Shelter))</span></span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC tlaBgGNC">           1 :                         if temp.Water != 0 {</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC tlaBgUNC">           0 :                                 drawText(fmt.Sprintf(&quot;  水辺: %+d&quot;, temp.Water))</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC tlaBgUNC">           0 :                                 drawText(fmt.Sprintf(&quot;  %s: %+d&quot;, query.T(world, &quot;Waterside&quot;), temp.Water))</span></span>
 <span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC tlaBgGNC">           1 :                         if temp.Foliage != 0 {</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC tlaBgUNC">           0 :                                 drawText(fmt.Sprintf(&quot;  植生: %+d&quot;, temp.Foliage))</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC tlaBgUNC">           0 :                                 drawText(fmt.Sprintf(&quot;  %s: %+d&quot;, query.T(world, &quot;Foliage&quot;), temp.Foliage))</span></span>
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC tlaBgGNC">           1 :                         return</span></span>
 <span id="L336"><span class="lineNum">     336</span>              :                 }</span>

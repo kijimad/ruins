@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -114,7 +114,7 @@
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *OverworldMapState) OnStart(world w.World) error {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         sb := query.GetSeamlessBand(world)</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         if sb == nil || !sb.Active {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;オーバーワールド帯が有効でない&quot;)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;overworld band is not valid&quot;)</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">           1 :         rows := max(sb.Rows, 1)</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : </span></span>
@@ -191,7 +191,7 @@
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 text.Draw(screen, str, face, op)</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L131"><span class="lineNum">     131</span>              : </span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         drawText(fmt.Sprintf(&quot;オーバーワールド地図  現在地 チャンク(%d, %d)&quot;, st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         drawText(fmt.Sprintf(&quot;Overworld Map  Current Chunk %d, %d&quot;, st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         const originX, originY consts.ScreenPixel = 16, 44</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         // cellCenter はセル (col,row) の中央座標を返す。セルの塗りは一辺 mapCellPx-1</span></span>
@@ -243,7 +243,7 @@
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                         x, y = 16, y+22</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L183"><span class="lineNum">     183</span>              :         }</span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         drawText(&quot;N / Esc で閉じる&quot;, 16, y+26, theme.TextPrimary)</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         drawText(&quot;N / Esc to close&quot;, 16, y+26, theme.TextPrimary)</span></span>
 <span id="L185"><span class="lineNum">     185</span>              : }</span>
 <span id="L186"><span class="lineNum">     186</span>              : </span>
 <span id="L187"><span class="lineNum">     187</span>              : // glyphColorTable は文字から色への対応。色は overworld の GlyphInfo が記号と同居して持つので、</span>

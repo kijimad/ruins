@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -148,7 +148,7 @@
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:</span></span>
 <span id="L87"><span class="lineNum">      87</span>              :                 // Dispatchで処理される</span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;storageMenu: 未対応のアクション: %s&quot;, action)</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;storageMenu: unsupported action: %s&quot;, action)</span></span>
 <span id="L90"><span class="lineNum">      90</span>              :         }</span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L92"><span class="lineNum">      92</span>              : }</span>
@@ -179,8 +179,8 @@
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) Fetch(world w.World) StorageProps {</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         return StorageProps{</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 Tabs: []storageTabData{</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                         {ID: tabIDRetrieve, Label: &quot;取得&quot;, Items: st.createStorageItemData(world)},</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                         {ID: tabIDStore, Label: &quot;収納&quot;, Items: st.createBackpackItemData(world)},</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                         {ID: tabIDRetrieve, Label: query.T(world, &quot;Retrieve&quot;), Items: st.createStorageItemData(world)},</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                         {ID: tabIDStore, Label: query.T(world, &quot;Store&quot;), Items: st.createBackpackItemData(world)},</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 },</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : }</span></span>
@@ -277,7 +277,7 @@
 <span id="L215"><span class="lineNum">     215</span>              : // ================</span>
 <span id="L216"><span class="lineNum">     216</span>              : </span>
 <span id="L217"><span class="lineNum">     217</span>              : // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる</span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) View(_ w.World, props StorageProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         // カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
@@ -286,8 +286,8 @@
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         return newTabScreenUI(res, tabScreen{</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 TabLabels: labels,</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 TabIndex:  cursor.TabIndex,</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 Content:   st.buildActiveListContainer(props, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 Footer:    menuNavHint(true, &quot;x 詳細&quot;),</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 Footer:    menuNavHint(true, query.T(world, &quot;x Details&quot;)),</span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L230"><span class="lineNum">     230</span>              : }</span>
 <span id="L231"><span class="lineNum">     231</span>              : </span>
@@ -318,7 +318,7 @@
 <span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         return items[cursor.ItemIndex].Entity, true</span></span>
 <span id="L257"><span class="lineNum">     257</span>              : }</span>
 <span id="L258"><span class="lineNum">     258</span>              : </span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) buildActiveListContainer(props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) buildActiveListContainer(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC tlaBgUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
 <span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -330,7 +330,7 @@
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           2 :         for i, it := range currentTab.Items {</span></span>
 <span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}</span></span>
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: &quot;(アイテムなし)&quot;}, res)</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No items&quot;)}, res)</span></span>
 <span id="L272"><span class="lineNum">     272</span>              : }</span>
         </pre>
               </td>

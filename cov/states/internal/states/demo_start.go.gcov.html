@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,18 +86,18 @@
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *DemoStartState) OnStart(world w.World) error {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, &quot;Ash&quot;)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;プレイヤーの生成に失敗: %w&quot;, err)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to spawn player: %w&quot;, err)</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         professions := raw.PtrSlice(world.Resources.RawMaster.Professions)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           2 :         if len(professions) &gt; 0 {</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;職業の適用に失敗: %w&quot;, err)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to apply profession: %w&quot;, err)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              :         }</span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">           1 :         if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;初期隊員の生成に失敗: %w&quot;, err)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to spawn initial members: %w&quot;, err)</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         st.SetTransition(es.Transition[w.World]{</span></span>

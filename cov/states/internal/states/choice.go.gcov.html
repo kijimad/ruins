@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -138,7 +138,7 @@
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:</span></span>
 <span id="L77"><span class="lineNum">      77</span>              :                 // Dispatch で処理される</span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;choiceMenu: 未対応のアクション: %s&quot;, action)</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;choiceMenu: unsupported action: %s&quot;, action)</span></span>
 <span id="L80"><span class="lineNum">      80</span>              :         }</span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L82"><span class="lineNum">      82</span>              : }</span>

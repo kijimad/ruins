@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -206,7 +206,7 @@
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 return st.confirmName(world), nil</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;characterNaming: 未対応のアクション: %s&quot;, action)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;characterNaming: unsupported action: %s&quot;, action)</span></span>
 <span id="L148"><span class="lineNum">     148</span>              :         }</span>
 <span id="L149"><span class="lineNum">     149</span>              : }</span>
 <span id="L150"><span class="lineNum">     150</span>              : </span>
@@ -229,7 +229,7 @@
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           2 :         if nameLen &lt; nameMinLength || nameLen &gt; nameMaxLength {</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 st.mount.SetProps(namingProps{</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                         CurrentName:  props.CurrentName,</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         ErrorMessage: &quot;名前は1〜10文字で入力してください&quot;,</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         ErrorMessage: query.T(world, &quot;Enter a name of 1 to 10 characters&quot;),</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 })</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 _, startTimer, _ := hooks.UseTimer(st.mount.Store(), &quot;errorTimer&quot;, errorDisplayTime)</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 startTimer()</span></span>
@@ -290,7 +290,7 @@
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         )</span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         titleLabel := widget.NewText(</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(&quot;名前&quot;, &amp;res.Text.TitleFontFace, theme.TextPrimary),</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(query.T(world, &quot;Name&quot;), &amp;res.Text.TitleFontFace, theme.TextPrimary),</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                                 Position: widget.RowLayoutPositionCenter,</span></span>
@@ -312,7 +312,7 @@
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         widget.TextInputOpts.Face(&amp;res.TextInput.Face),</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                         widget.TextInputOpts.Color(res.TextInput.Color),</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         widget.TextInputOpts.Padding(&amp;res.TextInput.Padding),</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                         widget.TextInputOpts.Placeholder(&quot;名前&quot;),</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                         widget.TextInputOpts.Placeholder(query.T(world, &quot;Name&quot;)),</span></span>
 <span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 )</span></span>
 <span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 ti.SetText(props.CurrentName)</span></span>
 <span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 ti.Focus(true)</span></span>
@@ -331,7 +331,7 @@
 <span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         // 操作ヒント</span></span>
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         hintLabel := widget.NewText(</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(consts.IconKeyEnter+&quot; 決定 / &quot;+consts.IconKeyEsc+&quot; 戻る&quot;, &amp;res.Text.SmallFace, theme.TextAccent),</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(consts.IconKeyEnter+&quot; &quot;+query.T(world, &quot;Confirm&quot;)+&quot; / &quot;+consts.IconKeyEsc+&quot; &quot;+query.T(world, &quot;Back&quot;), &amp;res.Text.SmallFace, theme.TextAccent),</span></span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>
 <span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                                 Position: widget.RowLayoutPositionCenter,</span></span>

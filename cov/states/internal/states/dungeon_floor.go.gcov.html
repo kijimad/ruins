@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -87,11 +87,11 @@
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 : func resolveDungeonDefinition(defName string) (*dungeon.DungeonDefinition, error) {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         def, found := dungeon.GetStageDefinition(defName)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         if !found {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;ステージ定義が見つかりません: %s&quot;, defName)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;stage definition not found: %s&quot;, defName)</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         dk, ok := def.(*dungeon.DungeonDefinition)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;フロア生成できないステージ定義です: %s&quot;, defName)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;stage definition cannot generate a floor: %s&quot;, defName)</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">           1 :         return dk, nil</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : }</span>
@@ -221,7 +221,7 @@
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :                 // 訪問済みの階には必ず上り階段があるはず。無ければステージ切替済みで</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 // プレイヤーが元座標に取り残されるので、silent にせず error にする</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;再訪した階に上り階段が見つかりません: 深度%d&quot;, nextDepth)</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;no up stairs found on revisited floor: depth %d&quot;, nextDepth)</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 :         return lifecycle.MovePlayerToPosition(world, pos)</span></span>
 <span id="L165"><span class="lineNum">     165</span>              : }</span>
@@ -233,7 +233,7 @@
 <span id="L171"><span class="lineNum">     171</span>              : // フロア遷移と違い state を使わないので DungeonState のメソッドでなく自由関数にする。</span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 : func enterCube(world w.World, cube ecs.Entity) error {</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         if !world.Components.GridElement.Has(cube) {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;キューブに位置がありません&quot;)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;cube has no position&quot;)</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC tlaBgGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
@@ -249,7 +249,7 @@
 <span id="L187"><span class="lineNum">     187</span>              :         // 出口 prop の位置が入場点。戻り先をプレイヤーの元タイルへ貼り直す</span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           1 :         exitProp, exitPos, ok := findPortal(world, gc.InteractionExitCube)</span></span>
 <span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;キューブ内部に出口が見つかりません&quot;)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;no exit found inside cube&quot;)</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := setPortalConnection(world, exitProp, gc.NewOverworldStage(), returnPos); err != nil {</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
@@ -262,16 +262,16 @@
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 : func exitCube(world w.World) error {</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         exitProp, _, ok := findPortal(world, gc.InteractionExitCube)</span></span>
 <span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;キューブ内部に出口が見つかりません&quot;)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;no exit found inside cube&quot;)</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.PortalConnection.Has(exitProp) {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;出口に戻り先が結線されていません&quot;)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;exit has no return destination wired&quot;)</span></span>
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC tlaBgGNC">           1 :         conn := world.Components.PortalConnection.Get(exitProp)</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         target := conn.Stage</span></span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         returnPos := conn.Coord</span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         if err := stage.SwapTo(world, target, func(w.World, gc.StageKey) error {</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;戻り先のオーバーワールドが存在しません&quot;)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;return destination overworld does not exist&quot;)</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         }); err != nil {</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -354,7 +354,7 @@
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :         // 上り先は訪問済み前提。未訪問なら生成でなくエラーにする</span></span>
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         if err := stage.SwapTo(world, target, func(_ w.World, _ gc.StageKey) error {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;上り先の階が存在しません: %+v&quot;, target)</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;destination floor above does not exist: %+v&quot;, target)</span></span>
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :         }); err != nil {</span></span>
 <span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                 return false, err</span></span>
 <span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -434,7 +434,7 @@
 <span id="L372"><span class="lineNum">     372</span>              :         // 無ければプレイヤーが元座標に取り残されるので silent にせず error にする</span>
 <span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC tlaBgUNC">           0 :         pos, ok := findPortalPosition(world, gc.InteractionPortalPrev)</span></span>
 <span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;再訪した遺跡に上り階段が見つかりません: %s&quot;, defName)</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;no up stairs found in revisited ruins: %s&quot;, defName)</span></span>
 <span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :         return lifecycle.MovePlayerToPosition(world, pos)</span></span>
 <span id="L378"><span class="lineNum">     378</span>              : }</span>

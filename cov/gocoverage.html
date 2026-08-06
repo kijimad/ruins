@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (80.2%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.3%)</option>
 				
@@ -1535,7 +1535,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1694,7 +1694,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 }).
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
                         switch </span>{
-                        case !hit:<span class="cov0" title="0">
+                        case !hit:<span class="cov8" title="1">
                                 l.Append(" を攻撃したが外れた。")</span>
                         case critical:<span class="cov0" title="0">
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))</span>
@@ -14923,7 +14923,7 @@ func NewCatalog() Catalog <span class="cov8" title="1">{
 func mustParse(path string) *gotext.Po <span class="cov8" title="1">{
         data, err := localeFS.ReadFile(path)
         if err != nil </span><span class="cov0" title="0">{
-                panic(fmt.Sprintf("i18n: 埋め込み PO の読み込みに失敗した: %s: %v", path, err))</span>
+                panic(fmt.Sprintf("i18n: failed to read embedded PO: %s: %v", path, err))</span>
         }
         <span class="cov8" title="1">po := gotext.NewPo()
         po.Parse(data)
@@ -14931,16 +14931,17 @@ func mustParse(path string) *gotext.Po <span class="cov8" title="1">{
 }
 
 // Translate は lang における msgid の訳を返す。未知の言語や未訳は原文の英語へフォールバックする。
+// args を渡すと訳を書式として printf 整形する。args が無ければ整形せずそのまま返す。
 //
-// gotext の Get は可変引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。
-// 整形しないのでメソッド値を介して呼び回避する。
-func (c Catalog) Translate(lang, msgid string) string <span class="cov8" title="1">{
+// gotext の Get は書式引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。
+// メソッド値を介して呼び回避する。
+func (c Catalog) Translate(lang, msgid string, args ...any) string <span class="cov8" title="1">{
         po, ok := c.langs[lang]
         if !ok </span><span class="cov8" title="1">{
                 po = c.langs[defaultLang]
         }</span>
         <span class="cov8" title="1">get := po.Get
-        return get(msgid)</span>
+        return get(msgid, args...)</span>
 }
 </pre>
 		
@@ -38282,11 +38283,11 @@ func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []stat
         }
 
         <span class="cov8" title="1">return []statusTabData{
-                {ID: tabAbilities, Label: "能力", Items: st.createAbilityItems(world, player)},
-                {ID: tabSkills, Label: "スキル", Items: st.createSkillItems(world, player)},
-                {ID: tabEffects, Label: "効果", Items: st.createEffectItems(world, player)},
-                {ID: tabHealth, Label: "健康", Items: st.createHealthItems(world, player)},
-                {ID: tabBasic, Label: "基本", Items: st.createBasicItems(world, player, envTemp, professionName)},
+                {ID: tabAbilities, Label: query.T(world, "Abilities"), Items: st.createAbilityItems(world, player)},
+                {ID: tabSkills, Label: query.T(world, "Skills"), Items: st.createSkillItems(world, player)},
+                {ID: tabEffects, Label: query.T(world, "Effects"), Items: st.createEffectItems(world, player)},
+                {ID: tabHealth, Label: query.T(world, "Health"), Items: st.createHealthItems(world, player)},
+                {ID: tabBasic, Label: query.T(world, "Basic"), Items: st.createBasicItems(world, player, envTemp, professionName)},
         }</span>
 }
 
@@ -38294,23 +38295,23 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
         items := []statusItemData{}
 
         if professionName != "" </span><span class="cov8" title="1">{
-                items = append(items, statusItemData{Label: "職業", Value: professionName, Description: "職業"})
+                items = append(items, statusItemData{Label: query.T(world, "Profession"), Value: professionName, Description: query.T(world, "Profession")})
         }</span>
         <span class="cov8" title="1">if query.AliveHas(world, world.Components.HP, playerEntity) </span><span class="cov8" title="1">{
                 hp := world.Components.HP.Get(playerEntity)
-                items = append(items, statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: "体力。0になると死亡する"})
+                items = append(items, statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: query.T(world, "HP. You die at 0")})
         }</span>
         <span class="cov8" title="1">if query.AliveHas(world, world.Components.WeightCapacity, playerEntity) </span><span class="cov8" title="1">{
                 cw := world.Components.WeightCapacity.Get(playerEntity)
-                items = append(items, statusItemData{Label: "最大重量", Value: cw.Max.KgString(), Description: "所持可能な最大重量"})
+                items = append(items, statusItemData{Label: query.T(world, "Max weight"), Value: cw.Max.KgString(), Description: query.T(world, "Maximum weight you can carry")})
         }</span>
         <span class="cov8" title="1">if query.AliveHas(world, world.Components.Hunger, playerEntity) </span><span class="cov8" title="1">{
                 hunger := world.Components.Hunger.Get(playerEntity)
-                items = append(items, statusItemData{Label: "空腹度", Value: hunger.GetLevel().String(), Description: "空腹度。高いと行動に支障が出る"})
+                items = append(items, statusItemData{Label: query.T(world, "Hunger"), Value: hunger.GetLevel().String(), Description: query.T(world, "Hunger. High hunger hinders actions")})
         }</span>
         <span class="cov8" title="1">items = append(items,
-                statusItemData{Label: "環境気温", Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: "現在地の気温"},
-                statusItemData{Label: "時間帯", Value: query.GetGameTime(world).GetTimeOfDay().String(), Description: "現在の時間帯。屋外では気温に影響する"},
+                statusItemData{Label: query.T(world, "Ambient temperature"), Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: query.T(world, "Temperature at current location")},
+                statusItemData{Label: query.T(world, "Time of day"), Value: query.GetGameTime(world).GetTimeOfDay().String(), Description: query.T(world, "Current time of day. Affects temperature outdoors")},
         )
         return items</span>
 }
@@ -38320,12 +38321,12 @@ func (st *CharacterState) createAbilityItems(world w.World, playerEntity ecs.Ent
         if query.AliveHas(world, world.Components.Abilities, playerEntity) </span><span class="cov8" title="1">{
                 abils := world.Components.Abilities.Get(playerEntity)
                 items = append(items,
-                        statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: "体力。HPとSPの最大値に影響する"},
-                        statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: "筋力。近接攻撃のダメージに影響する"},
-                        statusItemData{Label: consts.SensationLabel, Value: fmt.Sprintf("%d", abils.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", abils.Sensation.Modifier), Description: "感覚。射撃攻撃のダメージに影響する"},
-                        statusItemData{Label: consts.DexterityLabel, Value: fmt.Sprintf("%d", abils.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", abils.Dexterity.Modifier), Description: "器用さ。命中率に影響する"},
-                        statusItemData{Label: consts.AgilityLabel, Value: fmt.Sprintf("%d", abils.Agility.Total), Modifier: fmt.Sprintf("(%+d)", abils.Agility.Modifier), Description: "敏捷。回避率と行動速度に影響する"},
-                        statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", abils.Defense.Total), Modifier: fmt.Sprintf("(%+d)", abils.Defense.Modifier), Description: "防御。被ダメージを軽減する"},
+                        statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: query.T(world, "Vitality. Affects max HP and SP")},
+                        statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: query.T(world, "Strength. Affects melee attack damage")},
+                        statusItemData{Label: consts.SensationLabel, Value: fmt.Sprintf("%d", abils.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", abils.Sensation.Modifier), Description: query.T(world, "Sensation. Affects ranged attack damage")},
+                        statusItemData{Label: consts.DexterityLabel, Value: fmt.Sprintf("%d", abils.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", abils.Dexterity.Modifier), Description: query.T(world, "Dexterity. Affects accuracy")},
+                        statusItemData{Label: consts.AgilityLabel, Value: fmt.Sprintf("%d", abils.Agility.Total), Modifier: fmt.Sprintf("(%+d)", abils.Agility.Modifier), Description: query.T(world, "Agility. Affects evasion and action speed")},
+                        statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", abils.Defense.Total), Modifier: fmt.Sprintf("(%+d)", abils.Defense.Modifier), Description: query.T(world, "Defense. Reduces damage taken")},
                 )
         }</span>
         <span class="cov8" title="1">return items</span>
@@ -38338,7 +38339,7 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
         }</span>
         <span class="cov8" title="1">skills := world.Components.Skills.Get(playerEntity)
         for _, cat := range gc.SkillCategories </span><span class="cov8" title="1">{
-                items = append(items, statusItemData{Label: cat.Name, IsHeader: true, Description: fmt.Sprintf("%sカテゴリのスキル", cat.Name)})
+                items = append(items, statusItemData{Label: cat.Name, IsHeader: true, Description: query.T(world, "%s category skills", cat.Name)})
                 for _, id := range cat.IDs </span><span class="cov8" title="1">{
                         s := skills.Get(id)
                         expFrac := 0
@@ -38351,8 +38352,8 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
                                 Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
                                 Description: info.Summary,
                                 Details: []statusDetailRow{
-                                        {Label: "獲得条件", Value: info.GainedBy},
-                                        {Label: "効果", Value: info.Effect},
+                                        {Label: query.T(world, "Gained by"), Value: info.GainedBy},
+                                        {Label: query.T(world, "Effect"), Value: info.Effect},
                                 },
                         })</span>
                 }
@@ -38367,49 +38368,49 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
         }</span>
         <span class="cov8" title="1">e := world.Components.CharModifiers.Get(playerEntity)
 
-        items = append(items, statusItemData{Label: "戦闘", IsHeader: true, Description: "戦闘に関する効果"})
+        items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
         for _, id := range gc.AllSkillIDs </span><span class="cov8" title="1">{
                 if mult, ok := e.WeaponDamage[id]; ok </span><span class="cov8" title="1">{
                         name := gc.SkillName(id)
-                        items = append(items, statusItemData{Label: name + "攻撃力", Value: fmt.Sprintf("%d%%", mult), Description: fmt.Sprintf("%s武器のダメージ倍率", name), Details: sourceToDetails(e.Sources, gc.WeaponDamageKey(id))})
+                        items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s weapon damage multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponDamageKey(id))})
                 }</span>
         }
         <span class="cov8" title="1">for _, id := range gc.AllSkillIDs </span><span class="cov8" title="1">{
                 if mult, ok := e.WeaponAccuracy[id]; ok </span><span class="cov8" title="1">{
                         name := gc.SkillName(id)
-                        items = append(items, statusItemData{Label: name + "命中", Value: fmt.Sprintf("%d%%", mult), Description: fmt.Sprintf("%s武器の命中倍率", name), Details: sourceToDetails(e.Sources, gc.WeaponAccuracyKey(id))})
+                        items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponAccuracyKey(id))})
                 }</span>
         }
         <span class="cov8" title="1">for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} </span><span class="cov8" title="1">{
                 if mult, ok := e.ElementResist[elem]; ok </span><span class="cov8" title="1">{
-                        items = append(items, statusItemData{Label: elem.String() + "耐性", Value: fmt.Sprintf("%d%%", mult), Description: fmt.Sprintf("%s属性ダメージの倍率。低いほど軽減される", elem.String()), Details: sourceToDetails(e.Sources, gc.ElementResistKey(elem))})
+                        items = append(items, statusItemData{Label: query.T(world, "%s resistance", elem.String()), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s element damage multiplier. Lower reduces more", elem.String()), Details: sourceToDetails(e.Sources, gc.ElementResistKey(elem))})
                 }</span>
         }
 
-        <span class="cov8" title="1">items = append(items, statusItemData{Label: "生存", IsHeader: true, Description: "生存に関する効果"})
+        <span class="cov8" title="1">items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
         items = append(items,
-                statusItemData{Label: "低体温進行", Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: "低体温の進行速度。低いほど遅くなる", Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
-                statusItemData{Label: "高体温進行", Value: fmt.Sprintf("%d%%", e.HeatProgress), Description: "高体温の進行速度。低いほど遅くなる", Details: sourceToDetails(e.Sources, gc.ModHeatProgress)},
-                statusItemData{Label: "空腹進行", Value: fmt.Sprintf("%d%%", e.HungerProgress), Description: "空腹の進行速度。低いほど遅くなる", Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},
-                statusItemData{Label: "回復効果", Value: fmt.Sprintf("%d%%", e.HealingEffect), Description: "回復アイテムの効果倍率。高いほど多く回復する", Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},
+                statusItemData{Label: query.T(world, "Hypothermia progress"), Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
+                statusItemData{Label: query.T(world, "Hyperthermia progress"), Value: fmt.Sprintf("%d%%", e.HeatProgress), Description: query.T(world, "Hyperthermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHeatProgress)},
+                statusItemData{Label: query.T(world, "Hunger progress"), Value: fmt.Sprintf("%d%%", e.HungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},
+                statusItemData{Label: query.T(world, "Healing effect"), Value: fmt.Sprintf("%d%%", e.HealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},
         )
 
-        items = append(items, statusItemData{Label: "行動", IsHeader: true, Description: "行動に関する効果"})
+        items = append(items, statusItemData{Label: query.T(world, "Action"), IsHeader: true, Description: query.T(world, "Action effects")})
         items = append(items,
-                statusItemData{Label: "移動速度", Value: fmt.Sprintf("%d%%", e.MoveCost), Description: "移動時のAPコスト倍率。低いほど少ないAPで移動できる", Details: sourceToDetails(e.Sources, gc.ModMoveCost)},
-                statusItemData{Label: "発見", Value: fmt.Sprintf("%d%%", e.Exploration), Description: "アイテム発見率の倍率。高いほど見つけやすい", Details: sourceToDetails(e.Sources, gc.ModExploration)},
-                statusItemData{Label: "被発見", Value: fmt.Sprintf("%d%%", e.EnemyVision), Description: "敵に発見される距離の倍率。低いほど見つかりにくい", Details: sourceToDetails(e.Sources, gc.ModEnemyVision)},
-                statusItemData{Label: "暗所視界", Value: fmt.Sprintf("%d%%", e.NightVision), Description: "暗所での視界の倍率。高いほど見える", Details: sourceToDetails(e.Sources, gc.ModNightVision)},
+                statusItemData{Label: query.T(world, "Move speed"), Value: fmt.Sprintf("%d%%", e.MoveCost), Description: query.T(world, "AP cost multiplier when moving. Lower moves with less AP"), Details: sourceToDetails(e.Sources, gc.ModMoveCost)},
+                statusItemData{Label: query.T(world, "Discovery"), Value: fmt.Sprintf("%d%%", e.Exploration), Description: query.T(world, "Item discovery rate multiplier. Higher finds more"), Details: sourceToDetails(e.Sources, gc.ModExploration)},
+                statusItemData{Label: query.T(world, "Detection"), Value: fmt.Sprintf("%d%%", e.EnemyVision), Description: query.T(world, "Enemy detection distance multiplier. Lower is harder to find"), Details: sourceToDetails(e.Sources, gc.ModEnemyVision)},
+                statusItemData{Label: query.T(world, "Night vision"), Value: fmt.Sprintf("%d%%", e.NightVision), Description: query.T(world, "Vision multiplier in dark. Higher sees more"), Details: sourceToDetails(e.Sources, gc.ModNightVision)},
         )
 
-        items = append(items, statusItemData{Label: "生産", IsHeader: true, Description: "生産・取引に関する効果"})
+        items = append(items, statusItemData{Label: query.T(world, "Production"), IsHeader: true, Description: query.T(world, "Production and trade effects")})
         items = append(items,
-                statusItemData{Label: "素材消費", Value: fmt.Sprintf("%d%%", e.CraftCost), Description: "合成時の素材消費量倍率。低いほど素材が節約できる", Details: sourceToDetails(e.Sources, gc.ModCraftCost)},
-                statusItemData{Label: "合成品質", Value: fmt.Sprintf("%d%%", e.SmithQuality), Description: "調合時の品質倍率。高いほど良い品ができる", Details: sourceToDetails(e.Sources, gc.ModSmithQuality)},
-                statusItemData{Label: "買値", Value: fmt.Sprintf("%d%%", e.BuyPrice), Description: "買い物の価格倍率。低いほど安く買える", Details: sourceToDetails(e.Sources, gc.ModBuyPrice)},
-                statusItemData{Label: "売値", Value: fmt.Sprintf("%d%%", e.SellPrice), Description: "売却の価格倍率。高いほど高く売れる", Details: sourceToDetails(e.Sources, gc.ModSellPrice)},
-                statusItemData{Label: "最大重量", Value: fmt.Sprintf("%d%%", e.MaxWeight), Description: "所持可能な最大重量の倍率", Details: sourceToDetails(e.Sources, gc.ModMaxWeight)},
-                statusItemData{Label: "最大荷重", Value: fmt.Sprintf("%d%%", e.HeavyArmor), Description: "最大荷重倍率", Details: sourceToDetails(e.Sources, gc.ModHeavyArmor)},
+                statusItemData{Label: query.T(world, "Material cost"), Value: fmt.Sprintf("%d%%", e.CraftCost), Description: query.T(world, "Material consumption multiplier when crafting. Lower saves materials"), Details: sourceToDetails(e.Sources, gc.ModCraftCost)},
+                statusItemData{Label: query.T(world, "Craft quality"), Value: fmt.Sprintf("%d%%", e.SmithQuality), Description: query.T(world, "Quality multiplier when crafting. Higher makes better goods"), Details: sourceToDetails(e.Sources, gc.ModSmithQuality)},
+                statusItemData{Label: query.T(world, "Buy price"), Value: fmt.Sprintf("%d%%", e.BuyPrice), Description: query.T(world, "Purchase price multiplier. Lower buys cheaper"), Details: sourceToDetails(e.Sources, gc.ModBuyPrice)},
+                statusItemData{Label: query.T(world, "Sell price"), Value: fmt.Sprintf("%d%%", e.SellPrice), Description: query.T(world, "Sell price multiplier. Higher sells higher"), Details: sourceToDetails(e.Sources, gc.ModSellPrice)},
+                statusItemData{Label: query.T(world, "Max weight"), Value: fmt.Sprintf("%d%%", e.MaxWeight), Description: query.T(world, "Max carry weight multiplier"), Details: sourceToDetails(e.Sources, gc.ModMaxWeight)},
+                statusItemData{Label: query.T(world, "Max load"), Value: fmt.Sprintf("%d%%", e.HeavyArmor), Description: query.T(world, "Max load multiplier"), Details: sourceToDetails(e.Sources, gc.ModHeavyArmor)},
         )
         return items</span>
 }
@@ -38434,9 +38435,9 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
                 }
                 <span class="cov8" title="1">value := conditionStr.String()
                 if value == "" </span><span class="cov8" title="1">{
-                        value = "正常"
+                        value = query.T(world, "Normal")
                 }</span>
-                <span class="cov8" title="1">items = append(items, statusItemData{Label: part.String(), Value: value, Description: getHealthPartDescription(part), BodyPart: part})</span>
+                <span class="cov8" title="1">items = append(items, statusItemData{Label: part.String(), Value: value, Description: query.T(world, getHealthPartDescription(part)), BodyPart: part})</span>
         }
         <span class="cov8" title="1">return items</span>
 }
@@ -38444,19 +38445,19 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 func getHealthPartDescription(part gc.BodyPart) string <span class="cov8" title="1">{
         switch part </span>{
         case gc.BodyPartTorso:<span class="cov8" title="1">
-                return "胴体"</span>
+                return "Torso"</span>
         case gc.BodyPartHead:<span class="cov8" title="1">
-                return "頭部"</span>
+                return "Head"</span>
         case gc.BodyPartArms:<span class="cov8" title="1">
-                return "腕"</span>
+                return "Arms"</span>
         case gc.BodyPartHands:<span class="cov8" title="1">
-                return "手"</span>
+                return "Hands"</span>
         case gc.BodyPartLegs:<span class="cov8" title="1">
-                return "脚"</span>
+                return "Legs"</span>
         case gc.BodyPartFeet:<span class="cov8" title="1">
-                return "足"</span>
+                return "Feet"</span>
         case gc.BodyPartWholeBody:<span class="cov8" title="1">
-                return "全身"</span>
+                return "Whole body"</span>
         default:<span class="cov0" title="0">
                 return ""</span>
         }
@@ -38480,7 +38481,7 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 
 // buildInfoTable は読み取り専用タブのアイテム一覧をテーブルで組み立てる
 // buildInfoTable は情報タブの一覧を組み立てる。能力タブは補正列を加える
-func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container <span class="cov0" title="0">{
+func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container <span class="cov0" title="0">{
         hasModifier := tab.ID == tabAbilities
         var columnWidths []int
         var aligns []styled.TextAlign
@@ -38504,7 +38505,7 @@ func buildInfoTable(tab statusTabData, itemIndex int, res resources.UIResources)
                 }
                 <span class="cov0" title="0">rows[i] = menuRow{Cells: cells, Header: it.IsHeader}</span>
         }
-        <span class="cov0" title="0">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(項目なし)"}, res)</span>
+        <span class="cov0" title="0">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries")}, res)</span>
 }
 </pre>
 		
@@ -38938,7 +38939,7 @@ func (st *CharacterNamingState) DoAction(world w.World, action inputmapper.Actio
         case inputmapper.ActionMenuSelect:<span class="cov0" title="0">
                 return st.confirmName(world), nil</span>
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("characterNaming: 未対応のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("characterNaming: unsupported action: %s", action)</span>
         }
 }
 
@@ -38961,7 +38962,7 @@ func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World
         if nameLen &lt; nameMinLength || nameLen &gt; nameMaxLength </span><span class="cov8" title="1">{
                 st.mount.SetProps(namingProps{
                         CurrentName:  props.CurrentName,
-                        ErrorMessage: "名前は1〜10文字で入力してください",
+                        ErrorMessage: query.T(world, "Enter a name of 1 to 10 characters"),
                 })
                 _, startTimer, _ := hooks.UseTimer(st.mount.Store(), "errorTimer", errorDisplayTime)
                 startTimer()
@@ -39022,7 +39023,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI <span class=
         )
 
         titleLabel := widget.NewText(
-                widget.TextOpts.Text("名前", &amp;res.Text.TitleFontFace, theme.TextPrimary),
+                widget.TextOpts.Text(query.T(world, "Name"), &amp;res.Text.TitleFontFace, theme.TextPrimary),
                 widget.TextOpts.WidgetOpts(
                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{
                                 Position: widget.RowLayoutPositionCenter,
@@ -39044,7 +39045,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI <span class=
                         widget.TextInputOpts.Face(&amp;res.TextInput.Face),
                         widget.TextInputOpts.Color(res.TextInput.Color),
                         widget.TextInputOpts.Padding(&amp;res.TextInput.Padding),
-                        widget.TextInputOpts.Placeholder("名前"),
+                        widget.TextInputOpts.Placeholder(query.T(world, "Name")),
                 )
                 ti.SetText(props.CurrentName)
                 ti.Focus(true)
@@ -39063,7 +39064,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI <span class=
 
         // 操作ヒント
         hintLabel := widget.NewText(
-                widget.TextOpts.Text(consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &amp;res.Text.SmallFace, theme.TextAccent),
+                widget.TextOpts.Text(consts.IconKeyEnter+" "+query.T(world, "Confirm")+" / "+consts.IconKeyEsc+" "+query.T(world, "Back"), &amp;res.Text.SmallFace, theme.TextAccent),
                 widget.TextOpts.WidgetOpts(
                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{
                                 Position: widget.RowLayoutPositionCenter,
@@ -39663,11 +39664,12 @@ import (
         "github.com/kijimaD/ruins/internal/widgets/styled"
         "github.com/kijimaD/ruins/internal/widgets/theme"
         w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/world/query"
 )
 
-// View は人物画面のタブ本体を props と選択位置だけから組み立てる純粋描画。world には触れず、
+// View は人物画面のタブ本体を props と選択位置から組み立てる描画。ラベルの訳のみ world から引く。
 // 詳細や装備選択のオーバーレイ窓は Screen が重ねる。menurt.Model の View 部にあたる
-func (st *CharacterState) View(_ w.World, props CharacterProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
+func (st *CharacterState) View(world w.World, props CharacterProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
         // 見出しは対象キャラ名。仲間がいれば左右矢印で切替可能を示す。
         // 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
         header := props.TargetName
@@ -39678,18 +39680,18 @@ func (st *CharacterState) View(_ w.World, props CharacterProps, cursor menurt.Se
         // コンテンツは現在タブの中身。装備は編集可能、以降は読み取り専用の情報タブ
         <span class="cov8" title="1">var content *widget.Container
         if charTabAt(cursor.TabIndex) == charTabEquip </span><span class="cov8" title="1">{
-                content = buildEquipList(props.EquipSlots, cursor.ItemIndex, res)
+                content = buildEquipList(world, props.EquipSlots, cursor.ItemIndex, res)
         }</span> else<span class="cov0" title="0"> if charTabAt(cursor.TabIndex) == charTabCommand </span><span class="cov0" title="0">{
-                content = buildCommandTable(props.Commands, cursor.ItemIndex, res)
+                content = buildCommandTable(world, props.Commands, cursor.ItemIndex, res)
         }</span> else<span class="cov0" title="0"> if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx &gt;= 0 &amp;&amp; infoIdx &lt; len(props.InfoTabs) </span><span class="cov0" title="0">{
-                content = buildInfoTable(props.InfoTabs[infoIdx], cursor.ItemIndex, res)
+                content = buildInfoTable(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)
         }</span> else<span class="cov0" title="0"> {
                 content = widget.NewContainer()
         }</span>
 
-        <span class="cov8" title="1">extras := []string{"x 詳細"}
+        <span class="cov8" title="1">extras := []string{query.T(world, "x Details")}
         if props.HasMultiple </span><span class="cov8" title="1">{
-                extras = []string{", . 切替", "x 詳細"}
+                extras = []string{query.T(world, ", . Switch"), query.T(world, "x Details")}
         }</span>
 
         <span class="cov8" title="1">return newTabScreenUI(res, tabScreen{
@@ -39702,35 +39704,35 @@ func (st *CharacterState) View(_ w.World, props CharacterProps, cursor menurt.Se
 }
 
 // buildEquipList は装備タブの一覧を組み立てる。左にスロット名、右に装備名を並べ、未装備は空欄にする
-func buildEquipList(slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
+func buildEquipList(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
         columnWidths := []int{120, 220}
         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
         rows := make([]menuRow, len(slots))
         for i, slot := range slots </span><span class="cov8" title="1">{
                 rows[i] = menuRow{Cells: []string{slot.SlotLabel, slot.ItemName}}
         }</span>
-        <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "装備スロットがありません"}, res)</span>
+        <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots")}, res)</span>
 }
 
 // buildCommandTable は命令タブの一覧を組み立てる。左に指示名、右に現在の値を並べる
-func buildCommandTable(cmdRows []commandRow, itemIndex int, res resources.UIResources) *widget.Container <span class="cov0" title="0">{
+func buildCommandTable(world w.World, cmdRows []commandRow, itemIndex int, res resources.UIResources) *widget.Container <span class="cov0" title="0">{
         columnWidths := []int{180, 160}
         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
         rows := make([]menuRow, len(cmdRows))
         for i, row := range cmdRows </span><span class="cov0" title="0">{
                 rows[i] = menuRow{Cells: []string{string(row.Kind), row.Value}}
         }</span>
-        <span class="cov0" title="0">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "この対象に隊列指示はない"}, res)</span>
+        <span class="cov0" title="0">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No formation orders")}, res)</span>
 }
 
 // buildEquipSelectWindow は装備選択のサブウィンドウを rect の位置へ組み立てる。
 // 候補名は world から引くため world を受け取るが、選択状態は selectedIndex で明示的に渡す
 func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex int, rect image.Rectangle, res resources.UIResources) *widget.Window <span class="cov0" title="0">{
         content := styled.NewWindowContainer(res)
-        title := styled.NewWindowHeaderContainer("装備を選ぶ", res)
+        title := styled.NewWindowHeaderContainer(query.T(world, "Choose equipment"), res)
         win := styled.NewSmallWindow(title, content)
         if len(props.Items) == 0 </span><span class="cov0" title="0">{
-                content.AddChild(styled.NewDescriptionText("装備できるものがない", res))
+                content.AddChild(styled.NewDescriptionText(query.T(world, "Nothing to equip"), res))
         }</span>
         <span class="cov0" title="0">for i, entity := range props.Items </span><span class="cov0" title="0">{
                 name := world.Components.Name.Get(entity).Name
@@ -39819,7 +39821,7 @@ func (st *ChoiceMenuState) DoAction(world w.World, action inputmapper.ActionID) 
         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:<span class="cov0" title="0"></span>
                 // Dispatch で処理される
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("choiceMenu: 未対応のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("choiceMenu: unsupported action: %s", action)</span>
         }
         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
 }
@@ -39933,7 +39935,7 @@ func (st *ComponentDebugState) DoAction(_ w.World, action inputmapper.ActionID) 
         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransNone}, nil</span>
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)</span>
         }
 }
 
@@ -40010,7 +40012,7 @@ func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, cursor
 
         // in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
         return newTabScreenUI(res, tabScreen{
-                Header:  fmt.Sprintf("コンポーネント (合計: %d)", props.Total),
+                Header:  fmt.Sprintf("Components total: %d", props.Total),
                 Content: container,
                 Footer:  menuNavHint(false),
         })</span>
@@ -40103,7 +40105,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:<span class="cov8" title="1"></span>
                 // Dispatchで処理される
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("craftMenu: 未対応のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("craftMenu: unsupported action: %s", action)</span>
         }
         <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
 }
@@ -40146,9 +40148,9 @@ func (st *CraftMenuState) Menu(props CraftProps) menurt.MenuConfig <span class="
 
 func (st *CraftMenuState) createTabs(world w.World) []craftTabData <span class="cov8" title="1">{
         return []craftTabData{
-                {ID: "consumables", Label: "道具", Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
-                {ID: "weapons", Label: "武器", Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
-                {ID: "wearables", Label: "防具", Items: st.createMenuItems(world, st.queryMenuWearable(world))},
+                {ID: "consumables", Label: query.T(world, "Consumables"), Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
+                {ID: "weapons", Label: query.T(world, "Weapons"), Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
+                {ID: "wearables", Label: query.T(world, "Armor"), Items: st.createMenuItems(world, st.queryMenuWearable(world))},
         }
 }</span>
 
@@ -40231,7 +40233,7 @@ func (st *CraftMenuState) craftSelected(world w.World) error <span class="cov8" 
         }</span>
         <span class="cov0" title="0">resultEntity, err := gameaction.Craft(world, item.RecipeName)
         if err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("合成に失敗: %w", err)
+                return fmt.Errorf("failed to craft: %w", err)
         }</span>
         <span class="cov0" title="0">st.resultEntity = resultEntity
         st.result.Open()
@@ -40265,7 +40267,7 @@ func (st *CraftMenuState) resultDetailContent(world w.World) (menuscreen.DetailC
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *CraftMenuState) View(_ w.World, props CraftProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
+func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
         // カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る
         labels := make([]string, len(props.Tabs))
         for i, tab := range props.Tabs </span><span class="cov8" title="1">{
@@ -40274,12 +40276,12 @@ func (st *CraftMenuState) View(_ w.World, props CraftProps, cursor menurt.Select
         <span class="cov8" title="1">return newTabScreenUI(res, tabScreen{
                 TabLabels: labels,
                 TabIndex:  cursor.TabIndex,
-                Content:   st.buildItemContainer(props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-                Footer:    menuNavHint(true, "x 詳細"),
+                Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
+                Footer:    menuNavHint(true, query.T(world, "x Details")),
         })</span>
 }
 
-func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
+func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
         if tabIndex &gt;= len(tabs) </span><span class="cov0" title="0">{
                 return styled.NewVerticalContainer()
         }</span>
@@ -40296,7 +40298,7 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
                 }</span>
                 <span class="cov8" title="1">rows[i] = menuRow{Cells: []string{mark, it.RecipeName}}</span>
         }
-        <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(レシピなし)"}, res)</span>
+        <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res)</span>
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
@@ -40314,7 +40316,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
         // その後ろに生成物の性能行を続ける
         <span class="cov0" title="0">var rows []menuscreen.SpecRow
         if spec.Recipe != nil </span><span class="cov0" title="0">{
-                rows = append(rows, menuscreen.SpecRow{Label: "材料", Header: true})
+                rows = append(rows, menuscreen.SpecRow{Label: query.T(world, "Materials"), Header: true})
                 for _, in := range spec.Recipe.Inputs </span><span class="cov0" title="0">{
                         owned := 0
                         if entity, found := query.FindStackableInInventory(world, in.Name); found </span><span class="cov0" title="0">{
@@ -40407,11 +40409,11 @@ func (st *CubePanelState) Draw(world w.World, screen *ebiten.Image) error <span 
                 y += 28
         }</span>
 
-        <span class="cov8" title="1">line("コントロールパネル", theme.TextPrimary)
+        <span class="cov8" title="1">line("Control Panel", theme.TextPrimary)
         y += 8
-        line(fmt.Sprintf("総重量: %s", st.totalWeight.KgString()), theme.TextPrimary)
+        line(fmt.Sprintf("Total Weight: %s", st.totalWeight.KgString()), theme.TextPrimary)
         y += 8
-        line("Esc で閉じる", theme.TextAccent)
+        line("Esc to close", theme.TextAccent)
         return nil</span>
 }
 </pre>
@@ -40643,18 +40645,18 @@ type DemoStartState struct {
 func (st *DemoStartState) OnStart(world w.World) error <span class="cov8" title="1">{
         player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
         if err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
+                return fmt.Errorf("failed to spawn player: %w", err)
         }</span>
 
         <span class="cov8" title="1">professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
         if len(professions) &gt; 0 </span><span class="cov8" title="1">{
                 if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil </span><span class="cov0" title="0">{
-                        return fmt.Errorf("職業の適用に失敗: %w", err)
+                        return fmt.Errorf("failed to apply profession: %w", err)
                 }</span>
         }
 
         <span class="cov8" title="1">if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("初期隊員の生成に失敗: %w", err)
+                return fmt.Errorf("failed to spawn initial members: %w", err)
         }</span>
 
         <span class="cov8" title="1">st.SetTransition(es.Transition[w.World]{
@@ -40995,11 +40997,11 @@ import (
 func resolveDungeonDefinition(defName string) (*dungeon.DungeonDefinition, error) <span class="cov8" title="1">{
         def, found := dungeon.GetStageDefinition(defName)
         if !found </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("ステージ定義が見つかりません: %s", defName)
+                return nil, fmt.Errorf("stage definition not found: %s", defName)
         }</span>
         <span class="cov8" title="1">dk, ok := def.(*dungeon.DungeonDefinition)
         if !ok </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("フロア生成できないステージ定義です: %s", defName)
+                return nil, fmt.Errorf("stage definition cannot generate a floor: %s", defName)
         }</span>
         <span class="cov8" title="1">return dk, nil</span>
 }
@@ -41129,7 +41131,7 @@ func (st *DungeonState) descend(world w.World) error <span class="cov8" title="1
         if !ok </span><span class="cov0" title="0">{
                 // 訪問済みの階には必ず上り階段があるはず。無ければステージ切替済みで
                 // プレイヤーが元座標に取り残されるので、silent にせず error にする
-                return fmt.Errorf("再訪した階に上り階段が見つかりません: 深度%d", nextDepth)
+                return fmt.Errorf("no up stairs found on revisited floor: depth %d", nextDepth)
         }</span>
         <span class="cov8" title="1">return lifecycle.MovePlayerToPosition(world, pos)</span>
 }
@@ -41141,7 +41143,7 @@ func (st *DungeonState) descend(world w.World) error <span class="cov8" title="1
 // フロア遷移と違い state を使わないので DungeonState のメソッドでなく自由関数にする。
 func enterCube(world w.World, cube ecs.Entity) error <span class="cov8" title="1">{
         if !world.Components.GridElement.Has(cube) </span><span class="cov0" title="0">{
-                return fmt.Errorf("キューブに位置がありません")
+                return fmt.Errorf("cube has no position")
         }</span>
         <span class="cov8" title="1">player, err := query.GetPlayerEntity(world)
         if err != nil </span><span class="cov0" title="0">{
@@ -41157,7 +41159,7 @@ func enterCube(world w.World, cube ecs.Entity) error <span class="cov8" title="1
         // 出口 prop の位置が入場点。戻り先をプレイヤーの元タイルへ貼り直す
         <span class="cov8" title="1">exitProp, exitPos, ok := findPortal(world, gc.InteractionExitCube)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("キューブ内部に出口が見つかりません")
+                return fmt.Errorf("no exit found inside cube")
         }</span>
         <span class="cov8" title="1">if err := setPortalConnection(world, exitProp, gc.NewOverworldStage(), returnPos); err != nil </span><span class="cov0" title="0">{
                 return err
@@ -41170,16 +41172,16 @@ func enterCube(world w.World, cube ecs.Entity) error <span class="cov8" title="1
 func exitCube(world w.World) error <span class="cov8" title="1">{
         exitProp, _, ok := findPortal(world, gc.InteractionExitCube)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("キューブ内部に出口が見つかりません")
+                return fmt.Errorf("no exit found inside cube")
         }</span>
         <span class="cov8" title="1">if !world.Components.PortalConnection.Has(exitProp) </span><span class="cov0" title="0">{
-                return fmt.Errorf("出口に戻り先が結線されていません")
+                return fmt.Errorf("exit has no return destination wired")
         }</span>
         <span class="cov8" title="1">conn := world.Components.PortalConnection.Get(exitProp)
         target := conn.Stage
         returnPos := conn.Coord
         if err := stage.SwapTo(world, target, func(w.World, gc.StageKey) error </span><span class="cov0" title="0">{
-                return fmt.Errorf("戻り先のオーバーワールドが存在しません")
+                return fmt.Errorf("return destination overworld does not exist")
         }</span>); err != nil <span class="cov0" title="0">{
                 return err
         }</span>
@@ -41262,7 +41264,7 @@ func (st *DungeonState) ascend(world w.World) (bool, error) <span class="cov8" t
 
         // 上り先は訪問済み前提。未訪問なら生成でなくエラーにする
         if err := stage.SwapTo(world, target, func(_ w.World, _ gc.StageKey) error </span><span class="cov0" title="0">{
-                return fmt.Errorf("上り先の階が存在しません: %+v", target)
+                return fmt.Errorf("destination floor above does not exist: %+v", target)
         }</span>); err != nil <span class="cov0" title="0">{
                 return false, err
         }</span>
@@ -41342,7 +41344,7 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
         // 無ければプレイヤーが元座標に取り残されるので silent にせず error にする
         <span class="cov0" title="0">pos, ok := findPortalPosition(world, gc.InteractionPortalPrev)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("再訪した遺跡に上り階段が見つかりません: %s", defName)
+                return fmt.Errorf("no up stairs found in revisited ruins: %s", defName)
         }</span>
         <span class="cov0" title="0">return lifecycle.MovePlayerToPosition(world, pos)</span>
 }
@@ -42322,7 +42324,7 @@ type itemVerb struct {
 var verbList = []itemVerb{
         {
                 ID:      verbExamine,
-                Label:   "調べる",
+                Label:   "Inspect",
                 KeyHint: "X",
                 Key:     ebiten.KeyX,
                 Shift:   true,
@@ -42332,7 +42334,7 @@ var verbList = []itemVerb{
         },
         {
                 ID:      verbPlace,
-                Label:   "置く",
+                Label:   "Drop",
                 KeyHint: "d",
                 Key:     ebiten.KeyD,
                 Action:  inputmapper.ActionVerbPlace,
@@ -42341,7 +42343,7 @@ var verbList = []itemVerb{
         },
         {
                 ID:      verbConsume,
-                Label:   "食べる",
+                Label:   "Eat",
                 KeyHint: "e",
                 Key:     ebiten.KeyE,
                 Action:  inputmapper.ActionVerbConsume,
@@ -42350,7 +42352,7 @@ var verbList = []itemVerb{
         },
         {
                 ID:      verbRead,
-                Label:   "読む",
+                Label:   "Read",
                 KeyHint: "r",
                 Key:     ebiten.KeyR,
                 Action:  inputmapper.ActionVerbRead,
@@ -42359,7 +42361,7 @@ var verbList = []itemVerb{
         },
         {
                 ID:      verbUse,
-                Label:   "使う",
+                Label:   "Use",
                 KeyHint: "t",
                 Key:     ebiten.KeyT,
                 Action:  inputmapper.ActionVerbUse,
@@ -42520,7 +42522,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
                         st.jumpToTab(v)
                         return es.Transition[w.World]{Type: es.TransNone}, nil
                 }</span>
-                <span class="cov0" title="0">return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)</span>
+                <span class="cov0" title="0">return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)</span>
         }
 }
 
@@ -42591,7 +42593,7 @@ func (st *ItemActionState) Fetch(world w.World) ItemActionProps <span class="cov
                         }
                         <span class="cov8" title="1">items = append(items, newItemActionEntry(world, entity))</span>
                 }
-                <span class="cov8" title="1">tabs[i] = verbTabData{ID: verb.ID, Label: verb.Label, Key: verb.KeyHint, Items: items}</span>
+                <span class="cov8" title="1">tabs[i] = verbTabData{ID: verb.ID, Label: query.T(world, verb.Label), Key: verb.KeyHint, Items: items}</span>
         }
         <span class="cov8" title="1">return ItemActionProps{Tabs: tabs}</span>
 }
@@ -42630,7 +42632,7 @@ func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry <span 
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ItemActionState) View(_ w.World, props ItemActionProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
+func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
         // タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
         labels := make([]string, len(props.Tabs))
         for i, tab := range props.Tabs </span><span class="cov8" title="1">{
@@ -42644,8 +42646,8 @@ func (st *ItemActionState) View(_ w.World, props ItemActionProps, cursor menurt.
         <span class="cov8" title="1">return newTabScreenUI(res, tabScreen{
                 TabLabels: labels,
                 TabIndex:  cursor.TabIndex,
-                Content:   st.buildItemList(props, cursor.TabIndex, cursor.ItemIndex, res),
-                Footer:    menuNavHint(true, "x 詳細"),
+                Content:   st.buildItemList(world, props, cursor.TabIndex, cursor.ItemIndex, res),
+                Footer:    menuNavHint(true, query.T(world, "x Details")),
         })</span>
 }
 
@@ -42658,7 +42660,7 @@ func (st *ItemActionState) Menu(props ItemActionProps) menurt.MenuConfig <span c
         <span class="cov8" title="1">return menurt.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage, InitialTab: verbTabIndex(st.initialVerb)}</span>
 }
 
-func (st *ItemActionState) buildItemList(props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
+func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
         if tabIndex &gt;= len(props.Tabs) </span><span class="cov0" title="0">{
                 return styled.NewVerticalContainer()
         }</span>
@@ -42669,7 +42671,7 @@ func (st *ItemActionState) buildItemList(props ItemActionProps, tabIndex, itemIn
         for i, it := range items </span><span class="cov8" title="1">{
                 rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}
         }</span>
-        <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "該当するアイテムがありません"}, res)</span>
+        <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)</span>
 }
 
 // detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
@@ -43013,7 +43015,7 @@ func (st *LookAroundState) OnStart(world w.World) error <span class="cov8" title
         }</span>
 
         <span class="cov8" title="1">if !world.Components.GridElement.Has(playerEntity) </span><span class="cov0" title="0">{
-                return fmt.Errorf("プレイヤーがGridElementを持っていません")
+                return fmt.Errorf("player does not have GridElement")
         }</span>
 
         <span class="cov8" title="1">playerGrid := world.Components.GridElement.Get(playerEntity)
@@ -43074,7 +43076,7 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
         case inputmapper.ActionMoveEast:<span class="cov0" title="0">
                 st.moveCursor(world, 1, 0)</span>
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("未対応のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("unsupported action: %s", action)</span>
         }
 
         <span class="cov0" title="0">return st.ConsumeTransition(), nil</span>
@@ -43191,7 +43193,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
         }</span>
 
         // 座標表示
-        <span class="cov8" title="1">drawText(fmt.Sprintf("座標: %s", st.cursor))
+        <span class="cov8" title="1">drawText(fmt.Sprintf("%s: %s", query.T(world, "Coord"), st.cursor))
         y += 5
 
         // 視界内かどうかをチェック
@@ -43203,7 +43205,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
         inVision := query.IsInVision(world, playerGrid.Coord, st.cursor)
 
         if !inVision </span><span class="cov0" title="0">{
-                drawText("暗闇")
+                drawText(query.T(world, "Darkness"))
                 return nil
         }</span>
 
@@ -43211,7 +43213,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
         <span class="cov8" title="1">entities := query.GetEntitiesAt(world, st.cursor.X, st.cursor.Y)
 
         if len(entities) == 0 </span><span class="cov0" title="0">{
-                drawText("何もありません")
+                drawText(query.T(world, "Nothing here"))
         }</span> else<span class="cov8" title="1"> {
                 for _, entity := range entities </span><span class="cov8" title="1">{
                         st.drawEntityInfo(world, entity, drawText)
@@ -43226,7 +43228,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 
         // 操作説明
         y = panelY + panelHeight - 30
-        drawText("WASD/矢印: 移動  X/Esc: 閉じる")
+        drawText(query.T(world, "WASD/Arrows: Move  X/Esc: Close"))
 
         return nil</span>
 }
@@ -43256,7 +43258,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, draw
                 hp := world.Components.HP.Get(entity)
                 label := "HP"
                 if world.Components.Fixed.Has(entity) </span><span class="cov0" title="0">{
-                        label = "耐久"
+                        label = query.T(world, "Durability")
                 }</span>
                 <span class="cov8" title="1">drawText(fmt.Sprintf("  %s: %d/%d", label, hp.Current, hp.Max))</span>
         }
@@ -43277,10 +43279,10 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y 
         }
         <span class="cov8" title="1">*y += 5
         if blocked </span><span class="cov0" title="0">{
-                drawText("移動コスト: 不可")
+                drawText(query.T(world, "Move cost") + ": " + query.T(world, "Impassable"))
         }</span> else<span class="cov8" title="1"> {
                 cost := consts.StandardActionCost + totalAdd
-                drawText(fmt.Sprintf("移動コスト: %d", cost))
+                drawText(fmt.Sprintf("%s: %d", query.T(world, "Move cost"), cost))
         }</span>
 }
 
@@ -43290,15 +43292,15 @@ func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Ent
                 if world.Components.TileTemperature.Has(entity) </span><span class="cov8" title="1">{
                         temp := world.Components.TileTemperature.Get(entity)
                         *y += 5
-                        drawText(fmt.Sprintf("気温修正: %+d", temp.Total()))
+                        drawText(fmt.Sprintf("%s: %+d", query.T(world, "Temperature modifier"), temp.Total()))
                         if temp.Shelter != 0 </span><span class="cov0" title="0">{
-                                drawText(fmt.Sprintf("  屋内: %+d", temp.Shelter))
+                                drawText(fmt.Sprintf("  %s: %+d", query.T(world, "Indoor"), temp.Shelter))
                         }</span>
                         <span class="cov8" title="1">if temp.Water != 0 </span><span class="cov0" title="0">{
-                                drawText(fmt.Sprintf("  水辺: %+d", temp.Water))
+                                drawText(fmt.Sprintf("  %s: %+d", query.T(world, "Waterside"), temp.Water))
                         }</span>
                         <span class="cov8" title="1">if temp.Foliage != 0 </span><span class="cov0" title="0">{
-                                drawText(fmt.Sprintf("  植生: %+d", temp.Foliage))
+                                drawText(fmt.Sprintf("  %s: %+d", query.T(world, "Foliage"), temp.Foliage))
                         }</span>
                         <span class="cov8" title="1">return</span>
                 }
@@ -43383,7 +43385,7 @@ func (st *MainMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:<span class="cov8" title="1"></span>
                 // Dispatchで処理される
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("mainMenu: 未対応のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("mainMenu: unsupported action: %s", action)</span>
         }
         <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
 }
@@ -43567,12 +43569,12 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error <span class="cov0"
 
         <span class="cov0" title="0">chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, seed, st.PlannerType)
         if err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("PlannerChain作成失敗: %w", err)
+                return fmt.Errorf("failed to create PlannerChain: %w", err)
         }</span>
         <span class="cov0" title="0">chain.Recording = true
 
         if err := chain.Plan(); err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("plan実行失敗: %w", err)
+                return fmt.Errorf("failed to execute plan: %w", err)
         }</span>
 
         // チェーン実行後の実際のマップサイズを使用する。テンプレートベースのPlannerは引数のwidth/heightを無視するため
@@ -43581,7 +43583,7 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error <span class="cov0"
 
         st.snapshots = chain.Snapshots
         if st.SnapshotIndex &lt; 0 || st.SnapshotIndex &gt;= len(st.snapshots) </span><span class="cov0" title="0">{
-                return fmt.Errorf("SnapshotIndex %d が範囲外です（スナップショット数: %d）", st.SnapshotIndex, len(st.snapshots))
+                return fmt.Errorf("SnapshotIndex %d out of range, snapshot count %d", st.SnapshotIndex, len(st.snapshots))
         }</span>
 
         // カメラをマップ全体が見えるように設定する
@@ -43690,7 +43692,7 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error <span class=
         }</span>
 
         <span class="cov0" title="0">if _, err := mapspawner.Spawn(world, plan); err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("スナップショット%dのスポーン失敗: %w", st.SnapshotIndex, err)
+                return fmt.Errorf("failed to spawn snapshot %d: %w", st.SnapshotIndex, err)
         }</span>
 
         // 全タイルを可視にする
@@ -43801,11 +43803,11 @@ func (st *MessageState) OnStop(_ w.World) error <span class="cov0" title="0">{ r
 func loadBackgroundImage(world w.World, spriteKey string) (*ebiten.Image, error) <span class="cov8" title="1">{
         sheet, sheetOK := world.Resources.SpriteSheets["bg"]
         if !sheetOK </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("bgスプライトシートが存在しない")
+                return nil, fmt.Errorf("bg sprite sheet does not exist")
         }</span>
         <span class="cov8" title="1">sprite, ok := sheet.Sprites[spriteKey]
         if !ok </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("無効なBackgroundKey: %q がbgスプライトシートに存在しない", spriteKey)
+                return nil, fmt.Errorf("invalid BackgroundKey: %q not found in bg sprite sheet", spriteKey)
         }</span>
         <span class="cov8" title="1">rect := image.Rect(
                 sprite.X,
@@ -43916,7 +43918,7 @@ const (
 func (st *OverworldMapState) OnStart(world w.World) error <span class="cov8" title="1">{
         sb := query.GetSeamlessBand(world)
         if sb == nil || !sb.Active </span><span class="cov0" title="0">{
-                return fmt.Errorf("オーバーワールド帯が有効でない")
+                return fmt.Errorf("overworld band is not valid")
         }</span>
         <span class="cov8" title="1">rows := max(sb.Rows, 1)
 
@@ -43993,7 +43995,7 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error <sp
                 text.Draw(screen, str, face, op)
         }</span>
 
-        <span class="cov8" title="1">drawText(fmt.Sprintf("オーバーワールド地図  現在地 チャンク(%d, %d)", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
+        <span class="cov8" title="1">drawText(fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
 
         const originX, originY consts.ScreenPixel = 16, 44
         // cellCenter はセル (col,row) の中央座標を返す。セルの塗りは一辺 mapCellPx-1
@@ -44045,7 +44047,7 @@ func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(stri
                         x, y = 16, y+22
                 }</span>
         }
-        <span class="cov8" title="1">drawText("N / Esc で閉じる", 16, y+26, theme.TextPrimary)</span>
+        <span class="cov8" title="1">drawText("N / Esc to close", 16, y+26, theme.TextPrimary)</span>
 }
 
 // glyphColorTable は文字から色への対応。色は overworld の GlyphInfo が記号と同居して持つので、
@@ -44195,7 +44197,7 @@ func (st *SettingsMenuState) DoAction(_ w.World, action inputmapper.ActionID) (e
         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:<span class="cov0" title="0"></span>
                 // Dispatchで処理される
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("settingsMenu: 未対応のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("settingsMenu: unsupported action: %s", action)</span>
         }
         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
 }
@@ -44230,8 +44232,8 @@ type settingsMenuItem struct {
 func (st *SettingsMenuState) Fetch(world w.World) SettingsMenuProps <span class="cov8" title="1">{
         return SettingsMenuProps{
                 Items: []settingsMenuItem{
-                        {Kind: settingsItemLanguage, Label: "言語", Value: currentLanguageLabel(query.GetUserSettings(world).Language)},
-                        {Kind: settingsItemBack, Label: "戻る"},
+                        {Kind: settingsItemLanguage, Label: query.T(world, "Language"), Value: query.T(world, currentLanguageLabel(query.GetUserSettings(world).Language))},
+                        {Kind: settingsItemBack, Label: query.T(world, "Back")},
                 },
         }
 }</span>
@@ -44272,13 +44274,13 @@ func (st *SettingsMenuState) handleSelection() es.Transition[w.World] <span clas
 
 // language は選択できる表示言語を表す
 type language struct {
-        Code  string // 言語コード（"ja" / "en"）
-        Label string // 表示名（"日本語" / "English"）
+        Code  string // 言語コード。"ja" / "en"
+        Label string // 表示名の msgid。query.T で現在言語の訳を引く
 }
 
 // languagePresets は選択できる言語の一覧を保持する
 var languagePresets = []language{
-        {Code: "ja", Label: "日本語"},
+        {Code: "ja", Label: "Japanese"},
         {Code: "en", Label: "English"},
 }
 
@@ -44299,17 +44301,17 @@ func NewLanguageMenuState() (es.State[w.World], error) <span class="cov8" title=
 }</span>
 
 // languageChoices は選択できる表示言語を選択肢にする。選ぶとシングルトンへ反映し設定を保存して閉じる
-func languageChoices(_ w.World) (string, []Choice) <span class="cov8" title="1">{
+func languageChoices(world w.World) (string, []Choice) <span class="cov8" title="1">{
         choices := make([]Choice, 0, len(languagePresets))
         for _, l := range languagePresets </span><span class="cov8" title="1">{
-                choices = append(choices, Choice{Label: l.Label, Run: func(world w.World) (es.Transition[w.World], error) </span><span class="cov8" title="1">{
+                choices = append(choices, Choice{Label: query.T(world, l.Label), Run: func(world w.World) (es.Transition[w.World], error) </span><span class="cov8" title="1">{
                         // シングルトンの設定言語を書き換える。Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
                         if s := query.GetUserSettings(world); s != nil </span><span class="cov8" title="1">{
                                 s.Language = l.Code
                         }</span>
                         <span class="cov8" title="1">world.Config.User.Language = l.Code
                         if err := world.Config.SaveUserConfig(); err != nil </span><span class="cov0" title="0">{
-                                logger.New(logger.CategorySave).Warn("言語設定の保存に失敗しました", "error", err)
+                                logger.New(logger.CategorySave).Warn("failed to save language setting", "error", err)
                         }</span>
                         <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransPop}, nil</span>
                 }})
@@ -44322,7 +44324,7 @@ func languageChoices(_ w.World) (string, []Choice) <span class="cov8" title="1">
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *SettingsMenuState) View(_ w.World, props SettingsMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
+func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
         // 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
         rows := make([]menuRow, len(props.Items))
         for i, item := range props.Items </span><span class="cov8" title="1">{
@@ -44342,7 +44344,7 @@ func (st *SettingsMenuState) View(_ w.World, props SettingsMenuProps, cursor men
         )
 
         titleText := widget.NewText(
-                widget.TextOpts.Text("設定", &amp;res.Text.BodyFace, theme.TextPrimary),
+                widget.TextOpts.Text(query.T(world, "Settings"), &amp;res.Text.BodyFace, theme.TextPrimary),
         )
         menuContainer.AddChild(titleText)
         menuContainer.AddChild(table)
@@ -44487,7 +44489,7 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
                 <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil</span>
 
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("未対応のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("unsupported action: %s", action)</span>
         }
 
         <span class="cov0" title="0">return st.ConsumeTransition(), nil</span>
@@ -44504,14 +44506,14 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string <span class
         weapons := query.GetWeapons(world, playerEntity)
         weaponIndex := selectedSlot - 1
         if weaponIndex &lt; 0 || weaponIndex &gt;= len(weapons) || weapons[weaponIndex] == nil </span><span class="cov8" title="1">{
-                return "射撃武器が装備されていません"
+                return query.T(world, "No ranged weapon equipped")
         }</span>
         <span class="cov0" title="0">fire := world.Components.Fire.Get(*weapons[weaponIndex])
         if fire == nil </span><span class="cov0" title="0">{
-                return "射撃武器が装備されていません"
+                return query.T(world, "No ranged weapon equipped")
         }</span>
         <span class="cov0" title="0">if fire.Magazine &lt;= 0 </span><span class="cov0" title="0">{
-                return "装填されていません"
+                return query.T(world, "Not loaded")
         }</span>
         <span class="cov0" title="0">return ""</span>
 }
@@ -44657,13 +44659,13 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
                 y += lineHeight
         }</span>
 
-        <span class="cov8" title="1">drawText("== 射撃モード ==")
+        <span class="cov8" title="1">drawText(query.T(world, "== Shooting Mode =="))
         y += 5
 
         // 武器・残弾情報
         playerEntity, err := query.GetPlayerEntity(world)
         if err != nil </span><span class="cov0" title="0">{
-                drawText("エラー: プレイヤーが見つかりません")
+                drawText(query.T(world, "Error: player not found"))
                 return err
         }</span>
 
@@ -44674,7 +44676,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
         if msg := st.checkFireWeaponStatus(world); msg != "" </span><span class="cov8" title="1">{
                 drawText(msg)
         }</span> else<span class="cov0" title="0"> if len(st.enemies) == 0 </span><span class="cov0" title="0">{
-                drawText("射撃対象がいません")
+                drawText(query.T(world, "No shooting target"))
         }</span> else<span class="cov0" title="0"> {
                 target := st.enemies[st.targetIndex]
                 st.drawTargetInfo(world, target, drawText)
@@ -44682,7 +44684,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 
         // 操作説明
         <span class="cov8" title="1">y = panelY + panelHeight - 30
-        drawText("Tab:切替 Enter:射撃 R:装填 Esc:戻る")
+        drawText(query.T(world, "Tab: Switch  Enter: Fire  R: Reload  Esc: Back"))
 
         return nil</span>
 }
@@ -44693,32 +44695,32 @@ func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, 
         weapons := query.GetWeapons(world, playerEntity)
         weaponIndex := selectedSlot - 1
         if weaponIndex &lt; 0 || weaponIndex &gt;= len(weapons) </span><span class="cov0" title="0">{
-                drawText("武器スロット: 無効")
+                drawText(query.T(world, "Weapon slot: invalid"))
                 return
         }</span>
 
         <span class="cov8" title="1">weaponEntity := weapons[weaponIndex]
         if weaponEntity == nil </span><span class="cov8" title="1">{
-                drawText("武器: なし")
+                drawText(query.T(world, "Weapon: none"))
                 return
         }</span>
 
         // 武器名
         <span class="cov0" title="0">weaponName := query.GetEntityName(*weaponEntity, world)
-        drawText(fmt.Sprintf("武器: %s", weaponName))
+        drawText(fmt.Sprintf("%s: %s", query.T(world, "Weapon"), weaponName))
 
         // 残弾表示
         fireComp := world.Components.Fire.Get(*weaponEntity)
         if fireComp != nil </span><span class="cov0" title="0">{
-                drawText(fmt.Sprintf("残弾: %d/%d", fireComp.Magazine, fireComp.MagazineSize))
+                drawText(fmt.Sprintf("%s: %d/%d", query.T(world, "Ammo"), fireComp.Magazine, fireComp.MagazineSize))
         }</span> else<span class="cov0" title="0"> {
-                drawText("近接武器")
+                drawText(query.T(world, "Melee weapon"))
         }</span>
 }
 
 // drawTargetInfo はターゲット情報を描画する。キャッシュ済みの値を使用する
 func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawText func(string)) <span class="cov0" title="0">{
-        drawText(fmt.Sprintf("対象: %s (%d/%d)",
+        drawText(fmt.Sprintf("%s: %s (%d/%d)", query.T(world, "Target"),
                 query.GetEntityName(target, world),
                 st.targetIndex+1, len(st.enemies)))
 
@@ -44728,8 +44730,8 @@ func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawTe
                 drawText(fmt.Sprintf("HP: %d/%d", hp.Current, hp.Max))
         }</span>
 
-        <span class="cov0" title="0">drawText(fmt.Sprintf("命中率: %d%%", st.cachedHitRate))
-        drawText(fmt.Sprintf("距離: %.1f", st.cachedDistance))</span>
+        <span class="cov0" title="0">drawText(fmt.Sprintf("%s: %d%%", query.T(world, "Hit rate"), st.cachedHitRate))
+        drawText(fmt.Sprintf("%s: %.1f", query.T(world, "Distance"), st.cachedDistance))</span>
 }
 </pre>
 		
@@ -44811,7 +44813,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:<span class="cov8" title="1"></span>
                 // Dispatchで処理される
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("shopMenu: 未対応のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("shopMenu: unsupported action: %s", action)</span>
         }
         <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
 }
@@ -44870,8 +44872,8 @@ func (st *ShopMenuState) Menu(props ShopProps) menurt.MenuConfig <span class="co
 
 func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, sellPriceMod consts.Percent) []shopTabData <span class="cov8" title="1">{
         return []shopTabData{
-                {ID: "buy", Label: "購入", Items: st.createBuyItems(world, currency, buyPriceMod)},
-                {ID: "sell", Label: "売却", Items: st.createSellItems(world, sellPriceMod)},
+                {ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, currency, buyPriceMod)},
+                {ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, sellPriceMod)},
         }
 }</span>
 
@@ -44965,14 +44967,14 @@ func (st *ShopMenuState) buySellSelected(world w.World) error <span class="cov8"
                 <span class="cov0" title="0">var err error
                 query.Player(world, func(p ecs.Entity) </span><span class="cov0" title="0">{ err = gameaction.BuyItem(world, p, item.Label) }</span>)
                 <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
-                        return fmt.Errorf("購入に失敗: %w", err)
+                        return fmt.Errorf("failed to buy: %w", err)
                 }</span>
                 <span class="cov0" title="0">return nil</span>
         }
         <span class="cov0" title="0">var err error
         query.Player(world, func(p ecs.Entity) </span><span class="cov0" title="0">{ err = gameaction.SellItem(world, p, item.Entity) }</span>)
         <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("売却に失敗: %w", err)
+                return fmt.Errorf("failed to sell: %w", err)
         }</span>
         <span class="cov0" title="0">return nil</span>
 }
@@ -44996,7 +44998,7 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) <span class="co
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ShopMenuState) View(_ w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
+func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
         // 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
         labels := make([]string, len(props.Tabs))
         for i, tab := range props.Tabs </span><span class="cov8" title="1">{
@@ -45005,8 +45007,8 @@ func (st *ShopMenuState) View(_ w.World, props ShopProps, cursor menurt.Selectio
         <span class="cov8" title="1">return newTabScreenUI(res, tabScreen{
                 TabLabels: labels,
                 TabIndex:  cursor.TabIndex,
-                Content:   st.buildItemContainer(props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-                Footer:    menuNavHint(true, "x 詳細"),
+                Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
+                Footer:    menuNavHint(true, query.T(world, "x Details")),
         })</span>
 }
 
@@ -45043,7 +45045,7 @@ func (st *ShopMenuState) selectedDetail(world w.World) (shopItemData, gc.EntityS
         <span class="cov0" title="0">return item, s, true</span>
 }
 
-func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
+func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
         if tabIndex &gt;= len(tabs) </span><span class="cov0" title="0">{
                 return styled.NewVerticalContainer()
         }</span>
@@ -45058,9 +45060,9 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
         for i, it := range currentTab.Items </span><span class="cov8" title="1">{
                 rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count), query.FormatCurrency(it.Price), it.Weight}}
         }</span>
-        <span class="cov8" title="1">emptyText := "(商品なし)"
+        <span class="cov8" title="1">emptyText := query.T(world, "No goods")
         if currentTab.ID == "sell" </span><span class="cov0" title="0">{
-                emptyText = "売却可能なアイテムがありません"
+                emptyText = query.T(world, "No items to sell")
         }</span>
         <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)</span>
 }
@@ -45154,7 +45156,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:<span class="cov0" title="0"></span>
                 // Dispatchで処理される
         default:<span class="cov0" title="0">
-                return es.Transition[w.World]{}, fmt.Errorf("storageMenu: 未対応のアクション: %s", action)</span>
+                return es.Transition[w.World]{}, fmt.Errorf("storageMenu: unsupported action: %s", action)</span>
         }
         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
 }
@@ -45185,8 +45187,8 @@ type storageItemData struct {
 func (st *StorageMenuState) Fetch(world w.World) StorageProps <span class="cov8" title="1">{
         return StorageProps{
                 Tabs: []storageTabData{
-                        {ID: tabIDRetrieve, Label: "取得", Items: st.createStorageItemData(world)},
-                        {ID: tabIDStore, Label: "収納", Items: st.createBackpackItemData(world)},
+                        {ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.createStorageItemData(world)},
+                        {ID: tabIDStore, Label: query.T(world, "Store"), Items: st.createBackpackItemData(world)},
                 },
         }
 }</span>
@@ -45283,7 +45285,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error <span class="co
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *StorageMenuState) View(_ w.World, props StorageProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
+func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
         // カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
         labels := make([]string, len(props.Tabs))
         for i, tab := range props.Tabs </span><span class="cov8" title="1">{
@@ -45292,8 +45294,8 @@ func (st *StorageMenuState) View(_ w.World, props StorageProps, cursor menurt.Se
         <span class="cov8" title="1">return newTabScreenUI(res, tabScreen{
                 TabLabels: labels,
                 TabIndex:  cursor.TabIndex,
-                Content:   st.buildActiveListContainer(props, cursor.TabIndex, cursor.ItemIndex, res),
-                Footer:    menuNavHint(true, "x 詳細"),
+                Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
+                Footer:    menuNavHint(true, query.T(world, "x Details")),
         })</span>
 }
 
@@ -45324,7 +45326,7 @@ func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) <span class="cov
         <span class="cov0" title="0">return items[cursor.ItemIndex].Entity, true</span>
 }
 
-func (st *StorageMenuState) buildActiveListContainer(props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
+func (st *StorageMenuState) buildActiveListContainer(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
         if tabIndex &gt;= len(props.Tabs) </span><span class="cov0" title="0">{
                 return styled.NewVerticalContainer()
         }</span>
@@ -45336,7 +45338,7 @@ func (st *StorageMenuState) buildActiveListContainer(props StorageProps, tabInde
         for i, it := range currentTab.Items </span><span class="cov8" title="1">{
                 rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}
         }</span>
-        <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(アイテムなし)"}, res)</span>
+        <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res)</span>
 }
 </pre>
 		
@@ -56131,12 +56133,13 @@ func GetUserSettings(world w.World) *gc.UserSettings <span class="cov0" title="0
 }</span>
 
 // T は現在の設定言語での msgid の訳を返す。現在言語は UserSettings、マスタは Resources.I18N から引く。
-func T(world w.World, msgid string) string <span class="cov0" title="0">{
+// args を渡すと訳を書式として整形する。"%s攻撃力" のようにデータ値を差し込む訳に使う。
+func T(world w.World, msgid string, args ...any) string <span class="cov0" title="0">{
         var lang string
         if s := GetUserSettings(world); s != nil </span><span class="cov0" title="0">{
                 lang = s.Language
         }</span>
-        <span class="cov0" title="0">return world.Resources.I18N.Translate(lang, msgid)</span>
+        <span class="cov0" title="0">return world.Resources.I18N.Translate(lang, msgid, args...)</span>
 }
 
 // stageFieldEntity は key に束縛された StageField エンティティを返す。

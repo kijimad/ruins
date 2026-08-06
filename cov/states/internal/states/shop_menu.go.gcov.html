@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -138,7 +138,7 @@
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC tlaBgGNC">           1 :         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:</span></span>
 <span id="L77"><span class="lineNum">      77</span>              :                 // Dispatchで処理される</span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC tlaBgUNC">           0 :         default:</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;shopMenu: 未対応のアクション: %s&quot;, action)</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;shopMenu: unsupported action: %s&quot;, action)</span></span>
 <span id="L80"><span class="lineNum">      80</span>              :         }</span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">           1 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L82"><span class="lineNum">      82</span>              : }</span>
@@ -197,8 +197,8 @@
 <span id="L135"><span class="lineNum">     135</span>              : </span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 : func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, sellPriceMod consts.Percent) []shopTabData {</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         return []shopTabData{</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 {ID: &quot;buy&quot;, Label: &quot;購入&quot;, Items: st.createBuyItems(world, currency, buyPriceMod)},</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 {ID: &quot;sell&quot;, Label: &quot;売却&quot;, Items: st.createSellItems(world, sellPriceMod)},</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 {ID: &quot;buy&quot;, Label: query.T(world, &quot;Buy&quot;), Items: st.createBuyItems(world, currency, buyPriceMod)},</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 {ID: &quot;sell&quot;, Label: query.T(world, &quot;Sell&quot;), Items: st.createSellItems(world, sellPriceMod)},</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L142"><span class="lineNum">     142</span>              : </span>
@@ -292,14 +292,14 @@
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 var err error</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                 query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.Label) })</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;購入に失敗: %w&quot;, err)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;failed to buy: %w&quot;, err)</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 return nil</span></span>
 <span id="L236"><span class="lineNum">     236</span>              :         }</span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :         var err error</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         query.Player(world, func(p ecs.Entity) { err = gameaction.SellItem(world, p, item.Entity) })</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;売却に失敗: %w&quot;, err)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to sell: %w&quot;, err)</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L243"><span class="lineNum">     243</span>              : }</span>
@@ -323,7 +323,7 @@
 <span id="L261"><span class="lineNum">     261</span>              : // ================</span>
 <span id="L262"><span class="lineNum">     262</span>              : </span>
 <span id="L263"><span class="lineNum">     263</span>              : // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる</span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *ShopMenuState) View(_ w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
 <span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         // 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る</span></span>
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
 <span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
@@ -332,8 +332,8 @@
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         return newTabScreenUI(res, tabScreen{</span></span>
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 TabLabels: labels,</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 TabIndex:  cursor.TabIndex,</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 Content:   st.buildItemContainer(props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 Footer:    menuNavHint(true, &quot;x 詳細&quot;),</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 Footer:    menuNavHint(true, query.T(world, &quot;x Details&quot;)),</span></span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L276"><span class="lineNum">     276</span>              : }</span>
 <span id="L277"><span class="lineNum">     277</span>              : </span>
@@ -370,7 +370,7 @@
 <span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :         return item, s, true</span></span>
 <span id="L309"><span class="lineNum">     309</span>              : }</span>
 <span id="L310"><span class="lineNum">     310</span>              : </span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(tabs) {</span></span>
 <span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC tlaBgUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
 <span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -385,9 +385,9 @@
 <span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           2 :         for i, it := range currentTab.Items {</span></span>
 <span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count), query.FormatCurrency(it.Price), it.Weight}}</span></span>
 <span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         emptyText := &quot;(商品なし)&quot;</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         emptyText := query.T(world, &quot;No goods&quot;)</span></span>
 <span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         if currentTab.ID == &quot;sell&quot; {</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC tlaBgUNC">           0 :                 emptyText = &quot;売却可能なアイテムがありません&quot;</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC tlaBgUNC">           0 :                 emptyText = query.T(world, &quot;No items to sell&quot;)</span></span>
 <span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC tlaBgGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)</span></span>
 <span id="L331"><span class="lineNum">     331</span>              : }</span>

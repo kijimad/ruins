@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,7 +111,7 @@
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect:</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;未知のアクション: %s&quot;, action)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unknown action: %s&quot;, action)</span></span>
 <span id="L53"><span class="lineNum">      53</span>              :         }</span>
 <span id="L54"><span class="lineNum">      54</span>              : }</span>
 <span id="L55"><span class="lineNum">      55</span>              : </span>
@@ -188,7 +188,7 @@
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         // in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         return newTabScreenUI(res, tabScreen{</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 Header:  fmt.Sprintf(&quot;コンポーネント (合計: %d)&quot;, props.Total),</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 Header:  fmt.Sprintf(&quot;Components total: %d&quot;, props.Total),</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 Content: container,</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 Footer:  menuNavHint(false),</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         })</span></span>

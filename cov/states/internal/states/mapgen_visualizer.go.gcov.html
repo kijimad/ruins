@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -112,12 +112,12 @@
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, seed, st.PlannerType)</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;PlannerChain作成失敗: %w&quot;, err)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to create PlannerChain: %w&quot;, err)</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         chain.Recording = true</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         if err := chain.Plan(); err != nil {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;plan実行失敗: %w&quot;, err)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to execute plan: %w&quot;, err)</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>
 <span id="L61"><span class="lineNum">      61</span>              :         // チェーン実行後の実際のマップサイズを使用する。テンプレートベースのPlannerは引数のwidth/heightを無視するため</span>
@@ -126,7 +126,7 @@
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         st.snapshots = chain.Snapshots</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         if st.SnapshotIndex &lt; 0 || st.SnapshotIndex &gt;= len(st.snapshots) {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;SnapshotIndex %d が範囲外です（スナップショット数: %d）&quot;, st.SnapshotIndex, len(st.snapshots))</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;SnapshotIndex %d out of range, snapshot count %d&quot;, st.SnapshotIndex, len(st.snapshots))</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span>              :         // カメラをマップ全体が見えるように設定する</span>
@@ -235,7 +235,7 @@
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L174"><span class="lineNum">     174</span>              : </span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         if _, err := mapspawner.Spawn(world, plan); err != nil {</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スナップショット%dのスポーン失敗: %w&quot;, st.SnapshotIndex, err)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to spawn snapshot %d: %w&quot;, st.SnapshotIndex, err)</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L178"><span class="lineNum">     178</span>              : </span>
 <span id="L179"><span class="lineNum">     179</span>              :         // 全タイルを可視にする</span>

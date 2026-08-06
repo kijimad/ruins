@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:40:41</td>
+            <td class="headerValue">2026-08-06 23:47:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,7 +98,7 @@
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : func mustParse(path string) *gotext.Po {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         data, err := localeFS.ReadFile(path)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;i18n: 埋め込み PO の読み込みに失敗した: %s: %v&quot;, path, err))</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;i18n: failed to read embedded PO: %s: %v&quot;, path, err))</span></span>
 <span id="L40"><span class="lineNum">      40</span>              :         }</span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         po := gotext.NewPo()</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         po.Parse(data)</span></span>
@@ -106,17 +106,18 @@
 <span id="L44"><span class="lineNum">      44</span>              : }</span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // Translate は lang における msgid の訳を返す。未知の言語や未訳は原文の英語へフォールバックする。</span>
-<span id="L47"><span class="lineNum">      47</span>              : //</span>
-<span id="L48"><span class="lineNum">      48</span>              : // gotext の Get は可変引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。</span>
-<span id="L49"><span class="lineNum">      49</span>              : // 整形しないのでメソッド値を介して呼び回避する。</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func (c Catalog) Translate(lang, msgid string) string {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         po, ok := c.langs[lang]</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 po = c.langs[defaultLang]</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         get := po.Get</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return get(msgid)</span></span>
-<span id="L57"><span class="lineNum">      57</span>              : }</span>
+<span id="L47"><span class="lineNum">      47</span>              : // args を渡すと訳を書式として printf 整形する。args が無ければ整形せずそのまま返す。</span>
+<span id="L48"><span class="lineNum">      48</span>              : //</span>
+<span id="L49"><span class="lineNum">      49</span>              : // gotext の Get は書式引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。</span>
+<span id="L50"><span class="lineNum">      50</span>              : // メソッド値を介して呼び回避する。</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : func (c Catalog) Translate(lang, msgid string, args ...any) string {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         po, ok := c.langs[lang]</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 po = c.langs[defaultLang]</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         get := po.Get</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         return get(msgid, args...)</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : }</span>
         </pre>
               </td>
             </tr>
