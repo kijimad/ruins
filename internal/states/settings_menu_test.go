@@ -6,6 +6,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -22,8 +23,14 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	require.Len(t, props.Items, 2)
 	assert.Equal(t, "言語", props.Items[0].Label)
 	assert.Equal(t, settingsItemLanguage, props.Items[0].Kind)
+	// 現在言語の表示は UserSettings 由来にする。既定 ja では日本語表示
+	assert.Equal(t, "日本語", props.Items[0].Value)
 	assert.Equal(t, "戻る", props.Items[1].Label)
 	assert.Equal(t, settingsItemBack, props.Items[1].Kind)
+
+	// UserSettings を en へ切り替えると表示も追従する
+	query.GetUserSettings(world).Language = "en"
+	assert.Equal(t, "English", state.Fetch(world).Items[0].Value, "表示は config でなく UserSettings を引く")
 }
 
 func TestNewLanguageMenuState_選択メニューで言語プリセット分の選択肢を持つ(t *testing.T) {
@@ -37,6 +44,26 @@ func TestNewLanguageMenuState_選択メニューで言語プリセット分の�
 	world := testutil.InitTestWorld(t)
 	_, choices := languageChoices(world)
 	assert.Len(t, choices, len(languagePresets))
+}
+
+func TestLanguageChoices_選択で実行中シングルトンと設定を更新する(t *testing.T) {
+	// SaveUserConfig の書き込み先を一時ディレクトリへ隔離する。t.Setenv があるので Parallel にしない
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+
+	world := testutil.InitTestWorld(t)
+	require.Equal(t, "ja", query.GetUserSettings(world).Language, "既定は ja")
+
+	_, choices := languageChoices(world)
+	// languagePresets の並びは ja, en。en を選ぶ
+	require.Len(t, choices, 2)
+	transition, err := choices[1].Run(world)
+	require.NoError(t, err)
+
+	// 実行中のシングルトンが即時に切り替わる。これが再起動なしで表示が変わる経路
+	assert.Equal(t, "en", query.GetUserSettings(world).Language, "シングルトンが en へ切り替わる")
+	// 永続層の設定値も更新される
+	assert.Equal(t, "en", world.Config.User.Language, "config も en へ更新される")
+	assert.Equal(t, es.TransPop, transition.Type, "選択後は設定画面へ戻る")
 }
 
 func TestCurrentLanguageLabel(t *testing.T) {

@@ -83,6 +83,7 @@ type EntitySpec struct {
 	WeaponSelection    *WeaponSelection    // 選択中の武器スロットを保持するシングルトン
 	GameTime           *GameTime           // ゲーム内時間を保持するシングルトン
 	VisionState        *VisionState        // 視界計算の一時状態を保持するシングルトン
+	UserSettings       *UserSettings       // 設定画面で変更するグローバル設定を保持するシングルトン
 }
 
 // Components はECSコンポーネントのハンドル束。
@@ -164,6 +165,7 @@ type Components struct {
 	WeaponSelection    *ecs.Map[WeaponSelection]    // 選択中の武器スロットを保持するシングルトン
 	GameTime           *ecs.Map[GameTime]           // ゲーム内時間を保持するシングルトン
 	VisionState        *ecs.Map[VisionState]        // 視界計算の一時状態を保持するシングルトン
+	UserSettings       *ecs.Map[UserSettings]       // 設定画面で変更するグローバル設定を保持するシングルトン
 }
 
 // InitializeComponents は全コンポーネント型を Ark のワールドに登録し、
@@ -245,6 +247,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.WeaponSelection = ecs.NewMap[WeaponSelection](world)
 	c.GameTime = ecs.NewMap[GameTime](world)
 	c.VisionState = ecs.NewMap[VisionState](world)
+	c.UserSettings = ecs.NewMap[UserSettings](world)
 	return nil
 }
 
@@ -328,5 +331,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.WeaponSelection, entity, spec.WeaponSelection)
 	addComp(c.GameTime, entity, spec.GameTime)
 	addComp(c.VisionState, entity, spec.VisionState)
+	addComp(c.UserSettings, entity, spec.UserSettings)
 	return entity
 }

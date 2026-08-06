@@ -107,4 +107,5 @@ var Registry = []Def{
 	{Field: "WeaponSelection", Comment: "選択中の武器スロットを保持するシングルトン"},
 	{Field: "GameTime", Comment: "ゲーム内時間を保持するシングルトン"},
 	{Field: "VisionState", Comment: "視界計算の一時状態を保持するシングルトン"},
+	{Field: "UserSettings", Comment: "設定画面で変更するグローバル設定を保持するシングルトン"},
 }

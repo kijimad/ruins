@@ -3,6 +3,7 @@ package resources
 import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -18,7 +19,8 @@ type Resources struct {
 	Faces            map[string]text.Face
 	UIResources      UIResources
 	RawMaster        oapi.Raws
-	SingletonEntity  ecs.Entity // シングルトンエンティティIDキャッシュ
+	I18N             i18n.Catalog // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
+	SingletonEntity  ecs.Entity   // シングルトンエンティティIDキャッシュ
 }
 
 // ScreenDimensions contains current screen dimensions
@@ -51,5 +53,7 @@ func InitGameResources() *Resources {
 		Fonts:        map[string]Font{},
 		Faces:        map[string]text.Face{},
 		UIResources:  UIResources{},
+		// 全言語の訳を持つ不変マスタを常に持たせる。どのワールドでも res.I18N が非 nil になる。
+		I18N: i18n.NewCatalog(),
 	}
 }

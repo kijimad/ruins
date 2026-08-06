@@ -76,7 +76,7 @@ type UserConfig struct {
 	WindowWidth int `env:"RUINS_WINDOW_WIDTH" toml:"window_width"`
 	// ゲームウィンドウの高さ（ピクセル）
 	WindowHeight int `env:"RUINS_WINDOW_HEIGHT" toml:"window_height"`
-	// 表示言語の言語コード（"ja" / "en"）。現状は設定値を保持するのみで、実際の切り替えは未実装
+	// 表示言語の言語コード。"ja" / "en"
 	Language string `env:"RUINS_LANGUAGE" toml:"language"`
 }
 
