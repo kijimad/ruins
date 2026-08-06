@@ -2,7 +2,6 @@ package maingame
 
 import (
 	"fmt"
-	"log"
 	"runtime"
 	"time"
 
@@ -19,16 +18,11 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// menuAlpha はメニュー層を世界へ合成する大域アルファ。透明度はこの一度の合成にだけ持たせる。
-// メニューのパネルは層の中で不透明に描き、この値だけで世界に対して均一に透過させる。重なっても
-// 世界の減衰は一定で、下メニューは上メニューの下で透けない。値は VRT を見ながら詰める。
-const menuAlpha = 0.82
-
 // MainGame はebiten.Game interfaceを満たす
 type MainGame struct {
-	World          w.World
-	StateMachine   es.StateMachine[w.World]
-	screenPipeline *screeneffect.Pipeline
+	World        w.World
+	StateMachine es.StateMachine[w.World]
+	renderer     renderer
 }
 
 // NewMainGame はMainGameを初期化する
@@ -39,9 +33,9 @@ func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGam
 	}
 
 	return &MainGame{
-		World:          world,
-		StateMachine:   stateMachine,
-		screenPipeline: screeneffect.NewPipeline(retroFilter),
+		World:        world,
+		StateMachine: stateMachine,
+		renderer:     newRenderer(screeneffect.NewPipeline(retroFilter)),
 	}, nil
 }
 
@@ -75,40 +69,12 @@ func (game *MainGame) Update() error {
 // Draw はゲームの描画処理を行う
 // interface method だからシグネチャは変更できない
 func (game *MainGame) Draw(screen *ebiten.Image) {
-	bounds := screen.Bounds()
-	offscreen := game.screenPipeline.Begin(bounds.Dx(), bounds.Dy())
+	game.renderer.Draw(screen, game.StateMachine.GetStates(), game.World)
 
-	// パイプラインが未設定の場合は直接screenに描画する
-	target := offscreen
-	if target == nil {
-		target = screen
-	}
-
-	// スタック[0]は世界。target に不透明で描く。[1..]はメニューで、menuLayer に平坦化してから
-	// 世界へ一度だけ透過合成する。これで重なっても世界の減衰が二重にかからず、下メニューは
-	// 上メニューの下で透けない。
-	states := game.StateMachine.GetStates()
-	if len(states) > 0 {
-		if err := states[0].Draw(game.World, target); err != nil {
-			log.Fatal(err)
-		}
-	}
-	if len(states) > 1 {
-		layer := game.screenPipeline.BeginOverlay(bounds.Dx(), bounds.Dy())
-		for _, state := range states[1:] {
-			if err := state.Draw(game.World, layer); err != nil {
-				log.Fatal(err)
-			}
-		}
-		game.screenPipeline.CompositeOverlay(target, menuAlpha)
-	}
-
+	// パフォーマンスモニターは最前面のデバッグ表示なので、ポスト処理の外で screen へ直に描く。
 	if game.World.Config.ShowMonitor {
-		msg := getPerformanceInfo()
-		ebitenutil.DebugPrint(target, msg)
+		ebitenutil.DebugPrint(screen, getPerformanceInfo())
 	}
-
-	game.screenPipeline.End(screen)
 }
 
 // getPerformanceInfo はパフォーマンス情報を文字列として返す

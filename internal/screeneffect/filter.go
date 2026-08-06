@@ -8,67 +8,67 @@ type Filter interface {
 	Apply(dst, src *ebiten.Image)
 }
 
-// Pipeline はフィルタとオフスクリーンバッファを管理する。フレームバッファに加えて、
-// メニュー等をまとめて描くためのオーバーレイ層も1枚持つ。
+// Pipeline は Filter を適用順に並べたポスト処理チェーン。src へ各 Filter を順にかけて dst へ出す。
+// 中間結果は内部の ping-pong バッファに置く。エフェクトを増やすときは NewPipeline に足すだけでよい。
 type Pipeline struct {
-	filter    Filter
-	offscreen *ebiten.Image
-	lastW     int
-	lastH     int
-	overlay   alphaLayer
+	filters []Filter
+	scratch [2]*ebiten.Image // 多段適用の中間バッファ。dst と同じサイズで使い回す
+	lastW   int
+	lastH   int
 }
 
-// NewPipeline は新しいPipelineを作成する
-func NewPipeline(filter Filter) *Pipeline {
-	return &Pipeline{
-		filter: filter,
-	}
+// NewPipeline は Filter を適用順に受け取ってチェーンを作る。Filter が無ければ素通しになる。
+func NewPipeline(filters ...Filter) *Pipeline {
+	return &Pipeline{filters: filters}
 }
 
-// Begin はオフスクリーンバッファを準備して返す
-// nilレシーバの場合は何もせずnilを返す
-func (p *Pipeline) Begin(width, height int) *ebiten.Image {
-	if p == nil {
-		return nil
-	}
-	if p.offscreen == nil || p.lastW != width || p.lastH != height {
-		p.offscreen = ebiten.NewImage(width, height)
-		p.lastW = width
-		p.lastH = height
-	}
-	p.offscreen.Clear()
-	return p.offscreen
-}
-
-// End はフィルタを適用して最終画面に描画する
-// nilレシーバの場合は何もしない
-func (p *Pipeline) End(screen *ebiten.Image) {
-	if p == nil || p.offscreen == nil {
+// Apply は src へ Filter を順にかけて dst へ出力する。有効な Filter が無ければ src をそのまま dst へ
+// 写す。nilレシーバや nil の src では何もしない。
+func (p *Pipeline) Apply(dst, src *ebiten.Image) {
+	if p == nil || dst == nil || src == nil {
 		return
 	}
 
-	if p.filter == nil {
-		screen.DrawImage(p.offscreen, nil)
+	active := p.activeFilters()
+	if len(active) == 0 {
+		dst.DrawImage(src, nil)
 		return
 	}
 
-	p.filter.Apply(screen, p.offscreen)
-}
-
-// BeginOverlay はフレームバッファとは別のオーバーレイ層を用意して返す。呼び出し側はここへ
-// まとめて描き、CompositeOverlay で描画先へ一度だけ合成する。nilレシーバの場合はnilを返す。
-func (p *Pipeline) BeginOverlay(width, height int) *ebiten.Image {
-	if p == nil {
-		return nil
+	b := dst.Bounds()
+	p.ensureScratch(b.Dx(), b.Dy())
+	cur := src
+	for i, f := range active {
+		if i == len(active)-1 {
+			f.Apply(dst, cur)
+			break
+		}
+		out := p.scratch[i%2]
+		out.Clear()
+		f.Apply(out, cur)
+		cur = out
 	}
-	return p.overlay.Begin(width, height)
 }
 
-// CompositeOverlay はオーバーレイ層を dst へ大域アルファで一度だけ重ねる。
-// nilレシーバの場合は何もしない。
-func (p *Pipeline) CompositeOverlay(dst *ebiten.Image, alpha float64) {
-	if p == nil {
+// activeFilters は nil を除いた有効な Filter だけを返す。
+func (p *Pipeline) activeFilters() []Filter {
+	fs := make([]Filter, 0, len(p.filters))
+	for _, f := range p.filters {
+		if f != nil {
+			fs = append(fs, f)
+		}
+	}
+
+	return fs
+}
+
+// ensureScratch は中間バッファを dst と同じサイズで用意する。サイズが変わったら作り直す。
+func (p *Pipeline) ensureScratch(width, height int) {
+	if p.scratch[0] != nil && p.lastW == width && p.lastH == height {
 		return
 	}
-	p.overlay.Composite(dst, alpha)
+	p.scratch[0] = ebiten.NewImage(width, height)
+	p.scratch[1] = ebiten.NewImage(width, height)
+	p.lastW = width
+	p.lastH = height
 }

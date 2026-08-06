@@ -7,17 +7,18 @@
 //
 // 使い方:
 //
-//	// パイプラインの初期化
-//	pipeline := screeneffect.NewPipeline(screeneffect.NewRetroFilter())
+//	// チェーンの初期化。Filter を適用順に並べる
+//	pipeline := screeneffect.NewPipeline(retro)
 //
-//	// 描画ループ内で使用
-//	offscreen := pipeline.Begin(width, height)
-//	// ... offscreenに描画 ...
-//	pipeline.End(screen) // フィルタを適用して画面に描画
+//	// フレームを描いてからチェーンを適用して画面へ出す
+//	frame := layer.Begin(width, height)
+//	// ... frame に描画 ...
+//	pipeline.Apply(screen, frame)
 //
 // 仕様:
 //   - Filter: 画面エフェクトを表すインターフェース
-//   - Pipeline: Filterとフレームバッファに加え、大域アルファで一度だけ合成するオーバーレイ層を管理する
+//   - Pipeline: Filter を適用順に並べたポスト処理チェーン。src へ順にかけて dst へ出す
+//   - AlphaLayer: 複数の描画を平坦化してから大域アルファで一度だけ合成する層
 //   - RetroFilter: 樽型歪み、色収差、ビネット、フリッカー、グロー効果を提供
 //   - オフスクリーンバッファを内部で管理し、画面サイズ変更に自動対応
 package screeneffect
