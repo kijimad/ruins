@@ -152,8 +152,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	// 分離する。cfg.User で大きなウィンドウを指定しても描画基準がズレないようにする
 	world.Resources.SetScreenDimensions(consts.GameWidth, consts.GameHeight)
 
-	// 設定言語を翻訳器へ反映する。翻訳器は源泉言語 en で初期化済みなので、config 既定の ja を反映して日本語にする。
-	// 設定ファイルに未対応の言語が手書きされても起動は止めず、config 既定言語へフォールバックする。
+	// 設定言語を翻訳器へ反映する。未対応の言語が手書きされても起動は止めず、既定言語へフォールバックする。
 	if err := world.Resources.I18N.SetLanguage(world.Config.User.Language); err != nil {
 		fallback := config.DefaultUserConfig().Language
 		log.Printf("i18n: 未対応の言語 %q のため既定言語 %q へフォールバックする: %v", world.Config.User.Language, fallback, err)
