@@ -25,11 +25,11 @@ import (
 func resolveDungeonDefinition(defName string) (*dungeon.DungeonDefinition, error) {
 	def, found := dungeon.GetStageDefinition(defName)
 	if !found {
-		return nil, fmt.Errorf("ステージ定義が見つかりません: %s", defName)
+		return nil, fmt.Errorf("stage definition not found: %s", defName)
 	}
 	dk, ok := def.(*dungeon.DungeonDefinition)
 	if !ok {
-		return nil, fmt.Errorf("フロア生成できないステージ定義です: %s", defName)
+		return nil, fmt.Errorf("stage definition cannot generate a floor: %s", defName)
 	}
 	return dk, nil
 }
@@ -159,7 +159,7 @@ func (st *DungeonState) descend(world w.World) error {
 	if !ok {
 		// 訪問済みの階には必ず上り階段があるはず。無ければステージ切替済みで
 		// プレイヤーが元座標に取り残されるので、silent にせず error にする
-		return fmt.Errorf("再訪した階に上り階段が見つかりません: 深度%d", nextDepth)
+		return fmt.Errorf("no up stairs found on revisited floor: depth %d", nextDepth)
 	}
 	return lifecycle.MovePlayerToPosition(world, pos)
 }
@@ -171,7 +171,7 @@ func (st *DungeonState) descend(world w.World) error {
 // フロア遷移と違い state を使わないので DungeonState のメソッドでなく自由関数にする。
 func enterCube(world w.World, cube ecs.Entity) error {
 	if !world.Components.GridElement.Has(cube) {
-		return fmt.Errorf("キューブに位置がありません")
+		return fmt.Errorf("cube has no position")
 	}
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
@@ -187,7 +187,7 @@ func enterCube(world w.World, cube ecs.Entity) error {
 	// 出口 prop の位置が入場点。戻り先をプレイヤーの元タイルへ貼り直す
 	exitProp, exitPos, ok := findPortal(world, gc.InteractionExitCube)
 	if !ok {
-		return fmt.Errorf("キューブ内部に出口が見つかりません")
+		return fmt.Errorf("no exit found inside cube")
 	}
 	if err := setPortalConnection(world, exitProp, gc.NewOverworldStage(), returnPos); err != nil {
 		return err
@@ -200,16 +200,16 @@ func enterCube(world w.World, cube ecs.Entity) error {
 func exitCube(world w.World) error {
 	exitProp, _, ok := findPortal(world, gc.InteractionExitCube)
 	if !ok {
-		return fmt.Errorf("キューブ内部に出口が見つかりません")
+		return fmt.Errorf("no exit found inside cube")
 	}
 	if !world.Components.PortalConnection.Has(exitProp) {
-		return fmt.Errorf("出口に戻り先が結線されていません")
+		return fmt.Errorf("exit has no return destination wired")
 	}
 	conn := world.Components.PortalConnection.Get(exitProp)
 	target := conn.Stage
 	returnPos := conn.Coord
 	if err := stage.SwapTo(world, target, func(w.World, gc.StageKey) error {
-		return fmt.Errorf("戻り先のオーバーワールドが存在しません")
+		return fmt.Errorf("return destination overworld does not exist")
 	}); err != nil {
 		return err
 	}
@@ -292,7 +292,7 @@ func (st *DungeonState) ascend(world w.World) (bool, error) {
 
 	// 上り先は訪問済み前提。未訪問なら生成でなくエラーにする
 	if err := stage.SwapTo(world, target, func(_ w.World, _ gc.StageKey) error {
-		return fmt.Errorf("上り先の階が存在しません: %+v", target)
+		return fmt.Errorf("destination floor above does not exist: %+v", target)
 	}); err != nil {
 		return false, err
 	}
@@ -372,7 +372,7 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	// 無ければプレイヤーが元座標に取り残されるので silent にせず error にする
 	pos, ok := findPortalPosition(world, gc.InteractionPortalPrev)
 	if !ok {
-		return fmt.Errorf("再訪した遺跡に上り階段が見つかりません: %s", defName)
+		return fmt.Errorf("no up stairs found in revisited ruins: %s", defName)
 	}
 	return lifecycle.MovePlayerToPosition(world, pos)
 }

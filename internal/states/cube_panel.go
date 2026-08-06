@@ -68,10 +68,10 @@ func (st *CubePanelState) Draw(world w.World, screen *ebiten.Image) error {
 		y += 28
 	}
 
-	line("コントロールパネル", theme.TextPrimary)
+	line("Control Panel", theme.TextPrimary)
 	y += 8
-	line(fmt.Sprintf("総重量: %s", st.totalWeight.KgString()), theme.TextPrimary)
+	line(fmt.Sprintf("Total Weight: %s", st.totalWeight.KgString()), theme.TextPrimary)
 	y += 8
-	line("Esc で閉じる", theme.TextAccent)
+	line("Esc to close", theme.TextAccent)
 	return nil
 }

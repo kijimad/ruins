@@ -52,7 +52,7 @@ const (
 func (st *OverworldMapState) OnStart(world w.World) error {
 	sb := query.GetSeamlessBand(world)
 	if sb == nil || !sb.Active {
-		return fmt.Errorf("オーバーワールド帯が有効でない")
+		return fmt.Errorf("overworld band is not valid")
 	}
 	rows := max(sb.Rows, 1)
 
@@ -129,7 +129,7 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 		text.Draw(screen, str, face, op)
 	}
 
-	drawText(fmt.Sprintf("オーバーワールド地図  現在地 チャンク(%d, %d)", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
+	drawText(fmt.Sprintf("Overworld Map  Current Chunk %d, %d", st.playerAbs.X, st.playerAbs.Y), 16, 12, theme.TextPrimary)
 
 	const originX, originY consts.ScreenPixel = 16, 44
 	// cellCenter はセル (col,row) の中央座標を返す。セルの塗りは一辺 mapCellPx-1
@@ -181,7 +181,7 @@ func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(stri
 			x, y = 16, y+22
 		}
 	}
-	drawText("N / Esc で閉じる", 16, y+26, theme.TextPrimary)
+	drawText("N / Esc to close", 16, y+26, theme.TextPrimary)
 }
 
 // glyphColorTable は文字から色への対応。色は overworld の GlyphInfo が記号と同居して持つので、
