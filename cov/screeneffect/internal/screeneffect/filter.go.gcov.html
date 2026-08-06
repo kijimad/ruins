@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">25</td>
-            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryHi">95.3&nbsp;%</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntry">41</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 13:51:05</td>
+            <td class="headerValue">2026-08-06 23:38:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,50 +70,75 @@
 <span id="L8"><span class="lineNum">       8</span>              :         Apply(dst, src *ebiten.Image)</span>
 <span id="L9"><span class="lineNum">       9</span>              : }</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span>              : // Pipeline はフィルタとオフスクリーンバッファを管理する</span>
-<span id="L12"><span class="lineNum">      12</span>              : type Pipeline struct {</span>
-<span id="L13"><span class="lineNum">      13</span>              :         filter    Filter</span>
-<span id="L14"><span class="lineNum">      14</span>              :         offscreen *ebiten.Image</span>
-<span id="L15"><span class="lineNum">      15</span>              :         lastW     int</span>
-<span id="L16"><span class="lineNum">      16</span>              :         lastH     int</span>
-<span id="L17"><span class="lineNum">      17</span>              : }</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // NewPipeline は新しいPipelineを作成する</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 : func NewPipeline(filter Filter) *Pipeline {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return &amp;Pipeline{</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 filter: filter,</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span>              : // Begin はオフスクリーンバッファを準備して返す</span>
-<span id="L27"><span class="lineNum">      27</span>              : // nilレシーバの場合は何もせずnilを返す</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : func (p *Pipeline) Begin(width, height int) *ebiten.Image {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :         if p == nil {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :         if p.offscreen == nil || p.lastW != width || p.lastH != height {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 p.offscreen = ebiten.NewImage(width, height)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 p.lastW = width</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 p.lastH = height</span></span>
+<span id="L11"><span class="lineNum">      11</span>              : // Pipeline は Filter を適用順に並べたポスト処理チェーン。src へ各 Filter を順にかけて dst へ出す。</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 中間結果は内部の ping-pong バッファに置く。エフェクトを増やすときは NewPipeline に足すだけでよい。</span>
+<span id="L13"><span class="lineNum">      13</span>              : type Pipeline struct {</span>
+<span id="L14"><span class="lineNum">      14</span>              :         filters []Filter</span>
+<span id="L15"><span class="lineNum">      15</span>              :         scratch [2]*ebiten.Image // 多段適用の中間バッファ。dst と同じサイズで使い回す</span>
+<span id="L16"><span class="lineNum">      16</span>              :         lastW   int</span>
+<span id="L17"><span class="lineNum">      17</span>              :         lastH   int</span>
+<span id="L18"><span class="lineNum">      18</span>              : }</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : // NewPipeline は Filter を適用順に受け取ってチェーンを作る。Filter が無ければ素通しになる。</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 : func NewPipeline(filters ...Filter) *Pipeline {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return &amp;Pipeline{filters: filters}</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : // Apply は src へ Filter を順にかけて dst へ出力する。有効な Filter が無ければ src をそのまま dst へ</span>
+<span id="L26"><span class="lineNum">      26</span>              : // 写す。nilレシーバや nil の src では何もしない。</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : func (p *Pipeline) Apply(dst, src *ebiten.Image) {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         if p == nil || dst == nil || src == nil {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         active := p.activeFilters()</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         if len(active) == 0 {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 dst.DrawImage(src, nil)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         p.offscreen.Clear()</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return p.offscreen</span></span>
-<span id="L39"><span class="lineNum">      39</span>              : }</span>
-<span id="L40"><span class="lineNum">      40</span>              : </span>
-<span id="L41"><span class="lineNum">      41</span>              : // End はフィルタを適用して最終画面に描画する</span>
-<span id="L42"><span class="lineNum">      42</span>              : // nilレシーバの場合は何もしない</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : func (p *Pipeline) End(screen *ebiten.Image) {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :         if p == nil || p.offscreen == nil {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L47"><span class="lineNum">      47</span>              : </span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :         if p.filter == nil {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 screen.DrawImage(p.offscreen, nil)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L52"><span class="lineNum">      52</span>              : </span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         p.filter.Apply(screen, p.offscreen)</span></span>
-<span id="L54"><span class="lineNum">      54</span>              : }</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           2 :         if len(active) == 1 {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 // 1枚だけなら中間バッファは要らない。dst へ直接かける。</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 active[0].Apply(dst, src)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         b := dst.Bounds()</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         p.ensureScratch(b.Dx(), b.Dy())</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         cur := src</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           2 :         for i, f := range active {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           2 :                 if i == len(active)-1 {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                         f.Apply(dst, cur)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                         break</span></span>
+<span id="L50"><span class="lineNum">      50</span>              :                 }</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 out := p.scratch[i%2]</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 out.Clear()</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 f.Apply(out, cur)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 cur = out</span></span>
+<span id="L55"><span class="lineNum">      55</span>              :         }</span>
+<span id="L56"><span class="lineNum">      56</span>              : }</span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span>              : // activeFilters は nil を除いた有効な Filter だけを返す。</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : func (p *Pipeline) activeFilters() []Filter {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         fs := make([]Filter, 0, len(p.filters))</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           2 :         for _, f := range p.filters {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :                 if f != nil {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                         fs = append(fs, f)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L65"><span class="lineNum">      65</span>              :         }</span>
+<span id="L66"><span class="lineNum">      66</span>              : </span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         return fs</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : }</span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              : // ensureScratch は中間バッファを dst と同じサイズで用意する。サイズが変わったら作り直す。</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : func (p *Pipeline) ensureScratch(width, height int) {</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         if p.scratch[0] != nil &amp;&amp; p.lastW == width &amp;&amp; p.lastH == height {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC tlaBgGNC">           1 :         p.scratch[0] = ebiten.NewImage(width, height)</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         p.scratch[1] = ebiten.NewImage(width, height)</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         p.lastW = width</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         p.lastH = height</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : }</span>
         </pre>
               </td>
             </tr>
