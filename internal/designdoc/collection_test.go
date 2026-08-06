@@ -16,17 +16,17 @@ func TestLoadDir(t *testing.T) {
 	write := func(name, content string) {
 		require.NoError(t, os.WriteFile(filepath.Join(dir, name), []byte(content), 0644))
 	}
-	write("20260102_2.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# B\n")
-	write("20260101_1.md", "---\nstatus: done\ntags: [ecs]\nauto: mechanical\n---\n\n# A\n")
+	write("260102090000.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# B\n")
+	write("260101090000.md", "---\nstatus: done\ntags: [ecs]\nauto: mechanical\n---\n\n# A\n")
 	write("tmpl.md", "---\nstatus: draft\ntags: []\nauto: needs-decision\n---\n\n# {タイトル}\n") // 雛形は除外
-	write("20260103_3.drawio.svg", "<svg/>")                                                  // .md 以外は除外
+	write("260103090000.drawio.svg", "<svg/>")                                                // .md 以外は除外
 
 	docs, err := LoadDir(dir)
 	require.NoError(t, err)
 	require.Len(t, docs, 2)
 
 	// ファイル名昇順に並ぶ。
-	assert.Equal(t, filepath.Join(dir, "20260101_1.md"), docs[0].Path)
+	assert.Equal(t, filepath.Join(dir, "260101090000.md"), docs[0].Path)
 	assert.Equal(t, "A", docs[0].Title)
 	assert.Equal(t, StatusDone, docs[0].Front.Status)
 	assert.Equal(t, "B", docs[1].Title)
@@ -43,7 +43,7 @@ func TestBackfillDir(t *testing.T) {
 	t.Parallel()
 
 	dir := t.TempDir()
-	path := filepath.Join(dir, "20260101_1.md")
+	path := filepath.Join(dir, "260101090000.md")
 	require.NoError(t, os.WriteFile(path, []byte("# タイトル\n\n## 進捗\n\n- [x] a\n- [ ] b\n"), 0644))
 	// 雛形は付与対象外。
 	require.NoError(t, os.WriteFile(filepath.Join(dir, "tmpl.md"), []byte("# {タイトル}\n"), 0644))
@@ -76,7 +76,7 @@ func TestBackfillDir_Error(t *testing.T) {
 func malformedDir(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	require.NoError(t, os.WriteFile(filepath.Join(dir, "20260101_1.md"), []byte("---\nstatus: draft\n# 閉じデリミタなし\n"), 0644))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "260101090000.md"), []byte("---\nstatus: draft\n# 閉じデリミタなし\n"), 0644))
 
 	return dir
 }
