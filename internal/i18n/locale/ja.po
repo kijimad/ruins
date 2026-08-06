@@ -112,3 +112,78 @@ msgstr "装備を選ぶ"
 
 msgid "Nothing to equip"
 msgstr "装備できるものがない"
+
+msgid "Coord"
+msgstr "座標"
+
+msgid "Darkness"
+msgstr "暗闇"
+
+msgid "Nothing here"
+msgstr "何もありません"
+
+msgid "WASD/Arrows: Move  X/Esc: Close"
+msgstr "WASD/矢印: 移動  X/Esc: 閉じる"
+
+msgid "Durability"
+msgstr "耐久"
+
+msgid "Move cost"
+msgstr "移動コスト"
+
+msgid "Impassable"
+msgstr "不可"
+
+msgid "Temperature modifier"
+msgstr "気温修正"
+
+msgid "Indoor"
+msgstr "屋内"
+
+msgid "Waterside"
+msgstr "水辺"
+
+msgid "Foliage"
+msgstr "植生"
+
+msgid "No ranged weapon equipped"
+msgstr "射撃武器が装備されていません"
+
+msgid "Not loaded"
+msgstr "装填されていません"
+
+msgid "== Shooting Mode =="
+msgstr "== 射撃モード =="
+
+msgid "Error: player not found"
+msgstr "エラー: プレイヤーが見つかりません"
+
+msgid "No shooting target"
+msgstr "射撃対象がいません"
+
+msgid "Tab: Switch  Enter: Fire  R: Reload  Esc: Back"
+msgstr "Tab:切替 Enter:射撃 R:装填 Esc:戻る"
+
+msgid "Weapon slot: invalid"
+msgstr "武器スロット: 無効"
+
+msgid "Weapon: none"
+msgstr "武器: なし"
+
+msgid "Weapon"
+msgstr "武器"
+
+msgid "Ammo"
+msgstr "残弾"
+
+msgid "Melee weapon"
+msgstr "近接武器"
+
+msgid "Target"
+msgstr "対象"
+
+msgid "Hit rate"
+msgstr "命中率"
+
+msgid "Distance"
+msgstr "距離"

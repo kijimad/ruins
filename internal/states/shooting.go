@@ -129,7 +129,7 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("unsupported action: %s", action)
 	}
 
 	return st.ConsumeTransition(), nil
@@ -146,14 +146,14 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
 	weapons := query.GetWeapons(world, playerEntity)
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= len(weapons) || weapons[weaponIndex] == nil {
-		return "射撃武器が装備されていません"
+		return query.T(world, "No ranged weapon equipped")
 	}
 	fire := world.Components.Fire.Get(*weapons[weaponIndex])
 	if fire == nil {
-		return "射撃武器が装備されていません"
+		return query.T(world, "No ranged weapon equipped")
 	}
 	if fire.Magazine <= 0 {
-		return "装填されていません"
+		return query.T(world, "Not loaded")
 	}
 	return ""
 }
@@ -299,13 +299,13 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 		y += lineHeight
 	}
 
-	drawText("== 射撃モード ==")
+	drawText(query.T(world, "== Shooting Mode =="))
 	y += 5
 
 	// 武器・残弾情報
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
-		drawText("エラー: プレイヤーが見つかりません")
+		drawText(query.T(world, "Error: player not found"))
 		return err
 	}
 
@@ -316,7 +316,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 	if msg := st.checkFireWeaponStatus(world); msg != "" {
 		drawText(msg)
 	} else if len(st.enemies) == 0 {
-		drawText("射撃対象がいません")
+		drawText(query.T(world, "No shooting target"))
 	} else {
 		target := st.enemies[st.targetIndex]
 		st.drawTargetInfo(world, target, drawText)
@@ -324,7 +324,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 
 	// 操作説明
 	y = panelY + panelHeight - 30
-	drawText("Tab:切替 Enter:射撃 R:装填 Esc:戻る")
+	drawText(query.T(world, "Tab: Switch  Enter: Fire  R: Reload  Esc: Back"))
 
 	return nil
 }
@@ -335,32 +335,32 @@ func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, 
 	weapons := query.GetWeapons(world, playerEntity)
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= len(weapons) {
-		drawText("武器スロット: 無効")
+		drawText(query.T(world, "Weapon slot: invalid"))
 		return
 	}
 
 	weaponEntity := weapons[weaponIndex]
 	if weaponEntity == nil {
-		drawText("武器: なし")
+		drawText(query.T(world, "Weapon: none"))
 		return
 	}
 
 	// 武器名
 	weaponName := query.GetEntityName(*weaponEntity, world)
-	drawText(fmt.Sprintf("武器: %s", weaponName))
+	drawText(fmt.Sprintf("%s: %s", query.T(world, "Weapon"), weaponName))
 
 	// 残弾表示
 	fireComp := world.Components.Fire.Get(*weaponEntity)
 	if fireComp != nil {
-		drawText(fmt.Sprintf("残弾: %d/%d", fireComp.Magazine, fireComp.MagazineSize))
+		drawText(fmt.Sprintf("%s: %d/%d", query.T(world, "Ammo"), fireComp.Magazine, fireComp.MagazineSize))
 	} else {
-		drawText("近接武器")
+		drawText(query.T(world, "Melee weapon"))
 	}
 }
 
 // drawTargetInfo はターゲット情報を描画する。キャッシュ済みの値を使用する
 func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawText func(string)) {
-	drawText(fmt.Sprintf("対象: %s (%d/%d)",
+	drawText(fmt.Sprintf("%s: %s (%d/%d)", query.T(world, "Target"),
 		query.GetEntityName(target, world),
 		st.targetIndex+1, len(st.enemies)))
 
@@ -370,6 +370,6 @@ func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawTe
 		drawText(fmt.Sprintf("HP: %d/%d", hp.Current, hp.Max))
 	}
 
-	drawText(fmt.Sprintf("命中率: %d%%", st.cachedHitRate))
-	drawText(fmt.Sprintf("距離: %.1f", st.cachedDistance))
+	drawText(fmt.Sprintf("%s: %d%%", query.T(world, "Hit rate"), st.cachedHitRate))
+	drawText(fmt.Sprintf("%s: %.1f", query.T(world, "Distance"), st.cachedDistance))
 }
