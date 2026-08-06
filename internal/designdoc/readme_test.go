@@ -11,10 +11,10 @@ func TestRenderStatusSection(t *testing.T) {
 	t.Parallel()
 
 	docs := []*Document{
-		{Path: "docs/design/20260715_58.md", Title: "走り", Front: Frontmatter{Status: StatusInProgress}, HasProgress: true, DoneTasks: 13, OpenTasks: 13},
-		{Path: "docs/design/20260710_51.md", Title: "Ark移行", Front: Frontmatter{Status: StatusInProgress, Tags: []string{"ecs"}}, HasProgress: true, DoneTasks: 30, OpenTasks: 3, SkippedTasks: 2},
-		{Path: "docs/design/20260122_1.md", Title: "下書き", Front: Frontmatter{Status: StatusDraft}},
-		{Path: "docs/design/20260626_37.md", Title: "完了", Front: Frontmatter{Status: StatusDone}, HasProgress: true, DoneTasks: 5},
+		{Path: "docs/design/260715123045.md", Title: "走り", Front: Frontmatter{Status: StatusInProgress}, HasProgress: true, DoneTasks: 13, OpenTasks: 13},
+		{Path: "docs/design/260710091500.md", Title: "Ark移行", Front: Frontmatter{Status: StatusInProgress, Tags: []string{"ecs"}}, HasProgress: true, DoneTasks: 30, OpenTasks: 3, SkippedTasks: 2},
+		{Path: "docs/design/260122084500.md", Title: "下書き", Front: Frontmatter{Status: StatusDraft}},
+		{Path: "docs/design/260626133000.md", Title: "完了", Front: Frontmatter{Status: StatusDone}, HasProgress: true, DoneTasks: 5},
 	}
 	out := RenderStatusSection(docs)
 
@@ -22,11 +22,11 @@ func TestRenderStatusSection(t *testing.T) {
 	assert.NotContains(t, out, "件数")
 
 	// 未完了リストは status・タイトルリンク・進捗・tags を並べる。No. 列は持たない。
-	assert.Contains(t, out, "| in-progress | [走り](docs/design/20260715_58.md) | 13/26 |  |")
+	assert.Contains(t, out, "| in-progress | [走り](docs/design/260715123045.md) | 13/26 |  |")
 	// 見送りは分母から外し、別表記で添える。
-	assert.Contains(t, out, "| in-progress | [Ark移行](docs/design/20260710_51.md) | 30/33（見送り2） | ecs |")
+	assert.Contains(t, out, "| in-progress | [Ark移行](docs/design/260710091500.md) | 30/33（見送り2） | ecs |")
 	// draft も未完了リストに出す。
-	assert.Contains(t, out, "| draft | [下書き](docs/design/20260122_1.md) | - |  |")
+	assert.Contains(t, out, "| draft | [下書き](docs/design/260122084500.md) | - |  |")
 	// done は未完了リストに出さない。
 	assert.NotContains(t, out, "完了")
 }

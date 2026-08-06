@@ -39,7 +39,7 @@
 // # README に載せる範囲
 //
 // README の状況テーブルは IsOpen が true の status、すなわちアクションが要る draft・accepted・
-// in-progress だけを一覧する。閉じた done・superseded・dropped は件数の集計にのみ数えて一覧しない。
+// in-progress だけを一覧する。閉じた done・superseded・dropped は一覧しない。
 // 「まだ何かする必要があるか」を IsOpen 一箇所で判定し、表示と分類の基準を一致させる。
 //
 // # 設計意図
