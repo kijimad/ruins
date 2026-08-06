@@ -28,10 +28,8 @@ func TestLoadDir(t *testing.T) {
 	// ファイル名昇順に並ぶ。
 	assert.Equal(t, filepath.Join(dir, "20260101_1.md"), docs[0].Path)
 	assert.Equal(t, "A", docs[0].Title)
-	assert.Equal(t, 1, docs[0].Number)
 	assert.Equal(t, StatusDone, docs[0].Front.Status)
 	assert.Equal(t, "B", docs[1].Title)
-	assert.Equal(t, 2, docs[1].Number)
 }
 
 func TestLoadDir_Error(t *testing.T) {

@@ -92,8 +92,6 @@ type Frontmatter struct {
 type Document struct {
 	// Path は docs/design からの、あるいは呼び出し側が渡したファイルパス。
 	Path string
-	// Number は docs/design/YYYYMMDD_NN.md の NN。ドキュメントの連番。取得できなければ 0。
-	Number int
 	// Title は本文冒頭の `# ` 見出し。無ければ空。
 	Title string
 	// Front は解析した frontmatter。HasFront が false のときはゼロ値。

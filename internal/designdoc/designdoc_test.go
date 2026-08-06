@@ -127,14 +127,13 @@ func TestValidate(t *testing.T) {
 	assert.False(t, hasProblem(problems, "ok.md"))
 }
 
-func TestParse_NumberAndSkip(t *testing.T) {
+func TestParse_進捗とスキップ(t *testing.T) {
 	t.Parallel()
 
 	content := "# t\n\n## 進捗\n\n- [x] 済\n- [ ] 未\n- [~] 見送り\n"
-	doc, err := Parse("docs/design/20260715_58.md", content)
+	doc, err := Parse("docs/design/260715123045.md", content)
 	require.NoError(t, err)
 
-	assert.Equal(t, 58, doc.Number)
 	assert.Equal(t, 1, doc.DoneTasks)
 	assert.Equal(t, 1, doc.OpenTasks)
 	assert.Equal(t, 1, doc.SkippedTasks)
