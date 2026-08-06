@@ -36,7 +36,7 @@ func NewCatalog() Catalog {
 func mustParse(path string) *gotext.Po {
 	data, err := localeFS.ReadFile(path)
 	if err != nil {
-		panic(fmt.Sprintf("i18n: 埋め込み PO の読み込みに失敗した: %s: %v", path, err))
+		panic(fmt.Sprintf("i18n: failed to read embedded PO: %s: %v", path, err))
 	}
 	po := gotext.NewPo()
 	po.Parse(data)
