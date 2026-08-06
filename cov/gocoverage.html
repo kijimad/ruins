@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.2%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.3%)</option>
 				
@@ -207,9 +207,9 @@
 				
 				<option value="file75">github.com/kijimaD/ruins/internal/designdoc/document.go (100.0%)</option>
 				
-				<option value="file76">github.com/kijimaD/ruins/internal/designdoc/parse.go (98.0%)</option>
+				<option value="file76">github.com/kijimaD/ruins/internal/designdoc/parse.go (97.9%)</option>
 				
-				<option value="file77">github.com/kijimaD/ruins/internal/designdoc/readme.go (100.0%)</option>
+				<option value="file77">github.com/kijimaD/ruins/internal/designdoc/readme.go (96.4%)</option>
 				
 				<option value="file78">github.com/kijimaD/ruins/internal/dungeon/definition.go (96.0%)</option>
 				
@@ -1619,7 +1619,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1690,7 +1690,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         switch </span>{
                         case !hit:<span class="cov0" title="0">
                                 l.Append(" を攻撃したが外れた。")</span>
-                        case critical:<span class="cov8" title="1">
+                        case critical:<span class="cov0" title="0">
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))</span>
                         default:<span class="cov8" title="1">
                                 l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))</span>
@@ -13003,8 +13003,6 @@ type Frontmatter struct {
 type Document struct {
         // Path は docs/design からの、あるいは呼び出し側が渡したファイルパス。
         Path string
-        // Number は docs/design/YYYYMMDD_NN.md の NN。ドキュメントの連番。取得できなければ 0。
-        Number int
         // Title は本文冒頭の `# ` 見出し。無ければ空。
         Title string
         // Front は解析した frontmatter。HasFront が false のときはゼロ値。
@@ -13029,7 +13027,6 @@ type Document struct {
 import (
         "fmt"
         "regexp"
-        "strconv"
         "strings"
 
         "gopkg.in/yaml.v3"
@@ -13040,7 +13037,6 @@ const fence = "---"
 
 var (
         reTitle           = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
-        reDocNumber       = regexp.MustCompile(`_(\d+)\.md$`)
         reProgressHeading = regexp.MustCompile(`(?m)^##\s+進捗\s*$`)
         reAnyHeading      = regexp.MustCompile(`(?m)^##\s`)
         reOpenTask        = regexp.MustCompile(`(?m)^- \[ \]`)
@@ -13064,12 +13060,6 @@ func Parse(path string, content string) (*Document, error) <span class="cov8" ti
         if m := reTitle.FindStringSubmatch(body); m != nil </span><span class="cov8" title="1">{
                 doc.Title = m[1]
         }</span>
-        <span class="cov8" title="1">if m := reDocNumber.FindStringSubmatch(path); m != nil </span><span class="cov8" title="1">{
-                // 抽出済みの数字部分なので Atoi は失敗しない。念のため失敗時は 0 のままにする。
-                if n, convErr := strconv.Atoi(m[1]); convErr == nil </span><span class="cov8" title="1">{
-                        doc.Number = n
-                }</span>
-        }
         <span class="cov8" title="1">countProgress(doc)
 
         return doc, nil</span>
@@ -13162,7 +13152,6 @@ func Render(front Frontmatter, body string) (string, error) <span class="cov8" t
 
 import (
         "fmt"
-        "strconv"
         "strings"
 )
 
@@ -13171,26 +13160,13 @@ var statusDisplayOrder = []Status{
         StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,
 }
 
-// RenderStatusSection は README に埋め込む状況テーブルを Markdown で返す。
-// status 別の件数と、未完了ドキュメントの一覧を出す。docs は表示したい順に並んでいる前提。
-// 一覧に載せるのはアクションが要る status、すなわち Status.IsOpen が true のものに限る。
+// RenderStatusSection は README に埋め込む未完了ドキュメントの一覧を Markdown で返す。
+// docs は表示したい順に並んでいる前提。載せるのはアクションが要る status、すなわち Status.IsOpen が
+// true のものに限る。status 別の件数テーブルは出さない。done が増えるたびに変わり、ブランチ間で
+// 頻繁に衝突するため。
 func RenderStatusSection(docs []*Document) string <span class="cov8" title="1">{
-        counts := map[Status]int{}
-        for _, d := range docs </span><span class="cov8" title="1">{
-                counts[d.Front.Status]++
-        }</span>
-
-        <span class="cov8" title="1">var b strings.Builder
-        b.WriteString("| status | 件数 |\n|---|---|\n")
-        for _, s := range statusDisplayOrder </span><span class="cov8" title="1">{
-                if counts[s] == 0 </span><span class="cov8" title="1">{
-                        continue</span>
-                }
-                <span class="cov8" title="1">fmt.Fprintf(&amp;b, "| %s | %d |\n", s, counts[s])</span>
-        }
-
-        <span class="cov8" title="1">b.WriteString("\n### 未完了\n\n")
-        b.WriteString("| No. | status | ドキュメント | 進捗 | tags |\n|---|---|---|---|---|\n")
+        var b strings.Builder
+        b.WriteString("| status | ドキュメント | 進捗 | tags |\n|---|---|---|---|\n")
         found := false
         for _, s := range statusDisplayOrder </span><span class="cov8" title="1">{
                 if !s.IsOpen() </span><span class="cov8" title="1">{
@@ -13201,39 +13177,32 @@ func RenderStatusSection(docs []*Document) string <span class="cov8" title="1">{
                                 continue</span>
                         }
                         <span class="cov8" title="1">found = true
-                        fmt.Fprintf(&amp;b, "| %s | %s | %s | %s | %s |\n",
-                                numberCell(d), d.Front.Status, titleCell(d), progressCell(d), strings.Join(d.Front.Tags, ", "))</span>
+                        fmt.Fprintf(&amp;b, "| %s | %s | %s | %s |\n",
+                                d.Front.Status, titleCell(d), progressCell(d), strings.Join(d.Front.Tags, ", "))</span>
                 }
         }
         <span class="cov8" title="1">if !found </span><span class="cov8" title="1">{
-                b.WriteString("| | | 未完了のドキュメントなし | | |\n")
+                b.WriteString("| | 未完了のドキュメントなし | | |\n")
         }</span>
 
         <span class="cov8" title="1">return b.String()</span>
 }
 
-// titleCell はタイトルのセルを返す。タイトルが空なら空セルにせずパスで代替し、追跡できるようにする。
+// titleCell はドキュメントのセルを返す。パスがあればタイトルをファイルへのリンクにする。
+// タイトルが空なら空セルにせずパスで代替し、追跡できるようにする。
 func titleCell(d *Document) string <span class="cov8" title="1">{
-        if d.Title != "" </span><span class="cov8" title="1">{
-                return d.Title
+        label := d.Title
+        if label == "" </span><span class="cov8" title="1">{
+                label = d.Path
+        }</span>
+        <span class="cov8" title="1">if label == "" </span><span class="cov8" title="1">{
+                return "(タイトルなし)"
         }</span>
         <span class="cov8" title="1">if d.Path != "" </span><span class="cov8" title="1">{
-                return d.Path
+                return fmt.Sprintf("[%s](%s)", label, d.Path)
         }</span>
 
-        <span class="cov8" title="1">return "(タイトルなし)"</span>
-}
-
-// numberCell はドキュメント番号のセルを返す。番号があればファイルへのリンクにする。
-func numberCell(d *Document) string <span class="cov8" title="1">{
-        if d.Number == 0 </span><span class="cov8" title="1">{
-                return "-"
-        }</span>
-        <span class="cov8" title="1">if d.Path == "" </span><span class="cov8" title="1">{
-                return strconv.Itoa(d.Number)
-        }</span>
-
-        <span class="cov8" title="1">return fmt.Sprintf("[%d](%s)", d.Number, d.Path)</span>
+        <span class="cov0" title="0">return label</span>
 }
 
 // progressCell は進捗のセルを返す。分母は done+open で、見送りは分母から外して別に添える。

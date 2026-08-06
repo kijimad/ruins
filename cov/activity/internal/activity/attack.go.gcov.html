@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.3&nbsp;%</td>
+            <td class="headerCovTableEntryMed">77.1&nbsp;%</td>
             <td class="headerCovTableEntry">327</td>
-            <td class="headerCovTableEntry">256</td>
+            <td class="headerCovTableEntry">252</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 11:50:01</td>
+            <td class="headerValue">2026-08-06 13:39:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -439,11 +439,11 @@
 <span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)</span></span>
 <span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           2 :         if critical {</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :         if critical {</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC tlaBgUNC">           0 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L383"><span class="lineNum">     383</span>              : </span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           2 :         if attack.GetElement() != gc.ElementTypeNone {</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC tlaBgGNC">           2 :         if attack.GetElement() != gc.ElementTypeNone {</span></span>
 <span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :                 baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)</span></span>
 <span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L387"><span class="lineNum">     387</span>              : </span>
@@ -510,9 +510,9 @@
 <span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                         switch {</span></span>
 <span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC tlaBgUNC">           0 :                         case !hit:</span></span>
 <span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :                                 l.Append(&quot; を攻撃したが外れた。&quot;)</span></span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC tlaBgGNC">           1 :                         case critical:</span></span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                                 l.Append(fmt.Sprintf(&quot; にクリティカルヒットし、%d のダメージを与えた！&quot;, damage))</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                         default:</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :                         case critical:</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :                                 l.Append(fmt.Sprintf(&quot; にクリティカルヒットし、%d のダメージを与えた！&quot;, damage))</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC tlaBgGNC">           1 :                         default:</span></span>
 <span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :                                 l.Append(fmt.Sprintf(&quot; を攻撃し、%d のダメージを与えた。&quot;, damage))</span></span>
 <span id="L455"><span class="lineNum">     455</span>              :                         }</span>
 <span id="L456"><span class="lineNum">     456</span>              :                 }).</span>
