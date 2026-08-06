@@ -42,13 +42,7 @@ type StorageMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &StorageMenuState{}
-var _ Configurable = &StorageMenuState{}
 var _ menurt.ExtraInput = &StorageMenuState{}
-
-// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
-func (st *StorageMenuState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {

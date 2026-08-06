@@ -32,13 +32,7 @@ type TavernMenuState struct {
 }
 
 var _ es.State[w.World] = &TavernMenuState{}
-var _ Configurable = &TavernMenuState{}
 var _ menurt.ExtraInput = &TavernMenuState{}
-
-// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
-func (st *TavernMenuState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
 
 // OnStart はステートが開始する際に呼ばれる
 func (st *TavernMenuState) OnStart(world w.World) error {

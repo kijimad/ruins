@@ -33,13 +33,7 @@ type ShootingState struct {
 	cachedDistance float64      // キャッシュ済み距離
 }
 
-// StateConfig はこのステートの設定を返す
-func (st *ShootingState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
-
 var _ es.State[w.World] = &ShootingState{}
-var _ Configurable = &ShootingState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *ShootingState) OnPause(_ w.World) error { return nil }

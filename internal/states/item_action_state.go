@@ -192,13 +192,7 @@ type ItemActionState struct {
 }
 
 var _ es.State[w.World] = &ItemActionState{}
-var _ Configurable = &ItemActionState{}
 var _ menurt.ExtraInput = &ItemActionState{}
-
-// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
-func (st *ItemActionState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
 
 // NewItemActionState は動詞タブ画面を initial のタブで開くファクトリを返す
 func NewItemActionState(initial verbID) es.StateFactory[w.World] {

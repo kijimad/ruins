@@ -94,13 +94,7 @@ type CharacterState struct {
 }
 
 var _ es.State[w.World] = &CharacterState{}
-var _ Configurable = &CharacterState{}
 var _ menurt.ExtraInput = &CharacterState{}
-
-// StateConfig は背景のブラーと暗幕を無効にする。後ろのフィールドをそのまま見せる
-func (st *CharacterState) StateConfig() StateConfig {
-	return StateConfig{BlurBackground: false}
-}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CharacterState) OnStart(_ w.World) error {
