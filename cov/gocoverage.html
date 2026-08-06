@@ -109,11 +109,11 @@
 				
 				<option value="file26">github.com/kijimaD/ruins/internal/balance/combat.go (93.3%)</option>
 				
-				<option value="file27">github.com/kijimaD/ruins/internal/balance/report.go (0.0%)</option>
+				<option value="file27">github.com/kijimaD/ruins/internal/balance/report.go (95.3%)</option>
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/balance/run.go (92.5%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/balance/stats.go (92.3%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/balance/stats.go (94.2%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/cmd/cmd.go (100.0%)</option>
 				
@@ -615,7 +615,7 @@
 				
 				<option value="file279">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (78.3%)</option>
 				
-				<option value="file280">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (74.6%)</option>
+				<option value="file280">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (75.1%)</option>
 				
 				<option value="file281">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (94.6%)</option>
 				
@@ -6535,18 +6535,18 @@ type DepthStat struct {
 }
 
 // GenerateReport はマスターデータからシミュレーションを実行し、レポートを生成する
-func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*Report, error) <span class="cov0" title="0">{
+func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*Report, error) <span class="cov8" title="1">{
         player, err := LoadCombatantFromMember(master, playerName)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("プレイヤーのロードに失敗: %w", err)
         }</span>
 
-        <span class="cov0" title="0">weapon, err := LoadWeaponFromItem(master, weaponName)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">weapon, err := LoadWeaponFromItem(master, weaponName)
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("武器のロードに失敗: %w", err)
         }</span>
 
-        <span class="cov0" title="0">report := &amp;Report{
+        <span class="cov8" title="1">report := &amp;Report{
                 Mode: "simple",
                 Player: &amp;PlayerInfo{
                         Name:      playerName,
@@ -6564,7 +6564,7 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
                 },
         }
 
-        for _, table := range raw.PtrSlice(master.EnemyTables) </span><span class="cov0" title="0">{
+        for _, table := range raw.PtrSlice(master.EnemyTables) </span><span class="cov8" title="1">{
                 stats := RunSimulations(master, table.Name, player, weapon, maxDepth, trials, seed)
 
                 run := EnemyTableRun{
@@ -6575,12 +6575,12 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
                         DeathRate:   stats.DeathRate(),
                 }
 
-                for depth := 1; depth &lt;= maxDepth; depth++ </span><span class="cov0" title="0">{
+                for depth := 1; depth &lt;= maxDepth; depth++ </span><span class="cov8" title="1">{
                         hps := stats.HPAtDepth(depth)
                         if len(hps) == 0 </span><span class="cov0" title="0">{
                                 break</span>
                         }
-                        <span class="cov0" title="0">run.Depths = append(run.Depths, DepthStat{
+                        <span class="cov8" title="1">run.Depths = append(run.Depths, DepthStat{
                                 Depth:              depth,
                                 MedianHP:           stats.MedianHP(depth),
                                 P5HP:               stats.P5HP(depth),
@@ -6603,36 +6603,36 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
                         })</span>
                 }
 
-                <span class="cov0" title="0">for i, r := range stats.Results </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">for i, r := range stats.Results </span><span class="cov8" title="1">{
                         trial := TrialResult{
                                 Index:        i,
                                 ReachedDepth: r.ReachedDepth,
                                 Died:         r.Died,
                         }
-                        for depth := 1; depth &lt;= r.ReachedDepth; depth++ </span><span class="cov0" title="0">{
+                        for depth := 1; depth &lt;= r.ReachedDepth; depth++ </span><span class="cov8" title="1">{
                                 td := TrialDepthStat{Depth: depth}
-                                if hp, ok := r.HPByDepth[depth]; ok </span><span class="cov0" title="0">{
+                                if hp, ok := r.HPByDepth[depth]; ok </span><span class="cov8" title="1">{
                                         td.HP = hp
                                 }</span>
-                                <span class="cov0" title="0">if hp, ok := r.HPBeforeHealByDepth[depth]; ok </span><span class="cov0" title="0">{
+                                <span class="cov8" title="1">if hp, ok := r.HPBeforeHealByDepth[depth]; ok </span><span class="cov8" title="1">{
                                         td.HPBeforeHeal = hp
                                 }</span>
-                                <span class="cov0" title="0">if w, ok := r.WeaponByDepth[depth]; ok </span><span class="cov0" title="0">{
+                                <span class="cov8" title="1">if w, ok := r.WeaponByDepth[depth]; ok </span><span class="cov8" title="1">{
                                         td.Weapon = w
                                 }</span>
-                                <span class="cov0" title="0">if h, ok := r.HungerByDepth[depth]; ok </span><span class="cov0" title="0">{
+                                <span class="cov8" title="1">if h, ok := r.HungerByDepth[depth]; ok </span><span class="cov8" title="1">{
                                         td.Hunger = h
                                 }</span>
-                                <span class="cov0" title="0">trial.Depths = append(trial.Depths, td)</span>
+                                <span class="cov8" title="1">trial.Depths = append(trial.Depths, td)</span>
                         }
-                        <span class="cov0" title="0">run.TrialData = append(run.TrialData, trial)</span>
+                        <span class="cov8" title="1">run.TrialData = append(run.TrialData, trial)</span>
                 }
 
-                <span class="cov0" title="0">report.EnemyTables = append(report.EnemyTables, run)</span>
+                <span class="cov8" title="1">report.EnemyTables = append(report.EnemyTables, run)</span>
         }
 
         // 武器×敵の戦闘メトリクスを生成する
-        <span class="cov0" title="0">report.BattleMetrics = generateBattleMetrics(master, playerName, seed)
+        <span class="cov8" title="1">report.BattleMetrics = generateBattleMetrics(master, playerName, seed)
 
         return report, nil</span>
 }
@@ -6640,51 +6640,51 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 const battleMetricTrials = 500
 
 // generateBattleMetrics は全武器×全敵の組み合わせで戦闘シミュレーションを実行する
-func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []BattleMetric <span class="cov0" title="0">{
+func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []BattleMetric <span class="cov8" title="1">{
         player, err := LoadCombatantFromMember(master, playerName)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil
         }</span>
 
         // 武器一覧を収集する
-        <span class="cov0" title="0">type weaponEntry struct {
+        <span class="cov8" title="1">type weaponEntry struct {
                 name  string
                 stats WeaponStats
         }
         var weapons []weaponEntry
         items := raw.PtrSlice(master.Items)
-        for i := range items </span><span class="cov0" title="0">{
+        for i := range items </span><span class="cov8" title="1">{
                 item := &amp;items[i]
                 w, err := LoadWeaponFromItem(master, item.Name)
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         continue</span>
                 }
-                <span class="cov0" title="0">weapons = append(weapons, weaponEntry{name: item.Name, stats: w})</span>
+                <span class="cov8" title="1">weapons = append(weapons, weaponEntry{name: item.Name, stats: w})</span>
         }
 
         // 敵一覧を収集する（全敵テーブルからユニークな敵名を取得する）
-        <span class="cov0" title="0">enemySet := make(map[string]struct{})
-        for _, table := range raw.PtrSlice(master.EnemyTables) </span><span class="cov0" title="0">{
-                for _, entry := range table.Entries </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">enemySet := make(map[string]struct{})
+        for _, table := range raw.PtrSlice(master.EnemyTables) </span><span class="cov8" title="1">{
+                for _, entry := range table.Entries </span><span class="cov8" title="1">{
                         enemySet[entry.EnemyName] = struct{}{}
                 }</span>
         }
 
-        <span class="cov0" title="0">var metrics []BattleMetric
+        <span class="cov8" title="1">var metrics []BattleMetric
         rng := rand.New(rand.NewPCG(seed, 0))
 
-        for _, w := range weapons </span><span class="cov0" title="0">{
-                for enemyName := range enemySet </span><span class="cov0" title="0">{
+        for _, w := range weapons </span><span class="cov8" title="1">{
+                for enemyName := range enemySet </span><span class="cov8" title="1">{
                         enemyStats, err := LoadCombatantFromMember(master, enemyName)
                         if err != nil </span><span class="cov0" title="0">{
                                 continue</span>
                         }
-                        <span class="cov0" title="0">enemyWeapon, err := LoadEnemyWeapon(master, enemyName)
+                        <span class="cov8" title="1">enemyWeapon, err := LoadEnemyWeapon(master, enemyName)
                         if err != nil </span><span class="cov0" title="0">{
                                 enemyWeapon = WeaponStats{}
                         }</span>
 
-                        <span class="cov0" title="0">results := RunBattles(player, enemyStats, w.stats, enemyWeapon, battleMetricTrials, rng)
+                        <span class="cov8" title="1">results := RunBattles(player, enemyStats, w.stats, enemyWeapon, battleMetricTrials, rng)
                         bs := BattleStats{Results: results}
 
                         metrics = append(metrics, BattleMetric{
@@ -6697,11 +6697,11 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
                 }
         }
 
-        <span class="cov0" title="0">return metrics</span>
+        <span class="cov8" title="1">return metrics</span>
 }
 
 // MarshalJSON はレポートをJSON形式にシリアライズする
-func (r *Report) MarshalJSON() ([]byte, error) <span class="cov0" title="0">{
+func (r *Report) MarshalJSON() ([]byte, error) <span class="cov8" title="1">{
         type Alias Report
         return json.MarshalIndent((*Alias)(r), "", "  ")
 }</span>
@@ -7154,8 +7154,8 @@ func (s RunStats) floorDamagePercentile(depth, playerMaxHP int, p float64) int <
                         continue</span>
                 }
                 <span class="cov8" title="1">entering := playerMaxHP
-                if depth &gt; 1 </span><span class="cov0" title="0">{
-                        if hp, ok := r.HPByDepth[depth-1]; ok </span><span class="cov0" title="0">{
+                if depth &gt; 1 </span><span class="cov8" title="1">{
+                        if hp, ok := r.HPByDepth[depth-1]; ok </span><span class="cov8" title="1">{
                                 entering = hp
                         }</span> else<span class="cov0" title="0"> {
                                 continue</span>
@@ -54518,7 +54518,7 @@ var (
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile <span class="cov8" title="1">{
-        if rand.IntN(2) == 0 </span><span class="cov0" title="0">{
+        if rand.IntN(2) == 0 </span><span class="cov8" title="1">{
                 return 1
         }</span>
         <span class="cov8" title="1">return -1</span>
