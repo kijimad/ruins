@@ -144,7 +144,7 @@ func (st *CharacterNamingState) DoAction(world w.World, action inputmapper.Actio
 	case inputmapper.ActionMenuSelect:
 		return st.confirmName(world), nil
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("characterNaming: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("characterNaming: unsupported action: %s", action)
 	}
 }
 
@@ -167,7 +167,7 @@ func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World
 	if nameLen < nameMinLength || nameLen > nameMaxLength {
 		st.mount.SetProps(namingProps{
 			CurrentName:  props.CurrentName,
-			ErrorMessage: "名前は1〜10文字で入力してください",
+			ErrorMessage: query.T(world, "Enter a name of 1 to 10 characters"),
 		})
 		_, startTimer, _ := hooks.UseTimer(st.mount.Store(), "errorTimer", errorDisplayTime)
 		startTimer()
@@ -228,7 +228,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 	)
 
 	titleLabel := widget.NewText(
-		widget.TextOpts.Text("名前", &res.Text.TitleFontFace, theme.TextPrimary),
+		widget.TextOpts.Text(query.T(world, "Name"), &res.Text.TitleFontFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,
@@ -250,7 +250,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 			widget.TextInputOpts.Face(&res.TextInput.Face),
 			widget.TextInputOpts.Color(res.TextInput.Color),
 			widget.TextInputOpts.Padding(&res.TextInput.Padding),
-			widget.TextInputOpts.Placeholder("名前"),
+			widget.TextInputOpts.Placeholder(query.T(world, "Name")),
 		)
 		ti.SetText(props.CurrentName)
 		ti.Focus(true)
@@ -269,7 +269,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 
 	// 操作ヒント
 	hintLabel := widget.NewText(
-		widget.TextOpts.Text(consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &res.Text.SmallFace, theme.TextAccent),
+		widget.TextOpts.Text(consts.IconKeyEnter+" "+query.T(world, "Confirm")+" / "+consts.IconKeyEsc+" "+query.T(world, "Back"), &res.Text.SmallFace, theme.TextAccent),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,

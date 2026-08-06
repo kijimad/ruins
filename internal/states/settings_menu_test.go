@@ -69,7 +69,8 @@ func TestLanguageChoices_選択で実行中シングルトンと設定を更新�
 func TestCurrentLanguageLabel(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, "日本語", currentLanguageLabel("ja"))
+	// 表示名の msgid を返す。実際の訳は query.T が引く
+	assert.Equal(t, "Japanese", currentLanguageLabel("ja"))
 	assert.Equal(t, "English", currentLanguageLabel("en"))
 	// 一覧に無いコードはそのまま返す
 	assert.Equal(t, "fr", currentLanguageLabel("fr"))

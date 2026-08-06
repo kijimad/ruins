@@ -22,3 +22,390 @@ msgstr "設定"
 
 msgid "Quit"
 msgstr "終了"
+
+msgid "Consumables"
+msgstr "道具"
+
+msgid "Weapons"
+msgstr "武器"
+
+msgid "Armor"
+msgstr "防具"
+
+msgid "Materials"
+msgstr "材料"
+
+msgid "x Details"
+msgstr "x 詳細"
+
+msgid "No recipes"
+msgstr "(レシピなし)"
+
+msgid "Buy"
+msgstr "購入"
+
+msgid "Sell"
+msgstr "売却"
+
+msgid "No goods"
+msgstr "(商品なし)"
+
+msgid "No items to sell"
+msgstr "売却可能なアイテムがありません"
+
+msgid "Retrieve"
+msgstr "取得"
+
+msgid "Store"
+msgstr "収納"
+
+msgid "No items"
+msgstr "(アイテムなし)"
+
+msgid "Inspect"
+msgstr "調べる"
+
+msgid "Drop"
+msgstr "置く"
+
+msgid "Eat"
+msgstr "食べる"
+
+msgid "Read"
+msgstr "読む"
+
+msgid "Use"
+msgstr "使う"
+
+msgid "No matching items"
+msgstr "該当するアイテムがありません"
+
+msgid "Language"
+msgstr "言語"
+
+msgid "Back"
+msgstr "戻る"
+
+msgid "Japanese"
+msgstr "日本語"
+
+msgid "Confirm"
+msgstr "決定"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "Enter a name of 1 to 10 characters"
+msgstr "名前は1〜10文字で入力してください"
+
+msgid ", . Switch"
+msgstr ", . 切替"
+
+msgid "No equipment slots"
+msgstr "装備スロットがありません"
+
+msgid "No formation orders"
+msgstr "この対象に隊列指示はない"
+
+msgid "Choose equipment"
+msgstr "装備を選ぶ"
+
+msgid "Nothing to equip"
+msgstr "装備できるものがない"
+
+msgid "Coord"
+msgstr "座標"
+
+msgid "Darkness"
+msgstr "暗闇"
+
+msgid "Nothing here"
+msgstr "何もありません"
+
+msgid "WASD/Arrows: Move  X/Esc: Close"
+msgstr "WASD/矢印: 移動  X/Esc: 閉じる"
+
+msgid "Durability"
+msgstr "耐久"
+
+msgid "Move cost"
+msgstr "移動コスト"
+
+msgid "Impassable"
+msgstr "不可"
+
+msgid "Temperature modifier"
+msgstr "気温修正"
+
+msgid "Indoor"
+msgstr "屋内"
+
+msgid "Waterside"
+msgstr "水辺"
+
+msgid "Foliage"
+msgstr "植生"
+
+msgid "No ranged weapon equipped"
+msgstr "射撃武器が装備されていません"
+
+msgid "Not loaded"
+msgstr "装填されていません"
+
+msgid "== Shooting Mode =="
+msgstr "== 射撃モード =="
+
+msgid "Error: player not found"
+msgstr "エラー: プレイヤーが見つかりません"
+
+msgid "No shooting target"
+msgstr "射撃対象がいません"
+
+msgid "Tab: Switch  Enter: Fire  R: Reload  Esc: Back"
+msgstr "Tab:切替 Enter:射撃 R:装填 Esc:戻る"
+
+msgid "Weapon slot: invalid"
+msgstr "武器スロット: 無効"
+
+msgid "Weapon: none"
+msgstr "武器: なし"
+
+msgid "Weapon"
+msgstr "武器"
+
+msgid "Ammo"
+msgstr "残弾"
+
+msgid "Melee weapon"
+msgstr "近接武器"
+
+msgid "Target"
+msgstr "対象"
+
+msgid "Hit rate"
+msgstr "命中率"
+
+msgid "Distance"
+msgstr "距離"
+
+msgid "Abilities"
+msgstr "能力"
+
+msgid "Skills"
+msgstr "スキル"
+
+msgid "Effects"
+msgstr "効果"
+
+msgid "Effect"
+msgstr "効果"
+
+msgid "Health"
+msgstr "健康"
+
+msgid "Basic"
+msgstr "基本"
+
+msgid "Profession"
+msgstr "職業"
+
+msgid "HP. You die at 0"
+msgstr "体力。0になると死亡する"
+
+msgid "Max weight"
+msgstr "最大重量"
+
+msgid "Maximum weight you can carry"
+msgstr "所持可能な最大重量"
+
+msgid "Hunger"
+msgstr "空腹度"
+
+msgid "Hunger. High hunger hinders actions"
+msgstr "空腹度。高いと行動に支障が出る"
+
+msgid "Ambient temperature"
+msgstr "環境気温"
+
+msgid "Temperature at current location"
+msgstr "現在地の気温"
+
+msgid "Time of day"
+msgstr "時間帯"
+
+msgid "Current time of day. Affects temperature outdoors"
+msgstr "現在の時間帯。屋外では気温に影響する"
+
+msgid "Vitality. Affects max HP and SP"
+msgstr "体力。HPとSPの最大値に影響する"
+
+msgid "Strength. Affects melee attack damage"
+msgstr "筋力。近接攻撃のダメージに影響する"
+
+msgid "Sensation. Affects ranged attack damage"
+msgstr "感覚。射撃攻撃のダメージに影響する"
+
+msgid "Dexterity. Affects accuracy"
+msgstr "器用さ。命中率に影響する"
+
+msgid "Agility. Affects evasion and action speed"
+msgstr "敏捷。回避率と行動速度に影響する"
+
+msgid "Defense. Reduces damage taken"
+msgstr "防御。被ダメージを軽減する"
+
+msgid "%s category skills"
+msgstr "%sカテゴリのスキル"
+
+msgid "Gained by"
+msgstr "獲得条件"
+
+msgid "Combat"
+msgstr "戦闘"
+
+msgid "Combat effects"
+msgstr "戦闘に関する効果"
+
+msgid "%s attack power"
+msgstr "%s攻撃力"
+
+msgid "%s weapon damage multiplier"
+msgstr "%s武器のダメージ倍率"
+
+msgid "%s accuracy"
+msgstr "%s命中"
+
+msgid "%s weapon accuracy multiplier"
+msgstr "%s武器の命中倍率"
+
+msgid "%s resistance"
+msgstr "%s耐性"
+
+msgid "%s element damage multiplier. Lower reduces more"
+msgstr "%s属性ダメージの倍率。低いほど軽減される"
+
+msgid "Survival"
+msgstr "生存"
+
+msgid "Survival effects"
+msgstr "生存に関する効果"
+
+msgid "Hypothermia progress"
+msgstr "低体温進行"
+
+msgid "Hypothermia progress rate. Lower is slower"
+msgstr "低体温の進行速度。低いほど遅くなる"
+
+msgid "Hyperthermia progress"
+msgstr "高体温進行"
+
+msgid "Hyperthermia progress rate. Lower is slower"
+msgstr "高体温の進行速度。低いほど遅くなる"
+
+msgid "Hunger progress"
+msgstr "空腹進行"
+
+msgid "Hunger progress rate. Lower is slower"
+msgstr "空腹の進行速度。低いほど遅くなる"
+
+msgid "Healing effect"
+msgstr "回復効果"
+
+msgid "Healing item effect multiplier. Higher heals more"
+msgstr "回復アイテムの効果倍率。高いほど多く回復する"
+
+msgid "Action"
+msgstr "行動"
+
+msgid "Action effects"
+msgstr "行動に関する効果"
+
+msgid "Move speed"
+msgstr "移動速度"
+
+msgid "AP cost multiplier when moving. Lower moves with less AP"
+msgstr "移動時のAPコスト倍率。低いほど少ないAPで移動できる"
+
+msgid "Discovery"
+msgstr "発見"
+
+msgid "Item discovery rate multiplier. Higher finds more"
+msgstr "アイテム発見率の倍率。高いほど見つけやすい"
+
+msgid "Detection"
+msgstr "被発見"
+
+msgid "Enemy detection distance multiplier. Lower is harder to find"
+msgstr "敵に発見される距離の倍率。低いほど見つかりにくい"
+
+msgid "Night vision"
+msgstr "暗所視界"
+
+msgid "Vision multiplier in dark. Higher sees more"
+msgstr "暗所での視界の倍率。高いほど見える"
+
+msgid "Production"
+msgstr "生産"
+
+msgid "Production and trade effects"
+msgstr "生産・取引に関する効果"
+
+msgid "Material cost"
+msgstr "素材消費"
+
+msgid "Material consumption multiplier when crafting. Lower saves materials"
+msgstr "合成時の素材消費量倍率。低いほど素材が節約できる"
+
+msgid "Craft quality"
+msgstr "合成品質"
+
+msgid "Quality multiplier when crafting. Higher makes better goods"
+msgstr "調合時の品質倍率。高いほど良い品ができる"
+
+msgid "Buy price"
+msgstr "買値"
+
+msgid "Purchase price multiplier. Lower buys cheaper"
+msgstr "買い物の価格倍率。低いほど安く買える"
+
+msgid "Sell price"
+msgstr "売値"
+
+msgid "Sell price multiplier. Higher sells higher"
+msgstr "売却の価格倍率。高いほど高く売れる"
+
+msgid "Max carry weight multiplier"
+msgstr "所持可能な最大重量の倍率"
+
+msgid "Max load"
+msgstr "最大荷重"
+
+msgid "Max load multiplier"
+msgstr "最大荷重倍率"
+
+msgid "Normal"
+msgstr "正常"
+
+msgid "Torso"
+msgstr "胴体"
+
+msgid "Head"
+msgstr "頭部"
+
+msgid "Arms"
+msgstr "腕"
+
+msgid "Hands"
+msgstr "手"
+
+msgid "Legs"
+msgstr "脚"
+
+msgid "Feet"
+msgstr "足"
+
+msgid "Whole body"
+msgstr "全身"
+
+msgid "No entries"
+msgstr "(項目なし)"

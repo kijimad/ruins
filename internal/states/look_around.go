@@ -45,7 +45,7 @@ func (st *LookAroundState) OnStart(world w.World) error {
 	}
 
 	if !world.Components.GridElement.Has(playerEntity) {
-		return fmt.Errorf("プレイヤーがGridElementを持っていません")
+		return fmt.Errorf("player does not have GridElement")
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity)
@@ -106,7 +106,7 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMoveEast:
 		st.moveCursor(world, 1, 0)
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("unsupported action: %s", action)
 	}
 
 	return st.ConsumeTransition(), nil
@@ -223,7 +223,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	}
 
 	// 座標表示
-	drawText(fmt.Sprintf("座標: %s", st.cursor))
+	drawText(fmt.Sprintf("%s: %s", query.T(world, "Coord"), st.cursor))
 	y += 5
 
 	// 視界内かどうかをチェック
@@ -235,7 +235,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	inVision := query.IsInVision(world, playerGrid.Coord, st.cursor)
 
 	if !inVision {
-		drawText("暗闇")
+		drawText(query.T(world, "Darkness"))
 		return nil
 	}
 
@@ -243,7 +243,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	entities := query.GetEntitiesAt(world, st.cursor.X, st.cursor.Y)
 
 	if len(entities) == 0 {
-		drawText("何もありません")
+		drawText(query.T(world, "Nothing here"))
 	} else {
 		for _, entity := range entities {
 			st.drawEntityInfo(world, entity, drawText)
@@ -258,7 +258,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 
 	// 操作説明
 	y = panelY + panelHeight - 30
-	drawText("WASD/矢印: 移動  X/Esc: 閉じる")
+	drawText(query.T(world, "WASD/Arrows: Move  X/Esc: Close"))
 
 	return nil
 }
@@ -288,7 +288,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, draw
 		hp := world.Components.HP.Get(entity)
 		label := "HP"
 		if world.Components.Fixed.Has(entity) {
-			label = "耐久"
+			label = query.T(world, "Durability")
 		}
 		drawText(fmt.Sprintf("  %s: %d/%d", label, hp.Current, hp.Max))
 	}
@@ -309,10 +309,10 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y 
 	}
 	*y += 5
 	if blocked {
-		drawText("移動コスト: 不可")
+		drawText(query.T(world, "Move cost") + ": " + query.T(world, "Impassable"))
 	} else {
 		cost := consts.StandardActionCost + totalAdd
-		drawText(fmt.Sprintf("移動コスト: %d", cost))
+		drawText(fmt.Sprintf("%s: %d", query.T(world, "Move cost"), cost))
 	}
 }
 
@@ -322,15 +322,15 @@ func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Ent
 		if world.Components.TileTemperature.Has(entity) {
 			temp := world.Components.TileTemperature.Get(entity)
 			*y += 5
-			drawText(fmt.Sprintf("気温修正: %+d", temp.Total()))
+			drawText(fmt.Sprintf("%s: %+d", query.T(world, "Temperature modifier"), temp.Total()))
 			if temp.Shelter != 0 {
-				drawText(fmt.Sprintf("  屋内: %+d", temp.Shelter))
+				drawText(fmt.Sprintf("  %s: %+d", query.T(world, "Indoor"), temp.Shelter))
 			}
 			if temp.Water != 0 {
-				drawText(fmt.Sprintf("  水辺: %+d", temp.Water))
+				drawText(fmt.Sprintf("  %s: %+d", query.T(world, "Waterside"), temp.Water))
 			}
 			if temp.Foliage != 0 {
-				drawText(fmt.Sprintf("  植生: %+d", temp.Foliage))
+				drawText(fmt.Sprintf("  %s: %+d", query.T(world, "Foliage"), temp.Foliage))
 			}
 			return
 		}

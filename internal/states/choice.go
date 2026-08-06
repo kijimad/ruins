@@ -76,7 +76,7 @@ func (st *ChoiceMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatch で処理される
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("choiceMenu: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("choiceMenu: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }

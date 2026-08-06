@@ -49,7 +49,7 @@ func (st *ComponentDebugState) DoAction(_ w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect:
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
 	}
 }
 
@@ -126,7 +126,7 @@ func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, cursor
 
 	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
 	return newTabScreenUI(res, tabScreen{
-		Header:  fmt.Sprintf("コンポーネント (合計: %d)", props.Total),
+		Header:  fmt.Sprintf("Components total: %d", props.Total),
 		Content: container,
 		Footer:  menuNavHint(false),
 	})

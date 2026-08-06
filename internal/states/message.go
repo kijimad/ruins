@@ -52,11 +52,11 @@ func (st *MessageState) OnStop(_ w.World) error { return nil }
 func loadBackgroundImage(world w.World, spriteKey string) (*ebiten.Image, error) {
 	sheet, sheetOK := world.Resources.SpriteSheets["bg"]
 	if !sheetOK {
-		return nil, fmt.Errorf("bgスプライトシートが存在しない")
+		return nil, fmt.Errorf("bg sprite sheet does not exist")
 	}
 	sprite, ok := sheet.Sprites[spriteKey]
 	if !ok {
-		return nil, fmt.Errorf("無効なBackgroundKey: %q がbgスプライトシートに存在しない", spriteKey)
+		return nil, fmt.Errorf("invalid BackgroundKey: %q not found in bg sprite sheet", spriteKey)
 	}
 	rect := image.Rect(
 		sprite.X,

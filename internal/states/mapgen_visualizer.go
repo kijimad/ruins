@@ -50,12 +50,12 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error {
 
 	chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, seed, st.PlannerType)
 	if err != nil {
-		return fmt.Errorf("PlannerChain作成失敗: %w", err)
+		return fmt.Errorf("failed to create PlannerChain: %w", err)
 	}
 	chain.Recording = true
 
 	if err := chain.Plan(); err != nil {
-		return fmt.Errorf("plan実行失敗: %w", err)
+		return fmt.Errorf("failed to execute plan: %w", err)
 	}
 
 	// チェーン実行後の実際のマップサイズを使用する。テンプレートベースのPlannerは引数のwidth/heightを無視するため
@@ -64,7 +64,7 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error {
 
 	st.snapshots = chain.Snapshots
 	if st.SnapshotIndex < 0 || st.SnapshotIndex >= len(st.snapshots) {
-		return fmt.Errorf("SnapshotIndex %d が範囲外です（スナップショット数: %d）", st.SnapshotIndex, len(st.snapshots))
+		return fmt.Errorf("SnapshotIndex %d out of range, snapshot count %d", st.SnapshotIndex, len(st.snapshots))
 	}
 
 	// カメラをマップ全体が見えるように設定する
@@ -173,7 +173,7 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 	}
 
 	if _, err := mapspawner.Spawn(world, plan); err != nil {
-		return fmt.Errorf("スナップショット%dのスポーン失敗: %w", st.SnapshotIndex, err)
+		return fmt.Errorf("failed to spawn snapshot %d: %w", st.SnapshotIndex, err)
 	}
 
 	// 全タイルを可視にする

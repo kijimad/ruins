@@ -76,7 +76,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("shopMenu: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("shopMenu: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -135,8 +135,8 @@ func (st *ShopMenuState) Menu(props ShopProps) menurt.MenuConfig {
 
 func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, sellPriceMod consts.Percent) []shopTabData {
 	return []shopTabData{
-		{ID: "buy", Label: "購入", Items: st.createBuyItems(world, currency, buyPriceMod)},
-		{ID: "sell", Label: "売却", Items: st.createSellItems(world, sellPriceMod)},
+		{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, currency, buyPriceMod)},
+		{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, sellPriceMod)},
 	}
 }
 
@@ -230,14 +230,14 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 		var err error
 		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.Label) })
 		if err != nil {
-			return fmt.Errorf("購入に失敗: %w", err)
+			return fmt.Errorf("failed to buy: %w", err)
 		}
 		return nil
 	}
 	var err error
 	query.Player(world, func(p ecs.Entity) { err = gameaction.SellItem(world, p, item.Entity) })
 	if err != nil {
-		return fmt.Errorf("売却に失敗: %w", err)
+		return fmt.Errorf("failed to sell: %w", err)
 	}
 	return nil
 }
@@ -261,7 +261,7 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ShopMenuState) View(_ w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -270,8 +270,8 @@ func (st *ShopMenuState) View(_ w.World, props ShopProps, cursor menurt.Selectio
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemContainer(props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, "x 詳細"),
+		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
+		Footer:    menuNavHint(true, query.T(world, "x Details")),
 	})
 }
 
@@ -308,7 +308,7 @@ func (st *ShopMenuState) selectedDetail(world w.World) (shopItemData, gc.EntityS
 	return item, s, true
 }
 
-func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	if tabIndex >= len(tabs) {
 		return styled.NewVerticalContainer()
 	}
@@ -323,9 +323,9 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	for i, it := range currentTab.Items {
 		rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count), query.FormatCurrency(it.Price), it.Weight}}
 	}
-	emptyText := "(商品なし)"
+	emptyText := query.T(world, "No goods")
 	if currentTab.ID == "sell" {
-		emptyText = "売却可能なアイテムがありません"
+		emptyText = query.T(world, "No items to sell")
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
 }

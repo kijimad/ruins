@@ -53,12 +53,13 @@ func GetUserSettings(world w.World) *gc.UserSettings {
 }
 
 // T は現在の設定言語での msgid の訳を返す。現在言語は UserSettings、マスタは Resources.I18N から引く。
-func T(world w.World, msgid string) string {
+// args を渡すと訳を書式として整形する。"%s攻撃力" のようにデータ値を差し込む訳に使う。
+func T(world w.World, msgid string, args ...any) string {
 	var lang string
 	if s := GetUserSettings(world); s != nil {
 		lang = s.Language
 	}
-	return world.Resources.I18N.Translate(lang, msgid)
+	return world.Resources.I18N.Translate(lang, msgid, args...)
 }
 
 // stageFieldEntity は key に束縛された StageField エンティティを返す。

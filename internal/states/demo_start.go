@@ -24,18 +24,18 @@ type DemoStartState struct {
 func (st *DemoStartState) OnStart(world w.World) error {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	if err != nil {
-		return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
+		return fmt.Errorf("failed to spawn player: %w", err)
 	}
 
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	if len(professions) > 0 {
 		if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil {
-			return fmt.Errorf("職業の適用に失敗: %w", err)
+			return fmt.Errorf("failed to apply profession: %w", err)
 		}
 	}
 
 	if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {
-		return fmt.Errorf("初期隊員の生成に失敗: %w", err)
+		return fmt.Errorf("failed to spawn initial members: %w", err)
 	}
 
 	st.SetTransition(es.Transition[w.World]{

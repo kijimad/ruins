@@ -84,7 +84,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("craftMenu: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("craftMenu: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -127,9 +127,9 @@ func (st *CraftMenuState) Menu(props CraftProps) menurt.MenuConfig {
 
 func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
 	return []craftTabData{
-		{ID: "consumables", Label: "道具", Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
-		{ID: "weapons", Label: "武器", Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
-		{ID: "wearables", Label: "防具", Items: st.createMenuItems(world, st.queryMenuWearable(world))},
+		{ID: "consumables", Label: query.T(world, "Consumables"), Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
+		{ID: "weapons", Label: query.T(world, "Weapons"), Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
+		{ID: "wearables", Label: query.T(world, "Armor"), Items: st.createMenuItems(world, st.queryMenuWearable(world))},
 	}
 }
 
@@ -212,7 +212,7 @@ func (st *CraftMenuState) craftSelected(world w.World) error {
 	}
 	resultEntity, err := gameaction.Craft(world, item.RecipeName)
 	if err != nil {
-		return fmt.Errorf("合成に失敗: %w", err)
+		return fmt.Errorf("failed to craft: %w", err)
 	}
 	st.resultEntity = resultEntity
 	st.result.Open()
@@ -246,7 +246,7 @@ func (st *CraftMenuState) resultDetailContent(world w.World) (menuscreen.DetailC
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *CraftMenuState) View(_ w.World, props CraftProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -255,12 +255,12 @@ func (st *CraftMenuState) View(_ w.World, props CraftProps, cursor menurt.Select
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemContainer(props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, "x 詳細"),
+		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
+		Footer:    menuNavHint(true, query.T(world, "x Details")),
 	})
 }
 
-func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	if tabIndex >= len(tabs) {
 		return styled.NewVerticalContainer()
 	}
@@ -277,7 +277,7 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 		}
 		rows[i] = menuRow{Cells: []string{mark, it.RecipeName}}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(レシピなし)"}, res)
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res)
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
@@ -295,7 +295,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 	// その後ろに生成物の性能行を続ける
 	var rows []menuscreen.SpecRow
 	if spec.Recipe != nil {
-		rows = append(rows, menuscreen.SpecRow{Label: "材料", Header: true})
+		rows = append(rows, menuscreen.SpecRow{Label: query.T(world, "Materials"), Header: true})
 		for _, in := range spec.Recipe.Inputs {
 			owned := 0
 			if entity, found := query.FindStackableInInventory(world, in.Name); found {
