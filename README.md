@@ -57,21 +57,14 @@ $ make help
 
 `docs/design` の frontmatter から自動生成される。`go run . designdoc list` で絞り込める。
 
-| status | 件数 |
-|---|---|
-| draft | 6 |
-| done | 80 |
-
-### 未完了
-
-| No. | status | ドキュメント | 進捗 | tags |
-|---|---|---|---|---|
-| [67](docs/design/20260724_67.md) | draft | 難所調査から抽出した自走可能な改善のバックログ | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
-| [79](docs/design/20260731_79.md) | draft | 施設内装の生成 —— doc 70 の未着手バックログ | 1/33 | worldgen |
-| [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |
-| [85](docs/design/20260803_85.md) | draft | コード監査: ダンジョン生成・リロード・セーブ 2026-08-03 | 5/5 | worldgen, combat, save, ecs |
-| [89](docs/design/20260805_89.md) | draft | 天気システムを設計する | 0/7 | gamedesign, worldgen, ecs |
-| [90](docs/design/20260805_90.md) | draft | 国際化 i18n を実装する | 0/7 | meta, ui |
+| status | ドキュメント | 進捗 | tags |
+|---|---|---|---|
+| draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
+| draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
+| draft | [OSS 調査 2026-08](docs/design/260801002222.md) | 0/5 | meta, worldgen, combat, ui |
+| draft | [コード監査: ダンジョン生成・リロード・セーブ 2026-08-03](docs/design/260803144226.md) | 5/5 | worldgen, combat, save, ecs |
+| draft | [天気システムを設計する](docs/design/260805144630.md) | 0/7 | gamedesign, worldgen, ecs |
+| draft | [国際化 i18n を実装する](docs/design/260806095943.md) | 0/7 | meta, ui |
 
 
 ## Reference

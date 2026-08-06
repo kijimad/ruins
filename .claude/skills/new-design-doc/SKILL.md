@@ -1,15 +1,15 @@
 ---
 name: new-design-doc
-description: docs/design/YYYYMMDD_NN.md の設計ドキュメントを規約どおり採番・雛形展開して作成する。新しい設計を書き起こすときに使う
+description: docs/design/yymmddhhmmss.md の設計ドキュメントを規約どおり雛形展開して作成する。新しい設計を書き起こすときに使う
 ---
 
 # 設計ドキュメント作成
 
 ## 手順
 
-1. **採番する**: `docs/design/YYYYMMDD_NN.md`。日付は当日、`NN` は全 doc を通した連番で既存の最大 + 1。ゼロ埋めしない。例 `_1`, `_2`, … `_65`, `_66`, `_67`。
-   - 日ごとにリセットしない。同じ日に2本作るなら連番が2つ進む。
-   - `ls docs/design/*.md | sed -E 's/.*_([0-9]+)\.md/\1/' | sort -n | tail -1` で全体の最大番号を確認する。
+1. **ファイル名は現在時刻のタイムスタンプ**: `docs/design/<yymmddhhmmss>.md`。連番は使わない。
+   - `date +%y%m%d%H%M%S` で作る。例 `docs/design/260806143025.md`。
+   - 連番をやめた理由は、ブランチを跨いで同時に doc を足すと同じ番号を取り合ってファイル名も README も衝突するため。タイムスタンプは各 doc が固有値を持ち採番調整が要らない。
 2. **雛形を使う**: `docs/design/tmpl.md` を土台にする。冒頭の frontmatter を必ず埋める。
    - `status`: 新規は基本 `draft`。方針だけ合意済みなら `accepted`。各 status の意味と遷移基準は `internal/designdoc/doc.go` に定義する。完了して `done` にする条件、および README の未完了一覧に載る範囲もそこを参照する。
    - `tags`: 領域ラベル。使える語彙は `internal/designdoc` の `KnownTags`。ここに無いタグは検証で弾かれるので、増やすときは `KnownTags` に追加する。

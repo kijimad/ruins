@@ -2,7 +2,6 @@ package designdoc
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -11,26 +10,13 @@ var statusDisplayOrder = []Status{
 	StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,
 }
 
-// RenderStatusSection は README に埋め込む状況テーブルを Markdown で返す。
-// status 別の件数と、未完了ドキュメントの一覧を出す。docs は表示したい順に並んでいる前提。
-// 一覧に載せるのはアクションが要る status、すなわち Status.IsOpen が true のものに限る。
+// RenderStatusSection は README に埋め込む未完了ドキュメントの一覧を Markdown で返す。
+// docs は表示したい順に並んでいる前提。載せるのはアクションが要る status、すなわち Status.IsOpen が
+// true のものに限る。status 別の件数テーブルは出さない。done が増えるたびに変わり、ブランチ間で
+// 頻繁に衝突するため。
 func RenderStatusSection(docs []*Document) string {
-	counts := map[Status]int{}
-	for _, d := range docs {
-		counts[d.Front.Status]++
-	}
-
 	var b strings.Builder
-	b.WriteString("| status | 件数 |\n|---|---|\n")
-	for _, s := range statusDisplayOrder {
-		if counts[s] == 0 {
-			continue
-		}
-		fmt.Fprintf(&b, "| %s | %d |\n", s, counts[s])
-	}
-
-	b.WriteString("\n### 未完了\n\n")
-	b.WriteString("| No. | status | ドキュメント | 進捗 | tags |\n|---|---|---|---|---|\n")
+	b.WriteString("| status | ドキュメント | 進捗 | tags |\n|---|---|---|---|\n")
 	found := false
 	for _, s := range statusDisplayOrder {
 		if !s.IsOpen() {
@@ -41,39 +27,32 @@ func RenderStatusSection(docs []*Document) string {
 				continue
 			}
 			found = true
-			fmt.Fprintf(&b, "| %s | %s | %s | %s | %s |\n",
-				numberCell(d), d.Front.Status, titleCell(d), progressCell(d), strings.Join(d.Front.Tags, ", "))
+			fmt.Fprintf(&b, "| %s | %s | %s | %s |\n",
+				d.Front.Status, titleCell(d), progressCell(d), strings.Join(d.Front.Tags, ", "))
 		}
 	}
 	if !found {
-		b.WriteString("| | | 未完了のドキュメントなし | | |\n")
+		b.WriteString("| | 未完了のドキュメントなし | | |\n")
 	}
 
 	return b.String()
 }
 
-// titleCell はタイトルのセルを返す。タイトルが空なら空セルにせずパスで代替し、追跡できるようにする。
+// titleCell はドキュメントのセルを返す。パスがあればタイトルをファイルへのリンクにする。
+// タイトルが空なら空セルにせずパスで代替し、追跡できるようにする。
 func titleCell(d *Document) string {
-	if d.Title != "" {
-		return d.Title
+	label := d.Title
+	if label == "" {
+		label = d.Path
+	}
+	if label == "" {
+		return "(タイトルなし)"
 	}
 	if d.Path != "" {
-		return d.Path
+		return fmt.Sprintf("[%s](%s)", label, d.Path)
 	}
 
-	return "(タイトルなし)"
-}
-
-// numberCell はドキュメント番号のセルを返す。番号があればファイルへのリンクにする。
-func numberCell(d *Document) string {
-	if d.Number == 0 {
-		return "-"
-	}
-	if d.Path == "" {
-		return strconv.Itoa(d.Number)
-	}
-
-	return fmt.Sprintf("[%d](%s)", d.Number, d.Path)
+	return label
 }
 
 // progressCell は進捗のセルを返す。分母は done+open で、見送りは分母から外して別に添える。

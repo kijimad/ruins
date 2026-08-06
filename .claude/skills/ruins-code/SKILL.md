@@ -34,7 +34,7 @@ Go のベテランとして、シンプルさとテストしやすさを最優�
 
 ## メニュー画面
 
-メニュー系 state は共通ランタイム `states.Screen[Props]` の上に載せ、state と描画を分離する。設計は `docs/design/20260804_87.md`。
+メニュー系 state は共通ランタイム `states.Screen[Props]` の上に載せ、state と描画を分離する。設計は `docs/design/260804014116.md`。
 
 - state 構造体に `widget *ebitenui.UI`・`rebuild bool`・`*hooks.Mount` を直接持たせない。これらは UI ランタイムで、`Screen[Props]` が保持する。state はドメイン状態だけを持つ。
 - `Update` は `st.screen.Update(world, st)` へ、`Draw` は `st.screen.Draw(screen)` へ委譲する。6手順の骨格を各 state に写経しない。

@@ -3,7 +3,6 @@ package designdoc
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -14,7 +13,6 @@ const fence = "---"
 
 var (
 	reTitle           = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
-	reDocNumber       = regexp.MustCompile(`_(\d+)\.md$`)
 	reProgressHeading = regexp.MustCompile(`(?m)^##\s+進捗\s*$`)
 	reAnyHeading      = regexp.MustCompile(`(?m)^##\s`)
 	reOpenTask        = regexp.MustCompile(`(?m)^- \[ \]`)
@@ -37,12 +35,6 @@ func Parse(path string, content string) (*Document, error) {
 
 	if m := reTitle.FindStringSubmatch(body); m != nil {
 		doc.Title = m[1]
-	}
-	if m := reDocNumber.FindStringSubmatch(path); m != nil {
-		// 抽出済みの数字部分なので Atoi は失敗しない。念のため失敗時は 0 のままにする。
-		if n, convErr := strconv.Atoi(m[1]); convErr == nil {
-			doc.Number = n
-		}
 	}
 	countProgress(doc)
 
