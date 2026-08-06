@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">93.9&nbsp;%</td>
-            <td class="headerCovTableEntry">33</td>
-            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryHi">94.4&nbsp;%</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">34</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 13:39:25</td>
+            <td class="headerValue">2026-08-06 13:51:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -101,8 +101,8 @@
 <span id="L39"><span class="lineNum">      39</span>              :         Renderers  map[string]Renderer</span>
 <span id="L40"><span class="lineNum">      40</span>              : }</span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span>              : // InitWorld は初期化する</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           1 : func InitWorld(c *gc.Components) (World, error) {</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : // InitWorld は初期化する。config はシングルトンの初期化で読むので、構築前に渡す。</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           1 : func InitWorld(c *gc.Components, cfg *config.Config) (World, error) {</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         arkWorld := ecs.NewWorld()</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         if err := c.InitializeComponents(arkWorld); err != nil {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 :                 return World{}, err</span></span>
@@ -112,35 +112,38 @@
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 ECS:        arkWorld,</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 Components: c,</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 Resources:  resources.InitGameResources(),</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 Updaters:   make(map[string]Updater),</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 Renderers:  make(map[string]Renderer),</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         world.InitSingleton()</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         return world, nil</span></span>
-<span id="L60"><span class="lineNum">      60</span>              : }</span>
-<span id="L61"><span class="lineNum">      61</span>              : </span>
-<span id="L62"><span class="lineNum">      62</span>              : // InitSingleton はシングルトンエンティティを新規作成してIDを保存する</span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 : func (world World) InitSingleton() {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         singleton := world.ECS.NewEntity()</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         world.Components.GameLog.Add(singleton, &amp;gc.GameLog{</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         world.Components.GameProgress.Add(singleton, gc.NewGameProgress())</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         world.Components.Dungeon.Add(singleton, gc.NewDungeon())</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         world.Components.TurnState.Add(singleton, gc.NewTurnState())</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         world.Components.WeaponSelection.Add(singleton, &amp;gc.WeaponSelection{Slot: 1})</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         world.Components.GameTime.Add(singleton, &amp;gc.GameTime{})</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         world.Components.VisionState.Add(singleton, gc.NewVisionState())</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         world.Resources.SingletonEntity = singleton</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L77"><span class="lineNum">      77</span>              : </span>
-<span id="L78"><span class="lineNum">      78</span>              : // GetWorld は entities.World インターフェースを満たすためのメソッド</span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : func (world World) GetWorld() *ecs.World {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         return world.ECS</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 Config:     cfg,</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 Updaters:   make(map[string]Updater),</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 Renderers:  make(map[string]Renderer),</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         world.InitSingleton()</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return world, nil</span></span>
+<span id="L61"><span class="lineNum">      61</span>              : }</span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span>              : // InitSingleton はシングルトンエンティティを新規作成してIDを保存する</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : func (world World) InitSingleton() {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         singleton := world.ECS.NewEntity()</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         world.Components.GameLog.Add(singleton, &amp;gc.GameLog{</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         world.Components.GameProgress.Add(singleton, gc.NewGameProgress())</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         world.Components.Dungeon.Add(singleton, gc.NewDungeon())</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         world.Components.TurnState.Add(singleton, gc.NewTurnState())</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         world.Components.WeaponSelection.Add(singleton, &amp;gc.WeaponSelection{Slot: 1})</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         world.Components.GameTime.Add(singleton, &amp;gc.GameTime{})</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         world.Components.VisionState.Add(singleton, gc.NewVisionState())</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         // config は構築時に渡されているので、設定言語をそのまま種にする。</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Config.User.Language))</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         world.Resources.SingletonEntity = singleton</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : </span>
+<span id="L81"><span class="lineNum">      81</span>              : // GetWorld は entities.World インターフェースを満たすためのメソッド</span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : func (world World) GetWorld() *ecs.World {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return world.ECS</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
