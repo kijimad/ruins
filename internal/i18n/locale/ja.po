@@ -40,3 +40,42 @@ msgstr "x 詳細"
 
 msgid "No recipes"
 msgstr "(レシピなし)"
+
+msgid "Buy"
+msgstr "購入"
+
+msgid "Sell"
+msgstr "売却"
+
+msgid "No goods"
+msgstr "(商品なし)"
+
+msgid "No items to sell"
+msgstr "売却可能なアイテムがありません"
+
+msgid "Retrieve"
+msgstr "取得"
+
+msgid "Store"
+msgstr "収納"
+
+msgid "No items"
+msgstr "(アイテムなし)"
+
+msgid "Inspect"
+msgstr "調べる"
+
+msgid "Drop"
+msgstr "置く"
+
+msgid "Eat"
+msgstr "食べる"
+
+msgid "Read"
+msgstr "読む"
+
+msgid "Use"
+msgstr "使う"
+
+msgid "No matching items"
+msgstr "該当するアイテムがありません"
