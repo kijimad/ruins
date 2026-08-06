@@ -78,11 +78,10 @@ func NewWSplitContainer(right *widget.Container, left *widget.Container, opts ..
 	return split
 }
 
-// NewWindowContainer はウィンドウの本体を作成する。オーバーレイのウィンドウはメニュー層で
-// 不透明に描き、下のメニューを透けさせない。透明度は層と世界の一度きりの合成に一元化する。
+// NewWindowContainer はウィンドウの本体を作成する
 func NewWindowContainer(res resources.UIResources) *widget.Container {
 	return widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageOpaque),
+		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Padding(&widget.Insets{

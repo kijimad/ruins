@@ -143,9 +143,6 @@ func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menurt.Sele
 	)
 
 	menuContainer := styled.NewVerticalContainer(
-		// メインメニューはスタック[0]でメニュー層に載らず target へ直接描くため、層アルファの
-		// 透過が効かない。半透明の Image のままにして独自背景を透かす。不透明の ImageOpaque は
-		// メニュー層に載る他メニュー用で、ここでは使わない。
 		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{

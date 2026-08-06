@@ -197,7 +197,7 @@ func (st *SettingsMenuState) View(_ w.World, props SettingsMenuProps, cursor men
 	table := renderMenuList(cursor.ItemIndex, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
 
 	menuContainer := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageOpaque),
+		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,

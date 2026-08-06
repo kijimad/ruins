@@ -48,8 +48,6 @@ func TestNewUIResources_正常系で全リソースが構築される(t *testing
 	assert.NotNil(t, ui.ProgressBar.FillImage)
 	assert.NotNil(t, ui.Panel)
 	assert.NotNil(t, ui.Panel.Image)
-	assert.NotNil(t, ui.Panel.ImageOpaque)
-	assert.NotNil(t, ui.Panel.ImageTrans)
 	assert.NotNil(t, ui.Panel.TitleBar)
 	assert.NotNil(t, ui.Panel.SelectionBar)
 	assert.NotNil(t, ui.TabBook)

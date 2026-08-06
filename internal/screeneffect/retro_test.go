@@ -90,24 +90,3 @@ func TestPipeline_Apply_nilレシーバは無処理(t *testing.T) {
 		pipeline.Apply(screen, src)
 	}, "nil パイプラインの Apply はパニックしない")
 }
-
-func TestAlphaLayer_BeginとComposite(t *testing.T) {
-	t.Parallel()
-
-	var layer AlphaLayer
-	img := layer.Begin(100, 80)
-	require.NotNil(t, img)
-	assert.Equal(t, 100, img.Bounds().Dx())
-	assert.Equal(t, 80, img.Bounds().Dy())
-
-	// サイズ変更で作り直す。
-	img2 := layer.Begin(200, 120)
-	assert.Equal(t, 200, img2.Bounds().Dx())
-	assert.Equal(t, 120, img2.Bounds().Dy())
-
-	// 描画先へ大域アルファで合成してもパニックしない。
-	dst := ebiten.NewImage(200, 120)
-	assert.NotPanics(t, func() {
-		layer.Composite(dst, 0.82)
-	})
-}
