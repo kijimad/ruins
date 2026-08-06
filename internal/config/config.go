@@ -80,15 +80,6 @@ type UserConfig struct {
 	Language string `env:"RUINS_LANGUAGE" toml:"language"`
 }
 
-// LanguageOrDefault は config があれば設定言語を、nil なら既定言語を返す。
-// ワールド構築の途中など config 未設定の経路で安全に言語を決めるために使う。
-func LanguageOrDefault(c *Config) string {
-	if c != nil {
-		return c.User.Language
-	}
-	return DefaultUserConfig().Language
-}
-
 // DefaultUserConfig はユーザー設定のデフォルト値を返す。
 // 設定ファイルが存在しない場合や、新規フィールド追加でファイルに値が無い場合の補完に使う。
 func DefaultUserConfig() UserConfig {

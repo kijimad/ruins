@@ -109,7 +109,7 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	// 先に probe を通し、成功したときだけ本番ワールドへ適用することで、ロード失敗時も
 	// 本番ワールドを無傷で残し、呼び出し側がアプリを継続できるようにする。
 	// 復元を2回走らせるコストは、ロードがゲーム開始時の1回きりの操作なので許容する。
-	probe, err := w.InitWorld(&gc.Components{})
+	probe, err := w.InitWorld(&gc.Components{}, world.Config)
 	if err != nil {
 		return fmt.Errorf("検証用ワールドの生成に失敗: %w", err)
 	}

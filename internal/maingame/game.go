@@ -17,7 +17,6 @@ import (
 	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // MainGame はebiten.Game interfaceを満たす
@@ -142,20 +141,15 @@ Goroutines: %d
 
 // InitWorld はゲームワールドを初期化する
 func InitWorld(cfg *config.Config) (w.World, error) {
-	world, err := w.InitWorld(&gc.Components{})
+	world, err := w.InitWorld(&gc.Components{}, cfg)
 	if err != nil {
 		return w.World{}, err
 	}
 
-	world.Config = cfg
 	// ScreenDimensions は描画の基準（カメラ中心・HUD配置）であり、Layout が返す論理解像度と
 	// 一致させる。論理解像度は固定のため consts の値を渡す。ウィンドウサイズ（cfg.User）とは
 	// 分離する。cfg.User で大きなウィンドウを指定しても描画基準がズレないようにする
 	world.Resources.SetScreenDimensions(consts.GameWidth, consts.GameHeight)
-
-	// 設定言語をシングルトンへ反映する。InitSingleton は config 未設定時に既定言語で種を蒔くので、
-	// config 反映後にここで上書きする。未対応の言語は query.T の Translate が原文へフォールバックする。
-	query.GetUserSettings(world).Language = world.Config.User.Language
 
 	// Rawデータを読み込む
 	rw, err := loader.LoadRaws()

@@ -19,8 +19,8 @@ type Resources struct {
 	Faces            map[string]text.Face
 	UIResources      UIResources
 	RawMaster        oapi.Raws
-	I18N             *i18n.Catalog // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
-	SingletonEntity  ecs.Entity    // シングルトンエンティティIDキャッシュ
+	I18N             i18n.Catalog // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
+	SingletonEntity  ecs.Entity   // シングルトンエンティティIDキャッシュ
 }
 
 // ScreenDimensions contains current screen dimensions

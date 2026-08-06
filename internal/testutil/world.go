@@ -58,13 +58,12 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 		opt(&cfg)
 	}
 
-	// 基本的なWorld構造を初期化
-	world, err := w.InitWorld(&gc.Components{})
+	// テスト用configを構築してからWorldを初期化する。シングルトンが config を読むため先に渡す。
+	testCfg := &config.Config{Profile: config.ProfileDevelopment}
+	testCfg.ApplyProfileDefaults()
+	world, err := w.InitWorld(&gc.Components{}, testCfg)
 	require.NoError(tb, err)
 
-	// テスト用configを設定
-	world.Config = &config.Config{Profile: config.ProfileDevelopment}
-	world.Config.ApplyProfileDefaults()
 	world.Config.LogLevel = "ignore"
 	world.Config.Seed = rand.Uint64()
 	world.Config.RNG = rand.New(rand.NewPCG(world.Config.Seed, 0))

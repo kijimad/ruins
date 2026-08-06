@@ -39,8 +39,8 @@ type World struct {
 	Renderers  map[string]Renderer
 }
 
-// InitWorld は初期化する
-func InitWorld(c *gc.Components) (World, error) {
+// InitWorld は初期化する。config はシングルトンの初期化で読むので、構築前に渡す。
+func InitWorld(c *gc.Components, cfg *config.Config) (World, error) {
 	arkWorld := ecs.NewWorld()
 	if err := c.InitializeComponents(arkWorld); err != nil {
 		return World{}, err
@@ -50,6 +50,7 @@ func InitWorld(c *gc.Components) (World, error) {
 		ECS:        arkWorld,
 		Components: c,
 		Resources:  resources.InitGameResources(),
+		Config:     cfg,
 		Updaters:   make(map[string]Updater),
 		Renderers:  make(map[string]Renderer),
 	}
@@ -72,8 +73,8 @@ func (world World) InitSingleton() {
 	world.Components.WeaponSelection.Add(singleton, &gc.WeaponSelection{Slot: 1})
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
-	// config があればその言語で、構築途中で未設定なら既定言語で種を蒔く。config 反映後に上書きする。
-	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(config.LanguageOrDefault(world.Config)))
+	// config は構築時に渡されているので、設定言語をそのまま種にする。
+	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Config.User.Language))
 	world.Resources.SingletonEntity = singleton
 }
 

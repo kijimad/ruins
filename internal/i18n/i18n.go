@@ -14,14 +14,15 @@ var localeFS embed.FS
 const defaultLang = "en"
 
 // Catalog は全言語の翻訳を持つ不変マスタ。embed から構築し、以後変わらない。
-// Resources が保持し、query.T が現在言語とともに引く。RawMaster と同じ、起動時に構築する読み取り専用データ。
+// Resources が値で保持し、query.T が現在言語とともに引く。RawMaster と同じ、起動時に構築する読み取り専用データ。
+// 内部は map なので値コピーしても実体を共有する。読み取り専用なので共有して問題ない。
 type Catalog struct {
 	langs map[string]*gotext.Po
 }
 
 // NewCatalog は埋め込み PO から全言語のカタログを構築する。en は原文そのものなので空 PO にする。
-func NewCatalog() *Catalog {
-	return &Catalog{
+func NewCatalog() Catalog {
+	return Catalog{
 		langs: map[string]*gotext.Po{
 			// 原文が英語なので PO を持たない。未訳フォールバックで原文をそのまま返す。
 			"en": gotext.NewPo(),
@@ -46,7 +47,7 @@ func mustParse(path string) *gotext.Po {
 //
 // gotext の Get は可変引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。
 // 整形しないのでメソッド値を介して呼び回避する。
-func (c *Catalog) Translate(lang, msgid string) string {
+func (c Catalog) Translate(lang, msgid string) string {
 	po, ok := c.langs[lang]
 	if !ok {
 		po = c.langs[defaultLang]

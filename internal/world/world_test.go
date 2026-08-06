@@ -4,9 +4,17 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// newTestConfig は既定値で初期化したテスト用 config を返す。
+func newTestConfig() *config.Config {
+	c := &config.Config{Profile: config.ProfileDevelopment}
+	c.ApplyProfileDefaults()
+	return c
+}
 
 func TestInitWorld(t *testing.T) {
 	t.Parallel()
@@ -14,7 +22,7 @@ func TestInitWorld(t *testing.T) {
 		t.Parallel()
 		gameComponents := &gc.Components{}
 
-		world, err := InitWorld(gameComponents)
+		world, err := InitWorld(gameComponents, newTestConfig())
 
 		require.NoError(t, err)
 		assert.NotNil(t, world.ECS)
@@ -27,7 +35,7 @@ func TestInitWorld(t *testing.T) {
 func TestWorld_GetWorld(t *testing.T) {
 	t.Parallel()
 	gameComponents := &gc.Components{}
-	w, err := InitWorld(gameComponents)
+	w, err := InitWorld(gameComponents, newTestConfig())
 	require.NoError(t, err)
 
 	assert.Equal(t, w.ECS, w.GetWorld())
@@ -36,7 +44,7 @@ func TestWorld_GetWorld(t *testing.T) {
 func TestWorld_Components(t *testing.T) {
 	t.Parallel()
 	gameComponents := &gc.Components{}
-	w, err := InitWorld(gameComponents)
+	w, err := InitWorld(gameComponents, newTestConfig())
 	require.NoError(t, err)
 
 	assert.Equal(t, gameComponents, w.Components)
@@ -45,7 +53,7 @@ func TestWorld_Components(t *testing.T) {
 func TestInitWorld_SingletonEntity(t *testing.T) {
 	t.Parallel()
 	gameComponents := &gc.Components{}
-	w, err := InitWorld(gameComponents)
+	w, err := InitWorld(gameComponents, newTestConfig())
 	require.NoError(t, err)
 
 	// SingletonEntityが設定されていることを確認
