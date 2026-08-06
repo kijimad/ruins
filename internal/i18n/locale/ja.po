@@ -427,3 +427,51 @@ msgstr "装備"
 
 msgid "Items"
 msgstr "所持品"
+
+msgid "directly above"
+msgstr "直上"
+
+msgid "Pick up all"
+msgstr "すべて拾う"
+
+msgid "Close (%s)"
+msgstr "閉じる(%s)"
+
+msgid "Open (%s)"
+msgstr "開く(%s)"
+
+msgid "Talk (%s)"
+msgstr "話しかける(%s)"
+
+msgid "Pick up (%s)"
+msgstr "拾う(%s)"
+
+msgid "Warp (next floor)"
+msgstr "転移する(次階)"
+
+msgid "Warp (previous floor)"
+msgstr "転移する(前階)"
+
+msgid "Enter ruins"
+msgstr "遺跡へ入る"
+
+msgid "Inspect (%s)"
+msgstr "調べる(%s)"
+
+msgid "Attack (%s)"
+msgstr "攻撃する(%s)"
+
+msgid "Disassemble (%s)"
+msgstr "分解する(%s)"
+
+msgid "Enter (%s)"
+msgstr "入る(%s)"
+
+msgid "Exit"
+msgstr "出る"
+
+msgid "Pull (%s)"
+msgstr "引く(%s)"
+
+msgid "Inspect (control panel)"
+msgstr "調べる(コントロールパネル)"
