@@ -54,7 +54,7 @@ linters:
       # states は UI を能動移行する。ファイル単位で除外し、英語化した画面から1枚ずつ外す。
       # main_menu は英語化済みなので載せない。ここに無い states ファイルはリンターの監視下に入る
       - linters: [gosmopolitan]
-        path: '^internal/states/(action_handlers|character_equip_overlay|character_info|character_job|character_state|character_view|debug_menu|dungeon_input|factories|lib|look_around|shooting|tavern_menu)\.go$'
+        path: '^internal/states/(action_handlers|character_equip_overlay|character_info|character_job|character_state|debug_menu|dungeon_input|factories|lib|look_around|shooting|tavern_menu)\.go$'
 
   settings:
     gosmopolitan:

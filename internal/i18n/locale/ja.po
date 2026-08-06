@@ -88,3 +88,27 @@ msgstr "戻る"
 
 msgid "Japanese"
 msgstr "日本語"
+
+msgid "Confirm"
+msgstr "決定"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "Enter a name of 1 to 10 characters"
+msgstr "名前は1〜10文字で入力してください"
+
+msgid ", . Switch"
+msgstr ", . 切替"
+
+msgid "No equipment slots"
+msgstr "装備スロットがありません"
+
+msgid "No formation orders"
+msgstr "この対象に隊列指示はない"
+
+msgid "Choose equipment"
+msgstr "装備を選ぶ"
+
+msgid "Nothing to equip"
+msgstr "装備できるものがない"
