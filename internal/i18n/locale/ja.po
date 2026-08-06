@@ -409,3 +409,21 @@ msgstr "全身"
 
 msgid "No entries"
 msgstr "(項目なし)"
+
+msgid "WASD: Move."
+msgstr "WASD: 移動する。"
+
+msgid "M key: Open base menu."
+msgstr "Mキー: 拠点メニューを開く。"
+
+msgid "Space key: Open action menu."
+msgstr "Spaceキー: アクションメニューを開く。"
+
+msgid "Select"
+msgstr "選択"
+
+msgid "Equipment"
+msgstr "装備"
+
+msgid "Items"
+msgstr "所持品"
