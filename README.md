@@ -59,7 +59,7 @@ $ make help
 
 | status | 件数 |
 |---|---|
-| draft | 5 |
+| draft | 6 |
 | done | 80 |
 
 ### 未完了
@@ -71,6 +71,7 @@ $ make help
 | [81](docs/design/20260801_81.md) | draft | OSS 調査 2026-08 | 0/5 | meta, worldgen, combat, ui |
 | [85](docs/design/20260803_85.md) | draft | コード監査: ダンジョン生成・リロード・セーブ 2026-08-03 | 5/5 | worldgen, combat, save, ecs |
 | [89](docs/design/20260805_89.md) | draft | 天気システムを設計する | 0/7 | gamedesign, worldgen, ecs |
+| [90](docs/design/20260805_90.md) | draft | 国際化 i18n を実装する | 0/7 | meta, ui |
 
 
 ## Reference
