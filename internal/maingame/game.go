@@ -2,7 +2,6 @@ package maingame
 
 import (
 	"fmt"
-	"log"
 	"runtime"
 	"time"
 
@@ -21,9 +20,9 @@ import (
 
 // MainGame はebiten.Game interfaceを満たす
 type MainGame struct {
-	World          w.World
-	StateMachine   es.StateMachine[w.World]
-	screenPipeline *screeneffect.Pipeline
+	World        w.World
+	StateMachine es.StateMachine[w.World]
+	renderer     renderer
 }
 
 // NewMainGame はMainGameを初期化する
@@ -34,9 +33,9 @@ func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGam
 	}
 
 	return &MainGame{
-		World:          world,
-		StateMachine:   stateMachine,
-		screenPipeline: screeneffect.NewPipeline(retroFilter),
+		World:        world,
+		StateMachine: stateMachine,
+		renderer:     newRenderer(screeneffect.NewPipeline(retroFilter)),
 	}, nil
 }
 
@@ -70,28 +69,12 @@ func (game *MainGame) Update() error {
 // Draw はゲームの描画処理を行う
 // interface method だからシグネチャは変更できない
 func (game *MainGame) Draw(screen *ebiten.Image) {
-	bounds := screen.Bounds()
-	offscreen := game.screenPipeline.Begin(bounds.Dx(), bounds.Dy())
+	game.renderer.Draw(screen, game.StateMachine.GetStates(), game.World)
 
-	// パイプラインが未設定の場合は直接screenに描画する
-	target := offscreen
-	if target == nil {
-		target = screen
-	}
-
-	// state をスタックの下から順に描画する
-	for _, state := range game.StateMachine.GetStates() {
-		if err := state.Draw(game.World, target); err != nil {
-			log.Fatal(err)
-		}
-	}
-
+	// パフォーマンスモニターは最前面のデバッグ表示なので、ポスト処理の外で screen へ直に描く。
 	if game.World.Config.ShowMonitor {
-		msg := getPerformanceInfo()
-		ebitenutil.DebugPrint(target, msg)
+		ebitenutil.DebugPrint(screen, getPerformanceInfo())
 	}
-
-	game.screenPipeline.End(screen)
 }
 
 // getPerformanceInfo はパフォーマンス情報を文字列として返す
