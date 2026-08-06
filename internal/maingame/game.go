@@ -19,11 +19,17 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
+// menuAlpha はメニュー層を世界へ合成する大域アルファ。透明度はこの一度の合成にだけ持たせる。
+// 1.0 はメニューを平坦化するだけで見た目を変えない。パネルをメニュー限定で不透明化したうえで
+// 1 未満へ下げると、世界に対してだけ均一に透過する。値は VRT を見ながら詰める。
+const menuAlpha = 1.0
+
 // MainGame はebiten.Game interfaceを満たす
 type MainGame struct {
 	World          w.World
 	StateMachine   es.StateMachine[w.World]
 	screenPipeline *screeneffect.Pipeline
+	menuLayer      menuLayer
 }
 
 // NewMainGame はMainGameを初期化する
@@ -79,11 +85,23 @@ func (game *MainGame) Draw(screen *ebiten.Image) {
 		target = screen
 	}
 
-	// state をスタックの下から順に描画する
-	for _, state := range game.StateMachine.GetStates() {
-		if err := state.Draw(game.World, target); err != nil {
+	// スタック[0]は世界。target に不透明で描く。[1..]はメニューで、menuLayer に平坦化してから
+	// 世界へ一度だけ透過合成する。これで重なっても世界の減衰が二重にかからず、下メニューは
+	// 上メニューの下で透けない。
+	states := game.StateMachine.GetStates()
+	if len(states) > 0 {
+		if err := states[0].Draw(game.World, target); err != nil {
 			log.Fatal(err)
 		}
+	}
+	if len(states) > 1 {
+		layer := game.menuLayer.Begin(bounds.Dx(), bounds.Dy())
+		for _, state := range states[1:] {
+			if err := state.Draw(game.World, layer); err != nil {
+				log.Fatal(err)
+			}
+		}
+		game.menuLayer.Composite(target, menuAlpha)
 	}
 
 	if game.World.Config.ShowMonitor {
