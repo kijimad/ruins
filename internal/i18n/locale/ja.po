@@ -79,3 +79,12 @@ msgstr "使う"
 
 msgid "No matching items"
 msgstr "該当するアイテムがありません"
+
+msgid "Language"
+msgstr "言語"
+
+msgid "Back"
+msgstr "戻る"
+
+msgid "Japanese"
+msgstr "日本語"
