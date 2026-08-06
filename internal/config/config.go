@@ -76,8 +76,17 @@ type UserConfig struct {
 	WindowWidth int `env:"RUINS_WINDOW_WIDTH" toml:"window_width"`
 	// ゲームウィンドウの高さ（ピクセル）
 	WindowHeight int `env:"RUINS_WINDOW_HEIGHT" toml:"window_height"`
-	// 表示言語の言語コード（"ja" / "en"）。現状は設定値を保持するのみで、実際の切り替えは未実装
+	// 表示言語の言語コード。"ja" / "en"
 	Language string `env:"RUINS_LANGUAGE" toml:"language"`
+}
+
+// LanguageOrDefault は config があれば設定言語を、nil なら既定言語を返す。
+// ワールド構築の途中など config 未設定の経路で安全に言語を決めるために使う。
+func LanguageOrDefault(c *Config) string {
+	if c != nil {
+		return c.User.Language
+	}
+	return DefaultUserConfig().Language
 }
 
 // DefaultUserConfig はユーザー設定のデフォルト値を返す。

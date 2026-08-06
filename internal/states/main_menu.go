@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -103,7 +104,7 @@ func (st *MainMenuState) Fetch(world w.World) MainMenuProps {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
 	}
 
-	t := world.Resources.I18N.T
+	t := func(msgid string) string { return query.T(world, msgid) }
 	return MainMenuProps{
 		Items: []mainMenuItem{
 			{Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},

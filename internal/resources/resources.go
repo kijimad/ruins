@@ -19,8 +19,8 @@ type Resources struct {
 	Faces            map[string]text.Face
 	UIResources      UIResources
 	RawMaster        oapi.Raws
-	SingletonEntity  ecs.Entity       // シングルトンエンティティIDキャッシュ
-	I18N             *i18n.Translator // 国際化の翻訳器。呼び出し側は res.I18N.T で訳を引く
+	I18N             *i18n.Catalog // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
+	SingletonEntity  ecs.Entity    // シングルトンエンティティIDキャッシュ
 }
 
 // ScreenDimensions contains current screen dimensions
@@ -53,7 +53,7 @@ func InitGameResources() *Resources {
 		Fonts:        map[string]Font{},
 		Faces:        map[string]text.Face{},
 		UIResources:  UIResources{},
-		// 源泉言語 en の翻訳器を常に持たせ、どのワールドでも res.I18N を非 nil にする。表示言語は起動後に config から反映する。
-		I18N: i18n.NewDefault(),
+		// 全言語の訳を持つ不変マスタを常に持たせる。どのワールドでも res.I18N が非 nil になる。
+		I18N: i18n.NewCatalog(),
 	}
 }

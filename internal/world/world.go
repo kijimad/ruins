@@ -72,6 +72,8 @@ func (world World) InitSingleton() {
 	world.Components.WeaponSelection.Add(singleton, &gc.WeaponSelection{Slot: 1})
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
+	// config があればその言語で、構築途中で未設定なら既定言語で種を蒔く。config 反映後に上書きする。
+	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(config.LanguageOrDefault(world.Config)))
 	world.Resources.SingletonEntity = singleton
 }
 

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	arkserde "github.com/mlange-42/ark-serde"
@@ -41,6 +42,7 @@ func skipComponents() []ecs.Comp {
 		ecs.C[gc.Dead](),               // 一時・毎ターン掃除
 		ecs.C[gc.Activity](),           // 実行中アクティビティ・毎ターン変動
 		ecs.C[gc.LastActivity](),       // ターン進行で消費
+		ecs.C[gc.UserSettings](),       // config 由来のランタイムミラー。ロード時に config から再構築
 	}
 }
 
@@ -94,6 +96,8 @@ func reestablishSingleton(world w.World) error {
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())
 	// 視界計算の一時状態は serde 除外なのでロード後に再構築する
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
+	// グローバル設定は serde 除外なので config から再構築する
+	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(config.LanguageOrDefault(world.Config)))
 
 	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
 	// ロック中の反復では構造変更しないため、対象を集めてから初期化する

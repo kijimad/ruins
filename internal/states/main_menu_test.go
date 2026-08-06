@@ -6,6 +6,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -51,8 +52,8 @@ func TestMainMenuState_言語切替でラベルが変わる(t *testing.T) {
 	// 既定 ja では日本語ラベルを返す
 	assert.Equal(t, "開始", state.Fetch(world).Items[0].Label, "既定 ja は日本語")
 
-	// en へ切り替えると原文の英語ラベルになる。i18n.T が原文 msgid へフォールバックする経路
-	require.NoError(t, world.Resources.I18N.SetLanguage("en"))
+	// UserSettings の言語を en へ書き換えると原文の英語ラベルになる。query.T が原文へフォールバックする経路
+	query.GetUserSettings(world).Language = "en"
 	en := state.Fetch(world)
 	assert.Equal(t, "Start", en.Items[0].Label, "en は英語原文")
 	assert.Equal(t, "Settings", en.Items[3].Label, "en は英語原文")

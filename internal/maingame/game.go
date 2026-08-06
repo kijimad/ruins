@@ -17,6 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // MainGame はebiten.Game interfaceを満たす
@@ -152,14 +153,9 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	// 分離する。cfg.User で大きなウィンドウを指定しても描画基準がズレないようにする
 	world.Resources.SetScreenDimensions(consts.GameWidth, consts.GameHeight)
 
-	// 設定言語を翻訳器へ反映する。未対応の言語が手書きされても起動は止めず、既定言語へフォールバックする。
-	if err := world.Resources.I18N.SetLanguage(world.Config.User.Language); err != nil {
-		fallback := config.DefaultUserConfig().Language
-		log.Printf("i18n: 未対応の言語 %q のため既定言語 %q へフォールバックする: %v", world.Config.User.Language, fallback, err)
-		if err := world.Resources.I18N.SetLanguage(fallback); err != nil {
-			return w.World{}, fmt.Errorf("i18n の既定言語設定エラー: %w", err)
-		}
-	}
+	// 設定言語をシングルトンへ反映する。InitSingleton は config 未設定時に既定言語で種を蒔くので、
+	// config 反映後にここで上書きする。未対応の言語は query.T の Translate が原文へフォールバックする。
+	query.GetUserSettings(world).Language = world.Config.User.Language
 
 	// Rawデータを読み込む
 	rw, err := loader.LoadRaws()

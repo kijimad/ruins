@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // SettingsMenuState はグローバル設定を変更するゲームステート。
@@ -158,16 +159,20 @@ func currentLanguageLabel(code string) string {
 }
 
 // NewLanguageMenuState は言語選択のモーダルを作成する。
-// 選択した言語をユーザー設定に保存して設定画面へ戻る。実際の表示言語の切り替えは未実装。
+// 選択した言語をシングルトンへ即時反映し、ユーザー設定へ保存して設定画面へ戻る。
 func NewLanguageMenuState() (es.State[w.World], error) {
 	return NewChoiceMenu(languageChoices), nil
 }
 
-// languageChoices は選択できる表示言語を選択肢にする。選ぶと設定を保存して閉じる
+// languageChoices は選択できる表示言語を選択肢にする。選ぶとシングルトンへ反映し設定を保存して閉じる
 func languageChoices(_ w.World) (string, []Choice) {
 	choices := make([]Choice, 0, len(languagePresets))
 	for _, l := range languagePresets {
 		choices = append(choices, Choice{Label: l.Label, Run: func(world w.World) (es.Transition[w.World], error) {
+			// シングルトンの設定言語を書き換える。Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
+			if s := query.GetUserSettings(world); s != nil {
+				s.Language = l.Code
+			}
 			world.Config.User.Language = l.Code
 			if err := world.Config.SaveUserConfig(); err != nil {
 				logger.New(logger.CategorySave).Warn("言語設定の保存に失敗しました", "error", err)
