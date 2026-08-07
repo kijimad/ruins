@@ -23,8 +23,8 @@ func TestFindDisassembly(t *testing.T) {
 	}
 	raws := oapi.Raws{
 		Props: &[]oapi.Prop{
-			{Name: "棚", Disassembly: propDisassembly},
-			{Name: "机"},
+			{Id: "棚", Name: "棚", Disassembly: propDisassembly},
+			{Id: "机", Name: "机"},
 		},
 		Items: &[]oapi.Item{
 			{Id: "廃品", Name: "廃品", Disassembly: itemDisassembly},

@@ -214,7 +214,7 @@ func TestDisassembleBehavior_収納propを分解すると中身が足元に出�
 
 	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
-	crate, err := lifecycle.SpawnProp(world, "木箱", 11, 10)
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 11, 10)
 	require.NoError(t, err)
 
 	// 収納に中身を入れる

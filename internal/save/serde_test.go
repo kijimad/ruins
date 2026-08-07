@@ -32,7 +32,7 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 	require.NoError(t, err)
 	_, err = lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 4, Y: 4}, gc.DoorOrientationHorizontal)
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnProp(world, "木箱", 6, 6)
+	_, err = lifecycle.SpawnProp(world, "wooden_crate", 6, 6)
 	require.NoError(t, err)
 
 	require.NoError(t, manager.SaveWorld(world, "roundtrip"))

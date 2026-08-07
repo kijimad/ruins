@@ -276,7 +276,7 @@ func TestGolden_PersistentMessage(t *testing.T) {
 func TestGolden_StorageMenu(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		storageEntity, err := lifecycle.SpawnProp(world, "木箱", 3, 3)
+		storageEntity, err := lifecycle.SpawnProp(world, "wooden_crate", 3, 3)
 		require.NoError(t, err)
 
 		_, err = lifecycle.SpawnStorageItem(world, "healing_potion", 1, storageEntity)

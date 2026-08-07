@@ -8,7 +8,7 @@ r = 'floor'
 
 [palette.props]
 [palette.props.K]
-id = '木箱'
+id = 'wooden_crate'
 tile = 'floor'
 
 [palette.npcs]

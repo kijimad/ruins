@@ -615,7 +615,7 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 
 // GetProp は指定された名前の置物の設定を取得する
 func GetProp(raws oapi.Raws, name string) (oapi.Prop, error) {
-	prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name)
+	prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name)
 	if !ok {
 		return oapi.Prop{}, NewKeyNotFoundError(name, "Props")
 	}
@@ -715,7 +715,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // FindDisassembly は指定された名前の分解定義を返す。propとitemの両方を探す
 func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
-	if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name); ok && prop.Disassembly != nil {
+	if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name); ok && prop.Disassembly != nil {
 		return prop.Disassembly, true
 	}
 	if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name); ok && item.Disassembly != nil {

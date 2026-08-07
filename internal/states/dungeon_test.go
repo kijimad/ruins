@@ -456,7 +456,7 @@ func TestDungeonState_OnStartResume_PreservesWorld(t *testing.T) {
 	// 復元済みワールドを模す。プレイヤーを既知の位置に置き、地形代わりの固定物を配置する
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	prop, err := lifecycle.SpawnProp(world, "木箱", 6, 6)
+	prop, err := lifecycle.SpawnProp(world, "wooden_crate", 6, 6)
 	require.NoError(t, err)
 
 	factory := NewDungeonState(0, WithDefinitionName(dungeon.DungeonDebug.Name()), WithResume())

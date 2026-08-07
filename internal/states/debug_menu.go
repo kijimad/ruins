@@ -167,7 +167,7 @@ func spawnStorageWithItems(world w.World) error {
 	if err != nil {
 		return err
 	}
-	storageEntity, err := lifecycle.SpawnProp(world, "木箱", playerGrid.X+2, playerGrid.Y)
+	storageEntity, err := lifecycle.SpawnProp(world, "wooden_crate", playerGrid.X+2, playerGrid.Y)
 	if err != nil {
 		return err
 	}

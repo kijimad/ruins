@@ -206,7 +206,7 @@ func TestPopulateStorageLoot_ルートテーブルからアイテムを収納す
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
 	plan.Depth = 1
 
-	propRaw, err := raw.GetProp(world.Resources.RawMaster, "木箱")
+	propRaw, err := raw.GetProp(world.Resources.RawMaster, "wooden_crate")
 	require.NoError(t, err)
 	require.NotNil(t, propRaw.Storage)
 

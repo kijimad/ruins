@@ -17,7 +17,7 @@ func TestMoveToStorage(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 収納propを生成
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	// アイテムを生成してバックパックに配置
@@ -47,7 +47,7 @@ func TestGetStorageItems(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	// 空の収納にはアイテムがない
@@ -71,7 +71,7 @@ func TestGetStorageCurrentWeight(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	// 空の収納の重量は0
@@ -93,7 +93,7 @@ func TestCanAddToStorage(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	// 空の収納にはアイテムを追加できる
@@ -106,7 +106,7 @@ func TestCanAddToStorage_OverWeight(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	// WeightCapacityの最大重量を超えるまでアイテムを追加する
@@ -130,7 +130,7 @@ func TestMoveToStorage_SetsWeightDirtyOnStorage(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
@@ -151,7 +151,7 @@ func TestMoveToStorage_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -174,7 +174,7 @@ func TestMoveToBackpack_SetsWeightDirtyOnPreviousStorage(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -215,7 +215,7 @@ func TestMoveToStorage_ThenBackToBackpack(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -236,7 +236,7 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	playerEntity, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -302,7 +302,7 @@ func TestMoveToStorage_MergesStackable(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
 	_, err = SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
@@ -339,9 +339,9 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 
 	const potion = "回復薬"
 
-	storageA, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	storageA, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
-	storageB, err := SpawnProp(world, "木箱", consts.Tile(1), consts.Tile(0))
+	storageB, err := SpawnProp(world, "wooden_crate", consts.Tile(1), consts.Tile(0))
 	require.NoError(t, err)
 
 	_, err = SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
