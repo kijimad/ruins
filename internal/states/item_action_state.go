@@ -379,7 +379,7 @@ func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor men
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemList(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, query.T(world, "x Details")),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 

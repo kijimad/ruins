@@ -47,7 +47,7 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menur
 		TabLabels: characterTabLabels(world),
 		TabIndex:  cursor.TabIndex,
 		Content:   content,
-		Footer:    menuNavHint(true, extras...),
+		Footer:    menuNavHint(world, true, extras...),
 	})
 }
 

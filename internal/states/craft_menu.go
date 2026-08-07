@@ -256,7 +256,7 @@ func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menurt.Se
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, query.T(world, "x Details")),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 

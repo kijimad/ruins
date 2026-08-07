@@ -212,7 +212,7 @@ func (st *TavernMenuState) Menu(props TavernProps) menurt.MenuConfig {
 
 // actionWindowContent は現在カーソルが当たっている候補の見出しと選択肢を返す。アクション窓の唯一の定義点。
 // 雇用の実行内容も Run に閉じ込め、雇用・閉じるを1箇所で定義する
-func (st *TavernMenuState) actionWindowContent(_ w.World) (string, []menuscreen.Action, bool) {
+func (st *TavernMenuState) actionWindowContent(world w.World) (string, []menuscreen.Action, bool) {
 	c, ok := st.selectedCandidate()
 	if !ok || c.Name == "" {
 		return "", nil, false
@@ -220,11 +220,11 @@ func (st *TavernMenuState) actionWindowContent(_ w.World) (string, []menuscreen.
 	var actions []menuscreen.Action
 	if c.CanAfford {
 		idx := c.Index
-		actions = append(actions, menuscreen.Action{Label: TextHire, Run: func(world w.World) error {
+		actions = append(actions, menuscreen.Action{Label: query.T(world, "Hire"), Run: func(world w.World) error {
 			return st.hireCandidate(world, idx)
 		}})
 	}
-	actions = append(actions, menuscreen.Action{Label: TextClose})
+	actions = append(actions, menuscreen.Action{Label: query.T(world, "Close")})
 	return c.Name, actions, true
 }
 
@@ -265,11 +265,11 @@ func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *TavernMenuState) View(_ w.World, props TavernProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *TavernMenuState) View(world w.World, props TavernProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	content := styled.NewVerticalContainer()
 	content.AddChild(newCurrencyRow(props.Currency, res))
 	content.AddChild(st.buildCandidateTable(props.Candidates, cursor.ItemIndex, res))
-	return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false, "x 詳細")})
+	return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(world, false, query.T(world, "x Details"))})
 }
 
 // buildCandidateTable は雇用候補を名前のみの1カラムで並べる。能力・費用は x の詳細モーダルで見る

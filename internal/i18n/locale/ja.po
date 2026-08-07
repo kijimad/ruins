@@ -619,3 +619,6 @@ msgstr "拾い屋"
 
 msgid " has shown up... a bottom-seeker too, they say.\"\n"
 msgstr "が来たんだが...そいつも底狙いだと。」\n"
+
+msgid "Tab"
+msgstr "タブ"

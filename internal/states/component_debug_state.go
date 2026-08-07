@@ -115,7 +115,7 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menurt.MenuConfig
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(props.Items))
@@ -128,6 +128,6 @@ func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, cursor
 	return newTabScreenUI(res, tabScreen{
 		Header:  fmt.Sprintf("Components total: %d", props.Total),
 		Content: container,
-		Footer:  menuNavHint(false),
+		Footer:  menuNavHint(world, false),
 	})
 }

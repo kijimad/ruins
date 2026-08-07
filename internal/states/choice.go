@@ -98,7 +98,7 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menurt.MenuConfig {
 
 // View は選択肢の1カラム一覧を中央パネルに組む純粋描画。メインメニューやセーブロードと同じ簡易メニューの
 // 見た目に揃え、エントリ数相応の大きさに縮む。多いときはページ送りしてはみ出さない
-func (st *ChoiceMenuState) View(_ w.World, props ChoiceProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ChoiceMenuState) View(world w.World, props ChoiceProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	rows := make([]menuRow, len(props.Choices))
 	for i, c := range props.Choices {
 		rows[i] = menuRow{Cells: []string{c.Label}, Header: c.Header}
@@ -106,7 +106,7 @@ func (st *ChoiceMenuState) View(_ w.World, props ChoiceProps, cursor menurt.Sele
 	// 単一タブのコマンドメニューなので行間を空け、ページ表示は複数ページのときだけ出す。
 	// メインメニューと先頭位置・行間を揃える
 	list := renderMenuList(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
-	return newPanelScreenUI(res, props.Title, list, menuNavHint(false))
+	return newPanelScreenUI(res, props.Title, list, menuNavHint(world, false))
 }
 
 // pushChoice は指定ファクトリの state を push する Choice.Run を返す。選択メニューの共通部品

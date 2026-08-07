@@ -132,7 +132,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		Choice{Label: "Propスポーン:construction_sign(通行不可)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "construction_sign") })},
 		Choice{Label: "Propスポーン:木箱(収納・アイテム入り)", Run: stayAfter(spawnStorageWithItems)},
 		Choice{Label: "コンポーネント一覧", Run: pushChoice(NewComponentDebugState)},
-		Choice{Label: TextClose, Run: func(_ w.World) (es.Transition[w.World], error) {
+		Choice{Label: "閉じる", Run: func(_ w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}},
 	)

@@ -271,7 +271,7 @@ func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Sele
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, query.T(world, "x Details")),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 
