@@ -175,10 +175,11 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 	var items []shopItemData
 
 	query.Player(world, func(_ ecs.Entity) {
-		sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
+		sellQuery := ecs.NewFilter3[gc.Name, gc.RawID, gc.LocationInBackpack](world.ECS).Query()
 		for sellQuery.Next() {
 			entity := sellQuery.Entity()
 			nameComp := world.Components.Name.Get(entity)
+			rawID := world.Components.RawID.Get(entity)
 
 			baseValue := query.GetItemValue(world, entity)
 			price := sellPriceMod.ApplyInt(query.CalculateSellPrice(baseValue))
@@ -186,7 +187,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 			count := query.GetEntityCount(world, entity)
 
 			items = append(items, shopItemData{
-				ItemID: nameComp.ID,
+				ItemID: rawID.Value,
 				Label:  nameComp.Name,
 				Weight: query.GetEntityWeight(world, entity).KgString(),
 				Price:  price,

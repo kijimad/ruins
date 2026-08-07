@@ -212,7 +212,8 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Name = &gc.Name{Name: item.Name, ID: item.Id}
+	entitySpec.Name = &gc.Name{Name: item.Name}
+	entitySpec.RawID = &gc.RawID{Value: item.Id}
 	entitySpec.Description = &gc.Description{Description: item.Description}
 
 	// デフォルト値設定
@@ -403,7 +404,8 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Name = &gc.Name{Name: member.Name, ID: member.Id}
+	entitySpec.Name = &gc.Name{Name: member.Name}
+	entitySpec.RawID = &gc.RawID{Value: member.Id}
 	entitySpec.TurnBased = &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
 	entitySpec.SpriteRender = &gc.SpriteRender{
 		SpriteSheetName: member.SpriteSheetName,
@@ -583,7 +585,8 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Name = &gc.Name{Name: tileRaw.Name, ID: tileRaw.Id}
+	entitySpec.Name = &gc.Name{Name: tileRaw.Name}
+	entitySpec.RawID = &gc.RawID{Value: tileRaw.Id}
 	entitySpec.Description = &gc.Description{Description: tileRaw.Description}
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 
@@ -631,7 +634,8 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Fixed = &gc.Fixed{}
-	entitySpec.Name = &gc.Name{Name: propRaw.Name, ID: propRaw.Id}
+	entitySpec.Name = &gc.Name{Name: propRaw.Name}
+	entitySpec.RawID = &gc.RawID{Value: propRaw.Id}
 	entitySpec.Description = &gc.Description{Description: propRaw.Description}
 
 	// SpriteRenderの設定（AnimKeysを含む）

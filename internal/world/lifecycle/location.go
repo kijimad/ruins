@@ -27,8 +27,8 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 
 	if world.Components.Stackable.Has(entity) {
-		name := world.Components.Name.Get(entity)
-		if err := mergeStackableItems(world, name.ID, mergeInBackpack, owner); err != nil {
+		id := world.Components.RawID.Get(entity).Value
+		if err := mergeStackableItems(world, id, mergeInBackpack, owner); err != nil {
 			return fmt.Errorf("failed to merge items in backpack: %w", err)
 		}
 	}
@@ -44,7 +44,7 @@ func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count i
 		return MoveToBackpack(world, item, recipient)
 	}
 
-	id := world.Components.Name.Get(item).ID
+	id := world.Components.RawID.Get(item).Value
 	if err := ChangeItemCount(world, item, -count); err != nil {
 		return fmt.Errorf("failed to decrement source stack: %w", err)
 	}
@@ -115,8 +115,8 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	ensureMarker(world, world.Components.WeightDirty, storage, &gc.WeightDirty{})
 
 	if world.Components.Stackable.Has(entity) {
-		name := world.Components.Name.Get(entity)
-		if err := mergeStackableItems(world, name.ID, mergeInStorage, storage); err != nil {
+		id := world.Components.RawID.Get(entity).Value
+		if err := mergeStackableItems(world, id, mergeInStorage, storage); err != nil {
 			return fmt.Errorf("failed to merge items in storage: %w", err)
 		}
 	}
@@ -199,10 +199,10 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 	var stackableItems []ecs.Entity
 	switch loc {
 	case mergeInBackpack:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
-			if world.Components.Name.Get(entity).ID != itemID {
+			if world.Components.RawID.Get(entity).Value != itemID {
 				continue
 			}
 			if world.Components.LocationInBackpack.Get(entity).Owner == owner {
@@ -210,10 +210,10 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 			}
 		}
 	case mergeInStorage:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.Name](world.ECS).Query()
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.RawID](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
-			if world.Components.Name.Get(entity).ID != itemID {
+			if world.Components.RawID.Get(entity).Value != itemID {
 				continue
 			}
 			if world.Components.LocationInStorage.Get(entity).Owner == owner {

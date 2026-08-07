@@ -8,6 +8,7 @@ import "github.com/mlange-42/ark/ecs"
 // It defines the set of components to attach, which AddEntity converts into an ECS entity.
 type EntitySpec struct {
 	Name               *Name
+	RawID              *RawID
 	Description        *Description
 	HP                 *HP
 	Consumable         *Consumable
@@ -90,6 +91,7 @@ type EntitySpec struct {
 // It holds a typed *ecs.Map[T] for each component type, used by Add/Has/Get and queries.
 type Components struct {
 	Name               *ecs.Map[Name]
+	RawID              *ecs.Map[RawID]
 	Description        *ecs.Map[Description]
 	HP                 *ecs.Map[HP]
 	Consumable         *ecs.Map[Consumable]
@@ -172,6 +174,7 @@ type Components struct {
 // and assigns a typed Map handle to each field.
 func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Name = ecs.NewMap[Name](world)
+	c.RawID = ecs.NewMap[RawID](world)
 	c.Description = ecs.NewMap[Description](world)
 	c.HP = ecs.NewMap[HP](world)
 	c.Consumable = ecs.NewMap[Consumable](world)
@@ -256,6 +259,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	entity := world.NewEntity()
 	addComp(c.Name, entity, spec.Name)
+	addComp(c.RawID, entity, spec.RawID)
 	addComp(c.Description, entity, spec.Description)
 	addComp(c.HP, entity, spec.HP)
 	addComp(c.Consumable, entity, spec.Consumable)

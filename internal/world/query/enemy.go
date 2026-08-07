@@ -99,12 +99,12 @@ func GetEntityName(entity ecs.Entity, world w.World) string {
 }
 
 // GetEntityID はエンティティの同定キーを返す。raw 定義やレシピ参照との照合に使う。
-// 表示名ではなく英語の id を返す。Name コンポーネントを持たなければ空文字を返す
+// 表示名ではなく英語の id を返す。RawID コンポーネントを持たなければ空文字を返す
 func GetEntityID(entity ecs.Entity, world w.World) string {
-	if !world.ECS.Alive(entity) || !world.Components.Name.Has(entity) {
+	if !world.ECS.Alive(entity) || !world.Components.RawID.Has(entity) {
 		return ""
 	}
-	return world.Components.Name.Get(entity).ID
+	return world.Components.RawID.Get(entity).Value
 }
 
 // NameMarkup はエンティティ種別に応じたタグで名前を包んだマークアップ文字列を返す。

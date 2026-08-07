@@ -10,6 +10,7 @@ type Def struct {
 var Registry = []Def{
 	// general ================
 	{Field: "Name"},        // 表示名を保持する
+	{Field: "RawID"},       // 生成元 raw 定義の Id を保持する同定キー
 	{Field: "Description"}, // 説明文を保持する
 
 	// item ================

@@ -12,14 +12,13 @@ func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
+	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 	for stackableQuery.Next() {
 		entity := stackableQuery.Entity()
 		if found {
 			continue
 		}
-		itemName := world.Components.Name.Get(entity)
-		if itemName.ID == id {
+		if world.Components.RawID.Get(entity).Value == id {
 			foundEntity = entity
 			found = true
 		}
