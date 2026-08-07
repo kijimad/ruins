@@ -775,3 +775,47 @@ msgstr "虚ろ"
 msgid "..., huh.\n\nWhat an irredeemable world.\""
 msgstr "か、...。\n\n救えない世の中だな。」"
 
+
+# systems 温度・死亡・扉
+msgid "death"
+msgstr "死亡"
+
+msgid "It seems a door opened somewhere."
+msgstr "どこかで扉が開いたようだ。"
+
+msgid "The cold is setting in"
+msgstr "寒さで冷えてきた"
+
+msgid "You are quite cold"
+msgstr "寒さでかなり冷えている"
+
+msgid "The cold is dangerous"
+msgstr "寒さで危険な状態だ"
+
+msgid "The heat is flushing you"
+msgstr "暑さで火照ってきた"
+
+msgid "The heat is wearing you down"
+msgstr "暑さでかなり消耗している"
+
+msgid "The heat is dangerous"
+msgstr "暑さで危険な状態だ"
+
+msgid "You have warmed up"
+msgstr "温まった"
+
+msgid "You are warming up a little"
+msgstr "少し温まってきた"
+
+msgid "Still cold, but a little better"
+msgstr "まだ寒いが、少しマシになった"
+
+msgid "You have cooled down"
+msgstr "涼しくなった"
+
+msgid "You are cooling down a little"
+msgstr "少し涼しくなってきた"
+
+msgid "Still hot, but a little better"
+msgstr "まだ暑いが、少しマシになった"
+

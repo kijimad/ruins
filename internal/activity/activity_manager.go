@@ -63,7 +63,7 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 		// 初回で解決した即時アクション。移動コストなど behavior 固有のコストを消費する
 		consumePassCost(world, actor, comp)
 		if currentActivity != nil && IsCanceled(currentActivity) {
-			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: currentActivity.CancelReason}
+			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: query.T(world, currentActivity.CancelReason)}
 		} else {
 			result = &ActionResult{Success: true, State: gc.ActivityStateCompleted, ActivityName: behaviorName, Message: "アクション完了"}
 		}

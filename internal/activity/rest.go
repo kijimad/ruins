@@ -121,7 +121,7 @@ func (rb *RestBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
 			Append("休息が中断された: ").
-			Append(comp.CancelReason).
+			Append(query.T(world, comp.CancelReason)).
 			Log()
 	}
 
