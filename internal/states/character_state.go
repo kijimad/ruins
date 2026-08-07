@@ -471,6 +471,8 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})
 	}
 
+	// armor・armorLabels・armorSlots は防具7スロットに対応する並行配列。
+	// GetArmorEquipments はスロット数ぶんの固定長スライスを返し、3者の長さは常に一致する
 	armor := query.GetArmorEquipments(world, player)
 	armorLabels := []string{query.T(world, "Armor (head)"), query.T(world, "Armor (torso)"), query.T(world, "Armor (arms)"), query.T(world, "Armor (hands)"), query.T(world, "Armor (legs)"), query.T(world, "Armor (feet)"), query.T(world, "Armor (jewelry)")}
 	armorSlots := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry}

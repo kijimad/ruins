@@ -37,6 +37,9 @@ func (st *MessageState) OnStart(world w.World) error {
 	if st.messageData == nil && st.build != nil {
 		st.messageData = st.build(world)
 	}
+	if st.messageData == nil {
+		return fmt.Errorf("message state has neither message data nor a build function")
+	}
 	if st.messageData.BackgroundKey != "" {
 		bgImage, err := loadBackgroundImage(world, st.messageData.BackgroundKey)
 		if err != nil {

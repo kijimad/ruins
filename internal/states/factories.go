@@ -289,6 +289,7 @@ func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
 // NewInteractionMenuState はインタラクションメニューStateを作成する
 func NewInteractionMenuState(world w.World) (es.State[w.World], error) {
 	if len(GetInteractionActions(world)) == 0 {
+		// ファクトリで world を持つので build を介さず messageData を直接組む
 		messageState := &MessageState{}
 		messageState.messageData = messagedata.NewSystemMessage(query.T(world, "No actions available."))
 		return messageState, nil

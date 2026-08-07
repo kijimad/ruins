@@ -31,3 +31,15 @@ func TestLogger_Fmt_先頭が差し込みでも順序を保つ(t *testing.T) {
 	assert.Equal(t, "を構えた", l.fragments[1].Text)
 	assert.Equal(t, ColorWhite, l.fragments[1].Color)
 }
+
+func TestLogger_Fmt_segsより多い_sは差し込まれず消える(t *testing.T) {
+	t.Parallel()
+	// %s が segs より多い場合、余った %s の位置には何も差し込まれず前後の文字だけが残る
+	l := New(NewSafeSlice(10)).Fmt("%s と %s", Plain("アッシュ"))
+
+	require.Len(t, l.fragments, 2)
+	assert.Equal(t, "アッシュ", l.fragments[0].Text)
+	assert.Equal(t, ColorWhite, l.fragments[0].Color)
+	assert.Equal(t, " と ", l.fragments[1].Text)
+	assert.Equal(t, ColorWhite, l.fragments[1].Color)
+}

@@ -128,6 +128,7 @@ func generateCandidates(world w.World, rng *rand.Rand) []tavernCandidate {
 		spriteKey := candidateSpritePool[rng.IntN(len(candidateSpritePool))]
 
 		candidates = append(candidates, tavernCandidate{
+			// 名前は候補生成時に1度だけ翻訳して固定する。表示中の言語切り替えには追従しない
 			Name:      query.T(world, name),
 			Abilities: abilities,
 			SpriteKey: spriteKey,
