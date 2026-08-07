@@ -12,19 +12,12 @@ var DialogueTable = map[string]func(world w.World, speakerName string) *MessageD
 			AddText(query.T(world, "We've got some capable folks here.\n\nWant to hire a squad member?"))
 	},
 	"old_soldier_greeting": func(world w.World, speakerName string) *MessageData {
-		// 1ページ目
+		// 会話は1ページ=1文字列。強調語は <keyword> で囲む。断片を連結せず語順ごと訳せる
 		msg1 := NewDialogMessage("", speakerName).
-			AddText(query.T(world, "\"You, ")).
-			AddKeyword(query.T(world, "ruins")).
-			AddText(query.T(world, "of the ")).
-			AddKeyword(query.T(world, "delver")).
-			AddText(query.T(world, "..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\""))
+			AddMarkup(query.T(world, "\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\""))
 
-		// 2ページ目
 		msg2 := NewDialogMessage("", speakerName).
-			AddText(query.T(world, "\"You... I see, so your mother was ")).
-			AddKeyword(query.T(world, "Hollow")).
-			AddText(query.T(world, "..., huh.\n\nWhat an irredeemable world.\""))
+			AddMarkup(query.T(world, "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""))
 
 		return ChainMessages(msg1, msg2)
 	},

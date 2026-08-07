@@ -611,14 +611,8 @@ msgstr "「何人目だ。」\n"
 msgid "\"Who knows. I quit counting long ago.\"\n\n"
 msgstr "「さあな。数えるのはとっくにやめた。」\n\n"
 
-msgid "\"So, the next "
-msgstr "「でさ、次の"
 
-msgid "scavenger"
-msgstr "拾い屋"
 
-msgid " has shown up... a bottom-seeker too, they say.\"\n"
-msgstr "が来たんだが...そいつも底狙いだと。」\n"
 
 msgid "Tab"
 msgstr "タブ"
@@ -751,29 +745,13 @@ msgstr "(アイテムなし)"
 msgid "We've got some capable folks here.\n\nWant to hire a squad member?"
 msgstr "うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?"
 
-msgid "\"You, "
-msgstr "「あんた、"
 
-msgid "ruins"
-msgstr "遺跡"
 
-msgid "of the "
-msgstr "の"
 
-msgid "delver"
-msgstr "潜り"
 
-msgid "..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\""
-msgstr "だろ?\n\n外からこの街に来る異様に若い連中はみんなそうさ。\n向こう見ずで破滅的で、...\n\nどうしようもない事情を持ってる。」"
 
-msgid "\"You... I see, so your mother was "
-msgstr "「あんたは...、そうか、母親が"
 
-msgid "Hollow"
-msgstr "虚ろ"
 
-msgid "..., huh.\n\nWhat an irredeemable world.\""
-msgstr "か、...。\n\n救えない世の中だな。」"
 
 
 # systems 温度・死亡・扉
@@ -1671,3 +1649,12 @@ msgstr "%sを分解し、%sを得た。"
 
 msgid "Disassembled %s but obtained nothing."
 msgstr "%sを分解したが何も得られなかった。"
+
+msgid "\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\""
+msgstr "「あんた、<keyword>遺跡</keyword>の<keyword>潜り</keyword>だろ?\n\n外からこの街に来る異様に若い連中はみんなそうさ。\n向こう見ずで破滅的で、...\n\nどうしようもない事情を持ってる。」"
+
+msgid "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""
+msgstr "「あんたは...、そうか、母親が<keyword>虚ろ</keyword>か、...。\n\n救えない世の中だな。」"
+
+msgid "\"So, the next <keyword>scavenger</keyword> has shown up... a bottom-seeker too, they say.\"\n"
+msgstr "「でさ、次の<keyword>拾い屋</keyword>が来たんだが...そいつも底狙いだと。」\n"

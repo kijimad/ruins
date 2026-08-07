@@ -418,9 +418,7 @@ func NewOpeningState() (es.State[w.World], error) {
 		page2.AddText(query.T(world, "\"Heard about it? Another bottom-seeker vanished.\"\n")).
 			AddText(query.T(world, "\"How many is that now?\"\n")).
 			AddText(query.T(world, "\"Who knows. I quit counting long ago.\"\n\n")).
-			AddText(query.T(world, "\"So, the next ")).
-			AddKeyword(query.T(world, "scavenger")).
-			AddText(query.T(world, " has shown up... a bottom-seeker too, they say.\"\n"))
+			AddMarkup(query.T(world, "\"So, the next <keyword>scavenger</keyword> has shown up... a bottom-seeker too, they say.\"\n"))
 
 		return messagedata.ChainMessages(page1a, blank, page1b, blankBar, page2)
 	}
