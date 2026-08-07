@@ -38,6 +38,25 @@ func TestExecuteMoveAction(t *testing.T) {
 		assert.Equal(t, 9, int(gridAfter.Y))
 	})
 
+	t.Run("重量超過では移動せず致命エラーにもならない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{})
+		// 最大の1.5倍を超える積載。移動は Validate で弾かれる
+		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{Max: 100, Current: 200})
+
+		// 重すぎて動けないのは通常の状態。入力層へエラーを返さず no-op にする
+		require.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
+
+		grid := world.Components.GridElement.Get(player)
+		assert.Equal(t, 10, int(grid.X), "移動していない")
+		assert.Equal(t, 10, int(grid.Y), "移動していない")
+	})
+
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
