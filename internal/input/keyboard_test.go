@@ -8,17 +8,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSharedKeyboardInput(t *testing.T) {
+func TestGetSharedKeyboardInput_同一インスタンスを返す(t *testing.T) {
 	t.Parallel()
 
 	keyboard1 := GetSharedKeyboardInput()
 	keyboard2 := GetSharedKeyboardInput()
 
-	assert.Same(t, keyboard1, keyboard2, "GetSharedKeyboardInput()は同一インスタンスを返す")
 	require.NotNil(t, keyboard1)
+	assert.Same(t, keyboard1, keyboard2, "GetSharedKeyboardInput()は同一インスタンスを返す")
 }
 
-func TestMockKeyboardInput_EnterFunction(t *testing.T) {
+func TestMockKeyboardInput_Enterキー押下押上のワンセットとResetで状態が変化する(t *testing.T) {
 	t.Parallel()
 
 	mock := NewMockKeyboardInput()
@@ -102,7 +102,9 @@ func TestSharedKeyboardInput_IsKeyJustPressed_未押下ならfalseを返す(t *t
 func TestSharedKeyboardInput_IsEnterJustPressedOnce_未押下が続く間はfalseを返す(t *testing.T) {
 	t.Parallel()
 
-	keyboard := GetSharedKeyboardInput()
+	// GetSharedKeyboardInput()のシングルトンは他のテストとenterPressSessionを共有するため、
+	// 独立したインスタンスを直接生成して他テストの実行順序に依存しないようにする
+	keyboard := &sharedKeyboardInput{keyRepeatStates: make(map[ebiten.Key]*keyRepeatState)}
 
 	// 実際のキー入力が発生しない環境では押下-押上のセットが成立しないため、
 	// 何度呼んでもfalseのままであることを確認する
