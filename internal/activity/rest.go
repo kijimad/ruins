@@ -118,8 +118,7 @@ func (rb *RestBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	// プレイヤーの場合のみ中断時のメッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "Rest interrupted: ")).
-			Markup(query.T(world, comp.CancelReason)).
+			Markup(query.T(world, "Rest interrupted: %s", query.T(world, comp.CancelReason))).
 			Log()
 	}
 

@@ -1533,8 +1533,8 @@ msgstr "十分な休息を取って体力を回復した"
 msgid "Full rest recovered an additional %d HP"
 msgstr "完全な休息により追加で %d HP回復した"
 
-msgid "Rest interrupted: "
-msgstr "休息が中断された: "
+msgid "Rest interrupted: %s"
+msgstr "休息が中断された: %s"
 
 msgid "shoot target is not set"
 msgstr "射撃対象が設定されていません"
