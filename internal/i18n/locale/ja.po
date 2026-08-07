@@ -661,3 +661,80 @@ msgstr "雇用できる候補がいません"
 
 msgid "Cost"
 msgstr "費用"
+
+# spec 表示ラベル・能力ラベル
+msgid "Vitality"
+msgstr "体力"
+
+msgid "Strength"
+msgstr "筋力"
+
+msgid "Sensation"
+msgstr "感覚"
+
+msgid "Dexterity"
+msgstr "器用"
+
+msgid "Agility"
+msgstr "敏捷"
+
+msgid "Defense"
+msgstr "防御"
+
+msgid "Accuracy"
+msgstr "命中"
+
+msgid "Attack power"
+msgstr "攻撃力"
+
+msgid "Hits"
+msgstr "回数"
+
+msgid "Slot"
+msgstr "部位"
+
+msgid "Type"
+msgstr "種別"
+
+msgid "Attack cost"
+msgstr "コスト"
+
+msgid "Element"
+msgstr "属性"
+
+msgid "Optimal range"
+msgstr "適射程"
+
+msgid "Max range"
+msgstr "射程長"
+
+msgid "Magazine"
+msgstr "弾数"
+
+msgid "Reload"
+msgstr "装填"
+
+msgid "Cold resist"
+msgstr "耐寒"
+
+msgid "Heat resist"
+msgstr "耐熱"
+
+msgid "Nutrition"
+msgstr "栄養"
+
+msgid "Value"
+msgstr "価値"
+
+msgid "Weight"
+msgstr "重量"
+
+msgid "Book"
+msgstr "本"
+
+msgid "Skill"
+msgstr "スキル"
+
+msgid "Progress"
+msgstr "進捗"
+

@@ -37,19 +37,19 @@ func TestParseDice_不正な表記はエラーになる(t *testing.T) {
 		in       string
 		contains string
 	}{
-		{"", "空"},
-		{"abc", "d が必要"}, // d を含まない文字列は定数扱いされず弾かれる
-		{"1dx", "面数が不正"},
-		{"xd6", "個数が不正"},
-		{"1d3+x", "ボーナスが不正"},
-		{"1d0", "面数は1以上"},
-		{"d6", "個数を省略できません"}, // 個数は必須。"1d6" と書く
-		{"-1d6", "個数は1以上"},
-		{"0d6", "個数は1以上"},  // d を書いたら個数1以上
-		{"1D3", "d が必要"},   // 大文字 D は d でないので弾かれる。d に統一する
-		{" 2d4 ", "個数が不正"}, // 前後空白も厳密に弾く
-		{"1", "d が必要"},     // 数字だけの定数表記は許さない。"1d1" と書く
-		{"1d6 ", "面数が不正"},  // 末尾空白も弾く
+		{"", "empty"},
+		{"abc", "requires d"}, // d を含まない文字列は定数扱いされず弾かれる
+		{"1dx", "invalid dice sides"},
+		{"xd6", "invalid dice count"},
+		{"1d3+x", "invalid dice bonus"},
+		{"1d0", "sides must be at least 1"},
+		{"d6", "count cannot be omitted"}, // 個数は必須。"1d6" と書く
+		{"-1d6", "count must be at least 1"},
+		{"0d6", "count must be at least 1"}, // d を書いたら個数1以上
+		{"1D3", "requires d"},               // 大文字 D は d でないので弾かれる。d に統一する
+		{" 2d4 ", "invalid dice count"},     // 前後空白も厳密に弾く
+		{"1", "requires d"},                 // 数字だけの定数表記は許さない。"1d1" と書く
+		{"1d6 ", "invalid dice sides"},      // 末尾空白も弾く
 	}
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {

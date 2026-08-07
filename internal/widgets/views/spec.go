@@ -34,33 +34,33 @@ var specTableAligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	var rows []SpecRow
 	if cat, ok := world.Components.CategoryOf(gc.ItemTypeCategoryKey, entity); ok {
-		rows = append(rows, SpecRow{Label: "種別", Value: cat})
+		rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: cat})
 	}
 	if world.Components.Melee.Has(entity) {
-		rows = append(rows, attackerRows(world.Components.Melee.Get(entity))...)
+		rows = append(rows, attackerRows(world, world.Components.Melee.Get(entity))...)
 	}
 	if world.Components.Fire.Has(entity) {
 		fire := world.Components.Fire.Get(entity)
-		rows = append(rows, attackerRows(fire)...)
-		rows = append(rows, fireAmmoRows(fire)...)
+		rows = append(rows, attackerRows(world, fire)...)
+		rows = append(rows, fireAmmoRows(world, fire)...)
 	}
 	if world.Components.Wearable.Has(entity) {
-		rows = append(rows, wearableRows(world.Components.Wearable.Get(entity))...)
+		rows = append(rows, wearableRows(world, world.Components.Wearable.Get(entity))...)
 	}
 	if world.Components.ProvidesHealing.Has(entity) {
-		rows = append(rows, healingRows(world.Components.ProvidesHealing.Get(entity))...)
+		rows = append(rows, healingRows(world, world.Components.ProvidesHealing.Get(entity))...)
 	}
 	if world.Components.ProvidesNutrition.Has(entity) {
-		rows = append(rows, nutritionRows(world.Components.ProvidesNutrition.Get(entity))...)
+		rows = append(rows, nutritionRows(world, world.Components.ProvidesNutrition.Get(entity))...)
 	}
 	if world.Components.Book.Has(entity) {
-		rows = append(rows, bookRows(world.Components.Book.Get(entity))...)
+		rows = append(rows, bookRows(world, world.Components.Book.Get(entity))...)
 	}
 	if world.Components.Value.Has(entity) {
-		rows = append(rows, valueRows(world.Components.Value.Get(entity))...)
+		rows = append(rows, valueRows(world, world.Components.Value.Get(entity))...)
 	}
 	if world.Components.Weight.Has(entity) {
-		rows = append(rows, weightRows(world.Components.Weight.Get(entity))...)
+		rows = append(rows, weightRows(world, world.Components.Weight.Get(entity))...)
 	}
 	return rows
 }
@@ -70,32 +70,32 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	var rows []SpecRow
 	if cat, ok := world.Components.CategoryOfSpec(gc.ItemTypeCategoryKey, &spec); ok {
-		rows = append(rows, SpecRow{Label: "種別", Value: cat})
+		rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: cat})
 	}
 	if spec.Melee != nil {
-		rows = append(rows, attackerRows(spec.Melee)...)
+		rows = append(rows, attackerRows(world, spec.Melee)...)
 	}
 	if spec.Fire != nil {
-		rows = append(rows, attackerRows(spec.Fire)...)
-		rows = append(rows, fireAmmoRows(spec.Fire)...)
+		rows = append(rows, attackerRows(world, spec.Fire)...)
+		rows = append(rows, fireAmmoRows(world, spec.Fire)...)
 	}
 	if spec.Wearable != nil {
-		rows = append(rows, wearableRows(spec.Wearable)...)
+		rows = append(rows, wearableRows(world, spec.Wearable)...)
 	}
 	if spec.ProvidesHealing != nil {
-		rows = append(rows, healingRows(spec.ProvidesHealing)...)
+		rows = append(rows, healingRows(world, spec.ProvidesHealing)...)
 	}
 	if spec.ProvidesNutrition != nil {
-		rows = append(rows, nutritionRows(spec.ProvidesNutrition)...)
+		rows = append(rows, nutritionRows(world, spec.ProvidesNutrition)...)
 	}
 	if spec.Book != nil {
-		rows = append(rows, bookRows(spec.Book)...)
+		rows = append(rows, bookRows(world, spec.Book)...)
 	}
 	if spec.Value != nil {
-		rows = append(rows, valueRows(spec.Value)...)
+		rows = append(rows, valueRows(world, spec.Value)...)
 	}
 	if spec.Weight != nil {
-		rows = append(rows, weightRows(spec.Weight)...)
+		rows = append(rows, weightRows(world, spec.Weight)...)
 	}
 	return rows
 }
@@ -130,72 +130,72 @@ func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec g
 }
 
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し
-func attackerRows(attack gc.Attacker) []SpecRow {
+func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 	rows := []SpecRow{
 		{Label: attack.GetAttackCategory().Label, Header: true},
-		{Label: consts.DamageLabel, Value: strconv.Itoa(attack.GetDamage())},
-		{Label: consts.AccuracyLabel, Value: strconv.Itoa(attack.GetAccuracy())},
-		{Label: consts.AttackCountLabel, Value: strconv.Itoa(attack.GetAttackCount())},
-		{Label: "コスト", Value: strconv.Itoa(attack.GetCost())},
+		{Label: query.T(world, consts.DamageLabel), Value: strconv.Itoa(attack.GetDamage())},
+		{Label: query.T(world, consts.AccuracyLabel), Value: strconv.Itoa(attack.GetAccuracy())},
+		{Label: query.T(world, consts.AttackCountLabel), Value: strconv.Itoa(attack.GetAttackCount())},
+		{Label: query.T(world, "Attack cost"), Value: strconv.Itoa(attack.GetCost())},
 	}
 	if attack.GetElement() != gc.ElementTypeNone {
-		rows = append(rows, SpecRow{Label: "属性", Value: attack.GetElement().String()})
+		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: attack.GetElement().String()})
 	}
 	return rows
 }
 
 // fireAmmoRows は射程・弾薬の行を返す
-func fireAmmoRows(fire *gc.Fire) []SpecRow {
+func fireAmmoRows(world w.World, fire *gc.Fire) []SpecRow {
 	var rows []SpecRow
 	if rangeParams, ok := gc.GetRangeParams(fire.AttackCategory); ok {
 		rows = append(rows,
-			SpecRow{Label: "適射程", Value: strconv.Itoa(rangeParams.OptimalRange)},
-			SpecRow{Label: "射程長", Value: strconv.Itoa(rangeParams.MaxRange)},
+			SpecRow{Label: query.T(world, "Optimal range"), Value: strconv.Itoa(rangeParams.OptimalRange)},
+			SpecRow{Label: query.T(world, "Max range"), Value: strconv.Itoa(rangeParams.MaxRange)},
 		)
 	}
 	if fire.MagazineSize > 0 {
 		rows = append(rows,
-			SpecRow{Label: "弾数", Value: fmt.Sprintf("%d/%d", fire.Magazine, fire.MagazineSize)},
-			SpecRow{Label: "装填", Value: strconv.Itoa(fire.ReloadEffort)},
+			SpecRow{Label: query.T(world, "Magazine"), Value: fmt.Sprintf("%d/%d", fire.Magazine, fire.MagazineSize)},
+			SpecRow{Label: query.T(world, "Reload"), Value: strconv.Itoa(fire.ReloadEffort)},
 		)
 	}
 	return rows
 }
 
 // wearableRows は防具の行を返す。先頭は装備部位の見出し
-func wearableRows(wearable *gc.Wearable) []SpecRow {
+func wearableRows(world w.World, wearable *gc.Wearable) []SpecRow {
 	rows := []SpecRow{
 		{Label: wearable.EquipmentCategory.String(), Header: true},
-		{Label: consts.DefenseLabel, Value: fmt.Sprintf("%+d", wearable.Defense)},
+		{Label: query.T(world, consts.DefenseLabel), Value: fmt.Sprintf("%+d", wearable.Defense)},
 	}
 	if wearable.InsulationCold != 0 {
-		rows = append(rows, SpecRow{Label: "耐寒", Value: fmt.Sprintf("%+d", wearable.InsulationCold)})
+		rows = append(rows, SpecRow{Label: query.T(world, "Cold resist"), Value: fmt.Sprintf("%+d", wearable.InsulationCold)})
 	}
 	if wearable.InsulationHeat != 0 {
-		rows = append(rows, SpecRow{Label: "耐熱", Value: fmt.Sprintf("%+d", wearable.InsulationHeat)})
+		rows = append(rows, SpecRow{Label: query.T(world, "Heat resist"), Value: fmt.Sprintf("%+d", wearable.InsulationHeat)})
 	}
-	rows = append(rows, equipBonusRows(wearable.EquipBonus)...)
+	rows = append(rows, equipBonusRows(world, wearable.EquipBonus)...)
 	return rows
 }
 
 // equipBonusRows は装備ボーナスの行を返す。0 の項目は出さない
-func equipBonusRows(equipBonus gc.EquipBonus) []SpecRow {
+func equipBonusRows(world w.World, equipBonus gc.EquipBonus) []SpecRow {
 	var rows []SpecRow
 	add := func(label string, v int) {
 		if v != 0 {
 			rows = append(rows, SpecRow{Label: label, Value: fmt.Sprintf("%+d", v)})
 		}
 	}
-	add(consts.VitalityLabel, equipBonus.Vitality)
-	add(consts.StrengthLabel, equipBonus.Strength)
-	add(consts.SensationLabel, equipBonus.Sensation)
-	add(consts.DexterityLabel, equipBonus.Dexterity)
-	add(consts.AgilityLabel, equipBonus.Agility)
+	add(query.T(world, consts.VitalityLabel), equipBonus.Vitality)
+	add(query.T(world, consts.StrengthLabel), equipBonus.Strength)
+	add(query.T(world, consts.SensationLabel), equipBonus.Sensation)
+	add(query.T(world, consts.DexterityLabel), equipBonus.Dexterity)
+	add(query.T(world, consts.AgilityLabel), equipBonus.Agility)
 	return rows
 }
 
 // healingRows は回復量の行を返す
-func healingRows(healing *gc.ProvidesHealing) []SpecRow {
+func healingRows(world w.World, healing *gc.ProvidesHealing) []SpecRow {
 	var healValue string
 	switch healing.Kind {
 	case gc.HealNumeral:
@@ -205,36 +205,36 @@ func healingRows(healing *gc.ProvidesHealing) []SpecRow {
 	default:
 		healValue = "-"
 	}
-	return []SpecRow{{Label: "体力", Value: healValue}}
+	return []SpecRow{{Label: query.T(world, consts.VitalityLabel), Value: healValue}}
 }
 
 // nutritionRows は栄養の行を返す
-func nutritionRows(nutrition *gc.ProvidesNutrition) []SpecRow {
-	return []SpecRow{{Label: "栄養", Value: strconv.Itoa(nutrition.Amount)}}
+func nutritionRows(world w.World, nutrition *gc.ProvidesNutrition) []SpecRow {
+	return []SpecRow{{Label: query.T(world, "Nutrition"), Value: strconv.Itoa(nutrition.Amount)}}
 }
 
 // valueRows は価値の行を返す
-func valueRows(value *gc.Value) []SpecRow {
-	return []SpecRow{{Label: "価値", Value: query.FormatCurrency(value.Value)}}
+func valueRows(world w.World, value *gc.Value) []SpecRow {
+	return []SpecRow{{Label: query.T(world, "Value"), Value: query.FormatCurrency(value.Value)}}
 }
 
 // weightRows は重量の行を返す
-func weightRows(weight *gc.Weight) []SpecRow {
-	return []SpecRow{{Label: "重量", Value: weight.String()}}
+func weightRows(world w.World, weight *gc.Weight) []SpecRow {
+	return []SpecRow{{Label: query.T(world, "Weight"), Value: weight.String()}}
 }
 
 // bookRows は本の行を返す。先頭は見出し
-func bookRows(book *gc.Book) []SpecRow {
-	rows := []SpecRow{{Label: "本", Header: true}}
+func bookRows(world w.World, book *gc.Book) []SpecRow {
+	rows := []SpecRow{{Label: query.T(world, "Book"), Header: true}}
 	if book.Skill != nil {
 		rows = append(rows,
-			SpecRow{Label: "スキル", Value: gc.SkillName(book.Skill.TargetSkill)},
+			SpecRow{Label: query.T(world, "Skill"), Value: gc.SkillName(book.Skill.TargetSkill)},
 			SpecRow{Label: "Lv", Value: fmt.Sprintf("%d %s %d", book.Skill.RequiredLevel, consts.IconArrowRight, book.Skill.MaxLevel)},
 		)
 	}
 	if book.Effort.Current > 0 && book.Effort.Max > 0 {
 		pct := book.Effort.Current * 100 / book.Effort.Max
-		rows = append(rows, SpecRow{Label: "進捗", Value: fmt.Sprintf("%d%%", pct)})
+		rows = append(rows, SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", pct)})
 	}
 	return rows
 }

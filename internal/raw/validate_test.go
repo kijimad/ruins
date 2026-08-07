@@ -256,7 +256,7 @@ func TestValidateSpawnDice(t *testing.T) {
 		err := validateSpawnDice(raws)
 		require.Error(t, err)
 		require.ErrorContains(t, err, "スライム")
-		require.ErrorContains(t, err, "個数は1以上")
+		require.ErrorContains(t, err, "count must be at least 1")
 	})
 
 	t.Run("アイテムグループの不正なパック表記はエラー", func(t *testing.T) {
@@ -267,7 +267,7 @@ func TestValidateSpawnDice(t *testing.T) {
 		err := validateSpawnDice(raws)
 		require.Error(t, err)
 		require.ErrorContains(t, err, "回復薬")
-		require.ErrorContains(t, err, "個数は1以上")
+		require.ErrorContains(t, err, "count must be at least 1")
 	})
 
 	t.Run("収納の不正なlootCountはエラー", func(t *testing.T) {
