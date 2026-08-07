@@ -20,6 +20,25 @@ func loadTestRaws(t *testing.T) oapi.Raws {
 	return raws
 }
 
+// TestMemberSpecTablesStoreResolvableID は、メンバーの CommandTable/DropTable コンポーネントに
+// 表示名でなく id が入り、実行時に GetCommandTable/GetDropTable で引き直せることを検証する。
+// 表示名を入れると id-keyed のルックアップに失敗し、戦闘や死亡ドロップでクラッシュする回帰を防ぐ
+func TestMemberSpecTablesStoreResolvableID(t *testing.T) {
+	t.Parallel()
+	raws := loadTestRaws(t)
+
+	// glow_bug のドロップ/コマンドテーブルは表示名が日本語(光虫)なので、表示名を入れると必ず壊れる
+	spec, err := NewMemberSpec(raws, "glow_bug")
+	require.NoError(t, err)
+	require.NotNil(t, spec.DropTable)
+	require.NotNil(t, spec.CommandTable)
+
+	_, err = GetDropTable(raws, spec.DropTable.Name)
+	require.NoError(t, err, "DropTable コンポーネントの値 %q が id で引けない", spec.DropTable.Name)
+	_, err = GetCommandTable(raws, spec.CommandTable.Name)
+	require.NoError(t, err, "CommandTable コンポーネントの値 %q が id で引けない", spec.CommandTable.Name)
+}
+
 // TestRawItemReference はアイテム関連の参照整合性を検証する
 func TestRawItemReference(t *testing.T) {
 	t.Parallel()

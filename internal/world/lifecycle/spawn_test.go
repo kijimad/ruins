@@ -229,7 +229,7 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	assert.True(t, world.Components.DropTable.Has(enemy), "火の玉はDropTableコンポーネントを持つべき")
 
 	dropTable := world.Components.DropTable.Get(enemy)
-	assert.Equal(t, "火の玉", dropTable.Name, "DropTableの名前が正しくない")
+	assert.Equal(t, "fireball", dropTable.Name, "DropTableコンポーネントは同定キー(id)を持つべき")
 }
 
 func TestSpawnEnemy_AI(t *testing.T) {

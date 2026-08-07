@@ -431,7 +431,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		if err != nil {
 			return gc.EntitySpec{}, fmt.Errorf("failed to get command table for member '%s': %w", name, err)
 		}
-		entitySpec.CommandTable = &gc.CommandTable{Name: ct.Name}
+		entitySpec.CommandTable = &gc.CommandTable{Name: ct.Id}
 	}
 
 	if member.DropTableName != nil && *member.DropTableName != "" {
@@ -439,7 +439,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		if err != nil {
 			return gc.EntitySpec{}, fmt.Errorf("failed to get drop table for member '%s': %w", name, err)
 		}
-		entitySpec.DropTable = &gc.DropTable{Name: dt.Name}
+		entitySpec.DropTable = &gc.DropTable{Name: dt.Id}
 	}
 
 	entitySpec.LightSource = toGCLightSource(member.LightSource)
