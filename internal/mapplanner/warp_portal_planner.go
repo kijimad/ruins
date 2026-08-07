@@ -49,7 +49,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	// 次の階へ進むポータルを配置する
 	x, y, err := findPosition(planData, p.world, distSelector, fallbackSelector)
 	if err != nil {
-		return fmt.Errorf("%w: NextPortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
+		return fmt.Errorf("%w: failed to place NextPortal (%d attempts)", ErrConnectivity, maxPortalPlacementAttempts)
 	}
 	nextPortalPos := consts.Coord[consts.Tile]{X: x, Y: y}
 	planData.NextPortals = append(planData.NextPortals, nextPortalPos)

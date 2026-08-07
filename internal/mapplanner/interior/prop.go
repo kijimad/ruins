@@ -50,16 +50,16 @@ var propRaw = map[string]string{
 	"komainu":    "komainu",
 	"pillar":     "stone_pillar",
 	"cage":       "cage",
-	"poison":     "毒樽",
+	"poison":     "毒樽", //nolint:gosmopolitan // raw prop 名は日本語。GetProp が Name で引くため英語化はデータモデル移行時
 	// 和家具。民家の believability を上げる。仮画像。raw 名は日本語
-	"butsudan": "仏壇",
-	"kamidana": "神棚",
-	"getabako": "下駄箱",
+	"butsudan": "仏壇",  //nolint:gosmopolitan // raw prop 名は日本語。GetProp が Name で引くため英語化はデータモデル移行時
+	"kamidana": "神棚",  //nolint:gosmopolitan // raw prop 名は日本語。GetProp が Name で引くため英語化はデータモデル移行時
+	"getabako": "下駄箱", //nolint:gosmopolitan // raw prop 名は日本語。GetProp が Name で引くため英語化はデータモデル移行時
 	// 部屋の語彙拡充。既存の実物 prop を room content の添え物へ回し、家具プールを増やす
-	"dresser":     "ドレッサー",
-	"bedside":     "ベッドサイド",
+	"dresser":     "ドレッサー",  //nolint:gosmopolitan // raw prop 名は日本語。GetProp が Name で引くため英語化はデータモデル移行時
+	"bedside":     "ベッドサイド", //nolint:gosmopolitan // raw prop 名は日本語。GetProp が Name で引くため英語化はデータモデル移行時
 	"bookshelf":   "bookshelf",
-	"fireplace":   "暖炉",
+	"fireplace":   "暖炉", //nolint:gosmopolitan // raw prop 名は日本語。GetProp が Name で引くため英語化はデータモデル移行時
 	"clock":       "clock",
 	"microwave":   "microwave",
 	"coffeemaker": "coffee_maker",

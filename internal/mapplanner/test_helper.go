@@ -21,34 +21,34 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用のアイテムテーブルを定義
 	testItemTables := []oapi.ItemTable{
 		{
-			Id:   "通常",
-			Name: "通常",
+			Id:   "normal",
+			Name: "normal",
 			Entries: []oapi.ItemTableEntry{
-				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{GroupName: "鉱石類", Weight: 0.5, MinDepth: 3, MaxDepth: 40},
+				{GroupName: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+				{GroupName: "ores", Weight: 0.5, MinDepth: 3, MaxDepth: 40},
 			},
 		},
 		{
-			Id:   "洞窟",
-			Name: "洞窟",
+			Id:   "cave",
+			Name: "cave",
 			Entries: []oapi.ItemTableEntry{
-				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{GroupName: "鉱石類", Weight: 0.6, MinDepth: 3, MaxDepth: 25},
+				{GroupName: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+				{GroupName: "ores", Weight: 0.6, MinDepth: 3, MaxDepth: 25},
 			},
 		},
 		{
-			Id:   "森",
-			Name: "森",
+			Id:   "forest",
+			Name: "forest",
 			Entries: []oapi.ItemTableEntry{
-				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
+				{GroupName: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
 			},
 		},
 		{
-			Id:   "廃墟",
-			Name: "廃墟",
+			Id:   "ruins",
+			Name: "ruins",
 			Entries: []oapi.ItemTableEntry{
-				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
-				{GroupName: "鉱石類", Weight: 0.8, MinDepth: 3, MaxDepth: 20},
+				{GroupName: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
+				{GroupName: "ores", Weight: 0.8, MinDepth: 3, MaxDepth: 20},
 			},
 		},
 	}
@@ -56,40 +56,40 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用の敵テーブルを定義
 	testEnemyTables := []oapi.EnemyTable{
 		{
-			Id:   "通常",
-			Name: "通常",
+			Id:   "normal",
+			Name: "normal",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
-				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
-				{EnemyName: "軽戦車", Weight: 0.8, MinDepth: 10, MaxDepth: 50, Pack: "1d1"},
+				{EnemyName: "slime", Weight: 1.2, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
+				{EnemyName: "fireball", Weight: 1.0, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
+				{EnemyName: "light_tank", Weight: 0.8, MinDepth: 10, MaxDepth: 50, Pack: "1d1"},
 			},
 		},
 		{
-			Id:   "洞窟",
-			Name: "洞窟",
+			Id:   "cave",
+			Name: "cave",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "スライム", Weight: 1.0, MinDepth: 1, MaxDepth: 8, Pack: "1d1"},
-				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
-				{EnemyName: "軽戦車", Weight: 0.6, MinDepth: 8, MaxDepth: 25, Pack: "1d1"},
+				{EnemyName: "slime", Weight: 1.0, MinDepth: 1, MaxDepth: 8, Pack: "1d1"},
+				{EnemyName: "fireball", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
+				{EnemyName: "light_tank", Weight: 0.6, MinDepth: 8, MaxDepth: 25, Pack: "1d1"},
 			},
 		},
 		{
-			Id:   "森",
-			Name: "森",
+			Id:   "forest",
+			Name: "forest",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 12, Pack: "1d1"},
-				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
-				{EnemyName: "軽戦車", Weight: 0.5, MinDepth: 10, MaxDepth: 20, Pack: "1d1"},
+				{EnemyName: "slime", Weight: 1.2, MinDepth: 1, MaxDepth: 12, Pack: "1d1"},
+				{EnemyName: "fireball", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
+				{EnemyName: "light_tank", Weight: 0.5, MinDepth: 10, MaxDepth: 20, Pack: "1d1"},
 			},
 		},
 		{
-			Id:   "廃墟",
-			Name: "廃墟",
+			Id:   "ruins",
+			Name: "ruins",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "スライム", Weight: 0.9, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
-				{EnemyName: "火の玉", Weight: 0.8, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
-				{EnemyName: "軽戦車", Weight: 1.0, MinDepth: 5, MaxDepth: 30, Pack: "1d1"},
-				{EnemyName: "灰の偶像", Weight: 0.7, MinDepth: 15, MaxDepth: 35, Pack: "1d1"},
+				{EnemyName: "slime", Weight: 0.9, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
+				{EnemyName: "fireball", Weight: 0.8, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
+				{EnemyName: "light_tank", Weight: 1.0, MinDepth: 5, MaxDepth: 30, Pack: "1d1"},
+				{EnemyName: "ash_idol", Weight: 0.7, MinDepth: 15, MaxDepth: 35, Pack: "1d1"},
 			},
 		},
 	}
@@ -97,21 +97,21 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用のアイテムグループを定義
 	testItemGroups := []oapi.ItemGroup{
 		{
-			Id:      "回復アイテム",
-			Name:    "回復アイテム",
+			Id:      "healing_items",
+			Name:    "healing_items",
 			Subtype: oapi.Distribution,
 			Entries: []oapi.ItemGroupEntry{
-				{ItemName: "回復薬", Weight: 1.0, Pack: "1d3"},
-				{ItemName: "毒消し", Weight: 0.5, Pack: "1d1"},
+				{ItemName: "healing_potion", Weight: 1.0, Pack: "1d3"},
+				{ItemName: "antidote", Weight: 0.5, Pack: "1d1"},
 			},
 		},
 		{
-			Id:      "鉱石類",
-			Name:    "鉱石類",
+			Id:      "ores",
+			Name:    "ores",
 			Subtype: oapi.Collection,
 			Entries: []oapi.ItemGroupEntry{
-				{ItemName: "黒曜石", Weight: 50, Pack: "1d2"},
-				{ItemName: "銀の欠片", Weight: 30, Pack: "1d1"},
+				{ItemName: "obsidian", Weight: 50, Pack: "1d2"},
+				{ItemName: "silver_shard", Weight: 30, Pack: "1d1"},
 			},
 		},
 	}
@@ -122,12 +122,12 @@ func CreateTestRawMaster() *oapi.Raws {
 	return &oapi.Raws{
 		Tiles: &testTiles,
 		Items: &[]oapi.Item{
-			{Id: "回復薬", Name: "回復薬", Description: "HPを回復する", Stackable: &stackableTrue},
-			{Id: "毒消し", Name: "毒消し", Description: "毒を回復する", Stackable: &stackableTrue},
-			{Id: "黒曜石", Name: "黒曜石", Description: "黒い石", Stackable: &stackableTrue},
-			{Id: "銀の欠片", Name: "銀の欠片", Description: "銀の欠片", Stackable: &stackableTrue},
-			{Id: "薬草", Name: "薬草", Description: "薬草", Stackable: &stackableTrue},
-			{Id: "木刀", Name: "木刀", Description: "木製の刀"},
+			{Id: "healing_potion", Name: "healing_potion", Description: "restores HP", Stackable: &stackableTrue},
+			{Id: "antidote", Name: "antidote", Description: "cures poison", Stackable: &stackableTrue},
+			{Id: "obsidian", Name: "obsidian", Description: "a black stone", Stackable: &stackableTrue},
+			{Id: "silver_shard", Name: "silver_shard", Description: "silver_shard", Stackable: &stackableTrue},
+			{Id: "herb", Name: "herb", Description: "herb", Stackable: &stackableTrue},
+			{Id: "wooden_sword", Name: "wooden_sword", Description: "a wooden sword"},
 		},
 		ItemGroups:  &testItemGroups,
 		ItemTables:  &testItemTables,
