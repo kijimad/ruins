@@ -142,9 +142,9 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 	// ダンジョンタイトルエフェクト用エンティティを作成する
 	screenW, screenH := world.Resources.GetScreenDimensions()
-	titleText := def.Name()
+	titleText := query.T(world, def.Name())
 	if st.Depth > 0 {
-		titleText = fmt.Sprintf("%s %dF", def.Name(), st.Depth)
+		titleText = fmt.Sprintf("%s %dF", query.T(world, def.Name()), st.Depth)
 	}
 	splashFace := world.Resources.UIResources.Text.SplashFontFace
 	titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)

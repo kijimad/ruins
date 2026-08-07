@@ -41,9 +41,9 @@ func TestGetDungeonByName(t *testing.T) {
 
 	t.Run("存在するダンジョンを取得できる", func(t *testing.T) {
 		t.Parallel()
-		def, found := GetStageDefinition("亡者の森")
+		def, found := GetStageDefinition("Dead forest")
 		require.True(t, found)
-		assert.Equal(t, "亡者の森", def.Name())
+		assert.Equal(t, "Dead forest", def.Name())
 		d, ok := def.(*DungeonDefinition)
 		require.True(t, ok, "通常ダンジョンは DungeonDefinition")
 		assert.Equal(t, 20, d.TotalFloors())
@@ -69,11 +69,11 @@ func TestDefinitions(t *testing.T) {
 
 	t.Run("DungeonForestの設定が正しい", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "亡者の森", DungeonForest.Name())
+		assert.Equal(t, "Dead forest", DungeonForest.Name())
 		assert.Equal(t, 20, DungeonForest.TotalFloors())
 		assert.Equal(t, "forest", DungeonForest.EnemyTableName())
 		assert.Equal(t, "forest", DungeonForest.ItemTableName())
-		assert.Equal(t, "凍りついた森に、かつて猟師たちが分け入った。\n戻った者は少ない。冷気が骨まで届く。", DungeonForest.Description())
+		assert.Equal(t, "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone.", DungeonForest.Description())
 		assert.Equal(t, "forest1", DungeonForest.ImageKey())
 		assert.Equal(t, 0, DungeonForest.BaseTemperature())
 		assert.NotEmpty(t, DungeonForest.PlannerPool())
@@ -81,11 +81,11 @@ func TestDefinitions(t *testing.T) {
 
 	t.Run("DungeonCaveの設定が正しい", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "灰の洞窟", DungeonCave.Name())
+		assert.Equal(t, "Ash cave", DungeonCave.Name())
 		assert.Equal(t, 20, DungeonCave.TotalFloors())
 		assert.Equal(t, "cave", DungeonCave.EnemyTableName())
 		assert.Equal(t, "cave", DungeonCave.ItemTableName())
-		assert.Equal(t, "灰色の岩壁に凍晶が脈のように走っている。\n奥に進むほど、静かになる。", DungeonCave.Description())
+		assert.Equal(t, "Frost crystals run like veins through the gray rock.\nThe deeper you go, the quieter it grows.", DungeonCave.Description())
 		assert.Equal(t, "cave1", DungeonCave.ImageKey())
 		assert.Equal(t, 5, DungeonCave.BaseTemperature())
 		assert.NotEmpty(t, DungeonCave.PlannerPool())
@@ -93,11 +93,11 @@ func TestDefinitions(t *testing.T) {
 
 	t.Run("DungeonRuinsの設定が正しい", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "忘却の廃都", DungeonRuins.Name())
+		assert.Equal(t, "Forgotten ruins", DungeonRuins.Name())
 		assert.Equal(t, 20, DungeonRuins.TotalFloors())
 		assert.Equal(t, "ruins_area", DungeonRuins.EnemyTableName())
 		assert.Equal(t, "ruins_area", DungeonRuins.ItemTableName())
-		assert.Equal(t, "古代の都市が、そのまま凍りついている。\n誰が何を忘れたのか、もう誰も知らない。", DungeonRuins.Description())
+		assert.Equal(t, "An ancient city stands frozen in place.\nWho forgot what, no one remembers now.", DungeonRuins.Description())
 		assert.Equal(t, "city1", DungeonRuins.ImageKey())
 		assert.Equal(t, 15, DungeonRuins.BaseTemperature())
 		assert.NotEmpty(t, DungeonRuins.PlannerPool())

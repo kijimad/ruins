@@ -1316,3 +1316,18 @@ msgstr "オーバーワールド"
 msgid "Cube interior"
 msgstr "キューブ内部"
 
+
+msgid "Debug"
+msgstr "デバッグ"
+
+msgid "Debug town"
+msgstr "デバッグ街"
+
+msgid "Dead forest"
+msgstr "亡者の森"
+
+msgid "Ash cave"
+msgstr "灰の洞窟"
+
+msgid "Forgotten ruins"
+msgstr "忘却の廃都"

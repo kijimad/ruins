@@ -6,7 +6,7 @@ import "github.com/kijimaD/ruins/internal/mapplanner"
 var (
 	// DungeonDebug はデバッグ用ダンジョン定義
 	DungeonDebug = &DungeonDefinition{
-		name:        "デバッグ",
+		name:        "Debug",
 		totalFloors: 99,
 		enemyTable:  "forest",
 		itemTable:   "forest",
@@ -19,7 +19,7 @@ var (
 	// DungeonDebugTown は街用NPCと収納箱をテンプレートで固定配置するデバッグ用定義。
 	// 敵・アイテムテーブルを空にして、共通の敵配置プランナーを自然に空振りさせ、敵を湧かせない
 	DungeonDebugTown = &DungeonDefinition{
-		name:        "デバッグ街",
+		name:        "Debug town",
 		totalFloors: 1,
 		enemyTable:  "",
 		itemTable:   "",
@@ -31,8 +31,8 @@ var (
 
 	// DungeonForest は森ダンジョン定義
 	DungeonForest = &DungeonDefinition{
-		name:        "亡者の森",
-		description: "凍りついた森に、かつて猟師たちが分け入った。\n戻った者は少ない。冷気が骨まで届く。",
+		name:        "Dead forest",
+		description: "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone.",
 		imageKey:    "forest1",
 		totalFloors: 20,
 		enemyTable:  "forest",
@@ -48,8 +48,8 @@ var (
 
 	// DungeonCave は洞窟ダンジョン定義
 	DungeonCave = &DungeonDefinition{
-		name:        "灰の洞窟",
-		description: "灰色の岩壁に凍晶が脈のように走っている。\n奥に進むほど、静かになる。",
+		name:        "Ash cave",
+		description: "Frost crystals run like veins through the gray rock.\nThe deeper you go, the quieter it grows.",
 		imageKey:    "cave1",
 		totalFloors: 20,
 		enemyTable:  "cave",
@@ -73,8 +73,8 @@ var (
 
 	// DungeonRuins は廃墟ダンジョン定義
 	DungeonRuins = &DungeonDefinition{
-		name:        "忘却の廃都",
-		description: "古代の都市が、そのまま凍りついている。\n誰が何を忘れたのか、もう誰も知らない。",
+		name:        "Forgotten ruins",
+		description: "An ancient city stands frozen in place.\nWho forgot what, no one remembers now.",
 		imageKey:    "city1",
 		totalFloors: 20,
 		enemyTable:  "ruins_area",
@@ -95,7 +95,7 @@ var (
 	// name は gc.NewCubeInteriorStage().Name と一致させる。ずれると復帰で定義解決に失敗する。
 	DungeonCubeInterior = &DungeonDefinition{
 		name:        "Cube interior",
-		description: "移動拠点キューブの内部",
+		description: "Interior of the mobile base cube",
 		totalFloors: 1,
 		baseTemp:    15, // 内部はシェルター。要調整
 		// 内部のレイアウトはこの planner のテンプレート。実際の生成は enterCube の SwapTo が
