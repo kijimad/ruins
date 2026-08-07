@@ -42,11 +42,11 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	// 死亡エンティティのアクティビティをキャンセルする
 	for _, entity := range toDelete {
 		if query.GetActivity(world, entity) != nil {
-			activity.CancelActivity(entity, "death", world)
+			activity.CancelActivity(entity, "死亡", world)
 		}
 	}
 
-	// spawn drop item
+	// ドロップアイテム生成
 	rawMaster := world.Resources.RawMaster
 
 	for _, entity := range toDelete {
@@ -64,7 +64,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		// テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ
 		dropTable, err := raw.GetDropTable(rawMaster, dropTableComp.Name)
 		if err != nil {
-			return fmt.Errorf("failed to get drop table: %w", err)
+			return fmt.Errorf("ドロップテーブルの取得に失敗: %w", err)
 		}
 
 		// アイテム選択
@@ -80,9 +80,9 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		// フィールドにアイテムをスポーン。素材名はロード時に参照検証済み
 		_, err = lifecycle.SpawnFieldItem(world, materialName, gridElement.X, gridElement.Y, 1)
 		if err != nil {
-			return fmt.Errorf("failed to spawn drop item: %w", err)
+			return fmt.Errorf("ドロップアイテムの生成に失敗: %w", err)
 		}
-		logger.Debug("spawn drop item", "material", materialName, "x", gridElement.X, "y", gridElement.Y)
+		logger.Debug("ドロップアイテム生成", "material", materialName, "x", gridElement.X, "y", gridElement.Y)
 	}
 
 	// 分解定義を持つpropの破壊回収。工具がない序盤でも素材が少しは手に入るように、
@@ -91,7 +91,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		if !world.Components.Fixed.Has(entity) || !world.Components.GridElement.Has(entity) {
 			continue
 		}
-		def, ok := raw.FindDisassembly(rawMaster, query.GetEntityID(entity, world))
+		def, ok := raw.FindDisassembly(rawMaster, query.GetEntityName(entity, world))
 		if !ok {
 			continue
 		}
@@ -100,10 +100,10 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		// 握りつぶすと産出が静かに消えるため loud に返す
 		stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, 0, 0, false)
 		if err != nil {
-			return fmt.Errorf("failed to draw salvage item: %w", err)
+			return fmt.Errorf("破壊回収アイテムの抽選に失敗: %w", err)
 		}
 		if err := lifecycle.SpawnDisassemblyYields(world, stacks, grid.X, grid.Y); err != nil {
-			return fmt.Errorf("failed to spawn salvage item: %w", err)
+			return fmt.Errorf("破壊回収アイテムの生成に失敗: %w", err)
 		}
 	}
 
@@ -113,7 +113,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			// 全扉をアンロックして開く
 			if lifecycle.UnlockAllDoors(world) > 0 {
 				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "It seems a door opened somewhere.")).
+					Append("どこかで扉が開いたようだ。").
 					Log()
 			}
 
@@ -124,7 +124,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			dungeonName := query.GetDungeon(world).CurrentStage.Name
 			query.GetGameProgress(world).MarkDungeonCleared(dungeonName)
 
-			logger.Debug("boss defeated: unlock doors and set clear flag", "dungeon", dungeonName)
+			logger.Debug("ボス撃破: 扉アンロック+クリアフラグ", "dungeon", dungeonName)
 		}
 	}
 

@@ -82,7 +82,6 @@ model Book {
 
 /** アイテム */
 model Item {
-  id: EntityName;
   name: EntityName;
   description: EntityDescription;
   spriteSheetName: SpriteSheetName;
@@ -141,7 +140,6 @@ model Dialog {
 
 /** メンバー */
 model Member {
-  id: EntityName;
   name: EntityName;
   player?: IsPlayer;
   isBoss: IsBoss;
@@ -171,7 +169,6 @@ model RecipeInput {
 
 /** レシピ */
 model Recipe {
-  id: EntityName;
   name: EntityName;
   inputs: RecipeInput[];
 }
@@ -186,7 +183,6 @@ model CommandTableEntry {
 
 /** コマンドテーブル */
 model CommandTable {
-  id: EntityName;
   name: EntityName;
   entries: CommandTableEntry[];
 }
@@ -200,7 +196,6 @@ model DropTableEntry {
 
 /** ドロップテーブル */
 model DropTable {
-  id: EntityName;
   name: EntityName;
   entries: DropTableEntry[];
 }
@@ -226,7 +221,6 @@ model ItemGroupEntry {
 
 /** アイテムグループ。アイテムの出現セットを定義する */
 model ItemGroup {
-  id: EntityName;
   name: EntityName;
   subtype: ItemGroupSubtype;
   entries: ItemGroupEntry[];
@@ -243,7 +237,6 @@ model ItemTableEntry {
 
 /** アイテムテーブル */
 model ItemTable {
-  id: EntityName;
   name: EntityName;
   entries: ItemTableEntry[];
 }
@@ -260,7 +253,6 @@ model EnemyTableEntry {
 
 /** 敵テーブル */
 model EnemyTable {
-  id: EntityName;
   name: EntityName;
   entries: EnemyTableEntry[];
 }
@@ -276,7 +268,6 @@ model SpriteRender {
 
 /** タイル */
 model Tile {
-  id: EntityName;
   name: EntityName;
   description: EntityDescription;
   blockPass: BlocksPassage;
@@ -319,7 +310,6 @@ model StorageRaw {
 
 /** 置物 */
 model Prop {
-  id: EntityName;
   name: EntityName;
   description: EntityDescription;
   spriteRender: SpriteRender;

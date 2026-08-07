@@ -359,17 +359,17 @@ func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRe
 	} else {
 		// Resourcesからスプライトシートを取得
 		if world.Resources.SpriteSheets == nil {
-			return nil, fmt.Errorf("sprite sheets are nil")
+			return nil, fmt.Errorf("SpriteSheets が nil です")
 		}
 		spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]
 		if !exists {
-			return nil, fmt.Errorf("sprite sheet '%s' not found", spriteRender.SpriteSheetName)
+			return nil, fmt.Errorf("スプライトシート '%s' が見つかりません", spriteRender.SpriteSheetName)
 		}
 
 		// スプライトキーからスプライトを取得
 		sprite, exists := spriteSheet.Sprites[spriteRender.SpriteKey]
 		if !exists {
-			return nil, fmt.Errorf("sprite key '%s' does not exist in sprite sheet '%s'", spriteRender.SpriteKey, spriteRender.SpriteSheetName)
+			return nil, fmt.Errorf("スプライトキー '%s' がスプライトシート '%s' に存在しません", spriteRender.SpriteKey, spriteRender.SpriteSheetName)
 		}
 
 		texture := spriteSheet.Texture
@@ -391,16 +391,16 @@ func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRe
 func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera) error {
 	// Resourcesからスプライトシートを取得
 	if world.Resources.SpriteSheets == nil {
-		return fmt.Errorf("sprite sheets are nil")
+		return fmt.Errorf("SpriteSheets が nil です")
 	}
 	spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]
 	if !exists {
-		return fmt.Errorf("sprite sheet '%s' not found", spriteRender.SpriteSheetName)
+		return fmt.Errorf("スプライトシート '%s' が見つかりません", spriteRender.SpriteSheetName)
 	}
 
 	sprite, exists := spriteSheet.Sprites[spriteRender.SpriteKey]
 	if !exists {
-		return fmt.Errorf("sprite key '%s' does not exist in sprite sheet '%s'", spriteRender.SpriteKey, spriteRender.SpriteSheetName)
+		return fmt.Errorf("スプライトキー '%s' がスプライトシート '%s' に存在しません", spriteRender.SpriteKey, spriteRender.SpriteSheetName)
 	}
 
 	op := &spriteRender.Options

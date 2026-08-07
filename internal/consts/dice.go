@@ -22,23 +22,23 @@ type Dice struct {
 // 動的入力用。固定リテラルには MustParseDice を使う。regexp は使わず strings で足りる。ParseWeight と同じ方針。
 func ParseDice(s string) (Dice, error) {
 	if s == "" {
-		return Dice{}, fmt.Errorf("dice is empty")
+		return Dice{}, fmt.Errorf("ダイスが空です")
 	}
 
 	// 前後空白も含め厳密に扱う。空白混じりは各数値の Atoi が弾く
 	// d は必須。数字だけの定数表記は許さず、固定値も "1d1" と書かせる
 	before, after, ok := strings.Cut(s, "d")
 	if !ok {
-		return Dice{}, fmt.Errorf("dice notation requires d; write fixed values like \"1d1\": %q", s)
+		return Dice{}, fmt.Errorf("ダイス表記には d が必要です。固定値も \"1d1\" のように書く: %q", s)
 	}
 
 	// 個数は省略できない。"d6" でなく "1d6" と明示的に書かせて表記を一意にする。
 	if before == "" {
-		return Dice{}, fmt.Errorf("dice count cannot be omitted; example \"1d6\": %q", s)
+		return Dice{}, fmt.Errorf("ダイスの個数を省略できません。例: \"1d6\": %q", s)
 	}
 	base, err := strconv.Atoi(before)
 	if err != nil {
-		return Dice{}, fmt.Errorf("invalid dice count: %q", s)
+		return Dice{}, fmt.Errorf("ダイスの個数が不正です: %q", s)
 	}
 
 	// 面数部と Bonus 部。sides[+/-bonus]
@@ -49,22 +49,22 @@ func ParseDice(s string) (Dice, error) {
 		sidesPart = rest[:bi]
 		b, err := strconv.Atoi(rest[bi:])
 		if err != nil {
-			return Dice{}, fmt.Errorf("invalid dice bonus: %q", s)
+			return Dice{}, fmt.Errorf("ダイスのボーナスが不正です: %q", s)
 		}
 		bonus = b
 	}
 	sides, err := strconv.Atoi(sidesPart)
 	if err != nil {
-		return Dice{}, fmt.Errorf("invalid dice sides: %q", s)
+		return Dice{}, fmt.Errorf("ダイスの面数が不正です: %q", s)
 	}
 
 	// d を書いたなら個数は1以上を要求する。"0d6" は定数のつもりの誤記とみなして弾く。
 	// 定数は "5" のように d を書かずに表す。
 	if base < 1 {
-		return Dice{}, fmt.Errorf("dice count must be at least 1: %q", s)
+		return Dice{}, fmt.Errorf("ダイスの個数は1以上です: %q", s)
 	}
 	if sides < 1 {
-		return Dice{}, fmt.Errorf("dice sides must be at least 1: %q", s)
+		return Dice{}, fmt.Errorf("ダイスの面数は1以上です: %q", s)
 	}
 	return Dice{Base: base, Sides: sides, Bonus: bonus}, nil
 }
@@ -85,7 +85,7 @@ func MustParseDice(s string) Dice {
 // rng は呼び出し側が渡す。共有 RNG を汚さず決定的に抽選するため、内部で乱数器を持たない。
 func (d Dice) Roll(rng *rand.Rand) int {
 	if d.Base < 1 || d.Sides < 1 {
-		panic(fmt.Sprintf("invalid Dice; construct via ParseDice: %+v", d))
+		panic(fmt.Sprintf("不正な Dice です。ParseDice 経由で作る: %+v", d))
 	}
 	sum := d.Bonus
 	for range d.Base {

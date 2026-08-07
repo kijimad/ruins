@@ -26,7 +26,7 @@ const (
 	urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 
 	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く
-	urbanEnemyTable = "ruins_area"
+	urbanEnemyTable = "廃墟"
 )
 
 // urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 2..urbanMaxSpan。
@@ -169,7 +169,7 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType 
 			return f.kind
 		}
 	}
-	panic("unreachable: selection weight total and subtraction are inconsistent")
+	panic("到達しない: 抽選重みの合計と減算が不整合")
 }
 
 // urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
@@ -250,7 +250,7 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 				continue
 			}
 			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {
-				return interior.Rect{}, interior.Vec{}, fmt.Errorf("failed to place urban street (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
+				return interior.Rect{}, interior.Vec{}, fmt.Errorf("市街地の街路配置に失敗 (x=%d, y=%d): %w", g.offsetX+lx, g.offsetY+ly, err)
 			}
 		}
 	}
@@ -264,13 +264,13 @@ func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, in
 func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {
 	enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)
 	if err != nil {
-		return fmt.Errorf("failed to get urban enemy table: %w", err)
+		return fmt.Errorf("市街地の敵テーブル取得に失敗: %w", err)
 	}
 	count := 1 + rng.IntN(int(size))
 	for range count {
 		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(size))
 		if err != nil {
-			return fmt.Errorf("failed to select urban enemy: %w", err)
+			return fmt.Errorf("市街地の敵抽選に失敗: %w", err)
 		}
 		// 敵は街路に湧かせ、建物の footprint と壁の上は避ける。占有は footprint 全域に及ぶので、一度引いて
 		// 塞がっていたら目標数を満たすよう空きが出るまで位置を引き直す。試行を尽くしても空かなければその
@@ -283,7 +283,7 @@ func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.C
 				continue
 			}
 			if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {
-				return fmt.Errorf("failed to place urban enemy: %w", err)
+				return fmt.Errorf("市街地の敵配置に失敗: %w", err)
 			}
 			break
 		}

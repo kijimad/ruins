@@ -41,5 +41,5 @@ func frontYardOf(st siteType) consts.Tile {
 	case siteRoadside:
 		return 5
 	}
-	panic("unknown siteType: " + strconv.Itoa(int(st)))
+	panic("未知の siteType: " + strconv.Itoa(int(st)))
 }

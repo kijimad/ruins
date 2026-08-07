@@ -112,7 +112,7 @@ func TestDoActionMovementActions(t *testing.T) {
 
 			initialX, initialY := 10, 10
 			world := testutil.InitTestWorld(t)
-			playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: consts.Tile(initialX), Y: consts.Tile(initialY)}, "ash")
+			playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: consts.Tile(initialX), Y: consts.Tile(initialY)}, "Ash")
 			require.NoError(t, err)
 
 			state := &DungeonState{}
@@ -197,7 +197,7 @@ func TestDoActionTurnManagement(t *testing.T) {
 			var playerEntity ecs.Entity
 			if tt.isMoveAction {
 				var err error
-				playerEntity, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: consts.Tile(initialX), Y: consts.Tile(initialY)}, "ash")
+				playerEntity, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: consts.Tile(initialX), Y: consts.Tile(initialY)}, "Ash")
 				require.NoError(t, err)
 			}
 
@@ -454,9 +454,9 @@ func TestDungeonState_OnStartResume_PreservesWorld(t *testing.T) {
 	world.Resources.UIResources.Text = &resources.TextResources{}
 
 	// 復元済みワールドを模す。プレイヤーを既知の位置に置き、地形代わりの固定物を配置する
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
-	prop, err := lifecycle.SpawnProp(world, "wooden_crate", 6, 6)
+	prop, err := lifecycle.SpawnProp(world, "木箱", 6, 6)
 	require.NoError(t, err)
 
 	factory := NewDungeonState(0, WithDefinitionName(dungeon.DungeonDebug.Name()), WithResume())

@@ -50,7 +50,7 @@ func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
 	err := ra.Validate(comp, actor, world)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "already read")
+	assert.Contains(t, err.Error(), "読了済み")
 }
 
 func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
@@ -72,7 +72,7 @@ func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
 	err := ra.Validate(comp, actor, world)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "level 3 or higher")
+	assert.Contains(t, err.Error(), "レベル3以上必要")
 }
 
 func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {
@@ -367,7 +367,7 @@ func TestReadBehavior_DoTurn_本が消えると中断する(t *testing.T) {
 
 	require.NoError(t, ra.DoTurn(comp, actor, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "interrupted because the book disappeared", comp.CancelReason)
+	assert.Equal(t, "本が消えたため中断", comp.CancelReason)
 
 	// 消えた対象へのキャンセル処理でもエラーにならない
 	require.NoError(t, ra.Canceled(comp, actor, world))

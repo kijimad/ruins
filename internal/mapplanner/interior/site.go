@@ -122,7 +122,7 @@ func chooseDoor(building Rect, rooms []PlannedRoom, s side, desired Vec) Vec {
 	case sideEast:
 		return Vec{X: right, Y: frontSlot(building, rooms, s, desired.Y)}
 	}
-	panic("unknown side: " + strconv.Itoa(int(s)))
+	panic("未知の side: " + strconv.Itoa(int(s)))
 }
 
 // frontSlot は辺 s に面する部屋の内側の帯のうち、望みの横位置 desired に最も近い座標を返す。玄関がこの辺に
@@ -169,7 +169,7 @@ func frontSpan(r, building Rect, s side) (lo, hi consts.Tile, ok bool) {
 	case sideEast:
 		return r.Y + 1, r.Y + r.H - 2, r.X+r.W-1 == building.X+building.W-1 && r.H >= 3
 	}
-	panic("unknown side: " + strconv.Itoa(int(s)))
+	panic("未知の side: " + strconv.Itoa(int(s)))
 }
 
 // spanDist は帯 [lo, hi] から点 v までの距離。帯の中なら 0。
@@ -293,7 +293,7 @@ func doorSide(footprint Rect, door Vec) side {
 	case door.X == footprint.X+footprint.W-1:
 		return sideEast
 	}
-	panic("door is not on a footprint edge")
+	panic("door が footprint の辺上にない")
 }
 
 // nearestSide は矩形 r の4辺のうち v に最も近い辺を返す。ポーチで入口を1マス内側へ下げた後など、v が辺上に
@@ -325,7 +325,7 @@ func porchStep(s side) Vec {
 	case sideEast:
 		return Vec{X: -1, Y: 0}
 	}
-	panic("unknown side: " + strconv.Itoa(int(s)))
+	panic("未知の side: " + strconv.Itoa(int(s)))
 }
 
 // porchAlong はポーチの走る向き。辺に沿う方向で、北・南は横、西・東は縦。
@@ -336,7 +336,7 @@ func porchAlong(s side) Vec {
 	case sideWest, sideEast:
 		return Vec{X: 0, Y: 1}
 	}
-	panic("unknown side: " + strconv.Itoa(int(s)))
+	panic("未知の side: " + strconv.Itoa(int(s)))
 }
 
 // contains は矩形が v を含むかを返す。外周を含む。

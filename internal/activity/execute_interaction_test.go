@@ -51,7 +51,7 @@ func TestExecuteInteraction_UnknownKind(t *testing.T) {
 
 	_, err := ExecuteInteraction(player, triggerEntity, unknown, world)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid ActivationRange")
+	assert.Contains(t, err.Error(), "無効なActivationRange")
 }
 
 // TestExecuteInteraction_Door は扉相互作用の動作を確認
@@ -417,7 +417,7 @@ func TestExecuteInteraction_Door_NoDoorComponent(t *testing.T) {
 	_, err := ExecuteInteraction(player, doorEntity, gc.InteractionDoor, world)
 
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "no Door component")
+	assert.Contains(t, err.Error(), "Doorコンポーネントがない")
 }
 
 // TestExecuteInteraction_Talk_NoDialogComponent はDialogコンポーネントがない場合のエラーを確認
@@ -441,7 +441,7 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	_, err := ExecuteInteraction(player, npcEntity, gc.InteractionTalk, world)
 
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "no Dialog component")
+	assert.Contains(t, err.Error(), "Dialogコンポーネントがありません")
 }
 
 // TestExecuteInteraction_Fixed は固定物へのMeleeInteractionの動作を確認する

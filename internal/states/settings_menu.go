@@ -212,7 +212,7 @@ func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor
 	)
 	menuContainer.AddChild(titleText)
 	menuContainer.AddChild(table)
-	menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(world, false), res))
+	menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(false), res))
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

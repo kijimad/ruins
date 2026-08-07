@@ -121,7 +121,7 @@ func assertPNGGolden(t *testing.T, pngData []byte) {
 	t.Helper()
 
 	cfg, err := png.DecodeConfig(bytes.NewReader(pngData))
-	require.NoError(t, err, "failed to decode PNG header")
+	require.NoError(t, err, "PNGヘッダのデコードに失敗")
 	toleranceRatio := toleranceForSize(cfg.Width, cfg.Height)
 
 	if isGoldieUpdate() {
@@ -130,12 +130,12 @@ func assertPNGGolden(t *testing.T, pngData []byte) {
 		if existingData, err := os.ReadFile(goldenPath); err == nil {
 			equalFn := pngPixelEqualFn(toleranceRatio)
 			if equalFn(pngData, existingData) {
-				t.Logf("skipped update within tolerance: %s", goldenPath)
+				t.Logf("トレランス内のため更新をスキップ: %s", goldenPath)
 				return
 			}
 		}
 		require.NoError(t, g.Update(t, t.Name(), pngData))
-		t.Logf("updated golden image: %s", goldenPath)
+		t.Logf("ゴールデン画像を更新: %s", goldenPath)
 		return
 	}
 
@@ -143,7 +143,7 @@ func assertPNGGolden(t *testing.T, pngData []byte) {
 		goldie.WithEqualFn(pngPixelEqualFn(toleranceRatio)),
 		goldie.WithDiffFn(func(_, _ string) string {
 			return fmt.Sprintf(
-				"pixel diff exceeds tolerance: image %dx%d, tolerance %.2f%%",
+				"ピクセル差分が許容範囲を超えている（画像: %dx%d, トレランス: %.2f%%）",
 				cfg.Width, cfg.Height, toleranceRatio*100,
 			)
 		}),

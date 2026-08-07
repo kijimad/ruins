@@ -96,7 +96,7 @@ func TestLoadSpriteSheets(t *testing.T) {
 
 		sheets, err := LoadSpriteSheets(raws)
 
-		require.ErrorContains(t, err, "failed to load sprite sheet 'nonexistent'")
+		require.ErrorContains(t, err, "スプライトシート 'nonexistent' の読み込みに失敗")
 		assert.Nil(t, sheets)
 	})
 }
@@ -192,7 +192,7 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 		_, err := LoadSpriteSheetFromAseprite("file/textures/dist/nonexistent.json")
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to load JSON file")
+		assert.Contains(t, err.Error(), "JSONファイルの読み込みに失敗")
 	})
 
 	t.Run("不正なパスを指定するとエラー", func(t *testing.T) {

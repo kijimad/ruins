@@ -53,7 +53,7 @@ func NewSerializationManager(opts ...Option) (*SerializationManager, error) {
 func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error) {
 	worldJSON, err := serializeWorld(world)
 	if err != nil {
-		return "", fmt.Errorf("failed to serialize world: %w", err)
+		return "", fmt.Errorf("ワールドのシリアライズに失敗: %w", err)
 	}
 
 	env := saveEnvelope{
@@ -111,7 +111,7 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	// 復元を2回走らせるコストは、ロードがゲーム開始時の1回きりの操作なので許容する。
 	probe, err := w.InitWorld(&gc.Components{}, world.Config)
 	if err != nil {
-		return fmt.Errorf("failed to create probe world: %w", err)
+		return fmt.Errorf("検証用ワールドの生成に失敗: %w", err)
 	}
 	if err := restoreInto(probe, env.World); err != nil {
 		return err
@@ -217,10 +217,10 @@ func (sm *SerializationManager) ListAutoSaves() ([]string, error) {
 func (sm *SerializationManager) AutoSave(world w.World) error {
 	slotName := fmt.Sprintf("%s%d", autoSavePrefix, time.Now().UnixNano())
 	if err := sm.SaveWorld(world, slotName); err != nil {
-		return fmt.Errorf("failed to auto save: %w", err)
+		return fmt.Errorf("オートセーブに失敗: %w", err)
 	}
 	if err := sm.rotateAutoSaves(); err != nil {
-		return fmt.Errorf("failed to delete old auto save: %w", err)
+		return fmt.Errorf("古いオートセーブの削除に失敗: %w", err)
 	}
 	return nil
 }
@@ -267,11 +267,11 @@ func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, erro
 // validateChecksum はセーブデータのチェックサムを検証する
 func validateChecksum(env *saveEnvelope) error {
 	if env.Checksum == "" {
-		return fmt.Errorf("checksum field is missing: this save data is tampered or from an old version")
+		return fmt.Errorf("checksum field is missing: このセーブデータは改ざんされているか、古いバージョンです")
 	}
 	expected := checksumOf(env)
 	if env.Checksum != expected {
-		return fmt.Errorf("checksum mismatch: expected %s, got %s; data may be tampered",
+		return fmt.Errorf("checksum mismatch: expected %s, got %s (データが改ざんされている可能性があります)",
 			expected, env.Checksum)
 	}
 	return nil

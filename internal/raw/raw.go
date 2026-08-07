@@ -43,10 +43,10 @@ func LoadFromFile(path string) (oapi.Raws, error) {
 		return oapi.Raws{}, err
 	}
 	if err := ValidateRaws(raws); err != nil {
-		return oapi.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
+		return oapi.Raws{}, fmt.Errorf("ローデータの検証に失敗(%s): %w", path, err)
 	}
 	if err := ValidateReferences(raws); err != nil {
-		return oapi.Raws{}, fmt.Errorf("failed to validate raw data for %s: %w", path, err)
+		return oapi.Raws{}, fmt.Errorf("ローデータの検証に失敗(%s): %w", path, err)
 	}
 	return raws, nil
 }
@@ -67,7 +67,7 @@ func DecodeRaws(content string) (oapi.Raws, error) {
 
 // FindItem は指定された名前のアイテム定義を検索する
 func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {
-	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)
+	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)
 	if !ok {
 		return oapi.Item{}, NewKeyNotFoundError(name, "Items")
 	}
@@ -76,7 +76,7 @@ func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {
 
 // FindMember は指定された名前のメンバー定義を検索する
 func FindMember(raws oapi.Raws, name string) (oapi.Member, error) {
-	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)
+	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Name }, name)
 	if !ok {
 		return oapi.Member{}, NewKeyNotFoundError(name, "Members")
 	}
@@ -186,12 +186,12 @@ func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {
 // newBookFromAPI はoapi.Bookからgc.Bookを生成する
 func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 	if b.Skill == nil {
-		return nil, fmt.Errorf("book requires a Skill")
+		return nil, fmt.Errorf("BookにSkillの指定が必要です")
 	}
 
 	skillID := gc.SkillID(b.Skill.TargetSkill)
 	if !gc.HasSkillName(skillID) {
-		return nil, fmt.Errorf("undefined skill ID: %q", b.Skill.TargetSkill)
+		return nil, fmt.Errorf("未定義のスキルID: %q", b.Skill.TargetSkill)
 	}
 
 	return &gc.Book{
@@ -213,7 +213,6 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: item.Name}
-	entitySpec.RawID = &gc.RawID{Value: item.Id}
 	entitySpec.Description = &gc.Description{Description: item.Description}
 
 	// デフォルト値設定
@@ -306,7 +305,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if item.Weight != nil {
 		mg, err := consts.ParseWeight(*item.Weight)
 		if err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("item '%s' weight: %w", name, err)
+			return gc.EntitySpec{}, fmt.Errorf("アイテム '%s' の重量: %w", name, err)
 		}
 		entitySpec.Weight = &gc.Weight{Milligram: mg}
 	}
@@ -336,7 +335,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する
 func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
-	recipe, ok := findByKey(raws.Recipes, func(r oapi.Recipe) string { return r.Id }, name)
+	recipe, ok := findByKey(raws.Recipes, func(r oapi.Recipe) string { return r.Name }, name)
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "Recipes")
 	}
@@ -349,7 +348,7 @@ func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// 説明文や分類のため、マッチしたitemの定義から持ってくる
-	itemSpec, err := NewItemSpec(raws, recipe.Id)
+	itemSpec, err := NewItemSpec(raws, recipe.Name)
 	if err != nil {
 		return gc.EntitySpec{}, fmt.Errorf("%s: %w", "failed to generate item for recipe", err)
 	}
@@ -398,14 +397,13 @@ func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する
 func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
-	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)
+	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Name }, name)
 	if !ok {
-		return gc.EntitySpec{}, fmt.Errorf("key does not exist: %s", name)
+		return gc.EntitySpec{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: member.Name}
-	entitySpec.RawID = &gc.RawID{Value: member.Id}
 	entitySpec.TurnBased = &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
 	entitySpec.SpriteRender = &gc.SpriteRender{
 		SpriteSheetName: member.SpriteSheetName,
@@ -428,20 +426,20 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ
-	if member.CommandTableName != nil {
+	if member.CommandTableName != nil && *member.CommandTableName != "" {
 		ct, err := GetCommandTable(raws, *member.CommandTableName)
 		if err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("failed to get command table for member '%s': %w", name, err)
+			return gc.EntitySpec{}, fmt.Errorf("メンバー '%s' のコマンドテーブル取得に失敗: %w", name, err)
 		}
-		entitySpec.CommandTable = &gc.CommandTable{Name: ct.Id}
+		entitySpec.CommandTable = &gc.CommandTable{Name: ct.Name}
 	}
 
-	if member.DropTableName != nil {
+	if member.DropTableName != nil && *member.DropTableName != "" {
 		dt, err := GetDropTable(raws, *member.DropTableName)
 		if err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("failed to get drop table for member '%s': %w", name, err)
+			return gc.EntitySpec{}, fmt.Errorf("メンバー '%s' のドロップテーブル取得に失敗: %w", name, err)
 		}
-		entitySpec.DropTable = &gc.DropTable{Name: dt.Id}
+		entitySpec.DropTable = &gc.DropTable{Name: dt.Name}
 	}
 
 	entitySpec.LightSource = toGCLightSource(member.LightSource)
@@ -456,7 +454,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		case gc.FactionNeutralName:
 			entitySpec.FactionNeutral = &gc.FactionNeutral{}
 		default:
-			return gc.EntitySpec{}, fmt.Errorf("invalid faction type '%s': %s", *member.FactionType, name)
+			return gc.EntitySpec{}, fmt.Errorf("無効な派閥タイプ '%s' が指定されています: %s", *member.FactionType, name)
 		}
 	}
 
@@ -478,7 +476,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 				solo.CombatDefault = gc.CombatEvade
 				solo.CombatCurrent = gc.CombatEvade
 			default:
-				return gc.EntitySpec{}, fmt.Errorf("invalid combat policy '%s': %s", string(*member.CombatPolicy), name)
+				return gc.EntitySpec{}, fmt.Errorf("無効な戦闘ポリシー '%s': %s", string(*member.CombatPolicy), name)
 			}
 		}
 		if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
@@ -523,45 +521,45 @@ func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // GetCommandTable は指定された名前のコマンドテーブルを取得する
 func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {
-	ct, ok := findByKey(raws.CommandTables, func(c oapi.CommandTable) string { return c.Id }, name)
+	ct, ok := findByKey(raws.CommandTables, func(c oapi.CommandTable) string { return c.Name }, name)
 	if !ok {
-		return oapi.CommandTable{}, fmt.Errorf("key does not exist: %s", name)
+		return oapi.CommandTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
 	return ct, nil
 }
 
 // GetDropTable は指定された名前のドロップテーブルを取得する
 func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
-	dt, ok := findByKey(raws.DropTables, func(d oapi.DropTable) string { return d.Id }, name)
+	dt, ok := findByKey(raws.DropTables, func(d oapi.DropTable) string { return d.Name }, name)
 	if !ok {
-		return oapi.DropTable{}, fmt.Errorf("key does not exist: %s", name)
+		return oapi.DropTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
 	return dt, nil
 }
 
 // GetItemGroup は指定された名前のアイテムグループを取得する
 func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
-	ig, ok := findByKey(raws.ItemGroups, func(g oapi.ItemGroup) string { return g.Id }, name)
+	ig, ok := findByKey(raws.ItemGroups, func(g oapi.ItemGroup) string { return g.Name }, name)
 	if !ok {
-		return oapi.ItemGroup{}, fmt.Errorf("item group does not exist: %s", name)
+		return oapi.ItemGroup{}, fmt.Errorf("アイテムグループが存在しない: %s", name)
 	}
 	return ig, nil
 }
 
 // GetItemTable は指定された名前のアイテムテーブルを取得する
 func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {
-	it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Id }, name)
+	it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Name }, name)
 	if !ok {
-		return oapi.ItemTable{}, fmt.Errorf("key does not exist: %s", name)
+		return oapi.ItemTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
 	return it, nil
 }
 
 // GetEnemyTable は指定された名前の敵テーブルを取得する
 func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
-	et, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Id }, name)
+	et, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Name }, name)
 	if !ok {
-		return oapi.EnemyTable{}, fmt.Errorf("key does not exist: %s", name)
+		return oapi.EnemyTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
 	return et, nil
 }
@@ -586,7 +584,6 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: tileRaw.Name}
-	entitySpec.RawID = &gc.RawID{Value: tileRaw.Id}
 	entitySpec.Description = &gc.Description{Description: tileRaw.Description}
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 
@@ -618,7 +615,7 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 
 // GetProp は指定された名前の置物の設定を取得する
 func GetProp(raws oapi.Raws, name string) (oapi.Prop, error) {
-	prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name)
+	prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name)
 	if !ok {
 		return oapi.Prop{}, NewKeyNotFoundError(name, "Props")
 	}
@@ -635,7 +632,6 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Fixed = &gc.Fixed{}
 	entitySpec.Name = &gc.Name{Name: propRaw.Name}
-	entitySpec.RawID = &gc.RawID{Value: propRaw.Id}
 	entitySpec.Description = &gc.Description{Description: propRaw.Description}
 
 	// SpriteRenderの設定（AnimKeysを含む）
@@ -646,7 +642,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.SpriteRender = &spriteRender
 
 	if propRaw.BlockPass && propRaw.PassCost != nil {
-		return gc.EntitySpec{}, fmt.Errorf("prop '%s': blockPass and passCost cannot both be set; passCost is unnecessary when impassable", name)
+		return gc.EntitySpec{}, fmt.Errorf("prop '%s': blockPassとpassCostは同時に設定できません。通行不可ならpassCostは不要です", name)
 	}
 	if propRaw.BlockPass {
 		entitySpec.BlockPass = &gc.BlockPass{}
@@ -700,7 +696,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if propRaw.Storage != nil {
 		mg, err := consts.ParseWeight(propRaw.Storage.MaxWeight)
 		if err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("container '%s' max weight: %w", name, err)
+			return gc.EntitySpec{}, fmt.Errorf("収納 '%s' の最大重量: %w", name, err)
 		}
 		entitySpec.WeightCapacity = &gc.WeightCapacity{Max: mg}
 		interactions = append(interactions, gc.InteractionStorage)
@@ -719,10 +715,10 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // FindDisassembly は指定された名前の分解定義を返す。propとitemの両方を探す
 func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
-	if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Id }, name); ok && prop.Disassembly != nil {
+	if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name); ok && prop.Disassembly != nil {
 		return prop.Disassembly, true
 	}
-	if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name); ok && item.Disassembly != nil {
+	if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name); ok && item.Disassembly != nil {
 		return item.Disassembly, true
 	}
 	return nil, false
@@ -730,7 +726,7 @@ func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
 
 // FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す
 func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {
-	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)
+	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)
 	if !ok || item.DisassemblyTool == nil {
 		return nil, false
 	}

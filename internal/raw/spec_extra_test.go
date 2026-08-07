@@ -15,7 +15,6 @@ func TestNewItemSpec_複数のオプション要素が設定される(t *testing
 	str := `
 [[Items]]
 Name = "回復薬"
-id = "回復薬"
 Description = "傷薬"
 SpriteSheetName = "field"
 SpriteKey = "potion"
@@ -65,7 +64,6 @@ func TestNewItemSpec_回復が数値型で設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "包帯"
-id = "包帯"
 Description = "止血する"
 
 [Items.ProvidesHealing]
@@ -90,7 +88,6 @@ func TestNewItemSpec_弾薬が設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "9mm弾"
-id = "9mm弾"
 Description = "拳銃弾"
 
 [Items.Ammo]
@@ -116,7 +113,6 @@ func TestNewItemSpec_装備品と装備ボーナスが設定される(t *testing
 	str := `
 [[Items]]
 Name = "革靴"
-id = "革靴"
 Description = "軽い靴"
 
 [Items.Wearable]
@@ -148,7 +144,6 @@ func TestNewItemSpec_本が設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "探索の本"
-id = "探索の本"
 Description = "探索術が学べる"
 
 [Items.Book]
@@ -178,7 +173,6 @@ func TestNewItemSpec_本にスキル未指定はエラー(t *testing.T) {
 	str := `
 [[Items]]
 Name = "白紙の本"
-id = "白紙の本"
 Description = "何も書かれていない"
 
 [Items.Book]
@@ -189,7 +183,7 @@ TotalEffort = 10
 
 	_, err = NewItemSpec(raws, "白紙の本")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "requires a Skill")
+	assert.Contains(t, err.Error(), "Skillの指定が必要です")
 }
 
 func TestNewItemSpec_本に未定義スキルはエラー(t *testing.T) {
@@ -198,7 +192,6 @@ func TestNewItemSpec_本に未定義スキルはエラー(t *testing.T) {
 	str := `
 [[Items]]
 Name = "謎の本"
-id = "謎の本"
 Description = "未知のスキルを教える"
 
 [Items.Book]
@@ -214,7 +207,7 @@ TargetSkill = "unknown_skill"
 
 	_, err = NewItemSpec(raws, "謎の本")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "undefined skill ID")
+	assert.Contains(t, err.Error(), "未定義のスキルID")
 }
 
 func TestNewItemSpec_素材が設定される(t *testing.T) {
@@ -223,7 +216,6 @@ func TestNewItemSpec_素材が設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "鉄"
-id = "鉄"
 Description = "頑丈な金属"
 Material = true
 `
@@ -241,7 +233,6 @@ func TestNewItemSpec_不正な重量はエラー(t *testing.T) {
 	str := `
 [[Items]]
 Name = "不正な重量アイテム"
-id = "不正な重量アイテム"
 Description = "重量表記がおかしい"
 Weight = "abc"
 `
@@ -250,7 +241,7 @@ Weight = "abc"
 
 	_, err = NewItemSpec(raws, "不正な重量アイテム")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "'不正な重量アイテム' weight")
+	assert.Contains(t, err.Error(), "アイテム '不正な重量アイテム' の重量")
 }
 
 func TestNewRecipeSpec_レシピが設定される(t *testing.T) {
@@ -259,7 +250,6 @@ func TestNewRecipeSpec_レシピが設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "レイガン"
-id = "レイガン"
 Description = "光線を放つ武器"
 Value = 500
 
@@ -272,7 +262,6 @@ AttackCategory = "SWORD"
 
 [[Recipes]]
 Name = "レイガン"
-id = "レイガン"
 
 [[Recipes.Inputs]]
 Name = "鉄"
@@ -314,7 +303,6 @@ func TestNewRecipeSpec_対応アイテム無しはエラー(t *testing.T) {
 	str := `
 [[Recipes]]
 Name = "対応アイテムなしレシピ"
-id = "対応アイテムなしレシピ"
 
 [[Recipes.Inputs]]
 Name = "鉄"
@@ -334,7 +322,6 @@ func TestNewMemberSpec_不正な派閥はエラー(t *testing.T) {
 	str := `
 [[Members]]
 Name = "不正派閥"
-id = "不正派閥"
 FactionType = "FactionInvalid"
 [Members.Abilities]
 Vitality = 10
@@ -349,7 +336,7 @@ Defense = 2
 
 	_, err = NewMemberSpec(raws, "不正派閥")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid faction type")
+	assert.Contains(t, err.Error(), "無効な派閥タイプ")
 }
 
 func TestNewMemberSpec_不正な戦闘方針はエラー(t *testing.T) {
@@ -358,7 +345,6 @@ func TestNewMemberSpec_不正な戦闘方針はエラー(t *testing.T) {
 	str := `
 [[Members]]
 Name = "不正戦闘方針"
-id = "不正戦闘方針"
 CombatPolicy = "invalid_policy"
 [Members.Abilities]
 Vitality = 10
@@ -373,7 +359,7 @@ Defense = 2
 
 	_, err = NewMemberSpec(raws, "不正戦闘方針")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid combat policy")
+	assert.Contains(t, err.Error(), "無効な戦闘ポリシー")
 }
 
 func TestNewMemberSpec_光源が設定される(t *testing.T) {
@@ -382,7 +368,6 @@ func TestNewMemberSpec_光源が設定される(t *testing.T) {
 	str := `
 [[Members]]
 Name = "光る敵"
-id = "光る敵"
 [Members.Abilities]
 Vitality = 10
 Strength = 5
@@ -418,7 +403,6 @@ func TestNewMemberSpec_会話が設定される(t *testing.T) {
 	str := `
 [[Members]]
 Name = "話す村人"
-id = "話す村人"
 [Members.Abilities]
 Vitality = 10
 Strength = 5
@@ -479,7 +463,7 @@ func TestGetItemGroup_未存在はエラー(t *testing.T) {
 
 	_, err = GetItemGroup(raws, "存在しないグループ")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "item group does not exist")
+	assert.Contains(t, err.Error(), "アイテムグループが存在しない")
 }
 
 func TestGetProp_未存在はエラー(t *testing.T) {

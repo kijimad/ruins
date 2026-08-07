@@ -64,14 +64,14 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 			config := interaction.Config()
 
 			if err := config.ActivationRange.Valid(); err != nil {
-				logger.New(logger.CategoryAction).Warn("skipping interaction with invalid ActivationRange",
+				logger.New(logger.CategoryAction).Warn("無効なActivationRangeを持つ相互作用をスキップ",
 					"entity", interactableEntity,
 					"range", config.ActivationRange,
 					"error", err)
 				continue
 			}
 			if err := config.ActivationWay.Valid(); err != nil {
-				logger.New(logger.CategoryAction).Warn("skipping interaction with invalid ActivationWay",
+				logger.New(logger.CategoryAction).Warn("無効なActivationWayを持つ相互作用をスキップ",
 					"entity", interactableEntity,
 					"way", config.ActivationWay,
 					"error", err)

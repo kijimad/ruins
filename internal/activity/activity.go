@@ -62,7 +62,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 	case gc.BehaviorPortal, gc.BehaviorDoorLock, gc.BehaviorStorage:
 		// ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
 	}
-	return nil, fmt.Errorf("unregistered behavior: %s", name)
+	return nil, fmt.Errorf("未登録のBehavior: %s", name)
 }
 
 // Behavior はアクティビティの実行を担当するインターフェース。
@@ -132,7 +132,7 @@ func CanResume(comp *gc.Activity) bool {
 // Interrupt はアクティビティを中断する
 func Interrupt(comp *gc.Activity, reason string) error {
 	if !CanInterrupt(comp) {
-		return fmt.Errorf("activity '%s' cannot be paused", GetDisplayName(comp))
+		return fmt.Errorf("アクティビティ '%s' は中断できません", GetDisplayName(comp))
 	}
 	comp.State = gc.ActivityStatePaused
 	comp.CancelReason = reason
@@ -142,7 +142,7 @@ func Interrupt(comp *gc.Activity, reason string) error {
 // Resume はアクティビティを再開する
 func Resume(comp *gc.Activity) error {
 	if !CanResume(comp) {
-		return fmt.Errorf("activity '%s' cannot be resumed", GetDisplayName(comp))
+		return fmt.Errorf("アクティビティ '%s' は再開できません", GetDisplayName(comp))
 	}
 	comp.State = gc.ActivityStateRunning
 	comp.CancelReason = ""
@@ -197,7 +197,7 @@ func Cancel(comp *gc.Activity, reason string) {
 func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return consts.Coord[consts.Tile]{}, fmt.Errorf("destination is not set")
+		return consts.Coord[consts.Tile]{}, fmt.Errorf("目的地が指定されていません")
 	}
 	return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil
 }

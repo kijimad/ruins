@@ -19,19 +19,19 @@ const (
 func (t TimeOfDay) String() string {
 	switch t {
 	case TimeDawn:
-		return "Dawn"
+		return "夜明け"
 	case TimeMorning:
-		return "Morning"
+		return "朝"
 	case TimeDay:
-		return "Noon"
+		return "昼"
 	case TimeEvening:
-		return "Evening"
+		return "夕"
 	case TimeNight:
-		return "Night"
+		return "夜"
 	case TimeMidnight:
-		return "Midnight"
+		return "深夜"
 	default:
-		panic("invalid TimeOfDay value")
+		panic("不正なTimeOfDay値")
 	}
 }
 

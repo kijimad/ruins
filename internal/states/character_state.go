@@ -44,13 +44,13 @@ var characterTabs = []struct {
 	Kind  charTab
 	Label string
 }{
-	{charTabEquip, "Equipment"},
-	{charTabCommand, "Command"},
-	{charTabAbility, "Abilities"},
-	{charTabSkill, "Skills"},
-	{charTabEffect, "Effects"},
-	{charTabHealth, "Health"},
-	{charTabBasic, "Basic"},
+	{charTabEquip, "装備"},
+	{charTabCommand, "命令"},
+	{charTabAbility, "能力"},
+	{charTabSkill, "スキル"},
+	{charTabEffect, "効果"},
+	{charTabHealth, "健康"},
+	{charTabBasic, "基本"},
 }
 
 // charFirstInfoTab は情報タブが始まるタブ番号。編集タブの装備・命令の後に情報タブが並ぶ。
@@ -75,11 +75,11 @@ func charTabAt(index int) charTab {
 	return characterTabs[index].Kind
 }
 
-// characterTabLabels はタブの見出し一覧を現在言語で表示順に返す
-func characterTabLabels(world w.World) []string {
+// characterTabLabels はタブの見出し一覧を表示順で返す
+func characterTabLabels() []string {
 	labels := make([]string, len(characterTabs))
 	for i, t := range characterTabs {
-		labels[i] = query.T(world, t.Label)
+		labels[i] = t.Label
 	}
 	return labels
 }
@@ -156,7 +156,7 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
 	}
 }
 
@@ -203,19 +203,21 @@ func (st *CharacterState) unequipSlot(world w.World, slot equipItemData) error {
 	if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Member); err != nil {
 		return err
 	}
-	logEquipChange(world, slot.Member, itemName, query.T(world, "%s unequipped %s."))
+	logEquipChange(world, slot.Member, itemName, "を外した。")
 	return nil
 }
 
-// logEquipChange は装備の着脱をゲームログに出す。format は対象キャラ名とアイテム名を差し込む
-// "%s ... %s" 形式の翻訳済み書式。アイテム名はシアンを保つ
-func logEquipChange(world w.World, member ecs.Entity, itemName, format string) {
+// logEquipChange は装備の着脱をゲームログに出す。対象キャラ名とアイテム名を添える
+func logEquipChange(world w.World, member ecs.Entity, itemName, verb string) {
 	memberName := ""
 	if world.ECS.Alive(member) && world.Components.Name.Has(member) {
 		memberName = query.GetEntityName(member, world)
 	}
 	gamelog.New(query.GetGameLog(world)).
-		Markup(fmt.Sprintf(format, memberName, gamelog.Tag("item", itemName))).
+		Append(memberName).
+		Append(" は ").
+		ItemName(itemName).
+		Append(" " + verb).
 		Log()
 }
 
@@ -299,7 +301,7 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 			return entityDetailContent(world, *slot.Entity), true
 		}
 		// 空スロットは性能行を持たず、案内だけ出す。Rows を空で与え entity 解決を避ける
-		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: query.T(world, "Nothing equipped"), Rows: []menuscreen.SpecRow{}}, true
+		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: "何も装備していない", Rows: []menuscreen.SpecRow{}}, true
 	case charTabCommand:
 		return menuscreen.DetailContent{}, false
 	default:
@@ -353,12 +355,12 @@ type charEquipProps struct {
 type commandKind string
 
 const (
-	cmdMovement     commandKind = "Position"
-	cmdCombat       commandKind = "Combat"
-	cmdItemPickup   commandKind = "Pickup"
-	cmdItemHandling commandKind = "Handling"
-	cmdSupply       commandKind = "Supply"
-	cmdDismiss      commandKind = "Dismiss"
+	cmdMovement     commandKind = "位置"
+	cmdCombat       commandKind = "戦闘"
+	cmdItemPickup   commandKind = "回収"
+	cmdItemHandling commandKind = "処理"
+	cmdSupply       commandKind = "補給"
+	cmdDismiss      commandKind = "解雇"
 )
 
 // commandRow は命令タブの1行。種類と現在値を持つ。解雇の行は値を持たない
@@ -374,11 +376,11 @@ func fetchCommandRows(world w.World, target ecs.Entity) []commandRow {
 		return nil
 	}
 	return []commandRow{
-		{Kind: cmdMovement, Value: query.T(world, squad.Movement.String())},
-		{Kind: cmdCombat, Value: query.T(world, squad.CombatCurrent.String())},
-		{Kind: cmdItemPickup, Value: query.T(world, squad.ItemPickup.String())},
-		{Kind: cmdItemHandling, Value: query.T(world, squad.ItemHandling.String())},
-		{Kind: cmdSupply, Value: query.T(world, squad.Supply.String())},
+		{Kind: cmdMovement, Value: squad.Movement.String()},
+		{Kind: cmdCombat, Value: squad.CombatCurrent.String()},
+		{Kind: cmdItemPickup, Value: squad.ItemPickup.String()},
+		{Kind: cmdItemHandling, Value: squad.ItemHandling.String()},
+		{Kind: cmdSupply, Value: squad.Supply.String()},
 		{Kind: cmdDismiss},
 	}
 }
@@ -462,19 +464,18 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 	items := make([]equipItemData, 0, 12)
 
 	weapons := query.GetWeapons(world, player)
+	weaponLabels := []string{"武器1", "武器2", "武器3", "武器4", "武器5"}
 	weaponSlots := []gc.EquipmentSlotNumber{gc.SlotWeapon1, gc.SlotWeapon2, gc.SlotWeapon3, gc.SlotWeapon4, gc.SlotWeapon5}
 	for i, weapon := range weapons {
 		name := ""
 		if weapon != nil {
 			name = world.Components.Name.Get(*weapon).Name
 		}
-		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})
+		items = append(items, equipItemData{SlotLabel: weaponLabels[i], ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})
 	}
 
-	// armor・armorLabels・armorSlots は防具7スロットに対応する並行配列。
-	// GetArmorEquipments はスロット数ぶんの固定長スライスを返し、3者の長さは常に一致する
 	armor := query.GetArmorEquipments(world, player)
-	armorLabels := []string{query.T(world, "Armor (head)"), query.T(world, "Armor (torso)"), query.T(world, "Armor (arms)"), query.T(world, "Armor (hands)"), query.T(world, "Armor (legs)"), query.T(world, "Armor (feet)"), query.T(world, "Armor (jewelry)")}
+	armorLabels := []string{"防具(頭)", "防具(胴)", "防具(腕)", "防具(手)", "防具(脚)", "防具(足)", "防具(装飾)"}
 	armorSlots := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry}
 	for i, slot := range armor {
 		name := ""

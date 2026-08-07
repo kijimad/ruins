@@ -72,7 +72,7 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	// RawMasterのみを共有リソースから取得（一度だけ読み込む）
 	rawMasterOnce.Do(func() {
 		rw, err := loader.LoadRaws()
-		require.NoError(tb, err, "failed to load RawMaster")
+		require.NoError(tb, err, "RawMasterの読み込みに失敗しました")
 		rawMaster = rw
 	})
 	world.Resources.RawMaster = rawMaster

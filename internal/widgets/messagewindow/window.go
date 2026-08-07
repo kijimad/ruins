@@ -504,7 +504,7 @@ func (w *Window) DoAction(action inputmapper.ActionID) {
 	case inputmapper.ActionConfirm, inputmapper.ActionSkip:
 		w.Close()
 	default:
-		panic(fmt.Sprintf("invalid action: %s", action))
+		panic(fmt.Sprintf("不正なアクション: %s", action))
 	}
 }
 

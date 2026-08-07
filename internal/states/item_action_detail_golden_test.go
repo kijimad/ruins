@@ -23,7 +23,7 @@ func TestGolden_ItemActionDetail(t *testing.T) {
 	t.Parallel()
 
 	world := vrt.InitVRTWorld(t)
-	_, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3)
+	_, err := lifecycle.SpawnBackpackItem(world, "回復薬", 3)
 	require.NoError(t, err)
 
 	vrt.AssertScreenGolden(t, func() func(screen *ebiten.Image) {

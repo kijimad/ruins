@@ -43,9 +43,7 @@ func (st *PersistentMessageState) Update(_ w.World) (es.Transition[w.World], err
 	return st.ConsumeTransition(), nil
 }
 
-// OnResume はステートが再開される際に呼ばれる。
-// messageData は OnStart で build 済みなので再構築のみ行い build は呼ばない。
-// 表示中の言語切り替えには追従せず、切り替えるには OnStart から開き直す
+// OnResume はステートが再開される際に呼ばれる
 func (st *PersistentMessageState) OnResume(world w.World) error {
 	// メッセージウィンドウを強制的に再構築
 	if st.messageData != nil {

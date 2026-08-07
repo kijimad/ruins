@@ -9,7 +9,7 @@ func UseRef[T any](store *Store, key string, init func() T) T {
 	}
 	v, ok := store.refs[key].(T)
 	if !ok {
-		panic("hooks: reference type does not match registration: key=" + key)
+		panic("hooks: 参照の型が登録時と一致しません: key=" + key)
 	}
 	return v
 }

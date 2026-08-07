@@ -50,7 +50,7 @@ func ConsumeActionPoints(world w.World, entity ecs.Entity, cost int) bool {
 	tb.AP.Current -= cost
 
 	log := logger.New(logger.CategoryTurn)
-	log.Debug("action points consumed",
+	log.Debug("アクションポイント消費",
 		"entity", entity,
 		"cost", cost,
 		"remaining", tb.AP.Current)
@@ -84,7 +84,7 @@ func RestoreAllActionPoints(world w.World) error {
 		newAP := min(tb.AP.Current+speed, maxAP)
 		tb.AP.Current = newAP
 
-		log.Debug("action points restored",
+		log.Debug("アクションポイント回復",
 			"entity", entity,
 			"speed", speed,
 			"current", tb.AP.Current,
@@ -99,7 +99,7 @@ func RestoreAllActionPoints(world w.World) error {
 func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 	abils := world.Components.Abilities.Get(entity)
 	if abils == nil {
-		return 0, fmt.Errorf("abilities are not set")
+		return 0, fmt.Errorf("能力値が設定されていない")
 	}
 
 	baseAP := 100

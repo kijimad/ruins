@@ -133,7 +133,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	if failCount > maxItemPlacementAttempts {
-		log.Printf("ItemPlanner: reached max attempts placing items. placed: %d/%d", placed, total)
+		log.Printf("ItemPlanner: アイテム配置の試行回数が上限に達しました。配置数: %d/%d", placed, total)
 	}
 	return nil
 }
@@ -146,7 +146,7 @@ func resolveItemSource(source ItemSource, planData *MetaPlan) ([]resolvedItem, e
 	case ItemGroupDistribution:
 		return resolveDistribution(source.Entries, planData), nil
 	default:
-		return nil, fmt.Errorf("unknown ItemGroupSubtype: %s", source.Subtype)
+		return nil, fmt.Errorf("未知のItemGroupSubtype: %s", source.Subtype)
 	}
 }
 

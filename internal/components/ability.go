@@ -46,7 +46,7 @@ var abilityName = map[AbilityID]string{
 func AbilityName(id AbilityID) string {
 	name, ok := abilityName[id]
 	if !ok {
-		panic(fmt.Sprintf("undefined ability ID: %d", id))
+		panic(fmt.Sprintf("未定義の能力値ID: %d", id))
 	}
 	return name
 }

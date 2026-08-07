@@ -20,14 +20,14 @@ type relSpot struct {
 // 合成(怪しい科学者)を開く。小集落は無状態の補給地で、stash となる収納は置かない。
 // フィールドにアイテムを残さない方針のため、seed からの決定的再生成と整合する。
 var villageNPCs = []relSpot{
-	{"merchant", -2, -1},
-	{"tavern_keeper", -2, 1},
-	{"suspicious_scientist", -4, 0},
+	{"商人", -2, -1},
+	{"酒場の主人", -2, 1},
+	{"怪しい科学者", -4, 0},
 }
 
 // hamletNPCs は一軒家に配置する会話NPC。行商の拠点という位置づけで商人だけがいる。
 var hamletNPCs = []relSpot{
-	{"merchant", -2, -1},
+	{"商人", -2, -1},
 }
 
 // villageProps と hamletProps は集落の生活感を出す prop。NPC の座標と重ねない。
@@ -80,12 +80,12 @@ func spawnSettlement(world w.World, center consts.Coord[consts.Tile], village bo
 	for _, n := range npcs {
 		pos := consts.Coord[consts.Tile]{X: center.X + n.dx, Y: center.Y + n.dy}
 		if _, err := lifecycle.SpawnNeutralNPC(world, pos, n.name); err != nil {
-			return fmt.Errorf("failed to place settlement NPC (%s): %w", n.name, err)
+			return fmt.Errorf("集落NPCの配置に失敗 (%s): %w", n.name, err)
 		}
 	}
 	for _, p := range props {
 		if _, err := lifecycle.SpawnProp(world, p.name, center.X+p.dx, center.Y+p.dy); err != nil {
-			return fmt.Errorf("failed to place settlement prop (%s): %w", p.name, err)
+			return fmt.Errorf("集落propの配置に失敗 (%s): %w", p.name, err)
 		}
 	}
 	return nil

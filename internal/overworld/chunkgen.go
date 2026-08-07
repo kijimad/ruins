@@ -41,10 +41,10 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
 	return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error {
 		plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), planner)
 		if err != nil {
-			return fmt.Errorf("failed to generate chunk (x=%d, y=%d): %w", c.X, c.Y, err)
+			return fmt.Errorf("チャンク生成失敗 (x=%d, y=%d): %w", c.X, c.Y, err)
 		}
 		if _, err := mapspawner.SpawnAt(world, plan, offsetX, offsetY); err != nil {
-			return fmt.Errorf("failed to place chunk (x=%d, y=%d): %w", c.X, c.Y, err)
+			return fmt.Errorf("チャンク配置失敗 (x=%d, y=%d): %w", c.X, c.Y, err)
 		}
 		// 地形の上に地物の層を重ねる。小集落などの当選判定は (runSeed, 座標) の純関数
 		if err := PlaceFeatures(world, runSeed, c, rows, offsetX, offsetY, chunkW, chunkH); err != nil {

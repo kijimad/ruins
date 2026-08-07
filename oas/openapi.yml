@@ -1567,12 +1567,9 @@ components:
     CommandTable:
       type: object
       required:
-        - id
         - name
         - entries
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -1749,12 +1746,9 @@ components:
     DropTable:
       type: object
       required:
-        - id
         - name
         - entries
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -1800,12 +1794,9 @@ components:
     EnemyTable:
       type: object
       required:
-        - id
         - name
         - entries
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -2020,15 +2011,12 @@ components:
     Item:
       type: object
       required:
-        - id
         - name
         - description
         - spriteSheetName
         - spriteKey
         - value
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         description:
@@ -2085,13 +2073,10 @@ components:
     ItemGroup:
       type: object
       required:
-        - id
         - name
         - subtype
         - entries
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         subtype:
@@ -2156,12 +2141,9 @@ components:
     ItemTable:
       type: object
       required:
-        - id
         - name
         - entries
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -2275,15 +2257,12 @@ components:
     Member:
       type: object
       required:
-        - id
         - name
         - isBoss
         - abilities
         - spriteSheetName
         - spriteKey
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         player:
@@ -2508,15 +2487,12 @@ components:
     Prop:
       type: object
       required:
-        - id
         - name
         - description
         - spriteRender
         - blockPass
         - blockView
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         description:
@@ -2660,12 +2636,9 @@ components:
     Recipe:
       type: object
       required:
-        - id
         - name
         - inputs
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         inputs:
@@ -3913,7 +3886,6 @@ components:
     Tile:
       type: object
       required:
-        - id
         - name
         - description
         - blockPass
@@ -3923,8 +3895,6 @@ components:
         - water
         - foliage
       properties:
-        id:
-          $ref: '#/components/schemas/EntityName'
         name:
           $ref: '#/components/schemas/EntityName'
         description:

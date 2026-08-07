@@ -61,19 +61,19 @@ func (sp *squadPlanner) gatherSquadSnapshot(world w.World, entity ecs.Entity) (*
 
 	squadComp := world.Components.SquadAI.Get(entity)
 	if squadComp == nil {
-		sp.logger.Warn("member has no SquadAI", "entity", entity)
+		sp.logger.Warn("隊員にSquadAIがない", "entity", entity)
 		return nil, false
 	}
 
 	si := query.GetSpatialIndex(world)
 	if si == nil || si.PlayerEntity == nil {
-		sp.logger.Warn("player not found", "entity", entity)
+		sp.logger.Warn("プレイヤーが見つからない", "entity", entity)
 		return nil, false
 	}
 	leader := *si.PlayerEntity
 
 	if !world.Components.GridElement.Has(leader) {
-		sp.logger.Warn("leader has no GridElement", "entity", entity)
+		sp.logger.Warn("リーダーにGridElementがない", "entity", entity)
 		return nil, false
 	}
 
@@ -133,7 +133,7 @@ func (sp *squadPlanner) shouldRetreatLowHP(world w.World, entity ecs.Entity) boo
 
 // planRetreatAction はリーダーに向かって後退するアクションを計画する
 func (sp *squadPlanner) planRetreatAction(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {
-	sp.logger.Debug("member HP low, retreating", "entity", entity)
+	sp.logger.Debug("隊員HP低下、後退", "entity", entity)
 	return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)
 }
 
@@ -148,7 +148,7 @@ func (sp *squadPlanner) isOutsideExploredArea(world w.World, grid *gc.GridElemen
 
 // planReturnToExploredArea は最寄りの探索済みマスへ移動するアクションを計画する
 func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entity, snap *squadSnapshot) (*gc.Activity, bool) {
-	sp.logger.Debug("member out of area, heading to leader", "entity", entity)
+	sp.logger.Debug("隊員がエリア外、リーダーに向かう", "entity", entity)
 	return sp.tryMoveToward(world, entity, snap.Grid, snap.LeaderGrid)
 }
 
@@ -282,13 +282,13 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, s
 	}
 
 	if hasPickableHere {
-		sp.logger.Debug("member picked up item", "entity", entity, "x", snap.Grid.X, "y", snap.Grid.Y)
+		sp.logger.Debug("隊員アイテム拾得", "entity", entity, "x", snap.Grid.X, "y", snap.Grid.Y)
 		dest := *snap.Grid
 		return activity.NewPickupTileActivity(world, dest.Coord), true
 	}
 
 	if nearestItemGrid != nil {
-		sp.logger.Debug("member moving to item", "entity", entity, "dist", nearestDist)
+		sp.logger.Debug("隊員アイテムへ移動", "entity", entity, "dist", nearestDist)
 		return sp.tryMoveToward(world, entity, snap.Grid, nearestItemGrid)
 	}
 
@@ -315,7 +315,7 @@ func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, snap 
 
 	// 自分の背嚢から食べる。栄養価の低いものを先に消費して高価値食料を温存する
 	if food, ok := findLowestNutritionFood(world, entity); ok {
-		sp.logger.Debug("member eats", "entity", entity)
+		sp.logger.Debug("隊員が食事する", "entity", entity)
 		return activity.NewUseItemActivity(food), true
 	}
 
@@ -323,11 +323,11 @@ func (sp *squadPlanner) planSupplyAction(world w.World, entity ecs.Entity, snap 
 	poolFood, ok := findLowestNutritionFood(world, snap.LeaderEntity)
 	if !ok {
 		// プール枯渇。受け取れず空腹が進む。食料確保はプレイヤーの兵站判断に残す
-		sp.logger.Debug("squad food exhausted", "entity", entity)
+		sp.logger.Debug("隊の食料が尽きている", "entity", entity)
 		return nil, false
 	}
 	if gridDistance(snap.Grid, snap.LeaderGrid) <= 1 {
-		sp.logger.Debug("member receives food", "entity", entity)
+		sp.logger.Debug("隊員が食料を受け取る", "entity", entity)
 		// 1食ぶんだけ引く。丸ごと受け取ると共有プールが一気に空になり、他の隊員が飢える
 		return activity.NewTransferActivity(poolFood, entity, 1), true
 	}
@@ -385,7 +385,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 		return nil, false
 	}
 
-	sp.logger.Debug("member transfers item", "entity", entity, "item", *itemToTransfer)
+	sp.logger.Debug("隊員アイテム転送", "entity", entity, "item", *itemToTransfer)
 	// 拾った物はスタックごとリーダーへ渡す。在庫数を指定してまとめて転送する
 	count := query.GetEntityCount(world, *itemToTransfer)
 	return activity.NewTransferActivity(*itemToTransfer, snap.LeaderEntity, count), true

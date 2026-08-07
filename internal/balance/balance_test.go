@@ -37,7 +37,7 @@ func TestLoadCombatantFromMember(t *testing.T) {
 
 	t.Run("プレイヤーのステータスを読み込める", func(t *testing.T) {
 		t.Parallel()
-		stats, err := LoadCombatantFromMember(master, "ash")
+		stats, err := LoadCombatantFromMember(master, "Ash")
 		require.NoError(t, err)
 		// HP = 30 + 5*8 + 5 + 5 = 80
 		assert.Equal(t, 80, stats.HP)
@@ -48,7 +48,7 @@ func TestLoadCombatantFromMember(t *testing.T) {
 
 	t.Run("敵のステータスを読み込める", func(t *testing.T) {
 		t.Parallel()
-		stats, err := LoadCombatantFromMember(master, "slime")
+		stats, err := LoadCombatantFromMember(master, "スライム")
 		require.NoError(t, err)
 		// HP = 30 + 1*8 + 2 + 2 = 42
 		assert.Equal(t, 42, stats.HP)
@@ -60,17 +60,17 @@ func TestBattle_Depth1_Slime(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	player, err := LoadCombatantFromMember(master, "ash")
+	player, err := LoadCombatantFromMember(master, "Ash")
 	require.NoError(t, err)
 
-	enemy, err := LoadCombatantFromMember(master, "slime")
+	enemy, err := LoadCombatantFromMember(master, "スライム")
 	require.NoError(t, err)
 
 	// 素手で戦闘
-	playerWeapon, err := LoadWeaponFromItem(master, "bare_hands")
+	playerWeapon, err := LoadWeaponFromItem(master, "素手")
 	require.NoError(t, err)
 
-	enemyWeapon, err := LoadEnemyWeapon(master, "slime")
+	enemyWeapon, err := LoadEnemyWeapon(master, "スライム")
 	require.NoError(t, err)
 
 	rng := rand.New(rand.NewPCG(42, 0))
@@ -85,14 +85,14 @@ func TestRunSimulation_Basic(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	player, err := LoadCombatantFromMember(master, "ash")
+	player, err := LoadCombatantFromMember(master, "Ash")
 	require.NoError(t, err)
 
-	playerWeapon, err := LoadWeaponFromItem(master, "bare_hands")
+	playerWeapon, err := LoadWeaponFromItem(master, "素手")
 	require.NoError(t, err)
 
 	rng := rand.New(rand.NewPCG(42, 0))
-	result := SimulateRun(master, "ruins_area", player, playerWeapon, 5, rng)
+	result := SimulateRun(master, "廃墟", player, playerWeapon, 5, rng)
 
 	// シード固定のため結果は決定論的。素手でも最低1階層には到達する
 	assert.GreaterOrEqual(t, result.ReachedDepth, 1)
@@ -103,13 +103,13 @@ func TestRunSimulations_Stats(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	player, err := LoadCombatantFromMember(master, "ash")
+	player, err := LoadCombatantFromMember(master, "Ash")
 	require.NoError(t, err)
 
-	playerWeapon, err := LoadWeaponFromItem(master, "bare_hands")
+	playerWeapon, err := LoadWeaponFromItem(master, "素手")
 	require.NoError(t, err)
 
-	stats := RunSimulations(master, "ruins_area", player, playerWeapon, 10, 100, 42)
+	stats := RunSimulations(master, "廃墟", player, playerWeapon, 10, 100, 42)
 
 	// 基本的な統計が取れることの確認
 	assert.Positive(t, stats.MedianDepth())
@@ -130,7 +130,7 @@ func TestLoadWeaponFromItem(t *testing.T) {
 
 	t.Run("近接武器を読み込める", func(t *testing.T) {
 		t.Parallel()
-		ws, err := LoadWeaponFromItem(master, "bare_hands")
+		ws, err := LoadWeaponFromItem(master, "素手")
 		require.NoError(t, err)
 		assert.False(t, ws.IsRanged)
 	})
@@ -139,7 +139,7 @@ func TestLoadWeaponFromItem(t *testing.T) {
 		t.Parallel()
 		_, err := LoadWeaponFromItem(master, "存在しない武器")
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to load")
+		assert.Contains(t, err.Error(), "ロードに失敗")
 	})
 }
 
@@ -149,7 +149,7 @@ func TestLoadEnemyWeapon(t *testing.T) {
 
 	t.Run("スライムの武器を読み込める", func(t *testing.T) {
 		t.Parallel()
-		ws, err := LoadEnemyWeapon(master, "slime")
+		ws, err := LoadEnemyWeapon(master, "スライム")
 		require.NoError(t, err)
 		assert.GreaterOrEqual(t, ws.Damage, 0)
 	})
@@ -169,7 +169,7 @@ func TestLoadCombatantFromMember_Errors(t *testing.T) {
 		t.Parallel()
 		_, err := LoadCombatantFromMember(master, "存在しないメンバー")
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to load")
+		assert.Contains(t, err.Error(), "ロードに失敗")
 	})
 }
 

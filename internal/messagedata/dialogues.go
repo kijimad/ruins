@@ -1,32 +1,41 @@
 package messagedata
 
-import (
-	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/query"
-)
-
-// DialogueTable は会話データのテーブル。表示文字列は query.T で現在言語へ引く
-var DialogueTable = map[string]func(world w.World, speakerName string) *MessageData{
-	"tavern_keeper_greeting": func(world w.World, speakerName string) *MessageData {
+// DialogueTable は会話データのテーブル
+var DialogueTable = map[string]func(speakerName string) *MessageData{
+	"tavern_keeper_greeting": func(speakerName string) *MessageData {
 		return NewDialogMessage("", speakerName).
-			AddText(query.T(world, "We've got some capable folks here.\n\nWant to hire a squad member?"))
+			AddText("うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?")
 	},
-	"old_soldier_greeting": func(world w.World, speakerName string) *MessageData {
-		// 会話は1ページ=1文字列。強調語は <keyword> で囲む。断片を連結せず語順ごと訳せる
+	"old_soldier_greeting": func(speakerName string) *MessageData {
+		// 1ページ目
 		msg1 := NewDialogMessage("", speakerName).
-			AddMarkup(query.T(world, "\"You, <keyword>ruins</keyword> of the <keyword>delver</keyword>..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\""))
+			AddText("「あんた、").
+			AddKeyword("遺跡").
+			AddText("の").
+			AddKeyword("潜り").
+			AddText(`だろ?
 
+外からこの街に来る異様に若い連中はみんなそうさ。
+向こう見ずで破滅的で、...
+
+どうしようもない事情を持ってる。」`)
+
+		// 2ページ目
 		msg2 := NewDialogMessage("", speakerName).
-			AddMarkup(query.T(world, "\"You... I see, so your mother was <keyword>Hollow</keyword>..., huh.\n\nWhat an irredeemable world.\""))
+			AddText("「あんたは...、そうか、母親が").
+			AddKeyword("虚ろ").
+			AddText(`か、...。
+
+救えない世の中だな。」`)
 
 		return ChainMessages(msg1, msg2)
 	},
 }
 
 // GetDialogue は指定されたキーに対応する会話データを取得する
-func GetDialogue(world w.World, key string, speakerName string) *MessageData {
+func GetDialogue(key string, speakerName string) *MessageData {
 	if dialogueFunc, ok := DialogueTable[key]; ok {
-		return dialogueFunc(world, speakerName)
+		return dialogueFunc(speakerName)
 	}
 	// デフォルトメッセージ
 	return NewDialogMessage("...", speakerName)

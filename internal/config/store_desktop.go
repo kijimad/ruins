@@ -21,7 +21,7 @@ const userConfigFileName = "settings.toml"
 func userConfigPath() (string, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {
-		return "", fmt.Errorf("failed to get config directory: %w", err)
+		return "", fmt.Errorf("設定ディレクトリの取得に失敗しました: %w", err)
 	}
 	return filepath.Join(dir, userConfigDirName, userConfigFileName), nil
 }
@@ -42,7 +42,7 @@ func readSettingsFrom(path string) ([]byte, bool, error) {
 		return nil, false, nil
 	}
 	if err != nil {
-		return nil, false, fmt.Errorf("failed to read config file: %w", err)
+		return nil, false, fmt.Errorf("設定ファイルの読み込みに失敗しました: %w", err)
 	}
 	return data, true, nil
 }
@@ -60,15 +60,15 @@ func writeSettings(data []byte) error {
 // 書き込み途中のクラッシュによる破損を防ぐ。パスを引数に取ることでテストできる。
 func writeSettingsTo(path string, data []byte) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return fmt.Errorf("failed to create config directory: %w", err)
+		return fmt.Errorf("設定ディレクトリの作成に失敗しました: %w", err)
 	}
 	tmp := path + ".tmp"
 	if err := os.WriteFile(tmp, data, 0o644); err != nil {
-		return fmt.Errorf("failed to write config file: %w", err)
+		return fmt.Errorf("設定ファイルの書き込みに失敗しました: %w", err)
 	}
 	if err := os.Rename(tmp, path); err != nil {
 		_ = os.Remove(tmp)
-		return fmt.Errorf("failed to replace config file: %w", err)
+		return fmt.Errorf("設定ファイルの置き換えに失敗しました: %w", err)
 	}
 	return nil
 }
@@ -91,5 +91,5 @@ func settingsExistAt(path string) (bool, error) {
 	if errors.Is(err, os.ErrNotExist) {
 		return false, nil
 	}
-	return false, fmt.Errorf("failed to check config file existence: %w", err)
+	return false, fmt.Errorf("設定ファイルの存在確認に失敗しました: %w", err)
 }

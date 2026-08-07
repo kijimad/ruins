@@ -25,7 +25,7 @@ func TestDefaultConfig_主要フィールドの初期値を検証(t *testing.T) 
 	assert.Equal(t, 24, cfg.TextStyle.LineHeight)
 
 	assert.True(t, cfg.ActionStyle.ShowCloseButton)
-	assert.Equal(t, "Close [Enter/Escape]", cfg.ActionStyle.CloseButtonText)
+	assert.Equal(t, "閉じる [Enter/Escape]", cfg.ActionStyle.CloseButtonText)
 	assert.Equal(t, theme.WindowActionBg, cfg.ActionStyle.ActionAreaColor)
 	assert.Equal(t, theme.WindowActionText, cfg.ActionStyle.ActionTextColor)
 

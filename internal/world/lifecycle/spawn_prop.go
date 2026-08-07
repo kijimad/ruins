@@ -15,7 +15,7 @@ import (
 // OpenDoor は扉を開く
 func OpenDoor(world w.World, doorEntity ecs.Entity) error {
 	if !world.Components.Door.Has(doorEntity) {
-		return fmt.Errorf("entity is not a door")
+		return fmt.Errorf("エンティティは扉ではありません")
 	}
 
 	doorComp := world.Components.Door.Get(doorEntity)
@@ -25,7 +25,7 @@ func OpenDoor(world w.World, doorEntity ecs.Entity) error {
 // CloseDoor は扉を閉じる
 func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 	if !world.Components.Door.Has(doorEntity) {
-		return fmt.Errorf("entity is not a door")
+		return fmt.Errorf("エンティティは扉ではありません")
 	}
 
 	doorComp := world.Components.Door.Get(doorEntity)
@@ -153,8 +153,8 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
 	if err != nil {
 		return gc.InvalidEntity, err
 	}
-	entitySpec.Name = &gc.Name{Name: query.T(world, "Ruins Entrance")}
-	entitySpec.Description = &gc.Description{Description: query.T(world, "An entrance leading to ruins")}
+	entitySpec.Name = &gc.Name{Name: "遺跡入口"}
+	entitySpec.Description = &gc.Description{Description: "遺跡へ通じる入口"}
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 	entitySpec.LocationOnField = &gc.LocationOnField{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDungeonEnter}}
@@ -177,8 +177,8 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 	}
 
 	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
-		Name:        &gc.Name{Name: query.T(world, "Door")},
-		Description: &gc.Description{Description: query.T(world, "An openable door")},
+		Name:        &gc.Name{Name: "扉"},
+		Description: &gc.Description{Description: "開閉できる扉"},
 		GridElement: &gc.GridElement{Coord: pos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
@@ -202,8 +202,8 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 // 歩き込むと通行でなく押しになる。オーバーワールドの地物として帯へ明示束縛する。
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
 	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
-		Name:        &gc.Name{Name: query.T(world, "Cube")},
-		Description: &gc.Description{Description: query.T(world, "A mobile base you can push")},
+		Name:        &gc.Name{Name: "キューブ"},
+		Description: &gc.Description{Description: "押して動かせる移動拠点"},
 		GridElement: &gc.GridElement{Coord: pos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,

@@ -12,7 +12,7 @@ import (
 func AddCurrency(world w.World, entity ecs.Entity, amount int) error {
 	wallet := world.Components.Wallet.Get(entity)
 	if wallet == nil {
-		return fmt.Errorf("entity has no Wallet component")
+		return fmt.Errorf("エンティティにWalletコンポーネントがありません")
 	}
 	wallet.Currency += amount
 	return nil

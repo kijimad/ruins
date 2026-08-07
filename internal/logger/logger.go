@@ -124,6 +124,6 @@ func (l *Logger) log(level Level, msg string, keysAndValues ...any) {
 	// JSON形式で出力
 	encoder := json.NewEncoder(os.Stdout)
 	if err := encoder.Encode(entry); err != nil {
-		fmt.Fprintf(os.Stderr, "log output error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "ログ出力エラー: %v\n", err)
 	}
 }

@@ -44,10 +44,10 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menur
 
 	return newTabScreenUI(res, tabScreen{
 		Header:    header,
-		TabLabels: characterTabLabels(world),
+		TabLabels: characterTabLabels(),
 		TabIndex:  cursor.TabIndex,
 		Content:   content,
-		Footer:    menuNavHint(world, true, extras...),
+		Footer:    menuNavHint(true, extras...),
 	})
 }
 
@@ -68,7 +68,7 @@ func buildCommandTable(world w.World, cmdRows []commandRow, itemIndex int, res r
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
 	rows := make([]menuRow, len(cmdRows))
 	for i, row := range cmdRows {
-		rows[i] = menuRow{Cells: []string{query.T(world, string(row.Kind)), row.Value}}
+		rows[i] = menuRow{Cells: []string{string(row.Kind), row.Value}}
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No formation orders")}, res)
 }

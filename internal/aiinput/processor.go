@@ -92,10 +92,10 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 func cullDistantSolo(world w.World, targets []ecs.Entity) ([]ecs.Entity, error) {
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
-		return nil, fmt.Errorf("culling requires a player: %w", err)
+		return nil, fmt.Errorf("カリングにはプレイヤーが必要: %w", err)
 	}
 	if !world.Components.GridElement.Has(playerEntity) {
-		return nil, fmt.Errorf("player has no position")
+		return nil, fmt.Errorf("プレイヤーに位置情報がありません")
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 

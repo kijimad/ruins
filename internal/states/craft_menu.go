@@ -105,8 +105,7 @@ type craftTabData struct {
 }
 
 type craftItemData struct {
-	RecipeID   string // 合成の同定キー。NewRecipeSpec/CanCraft/Craft はこれで引く
-	RecipeName string // 表示名
+	RecipeName string
 	CanCraft   bool
 }
 
@@ -134,18 +133,13 @@ func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
 	}
 }
 
-func (st *CraftMenuState) createMenuItems(world w.World, recipeIDs []string) []craftItemData {
-	items := make([]craftItemData, len(recipeIDs))
+func (st *CraftMenuState) createMenuItems(world w.World, recipeNames []string) []craftItemData {
+	items := make([]craftItemData, len(recipeNames))
 
-	for i, recipeID := range recipeIDs {
-		canCraft, _ := gameaction.CanCraft(world, recipeID)
-		name := recipeID
-		if spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipeID); err == nil {
-			name = spec.Name.Name
-		}
+	for i, recipeName := range recipeNames {
+		canCraft, _ := gameaction.CanCraft(world, recipeName)
 		items[i] = craftItemData{
-			RecipeID:   recipeID,
-			RecipeName: name,
+			RecipeName: recipeName,
 			CanCraft:   canCraft,
 		}
 	}
@@ -157,12 +151,12 @@ func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
 	var items []string
 
 	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
 		if err != nil {
 			continue
 		}
 		if spec.Consumable != nil {
-			items = append(items, recipe.Id)
+			items = append(items, recipe.Name)
 		}
 	}
 
@@ -174,13 +168,13 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
 	var items []string
 
 	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
 		if err != nil {
 			continue
 		}
 		// TODO: カテゴリ定義で判定したい
 		if spec.Melee != nil || spec.Fire != nil {
-			items = append(items, recipe.Id)
+			items = append(items, recipe.Name)
 		}
 	}
 
@@ -192,12 +186,12 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 	var items []string
 
 	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
 		if err != nil {
 			continue
 		}
 		if spec.Wearable != nil {
-			items = append(items, recipe.Id)
+			items = append(items, recipe.Name)
 		}
 	}
 
@@ -216,7 +210,7 @@ func (st *CraftMenuState) craftSelected(world w.World) error {
 	if !ok || !item.CanCraft {
 		return nil
 	}
-	resultEntity, err := gameaction.Craft(world, item.RecipeID)
+	resultEntity, err := gameaction.Craft(world, item.RecipeName)
 	if err != nil {
 		return fmt.Errorf("failed to craft: %w", err)
 	}
@@ -262,7 +256,7 @@ func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menurt.Se
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
+		Footer:    menuNavHint(true, query.T(world, "x Details")),
 	})
 }
 
@@ -289,10 +283,10 @@ func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData,
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
 func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
 	item, ok := st.selectedRecipe()
-	if !ok || item.RecipeID == "" {
+	if !ok || item.RecipeName == "" {
 		return menuscreen.DetailContent{}, false
 	}
-	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeID)
+	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeName)
 	if err != nil {
 		return menuscreen.DetailContent{}, false
 	}
@@ -311,12 +305,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 			if owned >= in.Amount {
 				rowColor = theme.StatusSuccess
 			}
-			// in.Name は材料の同定キー。表示は材料の表示名へ解決する
-			label := in.Name
-			if mat, err := raw.FindItem(world.Resources.RawMaster, in.Name); err == nil {
-				label = mat.Name
-			}
-			rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
+			rows = append(rows, menuscreen.SpecRow{Label: in.Name, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
 	rows = append(rows, views.SpecRowsFromSpec(world, spec)...)

@@ -416,36 +416,36 @@ type PlannerType struct {
 var (
 	// PlannerTypeRandom はランダム選択用のプランナータイプ
 	PlannerTypeRandom = PlannerType{
-		Name: "Random",
+		Name: "ランダム",
 	}
 
 	// PlannerTypeSmallRoom は小部屋ダンジョンのプランナータイプ
 	PlannerTypeSmallRoom = PlannerType{
-		Name:        "Small Room",
+		Name:        "小部屋",
 		PlannerFunc: NewSmallRoomPlanner,
 	}
 
 	// PlannerTypeBigRoom は大部屋ダンジョンのプランナータイプ
 	PlannerTypeBigRoom = PlannerType{
-		Name:        "Big Room",
+		Name:        "大部屋",
 		PlannerFunc: NewBigRoomPlanner,
 	}
 
 	// PlannerTypeCave は洞窟ダンジョンのプランナータイプ
 	PlannerTypeCave = PlannerType{
-		Name:        "Cave",
+		Name:        "洞窟",
 		PlannerFunc: NewCavePlanner,
 	}
 
 	// PlannerTypeRuins は廃墟ダンジョンのプランナータイプ
 	PlannerTypeRuins = PlannerType{
-		Name:        "Ruins",
+		Name:        "廃墟",
 		PlannerFunc: NewRuinsPlanner,
 	}
 
 	// PlannerTypeForest は森ダンジョンのプランナータイプ
 	PlannerTypeForest = PlannerType{
-		Name:        "Forest",
+		Name:        "森",
 		PlannerFunc: NewForestPlanner,
 	}
 
@@ -454,14 +454,14 @@ var (
 	// UseFixedPortalPos=true はフロア降り/帰還ポータルを持たないため、
 	// 手続き的なポータル配置をスキップさせる意味で使う。
 	PlannerTypeOverworldField = PlannerType{
-		Name:              "Overworld Field",
+		Name:              "原野",
 		UseFixedPortalPos: true,
 		PlannerFunc:       NewOverworldFieldPlanner,
 	}
 
 	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
 	PlannerTypeOfficeBuilding = PlannerType{
-		Name:              "Office Building",
+		Name:              "事務所ビル",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)
@@ -470,7 +470,7 @@ var (
 
 	// PlannerTypeSmallTown は小さな町（複数の建物を配置）
 	PlannerTypeSmallTown = PlannerType{
-		Name:              "Small Town",
+		Name:              "小さな町",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)
@@ -479,7 +479,7 @@ var (
 
 	// PlannerTypeTownPlaza は町の広場
 	PlannerTypeTownPlaza = PlannerType{
-		Name:              "Town Plaza",
+		Name:              "広場",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
@@ -488,7 +488,7 @@ var (
 
 	// PlannerTypeBossFloor はボスフロアのプランナータイプ
 	PlannerTypeBossFloor = PlannerType{
-		Name:              "Boss Floor",
+		Name:              "ボスフロア",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeBossFloor, seed)
@@ -500,7 +500,7 @@ var (
 	// 到達性検証はポータルを要求せず通る。移動拠点キューブ専用の内部で、手続きダンジョンの
 	// ランダム選択セットではないため AllPlannerTypes には入れない。
 	PlannerTypeCubeInterior = PlannerType{
-		Name:              "Cube interior",
+		Name:              "キューブ内部",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeCubeInteriorInitial, seed)
@@ -511,7 +511,7 @@ var (
 	// 狭い部屋なので入ってすぐデバッグ物へ触れられる。敵の抑止は敵テーブルの無い DungeonDebugTown 側で
 	// 行うため、ここに特別扱いは要らない。UseFixedPortalPos で手続き的なポータル配置はしない
 	PlannerTypeDebugTown = PlannerType{
-		Name:              "Debug Town",
+		Name:              "デバッグ街",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeDebugTown, seed)
@@ -581,7 +581,7 @@ func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
 
 	chain, err := selectedType.PlannerFunc(width, height, seed)
 	if err != nil {
-		return nil, fmt.Errorf("random planner selection error: %w", err)
+		return nil, fmt.Errorf("ランダムプランナー選択エラー: %w", err)
 	}
 	return chain, nil
 }
@@ -670,11 +670,11 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 // TODO: エラーを潰しているだけなので直す
 func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 	if bm.RawMaster == nil {
-		panic("RawMaster is not set; tile generation from TOML is required")
+		panic("RawMasterが設定されていない。TOMLからのタイル生成が必須である")
 	}
 	tile, err := raw.GetTile(*bm.RawMaster, name)
 	if err != nil {
-		panic(fmt.Sprintf("tile generation error: %v", err))
+		panic(fmt.Sprintf("タイル生成エラー: %v", err))
 	}
 	return tile
 }

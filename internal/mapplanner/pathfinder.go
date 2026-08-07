@@ -169,7 +169,7 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[consts.Tile], erro
 		}
 	}
 
-	return consts.Coord[consts.Tile]{}, fmt.Errorf("no walkable tile that can reach a portal found")
+	return consts.Coord[consts.Tile]{}, fmt.Errorf("ポータルに到達可能な歩行可能タイルが見つかりません")
 }
 
 // isValidSpawnPosition は指定位置がスポーン可能かつ十分な広さに到達可能かを判定する
@@ -212,13 +212,13 @@ func (pf *PathFinder) ValidatePortalReachability() error {
 	// プレイヤー開始位置を取得
 	playerPos, err := pf.FindPlayerStartPosition()
 	if err != nil {
-		return fmt.Errorf("%w: player start position is not set", ErrConnectivity)
+		return fmt.Errorf("%w: プレイヤー開始位置が設定されていません", ErrConnectivity)
 	}
 
 	// NextPortalsの到達性をチェック
 	for i, portal := range pf.planData.NextPortals {
 		if !pf.IsReachable(playerPos, portal) {
-			return fmt.Errorf("%w: player start (%d,%d) cannot reach NextPortal[%d](%d,%d)",
+			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からNextPortal[%d](%d,%d)への到達不可",
 				ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)
 		}
 	}

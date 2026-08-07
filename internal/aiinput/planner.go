@@ -28,7 +28,7 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 
 	for executed < maxActivitiesPerTurn {
 		if world.Components.Dead.Has(entity) {
-			log.Debug("entity is dead, aborting", "entity", entity)
+			log.Debug("エンティティが死亡したため処理中断", "entity", entity)
 			break
 		}
 
@@ -39,23 +39,23 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 
 		b, err := activity.GetBehavior(comp.BehaviorName)
 		if err != nil {
-			log.Warn("failed to get behavior", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
+			log.Warn("Behavior取得失敗", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
 			break
 		}
 		actionCost := b.Info().ActionPointCost
 		tbComp := world.Components.TurnBased.Get(entity)
 		if tbComp == nil || tbComp.AP.Current < actionCost {
-			log.Debug("insufficient AP", "entity", entity, "activity", comp.BehaviorName, "cost", actionCost)
+			log.Debug("AP不足", "entity", entity, "activity", comp.BehaviorName, "cost", actionCost)
 			break
 		}
 
 		result, err := activity.Execute(comp, entity, world)
 		if err != nil {
-			log.Warn("failed to execute action", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
+			log.Warn("アクション実行失敗", "entity", entity, "activity", comp.BehaviorName, "error", err.Error())
 			break
 		}
 
-		log.Debug("action executed", "entity", entity, "activity", comp.BehaviorName, "success", result.Success)
+		log.Debug("アクション実行", "entity", entity, "activity", comp.BehaviorName, "success", result.Success)
 		executed++
 
 		if !result.Success {

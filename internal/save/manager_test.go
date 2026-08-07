@@ -400,7 +400,7 @@ func TestRestoreWorldFromJSON_MissingSingleton(t *testing.T) {
 	newWorld := testutil.InitTestWorld(t)
 	err = manager.LoadWorld(newWorld, "no_singleton")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "singleton")
+	assert.Contains(t, err.Error(), "シングルトン")
 }
 
 // TestLoadWorld_ReaddsStatsChanged はロード後に Abilities 保持エンティティへ StatsChanged が

@@ -1,11 +1,11 @@
 {
   "field_look": [
     {
-      "name": "Self",
+      "name": "自分",
       "pred": "Player"
     },
     {
-      "name": "Enemy",
+      "name": "敵",
       "pred": "FactionEnemy"
     },
     {
@@ -13,59 +13,59 @@
       "pred": "(FactionAlly OR FactionNeutral)"
     },
     {
-      "name": "Fixed object",
+      "name": "固定物",
       "pred": "Fixed"
     },
     {
-      "name": "Tile",
+      "name": "タイル",
       "pred": "Tile"
     }
   ],
   "inventory": [
     {
-      "name": "Goods",
+      "name": "道具",
       "pred": "(Material OR Ammo OR Book OR Consumable)"
     },
     {
-      "name": "Weapon",
+      "name": "武器",
       "pred": "(Melee OR Fire)"
     },
     {
-      "name": "Armor",
+      "name": "防具",
       "pred": "Wearable"
     }
   ],
   "item_type": [
     {
-      "name": "Material",
+      "name": "素材",
       "pred": "Material"
     },
     {
-      "name": "Ammunition",
+      "name": "弾薬",
       "pred": "Ammo"
     },
     {
-      "name": "Book",
+      "name": "本",
       "pred": "Book"
     },
     {
-      "name": "Fixed object",
+      "name": "固定物",
       "pred": "Fixed"
     },
     {
-      "name": "Consumable",
+      "name": "消耗品",
       "pred": "Consumable"
     },
     {
-      "name": "Ranged weapon",
+      "name": "射撃武器",
       "pred": "Fire"
     },
     {
-      "name": "Melee weapon",
+      "name": "近接武器",
       "pred": "Melee"
     },
     {
-      "name": "Armor",
+      "name": "防具",
       "pred": "Wearable"
     }
   ]

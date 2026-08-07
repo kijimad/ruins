@@ -135,7 +135,7 @@ func clutterFurniturePct(level clutterLevel) int {
 	case clutterFilthy:
 		return 70
 	}
-	panic("unknown clutterLevel: " + strconv.Itoa(int(level)))
+	panic("未知の clutterLevel: " + strconv.Itoa(int(level)))
 }
 
 // clutterRefs は散らかりの小物プールを部屋役割で寄せて返す。「あるべきでない場所の物」を、寝室には

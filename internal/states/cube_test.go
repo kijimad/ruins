@@ -33,7 +33,7 @@ func TestEnterExitCube_内部へ入り元の位置へ戻る(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	playerPos := consts.Coord[consts.Tile]{X: 4, Y: 5}
-	player, err := lifecycle.SpawnPlayer(world, playerPos, "ash")
+	player, err := lifecycle.SpawnPlayer(world, playerPos, "Ash")
 	require.NoError(t, err)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestEnterCube_内部で保存して読み込んでも落ちない(t *testin
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, "Ash")
 	require.NoError(t, err)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)
@@ -137,7 +137,7 @@ func TestCubePanelState_内部の総重量を表示できる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 4, Y: 5}, "Ash")
 	require.NoError(t, err)
 	cube, err := lifecycle.SpawnCube(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	require.NoError(t, err)

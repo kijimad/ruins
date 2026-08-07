@@ -110,10 +110,10 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		// 深度制限を超えるのでエラーになるはず
 		_, err := rootTemplate.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "depth exceeded limit")
+		assert.Contains(t, err.Error(), "深度が制限")
 	})
 
-	t.Run("circularを検出", func(t *testing.T) {
+	t.Run("循環参照を検出", func(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
 
@@ -143,10 +143,10 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		}
 		loader.chunkCache["chunk_b"] = []*ChunkTemplate{chunkB}
 
-		// circularを検出するはず
+		// 循環参照を検出するはず
 		_, err := chunkA.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "circular")
+		assert.Contains(t, err.Error(), "循環参照")
 	})
 
 	t.Run("チャンクなしの場合はそのまま返す", func(t *testing.T) {

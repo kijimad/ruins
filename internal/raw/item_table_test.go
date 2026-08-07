@@ -19,7 +19,6 @@ func newTestRawsForItemTable(groups []oapi.ItemGroup, table oapi.ItemTable) oapi
 
 var testGroups = []oapi.ItemGroup{
 	{
-		Id:      "回復",
 		Name:    "回復",
 		Subtype: oapi.Distribution,
 		Entries: []oapi.ItemGroupEntry{
@@ -27,7 +26,6 @@ var testGroups = []oapi.ItemGroup{
 		},
 	},
 	{
-		Id:      "武器",
 		Name:    "武器",
 		Subtype: oapi.Distribution,
 		Entries: []oapi.ItemGroupEntry{
@@ -36,7 +34,6 @@ var testGroups = []oapi.ItemGroup{
 		},
 	},
 	{
-		Id:      "素材",
 		Name:    "素材",
 		Subtype: oapi.Distribution,
 		Entries: []oapi.ItemGroupEntry{

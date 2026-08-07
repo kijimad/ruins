@@ -57,9 +57,9 @@ func TestTurnSystem_分解を完走してもAPが枯渇しない(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
+	_, err = lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 6, 5)
 	require.NoError(t, err)
@@ -98,11 +98,11 @@ func TestTurnSystem_分解中も隊員がターンごとに行動する(t *testi
 	world := testutil.InitTestWorld(t)
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 	member, err := lifecycle.SpawnDefaultSquadMember(world, player)
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
+	_, err = lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 6, 5)
 	require.NoError(t, err)
@@ -134,14 +134,14 @@ func TestTurnSystem_隊員が分解産出を拾いに来る(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 	member, err := lifecycle.SpawnDefaultSquadMember(world, player)
 	require.NoError(t, err)
 	require.Equal(t, gc.PolicyPickup, world.Components.SquadAI.Get(member).ItemPickup,
 		"前提: 隊員の拾得ポリシーは既定で有効")
 
-	_, err = lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
+	_, err = lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 6, 5)
 	require.NoError(t, err)

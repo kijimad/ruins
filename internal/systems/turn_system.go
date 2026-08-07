@@ -104,9 +104,9 @@ func runAIPhase(world w.World) error {
 	return nil
 }
 
-// runEndPhase はturn end processingをして1ゲームターンを確定させる。
+// runEndPhase はターン終了処理をして1ゲームターンを確定させる。
 func runEndPhase(world w.World, turnState *gc.TurnState) error {
-	// turn end processing
+	// ターン終了処理
 	if err := processTurnEnd(world); err != nil {
 		return err
 	}
@@ -148,23 +148,23 @@ func shouldAutoEndTurn(world w.World) bool {
 // processAITurn はAIターンの処理を行う
 func processAITurn(world w.World) error {
 	log := logger.New(logger.CategoryTurn)
-	log.Debug("AI turn processing start")
+	log.Debug("AIターン処理開始")
 
 	processor := aiinput.NewProcessor(world.Config.RNG)
 	if err := processor.ProcessAll(world); err != nil {
 		return err
 	}
 
-	log.Debug("AI turn processing done")
+	log.Debug("AIターン処理完了")
 	return nil
 }
 
-// processTurnEnd はturn end processingを行う
+// processTurnEnd はターン終了処理を行う
 func processTurnEnd(world w.World) error {
 	log := logger.New(logger.CategoryTurn)
 	turnState := query.GetTurnState(world)
 
-	log.Debug("turn end processing", "turn", turnState.TurnNumber)
+	log.Debug("ターン終了処理", "turn", turnState.TurnNumber)
 
 	// 全エンティティのアクションポイントを回復
 	if err := query.RestoreAllActionPoints(world); err != nil {
@@ -208,13 +208,13 @@ func processPlayerContinuousActivity(world w.World) bool {
 	}
 
 	log := logger.New(logger.CategoryTurn)
-	log.Debug("player continuous action processing")
+	log.Debug("プレイヤー継続アクション処理")
 
 	// 継続アクションの1ターン分を処理
 	activity.ProcessContinuousActivities(world)
 
 	if !query.HasActivity(world, playerEntity) {
-		log.Debug("player continuous action done")
+		log.Debug("プレイヤー継続アクション完了")
 	}
 
 	// 継続中でも完了でもターンコストを消費する

@@ -20,8 +20,8 @@ type ReadBehavior struct{}
 // Info はBehaviorの実装
 func (rb *ReadBehavior) Info() Info {
 	return Info{
-		Name:            "Read",
-		Description:     "Read a book to learn skills or recipes",
+		Name:            "読書",
+		Description:     "本を読んでスキルやレシピを習得する",
 		Interruptible:   true,
 		Resumable:       true,
 		ActionPointCost: consts.StandardActionCost,
@@ -38,7 +38,7 @@ func (rb *ReadBehavior) Name() gc.BehaviorName {
 func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {
 	book := getBook(target, world)
 	if book == nil {
-		return nil, fmt.Errorf("target has no Book component")
+		return nil, fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
 	comp := NewActivity(gc.BehaviorRead, book.Effort.Max)
 	comp.Params = &gc.ReadParams{Target: target}
@@ -49,12 +49,12 @@ func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {
 func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
-		return fmt.Errorf("book is not set")
+		return fmt.Errorf("本が指定されていません")
 	}
 
 	book := getBook(p.Target, world)
 	if book == nil {
-		return fmt.Errorf("target has no Book component")
+		return fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
 
 	var skills *gc.Skills
@@ -67,7 +67,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	if !isAreaSafe(actor, world) {
-		return fmt.Errorf("cannot read because enemies are nearby")
+		return fmt.Errorf("周囲に敵がいるため読書できません")
 	}
 
 	return nil
@@ -82,15 +82,15 @@ func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 
 	book := getBook(p.Target, world)
 	if book == nil {
-		return fmt.Errorf("book component not found")
+		return fmt.Errorf("Bookコンポーネントが見つかりません")
 	}
 
 	name := query.GetEntityName(p.Target, world)
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "started reading \"%s\"", name)).
+		Append(fmt.Sprintf("「%s」を読み始めた", name)).
 		Log()
 
-	log.Debug("reading started", "actor", actor, "book", name, "effort", book.Effort.Max)
+	log.Debug("読書開始", "actor", actor, "book", name, "effort", book.Effort.Max)
 	return nil
 }
 
@@ -99,23 +99,23 @@ func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
-		Cancel(comp, "book is not set")
+		Cancel(comp, "本が指定されていません")
 		return nil
 	}
 	if !world.ECS.Alive(p.Target) {
-		Cancel(comp, "interrupted because the book disappeared")
+		Cancel(comp, "本が消えたため中断")
 		return nil
 	}
 
 	// 安全性チェック
 	if !isAreaSafe(actor, world) {
-		Cancel(comp, "reading interrupted because enemies are nearby")
+		Cancel(comp, "周囲に敵がいるため読書を中断")
 		return nil
 	}
 
 	book := getBook(p.Target, world)
 	if book == nil {
-		Cancel(comp, "book not found")
+		Cancel(comp, "本が見つかりません")
 		return nil
 	}
 
@@ -154,16 +154,16 @@ func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 	if book != nil && book.IsCompleted() {
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "finished reading \"%s\"", name)).
+			Append(fmt.Sprintf("「%s」を読了した", name)).
 			Log()
 
 		// 読了した本を消費する
 		if err := lifecycle.ChangeItemCount(world, p.Target, -1); err != nil {
-			return fmt.Errorf("failed to consume book: %w", err)
+			return fmt.Errorf("本の消費に失敗: %w", err)
 		}
 	}
 
-	log.Debug("reading finished", "actor", actor, "book", name)
+	log.Debug("読書完了", "actor", actor, "book", name)
 	return nil
 }
 
@@ -171,16 +171,16 @@ func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 // 本が消えたことによる中断もあるため、名前は本が残っている場合だけ出す
 func (rb *ReadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
-		message := query.T(world, "interrupted reading")
+		message := "読書を中断した"
 		if p, ok := comp.Params.(*gc.ReadParams); ok && world.ECS.Alive(p.Target) {
-			message = query.T(world, "interrupted reading \"%s\"", query.GetEntityName(p.Target, world))
+			message = fmt.Sprintf("「%s」の読書を中断した", query.GetEntityName(p.Target, world))
 		}
 		gamelog.New(query.GetGameLog(world)).
-			Markup(message).
+			Append(message).
 			Log()
 	}
 
-	log.Debug("reading interrupted", "reason", comp.CancelReason)
+	log.Debug("読書中断", "reason", comp.CancelReason)
 	return nil
 }
 
@@ -216,7 +216,7 @@ func (rb *ReadBehavior) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 
 		name := gc.SkillName(effect.TargetSkill)
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "%s skill rose to %d", name, s.Value)).
+			Append(fmt.Sprintf("%sスキルが %d に上がった", name, s.Value)).
 			Log()
 	}
 }

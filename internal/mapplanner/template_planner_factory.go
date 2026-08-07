@@ -38,14 +38,14 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 		"levels/facilities",
 		"levels/layouts",
 	}); err != nil {
-		return nil, fmt.Errorf("chunk registration error: %w", err)
+		return nil, fmt.Errorf("チャンク登録エラー: %w", err)
 	}
 
 	// すべてのパレットを事前登録
 	if err := templateLoader.RegisterAllPalettes([]string{
 		"levels/palettes",
 	}); err != nil {
-		return nil, fmt.Errorf("palette registration error: %w", err)
+		return nil, fmt.Errorf("パレット登録エラー: %w", err)
 	}
 
 	// テンプレート名を決定
@@ -66,13 +66,13 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 	case TemplateTypeDebugTown:
 		templateName = "20x20_debug_town"
 	default:
-		return nil, fmt.Errorf("unknown template type: %d", templateType)
+		return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)
 	}
 
 	// テンプレート名を指定して展開済みテンプレートとセル配列を取得
 	template, _, resolvedMap, err := templateLoader.LoadTemplateByName(templateName, seed)
 	if err != nil {
-		return nil, fmt.Errorf("template load error: %w", err)
+		return nil, fmt.Errorf("テンプレート読み込みエラー: %w", err)
 	}
 
 	// テンプレートプランナーチェーンを作成

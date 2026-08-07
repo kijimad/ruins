@@ -57,12 +57,12 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	views.UpdateSpec(world, root, e)
 	labels := collectLabels(root)
 
-	assert.Contains(t, labels, query.T(world, gc.AttackSword.Label), "武器種別ラベルが表示される")
+	assert.Contains(t, labels, gc.AttackSword.Label, "武器種別ラベルが表示される")
 	assert.Contains(t, labels, "25", "攻撃力の値が表示される")
 	assert.Contains(t, labels, "80", "命中率の値が表示される")
 	assert.Contains(t, labels, "2", "攻撃回数の値が表示される")
 	assert.Contains(t, labels, "100", "コストの値が表示される")
-	assert.Contains(t, labels, query.T(world, gc.ElementTypeFire.String()), "属性名が表示される")
+	assert.Contains(t, labels, gc.ElementTypeFire.String(), "属性名が表示される")
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
@@ -250,7 +250,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 
 	assert.Contains(t, labels, "本", "本ヘッダーが表示される")
 	assert.Contains(t, labels, "スキル", "スキルラベルが表示される")
-	assert.Contains(t, labels, query.T(world, gc.SkillName(gc.SkillSword)), "対象スキル名が表示される")
+	assert.Contains(t, labels, gc.SkillName(gc.SkillSword), "対象スキル名が表示される")
 	assert.Contains(t, labels, "Lv", "レベルラベルが表示される")
 	assert.Contains(t, labels, "進捗", "進捗ラベルが表示される")
 	assert.Contains(t, labels, "30%", "現在工数から進捗率が計算される")
@@ -287,9 +287,9 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	views.UpdateSpecFromSpec(world, root, spec)
 	labels := collectLabels(root)
 
-	assert.Contains(t, labels, query.T(world, gc.AttackSpear.Label), "武器種別ラベルが表示される")
+	assert.Contains(t, labels, gc.AttackSpear.Label, "武器種別ラベルが表示される")
 	assert.Contains(t, labels, "12", "攻撃力の値が表示される")
-	assert.Contains(t, labels, query.T(world, gc.ElementTypeThunder.String()), "属性名が表示される")
+	assert.Contains(t, labels, gc.ElementTypeThunder.String(), "属性名が表示される")
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない

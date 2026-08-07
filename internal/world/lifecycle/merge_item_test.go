@@ -18,15 +18,15 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	world.Components.Player.Add(player, &gc.Player{})
 
 	// 既存のmaterialをバックパックに配置（初期数量5）
-	_, err := SpawnBackpackItem(world, "scrap_iron", 5)
+	_, err := SpawnBackpackItem(world, "鉄くず", 5)
 	require.NoError(t, err)
 
 	// 新しいmaterialを作成（数量3）
-	_, err = SpawnBackpackItem(world, "scrap_iron", 3)
+	_, err = SpawnBackpackItem(world, "鉄くず", 3)
 	require.NoError(t, err)
 
 	// mergeStackableItemsを実行
-	err = mergeStackableItems(world, "scrap_iron", mergeInBackpack, player)
+	err = mergeStackableItems(world, "鉄くず", mergeInBackpack, player)
 	require.NoError(t, err)
 
 	// バックパック内の鉄くずは1つだけになっている
@@ -55,7 +55,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	world.Components.Player.Add(player, &gc.Player{})
 
 	// 新しいmaterialを作成（既存のものはなし）
-	_, err := SpawnBackpackItem(world, "green_herb", 2)
+	_, err := SpawnBackpackItem(world, "緑ハーブ", 2)
 	require.NoError(t, err)
 
 	// バックパック内のmaterial数をカウント（統合前）
@@ -66,7 +66,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	}
 
 	// mergeStackableItemsを実行（1個しかないので統合されない）
-	err = mergeStackableItems(world, "green_herb", mergeInBackpack, player)
+	err = mergeStackableItems(world, "緑ハーブ", mergeInBackpack, player)
 	require.NoError(t, err)
 
 	// バックパック内のmaterial数をカウント（統合後）
@@ -89,11 +89,11 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	world.Components.Player.Add(player, &gc.Player{})
 
 	// 既存のアイテム（Stackableを持たない）をバックパックに配置
-	_, err := SpawnBackpackItem(world, "western_armor", 1)
+	_, err := SpawnBackpackItem(world, "西洋鎧", 1)
 	require.NoError(t, err)
 
 	// 新しい同じアイテムを作成
-	_, err = SpawnBackpackItem(world, "western_armor", 1)
+	_, err = SpawnBackpackItem(world, "西洋鎧", 1)
 	require.NoError(t, err)
 
 	// バックパック内のアイテム数をカウント（統合前）
@@ -104,7 +104,7 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	}
 
 	// mergeStackableItemsを実行（Stackableを持たないので統合されない）
-	err = mergeStackableItems(world, "western_armor", mergeInBackpack, player)
+	err = mergeStackableItems(world, "西洋鎧", mergeInBackpack, player)
 	require.NoError(t, err)
 
 	// バックパック内のアイテム数をカウント（統合後）
