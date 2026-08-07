@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"slices"
+	"strings"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -27,8 +28,8 @@ type DisassembleBehavior struct{}
 // Info はBehaviorの実装
 func (db *DisassembleBehavior) Info() Info {
 	return Info{
-		Name:            "分解",
-		Description:     "工具で対象を分解して素材を得る",
+		Name:            "Disassemble",
+		Description:     "Disassemble a target with a tool to obtain materials",
 		Interruptible:   true,
 		Resumable:       true,
 		ActionPointCost: consts.StandardActionCost,
@@ -43,13 +44,13 @@ func (db *DisassembleBehavior) Name() gc.BehaviorName {
 // NewDisassembleActivity は分解対象を指定して分解アクティビティを組む。
 // 必要APは対象のbaseAPに機械スキルと工具グレードの短縮を掛けて求める。
 func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	def, ok := findDisassemblyDef(target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
 	if !ok {
-		return nil, fmt.Errorf("対象は分解定義を持っていません")
+		return nil, fmt.Errorf("target has no disassembly definition")
 	}
 	grade, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory)
 	if !ok {
-		return nil, fmt.Errorf("分解に必要な工具を持っていません")
+		return nil, fmt.Errorf("does not have the tool required for disassembly")
 	}
 
 	requiredAP := RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
@@ -62,20 +63,20 @@ func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activi
 func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
-		return fmt.Errorf("分解対象が指定されていません")
+		return fmt.Errorf("disassembly target is not set")
 	}
 	if !world.ECS.Alive(p.Target) {
-		return fmt.Errorf("分解対象が存在しません")
+		return fmt.Errorf("disassembly target does not exist")
 	}
-	def, ok := findDisassemblyDef(p.Target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
-		return fmt.Errorf("対象は分解定義を持っていません")
+		return fmt.Errorf("target has no disassembly definition")
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
-		return fmt.Errorf("分解に必要な工具を持っていません")
+		return fmt.Errorf("does not have the tool required for disassembly")
 	}
 	if !isAreaSafe(actor, world) {
-		return fmt.Errorf("周囲に敵がいるため分解できません")
+		return fmt.Errorf("cannot disassemble because enemies are nearby")
 	}
 	return nil
 }
@@ -84,26 +85,23 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
-		return fmt.Errorf("分解対象が指定されていません")
+		return fmt.Errorf("disassembly target is not set")
 	}
-	def, ok := findDisassemblyDef(p.Target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
-		return fmt.Errorf("分解定義が見つかりません")
+		return fmt.Errorf("disassembly definition not found")
 	}
 	_, toolName, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory)
 	if !ok {
-		return fmt.Errorf("分解に必要な工具を持っていません")
+		return fmt.Errorf("does not have the tool required for disassembly")
 	}
 
 	name := query.GetEntityName(p.Target, world)
 	gamelog.New(query.GetGameLog(world)).
-		ItemName(toolName).
-		Append("で").
-		ItemName(name).
-		Append("の分解を始めた").
+		Markup(query.T(world, "%s began disassembling %s", gamelog.Tag("item", toolName), gamelog.Tag("item", name))).
 		Log()
 
-	log.Debug("分解開始", "actor", actor, "target", name, "tool", toolName)
+	log.Debug("disassemble started", "actor", actor, "target", name, "tool", toolName)
 	return nil
 }
 
@@ -112,24 +110,24 @@ func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world 
 func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
-		Cancel(comp, "分解対象が指定されていません")
+		Cancel(comp, "disassembly target is not set")
 		return nil
 	}
 	if !world.ECS.Alive(p.Target) {
-		Cancel(comp, "分解対象が消えたため中断")
+		Cancel(comp, "interrupted because the disassembly target disappeared")
 		return nil
 	}
 	if !isAreaSafe(actor, world) {
-		Cancel(comp, "周囲に敵がいるため分解を中断")
+		Cancel(comp, "disassembly interrupted because enemies are nearby")
 		return nil
 	}
-	def, ok := findDisassemblyDef(p.Target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
-		Cancel(comp, "分解定義が見つからないため中断")
+		Cancel(comp, "interrupted because the disassembly definition was not found")
 		return nil
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
-		Cancel(comp, "工具を失ったため分解を中断")
+		Cancel(comp, "disassembly interrupted because the tool was lost")
 		return nil
 	}
 
@@ -152,19 +150,19 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 	if !world.ECS.Alive(target) {
 		return nil
 	}
-	def, ok := findDisassemblyDef(target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
 	if !ok {
-		return fmt.Errorf("分解定義が見つかりません")
+		return fmt.Errorf("disassembly definition not found")
 	}
 	grade, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory)
 	if !ok {
-		return fmt.Errorf("分解に必要な工具を持っていません")
+		return fmt.Errorf("does not have the tool required for disassembly")
 	}
 
 	name := query.GetEntityName(target, world)
 	stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)
 	if err != nil {
-		return fmt.Errorf("分解産出の抽選に失敗: %w", err)
+		return fmt.Errorf("failed to roll disassembly yields: %w", err)
 	}
 
 	if world.Components.Fixed.Has(target) && world.Components.GridElement.Has(target) {
@@ -175,28 +173,31 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 		world.ECS.RemoveEntity(target)
 		query.InvalidateSpatialIndex(world)
 		if err := lifecycle.SpawnDisassemblyYields(world, stacks, coord.X, coord.Y); err != nil {
-			return fmt.Errorf("分解産出の生成に失敗: %w", err)
+			return fmt.Errorf("failed to spawn disassembly yields: %w", err)
 		}
 	} else {
 		if err := lifecycle.ChangeItemCount(world, target, -1); err != nil {
-			return fmt.Errorf("分解対象の消費に失敗: %w", err)
+			return fmt.Errorf("failed to consume disassembly target: %w", err)
 		}
 		for _, s := range stacks {
 			if _, err := lifecycle.SpawnBackpackItem(world, s.Name, s.Count); err != nil {
-				return fmt.Errorf("分解産出の生成に失敗: %w", err)
+				return fmt.Errorf("failed to spawn disassembly yields: %w", err)
 			}
 		}
 	}
 
-	logger := gamelog.New(query.GetGameLog(world)).
-		ItemName(name).
-		Append("を分解した。")
-	appendYields(logger, stacks)
+	targetMarkup := gamelog.Tag("item", name)
+	logger := gamelog.New(query.GetGameLog(world))
+	if len(stacks) == 0 {
+		logger.Markup(query.T(world, "Disassembled %s but obtained nothing.", targetMarkup))
+	} else {
+		logger.Markup(query.T(world, "Disassembled %s and obtained %s.", targetMarkup, yieldsMarkup(stacks, world)))
+	}
 	logger.Log()
 
 	db.gainMechanicExp(actor, world)
 
-	log.Debug("分解完了", "actor", actor, "target", name, "yields", stacks)
+	log.Debug("disassemble finished", "actor", actor, "target", name, "yields", stacks)
 	return nil
 }
 
@@ -206,14 +207,14 @@ func (db *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, wor
 	if world.Components.Player.Has(actor) {
 		logger := gamelog.New(query.GetGameLog(world))
 		if p, ok := comp.Params.(*gc.DisassembleParams); ok && world.ECS.Alive(p.Target) {
-			logger.ItemName(query.GetEntityName(p.Target, world)).Append("の分解を中断した")
+			logger.Markup(query.T(world, "Interrupted disassembling %s", gamelog.Tag("item", query.GetEntityName(p.Target, world))))
 		} else {
-			logger.Append("分解を中断した")
+			logger.Markup(query.T(world, "interrupted disassembly"))
 		}
 		logger.Log()
 	}
 
-	log.Debug("分解中断", "reason", comp.CancelReason)
+	log.Debug("disassemble interrupted", "reason", comp.CancelReason)
 	return nil
 }
 
@@ -235,7 +236,7 @@ func (db *DisassembleBehavior) gainMechanicExp(actor ecs.Entity, world w.World) 
 			world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
 		}
 		gamelog.New(query.GetGameLog(world)).
-			Append(fmt.Sprintf("%sスキルが %d に上がった", gc.SkillName(gc.SkillMechanic), s.Value)).
+			Markup(query.T(world, "%s skill rose to %d", gc.SkillName(gc.SkillMechanic), s.Value)).
 			Log()
 	}
 }
@@ -269,24 +270,17 @@ func FindBestDisassemblyTool(world w.World, actor ecs.Entity, category oapi.Tool
 		if world.Components.LocationInBackpack.Get(itemEntity).Owner != actor {
 			continue
 		}
-		itemName := query.GetEntityName(itemEntity, world)
-		tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, itemName)
+		tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(itemEntity, world))
 		if !ok || !slices.Contains(tool.Categories, category) {
 			continue
 		}
 		if int(tool.Grade) > bestGrade {
 			bestGrade = int(tool.Grade)
-			bestName = itemName
+			bestName = query.GetEntityName(itemEntity, world)
 		}
 	}
 
 	return bestGrade, bestName, bestGrade > 0
-}
-
-// findDisassemblyDef は対象エンティティの名前で分解定義を引く
-func findDisassemblyDef(entity ecs.Entity, world w.World) (*oapi.Disassembly, bool) {
-	name := query.GetEntityName(entity, world)
-	return raw.FindDisassembly(world.Resources.RawMaster, name)
 }
 
 // mechanicSkillValue はactorの機械スキル値を返す。スキルを持たなければ0
@@ -297,17 +291,15 @@ func mechanicSkillValue(actor ecs.Entity, world w.World) int {
 	return world.Components.Skills.Get(actor).Get(gc.SkillMechanic).Value
 }
 
-// appendYields は産出一覧をアイテム名の色付きでログへ追記する
-func appendYields(logger *gamelog.Logger, stacks []lifecycle.YieldStack) {
-	if len(stacks) == 0 {
-		logger.Append("何も得られなかった")
-		return
-	}
+// appendYields は産出一覧をアイテム名の色付きでログへ追記する。
+// 産出は件数可変で各アイテム名に個別の色が付くため、単一の書式テンプレートには畳めない。
+// 読点区切りで名前を色付き Segment として並べ、末尾に「を得た」の trailing clause を付ける
+// yieldsMarkup は産出一覧を色付きマークアップ文字列にして返す。各アイテムを読点で連結する。
+// 語尾や句読点は呼び出し側のテンプレートに委ね、ここは中身の並びだけを組む
+func yieldsMarkup(stacks []lifecycle.YieldStack, world w.World) string {
+	parts := make([]string, len(stacks))
 	for i, s := range stacks {
-		if i > 0 {
-			logger.Append("、")
-		}
-		logger.ItemName(s.Name).Append(fmt.Sprintf(" x%d", s.Count))
+		parts[i] = gamelog.Tag("item", s.Name) + fmt.Sprintf(" x%d", s.Count)
 	}
-	logger.Append(" を得た")
+	return strings.Join(parts, query.T(world, ", "))
 }

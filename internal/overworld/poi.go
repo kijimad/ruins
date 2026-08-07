@@ -73,7 +73,7 @@ func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[con
 				name = consts.TileNameDWall
 			}
 			if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil {
-				return fmt.Errorf("POI小屋の配置に失敗 (x=%d, y=%d): %w", lx, ly, err)
+				return fmt.Errorf("failed to place POI hut (x=%d, y=%d): %w", lx, ly, err)
 			}
 		}
 	}
@@ -81,13 +81,13 @@ func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[con
 		// 屋内の北側の壁沿いへ左から順に並べる。出入口の導線と重ねない
 		pos := consts.Coord[consts.Tile]{X: ox + 1 + consts.Tile(i), Y: oy + 1}
 		if _, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y); err != nil {
-			return fmt.Errorf("POI内装の配置に失敗 (%s): %w", name, err)
+			return fmt.Errorf("failed to place POI interior prop (%s): %w", name, err)
 		}
 	}
 	// 南辺の開口に見える扉を置く。壁の切れ目だけだと原野の中の謎の壁に見えるため、
 	// 廃屋としての入口を明示する。南壁は東西に走るので向きは Vertical
 	if _, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: door, Y: oy + hh - 1}, gc.DoorOrientationVertical); err != nil {
-		return fmt.Errorf("POI小屋の扉配置に失敗: %w", err)
+		return fmt.Errorf("failed to place POI hut door: %w", err)
 	}
 	return nil
 }
@@ -96,7 +96,7 @@ func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[con
 func spawnPOIProps(world w.World, origin consts.Coord[consts.Tile], spots []relSpot) error {
 	for _, s := range spots {
 		if _, err := lifecycle.SpawnProp(world, s.name, origin.X+s.dx, origin.Y+s.dy); err != nil {
-			return fmt.Errorf("POIの配置に失敗 (%s): %w", s.name, err)
+			return fmt.Errorf("failed to place POI prop (%s): %w", s.name, err)
 		}
 	}
 	return nil

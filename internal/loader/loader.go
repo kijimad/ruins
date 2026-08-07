@@ -30,12 +30,12 @@ func LoadFonts() (map[string]resources.Font, error) {
 	var metadata fontMetadata
 	bs, err := assets.FS.ReadFile(fontsPath)
 	if err != nil {
-		return nil, fmt.Errorf("フォントファイルの読み込みに失敗: %w", err)
+		return nil, fmt.Errorf("failed to load font file: %w", err)
 	}
 
 	metaData, err := toml.Decode(string(bs), &metadata)
 	if err != nil {
-		return nil, fmt.Errorf("フォントメタデータのデコードに失敗: %w", err)
+		return nil, fmt.Errorf("failed to decode font metadata: %w", err)
 	}
 
 	undecoded := metaData.Undecoded()
@@ -47,7 +47,7 @@ func LoadFonts() (map[string]resources.Font, error) {
 	for name, entry := range metadata.Fonts {
 		font, err := resources.NewFont(entry.Font)
 		if err != nil {
-			return nil, fmt.Errorf("フォント %q の読み込みに失敗: %w", name, err)
+			return nil, fmt.Errorf("failed to load font %q: %w", name, err)
 		}
 		fonts[name] = font
 	}
@@ -62,7 +62,7 @@ func LoadSpriteSheets(raws oapi.Raws) (map[string]components.SpriteSheet, error)
 	for _, spriteSheetDef := range raw.PtrSlice(raws.SpriteSheets) {
 		sheet, err := LoadSpriteSheetFromAseprite(spriteSheetDef.Path)
 		if err != nil {
-			return nil, fmt.Errorf("スプライトシート '%s' の読み込みに失敗: %w", spriteSheetDef.Name, err)
+			return nil, fmt.Errorf("failed to load sprite sheet '%s': %w", spriteSheetDef.Name, err)
 		}
 		sheet.Name = spriteSheetDef.Name
 		spriteSheets[spriteSheetDef.Name] = sheet

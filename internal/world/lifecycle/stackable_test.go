@@ -20,6 +20,7 @@ func TestGetAmount(t *testing.T) {
 	world.Components.Stackable.Add(materialEntity, &gc.Stackable{Count: 10})
 	world.Components.LocationInBackpack.Add(materialEntity, &gc.LocationInBackpack{})
 	world.Components.Name.Add(materialEntity, &gc.Name{Name: "鉄"})
+	world.Components.RawID.Add(materialEntity, &gc.RawID{Value: "鉄"})
 
 	// 素材の数量を取得
 	entity, found := query.FindStackableInInventory(world, "鉄")
@@ -45,6 +46,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	world.Components.Stackable.Add(materialEntity, &gc.Stackable{Count: 10})
 	world.Components.LocationInBackpack.Add(materialEntity, &gc.LocationInBackpack{})
 	world.Components.Name.Add(materialEntity, &gc.Name{Name: "鉄"})
+	world.Components.RawID.Add(materialEntity, &gc.RawID{Value: "鉄"})
 
 	// 数量を増加
 	err := ChangeStackableCount(world, "鉄", 5)
@@ -73,7 +75,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	// 所持数を超えて減らそうとするとエラー
 	err = ChangeStackableCount(world, "鉄", -1500)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "アイテム数が不足しています")
+	assert.Contains(t, err.Error(), "insufficient item count")
 	// エンティティは残っている
 	entity, found = query.FindStackableInInventory(world, "鉄")
 	require.True(t, found)
@@ -93,6 +95,7 @@ func TestMergeStackableItems(t *testing.T) {
 		item1 := world.ECS.NewEntity()
 		world.Components.Material.Add(item1, &gc.Material{})
 		world.Components.Name.Add(item1, &gc.Name{Name: "パン"})
+		world.Components.RawID.Add(item1, &gc.RawID{Value: "パン"})
 		world.Components.Stackable.Add(item1, &gc.Stackable{Count: 3})
 		world.Components.LocationInBackpack.Add(item1, &gc.LocationInBackpack{Owner: owner})
 
@@ -100,6 +103,7 @@ func TestMergeStackableItems(t *testing.T) {
 		item2 := world.ECS.NewEntity()
 		world.Components.Material.Add(item2, &gc.Material{})
 		world.Components.Name.Add(item2, &gc.Name{Name: "パン"})
+		world.Components.RawID.Add(item2, &gc.RawID{Value: "パン"})
 		world.Components.Stackable.Add(item2, &gc.Stackable{Count: 2})
 		world.Components.LocationInBackpack.Add(item2, &gc.LocationInBackpack{Owner: owner})
 
@@ -135,6 +139,7 @@ func TestMergeStackableItems(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
+		world.Components.RawID.Add(item, &gc.RawID{Value: "パン"})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 2})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 

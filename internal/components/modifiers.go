@@ -62,7 +62,7 @@ var weaponDamageKeys = map[SkillID]ModifierKey{
 func WeaponDamageKey(id SkillID) ModifierKey {
 	key, ok := weaponDamageKeys[id]
 	if !ok {
-		panic(fmt.Sprintf("未定義の武器スキルID（ダメージ）: %q", id))
+		panic(fmt.Sprintf("undefined weapon skill ID for damage: %q", id))
 	}
 	return key
 }
@@ -82,7 +82,7 @@ var weaponAccuracyKeys = map[SkillID]ModifierKey{
 func WeaponAccuracyKey(id SkillID) ModifierKey {
 	key, ok := weaponAccuracyKeys[id]
 	if !ok {
-		panic(fmt.Sprintf("未定義の武器スキルID（命中）: %q", id))
+		panic(fmt.Sprintf("undefined weapon skill ID for accuracy: %q", id))
 	}
 	return key
 }
@@ -99,7 +99,7 @@ var elementResistKeys = map[ElementType]ModifierKey{
 func ElementResistKey(elem ElementType) ModifierKey {
 	key, ok := elementResistKeys[elem]
 	if !ok {
-		panic(fmt.Sprintf("未定義の元素タイプ（耐性）: %q", elem))
+		panic(fmt.Sprintf("undefined element type for resistance: %q", elem))
 	}
 	return key
 }

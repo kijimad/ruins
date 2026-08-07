@@ -18,8 +18,8 @@ type RestBehavior struct{}
 // Info はBehaviorの実装
 func (rb *RestBehavior) Info() Info {
 	return Info{
-		Name:            "休息",
-		Description:     "体力を回復するために休息する",
+		Name:            "Rest",
+		Description:     "Rest to recover health",
 		Interruptible:   true,
 		Resumable:       true,
 		ActionPointCost: consts.StandardActionCost,
@@ -41,12 +41,12 @@ func NewRestActivity() *gc.Activity {
 func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
 	if !isAreaSafe(actor, world) {
-		return fmt.Errorf("周囲に敵がいるため休息できません")
+		return fmt.Errorf("cannot rest because enemies are nearby")
 	}
 
 	// 必要量が妥当かチェック
 	if comp.Progress.Max <= 0 {
-		return fmt.Errorf("休息の必要量が無効です")
+		return fmt.Errorf("rest requirement amount is invalid")
 	}
 
 	return nil
@@ -54,7 +54,7 @@ func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は休息開始時の処理を実行する
 func (rb *RestBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("休息開始", "actor", actor, "required", comp.Progress.Max)
+	log.Debug("rest started", "actor", actor, "required", comp.Progress.Max)
 	return nil
 }
 
@@ -62,13 +62,13 @@ func (rb *RestBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
 	if !isAreaSafe(actor, world) {
-		Cancel(comp, "周囲に敵がいるため休息を中断")
-		return fmt.Errorf("周囲に敵がいるため休息できません")
+		Cancel(comp, "rest interrupted because enemies are nearby")
+		return fmt.Errorf("cannot rest because enemies are nearby")
 	}
 
 	// 今ターンのAPを注ぐ。APが高いほど速く休息が進む
 	comp.Progress.Current += perTurnAP(actor, world)
-	log.Debug("休息進行", "progress", GetProgressPercent(comp))
+	log.Debug("rest progressing", "progress", GetProgressPercent(comp))
 
 	// HP回復処理。満タンなら早期完了する
 	if err := rb.performHealing(comp, actor, world); err != nil {
@@ -85,12 +85,12 @@ func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish は休息完了時の処理を実行する
 func (rb *RestBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-	log.Debug("休息完了", "actor", actor)
+	log.Debug("rest finished", "actor", actor)
 
 	// プレイヤーの場合のみ完了メッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append("十分な休息を取って体力を回復した").
+			Markup(query.T(world, "Rested well and recovered health")).
 			Log()
 	}
 
@@ -105,9 +105,7 @@ func (rb *RestBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 			}
 
 			gamelog.New(query.GetGameLog(world)).
-				Append("完全な休息により追加で ").
-				Append(fmt.Sprintf("%d", bonusHealing)).
-				Append(" HP回復した").
+				Markup(query.T(world, "Full rest recovered an additional %d HP", bonusHealing)).
 				Log()
 		}
 	}
@@ -120,12 +118,11 @@ func (rb *RestBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	// プレイヤーの場合のみ中断時のメッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append("休息が中断された: ").
-			Append(comp.CancelReason).
+			Markup(query.T(world, "Rest interrupted: %s", query.T(world, comp.CancelReason))).
 			Log()
 	}
 
-	log.Debug("休息中断", "reason", comp.CancelReason, "progress", GetProgressPercent(comp))
+	log.Debug("rest interrupted", "reason", comp.CancelReason, "progress", GetProgressPercent(comp))
 	return nil
 }
 
@@ -150,6 +147,6 @@ func (rb *RestBehavior) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 	}
 	actualHealing := hp.Current - beforeHP
 
-	log.Debug("HP回復", "actor", actor, "amount", actualHealing)
+	log.Debug("HP recovered", "actor", actor, "amount", actualHealing)
 	return nil
 }

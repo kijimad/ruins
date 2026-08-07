@@ -701,6 +701,9 @@ type CombatPolicyType string
 type CommandTable struct {
 	Entries []CommandTableEntry `json:"entries"`
 
+	// Id エンティティ名
+	Id EntityName `json:"id"`
+
 	// Name エンティティ名
 	Name EntityName `json:"name"`
 }
@@ -818,6 +821,9 @@ type DoorRaw = map[string]interface{}
 type DropTable struct {
 	Entries []DropTableEntry `json:"entries"`
 
+	// Id エンティティ名
+	Id EntityName `json:"id"`
+
 	// Name エンティティ名
 	Name EntityName `json:"name"`
 }
@@ -843,6 +849,9 @@ type Element string
 // EnemyTable 敵テーブル
 type EnemyTable struct {
 	Entries []EnemyTableEntry `json:"entries"`
+
+	// Id エンティティ名
+	Id EntityName `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1007,6 +1016,9 @@ type Item struct {
 	// Fire 遠距離攻撃設定
 	Fire *Fire `json:"fire,omitempty"`
 
+	// Id エンティティ名
+	Id EntityName `json:"id"`
+
 	// InflictsDamage 基本ダメージ
 	InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
 	Material       *bool       `json:"material,omitempty"`
@@ -1049,6 +1061,9 @@ type ItemCount = int32
 type ItemGroup struct {
 	Entries []ItemGroupEntry `json:"entries"`
 
+	// Id エンティティ名
+	Id EntityName `json:"id"`
+
 	// Name エンティティ名
 	Name EntityName `json:"name"`
 
@@ -1086,6 +1101,9 @@ type ItemList struct {
 // ItemTable アイテムテーブル
 type ItemTable struct {
 	Entries []ItemTableEntry `json:"entries"`
+
+	// Id エンティティ名
+	Id EntityName `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1186,6 +1204,9 @@ type Member struct {
 
 	// FactionType 派閥タイプ
 	FactionType *FactionMemberType `json:"factionType,omitempty"`
+
+	// Id エンティティ名
+	Id EntityName `json:"id"`
 
 	// IsBoss ボスモンスターかどうか
 	IsBoss IsBoss `json:"isBoss"`
@@ -1342,6 +1363,9 @@ type Prop struct {
 	// Hp 耐久値。設定すると破壊可能になる
 	Hp *HitPoints `json:"hp,omitempty"`
 
+	// Id エンティティ名
+	Id EntityName `json:"id"`
+
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
 
@@ -1421,6 +1445,8 @@ type ReadingEffort = int32
 
 // Recipe レシピ
 type Recipe struct {
+	// Id エンティティ名
+	Id     EntityName    `json:"id"`
 	Inputs []RecipeInput `json:"inputs"`
 
 	// Name エンティティ名
@@ -2301,6 +2327,9 @@ type Tile struct {
 
 	// Foliage 植生タイプ
 	Foliage FoliageType `json:"foliage"`
+
+	// Id エンティティ名
+	Id EntityName `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`

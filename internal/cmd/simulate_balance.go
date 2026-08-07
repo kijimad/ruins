@@ -27,22 +27,22 @@ const (
 func runSimulateBalance(_ context.Context, _ *cli.Command) error {
 	master, err := raw.LoadFromFile("metadata/entities/raw/raw.toml")
 	if err != nil {
-		return fmt.Errorf("raw.tomlの読み込みに失敗: %w", err)
+		return fmt.Errorf("failed to load raw.toml: %w", err)
 	}
 
-	report, err := balance.GenerateReport(master, "Ash", "素手", simMaxDepth, simTrials, simSeed)
+	report, err := balance.GenerateReport(master, "Ash", "bare_hands", simMaxDepth, simTrials, simSeed)
 	if err != nil {
 		return err
 	}
 
 	data, err := report.MarshalJSON()
 	if err != nil {
-		return fmt.Errorf("JSONのシリアライズに失敗: %w", err)
+		return fmt.Errorf("failed to serialize JSON: %w", err)
 	}
 
 	outputPath := "balance.json"
 	if err := os.WriteFile(outputPath, data, 0644); err != nil {
-		return fmt.Errorf("ファイルの書き込みに失敗: %w", err)
+		return fmt.Errorf("failed to write file: %w", err)
 	}
 
 	return nil

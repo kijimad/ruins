@@ -20,8 +20,8 @@ type PickupBehavior struct{}
 // Info はBehaviorの実装
 func (pb *PickupBehavior) Info() Info {
 	return Info{
-		Name:            "拾得",
-		Description:     "アイテムを拾得する",
+		Name:            "Pick Up",
+		Description:     "Pick up an item",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.MinorActionCost,
@@ -53,19 +53,19 @@ func NewPickupTileActivity(world w.World, tile consts.Coord[consts.Tile]) *gc.Ac
 func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PickupParams)
 	if !ok {
-		return fmt.Errorf("拾得対象が指定されていません")
+		return fmt.Errorf("pickup target is not set")
 	}
 	for _, entity := range p.Targets {
 		if query.IsPickable(entity, world) {
 			return nil
 		}
 	}
-	return fmt.Errorf("拾えるものがありません")
+	return fmt.Errorf("nothing to pick up")
 }
 
 // Start はアイテム拾得開始時の処理を実行する
 func (pb *PickupBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム拾得開始", "actor", actor)
+	log.Debug("item pickup started", "actor", actor)
 	return nil
 }
 
@@ -73,7 +73,7 @@ func (pb *PickupBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) err
 func (pb *PickupBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// アイテム拾得処理を実行
 	if err := pb.performPickup(comp, actor, world); err != nil {
-		Cancel(comp, fmt.Sprintf("アイテム拾得エラー: %s", err.Error()))
+		Cancel(comp, fmt.Sprintf("item pickup error: %s", err.Error()))
 		return err
 	}
 
@@ -85,13 +85,13 @@ func (pb *PickupBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はアイテム拾得完了時の処理を実行する
 func (pb *PickupBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム拾得アクティビティ完了", "actor", actor)
+	log.Debug("item pickup activity finished", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテム拾得キャンセル時の処理を実行する
 func (pb *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム拾得キャンセル", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("item pickup canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
@@ -99,7 +99,7 @@ func (pb *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PickupParams)
 	if !ok {
-		return fmt.Errorf("拾得対象が指定されていません")
+		return fmt.Errorf("pickup target is not set")
 	}
 
 	collectedCount := 0
@@ -118,21 +118,21 @@ func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, wor
 
 	if collectedCount == 0 {
 		if len(errs) > 0 {
-			return fmt.Errorf("一部の拾得に失敗: %w", errors.Join(errs...))
+			return fmt.Errorf("some pickups failed: %w", errors.Join(errs...))
 		}
-		return fmt.Errorf("拾えるものがありません")
+		return fmt.Errorf("nothing to pick up")
 	}
 
-	log.Debug("拾得完了", "count", collectedCount)
+	log.Debug("pickup finished", "count", collectedCount)
 
 	if collectedCount > 1 && world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append(fmt.Sprintf("%d個を入手した", collectedCount)).
+			Markup(query.T(world, "obtained %d items", collectedCount)).
 			Log()
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("一部の拾得に失敗: %w", errors.Join(errs...))
+		return fmt.Errorf("some pickups failed: %w", errors.Join(errs...))
 	}
 
 	return nil
@@ -145,14 +145,12 @@ func (pb *PickupBehavior) collect(actor ecs.Entity, world w.World, entity ecs.En
 	actorName := query.GetEntityName(actor, world)
 
 	if err := lifecycle.MoveToBackpack(world, entity, actor); err != nil {
-		return fmt.Errorf("バックパックへの移動に失敗: %w", err)
+		return fmt.Errorf("failed to move to backpack: %w", err)
 	}
-	logger := gamelog.New(query.GetGameLog(world))
-	query.AppendNameWithColor(logger, actor, actorName, world)
-	logger.
-		Append(" は ").
-		ItemName(formattedName).
-		Append(" を入手した。").
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "%s picked up %s.",
+			query.NameMarkup(actor, actorName, world),
+			gamelog.Tag("item", formattedName))).
 		Log()
 
 	return nil

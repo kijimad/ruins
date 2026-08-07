@@ -67,5 +67,5 @@ tile = 'floor'
 
 [palette.npcs]
 [palette.npcs.s]
-id = '灰の偶像'
+id = 'ash_idol'
 tile = 'floor'

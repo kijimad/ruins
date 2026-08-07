@@ -109,7 +109,7 @@ func TestRecalculateCharModifiers_Sources(t *testing.T) {
 
 	sources := mods.Sources[ModSwordDamage]
 	assert.Len(t, sources, 2, "スキルと能力値の2つのソースがある")
-	assert.Equal(t, "刀剣 Lv3", sources[0].Label)
+	assert.Equal(t, "Swordsmanship Lv3", sources[0].Label)
 	assert.Equal(t, 15, sources[0].Value) // 3*5
 	assert.Equal(t, "STR 8", sources[1].Label)
 	assert.Equal(t, 8, sources[1].Value) // 8*1
@@ -136,7 +136,7 @@ func TestRecalculateCharModifiers_HealthPenalty(t *testing.T) {
 	sources := mods.Sources[ModMoveCost]
 	found := false
 	for _, s := range sources {
-		if s.Label == "低体温" {
+		if s.Label == "Hypothermia" {
 			assert.Equal(t, 20, s.Value)
 			found = true
 		}

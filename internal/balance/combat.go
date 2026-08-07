@@ -91,10 +91,10 @@ func SimulateBattle(player, enemy CombatantStats, playerWeapon, enemyWeapon Weap
 func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, error) {
 	spec, err := raw.NewMemberSpec(master, name)
 	if err != nil {
-		return CombatantStats{}, fmt.Errorf("メンバー %q のロードに失敗: %w", name, err)
+		return CombatantStats{}, fmt.Errorf("failed to load member %q: %w", name, err)
 	}
 	if spec.Abilities == nil {
-		return CombatantStats{}, fmt.Errorf("メンバー %q にAbilitiesがありません", name)
+		return CombatantStats{}, fmt.Errorf("member %q has no Abilities", name)
 	}
 
 	abils := spec.Abilities
@@ -114,7 +114,7 @@ func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, err
 func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {
 	spec, err := raw.NewItemSpec(master, name)
 	if err != nil {
-		return WeaponStats{}, fmt.Errorf("武器 %q のロードに失敗: %w", name, err)
+		return WeaponStats{}, fmt.Errorf("failed to load weapon %q: %w", name, err)
 	}
 
 	// Fireを先にチェックする。MeleeとFireの両方を持つ武器は遠距離として扱う
@@ -133,28 +133,28 @@ func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {
 		}, nil
 	}
 
-	return WeaponStats{}, fmt.Errorf("アイテム %q にMeleeもFireもありません", name)
+	return WeaponStats{}, fmt.Errorf("item %q has neither Melee nor Fire", name)
 }
 
 // LoadEnemyWeapon は敵のCommandTableから武器を取得しWeaponStatsを返す
 func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
-	spec, err := raw.NewMemberSpec(master, enemyName)
+	member, err := raw.FindMember(master, enemyName)
 	if err != nil {
 		return WeaponStats{}, err
 	}
 
-	if spec.CommandTable == nil {
+	if member.CommandTableName == nil {
 		// CommandTableがない場合は素手
-		return LoadWeaponFromItem(master, "素手")
+		return LoadWeaponFromItem(master, "bare_hands")
 	}
 
-	ct, err := raw.GetCommandTable(master, spec.CommandTable.Name)
+	ct, err := raw.GetCommandTable(master, *member.CommandTableName)
 	if err != nil {
 		return WeaponStats{}, err
 	}
 
 	if len(ct.Entries) == 0 {
-		return LoadWeaponFromItem(master, "素手")
+		return LoadWeaponFromItem(master, "bare_hands")
 	}
 
 	// 最も重みの高い攻撃を代表として使う

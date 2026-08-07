@@ -17,7 +17,7 @@ func TestGetAttackFromCommandTable(t *testing.T) {
 	// 既存の「スライム」コマンドテーブルを使用する
 	enemy := world.ECS.NewEntity()
 	world.Components.CommandTable.Add(enemy, &gc.CommandTable{
-		Name: "スライム",
+		Name: "slime",
 	})
 
 	// テスト実行
@@ -125,7 +125,7 @@ func TestAttackUnification(t *testing.T) {
 
 	// 敵の攻撃取得
 	enemy := world.ECS.NewEntity()
-	world.Components.CommandTable.Add(enemy, &gc.CommandTable{Name: "スライム"})
+	world.Components.CommandTable.Add(enemy, &gc.CommandTable{Name: "slime"})
 	enemyAttack, enemyWeaponName, err := GetAttackFromCommandTable(world, enemy)
 	require.NoError(t, err)
 

@@ -33,7 +33,7 @@ func (p Placement) WinnerOf(runSeed uint64, rx, rows consts.Chunk) consts.Coord[
 	// Spacing <= Separation だと差が負になり uint64 キャストで巨大値へアンダーフローし、
 	// オフセット抽選が壊れる。Placement は内部定数なので設定ミスは never として弾く
 	if p.Spacing <= p.Separation {
-		panic("Placement: Spacing は Separation より大きいこと")
+		panic("Placement: Spacing must be greater than Separation")
 	}
 	span := uint64(p.Spacing - p.Separation)
 	h := ChunkSeed2D(runSeed^p.Salt, rx, 0)

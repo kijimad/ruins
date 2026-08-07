@@ -14,4 +14,4 @@
 
   # NPCの定義
   [palette.npcs]
-    "M" = {id = "凍晶化した猟師", tile = "floor"}
+    "M" = {id = "frozen_hunter", tile = "floor"}

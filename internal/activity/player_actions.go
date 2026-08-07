@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -20,7 +21,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	if !world.Components.GridElement.Has(entity) {
-		return fmt.Errorf("プレイヤーにGridElementコンポーネントがありません")
+		return fmt.Errorf("player has no GridElement component")
 	}
 
 	gridElement := world.Components.GridElement.Get(entity)
@@ -44,7 +45,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					door := world.Components.Door.Get(interactableEntity)
 					if !door.IsOpen {
 						if door.Locked {
-							gamelog.New(query.GetGameLog(world)).Append("扉はロックされている。").Log()
+							gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "The door is locked.")).Log()
 							return nil
 						}
 						_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
@@ -89,6 +90,11 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	if canMove {
 		destination := gc.GridElement{Coord: next}
 		_, err := Execute(NewMoveActivity(destination), entity, world)
+		// 重量超過はプレイヤーの通常状態。エラーにすると入力層で致命化するため、
+		// 壁への歩き込みと同じく no-op にする。理由のログは Validate が既に出している
+		if errors.Is(err, ErrMoveOverweight) {
+			return nil
+		}
 		return err
 	}
 
@@ -169,29 +175,29 @@ func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
 
 	// 同じタイル
 	if d.X == 0 && d.Y == 0 {
-		return "直上"
+		return "here"
 	}
 
 	// 8方向を判定
 	if d.Y < 0 {
 		if d.X < 0 {
-			return "左上"
+			return "upper left"
 		} else if d.X > 0 {
-			return "右上"
+			return "upper right"
 		}
-		return "上"
+		return "up"
 	} else if d.Y > 0 {
 		if d.X < 0 {
-			return "左下"
+			return "lower left"
 		} else if d.X > 0 {
-			return "右下"
+			return "lower right"
 		}
-		return "下"
+		return "down"
 	}
 	if d.X < 0 {
-		return "左"
+		return "left"
 	}
-	return "右"
+	return "right"
 }
 
 // showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する
@@ -207,25 +213,23 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			case gc.InteractionItem:
 				formattedName := query.FormatItemName(world, entity)
 				gamelog.New(query.GetGameLog(world)).
-					ItemName(formattedName).
-					Append(" がある。").
+					Markup(query.T(world, "%s is here.", gamelog.Tag("item", formattedName))).
 					Log()
 			case gc.InteractionPortalNext:
 				gamelog.New(query.GetGameLog(world)).
-					Append("転移ゲートがある。Enterキーで移動。").
+					Markup(query.T(world, "There is a warp gate. Press Enter to move.")).
 					Log()
 			case gc.InteractionPortalPrev:
 				gamelog.New(query.GetGameLog(world)).
-					Append("上り階段がある。Enterキーで移動。").
+					Markup(query.T(world, "There is an up staircase. Press Enter to move.")).
 					Log()
 			case gc.InteractionDungeonEnter:
 				gamelog.New(query.GetGameLog(world)).
-					Append("遺跡の入口がある。Enterキーで入る。").
+					Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
 					Log()
 			case gc.InteractionEnterCube:
 				gamelog.New(query.GetGameLog(world)).
-					ItemName(query.GetEntityName(entity, world)).
-					Append("がある。Spaceのアクションメニューから入れる。").
+					Markup(query.T(world, "%s is here. You can enter it from the Space action menu.", gamelog.Tag("item", query.GetEntityName(entity, world)))).
 					Log()
 			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を

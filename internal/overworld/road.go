@@ -52,7 +52,7 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, 
 		wx := g.offsetX + (px - loX)
 		wy := g.offsetY + (py - loY)
 		if err := replaceDirtTile(world, tiles, consts.Coord[consts.Tile]{X: wx, Y: wy}); err != nil {
-			return fmt.Errorf("道の舗装に失敗 (x=%d, y=%d): %w", wx, wy, err)
+			return fmt.Errorf("failed to pave road (x=%d, y=%d): %w", wx, wy, err)
 		}
 		return nil
 	}

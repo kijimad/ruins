@@ -19,7 +19,7 @@ func findPosition(planData *MetaPlan, world w.World, selectors ...positionSelect
 			return x, y, nil
 		}
 	}
-	return 0, 0, fmt.Errorf("配置位置が見つかりません: %d個のセレクタがすべて失敗しました", len(selectors))
+	return 0, 0, fmt.Errorf("no placement position found: all %d selectors failed", len(selectors))
 }
 
 // inRoomSelector は指定された部屋内からランダムに配置位置を選択する

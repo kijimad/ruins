@@ -121,28 +121,28 @@ const (
 
 // インベントリカテゴリ名の定数
 const (
-	CategoryGoods  = "道具"
-	CategoryWeapon = "武器"
-	CategoryArmor  = "防具"
+	CategoryGoods  = "Goods"
+	CategoryWeapon = "Weapon"
+	CategoryArmor  = "Armor"
 )
 
-// アイテム種別カテゴリ名の定数
+// アイテム種別カテゴリ名の定数。値は query.T の msgid として使う
 const (
-	CategoryMaterial   = "素材"
-	CategoryAmmo       = "弾薬"
-	CategoryBook       = "本"
-	CategoryFixed      = "固定物"
-	CategoryConsumable = "消耗品"
-	CategoryMelee      = "近接武器"
-	CategoryFire       = "射撃武器"
+	CategoryMaterial   = "Material"
+	CategoryAmmo       = "Ammunition"
+	CategoryBook       = "Book"
+	CategoryFixed      = "Fixed object"
+	CategoryConsumable = "Consumable"
+	CategoryMelee      = "Melee weapon"
+	CategoryFire       = "Ranged weapon"
 )
 
-// フィールド観察カテゴリ名の定数
+// フィールド観察カテゴリ名の定数。値は query.T の msgid として使う
 const (
-	CategoryPlayer = "自分"
-	CategoryEnemy  = "敵"
+	CategoryPlayer = "Self"
+	CategoryEnemy  = "Enemy"
 	CategoryNPC    = "NPC"
-	CategoryTile   = "タイル"
+	CategoryTile   = "Tile"
 )
 
 // has は Components のフィールド名を自動解決して Has を生成する。

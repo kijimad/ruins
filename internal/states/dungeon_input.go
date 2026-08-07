@@ -266,7 +266,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
 	}
 }
 
@@ -304,7 +304,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得
-			dialogMessage := messagedata.GetDialogue(p.MessageKey, speakerName)
+			dialogMessage := messagedata.GetDialogue(world, p.MessageKey, speakerName)
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },
 			}}, nil
@@ -314,7 +314,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		if err := st.descend(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.WarpAscend:
 		// 上り階段に結線があればそこへ移動する。浅い階でも遺跡→地上でも同一機構。
 		// 全ダンジョンはオーバーワールド入口から入り、生成時に戻り先が結線される。よって
@@ -324,39 +324,39 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			return es.Transition[w.World]{}, err
 		}
 		if !handled {
-			return es.Transition[w.World]{}, fmt.Errorf("最上階の上り階段に戻り先の結線がありません")
+			return es.Transition[w.World]{}, fmt.Errorf("top floor up stairs has no return link")
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.WarpDungeonEnter:
 		// オーバーワールドから遺跡へ入る。同一 State 内 swapTo で帯を退避し遺跡へ切り替える。
 		// プランナー名の指定があれば固定して生成する。デバッグのプランナー単位進入で使う
 		if p.PlannerName != "" {
 			builderType, ok := mapplanner.PlannerTypeByName(p.PlannerName)
 			if !ok {
-				return es.Transition[w.World]{}, fmt.Errorf("不明なプランナー名: %s", p.PlannerName)
+				return es.Transition[w.World]{}, fmt.Errorf("unknown planner name: %s", p.PlannerName)
 			}
 			// デバッグはプランナーを変えて見た目を試す用途なので、選ぶたびに作り直す
 			if err := st.enterDebugPlannerFloor(world, p.DefinitionName, builderType); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-			return es.Transition[w.World]{Type: es.TransNone}, nil
+			return st.completeSwap(world)
 		}
 		if err := st.enterDungeon(world, p.DefinitionName); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.WarpCubeEnter:
 		// 移動拠点キューブの内部へ入る。同一 State 内 swapTo でオーバーワールドを退避する
 		if err := enterCube(world, p.Cube); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.WarpCubeExit:
 		// キューブ内部からオーバーワールドへ戻る
 		if err := exitCube(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.OpenCubePanel:
 		// キューブ内部のコントロールパネルを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
@@ -369,7 +369,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}}, nil
 	default:
 		// この switch で扱わない種別。未実装の scaffold もここに落ちる
-		return es.Transition[w.World]{}, fmt.Errorf("未処理のStateChangeRequest: %T", req.Payload)
+		return es.Transition[w.World]{}, fmt.Errorf("unhandled StateChangeRequest: %T", req.Payload)
 	}
 }
 
@@ -388,8 +388,7 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
 				weaponName := nameComp.Name
 				gamelog.New(query.GetGameLog(world)).
-					ItemName(weaponName).
-					Append("を構えた").
+					Markup(query.T(world, "Readied %s.", gamelog.Tag("item", weaponName))).
 					Log()
 			}
 		}

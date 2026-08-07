@@ -19,7 +19,7 @@ func TestCanPlayerAct(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		// TurnBasedコンポーネントを追加する
@@ -38,7 +38,7 @@ func TestCanPlayerAct(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		world.Components.TurnBased.Set(player, &gc.TurnBased{
@@ -56,7 +56,7 @@ func TestCanPlayerAct(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		world.Components.TurnBased.Set(player, &gc.TurnBased{
@@ -85,7 +85,7 @@ func TestConsumeActionPoints(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		world.Components.TurnBased.Set(player, &gc.TurnBased{
@@ -116,7 +116,7 @@ func TestRestoreAllActionPoints(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	tb := world.Components.TurnBased.Get(player)

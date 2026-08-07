@@ -15,7 +15,7 @@ import (
 func SubImage(img *ebiten.Image, r image.Rectangle) *ebiten.Image {
 	sub, ok := img.SubImage(r).(*ebiten.Image)
 	if !ok {
-		panic("ebiten.Image.SubImage が *ebiten.Image を返さなかった")
+		panic("ebiten.Image.SubImage did not return *ebiten.Image")
 	}
 	return sub
 }

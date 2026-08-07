@@ -12,17 +12,17 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	report, err := GenerateReport(master, "Ash", "素手", 3, 5, 42)
+	report, err := GenerateReport(master, "ash", "bare_hands", 3, 5, 42)
 	require.NoError(t, err)
 
 	assert.Equal(t, "simple", report.Mode)
 
 	require.NotNil(t, report.Player)
-	assert.Equal(t, "Ash", report.Player.Name)
+	assert.Equal(t, "ash", report.Player.Name)
 	assert.Equal(t, 80, report.Player.HP)
 
 	require.NotNil(t, report.Weapon)
-	assert.Equal(t, "素手", report.Weapon.Name)
+	assert.Equal(t, "bare_hands", report.Weapon.Name)
 
 	require.Len(t, report.EnemyTables, 3, "raw.tomlのenemyTables数と一致する")
 	for _, run := range report.EnemyTables {
@@ -39,18 +39,18 @@ func TestGenerateReport_存在しないプレイヤーはエラー(t *testing.T)
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	_, err := GenerateReport(master, "存在しないプレイヤー", "素手", 1, 1, 1)
+	_, err := GenerateReport(master, "存在しないプレイヤー", "bare_hands", 1, 1, 1)
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "プレイヤーのロードに失敗")
+	assert.ErrorContains(t, err, "failed to load player")
 }
 
 func TestGenerateReport_存在しない武器はエラー(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	_, err := GenerateReport(master, "Ash", "存在しない武器", 1, 1, 1)
+	_, err := GenerateReport(master, "ash", "存在しない武器", 1, 1, 1)
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "武器のロードに失敗")
+	assert.ErrorContains(t, err, "failed to load weapon")
 }
 
 func TestGenerateBattleMetrics_存在しないプレイヤーはnilを返す(t *testing.T) {
@@ -65,10 +65,10 @@ func TestGenerateBattleMetrics_武器と敵の組み合わせでDPSを算出す�
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	metrics := generateBattleMetrics(master, "Ash", 42)
+	metrics := generateBattleMetrics(master, "ash", 42)
 	require.NotEmpty(t, metrics)
 	for _, m := range metrics {
-		assert.Equal(t, "Ash", m.Player)
+		assert.Equal(t, "ash", m.Player)
 		assert.GreaterOrEqual(t, m.DPS, 0.0)
 	}
 }
@@ -78,7 +78,7 @@ func TestReport_MarshalJSON_omitemptyでnilフィールドを省略する(t *tes
 
 	r := &Report{
 		Mode:   "simple",
-		Player: &PlayerInfo{Name: "Ash", HP: 80},
+		Player: &PlayerInfo{Name: "ash", HP: 80},
 	}
 
 	data, err := json.Marshal(r)

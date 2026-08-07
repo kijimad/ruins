@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -39,6 +40,9 @@ var _ menurt.ExtraInput = &ShopMenuState{}
 func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.screen = menurt.NewScreen[ShopProps](st, &st.detail)
+	// 売買で所持品が変わると WeightDirty が立つ。この画面でも再計算を回し、
+	// 総重量の表示を売買のたびに更新する
+	st.screen.WithSystems(&gs.WeightDirtySystem{})
 	return nil
 }
 
@@ -97,7 +101,8 @@ type shopTabData struct {
 }
 
 type shopItemData struct {
-	Label    string
+	ItemID   string // アイテムの同定キー。NewItemSpec/BuyItem/価格はこれで引く
+	Label    string // 表示名
 	Weight   string
 	Price    int
 	Count    int // 売却時のアイテム個数
@@ -144,13 +149,19 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 	shopInventory := gameaction.GetShopInventory()
 	items := make([]shopItemData, 0, len(shopInventory))
 
-	for _, itemName := range shopInventory {
-		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemName, true))
+	for _, itemID := range shopInventory {
+		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemID, true))
 		canAfford := currency >= price
 
+		label := itemID
+		if itemDef, err := raw.FindItem(world.Resources.RawMaster, itemID); err == nil {
+			label = itemDef.Name
+		}
+
 		items = append(items, shopItemData{
-			Label:    itemName,
-			Weight:   shopItemWeight(world, itemName),
+			ItemID:   itemID,
+			Label:    label,
+			Weight:   shopItemWeight(world, itemID),
 			Price:    price,
 			IsBuy:    true,
 			Disabled: !canAfford,
@@ -164,11 +175,11 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 	var items []shopItemData
 
 	query.Player(world, func(_ ecs.Entity) {
-		sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
+		sellQuery := ecs.NewFilter3[gc.Name, gc.RawID, gc.LocationInBackpack](world.ECS).Query()
 		for sellQuery.Next() {
 			entity := sellQuery.Entity()
 			nameComp := world.Components.Name.Get(entity)
-			itemName := nameComp.Name
+			rawID := world.Components.RawID.Get(entity)
 
 			baseValue := query.GetItemValue(world, entity)
 			price := sellPriceMod.ApplyInt(query.CalculateSellPrice(baseValue))
@@ -176,7 +187,8 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 			count := query.GetEntityCount(world, entity)
 
 			items = append(items, shopItemData{
-				Label:  itemName,
+				ItemID: rawID.Value,
+				Label:  nameComp.Name,
 				Weight: query.GetEntityWeight(world, entity).KgString(),
 				Price:  price,
 				Count:  count,
@@ -190,16 +202,16 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 }
 
 // shopItemWeight は raw 定義から商品1個の重量表記を返す。重量を持たない品は空文字を返す
-func shopItemWeight(world w.World, label string) string {
-	spec, err := raw.NewItemSpec(world.Resources.RawMaster, label)
+func shopItemWeight(world w.World, itemID string) string {
+	spec, err := raw.NewItemSpec(world.Resources.RawMaster, itemID)
 	if err != nil || spec.Weight == nil {
 		return ""
 	}
 	return spec.Weight.KgString()
 }
 
-func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool) int {
-	itemDef, err := raw.FindItem(world.Resources.RawMaster, itemName)
+func (st *ShopMenuState) getItemPrice(world w.World, itemID string, isBuy bool) int {
+	itemDef, err := raw.FindItem(world.Resources.RawMaster, itemID)
 	if err != nil {
 		return 0
 	}
@@ -218,7 +230,7 @@ func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool
 // 決定で即実行し、途中のアクション選択は挟まない。購入は所持金が足りなければ何もしない
 func (st *ShopMenuState) buySellSelected(world w.World) error {
 	item, ok := st.selectedShopItem()
-	if !ok || item.Label == "" {
+	if !ok || item.ItemID == "" {
 		return nil
 	}
 	if item.IsBuy {
@@ -228,7 +240,7 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 			return nil
 		}
 		var err error
-		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.Label) })
+		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.ItemID) })
 		if err != nil {
 			return fmt.Errorf("failed to buy: %w", err)
 		}
@@ -271,7 +283,7 @@ func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Sele
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, query.T(world, "x Details")),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 
@@ -301,7 +313,7 @@ func (st *ShopMenuState) selectedDetail(world w.World) (shopItemData, gc.EntityS
 		return shopItemData{}, gc.EntitySpec{}, false
 	}
 	item := items[cursor.ItemIndex]
-	s, err := raw.NewItemSpec(world.Resources.RawMaster, item.Label)
+	s, err := raw.NewItemSpec(world.Resources.RawMaster, item.ItemID)
 	if err != nil {
 		return shopItemData{}, gc.EntitySpec{}, false
 	}

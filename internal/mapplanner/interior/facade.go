@@ -113,5 +113,5 @@ func frontWallSpan(b Rect, fside side) (lo, hi consts.Tile, wall tileLine) {
 	case sideEast:
 		return b.Y + 1, b.Y + b.H - 2, tileLine{cross: b.X + b.W - 1, horiz: false}
 	}
-	panic("未知の side: " + strconv.Itoa(int(fside)))
+	panic("unknown side: " + strconv.Itoa(int(fside)))
 }

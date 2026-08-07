@@ -165,7 +165,7 @@ func TestLoadUserConfig_不正なTOMLはエラーを返す(t *testing.T) {
 
 	c := &Config{User: DefaultUserConfig()}
 	err := c.loadUserConfig()
-	assert.ErrorContains(t, err, "設定の解析に失敗しました")
+	assert.ErrorContains(t, err, "failed to parse config")
 }
 
 func TestLoad_RUINS_SEEDを指定すると再現可能なSeedになる(t *testing.T) {

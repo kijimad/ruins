@@ -46,7 +46,7 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 	dungeonRes := query.GetDungeon(world)
 	if dungeonRes == nil {
-		return 0, errors.New("ダンジョンリソースが設定されていない")
+		return 0, errors.New("dungeon resource is not set")
 	}
 
 	def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)
@@ -87,7 +87,7 @@ func frostZoneModifier(world w.World, x consts.Tile) int {
 // Update は健康状態のタイマーを更新する
 func (sys *TemperatureSystem) Update(world w.World) error {
 	if query.GetDungeon(world) == nil {
-		return errors.New("ダンジョンリソースが設定されていない")
+		return errors.New("dungeon resource is not set")
 	}
 
 	// HealthStatusとGridElementを持つエンティティを処理。
@@ -263,7 +263,7 @@ func logTemperatureChange(world w.World, condType gc.ConditionType, current, pre
 
 	if msg != "" {
 		gamelog.New(query.GetGameLog(world)).
-			Warning(msg).
+			Markup(gamelog.Tag("warning", query.T(world, msg))).
 			Log()
 	}
 }
@@ -276,22 +276,22 @@ func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string
 		case gc.SeverityNone:
 			return ""
 		case gc.SeverityMinor:
-			return "寒さで冷えてきた"
+			return "The cold is setting in"
 		case gc.SeverityMedium:
-			return "寒さでかなり冷えている"
+			return "You are quite cold"
 		case gc.SeveritySevere:
-			return "寒さで危険な状態だ"
+			return "The cold is dangerous"
 		}
 	case gc.ConditionHyperthermia:
 		switch severity {
 		case gc.SeverityNone:
 			return ""
 		case gc.SeverityMinor:
-			return "暑さで火照ってきた"
+			return "The heat is flushing you"
 		case gc.SeverityMedium:
-			return "暑さでかなり消耗している"
+			return "The heat is wearing you down"
 		case gc.SeveritySevere:
-			return "暑さで危険な状態だ"
+			return "The heat is dangerous"
 		}
 	}
 	return ""
@@ -303,22 +303,22 @@ func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string 
 	case gc.ConditionHypothermia:
 		switch severity {
 		case gc.SeverityNone:
-			return "温まった"
+			return "You have warmed up"
 		case gc.SeverityMinor:
-			return "少し温まってきた"
+			return "You are warming up a little"
 		case gc.SeverityMedium:
-			return "まだ寒いが、少しマシになった"
+			return "Still cold, but a little better"
 		case gc.SeveritySevere:
 			return ""
 		}
 	case gc.ConditionHyperthermia:
 		switch severity {
 		case gc.SeverityNone:
-			return "涼しくなった"
+			return "You have cooled down"
 		case gc.SeverityMinor:
-			return "少し涼しくなってきた"
+			return "You are cooling down a little"
 		case gc.SeverityMedium:
-			return "まだ暑いが、少しマシになった"
+			return "Still hot, but a little better"
 		case gc.SeveritySevere:
 			return ""
 		}

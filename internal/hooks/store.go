@@ -33,13 +33,13 @@ func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapp
 	store.reducers[key] = func(s any, a inputmapper.ActionID) any {
 		typed, ok := s.(T)
 		if !ok {
-			panic("hooks: 状態の型がreducerの型引数と一致しません: key=" + key)
+			panic("hooks: state type does not match reducer type argument: key=" + key)
 		}
 		return reducer(typed, a)
 	}
 	v, ok := store.states[key].(T)
 	if !ok {
-		panic("hooks: 状態の型が登録時と一致しません: key=" + key)
+		panic("hooks: state type does not match registration: key=" + key)
 	}
 	return v
 }

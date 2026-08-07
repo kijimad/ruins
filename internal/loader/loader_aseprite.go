@@ -15,19 +15,19 @@ func LoadSpriteSheetFromAseprite(jsonPath string) (components.SpriteSheet, error
 	// JSONファイルを読み込み
 	bs, err := assets.FS.ReadFile(jsonPath)
 	if err != nil {
-		return components.SpriteSheet{}, fmt.Errorf("JSONファイルの読み込みに失敗: %w", err)
+		return components.SpriteSheet{}, fmt.Errorf("failed to load JSON file: %w", err)
 	}
 
 	var aseData AsepriteJSON
 	if err := json.Unmarshal(bs, &aseData); err != nil {
-		return components.SpriteSheet{}, fmt.Errorf("JSONのパースに失敗: %w", err)
+		return components.SpriteSheet{}, fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
 	// 画像ファイルを読み込み
 	imagePath := filepath.Join(filepath.Dir(jsonPath), aseData.Meta.Image)
 	var texture components.Texture
 	if err := texture.UnmarshalText([]byte(imagePath)); err != nil {
-		return components.SpriteSheet{}, fmt.Errorf("画像の読み込みに失敗: %w", err)
+		return components.SpriteSheet{}, fmt.Errorf("failed to load image: %w", err)
 	}
 
 	// スプライト辞書を構築
@@ -42,14 +42,14 @@ func LoadSpriteSheetFromAseprite(jsonPath string) (components.SpriteSheet, error
 		}
 
 		if !strings.HasSuffix(frame.Filename, "_") {
-			return components.SpriteSheet{}, fmt.Errorf("スプライトファイル名は'_'で終わる必要があります: %s", frame.Filename)
+			return components.SpriteSheet{}, fmt.Errorf("sprite file name must end with '_': %s", frame.Filename)
 		}
 		// キー名の生成（末尾のアンダースコアを削除）
 		key := strings.TrimSuffix(frame.Filename, "_")
 
 		// 重複チェック
 		if _, exists := sprites[key]; exists {
-			return components.SpriteSheet{}, fmt.Errorf("重複したスプライトキー: %s", key)
+			return components.SpriteSheet{}, fmt.Errorf("duplicate sprite key: %s", key)
 		}
 
 		sprites[key] = sprite

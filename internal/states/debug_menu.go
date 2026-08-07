@@ -33,22 +33,22 @@ func NewDebugMenuState() (es.State[w.World], error) {
 func debugMenuChoices(_ w.World) (string, []Choice) {
 	debugName := dungeon.DungeonDebug.Name()
 	choices := []Choice{
-		{Label: "回復薬スポーン(インベントリ)", Run: popAfter(func(world w.World) error {
-			_, err := lifecycle.SpawnBackpackItem(world, "回復薬", 1)
+		{Label: "Spawn healing potion (inventory)", Run: popAfter(func(world w.World) error {
+			_, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 1)
 			return err
 		})},
-		{Label: "レイガンスポーン(インベントリ)", Run: popAfter(func(world w.World) error {
-			_, err := lifecycle.SpawnBackpackItem(world, "レイガン", 1)
+		{Label: "Spawn ray gun (inventory)", Run: popAfter(func(world w.World) error {
+			_, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 			return err
 		})},
-		{Label: "ゲームオーバー", Run: pushChoice(NewGameOverMessageState)},
-		{Label: "全ダンジョン踏破", Run: popAfter(func(world w.World) error {
+		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
+		{Label: "Clear all dungeons", Run: popAfter(func(world w.World) error {
 			for _, name := range dungeon.GetAllDungeonNames() {
 				query.GetGameProgress(world).MarkDungeonCleared(name)
 			}
 			return nil
 		})},
-		{Label: "オーバーワールド開始", Run: func(world w.World) (es.Transition[w.World], error) {
+		{Label: "Start overworld", Run: func(world w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)}}, nil
 		}},
 	}
@@ -56,51 +56,51 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	// プランナー単位でデバッグ遺跡へ入る選択肢を平坦に追加する。TransReplace ではなく TransPop で
 	// ゲームへ戻し、DungeonState.Update が enterDungeonWith を指定プランナーで通す
 	for _, pt := range debugEnterPlanners {
-		choices = append(choices, Choice{Label: "デバッグ遺跡を生成 " + pt.Name, Run: popAfter(func(world w.World) error {
+		choices = append(choices, Choice{Label: "Generate debug dungeon " + pt.Name, Run: popAfter(func(world w.World) error {
 			return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(debugName, pt.Name))
 		})})
 	}
 
 	// 街用NPC・収納箱をスポーン地点の隣に固定配置したデバッグステージへ入る。
 	// 街の会話・売買・収納を入ってすぐテストできる
-	choices = append(choices, Choice{Label: "デバッグステージを生成", Run: popAfter(func(world w.World) error {
+	choices = append(choices, Choice{Label: "Generate debug stage", Run: popAfter(func(world w.World) error {
 		return lifecycle.RequestStateChange(world, gc.WarpDungeonEnterWithPlannerEvent(dungeon.DungeonDebugTown.Name(), mapplanner.PlannerTypeDebugTown.Name))
 	})})
 
 	choices = append(choices,
-		Choice{Label: "メッセージ表示テスト", Run: pushMessage(messagedata.NewSystemMessage("ゲームが自動保存されました。\n\n進行状況は安全に記録されています。"))},
-		Choice{Label: "アイテム入手イベント", Run: func(world w.World) (es.Transition[w.World], error) {
-			for name, count := range map[string]int{"鉄": 1, "木の棒": 1, "フェライトコア": 2} {
-				if err := lifecycle.ChangeStackableCount(world, name, count); err != nil {
-					return es.Transition[w.World]{}, fmt.Errorf("アイテム追加に失敗: %w", err)
+		Choice{Label: "Message display test", Run: pushMessage(messagedata.NewSystemMessage("The game was saved automatically.\n\nYour progress has been recorded safely."))},
+		Choice{Label: "Item acquisition event", Run: func(world w.World) (es.Transition[w.World], error) {
+			for id, count := range map[string]int{"iron": 1, "wooden_stick": 1, "ferrite_core": 2} {
+				if err := lifecycle.ChangeStackableCount(world, id, count); err != nil {
+					return es.Transition[w.World]{}, fmt.Errorf("failed to add item: %w", err)
 				}
 			}
 			md := &messagedata.MessageData{Speaker: ""}
-			md.AddText("宝箱を発見した。\n\n鉄を手に入れた。\n木の棒を手に入れた。\nフェライトコアを2個手に入れた。\n")
+			md.AddText("Found a treasure chest.\n\nObtained iron.\nObtained a wooden stick.\nObtained 2 ferrite cores.\n")
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(md) }}}, nil
 		}},
-		Choice{Label: "連鎖メッセージテスト", Run: pushMessage(messagedata.NewSystemMessage("戦闘開始。").SystemMessage("剣と剣がぶつかり合う。").SystemMessage("勝利した。"))},
-		Choice{Label: "長いメッセージテスト", Run: pushMessage(messagedata.NewSystemMessage("これは非常に長いメッセージのテストです。\n\nメッセージウィンドウは自動的にサイズを調整し、\n長いテキストでも適切に表示されることを確認しています。\n\n複数行のテキストと改行が正しく処理されること、\nそしてウィンドウの背景やボーダーが適切に描画されることを\nこのテストで検証できます。\n\n日本語のテキストも問題なく表示されるはずです。\n句読点、記号、数字123なども含めて確認してみましょう。"))},
-		Choice{Label: "選択肢分岐メッセージテスト", Run: pushMessage(messagedata.NewDialogMessage("敵に遭遇した。", "").
-			WithChoiceMessage("戦う", messagedata.NewSystemMessage("戦闘した。")).
-			WithChoiceMessage("交渉する", messagedata.NewSystemMessage("交渉した。")).
-			WithChoiceMessage("逃走する", messagedata.NewSystemMessage("逃走した。")))},
-		Choice{Label: "背景付きメッセージテスト", Run: func(_ w.World) (es.Transition[w.World], error) {
-			md := messagedata.NewDialogMessage("これは背景付きメッセージのテストです。", "システム")
+		Choice{Label: "Chained message test", Run: pushMessage(messagedata.NewSystemMessage("Battle begins.").SystemMessage("Sword clashes against sword.").SystemMessage("Victory."))},
+		Choice{Label: "Long message test", Run: pushMessage(messagedata.NewSystemMessage("This is a test of a very long message.\n\nThe message window resizes automatically, and we confirm that even long text is displayed properly.\n\nThis test verifies that multi-line text and line breaks are handled correctly, and that the window background and border are drawn properly.\n\nMixed content should also display without any problems.\nLet us check punctuation, symbols, and numbers like 123 as well."))},
+		Choice{Label: "Choice branch message test", Run: pushMessage(messagedata.NewDialogMessage("Encountered an enemy.", "").
+			WithChoiceMessage("Fight", messagedata.NewSystemMessage("Fought.")).
+			WithChoiceMessage("Negotiate", messagedata.NewSystemMessage("Negotiated.")).
+			WithChoiceMessage("Flee", messagedata.NewSystemMessage("Fled.")))},
+		Choice{Label: "Message with background test", Run: func(_ w.World) (es.Transition[w.World], error) {
+			md := messagedata.NewDialogMessage("This is a test of a message with a background.", "System")
 			md.BackgroundKey = "hospital1"
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(md) }}}, nil
 		}},
-		Choice{Label: "デバッグ表示切り替え", Run: popAfter(func(world w.World) error {
+		Choice{Label: "Toggle debug display", Run: popAfter(func(world w.World) error {
 			world.Config.ShowMapDebug = !world.Config.ShowMapDebug
 			world.Config.ShowAIDebug = !world.Config.ShowAIDebug
 			world.Config.NoEncounter = !world.Config.NoEncounter
 			return nil
 		})},
-		Choice{Label: "オープニング", Run: pushChoice(NewOpeningState)},
-		Choice{Label: "全クリアイベント", Run: pushChoice(NewAllClearEventState)},
-		Choice{Label: "名前入力", Run: pushChoice(NewCharacterNamingState)},
-		Choice{Label: "職業選択", Run: pushChoice(NewCharacterJobState("Ash"))},
-		Choice{Label: "隊員スポーン", Run: popAfter(func(world w.World) error {
+		Choice{Label: "Opening", Run: pushChoice(NewOpeningState)},
+		Choice{Label: "All clear event", Run: pushChoice(NewAllClearEventState)},
+		Choice{Label: "Name input", Run: pushChoice(NewCharacterNamingState)},
+		Choice{Label: "Job selection", Run: pushChoice(NewCharacterJobState("Ash"))},
+		Choice{Label: "Spawn squad member", Run: popAfter(func(world w.World) error {
 			player, err := query.GetPlayerEntity(world)
 			if err != nil {
 				return err
@@ -113,26 +113,26 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 				Agility:   gc.Ability{Base: 9},
 				Defense:   gc.Ability{Base: 5},
 			}
-			if _, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "general"); err != nil {
-				return fmt.Errorf("隊員スポーンに失敗: %w", err)
+			if _, err := lifecycle.SpawnSquadMember(world, player, "Squad member", abilities, "general"); err != nil {
+				return fmt.Errorf("failed to spawn squad member: %w", err)
 			}
 			return nil
 		})},
-		Choice{Label: "敵スポーン:火の玉(hostile)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "火の玉") })},
-		Choice{Label: "敵スポーン:苔亀(neutral)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "苔亀") })},
-		Choice{Label: "敵スポーン:ネズミ(cowardly)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "ネズミ") })},
-		Choice{Label: "敵スポーン:鉄の番兵(stationary)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "鉄の番兵") })},
-		Choice{Label: "敵スポーン:毒蜘蛛(wallHug)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "毒蜘蛛") })},
-		Choice{Label: "敵スポーン:スライム(swarm)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "スライム") })},
-		Choice{Label: "敵スポーン:骸骨兵(patrol)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "骸骨兵") })},
-		Choice{Label: "敵スポーン:野犬(territorial)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "野犬") })},
-		Choice{Label: "Propスポーン:moving_stone(PassCost)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "moving_stone") })},
-		Choice{Label: "Propスポーン:bonfire(光源)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "bonfire") })},
-		Choice{Label: "Propスポーン:barrel(破壊可能)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "barrel") })},
-		Choice{Label: "Propスポーン:construction_sign(通行不可)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "construction_sign") })},
-		Choice{Label: "Propスポーン:木箱(収納・アイテム入り)", Run: stayAfter(spawnStorageWithItems)},
-		Choice{Label: "コンポーネント一覧", Run: pushChoice(NewComponentDebugState)},
-		Choice{Label: TextClose, Run: func(_ w.World) (es.Transition[w.World], error) {
+		Choice{Label: "Spawn enemy: fireball (hostile)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "fireball") })},
+		Choice{Label: "Spawn enemy: moss turtle (neutral)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "moss_turtle") })},
+		Choice{Label: "Spawn enemy: rat (cowardly)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "rat") })},
+		Choice{Label: "Spawn enemy: iron sentinel (stationary)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "iron_sentinel") })},
+		Choice{Label: "Spawn enemy: poison spider (wallHug)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "poison_spider") })},
+		Choice{Label: "Spawn enemy: slime (swarm)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "slime") })},
+		Choice{Label: "Spawn enemy: skeleton soldier (patrol)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "skeleton_soldier") })},
+		Choice{Label: "Spawn enemy: stray dog (territorial)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "stray_dog") })},
+		Choice{Label: "Spawn prop: moving_stone (PassCost)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "moving_stone") })},
+		Choice{Label: "Spawn prop: bonfire (light source)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "bonfire") })},
+		Choice{Label: "Spawn prop: barrel (destructible)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "barrel") })},
+		Choice{Label: "Spawn prop: construction_sign (impassable)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "construction_sign") })},
+		Choice{Label: "Spawn prop: wooden crate (storage, with items)", Run: stayAfter(spawnStorageWithItems)},
+		Choice{Label: "Component list", Run: pushChoice(NewComponentDebugState)},
+		Choice{Label: "Close", Run: func(_ w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}},
 	)
@@ -147,7 +147,7 @@ func playerGridElement(world w.World) (*gc.GridElement, error) {
 		return nil, err
 	}
 	if !world.Components.GridElement.Has(player) {
-		return nil, fmt.Errorf("プレイヤーが位置を持たないためスポーンできない")
+		return nil, fmt.Errorf("cannot spawn because the player has no position")
 	}
 	return world.Components.GridElement.Get(player), nil
 }
@@ -167,7 +167,7 @@ func spawnStorageWithItems(world w.World) error {
 	if err != nil {
 		return err
 	}
-	storageEntity, err := lifecycle.SpawnProp(world, "木箱", playerGrid.X+2, playerGrid.Y)
+	storageEntity, err := lifecycle.SpawnProp(world, "wooden_crate", playerGrid.X+2, playerGrid.Y)
 	if err != nil {
 		return err
 	}
@@ -176,13 +176,13 @@ func spawnStorageWithItems(world w.World) error {
 		name  string
 		count int
 	}{
-		{"回復薬", 3},
-		{"手榴弾", 1},
-		{"たいまつ", 1},
+		{"healing_potion", 3},
+		{"grenade", 1},
+		{"torch", 1},
 	}
 	for _, item := range items {
 		if _, err := lifecycle.SpawnStorageItem(world, item.name, item.count, storageEntity); err != nil {
-			return fmt.Errorf("収納アイテムのスポーンに失敗: %w", err)
+			return fmt.Errorf("failed to spawn storage item: %w", err)
 		}
 	}
 	return nil

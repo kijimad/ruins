@@ -14,10 +14,12 @@ func TestDecodeRaws(t *testing.T) {
 	str := `
 [[Items]]
 Name = "リペア"
+id = "リペア"
 Description = "半分程度回復する"
 
 [[Items]]
 Name = "回復薬"
+id = "回復薬"
 Description = "半分程度回復する"
 `
 	raws, err := DecodeRaws(str)
@@ -34,6 +36,7 @@ func TestGenerateItem(t *testing.T) {
 	str := `
 [[Items]]
 Name = "リペア"
+id = "リペア"
 SpriteSheetName = "field"
 SpriteKey = "repair_item"
 `
@@ -51,6 +54,7 @@ func TestGenerateItemWithoutSprite(t *testing.T) {
 	str := `
 [[Items]]
 Name = "テストアイテム"
+id = "テストアイテム"
 Description = "スプライトなしアイテム"
 `
 	raws, err := DecodeRaws(str)
@@ -70,6 +74,7 @@ func TestGenerateMemberWithSprite(t *testing.T) {
 	str := `
 [[Members]]
 Name = "テストプレイヤー"
+id = "テストプレイヤー"
 Player = true
 SpriteSheetName = "field"
 SpriteKey = "player"
@@ -102,6 +107,7 @@ func TestGenerateMemberWithoutSprite(t *testing.T) {
 	str := `
 [[Members]]
 Name = "スプライトなしキャラ"
+id = "スプライトなしキャラ"
 Player = true
 [Members.Abilities]
 Vitality = 50
@@ -127,6 +133,7 @@ func TestGenerateMaterialWithSprite(t *testing.T) {
 	str := `
 [[Items]]
 Name = "テスト素材"
+id = "テスト素材"
 Description = "スプライト付き素材"
 SpriteSheetName = "field"
 SpriteKey = "field_item"
@@ -155,6 +162,7 @@ func TestGenerateMaterialWithoutSprite(t *testing.T) {
 	str := `
 [[Items]]
 Name = "スプライトなし素材"
+id = "スプライトなし素材"
 Description = "スプライトなし素材"
 `
 	raws, err := DecodeRaws(str)
@@ -177,15 +185,18 @@ func TestLoadTilesFromRaw(t *testing.T) {
 	tomlData := `
 [[Tiles]]
 Name = "TestFloor"
+id = "TestFloor"
 Description = "テスト用床タイル"
 
 [[Tiles]]
 Name = "TestWall"
+id = "TestWall"
 Description = "テスト用壁タイル"
 BlockPass = true
 
 [[Items]]
 Name = "テストアイテム"
+id = "テストアイテム"
 Description = "テスト用"
 `
 
@@ -206,10 +217,12 @@ func TestGenerateTileFromRaw(t *testing.T) {
 	tomlData := `
 [[Tiles]]
 Name = "GenerateTestFloor"
+id = "GenerateTestFloor"
 Description = "生成テスト用床タイル"
 
 [[Tiles]]
 Name = "GenerateTestWall"
+id = "GenerateTestWall"
 Description = "生成テスト用壁タイル"
 BlockPass = true
 `
@@ -240,10 +253,12 @@ func TestTileHelperFunctionsFromRaw(t *testing.T) {
 	tomlData := `
 [[Tiles]]
 Name = "Helper1"
+id = "Helper1"
 Description = "ヘルパー関数テスト1"
 
 [[Tiles]]
 Name = "Helper2"
+id = "Helper2"
 Description = "ヘルパー関数テスト2"
 BlockPass = true
 `
@@ -268,15 +283,18 @@ func TestTilePropertiesFromRaw(t *testing.T) {
 	tomlData := `
 [[Tiles]]
 Name = "EmptyLike"
+id = "EmptyLike"
 Description = "空のような性質"
 BlockPass = true
 
 [[Tiles]]
 Name = "FloorLike"
+id = "FloorLike"
 Description = "床のような性質"
 
 [[Tiles]]
 Name = "WallLike"
+id = "WallLike"
 Description = "壁のような性質"
 BlockPass = true
 `
@@ -333,6 +351,7 @@ func TestLoadWithUnknownFields(t *testing.T) {
 	invalidToml := `
 [[Items]]
 Name = "テストアイテム"
+id = "テストアイテム"
 Description = "正常なアイテム"
 UnknownField = "これは未知のフィールド"
 
@@ -352,12 +371,14 @@ func TestLoadWithValidFields(t *testing.T) {
 	validToml := `
 [[Items]]
 Name = "テストアイテム"
+id = "テストアイテム"
 Description = "正常なアイテム"
 SpriteSheetName = "test_sheet"
 SpriteKey = "test_key"
 
 [[Tiles]]
 Name = "テストタイル"
+id = "テストタイル"
 Description = "正常なタイル"
 `
 
@@ -372,6 +393,7 @@ func TestItemWithAnimKeys(t *testing.T) {
 	str := `
 [[Items]]
 Name = "アニメーションアイテム"
+id = "アニメーションアイテム"
 Description = "2フレームアニメーションするアイテム"
 SpriteSheetName = "field"
 SpriteKey = "item_0"
@@ -398,6 +420,7 @@ func TestItemWithoutAnimKeys(t *testing.T) {
 	str := `
 [[Items]]
 Name = "静的アイテム"
+id = "静的アイテム"
 Description = "アニメーションしないアイテム"
 SpriteSheetName = "field"
 SpriteKey = "static_item"
@@ -421,6 +444,7 @@ func TestMemberWithAnimKeys(t *testing.T) {
 	str := `
 [[Members]]
 Name = "アニメーションキャラ"
+id = "アニメーションキャラ"
 Player = true
 SpriteSheetName = "field"
 SpriteKey = "player_0"
@@ -454,6 +478,7 @@ func TestMemberWithoutAnimKeys(t *testing.T) {
 	str := `
 [[Members]]
 Name = "静的キャラ"
+id = "静的キャラ"
 Player = true
 SpriteSheetName = "field"
 SpriteKey = "static_player"
@@ -484,6 +509,7 @@ func TestPropWithAnimKeys(t *testing.T) {
 	str := `
 [[Props]]
 Name = "アニメーションProp"
+id = "アニメーションProp"
 Description = "2フレームアニメーションする置物"
 BlockPass = false
 BlockView = false
@@ -515,6 +541,7 @@ func TestPropWithoutAnimKeys(t *testing.T) {
 	str := `
 [[Props]]
 Name = "静的Prop"
+id = "静的Prop"
 Description = "アニメーションしない置物"
 BlockPass = true
 BlockView = false
@@ -543,6 +570,7 @@ func TestPropBlockPassWithPassCostIsError(t *testing.T) {
 	str := `
 [[Props]]
 Name = "矛盾Prop"
+id = "矛盾Prop"
 Description = "通行不可なのに移動コストがある"
 BlockPass = true
 BlockView = false
@@ -558,7 +586,7 @@ Depth = 1
 
 	_, err = NewPropSpec(raws, "矛盾Prop")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "blockPassとpassCostは同時に設定できません")
+	assert.Contains(t, err.Error(), "blockPass and passCost cannot both be set")
 }
 
 func TestPropWithHP(t *testing.T) {
@@ -566,6 +594,7 @@ func TestPropWithHP(t *testing.T) {
 	str := `
 [[Props]]
 Name = "壊れるProp"
+id = "壊れるProp"
 Description = "破壊可能な置物"
 BlockPass = true
 BlockView = false
@@ -595,6 +624,7 @@ func TestPropWithoutHP(t *testing.T) {
 	str := `
 [[Props]]
 Name = "壊れないProp"
+id = "壊れないProp"
 Description = "破壊不能な置物"
 BlockPass = true
 BlockView = false
@@ -618,6 +648,7 @@ func TestPropWithStorage(t *testing.T) {
 	str := `
 [[Props]]
 Name = "木箱"
+id = "木箱"
 Description = "古びた木箱"
 BlockPass = true
 BlockView = false
@@ -650,6 +681,7 @@ func TestPropWithWarpPrev(t *testing.T) {
 	str := `
 [[Props]]
 Name = "上り階段"
+id = "上り階段"
 Description = "1つ上の階層へ戻るポータル"
 BlockPass = false
 BlockView = false
@@ -677,6 +709,7 @@ func TestPropWithoutStorage(t *testing.T) {
 	str := `
 [[Props]]
 Name = "テーブル"
+id = "テーブル"
 Description = "普通のテーブル"
 BlockPass = true
 BlockView = false
@@ -715,11 +748,10 @@ func TestMemberCombatPolicy(t *testing.T) {
 			toml := `
 [[Members]]
 Name = "テスト敵"
+id = "テスト敵"
 SpriteSheetName = "field"
 SpriteKey = "enemy"
 AnimKeys = ["enemy_0", "enemy_1"]
-CommandTableName = ""
-DropTableName = ""
 CombatPolicy = "` + tt.combatPolicy + `"
 [Members.Abilities]
 Vitality = 10
@@ -748,11 +780,10 @@ func TestMemberCombatPolicyUnset(t *testing.T) {
 	str := `
 [[Members]]
 Name = "態度なし"
+id = "態度なし"
 SpriteSheetName = "field"
 SpriteKey = "enemy"
 AnimKeys = ["enemy_0"]
-CommandTableName = ""
-DropTableName = ""
 [Members.Abilities]
 Vitality = 10
 Strength = 5
@@ -790,11 +821,10 @@ func TestMemberMovementPattern(t *testing.T) {
 			toml := `
 [[Members]]
 Name = "テスト敵"
+id = "テスト敵"
 SpriteSheetName = "field"
 SpriteKey = "enemy"
 AnimKeys = ["enemy_0"]
-CommandTableName = ""
-DropTableName = ""
 movementPattern = "` + tt.strategy + `"
 [Members.Abilities]
 Vitality = 10
@@ -821,6 +851,7 @@ func TestNewWeaponSpec(t *testing.T) {
 	str := `
 [[Items]]
 Name = "テスト剣"
+id = "テスト剣"
 Description = "テスト用の武器"
 SpriteSheetName = "field"
 SpriteKey = "sword"
@@ -847,6 +878,7 @@ func TestNewWeaponSpec_NotAWeapon(t *testing.T) {
 	str := `
 [[Items]]
 Name = "回復薬"
+id = "回復薬"
 Description = "回復するアイテム"
 `
 	raws, err := DecodeRaws(str)
@@ -862,6 +894,7 @@ func TestNewWeaponSpec_NotFound(t *testing.T) {
 	str := `
 [[Items]]
 Name = "何か"
+id = "何か"
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -876,6 +909,7 @@ func TestNewEnemySpec(t *testing.T) {
 	str := `
 [[Members]]
 Name = "テスト敵"
+id = "テスト敵"
 SpriteSheetName = "field"
 SpriteKey = "enemy"
 [Members.Abilities]
@@ -901,6 +935,7 @@ func TestNewTileSpec(t *testing.T) {
 	str := `
 [[Tiles]]
 Name = "test_floor"
+id = "test_floor"
 Description = "テスト床"
 BlockPass = false
 BlockView = false
@@ -922,6 +957,7 @@ func TestNewTileSpec_WithBlockPass(t *testing.T) {
 	str := `
 [[Tiles]]
 Name = "test_wall"
+id = "test_wall"
 Description = "テスト壁"
 BlockPass = true
 BlockView = true
@@ -941,6 +977,7 @@ func TestNewTileSpec_WithAutoTileIndex(t *testing.T) {
 	str := `
 [[Tiles]]
 Name = "auto_tile"
+id = "auto_tile"
 Description = "オートタイル"
 
 [Tiles.SpriteRender]
@@ -963,10 +1000,10 @@ func TestGetItemTable(t *testing.T) {
 
 	// ItemTablesが存在する場合のテスト
 	if len(PtrSlice(raws.ItemTables)) > 0 {
-		tableName := PtrSlice(raws.ItemTables)[0].Name
-		table, err := GetItemTable(raws, tableName)
+		tableID := PtrSlice(raws.ItemTables)[0].Id
+		table, err := GetItemTable(raws, tableID)
 		require.NoError(t, err)
-		assert.Equal(t, tableName, table.Name)
+		assert.Equal(t, tableID, table.Id)
 	}
 
 	// 存在しないテーブル
@@ -982,10 +1019,10 @@ func TestGetEnemyTable(t *testing.T) {
 
 	// EnemyTablesが存在する場合のテスト
 	if len(PtrSlice(raws.EnemyTables)) > 0 {
-		tableName := PtrSlice(raws.EnemyTables)[0].Name
-		table, err := GetEnemyTable(raws, tableName)
+		tableID := PtrSlice(raws.EnemyTables)[0].Id
+		table, err := GetEnemyTable(raws, tableID)
 		require.NoError(t, err)
-		assert.Equal(t, tableName, table.Name)
+		assert.Equal(t, tableID, table.Id)
 	}
 
 	// 存在しないテーブル
@@ -999,11 +1036,10 @@ func TestMemberMovementPatternUnset(t *testing.T) {
 	str := `
 [[Members]]
 Name = "パターンなし"
+id = "パターンなし"
 SpriteSheetName = "field"
 SpriteKey = "enemy"
 AnimKeys = ["enemy_0"]
-CommandTableName = ""
-DropTableName = ""
 [Members.Abilities]
 Vitality = 10
 Strength = 5

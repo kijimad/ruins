@@ -89,17 +89,17 @@ func (s EquipmentSlotNumber) String() string {
 	case SlotJewelry:
 		return EquipmentJewelry.String()
 	case SlotWeapon1:
-		return "武器1"
+		return "Weapon 1"
 	case SlotWeapon2:
-		return "武器2"
+		return "Weapon 2"
 	case SlotWeapon3:
-		return "武器3"
+		return "Weapon 3"
 	case SlotWeapon4:
-		return "武器4"
+		return "Weapon 4"
 	case SlotWeapon5:
-		return "武器5"
+		return "Weapon 5"
 	default:
-		panic(fmt.Sprintf("未知のEquipmentSlotNumber: %d", s))
+		panic(fmt.Sprintf("unknown EquipmentSlotNumber: %d", s))
 	}
 }
 

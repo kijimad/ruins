@@ -49,7 +49,7 @@ description = "無効なパレット"
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "パレットIDが空です")
+		assert.Contains(t, err.Error(), "palette ID is empty")
 	})
 
 	t.Run("地形とPropsとNPCsが全て空の場合はエラー", func(t *testing.T) {
@@ -62,7 +62,7 @@ description = "空のパレット"
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "地形、Props、またはNPCsの定義が必要です")
+		assert.Contains(t, err.Error(), "terrain, Props, or NPCs definition is required")
 	})
 
 	t.Run("2文字以上のキーはエラー", func(t *testing.T) {
@@ -78,7 +78,7 @@ description = "無効なキー"
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "1文字である必要があります")
+		assert.Contains(t, err.Error(), "must be a single character")
 	})
 
 	t.Run("Propsにtileがない場合はエラー", func(t *testing.T) {
@@ -94,7 +94,7 @@ description = "tile無し"
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "propsのtileは必須です")
+		assert.Contains(t, err.Error(), "props tile is required")
 	})
 
 	t.Run("NPCsにtileがない場合はエラー", func(t *testing.T) {
@@ -110,7 +110,7 @@ description = "tile無し"
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "npcsのtileは必須です")
+		assert.Contains(t, err.Error(), "npcs tile is required")
 	})
 
 	t.Run("地形とPropsで文字が重複する場合はエラー", func(t *testing.T) {
@@ -129,7 +129,7 @@ description = "重複"
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "重複しています")
+		assert.Contains(t, err.Error(), "duplicated")
 	})
 
 	t.Run("地形とNPCsで文字が重複する場合はエラー", func(t *testing.T) {
@@ -148,7 +148,7 @@ description = "重複"
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "重複しています")
+		assert.Contains(t, err.Error(), "duplicated")
 	})
 
 	t.Run("PropsとNPCsで文字が重複する場合はエラー", func(t *testing.T) {
@@ -167,7 +167,7 @@ description = "重複"
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "重複しています")
+		assert.Contains(t, err.Error(), "duplicated")
 	})
 
 	t.Run("NPCsを含むパレットを読み込める", func(t *testing.T) {

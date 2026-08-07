@@ -20,8 +20,8 @@ type UseItemBehavior struct{}
 // Info はBehaviorの実装
 func (u *UseItemBehavior) Info() Info {
 	return Info{
-		Name:            "アイテム使用",
-		Description:     "アイテムを使う",
+		Name:            "Use Item",
+		Description:     "Use an item",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -70,7 +70,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 // Start はBehaviorの実装
 func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if p, ok := comp.Params.(*gc.UseItemParams); ok {
-		log.Debug("アイテム使用開始", "actor", actor, "item", p.Target)
+		log.Debug("item use started", "actor", actor, "item", p.Target)
 	}
 	return nil
 }
@@ -79,7 +79,7 @@ func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) 
 func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.UseItemParams)
 	if !ok {
-		Cancel(comp, "アイテムが指定されていません")
+		Cancel(comp, "item is not set")
 		return ErrItemNotSet
 	}
 
@@ -89,7 +89,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	if world.Components.ProvidesHealing.Has(item) {
 		healing := world.Components.ProvidesHealing.Get(item)
 		if err := u.applyHealing(comp, actor, world, healing, item); err != nil {
-			Cancel(comp, fmt.Sprintf("回復処理エラー: %s", err.Error()))
+			Cancel(comp, fmt.Sprintf("healing processing error: %s", err.Error()))
 			return err
 		}
 	}
@@ -98,7 +98,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	if world.Components.ProvidesNutrition.Has(item) {
 		nutrition := world.Components.ProvidesNutrition.Get(item)
 		if err := u.applyNutrition(comp, actor, world, nutrition.Amount, item); err != nil {
-			Cancel(comp, fmt.Sprintf("空腹度回復処理エラー: %s", err.Error()))
+			Cancel(comp, fmt.Sprintf("nutrition recovery processing error: %s", err.Error()))
 			return err
 		}
 	}
@@ -113,7 +113,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	// 消費可能アイテムの場合は削除または個数を減らす
 	if world.Components.Consumable.Has(item) {
 		if err := lifecycle.ChangeItemCount(world, item, -1); err != nil {
-			return fmt.Errorf("アイテムの消費に失敗: %w", err)
+			return fmt.Errorf("failed to consume item: %w", err)
 		}
 	}
 
@@ -123,13 +123,13 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Finish はBehaviorの実装
 func (u *UseItemBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム使用完了", "actor", actor)
+	log.Debug("item use finished", "actor", actor)
 	return nil
 }
 
 // Canceled はBehaviorの実装
 func (u *UseItemBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム使用キャンセル", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("item use canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
@@ -183,17 +183,14 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	itemName := u.getItemName(item, world)
 	actorName := query.GetEntityName(actor, world)
 
+	actorMarkup := query.NameMarkup(actor, actorName, world)
+	itemMarkup := gamelog.Tag("item", itemName)
 	logger := gamelog.New(query.GetGameLog(world))
-	logger.Build(func(l *gamelog.Logger) {
-		query.AppendNameWithColor(l, actor, actorName, world)
-	}).Append(" は ").ItemName(itemName).Append(" を使った。")
-
 	if isHealing {
-		logger.Append(fmt.Sprintf(" HPが %d 回復した。", amount))
+		logger.Markup(query.T(world, "%s used %s and recovered %d HP.", actorMarkup, itemMarkup, amount))
 	} else {
-		logger.Append(fmt.Sprintf(" %d のダメージを受けた。", amount))
+		logger.Markup(query.T(world, "%s used %s and took %d damage.", actorMarkup, itemMarkup, amount))
 	}
-
 	logger.Log()
 }
 
@@ -207,15 +204,14 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 	itemName := u.getItemName(item, world)
 	actorName := query.GetEntityName(actor, world)
 
+	actorMarkup := query.NameMarkup(actor, actorName, world)
+	itemMarkup := gamelog.Tag("item", itemName)
 	logger := gamelog.New(query.GetGameLog(world))
-	logger.Build(func(l *gamelog.Logger) {
-		query.AppendNameWithColor(l, actor, actorName, world)
-	}).Append(" は ").ItemName(itemName).Append(" を食べた。")
-
 	if isSatiated {
-		logger.Append("満腹だ。")
+		logger.Markup(query.T(world, "%s ate %s and became full.", actorMarkup, itemMarkup))
+	} else {
+		logger.Markup(query.T(world, "%s ate %s", actorMarkup, itemMarkup))
 	}
-
 	logger.Log()
 }
 
@@ -224,5 +220,5 @@ func (u *UseItemBehavior) getItemName(item ecs.Entity, world w.World) string {
 	if world.Components.Name.Has(item) {
 		return world.Components.Name.Get(item).Name
 	}
-	return "アイテム"
+	return query.T(world, "Item")
 }

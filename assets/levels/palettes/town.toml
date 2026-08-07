@@ -8,22 +8,22 @@ r = 'floor'
 
 [palette.props]
 [palette.props.K]
-id = '木箱'
+id = 'wooden_crate'
 tile = 'floor'
 
 [palette.npcs]
 [palette.npcs.'$']
-id = '商人'
+id = 'merchant'
 tile = 'dirt'
 
 [palette.npcs.1]
-id = '老兵'
+id = 'old_soldier'
 tile = 'dirt'
 
 [palette.npcs.2]
-id = '怪しい科学者'
+id = 'suspicious_scientist'
 tile = 'dirt'
 
 [palette.npcs.3]
-id = '酒場の主人'
+id = 'tavern_keeper'
 tile = 'dirt'

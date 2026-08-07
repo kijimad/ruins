@@ -72,7 +72,7 @@ func (st *CharacterJobState) DoAction(world w.World, action inputmapper.ActionID
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("characterJob: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("characterJob: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -120,16 +120,16 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 		world.ECS.RemoveEntity(existing)
 	}
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	if err != nil {
-		return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの生成に失敗: %w", err)
+		return es.Transition[w.World]{}, fmt.Errorf("failed to spawn player: %w", err)
 	}
 	if err := gameaction.ApplyProfession(world, player, prof); err != nil {
-		return es.Transition[w.World]{}, fmt.Errorf("職業の適用に失敗: %w", err)
+		return es.Transition[w.World]{}, fmt.Errorf("failed to apply profession: %w", err)
 	}
 
 	if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {
-		return es.Transition[w.World]{}, fmt.Errorf("初期隊員の生成に失敗: %w", err)
+		return es.Transition[w.World]{}, fmt.Errorf("failed to spawn initial member: %w", err)
 	}
 
 	// プレイヤー名を上書き
@@ -137,9 +137,9 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	name.Name = st.playerName
 
 	// 操作ガイドを表示する
-	gamelog.New(query.GetGameLog(world)).System("WASD: 移動する。").Log()
-	gamelog.New(query.GetGameLog(world)).System("Mキー: 拠点メニューを開く。").Log()
-	gamelog.New(query.GetGameLog(world)).System("Spaceキー: アクションメニューを開く。").Log()
+	gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "WASD: Move."))).Log()
+	gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "M key: Open base menu."))).Log()
+	gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "Space key: Open action menu."))).Log()
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
@@ -154,7 +154,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *CharacterJobState) View(_ w.World, props JobMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *CharacterJobState) View(world w.World, props JobMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	itemIndex := cursor.ItemIndex
 
 	// 3行グリッド: タイトル(固定) / メインエリア(伸縮) / フッター(固定)
@@ -177,7 +177,7 @@ func (st *CharacterJobState) View(_ w.World, props JobMenuProps, cursor menurt.S
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 	titleLabel := widget.NewText(
-		widget.TextOpts.Text("職業", &res.Text.TitleFontFace, theme.TextPrimary),
+		widget.TextOpts.Text(query.T(world, "Profession"), &res.Text.TitleFontFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,
@@ -193,7 +193,7 @@ func (st *CharacterJobState) View(_ w.World, props JobMenuProps, cursor menurt.S
 		rows[i] = menuRow{Cells: []string{props.Items[i].Profession.Name}}
 	}
 	leftContainer.AddChild(renderMenuList(itemIndex, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
-	rightContainer := st.buildDetailPanel(props, itemIndex, res)
+	rightContainer := st.buildDetailPanel(world, props, itemIndex, res)
 	mainContainer := styled.NewWSplitContainer(leftContainer, rightContainer)
 
 	// フッター: 説明 + ヒント
@@ -216,7 +216,7 @@ func (st *CharacterJobState) View(_ w.World, props JobMenuProps, cursor menurt.S
 		),
 	)
 	hintLabel := widget.NewText(
-		widget.TextOpts.Text(consts.IconArrowUp+consts.IconArrowDown+" 選択 / "+consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &res.Text.SmallFace, theme.TextAccent),
+		widget.TextOpts.Text(consts.IconArrowUp+consts.IconArrowDown+" "+query.T(world, "Select")+" / "+consts.IconKeyEnter+" "+query.T(world, "Confirm")+" / "+consts.IconKeyEsc+" "+query.T(world, "Back"), &res.Text.SmallFace, theme.TextAccent),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,
@@ -234,7 +234,7 @@ func (st *CharacterJobState) View(_ w.World, props JobMenuProps, cursor menurt.S
 }
 
 // buildDetailPanel は選択中の職業の詳細パネルを構築する
-func (st *CharacterJobState) buildDetailPanel(props JobMenuProps, itemIndex int, res resources.UIResources) *widget.Container {
+func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 	)
@@ -247,36 +247,45 @@ func (st *CharacterJobState) buildDetailPanel(props JobMenuProps, itemIndex int,
 
 	// 装備
 	if len(prof.Equips) > 0 {
-		container.AddChild(styled.NewDescriptionText("装備", res))
+		container.AddChild(styled.NewDescriptionText(query.T(world, "Equipment"), res))
 		for _, equip := range prof.Equips {
 			slotLabel := string(equip.Slot)
 			if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {
-				slotLabel = slot.String()
+				slotLabel = query.T(world, slot.String())
 			}
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, equip.Name), res))
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, professionItemDisplayName(world, equip.Name)), res))
 		}
 	}
 
 	// 所持品
 	if len(prof.Items) > 0 {
-		container.AddChild(styled.NewDescriptionText("所持品", res))
+		container.AddChild(styled.NewDescriptionText(query.T(world, "Items"), res))
 		for _, item := range prof.Items {
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", item.Name, item.Count), res))
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", professionItemDisplayName(world, item.Name), item.Count), res))
 		}
 	}
 
 	// スキル
 	if profSkills := raw.PtrSlice(prof.Skills); len(profSkills) > 0 {
-		container.AddChild(styled.NewDescriptionText("スキル", res))
+		container.AddChild(styled.NewDescriptionText(query.T(world, "Skills"), res))
 		for _, skill := range profSkills {
 			skillID := gc.SkillID(skill.Id)
 			name := skill.Id
 			if gc.HasSkillName(skillID) {
-				name = gc.SkillName(skillID)
+				name = query.T(world, gc.SkillName(skillID))
 			}
 			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s Lv.%d", name, skill.Value), res))
 		}
 	}
 
 	return container
+}
+
+// professionItemDisplayName は profession が参照するアイテム id を表示名へ解決する。
+// 定義が見つからなければ id をそのまま返す
+func professionItemDisplayName(world w.World, id string) string {
+	if item, err := raw.FindItem(world.Resources.RawMaster, id); err == nil {
+		return item.Name
+	}
+	return id
 }

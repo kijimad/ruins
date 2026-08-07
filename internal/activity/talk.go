@@ -19,8 +19,8 @@ type TalkBehavior struct{}
 // Info はBehaviorの実装
 func (tb *TalkBehavior) Info() Info {
 	return Info{
-		Name:            "会話",
-		Description:     "NPCと会話する",
+		Name:            "Talk",
+		Description:     "Talk to an NPC",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -44,19 +44,19 @@ func NewTalkActivity(target ecs.Entity) *gc.Activity {
 func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.TalkParams)
 	if !ok {
-		return fmt.Errorf("会話対象が指定されていません")
+		return fmt.Errorf("talk target is not set")
 	}
 
 	targetEntity := p.Target
 
 	// Dialogコンポーネントを持っているか確認
 	if !world.Components.Dialog.Has(targetEntity) {
-		return fmt.Errorf("対象エンティティは会話できません")
+		return fmt.Errorf("target entity cannot be talked to")
 	}
 
 	// 中立派閥か確認
 	if !query.IsNeutral(world, targetEntity) {
-		return fmt.Errorf("対象エンティティは中立派閥ではありません")
+		return fmt.Errorf("target entity is not in a neutral faction")
 	}
 
 	return nil
@@ -64,7 +64,7 @@ func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 
 // Start は会話開始時の処理を実行する
 func (tb *TalkBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("会話開始", "actor", actor)
+	log.Debug("talk started", "actor", actor)
 	return nil
 }
 
@@ -72,26 +72,26 @@ func (tb *TalkBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.TalkParams)
 	if !ok {
-		Cancel(comp, "会話対象が指定されていません")
-		return fmt.Errorf("会話対象が指定されていません")
+		Cancel(comp, "talk target is not set")
+		return fmt.Errorf("talk target is not set")
 	}
 	targetEntity := p.Target
 
 	if !world.Components.Dialog.Has(targetEntity) {
-		Cancel(comp, "会話データが取得できません")
-		return fmt.Errorf("会話データが取得できません")
+		Cancel(comp, "cannot get dialog data")
+		return fmt.Errorf("cannot get dialog data")
 	}
 	dialogComp := world.Components.Dialog.Get(targetEntity)
 
 	// Nameコンポーネントから話者名を取得
 	if !world.Components.Name.Has(targetEntity) {
-		Cancel(comp, "対象エンティティにNameコンポーネントがありません")
-		return fmt.Errorf("対象エンティティにNameコンポーネントがありません")
+		Cancel(comp, "target entity has no Name component")
+		return fmt.Errorf("target entity has no Name component")
 	}
 	nameComp := world.Components.Name.Get(targetEntity)
 	speakerName := nameComp.Name
 
-	log.Debug("会話実行", "messageKey", dialogComp.MessageKey, "speaker", speakerName)
+	log.Debug("talk executing", "messageKey", dialogComp.MessageKey, "speaker", speakerName)
 
 	// 会話メッセージの表示はstateで行うため、ここでは完了のみ
 	Complete(comp)
@@ -100,7 +100,7 @@ func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 
 // Finish は会話完了時の処理を実行する
 func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	log.Debug("会話アクティビティ完了", "actor", actor)
+	log.Debug("talk activity finished", "actor", actor)
 
 	p, ok := comp.Params.(*gc.TalkParams)
 	if !ok {
@@ -112,19 +112,19 @@ func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// プレイヤーの場合のみメッセージを表示
 	if world.Components.Player.Has(actor) {
 		if !world.Components.Name.Has(targetEntity) {
-			return fmt.Errorf("対象エンティティにNameコンポーネントがありません")
+			return fmt.Errorf("target entity has no Name component")
 		}
 		nameComp := world.Components.Name.Get(targetEntity)
 
 		gamelog.New(query.GetGameLog(world)).
-			Append(nameComp.Name + "と話した。").
+			Markup(query.T(world, "Talked with %s.", nameComp.Name)).
 			Log()
 
 		// 会話ダイアログを表示
 		if world.Components.Dialog.Has(targetEntity) {
 			dialog := world.Components.Dialog.Get(targetEntity)
 			if err := lifecycle.RequestStateChange(world, gc.ShowDialogEvent(dialog.MessageKey, targetEntity)); err != nil {
-				return fmt.Errorf("会話状態変更要求エラー: %w", err)
+				return fmt.Errorf("talk state change request error: %w", err)
 			}
 		}
 	}
@@ -134,6 +134,6 @@ func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Canceled は会話キャンセル時の処理を実行する
 func (tb *TalkBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("会話キャンセル", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("talk canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

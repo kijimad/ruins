@@ -51,18 +51,18 @@ var weightUnits = map[string]Milligram{
 func ParseWeight(s string) (Milligram, error) {
 	fields := strings.Fields(s)
 	if len(fields) != 2 {
-		return 0, fmt.Errorf("重量の形式が不正です: %q（例: \"500 g\"）", s)
+		return 0, fmt.Errorf("invalid weight format: %q; example \"500 g\"", s)
 	}
 	value, err := strconv.ParseFloat(fields[0], 64)
 	if err != nil {
-		return 0, fmt.Errorf("重量の数値が不正です: %q", s)
+		return 0, fmt.Errorf("invalid weight number: %q", s)
 	}
 	if value < 0 {
-		return 0, fmt.Errorf("重量は負にできません: %q", s)
+		return 0, fmt.Errorf("weight cannot be negative: %q", s)
 	}
 	factor, ok := weightUnits[fields[1]]
 	if !ok {
-		return 0, fmt.Errorf("重量の単位が不正です: %q（mg/g/kg のいずれか）", s)
+		return 0, fmt.Errorf("invalid weight unit: %q; must be mg, g, or kg", s)
 	}
 	return Milligram(math.Round(value * float64(factor))), nil
 }

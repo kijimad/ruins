@@ -39,7 +39,7 @@ func (st *TavernMenuState) OnStart(world w.World) error {
 	st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.screen = menurt.NewScreen[TavernProps](st, &st.detail, &st.actionWin)
-	st.candidates = generateCandidates(world.Config.RNG)
+	st.candidates = generateCandidates(world, world.Config.RNG)
 	return nil
 }
 
@@ -75,7 +75,7 @@ func (st *TavernMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("tavernMenu: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("tavernMenu: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -92,10 +92,10 @@ type tavernCandidate struct {
 	Cost      int
 }
 
-// candidateNamePool は候補名のプール
+// candidateNamePool は候補名のプール。msgid はローマ字にし、表示名は query.T で現在言語へ引く
 var candidateNamePool = []string{
-	"ジン", "カイ", "レン", "ミラ", "セイ",
-	"ノア", "リク", "ユウ", "ハル", "ソラ",
+	"Jin", "Kai", "Ren", "Mira", "Sei",
+	"Noa", "Riku", "Yu", "Haru", "Sora",
 }
 
 // candidateSpritePool は候補スプライトのプール
@@ -104,7 +104,7 @@ var candidateSpritePool = []string{
 }
 
 // generateCandidates はランダムな雇用候補を生成する。
-func generateCandidates(rng *rand.Rand) []tavernCandidate {
+func generateCandidates(world w.World, rng *rand.Rand) []tavernCandidate {
 	count := 3 + rng.IntN(3) // 3〜5人
 	used := make(map[string]bool)
 	var candidates []tavernCandidate
@@ -128,7 +128,8 @@ func generateCandidates(rng *rand.Rand) []tavernCandidate {
 		spriteKey := candidateSpritePool[rng.IntN(len(candidateSpritePool))]
 
 		candidates = append(candidates, tavernCandidate{
-			Name:      name,
+			// 名前は候補生成時に1度だけ翻訳して固定する。表示中の言語切り替えには追従しない
+			Name:      query.T(world, name),
 			Abilities: abilities,
 			SpriteKey: spriteKey,
 			Cost:      cost,
@@ -189,7 +190,7 @@ func (st *TavernMenuState) Fetch(world w.World) TavernProps {
 		candidates = append(candidates, tavernCandidateData{
 			Index:     i,
 			Name:      c.Name,
-			Stats:     fmt.Sprintf("体%d 力%d 感%d 器%d 敏%d 防%d", c.Abilities.Vitality.Base, c.Abilities.Strength.Base, c.Abilities.Sensation.Base, c.Abilities.Dexterity.Base, c.Abilities.Agility.Base, c.Abilities.Defense.Base),
+			Stats:     query.T(world, "Vit%d Str%d Sen%d Dex%d Agi%d Def%d", c.Abilities.Vitality.Base, c.Abilities.Strength.Base, c.Abilities.Sensation.Base, c.Abilities.Dexterity.Base, c.Abilities.Agility.Base, c.Abilities.Defense.Base),
 			Cost:      c.Cost,
 			CanAfford: currency >= c.Cost,
 		})
@@ -212,7 +213,7 @@ func (st *TavernMenuState) Menu(props TavernProps) menurt.MenuConfig {
 
 // actionWindowContent は現在カーソルが当たっている候補の見出しと選択肢を返す。アクション窓の唯一の定義点。
 // 雇用の実行内容も Run に閉じ込め、雇用・閉じるを1箇所で定義する
-func (st *TavernMenuState) actionWindowContent(_ w.World) (string, []menuscreen.Action, bool) {
+func (st *TavernMenuState) actionWindowContent(world w.World) (string, []menuscreen.Action, bool) {
 	c, ok := st.selectedCandidate()
 	if !ok || c.Name == "" {
 		return "", nil, false
@@ -220,11 +221,11 @@ func (st *TavernMenuState) actionWindowContent(_ w.World) (string, []menuscreen.
 	var actions []menuscreen.Action
 	if c.CanAfford {
 		idx := c.Index
-		actions = append(actions, menuscreen.Action{Label: TextHire, Run: func(world w.World) error {
+		actions = append(actions, menuscreen.Action{Label: query.T(world, "Hire"), Run: func(world w.World) error {
 			return st.hireCandidate(world, idx)
 		}})
 	}
-	actions = append(actions, menuscreen.Action{Label: TextClose})
+	actions = append(actions, menuscreen.Action{Label: query.T(world, "Close")})
 	return c.Name, actions, true
 }
 
@@ -253,7 +254,7 @@ func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {
 		return nil
 	}
 	if _, err := lifecycle.SpawnSquadMember(world, playerEntity, candidate.Name, candidate.Abilities, candidate.SpriteKey); err != nil {
-		return fmt.Errorf("雇用に失敗: %w", err)
+		return fmt.Errorf("failed to hire: %w", err)
 	}
 
 	st.candidates = append(st.candidates[:idx], st.candidates[idx+1:]...)
@@ -265,24 +266,24 @@ func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *TavernMenuState) View(_ w.World, props TavernProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *TavernMenuState) View(world w.World, props TavernProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	content := styled.NewVerticalContainer()
 	content.AddChild(newCurrencyRow(props.Currency, res))
-	content.AddChild(st.buildCandidateTable(props.Candidates, cursor.ItemIndex, res))
-	return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false, "x 詳細")})
+	content.AddChild(st.buildCandidateTable(world, props.Candidates, cursor.ItemIndex, res))
+	return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(world, false, query.T(world, "x Details"))})
 }
 
 // buildCandidateTable は雇用候補を名前のみの1カラムで並べる。能力・費用は x の詳細モーダルで見る
-func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {
+func (st *TavernMenuState) buildCandidateTable(world w.World, candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {
 	rows := make([]menuRow, len(candidates))
 	for i, c := range candidates {
 		rows[i] = menuRow{Cells: []string{c.Name}}
 	}
-	return renderMenuList(selectedIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: "雇用できる候補がいません"}, res)
+	return renderMenuList(selectedIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No candidates to hire")}, res)
 }
 
 // detailContent は現在カーソルが当たっている候補の能力と費用を返す。詳細モーダルの唯一の定義点
-func (st *TavernMenuState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {
+func (st *TavernMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
 	c, ok := st.selectedCandidate()
 	if !ok {
 		return menuscreen.DetailContent{}, false
@@ -290,6 +291,6 @@ func (st *TavernMenuState) detailContent(_ w.World) (menuscreen.DetailContent, b
 	return menuscreen.DetailContent{
 		Name: c.Name,
 		Desc: c.Stats,
-		Rows: []menuscreen.SpecRow{{Label: "費用", Value: query.FormatCurrency(c.Cost)}},
+		Rows: []menuscreen.SpecRow{{Label: query.T(world, "Cost"), Value: query.FormatCurrency(c.Cost)}},
 	}, true
 }

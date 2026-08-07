@@ -19,8 +19,8 @@ type OpenDoorBehavior struct{}
 // Info はBehaviorの実装
 func (odb *OpenDoorBehavior) Info() Info {
 	return Info{
-		Name:            "扉開閉",
-		Description:     "扉を開く",
+		Name:            "Open/Close Door",
+		Description:     "Open a door",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -44,19 +44,19 @@ func NewOpenDoorActivity(target ecs.Entity) *gc.Activity {
 func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.OpenDoorParams)
 	if !ok {
-		return fmt.Errorf("扉エンティティが指定されていません")
+		return fmt.Errorf("door entity is not set")
 	}
 
 	targetEntity := p.Target
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
-		return fmt.Errorf("対象エンティティは扉ではありません")
+		return fmt.Errorf("target entity is not a door")
 	}
 
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
-		return fmt.Errorf("対象エンティティは扉ではありません")
+		return fmt.Errorf("target entity is not a door")
 	}
 
 	return nil
@@ -64,7 +64,7 @@ func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.W
 
 // Start は扉開閉開始時の処理を実行する
 func (odb *OpenDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("扉開閉開始", "actor", actor)
+	log.Debug("open door started", "actor", actor)
 	return nil
 }
 
@@ -72,34 +72,34 @@ func (odb *OpenDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.OpenDoorParams)
 	if !ok {
-		Cancel(comp, "扉エンティティが指定されていません")
-		return fmt.Errorf("扉エンティティが指定されていません")
+		Cancel(comp, "door entity is not set")
+		return fmt.Errorf("door entity is not set")
 	}
 	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
-		Cancel(comp, "扉コンポーネントが取得できません")
-		return fmt.Errorf("扉コンポーネントが取得できません")
+		Cancel(comp, "cannot get door component")
+		return fmt.Errorf("cannot get door component")
 	}
 	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw
 
 	if doorComp.Locked {
 		gamelog.New(query.GetGameLog(world)).
-			Append("扉はロックされている。").
+			Markup(query.T(world, "The door is locked.")).
 			Log()
-		Cancel(comp, "扉はロックされている")
+		Cancel(comp, "the door is locked")
 		return nil
 	}
 
 	// 扉を開く
 	if !doorComp.IsOpen {
 		if err := lifecycle.OpenDoor(world, targetEntity); err != nil {
-			Cancel(comp, fmt.Sprintf("扉を開けません: %v", err))
+			Cancel(comp, fmt.Sprintf("cannot open door: %v", err))
 			return err
 		}
 
-		log.Debug("扉を開きました", "door", targetEntity)
+		log.Debug("door opened", "door", targetEntity)
 
 		// 視界の更新が必要
 		query.GetVisionState(world).RequestUpdate()
@@ -111,12 +111,12 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 
 // Finish は扉開閉完了時の処理を実行する
 func (odb *OpenDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-	log.Debug("扉開閉アクティビティ完了", "actor", actor)
+	log.Debug("open door activity finished", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append("扉を開いた。").
+			Markup(query.T(world, "Opened the door.")).
 			Log()
 	}
 
@@ -125,7 +125,7 @@ func (odb *OpenDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Canceled は扉開閉キャンセル時の処理を実行する
 func (odb *OpenDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("扉開閉キャンセル", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("open door canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
@@ -135,8 +135,8 @@ type CloseDoorBehavior struct{}
 // Info はBehaviorの実装
 func (cdb *CloseDoorBehavior) Info() Info {
 	return Info{
-		Name:            "扉閉鎖",
-		Description:     "扉を閉じる",
+		Name:            "Close Door",
+		Description:     "Close a door",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -160,19 +160,19 @@ func NewCloseDoorActivity(target ecs.Entity) *gc.Activity {
 func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.CloseDoorParams)
 	if !ok {
-		return fmt.Errorf("扉エンティティが指定されていません")
+		return fmt.Errorf("door entity is not set")
 	}
 
 	targetEntity := p.Target
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
-		return fmt.Errorf("対象エンティティは扉ではありません")
+		return fmt.Errorf("target entity is not a door")
 	}
 
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
-		return fmt.Errorf("対象エンティティは扉ではありません")
+		return fmt.Errorf("target entity is not a door")
 	}
 
 	return nil
@@ -180,7 +180,7 @@ func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 
 // Start は扉閉鎖開始時の処理を実行する
 func (cdb *CloseDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("扉閉鎖開始", "actor", actor)
+	log.Debug("close door started", "actor", actor)
 	return nil
 }
 
@@ -188,31 +188,31 @@ func (cdb *CloseDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.CloseDoorParams)
 	if !ok {
-		Cancel(comp, "扉エンティティが指定されていません")
-		return fmt.Errorf("扉エンティティが指定されていません")
+		Cancel(comp, "door entity is not set")
+		return fmt.Errorf("door entity is not set")
 	}
 	targetEntity := p.Target
 
 	if !world.Components.Door.Has(targetEntity) {
-		Cancel(comp, "扉コンポーネントが取得できません")
-		return fmt.Errorf("扉コンポーネントが取得できません")
+		Cancel(comp, "cannot get door component")
+		return fmt.Errorf("cannot get door component")
 	}
 	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw
 
 	if doorComp.Locked {
-		Cancel(comp, "扉はロックされている")
+		Cancel(comp, "the door is locked")
 		return nil
 	}
 
 	// 扉を閉じる
 	if doorComp.IsOpen {
 		if err := lifecycle.CloseDoor(world, targetEntity); err != nil {
-			Cancel(comp, fmt.Sprintf("扉を閉じられません: %v", err))
+			Cancel(comp, fmt.Sprintf("cannot close door: %v", err))
 			return err
 		}
 
-		log.Debug("扉を閉じました", "door", targetEntity)
+		log.Debug("door closed", "door", targetEntity)
 
 		// 視界の更新が必要であることをマーク（BlockViewが変更されたため）
 		query.GetVisionState(world).RequestUpdate()
@@ -224,12 +224,12 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 
 // Finish は扉閉鎖完了時の処理を実行する
 func (cdb *CloseDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-	log.Debug("扉閉鎖アクティビティ完了", "actor", actor)
+	log.Debug("close door activity finished", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append("扉を閉じた。").
+			Markup(query.T(world, "Closed the door.")).
 			Log()
 	}
 
@@ -238,6 +238,6 @@ func (cdb *CloseDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.W
 
 // Canceled は扉閉鎖キャンセル時の処理を実行する
 func (cdb *CloseDoorBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("扉閉鎖キャンセル", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("close door canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
