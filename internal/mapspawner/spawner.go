@@ -62,7 +62,7 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 
 		tileEntity, err := spawnTile(world, metaPlan, tile, i, tileX, tileY)
 		if err != nil {
-			return fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(pos.X), int(pos.Y), err)
+			return fmt.Errorf("failed to spawn tile entity (%d, %d): %w", int(pos.X), int(pos.Y), err)
 		}
 
 		// TileRaw の環境情報を TileTemperature に設定する
@@ -86,7 +86,7 @@ type tileSpec struct {
 }
 
 var (
-	// 歩行可能タイル
+	// walkableタイル
 	passableTileSpecs = map[string]tileSpec{
 		consts.TileNameDirt:    {spawnName: consts.TileNameDirt, autotile: true},
 		consts.TileNameFloor:   {spawnName: consts.TileNameFloor, autotile: true},
@@ -95,7 +95,7 @@ var (
 		consts.TileNameBridgeC: {spawnName: consts.TileNameBridgeC, autotile: true},
 		consts.TileNameBridgeD: {spawnName: consts.TileNameBridgeD, autotile: true},
 	}
-	// 通行不可タイル
+	// impassableタイル
 	blockedTileSpecs = map[string]tileSpec{
 		consts.TileNameWall: {spawnName: consts.TileNameDWall, autotile: true},
 		consts.TileNameVoid: {spawnName: consts.TileNameVoid, autotile: false},
@@ -106,15 +106,15 @@ var (
 // 通行可否で仕様表を選び、論理名 tile.Name で仕様を引いて実体化する。
 func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {
 	specs := passableTileSpecs
-	category := "歩行可能"
+	category := "walkable"
 	if tile.BlockPass {
 		specs = blockedTileSpecs
-		category = "通行不可"
+		category = "impassable"
 	}
 
 	spec, ok := specs[tile.Name]
 	if !ok {
-		return gc.InvalidEntity, fmt.Errorf("未対応の%sタイル名: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
+		return gc.InvalidEntity, fmt.Errorf("unsupported %s tile name: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
 	}
 
 	// オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。
@@ -131,14 +131,14 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 	for _, npc := range metaPlan.NPCs {
 		member, err := raw.FindMember(world.Resources.RawMaster, npc.Name)
 		if err != nil {
-			return fmt.Errorf("NPC '%s' が見つかりません", npc.Name)
+			return fmt.Errorf("NPC '%s' not found", npc.Name)
 		}
 
 		x, y := int(npc.X)+int(offsetX), int(npc.Y)+int(offsetY)
 		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutralName {
 			_, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name)
 			if err != nil {
-				return fmt.Errorf("中立NPC生成エラー (%d, %d): %w", x, y, err)
+				return fmt.Errorf("failed to spawn neutral NPC (%d, %d): %w", x, y, err)
 			}
 		} else {
 			var opts []lifecycle.SpawnEnemyOption
@@ -147,7 +147,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 			}
 			_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name, opts...)
 			if err != nil {
-				return fmt.Errorf("敵NPC生成エラー (%d, %d): %w", x, y, err)
+				return fmt.Errorf("failed to spawn enemy NPC (%d, %d): %w", x, y, err)
 			}
 		}
 	}
@@ -159,11 +159,11 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 	for _, item := range metaPlan.Items {
 		tileX, tileY := item.X+offsetX, item.Y+offsetY
 		if item.Count <= 0 {
-			return fmt.Errorf("アイテムの個数が不正です (%d, %d): count=%d", item.X, item.Y, item.Count)
+			return fmt.Errorf("invalid item count (%d, %d): count=%d", item.X, item.Y, item.Count)
 		}
 		_, err := lifecycle.SpawnFieldItem(world, item.Name, tileX, tileY, item.Count)
 		if err != nil {
-			return fmt.Errorf("アイテム生成エラー (%d, %d): %w", item.X, item.Y, err)
+			return fmt.Errorf("failed to spawn item (%d, %d): %w", item.X, item.Y, err)
 		}
 	}
 	return nil
@@ -176,12 +176,12 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 
 		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
 		if err != nil {
-			return fmt.Errorf("props取得エラー (%s): %w", prop.Name, err)
+			return fmt.Errorf("failed to get props (%s): %w", prop.Name, err)
 		}
 
 		propEntity, err := lifecycle.SpawnProp(world, prop.Name, tileX, tileY)
 		if err != nil {
-			return fmt.Errorf("props生成エラー (%d, %d): %w", prop.X, prop.Y, err)
+			return fmt.Errorf("failed to spawn props (%d, %d): %w", prop.X, prop.Y, err)
 		}
 
 		// Door componentがあれば向きを設定して閉じた状態で初期化
@@ -189,14 +189,14 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 			doorComp := world.Components.Door.Get(propEntity)
 			doorComp.Orientation = detectPropDoorOrientation(metaPlan, int(prop.X), int(prop.Y))
 			if err := lifecycle.CloseDoor(world, propEntity); err != nil {
-				return fmt.Errorf("扉初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
+				return fmt.Errorf("failed to initialize door (%d, %d): %w", prop.X, prop.Y, err)
 			}
 		}
 
 		// Storage propにルートアイテムを格納する
 		if propRaw.Storage != nil && propRaw.Storage.LootTableName != nil && *propRaw.Storage.LootTableName != "" {
 			if err := populateStorageLoot(world, metaPlan, propEntity, propRaw); err != nil {
-				return fmt.Errorf("収納アイテム生成エラー (%d, %d): %w", prop.X, prop.Y, err)
+				return fmt.Errorf("failed to spawn container item (%d, %d): %w", prop.X, prop.Y, err)
 			}
 		}
 	}
@@ -209,7 +209,7 @@ func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 		tileX, tileY := door.X+offsetX, door.Y+offsetY
 		_, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: tileX, Y: tileY}, door.Orientation)
 		if err != nil {
-			return fmt.Errorf("ドア生成エラー (%d, %d): %w", door.X, door.Y, err)
+			return fmt.Errorf("failed to spawn door (%d, %d): %w", door.X, door.Y, err)
 		}
 	}
 	return nil
@@ -221,7 +221,7 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY
 		tileX, tileY := portal.X+offsetX, portal.Y+offsetY
 		_, err := lifecycle.SpawnProp(world, "warp_next", tileX, tileY)
 		if err != nil {
-			return fmt.Errorf("NextPortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
+			return fmt.Errorf("failed to spawn NextPortal (%d, %d): %w", portal.X, portal.Y, err)
 		}
 	}
 
@@ -251,7 +251,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	tableName := *propRaw.Storage.LootTableName
 	itemTable, err := raw.GetItemTable(*metaPlan.RawMaster, tableName)
 	if err != nil {
-		return fmt.Errorf("ItemTable '%s' の取得に失敗: %w", tableName, err)
+		return fmt.Errorf("failed to get ItemTable '%s': %w", tableName, err)
 	}
 
 	// ルート数はダイス表記で決める。省略時は1個
@@ -259,7 +259,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	if propRaw.Storage.LootCount != nil {
 		d, err := consts.ParseDice(*propRaw.Storage.LootCount)
 		if err != nil {
-			return fmt.Errorf("収納 '%s' の lootCount 表記が不正です: %w", propRaw.Name, err)
+			return fmt.Errorf("invalid lootCount notation for container '%s': %w", propRaw.Name, err)
 		}
 		lootDice = d
 	}
@@ -272,14 +272,14 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	for range lootCount {
 		itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, depth)
 		if err != nil {
-			return fmt.Errorf("アイテム抽選エラー: %w", err)
+			return fmt.Errorf("failed to draw item: %w", err)
 		}
 		if itemName == "" {
 			continue
 		}
 
 		if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, storageEntity); err != nil {
-			return fmt.Errorf("アイテム '%s' の生成に失敗: %w", itemName, err)
+			return fmt.Errorf("failed to spawn item '%s': %w", itemName, err)
 		}
 	}
 

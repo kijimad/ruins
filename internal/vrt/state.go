@@ -57,7 +57,7 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 	var out *image.NRGBA
 	WithUILock(func() {
 		states := buildStates(world)
-		require.NotEmpty(t, states, "ステートが1つ以上必要")
+		require.NotEmpty(t, states, "at least one state is required")
 
 		stateMachine, err := es.Init(states[0], world)
 		require.NoError(t, err)
@@ -78,7 +78,7 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 		screen := ebiten.NewImage(width, height)
 
 		for _, state := range stateMachine.GetStates() {
-			require.NoError(t, state.Draw(world, screen), "描画に失敗")
+			require.NoError(t, state.Draw(world, screen), "failed to draw")
 		}
 
 		out = captureScreen(screen)
