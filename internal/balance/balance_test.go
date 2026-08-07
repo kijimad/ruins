@@ -139,7 +139,7 @@ func TestLoadWeaponFromItem(t *testing.T) {
 		t.Parallel()
 		_, err := LoadWeaponFromItem(master, "存在しない武器")
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "ロードに失敗")
+		assert.Contains(t, err.Error(), "failed to load")
 	})
 }
 
@@ -169,7 +169,7 @@ func TestLoadCombatantFromMember_Errors(t *testing.T) {
 		t.Parallel()
 		_, err := LoadCombatantFromMember(master, "存在しないメンバー")
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "ロードに失敗")
+		assert.Contains(t, err.Error(), "failed to load")
 	})
 }
 

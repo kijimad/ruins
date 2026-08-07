@@ -100,12 +100,12 @@ type DepthStat struct {
 func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*Report, error) {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
-		return nil, fmt.Errorf("プレイヤーのロードに失敗: %w", err)
+		return nil, fmt.Errorf("failed to load player: %w", err)
 	}
 
 	weapon, err := LoadWeaponFromItem(master, weaponName)
 	if err != nil {
-		return nil, fmt.Errorf("武器のロードに失敗: %w", err)
+		return nil, fmt.Errorf("failed to load weapon: %w", err)
 	}
 
 	report := &Report{

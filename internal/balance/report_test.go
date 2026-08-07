@@ -41,7 +41,7 @@ func TestGenerateReport_存在しないプレイヤーはエラー(t *testing.T)
 
 	_, err := GenerateReport(master, "存在しないプレイヤー", "bare_hands", 1, 1, 1)
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "プレイヤーのロードに失敗")
+	assert.ErrorContains(t, err, "failed to load player")
 }
 
 func TestGenerateReport_存在しない武器はエラー(t *testing.T) {
@@ -50,7 +50,7 @@ func TestGenerateReport_存在しない武器はエラー(t *testing.T) {
 
 	_, err := GenerateReport(master, "ash", "存在しない武器", 1, 1, 1)
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "武器のロードに失敗")
+	assert.ErrorContains(t, err, "failed to load weapon")
 }
 
 func TestGenerateBattleMetrics_存在しないプレイヤーはnilを返す(t *testing.T) {
