@@ -97,7 +97,8 @@ type shopTabData struct {
 }
 
 type shopItemData struct {
-	Label    string
+	ItemID   string // アイテムの同定キー。NewItemSpec/BuyItem/価格はこれで引く
+	Label    string // 表示名
 	Weight   string
 	Price    int
 	Count    int // 売却時のアイテム個数
@@ -144,13 +145,19 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 	shopInventory := gameaction.GetShopInventory()
 	items := make([]shopItemData, 0, len(shopInventory))
 
-	for _, itemName := range shopInventory {
-		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemName, true))
+	for _, itemID := range shopInventory {
+		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemID, true))
 		canAfford := currency >= price
 
+		label := itemID
+		if itemDef, err := raw.FindItem(world.Resources.RawMaster, itemID); err == nil {
+			label = itemDef.Name
+		}
+
 		items = append(items, shopItemData{
-			Label:    itemName,
-			Weight:   shopItemWeight(world, itemName),
+			ItemID:   itemID,
+			Label:    label,
+			Weight:   shopItemWeight(world, itemID),
 			Price:    price,
 			IsBuy:    true,
 			Disabled: !canAfford,
@@ -168,7 +175,6 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 		for sellQuery.Next() {
 			entity := sellQuery.Entity()
 			nameComp := world.Components.Name.Get(entity)
-			itemName := nameComp.Name
 
 			baseValue := query.GetItemValue(world, entity)
 			price := sellPriceMod.ApplyInt(query.CalculateSellPrice(baseValue))
@@ -176,7 +182,8 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 			count := query.GetEntityCount(world, entity)
 
 			items = append(items, shopItemData{
-				Label:  itemName,
+				ItemID: nameComp.ID,
+				Label:  nameComp.Name,
 				Weight: query.GetEntityWeight(world, entity).KgString(),
 				Price:  price,
 				Count:  count,
@@ -218,7 +225,7 @@ func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool
 // 決定で即実行し、途中のアクション選択は挟まない。購入は所持金が足りなければ何もしない
 func (st *ShopMenuState) buySellSelected(world w.World) error {
 	item, ok := st.selectedShopItem()
-	if !ok || item.Label == "" {
+	if !ok || item.ItemID == "" {
 		return nil
 	}
 	if item.IsBuy {
@@ -228,7 +235,7 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 			return nil
 		}
 		var err error
-		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.Label) })
+		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.ItemID) })
 		if err != nil {
 			return fmt.Errorf("failed to buy: %w", err)
 		}
@@ -301,7 +308,7 @@ func (st *ShopMenuState) selectedDetail(world w.World) (shopItemData, gc.EntityS
 		return shopItemData{}, gc.EntitySpec{}, false
 	}
 	item := items[cursor.ItemIndex]
-	s, err := raw.NewItemSpec(world.Resources.RawMaster, item.Label)
+	s, err := raw.NewItemSpec(world.Resources.RawMaster, item.ItemID)
 	if err != nil {
 		return shopItemData{}, gc.EntitySpec{}, false
 	}
