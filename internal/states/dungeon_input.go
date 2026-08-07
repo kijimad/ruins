@@ -314,7 +314,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		if err := st.descend(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.WarpAscend:
 		// 上り階段に結線があればそこへ移動する。浅い階でも遺跡→地上でも同一機構。
 		// 全ダンジョンはオーバーワールド入口から入り、生成時に戻り先が結線される。よって
@@ -326,7 +326,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		if !handled {
 			return es.Transition[w.World]{}, fmt.Errorf("top floor up stairs has no return link")
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.WarpDungeonEnter:
 		// オーバーワールドから遺跡へ入る。同一 State 内 swapTo で帯を退避し遺跡へ切り替える。
 		// プランナー名の指定があれば固定して生成する。デバッグのプランナー単位進入で使う
@@ -339,24 +339,24 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			if err := st.enterDebugPlannerFloor(world, p.DefinitionName, builderType); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-			return es.Transition[w.World]{Type: es.TransNone}, nil
+			return st.completeSwap(world)
 		}
 		if err := st.enterDungeon(world, p.DefinitionName); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.WarpCubeEnter:
 		// 移動拠点キューブの内部へ入る。同一 State 内 swapTo でオーバーワールドを退避する
 		if err := enterCube(world, p.Cube); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.WarpCubeExit:
 		// キューブ内部からオーバーワールドへ戻る
 		if err := exitCube(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
+		return st.completeSwap(world)
 	case gc.OpenCubePanel:
 		// キューブ内部のコントロールパネルを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{

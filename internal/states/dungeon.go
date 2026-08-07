@@ -156,6 +156,21 @@ func (st *DungeonState) OnStart(world w.World) error {
 	return nil
 }
 
+// completeSwap はステージ入れ替え直後に視界とカメラを再計算し、遷移なしを返す。
+// swap は Update の後段の handleStateChangeRequest で起きるため、このフレームの
+// VisionSystem/CameraSystem は既に旧ステージで走った後になる。ここで再計算しないと、
+// 入れ替え直後の1フレームが旧ステージの視点・視界のまま描かれてチラつく
+func (st *DungeonState) completeSwap(world w.World) (es.Transition[w.World], error) {
+	query.GetVisionState(world).RequestUpdate()
+	if err := (&gs.VisionSystem{}).Update(world); err != nil {
+		return es.Transition[w.World]{}, err
+	}
+	if err := (&gs.CameraSystem{}).Update(world); err != nil {
+		return es.Transition[w.World]{}, err
+	}
+	return es.Transition[w.World]{Type: es.TransNone}, nil
+}
+
 // OnStop はステートが停止される際に呼ばれる。
 //
 // 共存方式ではオーバーワールドと遺跡が同一 world に共存し、退避中ステージも保持するため、
