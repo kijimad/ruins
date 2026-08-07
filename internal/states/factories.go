@@ -119,18 +119,16 @@ func NewSettingsMenuState() (es.State[w.World], error) {
 func NewGameOverMessageState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
-	// ゲームオーバーメッセージを作成（選択肢付き）
-	messageData := messagedata.NewSystemMessage("死亡した。").
-		WithChoice("メインメニューに戻る", func(_ w.World) error {
-			// メインメニューに遷移
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}})
-			return nil
-		})
-
-	// MessageStateにMessageDataを設定
-	messageState.messageData = messageData
+	// ゲームオーバーメッセージを作成する。翻訳は world を要するので OnStart で構築する
+	messageState.build = func(world w.World) *messagedata.MessageData {
+		return messagedata.NewSystemMessage(query.T(world, "You died.")).
+			WithChoice(query.T(world, "Return to main menu"), func(_ w.World) error {
+				messageState.SetTransition(es.Transition[w.World]{
+					Type:          es.TransReplace,
+					NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}})
+				return nil
+			})
+	}
 
 	return messageState, nil
 }
@@ -139,13 +137,13 @@ func NewGameOverMessageState() (es.State[w.World], error) {
 func NewAllClearEventState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
-	messageData := messagedata.NewSystemMessage("すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。").
-		WithChoice(TextClose, func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return nil
-		})
-
-	messageState.messageData = messageData
+	messageState.build = func(world w.World) *messagedata.MessageData {
+		return messagedata.NewSystemMessage(query.T(world, "You conquered all the ruins.\n\nThe ancient presence sleeping at the bottom of the great hole has finally quieted.")).
+			WithChoice(query.T(world, "Close"), func(_ w.World) error {
+				messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+				return nil
+			})
+	}
 	return messageState, nil
 }
 

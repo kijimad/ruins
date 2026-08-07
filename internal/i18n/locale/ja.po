@@ -529,3 +529,15 @@ msgstr "防具(足)"
 
 msgid "Armor (jewelry)"
 msgstr "防具(装飾)"
+
+msgid "You died."
+msgstr "死亡した。"
+
+msgid "Return to main menu"
+msgstr "メインメニューに戻る"
+
+msgid "Close"
+msgstr "閉じる"
+
+msgid "You conquered all the ruins.\n\nThe ancient presence sleeping at the bottom of the great hole has finally quieted."
+msgstr "すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。"
