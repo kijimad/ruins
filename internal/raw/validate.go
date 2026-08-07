@@ -12,30 +12,30 @@ import (
 func ValidateRaws(raws oapi.Raws) error {
 	spec, err := oapi.GetSpec()
 	if err != nil {
-		return fmt.Errorf("OpenAPIスキーマの読み込みに失敗: %w", err)
+		return fmt.Errorf("failed to load OpenAPI schema: %w", err)
 	}
 
 	schemaRef, ok := spec.Components.Schemas["Raws"]
 	if !ok {
-		return fmt.Errorf("OpenAPIスキーマにRawsコンポーネントが見つからない")
+		return fmt.Errorf("cannot find Raws component in OpenAPI schema")
 	}
 	schema := schemaRef.Value
 	if schema == nil {
-		return fmt.Errorf("Rawsスキーマの値がnil")
+		return fmt.Errorf("got nil Raws schema value")
 	}
 
 	jsonBytes, err := json.Marshal(raws)
 	if err != nil {
-		return fmt.Errorf("JSONマーシャルに失敗: %w", err)
+		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}
 
 	var jsonData any
 	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
-		return fmt.Errorf("JSONアンマーシャルに失敗: %w", err)
+		return fmt.Errorf("failed to unmarshal JSON: %w", err)
 	}
 
 	if err := schema.VisitJSON(jsonData); err != nil {
-		return fmt.Errorf("バリデーションエラー: %w", err)
+		return fmt.Errorf("validation error: %w", err)
 	}
 
 	return nil
@@ -85,7 +85,7 @@ func validateItemTableReferences(raws oapi.Raws) error {
 				continue
 			}
 			if _, ok := groupNames[entry.GroupName]; !ok {
-				return fmt.Errorf("アイテムテーブル '%s' の参照グループ '%s' がアイテムグループ定義に存在しません", itemTables[i].Name, entry.GroupName)
+				return fmt.Errorf("item table '%s' references group '%s' that does not exist in item group definitions", itemTables[i].Name, entry.GroupName)
 			}
 		}
 	}
@@ -107,7 +107,7 @@ func validateItemGroupReferences(raws oapi.Raws) error {
 				continue
 			}
 			if _, ok := itemNames[entry.ItemName]; !ok {
-				return fmt.Errorf("アイテムグループ '%s' の参照アイテム '%s' がアイテム定義に存在しません", groups[i].Name, entry.ItemName)
+				return fmt.Errorf("item group '%s' references item '%s' that does not exist in item definitions", groups[i].Name, entry.ItemName)
 			}
 		}
 	}
@@ -129,7 +129,7 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 				continue
 			}
 			if _, ok := memberNames[entry.EnemyName]; !ok {
-				return fmt.Errorf("敵テーブル '%s' の参照敵 '%s' がメンバー定義に存在しません", enemyTables[i].Name, entry.EnemyName)
+				return fmt.Errorf("enemy table '%s' references enemy '%s' that does not exist in member definitions", enemyTables[i].Name, entry.EnemyName)
 			}
 		}
 	}
@@ -152,7 +152,7 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 				continue
 			}
 			if _, ok := itemNames[entry.Weapon]; !ok {
-				return fmt.Errorf("コマンドテーブル '%s' の参照武器 '%s' がアイテム定義に存在しません", commandTables[i].Name, entry.Weapon)
+				return fmt.Errorf("command table '%s' references weapon '%s' that does not exist in item definitions", commandTables[i].Name, entry.Weapon)
 			}
 		}
 	}
@@ -167,7 +167,7 @@ func validateSpawnDice(raws oapi.Raws) error {
 	for i := range enemyTables {
 		for _, e := range enemyTables[i].Entries {
 			if _, err := consts.ParseDice(e.Pack); err != nil {
-				return fmt.Errorf("敵テーブル '%s' の '%s' のパック表記が不正です: %w", enemyTables[i].Name, e.EnemyName, err)
+				return fmt.Errorf("enemy table '%s' entry '%s' has invalid pack notation: %w", enemyTables[i].Name, e.EnemyName, err)
 			}
 		}
 	}
@@ -175,7 +175,7 @@ func validateSpawnDice(raws oapi.Raws) error {
 	for i := range itemGroups {
 		for _, e := range itemGroups[i].Entries {
 			if _, err := consts.ParseDice(e.Pack); err != nil {
-				return fmt.Errorf("アイテムグループ '%s' の '%s' のパック表記が不正です: %w", itemGroups[i].Name, e.ItemName, err)
+				return fmt.Errorf("item group '%s' entry '%s' has invalid pack notation: %w", itemGroups[i].Name, e.ItemName, err)
 			}
 		}
 	}
@@ -185,7 +185,7 @@ func validateSpawnDice(raws oapi.Raws) error {
 			continue
 		}
 		if _, err := consts.ParseDice(*props[i].Storage.LootCount); err != nil {
-			return fmt.Errorf("収納 '%s' の lootCount 表記が不正です: %w", props[i].Name, err)
+			return fmt.Errorf("container '%s' has invalid lootCount notation: %w", props[i].Name, err)
 		}
 	}
 	return nil
@@ -205,10 +205,10 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 		}
 		for _, y := range def.Yields {
 			if _, ok := itemNames[y.Name]; !ok {
-				return fmt.Errorf("%s '%s' の分解産出 '%s' がアイテム定義に存在しません", ownerKind, ownerName, y.Name)
+				return fmt.Errorf("%s '%s' disassembly yield '%s' does not exist in item definitions", ownerKind, ownerName, y.Name)
 			}
 			if _, err := consts.ParseDice(y.Count); err != nil {
-				return fmt.Errorf("%s '%s' の分解産出 '%s' の個数表記が不正です: %w", ownerKind, ownerName, y.Name, err)
+				return fmt.Errorf("%s '%s' disassembly yield '%s' has invalid count notation: %w", ownerKind, ownerName, y.Name, err)
 			}
 		}
 		if def.Bonus == nil {
@@ -216,10 +216,10 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 		}
 		for _, b := range *def.Bonus {
 			if _, ok := itemNames[b.Name]; !ok {
-				return fmt.Errorf("%s '%s' の分解ボーナス '%s' がアイテム定義に存在しません", ownerKind, ownerName, b.Name)
+				return fmt.Errorf("%s '%s' disassembly bonus '%s' does not exist in item definitions", ownerKind, ownerName, b.Name)
 			}
 			if _, err := consts.ParseDice(b.Count); err != nil {
-				return fmt.Errorf("%s '%s' の分解ボーナス '%s' の個数表記が不正です: %w", ownerKind, ownerName, b.Name, err)
+				return fmt.Errorf("%s '%s' disassembly bonus '%s' has invalid count notation: %w", ownerKind, ownerName, b.Name, err)
 			}
 		}
 		return nil
@@ -258,7 +258,7 @@ func validateDropTableReferences(raws oapi.Raws) error {
 				continue
 			}
 			if _, ok := itemNames[entry.Material]; !ok {
-				return fmt.Errorf("ドロップテーブル '%s' の素材 '%s' がアイテム定義に存在しません", dropTables[i].Name, entry.Material)
+				return fmt.Errorf("drop table '%s' material '%s' does not exist in item definitions", dropTables[i].Name, entry.Material)
 			}
 		}
 	}
@@ -270,7 +270,7 @@ func validateDropTableReferences(raws oapi.Raws) error {
 			continue
 		}
 		if _, ok := tableNames[*members[i].DropTableName]; !ok {
-			return fmt.Errorf("メンバー '%s' のドロップテーブル '%s' が定義に存在しません", members[i].Name, *members[i].DropTableName)
+			return fmt.Errorf("member '%s' drop table '%s' does not exist in definitions", members[i].Name, *members[i].DropTableName)
 		}
 	}
 	return nil
@@ -291,7 +291,7 @@ func validateCommandTableReferences(raws oapi.Raws) error {
 			continue
 		}
 		if _, ok := tableNames[*members[i].CommandTableName]; !ok {
-			return fmt.Errorf("メンバー '%s' のコマンドテーブル '%s' が定義に存在しません", members[i].Name, *members[i].CommandTableName)
+			return fmt.Errorf("member '%s' command table '%s' does not exist in definitions", members[i].Name, *members[i].CommandTableName)
 		}
 	}
 	return nil

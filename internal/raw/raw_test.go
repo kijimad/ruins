@@ -558,7 +558,7 @@ Depth = 1
 
 	_, err = NewPropSpec(raws, "矛盾Prop")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "blockPassとpassCostは同時に設定できません")
+	assert.Contains(t, err.Error(), "blockPass and passCost cannot both be set")
 }
 
 func TestPropWithHP(t *testing.T) {

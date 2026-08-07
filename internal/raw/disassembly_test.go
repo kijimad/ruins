@@ -175,7 +175,7 @@ func TestValidateReferences(t *testing.T) {
 		}
 		err := ValidateReferences(raws)
 		require.Error(t, err)
-		require.ErrorContains(t, err, "分解産出")
+		require.ErrorContains(t, err, "disassembly yield")
 		require.ErrorContains(t, err, "存在しない素材")
 	})
 

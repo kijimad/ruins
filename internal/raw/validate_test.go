@@ -97,7 +97,7 @@ func TestValidateRaws_InvalidCases(t *testing.T) {
 			t.Parallel()
 			err := ValidateRaws(tt.raws)
 			require.Error(t, err)
-			assert.Contains(t, err.Error(), "バリデーションエラー")
+			assert.Contains(t, err.Error(), "validation error")
 			assert.Contains(t, err.Error(), tt.wantErr)
 		})
 	}

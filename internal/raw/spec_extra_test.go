@@ -183,7 +183,7 @@ TotalEffort = 10
 
 	_, err = NewItemSpec(raws, "白紙の本")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "Skillの指定が必要です")
+	assert.Contains(t, err.Error(), "requires a Skill")
 }
 
 func TestNewItemSpec_本に未定義スキルはエラー(t *testing.T) {
@@ -207,7 +207,7 @@ TargetSkill = "unknown_skill"
 
 	_, err = NewItemSpec(raws, "謎の本")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "未定義のスキルID")
+	assert.Contains(t, err.Error(), "undefined skill ID")
 }
 
 func TestNewItemSpec_素材が設定される(t *testing.T) {
@@ -241,7 +241,7 @@ Weight = "abc"
 
 	_, err = NewItemSpec(raws, "不正な重量アイテム")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "アイテム '不正な重量アイテム' の重量")
+	assert.Contains(t, err.Error(), "'不正な重量アイテム' weight")
 }
 
 func TestNewRecipeSpec_レシピが設定される(t *testing.T) {
@@ -336,7 +336,7 @@ Defense = 2
 
 	_, err = NewMemberSpec(raws, "不正派閥")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "無効な派閥タイプ")
+	assert.Contains(t, err.Error(), "invalid faction type")
 }
 
 func TestNewMemberSpec_不正な戦闘方針はエラー(t *testing.T) {
@@ -359,7 +359,7 @@ Defense = 2
 
 	_, err = NewMemberSpec(raws, "不正戦闘方針")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "無効な戦闘ポリシー")
+	assert.Contains(t, err.Error(), "invalid combat policy")
 }
 
 func TestNewMemberSpec_光源が設定される(t *testing.T) {
@@ -463,7 +463,7 @@ func TestGetItemGroup_未存在はエラー(t *testing.T) {
 
 	_, err = GetItemGroup(raws, "存在しないグループ")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "アイテムグループが存在しない")
+	assert.Contains(t, err.Error(), "item group does not exist")
 }
 
 func TestGetProp_未存在はエラー(t *testing.T) {
