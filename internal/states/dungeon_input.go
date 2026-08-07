@@ -304,7 +304,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得
-			dialogMessage := messagedata.GetDialogue(p.MessageKey, speakerName)
+			dialogMessage := messagedata.GetDialogue(world, p.MessageKey, speakerName)
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewMessageState(dialogMessage) },
 			}}, nil

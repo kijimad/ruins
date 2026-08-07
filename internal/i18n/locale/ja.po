@@ -746,3 +746,32 @@ msgstr "ログメッセージなし"
 msgid "(No items)"
 msgstr "(アイテムなし)"
 
+
+# NPC 会話（dialogues）
+msgid "We've got some capable folks here.\n\nWant to hire a squad member?"
+msgstr "うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?"
+
+msgid "\"You, "
+msgstr "「あんた、"
+
+msgid "ruins"
+msgstr "遺跡"
+
+msgid "of the "
+msgstr "の"
+
+msgid "delver"
+msgstr "潜り"
+
+msgid "..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\""
+msgstr "だろ?\n\n外からこの街に来る異様に若い連中はみんなそうさ。\n向こう見ずで破滅的で、...\n\nどうしようもない事情を持ってる。」"
+
+msgid "\"You... I see, so your mother was "
+msgstr "「あんたは...、そうか、母親が"
+
+msgid "Hollow"
+msgstr "虚ろ"
+
+msgid "..., huh.\n\nWhat an irredeemable world.\""
+msgstr "か、...。\n\n救えない世の中だな。」"
+
