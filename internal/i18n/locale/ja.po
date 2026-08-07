@@ -1616,3 +1616,42 @@ msgstr "下"
 
 msgid "lower right"
 msgstr "右下"
+
+msgid "House"
+msgstr "住宅"
+
+msgid "Shop"
+msgstr "商店"
+
+msgid "Office"
+msgstr "事務所"
+
+msgid "Warehouse"
+msgstr "倉庫"
+
+msgid "Antique Shop"
+msgstr "骨董品店"
+
+msgid "Clinic"
+msgstr "診療所"
+
+msgid "Research Facility"
+msgstr "研究施設"
+
+msgid "Wasteland"
+msgstr "荒れ地"
+
+msgid "Village"
+msgstr "村"
+
+msgid "Lone House"
+msgstr "一軒家"
+
+msgid "Ruins Entrance"
+msgstr "遺跡入口"
+
+msgid "Scattered POI"
+msgstr "点在POI"
+
+msgid "Unclassified"
+msgstr "未分類"

@@ -80,12 +80,12 @@ func spawnSettlement(world w.World, center consts.Coord[consts.Tile], village bo
 	for _, n := range npcs {
 		pos := consts.Coord[consts.Tile]{X: center.X + n.dx, Y: center.Y + n.dy}
 		if _, err := lifecycle.SpawnNeutralNPC(world, pos, n.name); err != nil {
-			return fmt.Errorf("集落NPCの配置に失敗 (%s): %w", n.name, err)
+			return fmt.Errorf("failed to place settlement NPC (%s): %w", n.name, err)
 		}
 	}
 	for _, p := range props {
 		if _, err := lifecycle.SpawnProp(world, p.name, center.X+p.dx, center.Y+p.dy); err != nil {
-			return fmt.Errorf("集落propの配置に失敗 (%s): %w", p.name, err)
+			return fmt.Errorf("failed to place settlement prop (%s): %w", p.name, err)
 		}
 	}
 	return nil

@@ -50,7 +50,7 @@ linters:
         path: '_test\.go$'
       # 非UIパッケージ。errors/logs/data の日本語は後続で移行するため当面パッケージ単位で除外する
       - linters: [gosmopolitan]
-        path: '^internal/(designdoc|mapplanner|overworld|world)/'
+        path: '^internal/(designdoc|mapplanner|world)/'
       # states は UI を能動移行する。ファイル単位で除外し、英語化した画面から1枚ずつ外す。
       # main_menu は英語化済みなので載せない。ここに無い states ファイルはリンターの監視下に入る
       - linters: [gosmopolitan]
