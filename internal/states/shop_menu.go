@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -39,6 +40,9 @@ var _ menurt.ExtraInput = &ShopMenuState{}
 func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.screen = menurt.NewScreen[ShopProps](st, &st.detail)
+	// 売買で所持品が変わると WeightDirty が立つ。この画面でも再計算を回し、
+	// 総重量の表示を売買のたびに更新する
+	st.screen.WithSystems(&gs.WeightDirtySystem{})
 	return nil
 }
 
