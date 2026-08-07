@@ -143,7 +143,7 @@ func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
 		return WeaponStats{}, err
 	}
 
-	if member.CommandTableName == nil || *member.CommandTableName == "" {
+	if member.CommandTableName == nil {
 		// CommandTableがない場合は素手
 		return LoadWeaponFromItem(master, "bare_hands")
 	}

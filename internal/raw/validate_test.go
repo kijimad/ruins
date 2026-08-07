@@ -285,18 +285,27 @@ func TestValidateSpawnDice(t *testing.T) {
 func TestValidateCommandTableReferences(t *testing.T) {
 	t.Parallel()
 
-	t.Run("実在するテーブル名と未指定と空文字は通る", func(t *testing.T) {
+	t.Run("実在するテーブル名と未指定は通る", func(t *testing.T) {
 		t.Parallel()
-		empty := oapi.EntityName("")
 		raws := oapi.Raws{
 			CommandTables: &[]oapi.CommandTable{{Id: "素手", Name: "素手"}},
 			Members: &[]oapi.Member{
 				{Name: "戦うNPC", CommandTableName: new(oapi.EntityName("素手"))},
 				{Name: "未指定NPC"},
-				{Name: "空文字NPC", CommandTableName: &empty},
 			},
 		}
 		require.NoError(t, validateCommandTableReferences(raws))
+	})
+
+	t.Run("空文字はテーブル名として不正でエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			CommandTables: &[]oapi.CommandTable{{Id: "素手", Name: "素手"}},
+			Members:       &[]oapi.Member{{Name: "空文字NPC", CommandTableName: new(oapi.EntityName(""))}},
+		}
+		err := validateCommandTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "空文字NPC")
 	})
 
 	t.Run("テーブル名が存在しないとエラー", func(t *testing.T) {

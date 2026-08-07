@@ -426,7 +426,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ
-	if member.CommandTableName != nil && *member.CommandTableName != "" {
+	if member.CommandTableName != nil {
 		ct, err := GetCommandTable(raws, *member.CommandTableName)
 		if err != nil {
 			return gc.EntitySpec{}, fmt.Errorf("failed to get command table for member '%s': %w", name, err)
@@ -434,7 +434,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.CommandTable = &gc.CommandTable{Name: ct.Id}
 	}
 
-	if member.DropTableName != nil && *member.DropTableName != "" {
+	if member.DropTableName != nil {
 		dt, err := GetDropTable(raws, *member.DropTableName)
 		if err != nil {
 			return gc.EntitySpec{}, fmt.Errorf("failed to get drop table for member '%s': %w", name, err)

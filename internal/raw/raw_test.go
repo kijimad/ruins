@@ -752,8 +752,6 @@ id = "テスト敵"
 SpriteSheetName = "field"
 SpriteKey = "enemy"
 AnimKeys = ["enemy_0", "enemy_1"]
-CommandTableName = ""
-DropTableName = ""
 CombatPolicy = "` + tt.combatPolicy + `"
 [Members.Abilities]
 Vitality = 10
@@ -786,8 +784,6 @@ id = "態度なし"
 SpriteSheetName = "field"
 SpriteKey = "enemy"
 AnimKeys = ["enemy_0"]
-CommandTableName = ""
-DropTableName = ""
 [Members.Abilities]
 Vitality = 10
 Strength = 5
@@ -829,8 +825,6 @@ id = "テスト敵"
 SpriteSheetName = "field"
 SpriteKey = "enemy"
 AnimKeys = ["enemy_0"]
-CommandTableName = ""
-DropTableName = ""
 movementPattern = "` + tt.strategy + `"
 [Members.Abilities]
 Vitality = 10
@@ -1046,8 +1040,6 @@ id = "パターンなし"
 SpriteSheetName = "field"
 SpriteKey = "enemy"
 AnimKeys = ["enemy_0"]
-CommandTableName = ""
-DropTableName = ""
 [Members.Abilities]
 Vitality = 10
 Strength = 5

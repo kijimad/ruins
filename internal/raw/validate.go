@@ -265,8 +265,8 @@ func validateDropTableReferences(raws oapi.Raws) error {
 
 	members := PtrSlice(raws.Members)
 	for i := range members {
-		// 空文字は未指定と同じ扱いにする。EntitySpec 構築側の判定と揃える
-		if members[i].DropTableName == nil || *members[i].DropTableName == "" {
+		// 省略時は参照を持たない。空文字はテーブル名として不正なので存在チェックで弾く
+		if members[i].DropTableName == nil {
 			continue
 		}
 		if _, ok := tableNames[*members[i].DropTableName]; !ok {
@@ -286,8 +286,8 @@ func validateCommandTableReferences(raws oapi.Raws) error {
 
 	members := PtrSlice(raws.Members)
 	for i := range members {
-		// 空文字は未指定と同じ扱いにする。EntitySpec 構築側の判定と揃える
-		if members[i].CommandTableName == nil || *members[i].CommandTableName == "" {
+		// 省略時は参照を持たない。空文字はテーブル名として不正なので存在チェックで弾く
+		if members[i].CommandTableName == nil {
 			continue
 		}
 		if _, ok := tableNames[*members[i].CommandTableName]; !ok {
