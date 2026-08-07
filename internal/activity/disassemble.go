@@ -97,7 +97,7 @@ func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world 
 
 	name := query.GetEntityName(p.Target, world)
 	gamelog.New(query.GetGameLog(world)).
-		Fmt(query.T(world, "%s began disassembling %s"), gamelog.Item(toolName), gamelog.Item(name)).
+		Markup(query.T(world, "%s began disassembling %s", gamelog.Tag("item", toolName), gamelog.Tag("item", name))).
 		Log()
 
 	log.Debug("disassemble started", "actor", actor, "target", name, "tool", toolName)
@@ -186,7 +186,7 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 	}
 
 	logger := gamelog.New(query.GetGameLog(world)).
-		Fmt(query.T(world, "Disassembled %s."), gamelog.Item(name))
+		Markup(query.T(world, "Disassembled %s.", gamelog.Tag("item", name)))
 	appendYields(logger, stacks, world)
 	logger.Log()
 
@@ -202,9 +202,9 @@ func (db *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, wor
 	if world.Components.Player.Has(actor) {
 		logger := gamelog.New(query.GetGameLog(world))
 		if p, ok := comp.Params.(*gc.DisassembleParams); ok && world.ECS.Alive(p.Target) {
-			logger.Fmt(query.T(world, "Interrupted disassembling %s"), gamelog.Item(query.GetEntityName(p.Target, world)))
+			logger.Markup(query.T(world, "Interrupted disassembling %s", gamelog.Tag("item", query.GetEntityName(p.Target, world))))
 		} else {
-			logger.Append(query.T(world, "interrupted disassembly"))
+			logger.Markup(query.T(world, "interrupted disassembly"))
 		}
 		logger.Log()
 	}
@@ -231,7 +231,7 @@ func (db *DisassembleBehavior) gainMechanicExp(actor ecs.Entity, world w.World) 
 			world.Components.StatsChanged.Add(actor, &gc.StatsChanged{})
 		}
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "%s skill rose to %d", gc.SkillName(gc.SkillMechanic), s.Value)).
+			Markup(query.T(world, "%s skill rose to %d", gc.SkillName(gc.SkillMechanic), s.Value)).
 			Log()
 	}
 }
@@ -296,14 +296,14 @@ func mechanicSkillValue(actor ecs.Entity, world w.World) int {
 // 読点区切りで名前を色付き Segment として並べ、末尾に「を得た」の trailing clause を付ける
 func appendYields(logger *gamelog.Logger, stacks []lifecycle.YieldStack, world w.World) {
 	if len(stacks) == 0 {
-		logger.Append(query.T(world, "got nothing"))
+		logger.Markup(query.T(world, "got nothing"))
 		return
 	}
 	for i, s := range stacks {
 		if i > 0 {
-			logger.Append(query.T(world, ", "))
+			logger.Markup(query.T(world, ", "))
 		}
-		logger.ItemName(s.Name).Append(fmt.Sprintf(" x%d", s.Count))
+		logger.Markup(gamelog.Tag("item", s.Name) + fmt.Sprintf(" x%d", s.Count))
 	}
-	logger.Append(query.T(world, " obtained"))
+	logger.Markup(query.T(world, " obtained"))
 }

@@ -87,7 +87,7 @@ func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 
 	name := query.GetEntityName(p.Target, world)
 	gamelog.New(query.GetGameLog(world)).
-		Append(query.T(world, "started reading \"%s\"", name)).
+		Markup(query.T(world, "started reading \"%s\"", name)).
 		Log()
 
 	log.Debug("reading started", "actor", actor, "book", name, "effort", book.Effort.Max)
@@ -154,7 +154,7 @@ func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 	if book != nil && book.IsCompleted() {
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "finished reading \"%s\"", name)).
+			Markup(query.T(world, "finished reading \"%s\"", name)).
 			Log()
 
 		// 読了した本を消費する
@@ -176,7 +176,7 @@ func (rb *ReadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 			message = query.T(world, "interrupted reading \"%s\"", query.GetEntityName(p.Target, world))
 		}
 		gamelog.New(query.GetGameLog(world)).
-			Append(message).
+			Markup(message).
 			Log()
 	}
 
@@ -216,7 +216,7 @@ func (rb *ReadBehavior) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 
 		name := gc.SkillName(effect.TargetSkill)
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "%s skill rose to %d", name, s.Value)).
+			Markup(query.T(world, "%s skill rose to %d", name, s.Value)).
 			Log()
 	}
 }

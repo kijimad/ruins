@@ -263,7 +263,7 @@ func logTemperatureChange(world w.World, condType gc.ConditionType, current, pre
 
 	if msg != "" {
 		gamelog.New(query.GetGameLog(world)).
-			Warning(query.T(world, msg)).
+			Markup(gamelog.Tag("warning", query.T(world, msg))).
 			Log()
 	}
 }

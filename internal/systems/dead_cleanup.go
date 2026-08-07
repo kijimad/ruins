@@ -113,7 +113,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			// 全扉をアンロックして開く
 			if lifecycle.UnlockAllDoors(world) > 0 {
 				gamelog.New(query.GetGameLog(world)).
-					Append(query.T(world, "It seems a door opened somewhere.")).
+					Markup(query.T(world, "It seems a door opened somewhere.")).
 					Log()
 			}
 

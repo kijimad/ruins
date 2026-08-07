@@ -44,7 +44,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					door := world.Components.Door.Get(interactableEntity)
 					if !door.IsOpen {
 						if door.Locked {
-							gamelog.New(query.GetGameLog(world)).Append(query.T(world, "The door is locked.")).Log()
+							gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "The door is locked.")).Log()
 							return nil
 						}
 						_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
@@ -207,23 +207,23 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			case gc.InteractionItem:
 				formattedName := query.FormatItemName(world, entity)
 				gamelog.New(query.GetGameLog(world)).
-					Fmt(query.T(world, "%s is here."), gamelog.Item(formattedName)).
+					Markup(query.T(world, "%s is here.", gamelog.Tag("item", formattedName))).
 					Log()
 			case gc.InteractionPortalNext:
 				gamelog.New(query.GetGameLog(world)).
-					Append(query.T(world, "There is a warp gate. Press Enter to move.")).
+					Markup(query.T(world, "There is a warp gate. Press Enter to move.")).
 					Log()
 			case gc.InteractionPortalPrev:
 				gamelog.New(query.GetGameLog(world)).
-					Append(query.T(world, "There is an up staircase. Press Enter to move.")).
+					Markup(query.T(world, "There is an up staircase. Press Enter to move.")).
 					Log()
 			case gc.InteractionDungeonEnter:
 				gamelog.New(query.GetGameLog(world)).
-					Append(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
+					Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
 					Log()
 			case gc.InteractionEnterCube:
 				gamelog.New(query.GetGameLog(world)).
-					Fmt(query.T(world, "%s is here. You can enter it from the Space action menu."), gamelog.Item(query.GetEntityName(entity, world))).
+					Markup(query.T(world, "%s is here. You can enter it from the Space action menu.", gamelog.Tag("item", query.GetEntityName(entity, world)))).
 					Log()
 			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を

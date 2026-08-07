@@ -133,7 +133,7 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		if cw.Current > overweightLimit {
 			if world.Components.Player.Has(actor) {
 				gamelog.New(query.GetGameLog(world)).
-					Warning(query.T(world, "Too heavy to move")).
+					Markup(gamelog.Tag("warning", query.T(world, "Too heavy to move"))).
 					Log()
 			}
 			return ErrMoveOverweight

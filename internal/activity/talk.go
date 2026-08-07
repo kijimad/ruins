@@ -117,7 +117,7 @@ func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		nameComp := world.Components.Name.Get(targetEntity)
 
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "Talked with %s.", nameComp.Name)).
+			Markup(query.T(world, "Talked with %s.", nameComp.Name)).
 			Log()
 
 		// 会話ダイアログを表示

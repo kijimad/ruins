@@ -2,6 +2,7 @@ package activity
 
 import (
 	"fmt"
+	"strconv"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -417,7 +418,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 
 		actorName := query.GetEntityName(actor, world)
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "%s's skill rose! (%s Lv%d)", actorName, string(skillID), s.Value)).
+			Markup(query.T(world, "%s's skill rose! (%s Lv%d)", actorName, string(skillID), s.Value)).
 			Log()
 	}
 }
@@ -432,29 +433,30 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 
 	attackerName := query.GetEntityName(attacker, world)
 	targetName := query.GetEntityName(target, world)
-	attackerSeg := query.NameSegment(attacker, attackerName, world)
-	targetSeg := query.NameSegment(target, targetName, world)
+	attackerMarkup := query.NameMarkup(attacker, attackerName, world)
+	targetMarkup := query.NameMarkup(target, targetName, world)
+	damageStr := strconv.Itoa(damage)
 
 	logger := gamelog.New(query.GetGameLog(world))
 	withMethod := attackMethodName != ""
 	switch {
 	case !hit:
 		if withMethod {
-			logger.Fmt(query.T(world, "%s used %s to attack %s but missed."), attackerSeg, gamelog.Plain(attackMethodName), targetSeg)
+			logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, attackMethodName, targetMarkup))
 		} else {
-			logger.Fmt(query.T(world, "%s attacked %s but missed."), attackerSeg, targetSeg)
+			logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 		}
 	case critical:
 		if withMethod {
-			logger.Fmt(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!"), attackerSeg, gamelog.Plain(attackMethodName), targetSeg, gamelog.Plain(damage))
+			logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, attackMethodName, targetMarkup, damageStr))
 		} else {
-			logger.Fmt(query.T(world, "%s scored a critical hit on %s and dealt %s damage!"), attackerSeg, targetSeg, gamelog.Plain(damage))
+			logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 		}
 	default:
 		if withMethod {
-			logger.Fmt(query.T(world, "%s used %s to attack %s and dealt %s damage."), attackerSeg, gamelog.Plain(attackMethodName), targetSeg, gamelog.Plain(damage))
+			logger.Markup(query.T(world, "%s used %s to attack %s and dealt %s damage.", attackerMarkup, attackMethodName, targetMarkup, damageStr))
 		} else {
-			logger.Fmt(query.T(world, "%s attacked %s and dealt %s damage."), attackerSeg, targetSeg, gamelog.Plain(damage))
+			logger.Markup(query.T(world, "%s attacked %s and dealt %s damage.", attackerMarkup, targetMarkup, damageStr))
 		}
 	}
 	logger.Log()

@@ -132,10 +132,10 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 	}
 
 	gamelog.New(query.GetGameLog(world)).
-		Fmt(query.T(world, "%s handed over %s to %s."),
-			query.NameSegment(giver, giverName, world),
-			gamelog.Item(itemName),
-			gamelog.Plain(recipientName)).
+		Markup(query.T(world, "%s handed over %s to %s.",
+			query.NameMarkup(giver, giverName, world),
+			gamelog.Tag("item", itemName),
+			recipientName)).
 		Log()
 
 	return nil

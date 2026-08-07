@@ -388,7 +388,7 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
 				weaponName := nameComp.Name
 				gamelog.New(query.GetGameLog(world)).
-					Fmt(query.T(world, "Readied %s."), gamelog.Item(weaponName)).
+					Markup(query.T(world, "Readied %s.", gamelog.Tag("item", weaponName))).
 					Log()
 			}
 		}

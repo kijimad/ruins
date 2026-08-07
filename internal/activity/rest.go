@@ -90,7 +90,7 @@ func (rb *RestBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 	// プレイヤーの場合のみ完了メッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "Rested well and recovered health")).
+			Markup(query.T(world, "Rested well and recovered health")).
 			Log()
 	}
 
@@ -105,7 +105,7 @@ func (rb *RestBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 			}
 
 			gamelog.New(query.GetGameLog(world)).
-				Append(query.T(world, "Full rest recovered an additional %d HP", bonusHealing)).
+				Markup(query.T(world, "Full rest recovered an additional %d HP", bonusHealing)).
 				Log()
 		}
 	}
@@ -118,8 +118,8 @@ func (rb *RestBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	// プレイヤーの場合のみ中断時のメッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "Rest interrupted: ")).
-			Append(query.T(world, comp.CancelReason)).
+			Markup(query.T(world, "Rest interrupted: ")).
+			Markup(query.T(world, comp.CancelReason)).
 			Log()
 	}
 

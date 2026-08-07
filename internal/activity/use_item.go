@@ -184,12 +184,12 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	actorName := query.GetEntityName(actor, world)
 
 	logger := gamelog.New(query.GetGameLog(world))
-	logger.Fmt(query.T(world, "%s used %s"), query.NameSegment(actor, actorName, world), gamelog.Item(itemName))
+	logger.Markup(query.T(world, "%s used %s", query.NameMarkup(actor, actorName, world), gamelog.Tag("item", itemName)))
 
 	if isHealing {
-		logger.Append(query.T(world, " recovered %d HP.", amount))
+		logger.Markup(query.T(world, " recovered %d HP.", amount))
 	} else {
-		logger.Append(query.T(world, " took %d damage.", amount))
+		logger.Markup(query.T(world, " took %d damage.", amount))
 	}
 
 	logger.Log()
@@ -206,10 +206,10 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 	actorName := query.GetEntityName(actor, world)
 
 	logger := gamelog.New(query.GetGameLog(world))
-	logger.Fmt(query.T(world, "%s ate %s"), query.NameSegment(actor, actorName, world), gamelog.Item(itemName))
+	logger.Markup(query.T(world, "%s ate %s", query.NameMarkup(actor, actorName, world), gamelog.Tag("item", itemName)))
 
 	if isSatiated {
-		logger.Append(query.T(world, "Full."))
+		logger.Markup(query.T(world, "Full."))
 	}
 
 	logger.Log()

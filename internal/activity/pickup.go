@@ -127,7 +127,7 @@ func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, wor
 
 	if collectedCount > 1 && world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "obtained %d items", collectedCount)).
+			Markup(query.T(world, "obtained %d items", collectedCount)).
 			Log()
 	}
 
@@ -148,9 +148,9 @@ func (pb *PickupBehavior) collect(actor ecs.Entity, world w.World, entity ecs.En
 		return fmt.Errorf("failed to move to backpack: %w", err)
 	}
 	gamelog.New(query.GetGameLog(world)).
-		Fmt(query.T(world, "%s picked up %s."),
-			query.NameSegment(actor, actorName, world),
-			gamelog.Item(formattedName)).
+		Markup(query.T(world, "%s picked up %s.",
+			query.NameMarkup(actor, actorName, world),
+			gamelog.Tag("item", formattedName))).
 		Log()
 
 	return nil

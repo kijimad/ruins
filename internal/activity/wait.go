@@ -88,7 +88,7 @@ func (wb *WaitBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// 複数ターン待機の場合のみログを表示する
 	if comp.Progress.Max > 1 && world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "Finished waiting")).
+			Markup(query.T(world, "Finished waiting")).
 			Log()
 	}
 

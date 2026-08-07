@@ -86,7 +86,7 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 
 	if doorComp.Locked {
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "The door is locked.")).
+			Markup(query.T(world, "The door is locked.")).
 			Log()
 		Cancel(comp, "the door is locked")
 		return nil
@@ -116,7 +116,7 @@ func (odb *OpenDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.Wo
 	// プレイヤーの場合のみメッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "Opened the door.")).
+			Markup(query.T(world, "Opened the door.")).
 			Log()
 	}
 
@@ -229,7 +229,7 @@ func (cdb *CloseDoorBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.W
 	// プレイヤーの場合のみメッセージを表示
 	if world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "Closed the door.")).
+			Markup(query.T(world, "Closed the door.")).
 			Log()
 	}
 

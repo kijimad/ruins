@@ -107,27 +107,16 @@ func GetEntityID(entity ecs.Entity, world w.World) string {
 	return world.Components.Name.Get(entity).ID
 }
 
-// AppendNameWithColor はエンティティの種類に応じて色付きで名前を追加する
-func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string, world w.World) {
+// NameMarkup はエンティティ種別に応じたタグで名前を包んだマークアップ文字列を返す。
+// Player=<player>、NPC=<npc>、その他は裸のテキスト。gamelog.Markup へ書式の引数として渡す。
+// 名前の色は実行時の種別で決まるため、書式文字列でなくここでタグ付けする
+func NameMarkup(entity ecs.Entity, name string, world w.World) string {
 	switch {
 	case world.Components.Player.Has(entity):
-		logger.PlayerName(name)
+		return gamelog.Tag("player", name)
 	case world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity):
-		logger.NPCName(name)
+		return gamelog.Tag("npc", name)
 	default:
-		logger.Append(name)
-	}
-}
-
-// NameSegment はエンティティの種類に応じた色付きの名前 Segment を返す。AppendNameWithColor の Fmt 版。
-// 色は Player=緑・NPC(SoloAI/SquadAI)=黄・その他=白
-func NameSegment(entity ecs.Entity, name string, world w.World) gamelog.Segment {
-	switch {
-	case world.Components.Player.Has(entity):
-		return gamelog.Segment{Text: name, Color: gamelog.ColorGreen}
-	case world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity):
-		return gamelog.Segment{Text: name, Color: gamelog.ColorYellow}
-	default:
-		return gamelog.Segment{Text: name, Color: gamelog.ColorWhite}
+		return name
 	}
 }

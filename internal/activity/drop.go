@@ -113,7 +113,7 @@ func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w
 	world.Components.GridElement.Add(target, &gc.GridElement{Coord: targetTile})
 
 	gamelog.New(query.GetGameLog(world)).
-		Fmt(query.T(world, "Dropped %s."), gamelog.Item(formattedName)).
+		Markup(query.T(world, "Dropped %s.", gamelog.Tag("item", formattedName))).
 		Log()
 
 	return nil

@@ -215,7 +215,7 @@ func logEquipChange(world w.World, member ecs.Entity, itemName, format string) {
 		memberName = query.GetEntityName(member, world)
 	}
 	gamelog.New(query.GetGameLog(world)).
-		Fmt(format, gamelog.Plain(memberName), gamelog.Item(itemName)).
+		Markup(fmt.Sprintf(format, memberName, gamelog.Tag("item", itemName))).
 		Log()
 }
 

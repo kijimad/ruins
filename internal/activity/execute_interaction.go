@@ -91,7 +91,7 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 // Execute を呼ぶ前に可否を判定してから分岐する。
 func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
 	if !canPullCube(world, actor, cube) {
-		gamelog.New(query.GetGameLog(world)).Append(query.T(world, "There is no space to pull.")).Log()
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "There is no space to pull.")).Log()
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: "cannot pull"}, nil
 	}
 	comp, err := NewPullActivity(cube, actor, world)
@@ -117,7 +117,7 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 func executeDoorLock(world w.World) (*ActionResult, error) {
 	if lifecycle.LockAllDoors(world) > 0 {
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "A door seems to have closed somewhere.")).
+			Markup(query.T(world, "A door seems to have closed somewhere.")).
 			Log()
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorDoorLock, Message: "door lock"}, nil
@@ -169,7 +169,7 @@ func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*Ac
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
 		gamelog.New(query.GetGameLog(world)).
-			Fmt(query.T(world, "Do not have a tool to disassemble %s"), gamelog.Item(name)).
+			Markup(query.T(world, "Do not have a tool to disassemble %s", gamelog.Tag("item", name))).
 			Log()
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: "no tool"}, nil
 	}

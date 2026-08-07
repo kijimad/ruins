@@ -70,7 +70,7 @@ func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
 // Start はリロード開始時の処理
 func (rb *ReloadBehavior) Start(_ *gc.Activity, _ ecs.Entity, world w.World) error {
 	gamelog.New(query.GetGameLog(world)).
-		Append(query.T(world, "started reloading")).
+		Markup(query.T(world, "started reloading")).
 		Log()
 	return nil
 }
@@ -110,7 +110,7 @@ func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		}
 
 		gamelog.New(query.GetGameLog(world)).
-			Append(query.T(world, "reload complete (%d/%d)", fire.Magazine, fire.MagazineSize)).
+			Markup(query.T(world, "reload complete (%d/%d)", fire.Magazine, fire.MagazineSize)).
 			Log()
 
 		Complete(comp)
@@ -129,7 +129,7 @@ func (rb *ReloadBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) er
 // Canceled はリロードキャンセル時の処理
 func (rb *ReloadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	gamelog.New(query.GetGameLog(world)).
-		Append(query.T(world, "interrupted reloading")).
+		Markup(query.T(world, "interrupted reloading")).
 		Log()
 	log.Debug("reload canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil

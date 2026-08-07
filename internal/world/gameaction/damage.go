@@ -59,10 +59,7 @@ func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 	}
 
 	gamelog.New(query.GetGameLog(world)).
-		Build(func(l *gamelog.Logger) {
-			query.AppendNameWithColor(l, target, targetName, world)
-		}).
-		Append(suffix).
+		Markup(query.NameMarkup(target, targetName, world) + suffix).
 		Log()
 }
 
