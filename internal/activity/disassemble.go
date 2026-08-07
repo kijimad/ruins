@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"slices"
+	"strings"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -185,9 +186,13 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 		}
 	}
 
-	logger := gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "Disassembled %s.", gamelog.Tag("item", name)))
-	appendYields(logger, stacks, world)
+	targetMarkup := gamelog.Tag("item", name)
+	logger := gamelog.New(query.GetGameLog(world))
+	if len(stacks) == 0 {
+		logger.Markup(query.T(world, "Disassembled %s but obtained nothing.", targetMarkup))
+	} else {
+		logger.Markup(query.T(world, "Disassembled %s and obtained %s.", targetMarkup, yieldsMarkup(stacks, world)))
+	}
 	logger.Log()
 
 	db.gainMechanicExp(actor, world)
@@ -289,16 +294,12 @@ func mechanicSkillValue(actor ecs.Entity, world w.World) int {
 // appendYields は産出一覧をアイテム名の色付きでログへ追記する。
 // 産出は件数可変で各アイテム名に個別の色が付くため、単一の書式テンプレートには畳めない。
 // 読点区切りで名前を色付き Segment として並べ、末尾に「を得た」の trailing clause を付ける
-func appendYields(logger *gamelog.Logger, stacks []lifecycle.YieldStack, world w.World) {
-	if len(stacks) == 0 {
-		logger.Markup(query.T(world, "got nothing"))
-		return
-	}
+// yieldsMarkup は産出一覧を色付きマークアップ文字列にして返す。各アイテムを読点で連結する。
+// 語尾や句読点は呼び出し側のテンプレートに委ね、ここは中身の並びだけを組む
+func yieldsMarkup(stacks []lifecycle.YieldStack, world w.World) string {
+	parts := make([]string, len(stacks))
 	for i, s := range stacks {
-		if i > 0 {
-			logger.Markup(query.T(world, ", "))
-		}
-		logger.Markup(gamelog.Tag("item", s.Name) + fmt.Sprintf(" x%d", s.Count))
+		parts[i] = gamelog.Tag("item", s.Name) + fmt.Sprintf(" x%d", s.Count)
 	}
-	logger.Markup(query.T(world, " obtained"))
+	return strings.Join(parts, query.T(world, ", "))
 }

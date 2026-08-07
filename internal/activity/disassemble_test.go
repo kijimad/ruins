@@ -2,6 +2,7 @@ package activity
 
 import (
 	"math/rand/v2"
+	"strings"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -367,7 +368,7 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 	assert.Equal(t, "disassembly interrupted because enemies are nearby", comp.CancelReason)
 }
 
-func TestAppendYields(t *testing.T) {
+func TestYieldsMarkup(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -375,22 +376,19 @@ func TestAppendYields(t *testing.T) {
 		stacks []lifecycle.YieldStack
 		want   string
 	}{
-		{"空なら何も得られなかった", nil, "何も得られなかった"},
-		{"1件は単独表記", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}}, "鉄くず x2 を得た"},
-		{"複数件は読点で連結", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}, {Name: "硬木", Count: 1}}, "鉄くず x2、硬木 x1 を得た"},
+		{"1件は単独表記", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}}, "鉄くず x2"},
+		{"複数件は読点で連結", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}, {Name: "硬木", Count: 1}}, "鉄くず x2、硬木 x1"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
-			store := query.GetGameLog(world)
-			logger := gamelog.New(store)
-			appendYields(logger, tt.stacks, world)
-			logger.Log()
-
-			recent := store.GetRecent(1)
-			require.Len(t, recent, 1)
-			assert.Equal(t, tt.want, recent[0])
+			// マークアップを描画した後の表示テキストが期待どおり並ぶことを確認する
+			var got strings.Builder
+			for _, f := range gamelog.ParseMarkup(yieldsMarkup(tt.stacks, world)) {
+				got.WriteString(f.Text)
+			}
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }

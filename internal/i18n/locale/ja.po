@@ -1335,8 +1335,6 @@ msgstr "忘却の廃都"
 msgid "%s began disassembling %s"
 msgstr "%sで%sの分解を始めた"
 
-msgid "Disassembled %s."
-msgstr "%sを分解した。"
 
 msgid "Interrupted disassembling %s"
 msgstr "%sの分解を中断した"
@@ -1347,14 +1345,10 @@ msgstr "分解を中断した"
 msgid "%s skill rose to %d"
 msgstr "%sスキルが %d に上がった"
 
-msgid "got nothing"
-msgstr "何も得られなかった"
 
 msgid ", "
 msgstr "、"
 
-msgid " obtained"
-msgstr " を得た"
 
 msgid "disassembly target is not set"
 msgstr "分解対象が指定されていません"
@@ -1557,20 +1551,12 @@ msgstr "%s(%d個)"
 msgid "%s handed over %s to %s."
 msgstr "%s は %s を %s に渡した。"
 
-msgid "%s used %s"
-msgstr "%s は %s を使った。"
 
-msgid " recovered %d HP."
-msgstr " HPが %d 回復した。"
 
-msgid " took %d damage."
-msgstr " %d のダメージを受けた。"
 
 msgid "%s ate %s"
 msgstr "%s は %s を食べた。"
 
-msgid "Full."
-msgstr "満腹だ。"
 
 msgid "Item"
 msgstr "アイテム"
@@ -1670,3 +1656,18 @@ msgstr "キューブ"
 
 msgid "A mobile base you can push"
 msgstr "押して動かせる移動拠点"
+
+msgid "%s used %s and recovered %d HP."
+msgstr "%s は %s を使った。 HPが %d 回復した。"
+
+msgid "%s used %s and took %d damage."
+msgstr "%s は %s を使った。 %d のダメージを受けた。"
+
+msgid "%s ate %s and became full."
+msgstr "%s は %s を食べた。満腹だ。"
+
+msgid "Disassembled %s and obtained %s."
+msgstr "%sを分解し、%sを得た。"
+
+msgid "Disassembled %s but obtained nothing."
+msgstr "%sを分解したが何も得られなかった。"
