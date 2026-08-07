@@ -43,6 +43,7 @@ linters:
   exclusions:
     paths:
       - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
+      - internal/lint # ruleguard のルール定義。アプリから呼ばれず、Report 文字列も日本語なので解析対象外にする
     rules:
       # gosmopolitan の源泉英語化 allowlist。移行が済んだ領域から外していく。
       # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする
@@ -64,6 +65,12 @@ linters:
         # - hugeParam # 値渡しを広くポインタ化させ、エイリアシングのリスクと大きな差分を招くため採用しない
         # - commentedOutCode # 日本語コメントを誤検知するため採用しない
         - rangeValCopy # rangeでの大きな値コピーを検出する（性能）
+        - ruleguard # internal/lint のカスタムルールを適用する
+      settings:
+        ruleguard:
+          # 隣接 Markup 禁止などプロジェクト固有ルール。
+          # パスは解析対象パッケージからの相対で解決されるため、設定ファイル基準の ${base-path} を使う
+          rules: "${base-path}/internal/lint/rules.go"
     testifylint:
       disable:
         - float-compare # 厳密値/センチネル/0との比較が大半で、InDeltaの許容誤差付与が恣意的でノイズになるため
