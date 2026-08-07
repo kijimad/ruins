@@ -68,7 +68,7 @@ func TestSellItem_価値0のアイテムは売却できない(t *testing.T) {
 	item := world.ECS.NewEntity()
 
 	err := SellItem(world, player, item)
-	require.ErrorContains(t, err, "売却できません")
+	require.ErrorContains(t, err, "cannot be sold")
 
 	currency := query.GetCurrency(world, player)
 	assert.Equal(t, 0, currency, "売却失敗時は通貨が変動しない")

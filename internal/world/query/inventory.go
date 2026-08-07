@@ -1,8 +1,6 @@
 package query
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -74,5 +72,5 @@ func FormatItemName(world w.World, itemEntity ecs.Entity) string {
 	if count <= 1 {
 		return name
 	}
-	return fmt.Sprintf("%s(%d個)", name, count)
+	return T(world, "%s (x%d)", name, count)
 }

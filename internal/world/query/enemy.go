@@ -19,7 +19,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 	}
 
 	if !world.Components.GridElement.Has(playerEntity) {
-		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
+		return nil, fmt.Errorf("player has no GridElement")
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity)
@@ -68,7 +68,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 	}
 
 	if !world.Components.GridElement.Has(playerEntity) {
-		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
+		return nil, fmt.Errorf("player has no GridElement")
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity)

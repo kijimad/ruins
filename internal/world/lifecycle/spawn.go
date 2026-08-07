@@ -22,10 +22,10 @@ const (
 
 // エラー定義
 var (
-	ErrItemGeneration   = errors.New("アイテムの生成に失敗しました")
-	ErrMemberGeneration = errors.New("メンバーの生成に失敗しました")
-	ErrEnemyGeneration  = errors.New("敵の生成に失敗しました")
-	ErrEffectGeneration = errors.New("エフェクトの生成に失敗しました")
+	ErrItemGeneration   = errors.New("failed to generate item")
+	ErrMemberGeneration = errors.New("failed to generate member")
+	ErrEnemyGeneration  = errors.New("failed to generate enemy")
+	ErrEffectGeneration = errors.New("failed to generate effect")
 )
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
@@ -73,7 +73,7 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 	playerEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 
 	if err := FullRecover(world, playerEntity); err != nil {
-		return gc.InvalidEntity, fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("player recovery failed: %w", err)
 	}
 	world.Components.WeightDirty.Add(playerEntity, &gc.WeightDirty{})
 
@@ -85,14 +85,14 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.Entity, error) {
 	entitySpec, err := raw.NewMemberSpec(world.Resources.RawMaster, name)
 	if err != nil {
-		return gc.InvalidEntity, fmt.Errorf("中立NPC生成エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("failed to generate neutral NPC: %w", err)
 	}
 
 	if entitySpec.FactionNeutral == nil {
-		return gc.InvalidEntity, fmt.Errorf("'%s' は中立NPCではありません", name)
+		return gc.InvalidEntity, fmt.Errorf("'%s' is not a neutral NPC", name)
 	}
 	if entitySpec.Dialog == nil {
-		return gc.InvalidEntity, fmt.Errorf("'%s' には会話データがありません", name)
+		return gc.InvalidEntity, fmt.Errorf("'%s' has no dialog data", name)
 	}
 
 	entitySpec.GridElement = &gc.GridElement{Coord: pos}
@@ -109,7 +109,7 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
 
 	npcEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 	if err := FullRecover(world, npcEntity); err != nil {
-		return gc.InvalidEntity, fmt.Errorf("NPCの回復処理エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("NPC recovery failed: %w", err)
 	}
 
 	query.InvalidateSpatialIndex(world)
@@ -135,7 +135,7 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts 
 
 	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	if entitySpec.SoloAI == nil {
-		return gc.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
+		return gc.InvalidEntity, fmt.Errorf("enemy entity has no AI specified: %s", entitySpec.Name)
 	}
 	solo := entitySpec.SoloAI
 	solo.SubState = gc.AIStateWaiting
@@ -150,14 +150,14 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts 
 
 	npcEntity := world.Components.AddEntity(world.ECS, &entitySpec)
 	if err := FullRecover(world, npcEntity); err != nil {
-		return gc.InvalidEntity, fmt.Errorf("敵の回復処理エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("enemy recovery failed: %w", err)
 	}
 
 	if world.Components.TurnBased.Has(npcEntity) {
 		actionPoints := world.Components.TurnBased.Get(npcEntity)
 		maxAP, err := query.CalculateMaxActionPoints(world, npcEntity)
 		if err != nil {
-			return gc.InvalidEntity, fmt.Errorf("AP計算エラー: %w", err)
+			return gc.InvalidEntity, fmt.Errorf("AP calculation failed: %w", err)
 		}
 		actionPoints.AP.Current = maxAP
 		actionPoints.AP.Max = maxAP
@@ -175,7 +175,7 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts 
 // リーダーの隣接空きタイルに配置され、ポリシーに基づいて自律行動する
 func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
 	if !world.Components.GridElement.Has(leader) {
-		return gc.InvalidEntity, fmt.Errorf("リーダーにGridElementがありません")
+		return gc.InvalidEntity, fmt.Errorf("leader has no GridElement")
 	}
 	leaderGrid := world.Components.GridElement.Get(leader)
 
@@ -212,7 +212,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		SquadMember:  &gc.SquadMember{},
 	})
 	if err := FullRecover(world, memberEntity); err != nil {
-		return gc.InvalidEntity, fmt.Errorf("隊員の回復処理エラー: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("squad member recovery failed: %w", err)
 	}
 
 	query.InvalidateSpatialIndex(world)
@@ -252,7 +252,7 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 		return item, nil
 	}
 	if err := MoveToBackpack(world, item, playerEntity); err != nil {
-		return item, fmt.Errorf("バックパックへの移動に失敗: %w", err)
+		return item, fmt.Errorf("failed to move to backpack: %w", err)
 	}
 
 	return item, nil
@@ -290,19 +290,19 @@ func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {
 // FullRecover はエンティティのHP/APを全回復する
 func FullRecover(world w.World, entity ecs.Entity) error {
 	if err := setMaxStats(world, entity); err != nil {
-		return fmt.Errorf("最大HP設定エラー: %w", err)
+		return fmt.Errorf("failed to set max HP: %w", err)
 	}
 
 	hp := world.Components.HP.Get(entity)
 	if hp == nil {
-		return fmt.Errorf("HPコンポーネントがありません")
+		return fmt.Errorf("HP component is missing")
 	}
 	hp.Current = hp.Max
 
 	if world.Components.TurnBased.Has(entity) {
 		maxAP, err := query.CalculateMaxActionPoints(world, entity)
 		if err != nil {
-			return fmt.Errorf("AP計算エラー: %w", err)
+			return fmt.Errorf("AP calculation failed: %w", err)
 		}
 		turnBased := world.Components.TurnBased.Get(entity)
 		turnBased.AP.Current = maxAP
@@ -354,7 +354,7 @@ func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Ent
 	}
 
 	if err := MoveToStorage(world, item, storage); err != nil {
-		return item, fmt.Errorf("収納への移動に失敗: %w", err)
+		return item, fmt.Errorf("failed to move to storage: %w", err)
 	}
 
 	return item, nil

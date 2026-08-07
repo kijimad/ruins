@@ -73,7 +73,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	// 所持数を超えて減らそうとするとエラー
 	err = ChangeStackableCount(world, "鉄", -1500)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "アイテム数が不足しています")
+	assert.Contains(t, err.Error(), "insufficient item count")
 	// エンティティは残っている
 	entity, found = query.FindStackableInInventory(world, "鉄")
 	require.True(t, found)

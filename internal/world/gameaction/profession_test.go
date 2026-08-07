@@ -112,7 +112,7 @@ func TestApplyProfession(t *testing.T) {
 				p.Items = []oapi.ProfessionItem{{Name: "存在しないアイテム", Count: 1}}
 				p.Equips = nil
 			},
-			errContains: "職業の初期アイテム生成に失敗",
+			errContains: "failed to generate profession starting item",
 		},
 		{
 			name: "存在しない初期装備アイテム名でエラー",
@@ -120,7 +120,7 @@ func TestApplyProfession(t *testing.T) {
 				p.Items = nil
 				p.Equips = []oapi.ProfessionEquip{{Name: "存在しないアイテム", Slot: oapi.EquipSlotWEAPON1}}
 			},
-			errContains: "職業の初期装備生成に失敗",
+			errContains: "failed to generate profession starting equipment",
 		},
 		{
 			name: "不正な装備スロット名でエラー",
@@ -128,7 +128,7 @@ func TestApplyProfession(t *testing.T) {
 				p.Items = nil
 				p.Equips = []oapi.ProfessionEquip{{Name: "wooden_sword", Slot: "BOGUS"}}
 			},
-			errContains: "不正な装備スロット名",
+			errContains: "invalid equipment slot name",
 		},
 	}
 

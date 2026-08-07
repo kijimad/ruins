@@ -29,7 +29,7 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	if world.Components.Stackable.Has(entity) {
 		name := world.Components.Name.Get(entity)
 		if err := mergeStackableItems(world, name.ID, mergeInBackpack, owner); err != nil {
-			return fmt.Errorf("バックパック内のアイテム統合に失敗: %w", err)
+			return fmt.Errorf("failed to merge items in backpack: %w", err)
 		}
 	}
 	return nil
@@ -46,11 +46,11 @@ func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count i
 
 	id := world.Components.Name.Get(item).ID
 	if err := ChangeItemCount(world, item, -count); err != nil {
-		return fmt.Errorf("転送元スタックの減算に失敗: %w", err)
+		return fmt.Errorf("failed to decrement source stack: %w", err)
 	}
 	moved, err := spawnItemBase(world, id, count)
 	if err != nil {
-		return fmt.Errorf("転送する%d個の生成に失敗: %w", count, err)
+		return fmt.Errorf("failed to generate %d units to transfer: %w", count, err)
 	}
 	return MoveToBackpack(world, moved, recipient)
 }
@@ -117,7 +117,7 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	if world.Components.Stackable.Has(entity) {
 		name := world.Components.Name.Get(entity)
 		if err := mergeStackableItems(world, name.ID, mergeInStorage, storage); err != nil {
-			return fmt.Errorf("収納内のアイテム統合に失敗: %w", err)
+			return fmt.Errorf("failed to merge items in storage: %w", err)
 		}
 	}
 	return nil
@@ -221,7 +221,7 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 			}
 		}
 	default:
-		return fmt.Errorf("未対応のmergeLocation: %d", loc)
+		return fmt.Errorf("unsupported mergeLocation: %d", loc)
 	}
 
 	if len(stackableItems) <= 1 {
@@ -234,7 +234,7 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 		mergeCount := query.GetEntityCount(world, itemToMerge)
 
 		if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {
-			return fmt.Errorf("数量統合エラー: %w", err)
+			return fmt.Errorf("failed to merge counts: %w", err)
 		}
 
 		world.ECS.RemoveEntity(itemToMerge)
@@ -316,7 +316,7 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 		}
 	}
 	if !found {
-		return errors.New("必須コンポーネントを持つプレイヤーエンティティが見つかりません")
+		return errors.New("no player entity with required components found")
 	}
 
 	// プレイヤーの位置を更新する

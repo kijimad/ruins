@@ -1655,3 +1655,24 @@ msgstr "点在POI"
 
 msgid "Unclassified"
 msgstr "未分類"
+
+msgid " was defeated."
+msgstr " は倒れた。"
+
+msgid " was destroyed."
+msgstr " は壊れた。"
+
+msgid "An entrance leading to ruins"
+msgstr "遺跡へ通じる入口"
+
+msgid "Door"
+msgstr "扉"
+
+msgid "An openable door"
+msgstr "開閉できる扉"
+
+msgid "Cube"
+msgstr "キューブ"
+
+msgid "A mobile base you can push"
+msgstr "押して動かせる移動拠点"
