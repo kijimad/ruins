@@ -622,3 +622,42 @@ msgstr "が来たんだが...そいつも底狙いだと。」\n"
 
 msgid "Tab"
 msgstr "タブ"
+
+msgid "Jin"
+msgstr "ジン"
+
+msgid "Kai"
+msgstr "カイ"
+
+msgid "Ren"
+msgstr "レン"
+
+msgid "Mira"
+msgstr "ミラ"
+
+msgid "Sei"
+msgstr "セイ"
+
+msgid "Noa"
+msgstr "ノア"
+
+msgid "Riku"
+msgstr "リク"
+
+msgid "Yu"
+msgstr "ユウ"
+
+msgid "Haru"
+msgstr "ハル"
+
+msgid "Sora"
+msgstr "ソラ"
+
+msgid "Vit%d Str%d Sen%d Dex%d Agi%d Def%d"
+msgstr "体%d 力%d 感%d 器%d 敏%d 防%d"
+
+msgid "No candidates to hire"
+msgstr "雇用できる候補がいません"
+
+msgid "Cost"
+msgstr "費用"
