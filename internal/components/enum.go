@@ -226,17 +226,17 @@ func (enum EquipmentType) SlotNumber() EquipmentSlotNumber {
 func (enum EquipmentType) String() string {
 	switch enum {
 	case EquipmentHead:
-		return "Head slot"
+		return "Head"
 	case EquipmentTorso:
 		return "Torso"
 	case EquipmentArms:
-		return "Arm slot"
+		return "Arms"
 	case EquipmentHands:
-		return "Hand slot"
+		return "Hands"
 	case EquipmentLegs:
-		return "Leg slot"
+		return "Legs"
 	case EquipmentFeet:
-		return "Foot slot"
+		return "Feet"
 	case EquipmentJewelry:
 		return "Accessory"
 	}

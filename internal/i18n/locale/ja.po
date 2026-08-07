@@ -799,19 +799,19 @@ msgstr "まだ暑いが、少しマシになった"
 
 
 # components enum 表示・カテゴリ・ステージ名
-msgid "Head slot"
+msgid "Head"
 msgstr "頭部"
 
-msgid "Arm slot"
+msgid "Arms"
 msgstr "腕部"
 
-msgid "Hand slot"
+msgid "Hands"
 msgstr "手部"
 
-msgid "Leg slot"
+msgid "Legs"
 msgstr "脚部"
 
-msgid "Foot slot"
+msgid "Feet"
 msgstr "足部"
 
 msgid "Accessory"

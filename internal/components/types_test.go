@@ -185,12 +185,12 @@ func TestEquipmentSlotNumber(t *testing.T) {
 			slot     EquipmentSlotNumber
 			expected string
 		}{
-			{SlotHead, "Head slot"},
+			{SlotHead, "Head"},
 			{SlotTorso, "Torso"},
-			{SlotArms, "Arm slot"},
-			{SlotHands, "Hand slot"},
-			{SlotLegs, "Leg slot"},
-			{SlotFeet, "Foot slot"},
+			{SlotArms, "Arms"},
+			{SlotHands, "Hands"},
+			{SlotLegs, "Legs"},
+			{SlotFeet, "Feet"},
 			{SlotJewelry, "Accessory"},
 			{SlotWeapon1, "Weapon 1"},
 			{SlotWeapon2, "Weapon 2"},
