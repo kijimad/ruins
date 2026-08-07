@@ -7,165 +7,165 @@ import "github.com/mlange-42/ark/ecs"
 // EntitySpec is the specification used to create an entity.
 // It defines the set of components to attach, which AddEntity converts into an ECS entity.
 type EntitySpec struct {
-	Name               *Name               // holds the display name
-	Description        *Description        // holds the description text
-	HP                 *HP                 // represents life force; death when it runs out
-	Consumable         *Consumable         // represents a consumable used up on use
-	WeightCapacity     *WeightCapacity     // represents carry and storage weight capacity
-	Melee              *Melee              // holds melee attack stats
-	Fire               *Fire               // holds ranged attack stats and ammo
-	Value              *Value              // represents the base value of an item
-	Weight             *Weight             // represents the weight of an item
-	Recipe             *Recipe             // holds the materials required for crafting
-	Wearable           *Wearable           // holds equipment stats
-	Abilities          *Abilities          // holds the entity's ability scores
-	Ammo               *Ammo               // holds ammo item stats
-	Stackable          *Stackable          // represents a stackable item with a count
-	Material           *Material           // marks a material for crafting or selling
-	LocationInBackpack *LocationInBackpack // marks being in the backpack
-	LocationEquipped   *LocationEquipped   // marks being equipped
-	LocationOnField    *LocationOnField    // marks being on the field
-	LocationInStorage  *LocationInStorage  // marks being in a container
-	Tile               *Tile               // marks a tile entity
-	SoloAI             *SoloAI             // holds solo AI settings
-	SquadAI            *SquadAI            // holds squad member AI settings
-	Camera             *Camera             // holds camera position and zoom
-	Position           *Position           // holds pixel coordinates on the field
-	GridElement        *GridElement        // holds grid coordinates on the field
-	SpriteRender       *SpriteRender       // holds sprite rendering info
-	BlockView          *BlockView          // marks blocking of vision
-	BlockPass          *BlockPass          // marks being impassable
-	PassCost           *PassCost           // holds a tile's movement cost modifier
-	Door               *Door               // represents an openable door
-	Fixed              *Fixed              // marks a fixed object anchored in the world that cannot be picked up
-	Pushable           *Pushable           // marks being pushable; the base cube is the first user but the marker is generic
-	LightSource        *LightSource        // represents a light source
-	Interactable       *Interactable       // marks being interactable
-	VisualEffects      *VisualEffects      // manages the associated visual effect
-	TileTemperature    *TileTemperature    // holds a tile's temperature modifier
-	StageBound         *StageBound         // holds the bound stage; used to identify stages you travel between
-	StageField         *StageField         // holds per-stage field state; the current stage is looked up via CurrentStage
-	SeamlessBand       *SeamlessBand       // holds the persistent overworld band and front state; its presence also marks the overworld
-	PortalConnection   *PortalConnection   // holds a portal's destination stage and landing coordinates
-	DungeonEntrance    *DungeonEntrance    // holds the ruin definition name a ruin entrance leads to
-	Suspended          *Suspended          // marks belonging to a non-current stage and being inactive
-	Player             *Player             // marks the player-controlled protagonist
-	Profession         *Profession         // holds the chosen profession
-	Hunger             *Hunger             // holds the player's hunger
-	Wallet             *Wallet             // holds the player's funds
-	FactionAlly        *FactionAlly        // marks the ally faction
-	FactionEnemy       *FactionEnemy       // marks the enemy faction
-	FactionNeutral     *FactionNeutral     // marks the neutral faction
-	Boss               *Boss               // marks a boss entity
-	Dialog             *Dialog             // holds dialogue data
-	Dead               *Dead               // marks a dead state
-	TurnBased          *TurnBased          // manages action points
-	HealthStatus       *HealthStatus       // holds per-body-part health status
-	Skills             *Skills             // holds the skill set
-	CharModifiers      *CharModifiers      // aggregates effect multipliers
-	StateChangeRequest *StateChangeRequest // carries a state transition request
-	StatsChanged       *StatsChanged       // dirty flag marking that stats need recalculation
-	WeightDirty        *WeightDirty        // dirty flag marking that weight needs recalculation
-	ProvidesHealing    *ProvidesHealing    // holds HP healing properties
-	ProvidesNutrition  *ProvidesNutrition  // holds hunger recovery properties
-	InflictsDamage     *InflictsDamage     // holds damage-dealing properties
-	Book               *Book               // represents a readable book
-	CommandTable       *CommandTable       // holds the combat command table name for AI
-	DropTable          *DropTable          // holds the drop table name
-	SquadMember        *SquadMember        // marks a squad member
-	Activity           *Activity           // holds the running activity
-	LastActivity       *LastActivity       // holds the latest activity result
-	GameLog            *GameLog            // singleton holding the game log storage
-	Dungeon            *Dungeon            // singleton holding dungeon state
-	GameProgress       *GameProgress       // singleton holding game progress data
-	TurnState          *TurnState          // singleton holding turn state
-	SpatialIndex       *SpatialIndex       // singleton holding the spatial index
-	WeaponSelection    *WeaponSelection    // singleton holding the selected weapon slot
-	GameTime           *GameTime           // singleton holding in-game time
-	VisionState        *VisionState        // singleton holding temporary vision-calculation state
-	UserSettings       *UserSettings       // singleton holding global settings changed on the settings screen
+	Name               *Name
+	Description        *Description
+	HP                 *HP
+	Consumable         *Consumable
+	WeightCapacity     *WeightCapacity
+	Melee              *Melee
+	Fire               *Fire
+	Value              *Value
+	Weight             *Weight
+	Recipe             *Recipe
+	Wearable           *Wearable
+	Abilities          *Abilities
+	Ammo               *Ammo
+	Stackable          *Stackable
+	Material           *Material
+	LocationInBackpack *LocationInBackpack
+	LocationEquipped   *LocationEquipped
+	LocationOnField    *LocationOnField
+	LocationInStorage  *LocationInStorage
+	Tile               *Tile
+	SoloAI             *SoloAI
+	SquadAI            *SquadAI
+	Camera             *Camera
+	Position           *Position
+	GridElement        *GridElement
+	SpriteRender       *SpriteRender
+	BlockView          *BlockView
+	BlockPass          *BlockPass
+	PassCost           *PassCost
+	Door               *Door
+	Fixed              *Fixed
+	Pushable           *Pushable
+	LightSource        *LightSource
+	Interactable       *Interactable
+	VisualEffects      *VisualEffects
+	TileTemperature    *TileTemperature
+	StageBound         *StageBound
+	StageField         *StageField
+	SeamlessBand       *SeamlessBand
+	PortalConnection   *PortalConnection
+	DungeonEntrance    *DungeonEntrance
+	Suspended          *Suspended
+	Player             *Player
+	Profession         *Profession
+	Hunger             *Hunger
+	Wallet             *Wallet
+	FactionAlly        *FactionAlly
+	FactionEnemy       *FactionEnemy
+	FactionNeutral     *FactionNeutral
+	Boss               *Boss
+	Dialog             *Dialog
+	Dead               *Dead
+	TurnBased          *TurnBased
+	HealthStatus       *HealthStatus
+	Skills             *Skills
+	CharModifiers      *CharModifiers
+	StateChangeRequest *StateChangeRequest
+	StatsChanged       *StatsChanged
+	WeightDirty        *WeightDirty
+	ProvidesHealing    *ProvidesHealing
+	ProvidesNutrition  *ProvidesNutrition
+	InflictsDamage     *InflictsDamage
+	Book               *Book
+	CommandTable       *CommandTable
+	DropTable          *DropTable
+	SquadMember        *SquadMember
+	Activity           *Activity
+	LastActivity       *LastActivity
+	GameLog            *GameLog
+	Dungeon            *Dungeon
+	GameProgress       *GameProgress
+	TurnState          *TurnState
+	SpatialIndex       *SpatialIndex
+	WeaponSelection    *WeaponSelection
+	GameTime           *GameTime
+	VisionState        *VisionState
+	UserSettings       *UserSettings
 }
 
 // Components is the bundle of ECS component handles.
 // It holds a typed *ecs.Map[T] for each component type, used by Add/Has/Get and queries.
 type Components struct {
-	Name               *ecs.Map[Name]               // holds the display name
-	Description        *ecs.Map[Description]        // holds the description text
-	HP                 *ecs.Map[HP]                 // represents life force; death when it runs out
-	Consumable         *ecs.Map[Consumable]         // represents a consumable used up on use
-	WeightCapacity     *ecs.Map[WeightCapacity]     // represents carry and storage weight capacity
-	Melee              *ecs.Map[Melee]              // holds melee attack stats
-	Fire               *ecs.Map[Fire]               // holds ranged attack stats and ammo
-	Value              *ecs.Map[Value]              // represents the base value of an item
-	Weight             *ecs.Map[Weight]             // represents the weight of an item
-	Recipe             *ecs.Map[Recipe]             // holds the materials required for crafting
-	Wearable           *ecs.Map[Wearable]           // holds equipment stats
-	Abilities          *ecs.Map[Abilities]          // holds the entity's ability scores
-	Ammo               *ecs.Map[Ammo]               // holds ammo item stats
-	Stackable          *ecs.Map[Stackable]          // represents a stackable item with a count
-	Material           *ecs.Map[Material]           // marks a material for crafting or selling
-	LocationInBackpack *ecs.Map[LocationInBackpack] // marks being in the backpack
-	LocationEquipped   *ecs.Map[LocationEquipped]   // marks being equipped
-	LocationOnField    *ecs.Map[LocationOnField]    // marks being on the field
-	LocationInStorage  *ecs.Map[LocationInStorage]  // marks being in a container
-	Tile               *ecs.Map[Tile]               // marks a tile entity
-	SoloAI             *ecs.Map[SoloAI]             // holds solo AI settings
-	SquadAI            *ecs.Map[SquadAI]            // holds squad member AI settings
-	Camera             *ecs.Map[Camera]             // holds camera position and zoom
-	Position           *ecs.Map[Position]           // holds pixel coordinates on the field
-	GridElement        *ecs.Map[GridElement]        // holds grid coordinates on the field
-	SpriteRender       *ecs.Map[SpriteRender]       // holds sprite rendering info
-	BlockView          *ecs.Map[BlockView]          // marks blocking of vision
-	BlockPass          *ecs.Map[BlockPass]          // marks being impassable
-	PassCost           *ecs.Map[PassCost]           // holds a tile's movement cost modifier
-	Door               *ecs.Map[Door]               // represents an openable door
-	Fixed              *ecs.Map[Fixed]              // marks a fixed object anchored in the world that cannot be picked up
-	Pushable           *ecs.Map[Pushable]           // marks being pushable; the base cube is the first user but the marker is generic
-	LightSource        *ecs.Map[LightSource]        // represents a light source
-	Interactable       *ecs.Map[Interactable]       // marks being interactable
-	VisualEffects      *ecs.Map[VisualEffects]      // manages the associated visual effect
-	TileTemperature    *ecs.Map[TileTemperature]    // holds a tile's temperature modifier
-	StageBound         *ecs.Map[StageBound]         // holds the bound stage; used to identify stages you travel between
-	StageField         *ecs.Map[StageField]         // holds per-stage field state; the current stage is looked up via CurrentStage
-	SeamlessBand       *ecs.Map[SeamlessBand]       // holds the persistent overworld band and front state; its presence also marks the overworld
-	PortalConnection   *ecs.Map[PortalConnection]   // holds a portal's destination stage and landing coordinates
-	DungeonEntrance    *ecs.Map[DungeonEntrance]    // holds the ruin definition name a ruin entrance leads to
-	Suspended          *ecs.Map[Suspended]          // marks belonging to a non-current stage and being inactive
-	Player             *ecs.Map[Player]             // marks the player-controlled protagonist
-	Profession         *ecs.Map[Profession]         // holds the chosen profession
-	Hunger             *ecs.Map[Hunger]             // holds the player's hunger
-	Wallet             *ecs.Map[Wallet]             // holds the player's funds
-	FactionAlly        *ecs.Map[FactionAlly]        // marks the ally faction
-	FactionEnemy       *ecs.Map[FactionEnemy]       // marks the enemy faction
-	FactionNeutral     *ecs.Map[FactionNeutral]     // marks the neutral faction
-	Boss               *ecs.Map[Boss]               // marks a boss entity
-	Dialog             *ecs.Map[Dialog]             // holds dialogue data
-	Dead               *ecs.Map[Dead]               // marks a dead state
-	TurnBased          *ecs.Map[TurnBased]          // manages action points
-	HealthStatus       *ecs.Map[HealthStatus]       // holds per-body-part health status
-	Skills             *ecs.Map[Skills]             // holds the skill set
-	CharModifiers      *ecs.Map[CharModifiers]      // aggregates effect multipliers
-	StateChangeRequest *ecs.Map[StateChangeRequest] // carries a state transition request
-	StatsChanged       *ecs.Map[StatsChanged]       // dirty flag marking that stats need recalculation
-	WeightDirty        *ecs.Map[WeightDirty]        // dirty flag marking that weight needs recalculation
-	ProvidesHealing    *ecs.Map[ProvidesHealing]    // holds HP healing properties
-	ProvidesNutrition  *ecs.Map[ProvidesNutrition]  // holds hunger recovery properties
-	InflictsDamage     *ecs.Map[InflictsDamage]     // holds damage-dealing properties
-	Book               *ecs.Map[Book]               // represents a readable book
-	CommandTable       *ecs.Map[CommandTable]       // holds the combat command table name for AI
-	DropTable          *ecs.Map[DropTable]          // holds the drop table name
-	SquadMember        *ecs.Map[SquadMember]        // marks a squad member
-	Activity           *ecs.Map[Activity]           // holds the running activity
-	LastActivity       *ecs.Map[LastActivity]       // holds the latest activity result
-	GameLog            *ecs.Map[GameLog]            // singleton holding the game log storage
-	Dungeon            *ecs.Map[Dungeon]            // singleton holding dungeon state
-	GameProgress       *ecs.Map[GameProgress]       // singleton holding game progress data
-	TurnState          *ecs.Map[TurnState]          // singleton holding turn state
-	SpatialIndex       *ecs.Map[SpatialIndex]       // singleton holding the spatial index
-	WeaponSelection    *ecs.Map[WeaponSelection]    // singleton holding the selected weapon slot
-	GameTime           *ecs.Map[GameTime]           // singleton holding in-game time
-	VisionState        *ecs.Map[VisionState]        // singleton holding temporary vision-calculation state
-	UserSettings       *ecs.Map[UserSettings]       // singleton holding global settings changed on the settings screen
+	Name               *ecs.Map[Name]
+	Description        *ecs.Map[Description]
+	HP                 *ecs.Map[HP]
+	Consumable         *ecs.Map[Consumable]
+	WeightCapacity     *ecs.Map[WeightCapacity]
+	Melee              *ecs.Map[Melee]
+	Fire               *ecs.Map[Fire]
+	Value              *ecs.Map[Value]
+	Weight             *ecs.Map[Weight]
+	Recipe             *ecs.Map[Recipe]
+	Wearable           *ecs.Map[Wearable]
+	Abilities          *ecs.Map[Abilities]
+	Ammo               *ecs.Map[Ammo]
+	Stackable          *ecs.Map[Stackable]
+	Material           *ecs.Map[Material]
+	LocationInBackpack *ecs.Map[LocationInBackpack]
+	LocationEquipped   *ecs.Map[LocationEquipped]
+	LocationOnField    *ecs.Map[LocationOnField]
+	LocationInStorage  *ecs.Map[LocationInStorage]
+	Tile               *ecs.Map[Tile]
+	SoloAI             *ecs.Map[SoloAI]
+	SquadAI            *ecs.Map[SquadAI]
+	Camera             *ecs.Map[Camera]
+	Position           *ecs.Map[Position]
+	GridElement        *ecs.Map[GridElement]
+	SpriteRender       *ecs.Map[SpriteRender]
+	BlockView          *ecs.Map[BlockView]
+	BlockPass          *ecs.Map[BlockPass]
+	PassCost           *ecs.Map[PassCost]
+	Door               *ecs.Map[Door]
+	Fixed              *ecs.Map[Fixed]
+	Pushable           *ecs.Map[Pushable]
+	LightSource        *ecs.Map[LightSource]
+	Interactable       *ecs.Map[Interactable]
+	VisualEffects      *ecs.Map[VisualEffects]
+	TileTemperature    *ecs.Map[TileTemperature]
+	StageBound         *ecs.Map[StageBound]
+	StageField         *ecs.Map[StageField]
+	SeamlessBand       *ecs.Map[SeamlessBand]
+	PortalConnection   *ecs.Map[PortalConnection]
+	DungeonEntrance    *ecs.Map[DungeonEntrance]
+	Suspended          *ecs.Map[Suspended]
+	Player             *ecs.Map[Player]
+	Profession         *ecs.Map[Profession]
+	Hunger             *ecs.Map[Hunger]
+	Wallet             *ecs.Map[Wallet]
+	FactionAlly        *ecs.Map[FactionAlly]
+	FactionEnemy       *ecs.Map[FactionEnemy]
+	FactionNeutral     *ecs.Map[FactionNeutral]
+	Boss               *ecs.Map[Boss]
+	Dialog             *ecs.Map[Dialog]
+	Dead               *ecs.Map[Dead]
+	TurnBased          *ecs.Map[TurnBased]
+	HealthStatus       *ecs.Map[HealthStatus]
+	Skills             *ecs.Map[Skills]
+	CharModifiers      *ecs.Map[CharModifiers]
+	StateChangeRequest *ecs.Map[StateChangeRequest]
+	StatsChanged       *ecs.Map[StatsChanged]
+	WeightDirty        *ecs.Map[WeightDirty]
+	ProvidesHealing    *ecs.Map[ProvidesHealing]
+	ProvidesNutrition  *ecs.Map[ProvidesNutrition]
+	InflictsDamage     *ecs.Map[InflictsDamage]
+	Book               *ecs.Map[Book]
+	CommandTable       *ecs.Map[CommandTable]
+	DropTable          *ecs.Map[DropTable]
+	SquadMember        *ecs.Map[SquadMember]
+	Activity           *ecs.Map[Activity]
+	LastActivity       *ecs.Map[LastActivity]
+	GameLog            *ecs.Map[GameLog]
+	Dungeon            *ecs.Map[Dungeon]
+	GameProgress       *ecs.Map[GameProgress]
+	TurnState          *ecs.Map[TurnState]
+	SpatialIndex       *ecs.Map[SpatialIndex]
+	WeaponSelection    *ecs.Map[WeaponSelection]
+	GameTime           *ecs.Map[GameTime]
+	VisionState        *ecs.Map[VisionState]
+	UserSettings       *ecs.Map[UserSettings]
 }
 
 // InitializeComponents registers every component type with the Ark world

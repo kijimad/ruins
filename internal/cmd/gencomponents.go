@@ -65,7 +65,7 @@ import "github.com/mlange-42/ark/ecs"
 // It defines the set of components to attach, which AddEntity converts into an ECS entity.
 type EntitySpec struct {
 {{- range .}}
-	{{.Field}} *{{.Field}} // {{.Comment}}
+	{{.Field}} *{{.Field}}
 {{- end}}
 }
 
@@ -73,7 +73,7 @@ type EntitySpec struct {
 // It holds a typed *ecs.Map[T] for each component type, used by Add/Has/Get and queries.
 type Components struct {
 {{- range .}}
-	{{.Field}} *ecs.Map[{{.Field}}] // {{.Comment}}
+	{{.Field}} *ecs.Map[{{.Field}}]
 {{- end}}
 }
 
