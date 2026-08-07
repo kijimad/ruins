@@ -43,7 +43,7 @@ func (db *DisassembleBehavior) Name() gc.BehaviorName {
 // NewDisassembleActivity は分解対象を指定して分解アクティビティを組む。
 // 必要APは対象のbaseAPに機械スキルと工具グレードの短縮を掛けて求める。
 func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	def, ok := findDisassemblyDef(target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
 	if !ok {
 		return nil, fmt.Errorf("target has no disassembly definition")
 	}
@@ -67,7 +67,7 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("disassembly target does not exist")
 	}
-	def, ok := findDisassemblyDef(p.Target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
 		return fmt.Errorf("target has no disassembly definition")
 	}
@@ -86,7 +86,7 @@ func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world 
 	if !ok {
 		return fmt.Errorf("disassembly target is not set")
 	}
-	def, ok := findDisassemblyDef(p.Target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
 		return fmt.Errorf("disassembly definition not found")
 	}
@@ -120,7 +120,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 		Cancel(comp, "disassembly interrupted because enemies are nearby")
 		return nil
 	}
-	def, ok := findDisassemblyDef(p.Target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
 		Cancel(comp, "interrupted because the disassembly definition was not found")
 		return nil
@@ -149,7 +149,7 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 	if !world.ECS.Alive(target) {
 		return nil
 	}
-	def, ok := findDisassemblyDef(target, world)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
 	if !ok {
 		return fmt.Errorf("disassembly definition not found")
 	}
@@ -276,11 +276,6 @@ func FindBestDisassemblyTool(world w.World, actor ecs.Entity, category oapi.Tool
 	}
 
 	return bestGrade, bestName, bestGrade > 0
-}
-
-// findDisassemblyDef は対象エンティティの id で分解定義を引く。prop・アイテムとも id で定義を持つ
-func findDisassemblyDef(entity ecs.Entity, world w.World) (*oapi.Disassembly, bool) {
-	return raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(entity, world))
 }
 
 // mechanicSkillValue はactorの機械スキル値を返す。スキルを持たなければ0
