@@ -82,3 +82,38 @@ func TestMockKeyboardInput_ImplementsInterface(t *testing.T) {
 
 	var _ KeyboardInput = NewMockKeyboardInput()
 }
+
+func TestSharedKeyboardInput_IsKeyPressed_未押下ならfalseを返す(t *testing.T) {
+	t.Parallel()
+
+	keyboard := GetSharedKeyboardInput()
+
+	assert.False(t, keyboard.IsKeyPressed(ebiten.KeyA), "テスト環境では実際のキー入力が発生しないため常にfalse")
+}
+
+func TestSharedKeyboardInput_IsKeyJustPressed_未押下ならfalseを返す(t *testing.T) {
+	t.Parallel()
+
+	keyboard := GetSharedKeyboardInput()
+
+	assert.False(t, keyboard.IsKeyJustPressed(ebiten.KeyB), "テスト環境では実際のキー入力が発生しないため常にfalse")
+}
+
+func TestSharedKeyboardInput_IsEnterJustPressedOnce_未押下が続く間はfalseを返す(t *testing.T) {
+	t.Parallel()
+
+	keyboard := GetSharedKeyboardInput()
+
+	// 実際のキー入力が発生しない環境では押下-押上のセットが成立しないため、
+	// 何度呼んでもfalseのままであることを確認する
+	assert.False(t, keyboard.IsEnterJustPressedOnce())
+	assert.False(t, keyboard.IsEnterJustPressedOnce())
+}
+
+func TestSharedKeyboardInput_IsKeyPressedWithRepeat_未押下ならfalseを返す(t *testing.T) {
+	t.Parallel()
+
+	keyboard := GetSharedKeyboardInput()
+
+	assert.False(t, keyboard.IsKeyPressedWithRepeat(ebiten.KeyC), "テスト環境では実際のキー入力が発生しないため常にfalse")
+}
