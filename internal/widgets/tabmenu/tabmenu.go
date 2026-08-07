@@ -139,7 +139,7 @@ func computeDisplayRows(config Config, state ViewState) []displayRow {
 	}
 
 	if len(config.Tabs) > 0 && state.TabIndex < len(config.Tabs) && len(config.Tabs[state.TabIndex].Items) == 0 {
-		rows = append(rows, displayRow{Kind: displayEmptyPlaceholder, Label: "(アイテムなし)"})
+		rows = append(rows, displayRow{Kind: displayEmptyPlaceholder, Label: "(No items)"})
 	}
 
 	return rows

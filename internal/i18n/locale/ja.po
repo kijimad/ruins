@@ -738,3 +738,11 @@ msgstr "スキル"
 msgid "Progress"
 msgstr "進捗"
 
+
+# widgets プレースホルダ
+msgid "No log messages"
+msgstr "ログメッセージなし"
+
+msgid "(No items)"
+msgstr "(アイテムなし)"
+
