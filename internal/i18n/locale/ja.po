@@ -541,3 +541,81 @@ msgstr "閉じる"
 
 msgid "You conquered all the ruins.\n\nThe ancient presence sleeping at the bottom of the great hole has finally quieted."
 msgstr "すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。"
+
+msgid "Inventory"
+msgstr "所持"
+
+msgid "Party"
+msgstr "部隊"
+
+msgid "Save game"
+msgstr "書込"
+
+msgid "No actions available."
+msgstr "実行可能なアクションがありません。"
+
+msgid "Save"
+msgstr "セーブ"
+
+msgid "Load game"
+msgstr "ロード"
+
+msgid "Manual save"
+msgstr "手動セーブ"
+
+msgid "Auto save"
+msgstr "オートセーブ"
+
+msgid "  Has data"
+msgstr "  データあり"
+
+msgid "Want to make a deal?\n\nI've got good stuff."
+msgstr "何か取引しないかい?\n\nいい物揃ってるよ。"
+
+msgid "Look"
+msgstr "見る"
+
+msgid "No business"
+msgstr "用は無い"
+
+msgid "Skilled folk gather here.\n\nWant to hire a squad member?"
+msgstr "うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?"
+
+msgid "Hire"
+msgstr "雇う"
+
+msgid "I want to craft"
+msgstr "合成したい"
+
+msgid "Heh heh... I'll reconstruct matter with my secret technique.\n\nBring me core and materials!"
+msgstr "フフフ...わしの秘密の技術で物質再構築してやろう\n\n地髄と素材を持ってくるのじゃ!"
+
+msgid "A vast wasteland, with a single great hole gaping open."
+msgstr "見渡すかぎりの荒野に、大穴がひとつ、口を開けている。"
+
+msgid "At the bottom of the hole lie ruins of an ancient civilization.\n"
+msgstr "穴の底には古代文明の遺跡がある。\n"
+
+msgid "Treasure comes out. Monsters too. Half of those who dive never return.\n"
+msgstr "宝が出る。怪物も出る。潜った者の半分は帰ってこない。\n"
+
+msgid "Around the hole a town has formed of divers, sellers, and buyers."
+msgstr "穴のまわりには潜る者、売る者、買う者で街ができた。"
+
+msgid "\"Heard about it? Another bottom-seeker vanished.\"\n"
+msgstr "「聞いたか。底狙いの奴、また一人消えたってよ。」\n"
+
+msgid "\"How many is that now?\"\n"
+msgstr "「何人目だ。」\n"
+
+msgid "\"Who knows. I quit counting long ago.\"\n\n"
+msgstr "「さあな。数えるのはとっくにやめた。」\n\n"
+
+msgid "\"So, the next "
+msgstr "「でさ、次の"
+
+msgid "scavenger"
+msgstr "拾い屋"
+
+msgid " has shown up... a bottom-seeker too, they say.\"\n"
+msgstr "が来たんだが...そいつも底狙いだと。」\n"
