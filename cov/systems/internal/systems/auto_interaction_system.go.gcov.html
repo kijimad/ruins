@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -126,14 +126,14 @@
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                         config := interaction.Config()</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                         if err := config.ActivationRange.Valid(); err != nil {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :                                 logger.New(logger.CategoryAction).Warn(&quot;skipping interaction with invalid ActivationRange&quot;,</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :                                 logger.New(logger.CategoryAction).Warn(&quot;無効なActivationRangeを持つ相互作用をスキップ&quot;,</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                                         &quot;entity&quot;, interactableEntity,</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                                         &quot;range&quot;, config.ActivationRange,</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                                         &quot;error&quot;, err)</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                                 continue</span></span>
 <span id="L72"><span class="lineNum">      72</span>              :                         }</span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC tlaBgGNC">           1 :                         if err := config.ActivationWay.Valid(); err != nil {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC tlaBgUNC">           0 :                                 logger.New(logger.CategoryAction).Warn(&quot;skipping interaction with invalid ActivationWay&quot;,</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC tlaBgUNC">           0 :                                 logger.New(logger.CategoryAction).Warn(&quot;無効なActivationWayを持つ相互作用をスキップ&quot;,</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                                         &quot;entity&quot;, interactableEntity,</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                                         &quot;way&quot;, config.ActivationWay,</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                                         &quot;error&quot;, err)</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">59.6&nbsp;%</td>
-            <td class="headerCovTableEntry">156</td>
-            <td class="headerCovTableEntry">93</td>
+            <td class="headerCovTableEntryLo">59.4&nbsp;%</td>
+            <td class="headerCovTableEntry">155</td>
+            <td class="headerCovTableEntry">92</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -101,7 +101,7 @@
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         st.actionWin = menuscreen.NewActionWindow(st.actionWindowContent)</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         st.detail = menuscreen.NewDetail(st.detailContent)</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         st.screen = menurt.NewScreen[TavernProps](st, &amp;st.detail, &amp;st.actionWin)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         st.candidates = generateCandidates(world, world.Config.RNG)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         st.candidates = generateCandidates(world.Config.RNG)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
@@ -137,7 +137,7 @@
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:</span></span>
 <span id="L76"><span class="lineNum">      76</span>              :                 // Dispatchで処理</span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;tavernMenu: unsupported action: %s&quot;, action)</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;tavernMenu: 未対応のアクション: %s&quot;, action)</span></span>
 <span id="L79"><span class="lineNum">      79</span>              :         }</span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L81"><span class="lineNum">      81</span>              : }</span>
@@ -154,10 +154,10 @@
 <span id="L92"><span class="lineNum">      92</span>              :         Cost      int</span>
 <span id="L93"><span class="lineNum">      93</span>              : }</span>
 <span id="L94"><span class="lineNum">      94</span>              : </span>
-<span id="L95"><span class="lineNum">      95</span>              : // candidateNamePool は候補名のプール。msgid はローマ字にし、表示名は query.T で現在言語へ引く</span>
+<span id="L95"><span class="lineNum">      95</span>              : // candidateNamePool は候補名のプール</span>
 <span id="L96"><span class="lineNum">      96</span>              : var candidateNamePool = []string{</span>
-<span id="L97"><span class="lineNum">      97</span>              :         &quot;Jin&quot;, &quot;Kai&quot;, &quot;Ren&quot;, &quot;Mira&quot;, &quot;Sei&quot;,</span>
-<span id="L98"><span class="lineNum">      98</span>              :         &quot;Noa&quot;, &quot;Riku&quot;, &quot;Yu&quot;, &quot;Haru&quot;, &quot;Sora&quot;,</span>
+<span id="L97"><span class="lineNum">      97</span>              :         &quot;ジン&quot;, &quot;カイ&quot;, &quot;レン&quot;, &quot;ミラ&quot;, &quot;セイ&quot;,</span>
+<span id="L98"><span class="lineNum">      98</span>              :         &quot;ノア&quot;, &quot;リク&quot;, &quot;ユウ&quot;, &quot;ハル&quot;, &quot;ソラ&quot;,</span>
 <span id="L99"><span class="lineNum">      99</span>              : }</span>
 <span id="L100"><span class="lineNum">     100</span>              : </span>
 <span id="L101"><span class="lineNum">     101</span>              : // candidateSpritePool は候補スプライトのプール</span>
@@ -166,7 +166,7 @@
 <span id="L104"><span class="lineNum">     104</span>              : }</span>
 <span id="L105"><span class="lineNum">     105</span>              : </span>
 <span id="L106"><span class="lineNum">     106</span>              : // generateCandidates はランダムな雇用候補を生成する。</span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC tlaBgGNC">           1 : func generateCandidates(world w.World, rng *rand.Rand) []tavernCandidate {</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC tlaBgGNC">           1 : func generateCandidates(rng *rand.Rand) []tavernCandidate {</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         count := 3 + rng.IntN(3) // 3〜5人</span></span>
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         used := make(map[string]bool)</span></span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         var candidates []tavernCandidate</span></span>
@@ -190,172 +190,171 @@
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 spriteKey := candidateSpritePool[rng.IntN(len(candidateSpritePool))]</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, tavernCandidate{</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                         // 名前は候補生成時に1度だけ翻訳して固定する。表示中の言語切り替えには追従しない</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                         Name:      query.T(world, name),</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                         Abilities: abilities,</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                         SpriteKey: spriteKey,</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                         Cost:      cost,</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L137"><span class="lineNum">     137</span>              :         }</span>
-<span id="L138"><span class="lineNum">     138</span>              : </span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         return candidates</span></span>
-<span id="L140"><span class="lineNum">     140</span>              : }</span>
-<span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span>              : // randomAbilities はランダムな能力値を生成する</span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 : func randomAbilities(rng *rand.Rand) gc.Abilities {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :         randStat := func() int { return 4 + rng.IntN(8) } // 4〜11</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         return gc.Abilities{</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 Vitality:  gc.Ability{Base: randStat()},</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 Strength:  gc.Ability{Base: randStat()},</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 Sensation: gc.Ability{Base: randStat()},</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 Dexterity: gc.Ability{Base: randStat()},</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 Agility:   gc.Ability{Base: randStat()},</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 Defense:   gc.Ability{Base: randStat()},</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L153"><span class="lineNum">     153</span>              : }</span>
-<span id="L154"><span class="lineNum">     154</span>              : </span>
-<span id="L155"><span class="lineNum">     155</span>              : // calculateHiringCost は能力値から雇用コストを算出する</span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : func calculateHiringCost(a gc.Abilities) int {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         total := a.Vitality.Base + a.Strength.Base + a.Sensation.Base +</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 a.Dexterity.Base + a.Agility.Base + a.Defense.Base</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         return total * 30</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L161"><span class="lineNum">     161</span>              : </span>
-<span id="L162"><span class="lineNum">     162</span>              : // ================</span>
-<span id="L163"><span class="lineNum">     163</span>              : // Props</span>
-<span id="L164"><span class="lineNum">     164</span>              : // ================</span>
-<span id="L165"><span class="lineNum">     165</span>              : </span>
-<span id="L166"><span class="lineNum">     166</span>              : // TavernProps は画面の表示 props。menurt.Screen の型引数として渡す</span>
-<span id="L167"><span class="lineNum">     167</span>              : type TavernProps struct {</span>
-<span id="L168"><span class="lineNum">     168</span>              :         Candidates []tavernCandidateData</span>
-<span id="L169"><span class="lineNum">     169</span>              :         Currency   int</span>
-<span id="L170"><span class="lineNum">     170</span>              : }</span>
-<span id="L171"><span class="lineNum">     171</span>              : </span>
-<span id="L172"><span class="lineNum">     172</span>              : type tavernCandidateData struct {</span>
-<span id="L173"><span class="lineNum">     173</span>              :         Index     int</span>
-<span id="L174"><span class="lineNum">     174</span>              :         Name      string</span>
-<span id="L175"><span class="lineNum">     175</span>              :         Stats     string</span>
-<span id="L176"><span class="lineNum">     176</span>              :         Cost      int</span>
-<span id="L177"><span class="lineNum">     177</span>              :         CanAfford bool</span>
-<span id="L178"><span class="lineNum">     178</span>              : }</span>
-<span id="L179"><span class="lineNum">     179</span>              : </span>
-<span id="L180"><span class="lineNum">     180</span>              : // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる</span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 : func (st *TavernMenuState) Fetch(world w.World) TavernProps {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         var currency int</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           2 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 currency = query.GetCurrency(world, playerEntity)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L186"><span class="lineNum">     186</span>              : </span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         candidates := make([]tavernCandidateData, 0, len(st.candidates))</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           2 :         for i := range st.candidates {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 c := &amp;st.candidates[i]</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, tavernCandidateData{</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                         Index:     i,</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                         Name:      c.Name,</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                         Stats:     query.T(world, &quot;Vit%d Str%d Sen%d Dex%d Agi%d Def%d&quot;, c.Abilities.Vitality.Base, c.Abilities.Strength.Base, c.Abilities.Sensation.Base, c.Abilities.Dexterity.Base, c.Abilities.Agility.Base, c.Abilities.Defense.Base),</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                         Cost:      c.Cost,</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                         CanAfford: currency &gt;= c.Cost,</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L198"><span class="lineNum">     198</span>              : </span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         return TavernProps{</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 Candidates: candidates,</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 Currency:   currency,</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L203"><span class="lineNum">     203</span>              : }</span>
-<span id="L204"><span class="lineNum">     204</span>              : </span>
-<span id="L205"><span class="lineNum">     205</span>              : // ================</span>
-<span id="L206"><span class="lineNum">     206</span>              : // Window</span>
-<span id="L207"><span class="lineNum">     207</span>              : // ================</span>
-<span id="L208"><span class="lineNum">     208</span>              : </span>
-<span id="L209"><span class="lineNum">     209</span>              : // Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる</span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 : func (st *TavernMenuState) Menu(props TavernProps) menurt.MenuConfig {</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         return menurt.MenuConfig{Key: &quot;tavern&quot;, TabCount: 1, ItemCounts: []int{len(props.Candidates)}}</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L213"><span class="lineNum">     213</span>              : </span>
-<span id="L214"><span class="lineNum">     214</span>              : // actionWindowContent は現在カーソルが当たっている候補の見出しと選択肢を返す。アクション窓の唯一の定義点。</span>
-<span id="L215"><span class="lineNum">     215</span>              : // 雇用の実行内容も Run に閉じ込め、雇用・閉じるを1箇所で定義する</span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *TavernMenuState) actionWindowContent(world w.World) (string, []menuscreen.Action, bool) {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :         c, ok := st.selectedCandidate()</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         if !ok || c.Name == &quot;&quot; {</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 return &quot;&quot;, nil, false</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         var actions []menuscreen.Action</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :         if c.CanAfford {</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                 idx := c.Index</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 actions = append(actions, menuscreen.Action{Label: query.T(world, &quot;Hire&quot;), Run: func(world w.World) error {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                         return st.hireCandidate(world, idx)</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 }})</span></span>
-<span id="L227"><span class="lineNum">     227</span>              :         }</span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         actions = append(actions, menuscreen.Action{Label: query.T(world, &quot;Close&quot;)})</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         return c.Name, actions, true</span></span>
-<span id="L230"><span class="lineNum">     230</span>              : }</span>
-<span id="L231"><span class="lineNum">     231</span>              : </span>
-<span id="L232"><span class="lineNum">     232</span>              : // selectedCandidate は現在カーソルが当たっている雇用候補を返す</span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) selectedCandidate() (tavernCandidateData, bool) {</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :         if cursor.ItemIndex &gt;= len(props.Candidates) {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 return tavernCandidateData{}, false</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         return props.Candidates[cursor.ItemIndex], true</span></span>
-<span id="L240"><span class="lineNum">     240</span>              : }</span>
-<span id="L241"><span class="lineNum">     241</span>              : </span>
-<span id="L242"><span class="lineNum">     242</span>              : // hireCandidate は idx 番目の候補を雇用し、候補リストから取り除く。所持金が足りなければ何もしない</span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         if idx &lt; 0 || idx &gt;= len(st.candidates) {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         candidate := st.candidates[idx]</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         if !query.ConsumeCurrency(world, playerEntity, candidate.Cost) {</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         if _, err := lifecycle.SpawnSquadMember(world, playerEntity, candidate.Name, candidate.Abilities, candidate.SpriteKey); err != nil {</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to hire: %w&quot;, err)</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L259"><span class="lineNum">     259</span>              : </span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :         st.candidates = append(st.candidates[:idx], st.candidates[idx+1:]...)</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L262"><span class="lineNum">     262</span>              : }</span>
-<span id="L263"><span class="lineNum">     263</span>              : </span>
-<span id="L264"><span class="lineNum">     264</span>              : // ================</span>
-<span id="L265"><span class="lineNum">     265</span>              : // View</span>
-<span id="L266"><span class="lineNum">     266</span>              : // ================</span>
-<span id="L267"><span class="lineNum">     267</span>              : </span>
-<span id="L268"><span class="lineNum">     268</span>              : // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる</span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *TavernMenuState) View(world w.World, props TavernProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         content := styled.NewVerticalContainer()</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         content.AddChild(newCurrencyRow(props.Currency, res))</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         content.AddChild(st.buildCandidateTable(world, props.Candidates, cursor.ItemIndex, res))</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(world, false, query.T(world, &quot;x Details&quot;))})</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L275"><span class="lineNum">     275</span>              : </span>
-<span id="L276"><span class="lineNum">     276</span>              : // buildCandidateTable は雇用候補を名前のみの1カラムで並べる。能力・費用は x の詳細モーダルで見る</span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 : func (st *TavernMenuState) buildCandidateTable(world w.World, candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(candidates))</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           2 :         for i, c := range candidates {</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{c.Name}}</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         return renderMenuList(selectedIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No candidates to hire&quot;)}, res)</span></span>
-<span id="L283"><span class="lineNum">     283</span>              : }</span>
-<span id="L284"><span class="lineNum">     284</span>              : </span>
-<span id="L285"><span class="lineNum">     285</span>              : // detailContent は現在カーソルが当たっている候補の能力と費用を返す。詳細モーダルの唯一の定義点</span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *TavernMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         c, ok := st.selectedCandidate()</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 return menuscreen.DetailContent{}, false</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         return menuscreen.DetailContent{</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 Name: c.Name,</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 Desc: c.Stats,</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 Rows: []menuscreen.SpecRow{{Label: query.T(world, &quot;Cost&quot;), Value: query.FormatCurrency(c.Cost)}},</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :         }, true</span></span>
-<span id="L296"><span class="lineNum">     296</span>              : }</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                         Name:      name,</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                         Abilities: abilities,</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                         SpriteKey: spriteKey,</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                         Cost:      cost,</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L136"><span class="lineNum">     136</span>              :         }</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         return candidates</span></span>
+<span id="L139"><span class="lineNum">     139</span>              : }</span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span>              : // randomAbilities はランダムな能力値を生成する</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : func randomAbilities(rng *rand.Rand) gc.Abilities {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           2 :         randStat := func() int { return 4 + rng.IntN(8) } // 4〜11</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         return gc.Abilities{</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 Vitality:  gc.Ability{Base: randStat()},</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 Strength:  gc.Ability{Base: randStat()},</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 Sensation: gc.Ability{Base: randStat()},</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 Dexterity: gc.Ability{Base: randStat()},</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 Agility:   gc.Ability{Base: randStat()},</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 Defense:   gc.Ability{Base: randStat()},</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L152"><span class="lineNum">     152</span>              : }</span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span>              : // calculateHiringCost は能力値から雇用コストを算出する</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 : func calculateHiringCost(a gc.Abilities) int {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         total := a.Vitality.Base + a.Strength.Base + a.Sensation.Base +</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 a.Dexterity.Base + a.Agility.Base + a.Defense.Base</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         return total * 30</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L160"><span class="lineNum">     160</span>              : </span>
+<span id="L161"><span class="lineNum">     161</span>              : // ================</span>
+<span id="L162"><span class="lineNum">     162</span>              : // Props</span>
+<span id="L163"><span class="lineNum">     163</span>              : // ================</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : // TavernProps は画面の表示 props。menurt.Screen の型引数として渡す</span>
+<span id="L166"><span class="lineNum">     166</span>              : type TavernProps struct {</span>
+<span id="L167"><span class="lineNum">     167</span>              :         Candidates []tavernCandidateData</span>
+<span id="L168"><span class="lineNum">     168</span>              :         Currency   int</span>
+<span id="L169"><span class="lineNum">     169</span>              : }</span>
+<span id="L170"><span class="lineNum">     170</span>              : </span>
+<span id="L171"><span class="lineNum">     171</span>              : type tavernCandidateData struct {</span>
+<span id="L172"><span class="lineNum">     172</span>              :         Index     int</span>
+<span id="L173"><span class="lineNum">     173</span>              :         Name      string</span>
+<span id="L174"><span class="lineNum">     174</span>              :         Stats     string</span>
+<span id="L175"><span class="lineNum">     175</span>              :         Cost      int</span>
+<span id="L176"><span class="lineNum">     176</span>              :         CanAfford bool</span>
+<span id="L177"><span class="lineNum">     177</span>              : }</span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span>              : // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 : func (st *TavernMenuState) Fetch(world w.World) TavernProps {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         var currency int</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           2 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 currency = query.GetCurrency(world, playerEntity)</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L185"><span class="lineNum">     185</span>              : </span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         candidates := make([]tavernCandidateData, 0, len(st.candidates))</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           2 :         for i := range st.candidates {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 c := &amp;st.candidates[i]</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, tavernCandidateData{</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                         Index:     i,</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                         Name:      c.Name,</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                         Stats:     fmt.Sprintf(&quot;体%d 力%d 感%d 器%d 敏%d 防%d&quot;, c.Abilities.Vitality.Base, c.Abilities.Strength.Base, c.Abilities.Sensation.Base, c.Abilities.Dexterity.Base, c.Abilities.Agility.Base, c.Abilities.Defense.Base),</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                         Cost:      c.Cost,</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                         CanAfford: currency &gt;= c.Cost,</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L197"><span class="lineNum">     197</span>              : </span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         return TavernProps{</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 Candidates: candidates,</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 Currency:   currency,</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L202"><span class="lineNum">     202</span>              : }</span>
+<span id="L203"><span class="lineNum">     203</span>              : </span>
+<span id="L204"><span class="lineNum">     204</span>              : // ================</span>
+<span id="L205"><span class="lineNum">     205</span>              : // Window</span>
+<span id="L206"><span class="lineNum">     206</span>              : // ================</span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
+<span id="L208"><span class="lineNum">     208</span>              : // Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 : func (st *TavernMenuState) Menu(props TavernProps) menurt.MenuConfig {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         return menurt.MenuConfig{Key: &quot;tavern&quot;, TabCount: 1, ItemCounts: []int{len(props.Candidates)}}</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L212"><span class="lineNum">     212</span>              : </span>
+<span id="L213"><span class="lineNum">     213</span>              : // actionWindowContent は現在カーソルが当たっている候補の見出しと選択肢を返す。アクション窓の唯一の定義点。</span>
+<span id="L214"><span class="lineNum">     214</span>              : // 雇用の実行内容も Run に閉じ込め、雇用・閉じるを1箇所で定義する</span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *TavernMenuState) actionWindowContent(_ w.World) (string, []menuscreen.Action, bool) {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         c, ok := st.selectedCandidate()</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :         if !ok || c.Name == &quot;&quot; {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                 return &quot;&quot;, nil, false</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         var actions []menuscreen.Action</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         if c.CanAfford {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                 idx := c.Index</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                 actions = append(actions, menuscreen.Action{Label: TextHire, Run: func(world w.World) error {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                         return st.hireCandidate(world, idx)</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                 }})</span></span>
+<span id="L226"><span class="lineNum">     226</span>              :         }</span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         actions = append(actions, menuscreen.Action{Label: TextClose})</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         return c.Name, actions, true</span></span>
+<span id="L229"><span class="lineNum">     229</span>              : }</span>
+<span id="L230"><span class="lineNum">     230</span>              : </span>
+<span id="L231"><span class="lineNum">     231</span>              : // selectedCandidate は現在カーソルが当たっている雇用候補を返す</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) selectedCandidate() (tavernCandidateData, bool) {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         if cursor.ItemIndex &gt;= len(props.Candidates) {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 return tavernCandidateData{}, false</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         return props.Candidates[cursor.ItemIndex], true</span></span>
+<span id="L239"><span class="lineNum">     239</span>              : }</span>
+<span id="L240"><span class="lineNum">     240</span>              : </span>
+<span id="L241"><span class="lineNum">     241</span>              : // hireCandidate は idx 番目の候補を雇用し、候補リストから取り除く。所持金が足りなければ何もしない</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 : func (st *TavernMenuState) hireCandidate(world w.World, idx int) error {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         if idx &lt; 0 || idx &gt;= len(st.candidates) {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         candidate := st.candidates[idx]</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         if !query.ConsumeCurrency(world, playerEntity, candidate.Cost) {</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         if _, err := lifecycle.SpawnSquadMember(world, playerEntity, candidate.Name, candidate.Abilities, candidate.SpriteKey); err != nil {</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;雇用に失敗: %w&quot;, err)</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L258"><span class="lineNum">     258</span>              : </span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         st.candidates = append(st.candidates[:idx], st.candidates[idx+1:]...)</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L261"><span class="lineNum">     261</span>              : }</span>
+<span id="L262"><span class="lineNum">     262</span>              : </span>
+<span id="L263"><span class="lineNum">     263</span>              : // ================</span>
+<span id="L264"><span class="lineNum">     264</span>              : // View</span>
+<span id="L265"><span class="lineNum">     265</span>              : // ================</span>
+<span id="L266"><span class="lineNum">     266</span>              : </span>
+<span id="L267"><span class="lineNum">     267</span>              : // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *TavernMenuState) View(_ w.World, props TavernProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         content := styled.NewVerticalContainer()</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         content.AddChild(newCurrencyRow(props.Currency, res))</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         content.AddChild(st.buildCandidateTable(props.Candidates, cursor.ItemIndex, res))</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         return newTabScreenUI(res, tabScreen{Content: content, Footer: menuNavHint(false, &quot;x 詳細&quot;)})</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L274"><span class="lineNum">     274</span>              : </span>
+<span id="L275"><span class="lineNum">     275</span>              : // buildCandidateTable は雇用候補を名前のみの1カラムで並べる。能力・費用は x の詳細モーダルで見る</span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 : func (st *TavernMenuState) buildCandidateTable(candidates []tavernCandidateData, selectedIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(candidates))</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           2 :         for i, c := range candidates {</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{c.Name}}</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         return renderMenuList(selectedIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{AlwaysIndicator: true, EmptyText: &quot;雇用できる候補がいません&quot;}, res)</span></span>
+<span id="L282"><span class="lineNum">     282</span>              : }</span>
+<span id="L283"><span class="lineNum">     283</span>              : </span>
+<span id="L284"><span class="lineNum">     284</span>              : // detailContent は現在カーソルが当たっている候補の能力と費用を返す。詳細モーダルの唯一の定義点</span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *TavernMenuState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :         c, ok := st.selectedCandidate()</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 return menuscreen.DetailContent{}, false</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         return menuscreen.DetailContent{</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                 Name: c.Name,</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 Desc: c.Stats,</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 Rows: []menuscreen.SpecRow{{Label: &quot;費用&quot;, Value: query.FormatCurrency(c.Cost)}},</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :         }, true</span></span>
+<span id="L295"><span class="lineNum">     295</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -89,22 +89,22 @@
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 : func runSimulateBalance(_ context.Context, _ *cli.Command) error {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         master, err := raw.LoadFromFile(&quot;metadata/entities/raw/raw.toml&quot;)</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to load raw.toml: %w&quot;, err)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;raw.tomlの読み込みに失敗: %w&quot;, err)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         report, err := balance.GenerateReport(master, &quot;Ash&quot;, &quot;bare_hands&quot;, simMaxDepth, simTrials, simSeed)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         report, err := balance.GenerateReport(master, &quot;Ash&quot;, &quot;素手&quot;, simMaxDepth, simTrials, simSeed)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         data, err := report.MarshalJSON()</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to serialize JSON: %w&quot;, err)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;JSONのシリアライズに失敗: %w&quot;, err)</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         outputPath := &quot;balance.json&quot;</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         if err := os.WriteFile(outputPath, data, 0644); err != nil {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to write file: %w&quot;, err)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;ファイルの書き込みに失敗: %w&quot;, err)</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L47"><span class="lineNum">      47</span>              : </span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         return nil</span></span>

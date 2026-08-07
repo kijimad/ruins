@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,23 +84,23 @@
 <span id="L22"><span class="lineNum">      22</span>              : // 動的入力用。固定リテラルには MustParseDice を使う。regexp は使わず strings で足りる。ParseWeight と同じ方針。</span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func ParseDice(s string) (Dice, error) {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :         if s == &quot;&quot; {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;dice is empty&quot;)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;ダイスが空です&quot;)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              :         // 前後空白も含め厳密に扱う。空白混じりは各数値の Atoi が弾く</span>
 <span id="L29"><span class="lineNum">      29</span>              :         // d は必須。数字だけの定数表記は許さず、固定値も &quot;1d1&quot; と書かせる</span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         before, after, ok := strings.Cut(s, &quot;d&quot;)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;dice notation requires d; write fixed values like \&quot;1d1\&quot;: %q&quot;, s)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;ダイス表記には d が必要です。固定値も \&quot;1d1\&quot; のように書く: %q&quot;, s)</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              :         // 個数は省略できない。&quot;d6&quot; でなく &quot;1d6&quot; と明示的に書かせて表記を一意にする。</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 :         if before == &quot;&quot; {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;dice count cannot be omitted; example \&quot;1d6\&quot;: %q&quot;, s)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;ダイスの個数を省略できません。例: \&quot;1d6\&quot;: %q&quot;, s)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         base, err := strconv.Atoi(before)</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;invalid dice count: %q&quot;, s)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;ダイスの個数が不正です: %q&quot;, s)</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              :         // 面数部と Bonus 部。sides[+/-bonus]</span>
@@ -111,22 +111,22 @@
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 sidesPart = rest[:bi]</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 b, err := strconv.Atoi(rest[bi:])</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         return Dice{}, fmt.Errorf(&quot;invalid dice bonus: %q&quot;, s)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         return Dice{}, fmt.Errorf(&quot;ダイスのボーナスが不正です: %q&quot;, s)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 bonus = b</span></span>
 <span id="L55"><span class="lineNum">      55</span>              :         }</span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         sides, err := strconv.Atoi(sidesPart)</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;invalid dice sides: %q&quot;, s)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;ダイスの面数が不正です: %q&quot;, s)</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>
 <span id="L61"><span class="lineNum">      61</span>              :         // d を書いたなら個数は1以上を要求する。&quot;0d6&quot; は定数のつもりの誤記とみなして弾く。</span>
 <span id="L62"><span class="lineNum">      62</span>              :         // 定数は &quot;5&quot; のように d を書かずに表す。</span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           2 :         if base &lt; 1 {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;dice count must be at least 1: %q&quot;, s)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;ダイスの個数は1以上です: %q&quot;, s)</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           2 :         if sides &lt; 1 {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;dice sides must be at least 1: %q&quot;, s)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 return Dice{}, fmt.Errorf(&quot;ダイスの面数は1以上です: %q&quot;, s)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         return Dice{Base: base, Sides: sides, Bonus: bonus}, nil</span></span>
 <span id="L70"><span class="lineNum">      70</span>              : }</span>
@@ -147,7 +147,7 @@
 <span id="L85"><span class="lineNum">      85</span>              : // rng は呼び出し側が渡す。共有 RNG を汚さず決定的に抽選するため、内部で乱数器を持たない。</span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 : func (d Dice) Roll(rng *rand.Rand) int {</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           2 :         if d.Base &lt; 1 || d.Sides &lt; 1 {</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;invalid Dice; construct via ParseDice: %+v&quot;, d))</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;不正な Dice です。ParseDice 経由で作る: %+v&quot;, d))</span></span>
 <span id="L89"><span class="lineNum">      89</span>              :         }</span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         sum := d.Bonus</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           2 :         for range d.Base {</span></span>

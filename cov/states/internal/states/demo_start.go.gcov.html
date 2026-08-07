@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,7 +84,7 @@
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // OnStart はステート開始時にデフォルトプレイヤーを生成し、オーバーワールドへの遷移を設定する</span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *DemoStartState) OnStart(world w.World) error {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, &quot;ash&quot;)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, &quot;Ash&quot;)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to spawn player: %w&quot;, err)</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>

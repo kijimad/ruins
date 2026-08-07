@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -190,7 +190,7 @@
 <span id="L128"><span class="lineNum">     128</span>              :         }</span>
 <span id="L129"><span class="lineNum">     129</span>              : </span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC tlaBgGNC">           1 :         if failCount &gt; maxHostileNPCFailCount {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC tlaBgUNC">           0 :                 log.Printf(&quot;HostileNPCPlanner: reached max attempts placing hostile NPCs. placed: %d/%d&quot;, placed, total)</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC tlaBgUNC">           0 :                 log.Printf(&quot;HostileNPCPlanner: 敵NPC配置の試行回数が上限に達しました。配置数: %d/%d&quot;, placed, total)</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
 <span id="L134"><span class="lineNum">     134</span>              : }</span>
@@ -211,7 +211,7 @@
 <span id="L149"><span class="lineNum">     149</span>              : </span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 tx, ty, posErr := findPosition(planData, n.world, selector)</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 if posErr != nil {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                         log.Printf(&quot;HostileNPCPlanner: reached max attempts placing hostile NPCs. placed: %d/%d&quot;, placed, total)</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                         log.Printf(&quot;HostileNPCPlanner: 敵NPC配置の試行回数が上限に達しました。配置数: %d/%d&quot;, placed, total)</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                         break</span></span>
 <span id="L154"><span class="lineNum">     154</span>              :                 }</span>
 <span id="L155"><span class="lineNum">     155</span>              : </span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -206,7 +206,7 @@
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 return 1</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC tlaBgUNC">           0 :         case PlaceFullArea:</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 // 全域散布は selectTiles が ScatterArea へ委ねるのでここには来ない。exhaustive のために置く</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 panic(&quot;PlaceFullArea does not go through placementDensity&quot;)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 panic(&quot;PlaceFullArea は placementDensity を経由しない&quot;)</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC tlaBgGNC">           1 :         case PlaceNearDoor:</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 return 1 - nearestDoorDist(room, t)/maxDist</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         case PlaceFarFromDoor:</span></span>
@@ -218,7 +218,7 @@
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 return 1</span></span>
 <span id="L158"><span class="lineNum">     158</span>              :         }</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;unknown Placement: &quot; + string(p))</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;未知の Placement: &quot; + string(p))</span></span>
 <span id="L160"><span class="lineNum">     160</span>              : }</span>
 <span id="L161"><span class="lineNum">     161</span>              : </span>
 <span id="L162"><span class="lineNum">     162</span>              : // nextToPerimeter は t が外周の壁に隣接する内側タイルかを返す。</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,7 +79,7 @@
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 existing = world.Components.StateChangeRequest.Get(entity)</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if existing != nil {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;request is already set: tried to set %T → %T&quot;,</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;リクエストがすでに設定されています: %T → %T を設定しようとしました&quot;,</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                         existing.Payload, event.Payload)</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         entity := world.ECS.NewEntity()</span></span>

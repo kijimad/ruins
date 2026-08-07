@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.9&nbsp;%</td>
+            <td class="headerCovTableEntryMed">83.1&nbsp;%</td>
             <td class="headerCovTableEntry">242</td>
-            <td class="headerCovTableEntry">203</td>
+            <td class="headerCovTableEntry">201</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -108,15 +108,15 @@
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         dungeonRes := query.GetDungeon(world)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         if dungeonRes == nil {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, errors.New(&quot;dungeon resource is not set&quot;)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, errors.New(&quot;ダンジョンリソースが設定されていない&quot;)</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 :         def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 return 0, nil</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, nil</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : </span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         baseTemp := def.BaseTemperature()</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">           1 :         baseTemp := def.BaseTemperature()</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         timeModifier := query.GetGameTime(world).GetTemperatureModifier()</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : </span></span>
@@ -149,7 +149,7 @@
 <span id="L87"><span class="lineNum">      87</span>              : // Update は健康状態のタイマーを更新する</span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 : func (sys *TemperatureSystem) Update(world w.World) error {</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           2 :         if query.GetDungeon(world) == nil {</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;dungeon resource is not set&quot;)</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;ダンジョンリソースが設定されていない&quot;)</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L92"><span class="lineNum">      92</span>              : </span>
 <span id="L93"><span class="lineNum">      93</span>              :         // HealthStatusとGridElementを持つエンティティを処理。</span>
@@ -325,7 +325,7 @@
 <span id="L263"><span class="lineNum">     263</span>              : </span>
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :         if msg != &quot;&quot; {</span></span>
 <span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                         Markup(gamelog.Tag(&quot;warning&quot;, query.T(world, msg))).</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                         Warning(msg).</span></span>
 <span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                         Log()</span></span>
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L269"><span class="lineNum">     269</span>              : }</span>
@@ -338,22 +338,22 @@
 <span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 case gc.SeverityNone:</span></span>
 <span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                         return &quot;&quot;</span></span>
 <span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 case gc.SeverityMinor:</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                         return &quot;The cold is setting in&quot;</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                         return &quot;寒さで冷えてきた&quot;</span></span>
 <span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 case gc.SeverityMedium:</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                         return &quot;You are quite cold&quot;</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                         return &quot;寒さでかなり冷えている&quot;</span></span>
 <span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                 case gc.SeveritySevere:</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                         return &quot;The cold is dangerous&quot;</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                         return &quot;寒さで危険な状態だ&quot;</span></span>
 <span id="L284"><span class="lineNum">     284</span>              :                 }</span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         case gc.ConditionHyperthermia:</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityNone:</span></span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                         return &quot;&quot;</span></span>
 <span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC tlaBgGNC">           1 :                 case gc.SeverityMinor:</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                         return &quot;The heat is flushing you&quot;</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                         return &quot;暑さで火照ってきた&quot;</span></span>
 <span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityMedium:</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                         return &quot;The heat is wearing you down&quot;</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                         return &quot;暑さでかなり消耗している&quot;</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 case gc.SeveritySevere:</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                         return &quot;The heat is dangerous&quot;</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                         return &quot;暑さで危険な状態だ&quot;</span></span>
 <span id="L295"><span class="lineNum">     295</span>              :                 }</span>
 <span id="L296"><span class="lineNum">     296</span>              :         }</span>
 <span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :         return &quot;&quot;</span></span>
@@ -365,22 +365,22 @@
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :         case gc.ConditionHypothermia:</span></span>
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                 case gc.SeverityNone:</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                         return &quot;You have warmed up&quot;</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                         return &quot;温まった&quot;</span></span>
 <span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 case gc.SeverityMinor:</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                         return &quot;You are warming up a little&quot;</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                         return &quot;少し温まってきた&quot;</span></span>
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityMedium:</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                         return &quot;Still cold, but a little better&quot;</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                         return &quot;まだ寒いが、少しマシになった&quot;</span></span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC tlaBgGNC">           1 :                 case gc.SeveritySevere:</span></span>
 <span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                         return &quot;&quot;</span></span>
 <span id="L313"><span class="lineNum">     313</span>              :                 }</span>
 <span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :         case gc.ConditionHyperthermia:</span></span>
 <span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
 <span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 case gc.SeverityNone:</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                         return &quot;You have cooled down&quot;</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                         return &quot;涼しくなった&quot;</span></span>
 <span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityMinor:</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                         return &quot;You are cooling down a little&quot;</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                         return &quot;少し涼しくなってきた&quot;</span></span>
 <span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 case gc.SeverityMedium:</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                         return &quot;Still hot, but a little better&quot;</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                         return &quot;まだ暑いが、少しマシになった&quot;</span></span>
 <span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 case gc.SeveritySevere:</span></span>
 <span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                         return &quot;&quot;</span></span>
 <span id="L324"><span class="lineNum">     324</span>              :                 }</span>

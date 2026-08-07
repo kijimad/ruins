@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">95.3&nbsp;%</td>
-            <td class="headerCovTableEntry">43</td>
-            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntryHi">97.4&nbsp;%</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">37</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,95 +63,73 @@
 <span id="L1"><span class="lineNum">       1</span>              : package designdoc</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         _ &quot;embed&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;fmt&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;strings&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;text/template&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              : )</span>
-<span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // statusSectionTmplSrc は状況テーブルの日本語ラベルを持つ雛形。</span>
-<span id="L11"><span class="lineNum">      11</span>              : // 日本語ドキュメントの体裁を維持するため、リテラルを Go ソースから外して埋め込みで持つ。</span>
-<span id="L12"><span class="lineNum">      12</span>              : //</span>
-<span id="L13"><span class="lineNum">      13</span>              : //go:embed status_section.tmpl</span>
-<span id="L14"><span class="lineNum">      14</span>              : var statusSectionTmplSrc string</span>
-<span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span>              : // statusSectionTmpl は埋め込んだ雛形を解析したもの。名前付きテンプレートを個別に実行する。</span>
-<span id="L17"><span class="lineNum">      17</span>              : var statusSectionTmpl = template.Must(template.New(&quot;status_section&quot;).Parse(statusSectionTmplSrc))</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // statusDisplayOrder は状況テーブルで status を並べる順。着手対象を上に置く。</span>
-<span id="L20"><span class="lineNum">      20</span>              : var statusDisplayOrder = []Status{</span>
-<span id="L21"><span class="lineNum">      21</span>              :         StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,</span>
-<span id="L22"><span class="lineNum">      22</span>              : }</span>
-<span id="L23"><span class="lineNum">      23</span>              : </span>
-<span id="L24"><span class="lineNum">      24</span>              : // renderLabel は名前付きテンプレートを data で実行した文字列を返す。</span>
-<span id="L25"><span class="lineNum">      25</span>              : // テンプレートは埋め込みでゴールデンテストが担保するため、実行時に失敗し得ない。</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 : func renderLabel(name string, data any) string {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         var b strings.Builder</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         if err := statusSectionTmpl.ExecuteTemplate(&amp;b, name, data); err != nil {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(err)</span></span>
-<span id="L30"><span class="lineNum">      30</span>              :         }</span>
-<span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">           1 :         return b.String()</span></span>
-<span id="L33"><span class="lineNum">      33</span>              : }</span>
-<span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span>              : // RenderStatusSection は README に埋め込む未完了ドキュメントの一覧を Markdown で返す。</span>
-<span id="L36"><span class="lineNum">      36</span>              : // docs は表示したい順に並んでいる前提。載せるのはアクションが要る status、すなわち Status.IsOpen が</span>
-<span id="L37"><span class="lineNum">      37</span>              : // true のものに限る。status 別の件数テーブルは出さない。done が増えるたびに変わり、ブランチ間で</span>
-<span id="L38"><span class="lineNum">      38</span>              : // 頻繁に衝突するため。</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func RenderStatusSection(docs []*Document) string {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         var b strings.Builder</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         b.WriteString(renderLabel(&quot;header&quot;, nil))</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         found := false</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           2 :         for _, s := range statusDisplayOrder {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :                 if !s.IsOpen() {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L46"><span class="lineNum">      46</span>              :                 }</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           2 :                 for _, d := range docs {</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :                         if d.Front.Status != s {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L50"><span class="lineNum">      50</span>              :                         }</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                         found = true</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         fmt.Fprintf(&amp;b, &quot;| %s | %s | %s | %s |\n&quot;,</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                                 d.Front.Status, titleCell(d), progressCell(d), strings.Join(d.Front.Tags, &quot;, &quot;))</span></span>
-<span id="L54"><span class="lineNum">      54</span>              :                 }</span>
-<span id="L55"><span class="lineNum">      55</span>              :         }</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         if !found {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 b.WriteString(renderLabel(&quot;empty&quot;, nil))</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L59"><span class="lineNum">      59</span>              : </span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return b.String()</span></span>
-<span id="L61"><span class="lineNum">      61</span>              : }</span>
-<span id="L62"><span class="lineNum">      62</span>              : </span>
-<span id="L63"><span class="lineNum">      63</span>              : // titleCell はドキュメントのセルを返す。パスがあればタイトルをファイルへのリンクにする。</span>
-<span id="L64"><span class="lineNum">      64</span>              : // タイトルが空なら空セルにせずパスで代替し、追跡できるようにする。</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : func titleCell(d *Document) string {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         label := d.Title</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           2 :         if label == &quot;&quot; {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 label = d.Path</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           2 :         if label == &quot;&quot; {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 return renderLabel(&quot;notitle&quot;, nil)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :         if d.Path != &quot;&quot; {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;[%s](%s)&quot;, label, d.Path)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L76"><span class="lineNum">      76</span>              : </span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC tlaBgUNC">           0 :         return label</span></span>
-<span id="L78"><span class="lineNum">      78</span>              : }</span>
-<span id="L79"><span class="lineNum">      79</span>              : </span>
-<span id="L80"><span class="lineNum">      80</span>              : // progressCell は進捗のセルを返す。分母は done+open で、見送りは分母から外して別に添える。</span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">           1 : func progressCell(d *Document) string {</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           2 :         if !d.HasProgress {</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 return &quot;-&quot;</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         s := fmt.Sprintf(&quot;%d/%d&quot;, d.DoneTasks, d.DoneTasks+d.OpenTasks)</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           2 :         if d.SkippedTasks &gt; 0 {</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 s += renderLabel(&quot;skipped&quot;, d.SkippedTasks)</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L90"><span class="lineNum">      90</span>              : </span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         return s</span></span>
-<span id="L92"><span class="lineNum">      92</span>              : }</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;strings&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : )</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              : // statusDisplayOrder は状況テーブルで status を並べる順。着手対象を上に置く。</span>
+<span id="L9"><span class="lineNum">       9</span>              : var statusDisplayOrder = []Status{</span>
+<span id="L10"><span class="lineNum">      10</span>              :         StatusInProgress, StatusAccepted, StatusDraft, StatusDone, StatusSuperseded, StatusDropped,</span>
+<span id="L11"><span class="lineNum">      11</span>              : }</span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              : // RenderStatusSection は README に埋め込む未完了ドキュメントの一覧を Markdown で返す。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // docs は表示したい順に並んでいる前提。載せるのはアクションが要る status、すなわち Status.IsOpen が</span>
+<span id="L15"><span class="lineNum">      15</span>              : // true のものに限る。status 別の件数テーブルは出さない。done が増えるたびに変わり、ブランチ間で</span>
+<span id="L16"><span class="lineNum">      16</span>              : // 頻繁に衝突するため。</span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">           1 : func RenderStatusSection(docs []*Document) string {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         var b strings.Builder</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         b.WriteString(&quot;| status | ドキュメント | 進捗 | tags |\n|---|---|---|---|\n&quot;)</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         found := false</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 :         for _, s := range statusDisplayOrder {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :                 if !s.IsOpen() {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L24"><span class="lineNum">      24</span>              :                 }</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :                 for _, d := range docs {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           2 :                         if d.Front.Status != s {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :                         }</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                         found = true</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                         fmt.Fprintf(&amp;b, &quot;| %s | %s | %s | %s |\n&quot;,</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                                 d.Front.Status, titleCell(d), progressCell(d), strings.Join(d.Front.Tags, &quot;, &quot;))</span></span>
+<span id="L32"><span class="lineNum">      32</span>              :                 }</span>
+<span id="L33"><span class="lineNum">      33</span>              :         }</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :         if !found {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 b.WriteString(&quot;| | 未完了のドキュメントなし | | |\n&quot;)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return b.String()</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : }</span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : // titleCell はドキュメントのセルを返す。パスがあればタイトルをファイルへのリンクにする。</span>
+<span id="L42"><span class="lineNum">      42</span>              : // タイトルが空なら空セルにせずパスで代替し、追跡できるようにする。</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : func titleCell(d *Document) string {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         label := d.Title</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           2 :         if label == &quot;&quot; {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 label = d.Path</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :         if label == &quot;&quot; {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return &quot;(タイトルなし)&quot;</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :         if d.Path != &quot;&quot; {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;[%s](%s)&quot;, label, d.Path)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :         return label</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : }</span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span>              : // progressCell は進捗のセルを返す。分母は done+open で、見送りは分母から外して別に添える。</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">           1 : func progressCell(d *Document) string {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :         if !d.HasProgress {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return &quot;-&quot;</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L63"><span class="lineNum">      63</span>              : </span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         s := fmt.Sprintf(&quot;%d/%d&quot;, d.DoneTasks, d.DoneTasks+d.OpenTasks)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           2 :         if d.SkippedTasks &gt; 0 {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 s += fmt.Sprintf(&quot;（見送り%d）&quot;, d.SkippedTasks)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : </span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         return s</span></span>
+<span id="L70"><span class="lineNum">      70</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-07 23:46:15</td>
+            <td class="headerValue">2026-08-07 23:48:53</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,7 +83,7 @@
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 : func userConfigPath() (string, error) {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         dir, err := os.UserConfigDir()</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, fmt.Errorf(&quot;failed to get config directory: %w&quot;, err)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, fmt.Errorf(&quot;設定ディレクトリの取得に失敗しました: %w&quot;, err)</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         return filepath.Join(dir, userConfigDirName, userConfigFileName), nil</span></span>
 <span id="L27"><span class="lineNum">      27</span>              : }</span>
@@ -104,7 +104,7 @@
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 return nil, false, nil</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, false, fmt.Errorf(&quot;failed to read config file: %w&quot;, err)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, false, fmt.Errorf(&quot;設定ファイルの読み込みに失敗しました: %w&quot;, err)</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC tlaBgGNC">           1 :         return data, true, nil</span></span>
 <span id="L48"><span class="lineNum">      48</span>              : }</span>
@@ -122,15 +122,15 @@
 <span id="L60"><span class="lineNum">      60</span>              : // 書き込み途中のクラッシュによる破損を防ぐ。パスを引数に取ることでテストできる。</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 : func writeSettingsTo(path string, data []byte) error {</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to create config directory: %w&quot;, err)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;設定ディレクトリの作成に失敗しました: %w&quot;, err)</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :         tmp := path + &quot;.tmp&quot;</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         if err := os.WriteFile(tmp, data, 0o644); err != nil {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to write config file: %w&quot;, err)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;設定ファイルの書き込みに失敗しました: %w&quot;, err)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := os.Rename(tmp, path); err != nil {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 :                 _ = os.Remove(tmp)</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to replace config file: %w&quot;, err)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;設定ファイルの置き換えに失敗しました: %w&quot;, err)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
 <span id="L74"><span class="lineNum">      74</span>              : }</span>
@@ -153,7 +153,7 @@
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           2 :         if errors.Is(err, os.ErrNotExist) {</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 return false, nil</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC tlaBgUNC">           0 :         return false, fmt.Errorf(&quot;failed to check config file existence: %w&quot;, err)</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC tlaBgUNC">           0 :         return false, fmt.Errorf(&quot;設定ファイルの存在確認に失敗しました: %w&quot;, err)</span></span>
 <span id="L95"><span class="lineNum">      95</span>              : }</span>
         </pre>
               </td>
