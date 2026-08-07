@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -88,7 +88,7 @@
 <span id="L26"><span class="lineNum">      26</span>              :         urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              :         // urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く</span>
-<span id="L29"><span class="lineNum">      29</span>              :         urbanEnemyTable = &quot;廃墟&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              :         urbanEnemyTable = &quot;ruins_area&quot;</span>
 <span id="L30"><span class="lineNum">      30</span>              : )</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 2..urbanMaxSpan。</span>
@@ -231,7 +231,7 @@
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                         return f.kind</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L171"><span class="lineNum">     171</span>              :         }</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;到達しない: 抽選重みの合計と減算が不整合&quot;)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;unreachable: selection weight total and subtraction are inconsistent&quot;)</span></span>
 <span id="L173"><span class="lineNum">     173</span>              : }</span>
 <span id="L174"><span class="lineNum">     174</span>              : </span>
 <span id="L175"><span class="lineNum">     175</span>              : // urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。</span>
@@ -312,7 +312,7 @@
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L251"><span class="lineNum">     251</span>              :                         }</span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return interior.Rect{}, interior.Vec{}, fmt.Errorf(&quot;市街地の街路配置に失敗 (x=%d, y=%d): %w&quot;, g.offsetX+lx, g.offsetY+ly, err)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return interior.Rect{}, interior.Vec{}, fmt.Errorf(&quot;failed to place urban street (x=%d, y=%d): %w&quot;, g.offsetX+lx, g.offsetY+ly, err)</span></span>
 <span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L255"><span class="lineNum">     255</span>              :                 }</span>
 <span id="L256"><span class="lineNum">     256</span>              :         }</span>
@@ -326,13 +326,13 @@
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 : func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {</span></span>
 <span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)</span></span>
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;市街地の敵テーブル取得に失敗: %w&quot;, err)</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to get urban enemy table: %w&quot;, err)</span></span>
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC tlaBgGNC">           1 :         count := 1 + rng.IntN(int(size))</span></span>
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           2 :         for range count {</span></span>
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(size))</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;市街地の敵抽選に失敗: %w&quot;, err)</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to select urban enemy: %w&quot;, err)</span></span>
 <span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L275"><span class="lineNum">     275</span>              :                 // 敵は街路に湧かせ、建物の footprint と壁の上は避ける。占有は footprint 全域に及ぶので、一度引いて</span>
 <span id="L276"><span class="lineNum">     276</span>              :                 // 塞がっていたら目標数を満たすよう空きが出るまで位置を引き直す。試行を尽くしても空かなければその</span>
@@ -345,7 +345,7 @@
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L284"><span class="lineNum">     284</span>              :                         }</span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                         if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;市街地の敵配置に失敗: %w&quot;, err)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;failed to place urban enemy: %w&quot;, err)</span></span>
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC tlaBgGNC">           1 :                         break</span></span>
 <span id="L289"><span class="lineNum">     289</span>              :                 }</span>

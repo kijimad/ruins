@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -96,19 +96,19 @@
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 : func runPlay(_ context.Context, _ *cli.Command) error {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         // Steam APIの初期化。steamタグなしではno-op</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         if err := steam.Init(); err != nil {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;steam初期化に失敗: %w&quot;, err)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;steam initialization failed: %w&quot;, err)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              :         // ユーザー設定ファイルが無ければデフォルト値で作成する。</span>
 <span id="L41"><span class="lineNum">      41</span>              :         // 失敗しても Load はデフォルト値で継続できるため、警告のみで処理を進める</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         if err := config.EnsureUserConfigFile(); err != nil {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 logger.New(logger.CategoryLoad).Warn(&quot;ユーザー設定ファイルの作成に失敗しました&quot;, &quot;error&quot;, err)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 logger.New(logger.CategoryLoad).Warn(&quot;failed to create user config file&quot;, &quot;error&quot;, err)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              :         // 設定を読み込み</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         cfg, err := config.Load()</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;設定の読み込みに失敗: %w&quot;, err)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to load config: %w&quot;, err)</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              :         // ログ設定を読み込み</span>

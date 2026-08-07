@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,32 +76,32 @@
 <span id="L14"><span class="lineNum">      14</span>              : )</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // errValidation は frontmatter 検証で問題が見つかったことを表す。</span>
-<span id="L17"><span class="lineNum">      17</span>              : var errValidation = errors.New(&quot;設計ドキュメントの検証に失敗した&quot;)</span>
+<span id="L17"><span class="lineNum">      17</span>              : var errValidation = errors.New(&quot;design document validation failed&quot;)</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // CmdDesignDoc は設計ドキュメントの frontmatter を扱うサブコマンド</span>
 <span id="L20"><span class="lineNum">      20</span>              : var CmdDesignDoc = &amp;cli.Command{</span>
 <span id="L21"><span class="lineNum">      21</span>              :         Name:        &quot;designdoc&quot;,</span>
 <span id="L22"><span class="lineNum">      22</span>              :         Usage:       &quot;designdoc [gen|validate|list]&quot;,</span>
-<span id="L23"><span class="lineNum">      23</span>              :         Description: &quot;docs/design の frontmatter を生成・検証・一覧する&quot;,</span>
+<span id="L23"><span class="lineNum">      23</span>              :         Description: &quot;generate, validate, and list frontmatter under docs/design&quot;,</span>
 <span id="L24"><span class="lineNum">      24</span>              :         Commands: []*cli.Command{</span>
 <span id="L25"><span class="lineNum">      25</span>              :                 {</span>
 <span id="L26"><span class="lineNum">      26</span>              :                         Name:   &quot;gen&quot;,</span>
-<span id="L27"><span class="lineNum">      27</span>              :                         Usage:  &quot;frontmatter を欠くドキュメントに既定値を決定的に付与する&quot;,</span>
+<span id="L27"><span class="lineNum">      27</span>              :                         Usage:  &quot;deterministically add default frontmatter to documents that lack it&quot;,</span>
 <span id="L28"><span class="lineNum">      28</span>              :                         Action: runDesignDocGen,</span>
 <span id="L29"><span class="lineNum">      29</span>              :                 },</span>
 <span id="L30"><span class="lineNum">      30</span>              :                 {</span>
 <span id="L31"><span class="lineNum">      31</span>              :                         Name:   &quot;validate&quot;,</span>
-<span id="L32"><span class="lineNum">      32</span>              :                         Usage:  &quot;frontmatter の有無と妥当性、進捗との整合を検証する&quot;,</span>
+<span id="L32"><span class="lineNum">      32</span>              :                         Usage:  &quot;validate frontmatter presence, validity, and consistency with progress&quot;,</span>
 <span id="L33"><span class="lineNum">      33</span>              :                         Action: runDesignDocValidate,</span>
 <span id="L34"><span class="lineNum">      34</span>              :                 },</span>
 <span id="L35"><span class="lineNum">      35</span>              :                 {</span>
 <span id="L36"><span class="lineNum">      36</span>              :                         Name:  &quot;list&quot;,</span>
-<span id="L37"><span class="lineNum">      37</span>              :                         Usage: &quot;frontmatter で絞り込んで一覧する。validate を通した状態で使う前提。--open は不正 status を閉じた扱いで除外する&quot;,</span>
+<span id="L37"><span class="lineNum">      37</span>              :                         Usage: &quot;list filtered by frontmatter; assumes validate has passed; --open treats invalid status as closed and excludes it&quot;,</span>
 <span id="L38"><span class="lineNum">      38</span>              :                         Flags: []cli.Flag{</span>
-<span id="L39"><span class="lineNum">      39</span>              :                                 &amp;cli.StringFlag{Name: &quot;status&quot;, Usage: &quot;指定 status のみ&quot;},</span>
-<span id="L40"><span class="lineNum">      40</span>              :                                 &amp;cli.StringFlag{Name: &quot;auto&quot;, Usage: &quot;指定 auto のみ&quot;},</span>
-<span id="L41"><span class="lineNum">      41</span>              :                                 &amp;cli.StringFlag{Name: &quot;tag&quot;, Usage: &quot;指定タグを含むもののみ&quot;},</span>
-<span id="L42"><span class="lineNum">      42</span>              :                                 &amp;cli.BoolFlag{Name: &quot;open&quot;, Usage: &quot;着手対象、すなわち open な status のみ&quot;},</span>
+<span id="L39"><span class="lineNum">      39</span>              :                                 &amp;cli.StringFlag{Name: &quot;status&quot;, Usage: &quot;only the specified status&quot;},</span>
+<span id="L40"><span class="lineNum">      40</span>              :                                 &amp;cli.StringFlag{Name: &quot;auto&quot;, Usage: &quot;only the specified auto&quot;},</span>
+<span id="L41"><span class="lineNum">      41</span>              :                                 &amp;cli.StringFlag{Name: &quot;tag&quot;, Usage: &quot;only documents containing the specified tag&quot;},</span>
+<span id="L42"><span class="lineNum">      42</span>              :                                 &amp;cli.BoolFlag{Name: &quot;open&quot;, Usage: &quot;only actionable, that is open, status&quot;},</span>
 <span id="L43"><span class="lineNum">      43</span>              :                         },</span>
 <span id="L44"><span class="lineNum">      44</span>              :                         Action: runDesignDocList,</span>
 <span id="L45"><span class="lineNum">      45</span>              :                 },</span>
@@ -122,7 +122,7 @@
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         if len(problems) &gt; 0 {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                 return errValidation</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;OK: %d 件のドキュメントを検証した\n&quot;, len(docs))</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;OK: validated %d documents\n&quot;, len(docs))</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : }</span>
@@ -134,9 +134,9 @@
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L73"><span class="lineNum">      73</span>              : </span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         for _, path := range changed {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                 fmt.Printf(&quot;付与: %s\n&quot;, path)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                 fmt.Printf(&quot;added: %s\n&quot;, path)</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;%d 件に frontmatter を付与した\n&quot;, len(changed))</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;added frontmatter to %d documents\n&quot;, len(changed))</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L80"><span class="lineNum">      80</span>              : }</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -95,7 +95,7 @@
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         // Spacing &lt;= Separation だと差が負になり uint64 キャストで巨大値へアンダーフローし、</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         // オフセット抽選が壊れる。Placement は内部定数なので設定ミスは never として弾く</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :         if p.Spacing &lt;= p.Separation {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 panic(&quot;Placement: Spacing は Separation より大きいこと&quot;)</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 panic(&quot;Placement: Spacing must be greater than Separation&quot;)</span></span>
 <span id="L37"><span class="lineNum">      37</span>              :         }</span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         span := uint64(p.Spacing - p.Separation)</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         h := ChunkSeed2D(runSeed^p.Salt, rx, 0)</span></span>

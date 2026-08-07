@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -124,7 +124,7 @@
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC tlaBgUNC">           0 :         case gc.BehaviorPortal, gc.BehaviorDoorLock, gc.BehaviorStorage:</span></span>
 <span id="L63"><span class="lineNum">      63</span>              :                 // ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない</span>
 <span id="L64"><span class="lineNum">      64</span>              :         }</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil, fmt.Errorf(&quot;未登録のBehavior: %s&quot;, name)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil, fmt.Errorf(&quot;unregistered behavior: %s&quot;, name)</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : }</span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              : // Behavior はアクティビティの実行を担当するインターフェース。</span>
@@ -194,7 +194,7 @@
 <span id="L132"><span class="lineNum">     132</span>              : // Interrupt はアクティビティを中断する</span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 : func Interrupt(comp *gc.Activity, reason string) error {</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           2 :         if !CanInterrupt(comp) {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;アクティビティ '%s' は中断できません&quot;, GetDisplayName(comp))</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;activity '%s' cannot be paused&quot;, GetDisplayName(comp))</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         comp.State = gc.ActivityStatePaused</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         comp.CancelReason = reason</span></span>
@@ -204,7 +204,7 @@
 <span id="L142"><span class="lineNum">     142</span>              : // Resume はアクティビティを再開する</span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 : func Resume(comp *gc.Activity) error {</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         if !CanResume(comp) {</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;アクティビティ '%s' は再開できません&quot;, GetDisplayName(comp))</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;activity '%s' cannot be resumed&quot;, GetDisplayName(comp))</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC tlaBgGNC">           1 :         comp.State = gc.ActivityStateRunning</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         comp.CancelReason = &quot;&quot;</span></span>
@@ -259,7 +259,7 @@
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 : func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.PlaceParams)</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.Coord[consts.Tile]{}, fmt.Errorf(&quot;目的地が指定されていません&quot;)</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC tlaBgUNC">           0 :                 return consts.Coord[consts.Tile]{}, fmt.Errorf(&quot;destination is not set&quot;)</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC tlaBgGNC">           1 :         return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil</span></span>
 <span id="L203"><span class="lineNum">     203</span>              : }</span>

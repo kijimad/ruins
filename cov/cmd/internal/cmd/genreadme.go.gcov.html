@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,7 +77,7 @@
 <span id="L15"><span class="lineNum">      15</span>              : // CmdGenReadme はREADME.mdを生成するサブコマンド</span>
 <span id="L16"><span class="lineNum">      16</span>              : var CmdGenReadme = &amp;cli.Command{</span>
 <span id="L17"><span class="lineNum">      17</span>              :         Name:   &quot;genreadme&quot;,</span>
-<span id="L18"><span class="lineNum">      18</span>              :         Usage:  &quot;README.tmpl.mdからREADME.mdを生成する&quot;,</span>
+<span id="L18"><span class="lineNum">      18</span>              :         Usage:  &quot;generate README.md from README.tmpl.md&quot;,</span>
 <span id="L19"><span class="lineNum">      19</span>              :         Action: runGenReadme,</span>
 <span id="L20"><span class="lineNum">      20</span>              : }</span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
@@ -93,24 +93,24 @@
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 : func runGenReadme(_ context.Context, _ *cli.Command) error {</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         tmpl, err := os.ReadFile(templateFile)</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;テンプレートの読み込みに失敗: %w&quot;, err)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to read template: %w&quot;, err)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         table, err := buildImageTable()</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;画像テーブルの生成に失敗: %w&quot;, err)</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to build image table: %w&quot;, err)</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         docs, err := designdoc.LoadDir(designdoc.DefaultDir)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;設計ドキュメントの読み込みに失敗: %w&quot;, err)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to read design documents: %w&quot;, err)</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         statusTable := designdoc.RenderStatusSection(docs)</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         result := strings.Replace(string(tmpl), placeholder, table, 1)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         result = strings.Replace(result, designStatusPlacehldr, statusTable, 1)</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         if err := os.WriteFile(outputFile, []byte(result), 0o644); err != nil {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;README.mdの書き込みに失敗: %w&quot;, err)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to write README.md: %w&quot;, err)</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         fmt.Printf(&quot;Generated %s from %s (%s)\n&quot;, outputFile, templateFile, imageDir)</span></span>
@@ -126,7 +126,7 @@
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC tlaBgGNC">           1 : func buildImageTableFrom(dir string) (string, error) {</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         entries, err := os.ReadDir(dir)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, fmt.Errorf(&quot;%sの読み込みに失敗: %w&quot;, dir, err)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, fmt.Errorf(&quot;failed to read %s: %w&quot;, dir, err)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         var images []string</span></span>
@@ -138,7 +138,7 @@
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         slices.Sort(images)</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           2 :         if len(images) == 0 {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 return &quot;*画像なし*&quot;, nil</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 return &quot;*no images*&quot;, nil</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L81"><span class="lineNum">      81</span>              : </span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         var sb strings.Builder</span></span>

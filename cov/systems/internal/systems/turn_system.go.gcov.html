@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -166,9 +166,9 @@
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L105"><span class="lineNum">     105</span>              : }</span>
 <span id="L106"><span class="lineNum">     106</span>              : </span>
-<span id="L107"><span class="lineNum">     107</span>              : // runEndPhase はターン終了処理をして1ゲームターンを確定させる。</span>
+<span id="L107"><span class="lineNum">     107</span>              : // runEndPhase はturn end processingをして1ゲームターンを確定させる。</span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 : func runEndPhase(world w.World, turnState *gc.TurnState) error {</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         // ターン終了処理</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         // turn end processing</span></span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         if err := processTurnEnd(world); err != nil {</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -210,23 +210,23 @@
 <span id="L148"><span class="lineNum">     148</span>              : // processAITurn はAIターンの処理を行う</span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 : func processAITurn(world w.World) error {</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         log := logger.New(logger.CategoryTurn)</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         log.Debug(&quot;AIターン処理開始&quot;)</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         log.Debug(&quot;AI turn processing start&quot;)</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         processor := aiinput.NewProcessor(world.Config.RNG)</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         if err := processor.ProcessAll(world); err != nil {</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L157"><span class="lineNum">     157</span>              : </span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC tlaBgGNC">           1 :         log.Debug(&quot;AIターン処理完了&quot;)</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC tlaBgGNC">           1 :         log.Debug(&quot;AI turn processing done&quot;)</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L160"><span class="lineNum">     160</span>              : }</span>
 <span id="L161"><span class="lineNum">     161</span>              : </span>
-<span id="L162"><span class="lineNum">     162</span>              : // processTurnEnd はターン終了処理を行う</span>
+<span id="L162"><span class="lineNum">     162</span>              : // processTurnEnd はturn end processingを行う</span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 : func processTurnEnd(world w.World) error {</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         log := logger.New(logger.CategoryTurn)</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         turnState := query.GetTurnState(world)</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         log.Debug(&quot;ターン終了処理&quot;, &quot;turn&quot;, turnState.TurnNumber)</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         log.Debug(&quot;turn end processing&quot;, &quot;turn&quot;, turnState.TurnNumber)</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         // 全エンティティのアクションポイントを回復</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         if err := query.RestoreAllActionPoints(world); err != nil {</span></span>
@@ -270,13 +270,13 @@
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L209"><span class="lineNum">     209</span>              : </span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         log := logger.New(logger.CategoryTurn)</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         log.Debug(&quot;プレイヤー継続アクション処理&quot;)</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         log.Debug(&quot;player continuous action processing&quot;)</span></span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         // 継続アクションの1ターン分を処理</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         activity.ProcessContinuousActivities(world)</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :         if !query.HasActivity(world, playerEntity) {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;プレイヤー継続アクション完了&quot;)</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;player continuous action done&quot;)</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L219"><span class="lineNum">     219</span>              : </span>
 <span id="L220"><span class="lineNum">     220</span>              :         // 継続中でも完了でもターンコストを消費する</span>

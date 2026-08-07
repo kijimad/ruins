@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -180,10 +180,10 @@
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 : func (dr *Driver) startInitialBand(world w.World) error {</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         p := dr.params</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         if p == nil {</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;新規オーバーワールドの開始には帯パラメータが必要&quot;)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;starting a new overworld requires band parameters&quot;)</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC tlaBgGNC">           1 :         if dr.definition == nil {</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;新規オーバーワールドの開始には帯形状の定義が必要&quot;)</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;starting a new overworld requires a band shape definition&quot;)</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L126"><span class="lineNum">     126</span>              :         // 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有</span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC tlaBgGNC">           1 :         chunkW, chunkH, cols, rows := dr.definition.BandShape()</span></span>
@@ -229,17 +229,17 @@
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         spawn := walkableSpawnNear(world, center)</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           2 :         if _, err := query.GetPlayerEntity(world); err != nil {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 if _, serr := lifecycle.SpawnPlayer(world, spawn, &quot;Ash&quot;); serr != nil {</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;プレイヤー生成失敗: %w&quot;, serr)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 if _, serr := lifecycle.SpawnPlayer(world, spawn, &quot;ash&quot;); serr != nil {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to spawn player: %w&quot;, serr)</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC tlaBgGNC">           1 :         } else if merr := lifecycle.MovePlayerToPosition(world, spawn); merr != nil {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;プレイヤー配置失敗: %w&quot;, merr)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to place player: %w&quot;, merr)</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L176"><span class="lineNum">     176</span>              : </span>
 <span id="L177"><span class="lineNum">     177</span>              :         // 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く</span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC tlaBgGNC">           1 :         cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;キューブ生成失敗: %w&quot;, cerr)</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to spawn cube: %w&quot;, cerr)</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L182"><span class="lineNum">     182</span>              : </span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC tlaBgGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
@@ -284,7 +284,7 @@
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           2 :                 for i := range dr.band.Cols() {</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                         c := consts.Coord[consts.Chunk]{X: dr.band.EastIndex() + i, Y: cy}</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                         if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;チャンク生成失敗 (x=%d, y=%d): %w&quot;, c.X, c.Y, err)</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;failed to generate chunk (x=%d, y=%d): %w&quot;, c.X, c.Y, err)</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L227"><span class="lineNum">     227</span>              :                 }</span>
 <span id="L228"><span class="lineNum">     228</span>              :         }</span>
@@ -317,7 +317,7 @@
 <span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC tlaBgGNC">           1 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
 <span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, fmt.Errorf(&quot;シフト判定にプレイヤーが必要: %w&quot;, err)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, fmt.Errorf(&quot;shift check requires a player: %w&quot;, err)</span></span>
 <span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC tlaBgGNC">           1 :         if query.HasActivity(world, playerEntity) {</span></span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false, nil</span></span>

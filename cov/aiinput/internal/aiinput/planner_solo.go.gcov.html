@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -100,7 +100,7 @@
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         solo := world.Components.SoloAI.Get(entity)</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if solo == nil {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :                 rp.logger.Warn(&quot;SoloAIコンポーネントなし&quot;, &quot;entity&quot;, entity)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :                 rp.logger.Warn(&quot;no SoloAI component&quot;, &quot;entity&quot;, entity)</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 return nil</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         grid := world.Components.GridElement.Get(entity)</span></span>

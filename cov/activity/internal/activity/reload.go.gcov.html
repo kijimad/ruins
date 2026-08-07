@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -88,8 +88,8 @@
 <span id="L26"><span class="lineNum">      26</span>              : // Info はBehaviorの実装</span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 : func (rb *ReloadBehavior) Info() Info {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return Info{</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 Name:            &quot;装填&quot;,</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 Description:     &quot;武器に弾薬を装填する&quot;,</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 Name:            &quot;Reload&quot;,</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 Description:     &quot;Load ammunition into a weapon&quot;,</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 Interruptible:   true,</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 Resumable:       false,</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 ActionPointCost: consts.StandardActionCost,</span></span>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span>              : // Start はリロード開始時の処理</span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : func (rb *ReloadBehavior) Start(_ *gc.Activity, _ ecs.Entity, world w.World) error {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 Append(&quot;装填を開始した&quot;).</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 Markup(query.T(world, &quot;started reloading&quot;)).</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 Log()</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : }</span></span>
@@ -141,7 +141,7 @@
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         fire, _, err := getEquippedFire(actor, world)</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;遠距離武器が装備されていません&quot;)</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;no ranged weapon equipped&quot;)</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
@@ -154,7 +154,7 @@
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 needed := fire.MagazineSize - fire.Magazine</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 ammoEntity, found := query.FindAmmoInInventory(world, fire.AmmoTag)</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 if !found {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC tlaBgUNC">           0 :                         Cancel(comp, &quot;弾薬がなくなった&quot;)</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC tlaBgUNC">           0 :                         Cancel(comp, &quot;ran out of ammo&quot;)</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC tlaBgGNC">           1 :                 ammoCount := query.GetEntityCount(world, ammoEntity)</span></span>
@@ -168,11 +168,11 @@
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 fire.Magazine += loaded</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 if err := lifecycle.ChangeItemCount(world, ammoEntity, -loaded); err != nil {</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;弾薬の消費に失敗: %w&quot;, err)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to consume ammo: %w&quot;, err)</span></span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L111"><span class="lineNum">     111</span>              : </span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC tlaBgGNC">           1 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                         Append(fmt.Sprintf(&quot;装填完了（%d/%d）&quot;, fire.Magazine, fire.MagazineSize)).</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                         Markup(query.T(world, &quot;reload complete (%d/%d)&quot;, fire.Magazine, fire.MagazineSize)).</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                         Log()</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 Complete(comp)</span></span>
@@ -184,16 +184,16 @@
 <span id="L122"><span class="lineNum">     122</span>              : </span>
 <span id="L123"><span class="lineNum">     123</span>              : // Finish はリロード完了時の処理</span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC tlaBgUNC">           0 : func (rb *ReloadBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         log.Debug(&quot;リロード完了&quot;, &quot;actor&quot;, actor)</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         log.Debug(&quot;reload finished&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L128"><span class="lineNum">     128</span>              : </span>
 <span id="L129"><span class="lineNum">     129</span>              : // Canceled はリロードキャンセル時の処理</span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 : func (rb *ReloadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 Append(&quot;装填を中断した&quot;).</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 Markup(query.T(world, &quot;interrupted reloading&quot;)).</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                 Log()</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         log.Debug(&quot;リロードキャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         log.Debug(&quot;reload canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L137"><span class="lineNum">     137</span>              : </span>

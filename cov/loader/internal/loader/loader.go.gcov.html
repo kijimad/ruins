@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,12 +92,12 @@
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         var metadata fontMetadata</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         bs, err := assets.FS.ReadFile(fontsPath)</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;フォントファイルの読み込みに失敗: %w&quot;, err)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to load font file: %w&quot;, err)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           1 :         metaData, err := toml.Decode(string(bs), &amp;metadata)</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;フォントメタデータのデコードに失敗: %w&quot;, err)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to decode font metadata: %w&quot;, err)</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         undecoded := metaData.Undecoded()</span></span>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           2 :         for name, entry := range metadata.Fonts {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 font, err := resources.NewFont(entry.Font)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, fmt.Errorf(&quot;フォント %q の読み込みに失敗: %w&quot;, name, err)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, fmt.Errorf(&quot;failed to load font %q: %w&quot;, name, err)</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 :                 fonts[name] = font</span></span>
 <span id="L53"><span class="lineNum">      53</span>              :         }</span>
@@ -124,7 +124,7 @@
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :         for _, spriteSheetDef := range raw.PtrSlice(raws.SpriteSheets) {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 sheet, err := LoadSpriteSheetFromAseprite(spriteSheetDef.Path)</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         return nil, fmt.Errorf(&quot;スプライトシート '%s' の読み込みに失敗: %w&quot;, spriteSheetDef.Name, err)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         return nil, fmt.Errorf(&quot;failed to load sprite sheet '%s': %w&quot;, spriteSheetDef.Name, err)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 sheet.Name = spriteSheetDef.Name</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 spriteSheets[spriteSheetDef.Name] = sheet</span></span>

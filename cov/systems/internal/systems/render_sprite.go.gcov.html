@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -421,17 +421,17 @@
 <span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :         } else {</span></span>
 <span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                 // Resourcesからスプライトシートを取得</span></span>
 <span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                 if world.Resources.SpriteSheets == nil {</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;SpriteSheets が nil です&quot;)</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;sprite sheets are nil&quot;)</span></span>
 <span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                 spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]</span></span>
 <span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                 if !exists {</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;スプライトシート '%s' が見つかりません&quot;, spriteRender.SpriteSheetName)</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;sprite sheet '%s' not found&quot;, spriteRender.SpriteSheetName)</span></span>
 <span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L368"><span class="lineNum">     368</span>              : </span>
 <span id="L369"><span class="lineNum">     369</span>              :                 // スプライトキーからスプライトを取得</span>
 <span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :                 sprite, exists := spriteSheet.Sprites[spriteRender.SpriteKey]</span></span>
 <span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :                 if !exists {</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;スプライトキー '%s' がスプライトシート '%s' に存在しません&quot;, spriteRender.SpriteKey, spriteRender.SpriteSheetName)</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;sprite key '%s' does not exist in sprite sheet '%s'&quot;, spriteRender.SpriteKey, spriteRender.SpriteSheetName)</span></span>
 <span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L374"><span class="lineNum">     374</span>              : </span>
 <span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 texture := spriteSheet.Texture</span></span>
@@ -453,16 +453,16 @@
 <span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 : func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera) error {</span></span>
 <span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         // Resourcesからスプライトシートを取得</span></span>
 <span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :         if world.Resources.SpriteSheets == nil {</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;SpriteSheets が nil です&quot;)</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;sprite sheets are nil&quot;)</span></span>
 <span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]</span></span>
 <span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スプライトシート '%s' が見つかりません&quot;, spriteRender.SpriteSheetName)</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;sprite sheet '%s' not found&quot;, spriteRender.SpriteSheetName)</span></span>
 <span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L400"><span class="lineNum">     400</span>              : </span>
 <span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :         sprite, exists := spriteSheet.Sprites[spriteRender.SpriteKey]</span></span>
 <span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スプライトキー '%s' がスプライトシート '%s' に存在しません&quot;, spriteRender.SpriteKey, spriteRender.SpriteSheetName)</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;sprite key '%s' does not exist in sprite sheet '%s'&quot;, spriteRender.SpriteKey, spriteRender.SpriteSheetName)</span></span>
 <span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L405"><span class="lineNum">     405</span>              : </span>
 <span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         op := &amp;spriteRender.Options</span></span>

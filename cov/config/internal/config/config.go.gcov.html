@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -288,26 +288,26 @@
 <span id="L226"><span class="lineNum">     226</span>              : </span>
 <span id="L227"><span class="lineNum">     227</span>              : // 検証エラーの種類を識別するためのセンチネルエラー</span>
 <span id="L228"><span class="lineNum">     228</span>              : var (</span>
-<span id="L229"><span class="lineNum">     229</span>              :         errWindowWidthTooSmall  = errors.New(&quot;ウィンドウ幅が小さすぎます&quot;)</span>
-<span id="L230"><span class="lineNum">     230</span>              :         errWindowHeightTooSmall = errors.New(&quot;ウィンドウ高さが小さすぎます&quot;)</span>
-<span id="L231"><span class="lineNum">     231</span>              :         errTargetFPSInvalid     = errors.New(&quot;目標FPSが不正です&quot;)</span>
-<span id="L232"><span class="lineNum">     232</span>              :         errPProfPortOutOfRange  = errors.New(&quot;pprofポートが範囲外です&quot;)</span>
+<span id="L229"><span class="lineNum">     229</span>              :         errWindowWidthTooSmall  = errors.New(&quot;window width is too small&quot;)</span>
+<span id="L230"><span class="lineNum">     230</span>              :         errWindowHeightTooSmall = errors.New(&quot;window height is too small&quot;)</span>
+<span id="L231"><span class="lineNum">     231</span>              :         errTargetFPSInvalid     = errors.New(&quot;invalid target FPS&quot;)</span>
+<span id="L232"><span class="lineNum">     232</span>              :         errPProfPortOutOfRange  = errors.New(&quot;pprof port out of range&quot;)</span>
 <span id="L233"><span class="lineNum">     233</span>              : )</span>
 <span id="L234"><span class="lineNum">     234</span>              : </span>
 <span id="L235"><span class="lineNum">     235</span>              : // Validate は設定値が妥当な範囲にあるか検証する。</span>
 <span id="L236"><span class="lineNum">     236</span>              : // 不正な値があればエラーを返す。値の補正は行わず、呼び出し側が起動中止などを判断する。</span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 : func (c *Config) Validate() error {</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           2 :         if c.User.WindowWidth &lt; 320 {</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %d（最小 320）&quot;, errWindowWidthTooSmall, c.User.WindowWidth)</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %d, minimum 320&quot;, errWindowWidthTooSmall, c.User.WindowWidth)</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           2 :         if c.User.WindowHeight &lt; 240 {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %d（最小 240）&quot;, errWindowHeightTooSmall, c.User.WindowHeight)</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %d, minimum 240&quot;, errWindowHeightTooSmall, c.User.WindowHeight)</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           2 :         if c.TargetFPS &lt; 1 {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %d（1以上）&quot;, errTargetFPSInvalid, c.TargetFPS)</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %d, at least 1&quot;, errTargetFPSInvalid, c.TargetFPS)</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           2 :         if c.PProfPort &lt; 1024 || c.PProfPort &gt; 65535 {</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %d（1024〜65535）&quot;, errPProfPortOutOfRange, c.PProfPort)</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;%w: %d, range 1024 to 65535&quot;, errPProfPortOutOfRange, c.PProfPort)</span></span>
 <span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L251"><span class="lineNum">     251</span>              : }</span>

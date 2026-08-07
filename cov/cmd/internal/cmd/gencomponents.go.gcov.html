@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,12 +79,12 @@
 <span id="L17"><span class="lineNum">      17</span>              : // 通常はトップの //go:generate から呼ばれる。</span>
 <span id="L18"><span class="lineNum">      18</span>              : var CmdGenComponents = &amp;cli.Command{</span>
 <span id="L19"><span class="lineNum">      19</span>              :         Name:  &quot;gencomponents&quot;,</span>
-<span id="L20"><span class="lineNum">      20</span>              :         Usage: &quot;コンポーネント定義(EntitySpec/Components等)を登録表から生成する&quot;,</span>
+<span id="L20"><span class="lineNum">      20</span>              :         Usage: &quot;generate component definitions such as EntitySpec and Components from the registry&quot;,</span>
 <span id="L21"><span class="lineNum">      21</span>              :         Flags: []cli.Flag{</span>
 <span id="L22"><span class="lineNum">      22</span>              :                 &amp;cli.StringFlag{</span>
 <span id="L23"><span class="lineNum">      23</span>              :                         Name:  &quot;out&quot;,</span>
 <span id="L24"><span class="lineNum">      24</span>              :                         Value: &quot;internal/components/components_gen.go&quot;,</span>
-<span id="L25"><span class="lineNum">      25</span>              :                         Usage: &quot;出力先ファイルパス&quot;,</span>
+<span id="L25"><span class="lineNum">      25</span>              :                         Usage: &quot;output file path&quot;,</span>
 <span id="L26"><span class="lineNum">      26</span>              :                 },</span>
 <span id="L27"><span class="lineNum">      27</span>              :         },</span>
 <span id="L28"><span class="lineNum">      28</span>              :         Action: runGenComponents,</span>
@@ -96,7 +96,7 @@
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           2 :         if err := os.WriteFile(c.String(&quot;out&quot;), formatted, 0o644); err != nil {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;生成コードの書き込みに失敗した: %w&quot;, err)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to write generated code: %w&quot;, err)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         fmt.Printf(&quot;Generated %s\n&quot;, c.String(&quot;out&quot;))</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return nil</span></span>
@@ -107,12 +107,12 @@
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : func generateComponents() ([]byte, error) {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         var buf bytes.Buffer</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         if err := componentsTmpl.Execute(&amp;buf, genspec.Registry); err != nil {</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;テンプレート展開に失敗した: %w&quot;, err)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to expand template: %w&quot;, err)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC tlaBgGNC">           1 :         formatted, err := format.Source(buf.Bytes())</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;生成コードのフォーマットに失敗した: %w\n%s&quot;, err, buf.String())</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to format generated code: %w\n%s&quot;, err, buf.String())</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 :         return formatted, nil</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : }</span>
@@ -123,24 +123,24 @@
 <span id="L61"><span class="lineNum">      61</span>              : </span>
 <span id="L62"><span class="lineNum">      62</span>              : import &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L63"><span class="lineNum">      63</span>              : </span>
-<span id="L64"><span class="lineNum">      64</span>              : // EntitySpec はエンティティ作成用の仕様定義。</span>
-<span id="L65"><span class="lineNum">      65</span>              : // 付与するコンポーネントのセットを定義し、AddEntity でECSエンティティに変換される。</span>
+<span id="L64"><span class="lineNum">      64</span>              : // EntitySpec is the specification used to create an entity.</span>
+<span id="L65"><span class="lineNum">      65</span>              : // It defines the set of components to attach, which AddEntity converts into an ECS entity.</span>
 <span id="L66"><span class="lineNum">      66</span>              : type EntitySpec struct {</span>
 <span id="L67"><span class="lineNum">      67</span>              : {{- range .}}</span>
-<span id="L68"><span class="lineNum">      68</span>              :         {{.Field}} *{{.Field}} // {{.Comment}}</span>
+<span id="L68"><span class="lineNum">      68</span>              :         {{.Field}} *{{.Field}}</span>
 <span id="L69"><span class="lineNum">      69</span>              : {{- end}}</span>
 <span id="L70"><span class="lineNum">      70</span>              : }</span>
 <span id="L71"><span class="lineNum">      71</span>              : </span>
-<span id="L72"><span class="lineNum">      72</span>              : // Components はECSコンポーネントのハンドル束。</span>
-<span id="L73"><span class="lineNum">      73</span>              : // 各コンポーネント型の型付き *ecs.Map[T] を保持し、Add/Has/Get やクエリに使用される。</span>
+<span id="L72"><span class="lineNum">      72</span>              : // Components is the bundle of ECS component handles.</span>
+<span id="L73"><span class="lineNum">      73</span>              : // It holds a typed *ecs.Map[T] for each component type, used by Add/Has/Get and queries.</span>
 <span id="L74"><span class="lineNum">      74</span>              : type Components struct {</span>
 <span id="L75"><span class="lineNum">      75</span>              : {{- range .}}</span>
-<span id="L76"><span class="lineNum">      76</span>              :         {{.Field}} *ecs.Map[{{.Field}}] // {{.Comment}}</span>
+<span id="L76"><span class="lineNum">      76</span>              :         {{.Field}} *ecs.Map[{{.Field}}]</span>
 <span id="L77"><span class="lineNum">      77</span>              : {{- end}}</span>
 <span id="L78"><span class="lineNum">      78</span>              : }</span>
 <span id="L79"><span class="lineNum">      79</span>              : </span>
-<span id="L80"><span class="lineNum">      80</span>              : // InitializeComponents は全コンポーネント型を Ark のワールドに登録し、</span>
-<span id="L81"><span class="lineNum">      81</span>              : // 各フィールドに型付き Map ハンドルを割り当てる。</span>
+<span id="L80"><span class="lineNum">      80</span>              : // InitializeComponents registers every component type with the Ark world</span>
+<span id="L81"><span class="lineNum">      81</span>              : // and assigns a typed Map handle to each field.</span>
 <span id="L82"><span class="lineNum">      82</span>              : func (c *Components) InitializeComponents(world *ecs.World) error {</span>
 <span id="L83"><span class="lineNum">      83</span>              : {{- range .}}</span>
 <span id="L84"><span class="lineNum">      84</span>              :         c.{{.Field}} = ecs.NewMap[{{.Field}}](world)</span>
@@ -148,8 +148,8 @@
 <span id="L86"><span class="lineNum">      86</span>              :         return nil</span>
 <span id="L87"><span class="lineNum">      87</span>              : }</span>
 <span id="L88"><span class="lineNum">      88</span>              : </span>
-<span id="L89"><span class="lineNum">      89</span>              : // AddEntity は EntitySpec から新しいエンティティを生成し、非nilな各フィールドを</span>
-<span id="L90"><span class="lineNum">      90</span>              : // 対応するコンポーネントとして付与する。</span>
+<span id="L89"><span class="lineNum">      89</span>              : // AddEntity creates a new entity from an EntitySpec and attaches each non-nil field</span>
+<span id="L90"><span class="lineNum">      90</span>              : // as its corresponding component.</span>
 <span id="L91"><span class="lineNum">      91</span>              : func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {</span>
 <span id="L92"><span class="lineNum">      92</span>              :         entity := world.NewEntity()</span>
 <span id="L93"><span class="lineNum">      93</span>              : {{- range .}}</span>

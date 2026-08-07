@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-06 23:47:56</td>
+            <td class="headerValue">2026-08-07 23:46:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -144,7 +144,7 @@
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : func rollCount(rng *rand.Rand, count oapi.Dice) (int, error) {</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         d, err := consts.ParseDice(count)</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, fmt.Errorf(&quot;分解産出の個数表記が不正です: %q: %w&quot;, count, err)</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, fmt.Errorf(&quot;invalid disassembly yield count notation: %q: %w&quot;, count, err)</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC tlaBgGNC">           1 :         return d.Roll(rng), nil</span></span>
 <span id="L88"><span class="lineNum">      88</span>              : }</span>
