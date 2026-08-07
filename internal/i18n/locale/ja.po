@@ -819,3 +819,500 @@ msgstr "少し涼しくなってきた"
 msgid "Still hot, but a little better"
 msgstr "まだ暑いが、少しマシになった"
 
+
+# components enum 表示・カテゴリ・ステージ名
+msgid "Head slot"
+msgstr "頭部"
+
+msgid "Arm slot"
+msgstr "腕部"
+
+msgid "Hand slot"
+msgstr "手部"
+
+msgid "Leg slot"
+msgstr "脚部"
+
+msgid "Foot slot"
+msgstr "足部"
+
+msgid "Accessory"
+msgstr "装飾"
+
+msgid "Sword"
+msgstr "刀剣"
+
+msgid "Spear"
+msgstr "長物"
+
+msgid "Handgun"
+msgstr "拳銃"
+
+msgid "Rifle"
+msgstr "小銃"
+
+msgid "Martial arts"
+msgstr "格闘"
+
+msgid "Cannon"
+msgstr "大砲"
+
+msgid "Arm"
+msgstr "腕"
+
+msgid "Hand"
+msgstr "手"
+
+msgid "Leg"
+msgstr "脚"
+
+msgid "Foot"
+msgstr "足"
+
+msgid "Bow"
+msgstr "弓"
+
+msgid "None"
+msgstr "無"
+
+msgid "Fire"
+msgstr "火"
+
+msgid "Thunder"
+msgstr "雷"
+
+msgid "Ice"
+msgstr "氷"
+
+msgid "Light"
+msgstr "光"
+
+msgid "Random"
+msgstr "ランダム"
+
+msgid "Indifferent"
+msgstr "無関心"
+
+msgid "Along walls"
+msgstr "壁沿い"
+
+msgid "Territory"
+msgstr "縄張り"
+
+msgid "Solo"
+msgstr "単独"
+
+msgid "Squad member"
+msgstr "隊員"
+
+msgid "Attack"
+msgstr "攻撃"
+
+msgid "Evade"
+msgstr "回避"
+
+msgid "Patrol"
+msgstr "巡回"
+
+msgid "Fixed"
+msgstr "固定"
+
+msgid "Wander"
+msgstr "徘徊"
+
+msgid "Flock"
+msgstr "群れ"
+
+msgid "Escort"
+msgstr "護衛"
+
+msgid "Vanguard"
+msgstr "前衛"
+
+msgid "Retreat"
+msgstr "後退"
+
+msgid "Collect"
+msgstr "回収"
+
+msgid "Ignore"
+msgstr "無視"
+
+msgid "Hold"
+msgstr "保持"
+
+msgid "Distribute"
+msgstr "分配"
+
+msgid "Auto"
+msgstr "自動"
+
+msgid "Manual"
+msgstr "手動"
+
+msgid "Dawn"
+msgstr "夜明け"
+
+msgid "Midnight"
+msgstr "深夜"
+
+msgid "Morning"
+msgstr "朝"
+
+msgid "Noon"
+msgstr "昼"
+
+msgid "Evening"
+msgstr "夕"
+
+msgid "Night"
+msgstr "夜"
+
+msgid "Full"
+msgstr "満腹"
+
+msgid "Hungry"
+msgstr "空腹"
+
+msgid "Starving"
+msgstr "飢餓"
+
+msgid "Hypothermia"
+msgstr "低体温"
+
+msgid "Hyperthermia"
+msgstr "高体温"
+
+msgid "Minor"
+msgstr "軽"
+
+msgid "Medium"
+msgstr "中"
+
+msgid "Severe"
+msgstr "重"
+
+msgid "Weapon 1"
+msgstr "武器1"
+
+msgid "Weapon 2"
+msgstr "武器2"
+
+msgid "Weapon 3"
+msgstr "武器3"
+
+msgid "Weapon 4"
+msgstr "武器4"
+
+msgid "Weapon 5"
+msgstr "武器5"
+
+msgid "Raised by disassembling or reading mechanic books"
+msgstr "分解を行うか機械関連の本を読むと上がる"
+
+msgid "Raised by using healing items"
+msgstr "回復アイテムを使用すると上がる"
+
+msgid "Increases sword damage and accuracy"
+msgstr "刀剣のダメージと命中が上昇する"
+
+msgid "Increases polearm damage and accuracy"
+msgstr "長物のダメージと命中が上昇する"
+
+msgid "Increases unarmed damage and accuracy"
+msgstr "格闘のダメージと命中が上昇する"
+
+msgid "Increases pistol damage and accuracy"
+msgstr "拳銃のダメージと命中が上昇する"
+
+msgid "Increases rifle damage and accuracy"
+msgstr "小銃のダメージと命中が上昇する"
+
+msgid "Increases artillery damage and accuracy"
+msgstr "砲撃のダメージと命中が上昇する"
+
+msgid "Technique for acting unnoticed by enemies"
+msgstr "敵に気づかれずに行動する技術"
+
+msgid "Increases bow damage and accuracy"
+msgstr "弓のダメージと命中が上昇する"
+
+msgid "Reduces AP cost when moving"
+msgstr "移動時のAPコストが減少する"
+
+msgid "Shortens the distance at which enemies detect you"
+msgstr "敵に発見される距離が短くなる"
+
+msgid "Increases healing item effect"
+msgstr "回復アイテムの効果が上昇する"
+
+msgid "Technique for handling polearms like spears and staves"
+msgstr "槍や棒などの長物を扱う技術"
+
+msgid "Technique for making items from materials"
+msgstr "素材からアイテムを作る技術"
+
+msgid "Ability to move quickly over long distances"
+msgstr "長距離を素早く移動する能力"
+
+msgid "Raised by acting with heavy equipment"
+msgstr "重い装備で行動すると上がる"
+
+msgid "Raised by crafting items"
+msgstr "アイテムを合成すると上がる"
+
+msgid "Reduces material consumption when crafting"
+msgstr "合成時の素材消費が減少する"
+
+msgid "Speeds up disassembly and increases yield"
+msgstr "分解が速くなり産出が増える"
+
+msgid "Reduces fire element damage"
+msgstr "火属性ダメージが軽減される"
+
+msgid "Reduces thunder element damage"
+msgstr "雷属性ダメージが軽減される"
+
+msgid "Reduces ice element damage"
+msgstr "氷属性ダメージが軽減される"
+
+msgid "Reduces light element damage"
+msgstr "光属性ダメージが軽減される"
+
+msgid "Technique for handling swords"
+msgstr "刀剣類の扱いに関する技術"
+
+msgid "Technique for surveying unknown places"
+msgstr "未知の場所を調査する技術"
+
+msgid "Technique for refining and blending materials"
+msgstr "素材を精製・調合する技術"
+
+msgid "Technique for understanding and repairing machines"
+msgstr "機械を理解し修理する技術"
+
+msgid "Raised by taking hits in heavy armor"
+msgstr "重装備で被弾すると上がる"
+
+msgid "Increases item discovery rate"
+msgstr "アイテム発見率が上昇する"
+
+msgid "Technique for wearing heavy armor"
+msgstr "重い防具を着こなす技術"
+
+msgid "Raised by attacking with swords"
+msgstr "刀剣で攻撃すると上がる"
+
+msgid "Raised by attacking with polearms"
+msgstr "長物で攻撃すると上がる"
+
+msgid "Raised by attacking unarmed"
+msgstr "格闘で攻撃すると上がる"
+
+msgid "Raised by attacking with pistols"
+msgstr "拳銃で攻撃すると上がる"
+
+msgid "Raised by attacking with rifles"
+msgstr "小銃で攻撃すると上がる"
+
+msgid "Raised by attacking with artillery"
+msgstr "砲撃で攻撃すると上がる"
+
+msgid "Raised by smithing materials"
+msgstr "素材を調合すると上がる"
+
+msgid "Increases quality when smithing"
+msgstr "調合時の品質が上昇する"
+
+msgid "Improves buying and selling prices"
+msgstr "売買の価格が有利になる"
+
+msgid "Slows hypothermia progress"
+msgstr "低体温の進行が遅くなる"
+
+msgid "Slows hyperthermia progress"
+msgstr "高体温の進行が遅くなる"
+
+msgid "Persuasion for favorable deals"
+msgstr "有利な取引をする話術"
+
+msgid "Raised by attacking with bows"
+msgstr "弓で攻撃すると上がる"
+
+msgid "Widens vision in the dark"
+msgstr "暗所での視界が広がる"
+
+msgid "Slows hunger progress"
+msgstr "空腹の進行が遅くなる"
+
+msgid "Technique for fighting with fists"
+msgstr "素手や拳で戦う技術"
+
+msgid "Ability to carry heavy loads"
+msgstr "重い荷物を運ぶ能力"
+
+msgid "Technique for operating large firearms"
+msgstr "大型火器の運用技術"
+
+msgid "Raised by trading"
+msgstr "取引を行うと上がる"
+
+msgid "Increases maximum load"
+msgstr "最大荷重が上昇する"
+
+msgid "Raised by equipment or books"
+msgstr "装備や本で上がる"
+
+msgid "Ability to see in the dark"
+msgstr "暗所での視認能力"
+
+msgid "Medical technique for healing wounds"
+msgstr "傷を治す医療技術"
+
+msgid "Pistol shooting technique"
+msgstr "拳銃の射撃技術"
+
+msgid "Rifle shooting technique"
+msgstr "小銃の射撃技術"
+
+msgid "Technique for handling bows"
+msgstr "弓を扱う技術"
+
+msgid "Resistance to cold"
+msgstr "寒さへの耐性"
+
+msgid "Resistance to heat"
+msgstr "暑さへの耐性"
+
+msgid "Resistance to hunger"
+msgstr "空腹への耐性"
+
+msgid "Resistance to fire"
+msgstr "火への耐性"
+
+msgid "Resistance to thunder"
+msgstr "雷への耐性"
+
+msgid "Resistance to ice"
+msgstr "氷への耐性"
+
+msgid "Resistance to light"
+msgstr "光への耐性"
+
+msgid "Swordsmanship"
+msgstr "刀剣"
+
+msgid "Polearm"
+msgstr "長物"
+
+msgid "Unarmed"
+msgstr "格闘"
+
+msgid "Load bearing"
+msgstr "荷重"
+
+msgid "Archery"
+msgstr "弓術"
+
+msgid "Pistol skill"
+msgstr "拳銃"
+
+msgid "Rifle skill"
+msgstr "小銃"
+
+msgid "Artillery"
+msgstr "砲撃"
+
+msgid "Exploration"
+msgstr "探索"
+
+msgid "Crafting"
+msgstr "合成"
+
+msgid "Smithing"
+msgstr "調合"
+
+msgid "Negotiation"
+msgstr "交渉"
+
+msgid "Mechanic"
+msgstr "機械"
+
+msgid "Sprinting"
+msgstr "走破"
+
+msgid "Stealth"
+msgstr "隠密"
+
+msgid "Cold resistance"
+msgstr "耐寒"
+
+msgid "Heat resistance"
+msgstr "耐暑"
+
+msgid "Hunger resistance"
+msgstr "耐餓"
+
+msgid "Healing"
+msgstr "治療"
+
+msgid "Heavy armor"
+msgstr "重装"
+
+msgid "Fire resistance"
+msgstr "耐火"
+
+msgid "Thunder resistance"
+msgstr "耐電"
+
+msgid "Chill resistance"
+msgstr "耐冷"
+
+msgid "Photon resistance"
+msgstr "耐光"
+
+msgid "Melee"
+msgstr "近接"
+
+msgid "Ranged"
+msgstr "射撃"
+
+msgid "Craft"
+msgstr "技巧"
+
+msgid "Mobility"
+msgstr "機動"
+
+msgid "Goods"
+msgstr "道具"
+
+msgid "Material"
+msgstr "素材"
+
+msgid "Ammunition"
+msgstr "弾薬"
+
+msgid "Fixed object"
+msgstr "固定物"
+
+msgid "Consumable"
+msgstr "消耗品"
+
+msgid "Ranged weapon"
+msgstr "射撃武器"
+
+msgid "Self"
+msgstr "自分"
+
+msgid "Enemy"
+msgstr "敵"
+
+msgid "Tile"
+msgstr "タイル"
+
+msgid "Overworld"
+msgstr "オーバーワールド"
+
+msgid "Cube interior"
+msgstr "キューブ内部"
+

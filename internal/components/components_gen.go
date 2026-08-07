@@ -7,165 +7,165 @@ import "github.com/mlange-42/ark/ecs"
 // EntitySpec はエンティティ作成用の仕様定義。
 // 付与するコンポーネントのセットを定義し、AddEntity でECSエンティティに変換される。
 type EntitySpec struct {
-	Name               *Name               // 表示名を保持する
-	Description        *Description        // 説明文を保持する
-	HP                 *HP                 // 生命力を表す。尽きると死亡する
-	Consumable         *Consumable         // 一度使うと消費される消耗品を表す
-	WeightCapacity     *WeightCapacity     // 所持・格納の重量容量を表す
-	Melee              *Melee              // 近接攻撃の性能を保持する
-	Fire               *Fire               // 遠距離攻撃の性能と弾薬を保持する
-	Value              *Value              // アイテムの基本価値を表す
-	Weight             *Weight             // アイテムの重量を表す
-	Recipe             *Recipe             // 合成に必要な素材を保持する
-	Wearable           *Wearable           // 装備品の性能を保持する
-	Abilities          *Abilities          // エンティティの能力値を保持する
-	Ammo               *Ammo               // 弾薬アイテムの性能を保持する
-	Stackable          *Stackable          // スタック可能で所持数を持つことを表す
-	Material           *Material           // 合成・売却の素材であることを示す
-	LocationInBackpack *LocationInBackpack // バックパック内にあることを表す
-	LocationEquipped   *LocationEquipped   // 装備中であることを表す
-	LocationOnField    *LocationOnField    // フィールド上にあることを表す
-	LocationInStorage  *LocationInStorage  // 収納内にあることを表す
-	Tile               *Tile               // タイルエンティティであることを示す
-	SoloAI             *SoloAI             // 単独行動AIの設定を保持する
-	SquadAI            *SquadAI            // 隊員AIの設定を保持する
-	Camera             *Camera             // カメラの位置とズームを保持する
-	Position           *Position           // フィールド上のピクセル座標を保持する
-	GridElement        *GridElement        // フィールド上のグリッド座標を保持する
-	SpriteRender       *SpriteRender       // スプライト描画情報を保持する
-	BlockView          *BlockView          // 視界を遮ることを示す
-	BlockPass          *BlockPass          // 通行不可であることを示す
-	PassCost           *PassCost           // タイルの移動コスト修正を保持する
-	Door               *Door               // 開閉可能な扉であることを表す
-	Fixed              *Fixed              // 世界に固定され拾えない固定物であることを示す
-	Pushable           *Pushable           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用
-	LightSource        *LightSource        // 光源であることを表す
-	Interactable       *Interactable       // 相互作用可能であることを示す
-	VisualEffects      *VisualEffects      // 紐づくビジュアルエフェクトを管理する
-	TileTemperature    *TileTemperature    // タイルの気温修正値を保持する
-	StageBound         *StageBound         // 束縛先ステージを保持する。往復するステージの同定に使う
-	StageField         *StageField         // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
-	SeamlessBand       *SeamlessBand       // オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる
-	PortalConnection   *PortalConnection   // ポータルの行き先ステージと着地座標を保持する
-	DungeonEntrance    *DungeonEntrance    // 遺跡入口が進入先の遺跡定義名を保持する
-	Suspended          *Suspended          // 現ステージ以外に属し稼働しないことを示すマーカー
-	Player             *Player             // 操作対象の主人公であることを示す
-	Profession         *Profession         // 選択した職業を保持する
-	Hunger             *Hunger             // プレイヤーの空腹度を保持する
-	Wallet             *Wallet             // プレイヤーの資金を保持する
-	FactionAlly        *FactionAlly        // 味方派閥であることを示す
-	FactionEnemy       *FactionEnemy       // 敵性派閥であることを示す
-	FactionNeutral     *FactionNeutral     // 中立派閥であることを示す
-	Boss               *Boss               // ボスエンティティであることを示す
-	Dialog             *Dialog             // 会話データを保持する
-	Dead               *Dead               // 死亡状態であることを示す
-	TurnBased          *TurnBased          // アクションポイントを管理する
-	HealthStatus       *HealthStatus       // 部位ごとの健康状態を保持する
-	Skills             *Skills             // スキルセットを保持する
-	CharModifiers      *CharModifiers      // 効果倍率を集約する
-	StateChangeRequest *StateChangeRequest // ステート遷移リクエストを運ぶ
-	StatsChanged       *StatsChanged       // ステータス再計算が必要なことを示すダーティフラグ
-	WeightDirty        *WeightDirty        // 重量再計算が必要なことを示すダーティフラグ
-	ProvidesHealing    *ProvidesHealing    // HP回復の性質を保持する
-	ProvidesNutrition  *ProvidesNutrition  // 空腹度回復の性質を保持する
-	InflictsDamage     *InflictsDamage     // ダメージを与える性質を保持する
-	Book               *Book               // 読書可能な本であることを表す
-	CommandTable       *CommandTable       // AI用の戦闘コマンドテーブル名を保持する
-	DropTable          *DropTable          // ドロップテーブル名を保持する
-	SquadMember        *SquadMember        // 隊員であることを示す
-	Activity           *Activity           // 実行中のアクティビティを保持する
-	LastActivity       *LastActivity       // 直近のアクティビティ実行結果を保持する
-	GameLog            *GameLog            // ゲームログストレージを保持するシングルトン
-	Dungeon            *Dungeon            // ダンジョン状態を保持するシングルトン
-	GameProgress       *GameProgress       // ゲーム進行データを保持するシングルトン
-	TurnState          *TurnState          // ターン状態を保持するシングルトン
-	SpatialIndex       *SpatialIndex       // 空間インデックスを保持するシングルトン
-	WeaponSelection    *WeaponSelection    // 選択中の武器スロットを保持するシングルトン
-	GameTime           *GameTime           // ゲーム内時間を保持するシングルトン
-	VisionState        *VisionState        // 視界計算の一時状態を保持するシングルトン
-	UserSettings       *UserSettings       // 設定画面で変更するグローバル設定を保持するシングルトン
+	Name               *Name               // holds the display name
+	Description        *Description        // holds the description text
+	HP                 *HP                 // represents life force; death when it runs out
+	Consumable         *Consumable         // represents a consumable used up on use
+	WeightCapacity     *WeightCapacity     // represents carry and storage weight capacity
+	Melee              *Melee              // holds melee attack stats
+	Fire               *Fire               // holds ranged attack stats and ammo
+	Value              *Value              // represents the base value of an item
+	Weight             *Weight             // represents the weight of an item
+	Recipe             *Recipe             // holds the materials required for crafting
+	Wearable           *Wearable           // holds equipment stats
+	Abilities          *Abilities          // holds the entity's ability scores
+	Ammo               *Ammo               // holds ammo item stats
+	Stackable          *Stackable          // represents a stackable item with a count
+	Material           *Material           // marks a material for crafting or selling
+	LocationInBackpack *LocationInBackpack // marks being in the backpack
+	LocationEquipped   *LocationEquipped   // marks being equipped
+	LocationOnField    *LocationOnField    // marks being on the field
+	LocationInStorage  *LocationInStorage  // marks being in a container
+	Tile               *Tile               // marks a tile entity
+	SoloAI             *SoloAI             // holds solo AI settings
+	SquadAI            *SquadAI            // holds squad member AI settings
+	Camera             *Camera             // holds camera position and zoom
+	Position           *Position           // holds pixel coordinates on the field
+	GridElement        *GridElement        // holds grid coordinates on the field
+	SpriteRender       *SpriteRender       // holds sprite rendering info
+	BlockView          *BlockView          // marks blocking of vision
+	BlockPass          *BlockPass          // marks being impassable
+	PassCost           *PassCost           // holds a tile's movement cost modifier
+	Door               *Door               // represents an openable door
+	Fixed              *Fixed              // marks a fixed object anchored in the world that cannot be picked up
+	Pushable           *Pushable           // marks being pushable; the base cube is the first user but the marker is generic
+	LightSource        *LightSource        // represents a light source
+	Interactable       *Interactable       // marks being interactable
+	VisualEffects      *VisualEffects      // manages the associated visual effect
+	TileTemperature    *TileTemperature    // holds a tile's temperature modifier
+	StageBound         *StageBound         // holds the bound stage; used to identify stages you travel between
+	StageField         *StageField         // holds per-stage field state; the current stage is looked up via CurrentStage
+	SeamlessBand       *SeamlessBand       // holds the persistent overworld band and front state; its presence also marks the overworld
+	PortalConnection   *PortalConnection   // holds a portal's destination stage and landing coordinates
+	DungeonEntrance    *DungeonEntrance    // holds the ruin definition name a ruin entrance leads to
+	Suspended          *Suspended          // marks belonging to a non-current stage and being inactive
+	Player             *Player             // marks the player-controlled protagonist
+	Profession         *Profession         // holds the chosen profession
+	Hunger             *Hunger             // holds the player's hunger
+	Wallet             *Wallet             // holds the player's funds
+	FactionAlly        *FactionAlly        // marks the ally faction
+	FactionEnemy       *FactionEnemy       // marks the enemy faction
+	FactionNeutral     *FactionNeutral     // marks the neutral faction
+	Boss               *Boss               // marks a boss entity
+	Dialog             *Dialog             // holds dialogue data
+	Dead               *Dead               // marks a dead state
+	TurnBased          *TurnBased          // manages action points
+	HealthStatus       *HealthStatus       // holds per-body-part health status
+	Skills             *Skills             // holds the skill set
+	CharModifiers      *CharModifiers      // aggregates effect multipliers
+	StateChangeRequest *StateChangeRequest // carries a state transition request
+	StatsChanged       *StatsChanged       // dirty flag marking that stats need recalculation
+	WeightDirty        *WeightDirty        // dirty flag marking that weight needs recalculation
+	ProvidesHealing    *ProvidesHealing    // holds HP healing properties
+	ProvidesNutrition  *ProvidesNutrition  // holds hunger recovery properties
+	InflictsDamage     *InflictsDamage     // holds damage-dealing properties
+	Book               *Book               // represents a readable book
+	CommandTable       *CommandTable       // holds the combat command table name for AI
+	DropTable          *DropTable          // holds the drop table name
+	SquadMember        *SquadMember        // marks a squad member
+	Activity           *Activity           // holds the running activity
+	LastActivity       *LastActivity       // holds the latest activity result
+	GameLog            *GameLog            // singleton holding the game log storage
+	Dungeon            *Dungeon            // singleton holding dungeon state
+	GameProgress       *GameProgress       // singleton holding game progress data
+	TurnState          *TurnState          // singleton holding turn state
+	SpatialIndex       *SpatialIndex       // singleton holding the spatial index
+	WeaponSelection    *WeaponSelection    // singleton holding the selected weapon slot
+	GameTime           *GameTime           // singleton holding in-game time
+	VisionState        *VisionState        // singleton holding temporary vision-calculation state
+	UserSettings       *UserSettings       // singleton holding global settings changed on the settings screen
 }
 
 // Components はECSコンポーネントのハンドル束。
 // 各コンポーネント型の型付き *ecs.Map[T] を保持し、Add/Has/Get やクエリに使用される。
 type Components struct {
-	Name               *ecs.Map[Name]               // 表示名を保持する
-	Description        *ecs.Map[Description]        // 説明文を保持する
-	HP                 *ecs.Map[HP]                 // 生命力を表す。尽きると死亡する
-	Consumable         *ecs.Map[Consumable]         // 一度使うと消費される消耗品を表す
-	WeightCapacity     *ecs.Map[WeightCapacity]     // 所持・格納の重量容量を表す
-	Melee              *ecs.Map[Melee]              // 近接攻撃の性能を保持する
-	Fire               *ecs.Map[Fire]               // 遠距離攻撃の性能と弾薬を保持する
-	Value              *ecs.Map[Value]              // アイテムの基本価値を表す
-	Weight             *ecs.Map[Weight]             // アイテムの重量を表す
-	Recipe             *ecs.Map[Recipe]             // 合成に必要な素材を保持する
-	Wearable           *ecs.Map[Wearable]           // 装備品の性能を保持する
-	Abilities          *ecs.Map[Abilities]          // エンティティの能力値を保持する
-	Ammo               *ecs.Map[Ammo]               // 弾薬アイテムの性能を保持する
-	Stackable          *ecs.Map[Stackable]          // スタック可能で所持数を持つことを表す
-	Material           *ecs.Map[Material]           // 合成・売却の素材であることを示す
-	LocationInBackpack *ecs.Map[LocationInBackpack] // バックパック内にあることを表す
-	LocationEquipped   *ecs.Map[LocationEquipped]   // 装備中であることを表す
-	LocationOnField    *ecs.Map[LocationOnField]    // フィールド上にあることを表す
-	LocationInStorage  *ecs.Map[LocationInStorage]  // 収納内にあることを表す
-	Tile               *ecs.Map[Tile]               // タイルエンティティであることを示す
-	SoloAI             *ecs.Map[SoloAI]             // 単独行動AIの設定を保持する
-	SquadAI            *ecs.Map[SquadAI]            // 隊員AIの設定を保持する
-	Camera             *ecs.Map[Camera]             // カメラの位置とズームを保持する
-	Position           *ecs.Map[Position]           // フィールド上のピクセル座標を保持する
-	GridElement        *ecs.Map[GridElement]        // フィールド上のグリッド座標を保持する
-	SpriteRender       *ecs.Map[SpriteRender]       // スプライト描画情報を保持する
-	BlockView          *ecs.Map[BlockView]          // 視界を遮ることを示す
-	BlockPass          *ecs.Map[BlockPass]          // 通行不可であることを示す
-	PassCost           *ecs.Map[PassCost]           // タイルの移動コスト修正を保持する
-	Door               *ecs.Map[Door]               // 開閉可能な扉であることを表す
-	Fixed              *ecs.Map[Fixed]              // 世界に固定され拾えない固定物であることを示す
-	Pushable           *ecs.Map[Pushable]           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用
-	LightSource        *ecs.Map[LightSource]        // 光源であることを表す
-	Interactable       *ecs.Map[Interactable]       // 相互作用可能であることを示す
-	VisualEffects      *ecs.Map[VisualEffects]      // 紐づくビジュアルエフェクトを管理する
-	TileTemperature    *ecs.Map[TileTemperature]    // タイルの気温修正値を保持する
-	StageBound         *ecs.Map[StageBound]         // 束縛先ステージを保持する。往復するステージの同定に使う
-	StageField         *ecs.Map[StageField]         // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
-	SeamlessBand       *ecs.Map[SeamlessBand]       // オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる
-	PortalConnection   *ecs.Map[PortalConnection]   // ポータルの行き先ステージと着地座標を保持する
-	DungeonEntrance    *ecs.Map[DungeonEntrance]    // 遺跡入口が進入先の遺跡定義名を保持する
-	Suspended          *ecs.Map[Suspended]          // 現ステージ以外に属し稼働しないことを示すマーカー
-	Player             *ecs.Map[Player]             // 操作対象の主人公であることを示す
-	Profession         *ecs.Map[Profession]         // 選択した職業を保持する
-	Hunger             *ecs.Map[Hunger]             // プレイヤーの空腹度を保持する
-	Wallet             *ecs.Map[Wallet]             // プレイヤーの資金を保持する
-	FactionAlly        *ecs.Map[FactionAlly]        // 味方派閥であることを示す
-	FactionEnemy       *ecs.Map[FactionEnemy]       // 敵性派閥であることを示す
-	FactionNeutral     *ecs.Map[FactionNeutral]     // 中立派閥であることを示す
-	Boss               *ecs.Map[Boss]               // ボスエンティティであることを示す
-	Dialog             *ecs.Map[Dialog]             // 会話データを保持する
-	Dead               *ecs.Map[Dead]               // 死亡状態であることを示す
-	TurnBased          *ecs.Map[TurnBased]          // アクションポイントを管理する
-	HealthStatus       *ecs.Map[HealthStatus]       // 部位ごとの健康状態を保持する
-	Skills             *ecs.Map[Skills]             // スキルセットを保持する
-	CharModifiers      *ecs.Map[CharModifiers]      // 効果倍率を集約する
-	StateChangeRequest *ecs.Map[StateChangeRequest] // ステート遷移リクエストを運ぶ
-	StatsChanged       *ecs.Map[StatsChanged]       // ステータス再計算が必要なことを示すダーティフラグ
-	WeightDirty        *ecs.Map[WeightDirty]        // 重量再計算が必要なことを示すダーティフラグ
-	ProvidesHealing    *ecs.Map[ProvidesHealing]    // HP回復の性質を保持する
-	ProvidesNutrition  *ecs.Map[ProvidesNutrition]  // 空腹度回復の性質を保持する
-	InflictsDamage     *ecs.Map[InflictsDamage]     // ダメージを与える性質を保持する
-	Book               *ecs.Map[Book]               // 読書可能な本であることを表す
-	CommandTable       *ecs.Map[CommandTable]       // AI用の戦闘コマンドテーブル名を保持する
-	DropTable          *ecs.Map[DropTable]          // ドロップテーブル名を保持する
-	SquadMember        *ecs.Map[SquadMember]        // 隊員であることを示す
-	Activity           *ecs.Map[Activity]           // 実行中のアクティビティを保持する
-	LastActivity       *ecs.Map[LastActivity]       // 直近のアクティビティ実行結果を保持する
-	GameLog            *ecs.Map[GameLog]            // ゲームログストレージを保持するシングルトン
-	Dungeon            *ecs.Map[Dungeon]            // ダンジョン状態を保持するシングルトン
-	GameProgress       *ecs.Map[GameProgress]       // ゲーム進行データを保持するシングルトン
-	TurnState          *ecs.Map[TurnState]          // ターン状態を保持するシングルトン
-	SpatialIndex       *ecs.Map[SpatialIndex]       // 空間インデックスを保持するシングルトン
-	WeaponSelection    *ecs.Map[WeaponSelection]    // 選択中の武器スロットを保持するシングルトン
-	GameTime           *ecs.Map[GameTime]           // ゲーム内時間を保持するシングルトン
-	VisionState        *ecs.Map[VisionState]        // 視界計算の一時状態を保持するシングルトン
-	UserSettings       *ecs.Map[UserSettings]       // 設定画面で変更するグローバル設定を保持するシングルトン
+	Name               *ecs.Map[Name]               // holds the display name
+	Description        *ecs.Map[Description]        // holds the description text
+	HP                 *ecs.Map[HP]                 // represents life force; death when it runs out
+	Consumable         *ecs.Map[Consumable]         // represents a consumable used up on use
+	WeightCapacity     *ecs.Map[WeightCapacity]     // represents carry and storage weight capacity
+	Melee              *ecs.Map[Melee]              // holds melee attack stats
+	Fire               *ecs.Map[Fire]               // holds ranged attack stats and ammo
+	Value              *ecs.Map[Value]              // represents the base value of an item
+	Weight             *ecs.Map[Weight]             // represents the weight of an item
+	Recipe             *ecs.Map[Recipe]             // holds the materials required for crafting
+	Wearable           *ecs.Map[Wearable]           // holds equipment stats
+	Abilities          *ecs.Map[Abilities]          // holds the entity's ability scores
+	Ammo               *ecs.Map[Ammo]               // holds ammo item stats
+	Stackable          *ecs.Map[Stackable]          // represents a stackable item with a count
+	Material           *ecs.Map[Material]           // marks a material for crafting or selling
+	LocationInBackpack *ecs.Map[LocationInBackpack] // marks being in the backpack
+	LocationEquipped   *ecs.Map[LocationEquipped]   // marks being equipped
+	LocationOnField    *ecs.Map[LocationOnField]    // marks being on the field
+	LocationInStorage  *ecs.Map[LocationInStorage]  // marks being in a container
+	Tile               *ecs.Map[Tile]               // marks a tile entity
+	SoloAI             *ecs.Map[SoloAI]             // holds solo AI settings
+	SquadAI            *ecs.Map[SquadAI]            // holds squad member AI settings
+	Camera             *ecs.Map[Camera]             // holds camera position and zoom
+	Position           *ecs.Map[Position]           // holds pixel coordinates on the field
+	GridElement        *ecs.Map[GridElement]        // holds grid coordinates on the field
+	SpriteRender       *ecs.Map[SpriteRender]       // holds sprite rendering info
+	BlockView          *ecs.Map[BlockView]          // marks blocking of vision
+	BlockPass          *ecs.Map[BlockPass]          // marks being impassable
+	PassCost           *ecs.Map[PassCost]           // holds a tile's movement cost modifier
+	Door               *ecs.Map[Door]               // represents an openable door
+	Fixed              *ecs.Map[Fixed]              // marks a fixed object anchored in the world that cannot be picked up
+	Pushable           *ecs.Map[Pushable]           // marks being pushable; the base cube is the first user but the marker is generic
+	LightSource        *ecs.Map[LightSource]        // represents a light source
+	Interactable       *ecs.Map[Interactable]       // marks being interactable
+	VisualEffects      *ecs.Map[VisualEffects]      // manages the associated visual effect
+	TileTemperature    *ecs.Map[TileTemperature]    // holds a tile's temperature modifier
+	StageBound         *ecs.Map[StageBound]         // holds the bound stage; used to identify stages you travel between
+	StageField         *ecs.Map[StageField]         // holds per-stage field state; the current stage is looked up via CurrentStage
+	SeamlessBand       *ecs.Map[SeamlessBand]       // holds the persistent overworld band and front state; its presence also marks the overworld
+	PortalConnection   *ecs.Map[PortalConnection]   // holds a portal's destination stage and landing coordinates
+	DungeonEntrance    *ecs.Map[DungeonEntrance]    // holds the ruin definition name a ruin entrance leads to
+	Suspended          *ecs.Map[Suspended]          // marks belonging to a non-current stage and being inactive
+	Player             *ecs.Map[Player]             // marks the player-controlled protagonist
+	Profession         *ecs.Map[Profession]         // holds the chosen profession
+	Hunger             *ecs.Map[Hunger]             // holds the player's hunger
+	Wallet             *ecs.Map[Wallet]             // holds the player's funds
+	FactionAlly        *ecs.Map[FactionAlly]        // marks the ally faction
+	FactionEnemy       *ecs.Map[FactionEnemy]       // marks the enemy faction
+	FactionNeutral     *ecs.Map[FactionNeutral]     // marks the neutral faction
+	Boss               *ecs.Map[Boss]               // marks a boss entity
+	Dialog             *ecs.Map[Dialog]             // holds dialogue data
+	Dead               *ecs.Map[Dead]               // marks a dead state
+	TurnBased          *ecs.Map[TurnBased]          // manages action points
+	HealthStatus       *ecs.Map[HealthStatus]       // holds per-body-part health status
+	Skills             *ecs.Map[Skills]             // holds the skill set
+	CharModifiers      *ecs.Map[CharModifiers]      // aggregates effect multipliers
+	StateChangeRequest *ecs.Map[StateChangeRequest] // carries a state transition request
+	StatsChanged       *ecs.Map[StatsChanged]       // dirty flag marking that stats need recalculation
+	WeightDirty        *ecs.Map[WeightDirty]        // dirty flag marking that weight needs recalculation
+	ProvidesHealing    *ecs.Map[ProvidesHealing]    // holds HP healing properties
+	ProvidesNutrition  *ecs.Map[ProvidesNutrition]  // holds hunger recovery properties
+	InflictsDamage     *ecs.Map[InflictsDamage]     // holds damage-dealing properties
+	Book               *ecs.Map[Book]               // represents a readable book
+	CommandTable       *ecs.Map[CommandTable]       // holds the combat command table name for AI
+	DropTable          *ecs.Map[DropTable]          // holds the drop table name
+	SquadMember        *ecs.Map[SquadMember]        // marks a squad member
+	Activity           *ecs.Map[Activity]           // holds the running activity
+	LastActivity       *ecs.Map[LastActivity]       // holds the latest activity result
+	GameLog            *ecs.Map[GameLog]            // singleton holding the game log storage
+	Dungeon            *ecs.Map[Dungeon]            // singleton holding dungeon state
+	GameProgress       *ecs.Map[GameProgress]       // singleton holding game progress data
+	TurnState          *ecs.Map[TurnState]          // singleton holding turn state
+	SpatialIndex       *ecs.Map[SpatialIndex]       // singleton holding the spatial index
+	WeaponSelection    *ecs.Map[WeaponSelection]    // singleton holding the selected weapon slot
+	GameTime           *ecs.Map[GameTime]           // singleton holding in-game time
+	VisionState        *ecs.Map[VisionState]        // singleton holding temporary vision-calculation state
+	UserSettings       *ecs.Map[UserSettings]       // singleton holding global settings changed on the settings screen
 }
 
 // InitializeComponents は全コンポーネント型を Ark のワールドに登録し、

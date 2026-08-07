@@ -24,7 +24,7 @@ func (tp TurnPhase) String() string {
 	case TurnPhaseEnd:
 		return "TurnEnd"
 	default:
-		panic("不正なTurnPhase値")
+		panic("invalid TurnPhase value")
 	}
 }
 

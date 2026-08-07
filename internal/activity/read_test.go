@@ -50,7 +50,7 @@ func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
 	err := ra.Validate(comp, actor, world)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "読了済み")
+	assert.Contains(t, err.Error(), "already read")
 }
 
 func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
@@ -72,7 +72,7 @@ func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
 	err := ra.Validate(comp, actor, world)
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "レベル3以上必要")
+	assert.Contains(t, err.Error(), "level 3 or higher")
 }
 
 func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {

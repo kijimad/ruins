@@ -34,7 +34,7 @@ var specTableAligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	var rows []SpecRow
 	if cat, ok := world.Components.CategoryOf(gc.ItemTypeCategoryKey, entity); ok {
-		rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: cat})
+		rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: query.T(world, cat)})
 	}
 	if world.Components.Melee.Has(entity) {
 		rows = append(rows, attackerRows(world, world.Components.Melee.Get(entity))...)
@@ -70,7 +70,7 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	var rows []SpecRow
 	if cat, ok := world.Components.CategoryOfSpec(gc.ItemTypeCategoryKey, &spec); ok {
-		rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: cat})
+		rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: query.T(world, cat)})
 	}
 	if spec.Melee != nil {
 		rows = append(rows, attackerRows(world, spec.Melee)...)
@@ -132,14 +132,14 @@ func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec g
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し
 func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 	rows := []SpecRow{
-		{Label: attack.GetAttackCategory().Label, Header: true},
+		{Label: query.T(world, attack.GetAttackCategory().Label), Header: true},
 		{Label: query.T(world, consts.DamageLabel), Value: strconv.Itoa(attack.GetDamage())},
 		{Label: query.T(world, consts.AccuracyLabel), Value: strconv.Itoa(attack.GetAccuracy())},
 		{Label: query.T(world, consts.AttackCountLabel), Value: strconv.Itoa(attack.GetAttackCount())},
 		{Label: query.T(world, "Attack cost"), Value: strconv.Itoa(attack.GetCost())},
 	}
 	if attack.GetElement() != gc.ElementTypeNone {
-		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: attack.GetElement().String()})
+		rows = append(rows, SpecRow{Label: query.T(world, "Element"), Value: query.T(world, attack.GetElement().String())})
 	}
 	return rows
 }
@@ -165,7 +165,7 @@ func fireAmmoRows(world w.World, fire *gc.Fire) []SpecRow {
 // wearableRows は防具の行を返す。先頭は装備部位の見出し
 func wearableRows(world w.World, wearable *gc.Wearable) []SpecRow {
 	rows := []SpecRow{
-		{Label: wearable.EquipmentCategory.String(), Header: true},
+		{Label: query.T(world, wearable.EquipmentCategory.String()), Header: true},
 		{Label: query.T(world, consts.DefenseLabel), Value: fmt.Sprintf("%+d", wearable.Defense)},
 	}
 	if wearable.InsulationCold != 0 {
@@ -228,7 +228,7 @@ func bookRows(world w.World, book *gc.Book) []SpecRow {
 	rows := []SpecRow{{Label: query.T(world, "Book"), Header: true}}
 	if book.Skill != nil {
 		rows = append(rows,
-			SpecRow{Label: query.T(world, "Skill"), Value: gc.SkillName(book.Skill.TargetSkill)},
+			SpecRow{Label: query.T(world, "Skill"), Value: query.T(world, gc.SkillName(book.Skill.TargetSkill))},
 			SpecRow{Label: "Lv", Value: fmt.Sprintf("%d %s %d", book.Skill.RequiredLevel, consts.IconArrowRight, book.Skill.MaxLevel)},
 		)
 	}

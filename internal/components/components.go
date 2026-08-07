@@ -19,7 +19,7 @@ var InvalidEntity = ecs.Entity{}
 // 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。
 func Upsert[T any](world *ecs.World, comp *ecs.Map[T], entity ecs.Entity, data *T) error {
 	if !world.Alive(entity) {
-		return fmt.Errorf("死亡エンティティにコンポーネントを設定できない: entity=%v", entity)
+		return fmt.Errorf("cannot set component on dead entity: entity=%v", entity)
 	}
 	if comp.Has(entity) {
 		comp.Set(entity, data)

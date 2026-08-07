@@ -69,7 +69,7 @@ var (
 	// 1建物=24タイル四方を基準にし、建物・部屋を1棟まるごと歩けるサイズまで広げる。
 	// 縦9レーンで北/中央/南のルート選択が生まれる。
 	// この形状はマスタの設定で、RunSeed だけがプレイごとに変わる。
-	DungeonOverworld = NewOverworldDefinition("オーバーワールド", 0, 24, 24, 7, 9)
+	DungeonOverworld = NewOverworldDefinition("Overworld", 0, 24, 24, 7, 9)
 
 	// DungeonRuins は廃墟ダンジョン定義
 	DungeonRuins = &DungeonDefinition{
@@ -94,7 +94,7 @@ var (
 	// 他ステージと同じく名前で解決でき、復帰時のスプラッシュ表示に名前を使えるようにすること。
 	// name は gc.NewCubeInteriorStage().Name と一致させる。ずれると復帰で定義解決に失敗する。
 	DungeonCubeInterior = &DungeonDefinition{
-		name:        "キューブ内部",
+		name:        "Cube interior",
 		description: "移動拠点キューブの内部",
 		totalFloors: 1,
 		baseTemp:    15, // 内部はシェルター。要調整

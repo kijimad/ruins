@@ -500,7 +500,7 @@ var (
 	// 到達性検証はポータルを要求せず通る。移動拠点キューブ専用の内部で、手続きダンジョンの
 	// ランダム選択セットではないため AllPlannerTypes には入れない。
 	PlannerTypeCubeInterior = PlannerType{
-		Name:              "キューブ内部",
+		Name:              "Cube interior",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeCubeInteriorInitial, seed)

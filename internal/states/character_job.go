@@ -251,7 +251,7 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
 		for _, equip := range prof.Equips {
 			slotLabel := string(equip.Slot)
 			if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {
-				slotLabel = slot.String()
+				slotLabel = query.T(world, slot.String())
 			}
 			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, equip.Name), res))
 		}
@@ -272,7 +272,7 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
 			skillID := gc.SkillID(skill.Id)
 			name := skill.Id
 			if gc.HasSkillName(skillID) {
-				name = gc.SkillName(skillID)
+				name = query.T(world, gc.SkillName(skillID))
 			}
 			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s Lv.%d", name, skill.Value), res))
 		}

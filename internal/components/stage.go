@@ -12,7 +12,7 @@ import (
 // あえて非公開にする。公開する overworld の identity は型付きの NewOverworldStage() だけにし、
 // 素の名前を外へ出さない。名前を公開すると CurrentStage.Name == 名前 のような場所判定を誘発するが、
 // それは廃した反パターン。外部からは名前で比較できないよう型で塞ぐ。
-const overworldStageName = "オーバーワールド"
+const overworldStageName = "Overworld"
 
 // StageKey はステージを一意に識別する serde 安全な identity。共存する各ステージのエンティティ同定に使う。
 // オーバーワールドは深度0、ダンジョン階は深度1以上。比較可能な値だけで構成する。
@@ -44,7 +44,7 @@ func NewDungeonStage(name string, depth int) StageKey {
 }
 
 // cubeInteriorStageName は移動拠点キューブの内部ステージの固定名。
-const cubeInteriorStageName = "キューブ内部"
+const cubeInteriorStageName = "Cube interior"
 
 // NewCubeInteriorStage は移動拠点キューブの内部ステージキーを返す。オーバーワールドと同じく
 // 単一の永続ステージで、初回進入時に一度だけ生成され以後は再稼働する。ダンジョン定義は持たない。
@@ -60,17 +60,17 @@ func (k StageKey) Validate() error {
 	}
 	if k.Name == overworldStageName {
 		if k.Depth != 0 {
-			return fmt.Errorf("オーバーワールドステージの深度が不正: %d", k.Depth)
+			return fmt.Errorf("invalid overworld stage depth: %d", k.Depth)
 		}
 		return nil
 	}
 	// オーバーワールド以外の実ステージはダンジョン階。定義名を必ず持ち、深度は1以上とする。
 	// 名前なしのダンジョン階は作らないため、ここへ来た空名は破損とみなして弾く
 	if k.Name == "" {
-		return fmt.Errorf("ダンジョンステージに定義名がありません: 深度%d", k.Depth)
+		return fmt.Errorf("dungeon stage has no definition name: depth %d", k.Depth)
 	}
 	if k.Depth < 1 {
-		return fmt.Errorf("ダンジョンステージの深度が不正: %d", k.Depth)
+		return fmt.Errorf("invalid dungeon stage depth: %d", k.Depth)
 	}
 	return nil
 }

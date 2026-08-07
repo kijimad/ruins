@@ -51,7 +51,7 @@ func TestGetDungeonByName(t *testing.T) {
 
 	t.Run("オーバーワールドは OverworldDefinition として引ける", func(t *testing.T) {
 		t.Parallel()
-		def, found := GetStageDefinition("オーバーワールド")
+		def, found := GetStageDefinition("Overworld")
 		require.True(t, found)
 		_, ok := def.(*OverworldDefinition)
 		assert.True(t, ok, "オーバーワールドは OverworldDefinition でフロアを生成しない別の型")
@@ -105,7 +105,7 @@ func TestDefinitions(t *testing.T) {
 
 	t.Run("DungeonOverworldの設定が正しい", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "オーバーワールド", DungeonOverworld.Name())
+		assert.Equal(t, "Overworld", DungeonOverworld.Name())
 		assert.Equal(t, 0, DungeonOverworld.BaseTemperature())
 		chunkW, chunkH, cols, rows := DungeonOverworld.BandShape()
 		assert.Equal(t, consts.Tile(24), chunkW)

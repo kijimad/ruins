@@ -185,18 +185,18 @@ func TestEquipmentSlotNumber(t *testing.T) {
 			slot     EquipmentSlotNumber
 			expected string
 		}{
-			{SlotHead, "頭部"},
-			{SlotTorso, "胴体"},
-			{SlotArms, "腕部"},
-			{SlotHands, "手部"},
-			{SlotLegs, "脚部"},
-			{SlotFeet, "足部"},
-			{SlotJewelry, "装飾"},
-			{SlotWeapon1, "武器1"},
-			{SlotWeapon2, "武器2"},
-			{SlotWeapon3, "武器3"},
-			{SlotWeapon4, "武器4"},
-			{SlotWeapon5, "武器5"},
+			{SlotHead, "Head slot"},
+			{SlotTorso, "Torso"},
+			{SlotArms, "Arm slot"},
+			{SlotHands, "Hand slot"},
+			{SlotLegs, "Leg slot"},
+			{SlotFeet, "Foot slot"},
+			{SlotJewelry, "Accessory"},
+			{SlotWeapon1, "Weapon 1"},
+			{SlotWeapon2, "Weapon 2"},
+			{SlotWeapon3, "Weapon 3"},
+			{SlotWeapon4, "Weapon 4"},
+			{SlotWeapon5, "Weapon 5"},
 		}
 
 		for _, tt := range tests {

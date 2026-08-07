@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-// ErrInvalidEnumType はenumに無効な値が指定された場合のエラー
-var ErrInvalidEnumType = errors.New("enumに無効な値が指定された")
+// ErrInvalidEnumType はinvalid enum value場合のエラー
+var ErrInvalidEnumType = errors.New("invalid enum value")
 
 // ================
 
@@ -29,21 +29,21 @@ const (
 func (bp BodyPart) String() string {
 	switch bp {
 	case BodyPartHead:
-		return "頭"
+		return "Head"
 	case BodyPartTorso:
-		return "胴体"
+		return "Torso"
 	case BodyPartArms:
-		return "腕"
+		return "Arm"
 	case BodyPartHands:
-		return "手"
+		return "Hand"
 	case BodyPartLegs:
-		return "脚"
+		return "Leg"
 	case BodyPartFeet:
-		return "足"
+		return "Foot"
 	case BodyPartWholeBody:
-		return "全身"
+		return "Whole body"
 	default:
-		panic("不正なBodyPart値")
+		panic("invalid BodyPart value")
 	}
 }
 
@@ -110,19 +110,19 @@ type AttackType struct {
 
 var (
 	// AttackSword は刀剣
-	AttackSword = AttackType{Type: "SWORD", Range: AttackRangeMelee, Label: "刀剣"}
+	AttackSword = AttackType{Type: "SWORD", Range: AttackRangeMelee, Label: "Sword"}
 	// AttackSpear は長物
-	AttackSpear = AttackType{Type: "SPEAR", Range: AttackRangeMelee, Label: "長物"}
+	AttackSpear = AttackType{Type: "SPEAR", Range: AttackRangeMelee, Label: "Spear"}
 	// AttackHandgun は拳銃
-	AttackHandgun = AttackType{Type: "HANDGUN", Range: AttackRangeRanged, Label: "拳銃"}
+	AttackHandgun = AttackType{Type: "HANDGUN", Range: AttackRangeRanged, Label: "Handgun"}
 	// AttackRifle は小銃
-	AttackRifle = AttackType{Type: "RIFLE", Range: AttackRangeRanged, Label: "小銃"}
+	AttackRifle = AttackType{Type: "RIFLE", Range: AttackRangeRanged, Label: "Rifle"}
 	// AttackFist は格闘
-	AttackFist = AttackType{Type: "FIST", Range: AttackRangeMelee, Label: "格闘"}
+	AttackFist = AttackType{Type: "FIST", Range: AttackRangeMelee, Label: "Martial arts"}
 	// AttackCanon は大砲
-	AttackCanon = AttackType{Type: "CANON", Range: AttackRangeRanged, Label: "大砲"}
+	AttackCanon = AttackType{Type: "CANON", Range: AttackRangeRanged, Label: "Cannon"}
 	// AttackBow は弓
-	AttackBow = AttackType{Type: "BOW", Range: AttackRangeRanged, Label: "弓"}
+	AttackBow = AttackType{Type: "BOW", Range: AttackRangeRanged, Label: "Bow"}
 )
 
 // AllAttackTypes は定義済みの全AttackTypeのリスト
@@ -220,27 +220,27 @@ func (enum EquipmentType) SlotNumber() EquipmentSlotNumber {
 	case EquipmentJewelry:
 		return SlotJewelry
 	}
-	panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
+	panic(fmt.Sprintf("invalid EquipmentType value: %s", string(enum)))
 }
 
 func (enum EquipmentType) String() string {
 	switch enum {
 	case EquipmentHead:
-		return "頭部"
+		return "Head slot"
 	case EquipmentTorso:
-		return "胴体"
+		return "Torso"
 	case EquipmentArms:
-		return "腕部"
+		return "Arm slot"
 	case EquipmentHands:
-		return "手部"
+		return "Hand slot"
 	case EquipmentLegs:
-		return "脚部"
+		return "Leg slot"
 	case EquipmentFeet:
-		return "足部"
+		return "Foot slot"
 	case EquipmentJewelry:
-		return "装飾"
+		return "Accessory"
 	}
-	panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
+	panic(fmt.Sprintf("invalid EquipmentType value: %s", string(enum)))
 }
 
 // ================
@@ -264,15 +264,15 @@ const (
 func (enum ElementType) String() string {
 	switch enum {
 	case ElementTypeNone:
-		return "無"
+		return "None"
 	case ElementTypeFire:
-		return "火"
+		return "Fire"
 	case ElementTypeThunder:
-		return "雷"
+		return "Thunder"
 	case ElementTypeChill:
-		return "氷"
+		return "Ice"
 	case ElementTypePhoton:
-		return "光"
+		return "Light"
 	}
-	panic(fmt.Sprintf("不正なElementType値: %s", string(enum)))
+	panic(fmt.Sprintf("invalid ElementType value: %s", string(enum)))
 }

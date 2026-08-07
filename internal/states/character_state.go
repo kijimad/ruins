@@ -374,11 +374,11 @@ func fetchCommandRows(world w.World, target ecs.Entity) []commandRow {
 		return nil
 	}
 	return []commandRow{
-		{Kind: cmdMovement, Value: squad.Movement.String()},
-		{Kind: cmdCombat, Value: squad.CombatCurrent.String()},
-		{Kind: cmdItemPickup, Value: squad.ItemPickup.String()},
-		{Kind: cmdItemHandling, Value: squad.ItemHandling.String()},
-		{Kind: cmdSupply, Value: squad.Supply.String()},
+		{Kind: cmdMovement, Value: query.T(world, squad.Movement.String())},
+		{Kind: cmdCombat, Value: query.T(world, squad.CombatCurrent.String())},
+		{Kind: cmdItemPickup, Value: query.T(world, squad.ItemPickup.String())},
+		{Kind: cmdItemHandling, Value: query.T(world, squad.ItemHandling.String())},
+		{Kind: cmdSupply, Value: query.T(world, squad.Supply.String())},
 		{Kind: cmdDismiss},
 	}
 }
