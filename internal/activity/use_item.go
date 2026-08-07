@@ -184,9 +184,7 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	actorName := query.GetEntityName(actor, world)
 
 	logger := gamelog.New(query.GetGameLog(world))
-	logger.Build(func(l *gamelog.Logger) {
-		query.AppendNameWithColor(l, actor, actorName, world)
-	}).Append(query.T(world, " is ")).ItemName(itemName).Append(query.T(world, " used."))
+	logger.Fmt(query.T(world, "%s used %s"), query.NameSegment(actor, actorName, world), gamelog.Item(itemName))
 
 	if isHealing {
 		logger.Append(query.T(world, " recovered %d HP.", amount))
@@ -208,9 +206,7 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 	actorName := query.GetEntityName(actor, world)
 
 	logger := gamelog.New(query.GetGameLog(world))
-	logger.Build(func(l *gamelog.Logger) {
-		query.AppendNameWithColor(l, actor, actorName, world)
-	}).Append(query.T(world, " is ")).ItemName(itemName).Append(query.T(world, " ate."))
+	logger.Fmt(query.T(world, "%s ate %s"), query.NameSegment(actor, actorName, world), gamelog.Item(itemName))
 
 	if isSatiated {
 		logger.Append(query.T(world, "Full."))

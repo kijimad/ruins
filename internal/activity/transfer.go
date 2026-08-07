@@ -131,14 +131,11 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 		return fmt.Errorf("failed to transfer item: %w", err)
 	}
 
-	logger := gamelog.New(query.GetGameLog(world))
-	query.AppendNameWithColor(logger, giver, giverName, world)
-	logger.
-		Append(query.T(world, " is ")).
-		ItemName(itemName).
-		Append(query.T(world, " to ")).
-		Append(recipientName).
-		Append(query.T(world, " handed over to.")).
+	gamelog.New(query.GetGameLog(world)).
+		Fmt(query.T(world, "%s handed over %s to %s."),
+			query.NameSegment(giver, giverName, world),
+			gamelog.Item(itemName),
+			gamelog.Plain(recipientName)).
 		Log()
 
 	return nil

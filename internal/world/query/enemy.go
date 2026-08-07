@@ -118,3 +118,16 @@ func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string,
 		logger.Append(name)
 	}
 }
+
+// NameSegment はエンティティの種類に応じた色付きの名前 Segment を返す。AppendNameWithColor の Fmt 版。
+// 色は Player=緑・NPC(SoloAI/SquadAI)=黄・その他=白
+func NameSegment(entity ecs.Entity, name string, world w.World) gamelog.Segment {
+	switch {
+	case world.Components.Player.Has(entity):
+		return gamelog.Segment{Text: name, Color: gamelog.ColorGreen}
+	case world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity):
+		return gamelog.Segment{Text: name, Color: gamelog.ColorYellow}
+	default:
+		return gamelog.Segment{Text: name, Color: gamelog.ColorWhite}
+	}
+}

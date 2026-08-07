@@ -97,10 +97,7 @@ func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world 
 
 	name := query.GetEntityName(p.Target, world)
 	gamelog.New(query.GetGameLog(world)).
-		ItemName(toolName).
-		Append(query.T(world, "with")).
-		ItemName(name).
-		Append(query.T(world, "began disassembling")).
+		Fmt(query.T(world, "%s began disassembling %s"), gamelog.Item(toolName), gamelog.Item(name)).
 		Log()
 
 	log.Debug("disassemble started", "actor", actor, "target", name, "tool", toolName)
@@ -189,8 +186,7 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 	}
 
 	logger := gamelog.New(query.GetGameLog(world)).
-		ItemName(name).
-		Append(query.T(world, "disassembled."))
+		Fmt(query.T(world, "Disassembled %s."), gamelog.Item(name))
 	appendYields(logger, stacks, world)
 	logger.Log()
 
@@ -206,7 +202,7 @@ func (db *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, wor
 	if world.Components.Player.Has(actor) {
 		logger := gamelog.New(query.GetGameLog(world))
 		if p, ok := comp.Params.(*gc.DisassembleParams); ok && world.ECS.Alive(p.Target) {
-			logger.ItemName(query.GetEntityName(p.Target, world)).Append(query.T(world, "interrupted disassembling"))
+			logger.Fmt(query.T(world, "Interrupted disassembling %s"), gamelog.Item(query.GetEntityName(p.Target, world)))
 		} else {
 			logger.Append(query.T(world, "interrupted disassembly"))
 		}
@@ -299,7 +295,9 @@ func mechanicSkillValue(actor ecs.Entity, world w.World) int {
 	return world.Components.Skills.Get(actor).Get(gc.SkillMechanic).Value
 }
 
-// appendYields は産出一覧をアイテム名の色付きでログへ追記する
+// appendYields は産出一覧をアイテム名の色付きでログへ追記する。
+// 産出は件数可変で各アイテム名に個別の色が付くため、単一の書式テンプレートには畳めない。
+// 読点区切りで名前を色付き Segment として並べ、末尾に「を得た」の trailing clause を付ける
 func appendYields(logger *gamelog.Logger, stacks []lifecycle.YieldStack, world w.World) {
 	if len(stacks) == 0 {
 		logger.Append(query.T(world, "got nothing"))

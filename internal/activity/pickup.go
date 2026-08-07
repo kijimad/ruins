@@ -147,12 +147,10 @@ func (pb *PickupBehavior) collect(actor ecs.Entity, world w.World, entity ecs.En
 	if err := lifecycle.MoveToBackpack(world, entity, actor); err != nil {
 		return fmt.Errorf("failed to move to backpack: %w", err)
 	}
-	logger := gamelog.New(query.GetGameLog(world))
-	query.AppendNameWithColor(logger, actor, actorName, world)
-	logger.
-		Append(query.T(world, " is ")).
-		ItemName(formattedName).
-		Append(query.T(world, " picked up.")).
+	gamelog.New(query.GetGameLog(world)).
+		Fmt(query.T(world, "%s picked up %s."),
+			query.NameSegment(actor, actorName, world),
+			gamelog.Item(formattedName)).
 		Log()
 
 	return nil

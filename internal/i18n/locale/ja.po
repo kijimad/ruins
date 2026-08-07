@@ -1332,17 +1332,14 @@ msgstr "灰の洞窟"
 msgid "Forgotten ruins"
 msgstr "忘却の廃都"
 
-msgid "with"
-msgstr "で"
+msgid "%s began disassembling %s"
+msgstr "%sで%sの分解を始めた"
 
-msgid "began disassembling"
-msgstr "の分解を始めた"
+msgid "Disassembled %s."
+msgstr "%sを分解した。"
 
-msgid "disassembled."
-msgstr "を分解した。"
-
-msgid "interrupted disassembling"
-msgstr "の分解を中断した"
+msgid "Interrupted disassembling %s"
+msgstr "%sの分解を中断した"
 
 msgid "interrupted disassembly"
 msgstr "分解を中断した"
@@ -1407,20 +1404,23 @@ msgstr "素手"
 msgid "%s's skill rose! (%s Lv%d)"
 msgstr "%s のスキルが上がった！（%s Lv%d）"
 
-msgid " is "
-msgstr " は "
+msgid "%s used %s to attack %s but missed."
+msgstr "%s は %s で %s を攻撃したが外れた。"
 
-msgid " with "
-msgstr " で "
+msgid "%s attacked %s but missed."
+msgstr "%s は %s を攻撃したが外れた。"
 
-msgid " attacked but missed."
-msgstr " を攻撃したが外れた。"
+msgid "%s used %s to score a critical hit on %s and dealt %s damage!"
+msgstr "%s は %s で %s にクリティカルヒットし、%s のダメージを与えた！"
 
-msgid " scored a critical hit and dealt %d damage!"
-msgstr " にクリティカルヒットし、%d のダメージを与えた！"
+msgid "%s scored a critical hit on %s and dealt %s damage!"
+msgstr "%s は %s にクリティカルヒットし、%s のダメージを与えた！"
 
-msgid " attacked and dealt %d damage."
-msgstr " を攻撃し、%d のダメージを与えた。"
+msgid "%s used %s to attack %s and dealt %s damage."
+msgstr "%s は %s で %s を攻撃し、%s のダメージを与えた。"
+
+msgid "%s attacked %s and dealt %s damage."
+msgstr "%s は %s を攻撃し、%s のダメージを与えた。"
 
 msgid "starting a new activity"
 msgstr "新しいアクティビティを開始"
@@ -1431,8 +1431,8 @@ msgstr "引くスペースがない。"
 msgid "A door seems to have closed somewhere."
 msgstr "どこかで扉が閉じたようだ。"
 
-msgid "do not have a tool to disassemble this"
-msgstr "を分解できる工具を持っていない"
+msgid "Do not have a tool to disassemble %s"
+msgstr "%sを分解できる工具を持っていない"
 
 msgid "move destination is not set"
 msgstr "移動先が設定されていません"
@@ -1449,11 +1449,11 @@ msgstr "重すぎて動けない"
 msgid "obtained %d items"
 msgstr "%d個を入手した"
 
-msgid " picked up."
-msgstr " を入手した。"
+msgid "%s picked up %s."
+msgstr "%s は %s を入手した。"
 
-msgid " is here."
-msgstr " がある。"
+msgid "%s is here."
+msgstr "%s がある。"
 
 msgid "There is a warp gate. Press Enter to move."
 msgstr "転移ゲートがある。Enterキーで移動。"
@@ -1464,8 +1464,8 @@ msgstr "上り階段がある。Enterキーで移動。"
 msgid "There is a ruins entrance. Press Enter to enter."
 msgstr "遺跡の入口がある。Enterキーで入る。"
 
-msgid "is here. You can enter it from the Space action menu."
-msgstr "がある。Spaceのアクションメニューから入れる。"
+msgid "%s is here. You can enter it from the Space action menu."
+msgstr "%sがある。Spaceのアクションメニューから入れる。"
 
 msgid "interrupted because the push target disappeared"
 msgstr "押す対象が消えたため中断"
@@ -1530,11 +1530,8 @@ msgstr "周囲に敵がいるため休息を中断"
 msgid "Rested well and recovered health"
 msgstr "十分な休息を取って体力を回復した"
 
-msgid "Full rest recovered an additional "
-msgstr "完全な休息により追加で "
-
-msgid " HP recovered"
-msgstr " HP回復した"
+msgid "Full rest recovered an additional %d HP"
+msgstr "完全な休息により追加で %d HP回復した"
 
 msgid "Rest interrupted: "
 msgstr "休息が中断された: "
@@ -1557,14 +1554,11 @@ msgstr "%sと話した。"
 msgid "%s (x%d)"
 msgstr "%s(%d個)"
 
-msgid " to "
-msgstr " を "
+msgid "%s handed over %s to %s."
+msgstr "%s は %s を %s に渡した。"
 
-msgid " handed over to."
-msgstr " に渡した。"
-
-msgid " used."
-msgstr " を使った。"
+msgid "%s used %s"
+msgstr "%s は %s を使った。"
 
 msgid " recovered %d HP."
 msgstr " HPが %d 回復した。"
@@ -1572,8 +1566,8 @@ msgstr " HPが %d 回復した。"
 msgid " took %d damage."
 msgstr " %d のダメージを受けた。"
 
-msgid " ate."
-msgstr " を食べた。"
+msgid "%s ate %s"
+msgstr "%s は %s を食べた。"
 
 msgid "Full."
 msgstr "満腹だ。"
@@ -1587,8 +1581,8 @@ msgstr "周囲に敵がいるため待機を中断"
 msgid "Finished waiting"
 msgstr "待機を終了した"
 
-msgid " dropped."
-msgstr " を置いた。"
+msgid "Dropped %s."
+msgstr "%s を置いた。"
 
 msgid "here"
 msgstr "直上"

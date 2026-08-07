@@ -169,8 +169,7 @@ func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*Ac
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
 		gamelog.New(query.GetGameLog(world)).
-			ItemName(name).
-			Append(query.T(world, "do not have a tool to disassemble this")).
+			Fmt(query.T(world, "Do not have a tool to disassemble %s"), gamelog.Item(name)).
 			Log()
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: "no tool"}, nil
 	}

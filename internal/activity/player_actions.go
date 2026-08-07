@@ -207,8 +207,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			case gc.InteractionItem:
 				formattedName := query.FormatItemName(world, entity)
 				gamelog.New(query.GetGameLog(world)).
-					ItemName(formattedName).
-					Append(query.T(world, " is here.")).
+					Fmt(query.T(world, "%s is here."), gamelog.Item(formattedName)).
 					Log()
 			case gc.InteractionPortalNext:
 				gamelog.New(query.GetGameLog(world)).
@@ -224,8 +223,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 					Log()
 			case gc.InteractionEnterCube:
 				gamelog.New(query.GetGameLog(world)).
-					ItemName(query.GetEntityName(entity, world)).
-					Append(query.T(world, "is here. You can enter it from the Space action menu.")).
+					Fmt(query.T(world, "%s is here. You can enter it from the Space action menu."), gamelog.Item(query.GetEntityName(entity, world))).
 					Log()
 			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を

@@ -432,27 +432,30 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 
 	attackerName := query.GetEntityName(attacker, world)
 	targetName := query.GetEntityName(target, world)
+	attackerSeg := query.NameSegment(attacker, attackerName, world)
+	targetSeg := query.NameSegment(target, targetName, world)
 
-	gamelog.New(query.GetGameLog(world)).
-		Build(func(l *gamelog.Logger) {
-			query.AppendNameWithColor(l, attacker, attackerName, world)
-		}).
-		Append(query.T(world, " is ")).
-		Build(func(l *gamelog.Logger) {
-			if attackMethodName != "" {
-				l.Append(attackMethodName).Append(query.T(world, " with "))
-			}
-			query.AppendNameWithColor(l, target, targetName, world)
-		}).
-		Build(func(l *gamelog.Logger) {
-			switch {
-			case !hit:
-				l.Append(query.T(world, " attacked but missed."))
-			case critical:
-				l.Append(query.T(world, " scored a critical hit and dealt %d damage!", damage))
-			default:
-				l.Append(query.T(world, " attacked and dealt %d damage.", damage))
-			}
-		}).
-		Log()
+	logger := gamelog.New(query.GetGameLog(world))
+	withMethod := attackMethodName != ""
+	switch {
+	case !hit:
+		if withMethod {
+			logger.Fmt(query.T(world, "%s used %s to attack %s but missed."), attackerSeg, gamelog.Plain(attackMethodName), targetSeg)
+		} else {
+			logger.Fmt(query.T(world, "%s attacked %s but missed."), attackerSeg, targetSeg)
+		}
+	case critical:
+		if withMethod {
+			logger.Fmt(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!"), attackerSeg, gamelog.Plain(attackMethodName), targetSeg, gamelog.Plain(damage))
+		} else {
+			logger.Fmt(query.T(world, "%s scored a critical hit on %s and dealt %s damage!"), attackerSeg, targetSeg, gamelog.Plain(damage))
+		}
+	default:
+		if withMethod {
+			logger.Fmt(query.T(world, "%s used %s to attack %s and dealt %s damage."), attackerSeg, gamelog.Plain(attackMethodName), targetSeg, gamelog.Plain(damage))
+		} else {
+			logger.Fmt(query.T(world, "%s attacked %s and dealt %s damage."), attackerSeg, targetSeg, gamelog.Plain(damage))
+		}
+	}
+	logger.Log()
 }

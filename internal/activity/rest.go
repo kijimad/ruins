@@ -105,9 +105,7 @@ func (rb *RestBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 			}
 
 			gamelog.New(query.GetGameLog(world)).
-				Append(query.T(world, "Full rest recovered an additional ")).
-				Append(fmt.Sprintf("%d", bonusHealing)).
-				Append(query.T(world, " HP recovered")).
+				Append(query.T(world, "Full rest recovered an additional %d HP", bonusHealing)).
 				Log()
 		}
 	}
