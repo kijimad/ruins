@@ -15,7 +15,6 @@ require (
 	github.com/oapi-codegen/runtime v1.6.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/profile v1.7.0
-	github.com/quasilyte/go-ruleguard/dsl v0.3.23
 	github.com/sebdah/goldie/v2 v2.8.0
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v3 v3.10.1

@@ -94,7 +94,7 @@ func DefaultConfig() Config {
 
 		ActionStyle: ActionStyle{
 			ShowCloseButton: true,
-			CloseButtonText: "Close [Enter/Escape]",
+			CloseButtonText: "閉じる [Enter/Escape]",
 			ActionAreaColor: theme.WindowActionBg,
 			ActionTextColor: theme.WindowActionText,
 		},

@@ -8,7 +8,7 @@ import (
 )
 
 // errNoFontSource は利用可能なフォントソースが無い場合に返す
-var errNoFontSource = errors.New("no available font source")
+var errNoFontSource = errors.New("利用可能なフォントソースがない")
 
 type fonts struct {
 	smallFace      text.Face

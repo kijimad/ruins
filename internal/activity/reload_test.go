@@ -17,7 +17,7 @@ func TestReloadBehavior_Info(t *testing.T) {
 	t.Parallel()
 	ra := &ReloadBehavior{}
 	info := ra.Info()
-	assert.Equal(t, "Reload", info.Name)
+	assert.Equal(t, "装填", info.Name)
 	assert.Equal(t, gc.BehaviorReload, ra.Name())
 	assert.True(t, info.Interruptible)
 }
@@ -55,10 +55,10 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
-		we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetWeaponSelection(world).Slot = 1
@@ -78,10 +78,10 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
-		we, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetWeaponSelection(world).Slot = 1
@@ -145,10 +145,10 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
-		we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetWeaponSelection(world).Slot = 1
@@ -157,7 +157,7 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		fire.Magazine = 0
 
 		// 弾薬を2発だけ持たせる
-		_, err = lifecycle.SpawnBackpackItem(world, "9mm_fmj", 2)
+		_, err = lifecycle.SpawnBackpackItem(world, "9mm FMJ", 2)
 		require.NoError(t, err)
 
 		ra := &ReloadBehavior{}

@@ -45,7 +45,7 @@ func TestSpawnNPCs_中立NPCを生成する(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
 	plan.NPCs = []mapplanner.NPCSpec{
-		{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}, Name: "merchant"},
+		{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}, Name: "商人"},
 	}
 
 	err := spawnNPCs(world, plan, 0, 0)
@@ -65,7 +65,7 @@ func TestSpawnNPCs_敵NPCを生成する(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
 	plan.NPCs = []mapplanner.NPCSpec{
-		{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}, Name: "glow_bug"},
+		{Coord: consts.Coord[consts.Tile]{X: 2, Y: 2}, Name: "光虫"},
 	}
 
 	err := spawnNPCs(world, plan, 0, 0)
@@ -90,7 +90,7 @@ func TestSpawnNPCs_ボス敵NPCにBossコンポーネントが付く(t *testing.
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
 	plan.NPCs = []mapplanner.NPCSpec{
-		{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}, Name: "frozen_hunter"},
+		{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}, Name: "凍晶化した猟師"},
 	}
 
 	err := spawnNPCs(world, plan, 0, 0)
@@ -112,7 +112,7 @@ func TestSpawnNPCs_オフセットが座標に加算される(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
 	plan.NPCs = []mapplanner.NPCSpec{
-		{Coord: consts.Coord[consts.Tile]{X: 2, Y: 3}, Name: "merchant"},
+		{Coord: consts.Coord[consts.Tile]{X: 2, Y: 3}, Name: "商人"},
 	}
 
 	err := spawnNPCs(world, plan, 100, 200)
@@ -135,7 +135,7 @@ func TestSpawnItems_個数0以下はエラー(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
 	plan.Items = []mapplanner.ItemSpec{
-		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "wooden_sword", Count: 0},
+		{Coord: consts.Coord[consts.Tile]{X: 1, Y: 1}, Name: "木刀", Count: 0},
 	}
 
 	err := spawnItems(world, plan, 0, 0)
@@ -163,7 +163,7 @@ func TestSpawnItems_有効なアイテムを生成する(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
 	plan.Items = []mapplanner.ItemSpec{
-		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}, Name: "wooden_sword", Count: 1},
+		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}, Name: "木刀", Count: 1},
 	}
 
 	err := spawnItems(world, plan, 10, 20)
@@ -206,7 +206,7 @@ func TestPopulateStorageLoot_ルートテーブルからアイテムを収納す
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
 	plan.Depth = 1
 
-	propRaw, err := raw.GetProp(world.Resources.RawMaster, "wooden_crate")
+	propRaw, err := raw.GetProp(world.Resources.RawMaster, "木箱")
 	require.NoError(t, err)
 	require.NotNil(t, propRaw.Storage)
 

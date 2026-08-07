@@ -20,7 +20,7 @@ func TestWaitBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -37,7 +37,7 @@ func TestWaitBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -48,7 +48,7 @@ func TestWaitBehavior_Validate(t *testing.T) {
 		wa := &WaitBehavior{}
 		err = wa.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "wait count is invalid")
+		assert.Contains(t, err.Error(), "待機回数が無効")
 	})
 }
 
@@ -59,7 +59,7 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -80,7 +80,7 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -100,7 +100,7 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -125,7 +125,7 @@ func TestWaitBehavior_Finish(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -145,7 +145,7 @@ func TestWaitBehavior_Finish(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -176,7 +176,7 @@ func TestWaitBehavior_長い待機は敵接近で中断する(t *testing.T) {
 
 	require.NoError(t, wa.DoTurn(comp, actor, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "wait interrupted because enemies are nearby", comp.CancelReason)
+	assert.Equal(t, "周囲に敵がいるため待機を中断", comp.CancelReason)
 }
 
 func TestWaitBehavior_1ターンの待機は敵が隣接していても完結する(t *testing.T) {

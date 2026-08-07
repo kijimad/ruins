@@ -276,7 +276,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, draw
 		return
 	}
 
-	typeStr := fmt.Sprintf("[%s]", query.T(world, cat))
+	typeStr := fmt.Sprintf("[%s]", cat)
 	if name != "" {
 		drawText(fmt.Sprintf("%s %s", typeStr, name))
 	} else {

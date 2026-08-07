@@ -37,7 +37,7 @@ func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coor
 	def := defs[rng.IntN(len(defs))]
 	pos := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}
 	if _, err := lifecycle.SpawnDungeonEntrance(world, pos.X, pos.Y, def.Name()); err != nil {
-		return fmt.Errorf("failed to place ruins entrance (x=%d, y=%d): %w", c.X, c.Y, err)
+		return fmt.Errorf("遺跡入口の配置に失敗 (x=%d, y=%d): %w", c.X, c.Y, err)
 	}
 	return nil
 }

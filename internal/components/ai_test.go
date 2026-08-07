@@ -44,8 +44,8 @@ func TestPlannerType_String(t *testing.T) {
 		p    PlannerType
 		want string
 	}{
-		{PlannerSolo, "Solo"},
-		{PlannerSquad, "Squad member"},
+		{PlannerSolo, "単独"},
+		{PlannerSquad, "隊員"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -62,9 +62,9 @@ func TestCombatPolicy_String(t *testing.T) {
 		p    CombatPolicy
 		want string
 	}{
-		{CombatAttack, "Attack"},
-		{CombatEvade, "Evade"},
-		{CombatIgnore, "Indifferent"},
+		{CombatAttack, "攻撃"},
+		{CombatEvade, "回避"},
+		{CombatIgnore, "無関心"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -89,13 +89,13 @@ func TestSoloMovement_String(t *testing.T) {
 		p    SoloMovement
 		want string
 	}{
-		{SoloRandom, "Random"},
-		{SoloPatrol, "Patrol"},
-		{SoloWallHug, "Along walls"},
-		{SoloStationary, "Fixed"},
-		{SoloWander, "Wander"},
-		{SoloTerritorial, "Territory"},
-		{SoloSwarm, "Flock"},
+		{SoloRandom, "ランダム"},
+		{SoloPatrol, "巡回"},
+		{SoloWallHug, "壁沿い"},
+		{SoloStationary, "固定"},
+		{SoloWander, "徘徊"},
+		{SoloTerritorial, "縄張り"},
+		{SoloSwarm, "群れ"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -112,11 +112,11 @@ func TestSquadMovement_String(t *testing.T) {
 		p    SquadMovement
 		want string
 	}{
-		{SquadEscort, "Escort"},
-		{SquadVanguard, "Vanguard"},
-		{SquadPatrol, "Patrol"},
-		{SquadStationary, "Fixed"},
-		{SquadRetreat, "Retreat"},
+		{SquadEscort, "護衛"},
+		{SquadVanguard, "前衛"},
+		{SquadPatrol, "巡回"},
+		{SquadStationary, "固定"},
+		{SquadRetreat, "後退"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -145,8 +145,8 @@ func TestItemPickupPolicy_String(t *testing.T) {
 		p    ItemPickupPolicy
 		want string
 	}{
-		{PolicyPickup, "Collect"},
-		{PolicyIgnore, "Ignore"},
+		{PolicyPickup, "回収"},
+		{PolicyIgnore, "無視"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -170,8 +170,8 @@ func TestItemHandlingPolicy_String(t *testing.T) {
 		p    ItemHandlingPolicy
 		want string
 	}{
-		{PolicyKeep, "Hold"},
-		{PolicyDistribute, "Distribute"},
+		{PolicyKeep, "保持"},
+		{PolicyDistribute, "分配"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {

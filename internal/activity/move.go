@@ -86,8 +86,8 @@ type MoveBehavior struct{}
 // Info はBehaviorの実装
 func (mb *MoveBehavior) Info() Info {
 	return Info{
-		Name:            "Move",
-		Description:     "Move to an adjacent tile",
+		Name:            "移動",
+		Description:     "隣接するタイルに移動する",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -133,7 +133,7 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		if cw.Current > overweightLimit {
 			if world.Components.Player.Has(actor) {
 				gamelog.New(query.GetGameLog(world)).
-					Markup(gamelog.Tag("warning", query.T(world, "Too heavy to move"))).
+					Warning("重すぎて動けない").
 					Log()
 			}
 			return ErrMoveOverweight
@@ -146,7 +146,7 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 // Start はBehaviorの実装
 func (mb *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if p, ok := comp.Params.(*gc.MoveParams); ok {
-		log.Debug("move started", "actor", actor, "destination", p.Destination)
+		log.Debug("移動開始", "actor", actor, "destination", p.Destination)
 	}
 	return nil
 }
@@ -155,13 +155,13 @@ func (mb *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.MoveParams)
 	if !ok {
-		Cancel(comp, "move destination is not set")
+		Cancel(comp, "移動先が設定されていません")
 		return ErrMoveTargetNotSet
 	}
 
 	// GridElementの存在確認
 	if !world.Components.GridElement.Has(actor) {
-		Cancel(comp, "cannot move (no position)")
+		Cancel(comp, "移動できません（位置情報なし）")
 		return ErrMoveTargetInvalid
 	}
 	gridElement := world.Components.GridElement.Get(actor)
@@ -171,12 +171,12 @@ func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	to := p.Destination.Coord
 	from := grid.Coord
 	if !CanMoveTo(world, to, from, actor) {
-		Cancel(comp, "cannot move")
+		Cancel(comp, "移動できません")
 		return ErrMoveTargetInvalid
 	}
 
 	if err := mb.performMove(comp, actor, world); err != nil {
-		Cancel(comp, fmt.Sprintf("move error: %s", err.Error()))
+		Cancel(comp, fmt.Sprintf("移動エラー: %s", err.Error()))
 		return err
 	}
 
@@ -186,7 +186,7 @@ func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish はBehaviorの実装
 func (mb *MoveBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	log.Debug("move activity finished", "actor", actor)
+	log.Debug("移動アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみ移動先のタイルイベントをチェック
 	if p, ok := comp.Params.(*gc.MoveParams); ok && world.Components.Player.Has(actor) {
@@ -198,7 +198,7 @@ func (mb *MoveBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Canceled はBehaviorの実装
 func (mb *MoveBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("move canceled", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("移動キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
@@ -228,7 +228,7 @@ func (mb *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w
 		query.UpdateCharacterPositionInIndex(world, swapped, dest, old)
 	}
 
-	log.Debug("move finished",
+	log.Debug("移動完了",
 		"actor", actor,
 		"from", old.String(),
 		"to", dest.String())
@@ -257,7 +257,7 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, from, to consts.Coord[con
 	targetGrid.Coord = from
 
 	// 位置入れ替えなので味方は actor と逆向きに動く。味方視点では to から from へ移る
-	log.Debug("swapped position with ally",
+	log.Debug("味方と位置入れ替え",
 		"target", target,
 		"from", to.String(),
 		"to", from.String())

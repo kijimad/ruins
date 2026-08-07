@@ -43,7 +43,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 				name = consts.TileNameDWall
 			}
 			if err := replaceTile(world, tiles, coord, name); err != nil {
-				return nil, nil, fmt.Errorf("failed to place interior tile (x=%d, y=%d): %w", coord.X, coord.Y, err)
+				return nil, nil, fmt.Errorf("内装のタイル配置に失敗 (x=%d, y=%d): %w", coord.X, coord.Y, err)
 			}
 			occupied[coord] = true
 		}
@@ -53,7 +53,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 	// 向きは入口も部屋間の戸口も同じ doorOrientation で壁の走る方向から決め、規約を1箇所に集約する
 	dcoord := consts.Coord[consts.Tile]{X: g.offsetX + site.Door.X, Y: g.offsetY + site.Door.Y}
 	if _, err := lifecycle.SpawnDoor(world, dcoord, doorOrientation(wallSet, site.Door)); err != nil {
-		return nil, nil, fmt.Errorf("failed to place interior door: %w", err)
+		return nil, nil, fmt.Errorf("内装の扉配置に失敗: %w", err)
 	}
 
 	// 部屋間の戸口にも扉を置く。interior は戸口を壁の切れ目として持つが、扉エンティティは overworld が立てる。
@@ -69,7 +69,7 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 			doorSeen[dv] = true
 			ic := consts.Coord[consts.Tile]{X: g.offsetX + dv.X, Y: g.offsetY + dv.Y}
 			if _, err := lifecycle.SpawnDoor(world, ic, doorOrientation(wallSet, dv)); err != nil {
-				return nil, nil, fmt.Errorf("failed to place interior partition door: %w", err)
+				return nil, nil, fmt.Errorf("内装の間仕切り扉配置に失敗: %w", err)
 			}
 		}
 	}
@@ -87,10 +87,10 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.Pos.X, Y: g.offsetY + p.Pos.Y}
 		ent, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y)
 		if err != nil {
-			return nil, nil, fmt.Errorf("failed to place interior prop (%s at %d,%d): %w", name, pos.X, pos.Y, err)
+			return nil, nil, fmt.Errorf("内装の配置に失敗 (%s at %d,%d): %w", name, pos.X, pos.Y, err)
 		}
 		if err := populateStorageLoot(world, ent, name, lootRNG); err != nil {
-			return nil, nil, fmt.Errorf("failed to populate storage loot (%s): %w", name, err)
+			return nil, nil, fmt.Errorf("収納の戦利品格納に失敗 (%s): %w", name, err)
 		}
 		occupied[pos] = true
 	}
@@ -129,7 +129,7 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 	if propRaw.Storage.LootCount != nil {
 		d, err := consts.ParseDice(*propRaw.Storage.LootCount)
 		if err != nil {
-			return fmt.Errorf("invalid lootCount notation for storage '%s': %w", propName, err)
+			return fmt.Errorf("収納 '%s' の lootCount 表記が不正です: %w", propName, err)
 		}
 		lootDice = d
 	}

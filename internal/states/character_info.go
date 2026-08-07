@@ -92,11 +92,11 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 	}
 	if query.AliveHas(world, world.Components.Hunger, playerEntity) {
 		hunger := world.Components.Hunger.Get(playerEntity)
-		items = append(items, statusItemData{Label: query.T(world, "Hunger"), Value: query.T(world, hunger.GetLevel().String()), Description: query.T(world, "Hunger. High hunger hinders actions")})
+		items = append(items, statusItemData{Label: query.T(world, "Hunger"), Value: hunger.GetLevel().String(), Description: query.T(world, "Hunger. High hunger hinders actions")})
 	}
 	items = append(items,
 		statusItemData{Label: query.T(world, "Ambient temperature"), Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: query.T(world, "Temperature at current location")},
-		statusItemData{Label: query.T(world, "Time of day"), Value: query.T(world, query.GetGameTime(world).GetTimeOfDay().String()), Description: query.T(world, "Current time of day. Affects temperature outdoors")},
+		statusItemData{Label: query.T(world, "Time of day"), Value: query.GetGameTime(world).GetTimeOfDay().String(), Description: query.T(world, "Current time of day. Affects temperature outdoors")},
 	)
 	return items
 }
@@ -106,12 +106,12 @@ func (st *CharacterState) createAbilityItems(world w.World, playerEntity ecs.Ent
 	if query.AliveHas(world, world.Components.Abilities, playerEntity) {
 		abils := world.Components.Abilities.Get(playerEntity)
 		items = append(items,
-			statusItemData{Label: query.T(world, consts.VitalityLabel), Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: query.T(world, "Vitality. Affects max HP and SP")},
-			statusItemData{Label: query.T(world, consts.StrengthLabel), Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: query.T(world, "Strength. Affects melee attack damage")},
-			statusItemData{Label: query.T(world, consts.SensationLabel), Value: fmt.Sprintf("%d", abils.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", abils.Sensation.Modifier), Description: query.T(world, "Sensation. Affects ranged attack damage")},
-			statusItemData{Label: query.T(world, consts.DexterityLabel), Value: fmt.Sprintf("%d", abils.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", abils.Dexterity.Modifier), Description: query.T(world, "Dexterity. Affects accuracy")},
-			statusItemData{Label: query.T(world, consts.AgilityLabel), Value: fmt.Sprintf("%d", abils.Agility.Total), Modifier: fmt.Sprintf("(%+d)", abils.Agility.Modifier), Description: query.T(world, "Agility. Affects evasion and action speed")},
-			statusItemData{Label: query.T(world, consts.DefenseLabel), Value: fmt.Sprintf("%d", abils.Defense.Total), Modifier: fmt.Sprintf("(%+d)", abils.Defense.Modifier), Description: query.T(world, "Defense. Reduces damage taken")},
+			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: query.T(world, "Vitality. Affects max HP and SP")},
+			statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: query.T(world, "Strength. Affects melee attack damage")},
+			statusItemData{Label: consts.SensationLabel, Value: fmt.Sprintf("%d", abils.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", abils.Sensation.Modifier), Description: query.T(world, "Sensation. Affects ranged attack damage")},
+			statusItemData{Label: consts.DexterityLabel, Value: fmt.Sprintf("%d", abils.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", abils.Dexterity.Modifier), Description: query.T(world, "Dexterity. Affects accuracy")},
+			statusItemData{Label: consts.AgilityLabel, Value: fmt.Sprintf("%d", abils.Agility.Total), Modifier: fmt.Sprintf("(%+d)", abils.Agility.Modifier), Description: query.T(world, "Agility. Affects evasion and action speed")},
+			statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", abils.Defense.Total), Modifier: fmt.Sprintf("(%+d)", abils.Defense.Modifier), Description: query.T(world, "Defense. Reduces damage taken")},
 		)
 	}
 	return items
@@ -133,12 +133,12 @@ func (st *CharacterState) createSkillItems(world w.World, playerEntity ecs.Entit
 			}
 			info := gc.SkillDescription(id)
 			items = append(items, statusItemData{
-				Label:       query.T(world, gc.SkillName(id)),
+				Label:       gc.SkillName(id),
 				Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
-				Description: query.T(world, info.Summary),
+				Description: info.Summary,
 				Details: []statusDetailRow{
-					{Label: query.T(world, "Gained by"), Value: query.T(world, info.GainedBy)},
-					{Label: query.T(world, "Effect"), Value: query.T(world, info.Effect)},
+					{Label: query.T(world, "Gained by"), Value: info.GainedBy},
+					{Label: query.T(world, "Effect"), Value: info.Effect},
 				},
 			})
 		}
@@ -156,13 +156,13 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	items = append(items, statusItemData{Label: query.T(world, "Combat"), IsHeader: true, Description: query.T(world, "Combat effects")})
 	for _, id := range gc.AllSkillIDs {
 		if mult, ok := e.WeaponDamage[id]; ok {
-			name := query.T(world, gc.SkillName(id))
+			name := gc.SkillName(id)
 			items = append(items, statusItemData{Label: query.T(world, "%s attack power", name), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s weapon damage multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponDamageKey(id))})
 		}
 	}
 	for _, id := range gc.AllSkillIDs {
 		if mult, ok := e.WeaponAccuracy[id]; ok {
-			name := query.T(world, gc.SkillName(id))
+			name := gc.SkillName(id)
 			items = append(items, statusItemData{Label: query.T(world, "%s accuracy", name), Value: fmt.Sprintf("%d%%", mult), Description: query.T(world, "%s weapon accuracy multiplier", name), Details: sourceToDetails(e.Sources, gc.WeaponAccuracyKey(id))})
 		}
 	}
@@ -215,14 +215,14 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 				if j > 0 {
 					conditionStr.WriteString(", ")
 				}
-				conditionStr.WriteString(query.T(world, cond.DisplayName()))
+				conditionStr.WriteString(cond.DisplayName())
 			}
 		}
 		value := conditionStr.String()
 		if value == "" {
 			value = query.T(world, "Normal")
 		}
-		items = append(items, statusItemData{Label: query.T(world, part.String()), Value: value, Description: query.T(world, getHealthPartDescription(part)), BodyPart: part})
+		items = append(items, statusItemData{Label: part.String(), Value: value, Description: query.T(world, getHealthPartDescription(part)), BodyPart: part})
 	}
 	return items
 }

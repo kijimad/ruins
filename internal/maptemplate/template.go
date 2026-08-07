@@ -151,22 +151,22 @@ func NewTemplateLoader() *TemplateLoader {
 func (l *TemplateLoader) Load(r io.Reader) ([]ChunkTemplate, error) {
 	data, err := io.ReadAll(r)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read template: %w", err)
+		return nil, fmt.Errorf("テンプレート読み込みエラー: %w", err)
 	}
 
 	var file ChunkTemplateFile
 	if err := toml.Unmarshal(data, &file); err != nil {
-		return nil, fmt.Errorf("failed to parse template TOML: %w", err)
+		return nil, fmt.Errorf("テンプレートTOMLパースエラー: %w", err)
 	}
 
 	for i := range file.Chunks {
 		// 名前からサイズを自動設定
 		if err := l.parseSizeFromName(&file.Chunks[i]); err != nil {
-			return nil, fmt.Errorf("failed to parse template %d name: %w", i, err)
+			return nil, fmt.Errorf("テンプレート%d名前パースエラー: %w", i, err)
 		}
 
 		if err := l.validate(&file.Chunks[i]); err != nil {
-			return nil, fmt.Errorf("failed to validate template %d: %w", i, err)
+			return nil, fmt.Errorf("テンプレート%d検証エラー: %w", i, err)
 		}
 	}
 
@@ -177,7 +177,7 @@ func (l *TemplateLoader) Load(r io.Reader) ([]ChunkTemplate, error) {
 func (l *TemplateLoader) LoadFile(path string) ([]ChunkTemplate, error) {
 	f, err := assets.FS.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read template file: %w", err)
+		return nil, fmt.Errorf("テンプレートファイル読み込みエラー: %w", err)
 	}
 	defer func() { _ = f.Close() }()
 
@@ -190,24 +190,24 @@ func (l *TemplateLoader) parseSizeFromName(t *ChunkTemplate) error {
 	// 名前から "{幅}x{高さ}_" 形式を探す
 	parts := strings.Split(t.Name, "_")
 	if len(parts) == 0 {
-		return fmt.Errorf("chunk name is empty")
+		return fmt.Errorf("チャンク名が空です")
 	}
 
 	// 最初の部分が "{幅}x{高さ}" 形式かチェック
 	sizePart := parts[0]
 	dimensions := strings.Split(sizePart, "x")
 	if len(dimensions) != 2 {
-		return fmt.Errorf("chunk name must be in '{width}x{height}_name' format: %s", t.Name)
+		return fmt.Errorf("チャンク名は '{幅}x{高さ}_名前' 形式である必要があります: %s", t.Name)
 	}
 
 	width, err := strconv.Atoi(dimensions[0])
 	if err != nil {
-		return fmt.Errorf("failed to parse width: %s", dimensions[0])
+		return fmt.Errorf("幅のパースに失敗: %s", dimensions[0])
 	}
 
 	height, err := strconv.Atoi(dimensions[1])
 	if err != nil {
-		return fmt.Errorf("failed to parse height: %s", dimensions[1])
+		return fmt.Errorf("高さのパースに失敗: %s", dimensions[1])
 	}
 
 	t.Size = Size{W: width, H: height}
@@ -217,15 +217,15 @@ func (l *TemplateLoader) parseSizeFromName(t *ChunkTemplate) error {
 // validate はテンプレート定義の妥当性を検証する
 func (l *TemplateLoader) validate(t *ChunkTemplate) error {
 	if t.Name == "" {
-		return fmt.Errorf("chunk name key is empty")
+		return fmt.Errorf("チャンク名（キー）が空です")
 	}
 
 	if t.Weight <= 0 {
-		return fmt.Errorf("weight must be a positive integer: %d", t.Weight)
+		return fmt.Errorf("重みは正の整数である必要があります: %d", t.Weight)
 	}
 
 	if t.Size.W <= 0 || t.Size.H <= 0 {
-		return fmt.Errorf("size must be a positive integer: %s", t.Size)
+		return fmt.Errorf("サイズは正の整数である必要があります: %s", t.Size)
 	}
 
 	return l.validateMap(t)
@@ -234,30 +234,30 @@ func (l *TemplateLoader) validate(t *ChunkTemplate) error {
 // validateMap はマップの妥当性を検証する
 func (l *TemplateLoader) validateMap(t *ChunkTemplate) error {
 	if t.Map == "" {
-		return fmt.Errorf("map is empty")
+		return fmt.Errorf("マップが空です")
 	}
 
 	lines := strings.Split(strings.TrimSpace(t.Map), "\n")
 	if len(lines) == 0 {
-		return fmt.Errorf("map is empty")
+		return fmt.Errorf("マップが空です")
 	}
 
 	expectedWidth := utf8.RuneCountInString(lines[0])
 	if expectedWidth == 0 {
-		return fmt.Errorf("map row is empty")
+		return fmt.Errorf("マップの行が空です")
 	}
 
 	for i, line := range lines {
 		lineWidth := utf8.RuneCountInString(line)
 		if lineWidth != expectedWidth {
-			return fmt.Errorf("map row %d length mismatch: expected %d, got %d", i, expectedWidth, lineWidth)
+			return fmt.Errorf("マップの行%dの長さが不一致です: 期待%d、実際%d", i, expectedWidth, lineWidth)
 		}
 	}
 
 	actualWidth := expectedWidth
 	actualHeight := len(lines)
 	if actualWidth != t.Size.W || actualHeight != t.Size.H {
-		return fmt.Errorf("map actual size [%d, %d] does not match defined size %s", actualWidth, actualHeight, t.Size)
+		return fmt.Errorf("マップの実サイズ[%d, %d]が定義サイズ%sと一致しません", actualWidth, actualHeight, t.Size)
 	}
 
 	return nil
@@ -272,10 +272,10 @@ func (t *ChunkTemplate) GetMapLines() []string {
 func (t *ChunkTemplate) GetCharAt(x, y int) (string, error) {
 	lines := t.GetMapLines()
 	if y < 0 || y >= len(lines) {
-		return "", fmt.Errorf("y coordinate out of range: %d", y)
+		return "", fmt.Errorf("y座標が範囲外です: %d", y)
 	}
 	if x < 0 || x >= len(lines[y]) {
-		return "", fmt.Errorf("x coordinate out of range: %d", x)
+		return "", fmt.Errorf("x座標が範囲外です: %d", x)
 	}
 	return string(lines[y][x]), nil
 }
@@ -285,7 +285,7 @@ func (t *ChunkTemplate) GetCharAt(x, y int) (string, error) {
 func (l *TemplateLoader) LoadChunk(path string) error {
 	templates, err := l.LoadFile(path)
 	if err != nil {
-		return fmt.Errorf("failed to read chunk: %w", err)
+		return fmt.Errorf("チャンク読み込みエラー: %w", err)
 	}
 
 	for i := range templates {
@@ -300,7 +300,7 @@ func (l *TemplateLoader) LoadChunk(path string) error {
 func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
 	chunks, ok := l.chunkCache[chunkName]
 	if !ok || len(chunks) == 0 {
-		return nil, fmt.Errorf("chunk '%s' not found", chunkName)
+		return nil, fmt.Errorf("チャンク '%s' が見つかりません", chunkName)
 	}
 	return chunks, nil
 }
@@ -320,7 +320,7 @@ func (l *TemplateLoader) RegisterAllChunks(directories []string) error {
 	for _, dir := range directories {
 		entries, err := fs.ReadDir(assets.FS, dir)
 		if err != nil {
-			return fmt.Errorf("failed to read directory %s: %w", dir, err)
+			return fmt.Errorf("ディレクトリ読み込みエラー %s: %w", dir, err)
 		}
 
 		for _, entry := range entries {
@@ -345,7 +345,7 @@ func (l *TemplateLoader) RegisterAllPalettes(directories []string) error {
 	for _, dir := range directories {
 		entries, err := fs.ReadDir(assets.FS, dir)
 		if err != nil {
-			return fmt.Errorf("failed to read directory %s: %w", dir, err)
+			return fmt.Errorf("ディレクトリ読み込みエラー %s: %w", dir, err)
 		}
 
 		for _, entry := range entries {
@@ -356,7 +356,7 @@ func (l *TemplateLoader) RegisterAllPalettes(directories []string) error {
 			path := dir + "/" + entry.Name()
 			palette, err := paletteLoader.LoadFile(path)
 			if err != nil {
-				return fmt.Errorf("failed to read palette %s: %w", path, err)
+				return fmt.Errorf("パレット読み込みエラー %s: %w", path, err)
 			}
 
 			l.paletteCache[palette.ID] = palette
@@ -388,7 +388,7 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
 	for _, paletteName := range templateCopy.Palettes {
 		palette, ok := l.paletteCache[paletteName]
 		if !ok {
-			return nil, nil, nil, fmt.Errorf("palette '%s' not found; register it in advance with RegisterAllPalettes", paletteName)
+			return nil, nil, nil, fmt.Errorf("パレット '%s' が見つかりません（RegisterAllPalettesで事前登録が必要）", paletteName)
 		}
 		palettes = append(palettes, palette)
 	}
@@ -398,7 +398,7 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
 	// セル配列に展開する
 	resolvedMap, err := templateCopy.ExpandWithPlacements(l, seed)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("failed to expand chunk: %w", err)
+		return nil, nil, nil, fmt.Errorf("チャンク展開エラー: %w", err)
 	}
 
 	return &templateCopy, mergedPalette, resolvedMap, nil
@@ -408,7 +408,7 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
 // 各チャンク名に複数のバリエーションがある場合、すべてを候補に含める
 func (l *TemplateLoader) selectChunkByWeight(chunkNames []string, rng *rand.Rand) (*ChunkTemplate, error) {
 	if len(chunkNames) == 0 {
-		return nil, fmt.Errorf("chunk candidates are empty")
+		return nil, fmt.Errorf("チャンク候補が空です")
 	}
 
 	candidates := make([]*ChunkTemplate, 0)
@@ -445,7 +445,7 @@ func (l *TemplateLoader) buildMergedPalette(paletteNames []string) *Palette {
 // selectChunkByWeightFromList はChunkTemplateのリストから重み付きランダム選択する
 func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate, rng *rand.Rand) (*ChunkTemplate, error) {
 	if len(candidates) == 0 {
-		return nil, fmt.Errorf("chunk candidates are empty")
+		return nil, fmt.Errorf("チャンク候補が空です")
 	}
 
 	totalWeight := 0
@@ -454,7 +454,7 @@ func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate
 	}
 
 	if totalWeight == 0 {
-		return nil, fmt.Errorf("total weight is 0")
+		return nil, fmt.Errorf("合計重みが0です")
 	}
 
 	r := rng.IntN(totalWeight)
@@ -482,11 +482,11 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 	const maxDepth = 10
 
 	if depth > maxDepth {
-		return nil, fmt.Errorf("chunk expansion depth exceeded limit %d", maxDepth)
+		return nil, fmt.Errorf("チャンク展開の深度が制限(%d)を超えました", maxDepth)
 	}
 
 	if visiting[t.Name] {
-		return nil, fmt.Errorf("detected circular chunk reference: %s", t.Name)
+		return nil, fmt.Errorf("チャンクの循環参照を検出しました: %s", t.Name)
 	}
 
 	// このチャンクのパレットで文字をセルに解決する
@@ -508,7 +508,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 
 	for idx, placement := range t.Placements {
 		if placement.ID == "" {
-			return nil, fmt.Errorf("placement %d: ID is not specified", idx)
+			return nil, fmt.Errorf("placement %d: ID が指定されていません", idx)
 		}
 
 		regions, err := findAllPlaceholderRegionsByID(lines, placement.ID)
@@ -525,7 +525,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 			// チャンクを重み付き選択（領域ごとに独立して選択する）
 			selectedChunk, err := loader.selectChunkByWeight(placement.Chunks, rng)
 			if err != nil {
-				return nil, fmt.Errorf("failed to select chunk (placement %d, region %d): %w", idx, regionIdx, err)
+				return nil, fmt.Errorf("チャンク選択エラー (placement %d, 領域 %d): %w", idx, regionIdx, err)
 			}
 
 			// 再帰的に展開（子は自身のパレットで解決する）
@@ -537,16 +537,16 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 
 			// サイズチェック
 			if len(childCells) != selectedChunk.Size.H {
-				return nil, fmt.Errorf("chunk '%s' height mismatch: expected %d, got %d", selectedChunk.Name, selectedChunk.Size.H, len(childCells))
+				return nil, fmt.Errorf("チャンク '%s' の高さが不一致: 期待%d、実際%d", selectedChunk.Name, selectedChunk.Size.H, len(childCells))
 			}
 			if len(childCells) > 0 && len(childCells[0]) != selectedChunk.Size.W {
-				return nil, fmt.Errorf("chunk '%s' width mismatch: expected %d, got %d", selectedChunk.Name, selectedChunk.Size.W, len(childCells[0]))
+				return nil, fmt.Errorf("チャンク '%s' の幅が不一致: 期待%d、実際%d", selectedChunk.Name, selectedChunk.Size.W, len(childCells[0]))
 			}
 
 			// サイズの完全一致を検証
 			if region.width != selectedChunk.Size.W || region.height != selectedChunk.Size.H {
 				return nil, fmt.Errorf(
-					"parent chunk '%s': placement %d (ID='%s', child chunk='%s'): placeholder region [%d,%d] at position [%d,%d] does not match chunk size %s",
+					"親チャンク '%s': placement %d (ID='%s', 子チャンク='%s'): プレースホルダ領域[%d,%d] (位置[%d,%d])とチャンクサイズ%s が不一致",
 					t.Name, idx, placement.ID, selectedChunk.Name, region.width, region.height, region.x, region.y, selectedChunk.Size,
 				)
 			}
@@ -577,7 +577,7 @@ func validateNoPlaceholdersRemaining(cells [][]MapCell) error {
 	for y, row := range cells {
 		for x, cell := range row {
 			if cell.Terrain == placeholderStr {
-				return fmt.Errorf("unexpanded placeholder '@' remains in expanded map at x=%d, y=%d", x, y)
+				return fmt.Errorf("展開後のマップに未展開のプレースホルダ '@' が残っています (位置: x=%d, y=%d)", x, y)
 			}
 		}
 	}
@@ -593,14 +593,14 @@ type placeholderRegion struct {
 // 同じIDが複数箇所にある場合、それぞれ独立した領域として返す
 func findAllPlaceholderRegionsByID(lines []string, id string) ([]placeholderRegion, error) {
 	if len(id) != 1 {
-		return nil, fmt.Errorf("identifier must be a single character: %q", id)
+		return nil, fmt.Errorf("識別子は1文字である必要があります: %q", id)
 	}
 
 	idChar := rune(id[0])
 
 	positions := findAllIdentifierPositions(lines, idChar)
 	if len(positions) == 0 {
-		return nil, fmt.Errorf("identifier '%s' not found", id)
+		return nil, fmt.Errorf("識別子 '%s' が見つかりません", id)
 	}
 
 	var regions []placeholderRegion
@@ -707,17 +707,17 @@ func validateRectangle(lines []string, id string, startX, startY, width, height 
 	for dy := range height {
 		y := startY + dy
 		if y >= len(lines) {
-			return fmt.Errorf("identifier '%s': rectangular region is incomplete; y=%d out of range", id, y)
+			return fmt.Errorf("識別子 '%s': 矩形領域が不完全です (y=%d が範囲外)", id, y)
 		}
 		for dx := range width {
 			x := startX + dx
 			if x >= len(lines[y]) {
-				return fmt.Errorf("identifier '%s': rectangular region is incomplete; x=%d, y=%d out of range", id, x, y)
+				return fmt.Errorf("識別子 '%s': 矩形領域が不完全です (x=%d, y=%d が範囲外)", id, x, y)
 			}
 			ch := rune(lines[y][x])
 			if ch != placeholder && ch != idChar {
 				return fmt.Errorf(
-					"identifier '%s': invalid char '%c' in placeholder region [%d,%d]; expected '@' or '%s'",
+					"識別子 '%s': プレースホルダ領域[%d,%d]に不正な文字 '%c' があります（期待: '@' または '%s'）",
 					id, x, y, ch, id,
 				)
 			}
@@ -738,7 +738,7 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
 			return fmt.Errorf("placement %d: %w", idx, err)
 		}
 		if len(chunks) == 0 {
-			return fmt.Errorf("placement %d: chunk '%s' not found", idx, placement.Chunks[0])
+			return fmt.Errorf("placement %d: チャンク '%s' が見つかりません", idx, placement.Chunks[0])
 		}
 
 		expectedWidth := chunks[0].Size.W
@@ -746,7 +746,7 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
 
 		// 識別子から位置を検出して検証
 		if placement.ID == "" {
-			return fmt.Errorf("placement %d (%s): ID is not specified", idx, placement.Chunks[0])
+			return fmt.Errorf("placement %d (%s): ID が指定されていません", idx, placement.Chunks[0])
 		}
 
 		regions, err := findAllPlaceholderRegionsByID(lines, placement.ID)
@@ -758,7 +758,7 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
 		for regionIdx, region := range regions {
 			if region.width != expectedWidth || region.height != expectedHeight {
 				return fmt.Errorf(
-					"parent chunk '%s': placement %d (ID='%s', region %d, child chunk='%s'): placeholder region size mismatch: region [%d,%d] at position [%d,%d], chunk size %s",
+					"親チャンク '%s': placement %d (ID='%s', 領域 %d, 子チャンク='%s'): プレースホルダ領域のサイズが不一致: 領域[%d,%d] (位置[%d,%d])、チャンクサイズ%s",
 					t.Name, idx, placement.ID, regionIdx, placement.Chunks[0], region.width, region.height, region.x, region.y, chunks[0].Size,
 				)
 			}

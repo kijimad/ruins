@@ -89,7 +89,7 @@ func TestCategory(t *testing.T) {
 		c.Melee.Add(entity, &Melee{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Weapon", cat)
+		assert.Equal(t, "武器", cat)
 	})
 
 	t.Run("防具カテゴリ", func(t *testing.T) {
@@ -99,7 +99,7 @@ func TestCategory(t *testing.T) {
 		c.Wearable.Add(entity, &Wearable{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Armor", cat)
+		assert.Equal(t, "防具", cat)
 	})
 
 	t.Run("射撃武器カテゴリ", func(t *testing.T) {
@@ -109,7 +109,7 @@ func TestCategory(t *testing.T) {
 		c.Fire.Add(entity, &Fire{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Weapon", cat)
+		assert.Equal(t, "武器", cat)
 	})
 
 	t.Run("道具カテゴリは本を含む", func(t *testing.T) {
@@ -119,7 +119,7 @@ func TestCategory(t *testing.T) {
 		c.Book.Add(entity, &Book{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Goods", cat)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("道具カテゴリは消耗品を含む", func(t *testing.T) {
@@ -129,7 +129,7 @@ func TestCategory(t *testing.T) {
 		c.Consumable.Add(entity, &Consumable{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Goods", cat)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("道具カテゴリは素材を含む", func(t *testing.T) {
@@ -139,7 +139,7 @@ func TestCategory(t *testing.T) {
 		c.Material.Add(entity, &Material{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Goods", cat)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("道具カテゴリは弾薬を含む", func(t *testing.T) {
@@ -149,7 +149,7 @@ func TestCategory(t *testing.T) {
 		c.Ammo.Add(entity, &Ammo{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Goods", cat)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("所持カテゴリは固定物を含まない", func(t *testing.T) {
@@ -178,7 +178,7 @@ func TestCategory(t *testing.T) {
 		c.Material.Add(entity, &Material{})
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Material", cat)
+		assert.Equal(t, "素材", cat)
 	})
 
 	t.Run("アイテム種別: 近接武器", func(t *testing.T) {
@@ -188,7 +188,7 @@ func TestCategory(t *testing.T) {
 		c.Melee.Add(entity, &Melee{})
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Melee weapon", cat)
+		assert.Equal(t, "近接武器", cat)
 	})
 
 	t.Run("アイテム種別: 射撃武器", func(t *testing.T) {
@@ -198,7 +198,7 @@ func TestCategory(t *testing.T) {
 		c.Fire.Add(entity, &Fire{})
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Ranged weapon", cat)
+		assert.Equal(t, "射撃武器", cat)
 	})
 
 	t.Run("アイテム種別: Fire+Meleeは射撃武器になる", func(t *testing.T) {
@@ -209,7 +209,7 @@ func TestCategory(t *testing.T) {
 		c.Melee.Add(entity, &Melee{})
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Ranged weapon", cat)
+		assert.Equal(t, "射撃武器", cat)
 	})
 
 	t.Run("アイテム種別: 防具", func(t *testing.T) {
@@ -219,7 +219,7 @@ func TestCategory(t *testing.T) {
 		c.Wearable.Add(entity, &Wearable{})
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Armor", cat)
+		assert.Equal(t, "防具", cat)
 	})
 
 	t.Run("フィールド観察: 自分", func(t *testing.T) {
@@ -230,7 +230,7 @@ func TestCategory(t *testing.T) {
 		c.FactionAlly.Add(entity, &FactionAlly{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Self", cat)
+		assert.Equal(t, "自分", cat)
 	})
 
 	t.Run("フィールド観察: 敵", func(t *testing.T) {
@@ -240,7 +240,7 @@ func TestCategory(t *testing.T) {
 		c.FactionEnemy.Add(entity, &FactionEnemy{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Enemy", cat)
+		assert.Equal(t, "敵", cat)
 	})
 
 	t.Run("フィールド観察: NPC(味方)", func(t *testing.T) {
@@ -270,7 +270,7 @@ func TestCategory(t *testing.T) {
 		c.Fixed.Add(entity, &Fixed{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Fixed object", cat)
+		assert.Equal(t, "固定物", cat)
 	})
 
 	t.Run("フィールド観察: タイル", func(t *testing.T) {
@@ -280,7 +280,7 @@ func TestCategory(t *testing.T) {
 		c.Tile.Add(entity, &Tile{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Tile", cat)
+		assert.Equal(t, "タイル", cat)
 	})
 
 	t.Run("フィールド観察: Player+FactionAllyは自分になる", func(t *testing.T) {
@@ -291,7 +291,7 @@ func TestCategory(t *testing.T) {
 		c.FactionAlly.Add(entity, &FactionAlly{})
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
 		assert.True(t, ok)
-		assert.Equal(t, "Self", cat)
+		assert.Equal(t, "自分", cat)
 	})
 
 	t.Run("CategoryはPredとして使える", func(t *testing.T) {
@@ -302,7 +302,7 @@ func TestCategory(t *testing.T) {
 		entity := manager.NewEntity()
 		c.Melee.Add(entity, &Melee{})
 		assert.True(t, weapon.Eval(entity))
-		assert.Equal(t, "Weapon", weapon.String())
+		assert.Equal(t, "武器", weapon.String())
 	})
 }
 
@@ -315,14 +315,14 @@ func TestCategoryOfSpec(t *testing.T) {
 		spec EntitySpec
 		want string
 	}{
-		{"Material", EntitySpec{Material: &Material{}}, CategoryMaterial},
-		{"Ammunition", EntitySpec{Ammo: &Ammo{}}, CategoryAmmo},
+		{"素材", EntitySpec{Material: &Material{}}, CategoryMaterial},
+		{"弾薬", EntitySpec{Ammo: &Ammo{}}, CategoryAmmo},
 		{"本", EntitySpec{Book: &Book{}}, CategoryBook},
-		{"Fixed object", EntitySpec{Fixed: &Fixed{}}, CategoryFixed},
-		{"Consumable", EntitySpec{Consumable: &Consumable{}}, CategoryConsumable},
-		{"Ranged weapon", EntitySpec{Fire: &Fire{}}, CategoryFire},
-		{"Melee weapon", EntitySpec{Melee: &Melee{}}, CategoryMelee},
-		{"Armor", EntitySpec{Wearable: &Wearable{}}, CategoryArmor},
+		{"固定物", EntitySpec{Fixed: &Fixed{}}, CategoryFixed},
+		{"消耗品", EntitySpec{Consumable: &Consumable{}}, CategoryConsumable},
+		{"射撃武器", EntitySpec{Fire: &Fire{}}, CategoryFire},
+		{"近接武器", EntitySpec{Melee: &Melee{}}, CategoryMelee},
+		{"防具", EntitySpec{Wearable: &Wearable{}}, CategoryArmor},
 		{"Fire+Meleeは射撃武器", EntitySpec{Fire: &Fire{}, Melee: &Melee{}}, CategoryFire},
 	}
 

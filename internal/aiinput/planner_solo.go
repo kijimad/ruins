@@ -38,7 +38,7 @@ func newSoloPlanner(rng *rand.Rand) *soloPlanner {
 func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {
 	solo := world.Components.SoloAI.Get(entity)
 	if solo == nil {
-		rp.logger.Warn("no SoloAI component", "entity", entity)
+		rp.logger.Warn("SoloAIコンポーネントなし", "entity", entity)
 		return nil
 	}
 	grid := world.Components.GridElement.Get(entity)

@@ -38,25 +38,6 @@ func TestExecuteMoveAction(t *testing.T) {
 		assert.Equal(t, 9, int(gridAfter.Y))
 	})
 
-	t.Run("重量超過では移動せず致命エラーにもならない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.TurnBased.Add(player, &gc.TurnBased{})
-		// 最大の1.5倍を超える積載。移動は Validate で弾かれる
-		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{Max: 100, Current: 200})
-
-		// 重すぎて動けないのは通常の状態。入力層へエラーを返さず no-op にする
-		require.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
-
-		grid := world.Components.GridElement.Get(player)
-		assert.Equal(t, 10, int(grid.X), "移動していない")
-		assert.Equal(t, 10, int(grid.Y), "移動していない")
-	})
-
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -117,9 +98,9 @@ func TestExecuteMoveAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
 		require.NoError(t, err)
 		enemyHP := world.Components.HP.Get(enemy)
 		initialEnemyHP := enemyHP.Current
@@ -276,15 +257,15 @@ func TestGetDirectionLabel(t *testing.T) {
 		targetY  int
 		expected string
 	}{
-		{"直上", 10, 10, 10, 10, "here"},
-		{"上", 10, 10, 10, 9, "up"},
-		{"下", 10, 10, 10, 11, "down"},
-		{"左", 10, 10, 9, 10, "left"},
-		{"右", 10, 10, 11, 10, "right"},
-		{"左上", 10, 10, 9, 9, "upper left"},
-		{"右上", 10, 10, 11, 9, "upper right"},
-		{"左下", 10, 10, 9, 11, "lower left"},
-		{"右下", 10, 10, 11, 11, "lower right"},
+		{"直上", 10, 10, 10, 10, "直上"},
+		{"上", 10, 10, 10, 9, "上"},
+		{"下", 10, 10, 10, 11, "下"},
+		{"左", 10, 10, 9, 10, "左"},
+		{"右", 10, 10, 11, 10, "右"},
+		{"左上", 10, 10, 9, 9, "左上"},
+		{"右上", 10, 10, 11, 9, "右上"},
+		{"左下", 10, 10, 9, 11, "左下"},
+		{"右下", 10, 10, 11, 11, "右下"},
 	}
 
 	for _, tt := range tests {
@@ -307,9 +288,9 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
 		require.NoError(t, err)
 		world.Components.Dead.Add(enemy, &gc.Dead{})
 
@@ -329,9 +310,9 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
 		require.NoError(t, err)
 		enemyHP := world.Components.HP.Get(enemy)
 		enemyHP.Current = 1

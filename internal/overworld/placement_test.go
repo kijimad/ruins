@@ -38,7 +38,7 @@ func TestWinnerOf_SpacingがSeparation以下はパニックする(t *testing.T) 
 	t.Parallel()
 
 	p := Placement{Spacing: 2, Separation: 2, Salt: 1}
-	assert.PanicsWithValue(t, "Placement: Spacing must be greater than Separation", func() {
+	assert.PanicsWithValue(t, "Placement: Spacing は Separation より大きいこと", func() {
 		p.WinnerOf(1, 0, 9)
 	}, "Spacing <= Separation の設定ミスはパニックで弾く")
 }

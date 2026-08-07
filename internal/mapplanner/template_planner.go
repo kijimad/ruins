@@ -40,7 +40,7 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 		for x, cell := range row {
 			idx := y*width + x
 			if cell.Terrain == "" {
-				return fmt.Errorf("cell terrain is undefined (position: %d, %d)", x, y)
+				return fmt.Errorf("セルの地形が未定義です (位置: %d, %d)", x, y)
 			}
 			tile := metaPlan.GetTile(cell.Terrain)
 			metaPlan.Tiles[idx] = tile

@@ -68,7 +68,7 @@ func (ati AutoTileIndex) String() string {
 	case AutoTileCenter:
 		return "Center"
 	default:
-		panic(fmt.Sprintf("invalid AutoTileIndex value: %d", int(ati)))
+		panic(fmt.Sprintf("不正なAutoTileIndex値: %d", int(ati)))
 	}
 }
 

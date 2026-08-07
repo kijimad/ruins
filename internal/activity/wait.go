@@ -18,8 +18,8 @@ type WaitBehavior struct{}
 // Info はBehaviorの実装
 func (wb *WaitBehavior) Info() Info {
 	return Info{
-		Name:            "Wait",
-		Description:     "Wait for a specified amount of time",
+		Name:            "待機",
+		Description:     "指定した時間だけ待機する",
 		Interruptible:   true,
 		Resumable:       true,
 		ActionPointCost: consts.StandardActionCost,
@@ -48,7 +48,7 @@ func (wb *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 
 	// 待機回数が妥当かチェック
 	if comp.Progress.Max <= 0 {
-		return fmt.Errorf("wait count is invalid")
+		return fmt.Errorf("待機回数が無効です")
 	}
 
 	return nil
@@ -56,7 +56,7 @@ func (wb *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 
 // Start は待機開始時の処理を実行する
 func (wb *WaitBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("wait started", "actor", actor, "required", comp.Progress.Max)
+	log.Debug("待機開始", "actor", actor, "required", comp.Progress.Max)
 	return nil
 }
 
@@ -65,13 +65,13 @@ func (wb *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// 長い待機は敵が近づいたら中断する。1回だけのターン送りとAIの手番調整は
 	// その場で完結する行動なので対象にしない
 	if comp.Progress.Max > 1 && !isAreaSafe(actor, world) {
-		Cancel(comp, "wait interrupted because enemies are nearby")
+		Cancel(comp, "周囲に敵がいるため待機を中断")
 		return nil
 	}
 
 	// 1ターン進行
 	comp.Progress.Current++
-	log.Debug("wait progressing", "progress", GetProgressPercent(comp))
+	log.Debug("待機進行", "progress", GetProgressPercent(comp))
 
 	// 完了チェック
 	if comp.Progress.Current >= comp.Progress.Max {
@@ -83,12 +83,12 @@ func (wb *WaitBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish は待機完了時の処理を実行する
 func (wb *WaitBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	log.Debug("wait finished", "actor", actor)
+	log.Debug("待機完了", "actor", actor)
 
 	// 複数ターン待機の場合のみログを表示する
 	if comp.Progress.Max > 1 && world.Components.Player.Has(actor) {
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "Finished waiting")).
+			Append("待機を終了した").
 			Log()
 	}
 
@@ -97,6 +97,6 @@ func (wb *WaitBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Canceled は待機キャンセル時の処理を実行する
 func (wb *WaitBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("wait canceled", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("待機キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

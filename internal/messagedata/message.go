@@ -130,3 +130,17 @@ func (m *MessageData) AddText(text string) *MessageData {
 
 	return m
 }
+
+// AddKeyword はキーワード（赤色背景）テキストを追加する
+func (m *MessageData) AddKeyword(text string) *MessageData {
+	m.ensureCurrentLine()
+	importantColor := color.RGBA{255, 100, 100, 255}
+	importantBgColor := color.RGBA{80, 20, 20, 180}
+	currentLineIdx := len(m.TextSegmentLines) - 1
+	m.TextSegmentLines[currentLineIdx] = append(m.TextSegmentLines[currentLineIdx], TextSegment{
+		Text:            text,
+		Color:           &importantColor,
+		BackgroundColor: &importantBgColor,
+	})
+	return m
+}

@@ -27,7 +27,7 @@ func (c *Config) loadUserConfig() error {
 	}
 	// c.User を土台に復元するため、保存に含まれないフィールドはデフォルト値が残る
 	if err := toml.Unmarshal(data, &c.User); err != nil {
-		return fmt.Errorf("failed to parse config: %w", err)
+		return fmt.Errorf("設定の解析に失敗しました: %w", err)
 	}
 	return nil
 }
@@ -59,7 +59,7 @@ func EnsureUserConfigFile() error {
 func (c *Config) encodeUserConfig() ([]byte, error) {
 	var buf bytes.Buffer
 	if err := toml.NewEncoder(&buf).Encode(c.User); err != nil {
-		return nil, fmt.Errorf("failed to encode config: %w", err)
+		return nil, fmt.Errorf("設定のエンコードに失敗しました: %w", err)
 	}
 	return buf.Bytes(), nil
 }

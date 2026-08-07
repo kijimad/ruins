@@ -69,7 +69,7 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 ..........`,
 			id:          "Z",
 			shouldError: true,
-			errorMsg:    "identifier 'Z' not found",
+			errorMsg:    "識別子 'Z' が見つかりません",
 		},
 		{
 			name: "エラー: 矩形が不完全 (途中で切れている)",
@@ -80,7 +80,7 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 ..........`,
 			id:          "A",
 			shouldError: true,
-			errorMsg:    "invalid char",
+			errorMsg:    "不正な文字",
 		},
 		{
 			name: "正常: マップの端に配置",
@@ -113,10 +113,10 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 				require.NoError(t, err)
 				require.NotEmpty(t, regions)
 				r := regions[0]
-				require.Equal(t, tt.expectedX, r.x, "X座標mismatch")
-				require.Equal(t, tt.expectedY, r.y, "Y座標mismatch")
-				require.Equal(t, tt.expectedWidth, r.width, "幅mismatch")
-				require.Equal(t, tt.expectedHeight, r.height, "高さmismatch")
+				require.Equal(t, tt.expectedX, r.x, "X座標が不一致")
+				require.Equal(t, tt.expectedY, r.y, "Y座標が不一致")
+				require.Equal(t, tt.expectedWidth, r.width, "幅が不一致")
+				require.Equal(t, tt.expectedHeight, r.height, "高さが不一致")
 			}
 		})
 	}
@@ -209,7 +209,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 			shouldError: false,
 		},
 		{
-			name: "エラー: size mismatch (幅が大きい)",
+			name: "エラー: サイズが不一致 (幅が大きい)",
 			parentMap: `.........
 .@@@@....
 .@@@A....
@@ -220,10 +220,10 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 				ID:     "A",
 			},
 			shouldError: true,
-			errorMsg:    "size mismatch",
+			errorMsg:    "サイズが不一致",
 		},
 		{
-			name: "エラー: size mismatch (高さが大きい)",
+			name: "エラー: サイズが不一致 (高さが大きい)",
 			parentMap: `.........
 .@@@.....
 .@@@.....
@@ -235,7 +235,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 				ID:     "A",
 			},
 			shouldError: true,
-			errorMsg:    "size mismatch",
+			errorMsg:    "サイズが不一致",
 		},
 		{
 			name: "エラー: 識別子が見つからない",
@@ -249,7 +249,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 				ID:     "Z",
 			},
 			shouldError: true,
-			errorMsg:    "identifier 'Z' not found",
+			errorMsg:    "識別子 'Z' が見つかりません",
 		},
 	}
 

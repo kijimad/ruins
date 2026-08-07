@@ -21,8 +21,8 @@ func TestBuyItem_スタッカブルアイテムはスタックに加算される
 	player := world.ECS.NewEntity()
 	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 
-	require.NoError(t, BuyItem(world, player, "wooden_stick"))
-	require.NoError(t, BuyItem(world, player, "wooden_stick"))
+	require.NoError(t, BuyItem(world, player, "木の棒"))
+	require.NoError(t, BuyItem(world, player, "木の棒"))
 
 	stackQuery := ecs.NewFilter2[gc.Name, gc.Stackable](world.ECS).Query()
 	found := false
@@ -47,10 +47,10 @@ func TestBuyItem_交渉スキルで買値が変わる(t *testing.T) {
 	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 	world.Components.CharModifiers.Add(player, &gc.CharModifiers{BuyPrice: 50})
 
-	itemDef, err := raw.FindItem(world.Resources.RawMaster, "wooden_sword")
+	itemDef, err := raw.FindItem(world.Resources.RawMaster, "木刀")
 	require.NoError(t, err)
 
-	require.NoError(t, BuyItem(world, player, "wooden_sword"))
+	require.NoError(t, BuyItem(world, player, "木刀"))
 
 	currency := query.GetCurrency(world, player)
 	normalPrice := query.CalculateBuyPrice(int(itemDef.Value))
@@ -68,7 +68,7 @@ func TestSellItem_価値0のアイテムは売却できない(t *testing.T) {
 	item := world.ECS.NewEntity()
 
 	err := SellItem(world, player, item)
-	require.ErrorContains(t, err, "cannot be sold")
+	require.ErrorContains(t, err, "売却できません")
 
 	currency := query.GetCurrency(world, player)
 	assert.Equal(t, 0, currency, "売却失敗時は通貨が変動しない")

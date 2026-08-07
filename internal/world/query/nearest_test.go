@@ -125,11 +125,11 @@ func TestFindNearestEntity(t *testing.T) {
 func TestFindNearestCharacter_タイルを無視する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}))
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 	require.NoError(t, err)
 
 	// self となる敵。プレイヤーが最寄りのキャラクター（距離3）
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
 	require.NoError(t, err)
 
 	// 敵のすぐ隣(距離1〜2)に非キャラの GridElement エンティティ（タイル模擬）を多数置く。

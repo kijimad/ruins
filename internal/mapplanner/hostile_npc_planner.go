@@ -128,7 +128,7 @@ func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, entries []Sp
 	}
 
 	if failCount > maxHostileNPCFailCount {
-		log.Printf("HostileNPCPlanner: reached max attempts placing hostile NPCs. placed: %d/%d", placed, total)
+		log.Printf("HostileNPCPlanner: 敵NPC配置の試行回数が上限に達しました。配置数: %d/%d", placed, total)
 	}
 	return nil
 }
@@ -149,7 +149,7 @@ func (n *HostileNPCPlanner) planWithRandomPosition(planData *MetaPlan, entries [
 
 		tx, ty, posErr := findPosition(planData, n.world, selector)
 		if posErr != nil {
-			log.Printf("HostileNPCPlanner: reached max attempts placing hostile NPCs. placed: %d/%d", placed, total)
+			log.Printf("HostileNPCPlanner: 敵NPC配置の試行回数が上限に達しました。配置数: %d/%d", placed, total)
 			break
 		}
 

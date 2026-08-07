@@ -243,7 +243,7 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		_, err = lifecycle.SpawnSquadMember(world, player, "隊員A", abilities, "player")
@@ -288,7 +288,7 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 		require.NoError(t, err)
 
 		_, err = lifecycle.SpawnSquadMember(world, player, "隊員A", abilities, "player")

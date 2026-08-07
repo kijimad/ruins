@@ -14,32 +14,32 @@ import (
 )
 
 // errValidation は frontmatter 検証で問題が見つかったことを表す。
-var errValidation = errors.New("design document validation failed")
+var errValidation = errors.New("設計ドキュメントの検証に失敗した")
 
 // CmdDesignDoc は設計ドキュメントの frontmatter を扱うサブコマンド
 var CmdDesignDoc = &cli.Command{
 	Name:        "designdoc",
 	Usage:       "designdoc [gen|validate|list]",
-	Description: "generate, validate, and list frontmatter under docs/design",
+	Description: "docs/design の frontmatter を生成・検証・一覧する",
 	Commands: []*cli.Command{
 		{
 			Name:   "gen",
-			Usage:  "deterministically add default frontmatter to documents that lack it",
+			Usage:  "frontmatter を欠くドキュメントに既定値を決定的に付与する",
 			Action: runDesignDocGen,
 		},
 		{
 			Name:   "validate",
-			Usage:  "validate frontmatter presence, validity, and consistency with progress",
+			Usage:  "frontmatter の有無と妥当性、進捗との整合を検証する",
 			Action: runDesignDocValidate,
 		},
 		{
 			Name:  "list",
-			Usage: "list filtered by frontmatter; assumes validate has passed; --open treats invalid status as closed and excludes it",
+			Usage: "frontmatter で絞り込んで一覧する。validate を通した状態で使う前提。--open は不正 status を閉じた扱いで除外する",
 			Flags: []cli.Flag{
-				&cli.StringFlag{Name: "status", Usage: "only the specified status"},
-				&cli.StringFlag{Name: "auto", Usage: "only the specified auto"},
-				&cli.StringFlag{Name: "tag", Usage: "only documents containing the specified tag"},
-				&cli.BoolFlag{Name: "open", Usage: "only actionable, that is open, status"},
+				&cli.StringFlag{Name: "status", Usage: "指定 status のみ"},
+				&cli.StringFlag{Name: "auto", Usage: "指定 auto のみ"},
+				&cli.StringFlag{Name: "tag", Usage: "指定タグを含むもののみ"},
+				&cli.BoolFlag{Name: "open", Usage: "着手対象、すなわち open な status のみ"},
 			},
 			Action: runDesignDocList,
 		},
@@ -60,7 +60,7 @@ func runDesignDocValidate(_ context.Context, _ *cli.Command) error {
 	if len(problems) > 0 {
 		return errValidation
 	}
-	fmt.Printf("OK: validated %d documents\n", len(docs))
+	fmt.Printf("OK: %d 件のドキュメントを検証した\n", len(docs))
 
 	return nil
 }
@@ -72,9 +72,9 @@ func runDesignDocGen(_ context.Context, _ *cli.Command) error {
 	}
 
 	for _, path := range changed {
-		fmt.Printf("added: %s\n", path)
+		fmt.Printf("付与: %s\n", path)
 	}
-	fmt.Printf("added frontmatter to %d documents\n", len(changed))
+	fmt.Printf("%d 件に frontmatter を付与した\n", len(changed))
 
 	return nil
 }

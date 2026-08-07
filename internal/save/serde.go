@@ -60,7 +60,7 @@ func serializeWorld(world w.World) ([]byte, error) {
 func deserializeWorld(world w.World, worldJSON []byte) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("failed to restore save data; data may be corrupted: %v", r)
+			err = fmt.Errorf("セーブデータの復元に失敗しました。データが破損している可能性があります: %v", r)
 		}
 	}()
 	return arkserde.Deserialize(worldJSON, world.ECS,
@@ -85,7 +85,7 @@ func reestablishSingleton(world w.World) error {
 		}
 	}
 	if !found {
-		return fmt.Errorf("restored data has no singleton entity that holds GameProgress")
+		return fmt.Errorf("復元データにシングルトン（GameProgress保持エンティティ）が存在しません")
 	}
 	world.Resources.SingletonEntity = singleton
 
@@ -148,7 +148,7 @@ func validateStages(world w.World) error {
 	}
 	for _, k := range keys {
 		if err := k.Validate(); err != nil {
-			return fmt.Errorf("restored stage key is invalid: %w", err)
+			return fmt.Errorf("復元したステージキーが不正です: %w", err)
 		}
 	}
 	return nil
@@ -181,7 +181,7 @@ func checksumOf(env *saveEnvelope) string {
 	}
 	jsonBytes, err := json.Marshal(target)
 	if err != nil {
-		panic(fmt.Sprintf("failed to marshal for checksum: %v", err))
+		panic(fmt.Sprintf("チェックサム計算用のMarshalに失敗: %v", err))
 	}
 	hash := sha256.Sum256(jsonBytes)
 	return hex.EncodeToString(hash[:])

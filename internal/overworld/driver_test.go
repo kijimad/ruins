@@ -31,7 +31,7 @@ func TestDriver_Start_プレイヤー先在でもキューブをスポーンす�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	// 本番はキャラ作成で先にプレイヤーが湧く。その状況を再現する
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})

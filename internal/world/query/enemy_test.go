@@ -34,7 +34,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 視界内に敵を配置
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 12}, "fireball")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 12}, "火の玉")
 		require.NoError(t, err)
 		world.Components.Name.Set(enemy, &gc.Name{Name: "ゴブリン"})
 
@@ -68,7 +68,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 視界外に敵を配置（探索済みでない）
-		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 50}, "fireball")
+		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 50}, "火の玉")
 		require.NoError(t, err)
 
 		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
@@ -84,7 +84,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーなし、敵のみ
-		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "fireball")
+		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "火の玉")
 		require.NoError(t, err)
 
 		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
@@ -105,7 +105,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 敵を配置
-		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "火の玉")
 		require.NoError(t, err)
 
 		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{
@@ -136,7 +136,7 @@ func TestGetVisibleItems(t *testing.T) {
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 視界内にアイテムを配置
-		_, err := lifecycle.SpawnFieldItem(world, "healing_potion", consts.Tile(12), consts.Tile(12), 1)
+		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(12), consts.Tile(12), 1)
 		require.NoError(t, err)
 
 		// 可視タイルに設定
@@ -174,7 +174,7 @@ func TestGetVisibleItems(t *testing.T) {
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// 視界外にアイテムを配置
-		_, err := lifecycle.SpawnFieldItem(world, "healing_potion", consts.Tile(50), consts.Tile(50), 1)
+		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(50), consts.Tile(50), 1)
 		require.NoError(t, err)
 
 		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{}
@@ -195,7 +195,7 @@ func TestGetVisibleItems(t *testing.T) {
 		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
 		// アイテムを配置
-		_, err := lifecycle.SpawnFieldItem(world, "healing_potion", consts.Tile(11), consts.Tile(10), 1)
+		_, err := lifecycle.SpawnFieldItem(world, "回復薬", consts.Tile(11), consts.Tile(10), 1)
 		require.NoError(t, err)
 
 		query.GetVisionState(world).VisibleTiles = map[gc.GridElement]bool{

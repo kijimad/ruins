@@ -101,7 +101,7 @@ func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
 // 戻ると eastIndex が負になる。誤用を黙って進めないよう先頭でガードしエラーにする。
 func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
 	if b.eastIndex <= 0 {
-		return fmt.Errorf("ShiftWest can only be called when eastIndex > 0: eastIndex=%d", b.eastIndex)
+		return fmt.Errorf("ShiftWest は eastIndex > 0 のときのみ呼べる: eastIndex=%d", b.eastIndex)
 	}
 	// 東端の列を全行破棄する
 	RemoveEntitiesInXRange(world, (b.cols - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))

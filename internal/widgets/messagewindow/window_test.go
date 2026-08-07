@@ -345,7 +345,7 @@ func TestWindow_DoAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		win := NewWindow(world, messagedata.NewSystemMessage("テスト"))
 
-		assert.PanicsWithValue(t, "invalid action: unknown", func() {
+		assert.PanicsWithValue(t, "不正なアクション: unknown", func() {
 			win.DoAction(inputmapper.ActionID("unknown"))
 		})
 	})

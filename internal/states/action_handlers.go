@@ -11,7 +11,7 @@ import (
 
 // InteractionAction はインタラクション可能なアクション情報
 type InteractionAction struct {
-	Label       string             // 表示ラベル
+	Label       string             // 表示ラベル（例："開く(上)"）
 	Target      ecs.Entity         // ターゲットエンティティ
 	Interaction gc.InteractionKind // 実行するインタラクション
 }
@@ -43,7 +43,7 @@ func GetInteractionActions(world w.World) []InteractionAction {
 
 		interactableGrid := world.Components.GridElement.Get(interactableEntity)
 		interactable := world.Components.Interactable.Get(interactableEntity)
-		dirLabel := query.T(world, activity.GetDirectionLabel(gridElement, interactableGrid))
+		dirLabel := activity.GetDirectionLabel(gridElement, interactableGrid)
 		actionsForEntity := getInteractionActions(world, interactable, interactableEntity, dirLabel)
 		interactionActions = append(interactionActions, actionsForEntity...)
 	}
@@ -84,7 +84,7 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 		}
 		if len(filtered) > 0 {
 			filteredInteractable := &gc.Interactable{Interactions: filtered}
-			entityActions := getInteractionActions(world, filteredInteractable, entity, query.T(world, "directly above"))
+			entityActions := getInteractionActions(world, filteredInteractable, entity, "直上")
 			actions = append(actions, entityActions...)
 		}
 	}
@@ -98,7 +98,7 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	}
 	if itemCount >= 2 {
 		pickupAll := InteractionAction{
-			Label:       query.T(world, "Pick up all"),
+			Label:       "すべて拾う",
 			Interaction: gc.InteractionItemAll,
 		}
 		actions = append([]InteractionAction{pickupAll}, actions...)
@@ -118,9 +118,9 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				door := world.Components.Door.Get(interactableEntity)
 				var label string
 				if door.IsOpen {
-					label = query.T(world, "Close (%s)", dirLabel)
+					label = "閉じる(" + dirLabel + ")"
 				} else {
-					label = query.T(world, "Open (%s)", dirLabel)
+					label = "開く(" + dirLabel + ")"
 				}
 				result = append(result, InteractionAction{
 					Label:       label,
@@ -132,7 +132,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			if world.Components.Name.Has(interactableEntity) {
 				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
-					Label:       query.T(world, "Talk (%s)", name.Name),
+					Label:       "話しかける(" + name.Name + ")",
 					Target:      interactableEntity,
 					Interaction: interaction,
 				})
@@ -140,25 +140,25 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		case gc.InteractionItem:
 			formattedName := query.FormatItemName(world, interactableEntity)
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Pick up (%s)", formattedName),
+				Label:       "拾う(" + formattedName + ")",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
 		case gc.InteractionPortalNext:
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Warp (next floor)"),
+				Label:       "転移する(次階)",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
 		case gc.InteractionPortalPrev:
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Warp (previous floor)"),
+				Label:       "転移する(前階)",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
 		case gc.InteractionDungeonEnter:
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Enter ruins"),
+				Label:       "遺跡へ入る",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
@@ -166,7 +166,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			if world.Components.Name.Has(interactableEntity) {
 				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
-					Label:       query.T(world, "Inspect (%s)", name.Name),
+					Label:       "調べる(" + name.Name + ")",
 					Target:      interactableEntity,
 					Interaction: interaction,
 				})
@@ -175,7 +175,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			if world.Components.Name.Has(interactableEntity) {
 				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
-					Label:       query.T(world, "Attack (%s)", name.Name),
+					Label:       "攻撃する(" + name.Name + ")",
 					Target:      interactableEntity,
 					Interaction: interaction,
 				})
@@ -184,32 +184,32 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			if world.Components.Name.Has(interactableEntity) {
 				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
-					Label:       query.T(world, "Disassemble (%s)", name.Name),
+					Label:       "分解する(" + name.Name + ")",
 					Target:      interactableEntity,
 					Interaction: interaction,
 				})
 			}
 		case gc.InteractionEnterCube:
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Enter (%s)", dirLabel),
+				Label:       "入る(" + dirLabel + ")",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
 		case gc.InteractionExitCube:
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Exit"),
+				Label:       "出る",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
 		case gc.InteractionPullCube:
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Pull (%s)", dirLabel),
+				Label:       "引く(" + dirLabel + ")",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
 		case gc.InteractionCubePanel:
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Inspect (control panel)"),
+				Label:       "調べる(コントロールパネル)",
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})

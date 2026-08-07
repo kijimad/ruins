@@ -12,7 +12,7 @@ import (
 // initImpl はデスクトップ環境での初期化処理
 func (sm *SerializationManager) initImpl() error {
 	if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil {
-		return fmt.Errorf("failed to create save directory: %w", err)
+		return fmt.Errorf("セーブディレクトリの作成に失敗: %w", err)
 	}
 	return nil
 }

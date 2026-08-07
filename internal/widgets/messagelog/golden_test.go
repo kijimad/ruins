@@ -83,9 +83,9 @@ func TestGolden_ColoredEntries(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
 	store := query.GetGameLog(world)
-	gamelog.New(store).Markup(gamelog.Tag("error", "ダメージ")).Log()
-	gamelog.New(store).Markup(gamelog.Tag("success", "回復")).Log()
-	gamelog.New(store).Markup("通常" + gamelog.Tag("warning", "と") + gamelog.Tag("system", "混合")).Log()
+	gamelog.New(store).Error("ダメージ").Log()
+	gamelog.New(store).Success("回復").Log()
+	gamelog.New(store).Append("通常").Warning("と").System("混合").Log()
 	vrt.AssertScreenGolden(t, func() func(*ebiten.Image) {
 		w := messagelog.NewWidget(defaultConfig(), world)
 		w.Update()

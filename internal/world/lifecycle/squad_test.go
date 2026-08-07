@@ -27,7 +27,7 @@ func TestSpawnSquadMember(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// リーダーを生成
-	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	// 隊員を生成
@@ -80,7 +80,7 @@ func TestSpawnSquadMember_リーダーと異なる位置に配置される(t *te
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	member, err := SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
@@ -110,7 +110,7 @@ func TestDismissSquadMember(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	member, err := SpawnSquadMember(world, leader, "隊員C", testAbilities(), "player")
@@ -136,7 +136,7 @@ func TestGetAI(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	member, err := SpawnSquadMember(world, leader, "隊員D", testAbilities(), "player")
@@ -163,7 +163,7 @@ func TestGetAI_移動だけ変更しても他のポリシーは変わらない(t
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	member, err := SpawnSquadMember(world, leader, "隊員E", testAbilities(), "player")
@@ -182,7 +182,7 @@ func TestSpawnDefaultSquadMember(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	leader, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	member, err := SpawnDefaultSquadMember(world, leader)

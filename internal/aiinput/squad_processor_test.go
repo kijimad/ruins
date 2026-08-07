@@ -123,7 +123,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -131,7 +131,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 
 		memberGrid := world.Components.GridElement.Get(member)
 
-		_, err = lifecycle.SpawnFieldItem(world, "wooden_sword", memberGrid.X, memberGrid.Y, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "木刀", memberGrid.X, memberGrid.Y, 1)
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
@@ -151,7 +151,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -159,7 +159,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 
 		memberGrid := world.Components.GridElement.Get(member)
 
-		_, err = lifecycle.SpawnFieldItem(world, "wooden_sword", memberGrid.X, memberGrid.Y, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "木刀", memberGrid.X, memberGrid.Y, 1)
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
@@ -178,7 +178,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -202,7 +202,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -210,7 +210,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 
 		memberGrid := world.Components.GridElement.Get(member)
 
-		_, err = lifecycle.SpawnFieldItem(world, "wooden_sword", memberGrid.X+10, memberGrid.Y+10, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "木刀", memberGrid.X+10, memberGrid.Y+10, 1)
 		require.NoError(t, err)
 
 		sp := newSquadPlanner(newTestRNG())
@@ -233,13 +233,13 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
@@ -266,13 +266,13 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
@@ -296,13 +296,13 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
@@ -329,7 +329,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")

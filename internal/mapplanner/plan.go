@@ -15,7 +15,7 @@ const (
 
 var (
 	// ErrConnectivity は接続性エラーを表す
-	ErrConnectivity = errors.New("map connectivity error")
+	ErrConnectivity = errors.New("マップ接続性エラー")
 )
 
 // Plan はPlannerChainを初期化してMetaPlanを返す
@@ -31,7 +31,7 @@ func Plan(world w.World, width, height consts.Tile, seed uint64, plannerType Pla
 		if err == nil {
 			// 成功時にリトライがあった場合は警告ログを出力
 			if attempt > 0 {
-				fmt.Printf("map generation succeeded (attempts: %d, PlannerType: %s, final seed: %d)\n", attempt+1, plannerType.Name, currentSeed)
+				fmt.Printf("マップ生成成功（試行回数: %d回, PlannerType: %s, 最終seed: %d）\n", attempt+1, plannerType.Name, currentSeed)
 			}
 			return plan, nil
 		}
@@ -40,12 +40,12 @@ func Plan(world w.World, width, height consts.Tile, seed uint64, plannerType Pla
 
 		// 接続性エラー以外は即座に失敗
 		if !errors.Is(err, ErrConnectivity) {
-			return nil, fmt.Errorf("plan generation failed (PlannerType=%s, seed=%d): %w", plannerType.Name, seed, err)
+			return nil, fmt.Errorf("プラン生成失敗 (PlannerType=%s, seed=%d): %w", plannerType.Name, seed, err)
 		}
 	}
 
 	// 全試行失敗時のエラーメッセージ（最後の試行のみ表示）
-	return nil, fmt.Errorf("plan generation failed %d times (PlannerType=%s, seed=%d); last error: %w",
+	return nil, fmt.Errorf("プラン生成に%d回失敗しました (PlannerType=%s, seed=%d)。最後のエラー: %w",
 		MaxPlanRetries, plannerType.Name, seed, lastErr)
 }
 

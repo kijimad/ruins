@@ -19,13 +19,13 @@ func (s Severity) String() string {
 	case SeverityNone:
 		return ""
 	case SeverityMinor:
-		return "Minor"
+		return "軽"
 	case SeverityMedium:
-		return "Medium"
+		return "中"
 	case SeveritySevere:
-		return "Severe"
+		return "重"
 	default:
-		panic("invalid Severity value")
+		panic("不正なSeverity値")
 	}
 }
 
@@ -81,9 +81,9 @@ const (
 func ConditionTypeDisplayName(ct ConditionType) string {
 	switch ct {
 	case ConditionHypothermia:
-		return "Hypothermia"
+		return "低体温"
 	case ConditionHyperthermia:
-		return "Hyperthermia"
+		return "高体温"
 	default:
 		return string(ct)
 	}

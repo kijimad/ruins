@@ -104,7 +104,7 @@ func TestSpawnProps_収納propはルートテーブルからアイテムを収�
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
 	plan.Depth = 1
 	plan.Props = []mapplanner.PropsSpec{
-		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}, Name: "wooden_crate"},
+		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}, Name: "木箱"},
 	}
 
 	err := spawnProps(world, plan, 0, 0)

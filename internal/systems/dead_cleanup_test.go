@@ -121,7 +121,7 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "灰の偶像"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
-	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "ash_idol"})
+	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "灰の偶像"})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	// DeadCleanupSystem実行前のアイテムエンティティ数をカウント
@@ -162,7 +162,7 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "火の玉"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
-	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "fireball"})
+	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "火の玉"})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	// 実行前のアイテム数

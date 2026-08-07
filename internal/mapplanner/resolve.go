@@ -15,7 +15,7 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]S
 	}
 	enemyTable, err := raw.GetEnemyTable(*rawMaster, tableName)
 	if err != nil {
-		return nil, fmt.Errorf("enemy table not found: %s: %w", tableName, err)
+		return nil, fmt.Errorf("敵テーブルが見つかりません: %s: %w", tableName, err)
 	}
 	result := make([]SpawnEntry, 0, len(enemyTable.Entries))
 	for _, entry := range enemyTable.Entries {
@@ -24,7 +24,7 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]S
 		}
 		pack, err := consts.ParseDice(entry.Pack)
 		if err != nil {
-			return nil, fmt.Errorf("enemy table '%s' entry '%s' has invalid pack notation: %w", tableName, entry.EnemyName, err)
+			return nil, fmt.Errorf("敵テーブル '%s' の '%s' のパック表記が不正です: %w", tableName, entry.EnemyName, err)
 		}
 		result = append(result, SpawnEntry{
 			Name:   entry.EnemyName,
@@ -42,7 +42,7 @@ func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]It
 	}
 	itemTable, err := raw.GetItemTable(*rawMaster, tableName)
 	if err != nil {
-		return nil, fmt.Errorf("item table not found: %s: %w", tableName, err)
+		return nil, fmt.Errorf("アイテムテーブルが見つかりません: %s: %w", tableName, err)
 	}
 	result := make([]ItemSource, 0, len(itemTable.Entries))
 	for _, entry := range itemTable.Entries {
@@ -51,13 +51,13 @@ func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]It
 		}
 		group, err := raw.GetItemGroup(*rawMaster, entry.GroupName)
 		if err != nil {
-			return nil, fmt.Errorf("item group not found: %s: %w", entry.GroupName, err)
+			return nil, fmt.Errorf("アイテムグループが見つかりません: %s: %w", entry.GroupName, err)
 		}
 		spawnEntries := make([]SpawnEntry, len(group.Entries))
 		for i, ge := range group.Entries {
 			pack, err := consts.ParseDice(ge.Pack)
 			if err != nil {
-				return nil, fmt.Errorf("item group '%s' entry '%s' has invalid pack notation: %w", entry.GroupName, ge.ItemName, err)
+				return nil, fmt.Errorf("アイテムグループ '%s' の '%s' のパック表記が不正です: %w", entry.GroupName, ge.ItemName, err)
 			}
 			spawnEntries[i] = SpawnEntry{
 				Name:   ge.ItemName,

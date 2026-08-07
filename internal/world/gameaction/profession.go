@@ -46,7 +46,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	// 初期アイテムをバックパックに付与
 	for _, profItem := range prof.Items {
 		if _, err := lifecycle.SpawnBackpackItem(world, profItem.Name, int(profItem.Count)); err != nil {
-			return fmt.Errorf("failed to generate profession starting item: %s: %w", profItem.Name, err)
+			return fmt.Errorf("職業の初期アイテム生成に失敗: %s: %w", profItem.Name, err)
 		}
 	}
 
@@ -54,11 +54,11 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	for _, equip := range prof.Equips {
 		item, err := lifecycle.SpawnBackpackItem(world, equip.Name, 1)
 		if err != nil {
-			return fmt.Errorf("failed to generate profession starting equipment: %s: %w", equip.Name, err)
+			return fmt.Errorf("職業の初期装備生成に失敗: %s: %w", equip.Name, err)
 		}
 		slot, ok := gc.ParseEquipmentSlot(string(equip.Slot))
 		if !ok {
-			return fmt.Errorf("invalid equipment slot name: %s (item: %s)", equip.Slot, equip.Name)
+			return fmt.Errorf("不正な装備スロット名: %s (アイテム: %s)", equip.Slot, equip.Name)
 		}
 		lifecycle.MoveToEquip(world, item, player, slot)
 	}

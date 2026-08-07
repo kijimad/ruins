@@ -29,7 +29,7 @@ func TestActivityInfo(t *testing.T) {
 	actorImpl := &RestBehavior{}
 	info := actorImpl.Info()
 
-	assert.Equal(t, "Rest", info.Name, "Expected name 'Rest'")
+	assert.Equal(t, "休息", info.Name, "Expected name '休息'")
 	assert.True(t, info.Interruptible, "Expected rest activity to be interruptible")
 	assert.True(t, info.Resumable, "Expected rest activity to be resumable")
 }
@@ -184,7 +184,7 @@ func TestGetDisplayName(t *testing.T) {
 		t.Parallel()
 		comp := &gc.Activity{BehaviorName: gc.BehaviorWait}
 		name := GetDisplayName(comp)
-		assert.Equal(t, "Wait", name)
+		assert.Equal(t, "待機", name)
 	})
 
 	t.Run("未登録BehaviorはBehaviorName文字列を返す", func(t *testing.T) {

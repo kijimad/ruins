@@ -40,7 +40,7 @@ func NewMainApp() *cli.Command {
 func RunMainApp(app *cli.Command, args ...string) error {
 	err := app.Run(context.Background(), args)
 	if err != nil {
-		return fmt.Errorf("command execution failed: %w", err)
+		return fmt.Errorf("コマンド実行が失敗した: %w", err)
 	}
 
 	return nil

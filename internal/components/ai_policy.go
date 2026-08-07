@@ -14,9 +14,9 @@ const (
 func (p PlannerType) String() string {
 	switch p {
 	case PlannerSolo:
-		return "Solo"
+		return "単独"
 	case PlannerSquad:
-		return "Squad member"
+		return "隊員"
 	default:
 		return string(p)
 	}
@@ -38,11 +38,11 @@ const (
 func (p CombatPolicy) String() string {
 	switch p {
 	case CombatAttack:
-		return "Attack"
+		return "攻撃"
 	case CombatEvade:
-		return "Evade"
+		return "回避"
 	case CombatIgnore:
-		return "Indifferent"
+		return "無関心"
 	default:
 		return string(p)
 	}
@@ -78,19 +78,19 @@ const (
 func (p SoloMovement) String() string {
 	switch p {
 	case SoloRandom:
-		return "Random"
+		return "ランダム"
 	case SoloPatrol:
-		return "Patrol"
+		return "巡回"
 	case SoloWallHug:
-		return "Along walls"
+		return "壁沿い"
 	case SoloStationary:
-		return "Fixed"
+		return "固定"
 	case SoloWander:
-		return "Wander"
+		return "徘徊"
 	case SoloTerritorial:
-		return "Territory"
+		return "縄張り"
 	case SoloSwarm:
-		return "Flock"
+		return "群れ"
 	default:
 		return string(p)
 	}
@@ -116,15 +116,15 @@ const (
 func (p SquadMovement) String() string {
 	switch p {
 	case SquadEscort:
-		return "Escort"
+		return "護衛"
 	case SquadVanguard:
-		return "Vanguard"
+		return "前衛"
 	case SquadPatrol:
-		return "Patrol"
+		return "巡回"
 	case SquadStationary:
-		return "Fixed"
+		return "固定"
 	case SquadRetreat:
-		return "Retreat"
+		return "後退"
 	default:
 		return string(p)
 	}
@@ -152,9 +152,9 @@ const (
 func (p ItemPickupPolicy) String() string {
 	switch p {
 	case PolicyPickup:
-		return "Collect"
+		return "回収"
 	case PolicyIgnore:
-		return "Ignore"
+		return "無視"
 	default:
 		return string(p)
 	}
@@ -179,9 +179,9 @@ const (
 func (p ItemHandlingPolicy) String() string {
 	switch p {
 	case PolicyKeep:
-		return "Hold"
+		return "保持"
 	case PolicyDistribute:
-		return "Distribute"
+		return "分配"
 	default:
 		return string(p)
 	}
@@ -206,9 +206,9 @@ const (
 func (p SupplyPolicy) String() string {
 	switch p {
 	case SupplyAuto:
-		return "Auto"
+		return "自動"
 	case SupplyManual:
-		return "Manual"
+		return "手動"
 	default:
 		return string(p)
 	}

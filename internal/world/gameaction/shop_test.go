@@ -64,7 +64,7 @@ func TestBuyItem(t *testing.T) {
 		player := world.ECS.NewEntity()
 		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 
-		err := BuyItem(world, player, "wooden_sword")
+		err := BuyItem(world, player, "木刀")
 		require.NoError(t, err)
 
 		currency := query.GetCurrency(world, player)
@@ -79,7 +79,7 @@ func TestBuyItem(t *testing.T) {
 		player := world.ECS.NewEntity()
 		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 10})
 
-		err := BuyItem(world, player, "wooden_sword")
+		err := BuyItem(world, player, "木刀")
 		assert.Error(t, err)
 	})
 
@@ -97,7 +97,7 @@ func TestBuyItem(t *testing.T) {
 		var buyErr error
 		require.NotPanics(t, func() {
 			query.Player(world, func(p ecs.Entity) {
-				buyErr = BuyItem(world, p, "wooden_sword")
+				buyErr = BuyItem(world, p, "木刀")
 			})
 		})
 		require.NoError(t, buyErr)
@@ -114,7 +114,7 @@ func TestSellItem(t *testing.T) {
 	player := world.ECS.NewEntity()
 	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
 
-	item, _ := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
+	item, _ := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 
 	t.Run("アイテムの売却成功", func(t *testing.T) {
 		t.Parallel()
@@ -132,5 +132,5 @@ func TestGetShopInventory(t *testing.T) {
 	inventory := GetShopInventory()
 
 	assert.NotEmpty(t, inventory)
-	assert.Contains(t, inventory, "wooden_sword")
+	assert.Contains(t, inventory, "木刀")
 }

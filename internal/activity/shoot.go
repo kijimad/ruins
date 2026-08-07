@@ -24,8 +24,8 @@ type ShootBehavior struct{}
 // Info はBehaviorの実装
 func (sb *ShootBehavior) Info() Info {
 	return Info{
-		Name:            "Shoot",
-		Description:     "Attack an enemy from range",
+		Name:            "射撃",
+		Description:     "遠距離から敵を攻撃する",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -92,7 +92,7 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 // Start はBehaviorの実装
 func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if p, ok := comp.Params.(*gc.ShootParams); ok {
-		log.Debug("shoot started", "actor", actor, "target", p.Target)
+		log.Debug("射撃開始", "actor", actor, "target", p.Target)
 	}
 	return nil
 }
@@ -101,7 +101,7 @@ func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
-		Cancel(comp, "shoot target is not set")
+		Cancel(comp, "射撃対象が設定されていません")
 		return ErrAttackTargetNotSet
 	}
 
@@ -110,7 +110,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	// 装備武器を取得
 	fire, weaponName, err := getEquippedFire(actor, world)
 	if err != nil {
-		Cancel(comp, "no ranged weapon equipped")
+		Cancel(comp, "遠距離武器が装備されていません")
 		return err
 	}
 
@@ -132,13 +132,13 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 
 // Finish はBehaviorの実装
 func (sb *ShootBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("shoot finished", "actor", actor)
+	log.Debug("射撃完了", "actor", actor)
 	return nil
 }
 
 // Canceled はBehaviorの実装
 func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("shoot canceled", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("射撃キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
@@ -147,7 +147,7 @@ func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, string, error) 
 	selectedSlot := query.GetWeaponSelection(world).Slot
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= 5 {
-		return nil, "", fmt.Errorf("invalid weapon slot number: %d", selectedSlot)
+		return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
 	}
 
 	weapons := query.GetWeapons(world, actor)

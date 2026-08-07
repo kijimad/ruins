@@ -225,6 +225,6 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 		err = planner.PlanInitial(&chain.PlanData)
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "cell terrain is undefined")
+		assert.Contains(t, err.Error(), "セルの地形が未定義です")
 	})
 }

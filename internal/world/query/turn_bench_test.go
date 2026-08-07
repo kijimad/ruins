@@ -20,12 +20,12 @@ func BenchmarkRestoreAllActionPoints(b *testing.B) {
 	for _, n := range []int{100, 400, 1000} {
 		b.Run(fmt.Sprintf("enemies=%d", n), func(b *testing.B) {
 			world := testutil.InitTestWorld(b, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(200), TileHeight: consts.Tile(200)}))
-			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 100, Y: 100}, "ash")
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 100, Y: 100}, "Ash")
 			require.NoError(b, err)
 
 			rng := rand.New(rand.NewPCG(1, 2))
 			for range n {
-				_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(rng.IntN(200)), Y: consts.Tile(rng.IntN(200))}, "fireball")
+				_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(rng.IntN(200)), Y: consts.Tile(rng.IntN(200))}, "火の玉")
 				require.NoError(b, err)
 			}
 

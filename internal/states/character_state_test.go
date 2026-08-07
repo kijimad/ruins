@@ -17,11 +17,11 @@ import (
 func TestEquipableForSlot_所持する装備品が候補に出る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
+	_, err = lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnBackpackItem(world, "cloth_hat", 1)
+	_, err = lifecycle.SpawnBackpackItem(world, "布の帽子", 1)
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, equipableForSlot(world, gc.SlotWeapon1), "武器を所持していれば武器スロットの候補に出る")
@@ -44,7 +44,7 @@ func TestCharacterState_装備スロットは武器5と防具7の合計12(t *tes
 	state := &CharacterState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	props := state.Fetch(world)
@@ -57,7 +57,7 @@ func TestCharacterState_情報タブは能力スキル効果健康基本の5つ(
 	state := &CharacterState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	props := state.Fetch(world)
@@ -74,7 +74,7 @@ func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *test
 	state := &CharacterState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 
 	props := state.Fetch(world)
@@ -106,7 +106,7 @@ func TestNextPolicy_端で循環し未知の値は先頭を返す(t *testing.T) 
 func TestFetchCommandRows_仲間はポリシーと解雇を持ちプレイヤーは持たない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 	member, err := lifecycle.SpawnDefaultSquadMember(world, player)
 	require.NoError(t, err)
@@ -122,7 +122,7 @@ func TestFetchCommandRows_仲間はポリシーと解雇を持ちプレイヤー
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	entity, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
+	entity, err := lifecycle.SpawnBackpackItem(world, "レイガン", 1)
 	require.NoError(t, err)
 	assert.Greater(t, menuscreen.DetailPageCount(world, entity), 1, "性能区画が多いアイテムの詳細は複数ページに分割される")
 }
@@ -132,7 +132,7 @@ func TestCharacterState_cycleCommandは位置ポリシーを次の値へ進め�
 	state := &CharacterState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
 	require.NoError(t, err)
 	member, err := lifecycle.SpawnDefaultSquadMember(world, player)
 	require.NoError(t, err)

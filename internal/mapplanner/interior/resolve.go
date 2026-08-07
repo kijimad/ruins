@@ -25,7 +25,7 @@ func resolveGroup(rng *rand.Rand, g Group) []Selection {
 	case PickN:
 		return pickDistinct(rng, g.Items, g.Pick)
 	}
-	panic("unknown GroupStyle: " + string(g.Style))
+	panic("未知の GroupStyle: " + string(g.Style))
 }
 
 // pickEach は Items を全部置く保証枠。各 Stuff は Chance で個別に gate する。

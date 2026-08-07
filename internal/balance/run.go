@@ -46,7 +46,7 @@ func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats,
 	}
 	currentHP := player.HP
 	currentWeapon := playerWeapon
-	currentWeaponName := "bare_hands"
+	currentWeaponName := "素手"
 	hunger := gc.NewHunger()
 	foodStock := 0 // 未消費の食料ストック（栄養値の合計）
 

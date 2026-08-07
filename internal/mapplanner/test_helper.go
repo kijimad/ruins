@@ -21,34 +21,30 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用のアイテムテーブルを定義
 	testItemTables := []oapi.ItemTable{
 		{
-			Id:   "normal",
-			Name: "normal",
+			Name: "通常",
 			Entries: []oapi.ItemTableEntry{
-				{GroupName: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{GroupName: "ores", Weight: 0.5, MinDepth: 3, MaxDepth: 40},
+				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+				{GroupName: "鉱石類", Weight: 0.5, MinDepth: 3, MaxDepth: 40},
 			},
 		},
 		{
-			Id:   "cave",
-			Name: "cave",
+			Name: "洞窟",
 			Entries: []oapi.ItemTableEntry{
-				{GroupName: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{GroupName: "ores", Weight: 0.6, MinDepth: 3, MaxDepth: 25},
+				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+				{GroupName: "鉱石類", Weight: 0.6, MinDepth: 3, MaxDepth: 25},
 			},
 		},
 		{
-			Id:   "forest",
-			Name: "forest",
+			Name: "森",
 			Entries: []oapi.ItemTableEntry{
-				{GroupName: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
+				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
 			},
 		},
 		{
-			Id:   "ruins",
-			Name: "ruins",
+			Name: "廃墟",
 			Entries: []oapi.ItemTableEntry{
-				{GroupName: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
-				{GroupName: "ores", Weight: 0.8, MinDepth: 3, MaxDepth: 20},
+				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
+				{GroupName: "鉱石類", Weight: 0.8, MinDepth: 3, MaxDepth: 20},
 			},
 		},
 	}
@@ -56,40 +52,36 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用の敵テーブルを定義
 	testEnemyTables := []oapi.EnemyTable{
 		{
-			Id:   "normal",
-			Name: "normal",
+			Name: "通常",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "slime", Weight: 1.2, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
-				{EnemyName: "fireball", Weight: 1.0, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
-				{EnemyName: "light_tank", Weight: 0.8, MinDepth: 10, MaxDepth: 50, Pack: "1d1"},
+				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
+				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
+				{EnemyName: "軽戦車", Weight: 0.8, MinDepth: 10, MaxDepth: 50, Pack: "1d1"},
 			},
 		},
 		{
-			Id:   "cave",
-			Name: "cave",
+			Name: "洞窟",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "slime", Weight: 1.0, MinDepth: 1, MaxDepth: 8, Pack: "1d1"},
-				{EnemyName: "fireball", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
-				{EnemyName: "light_tank", Weight: 0.6, MinDepth: 8, MaxDepth: 25, Pack: "1d1"},
+				{EnemyName: "スライム", Weight: 1.0, MinDepth: 1, MaxDepth: 8, Pack: "1d1"},
+				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
+				{EnemyName: "軽戦車", Weight: 0.6, MinDepth: 8, MaxDepth: 25, Pack: "1d1"},
 			},
 		},
 		{
-			Id:   "forest",
-			Name: "forest",
+			Name: "森",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "slime", Weight: 1.2, MinDepth: 1, MaxDepth: 12, Pack: "1d1"},
-				{EnemyName: "fireball", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
-				{EnemyName: "light_tank", Weight: 0.5, MinDepth: 10, MaxDepth: 20, Pack: "1d1"},
+				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 12, Pack: "1d1"},
+				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
+				{EnemyName: "軽戦車", Weight: 0.5, MinDepth: 10, MaxDepth: 20, Pack: "1d1"},
 			},
 		},
 		{
-			Id:   "ruins",
-			Name: "ruins",
+			Name: "廃墟",
 			Entries: []oapi.EnemyTableEntry{
-				{EnemyName: "slime", Weight: 0.9, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
-				{EnemyName: "fireball", Weight: 0.8, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
-				{EnemyName: "light_tank", Weight: 1.0, MinDepth: 5, MaxDepth: 30, Pack: "1d1"},
-				{EnemyName: "ash_idol", Weight: 0.7, MinDepth: 15, MaxDepth: 35, Pack: "1d1"},
+				{EnemyName: "スライム", Weight: 0.9, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
+				{EnemyName: "火の玉", Weight: 0.8, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
+				{EnemyName: "軽戦車", Weight: 1.0, MinDepth: 5, MaxDepth: 30, Pack: "1d1"},
+				{EnemyName: "灰の偶像", Weight: 0.7, MinDepth: 15, MaxDepth: 35, Pack: "1d1"},
 			},
 		},
 	}
@@ -97,21 +89,19 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用のアイテムグループを定義
 	testItemGroups := []oapi.ItemGroup{
 		{
-			Id:      "healing_items",
-			Name:    "healing_items",
+			Name:    "回復アイテム",
 			Subtype: oapi.Distribution,
 			Entries: []oapi.ItemGroupEntry{
-				{ItemName: "healing_potion", Weight: 1.0, Pack: "1d3"},
-				{ItemName: "antidote", Weight: 0.5, Pack: "1d1"},
+				{ItemName: "回復薬", Weight: 1.0, Pack: "1d3"},
+				{ItemName: "毒消し", Weight: 0.5, Pack: "1d1"},
 			},
 		},
 		{
-			Id:      "ores",
-			Name:    "ores",
+			Name:    "鉱石類",
 			Subtype: oapi.Collection,
 			Entries: []oapi.ItemGroupEntry{
-				{ItemName: "obsidian", Weight: 50, Pack: "1d2"},
-				{ItemName: "silver_shard", Weight: 30, Pack: "1d1"},
+				{ItemName: "黒曜石", Weight: 50, Pack: "1d2"},
+				{ItemName: "銀の欠片", Weight: 30, Pack: "1d1"},
 			},
 		},
 	}
@@ -122,12 +112,12 @@ func CreateTestRawMaster() *oapi.Raws {
 	return &oapi.Raws{
 		Tiles: &testTiles,
 		Items: &[]oapi.Item{
-			{Id: "healing_potion", Name: "healing_potion", Description: "restores HP", Stackable: &stackableTrue},
-			{Id: "antidote", Name: "antidote", Description: "cures poison", Stackable: &stackableTrue},
-			{Id: "obsidian", Name: "obsidian", Description: "a black stone", Stackable: &stackableTrue},
-			{Id: "silver_shard", Name: "silver_shard", Description: "silver_shard", Stackable: &stackableTrue},
-			{Id: "herb", Name: "herb", Description: "herb", Stackable: &stackableTrue},
-			{Id: "wooden_sword", Name: "wooden_sword", Description: "a wooden sword"},
+			{Name: "回復薬", Description: "HPを回復する", Stackable: &stackableTrue},
+			{Name: "毒消し", Description: "毒を回復する", Stackable: &stackableTrue},
+			{Name: "黒曜石", Description: "黒い石", Stackable: &stackableTrue},
+			{Name: "銀の欠片", Description: "銀の欠片", Stackable: &stackableTrue},
+			{Name: "薬草", Description: "薬草", Stackable: &stackableTrue},
+			{Name: "木刀", Description: "木製の刀"},
 		},
 		ItemGroups:  &testItemGroups,
 		ItemTables:  &testItemTables,

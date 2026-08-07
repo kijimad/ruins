@@ -82,7 +82,7 @@ func (d *DungeonDefinition) BossPlanner(depth int) (mapplanner.PlannerType, bool
 // プランナー抽選はフロアを生成するダンジョン固有の振る舞いなのでこの型のメソッドにする。
 func (d *DungeonDefinition) SelectPlanner(rng *rand.Rand) (mapplanner.PlannerType, error) {
 	if len(d.plannerPool) == 0 {
-		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPool is empty: %s", d.name)
+		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPoolが空です: %s", d.name)
 	}
 
 	result, err := raw.SelectByWeightFunc(
@@ -96,7 +96,7 @@ func (d *DungeonDefinition) SelectPlanner(rng *rand.Rand) (mapplanner.PlannerTyp
 	}
 
 	if result.Name == "" {
-		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPool total weight is 0: %s", d.name)
+		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPoolの総重みが0です: %s", d.name)
 	}
 
 	return result, nil

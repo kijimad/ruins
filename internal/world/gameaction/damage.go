@@ -53,13 +53,16 @@ func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 
 	targetName := query.GetEntityName(target, world)
 
-	suffix := query.T(world, " was defeated.")
+	suffix := " は倒れた。"
 	if world.Components.Fixed.Has(target) {
-		suffix = query.T(world, " was destroyed.")
+		suffix = " は壊れた。"
 	}
 
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.NameMarkup(target, targetName, world) + suffix).
+		Build(func(l *gamelog.Logger) {
+			query.AppendNameWithColor(l, target, targetName, world)
+		}).
+		Append(suffix).
 		Log()
 }
 

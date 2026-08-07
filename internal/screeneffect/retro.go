@@ -29,12 +29,12 @@ func (f *RetroFilter) initShader() error {
 
 	shaderSrc, err := assets.FS.ReadFile("file/shaders/retro.kage")
 	if err != nil {
-		return fmt.Errorf("failed to load shader file: %w", err)
+		return fmt.Errorf("シェーダーファイルの読み込みに失敗: %w", err)
 	}
 
 	shader, err := ebiten.NewShader(shaderSrc)
 	if err != nil {
-		return fmt.Errorf("failed to compile shader: %w", err)
+		return fmt.Errorf("シェーダーのコンパイルに失敗: %w", err)
 	}
 
 	f.shader = shader

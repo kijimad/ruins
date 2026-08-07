@@ -34,19 +34,19 @@ var CmdPlay = &cli.Command{
 func runPlay(_ context.Context, _ *cli.Command) error {
 	// Steam APIの初期化。steamタグなしではno-op
 	if err := steam.Init(); err != nil {
-		return fmt.Errorf("steam initialization failed: %w", err)
+		return fmt.Errorf("steam初期化に失敗: %w", err)
 	}
 
 	// ユーザー設定ファイルが無ければデフォルト値で作成する。
 	// 失敗しても Load はデフォルト値で継続できるため、警告のみで処理を進める
 	if err := config.EnsureUserConfigFile(); err != nil {
-		logger.New(logger.CategoryLoad).Warn("failed to create user config file", "error", err)
+		logger.New(logger.CategoryLoad).Warn("ユーザー設定ファイルの作成に失敗しました", "error", err)
 	}
 
 	// 設定を読み込み
 	cfg, err := config.Load()
 	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
+		return fmt.Errorf("設定の読み込みに失敗: %w", err)
 	}
 
 	// ログ設定を読み込み

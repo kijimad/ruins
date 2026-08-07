@@ -19,7 +19,7 @@ const templateFile = "tmpl.md"
 func listMarkdownFiles(dir string) ([]string, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read %s: %w", dir, err)
+		return nil, fmt.Errorf("%s の読み込みに失敗: %w", dir, err)
 	}
 
 	var paths []string
@@ -46,7 +46,7 @@ func LoadDir(dir string) ([]*Document, error) {
 	for _, path := range paths {
 		content, err := os.ReadFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read %s: %w", path, err)
+			return nil, fmt.Errorf("%s の読み込みに失敗: %w", path, err)
 		}
 
 		doc, err := Parse(path, string(content))
@@ -75,27 +75,27 @@ func Validate(docs []*Document) []Problem {
 
 	for _, doc := range docs {
 		if !doc.HasFront {
-			add(doc.Path, "frontmatter is missing; generate it with gen")
+			add(doc.Path, "frontmatter がない。gen で付与する")
 			continue
 		}
 		if !doc.Front.Status.Valid() {
-			add(doc.Path, fmt.Sprintf("invalid status: %q", doc.Front.Status))
+			add(doc.Path, fmt.Sprintf("status が不正: %q", doc.Front.Status))
 		}
 		if !doc.Front.Auto.Valid() {
-			add(doc.Path, fmt.Sprintf("invalid auto: %q", doc.Front.Auto))
+			add(doc.Path, fmt.Sprintf("auto が不正: %q", doc.Front.Auto))
 		}
 		for _, tag := range doc.Front.Tags {
 			if !slices.Contains(KnownTags, tag) {
-				add(doc.Path, fmt.Sprintf("unknown tag %q; check KnownTags", tag))
+				add(doc.Path, fmt.Sprintf("未知のタグ %q。KnownTags を確認する", tag))
 			}
 		}
 		// done は「open な `- [ ]` がゼロ」を満たす不変条件。裏付けのない done を弾く。
 		// 着手しないと決めたタスクは `- [~]` にすれば open から外れ、done にできる。
 		if doc.Front.Status == StatusDone && doc.OpenTasks > 0 {
-			add(doc.Path, fmt.Sprintf("status=done but %d unchecked task(s) remain; complete them or mark with `- [~]`", doc.OpenTasks))
+			add(doc.Path, fmt.Sprintf("status=done だが未チェックのタスクが %d 件ある。完了するか `- [~]` にする", doc.OpenTasks))
 		}
 		if doc.Front.Status == StatusInProgress && !doc.HasProgress {
-			add(doc.Path, "status=in-progress but no progress section")
+			add(doc.Path, "status=in-progress だが進捗セクションがない")
 		}
 	}
 
@@ -114,19 +114,19 @@ func BackfillDir(dir string) ([]string, error) {
 	for _, path := range paths {
 		content, err := os.ReadFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read %s: %w", path, err)
+			return nil, fmt.Errorf("%s の読み込みに失敗: %w", path, err)
 		}
 
 		result, ok, err := Backfill(string(content))
 		if err != nil {
-			return nil, fmt.Errorf("failed to backfill %s: %w", path, err)
+			return nil, fmt.Errorf("%s の backfill に失敗: %w", path, err)
 		}
 		if !ok {
 			continue
 		}
 
 		if err := os.WriteFile(path, []byte(result), 0o644); err != nil {
-			return nil, fmt.Errorf("failed to write %s: %w", path, err)
+			return nil, fmt.Errorf("%s の書き込みに失敗: %w", path, err)
 		}
 		changed = append(changed, path)
 	}

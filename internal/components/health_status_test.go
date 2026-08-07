@@ -104,27 +104,27 @@ func TestHealthCondition_DisplayName(t *testing.T) {
 	t.Run("SeverityNoneは重症度表示なし", func(t *testing.T) {
 		t.Parallel()
 		hc := &HealthCondition{Type: ConditionHypothermia, Severity: SeverityNone}
-		assert.Equal(t, "Hypothermia", hc.DisplayName())
+		assert.Equal(t, "低体温", hc.DisplayName())
 	})
 
 	t.Run("低体温で軽度", func(t *testing.T) {
 		t.Parallel()
 		hc := &HealthCondition{Type: ConditionHypothermia, Severity: SeverityMinor}
-		assert.Equal(t, "Hypothermia(Minor)", hc.DisplayName())
+		assert.Equal(t, "低体温(軽)", hc.DisplayName())
 	})
 
 	t.Run("高体温で重度", func(t *testing.T) {
 		t.Parallel()
 		hc := &HealthCondition{Type: ConditionHyperthermia, Severity: SeveritySevere}
-		assert.Equal(t, "Hyperthermia(Severe)", hc.DisplayName())
+		assert.Equal(t, "高体温(重)", hc.DisplayName())
 	})
 }
 
 func TestConditionTypeDisplayName(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, "Hypothermia", ConditionTypeDisplayName(ConditionHypothermia))
-	assert.Equal(t, "Hyperthermia", ConditionTypeDisplayName(ConditionHyperthermia))
+	assert.Equal(t, "低体温", ConditionTypeDisplayName(ConditionHypothermia))
+	assert.Equal(t, "高体温", ConditionTypeDisplayName(ConditionHyperthermia))
 	assert.Equal(t, "Unknown", ConditionTypeDisplayName(ConditionType("Unknown")))
 }
 
