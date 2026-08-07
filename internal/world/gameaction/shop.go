@@ -86,12 +86,12 @@ func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) err
 // GetShopInventory は店の品揃えを返す（ハードコーディング）
 func GetShopInventory() []string {
 	return []string{
-		"木刀",
-		"ハンドガン",
-		"西洋鎧",
-		"作業用ヘルメット",
-		"革のブーツ",
-		"回復薬",
-		"陸軍射撃マニュアル",
+		"wooden_sword",
+		"handgun",
+		"western_armor",
+		"work_helmet",
+		"leather_boots",
+		"healing_potion",
+		"army_shooting_manual",
 	}
 }

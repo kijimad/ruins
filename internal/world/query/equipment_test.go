@@ -16,7 +16,7 @@ func TestGetWeapons_Empty(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	// 初期状態は全てnil
@@ -31,7 +31,7 @@ func TestGetArmorEquipments(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	// 初期状態は全てnil

@@ -53,8 +53,11 @@ type Consumable struct {
 	TargetType  TargetType
 }
 
-// Name は表示名
+// Name はエンティティの名前。ID は同定に使う不変キー、Name は表示名
 type Name struct {
+	// ID は raw 定義やレシピ参照との照合に使う英語の同定キー。表示には使わない
+	ID string
+	// Name は画面に出す表示名
 	Name string
 }
 

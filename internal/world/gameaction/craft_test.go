@@ -17,10 +17,10 @@ func TestCanCraft(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 必要な素材を作成（木刀レシピは木の棒2個が必要）
-	material, _ := lifecycle.SpawnBackpackItem(world, "木の棒", 5)
+	material, _ := lifecycle.SpawnBackpackItem(world, "wooden_stick", 5)
 
 	// クラフト可能かテスト
-	canCraft, err := CanCraft(world, "木刀")
+	canCraft, err := CanCraft(world, "wooden_sword")
 	assert.True(t, canCraft, "十分な素材があるときはクラフト可能であるべき")
 	require.NoError(t, err, "十分な素材があるときはエラーが発生してはいけない")
 
@@ -28,7 +28,7 @@ func TestCanCraft(t *testing.T) {
 	materialComp := world.Components.Stackable.Get(material)
 	materialComp.Count = 1 // 木の棒の量を1にする（2個必要なので不足）
 
-	canCraft, err = CanCraft(world, "木刀")
+	canCraft, err = CanCraft(world, "wooden_sword")
 	assert.False(t, canCraft, "素材が不足しているときはクラフト不可能であるべき")
 	require.NoError(t, err, "素材が不足してもエラーは発生しないべき")
 
@@ -52,13 +52,13 @@ func TestCraft(t *testing.T) {
 	assert.Contains(t, err.Error(), "レシピが存在しません", "エラーメッセージにレシピ不存在の内容が含まれるべき")
 
 	// 素材不足でのクラフト試行（木刀は木の棒2個が必要）
-	_, err = Craft(world, "木刀")
+	_, err = Craft(world, "wooden_sword")
 	require.Error(t, err, "素材不足でエラーが返されるべき")
 	assert.Contains(t, err.Error(), "必要素材が足りません", "エラーメッセージに素材不足の内容が含まれるべき")
 
 	// 素材を用意してクラフト成功
-	_, _ = lifecycle.SpawnBackpackItem(world, "木の棒", 5)
-	result, err := Craft(world, "木刀")
+	_, _ = lifecycle.SpawnBackpackItem(world, "wooden_stick", 5)
+	result, err := Craft(world, "wooden_sword")
 	assert.NotEqual(t, gc.InvalidEntity, result, "素材が十分ならば有効なエンティティが返されるべき")
 	assert.NoError(t, err, "素材が十分ならばエラーは発生しないべき")
 }
@@ -71,19 +71,19 @@ func TestCraft_StackableTwice(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 統合はowner(プレイヤー)配下でのみ行われるため、プレイヤーを用意する
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 	require.NoError(t, err)
 
 	// 回復薬は緑ハーブ×1・黄ハーブ×1で合成できるStackableアイテム
-	_, _ = lifecycle.SpawnBackpackItem(world, "緑ハーブ", 2)
-	_, _ = lifecycle.SpawnBackpackItem(world, "黄ハーブ", 2)
+	_, _ = lifecycle.SpawnBackpackItem(world, "green_herb", 2)
+	_, _ = lifecycle.SpawnBackpackItem(world, "yellow_herb", 2)
 
-	first, err := Craft(world, "回復薬")
+	first, err := Craft(world, "healing_potion")
 	require.NoError(t, err, "1回目の合成は成功するべき")
 	assert.True(t, world.ECS.Alive(first), "1回目の結果エンティティは生存しているべき")
 
 	// 2回目: 新エンティティが既存スタックへ統合されるが、統合先を結果として返すべき
-	second, err := Craft(world, "回復薬")
+	second, err := Craft(world, "healing_potion")
 	require.NoError(t, err, "2回目の合成もパニックせず成功するべき")
 	assert.True(t, world.ECS.Alive(second), "統合されても生存する結果エンティティが返るべき")
 	assert.Equal(t, 2, query.GetEntityCount(world, second), "回復薬が2個に統合されているべき")

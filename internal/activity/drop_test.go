@@ -20,10 +20,10 @@ func TestDropBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -40,7 +40,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -57,7 +57,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// バックパック外のアイテムを手動で作成
@@ -77,7 +77,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 値型パラメータでは目的地未指定を表せない。ドロップ対象と目的地は構築関数が必ずまとめて渡す。
@@ -118,10 +118,10 @@ func TestDropBehavior_performDrop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -153,7 +153,7 @@ func TestDropBehavior_performDrop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// PlaceParams が付かない不正なアクティビティは performDrop でも弾かれる
@@ -175,10 +175,10 @@ func TestDropBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -198,7 +198,7 @@ func TestDropBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// PlaceParams が付かない不正なアクティビティは DoTurn でキャンセルへ落ちる
@@ -222,10 +222,10 @@ func TestDropBehavior_performDrop_AdjacentTile(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
 		// プレイヤーの右隣にドロップ
@@ -249,10 +249,10 @@ func TestDropBehavior_performDrop_AdjacentTile(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
 		// 右下斜めにドロップ
@@ -278,7 +278,7 @@ func TestDropBehavior_FixtureDerivedItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 固定物を拾った状態をシミュレート: Fixed+Item+BlockPassがバックパックにある
@@ -318,10 +318,10 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
 		require.NoError(t, err)
 
 		// 拾う。拾得対象は構築時にタイルから解決する

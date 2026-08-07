@@ -8,8 +8,8 @@ var (
 	DungeonDebug = &DungeonDefinition{
 		name:        "デバッグ",
 		totalFloors: 99,
-		enemyTable:  "森",
-		itemTable:   "森",
+		enemyTable:  "forest",
+		itemTable:   "forest",
 		baseTemp:    10,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
@@ -35,8 +35,8 @@ var (
 		description: "凍りついた森に、かつて猟師たちが分け入った。\n戻った者は少ない。冷気が骨まで届く。",
 		imageKey:    "forest1",
 		totalFloors: 20,
-		enemyTable:  "森",
-		itemTable:   "森",
+		enemyTable:  "forest",
+		itemTable:   "forest",
 		baseTemp:    0, // 寒い
 		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
@@ -52,8 +52,8 @@ var (
 		description: "灰色の岩壁に凍晶が脈のように走っている。\n奥に進むほど、静かになる。",
 		imageKey:    "cave1",
 		totalFloors: 20,
-		enemyTable:  "洞窟",
-		itemTable:   "洞窟",
+		enemyTable:  "cave",
+		itemTable:   "cave",
 		baseTemp:    5, // 寒い
 		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
@@ -77,8 +77,8 @@ var (
 		description: "古代の都市が、そのまま凍りついている。\n誰が何を忘れたのか、もう誰も知らない。",
 		imageKey:    "city1",
 		totalFloors: 20,
-		enemyTable:  "廃墟",
-		itemTable:   "廃墟",
+		enemyTable:  "ruins_area",
+		itemTable:   "ruins_area",
 		baseTemp:    15, // やや快適
 		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{

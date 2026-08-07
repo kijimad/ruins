@@ -138,23 +138,23 @@ func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {
 
 // LoadEnemyWeapon は敵のCommandTableから武器を取得しWeaponStatsを返す
 func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
-	spec, err := raw.NewMemberSpec(master, enemyName)
+	member, err := raw.FindMember(master, enemyName)
 	if err != nil {
 		return WeaponStats{}, err
 	}
 
-	if spec.CommandTable == nil {
+	if member.CommandTableName == nil || *member.CommandTableName == "" {
 		// CommandTableがない場合は素手
-		return LoadWeaponFromItem(master, "素手")
+		return LoadWeaponFromItem(master, "bare_hands")
 	}
 
-	ct, err := raw.GetCommandTable(master, spec.CommandTable.Name)
+	ct, err := raw.GetCommandTable(master, *member.CommandTableName)
 	if err != nil {
 		return WeaponStats{}, err
 	}
 
 	if len(ct.Entries) == 0 {
-		return LoadWeaponFromItem(master, "素手")
+		return LoadWeaponFromItem(master, "bare_hands")
 	}
 
 	// 最も重みの高い攻撃を代表として使う

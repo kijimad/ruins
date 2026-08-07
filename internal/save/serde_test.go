@@ -23,12 +23,12 @@ func TestSerdeWholeWorldRoundtrip(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "火の玉")
+	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "fireball")
 	require.NoError(t, err)
 	// 回復薬は平坦化された ProvidesHealing を持つ。serde 往復で保存されることを確認する
-	_, err = lifecycle.SpawnFieldItem(world, "回復薬", 3, 3, 2)
+	_, err = lifecycle.SpawnFieldItem(world, "healing_potion", 3, 3, 2)
 	require.NoError(t, err)
 	_, err = lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 4, Y: 4}, gc.DoorOrientationHorizontal)
 	require.NoError(t, err)
@@ -92,7 +92,7 @@ func TestSerde_DungeonLocationPersists(t *testing.T) {
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	dungeonState := query.GetDungeon(world)
@@ -128,7 +128,7 @@ func TestSerde_StageBoundとSuspendedが往復する(t *testing.T) {
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	key := gc.NewDungeonStage("テスト遺跡", 2)
@@ -172,9 +172,9 @@ func TestSerde_SoloAITargetEntityRemaps(t *testing.T) {
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "火の玉")
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "fireball")
 	require.NoError(t, err)
 
 	// 敵のSoloAIがプレイヤーを標的にしている戦闘中状態を作る
@@ -214,7 +214,7 @@ func TestSerde_WeaponSelectionPersists(t *testing.T) {
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 	query.GetWeaponSelection(world).Slot = 4
 
@@ -235,7 +235,7 @@ func TestSerde_GameTimePersists(t *testing.T) {
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
-	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 	query.GetGameTime(world).TotalTurns = 1234
 

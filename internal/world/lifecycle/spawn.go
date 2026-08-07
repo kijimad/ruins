@@ -208,7 +208,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumPlayer,
 		},
-		CommandTable: &gc.CommandTable{Name: "素手"},
+		CommandTable: &gc.CommandTable{Name: "bare_hands"},
 		SquadMember:  &gc.SquadMember{},
 	})
 	if err := FullRecover(world, memberEntity); err != nil {

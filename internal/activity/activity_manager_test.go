@@ -321,7 +321,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 通常移動のAP消費を記録する。
@@ -357,7 +357,7 @@ func TestLastActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		_, err = Execute(NewWaitActivity(1), player, world)
@@ -378,7 +378,7 @@ func TestLastActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 待機
@@ -413,7 +413,7 @@ func TestLastActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		// 存在しないターゲットへの攻撃（失敗する）

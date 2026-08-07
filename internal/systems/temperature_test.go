@@ -145,7 +145,7 @@ func TestTemperatureSystem_極低温ゾーンで低体温が急進する(t *test
 			// 前線なしの通常環境。基本気温0度のダンジョンを現ステージにする
 			d.CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
 		}
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 0}, "ash")
 		require.NoError(t, err)
 		require.NoError(t, (&TemperatureSystem{}).Update(world))
 		return world.Components.HealthStatus.Get(player)
@@ -329,7 +329,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1) // 基本気温0度
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
 		sys := &TemperatureSystem{}
@@ -393,7 +393,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備なしの場合は全て0", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
 		insulation := CalculateEquippedInsulation(world, player)
@@ -404,7 +404,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備の断熱値が合算される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
 		// 胴体装備（耐寒10, 耐熱5）

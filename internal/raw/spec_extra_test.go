@@ -15,6 +15,7 @@ func TestNewItemSpec_複数のオプション要素が設定される(t *testing
 	str := `
 [[Items]]
 Name = "回復薬"
+id = "回復薬"
 Description = "傷薬"
 SpriteSheetName = "field"
 SpriteKey = "potion"
@@ -64,6 +65,7 @@ func TestNewItemSpec_回復が数値型で設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "包帯"
+id = "包帯"
 Description = "止血する"
 
 [Items.ProvidesHealing]
@@ -88,6 +90,7 @@ func TestNewItemSpec_弾薬が設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "9mm弾"
+id = "9mm弾"
 Description = "拳銃弾"
 
 [Items.Ammo]
@@ -113,6 +116,7 @@ func TestNewItemSpec_装備品と装備ボーナスが設定される(t *testing
 	str := `
 [[Items]]
 Name = "革靴"
+id = "革靴"
 Description = "軽い靴"
 
 [Items.Wearable]
@@ -144,6 +148,7 @@ func TestNewItemSpec_本が設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "探索の本"
+id = "探索の本"
 Description = "探索術が学べる"
 
 [Items.Book]
@@ -173,6 +178,7 @@ func TestNewItemSpec_本にスキル未指定はエラー(t *testing.T) {
 	str := `
 [[Items]]
 Name = "白紙の本"
+id = "白紙の本"
 Description = "何も書かれていない"
 
 [Items.Book]
@@ -192,6 +198,7 @@ func TestNewItemSpec_本に未定義スキルはエラー(t *testing.T) {
 	str := `
 [[Items]]
 Name = "謎の本"
+id = "謎の本"
 Description = "未知のスキルを教える"
 
 [Items.Book]
@@ -216,6 +223,7 @@ func TestNewItemSpec_素材が設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "鉄"
+id = "鉄"
 Description = "頑丈な金属"
 Material = true
 `
@@ -233,6 +241,7 @@ func TestNewItemSpec_不正な重量はエラー(t *testing.T) {
 	str := `
 [[Items]]
 Name = "不正な重量アイテム"
+id = "不正な重量アイテム"
 Description = "重量表記がおかしい"
 Weight = "abc"
 `
@@ -250,6 +259,7 @@ func TestNewRecipeSpec_レシピが設定される(t *testing.T) {
 	str := `
 [[Items]]
 Name = "レイガン"
+id = "レイガン"
 Description = "光線を放つ武器"
 Value = 500
 
@@ -262,6 +272,7 @@ AttackCategory = "SWORD"
 
 [[Recipes]]
 Name = "レイガン"
+id = "レイガン"
 
 [[Recipes.Inputs]]
 Name = "鉄"
@@ -303,6 +314,7 @@ func TestNewRecipeSpec_対応アイテム無しはエラー(t *testing.T) {
 	str := `
 [[Recipes]]
 Name = "対応アイテムなしレシピ"
+id = "対応アイテムなしレシピ"
 
 [[Recipes.Inputs]]
 Name = "鉄"
@@ -322,6 +334,7 @@ func TestNewMemberSpec_不正な派閥はエラー(t *testing.T) {
 	str := `
 [[Members]]
 Name = "不正派閥"
+id = "不正派閥"
 FactionType = "FactionInvalid"
 [Members.Abilities]
 Vitality = 10
@@ -345,6 +358,7 @@ func TestNewMemberSpec_不正な戦闘方針はエラー(t *testing.T) {
 	str := `
 [[Members]]
 Name = "不正戦闘方針"
+id = "不正戦闘方針"
 CombatPolicy = "invalid_policy"
 [Members.Abilities]
 Vitality = 10
@@ -368,6 +382,7 @@ func TestNewMemberSpec_光源が設定される(t *testing.T) {
 	str := `
 [[Members]]
 Name = "光る敵"
+id = "光る敵"
 [Members.Abilities]
 Vitality = 10
 Strength = 5
@@ -403,6 +418,7 @@ func TestNewMemberSpec_会話が設定される(t *testing.T) {
 	str := `
 [[Members]]
 Name = "話す村人"
+id = "話す村人"
 [Members.Abilities]
 Vitality = 10
 Strength = 5

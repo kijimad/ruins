@@ -16,7 +16,7 @@ func TestSpawnFieldItem(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// フィールドアイテムを生成
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(5), consts.Tile(10), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(5), consts.Tile(10), 1)
 	require.NoError(t, err, "SpawnFieldItem should not return error")
 	require.NotNil(t, item, "アイテムエンティティが生成されるべき")
 
@@ -55,9 +55,9 @@ func TestSpawnMultipleFieldItems(t *testing.T) {
 		row      consts.Tile
 		col      consts.Tile
 	}{
-		{"回復薬", consts.Tile(1), consts.Tile(1)},
-		{"手榴弾", consts.Tile(2), consts.Tile(2)},
-		{"ルビー原石", consts.Tile(3), consts.Tile(3)},
+		{"healing_potion", consts.Tile(1), consts.Tile(1)},
+		{"grenade", consts.Tile(2), consts.Tile(2)},
+		{"raw_ruby", consts.Tile(3), consts.Tile(3)},
 	}
 
 	createdItems := make([]ecs.Entity, 0, len(items))

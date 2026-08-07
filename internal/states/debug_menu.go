@@ -34,11 +34,11 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	debugName := dungeon.DungeonDebug.Name()
 	choices := []Choice{
 		{Label: "回復薬スポーン(インベントリ)", Run: popAfter(func(world w.World) error {
-			_, err := lifecycle.SpawnBackpackItem(world, "回復薬", 1)
+			_, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 1)
 			return err
 		})},
 		{Label: "レイガンスポーン(インベントリ)", Run: popAfter(func(world w.World) error {
-			_, err := lifecycle.SpawnBackpackItem(world, "レイガン", 1)
+			_, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 			return err
 		})},
 		{Label: "ゲームオーバー", Run: pushChoice(NewGameOverMessageState)},
@@ -70,8 +70,8 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	choices = append(choices,
 		Choice{Label: "メッセージ表示テスト", Run: pushMessage(messagedata.NewSystemMessage("ゲームが自動保存されました。\n\n進行状況は安全に記録されています。"))},
 		Choice{Label: "アイテム入手イベント", Run: func(world w.World) (es.Transition[w.World], error) {
-			for name, count := range map[string]int{"鉄": 1, "木の棒": 1, "フェライトコア": 2} {
-				if err := lifecycle.ChangeStackableCount(world, name, count); err != nil {
+			for id, count := range map[string]int{"iron": 1, "wooden_stick": 1, "ferrite_core": 2} {
+				if err := lifecycle.ChangeStackableCount(world, id, count); err != nil {
 					return es.Transition[w.World]{}, fmt.Errorf("アイテム追加に失敗: %w", err)
 				}
 			}
@@ -118,14 +118,14 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			}
 			return nil
 		})},
-		Choice{Label: "敵スポーン:火の玉(hostile)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "火の玉") })},
-		Choice{Label: "敵スポーン:苔亀(neutral)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "苔亀") })},
-		Choice{Label: "敵スポーン:ネズミ(cowardly)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "ネズミ") })},
-		Choice{Label: "敵スポーン:鉄の番兵(stationary)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "鉄の番兵") })},
-		Choice{Label: "敵スポーン:毒蜘蛛(wallHug)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "毒蜘蛛") })},
-		Choice{Label: "敵スポーン:スライム(swarm)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "スライム") })},
-		Choice{Label: "敵スポーン:骸骨兵(patrol)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "骸骨兵") })},
-		Choice{Label: "敵スポーン:野犬(territorial)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "野犬") })},
+		Choice{Label: "敵スポーン:火の玉(hostile)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "fireball") })},
+		Choice{Label: "敵スポーン:苔亀(neutral)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "moss_turtle") })},
+		Choice{Label: "敵スポーン:ネズミ(cowardly)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "rat") })},
+		Choice{Label: "敵スポーン:鉄の番兵(stationary)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "iron_sentinel") })},
+		Choice{Label: "敵スポーン:毒蜘蛛(wallHug)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "poison_spider") })},
+		Choice{Label: "敵スポーン:スライム(swarm)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "slime") })},
+		Choice{Label: "敵スポーン:骸骨兵(patrol)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "skeleton_soldier") })},
+		Choice{Label: "敵スポーン:野犬(territorial)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "stray_dog") })},
 		Choice{Label: "Propスポーン:moving_stone(PassCost)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "moving_stone") })},
 		Choice{Label: "Propスポーン:bonfire(光源)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "bonfire") })},
 		Choice{Label: "Propスポーン:barrel(破壊可能)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "barrel") })},

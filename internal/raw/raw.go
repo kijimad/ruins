@@ -67,7 +67,7 @@ func DecodeRaws(content string) (oapi.Raws, error) {
 
 // FindItem は指定された名前のアイテム定義を検索する
 func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {
-	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)
+	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)
 	if !ok {
 		return oapi.Item{}, NewKeyNotFoundError(name, "Items")
 	}
@@ -76,7 +76,7 @@ func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {
 
 // FindMember は指定された名前のメンバー定義を検索する
 func FindMember(raws oapi.Raws, name string) (oapi.Member, error) {
-	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Name }, name)
+	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)
 	if !ok {
 		return oapi.Member{}, NewKeyNotFoundError(name, "Members")
 	}
@@ -212,7 +212,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Name = &gc.Name{Name: item.Name}
+	entitySpec.Name = &gc.Name{Name: item.Name, ID: item.Id}
 	entitySpec.Description = &gc.Description{Description: item.Description}
 
 	// デフォルト値設定
@@ -335,7 +335,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する
 func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
-	recipe, ok := findByKey(raws.Recipes, func(r oapi.Recipe) string { return r.Name }, name)
+	recipe, ok := findByKey(raws.Recipes, func(r oapi.Recipe) string { return r.Id }, name)
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "Recipes")
 	}
@@ -348,7 +348,7 @@ func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// 説明文や分類のため、マッチしたitemの定義から持ってくる
-	itemSpec, err := NewItemSpec(raws, recipe.Name)
+	itemSpec, err := NewItemSpec(raws, recipe.Id)
 	if err != nil {
 		return gc.EntitySpec{}, fmt.Errorf("%s: %w", "failed to generate item for recipe", err)
 	}
@@ -397,13 +397,13 @@ func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する
 func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
-	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Name }, name)
+	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)
 	if !ok {
 		return gc.EntitySpec{}, fmt.Errorf("key does not exist: %s", name)
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Name = &gc.Name{Name: member.Name}
+	entitySpec.Name = &gc.Name{Name: member.Name, ID: member.Id}
 	entitySpec.TurnBased = &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
 	entitySpec.SpriteRender = &gc.SpriteRender{
 		SpriteSheetName: member.SpriteSheetName,
@@ -521,7 +521,7 @@ func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 // GetCommandTable は指定された名前のコマンドテーブルを取得する
 func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {
-	ct, ok := findByKey(raws.CommandTables, func(c oapi.CommandTable) string { return c.Name }, name)
+	ct, ok := findByKey(raws.CommandTables, func(c oapi.CommandTable) string { return c.Id }, name)
 	if !ok {
 		return oapi.CommandTable{}, fmt.Errorf("key does not exist: %s", name)
 	}
@@ -530,7 +530,7 @@ func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {
 
 // GetDropTable は指定された名前のドロップテーブルを取得する
 func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
-	dt, ok := findByKey(raws.DropTables, func(d oapi.DropTable) string { return d.Name }, name)
+	dt, ok := findByKey(raws.DropTables, func(d oapi.DropTable) string { return d.Id }, name)
 	if !ok {
 		return oapi.DropTable{}, fmt.Errorf("key does not exist: %s", name)
 	}
@@ -539,7 +539,7 @@ func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
 
 // GetItemGroup は指定された名前のアイテムグループを取得する
 func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
-	ig, ok := findByKey(raws.ItemGroups, func(g oapi.ItemGroup) string { return g.Name }, name)
+	ig, ok := findByKey(raws.ItemGroups, func(g oapi.ItemGroup) string { return g.Id }, name)
 	if !ok {
 		return oapi.ItemGroup{}, fmt.Errorf("item group does not exist: %s", name)
 	}
@@ -548,7 +548,7 @@ func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
 
 // GetItemTable は指定された名前のアイテムテーブルを取得する
 func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {
-	it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Name }, name)
+	it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Id }, name)
 	if !ok {
 		return oapi.ItemTable{}, fmt.Errorf("key does not exist: %s", name)
 	}
@@ -557,7 +557,7 @@ func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {
 
 // GetEnemyTable は指定された名前の敵テーブルを取得する
 func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
-	et, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Name }, name)
+	et, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Id }, name)
 	if !ok {
 		return oapi.EnemyTable{}, fmt.Errorf("key does not exist: %s", name)
 	}
@@ -583,7 +583,7 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Name = &gc.Name{Name: tileRaw.Name}
+	entitySpec.Name = &gc.Name{Name: tileRaw.Name, ID: tileRaw.Id}
 	entitySpec.Description = &gc.Description{Description: tileRaw.Description}
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 
@@ -631,7 +631,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Fixed = &gc.Fixed{}
-	entitySpec.Name = &gc.Name{Name: propRaw.Name}
+	entitySpec.Name = &gc.Name{Name: propRaw.Name, ID: propRaw.Id}
 	entitySpec.Description = &gc.Description{Description: propRaw.Description}
 
 	// SpriteRenderの設定（AnimKeysを含む）
@@ -718,7 +718,7 @@ func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
 	if prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name); ok && prop.Disassembly != nil {
 		return prop.Disassembly, true
 	}
-	if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name); ok && item.Disassembly != nil {
+	if item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name); ok && item.Disassembly != nil {
 		return item.Disassembly, true
 	}
 	return nil, false
@@ -726,7 +726,7 @@ func FindDisassembly(raws oapi.Raws, name string) (*oapi.Disassembly, bool) {
 
 // FindDisassemblyTool は指定された名前のアイテムの分解工具定義を返す
 func FindDisassemblyTool(raws oapi.Raws, name string) (*oapi.DisassemblyTool, bool) {
-	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)
+	item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Id }, name)
 	if !ok || item.DisassemblyTool == nil {
 		return nil, false
 	}

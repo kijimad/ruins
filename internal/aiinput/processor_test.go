@@ -171,12 +171,12 @@ func TestCullDistantSolo(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}))
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	// 敵を生成し、状態を設定するヘルパ
 	spawn := func(x, y int, state gc.AIStateSubState) ecs.Entity {
-		e, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, "火の玉")
+		e, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, "fireball")
 		require.NoError(t, err)
 		world.Components.SoloAI.Get(e).SubState = state
 		return e
@@ -206,10 +206,10 @@ func TestCullDistantSolo_PlayerApproachActivates(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}))
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 40, Y: 10}, "火の玉") // 距離30 → 圏外
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 40, Y: 10}, "fireball") // 距離30 → 圏外
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(enemy).SubState = gc.AIStateWaiting
 
@@ -233,7 +233,7 @@ func TestCullDistantSolo_NoPlayerReturnsError(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤー不在（GetPlayerEntity が失敗）は異常なのでエラーを返す
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 100, Y: 100}, "火の玉")
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 100, Y: 100}, "fireball")
 	require.NoError(t, err)
 
 	targets := []ecs.Entity{enemy}
@@ -248,13 +248,13 @@ func TestProcessAll_大規模でpanicしない(t *testing.T) {
 	t.Parallel()
 	// 敵が重ならず配置でき移動も破綻しないよう大きめのマップにする
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(100)}))
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 50, Y: 50}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 50, Y: 50}, "ash")
 	require.NoError(t, err)
 
 	// 固定 seed で全域に敵を配置（プレイヤー近傍は攻撃経路も通る）
 	rng := rand.New(rand.NewPCG(1, 2))
 	for range 500 {
-		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(rng.IntN(100)), Y: consts.Tile(rng.IntN(100))}, "火の玉")
+		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(rng.IntN(100)), Y: consts.Tile(rng.IntN(100))}, "fireball")
 		require.NoError(t, err)
 	}
 
@@ -272,7 +272,7 @@ func TestProcessAll_大規模でpanicしない(t *testing.T) {
 func TestProcessAll_AIフェーズで空間インデックスを再構築しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(60), TileHeight: consts.Tile(60)}))
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "ash")
 	require.NoError(t, err)
 
 	// プレイヤー近傍に敵を多数配置（活性半径内＝毎ターン処理・移動される）
@@ -280,7 +280,7 @@ func TestProcessAll_AIフェーズで空間インデックスを再構築しな�
 	for range 40 {
 		x := 30 + rng.IntN(21) - 10
 		y := 30 + rng.IntN(21) - 10
-		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, "火の玉")
+		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, "fireball")
 		require.NoError(t, err)
 	}
 
@@ -308,7 +308,7 @@ func TestCullDistantSolo_ScalingInvariant(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}))
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, "ash")
 	require.NoError(t, err)
 
 	// マップ全域に敵を格子配置する。大半はプレイヤーの活性半径外に位置する
@@ -320,7 +320,7 @@ func TestCullDistantSolo_ScalingInvariant(t *testing.T) {
 	total := 0
 	for gx := range gridN {
 		for gy := range gridN {
-			_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(offset + gx*spacing), Y: consts.Tile(offset + gy*spacing)}, "火の玉")
+			_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(offset + gx*spacing), Y: consts.Tile(offset + gy*spacing)}, "fireball")
 			require.NoError(t, err)
 			total++
 		}

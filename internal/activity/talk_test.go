@@ -19,10 +19,10 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		npc, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "商人")
+		npc, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "merchant")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -39,7 +39,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -56,7 +56,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// Dialogなしのエンティティを手動で作成
@@ -78,7 +78,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// FactionNeutralなしのエンティティを手動で作成
@@ -122,10 +122,10 @@ func TestTalkBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		npc, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "商人")
+		npc, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "merchant")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -145,7 +145,7 @@ func TestTalkBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// Nameなしのエンティティを手動で作成

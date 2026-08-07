@@ -9,8 +9,8 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// FindStackableInInventory は名前でバックパック内のStackableアイテムを検索する
-func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
+// FindStackableInInventory は同定キーでバックパック内のStackableアイテムを検索する
+func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
@@ -21,7 +21,7 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 			continue
 		}
 		itemName := world.Components.Name.Get(entity)
-		if itemName.Name == name {
+		if itemName.ID == id {
 			foundEntity = entity
 			found = true
 		}

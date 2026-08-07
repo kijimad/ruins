@@ -33,7 +33,7 @@ func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	// 範囲外にあるトリガーを作成（距離が2以上）
@@ -60,7 +60,7 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	// Manual方式のトリガーを作成（プレイヤーと同じタイル）
@@ -89,7 +89,7 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	// OnCollision方式のトリガーを作成（プレイヤーと隣接）
@@ -116,7 +116,7 @@ func TestAutoInteractionSystem_InvalidRange(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	// 未知の種類（平坦化によりゼロ値=無効なConfigになる）のトリガーを作成

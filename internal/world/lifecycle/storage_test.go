@@ -21,9 +21,9 @@ func TestMoveToStorage(t *testing.T) {
 	require.NoError(t, err)
 
 	// アイテムを生成してバックパックに配置
-	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err2)
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
@@ -55,9 +55,9 @@ func TestGetStorageItems(t *testing.T) {
 	assert.Empty(t, items)
 
 	// アイテムを2つ収納に入れる
-	item1, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item1, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
-	item2, err := SpawnFieldItem(world, "手榴弾", consts.Tile(0), consts.Tile(0), 1)
+	item2, err := SpawnFieldItem(world, "grenade", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 
 	require.NoError(t, MoveToStorage(world, item1, storageEntity))
@@ -78,7 +78,7 @@ func TestGetStorageCurrentWeight(t *testing.T) {
 	assert.Equal(t, consts.Milligram(0), query.GetStorageCurrentWeight(world, storageEntity))
 
 	// 重さを持つアイテムを収納に入れる
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
@@ -97,7 +97,7 @@ func TestCanAddToStorage(t *testing.T) {
 	require.NoError(t, err)
 
 	// 空の収納にはアイテムを追加できる
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 	assert.True(t, query.CanAddToStorage(world, storageEntity, item))
 }
@@ -114,7 +114,7 @@ func TestCanAddToStorage_OverWeight(t *testing.T) {
 	maxWeight := wc.Max
 
 	// 重量がmaxWeight+1kgのアイテムを作って追加不可を確認
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 
 	// アイテムの重量を超過させるためにmaxWeightを0にする
@@ -133,7 +133,7 @@ func TestMoveToStorage_SetsWeightDirtyOnStorage(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 
 	// マーカーを事前にクリア
@@ -154,9 +154,9 @@ func TestMoveToStorage_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err2)
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
@@ -177,9 +177,9 @@ func TestMoveToBackpack_SetsWeightDirtyOnPreviousStorage(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err2)
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
@@ -197,9 +197,9 @@ func TestMoveToField_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	playerEntity, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	playerEntity, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
@@ -218,9 +218,9 @@ func TestMoveToStorage_ThenBackToBackpack(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	playerEntity, err2 := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err2)
-	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	item, err := SpawnFieldItem(world, "healing_potion", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 
 	// 収納に入れて、バックパックに戻す
@@ -239,15 +239,15 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	playerEntity, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	playerEntity, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	// バックパックに回復薬 x3 を配置
-	_, err = SpawnBackpackItem(world, "回復薬", 3)
+	_, err = SpawnBackpackItem(world, "healing_potion", 3)
 	require.NoError(t, err)
 
 	// 収納に回復薬 x2 を配置
-	storageItem, err := SpawnStorageItem(world, "回復薬", 2, storageEntity)
+	storageItem, err := SpawnStorageItem(world, "healing_potion", 2, storageEntity)
 	require.NoError(t, err)
 
 	// 収納からバックパックへ移動（統合されるべき）
@@ -275,13 +275,13 @@ func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	// 非Stackableアイテムを2つバックパックに配置
-	_, err = SpawnBackpackItem(world, "西洋鎧", 1)
+	_, err = SpawnBackpackItem(world, "western_armor", 1)
 	require.NoError(t, err)
-	_, err = SpawnBackpackItem(world, "西洋鎧", 1)
+	_, err = SpawnBackpackItem(world, "western_armor", 1)
 	require.NoError(t, err)
 
 	// 非Stackableアイテムは統合されず2つ存在する
@@ -305,15 +305,15 @@ func TestMoveToStorage_MergesStackable(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	_, err = SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err = SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	// 収納に回復薬 x3 を配置
-	_, err = SpawnStorageItem(world, "回復薬", 3, storageEntity)
+	_, err = SpawnStorageItem(world, "healing_potion", 3, storageEntity)
 	require.NoError(t, err)
 
 	// バックパックに回復薬 x1 を配置し、収納に移動する
-	backpackItem, err := SpawnBackpackItem(world, "回復薬", 1)
+	backpackItem, err := SpawnBackpackItem(world, "healing_potion", 1)
 	require.NoError(t, err)
 	require.NoError(t, MoveToStorage(world, backpackItem, storageEntity))
 
@@ -344,17 +344,17 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	storageB, err := SpawnProp(world, "木箱", consts.Tile(1), consts.Tile(0))
 	require.NoError(t, err)
 
-	_, err = SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err = SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	// 木箱Aに回復薬 x3、木箱Bに回復薬 x2
-	_, err = SpawnStorageItem(world, potion, 3, storageA)
+	_, err = SpawnStorageItem(world, "healing_potion", 3, storageA)
 	require.NoError(t, err)
-	_, err = SpawnStorageItem(world, potion, 2, storageB)
+	_, err = SpawnStorageItem(world, "healing_potion", 2, storageB)
 	require.NoError(t, err)
 
 	// バックパックに回復薬 x1 を配置し、木箱Aに移動する
-	backpackItem, err := SpawnBackpackItem(world, potion, 1)
+	backpackItem, err := SpawnBackpackItem(world, "healing_potion", 1)
 	require.NoError(t, err)
 	require.NoError(t, MoveToStorage(world, backpackItem, storageA))
 

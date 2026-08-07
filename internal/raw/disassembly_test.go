@@ -27,8 +27,8 @@ func TestFindDisassembly(t *testing.T) {
 			{Name: "机"},
 		},
 		Items: &[]oapi.Item{
-			{Name: "廃品", Disassembly: itemDisassembly},
-			{Name: "回復薬"},
+			{Id: "廃品", Name: "廃品", Disassembly: itemDisassembly},
+			{Id: "回復薬", Name: "回復薬"},
 		},
 	}
 
@@ -77,8 +77,8 @@ func TestFindDisassemblyTool(t *testing.T) {
 	}
 	raws := oapi.Raws{
 		Items: &[]oapi.Item{
-			{Name: "バール", DisassemblyTool: tool},
-			{Name: "回復薬"},
+			{Id: "バール", Name: "バール", DisassemblyTool: tool},
+			{Id: "回復薬", Name: "回復薬"},
 		},
 	}
 
@@ -116,8 +116,8 @@ func TestValidateReferences(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items: &[]oapi.Item{
-				{Name: "鉄くず"},
-				{Name: "刀"},
+				{Id: "鉄くず", Name: "鉄くず"},
+				{Id: "刀", Name: "刀"},
 			},
 			Props: &[]oapi.Prop{{
 				Name: "棚",
@@ -128,26 +128,32 @@ func TestValidateReferences(t *testing.T) {
 				},
 			}},
 			DropTables: &[]oapi.DropTable{{
+				Id:      "廃墟",
 				Name:    "廃墟",
 				Entries: []oapi.DropTableEntry{{Material: "鉄くず", Weight: 1}},
 			}},
 			EnemyTables: &[]oapi.EnemyTable{{
+				Id:      "通常",
 				Name:    "通常",
 				Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム", Pack: "1d3"}},
 			}},
 			CommandTables: &[]oapi.CommandTable{{
+				Id:      "剣術",
 				Name:    "剣術",
 				Entries: []oapi.CommandTableEntry{{Weapon: "刀"}},
 			}},
 			ItemGroups: &[]oapi.ItemGroup{{
+				Id:      "素材",
 				Name:    "素材",
 				Entries: []oapi.ItemGroupEntry{{ItemName: "鉄くず", Pack: "1d1"}},
 			}},
 			ItemTables: &[]oapi.ItemTable{{
+				Id:      "宝箱",
 				Name:    "宝箱",
 				Entries: []oapi.ItemTableEntry{{GroupName: "素材"}},
 			}},
 			Members: &[]oapi.Member{{
+				Id:               "スライム",
 				Name:             "スライム",
 				DropTableName:    new(oapi.EntityName("廃墟")),
 				CommandTableName: new(oapi.EntityName("剣術")),

@@ -167,7 +167,7 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	}
 	spawn := walkableSpawnNear(world, center)
 	if _, err := query.GetPlayerEntity(world); err != nil {
-		if _, serr := lifecycle.SpawnPlayer(world, spawn, "Ash"); serr != nil {
+		if _, serr := lifecycle.SpawnPlayer(world, spawn, "ash"); serr != nil {
 			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
 		}
 	} else if merr := lifecycle.MovePlayerToPosition(world, spawn); merr != nil {

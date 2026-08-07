@@ -68,9 +68,9 @@ func TestFindBestDisassemblyTool(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		player := newDisassembleTestPlayer(world)
 
-		_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+		_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 		require.NoError(t, err)
-		_, err = lifecycle.SpawnBackpackItem(world, "鉄カッター", 1)
+		_, err = lifecycle.SpawnBackpackItem(world, "iron_cutter", 1)
 		require.NoError(t, err)
 
 		grade, name, ok := FindBestDisassemblyTool(world, player, oapi.Prying)
@@ -89,7 +89,7 @@ func TestFindBestDisassemblyTool(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		player := newDisassembleTestPlayer(world)
 
-		_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+		_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 		require.NoError(t, err)
 
 		_, _, ok := FindBestDisassemblyTool(world, player, oapi.Precision)
@@ -134,7 +134,7 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
@@ -178,9 +178,9 @@ func TestDisassembleBehavior_アイテムを分解すると消費して素材が
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "電動ドライバー", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "electric_screwdriver", 1)
 	require.NoError(t, err)
-	hdd, err := lifecycle.SpawnBackpackItem(world, "ハードディスク", 1)
+	hdd, err := lifecycle.SpawnBackpackItem(world, "hard_disk", 1)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
@@ -212,13 +212,13 @@ func TestDisassembleBehavior_収納propを分解すると中身が足元に出�
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "木箱", 11, 10)
 	require.NoError(t, err)
 
 	// 収納に中身を入れる
-	loot, err := lifecycle.SpawnFieldItem(world, "パン", 12, 12, 1)
+	loot, err := lifecycle.SpawnFieldItem(world, "bread", 12, 12, 1)
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MoveToStorage(world, loot, crate))
 
@@ -244,7 +244,7 @@ func TestDisassembleBehavior_Finish_対象が既に消えていれば何もし�
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
@@ -273,9 +273,9 @@ func TestDisassembleBehavior_スタックのあるアイテムは1個だけ消�
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "電動ドライバー", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "electric_screwdriver", 1)
 	require.NoError(t, err)
-	hdd, err := lifecycle.SpawnBackpackItem(world, "ハードディスク", 2)
+	hdd, err := lifecycle.SpawnBackpackItem(world, "hard_disk", 2)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
@@ -302,7 +302,7 @@ func TestDisassembleBehavior_Finish_レベルアップでStatsChangedが付く(t
 	mechanic := world.Components.Skills.Get(player).Get(gc.SkillMechanic)
 	mechanic.Exp.Current = mechanic.Exp.Max - 1
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
@@ -327,7 +327,7 @@ func TestDisassembleBehavior_Validate_敵が隣接していると開始できな
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
@@ -346,7 +346,7 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
@@ -401,7 +401,7 @@ func TestDisassembleBehavior_DoTurn_対象が消えると中断する(t *testing
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
@@ -427,7 +427,7 @@ func TestDisassembleBehavior_DoTurn_工具を失うと中断する(t *testing.T)
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	wrench, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	wrench, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)

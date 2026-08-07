@@ -120,7 +120,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 		world.ECS.RemoveEntity(existing)
 	}
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	if err != nil {
 		return es.Transition[w.World]{}, fmt.Errorf("failed to spawn player: %w", err)
 	}
@@ -253,7 +253,7 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
 			if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {
 				slotLabel = query.T(world, slot.String())
 			}
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, equip.Name), res))
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, professionItemDisplayName(world, equip.Name)), res))
 		}
 	}
 
@@ -261,7 +261,7 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
 	if len(prof.Items) > 0 {
 		container.AddChild(styled.NewDescriptionText(query.T(world, "Items"), res))
 		for _, item := range prof.Items {
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", item.Name, item.Count), res))
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", professionItemDisplayName(world, item.Name), item.Count), res))
 		}
 	}
 
@@ -279,4 +279,13 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
 	}
 
 	return container
+}
+
+// professionItemDisplayName は profession が参照するアイテム id を表示名へ解決する。
+// 定義が見つからなければ id をそのまま返す
+func professionItemDisplayName(world w.World, id string) string {
+	if item, err := raw.FindItem(world.Resources.RawMaster, id); err == nil {
+		return item.Name
+	}
+	return id
 }

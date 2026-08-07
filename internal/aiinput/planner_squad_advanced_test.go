@@ -39,7 +39,7 @@ func TestSquadPlanner_GatherSquadSnapshot(t *testing.T) {
 	t.Run("SquadAIがなければfalse", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		entity := world.ECS.NewEntity()
@@ -68,7 +68,7 @@ func TestSquadPlanner_GatherSquadSnapshot(t *testing.T) {
 	t.Run("正常系ではスナップショットを構築する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -86,7 +86,7 @@ func TestSquadPlanner_GatherSquadSnapshot(t *testing.T) {
 func TestSquadPlanner_PlanRetreatAction(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 	require.NoError(t, err)
@@ -126,7 +126,7 @@ func TestSquadPlanner_IsOutsideExploredArea(t *testing.T) {
 func TestSquadPlanner_PlanReturnToExploredArea(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 	require.NoError(t, err)
@@ -155,7 +155,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 	t.Run("HP低下時は隣接する敵がいても後退を優先する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -163,7 +163,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 		memberGrid.X = 15
 		memberGrid.Y = 10
-		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 16, Y: 10}, "火の玉")
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 16, Y: 10}, "fireball")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -188,7 +188,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 	t.Run("HP低下でも後退できなければ次の優先度に進む", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -217,7 +217,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 	t.Run("エリア外なら戦闘より復帰を優先する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -226,7 +226,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 		memberGrid.X = 15
 		memberGrid.Y = 10
-		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 16, Y: 10}, "火の玉")
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 16, Y: 10}, "fireball")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -248,7 +248,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 	t.Run("何も優先条件がなければ位置ポリシーに委ねる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -280,7 +280,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 	t.Run("CombatAttackなら攻撃計画に委譲する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -288,7 +288,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 		memberGrid.X = 11
 		memberGrid.Y = 10
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -309,7 +309,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 	t.Run("CombatEvadeなら回避計画に委譲する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -317,7 +317,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 		memberGrid.X = 12
 		memberGrid.Y = 10
-		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -337,7 +337,7 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 	t.Run("CombatIgnoreでは何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -361,7 +361,7 @@ func TestSquadPlanner_PlanAttackAction(t *testing.T) {
 	t.Run("視界内に敵がいなければ何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -381,7 +381,7 @@ func TestSquadPlanner_PlanAttackAction(t *testing.T) {
 	t.Run("視界内で離れた敵には接近する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -389,7 +389,7 @@ func TestSquadPlanner_PlanAttackAction(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 		memberGrid.X = 10
 		memberGrid.Y = 15
-		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 18}, "火の玉")
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 18}, "fireball")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -413,7 +413,7 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 	t.Run("視界内に敵がいなければ何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -433,7 +433,7 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 	t.Run("視界内の敵から離れる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -441,7 +441,7 @@ func TestSquadPlanner_PlanEvadeAction(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 		memberGrid.X = 12
 		memberGrid.Y = 10
-		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -481,7 +481,7 @@ func TestSquadPlanner_PlanPositionAction(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
-			leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+			leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 			require.NoError(t, err)
 			member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 			require.NoError(t, err)
@@ -511,7 +511,7 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 	t.Run("護衛距離内なら待機する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -531,7 +531,7 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 	t.Run("離れていれば追従移動する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -551,7 +551,7 @@ func TestSquadPlanner_PlanEscortAction(t *testing.T) {
 	t.Run("離れていて移動もできなければ待機にフォールバックする", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -575,7 +575,7 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 	t.Run("離れすぎていればリーダーに接近する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -595,7 +595,7 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 	t.Run("距離内でランダム移動できれば移動する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -613,7 +613,7 @@ func TestSquadPlanner_PlanVanguardAction(t *testing.T) {
 	t.Run("距離内で移動先がなければ待機する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -634,7 +634,7 @@ func TestSquadPlanner_PlanSquadPatrolAction(t *testing.T) {
 	t.Run("探索済みエリアがあれば巡回移動する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -651,7 +651,7 @@ func TestSquadPlanner_PlanSquadPatrolAction(t *testing.T) {
 	t.Run("移動先がなければ待機する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -670,7 +670,7 @@ func TestSquadPlanner_FindNearestEnemy(t *testing.T) {
 	t.Run("複数の敵から最も近いものを選ぶ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -679,9 +679,9 @@ func TestSquadPlanner_FindNearestEnemy(t *testing.T) {
 		memberGrid.X = 10
 		memberGrid.Y = 15
 
-		far, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 25}, "火の玉")
+		far, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 25}, "fireball")
 		require.NoError(t, err)
-		near, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 17}, "火の玉")
+		near, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 17}, "fireball")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -699,7 +699,7 @@ func TestSquadPlanner_FindNearestEnemy(t *testing.T) {
 	t.Run("視界外の敵は無視する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -707,7 +707,7 @@ func TestSquadPlanner_FindNearestEnemy(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member)
 		memberGrid.X = 10
 		memberGrid.Y = 15
-		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 40}, "火の玉")
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 40}, "fireball")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 
@@ -725,7 +725,7 @@ func TestSquadPlanner_TryMoveToward(t *testing.T) {
 	t.Run("到達可能なら移動アクションを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -746,7 +746,7 @@ func TestSquadPlanner_TryMoveToward(t *testing.T) {
 	t.Run("既に目的地にいれば移動しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -761,7 +761,7 @@ func TestSquadPlanner_TryMoveToward(t *testing.T) {
 	t.Run("壁に囲まれていれば移動しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -782,7 +782,7 @@ func TestSquadPlanner_TryMoveToward(t *testing.T) {
 func TestSquadPlanner_TryMoveAway(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 	require.NoError(t, err)
@@ -807,7 +807,7 @@ func TestSquadPlanner_TryRandomMove(t *testing.T) {
 	t.Run("探索済みエリアがなければ移動できない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -821,7 +821,7 @@ func TestSquadPlanner_TryRandomMove(t *testing.T) {
 	t.Run("探索済みエリア内なら移動できる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)

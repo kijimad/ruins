@@ -20,14 +20,14 @@ type relSpot struct {
 // 合成(怪しい科学者)を開く。小集落は無状態の補給地で、stash となる収納は置かない。
 // フィールドにアイテムを残さない方針のため、seed からの決定的再生成と整合する。
 var villageNPCs = []relSpot{
-	{"商人", -2, -1},
-	{"酒場の主人", -2, 1},
-	{"怪しい科学者", -4, 0},
+	{"merchant", -2, -1},
+	{"tavern_keeper", -2, 1},
+	{"suspicious_scientist", -4, 0},
 }
 
 // hamletNPCs は一軒家に配置する会話NPC。行商の拠点という位置づけで商人だけがいる。
 var hamletNPCs = []relSpot{
-	{"商人", -2, -1},
+	{"merchant", -2, -1},
 }
 
 // villageProps と hamletProps は集落の生活感を出す prop。NPC の座標と重ねない。

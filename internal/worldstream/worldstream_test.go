@@ -17,9 +17,9 @@ func TestTranslateAllEntities(t *testing.T) {
 
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)}))
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 15}, "火の玉")
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 15}, "fireball")
 	require.NoError(t, err)
 
 	// 西へ5・南へ2 平行移動（帯リベース相当）
@@ -40,13 +40,13 @@ func TestRemoveEntitiesInXRange(t *testing.T) {
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)}))
 
 	// プレイヤーは範囲内 [0,10) に居るが keep で残す
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 3, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 3, Y: 5}, "ash")
 	require.NoError(t, err)
 	// 範囲内の敵 → 削除される
-	inside, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 2, Y: 5}, "火の玉")
+	inside, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 2, Y: 5}, "fireball")
 	require.NoError(t, err)
 	// 範囲外の敵 → 残る
-	outside, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 15, Y: 5}, "火の玉")
+	outside, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 15, Y: 5}, "fireball")
 	require.NoError(t, err)
 
 	removed := worldstream.RemoveEntitiesInXRange(world, 0, 10, worldstream.KeepPlayerAndSquad(world))
@@ -61,13 +61,13 @@ func TestRemoveEntitiesInXRange_境界は半開区間(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)}))
-	if _, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 50, Y: 5}, "Ash"); err != nil {
+	if _, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 50, Y: 5}, "ash"); err != nil {
 		require.NoError(t, err)
 	}
 
-	atLo, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 0, Y: 5}, "火の玉") // lo は含む
+	atLo, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 0, Y: 5}, "fireball") // lo は含む
 	require.NoError(t, err)
-	atHi, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 5}, "火の玉") // hi は含まない
+	atHi, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 5}, "fireball") // hi は含まない
 	require.NoError(t, err)
 
 	removed := worldstream.RemoveEntitiesInXRange(world, 0, 10, nil)

@@ -21,6 +21,7 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用のアイテムテーブルを定義
 	testItemTables := []oapi.ItemTable{
 		{
+			Id:   "通常",
 			Name: "通常",
 			Entries: []oapi.ItemTableEntry{
 				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
@@ -28,6 +29,7 @@ func CreateTestRawMaster() *oapi.Raws {
 			},
 		},
 		{
+			Id:   "洞窟",
 			Name: "洞窟",
 			Entries: []oapi.ItemTableEntry{
 				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
@@ -35,12 +37,14 @@ func CreateTestRawMaster() *oapi.Raws {
 			},
 		},
 		{
+			Id:   "森",
 			Name: "森",
 			Entries: []oapi.ItemTableEntry{
 				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
 			},
 		},
 		{
+			Id:   "廃墟",
 			Name: "廃墟",
 			Entries: []oapi.ItemTableEntry{
 				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
@@ -52,6 +56,7 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用の敵テーブルを定義
 	testEnemyTables := []oapi.EnemyTable{
 		{
+			Id:   "通常",
 			Name: "通常",
 			Entries: []oapi.EnemyTableEntry{
 				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
@@ -60,6 +65,7 @@ func CreateTestRawMaster() *oapi.Raws {
 			},
 		},
 		{
+			Id:   "洞窟",
 			Name: "洞窟",
 			Entries: []oapi.EnemyTableEntry{
 				{EnemyName: "スライム", Weight: 1.0, MinDepth: 1, MaxDepth: 8, Pack: "1d1"},
@@ -68,6 +74,7 @@ func CreateTestRawMaster() *oapi.Raws {
 			},
 		},
 		{
+			Id:   "森",
 			Name: "森",
 			Entries: []oapi.EnemyTableEntry{
 				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 12, Pack: "1d1"},
@@ -76,6 +83,7 @@ func CreateTestRawMaster() *oapi.Raws {
 			},
 		},
 		{
+			Id:   "廃墟",
 			Name: "廃墟",
 			Entries: []oapi.EnemyTableEntry{
 				{EnemyName: "スライム", Weight: 0.9, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
@@ -89,6 +97,7 @@ func CreateTestRawMaster() *oapi.Raws {
 	// テスト用のアイテムグループを定義
 	testItemGroups := []oapi.ItemGroup{
 		{
+			Id:      "回復アイテム",
 			Name:    "回復アイテム",
 			Subtype: oapi.Distribution,
 			Entries: []oapi.ItemGroupEntry{
@@ -97,6 +106,7 @@ func CreateTestRawMaster() *oapi.Raws {
 			},
 		},
 		{
+			Id:      "鉱石類",
 			Name:    "鉱石類",
 			Subtype: oapi.Collection,
 			Entries: []oapi.ItemGroupEntry{
@@ -112,12 +122,12 @@ func CreateTestRawMaster() *oapi.Raws {
 	return &oapi.Raws{
 		Tiles: &testTiles,
 		Items: &[]oapi.Item{
-			{Name: "回復薬", Description: "HPを回復する", Stackable: &stackableTrue},
-			{Name: "毒消し", Description: "毒を回復する", Stackable: &stackableTrue},
-			{Name: "黒曜石", Description: "黒い石", Stackable: &stackableTrue},
-			{Name: "銀の欠片", Description: "銀の欠片", Stackable: &stackableTrue},
-			{Name: "薬草", Description: "薬草", Stackable: &stackableTrue},
-			{Name: "木刀", Description: "木製の刀"},
+			{Id: "回復薬", Name: "回復薬", Description: "HPを回復する", Stackable: &stackableTrue},
+			{Id: "毒消し", Name: "毒消し", Description: "毒を回復する", Stackable: &stackableTrue},
+			{Id: "黒曜石", Name: "黒曜石", Description: "黒い石", Stackable: &stackableTrue},
+			{Id: "銀の欠片", Name: "銀の欠片", Description: "銀の欠片", Stackable: &stackableTrue},
+			{Id: "薬草", Name: "薬草", Description: "薬草", Stackable: &stackableTrue},
+			{Id: "木刀", Name: "木刀", Description: "木製の刀"},
 		},
 		ItemGroups:  &testItemGroups,
 		ItemTables:  &testItemTables,

@@ -162,7 +162,7 @@ func TestSpawnEnemyHasAI(t *testing.T) {
 	world.Resources.SpriteSheets = spriteSheets
 
 	// NPCを生成（タイル座標で指定）
-	_, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "火の玉")
+	_, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "fireball")
 	require.NoError(t, err)
 
 	// AIコンポーネントを持つエンティティが存在することを確認
@@ -192,7 +192,7 @@ func TestSpawnEnemy_WithBoss(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		initSpriteSheets(world)
-		enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "火の玉", WithBoss())
+		enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "fireball", WithBoss())
 		require.NoError(t, err)
 		assert.True(t, world.Components.Boss.Has(enemy), "Bossコンポーネントを持つべき")
 	})
@@ -201,7 +201,7 @@ func TestSpawnEnemy_WithBoss(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		initSpriteSheets(world)
-		enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 6, Y: 6}, "火の玉")
+		enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 6, Y: 6}, "fireball")
 		require.NoError(t, err)
 		assert.False(t, world.Components.Boss.Has(enemy), "Bossコンポーネントを持つべきではない")
 	})
@@ -222,7 +222,7 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	world.Resources.SpriteSheets = spriteSheets
 
 	// 「火の玉」を生成（DropTableが定義されている敵）
-	enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "火の玉")
+	enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "fireball")
 	require.NoError(t, err, "火の玉の生成に失敗")
 
 	// DropTableコンポーネントが付与されていることを確認
@@ -244,7 +244,7 @@ func TestSpawnEnemy_AI(t *testing.T) {
 	}
 	world.Resources.SpriteSheets = spriteSheets
 
-	enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "火の玉")
+	enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "fireball")
 	require.NoError(t, err)
 
 	assert.True(t, world.Components.SoloAI.Has(enemy))
@@ -260,7 +260,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnBackpackItem(world, "回復薬", 5)
+		item, err := SpawnBackpackItem(world, "healing_potion", 5)
 		require.NoError(t, err)
 
 		stackableComp := world.Components.Stackable.Get(item)
@@ -271,7 +271,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnBackpackItem(world, "木刀", 1)
+		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
 		assert.Equal(t, 1, query.GetEntityCount(world, item))
@@ -281,7 +281,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnBackpackItem(world, "木刀", 2)
+		_, err := SpawnBackpackItem(world, "wooden_sword", 2)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "is not stackable")
 		assert.Contains(t, err.Error(), "count must be 1")
@@ -291,7 +291,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnBackpackItem(world, "木刀", 0)
+		_, err := SpawnBackpackItem(world, "wooden_sword", 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -300,7 +300,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnBackpackItem(world, "木刀", -1)
+		_, err := SpawnBackpackItem(world, "wooden_sword", -1)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -457,12 +457,12 @@ func TestAllItemsBelongToInventoryCategory(t *testing.T) {
 
 	var uncategorized []string
 	for _, item := range items {
-		entity, err := SpawnBackpackItem(world, item.Name, 1)
-		require.NoError(t, err, "アイテム '%s' のスポーンに失敗", item.Name)
+		entity, err := SpawnBackpackItem(world, item.Id, 1)
+		require.NoError(t, err, "アイテム '%s' のスポーンに失敗", item.Id)
 
 		_, ok := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
 		if !ok {
-			uncategorized = append(uncategorized, item.Name)
+			uncategorized = append(uncategorized, item.Id)
 		}
 	}
 	assert.Empty(t, uncategorized, "InventoryCategoryに属していないアイテム: %v", uncategorized)

@@ -26,7 +26,7 @@ const (
 	urbanMaxSetback consts.Tile = 3 // 建物を敷地内で縮めてよい最大量。前庭や隙間を作る
 
 	// urbanEnemyTable は市街地の敵抽選に使う敵テーブル名。市街地の規模を深度とみなして引く
-	urbanEnemyTable = "廃墟"
+	urbanEnemyTable = "ruins_area"
 )
 
 // urbanSizeOf は市街地の縦横のチャンク数を urbanSeed から決定的に選ぶ。各辺 2..urbanMaxSpan。

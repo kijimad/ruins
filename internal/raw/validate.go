@@ -75,7 +75,7 @@ func validateItemTableReferences(raws oapi.Raws) error {
 	groups := PtrSlice(raws.ItemGroups)
 	groupNames := make(map[string]struct{}, len(groups))
 	for i := range groups {
-		groupNames[groups[i].Name] = struct{}{}
+		groupNames[groups[i].Id] = struct{}{}
 	}
 
 	itemTables := PtrSlice(raws.ItemTables)
@@ -97,7 +97,7 @@ func validateItemGroupReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
 	for i := range items {
-		itemNames[items[i].Name] = struct{}{}
+		itemNames[items[i].Id] = struct{}{}
 	}
 
 	groups := PtrSlice(raws.ItemGroups)
@@ -119,7 +119,7 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 	members := PtrSlice(raws.Members)
 	memberNames := make(map[string]struct{}, len(members))
 	for i := range members {
-		memberNames[members[i].Name] = struct{}{}
+		memberNames[members[i].Id] = struct{}{}
 	}
 
 	enemyTables := PtrSlice(raws.EnemyTables)
@@ -142,7 +142,7 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
 	for i := range items {
-		itemNames[items[i].Name] = struct{}{}
+		itemNames[items[i].Id] = struct{}{}
 	}
 
 	commandTables := PtrSlice(raws.CommandTables)
@@ -196,7 +196,7 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
 	for i := range items {
-		itemNames[items[i].Name] = struct{}{}
+		itemNames[items[i].Id] = struct{}{}
 	}
 
 	check := func(ownerKind string, ownerName string, def *oapi.Disassembly) error {
@@ -245,13 +245,13 @@ func validateDropTableReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
 	for i := range items {
-		itemNames[items[i].Name] = struct{}{}
+		itemNames[items[i].Id] = struct{}{}
 	}
 
 	dropTables := PtrSlice(raws.DropTables)
 	tableNames := make(map[string]struct{}, len(dropTables))
 	for i := range dropTables {
-		tableNames[dropTables[i].Name] = struct{}{}
+		tableNames[dropTables[i].Id] = struct{}{}
 		for _, entry := range dropTables[i].Entries {
 			// 空文字はドロップなしを意味する正規の値
 			if entry.Material == "" {
@@ -281,7 +281,7 @@ func validateCommandTableReferences(raws oapi.Raws) error {
 	commandTables := PtrSlice(raws.CommandTables)
 	tableNames := make(map[string]struct{}, len(commandTables))
 	for i := range commandTables {
-		tableNames[commandTables[i].Name] = struct{}{}
+		tableNames[commandTables[i].Id] = struct{}{}
 	}
 
 	members := PtrSlice(raws.Members)

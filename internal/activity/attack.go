@@ -188,7 +188,7 @@ func (ab *AttackBehavior) canPerformAttack(attacker ecs.Entity, world w.World) b
 
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
 func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
-	bareHandsSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, "素手")
+	bareHandsSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, "bare_hands")
 	if err != nil {
 		return nil, "", fmt.Errorf("素手武器が見つかりません: %w", err)
 	}

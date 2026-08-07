@@ -98,8 +98,8 @@ func TestAcceptConsumeFood_食べる対象と使う対象は排他になる(t *t
 		consume bool
 		use     bool
 	}{
-		{"回復薬は回復を持つので食べる対象", "回復薬", true, false},
-		{"手榴弾は栄養も回復も持たないので使う対象", "手榴弾", false, true},
+		{"回復薬は回復を持つので食べる対象", "healing_potion", true, false},
+		{"手榴弾は栄養も回復も持たないので使う対象", "grenade", false, true},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {

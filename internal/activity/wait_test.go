@@ -20,7 +20,7 @@ func TestWaitBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -37,7 +37,7 @@ func TestWaitBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -59,7 +59,7 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -80,7 +80,7 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -100,7 +100,7 @@ func TestWaitBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -125,7 +125,7 @@ func TestWaitBehavior_Finish(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -145,7 +145,7 @@ func TestWaitBehavior_Finish(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{

@@ -269,24 +269,26 @@ func FindBestDisassemblyTool(world w.World, actor ecs.Entity, category oapi.Tool
 		if world.Components.LocationInBackpack.Get(itemEntity).Owner != actor {
 			continue
 		}
-		itemName := query.GetEntityName(itemEntity, world)
-		tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, itemName)
+		tool, ok := raw.FindDisassemblyTool(world.Resources.RawMaster, query.GetEntityID(itemEntity, world))
 		if !ok || !slices.Contains(tool.Categories, category) {
 			continue
 		}
 		if int(tool.Grade) > bestGrade {
 			bestGrade = int(tool.Grade)
-			bestName = itemName
+			bestName = query.GetEntityName(itemEntity, world)
 		}
 	}
 
 	return bestGrade, bestName, bestGrade > 0
 }
 
-// findDisassemblyDef は対象エンティティの名前で分解定義を引く
+// findDisassemblyDef は対象エンティティの分解定義を引く。
+// アイテムは id、prop は表示名で定義を持つため、id で引けなければ表示名で引き直す
 func findDisassemblyDef(entity ecs.Entity, world w.World) (*oapi.Disassembly, bool) {
-	name := query.GetEntityName(entity, world)
-	return raw.FindDisassembly(world.Resources.RawMaster, name)
+	if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(entity, world)); ok {
+		return def, true
+	}
+	return raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityName(entity, world))
 }
 
 // mechanicSkillValue はactorの機械スキル値を返す。スキルを持たなければ0

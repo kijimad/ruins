@@ -127,7 +127,7 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 	}
 
 	for _, table := range raw.PtrSlice(master.EnemyTables) {
-		stats := RunSimulations(master, table.Name, player, weapon, maxDepth, trials, seed)
+		stats := RunSimulations(master, table.Id, player, weapon, maxDepth, trials, seed)
 
 		run := EnemyTableRun{
 			Name:        table.Name,
@@ -217,7 +217,7 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
 	items := raw.PtrSlice(master.Items)
 	for i := range items {
 		item := &items[i]
-		w, err := LoadWeaponFromItem(master, item.Name)
+		w, err := LoadWeaponFromItem(master, item.Id)
 		if err != nil {
 			continue
 		}

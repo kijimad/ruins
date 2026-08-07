@@ -26,7 +26,7 @@ func TestPlacedItemBindsToCurrentStage(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	stageA := gc.NewDungeonStage("テスト遺跡", 1)
@@ -34,7 +34,7 @@ func TestPlacedItemBindsToCurrentStage(t *testing.T) {
 	query.GetDungeon(world).CurrentStage = stageA
 
 	// バックパックのアイテムを実際の設置経路 DropBehavior で足元へ置く
-	item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
+	item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 	require.NoError(t, err)
 	dropComp := activity.NewDropActivity(item, gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 6}})
 	_, err = activity.Execute(dropComp, player, world)

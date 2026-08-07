@@ -19,10 +19,10 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		_, err = lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
 		require.NoError(t, err)
 
 		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
@@ -36,11 +36,11 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// アイテムは別のタイルにある
-		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "wooden_sword", 20, 20, 1)
 		require.NoError(t, err)
 
 		// 対象タイルには拾えるものがないので Targets が空になる
@@ -56,7 +56,7 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// PickupParams が付かない不正なアクティビティは型アサートで弾かれる
@@ -96,10 +96,10 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
 		require.NoError(t, err)
 
 		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
@@ -120,11 +120,11 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 別のタイルにアイテムがある
-		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "wooden_sword", 20, 20, 1)
 		require.NoError(t, err)
 
 		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
@@ -140,7 +140,7 @@ func TestPickupBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// PickupParams が付かない不正なアクティビティは DoTurn でキャンセルへ落ちる
@@ -164,13 +164,13 @@ func TestPickupBehavior_DoTurn_Target(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item1, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		item1, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
 		require.NoError(t, err)
 
-		item2, err := lifecycle.SpawnFieldItem(world, "回復薬", 10, 10, 1)
+		item2, err := lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
 		require.NoError(t, err)
 
 		// 特定のアイテム1つだけを対象にする
@@ -199,10 +199,10 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
 		require.NoError(t, err)
 
 		comp := NewPickupActivity(item)
@@ -216,7 +216,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		prop := world.ECS.NewEntity()
@@ -241,7 +241,7 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		prop := world.ECS.NewEntity()
@@ -263,10 +263,10 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
-		_, err = lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
 		require.NoError(t, err)
 		// Interactableを持つ固定物も同じタイルにある
 		prop := world.ECS.NewEntity()
@@ -290,7 +290,7 @@ func TestPickupBehavior_DoTurn_Fixed(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 8, Y: 6}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 8, Y: 6}, "ash")
 		require.NoError(t, err)
 
 		prop := world.ECS.NewEntity()
