@@ -201,16 +201,16 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 }
 
 // shopItemWeight は raw 定義から商品1個の重量表記を返す。重量を持たない品は空文字を返す
-func shopItemWeight(world w.World, label string) string {
-	spec, err := raw.NewItemSpec(world.Resources.RawMaster, label)
+func shopItemWeight(world w.World, itemID string) string {
+	spec, err := raw.NewItemSpec(world.Resources.RawMaster, itemID)
 	if err != nil || spec.Weight == nil {
 		return ""
 	}
 	return spec.Weight.KgString()
 }
 
-func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool) int {
-	itemDef, err := raw.FindItem(world.Resources.RawMaster, itemName)
+func (st *ShopMenuState) getItemPrice(world w.World, itemID string, isBuy bool) int {
+	itemDef, err := raw.FindItem(world.Resources.RawMaster, itemID)
 	if err != nil {
 		return 0
 	}

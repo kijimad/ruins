@@ -370,7 +370,8 @@ func TestRestBehavior_Canceled(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateCanceled,
-			CancelReason: "敵の接近",
+			// 実コードと同じ英語の CancelReason を使う。表示時に query.T で日本語へ訳される
+			CancelReason: "rest interrupted because enemies are nearby",
 		}
 
 		ra := &RestBehavior{}
@@ -381,7 +382,7 @@ func TestRestBehavior_Canceled(t *testing.T) {
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
 		assert.Contains(t, recent[0], "休息が中断された")
-		assert.Contains(t, recent[0], "敵の接近")
+		assert.Contains(t, recent[0], "周囲に敵がいるため休息を中断")
 	})
 }
 
