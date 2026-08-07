@@ -266,7 +266,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
 	}
 }
 
@@ -324,7 +324,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 			return es.Transition[w.World]{}, err
 		}
 		if !handled {
-			return es.Transition[w.World]{}, fmt.Errorf("最上階の上り階段に戻り先の結線がありません")
+			return es.Transition[w.World]{}, fmt.Errorf("top floor up stairs has no return link")
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case gc.WarpDungeonEnter:
@@ -333,7 +333,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		if p.PlannerName != "" {
 			builderType, ok := mapplanner.PlannerTypeByName(p.PlannerName)
 			if !ok {
-				return es.Transition[w.World]{}, fmt.Errorf("不明なプランナー名: %s", p.PlannerName)
+				return es.Transition[w.World]{}, fmt.Errorf("unknown planner name: %s", p.PlannerName)
 			}
 			// デバッグはプランナーを変えて見た目を試す用途なので、選ぶたびに作り直す
 			if err := st.enterDebugPlannerFloor(world, p.DefinitionName, builderType); err != nil {
@@ -369,7 +369,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}}, nil
 	default:
 		// この switch で扱わない種別。未実装の scaffold もここに落ちる
-		return es.Transition[w.World]{}, fmt.Errorf("未処理のStateChangeRequest: %T", req.Payload)
+		return es.Transition[w.World]{}, fmt.Errorf("unhandled StateChangeRequest: %T", req.Payload)
 	}
 }
 
@@ -388,8 +388,7 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
 				weaponName := nameComp.Name
 				gamelog.New(query.GetGameLog(world)).
-					ItemName(weaponName).
-					Append("を構えた").
+					Fmt(query.T(world, "Readied %s."), gamelog.Item(weaponName)).
 					Log()
 			}
 		}

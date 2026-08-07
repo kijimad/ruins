@@ -108,7 +108,7 @@ func (o *characterEquipOverlay) execute(world w.World) error {
 		}
 	}
 	lifecycle.MoveToEquip(world, item, props.TargetMember, props.SlotNumber)
-	logEquipChange(world, props.TargetMember, itemName, "を装備した。")
+	logEquipChange(world, props.TargetMember, itemName, query.T(world, "%s equipped %s."))
 	return nil
 }
 
