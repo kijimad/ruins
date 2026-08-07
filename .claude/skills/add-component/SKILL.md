@@ -15,7 +15,7 @@ ruins のコンポーネントは登録表からコード生成される。手�
 
 2. **登録表に1行追加する**
    - `internal/components/genspec/registry.go` の `Registry` に `{Field: "X"}, // …を保持する` を追加。説明は行末の `//` コメントに日本語で書く。文字列リテラルにすると gosmopolitan が源泉英語化違反として検知するため。
-   - フィールド名＝型名にする（`Type`・`Comment` フィールドは廃止済み）。
+   - フィールド名＝型名にする。
 
 3. **生成する**
    - `make generate` を実行。`internal/components/components_gen.go`（EntitySpec / Components / InitializeComponents / AddEntity）が再生成される。
