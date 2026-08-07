@@ -91,7 +91,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		if !world.Components.Fixed.Has(entity) || !world.Components.GridElement.Has(entity) {
 			continue
 		}
-		def, ok := raw.FindDisassembly(rawMaster, query.GetEntityName(entity, world))
+		def, ok := raw.FindDisassembly(rawMaster, query.GetEntityID(entity, world))
 		if !ok {
 			continue
 		}

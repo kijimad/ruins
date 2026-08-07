@@ -278,13 +278,9 @@ func FindBestDisassemblyTool(world w.World, actor ecs.Entity, category oapi.Tool
 	return bestGrade, bestName, bestGrade > 0
 }
 
-// findDisassemblyDef は対象エンティティの分解定義を引く。
-// アイテムは id、prop は表示名で定義を持つため、id で引けなければ表示名で引き直す
+// findDisassemblyDef は対象エンティティの id で分解定義を引く。prop・アイテムとも id で定義を持つ
 func findDisassemblyDef(entity ecs.Entity, world w.World) (*oapi.Disassembly, bool) {
-	if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(entity, world)); ok {
-		return def, true
-	}
-	return raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityName(entity, world))
+	return raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(entity, world))
 }
 
 // mechanicSkillValue はactorの機械スキル値を返す。スキルを持たなければ0
