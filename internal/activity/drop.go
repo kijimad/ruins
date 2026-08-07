@@ -19,8 +19,8 @@ type DropBehavior struct{}
 // Info はBehaviorの実装
 func (db *DropBehavior) Info() Info {
 	return Info{
-		Name:            "ドロップ",
-		Description:     "アイテムを足元に置く",
+		Name:            "Drop",
+		Description:     "Place an item at your feet",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.MinorActionCost,
@@ -44,14 +44,14 @@ func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity
 func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return fmt.Errorf("ドロップ対象が指定されていません")
+		return fmt.Errorf("drop target is not set")
 	}
 
 	target := p.Target
 
 	// Targetがバックパック内にあることを確認する
 	if !world.Components.LocationInBackpack.Has(target) {
-		return fmt.Errorf("アイテムがバックパック内にありません")
+		return fmt.Errorf("item is not in the backpack")
 	}
 
 	// 配置先タイル座標を取得できるか確認する
@@ -65,7 +65,7 @@ func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 // Start はアイテムドロップ開始時の処理を実行する
 func (db *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if p, ok := comp.Params.(*gc.PlaceParams); ok {
-		log.Debug("アイテムドロップ開始", "actor", actor, "target", p.Target)
+		log.Debug("item drop started", "actor", actor, "target", p.Target)
 	}
 	return nil
 }
@@ -74,7 +74,7 @@ func (db *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 func (db *DropBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// アイテムドロップ処理を実行
 	if err := db.performDrop(comp, actor, world); err != nil {
-		Cancel(comp, fmt.Sprintf("アイテムドロップエラー: %s", err.Error()))
+		Cancel(comp, fmt.Sprintf("item drop error: %s", err.Error()))
 		return err
 	}
 
@@ -85,13 +85,13 @@ func (db *DropBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish はアイテムドロップ完了時の処理を実行する
 func (db *DropBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテムドロップアクティビティ完了", "actor", actor)
+	log.Debug("item drop activity finished", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテムドロップキャンセル時の処理を実行する
 func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテムドロップキャンセル", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("item drop canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
@@ -99,7 +99,7 @@ func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return fmt.Errorf("ドロップ対象が指定されていません")
+		return fmt.Errorf("drop target is not set")
 	}
 	targetTile, err := requireDestination(comp)
 	if err != nil {
@@ -114,7 +114,7 @@ func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w
 
 	gamelog.New(query.GetGameLog(world)).
 		ItemName(formattedName).
-		Append(" を置いた。").
+		Append(query.T(world, " dropped.")).
 		Log()
 
 	return nil

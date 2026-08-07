@@ -369,7 +369,7 @@ func TestLastActivity(t *testing.T) {
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateCompleted,
 			Success:      true,
-			Message:      "アクション完了",
+			Message:      "action completed",
 		}
 		assert.Equal(t, expected, result)
 	})
@@ -391,7 +391,7 @@ func TestLastActivity(t *testing.T) {
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateCompleted,
 			Success:      true,
-			Message:      "アクション完了",
+			Message:      "action completed",
 		}
 		assert.Equal(t, expected, result)
 
@@ -404,7 +404,7 @@ func TestLastActivity(t *testing.T) {
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateCompleted,
 			Success:      true,
-			Message:      "アクション完了",
+			Message:      "action completed",
 		}
 		assert.Equal(t, expected, result)
 	})
@@ -425,7 +425,7 @@ func TestLastActivity(t *testing.T) {
 			BehaviorName: gc.BehaviorAttack,
 			State:        gc.ActivityStateCanceled,
 			Success:      false,
-			Message:      "アクティビティ検証失敗: " + ErrAttackTargetNotExists.Error(),
+			Message:      "activity validation failed: " + ErrAttackTargetNotExists.Error(),
 		}
 		assert.Equal(t, expected, result)
 	})

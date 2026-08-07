@@ -307,7 +307,7 @@ func TestUseItemBehavior_Info(t *testing.T) {
 	ua := &UseItemBehavior{}
 	info := ua.Info()
 
-	assert.Equal(t, "アイテム使用", info.Name)
+	assert.Equal(t, "Use Item", info.Name)
 	assert.False(t, info.Interruptible)
 	assert.False(t, info.Resumable)
 }

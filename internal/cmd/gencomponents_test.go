@@ -69,5 +69,5 @@ func TestRunGenComponents_書き込み失敗時はエラーを返す(t *testing.
 
 	err := newGenComponentsApp().Run(context.Background(), []string{"ruins", "gencomponents", "--out", outPath})
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "生成コードの書き込みに失敗した")
+	assert.ErrorContains(t, err, "failed to write generated code")
 }

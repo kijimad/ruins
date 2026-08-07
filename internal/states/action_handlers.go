@@ -43,7 +43,7 @@ func GetInteractionActions(world w.World) []InteractionAction {
 
 		interactableGrid := world.Components.GridElement.Get(interactableEntity)
 		interactable := world.Components.Interactable.Get(interactableEntity)
-		dirLabel := activity.GetDirectionLabel(gridElement, interactableGrid)
+		dirLabel := query.T(world, activity.GetDirectionLabel(gridElement, interactableGrid))
 		actionsForEntity := getInteractionActions(world, interactable, interactableEntity, dirLabel)
 		interactionActions = append(interactionActions, actionsForEntity...)
 	}

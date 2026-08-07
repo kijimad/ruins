@@ -50,7 +50,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "ドロップ対象が指定されていません")
+		assert.Contains(t, err.Error(), "drop target is not set")
 	})
 
 	t.Run("バックパック内にないアイテムの場合はエラー", func(t *testing.T) {
@@ -70,7 +70,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "バックパック内にありません")
+		assert.Contains(t, err.Error(), "is not in the backpack")
 	})
 
 	t.Run("パラメータがない場合はエラー", func(t *testing.T) {
@@ -89,7 +89,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "ドロップ対象が指定されていません")
+		assert.Contains(t, err.Error(), "drop target is not set")
 	})
 }
 
@@ -99,7 +99,7 @@ func TestDropBehavior_Info(t *testing.T) {
 	da := &DropBehavior{}
 	info := da.Info()
 
-	assert.Equal(t, "ドロップ", info.Name)
+	assert.Equal(t, "Drop", info.Name)
 	assert.False(t, info.Interruptible)
 	assert.False(t, info.Resumable)
 }
@@ -164,7 +164,7 @@ func TestDropBehavior_performDrop(t *testing.T) {
 		da := &DropBehavior{}
 		err = da.performDrop(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "ドロップ対象が指定されていません")
+		assert.Contains(t, err.Error(), "drop target is not set")
 	})
 }
 

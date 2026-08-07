@@ -48,7 +48,7 @@ func TestWaitBehavior_Validate(t *testing.T) {
 		wa := &WaitBehavior{}
 		err = wa.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "待機回数が無効")
+		assert.Contains(t, err.Error(), "wait count is invalid")
 	})
 }
 
@@ -176,7 +176,7 @@ func TestWaitBehavior_長い待機は敵接近で中断する(t *testing.T) {
 
 	require.NoError(t, wa.DoTurn(comp, actor, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "周囲に敵がいるため待機を中断", comp.CancelReason)
+	assert.Equal(t, "wait interrupted because enemies are nearby", comp.CancelReason)
 }
 
 func TestWaitBehavior_1ターンの待機は敵が隣接していても完結する(t *testing.T) {

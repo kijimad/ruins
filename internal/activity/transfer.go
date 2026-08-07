@@ -22,8 +22,8 @@ type TransferBehavior struct{}
 // Info はBehaviorの実装
 func (tb *TransferBehavior) Info() Info {
 	return Info{
-		Name:            "転送",
-		Description:     "アイテムを他のエンティティに渡す",
+		Name:            "Transfer",
+		Description:     "Give an item to another entity",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.MinorActionCost,
@@ -48,20 +48,20 @@ func NewTransferActivity(target, recipient ecs.Entity, count int) *gc.Activity {
 func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.TransferParams)
 	if !ok {
-		return fmt.Errorf("転送対象が指定されていません")
+		return fmt.Errorf("transfer target is not set")
 	}
 	// 値型のパラメータでは未指定が無効エンティティになる。ArkのHasはゼロ値でパニックするため、
 	// Aliveで存在を確かめてから所持判定へ進む
 	if !world.ECS.Alive(p.Target) {
-		return fmt.Errorf("転送対象が指定されていません")
+		return fmt.Errorf("transfer target is not set")
 	}
 	if !world.ECS.Alive(p.Recipient) {
-		return fmt.Errorf("受取人が指定されていません")
+		return fmt.Errorf("recipient is not set")
 	}
 
 	target := p.Target
 	if !world.Components.LocationInBackpack.Has(target) {
-		return fmt.Errorf("アイテムがバックパック内にありません")
+		return fmt.Errorf("item is not in the backpack")
 	}
 
 	return nil
@@ -69,14 +69,14 @@ func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.Wo
 
 // Start はアイテム転送開始時の処理を実行する
 func (tb *TransferBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム転送開始", "actor", actor)
+	log.Debug("item transfer started", "actor", actor)
 	return nil
 }
 
 // DoTurn はアイテム転送アクティビティの1ターン分の処理を実行する
 func (tb *TransferBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if err := tb.performTransfer(comp, world); err != nil {
-		Cancel(comp, fmt.Sprintf("アイテム転送エラー: %s", err.Error()))
+		Cancel(comp, fmt.Sprintf("item transfer error: %s", err.Error()))
 		return err
 	}
 
@@ -86,13 +86,13 @@ func (tb *TransferBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Worl
 
 // Finish はアイテム転送完了時の処理を実行する
 func (tb *TransferBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム転送アクティビティ完了", "actor", actor)
+	log.Debug("item transfer activity finished", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテム転送キャンセル時の処理を実行する
 func (tb *TransferBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("アイテム転送キャンセル", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("item transfer canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
@@ -100,7 +100,7 @@ func (tb *TransferBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Wo
 func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) error {
 	p, ok := comp.Params.(*gc.TransferParams)
 	if !ok {
-		return fmt.Errorf("転送対象が指定されていません")
+		return fmt.Errorf("transfer target is not set")
 	}
 	item := p.Target
 	recipient := p.Recipient
@@ -124,21 +124,21 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 		itemName = nameComp.Name
 	}
 	if moving > 1 {
-		itemName = fmt.Sprintf("%s(%d個)", itemName, moving)
+		itemName = query.T(world, "%s (x%d)", itemName, moving)
 	}
 
 	if err := lifecycle.TransferUnits(world, item, recipient, p.Count); err != nil {
-		return fmt.Errorf("アイテム転送に失敗: %w", err)
+		return fmt.Errorf("failed to transfer item: %w", err)
 	}
 
 	logger := gamelog.New(query.GetGameLog(world))
 	query.AppendNameWithColor(logger, giver, giverName, world)
 	logger.
-		Append(" は ").
+		Append(query.T(world, " is ")).
 		ItemName(itemName).
-		Append(" を ").
+		Append(query.T(world, " to ")).
 		Append(recipientName).
-		Append(" に渡した。").
+		Append(query.T(world, " handed over to.")).
 		Log()
 
 	return nil

@@ -208,7 +208,7 @@ func TestTransferBehavior_Info(t *testing.T) {
 	t.Parallel()
 	ta := &TransferBehavior{}
 	info := ta.Info()
-	assert.Equal(t, "転送", info.Name)
+	assert.Equal(t, "Transfer", info.Name)
 	assert.Equal(t, gc.BehaviorTransfer, ta.Name())
 }
 

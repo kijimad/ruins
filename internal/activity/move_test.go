@@ -75,7 +75,7 @@ func TestMoveBehavior_Info(t *testing.T) {
 	ma := &MoveBehavior{}
 	info := ma.Info()
 
-	assert.Equal(t, "移動", info.Name)
+	assert.Equal(t, "Move", info.Name)
 	assert.False(t, info.Interruptible)
 	assert.False(t, info.Resumable)
 }

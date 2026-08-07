@@ -53,7 +53,7 @@ func TestShootBehavior_Info(t *testing.T) {
 	t.Parallel()
 	sa := &ShootBehavior{}
 	info := sa.Info()
-	assert.Equal(t, "射撃", info.Name)
+	assert.Equal(t, "Shoot", info.Name)
 	assert.Equal(t, gc.BehaviorShoot, sa.Name())
 	assert.False(t, info.Interruptible)
 }

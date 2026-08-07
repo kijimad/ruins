@@ -54,5 +54,5 @@ func TestRunMainApp_失敗時はエラーをラップする(t *testing.T) {
 	err := RunMainApp(app, "test")
 	require.Error(t, err)
 	require.ErrorIs(t, err, wantErr)
-	assert.ErrorContains(t, err, "コマンド実行が失敗した")
+	assert.ErrorContains(t, err, "command execution failed")
 }

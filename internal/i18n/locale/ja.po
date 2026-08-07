@@ -1331,3 +1331,288 @@ msgstr "灰の洞窟"
 
 msgid "Forgotten ruins"
 msgstr "忘却の廃都"
+
+msgid "with"
+msgstr "で"
+
+msgid "began disassembling"
+msgstr "の分解を始めた"
+
+msgid "disassembled."
+msgstr "を分解した。"
+
+msgid "interrupted disassembling"
+msgstr "の分解を中断した"
+
+msgid "interrupted disassembly"
+msgstr "分解を中断した"
+
+msgid "%s skill rose to %d"
+msgstr "%sスキルが %d に上がった"
+
+msgid "got nothing"
+msgstr "何も得られなかった"
+
+msgid ", "
+msgstr "、"
+
+msgid " obtained"
+msgstr " を得た"
+
+msgid "disassembly target is not set"
+msgstr "分解対象が指定されていません"
+
+msgid "interrupted because the disassembly target disappeared"
+msgstr "分解対象が消えたため中断"
+
+msgid "disassembly interrupted because enemies are nearby"
+msgstr "周囲に敵がいるため分解を中断"
+
+msgid "interrupted because the disassembly definition was not found"
+msgstr "分解定義が見つからないため中断"
+
+msgid "disassembly interrupted because the tool was lost"
+msgstr "工具を失ったため分解を中断"
+
+msgid "door entity is not set"
+msgstr "扉エンティティが指定されていません"
+
+msgid "cannot get door component"
+msgstr "扉コンポーネントが取得できません"
+
+msgid "the door is locked"
+msgstr "扉はロックされている"
+
+msgid "The door is locked."
+msgstr "扉はロックされている。"
+
+msgid "Opened the door."
+msgstr "扉を開いた。"
+
+msgid "Closed the door."
+msgstr "扉を閉じた。"
+
+msgid "attack target is not set"
+msgstr "攻撃対象が設定されていません"
+
+msgid "cannot attack"
+msgstr "攻撃できません"
+
+msgid "took an attack"
+msgstr "攻撃を受けた"
+
+msgid "bare hands"
+msgstr "素手"
+
+msgid "%s's skill rose! (%s Lv%d)"
+msgstr "%s のスキルが上がった！（%s Lv%d）"
+
+msgid " is "
+msgstr " は "
+
+msgid " with "
+msgstr " で "
+
+msgid " attacked but missed."
+msgstr " を攻撃したが外れた。"
+
+msgid " scored a critical hit and dealt %d damage!"
+msgstr " にクリティカルヒットし、%d のダメージを与えた！"
+
+msgid " attacked and dealt %d damage."
+msgstr " を攻撃し、%d のダメージを与えた。"
+
+msgid "starting a new activity"
+msgstr "新しいアクティビティを開始"
+
+msgid "There is no space to pull."
+msgstr "引くスペースがない。"
+
+msgid "A door seems to have closed somewhere."
+msgstr "どこかで扉が閉じたようだ。"
+
+msgid "do not have a tool to disassemble this"
+msgstr "を分解できる工具を持っていない"
+
+msgid "move destination is not set"
+msgstr "移動先が設定されていません"
+
+msgid "cannot move (no position)"
+msgstr "移動できません（位置情報なし）"
+
+msgid "cannot move"
+msgstr "移動できません"
+
+msgid "Too heavy to move"
+msgstr "重すぎて動けない"
+
+msgid "obtained %d items"
+msgstr "%d個を入手した"
+
+msgid " picked up."
+msgstr " を入手した。"
+
+msgid " is here."
+msgstr " がある。"
+
+msgid "There is a warp gate. Press Enter to move."
+msgstr "転移ゲートがある。Enterキーで移動。"
+
+msgid "There is an up staircase. Press Enter to move."
+msgstr "上り階段がある。Enterキーで移動。"
+
+msgid "There is a ruins entrance. Press Enter to enter."
+msgstr "遺跡の入口がある。Enterキーで入る。"
+
+msgid "is here. You can enter it from the Space action menu."
+msgstr "がある。Spaceのアクションメニューから入れる。"
+
+msgid "interrupted because the push target disappeared"
+msgstr "押す対象が消えたため中断"
+
+msgid "interrupted because it can no longer be pushed"
+msgstr "押せなくなったため中断"
+
+msgid "can no longer push in that direction"
+msgstr "その方向へは押せなくなった"
+
+msgid "interrupted because the pull target disappeared"
+msgstr "引く対象が消えたため中断"
+
+msgid "interrupted because it can no longer be pulled"
+msgstr "引けなくなったため中断"
+
+msgid "ran out of space to pull"
+msgstr "引くスペースがなくなった"
+
+msgid "book is not set"
+msgstr "本が指定されていません"
+
+msgid "interrupted because the book disappeared"
+msgstr "本が消えたため中断"
+
+msgid "reading interrupted because enemies are nearby"
+msgstr "周囲に敵がいるため読書を中断"
+
+msgid "book not found"
+msgstr "本が見つかりません"
+
+msgid "started reading \"%s\""
+msgstr "「%s」を読み始めた"
+
+msgid "finished reading \"%s\""
+msgstr "「%s」を読了した"
+
+msgid "interrupted reading"
+msgstr "読書を中断した"
+
+msgid "interrupted reading \"%s\""
+msgstr "「%s」の読書を中断した"
+
+msgid "no ranged weapon equipped"
+msgstr "遠距離武器が装備されていません"
+
+msgid "ran out of ammo"
+msgstr "弾薬がなくなった"
+
+msgid "started reloading"
+msgstr "装填を開始した"
+
+msgid "reload complete (%d/%d)"
+msgstr "装填完了（%d/%d）"
+
+msgid "interrupted reloading"
+msgstr "装填を中断した"
+
+msgid "rest interrupted because enemies are nearby"
+msgstr "周囲に敵がいるため休息を中断"
+
+msgid "Rested well and recovered health"
+msgstr "十分な休息を取って体力を回復した"
+
+msgid "Full rest recovered an additional "
+msgstr "完全な休息により追加で "
+
+msgid " HP recovered"
+msgstr " HP回復した"
+
+msgid "Rest interrupted: "
+msgstr "休息が中断された: "
+
+msgid "shoot target is not set"
+msgstr "射撃対象が設定されていません"
+
+msgid "talk target is not set"
+msgstr "会話対象が指定されていません"
+
+msgid "cannot get dialog data"
+msgstr "会話データが取得できません"
+
+msgid "target entity has no Name component"
+msgstr "対象エンティティにNameコンポーネントがありません"
+
+msgid "Talked with %s."
+msgstr "%sと話した。"
+
+msgid "%s (x%d)"
+msgstr "%s(%d個)"
+
+msgid " to "
+msgstr " を "
+
+msgid " handed over to."
+msgstr " に渡した。"
+
+msgid " used."
+msgstr " を使った。"
+
+msgid " recovered %d HP."
+msgstr " HPが %d 回復した。"
+
+msgid " took %d damage."
+msgstr " %d のダメージを受けた。"
+
+msgid " ate."
+msgstr " を食べた。"
+
+msgid "Full."
+msgstr "満腹だ。"
+
+msgid "Item"
+msgstr "アイテム"
+
+msgid "wait interrupted because enemies are nearby"
+msgstr "周囲に敵がいるため待機を中断"
+
+msgid "Finished waiting"
+msgstr "待機を終了した"
+
+msgid " dropped."
+msgstr " を置いた。"
+
+msgid "here"
+msgstr "直上"
+
+msgid "upper left"
+msgstr "左上"
+
+msgid "up"
+msgstr "上"
+
+msgid "upper right"
+msgstr "右上"
+
+msgid "left"
+msgstr "左"
+
+msgid "right"
+msgstr "右"
+
+msgid "lower left"
+msgstr "左下"
+
+msgid "down"
+msgstr "下"
+
+msgid "lower right"
+msgstr "右下"

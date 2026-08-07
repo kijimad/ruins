@@ -15,7 +15,7 @@ import (
 // CmdGenReadme はREADME.mdを生成するサブコマンド
 var CmdGenReadme = &cli.Command{
 	Name:   "genreadme",
-	Usage:  "README.tmpl.mdからREADME.mdを生成する",
+	Usage:  "generate README.md from README.tmpl.md",
 	Action: runGenReadme,
 }
 
@@ -31,24 +31,24 @@ const (
 func runGenReadme(_ context.Context, _ *cli.Command) error {
 	tmpl, err := os.ReadFile(templateFile)
 	if err != nil {
-		return fmt.Errorf("テンプレートの読み込みに失敗: %w", err)
+		return fmt.Errorf("failed to read template: %w", err)
 	}
 
 	table, err := buildImageTable()
 	if err != nil {
-		return fmt.Errorf("画像テーブルの生成に失敗: %w", err)
+		return fmt.Errorf("failed to build image table: %w", err)
 	}
 
 	docs, err := designdoc.LoadDir(designdoc.DefaultDir)
 	if err != nil {
-		return fmt.Errorf("設計ドキュメントの読み込みに失敗: %w", err)
+		return fmt.Errorf("failed to read design documents: %w", err)
 	}
 	statusTable := designdoc.RenderStatusSection(docs)
 
 	result := strings.Replace(string(tmpl), placeholder, table, 1)
 	result = strings.Replace(result, designStatusPlacehldr, statusTable, 1)
 	if err := os.WriteFile(outputFile, []byte(result), 0o644); err != nil {
-		return fmt.Errorf("README.mdの書き込みに失敗: %w", err)
+		return fmt.Errorf("failed to write README.md: %w", err)
 	}
 
 	fmt.Printf("Generated %s from %s (%s)\n", outputFile, templateFile, imageDir)
@@ -64,7 +64,7 @@ func buildImageTable() (string, error) {
 func buildImageTableFrom(dir string) (string, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return "", fmt.Errorf("%sの読み込みに失敗: %w", dir, err)
+		return "", fmt.Errorf("failed to read %s: %w", dir, err)
 	}
 
 	var images []string
@@ -76,7 +76,7 @@ func buildImageTableFrom(dir string) (string, error) {
 	slices.Sort(images)
 
 	if len(images) == 0 {
-		return "*画像なし*", nil
+		return "*no images*", nil
 	}
 
 	var sb strings.Builder

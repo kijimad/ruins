@@ -110,7 +110,7 @@ func TestDisassembleBehavior_Validate_工具がないとエラー(t *testing.T) 
 	comp := &gc.Activity{Params: &gc.DisassembleParams{Target: crate}}
 	err = da.Validate(comp, player, world)
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "工具")
+	assert.ErrorContains(t, err, "tool")
 }
 
 func TestDisassembleBehavior_BuildActivity_分解定義のない対象はエラー(t *testing.T) {
@@ -124,7 +124,7 @@ func TestDisassembleBehavior_BuildActivity_分解定義のない対象はエラ�
 
 	_, err = NewDisassembleActivity(desk, player, world)
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "分解定義")
+	assert.ErrorContains(t, err, "disassembly definition")
 }
 
 func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t *testing.T) {
@@ -337,7 +337,7 @@ func TestDisassembleBehavior_Validate_敵が隣接していると開始できな
 	comp := &gc.Activity{Params: &gc.DisassembleParams{Target: crate}}
 	err = da.Validate(comp, player, world)
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "敵")
+	assert.ErrorContains(t, err, "enemies")
 }
 
 func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing.T) {
@@ -364,7 +364,7 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 
 	require.NoError(t, da.DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "周囲に敵がいるため分解を中断", comp.CancelReason)
+	assert.Equal(t, "disassembly interrupted because enemies are nearby", comp.CancelReason)
 }
 
 func TestAppendYields(t *testing.T) {
@@ -385,7 +385,7 @@ func TestAppendYields(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 			store := query.GetGameLog(world)
 			logger := gamelog.New(store)
-			appendYields(logger, tt.stacks)
+			appendYields(logger, tt.stacks, world)
 			logger.Log()
 
 			recent := store.GetRecent(1)
@@ -415,7 +415,7 @@ func TestDisassembleBehavior_DoTurn_対象が消えると中断する(t *testing
 
 	require.NoError(t, da.DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "分解対象が消えたため中断", comp.CancelReason)
+	assert.Equal(t, "interrupted because the disassembly target disappeared", comp.CancelReason)
 
 	// 対象が消えた後のキャンセル処理でもエラーにならない
 	require.NoError(t, da.Canceled(comp, player, world))
@@ -441,5 +441,5 @@ func TestDisassembleBehavior_DoTurn_工具を失うと中断する(t *testing.T)
 
 	require.NoError(t, da.DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "工具を失ったため分解を中断", comp.CancelReason)
+	assert.Equal(t, "disassembly interrupted because the tool was lost", comp.CancelReason)
 }

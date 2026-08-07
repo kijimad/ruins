@@ -17,7 +17,7 @@ func TestReloadBehavior_Info(t *testing.T) {
 	t.Parallel()
 	ra := &ReloadBehavior{}
 	info := ra.Info()
-	assert.Equal(t, "装填", info.Name)
+	assert.Equal(t, "Reload", info.Name)
 	assert.Equal(t, gc.BehaviorReload, ra.Name())
 	assert.True(t, info.Interruptible)
 }
