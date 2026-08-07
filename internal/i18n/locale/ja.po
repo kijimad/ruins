@@ -484,3 +484,48 @@ msgstr "%s は %s を外した。"
 
 msgid "Readied %s."
 msgstr "%sを構えた"
+
+msgid "Command"
+msgstr "命令"
+
+msgid "Position"
+msgstr "位置"
+
+msgid "Pickup"
+msgstr "回収"
+
+msgid "Handling"
+msgstr "処理"
+
+msgid "Supply"
+msgstr "補給"
+
+msgid "Dismiss"
+msgstr "解雇"
+
+msgid "Nothing equipped"
+msgstr "何も装備していない"
+
+msgid "Weapon %d"
+msgstr "武器%d"
+
+msgid "Armor (head)"
+msgstr "防具(頭)"
+
+msgid "Armor (torso)"
+msgstr "防具(胴)"
+
+msgid "Armor (arms)"
+msgstr "防具(腕)"
+
+msgid "Armor (hands)"
+msgstr "防具(手)"
+
+msgid "Armor (legs)"
+msgstr "防具(脚)"
+
+msgid "Armor (feet)"
+msgstr "防具(足)"
+
+msgid "Armor (jewelry)"
+msgstr "防具(装飾)"

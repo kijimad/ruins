@@ -44,13 +44,13 @@ var characterTabs = []struct {
 	Kind  charTab
 	Label string
 }{
-	{charTabEquip, "装備"},
-	{charTabCommand, "命令"},
-	{charTabAbility, "能力"},
-	{charTabSkill, "スキル"},
-	{charTabEffect, "効果"},
-	{charTabHealth, "健康"},
-	{charTabBasic, "基本"},
+	{charTabEquip, "Equipment"},
+	{charTabCommand, "Command"},
+	{charTabAbility, "Abilities"},
+	{charTabSkill, "Skills"},
+	{charTabEffect, "Effects"},
+	{charTabHealth, "Health"},
+	{charTabBasic, "Basic"},
 }
 
 // charFirstInfoTab は情報タブが始まるタブ番号。編集タブの装備・命令の後に情報タブが並ぶ。
@@ -75,11 +75,11 @@ func charTabAt(index int) charTab {
 	return characterTabs[index].Kind
 }
 
-// characterTabLabels はタブの見出し一覧を表示順で返す
-func characterTabLabels() []string {
+// characterTabLabels はタブの見出し一覧を現在言語で表示順に返す
+func characterTabLabels(world w.World) []string {
 	labels := make([]string, len(characterTabs))
 	for i, t := range characterTabs {
-		labels[i] = t.Label
+		labels[i] = query.T(world, t.Label)
 	}
 	return labels
 }
@@ -156,7 +156,7 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
 	}
 }
 
@@ -299,7 +299,7 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 			return entityDetailContent(world, *slot.Entity), true
 		}
 		// 空スロットは性能行を持たず、案内だけ出す。Rows を空で与え entity 解決を避ける
-		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: "何も装備していない", Rows: []menuscreen.SpecRow{}}, true
+		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: query.T(world, "Nothing equipped"), Rows: []menuscreen.SpecRow{}}, true
 	case charTabCommand:
 		return menuscreen.DetailContent{}, false
 	default:
@@ -353,12 +353,12 @@ type charEquipProps struct {
 type commandKind string
 
 const (
-	cmdMovement     commandKind = "位置"
-	cmdCombat       commandKind = "戦闘"
-	cmdItemPickup   commandKind = "回収"
-	cmdItemHandling commandKind = "処理"
-	cmdSupply       commandKind = "補給"
-	cmdDismiss      commandKind = "解雇"
+	cmdMovement     commandKind = "Position"
+	cmdCombat       commandKind = "Combat"
+	cmdItemPickup   commandKind = "Pickup"
+	cmdItemHandling commandKind = "Handling"
+	cmdSupply       commandKind = "Supply"
+	cmdDismiss      commandKind = "Dismiss"
 )
 
 // commandRow は命令タブの1行。種類と現在値を持つ。解雇の行は値を持たない
@@ -462,18 +462,17 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 	items := make([]equipItemData, 0, 12)
 
 	weapons := query.GetWeapons(world, player)
-	weaponLabels := []string{"武器1", "武器2", "武器3", "武器4", "武器5"}
 	weaponSlots := []gc.EquipmentSlotNumber{gc.SlotWeapon1, gc.SlotWeapon2, gc.SlotWeapon3, gc.SlotWeapon4, gc.SlotWeapon5}
 	for i, weapon := range weapons {
 		name := ""
 		if weapon != nil {
 			name = world.Components.Name.Get(*weapon).Name
 		}
-		items = append(items, equipItemData{SlotLabel: weaponLabels[i], ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})
+		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})
 	}
 
 	armor := query.GetArmorEquipments(world, player)
-	armorLabels := []string{"防具(頭)", "防具(胴)", "防具(腕)", "防具(手)", "防具(脚)", "防具(足)", "防具(装飾)"}
+	armorLabels := []string{query.T(world, "Armor (head)"), query.T(world, "Armor (torso)"), query.T(world, "Armor (arms)"), query.T(world, "Armor (hands)"), query.T(world, "Armor (legs)"), query.T(world, "Armor (feet)"), query.T(world, "Armor (jewelry)")}
 	armorSlots := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry}
 	for i, slot := range armor {
 		name := ""
