@@ -512,3 +512,22 @@ func TestExecuteInteraction_Fixed(t *testing.T) {
 		assert.False(t, result.Success)
 	})
 }
+
+// TestExecuteDisassemble_日本語表示名のpropでも定義を引ける は、分解の可否判定が
+// 表示名でなく id で分解定義を引くことを検証する。表示名が日本語の prop(木箱=wooden_crate)は
+// 表示名で引くと id-keyed の FindDisassembly に一致せず「定義が無い」で誤ってクラッシュしていた
+func TestExecuteDisassemble_日本語表示名のpropでも定義を引ける(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	// 木箱は display 名が日本語、id は wooden_crate
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", consts.Tile(5), consts.Tile(6))
+	require.NoError(t, err)
+	require.Equal(t, "木箱", query.GetEntityName(crate, world))
+
+	// 工具が無くても「分解定義が無い」エラーにはならず、工具不足を穏当に返すのが正常
+	_, err = executeDisassemble(player, crate, world)
+	require.NoError(t, err, "日本語表示名の prop の分解で定義未検出エラーになってはいけない")
+}

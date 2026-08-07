@@ -162,14 +162,13 @@ func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRe
 // executeDisassemble は工具の有無を先に確かめ、無ければエラーでなくログで知らせる。
 // 工具不足はプレイヤーの通常操作で起きる状態であり、異常系ではないため
 func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	name := query.GetEntityName(target, world)
-	def, ok := raw.FindDisassembly(world.Resources.RawMaster, name)
+	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
 	if !ok {
 		return nil, fmt.Errorf("target has no disassembly definition")
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "Do not have a tool to disassemble %s", gamelog.Tag("item", name))).
+			Markup(query.T(world, "Do not have a tool to disassemble %s", gamelog.Tag("item", query.GetEntityName(target, world)))).
 			Log()
 		return &ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: "no tool"}, nil
 	}
