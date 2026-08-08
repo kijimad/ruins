@@ -33,12 +33,12 @@ func GetItemValue(world w.World, entity ecs.Entity) int {
 // recruitValueMultiplier は隊員候補の能力値合計に掛ける基準価値の係数
 const recruitValueMultiplier = 30
 
-// IsRecruit は商人の収納内の実体が隊員候補かを返す。Abilities を持つ実体を候補とみなす。
-// 商人の収納にはアイテムと隊員候補が混在するため、この判別で扱いを分ける。
-// 収納にはアイテムと候補しか入らない前提で、収納内の実体に対して呼ぶこと。隊員本体など
-// 収納外の Abilities 持ちに対しては使わない
+// IsRecruit は商人の収納内の実体が隊員候補かを返す。収納にはアイテムと隊員候補しか入らないため、
+// アイテムの類型に当てはまらない実体を隊員候補とみなす。エンティティの類型判定は
+// Components.CategoryOf に集約されており、コンポーネント構成から求める。収納外の実体には使わない
 func IsRecruit(world w.World, entity ecs.Entity) bool {
-	return world.Components.Abilities.Has(entity)
+	_, isItem := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
+	return !isItem
 }
 
 // RecruitValue は隊員候補の基準価値を能力値合計から算出する。売買価格の元になる
@@ -52,7 +52,9 @@ func RecruitValue(a gc.Abilities) int {
 // 個数を掛けた実体まるごとの価値にする。買値・売値はこの値を CalculateBuyPrice/SellPrice に通して出す
 func StockBaseValue(world w.World, entity ecs.Entity) int {
 	count := GetEntityCount(world, entity)
-	if IsRecruit(world, entity) {
+	// 候補の価値は能力値から出す。Abilities を持つ候補だけがこの経路に乗る。
+	// アイテムの類型にもキャラの能力にも当てはまらない実体は Value 経由へ落とす
+	if IsRecruit(world, entity) && world.Components.Abilities.Has(entity) {
 		return RecruitValue(*world.Components.Abilities.Get(entity)) * count
 	}
 	return GetItemValue(world, entity) * count
