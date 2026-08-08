@@ -33,8 +33,10 @@ func GetItemValue(world w.World, entity ecs.Entity) int {
 // recruitValueMultiplier は隊員候補の能力値合計に掛ける基準価値の係数
 const recruitValueMultiplier = 30
 
-// IsRecruit は在庫実体が隊員候補かを返す。Abilities を持つ実体を候補とみなす。
-// 商人の収納にはアイテムと隊員候補が混在するため、この判別で扱いを分ける
+// IsRecruit は商人の収納内の実体が隊員候補かを返す。Abilities を持つ実体を候補とみなす。
+// 商人の収納にはアイテムと隊員候補が混在するため、この判別で扱いを分ける。
+// 収納にはアイテムと候補しか入らない前提で、収納内の実体に対して呼ぶこと。隊員本体など
+// 収納外の Abilities 持ちに対しては使わない
 func IsRecruit(world w.World, entity ecs.Entity) bool {
 	return world.Components.Abilities.Has(entity)
 }

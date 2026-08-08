@@ -180,30 +180,33 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 	return items
 }
 
-// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る
+// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る。
+// プレイヤーが居ないときは何も並べない。存在確認を先に済ませ、収集クエリは query.Player の
+// コールバック外で回してクエリのネストを避ける
 func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Percent) []shopItemData {
+	if _, err := query.GetPlayerEntity(world); err != nil {
+		return nil
+	}
+
 	var items []shopItemData
+	sellQuery := ecs.NewFilter3[gc.Name, gc.RawID, gc.LocationInBackpack](world.ECS).Query()
+	for sellQuery.Next() {
+		entity := sellQuery.Entity()
+		nameComp := world.Components.Name.Get(entity)
+		rawID := world.Components.RawID.Get(entity)
 
-	query.Player(world, func(_ ecs.Entity) {
-		sellQuery := ecs.NewFilter3[gc.Name, gc.RawID, gc.LocationInBackpack](world.ECS).Query()
-		for sellQuery.Next() {
-			entity := sellQuery.Entity()
-			nameComp := world.Components.Name.Get(entity)
-			rawID := world.Components.RawID.Get(entity)
+		price := sellPriceMod.ApplyInt(query.CalculateSellPrice(query.StockBaseValue(world, entity)))
 
-			price := sellPriceMod.ApplyInt(query.CalculateSellPrice(query.StockBaseValue(world, entity)))
-
-			items = append(items, shopItemData{
-				Entity: entity,
-				ItemID: rawID.ID,
-				Label:  query.T(world, nameComp.Name),
-				Weight: query.GetEntityWeight(world, entity).KgString(),
-				Price:  price,
-				Count:  query.GetEntityCount(world, entity),
-				IsBuy:  false,
-			})
-		}
-	})
+		items = append(items, shopItemData{
+			Entity: entity,
+			ItemID: rawID.ID,
+			Label:  query.T(world, nameComp.Name),
+			Weight: query.GetEntityWeight(world, entity).KgString(),
+			Price:  price,
+			Count:  query.GetEntityCount(world, entity),
+			IsBuy:  false,
+		})
+	}
 
 	return items
 }

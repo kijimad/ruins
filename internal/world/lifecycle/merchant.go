@@ -108,12 +108,12 @@ func ActivateRecruit(world w.World, player ecs.Entity, recruit ecs.Entity) (ecs.
 	abilities := *world.Components.Abilities.Get(recruit)
 	spriteKey := world.Components.SpriteRender.Get(recruit).SpriteKey
 
-	// 先に候補実体を消してから隊員を生成する。同定に使う在庫実体を残さない
-	world.ECS.RemoveEntity(recruit)
-
+	// 先に隊員を生成し、成功してから候補実体を消す。生成が失敗しても候補を在庫に残し、
+	// 「代金は返ったのに候補も消えた」という不整合を避ける
 	member, err := SpawnSquadMember(world, player, name, abilities, spriteKey)
 	if err != nil {
 		return gc.InvalidEntity, fmt.Errorf("failed to activate recruit: %w", err)
 	}
+	world.ECS.RemoveEntity(recruit)
 	return member, nil
 }
