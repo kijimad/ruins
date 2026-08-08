@@ -82,20 +82,20 @@ func TestRecipeInput(t *testing.T) {
 	t.Run("create recipe input", func(t *testing.T) {
 		t.Parallel()
 		input := RecipeInput{
-			Name:   "鉄",
+			ID:     "鉄",
 			Amount: 3,
 		}
-		assert.Equal(t, "鉄", input.Name, "素材名が正しく設定されない")
+		assert.Equal(t, "鉄", input.ID, "素材名が正しく設定されない")
 		assert.Equal(t, 3, input.Amount, "必要量が正しく設定されない")
 	})
 
 	t.Run("empty name", func(t *testing.T) {
 		t.Parallel()
 		input := RecipeInput{
-			Name:   "",
+			ID:     "",
 			Amount: 1,
 		}
-		assert.Empty(t, input.Name, "空の素材名が正しく設定されない")
+		assert.Empty(t, input.ID, "空の素材名が正しく設定されない")
 		assert.Equal(t, 1, input.Amount, "必要量が正しく設定されない")
 	})
 }

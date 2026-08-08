@@ -69,7 +69,7 @@ func ValidateReferences(raws oapi.Raws) error {
 	return validateCommandTableWeaponReferences(raws)
 }
 
-// validateItemTableReferences はアイテムテーブルの参照グループ名がアイテムグループ定義に存在することを検証する。
+// validateItemTableReferences はアイテムテーブルの参照グループ id がアイテムグループ定義に存在することを検証する。
 // 空文字は参照なしとして扱い、非空の参照だけを検証する
 func validateItemTableReferences(raws oapi.Raws) error {
 	groups := PtrSlice(raws.ItemGroups)
@@ -81,18 +81,18 @@ func validateItemTableReferences(raws oapi.Raws) error {
 	itemTables := PtrSlice(raws.ItemTables)
 	for i := range itemTables {
 		for _, entry := range itemTables[i].Entries {
-			if entry.GroupName == "" {
+			if entry.Id == "" {
 				continue
 			}
-			if _, ok := groupNames[entry.GroupName]; !ok {
-				return fmt.Errorf("item table '%s' references group '%s' that does not exist in item group definitions", itemTables[i].Name, entry.GroupName)
+			if _, ok := groupNames[entry.Id]; !ok {
+				return fmt.Errorf("item table '%s' references group '%s' that does not exist in item group definitions", itemTables[i].Name, entry.Id)
 			}
 		}
 	}
 	return nil
 }
 
-// validateItemGroupReferences はアイテムグループの参照アイテム名がアイテム定義に存在することを検証する
+// validateItemGroupReferences はアイテムグループの参照アイテム id がアイテム定義に存在することを検証する
 func validateItemGroupReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
@@ -103,18 +103,18 @@ func validateItemGroupReferences(raws oapi.Raws) error {
 	groups := PtrSlice(raws.ItemGroups)
 	for i := range groups {
 		for _, entry := range groups[i].Entries {
-			if entry.ItemName == "" {
+			if entry.Id == "" {
 				continue
 			}
-			if _, ok := itemNames[entry.ItemName]; !ok {
-				return fmt.Errorf("item group '%s' references item '%s' that does not exist in item definitions", groups[i].Name, entry.ItemName)
+			if _, ok := itemNames[entry.Id]; !ok {
+				return fmt.Errorf("item group '%s' references item '%s' that does not exist in item definitions", groups[i].Name, entry.Id)
 			}
 		}
 	}
 	return nil
 }
 
-// validateEnemyTableReferences は敵テーブルの参照敵名がメンバー定義に存在することを検証する
+// validateEnemyTableReferences は敵テーブルの参照敵 id がメンバー定義に存在することを検証する
 func validateEnemyTableReferences(raws oapi.Raws) error {
 	members := PtrSlice(raws.Members)
 	memberNames := make(map[string]struct{}, len(members))
@@ -125,11 +125,11 @@ func validateEnemyTableReferences(raws oapi.Raws) error {
 	enemyTables := PtrSlice(raws.EnemyTables)
 	for i := range enemyTables {
 		for _, entry := range enemyTables[i].Entries {
-			if entry.EnemyName == "" {
+			if entry.Id == "" {
 				continue
 			}
-			if _, ok := memberNames[entry.EnemyName]; !ok {
-				return fmt.Errorf("enemy table '%s' references enemy '%s' that does not exist in member definitions", enemyTables[i].Name, entry.EnemyName)
+			if _, ok := memberNames[entry.Id]; !ok {
+				return fmt.Errorf("enemy table '%s' references enemy '%s' that does not exist in member definitions", enemyTables[i].Name, entry.Id)
 			}
 		}
 	}
@@ -167,7 +167,7 @@ func validateSpawnDice(raws oapi.Raws) error {
 	for i := range enemyTables {
 		for _, e := range enemyTables[i].Entries {
 			if _, err := consts.ParseDice(e.Pack); err != nil {
-				return fmt.Errorf("enemy table '%s' entry '%s' has invalid pack notation: %w", enemyTables[i].Name, e.EnemyName, err)
+				return fmt.Errorf("enemy table '%s' entry '%s' has invalid pack notation: %w", enemyTables[i].Name, e.Id, err)
 			}
 		}
 	}
@@ -175,7 +175,7 @@ func validateSpawnDice(raws oapi.Raws) error {
 	for i := range itemGroups {
 		for _, e := range itemGroups[i].Entries {
 			if _, err := consts.ParseDice(e.Pack); err != nil {
-				return fmt.Errorf("item group '%s' entry '%s' has invalid pack notation: %w", itemGroups[i].Name, e.ItemName, err)
+				return fmt.Errorf("item group '%s' entry '%s' has invalid pack notation: %w", itemGroups[i].Name, e.Id, err)
 			}
 		}
 	}
@@ -239,8 +239,8 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 	return nil
 }
 
-// validateDropTableReferences はドロップテーブルの素材名がアイテム定義に存在すること、
-// メンバーの dropTableName がテーブル定義に存在することを検証する
+// validateDropTableReferences はドロップテーブルの素材 id がアイテム定義に存在すること、
+// メンバーの dropTableId がテーブル定義に存在することを検証する
 func validateDropTableReferences(raws oapi.Raws) error {
 	items := PtrSlice(raws.Items)
 	itemNames := make(map[string]struct{}, len(items))
@@ -266,17 +266,17 @@ func validateDropTableReferences(raws oapi.Raws) error {
 	members := PtrSlice(raws.Members)
 	for i := range members {
 		// 省略時は参照を持たない。空文字はテーブル名として不正なので存在チェックで弾く
-		if members[i].DropTableName == nil {
+		if members[i].DropTableId == nil {
 			continue
 		}
-		if _, ok := tableNames[*members[i].DropTableName]; !ok {
-			return fmt.Errorf("member '%s' drop table '%s' does not exist in definitions", members[i].Name, *members[i].DropTableName)
+		if _, ok := tableNames[*members[i].DropTableId]; !ok {
+			return fmt.Errorf("member '%s' drop table '%s' does not exist in definitions", members[i].Name, *members[i].DropTableId)
 		}
 	}
 	return nil
 }
 
-// validateCommandTableReferences はメンバーの commandTableName がテーブル定義に存在することを検証する
+// validateCommandTableReferences はメンバーの commandTableId がテーブル定義に存在することを検証する
 func validateCommandTableReferences(raws oapi.Raws) error {
 	commandTables := PtrSlice(raws.CommandTables)
 	tableNames := make(map[string]struct{}, len(commandTables))
@@ -287,11 +287,11 @@ func validateCommandTableReferences(raws oapi.Raws) error {
 	members := PtrSlice(raws.Members)
 	for i := range members {
 		// 省略時は参照を持たない。空文字はテーブル名として不正なので存在チェックで弾く
-		if members[i].CommandTableName == nil {
+		if members[i].CommandTableId == nil {
 			continue
 		}
-		if _, ok := tableNames[*members[i].CommandTableName]; !ok {
-			return fmt.Errorf("member '%s' command table '%s' does not exist in definitions", members[i].Name, *members[i].CommandTableName)
+		if _, ok := tableNames[*members[i].CommandTableId]; !ok {
+			return fmt.Errorf("member '%s' command table '%s' does not exist in definitions", members[i].Name, *members[i].CommandTableId)
 		}
 	}
 	return nil

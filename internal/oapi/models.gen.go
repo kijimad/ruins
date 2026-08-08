@@ -859,8 +859,8 @@ type EnemyTable struct {
 
 // EnemyTableEntry 敵テーブルエントリ
 type EnemyTableEntry struct {
-	// EnemyName エンティティ名
-	EnemyName EntityName `json:"enemyName"`
+	// Id エンティティ名
+	Id EntityName `json:"id"`
 
 	// MaxDepth 階層レベル
 	MaxDepth DepthLevel `json:"maxDepth"`
@@ -1073,8 +1073,8 @@ type ItemGroup struct {
 
 // ItemGroupEntry アイテムグループエントリ
 type ItemGroupEntry struct {
-	// ItemName エンティティ名
-	ItemName EntityName `json:"itemName"`
+	// Id エンティティ名
+	Id EntityName `json:"id"`
 
 	// Pack 1山あたりの個数のダイス表記
 	Pack Dice `json:"pack"`
@@ -1111,8 +1111,8 @@ type ItemTable struct {
 
 // ItemTableEntry アイテムテーブルエントリ。アイテムグループを参照する
 type ItemTableEntry struct {
-	// GroupName 参照するアイテムグループ名
-	GroupName EntityName `json:"groupName"`
+	// Id 参照するアイテムグループの id
+	Id EntityName `json:"id"`
 
 	// MaxDepth 階層レベル
 	MaxDepth DepthLevel `json:"maxDepth"`
@@ -1193,14 +1193,14 @@ type Member struct {
 	// CombatPolicy 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
 	CombatPolicy *CombatPolicyType `json:"combatPolicy,omitempty"`
 
-	// CommandTableName プレイヤーキャラクターでは省略可能
-	CommandTableName *EntityName `json:"commandTableName,omitempty"`
+	// CommandTableId プレイヤーキャラクターでは省略可能
+	CommandTableId *EntityName `json:"commandTableId,omitempty"`
 
 	// Dialog 会話データ
 	Dialog *Dialog `json:"dialog,omitempty"`
 
-	// DropTableName プレイヤーキャラクターでは省略可能
-	DropTableName *EntityName `json:"dropTableName,omitempty"`
+	// DropTableId プレイヤーキャラクターでは省略可能
+	DropTableId *EntityName `json:"dropTableId,omitempty"`
 
 	// FactionType 派閥タイプ
 	FactionType *FactionMemberType `json:"factionType,omitempty"`
@@ -1458,8 +1458,8 @@ type RecipeInput struct {
 	// Amount 素材必要数
 	Amount MaterialAmount `json:"amount"`
 
-	// Name エンティティ名
-	Name EntityName `json:"name"`
+	// Id エンティティ名
+	Id EntityName `json:"id"`
 }
 
 // RecipeList レシピ一覧レスポンス
@@ -2298,8 +2298,8 @@ type StorageRaw struct {
 	// LootCount 初期アイテム数のダイス表記。省略時は1
 	LootCount *Dice `json:"lootCount,omitempty"`
 
-	// LootTableName 初期アイテムの抽選に使うItemTable名
-	LootTableName *EntityName `json:"lootTableName,omitempty"`
+	// LootTableId 初期アイテムの抽選に使うItemTable名
+	LootTableId *EntityName `json:"lootTableId,omitempty"`
 
 	// MaxWeight 収納の最大格納重量
 	MaxWeight Weight `json:"maxWeight"`

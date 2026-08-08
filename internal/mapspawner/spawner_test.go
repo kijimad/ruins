@@ -189,7 +189,7 @@ func TestPopulateStorageLoot_未知のルートテーブルはエラー(t *testi
 	plan.Depth = 1
 
 	propRaw := oapi.Prop{
-		Storage: &oapi.StorageRaw{LootTableName: new("存在しないテーブル")},
+		Storage: &oapi.StorageRaw{LootTableId: new("存在しないテーブル")},
 	}
 	storageEntity := world.ECS.NewEntity()
 

@@ -194,7 +194,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 		}
 
 		// Storage propにルートアイテムを格納する
-		if propRaw.Storage != nil && propRaw.Storage.LootTableName != nil && *propRaw.Storage.LootTableName != "" {
+		if propRaw.Storage != nil && propRaw.Storage.LootTableId != nil && *propRaw.Storage.LootTableId != "" {
 			if err := populateStorageLoot(world, metaPlan, propEntity, propRaw); err != nil {
 				return fmt.Errorf("failed to spawn container item (%d, %d): %w", prop.X, prop.Y, err)
 			}
@@ -248,7 +248,7 @@ func detectPropDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorO
 
 // populateStorageLoot は収納propにルートテーブルからアイテムを格納する
 func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEntity ecs.Entity, propRaw oapi.Prop) error {
-	tableName := *propRaw.Storage.LootTableName
+	tableName := *propRaw.Storage.LootTableId
 	itemTable, err := raw.GetItemTable(*metaPlan.RawMaster, tableName)
 	if err != nil {
 		return fmt.Errorf("failed to get ItemTable '%s': %w", tableName, err)

@@ -135,7 +135,7 @@ func TestValidateReferences(t *testing.T) {
 			EnemyTables: &[]oapi.EnemyTable{{
 				Id:      "通常",
 				Name:    "通常",
-				Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム", Pack: "1d3"}},
+				Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "1d3"}},
 			}},
 			CommandTables: &[]oapi.CommandTable{{
 				Id:      "剣術",
@@ -145,18 +145,18 @@ func TestValidateReferences(t *testing.T) {
 			ItemGroups: &[]oapi.ItemGroup{{
 				Id:      "素材",
 				Name:    "素材",
-				Entries: []oapi.ItemGroupEntry{{ItemName: "鉄くず", Pack: "1d1"}},
+				Entries: []oapi.ItemGroupEntry{{Id: "鉄くず", Pack: "1d1"}},
 			}},
 			ItemTables: &[]oapi.ItemTable{{
 				Id:      "宝箱",
 				Name:    "宝箱",
-				Entries: []oapi.ItemTableEntry{{GroupName: "素材"}},
+				Entries: []oapi.ItemTableEntry{{Id: "素材"}},
 			}},
 			Members: &[]oapi.Member{{
-				Id:               "スライム",
-				Name:             "スライム",
-				DropTableName:    new(oapi.EntityName("廃墟")),
-				CommandTableName: new(oapi.EntityName("剣術")),
+				Id:             "スライム",
+				Name:           "スライム",
+				DropTableId:    new(oapi.EntityName("廃墟")),
+				CommandTableId: new(oapi.EntityName("剣術")),
 			}},
 		}
 		assert.NoError(t, ValidateReferences(raws))

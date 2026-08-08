@@ -228,7 +228,7 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
 	enemySet := make(map[string]struct{})
 	for _, table := range raw.PtrSlice(master.EnemyTables) {
 		for _, entry := range table.Entries {
-			enemySet[entry.EnemyName] = struct{}{}
+			enemySet[entry.Id] = struct{}{}
 		}
 	}
 

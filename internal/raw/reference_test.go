@@ -117,9 +117,9 @@ func TestRawTableReference(t *testing.T) {
 		t.Parallel()
 		for _, itemTable := range PtrSlice(raws.ItemTables) {
 			for _, entry := range itemTable.Entries {
-				_, err := GetItemGroup(raws, entry.GroupName)
+				_, err := GetItemGroup(raws, entry.Id)
 				assert.NoError(t, err, "ItemTable '%s' が参照するグループ '%s' が存在しません",
-					itemTable.Name, entry.GroupName)
+					itemTable.Name, entry.Id)
 			}
 		}
 	})
@@ -128,9 +128,9 @@ func TestRawTableReference(t *testing.T) {
 		t.Parallel()
 		for _, group := range PtrSlice(raws.ItemGroups) {
 			for _, entry := range group.Entries {
-				_, err := FindItem(raws, entry.ItemName)
+				_, err := FindItem(raws, entry.Id)
 				assert.NoError(t, err, "ItemGroup '%s' が参照するアイテム '%s' が存在しません",
-					group.Name, entry.ItemName)
+					group.Name, entry.Id)
 			}
 		}
 	})
@@ -153,12 +153,12 @@ func TestRawTableReference(t *testing.T) {
 		t.Parallel()
 		for _, enemyTable := range PtrSlice(raws.EnemyTables) {
 			for _, entry := range enemyTable.Entries {
-				if entry.EnemyName == "" {
+				if entry.Id == "" {
 					continue
 				}
-				_, err := FindMember(raws, entry.EnemyName)
+				_, err := FindMember(raws, entry.Id)
 				assert.NoError(t, err, "EnemyTable '%s' が参照するメンバー '%s' が存在しません",
-					enemyTable.Name, entry.EnemyName)
+					enemyTable.Name, entry.Id)
 			}
 		}
 	})
@@ -173,12 +173,12 @@ func TestRawMiscReference(t *testing.T) {
 		t.Parallel()
 		for _, recipe := range PtrSlice(raws.Recipes) {
 			for _, input := range recipe.Inputs {
-				if input.Name == "" {
+				if input.Id == "" {
 					continue
 				}
-				_, err := FindItem(raws, input.Name)
+				_, err := FindItem(raws, input.Id)
 				assert.NoError(t, err, "レシピ '%s' が参照する入力アイテム '%s' が存在しません",
-					recipe.Name, input.Name)
+					recipe.Name, input.Id)
 			}
 		}
 	})

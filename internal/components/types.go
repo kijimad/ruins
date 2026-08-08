@@ -35,7 +35,7 @@ type TargetType struct {
 
 // RecipeInput は合成の元になる素材
 type RecipeInput struct {
-	Name   string // 素材名
+	ID     string // 素材アイテムの id
 	Amount int    // 必要量
 }
 

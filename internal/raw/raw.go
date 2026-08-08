@@ -345,7 +345,7 @@ func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.Name = &gc.Name{Name: recipe.Name}
 	entitySpec.Recipe = &gc.Recipe{}
 	for _, input := range recipe.Inputs {
-		entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{Name: input.Name, Amount: int(input.Amount)})
+		entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{ID: input.Id, Amount: int(input.Amount)})
 	}
 
 	// 説明文や分類のため、マッチしたitemの定義から持ってくる
@@ -428,16 +428,16 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// テーブル名はロード時に参照検証済みで、ここで失敗するのは整合性バグ
-	if member.CommandTableName != nil {
-		ct, err := GetCommandTable(raws, *member.CommandTableName)
+	if member.CommandTableId != nil {
+		ct, err := GetCommandTable(raws, *member.CommandTableId)
 		if err != nil {
 			return gc.EntitySpec{}, fmt.Errorf("failed to get command table for member '%s': %w", name, err)
 		}
 		entitySpec.CommandTable = &gc.CommandTable{Name: ct.Id}
 	}
 
-	if member.DropTableName != nil {
-		dt, err := GetDropTable(raws, *member.DropTableName)
+	if member.DropTableId != nil {
+		dt, err := GetDropTable(raws, *member.DropTableId)
 		if err != nil {
 			return gc.EntitySpec{}, fmt.Errorf("failed to get drop table for member '%s': %w", name, err)
 		}
@@ -781,7 +781,7 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, depth
 	groupName, err := SelectByWeightFunc(
 		filtered,
 		func(e oapi.ItemTableEntry) float64 { return e.Weight },
-		func(e oapi.ItemTableEntry) string { return e.GroupName },
+		func(e oapi.ItemTableEntry) string { return e.Id },
 		rng,
 	)
 	if err != nil || groupName == "" {
@@ -796,7 +796,7 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, depth
 	return SelectByWeightFunc(
 		group.Entries,
 		func(e oapi.ItemGroupEntry) float64 { return e.Weight },
-		func(e oapi.ItemGroupEntry) string { return e.ItemName },
+		func(e oapi.ItemGroupEntry) string { return e.Id },
 		rng,
 	)
 }
@@ -814,7 +814,7 @@ func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string,
 	return SelectByWeightFunc(
 		filtered,
 		func(e oapi.EnemyTableEntry) float64 { return e.Weight },
-		func(e oapi.EnemyTableEntry) string { return e.EnemyName },
+		func(e oapi.EnemyTableEntry) string { return e.Id },
 		rng,
 	)
 }

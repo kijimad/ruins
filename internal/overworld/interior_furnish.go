@@ -108,7 +108,7 @@ func doorOrientation(wallSet map[interior.Vec]bool, pos interior.Vec) gc.DoorOri
 	return gc.DoorOrientationHorizontal
 }
 
-// populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableName を持てば、その item
+// populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item
 // テーブルから件数ぶん重み抽選して収納エンティティへ入れる。家具別の loot テーブルを、ruins 既存の
 // DropTable/ItemTable と日本語テーブル(廃墟等)で実現する。ダンジョン生成の populateStorageLoot と同型で、
 // overworld は建物ローカルの決定的 RNG を使う。地上フロアなので深度は 0。
@@ -117,10 +117,10 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 	if err != nil {
 		return err
 	}
-	if propRaw.Storage == nil || propRaw.Storage.LootTableName == nil || *propRaw.Storage.LootTableName == "" {
+	if propRaw.Storage == nil || propRaw.Storage.LootTableId == nil || *propRaw.Storage.LootTableId == "" {
 		return nil // 収納でない家具は何も入れない
 	}
-	itemTable, err := raw.GetItemTable(world.Resources.RawMaster, *propRaw.Storage.LootTableName)
+	itemTable, err := raw.GetItemTable(world.Resources.RawMaster, *propRaw.Storage.LootTableId)
 	if err != nil {
 		return err
 	}

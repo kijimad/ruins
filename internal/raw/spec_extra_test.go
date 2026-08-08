@@ -275,11 +275,11 @@ Name = "レイガン"
 id = "レイガン"
 
 [[Recipes.Inputs]]
-Name = "鉄"
+Id = "鉄"
 Amount = 4
 
 [[Recipes.Inputs]]
-Name = "フェライトコア"
+Id = "フェライトコア"
 Amount = 2
 `
 	raws, err := DecodeRaws(str)
@@ -291,7 +291,7 @@ Amount = 2
 	assert.Equal(t, "レイガン", spec.Name.Name)
 	require.NotNil(t, spec.Recipe)
 	require.Len(t, spec.Recipe.Inputs, 2)
-	assert.Equal(t, "鉄", spec.Recipe.Inputs[0].Name)
+	assert.Equal(t, "鉄", spec.Recipe.Inputs[0].ID)
 	assert.Equal(t, 4, spec.Recipe.Inputs[0].Amount)
 	assert.Equal(t, "光線を放つ武器", spec.Description.Description)
 	require.NotNil(t, spec.Melee)
@@ -317,7 +317,7 @@ Name = "対応アイテムなしレシピ"
 id = "対応アイテムなしレシピ"
 
 [[Recipes.Inputs]]
-Name = "鉄"
+Id = "鉄"
 Amount = 1
 `
 	raws, err := DecodeRaws(str)

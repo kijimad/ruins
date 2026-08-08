@@ -1816,13 +1816,13 @@ components:
     EnemyTableEntry:
       type: object
       required:
-        - enemyName
+        - id
         - weight
         - minDepth
         - maxDepth
         - pack
       properties:
-        enemyName:
+        id:
           $ref: '#/components/schemas/EntityName'
         weight:
           $ref: '#/components/schemas/EntryWeight'
@@ -2104,11 +2104,11 @@ components:
     ItemGroupEntry:
       type: object
       required:
-        - itemName
+        - id
         - weight
         - pack
       properties:
-        itemName:
+        id:
           $ref: '#/components/schemas/EntityName'
         weight:
           allOf:
@@ -2172,15 +2172,15 @@ components:
     ItemTableEntry:
       type: object
       required:
-        - groupName
+        - id
         - weight
         - minDepth
         - maxDepth
       properties:
-        groupName:
+        id:
           allOf:
             - $ref: '#/components/schemas/EntityName'
-          description: 参照するアイテムグループ名
+          description: 参照するアイテムグループの id
         weight:
           $ref: '#/components/schemas/EntryWeight'
         minDepth:
@@ -2312,11 +2312,11 @@ components:
           $ref: '#/components/schemas/ViewDistance'
         dialog:
           $ref: '#/components/schemas/Dialog'
-        commandTableName:
+        commandTableId:
           allOf:
             - $ref: '#/components/schemas/EntityName'
           description: プレイヤーキャラクターでは省略可能
-        dropTableName:
+        dropTableId:
           allOf:
             - $ref: '#/components/schemas/EntityName'
           description: プレイヤーキャラクターでは省略可能
@@ -2676,10 +2676,10 @@ components:
     RecipeInput:
       type: object
       required:
-        - name
+        - id
         - amount
       properties:
-        name:
+        id:
           $ref: '#/components/schemas/EntityName'
         amount:
           $ref: '#/components/schemas/MaterialAmount'
@@ -3881,7 +3881,7 @@ components:
           allOf:
             - $ref: '#/components/schemas/Weight'
           description: 収納の最大格納重量
-        lootTableName:
+        lootTableId:
           allOf:
             - $ref: '#/components/schemas/EntityName'
           description: 初期アイテムの抽選に使うItemTable名

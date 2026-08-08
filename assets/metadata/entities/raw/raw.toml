@@ -8643,11 +8643,11 @@ id = "ray_gun"
 
 [[recipes.inputs]]
 amount = 4
-name = "iron"
+id = "iron"
 
 [[recipes.inputs]]
 amount = 2
-name = "ferrite_core"
+id = "ferrite_core"
 
 [[recipes]]
 name = "作業用ヘルメット"
@@ -8655,7 +8655,7 @@ id = "work_helmet"
 
 [[recipes.inputs]]
 amount = 3
-name = "iron"
+id = "iron"
 
 [[recipes]]
 name = "冷凍グレネード"
@@ -8663,7 +8663,7 @@ id = "freeze_grenade"
 
 [[recipes.inputs]]
 amount = 3
-name = "iron"
+id = "iron"
 
 [[recipes]]
 name = "回復薬"
@@ -8671,11 +8671,11 @@ id = "healing_potion"
 
 [[recipes.inputs]]
 amount = 1
-name = "green_herb"
+id = "green_herb"
 
 [[recipes.inputs]]
 amount = 1
-name = "yellow_herb"
+id = "yellow_herb"
 
 [[recipes]]
 name = "木刀"
@@ -8683,7 +8683,7 @@ id = "wooden_sword"
 
 [[recipes.inputs]]
 amount = 2
-name = "wooden_stick"
+id = "wooden_stick"
 
 [[recipes]]
 name = "機械の指輪"
@@ -8691,7 +8691,7 @@ id = "machine_ring"
 
 [[recipes.inputs]]
 amount = 1
-name = "iron"
+id = "iron"
 
 [[recipes]]
 name = "毒消し"
@@ -8699,7 +8699,7 @@ id = "antidote"
 
 [[recipes.inputs]]
 amount = 1
-name = "green_herb"
+id = "green_herb"
 
 [[recipes]]
 name = "煙幕弾"
@@ -8707,11 +8707,11 @@ id = "smoke_bomb"
 
 [[recipes.inputs]]
 amount = 1
-name = "iron"
+id = "iron"
 
 [[recipes.inputs]]
 amount = 2
-name = "ashes"
+id = "ashes"
 
 [[recipes]]
 name = "西洋鎧"
@@ -8719,7 +8719,7 @@ id = "western_armor"
 
 [[recipes.inputs]]
 amount = 4
-name = "iron"
+id = "iron"
 
 [[recipes]]
 name = "鉄のナイフ"
@@ -8727,11 +8727,11 @@ id = "iron_knife"
 
 [[recipes.inputs]]
 amount = 2
-name = "iron"
+id = "iron"
 
 [[recipes.inputs]]
 amount = 2
-name = "wooden_stick"
+id = "wooden_stick"
 
 [[recipes]]
 name = "閃光弾"
@@ -8739,11 +8739,11 @@ id = "flashbang"
 
 [[recipes.inputs]]
 amount = 1
-name = "iron"
+id = "iron"
 
 [[recipes.inputs]]
 amount = 2
-name = "crystal_powder"
+id = "crystal_powder"
 
 [[recipes]]
 name = "電撃グレネード"
@@ -8751,7 +8751,7 @@ id = "shock_grenade"
 
 [[recipes.inputs]]
 amount = 3
-name = "iron"
+id = "iron"
 
 [[recipes]]
 name = "革のブーツ"
@@ -8759,7 +8759,7 @@ id = "leather_boots"
 
 [[recipes.inputs]]
 amount = 2
-name = "iron"
+id = "iron"
 
 [[members]]
 animKeys = [ "player_0", "player_1" ]
@@ -8792,8 +8792,8 @@ r = 255
 
 [[members]]
 animKeys = [ "dream_fly" ]
-commandTableName = "bat"
-dropTableName = "bat"
+commandTableId = "bat"
+dropTableId = "bat"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -8812,8 +8812,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "gorilla" ]
-commandTableName = "gorilla"
-dropTableName = "gorilla"
+commandTableId = "gorilla"
+dropTableId = "gorilla"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -8832,8 +8832,8 @@ vitality = 4
 
 [[members]]
 animKeys = [ "cherokee" ]
-commandTableName = "jeep"
-dropTableName = "jeep"
+commandTableId = "jeep"
+dropTableId = "jeep"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -8862,8 +8862,8 @@ r = 255
 
 [[members]]
 animKeys = [ "slime_0", "slime_1" ]
-commandTableName = "slime"
-dropTableName = "slime"
+commandTableId = "slime"
+dropTableId = "slime"
 combatPolicy = "attack"
 movementPattern = "swarm"
 isBoss = false
@@ -8882,8 +8882,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "penguin" ]
-commandTableName = "rat"
-dropTableName = "rat"
+commandTableId = "rat"
+dropTableId = "rat"
 combatPolicy = "evade"
 movementPattern = "random"
 isBoss = false
@@ -8902,8 +8902,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "pink_ball" ]
-commandTableName = "pink_slime"
-dropTableName = "pink_slime"
+commandTableId = "pink_slime"
+dropTableId = "pink_slime"
 combatPolicy = "attack"
 movementPattern = "swarm"
 isBoss = false
@@ -8922,8 +8922,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "penguin" ]
-commandTableName = "penguin"
-dropTableName = "penguin"
+commandTableId = "penguin"
+dropTableId = "penguin"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -8942,8 +8942,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "threehead_dragon" ]
-commandTableName = "three_headed_dragon"
-dropTableName = "three_headed_dragon"
+commandTableId = "three_headed_dragon"
+dropTableId = "three_headed_dragon"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -8962,8 +8962,8 @@ vitality = 6
 
 [[members]]
 animKeys = [ "golden_slime" ]
-commandTableName = "glow_bug"
-dropTableName = "glow_bug"
+commandTableId = "glow_bug"
+dropTableId = "glow_bug"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -8982,7 +8982,7 @@ vitality = 1
 
 [[members]]
 animKeys = [ "slime_0", "slime_1" ]
-commandTableName = "frozen_hunter"
+commandTableId = "frozen_hunter"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = true
@@ -9001,8 +9001,8 @@ vitality = 40
 
 [[members]]
 animKeys = [ "chemical_tank" ]
-commandTableName = "chemical_tank"
-dropTableName = "chemical_tank"
+commandTableId = "chemical_tank"
+dropTableId = "chemical_tank"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9063,8 +9063,8 @@ messageKey = "merchant_greeting"
 
 [[members]]
 animKeys = [ "dream_fly" ]
-commandTableName = "dream_moth"
-dropTableName = "dream_moth"
+commandTableId = "dream_moth"
+dropTableId = "dream_moth"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9083,8 +9083,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "dream_whale" ]
-commandTableName = "dream_whale"
-dropTableName = "dream_whale"
+commandTableId = "dream_whale"
+dropTableId = "dream_whale"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9103,8 +9103,8 @@ vitality = 5
 
 [[members]]
 animKeys = [ "dream_fly" ]
-commandTableName = "giant_bee"
-dropTableName = "giant_bee"
+commandTableId = "giant_bee"
+dropTableId = "giant_bee"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9123,8 +9123,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "shadow_priest" ]
-commandTableName = "shadow_priest"
-dropTableName = "shadow_priest"
+commandTableId = "shadow_priest"
+dropTableId = "shadow_priest"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9143,8 +9143,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "slime_0", "slime_1" ]
-commandTableName = "shadow_rat"
-dropTableName = "shadow_rat"
+commandTableId = "shadow_rat"
+dropTableId = "shadow_rat"
 combatPolicy = "attack"
 movementPattern = "wallHug"
 isBoss = false
@@ -9195,8 +9195,8 @@ messageKey = "doctor_greeting"
 
 [[members]]
 animKeys = [ "old_tank" ]
-commandTableName = "old_tank"
-dropTableName = "old_tank"
+commandTableId = "old_tank"
+dropTableId = "old_tank"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9225,8 +9225,8 @@ r = 200
 
 [[members]]
 animKeys = [ "dark_doctor_0", "dark_doctor_1" ]
-commandTableName = "dark_doctor"
-dropTableName = "dark_doctor"
+commandTableId = "dark_doctor"
+dropTableId = "dark_doctor"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9245,8 +9245,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "skeleton" ]
-commandTableName = "decayed_soldier"
-dropTableName = "decayed_soldier"
+commandTableId = "decayed_soldier"
+dropTableId = "decayed_soldier"
 combatPolicy = "attack"
 movementPattern = "patrol"
 isBoss = false
@@ -9265,8 +9265,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "tree_monster" ]
-commandTableName = "tree_spirit"
-dropTableName = "tree_spirit"
+commandTableId = "tree_spirit"
+dropTableId = "tree_spirit"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9285,8 +9285,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "tree_monster" ]
-commandTableName = "poison_mushroom"
-dropTableName = "poison_mushroom"
+commandTableId = "poison_mushroom"
+dropTableId = "poison_mushroom"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9305,8 +9305,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "dark_clab" ]
-commandTableName = "poison_frog"
-dropTableName = "poison_frog"
+commandTableId = "poison_frog"
+dropTableId = "poison_frog"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9325,8 +9325,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "black_spider" ]
-commandTableName = "poison_spider"
-dropTableName = "poison_spider"
+commandTableId = "poison_spider"
+dropTableId = "poison_spider"
 combatPolicy = "attack"
 movementPattern = "wallHug"
 isBoss = false
@@ -9345,8 +9345,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "crystal_ghost" ]
-commandTableName = "crystal_wraith"
-dropTableName = "crystal_wraith"
+commandTableId = "crystal_wraith"
+dropTableId = "crystal_wraith"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9365,8 +9365,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "ice_dog" ]
-commandTableName = "ice_dog"
-dropTableName = "ice_dog"
+commandTableId = "ice_dog"
+dropTableId = "ice_dog"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9385,8 +9385,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "ice_tank" ]
-commandTableName = "frozen_tank"
-dropTableName = "frozen_tank"
+commandTableId = "frozen_tank"
+dropTableId = "frozen_tank"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9415,8 +9415,8 @@ r = 150
 
 [[members]]
 animKeys = [ "red_ball_0" ]
-commandTableName = "floating_eye"
-dropTableName = "floating_eye"
+commandTableId = "floating_eye"
+dropTableId = "floating_eye"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9435,8 +9435,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "red_ball_0", "red_ball_1" ]
-commandTableName = "fireball"
-dropTableName = "fireball"
+commandTableId = "fireball"
+dropTableId = "fireball"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9465,8 +9465,8 @@ r = 255
 
 [[members]]
 animKeys = [ "fire_cat" ]
-commandTableName = "fire_cat"
-dropTableName = "fire_cat"
+commandTableId = "fire_cat"
+dropTableId = "fire_cat"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9485,8 +9485,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "magic_ring" ]
-commandTableName = "ash_idol"
-dropTableName = "ash_idol"
+commandTableId = "ash_idol"
+dropTableId = "ash_idol"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9505,8 +9505,8 @@ vitality = 7
 
 [[members]]
 animKeys = [ "gray_tank" ]
-commandTableName = "gray_tank"
-dropTableName = "gray_tank"
+commandTableId = "gray_tank"
+dropTableId = "gray_tank"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9535,8 +9535,8 @@ r = 200
 
 [[members]]
 animKeys = [ "golden_slime" ]
-commandTableName = "ash_bug"
-dropTableName = "ash_bug"
+commandTableId = "ash_bug"
+dropTableId = "ash_bug"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9555,8 +9555,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "desert_tank" ]
-commandTableName = "desert_tank"
-dropTableName = "desert_tank"
+commandTableId = "desert_tank"
+dropTableId = "desert_tank"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9585,8 +9585,8 @@ r = 255
 
 [[members]]
 animKeys = [ "dragon_head" ]
-commandTableName = "dragon_head"
-dropTableName = "dragon_head"
+commandTableId = "dragon_head"
+dropTableId = "dragon_head"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9605,8 +9605,8 @@ vitality = 5
 
 [[members]]
 animKeys = [ "violet_ball" ]
-commandTableName = "purple_floater"
-dropTableName = "purple_floater"
+commandTableId = "purple_floater"
+dropTableId = "purple_floater"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9625,8 +9625,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "green_eater" ]
-commandTableName = "green_devourer"
-dropTableName = "green_devourer"
+commandTableId = "green_devourer"
+dropTableId = "green_devourer"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9645,8 +9645,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "green_dinosaurs" ]
-commandTableName = "green_dragon"
-dropTableName = "green_dragon"
+commandTableId = "green_dragon"
+dropTableId = "green_dragon"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9709,8 +9709,8 @@ messageKey = "tavern_keeper_greeting"
 
 [[members]]
 animKeys = [ "dark_clab" ]
-commandTableName = "moss_turtle"
-dropTableName = "moss_turtle"
+commandTableId = "moss_turtle"
+dropTableId = "moss_turtle"
 combatPolicy = "ignore"
 movementPattern = "wander"
 isBoss = false
@@ -9729,8 +9729,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "rainbow_dragon" ]
-commandTableName = "rainbow_dragon"
-dropTableName = "rainbow_dragon"
+commandTableId = "rainbow_dragon"
+dropTableId = "rainbow_dragon"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9749,8 +9749,8 @@ vitality = 5
 
 [[members]]
 animKeys = [ "butterfly" ]
-commandTableName = "butterfly"
-dropTableName = "butterfly"
+commandTableId = "butterfly"
+dropTableId = "butterfly"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9769,8 +9769,8 @@ vitality = 1
 
 [[members]]
 animKeys = [ "red_tank" ]
-commandTableName = "red_tank"
-dropTableName = "red_tank"
+commandTableId = "red_tank"
+dropTableId = "red_tank"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9799,8 +9799,8 @@ r = 255
 
 [[members]]
 animKeys = [ "redline_man" ]
-commandTableName = "red_line_man"
-dropTableName = "red_line_man"
+commandTableId = "red_line_man"
+dropTableId = "red_line_man"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9819,8 +9819,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "light_tank_0", "light_tank_1" ]
-commandTableName = "light_tank"
-dropTableName = "light_tank"
+commandTableId = "light_tank"
+dropTableId = "light_tank"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9849,8 +9849,8 @@ r = 255
 
 [[members]]
 animKeys = [ "canon_tank" ]
-commandTableName = "heavy_artillery_tank"
-dropTableName = "heavy_artillery_tank"
+commandTableId = "heavy_artillery_tank"
+dropTableId = "heavy_artillery_tank"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9879,8 +9879,8 @@ r = 255
 
 [[members]]
 animKeys = [ "slime_0", "slime_1" ]
-commandTableName = "stray_dog"
-dropTableName = "stray_dog"
+commandTableId = "stray_dog"
+dropTableId = "stray_dog"
 combatPolicy = "attack"
 movementPattern = "territorial"
 isBoss = false
@@ -9899,8 +9899,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "golden_slime" ]
-commandTableName = "gold_slime"
-dropTableName = "gold_slime"
+commandTableId = "gold_slime"
+dropTableId = "gold_slime"
 combatPolicy = "attack"
 movementPattern = "swarm"
 isBoss = false
@@ -9919,8 +9919,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "slime_0", "slime_1" ]
-commandTableName = "iron_sentinel"
-dropTableName = "iron_sentinel"
+commandTableId = "iron_sentinel"
+dropTableId = "iron_sentinel"
 combatPolicy = "attack"
 movementPattern = "stationary"
 isBoss = false
@@ -9939,8 +9939,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "black_zombie" ]
-commandTableName = "rusted_doll"
-dropTableName = "rusted_doll"
+commandTableId = "rusted_doll"
+dropTableId = "rusted_doll"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9959,8 +9959,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "armor_ghost" ]
-commandTableName = "armor_ghost"
-dropTableName = "armor_ghost"
+commandTableId = "armor_ghost"
+dropTableId = "armor_ghost"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9979,8 +9979,8 @@ vitality = 4
 
 [[members]]
 animKeys = [ "dark_clab" ]
-commandTableName = "dark_crab"
-dropTableName = "dark_crab"
+commandTableId = "dark_crab"
+dropTableId = "dark_crab"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -9999,8 +9999,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "guard_soldier" ]
-commandTableName = "guard_soldier"
-dropTableName = "guard_soldier"
+commandTableId = "guard_soldier"
+dropTableId = "guard_soldier"
 combatPolicy = "attack"
 movementPattern = "stationary"
 isBoss = false
@@ -10019,8 +10019,8 @@ vitality = 4
 
 [[members]]
 animKeys = [ "tesla_coil_ball" ]
-commandTableName = "shock_orb"
-dropTableName = "shock_orb"
+commandTableId = "shock_orb"
+dropTableId = "shock_orb"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -10039,8 +10039,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "blue_human" ]
-commandTableName = "blue_figure"
-dropTableName = "blue_figure"
+commandTableId = "blue_figure"
+dropTableId = "blue_figure"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -10059,8 +10059,8 @@ vitality = 3
 
 [[members]]
 animKeys = [ "blue_beast" ]
-commandTableName = "blue_beast"
-dropTableName = "blue_beast"
+commandTableId = "blue_beast"
+dropTableId = "blue_beast"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -10079,8 +10079,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "skeleton" ]
-commandTableName = "skeleton_soldier"
-dropTableName = "skeleton_soldier"
+commandTableId = "skeleton_soldier"
+dropTableId = "skeleton_soldier"
 combatPolicy = "attack"
 movementPattern = "patrol"
 isBoss = false
@@ -10099,8 +10099,8 @@ vitality = 2
 
 [[members]]
 animKeys = [ "black_zombie" ]
-commandTableName = "black_corpse"
-dropTableName = "black_corpse"
+commandTableId = "black_corpse"
+dropTableId = "black_corpse"
 combatPolicy = "attack"
 movementPattern = "random"
 isBoss = false
@@ -11599,22 +11599,22 @@ id = "healing_item"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "healing_potion"
+id = "healing_potion"
 weight = 4
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "green_herb"
+id = "green_herb"
 weight = 3
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "yellow_herb"
+id = "yellow_herb"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "antidote"
+id = "antidote"
 weight = 1.5
 pack = "1d1"
 
@@ -11624,27 +11624,27 @@ id = "thrown_weapon"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "grenade"
+id = "grenade"
 weight = 3
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "flashbang"
+id = "flashbang"
 weight = 2
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "flame_grenade"
+id = "flame_grenade"
 weight = 2.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "poison_grenade"
+id = "poison_grenade"
 weight = 2.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "smoke_bomb"
+id = "smoke_bomb"
 weight = 1.5
 pack = "1d2"
 
@@ -11654,32 +11654,32 @@ id = "materials"
 subtype = "collection"
 
 [[itemGroups.entries]]
-itemName = "silver_shard"
+id = "silver_shard"
 weight = 15
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "old_gear"
+id = "old_gear"
 weight = 12
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "crystal_powder"
+id = "crystal_powder"
 weight = 10
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "scrap_iron"
+id = "scrap_iron"
 weight = 15
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "obsidian"
+id = "obsidian"
 weight = 10
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "lightning_stone"
+id = "lightning_stone"
 weight = 8
 pack = "1d1"
 
@@ -11689,127 +11689,127 @@ id = "food"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "biscuit"
+id = "biscuit"
 weight = 3
 pack = "1d3"
 
 [[itemGroups.entries]]
-itemName = "jerky"
+id = "jerky"
 weight = 2
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "bread"
+id = "bread"
 weight = 2.5
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "banana"
+id = "banana"
 weight = 1.5
 pack = "1d3"
 
 [[itemGroups.entries]]
-itemName = "cookie"
+id = "cookie"
 weight = 1.5
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "donut"
+id = "donut"
 weight = 1
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "sandwich"
+id = "sandwich"
 weight = 1
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "chocolate"
+id = "chocolate"
 weight = 1
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "cola"
+id = "cola"
 weight = 1.5
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "cheese"
+id = "cheese"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "croissant"
+id = "croissant"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "hamburger"
+id = "hamburger"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "cherry"
+id = "cherry"
 weight = 1.5
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "pancake"
+id = "pancake"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "tomato"
+id = "tomato"
 weight = 1.5
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "broccoli"
+id = "broccoli"
 weight = 1.5
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "watermelon"
+id = "watermelon"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "pumpkin"
+id = "pumpkin"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "smoothie"
+id = "smoothie"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "ramen"
+id = "ramen"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "beef"
+id = "beef"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "ice_cream"
+id = "ice_cream"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "popcorn"
+id = "popcorn"
 weight = 1.5
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "almond"
+id = "almond"
 weight = 1.5
 pack = "1d2"
 
 [[itemGroups.entries]]
-itemName = "shrimp"
+id = "shrimp"
 weight = 0.8
 pack = "1d1"
 
@@ -11819,82 +11819,82 @@ id = "early_melee_weapon"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "torch"
+id = "torch"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "broom"
+id = "broom"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "wooden_sword"
+id = "wooden_sword"
 weight = 2.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "wooden_stick"
+id = "wooden_stick"
 weight = 2.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "nail_bat"
+id = "nail_bat"
 weight = 2.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "utility_knife"
+id = "utility_knife"
 weight = 2.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "fork"
+id = "fork"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "screwdriver"
+id = "screwdriver"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "monkey_wrench"
+id = "monkey_wrench"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "shovel"
+id = "shovel"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "needle_tool"
+id = "needle_tool"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "pliers"
+id = "pliers"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "pickaxe"
+id = "pickaxe"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "fire_extinguisher"
+id = "fire_extinguisher"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "nunchaku"
+id = "nunchaku"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "cast_iron_sword"
+id = "cast_iron_sword"
 weight = 1.0
 pack = "1d1"
 
@@ -11904,97 +11904,97 @@ id = "midgame_melee_weapon"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "iron_knife"
+id = "iron_knife"
 weight = 2.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "iron_sword"
+id = "iron_sword"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "axe"
+id = "axe"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "iron_straight_sword"
+id = "iron_straight_sword"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "iron_scimitar"
+id = "iron_scimitar"
 weight = 1.2
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "hammer"
+id = "hammer"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "block_hammer"
+id = "block_hammer"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "slender_rapier"
+id = "slender_rapier"
 weight = 1.2
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "warped_blade"
+id = "warped_blade"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "scythe"
+id = "scythe"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "iron_cutter"
+id = "iron_cutter"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "electric_screwdriver"
+id = "electric_screwdriver"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "purple_katana"
+id = "purple_katana"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "purple_mace"
+id = "purple_mace"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "green_sword"
+id = "green_sword"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "crystal_sword"
+id = "crystal_sword"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "trident"
+id = "trident"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "iron_chakram"
+id = "iron_chakram"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "ice_mace"
+id = "ice_mace"
 weight = 0.8
 pack = "1d1"
 
@@ -12004,62 +12004,62 @@ id = "endgame_melee_weapon"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "claymore"
+id = "claymore"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "black_katana"
+id = "black_katana"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "angel_sword"
+id = "angel_sword"
 weight = 0.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "blue_battle_axe"
+id = "blue_battle_axe"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "bright_mace"
+id = "bright_mace"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "halberd"
+id = "halberd"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "heavy_scimitar"
+id = "heavy_scimitar"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "battle_axe"
+id = "battle_axe"
 weight = 0.6
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "black_battle_axe"
+id = "black_battle_axe"
 weight = 0.4
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "crystal_staff"
+id = "crystal_staff"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "mechanical_arm"
+id = "mechanical_arm"
 weight = 0.6
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "reinforced_mechanical_arm"
+id = "reinforced_mechanical_arm"
 weight = 0.3
 pack = "1d1"
 
@@ -12069,17 +12069,17 @@ id = "ranged_weapon"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "handgun"
+id = "handgun"
 weight = 2.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "hunter_bow"
+id = "hunter_bow"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "iron_crossbow"
+id = "iron_crossbow"
 weight = 1.0
 pack = "1d1"
 
@@ -12089,12 +12089,12 @@ id = "throwing_weapon"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "shuriken"
+id = "shuriken"
 weight = 2.0
 pack = "1d3"
 
 [[itemGroups.entries]]
-itemName = "boomerang"
+id = "boomerang"
 weight = 1.5
 pack = "1d1"
 
@@ -12104,32 +12104,32 @@ id = "early_armor"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "green_clothes"
+id = "green_clothes"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "sandals"
+id = "sandals"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "leather_gaiters"
+id = "leather_gaiters"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "white_leggings"
+id = "white_leggings"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "training_gi"
+id = "training_gi"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "chef_hat"
+id = "chef_hat"
 weight = 1.0
 pack = "1d1"
 
@@ -12139,47 +12139,47 @@ id = "midgame_armor"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "red_cloak"
+id = "red_cloak"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "gentlemans_clothes"
+id = "gentlemans_clothes"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "black_dogi"
+id = "black_dogi"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "green_adventurer_clothes"
+id = "green_adventurer_clothes"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "apocalypse_clothes"
+id = "apocalypse_clothes"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "black_gaiters"
+id = "black_gaiters"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "winter_gaiters"
+id = "winter_gaiters"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "fur_coat"
+id = "fur_coat"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "iron_leg_armor"
+id = "iron_leg_armor"
 weight = 0.8
 pack = "1d1"
 
@@ -12189,22 +12189,22 @@ id = "endgame_armor"
 subtype = "distribution"
 
 [[itemGroups.entries]]
-itemName = "chainmail"
+id = "chainmail"
 weight = 1.5
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "knight_greaves"
+id = "knight_greaves"
 weight = 1.0
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "golden_leg_armor"
+id = "golden_leg_armor"
 weight = 0.8
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "crusader_clothes"
+id = "crusader_clothes"
 weight = 0.8
 pack = "1d1"
 
@@ -12294,42 +12294,42 @@ id = "scrap_of_paper"
 subtype = "collection"
 
 [[itemGroups.entries]]
-itemName = "shelter_poster"
+id = "shelter_poster"
 weight = 1
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "scribbled_note"
+id = "scribbled_note"
 weight = 1
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "handwritten_receipt"
+id = "handwritten_receipt"
 weight = 1
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "diary_scrap"
+id = "diary_scrap"
 weight = 1
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "message_to_family"
+id = "message_to_family"
 weight = 1
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "job_posting"
+id = "job_posting"
 weight = 1
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "roadblock_notice"
+id = "roadblock_notice"
 weight = 1
 pack = "1d1"
 
 [[itemGroups.entries]]
-itemName = "someones_scrawl"
+id = "someones_scrawl"
 weight = 1
 pack = "1d1"
 
@@ -12338,73 +12338,73 @@ name = "廃墟"
 id = "ruins_area"
 
 [[itemTables.entries]]
-groupName = "scrap_of_paper"
+id = "scrap_of_paper"
 maxDepth = 30
 minDepth = 1
 weight = 1
 
 [[itemTables.entries]]
-groupName = "healing_item"
+id = "healing_item"
 maxDepth = 30
 minDepth = 1
 weight = 3
 
 [[itemTables.entries]]
-groupName = "materials"
+id = "materials"
 maxDepth = 25
 minDepth = 3
 weight = 2
 
 [[itemTables.entries]]
-groupName = "thrown_weapon"
+id = "thrown_weapon"
 maxDepth = 30
 minDepth = 8
 weight = 1
 
 [[itemTables.entries]]
-groupName = "food"
+id = "food"
 maxDepth = 30
 minDepth = 1
 weight = 2
 
 [[itemTables.entries]]
-groupName = "early_melee_weapon"
+id = "early_melee_weapon"
 maxDepth = 8
 minDepth = 1
 weight = 2
 
 [[itemTables.entries]]
-groupName = "early_armor"
+id = "early_armor"
 maxDepth = 10
 minDepth = 1
 weight = 0.8
 
 [[itemTables.entries]]
-groupName = "midgame_melee_weapon"
+id = "midgame_melee_weapon"
 maxDepth = 15
 minDepth = 5
 weight = 1.5
 
 [[itemTables.entries]]
-groupName = "midgame_armor"
+id = "midgame_armor"
 maxDepth = 16
 minDepth = 5
 weight = 0.6
 
 [[itemTables.entries]]
-groupName = "endgame_melee_weapon"
+id = "endgame_melee_weapon"
 maxDepth = 30
 minDepth = 12
 weight = 1
 
 [[itemTables.entries]]
-groupName = "endgame_armor"
+id = "endgame_armor"
 maxDepth = 30
 minDepth = 12
 weight = 0.4
 
 [[itemTables.entries]]
-groupName = "ranged_weapon"
+id = "ranged_weapon"
 maxDepth = 20
 minDepth = 5
 weight = 0.3
@@ -12414,61 +12414,61 @@ name = "森"
 id = "forest"
 
 [[itemTables.entries]]
-groupName = "healing_item"
+id = "healing_item"
 maxDepth = 30
 minDepth = 1
 weight = 4
 
 [[itemTables.entries]]
-groupName = "food"
+id = "food"
 maxDepth = 25
 minDepth = 1
 weight = 3
 
 [[itemTables.entries]]
-groupName = "early_melee_weapon"
+id = "early_melee_weapon"
 maxDepth = 8
 minDepth = 1
 weight = 2
 
 [[itemTables.entries]]
-groupName = "early_armor"
+id = "early_armor"
 maxDepth = 10
 minDepth = 1
 weight = 1
 
 [[itemTables.entries]]
-groupName = "midgame_melee_weapon"
+id = "midgame_melee_weapon"
 maxDepth = 15
 minDepth = 5
 weight = 1.2
 
 [[itemTables.entries]]
-groupName = "midgame_armor"
+id = "midgame_armor"
 maxDepth = 16
 minDepth = 5
 weight = 0.5
 
 [[itemTables.entries]]
-groupName = "endgame_melee_weapon"
+id = "endgame_melee_weapon"
 maxDepth = 30
 minDepth = 12
 weight = 0.8
 
 [[itemTables.entries]]
-groupName = "ranged_weapon"
+id = "ranged_weapon"
 maxDepth = 20
 minDepth = 5
 weight = 0.5
 
 [[itemTables.entries]]
-groupName = "throwing_weapon"
+id = "throwing_weapon"
 maxDepth = 10
 minDepth = 2
 weight = 0.5
 
 [[itemTables.entries]]
-groupName = "thrown_weapon"
+id = "thrown_weapon"
 maxDepth = 25
 minDepth = 8
 weight = 0.6
@@ -12478,67 +12478,67 @@ name = "洞窟"
 id = "cave"
 
 [[itemTables.entries]]
-groupName = "healing_item"
+id = "healing_item"
 maxDepth = 30
 minDepth = 1
 weight = 2.5
 
 [[itemTables.entries]]
-groupName = "materials"
+id = "materials"
 maxDepth = 25
 minDepth = 3
 weight = 3
 
 [[itemTables.entries]]
-groupName = "food"
+id = "food"
 maxDepth = 20
 minDepth = 1
 weight = 1.5
 
 [[itemTables.entries]]
-groupName = "early_melee_weapon"
+id = "early_melee_weapon"
 maxDepth = 8
 minDepth = 1
 weight = 1.5
 
 [[itemTables.entries]]
-groupName = "early_armor"
+id = "early_armor"
 maxDepth = 10
 minDepth = 1
 weight = 0.6
 
 [[itemTables.entries]]
-groupName = "midgame_melee_weapon"
+id = "midgame_melee_weapon"
 maxDepth = 15
 minDepth = 5
 weight = 1.5
 
 [[itemTables.entries]]
-groupName = "midgame_armor"
+id = "midgame_armor"
 maxDepth = 16
 minDepth = 5
 weight = 0.5
 
 [[itemTables.entries]]
-groupName = "endgame_melee_weapon"
+id = "endgame_melee_weapon"
 maxDepth = 30
 minDepth = 12
 weight = 1.2
 
 [[itemTables.entries]]
-groupName = "endgame_armor"
+id = "endgame_armor"
 maxDepth = 30
 minDepth = 12
 weight = 0.5
 
 [[itemTables.entries]]
-groupName = "ranged_weapon"
+id = "ranged_weapon"
 maxDepth = 20
 minDepth = 5
 weight = 0.2
 
 [[itemTables.entries]]
-groupName = "thrown_weapon"
+id = "thrown_weapon"
 maxDepth = 30
 minDepth = 8
 weight = 0.5
@@ -12549,19 +12549,19 @@ name = "食料庫"
 id = "pantry"
 
 [[itemTables.entries]]
-groupName = "scrap_of_paper"
+id = "scrap_of_paper"
 maxDepth = 30
 minDepth = 1
 weight = 1
 
 [[itemTables.entries]]
-groupName = "food"
+id = "food"
 maxDepth = 30
 minDepth = 1
 weight = 5
 
 [[itemTables.entries]]
-groupName = "healing_item"
+id = "healing_item"
 maxDepth = 30
 minDepth = 1
 weight = 2
@@ -12571,19 +12571,19 @@ name = "薬棚"
 id = "medicine_shelf"
 
 [[itemTables.entries]]
-groupName = "scrap_of_paper"
+id = "scrap_of_paper"
 maxDepth = 30
 minDepth = 1
 weight = 1
 
 [[itemTables.entries]]
-groupName = "healing_item"
+id = "healing_item"
 maxDepth = 30
 minDepth = 1
 weight = 5
 
 [[itemTables.entries]]
-groupName = "food"
+id = "food"
 maxDepth = 30
 minDepth = 1
 weight = 1
@@ -12593,25 +12593,25 @@ name = "物入れ"
 id = "storage_box"
 
 [[itemTables.entries]]
-groupName = "scrap_of_paper"
+id = "scrap_of_paper"
 maxDepth = 30
 minDepth = 1
 weight = 1
 
 [[itemTables.entries]]
-groupName = "materials"
+id = "materials"
 maxDepth = 30
 minDepth = 1
 weight = 3
 
 [[itemTables.entries]]
-groupName = "early_armor"
+id = "early_armor"
 maxDepth = 30
 minDepth = 1
 weight = 2
 
 [[itemTables.entries]]
-groupName = "healing_item"
+id = "healing_item"
 maxDepth = 30
 minDepth = 1
 weight = 2
@@ -12621,25 +12621,25 @@ name = "商品棚"
 id = "store_shelf"
 
 [[itemTables.entries]]
-groupName = "scrap_of_paper"
+id = "scrap_of_paper"
 maxDepth = 30
 minDepth = 1
 weight = 1
 
 [[itemTables.entries]]
-groupName = "food"
+id = "food"
 maxDepth = 30
 minDepth = 1
 weight = 3
 
 [[itemTables.entries]]
-groupName = "materials"
+id = "materials"
 maxDepth = 30
 minDepth = 1
 weight = 2
 
 [[itemTables.entries]]
-groupName = "healing_item"
+id = "healing_item"
 maxDepth = 30
 minDepth = 1
 weight = 2
@@ -12649,231 +12649,231 @@ name = "廃墟"
 id = "ruins_area"
 
 [[enemyTables.entries]]
-enemyName = "slime"
+id = "slime"
 maxDepth = 25
 minDepth = 1
 weight = 1.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "rat"
+id = "rat"
 maxDepth = 8
 minDepth = 1
 weight = 1.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "decayed_soldier"
+id = "decayed_soldier"
 maxDepth = 10
 minDepth = 2
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "floating_eye"
+id = "floating_eye"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "bat"
+id = "bat"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "ash_bug"
+id = "ash_bug"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "shadow_rat"
+id = "shadow_rat"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "rusted_doll"
+id = "rusted_doll"
 maxDepth = 10
 minDepth = 2
 weight = 0.7
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "poison_spider"
+id = "poison_spider"
 maxDepth = 20
 minDepth = 3
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "stray_dog"
+id = "stray_dog"
 maxDepth = 22
 minDepth = 3
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "skeleton_soldier"
+id = "skeleton_soldier"
 maxDepth = 25
 minDepth = 9
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "fireball"
+id = "fireball"
 maxDepth = 25
 minDepth = 7
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "iron_sentinel"
+id = "iron_sentinel"
 maxDepth = 25
 minDepth = 10
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "crystal_wraith"
+id = "crystal_wraith"
 maxDepth = 25
 minDepth = 11
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "light_tank"
+id = "light_tank"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "ash_idol"
+id = "ash_idol"
 maxDepth = 35
 minDepth = 19
 weight = 0.15
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "blue_beast"
+id = "blue_beast"
 maxDepth = 25
 minDepth = 7
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "dark_doctor"
+id = "dark_doctor"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "three_headed_dragon"
+id = "three_headed_dragon"
 maxDepth = 35
 minDepth = 16
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "black_corpse"
+id = "black_corpse"
 maxDepth = 25
 minDepth = 10
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "red_line_man"
+id = "red_line_man"
 maxDepth = 25
 minDepth = 9
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "gray_tank"
+id = "gray_tank"
 maxDepth = 30
 minDepth = 15
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "heavy_artillery_tank"
+id = "heavy_artillery_tank"
 maxDepth = 35
 minDepth = 18
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "blue_figure"
+id = "blue_figure"
 maxDepth = 25
 minDepth = 7
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "old_tank"
+id = "old_tank"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "chemical_tank"
+id = "chemical_tank"
 maxDepth = 30
 minDepth = 14
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "pink_slime"
+id = "pink_slime"
 maxDepth = 10
 minDepth = 2
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "purple_floater"
+id = "purple_floater"
 maxDepth = 20
 minDepth = 10
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "shock_orb"
+id = "shock_orb"
 maxDepth = 22
 minDepth = 12
 weight = 0.15
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "dragon_head"
+id = "dragon_head"
 maxDepth = 30
 minDepth = 18
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "armor_ghost"
+id = "armor_ghost"
 maxDepth = 25
 minDepth = 14
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "shadow_priest"
+id = "shadow_priest"
 maxDepth = 25
 minDepth = 16
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "guard_soldier"
+id = "guard_soldier"
 maxDepth = 22
 minDepth = 12
 weight = 0.1
@@ -12884,189 +12884,189 @@ name = "森"
 id = "forest"
 
 [[enemyTables.entries]]
-enemyName = "slime"
+id = "slime"
 maxDepth = 25
 minDepth = 1
 weight = 1.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "bat"
+id = "bat"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "poison_mushroom"
+id = "poison_mushroom"
 maxDepth = 10
 minDepth = 2
 weight = 0.7
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "giant_bee"
+id = "giant_bee"
 maxDepth = 8
 minDepth = 1
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "glow_bug"
+id = "glow_bug"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "poison_frog"
+id = "poison_frog"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "shadow_rat"
+id = "shadow_rat"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "moss_turtle"
+id = "moss_turtle"
 maxDepth = 10
 minDepth = 2
 weight = 0.6
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "fire_cat"
+id = "fire_cat"
 maxDepth = 20
 minDepth = 4
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "stray_dog"
+id = "stray_dog"
 maxDepth = 22
 minDepth = 3
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "dream_moth"
+id = "dream_moth"
 maxDepth = 25
 minDepth = 5
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "fireball"
+id = "fireball"
 maxDepth = 22
 minDepth = 6
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "dark_crab"
+id = "dark_crab"
 maxDepth = 25
 minDepth = 8
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "light_tank"
+id = "light_tank"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "green_dragon"
+id = "green_dragon"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "tree_spirit"
+id = "tree_spirit"
 maxDepth = 25
 minDepth = 7
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "gold_slime"
+id = "gold_slime"
 maxDepth = 25
 minDepth = 3
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "rainbow_dragon"
+id = "rainbow_dragon"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "dark_doctor"
+id = "dark_doctor"
 maxDepth = 25
 minDepth = 9
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "green_devourer"
+id = "green_devourer"
 maxDepth = 22
 minDepth = 5
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "red_line_man"
+id = "red_line_man"
 maxDepth = 25
 minDepth = 9
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "desert_tank"
+id = "desert_tank"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "blue_figure"
+id = "blue_figure"
 maxDepth = 22
 minDepth = 7
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "chemical_tank"
+id = "chemical_tank"
 maxDepth = 30
 minDepth = 12
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "butterfly"
+id = "butterfly"
 maxDepth = 15
 minDepth = 1
 weight = 3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "pink_slime"
+id = "pink_slime"
 maxDepth = 12
 minDepth = 1
 weight = 1.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "gorilla"
+id = "gorilla"
 maxDepth = 22
 minDepth = 12
 weight = 0.1
@@ -13077,231 +13077,231 @@ name = "洞窟"
 id = "cave"
 
 [[enemyTables.entries]]
-enemyName = "slime"
+id = "slime"
 maxDepth = 25
 minDepth = 1
 weight = 1.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "rat"
+id = "rat"
 maxDepth = 8
 minDepth = 1
 weight = 1.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "bat"
+id = "bat"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "glow_bug"
+id = "glow_bug"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "ash_bug"
+id = "ash_bug"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "poison_frog"
+id = "poison_frog"
 maxDepth = 8
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "moss_turtle"
+id = "moss_turtle"
 maxDepth = 10
 minDepth = 2
 weight = 0.6
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "poison_spider"
+id = "poison_spider"
 maxDepth = 20
 minDepth = 3
 weight = 0.7
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "ice_dog"
+id = "ice_dog"
 maxDepth = 22
 minDepth = 6
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "skeleton_soldier"
+id = "skeleton_soldier"
 maxDepth = 25
 minDepth = 8
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "fireball"
+id = "fireball"
 maxDepth = 22
 minDepth = 7
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "iron_sentinel"
+id = "iron_sentinel"
 maxDepth = 25
 minDepth = 10
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "crystal_wraith"
+id = "crystal_wraith"
 maxDepth = 25
 minDepth = 11
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "light_tank"
+id = "light_tank"
 maxDepth = 25
 minDepth = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "green_dragon"
+id = "green_dragon"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "dream_whale"
+id = "dream_whale"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "blue_beast"
+id = "blue_beast"
 maxDepth = 22
 minDepth = 7
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "three_headed_dragon"
+id = "three_headed_dragon"
 maxDepth = 35
 minDepth = 16
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "gold_slime"
+id = "gold_slime"
 maxDepth = 25
 minDepth = 3
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "black_corpse"
+id = "black_corpse"
 maxDepth = 25
 minDepth = 9
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "green_devourer"
+id = "green_devourer"
 maxDepth = 22
 minDepth = 6
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "red_line_man"
+id = "red_line_man"
 maxDepth = 25
 minDepth = 10
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "red_tank"
+id = "red_tank"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "heavy_artillery_tank"
+id = "heavy_artillery_tank"
 maxDepth = 35
 minDepth = 16
 weight = 0.15
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "blue_figure"
+id = "blue_figure"
 maxDepth = 25
 minDepth = 7
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "frozen_tank"
+id = "frozen_tank"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "old_tank"
+id = "old_tank"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "penguin"
+id = "penguin"
 maxDepth = 10
 minDepth = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "purple_floater"
+id = "purple_floater"
 maxDepth = 20
 minDepth = 10
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "shock_orb"
+id = "shock_orb"
 maxDepth = 22
 minDepth = 12
 weight = 0.15
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "dragon_head"
+id = "dragon_head"
 maxDepth = 30
 minDepth = 18
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "armor_ghost"
+id = "armor_ghost"
 maxDepth = 25
 minDepth = 14
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
-enemyName = "shadow_priest"
+id = "shadow_priest"
 maxDepth = 25
 minDepth = 16
 weight = 0.1
@@ -13592,7 +13592,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "storage_box"
+lootTableId = "storage_box"
 lootCount = "1d2"
 
 [[props]]
@@ -13715,7 +13715,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "storage_box"
+lootTableId = "storage_box"
 lootCount = "1d3"
 
 [[props]]
@@ -13830,7 +13830,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "pantry"
+lootTableId = "pantry"
 lootCount = "1d3"
 
 [[props]]
@@ -13874,7 +13874,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "storage_box"
+lootTableId = "storage_box"
 lootCount = "1d3"
 
 [[props]]
@@ -13983,7 +13983,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "store_shelf"
+lootTableId = "store_shelf"
 lootCount = "1d4+1"
 
 [[props]]
@@ -14292,7 +14292,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "pantry"
+lootTableId = "pantry"
 lootCount = "1d3"
 
 [props.disassembly]
@@ -14351,7 +14351,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "store_shelf"
+lootTableId = "store_shelf"
 lootCount = "1d2"
 
 [[props]]
@@ -14574,7 +14574,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "storage_box"
+lootTableId = "storage_box"
 lootCount = "1d3"
 
 [[props]]
@@ -14761,7 +14761,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "20 kg"
-lootTableName = "ruins_area"
+lootTableId = "ruins_area"
 lootCount = "1d3"
 
 [props.disassembly]
@@ -14797,7 +14797,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "50 kg"
-lootTableName = "ruins_area"
+lootTableId = "ruins_area"
 lootCount = "1d4+1"
 
 [[professions]]
@@ -15311,7 +15311,7 @@ spriteSheetName = "field"
 
 [props.storage]
 maxWeight = "30 kg"
-lootTableName = "medicine_shelf"
+lootTableId = "medicine_shelf"
 lootCount = "1d3"
 
 [[props]]

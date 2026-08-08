@@ -304,16 +304,16 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 		rows = append(rows, menuscreen.SpecRow{Label: query.T(world, "Materials"), Header: true})
 		for _, in := range spec.Recipe.Inputs {
 			owned := 0
-			if entity, found := query.FindStackableInInventory(world, in.Name); found {
+			if entity, found := query.FindStackableInInventory(world, in.ID); found {
 				owned = query.GetEntityCount(world, entity)
 			}
 			rowColor := theme.StatusDanger
 			if owned >= in.Amount {
 				rowColor = theme.StatusSuccess
 			}
-			// in.Name は材料の同定キー。表示は材料の表示名へ解決する
-			label := in.Name
-			if mat, err := raw.FindItem(world.Resources.RawMaster, in.Name); err == nil {
+			// in.ID は材料の同定キー。表示は材料の表示名へ解決する
+			label := in.ID
+			if mat, err := raw.FindItem(world.Resources.RawMaster, in.ID); err == nil {
 				label = mat.Name
 			}
 			rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})

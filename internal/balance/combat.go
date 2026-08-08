@@ -143,12 +143,12 @@ func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
 		return WeaponStats{}, err
 	}
 
-	if member.CommandTableName == nil {
+	if member.CommandTableId == nil {
 		// CommandTableがない場合は素手
 		return LoadWeaponFromItem(master, "bare_hands")
 	}
 
-	ct, err := raw.GetCommandTable(master, *member.CommandTableName)
+	ct, err := raw.GetCommandTable(master, *member.CommandTableId)
 	if err != nil {
 		return WeaponStats{}, err
 	}

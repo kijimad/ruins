@@ -156,16 +156,16 @@ model Member {
   viewDistance?: ViewDistance;
   dialog?: Dialog;
   /** プレイヤーキャラクターでは省略可能 */
-  commandTableName?: EntityName;
+  commandTableId?: EntityName;
   /** プレイヤーキャラクターでは省略可能 */
-  dropTableName?: EntityName;
+  dropTableId?: EntityName;
 }
 
 // ================== レシピ ==================
 
 /** レシピ素材 */
 model RecipeInput {
-  name: EntityName;
+  id: EntityName;
   amount: MaterialAmount;
 }
 
@@ -217,7 +217,7 @@ enum ItemGroupSubtype {
 
 /** アイテムグループエントリ */
 model ItemGroupEntry {
-  itemName: EntityName;
+  id: EntityName;
   /** distribution: 相対重み。collection: 確率（0-100） */
   weight: EntryWeight;
   /** 1山あたりの個数のダイス表記 */
@@ -234,8 +234,8 @@ model ItemGroup {
 
 /** アイテムテーブルエントリ。アイテムグループを参照する */
 model ItemTableEntry {
-  /** 参照するアイテムグループ名 */
-  groupName: EntityName;
+  /** 参照するアイテムグループの id */
+  id: EntityName;
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
@@ -250,7 +250,7 @@ model ItemTable {
 
 /** 敵テーブルエントリ */
 model EnemyTableEntry {
-  enemyName: EntityName;
+  id: EntityName;
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
@@ -312,7 +312,7 @@ model StorageRaw {
   /** 収納の最大格納重量 */
   maxWeight: Weight;
   /** 初期アイテムの抽選に使うItemTable名 */
-  lootTableName?: EntityName;
+  lootTableId?: EntityName;
   /** 初期アイテム数のダイス表記。省略時は1 */
   lootCount?: Dice;
 }
