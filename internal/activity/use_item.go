@@ -218,7 +218,7 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 // getItemName はアイテムの名前を取得する
 func (u *UseItemBehavior) getItemName(item ecs.Entity, world w.World) string {
 	if world.Components.Name.Has(item) {
-		return world.Components.Name.Get(item).Name
+		return query.T(world, world.Components.Name.Get(item).Name)
 	}
 	return query.T(world, "Item")
 }

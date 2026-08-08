@@ -76,7 +76,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		if err := st.craftSelected(world); err != nil {
 			return es.Transition[w.World]{}, err
@@ -221,7 +221,7 @@ func (st *CraftMenuState) craftSelected(world w.World) error {
 		return fmt.Errorf("failed to craft: %w", err)
 	}
 	st.resultEntity = resultEntity
-	st.result.Open()
+	st.result.Open(world)
 	return nil
 }
 
@@ -311,7 +311,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 			if owned >= in.Amount {
 				rowColor = theme.StatusSuccess
 			}
-			label := raw.ItemName(world.Resources.RawMaster, in.ID)
+			label := query.T(world, raw.ItemName(world.Resources.RawMaster, in.ID))
 			rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
@@ -319,7 +319,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 
 	desc := ""
 	if spec.Description != nil {
-		desc = spec.Description.Description
+		desc = query.T(world, spec.Description.Description)
 	}
 	return menuscreen.DetailContent{Name: item.RecipeName, Desc: desc, Rows: rows}, true
 }

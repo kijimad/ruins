@@ -337,7 +337,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 			if weapon != nil {
 				// 武器名を取得
 				if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
-					weaponName = nameComp.Name
+					weaponName = query.T(world, nameComp.Name)
 				} else {
 					weaponName = "???"
 				}

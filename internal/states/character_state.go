@@ -146,7 +146,7 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 		if charTabAt(st.screen.Selection().TabIndex) == charTabCommand {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
-		st.detail.Open()
+		st.detail.Open(world)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)
@@ -192,7 +192,7 @@ func (st *CharacterState) onBrowseSelect(world w.World) error {
 			st.cycleCommand(world, row.Kind)
 		}
 	default:
-		st.detail.Open()
+		st.detail.Open(world)
 	}
 	return nil
 }
@@ -469,7 +469,7 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 	for i, weapon := range weapons {
 		name := ""
 		if weapon != nil {
-			name = world.Components.Name.Get(*weapon).Name
+			name = query.GetEntityName(*weapon, world)
 		}
 		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})
 	}
@@ -482,7 +482,7 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 	for i, slot := range armor {
 		name := ""
 		if slot != nil {
-			name = world.Components.Name.Get(*slot).Name
+			name = query.GetEntityName(*slot, world)
 		}
 		items = append(items, equipItemData{SlotLabel: armorLabels[i], ItemName: name, SlotNumber: armorSlots[i], Entity: slot, Member: player})
 	}
@@ -541,11 +541,11 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 func entityDetailContent(world w.World, entity ecs.Entity) menuscreen.DetailContent {
 	name := ""
 	if world.Components.Name.Has(entity) {
-		name = world.Components.Name.Get(entity).Name
+		name = query.T(world, world.Components.Name.Get(entity).Name)
 	}
 	desc := ""
 	if world.Components.Description.Has(entity) {
-		desc = world.Components.Description.Get(entity).Description
+		desc = query.T(world, world.Components.Description.Get(entity).Description)
 	}
 	return menuscreen.DetailContent{Name: name, Desc: desc, Entity: entity}
 }

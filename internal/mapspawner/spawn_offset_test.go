@@ -73,7 +73,7 @@ func TestSpawnAt_タイル生成エラーを伝播する(t *testing.T) {
 	plan := &mapplanner.MetaPlan{
 		Level:     gc.Level{TileWidth: 1, TileHeight: 1},
 		RawMaster: &world.Resources.RawMaster,
-		Tiles:     []oapi.Tile{{Name: "存在しないタイル", BlockPass: false}},
+		Tiles:     []oapi.Tile{{Id: "存在しないタイル", BlockPass: false}},
 	}
 
 	level, err := SpawnAt(world, plan, 0, 0)

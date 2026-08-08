@@ -285,8 +285,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		if !world.Components.Name.Has(p.SpeakerEntity) {
 			return es.Transition[w.World]{}, fmt.Errorf("speaker entity does not have Name component")
 		}
-		nameComp := world.Components.Name.Get(p.SpeakerEntity)
-		speakerName := nameComp.Name
+		speakerName := query.GetEntityName(p.SpeakerEntity, world)
 
 		// NPCの種類に応じて専用ステートを返す
 		switch p.MessageKey {
@@ -385,8 +384,8 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 
 		if weapon != nil {
 			// 武器が装備されている場合は武器名を表示
-			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
-				weaponName := nameComp.Name
+			if world.Components.Name.Has(*weapon) {
+				weaponName := query.GetEntityName(*weapon, world)
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "Readied %s.", gamelog.Tag("item", weaponName))).
 					Log()

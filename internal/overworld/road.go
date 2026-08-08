@@ -81,10 +81,10 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, 
 func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) error {
 	g := gc.GridElement{Coord: pos}
 	e, ok := tiles[g]
-	if !ok || !world.ECS.Alive(e) || !world.Components.Name.Has(e) {
+	if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {
 		return nil
 	}
-	if world.Components.Name.Get(e).Name != consts.TileNameDirt {
+	if world.Components.RawID.Get(e).ID != consts.TileNameDirt {
 		return nil
 	}
 	return replaceTile(world, tiles, pos, consts.TileNameFloor)

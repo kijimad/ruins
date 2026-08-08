@@ -75,7 +75,7 @@ func TestApplyProfession(t *testing.T) {
 		weapons := query.GetWeapons(world, player)
 		require.NotNil(t, weapons[0], "WEAPON1スロットに初期装備が装備されるべき")
 		name := world.Components.Name.Get(*weapons[0])
-		assert.Equal(t, "木刀", name.Name, "指定した装備アイテムがWEAPON1に装備されるべき")
+		assert.Equal(t, "Wooden Sword", name.Name, "指定した装備アイテムがWEAPON1に装備されるべき")
 	})
 
 	t.Run("再適用すると能力値と職業IDが上書きされる", func(t *testing.T) {

@@ -56,8 +56,12 @@ func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail {
 // Active は詳細モーダルを表示中かを返す
 func (d *Detail) Active() bool { return d.active }
 
-// Open は詳細モーダルを先頭ページで開く
-func (d *Detail) Open() {
+// Open は詳細モーダルを先頭ページで開く。出す内容が無ければ開かない。
+// アイテムが無いメニューで開くと、中身の無いモーダルが入力を奪って抜けられなくなるのを防ぐ。
+func (d *Detail) Open(world w.World) {
+	if _, ok := d.provide(world); !ok {
+		return
+	}
 	d.active = true
 	d.page = 0
 }

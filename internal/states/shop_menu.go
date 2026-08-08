@@ -73,7 +73,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		if err := st.buySellSelected(world); err != nil {
 			return es.Transition[w.World]{}, err
@@ -154,7 +154,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemID, true))
 		canAfford := currency >= price
 
-		label := raw.ItemName(world.Resources.RawMaster, itemID)
+		label := query.T(world, raw.ItemName(world.Resources.RawMaster, itemID))
 
 		items = append(items, shopItemData{
 			ItemID:   itemID,
@@ -186,7 +186,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 
 			items = append(items, shopItemData{
 				ItemID: rawID.ID,
-				Label:  nameComp.Name,
+				Label:  query.T(world, nameComp.Name),
 				Weight: query.GetEntityWeight(world, entity).KgString(),
 				Price:  price,
 				Count:  count,
@@ -294,7 +294,7 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
 	// 価格・重さは一覧に出すので、詳細の説明は raw のアイテム説明だけにする
 	desc := ""
 	if spec.Description != nil {
-		desc = spec.Description.Description
+		desc = query.T(world, spec.Description.Description)
 	}
 	return menuscreen.DetailContent{Name: item.Label, Desc: desc, Spec: &spec}, true
 }

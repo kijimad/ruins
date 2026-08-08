@@ -196,7 +196,12 @@ func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
 	if bareHandsSpec.Melee == nil {
 		return nil, "", fmt.Errorf("bare hands weapon has no Melee component")
 	}
-	return bareHandsSpec.Melee, query.T(world, "bare hands"), nil
+	if bareHandsSpec.Name == nil {
+		return nil, "", fmt.Errorf("bare hands weapon has no Name component")
+	}
+	// 攻撃方法名は素手武器の表示名。武器と同じく raw の英語 name を返し、表示側の logAttackResult が
+	// query.T で訳す。表示 name なので raw の翻訳カバレッジゲートが訳の有無を検証する。
+	return bareHandsSpec.Melee, bareHandsSpec.Name.Name, nil
 }
 
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
@@ -439,22 +444,27 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 
 	logger := gamelog.New(query.GetGameLog(world))
 	withMethod := attackMethodName != ""
+	// 攻撃方法名は武器名や素手の英語原文なので、表示前に現在言語へ訳す。
+	methodName := attackMethodName
+	if withMethod {
+		methodName = query.T(world, attackMethodName)
+	}
 	switch {
 	case !hit:
 		if withMethod {
-			logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, attackMethodName, targetMarkup))
+			logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 		} else {
 			logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 		}
 	case critical:
 		if withMethod {
-			logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, attackMethodName, targetMarkup, damageStr))
+			logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 		} else {
 			logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 		}
 	default:
 		if withMethod {
-			logger.Markup(query.T(world, "%s used %s to attack %s and dealt %s damage.", attackerMarkup, attackMethodName, targetMarkup, damageStr))
+			logger.Markup(query.T(world, "%s used %s to attack %s and dealt %s damage.", attackerMarkup, methodName, targetMarkup, damageStr))
 		} else {
 			logger.Markup(query.T(world, "%s attacked %s and dealt %s damage.", attackerMarkup, targetMarkup, damageStr))
 		}

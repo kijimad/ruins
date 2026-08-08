@@ -81,7 +81,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		if err := st.executeTransfer(world); err != nil {
 			return es.Transition[w.World]{}, err
@@ -240,7 +240,7 @@ func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailConte
 	}
 	desc := ""
 	if world.Components.Description.Has(e) {
-		desc = world.Components.Description.Get(e).Description
+		desc = query.T(world, world.Components.Description.Get(e).Description)
 	}
 	return menuscreen.DetailContent{Name: query.GetEntityName(e, world), Desc: desc, Entity: e}, true
 }

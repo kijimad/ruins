@@ -8,14 +8,14 @@ import (
 func CreateTestRawMaster() *oapi.Raws {
 	// テスト用の基本的なタイルデータを定義
 	testTiles := []oapi.Tile{
-		{Name: "wall", BlockPass: true},
-		{Name: "floor", BlockPass: false},
-		{Name: "dirt", BlockPass: false},
-		{Name: "void", BlockPass: true},
-		{Name: "bridge_a", BlockPass: false},
-		{Name: "bridge_b", BlockPass: false},
-		{Name: "bridge_c", BlockPass: false},
-		{Name: "bridge_d", BlockPass: false},
+		{Id: "wall", Name: "wall", BlockPass: true},
+		{Id: "floor", Name: "floor", BlockPass: false},
+		{Id: "dirt", Name: "dirt", BlockPass: false},
+		{Id: "void", Name: "void", BlockPass: true},
+		{Id: "bridge_a", Name: "bridge_a", BlockPass: false},
+		{Id: "bridge_b", Name: "bridge_b", BlockPass: false},
+		{Id: "bridge_c", Name: "bridge_c", BlockPass: false},
+		{Id: "bridge_d", Name: "bridge_d", BlockPass: false},
 	}
 
 	// テスト用のアイテムテーブルを定義

@@ -114,10 +114,8 @@ func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		if !world.Components.Name.Has(targetEntity) {
 			return fmt.Errorf("target entity has no Name component")
 		}
-		nameComp := world.Components.Name.Get(targetEntity)
-
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "Talked with %s.", nameComp.Name)).
+			Markup(query.T(world, "Talked with %s.", query.GetEntityName(targetEntity, world))).
 			Log()
 
 		// 会話ダイアログを表示

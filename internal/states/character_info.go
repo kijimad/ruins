@@ -63,7 +63,7 @@ func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []stat
 	if query.AliveHas(world, world.Components.Profession, player) {
 		profComp := world.Components.Profession.Get(player)
 		if prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID); err == nil {
-			professionName = prof.Name
+			professionName = query.T(world, prof.Name)
 		}
 	}
 

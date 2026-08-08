@@ -225,7 +225,7 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.Name.Get(e).Name != "商人" {
+		if world.Components.Name.Get(e).Name != "Merchant" {
 			continue
 		}
 		merchantFound = true

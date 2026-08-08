@@ -260,7 +260,7 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 	for potionQuery.Next() {
 		entity := potionQuery.Entity()
 		name := world.Components.Name.Get(entity)
-		if name.Name == "回復薬" {
+		if name.Name == "Healing Potion" {
 			entityCount++
 			stackable := world.Components.Stackable.Get(entity)
 			totalCount += stackable.Count
@@ -290,7 +290,7 @@ func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
 	for armorQuery.Next() {
 		entity := armorQuery.Entity()
 		name := world.Components.Name.Get(entity)
-		if name.Name == "西洋鎧" {
+		if name.Name == "Western Armor" {
 			entityCount++
 		}
 	}
@@ -322,7 +322,7 @@ func TestMoveToStorage_MergesStackable(t *testing.T) {
 	var totalCount int
 	for _, entity := range query.GetStorageItems(world, storageEntity) {
 		name := world.Components.Name.Get(entity)
-		if name.Name == "回復薬" {
+		if name.Name == "Healing Potion" {
 			entityCount++
 			stackable := world.Components.Stackable.Get(entity)
 			totalCount += stackable.Count
@@ -337,7 +337,7 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	const potion = "回復薬"
+	const potion = "Healing Potion"
 
 	storageA, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)

@@ -70,7 +70,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			// 中心線は無条件に床に変換する
 			for _, p := range centerPoints {
 				idx := planData.Level.CoordToIndex(p)
-				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Name == consts.TileNameWall {
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Id == consts.TileNameWall {
 					planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)
 				}
 				corridor = append(corridor, idx)
@@ -79,7 +79,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			// サイドは部屋に隣接するタイルをスキップして、接続部を1タイル幅に狭める
 			for _, p := range sidePoints {
 				idx := planData.Level.CoordToIndex(p)
-				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Name == consts.TileNameWall {
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Id == consts.TileNameWall {
 					if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) {
 						continue
 					}

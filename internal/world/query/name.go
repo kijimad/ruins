@@ -6,12 +6,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// GetEntityName はエンティティの表示名を取得する
+// GetEntityName はエンティティの表示名を現在言語で返す。Name コンポーネントの英語原文を
+// query.T で訳す。移行中の未訳 name は原文フォールバックでそのまま返る
 func GetEntityName(entity ecs.Entity, world w.World) string {
 	if !world.ECS.Alive(entity) || !world.Components.Name.Has(entity) {
-		return "Unknown"
+		return T(world, "Unknown")
 	}
-	return world.Components.Name.Get(entity).Name
+	return T(world, world.Components.Name.Get(entity).Name)
 }
 
 // GetEntityID はエンティティの同定キーを返す。raw 定義やレシピ参照との照合に使う。

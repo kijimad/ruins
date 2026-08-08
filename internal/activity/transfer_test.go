@@ -159,14 +159,14 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 
 		// 元スタックは1減り、隊員は1個だけ受け取る
 		assert.Equal(t, 2, world.Components.Stackable.Get(pool).Count, "プールは1個ずつ減る")
-		memberBread := findBackpackItem(world, member, "パン")
+		memberBread := findBackpackItem(world, member, "Bread")
 		require.NotNil(t, memberBread, "隊員がパンを受け取る")
 		assert.Equal(t, 1, world.Components.Stackable.Get(*memberBread).Count, "受け取りは1個")
 
 		// 主体はアクターの隊員でなく食料の所有者リーダー。自己転送の誤ログにならないこと
 		recent := query.GetGameLog(world).GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "Ash", "渡す主体はリーダー")
+		assert.Contains(t, recent[0], "アッシュ", "渡す主体はリーダー")
 		assert.Contains(t, recent[0], "隊員A に渡した", "受取人は隊員")
 	})
 
@@ -193,7 +193,7 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, ta.DoTurn(comp, member, world))
 
 		assert.Equal(t, 3, world.Components.Stackable.Get(pool).Count, "プールは指定個数ぶん減る")
-		memberBread := findBackpackItem(world, member, "パン")
+		memberBread := findBackpackItem(world, member, "Bread")
 		require.NotNil(t, memberBread, "隊員がパンを受け取る")
 		assert.Equal(t, 2, world.Components.Stackable.Get(*memberBread).Count, "受け取りは2個")
 

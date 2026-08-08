@@ -23,7 +23,7 @@ func TestSpawnFieldItem(t *testing.T) {
 	// Nameコンポーネントの確認
 	require.True(t, world.Components.Name.Has(item), "Nameコンポーネントが必要")
 	name := world.Components.Name.Get(item)
-	assert.Equal(t, "回復薬", name.Name, "アイテム名が正しくない")
+	assert.Equal(t, "Healing Potion", name.Name, "アイテム名が正しくない")
 
 	// GridElementコンポーネントの確認
 	require.True(t, world.Components.GridElement.Has(item), "GridElementコンポーネントが必要")

@@ -90,7 +90,7 @@ func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool {
 // calcWater は隣接タイルから水の影響を計算する
 func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
 	// 現在のタイルが水タイルかチェック
-	if isWaterTile(mp.Tiles[idx].Name) {
+	if isWaterTile(mp.Tiles[idx].Id) {
 		return gc.WaterSubmerged
 	}
 
@@ -114,7 +114,7 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
 	}
 
 	for _, adjIdx := range adjacentIndices {
-		if isWaterTile(mp.Tiles[adjIdx].Name) {
+		if isWaterTile(mp.Tiles[adjIdx].Id) {
 			return gc.WaterNearby
 		}
 	}
@@ -125,7 +125,7 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType {
 // calcFoliage はタイル名から植生の影響を計算する
 // TODO: 名前ではなくタイルの属性で判定する
 func (p EnvironmentPlanner) calcFoliage(mp *MetaPlan, idx int) gc.FoliageType {
-	name := mp.Tiles[idx].Name
+	name := mp.Tiles[idx].Id
 
 	switch name {
 	case "forest", "tree":
