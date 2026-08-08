@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -149,11 +150,11 @@ func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []sty
 	// 列幅と行の値の対応を検査する。ずれると列が既定幅へ無言で落ちて崩れるため、内部の呼び出し
 	// 不整合として早期に panic させる
 	if opts.HeaderRow != nil && len(opts.HeaderRow) != len(colWidths) {
-		panic(fmt.Sprintf("renderMenuList: HeaderRow の列数 %d が列幅 %d と一致しない", len(opts.HeaderRow), len(colWidths)))
+		panic(fmt.Sprintf("renderMenuList: HeaderRow column count %d does not match column widths %d", len(opts.HeaderRow), len(colWidths)))
 	}
 	for i, r := range rows {
 		if len(r.Cells) != len(colWidths) {
-			panic(fmt.Sprintf("renderMenuList: 行 %d の列数 %d が列幅 %d と一致しない", i, len(r.Cells), len(colWidths)))
+			panic(fmt.Sprintf("renderMenuList: row %d column count %d does not match column widths %d", i, len(r.Cells), len(colWidths)))
 		}
 	}
 
@@ -227,15 +228,15 @@ func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widg
 // どの画面でも同じキーで同じ操作ができることを示す。矢印や Enter/Esc は素の記号がフォントに
 // 無く文字化けするため FontAwesome のアイコンを使う。hasTabs が true のときタブ切替を含め、
 // extras に画面固有の案内を後ろへ足す
-func menuNavHint(hasTabs bool, extras ...string) string {
+func menuNavHint(world w.World, hasTabs bool, extras ...string) string {
 	parts := make([]string, 0, 4+len(extras))
 	if hasTabs {
-		parts = append(parts, consts.IconArrowLeft+consts.IconArrowRight+" タブ")
+		parts = append(parts, consts.IconArrowLeft+consts.IconArrowRight+" "+query.T(world, "Tab"))
 	}
-	parts = append(parts, consts.IconArrowUp+consts.IconArrowDown+" 選択")
-	parts = append(parts, consts.IconKeyEnter+" 決定")
+	parts = append(parts, consts.IconArrowUp+consts.IconArrowDown+" "+query.T(world, "Select"))
+	parts = append(parts, consts.IconKeyEnter+" "+query.T(world, "Confirm"))
 	parts = append(parts, extras...)
-	parts = append(parts, consts.IconKeyEsc+" 戻る")
+	parts = append(parts, consts.IconKeyEsc+" "+query.T(world, "Back"))
 	return strings.Join(parts, "   ")
 }
 
@@ -264,13 +265,3 @@ func wrapModalRoot(root *widget.Container) *widget.Container {
 }
 
 // ================
-
-// 共通の文字列定数
-const (
-	// UI表示用の定数
-	TextNoDescription = "説明なし" // アイテムの説明がない場合の表示文字列
-	TextClose         = "閉じる"  // メニューやウィンドウを閉じる際の表示文字列
-	// メニューアクションのラベル。選択肢の生成と分岐で同じ定数を使い、
-	// ラベル変更で switch 分岐が黙って死ぬのを防ぐ
-	TextHire = "雇用する" // 酒場メニューの雇用アクション
-)

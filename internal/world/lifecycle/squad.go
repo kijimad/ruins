@@ -11,7 +11,7 @@ import (
 // DismissSquadMember は隊員を解雇する。エンティティを削除する
 func DismissSquadMember(world w.World, member ecs.Entity) error {
 	if !world.Components.SquadMember.Has(member) {
-		return fmt.Errorf("エンティティは隊員ではありません")
+		return fmt.Errorf("entity is not a squad member")
 	}
 	world.ECS.RemoveEntity(member)
 	return nil
@@ -21,7 +21,7 @@ func DismissSquadMember(world w.World, member ecs.Entity) error {
 func GetAI(world w.World, member ecs.Entity) (*gc.SquadAI, error) {
 	comp := world.Components.SquadAI.Get(member)
 	if comp == nil {
-		return nil, fmt.Errorf("エンティティにAIがありません")
+		return nil, fmt.Errorf("entity has no AI")
 	}
 	return comp, nil
 }

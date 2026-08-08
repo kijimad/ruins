@@ -19,7 +19,7 @@ var InvalidEntity = ecs.Entity{}
 // 死亡エンティティには設定できずエラーを返す（ArkのHas/Add/Setは死亡でパニックするため事前に弾く）。
 func Upsert[T any](world *ecs.World, comp *ecs.Map[T], entity ecs.Entity, data *T) error {
 	if !world.Alive(entity) {
-		return fmt.Errorf("死亡エンティティにコンポーネントを設定できない: entity=%v", entity)
+		return fmt.Errorf("cannot set component on dead entity: entity=%v", entity)
 	}
 	if comp.Has(entity) {
 		comp.Set(entity, data)
@@ -53,9 +53,16 @@ type Consumable struct {
 	TargetType  TargetType
 }
 
-// Name は表示名
+// Name はエンティティの表示名を保持する
 type Name struct {
+	// Name は画面に出す表示名
 	Name string
+}
+
+// RawID は生成元 raw 定義の Id を保持する同定キー。raw 参照とスタックの同種判定に使う。表示には使わない
+type RawID struct {
+	// ID は英語の id
+	ID string
 }
 
 // Description は説明

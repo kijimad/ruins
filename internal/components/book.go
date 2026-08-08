@@ -20,7 +20,7 @@ func (b *Book) IsCompleted() bool {
 // CanRead はこの本を読めるかチェックする。読めない場合はエラーを返す
 func (b *Book) CanRead(skills *Skills) error {
 	if b.IsCompleted() {
-		return fmt.Errorf("この本は読了済みです")
+		return fmt.Errorf("this book is already read")
 	}
 	if b.Skill == nil || b.Skill.RequiredLevel <= 0 {
 		return nil
@@ -30,7 +30,7 @@ func (b *Book) CanRead(skills *Skills) error {
 		playerLevel = skills.Get(b.Skill.TargetSkill).Value
 	}
 	if playerLevel < b.Skill.RequiredLevel {
-		return fmt.Errorf("この本を読むには%sスキルがレベル%d以上必要です（現在: %d）",
+		return fmt.Errorf("reading this book requires %s skill at level %d or higher; current %d",
 			SkillName(b.Skill.TargetSkill), b.Skill.RequiredLevel, playerLevel)
 	}
 	return nil

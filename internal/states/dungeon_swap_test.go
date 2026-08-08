@@ -46,7 +46,7 @@ func hasPortalPrev(world w.World) bool {
 func TestRoundTrip_実生成で往復し現物が復元される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 
 	d := query.GetDungeon(world)
@@ -99,7 +99,7 @@ func TestEnterDungeon_遺跡へ入り上り階段が入口へ結線される(t *
 	world := testutil.InitTestWorld(t)
 
 	entrancePos := consts.Coord[consts.Tile]{X: 4, Y: 4}
-	player, err := lifecycle.SpawnPlayer(world, entrancePos, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, entrancePos, "ash")
 	require.NoError(t, err)
 
 	d := query.GetDungeon(world)
@@ -163,7 +163,7 @@ func TestDescend_現階を退避し訪問済み階を再稼働する(t *testing.
 	world.Components.StageBound.Add(upStair, &gc.StageBound{Key: dungeonStageKey(dungeon.DungeonDebug.Name(), 2)})
 	world.Components.Suspended.Add(upStair, &gc.Suspended{})
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 
 	st := &DungeonState{Depth: 1}
@@ -209,7 +209,7 @@ func TestAscend_上り先の下り階段へ戻る(t *testing.T) {
 	world.Components.Suspended.Add(floor1, &gc.Suspended{})
 
 	// プレイヤーは2階の適当な位置にいる
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)
 
 	st := &DungeonState{Depth: 2}

@@ -1,27 +1,24 @@
 package query
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// FindStackableInInventory は名前でバックパック内のStackableアイテムを検索する
-func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
+// FindStackableInInventory は同定キーでバックパック内のStackableアイテムを検索する
+func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
+	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 	for stackableQuery.Next() {
 		entity := stackableQuery.Entity()
 		if found {
 			continue
 		}
-		itemName := world.Components.Name.Get(entity)
-		if itemName.Name == name {
+		if world.Components.RawID.Get(entity).ID == id {
 			foundEntity = entity
 			found = true
 		}
@@ -74,5 +71,5 @@ func FormatItemName(world w.World, itemEntity ecs.Entity) string {
 	if count <= 1 {
 		return name
 	}
-	return fmt.Sprintf("%s(%d個)", name, count)
+	return T(world, "%s (x%d)", name, count)
 }

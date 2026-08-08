@@ -29,7 +29,7 @@ type MainGame struct {
 func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {
 	retroFilter, err := screeneffect.NewRetroFilter()
 	if err != nil {
-		return nil, fmt.Errorf("レトロフィルタの初期化に失敗: %w", err)
+		return nil, fmt.Errorf("failed to initialize retro filter: %w", err)
 	}
 
 	return &MainGame{
@@ -164,7 +164,6 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 	world.Resources.UIResources = uir
 
-	// initialize systems
 	world.Updaters, world.Renderers = gs.InitializeSystems(world)
 
 	return world, nil

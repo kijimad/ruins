@@ -69,12 +69,12 @@ func TestWeaponSkillID(t *testing.T) {
 		expected   SkillID
 		ok         bool
 	}{
-		{"刀剣", AttackSword, SkillSword, true},
-		{"長物", AttackSpear, SkillSpear, true},
-		{"格闘", AttackFist, SkillFist, true},
-		{"拳銃", AttackHandgun, SkillHandgun, true},
-		{"小銃", AttackRifle, SkillRifle, true},
-		{"砲撃", AttackCanon, SkillCannon, true},
+		{"Swordsmanship", AttackSword, SkillSword, true},
+		{"Polearm", AttackSpear, SkillSpear, true},
+		{"Unarmed", AttackFist, SkillFist, true},
+		{"Pistol skill", AttackHandgun, SkillHandgun, true},
+		{"Rifle skill", AttackRifle, SkillRifle, true},
+		{"Artillery", AttackCanon, SkillCannon, true},
 		{"未定義の武器種", AttackType{Type: "unknown"}, "", false},
 	}
 

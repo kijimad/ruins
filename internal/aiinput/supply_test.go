@@ -19,7 +19,7 @@ import (
 func setupSupplyTest(t *testing.T, world w.World) (leader ecs.Entity, member ecs.Entity) {
 	t.Helper()
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 	member, err = lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 	require.NoError(t, err)
@@ -56,7 +56,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
-		giveFood(t, world, member, "パン")
+		giveFood(t, world, member, "bread")
 		snap := buildSupplySnapshot(world, leader, member)
 		snap.Squad.Supply = gc.SupplyManual
 
@@ -69,7 +69,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
-		giveFood(t, world, member, "パン")
+		giveFood(t, world, member, "bread")
 		hunger := world.Components.Hunger.Get(member)
 		hunger.Current = hunger.Max
 		snap := buildSupplySnapshot(world, leader, member)
@@ -83,7 +83,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
-		food := giveFood(t, world, member, "パン")
+		food := giveFood(t, world, member, "bread")
 		snap := buildSupplySnapshot(world, leader, member)
 
 		sp := newSquadPlanner(newTestRNG())
@@ -97,8 +97,8 @@ func TestPlanSupplyAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
-		low := giveFood(t, world, member, "ビスケット")
-		giveFood(t, world, member, "パン")
+		low := giveFood(t, world, member, "biscuit")
+		giveFood(t, world, member, "bread")
 		snap := buildSupplySnapshot(world, leader, member)
 
 		lowN := world.Components.ProvidesNutrition.Get(low).Amount
@@ -120,7 +120,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
-		poolFood := giveFood(t, world, leader, "パン")
+		poolFood := giveFood(t, world, leader, "bread")
 		snap := buildSupplySnapshot(world, leader, member)
 
 		sp := newSquadPlanner(newTestRNG())
@@ -136,7 +136,7 @@ func TestPlanSupplyAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
-		giveFood(t, world, leader, "パン")
+		giveFood(t, world, leader, "bread")
 
 		// 隊員を遠くへ動かす
 		memberGrid := world.Components.GridElement.Get(member)
@@ -156,9 +156,9 @@ func TestPlanSupplyAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		leader, member := setupSupplyTest(t, world)
-		giveFood(t, world, member, "パン")
+		giveFood(t, world, member, "bread")
 
-		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
+		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 		require.NoError(t, err)
 		query.InvalidateSpatialIndex(world)
 		snap := buildSupplySnapshot(world, leader, member)

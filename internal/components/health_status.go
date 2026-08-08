@@ -1,7 +1,5 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/consts"
-
 // Severity は状態の重症度
 type Severity int
 
@@ -19,13 +17,13 @@ func (s Severity) String() string {
 	case SeverityNone:
 		return ""
 	case SeverityMinor:
-		return "軽"
+		return "Minor"
 	case SeverityMedium:
-		return "中"
+		return "Medium"
 	case SeveritySevere:
-		return "重"
+		return "Severe"
 	default:
-		panic("不正なSeverity値")
+		panic("invalid Severity value")
 	}
 }
 
@@ -46,17 +44,17 @@ const (
 func (st StatType) String() string {
 	switch st {
 	case StatVitality:
-		return consts.VitalityLabel
+		return "Vitality"
 	case StatStrength:
-		return consts.StrengthLabel
+		return "Strength"
 	case StatSensation:
-		return consts.SensationLabel
+		return "Sensation"
 	case StatDexterity:
-		return consts.DexterityLabel
+		return "Dexterity"
 	case StatAgility:
-		return consts.AgilityLabel
+		return "Agility"
 	case StatDefense:
-		return consts.DefenseLabel
+		return "Defense"
 	default:
 		return string(st)
 	}
@@ -81,9 +79,9 @@ const (
 func ConditionTypeDisplayName(ct ConditionType) string {
 	switch ct {
 	case ConditionHypothermia:
-		return "低体温"
+		return "Hypothermia"
 	case ConditionHyperthermia:
-		return "高体温"
+		return "Hyperthermia"
 	default:
 		return string(ct)
 	}

@@ -15,7 +15,7 @@ func TestEnemyTable_SelectByWeight_SingleEntry(t *testing.T) {
 	enemyTable := oapi.EnemyTable{
 		Name: "テスト",
 		Entries: []oapi.EnemyTableEntry{
-			{EnemyName: "スライム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+			{Id: "スライム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 		},
 	}
 
@@ -32,9 +32,9 @@ func TestEnemyTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	enemyTable := oapi.EnemyTable{
 		Name: "通常",
 		Entries: []oapi.EnemyTableEntry{
-			{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 20},
-			{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-			{EnemyName: "軽戦車", Weight: 0.8, MinDepth: 1, MaxDepth: 20},
+			{Id: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 20},
+			{Id: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+			{Id: "軽戦車", Weight: 0.8, MinDepth: 1, MaxDepth: 20},
 		},
 	}
 
@@ -75,8 +75,8 @@ func TestEnemyTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 	enemyTable := oapi.EnemyTable{
 		Name: "テスト",
 		Entries: []oapi.EnemyTableEntry{
-			{EnemyName: "敵1", Weight: 0, MinDepth: 1, MaxDepth: 10},
-			{EnemyName: "敵2", Weight: 0, MinDepth: 1, MaxDepth: 10},
+			{Id: "敵1", Weight: 0, MinDepth: 1, MaxDepth: 10},
+			{Id: "敵2", Weight: 0, MinDepth: 1, MaxDepth: 10},
 		},
 	}
 
@@ -108,9 +108,9 @@ func TestEnemyTable_SelectByWeight_Reproducibility(t *testing.T) {
 	enemyTable := oapi.EnemyTable{
 		Name: "通常",
 		Entries: []oapi.EnemyTableEntry{
-			{EnemyName: "敵A", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-			{EnemyName: "敵B", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-			{EnemyName: "敵C", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+			{Id: "敵A", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+			{Id: "敵B", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+			{Id: "敵C", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 		},
 	}
 
@@ -134,9 +134,9 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 	enemyTable := oapi.EnemyTable{
 		Name: "深度テスト",
 		Entries: []oapi.EnemyTableEntry{
-			{EnemyName: "弱い敵", Weight: 1.0, MinDepth: 1, MaxDepth: 5},
-			{EnemyName: "中級の敵", Weight: 1.0, MinDepth: 5, MaxDepth: 10},
-			{EnemyName: "強い敵", Weight: 1.0, MinDepth: 10, MaxDepth: 20},
+			{Id: "弱い敵", Weight: 1.0, MinDepth: 1, MaxDepth: 5},
+			{Id: "中級の敵", Weight: 1.0, MinDepth: 5, MaxDepth: 10},
+			{Id: "強い敵", Weight: 1.0, MinDepth: 10, MaxDepth: 20},
 		},
 	}
 
@@ -188,8 +188,8 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_NoMatch(t *testing.T) {
 	enemyTable := oapi.EnemyTable{
 		Name: "深度範囲外",
 		Entries: []oapi.EnemyTableEntry{
-			{EnemyName: "敵1", Weight: 1.0, MinDepth: 10, MaxDepth: 20},
-			{EnemyName: "敵2", Weight: 1.0, MinDepth: 20, MaxDepth: 30},
+			{Id: "敵1", Weight: 1.0, MinDepth: 10, MaxDepth: 20},
+			{Id: "敵2", Weight: 1.0, MinDepth: 20, MaxDepth: 30},
 		},
 	}
 

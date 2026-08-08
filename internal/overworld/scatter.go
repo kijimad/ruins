@@ -127,7 +127,7 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 	case zoneWild:
 		return wildCatalog
 	}
-	panic("未知の outdoorZone: " + string(zone))
+	panic("unknown outdoorZone: " + string(zone))
 }
 
 // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。
@@ -186,7 +186,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 			name = scatterWeedProp
 		}
 		if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {
-			return fmt.Errorf("草の配置に失敗 (%s): %w", name, err)
+			return fmt.Errorf("failed to place grass (%s): %w", name, err)
 		}
 		occupied[gc.GridElement{Coord: bl}] = true
 	}
@@ -218,7 +218,7 @@ func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occup
 		return nil
 	}
 	if _, err := lifecycle.SpawnProp(world, entry.Ref, origin.X, origin.Y); err != nil {
-		return fmt.Errorf("散布 prop の配置に失敗 (%s): %w", entry.Ref, err)
+		return fmt.Errorf("failed to place scatter prop (%s): %w", entry.Ref, err)
 	}
 	occupied[gc.GridElement{Coord: origin}] = true
 	for _, s := range entry.Satellites {
@@ -228,7 +228,7 @@ func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occup
 			continue
 		}
 		if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil {
-			return fmt.Errorf("散布衛星の配置に失敗 (%s): %w", s.name, err)
+			return fmt.Errorf("failed to place scatter satellite (%s): %w", s.name, err)
 		}
 		occupied[key] = true
 	}
@@ -260,7 +260,7 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 	}
 	// total は候補の重み合計で r は [0, total) なので、候補の重みを引き切る前に必ず r < 0 になる。
 	// ここへ来るのは重み合計の計算と減算がずれたときだけで、内部データの不変条件違反にあたる
-	panic("pickScatterEntry: 重み抽選が候補を引けなかった")
+	panic("pickScatterEntry: weighted selection drew no candidate")
 }
 
 // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、

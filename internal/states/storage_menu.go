@@ -48,12 +48,15 @@ var _ menurt.ExtraInput = &StorageMenuState{}
 func (st *StorageMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.screen = menurt.NewScreen[StorageProps](st, &st.detail)
-	st.screen.WithSystems(&gs.WeightDirtySystem{})
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error) {
+	// 収納の出し入れで所持品が変わると WeightDirty が立つ。再計算を回して総重量表示を更新する
+	if err := runUpdaters(world, &gs.WeightDirtySystem{}); err != nil {
+		return es.Transition[w.World]{}, err
+	}
 	return st.screen.Update(world)
 }
 
@@ -225,7 +228,7 @@ func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menur
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, query.T(world, "x Details")),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 

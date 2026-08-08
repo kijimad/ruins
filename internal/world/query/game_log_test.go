@@ -27,7 +27,7 @@ func TestGetGameLog(t *testing.T) {
 		store := GetGameLog(world)
 		require.NotNil(t, store)
 
-		gamelog.New(store).Append("テストメッセージ").Log()
+		gamelog.New(store).Markup("テストメッセージ").Log()
 
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
@@ -52,7 +52,7 @@ func TestGetGameLog(t *testing.T) {
 		store1 := GetGameLog(world1)
 		store2 := GetGameLog(world2)
 
-		gamelog.New(store1).Append("world1のログ").Log()
+		gamelog.New(store1).Markup("world1のログ").Log()
 
 		assert.Equal(t, 1, store1.Count())
 		assert.Equal(t, 0, store2.Count())

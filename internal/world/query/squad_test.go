@@ -30,7 +30,7 @@ func TestSquadMembers(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		m1, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -48,7 +48,7 @@ func TestSquadMembers(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		members := query.SquadMembers(world)
@@ -59,7 +59,7 @@ func TestSquadMembers(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		alive, err := lifecycle.SpawnSquadMember(world, leader, "生存者", testAbilities(), "player")
@@ -83,7 +83,7 @@ func TestSquadMemberAt(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -99,7 +99,7 @@ func TestSquadMemberAt(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		_, err = lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -114,7 +114,7 @@ func TestSquadMemberCount(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	assert.Equal(t, 0, query.SquadMemberCount(world))
@@ -135,7 +135,7 @@ func TestGetAI(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -161,7 +161,7 @@ func TestIsSquadMember(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")

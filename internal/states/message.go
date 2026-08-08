@@ -15,7 +15,11 @@ import (
 // MessageState はメッセージを表示する専用ステート
 type MessageState struct {
 	es.BaseState[w.World]
-	messageData     *messagedata.MessageData
+	// build は world を要するメッセージの構築。翻訳は現在言語を要するので、ファクトリ時ではなく
+	// OnStart で world を渡して messageData を組む。構築は必ずこれを通す。組み立て済みのデータは
+	// NewMessageState がそれを返すだけの build に包む
+	build           func(w.World) *messagedata.MessageData
+	messageData     *messagedata.MessageData // build の結果をキャッシュする内部フィールド
 	messageWindow   *messagewindow.Window
 	backgroundImage *ebiten.Image
 	currentBgKey    string
@@ -31,6 +35,12 @@ func (st *MessageState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *MessageState) OnStart(world w.World) error {
+	if st.build == nil {
+		return fmt.Errorf("message state has no build function")
+	}
+	if st.messageData == nil {
+		st.messageData = st.build(world)
+	}
 	if st.messageData.BackgroundKey != "" {
 		bgImage, err := loadBackgroundImage(world, st.messageData.BackgroundKey)
 		if err != nil {

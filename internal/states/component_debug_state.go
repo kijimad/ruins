@@ -46,7 +46,10 @@ func (st *ComponentDebugState) DoAction(_ w.World, action inputmapper.ActionID) 
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect:
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect,
+		inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight,
+		inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+		// Dispatchで処理される。単一タブでもタブ移動アクションは届くので握り潰す
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
@@ -115,7 +118,7 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menurt.MenuConfig
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(props.Items))
@@ -128,6 +131,6 @@ func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, cursor
 	return newTabScreenUI(res, tabScreen{
 		Header:  fmt.Sprintf("Components total: %d", props.Total),
 		Content: container,
-		Footer:  menuNavHint(false),
+		Footer:  menuNavHint(world, false),
 	})
 }

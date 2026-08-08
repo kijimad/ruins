@@ -19,6 +19,7 @@ func TestFindStackableInInventory_名前が一致するバックパック内ア�
 	world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
 	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 	world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
+	world.Components.RawID.Add(item, &gc.RawID{ID: "回復薬"})
 
 	got, found := query.FindStackableInInventory(world, "回復薬")
 	assert.True(t, found)

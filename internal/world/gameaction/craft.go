@@ -20,7 +20,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 		return gc.InvalidEntity, err
 	}
 	if !canCraft {
-		return gc.InvalidEntity, fmt.Errorf("必要素材が足りません")
+		return gc.InvalidEntity, fmt.Errorf("insufficient materials")
 	}
 
 	craftCostPct, smithQualityPct := consts.PercentBase, consts.PercentBase
@@ -33,7 +33,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 
 	resultEntity, err := lifecycle.SpawnBackpackItem(world, name, 1)
 	if err != nil {
-		return gc.InvalidEntity, fmt.Errorf("アイテム生成に失敗: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("failed to generate item: %w", err)
 	}
 	// Stackableアイテムの合成では、SpawnBackpackItem内の統合処理で
 	// resultEntityが既存スタックへ統合されて削除されることがある。
@@ -45,7 +45,7 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 	}
 	randomize(world, resultEntity, smithQualityPct)
 	if err := consumeMaterials(world, name, craftCostPct); err != nil {
-		return gc.InvalidEntity, fmt.Errorf("素材消費に失敗: %w", err)
+		return gc.InvalidEntity, fmt.Errorf("failed to consume materials: %w", err)
 	}
 
 	return resultEntity, nil
@@ -55,11 +55,11 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 func CanCraft(world w.World, name string) (bool, error) {
 	required := requiredMaterials(world, name)
 	if len(required) == 0 {
-		return false, fmt.Errorf("レシピが存在しません: %s", name)
+		return false, fmt.Errorf("recipe not found: %s", name)
 	}
 
 	for _, recipeInput := range required {
-		entity, found := query.FindStackableInInventory(world, recipeInput.Name)
+		entity, found := query.FindStackableInInventory(world, recipeInput.ID)
 		if !found {
 			return false, nil
 		}
@@ -77,7 +77,7 @@ func CanCraft(world w.World, name string) (bool, error) {
 func consumeMaterials(world w.World, goal string, craftCostPct consts.Percent) error {
 	for _, recipeInput := range requiredMaterials(world, goal) {
 		consumed := max(craftCostPct.ApplyInt(recipeInput.Amount), 1)
-		err := lifecycle.ChangeStackableCount(world, recipeInput.Name, -consumed)
+		err := lifecycle.ChangeStackableCount(world, recipeInput.ID, -consumed)
 		if err != nil {
 			return err
 		}

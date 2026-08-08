@@ -24,15 +24,15 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 	return NewChoiceMenu(dungeonMenuChoices), nil
 }
 
-func dungeonMenuChoices(_ w.World) (string, []Choice) {
+func dungeonMenuChoices(world w.World) (string, []Choice) {
 	return "", []Choice{
-		{Label: "所持", Run: pushChoice(NewItemActionState(verbExamine))},
-		{Label: "部隊", Run: pushChoice(NewCharacterState)},
-		{Label: "書込", Run: pushChoice(NewSaveMenuState)},
-		{Label: "終了", Run: func(_ w.World) (es.Transition[w.World], error) {
+		{Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
+		{Label: query.T(world, "Party"), Run: pushChoice(NewCharacterState)},
+		{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)},
+		{Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}}, nil
 		}},
-		{Label: TextClose, Run: func(_ w.World) (es.Transition[w.World], error) {
+		{Label: query.T(world, "Close"), Run: func(_ w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}},
 	}
@@ -119,18 +119,16 @@ func NewSettingsMenuState() (es.State[w.World], error) {
 func NewGameOverMessageState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
-	// ゲームオーバーメッセージを作成（選択肢付き）
-	messageData := messagedata.NewSystemMessage("死亡した。").
-		WithChoice("メインメニューに戻る", func(_ w.World) error {
-			// メインメニューに遷移
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}})
-			return nil
-		})
-
-	// MessageStateにMessageDataを設定
-	messageState.messageData = messageData
+	// ゲームオーバーメッセージを作成する。翻訳は world を要するので OnStart で構築する
+	messageState.build = func(world w.World) *messagedata.MessageData {
+		return messagedata.NewSystemMessage(query.T(world, "You died.")).
+			WithChoice(query.T(world, "Return to main menu"), func(_ w.World) error {
+				messageState.SetTransition(es.Transition[w.World]{
+					Type:          es.TransReplace,
+					NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}})
+				return nil
+			})
+	}
 
 	return messageState, nil
 }
@@ -139,13 +137,13 @@ func NewGameOverMessageState() (es.State[w.World], error) {
 func NewAllClearEventState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
-	messageData := messagedata.NewSystemMessage("すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。").
-		WithChoice(TextClose, func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return nil
-		})
-
-	messageState.messageData = messageData
+	messageState.build = func(world w.World) *messagedata.MessageData {
+		return messagedata.NewSystemMessage(query.T(world, "You conquered all the ruins.\n\nThe ancient presence sleeping at the bottom of the great hole has finally quieted.")).
+			WithChoice(query.T(world, "Close"), func(_ w.World) error {
+				messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+				return nil
+			})
+	}
 	return messageState, nil
 }
 
@@ -154,21 +152,26 @@ func NewAllClearEventState() (es.State[w.World], error) {
 func NewSaveMenuState() (es.State[w.World], error) {
 	saveManager, err := save.NewSerializationManager()
 	if err != nil {
-		return nil, fmt.Errorf("セーブマネージャーの作成に失敗: %w", err)
+		return nil, fmt.Errorf("failed to create save manager: %w", err)
 	}
-	choices := make([]Choice, 0, 5)
-	for i := 1; i <= 4; i++ {
-		slotName := fmt.Sprintf("slot%d", i)
-		choices = append(choices, Choice{Label: formatSaveSlotLabel(saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) {
-			if err := saveManager.SaveWorld(world, slotName); err != nil {
-				return es.Transition[w.World]{}, fmt.Errorf("save failed: %w", err)
+	// スロットラベルはファイル IO を伴うので初回 Fetch で一度だけ組んでキャッシュする。
+	// world は Fetch から渡る。保存後は TransSwitch でステートを開き直して再構築する
+	var choices []Choice
+	return NewChoiceMenu(func(world w.World) (string, []Choice) {
+		if choices == nil {
+			for i := 1; i <= 4; i++ {
+				slotName := fmt.Sprintf("slot%d", i)
+				choices = append(choices, Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) {
+					if err := saveManager.SaveWorld(world, slotName); err != nil {
+						return es.Transition[w.World]{}, fmt.Errorf("save failed: %w", err)
+					}
+					return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewSaveMenuState}}, nil
+				}})
 			}
-			// 保存後はメニューを開き直してラベルを更新する
-			return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewSaveMenuState}}, nil
-		}})
-	}
-	choices = append(choices, backChoice())
-	return NewChoiceMenu(func(_ w.World) (string, []Choice) { return "セーブ", choices }), nil
+			choices = append(choices, backChoice(world))
+		}
+		return query.T(world, "Save"), choices
+	}), nil
 }
 
 // NewLoadMenuState はロード画面を作成するファクトリー関数。
@@ -176,50 +179,56 @@ func NewSaveMenuState() (es.State[w.World], error) {
 func NewLoadMenuState() (es.State[w.World], error) {
 	saveManager, err := save.NewSerializationManager()
 	if err != nil {
-		return nil, fmt.Errorf("セーブマネージャーの作成に失敗: %w", err)
+		return nil, fmt.Errorf("failed to create save manager: %w", err)
 	}
-	choices := make([]Choice, 0, 12)
-	choices = append(choices, Choice{Label: "手動セーブ", Header: true})
-	for i := 1; i <= 4; i++ {
-		choices = append(choices, loadSlotChoice(saveManager, fmt.Sprintf("slot%d", i)))
-	}
-	choices = append(choices, Choice{Label: "オートセーブ", Header: true})
-	autoSaves, err := saveManager.ListAutoSaves()
-	if err != nil {
-		return nil, fmt.Errorf("オートセーブ一覧の取得に失敗: %w", err)
-	}
-	if len(autoSaves) > 4 {
-		autoSaves = autoSaves[:4]
-	}
-	for i := range 4 {
-		if i < len(autoSaves) {
-			choices = append(choices, loadSlotChoice(saveManager, autoSaves[i]))
-		} else {
-			choices = append(choices, Choice{Label: "  ---", Header: true})
+	// ラベルはファイル IO を伴うので初回 Fetch で一度だけ組んでキャッシュする
+	var choices []Choice
+	return NewChoiceMenu(func(world w.World) (string, []Choice) {
+		if choices == nil {
+			choices = append(choices, Choice{Label: query.T(world, "Manual save"), Header: true})
+			for i := 1; i <= 4; i++ {
+				choices = append(choices, loadSlotChoice(world, saveManager, fmt.Sprintf("slot%d", i)))
+			}
+			choices = append(choices, Choice{Label: query.T(world, "Auto save"), Header: true})
+			autoSaves, err := saveManager.ListAutoSaves()
+			if err != nil {
+				logger.New(logger.CategorySave).Error("failed to list auto saves", "error", err.Error())
+				autoSaves = nil
+			}
+			if len(autoSaves) > 4 {
+				autoSaves = autoSaves[:4]
+			}
+			for i := range 4 {
+				if i < len(autoSaves) {
+					choices = append(choices, loadSlotChoice(world, saveManager, autoSaves[i]))
+				} else {
+					choices = append(choices, Choice{Label: "  ---", Header: true})
+				}
+			}
+			choices = append(choices, backChoice(world))
 		}
-	}
-	choices = append(choices, backChoice())
-	return NewChoiceMenu(func(_ w.World) (string, []Choice) { return "ロード", choices }), nil
+		return query.T(world, "Load game"), choices
+	}), nil
 }
 
 // backChoice は戻る選択肢を返す。選択メニューで共通に使う
-func backChoice() Choice {
-	return Choice{Label: "戻る", Run: func(_ w.World) (es.Transition[w.World], error) {
+func backChoice(world w.World) Choice {
+	return Choice{Label: query.T(world, "Back"), Run: func(_ w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}}
 }
 
 // loadSlotChoice はロードスロット1つ分の選択肢を返す。空スロットは選べない見出し行にする
-func loadSlotChoice(saveManager *save.SerializationManager, slotName string) Choice {
+func loadSlotChoice(world w.World, saveManager *save.SerializationManager, slotName string) Choice {
 	if !saveManager.SaveFileExists(slotName) {
 		return Choice{Label: "  ---", Header: true}
 	}
-	return Choice{Label: formatSaveSlotLabel(saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) {
+	return Choice{Label: formatSaveSlotLabel(world, saveManager, slotName), Run: func(world w.World) (es.Transition[w.World], error) {
 		if err := saveManager.LoadWorld(world, slotName); err != nil {
 			// ロード失敗はアプリ全体を落とさない。RestoreWorldFromJSON の probe 検証で本番ワールドは
 			// 無傷なので、エラーはログに残してメニューへ戻るだけにする。ゲームループへ返すと
 			// main の log.Fatal まで波及してプロセスごと落ちてしまう
-			logger.New(logger.CategorySave).Error("セーブのロードに失敗した", "slot", slotName, "error", err.Error())
+			logger.New(logger.CategorySave).Error("failed to load save", "slot", slotName, "error", err.Error())
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}
 		// 復元済みの現在地から再生成せずに復帰する
@@ -240,8 +249,8 @@ func newResumeStateFactory(world w.World) es.StateFactory[w.World] {
 }
 
 // formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。
-// データがある場合は "プレイヤー名  日時" 、ない場合は "---" を返す。
-func formatSaveSlotLabel(saveManager *save.SerializationManager, slotName string) string {
+// データがあればプレイヤー名と日時を、無ければダッシュを返す。
+func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, slotName string) string {
 	if !saveManager.SaveFileExists(slotName) {
 		return "---"
 	}
@@ -252,13 +261,14 @@ func formatSaveSlotLabel(saveManager *save.SerializationManager, slotName string
 	if nameErr == nil && tsErr == nil {
 		return fmt.Sprintf("  %s  %s", playerName, timestamp.Format("01/02 15:04"))
 	}
-	return "  データあり"
+	return query.T(world, "  Has data")
 }
 
-// NewMessageState はメッセージデータを受け取って新しいMessageStateを作成するファクトリー関数
+// NewMessageState は組み立て済みメッセージから MessageState を作成する。
+// 構築を build へ一本化するため、受け取った messageData を返すだけの build で包む
 func NewMessageState(messageData *messagedata.MessageData) (es.State[w.World], error) {
 	return &MessageState{
-		messageData: messageData,
+		build: func(_ w.World) *messagedata.MessageData { return messageData },
 	}, nil
 }
 
@@ -281,7 +291,9 @@ func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
 func NewInteractionMenuState(world w.World) (es.State[w.World], error) {
 	if len(GetInteractionActions(world)) == 0 {
 		messageState := &MessageState{}
-		messageState.messageData = messagedata.NewSystemMessage("実行可能なアクションがありません。")
+		messageState.build = func(world w.World) *messagedata.MessageData {
+			return messagedata.NewSystemMessage(query.T(world, "No actions available."))
+		}
 		return messageState, nil
 	}
 	return NewChoiceMenu(interactionChoices), nil
@@ -295,10 +307,10 @@ func interactionActionChoices(actions []InteractionAction) []Choice {
 		choices = append(choices, Choice{Label: action.Label, Run: func(world w.World) (es.Transition[w.World], error) {
 			playerEntity, err := query.GetPlayerEntity(world)
 			if err != nil {
-				return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの取得に失敗: %w", err)
+				return es.Transition[w.World]{}, fmt.Errorf("failed to get player: %w", err)
 			}
 			if _, err := activity.ExecuteInteraction(playerEntity, action.Target, action.Interaction, world); err != nil {
-				return es.Transition[w.World]{}, fmt.Errorf("アクション実行失敗: %w", err)
+				return es.Transition[w.World]{}, fmt.Errorf("failed to execute action: %w", err)
 			}
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}})
@@ -318,69 +330,69 @@ func sameTileActionChoices(world w.World) (string, []Choice) {
 
 // NewMerchantDialogState は商人との会話ステートを作成
 func NewMerchantDialogState(speakerName string) (es.State[w.World], error) {
-	persistentState := NewPersistentMessageState(nil)
+	persistentState := &PersistentMessageState{}
 
-	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
-		AddText(`何か取引しないかい?
-
-いい物揃ってるよ。`).
-		WithChoice("見る", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},
+	persistentState.build = func(world w.World) *messagedata.MessageData {
+		return messagedata.NewDialogMessage("", speakerName).
+			AddText(query.T(world, "Want to make a deal?\n\nI've got good stuff.")).
+			WithChoice(query.T(world, "Look"), func(_ w.World) error {
+				persistentState.SetTransition(es.Transition[w.World]{
+					Type:          es.TransPush,
+					NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},
+				})
+				return nil
+			}).
+			WithChoice(query.T(world, "No business"), func(_ w.World) error {
+				persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+				return nil
 			})
-			return nil
-		}).
-		WithChoice("用は無い", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return nil
-		})
+	}
 
 	return persistentState, nil
 }
 
 // NewTavernKeeperDialogState は酒場の主人との会話ステートを作成
 func NewTavernKeeperDialogState(speakerName string) (es.State[w.World], error) {
-	persistentState := NewPersistentMessageState(nil)
+	persistentState := &PersistentMessageState{}
 
-	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
-		AddText(`うちには腕の立つ連中が集まってるよ。
-
-隊員を雇うかい?`).
-		WithChoice("雇う", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewTavernMenuState},
+	persistentState.build = func(world w.World) *messagedata.MessageData {
+		return messagedata.NewDialogMessage("", speakerName).
+			AddText(query.T(world, "Skilled folk gather here.\n\nWant to hire a squad member?")).
+			WithChoice(query.T(world, "Hire"), func(_ w.World) error {
+				persistentState.SetTransition(es.Transition[w.World]{
+					Type:          es.TransPush,
+					NewStateFuncs: []es.StateFactory[w.World]{NewTavernMenuState},
+				})
+				return nil
+			}).
+			WithChoice(query.T(world, "No business"), func(_ w.World) error {
+				persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+				return nil
 			})
-			return nil
-		}).
-		WithChoice("用は無い", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return nil
-		})
+	}
 
 	return persistentState, nil
 }
 
 // NewDoctorDialogState は怪しい科学者との会話ステートを作成
 func NewDoctorDialogState(speakerName string) (es.State[w.World], error) {
-	persistentState := NewPersistentMessageState(nil)
+	persistentState := &PersistentMessageState{}
 
-	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
-		AddText(`フフフ...わしの秘密の技術で物質再構築してやろう
-
-地髄と素材を持ってくるのじゃ!`).
-		WithChoice("合成したい", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewCraftMenuState},
+	persistentState.build = func(world w.World) *messagedata.MessageData {
+		return messagedata.NewDialogMessage("", speakerName).
+			AddText(query.T(world, "Heh heh... I'll reconstruct matter with my secret technique.\n\nBring me core and materials!")).
+			WithChoice(query.T(world, "I want to craft"), func(_ w.World) error {
+				persistentState.SetTransition(es.Transition[w.World]{
+					Type:          es.TransPush,
+					NewStateFuncs: []es.StateFactory[w.World]{NewCraftMenuState},
+				})
+				return nil
+			}).
+			WithChoice(query.T(world, "No business"), func(_ w.World) error {
+				persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+				return nil
 			})
-			return nil
-		}).
-		WithChoice("用は無い", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return nil
-		})
+	}
 
 	return persistentState, nil
 }
@@ -388,27 +400,29 @@ func NewDoctorDialogState(speakerName string) (es.State[w.World], error) {
 // NewOpeningState はオープニングを表示するStateを作成するファクトリー関数
 // 完了後はポップする。後続ステートが必要な場合は呼び出し側でスタックに積む
 func NewOpeningState() (es.State[w.World], error) {
-	// 1. 黒背景: 荒野の大穴
-	page1a := &messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
-	page1a.AddText("見渡すかぎりの荒野に、大穴がひとつ、口を開けている。")
+	messageState := &MessageState{}
+	// 翻訳は world を要するので OnStart でページを組む
+	messageState.build = func(world w.World) *messagedata.MessageData {
+		// 1. 黒背景: 荒野の大穴
+		page1a := &messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
+		page1a.AddText(query.T(world, "A vast wasteland, with a single great hole gaping open."))
 
-	// 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明
-	blank := &messagedata.MessageData{Speaker: "", BackgroundKey: "hole1"}
-	page1b := &messagedata.MessageData{Speaker: ""}
-	page1b.AddText("穴の底には古代文明の遺跡がある。\n").
-		AddText("宝が出る。怪物も出る。潜った者の半分は帰ってこない。\n").
-		AddText("穴のまわりには潜る者、売る者、買う者で街ができた。")
+		// 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明
+		blank := &messagedata.MessageData{Speaker: "", BackgroundKey: "hole1"}
+		page1b := &messagedata.MessageData{Speaker: ""}
+		page1b.AddText(query.T(world, "At the bottom of the hole lie ruins of an ancient civilization.\n")).
+			AddText(query.T(world, "Treasure comes out. Monsters too. Half of those who dive never return.\n")).
+			AddText(query.T(world, "Around the hole a town has formed of divers, sellers, and buyers."))
 
-	// 3. 酒場背景: 空ページ（背景だけ見せる）→ 拾い屋の噂
-	blankBar := &messagedata.MessageData{Speaker: "", BackgroundKey: "bar1"}
-	page2 := &messagedata.MessageData{Speaker: ""}
-	page2.AddText("「聞いたか。底狙いの奴、また一人消えたってよ。」\n").
-		AddText("「何人目だ。」\n").
-		AddText("「さあな。数えるのはとっくにやめた。」\n\n").
-		AddText("「でさ、次の").
-		AddKeyword("拾い屋").
-		AddText("が来たんだが...そいつも底狙いだと。」\n")
+		// 3. 酒場背景: 空ページ（背景だけ見せる）→ 拾い屋の噂
+		blankBar := &messagedata.MessageData{Speaker: "", BackgroundKey: "bar1"}
+		page2 := &messagedata.MessageData{Speaker: ""}
+		page2.AddText(query.T(world, "\"Heard about it? Another bottom-seeker vanished.\"\n")).
+			AddText(query.T(world, "\"How many is that now?\"\n")).
+			AddText(query.T(world, "\"Who knows. I quit counting long ago.\"\n\n")).
+			AddMarkup(query.T(world, "\"So, the next <keyword>scavenger</keyword> has shown up... a bottom-seeker too, they say.\"\n"))
 
-	first := messagedata.ChainMessages(page1a, blank, page1b, blankBar, page2)
-	return NewMessageState(first)
+		return messagedata.ChainMessages(page1a, blank, page1b, blankBar, page2)
+	}
+	return messageState, nil
 }

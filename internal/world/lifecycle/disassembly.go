@@ -36,7 +36,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if err != nil {
 				return nil, err
 			}
-			stacks = append(stacks, YieldStack{Name: y.Name, Count: count})
+			stacks = append(stacks, YieldStack{Name: y.Id, Count: count})
 			continue
 		}
 		if !full {
@@ -49,7 +49,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if err != nil {
 				return nil, err
 			}
-			stacks = append(stacks, YieldStack{Name: y.Name, Count: count})
+			stacks = append(stacks, YieldStack{Name: y.Id, Count: count})
 		}
 	}
 
@@ -70,7 +70,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if err != nil {
 				return nil, err
 			}
-			stacks = append(stacks, YieldStack{Name: b.Name, Count: count})
+			stacks = append(stacks, YieldStack{Name: b.Id, Count: count})
 		}
 	}
 
@@ -82,7 +82,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 func rollCount(rng *rand.Rand, count oapi.Dice) (int, error) {
 	d, err := consts.ParseDice(count)
 	if err != nil {
-		return 0, fmt.Errorf("分解産出の個数表記が不正です: %q: %w", count, err)
+		return 0, fmt.Errorf("invalid disassembly yield count notation: %q: %w", count, err)
 	}
 	return d.Roll(rng), nil
 }

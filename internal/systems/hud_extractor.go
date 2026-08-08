@@ -422,7 +422,7 @@ func extractSquadHUDData(world w.World) hud.SquadHUDData {
 		hungerLevel := ""
 		if world.Components.Hunger.Has(member) {
 			if level := world.Components.Hunger.Get(member).GetLevel(); level >= gc.HungerHungry {
-				hungerLevel = level.String()
+				hungerLevel = query.T(world, level.String())
 			}
 		}
 		members = append(members, hud.SquadHUDMember{

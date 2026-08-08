@@ -12,8 +12,10 @@ import (
 const fence = "---"
 
 var (
-	reTitle           = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
-	reProgressHeading = regexp.MustCompile(`(?m)^##\s+進捗\s*$`)
+	reTitle = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
+	// reProgressHeading は `## 進捗` 見出しにマッチする。\x{9032}\x{6357} は 進捗 のコードポイントで、
+	// リテラルで書くと gosmopolitan が日本語リテラルとして検知するため escape している。
+	reProgressHeading = regexp.MustCompile(`(?m)^##\s+\x{9032}\x{6357}\s*$`)
 	reAnyHeading      = regexp.MustCompile(`(?m)^##\s`)
 	reOpenTask        = regexp.MustCompile(`(?m)^- \[ \]`)
 	reDoneTask        = regexp.MustCompile(`(?m)^- \[x\]`)
@@ -27,7 +29,7 @@ func Parse(path string, content string) (*Document, error) {
 
 	front, body, hasFront, err := splitFrontmatter(content)
 	if err != nil {
-		return nil, fmt.Errorf("%s の frontmatter 解析に失敗: %w", path, err)
+		return nil, fmt.Errorf("failed to parse frontmatter of %s: %w", path, err)
 	}
 	doc.HasFront = hasFront
 	doc.Front = front
@@ -50,7 +52,7 @@ func splitFrontmatter(content string) (Frontmatter, string, bool, error) {
 	rest := content[len(fence)+1:]
 	end := strings.Index(rest, "\n"+fence)
 	if end < 0 {
-		return Frontmatter{}, content, false, fmt.Errorf("閉じデリミタ %q が見つからない", fence)
+		return Frontmatter{}, content, false, fmt.Errorf("closing delimiter %q not found", fence)
 	}
 
 	yamlPart := rest[:end]
@@ -60,7 +62,7 @@ func splitFrontmatter(content string) (Frontmatter, string, bool, error) {
 
 	var front Frontmatter
 	if err := yaml.Unmarshal([]byte(yamlPart), &front); err != nil {
-		return Frontmatter{}, content, false, fmt.Errorf("YAML の unmarshal に失敗: %w", err)
+		return Frontmatter{}, content, false, fmt.Errorf("failed to unmarshal YAML: %w", err)
 	}
 
 	return front, body, true, nil
@@ -110,7 +112,7 @@ func InferStatus(doc *Document) Status {
 func Render(front Frontmatter, body string) (string, error) {
 	yamlPart, err := yaml.Marshal(front)
 	if err != nil {
-		return "", fmt.Errorf("frontmatter の marshal に失敗: %w", err)
+		return "", fmt.Errorf("failed to marshal frontmatter: %w", err)
 	}
 
 	var b strings.Builder

@@ -2,6 +2,7 @@ package activity
 
 import (
 	"fmt"
+	"strconv"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -29,8 +30,8 @@ type AttackBehavior struct{}
 // Info はBehaviorの実装
 func (ab *AttackBehavior) Info() Info {
 	return Info{
-		Name:            "攻撃",
-		Description:     "敵を攻撃する",
+		Name:            "Attack",
+		Description:     "Attack an enemy",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -88,7 +89,7 @@ func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 // Start はBehaviorの実装
 func (ab *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if p, ok := comp.Params.(*gc.AttackParams); ok {
-		log.Debug("攻撃開始", "actor", actor, "target", p.Target)
+		log.Debug("attack started", "actor", actor, "target", p.Target)
 	}
 	return nil
 }
@@ -96,17 +97,17 @@ func (ab *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) 
 // DoTurn はBehaviorの実装
 func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if _, ok := comp.Params.(*gc.AttackParams); !ok {
-		Cancel(comp, "攻撃対象が設定されていません")
+		Cancel(comp, "attack target is not set")
 		return ErrAttackTargetNotSet
 	}
 
 	if !ab.canAttack(comp, actor, world) {
-		Cancel(comp, "攻撃できません")
+		Cancel(comp, "cannot attack")
 		return ErrAttackTargetInvalid
 	}
 
 	if err := ab.performAttack(comp, actor, world); err != nil {
-		Cancel(comp, fmt.Sprintf("攻撃エラー: %s", err.Error()))
+		Cancel(comp, fmt.Sprintf("attack error: %s", err.Error()))
 		return err
 	}
 
@@ -118,10 +119,10 @@ func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 func (ab *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	p, ok := comp.Params.(*gc.AttackParams)
 	if !ok {
-		log.Debug("攻撃対象が未設定のまま完了処理に到達した。攻撃は実行されていない", "actor", actor)
+		log.Debug("reached finish with attack target unset; no attack was performed", "actor", actor)
 		return nil
 	}
-	log.Debug("攻撃アクティビティ完了",
+	log.Debug("attack activity finished",
 		"actor", actor,
 		"target", p.Target)
 
@@ -130,7 +131,7 @@ func (ab *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World)
 
 // Canceled はBehaviorの実装
 func (ab *AttackBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("攻撃キャンセル", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("attack canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
@@ -141,11 +142,11 @@ func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 	}
 	target := p.Target
 
-	log.Debug("攻撃実行", "attacker", actor, "target", target)
+	log.Debug("performing attack", "attacker", actor, "target", target)
 
 	attack, attackMethodName, err := getAttackParams(actor, world)
 	if err != nil {
-		return fmt.Errorf("攻撃パラメータの取得に失敗: %w", err)
+		return fmt.Errorf("failed to get attack parameters: %w", err)
 	}
 
 	return applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
@@ -188,14 +189,14 @@ func (ab *AttackBehavior) canPerformAttack(attacker ecs.Entity, world w.World) b
 
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
 func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
-	bareHandsSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, "素手")
+	bareHandsSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, "bare_hands")
 	if err != nil {
-		return nil, "", fmt.Errorf("素手武器が見つかりません: %w", err)
+		return nil, "", fmt.Errorf("bare hands weapon not found: %w", err)
 	}
 	if bareHandsSpec.Melee == nil {
-		return nil, "", fmt.Errorf("素手武器にMeleeコンポーネントがありません")
+		return nil, "", fmt.Errorf("bare hands weapon has no Melee component")
 	}
-	return bareHandsSpec.Melee, "素手", nil
+	return bareHandsSpec.Melee, query.T(world, "bare hands"), nil
 }
 
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
@@ -207,7 +208,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 		selectedSlot := query.GetWeaponSelection(world).Slot
 		weaponIndex := selectedSlot - 1 // 1-based to 0-based
 		if weaponIndex < 0 || weaponIndex >= 5 {
-			return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
+			return nil, "", fmt.Errorf("invalid weapon slot number: %d", selectedSlot)
 		}
 
 		weapons := query.GetWeapons(world, attacker)
@@ -235,7 +236,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 		return getBareHandsAttack(world)
 	}
 
-	return nil, "", fmt.Errorf("攻撃パラメータを取得できません: 攻撃者にPlayerまたはCommandTableコンポーネントがありません")
+	return nil, "", fmt.Errorf("cannot get attack parameters: attacker has neither Player nor CommandTable component")
 }
 
 // getSkillMult は事前計算済みのスキル倍率(%)を返す。
@@ -302,7 +303,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
 	// 被ダメージで中断可能なアクティビティをキャンセルする
 	if comp := query.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
-		CancelActivity(target, "攻撃を受けた", world)
+		CancelActivity(target, "took an attack", world)
 	}
 
 	return nil
@@ -417,7 +418,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 
 		actorName := query.GetEntityName(actor, world)
 		gamelog.New(query.GetGameLog(world)).
-			Append(fmt.Sprintf("%s のスキルが上がった！（%s Lv%d）", actorName, string(skillID), s.Value)).
+			Markup(query.T(world, "%s's skill rose! (%s Lv%d)", actorName, string(skillID), s.Value)).
 			Log()
 	}
 }
@@ -432,27 +433,31 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 
 	attackerName := query.GetEntityName(attacker, world)
 	targetName := query.GetEntityName(target, world)
+	attackerMarkup := query.NameMarkup(attacker, attackerName, world)
+	targetMarkup := query.NameMarkup(target, targetName, world)
+	damageStr := strconv.Itoa(damage)
 
-	gamelog.New(query.GetGameLog(world)).
-		Build(func(l *gamelog.Logger) {
-			query.AppendNameWithColor(l, attacker, attackerName, world)
-		}).
-		Append(" は ").
-		Build(func(l *gamelog.Logger) {
-			if attackMethodName != "" {
-				l.Append(attackMethodName).Append(" で ")
-			}
-			query.AppendNameWithColor(l, target, targetName, world)
-		}).
-		Build(func(l *gamelog.Logger) {
-			switch {
-			case !hit:
-				l.Append(" を攻撃したが外れた。")
-			case critical:
-				l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
-			default:
-				l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
-			}
-		}).
-		Log()
+	logger := gamelog.New(query.GetGameLog(world))
+	withMethod := attackMethodName != ""
+	switch {
+	case !hit:
+		if withMethod {
+			logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, attackMethodName, targetMarkup))
+		} else {
+			logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
+		}
+	case critical:
+		if withMethod {
+			logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, attackMethodName, targetMarkup, damageStr))
+		} else {
+			logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
+		}
+	default:
+		if withMethod {
+			logger.Markup(query.T(world, "%s used %s to attack %s and dealt %s damage.", attackerMarkup, attackMethodName, targetMarkup, damageStr))
+		} else {
+			logger.Markup(query.T(world, "%s attacked %s and dealt %s damage.", attackerMarkup, targetMarkup, damageStr))
+		}
+	}
+	logger.Log()
 }

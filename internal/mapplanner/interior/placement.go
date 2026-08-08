@@ -144,7 +144,7 @@ func placementDensity(room Room, p Placement, t, center Vec, maxDist float64) fl
 		return 1
 	case PlaceFullArea:
 		// 全域散布は selectTiles が ScatterArea へ委ねるのでここには来ない。exhaustive のために置く
-		panic("PlaceFullArea は placementDensity を経由しない")
+		panic("PlaceFullArea does not go through placementDensity")
 	case PlaceNearDoor:
 		return 1 - nearestDoorDist(room, t)/maxDist
 	case PlaceFarFromDoor:
@@ -156,7 +156,7 @@ func placementDensity(room Room, p Placement, t, center Vec, maxDist float64) fl
 		}
 		return 1
 	}
-	panic("未知の Placement: " + string(p))
+	panic("unknown Placement: " + string(p))
 }
 
 // nextToPerimeter は t が外周の壁に隣接する内側タイルかを返す。

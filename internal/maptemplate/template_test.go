@@ -84,7 +84,7 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "名前パースエラー")
+		assert.Contains(t, err.Error(), "name")
 	})
 
 	t.Run("weightが0以下の場合はエラー", func(t *testing.T) {
@@ -103,7 +103,7 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "重みは正の整数である必要があります")
+		assert.Contains(t, err.Error(), "weight must be a positive integer")
 	})
 
 	t.Run("マップサイズが定義と一致しない場合はエラー", func(t *testing.T) {
@@ -122,11 +122,11 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "実サイズ")
-		assert.Contains(t, err.Error(), "定義サイズ")
+		assert.Contains(t, err.Error(), "actual size")
+		assert.Contains(t, err.Error(), "defined size")
 	})
 
-	t.Run("マップの行長が不一致の場合はエラー", func(t *testing.T) {
+	t.Run("マップの行長mismatchの場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
 name = "5x3_不規則マップ"
@@ -142,8 +142,8 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "行")
-		assert.Contains(t, err.Error(), "長さが不一致")
+		assert.Contains(t, err.Error(), "row")
+		assert.Contains(t, err.Error(), "length mismatch")
 	})
 
 	t.Run("複数パレットを指定できる", func(t *testing.T) {
@@ -226,7 +226,7 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "サイズは正の整数である必要があります")
+		assert.Contains(t, err.Error(), "size must be a positive integer")
 	})
 
 	t.Run("負の重みはエラー", func(t *testing.T) {
@@ -245,7 +245,7 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "重みは正の整数である必要があります")
+		assert.Contains(t, err.Error(), "weight must be a positive integer")
 	})
 
 	t.Run("マップが空の場合はエラー", func(t *testing.T) {
@@ -260,7 +260,7 @@ map = ""
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "マップが空です")
+		assert.Contains(t, err.Error(), "map is empty")
 	})
 
 	t.Run("大きなマップを読み込める", func(t *testing.T) {
@@ -363,7 +363,7 @@ map = """
 ###
 """
 `,
-				errMsg: "名前パースエラー",
+				errMsg: "name",
 			},
 			{
 				name: "weightが0以下の場合はエラー",
@@ -377,7 +377,7 @@ map = """
 ###
 """
 `,
-				errMsg: "重みは正の整数である必要があります",
+				errMsg: "weight must be a positive integer",
 			},
 			{
 				name: "マップサイズが定義と一致しない場合はエラー",
@@ -391,10 +391,10 @@ map = """
 ###
 """
 `,
-				errMsg: "実サイズ",
+				errMsg: "actual size",
 			},
 			{
-				name: "マップの行長が不一致の場合はエラー",
+				name: "マップの行長mismatchの場合はエラー",
 				content: `[[chunk]]
 name = "5x3_不規則マップ"
 weight = 100
@@ -405,7 +405,7 @@ map = """
 #####
 """
 `,
-				errMsg: "長さが不一致",
+				errMsg: "length mismatch",
 			},
 		}
 
@@ -459,14 +459,14 @@ func TestChunkTemplate_GetCharAt(t *testing.T) {
 		t.Parallel()
 		_, err := template.GetCharAt(0, 5)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "y座標が範囲外です")
+		assert.Contains(t, err.Error(), "y coordinate out of range")
 	})
 
 	t.Run("範囲外のX座標はエラー", func(t *testing.T) {
 		t.Parallel()
 		_, err := template.GetCharAt(5, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "x座標が範囲外です")
+		assert.Contains(t, err.Error(), "x coordinate out of range")
 	})
 }
 
@@ -492,7 +492,7 @@ func TestTemplateLoader_ChunkOperations(t *testing.T) {
 		loader := NewTemplateLoader()
 		_, err := loader.GetChunks("nonexistent")
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "見つかりません")
+		assert.Contains(t, err.Error(), "not found")
 	})
 
 	t.Run("同じ名前で複数のバリエーションを登録できる", func(t *testing.T) {
@@ -684,7 +684,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		assert.Equal(t, expected, cellsToString(result))
 	})
 
-	t.Run("チャンクサイズが不一致の場合はエラー", func(t *testing.T) {
+	t.Run("チャンクsize mismatchの場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
 
@@ -715,7 +715,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 
 		_, err := template.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "が不一致")
+		assert.Contains(t, err.Error(), "does not match chunk size")
 	})
 
 	t.Run("未登録のチャンクはエラー", func(t *testing.T) {
@@ -738,7 +738,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 
 		_, err := template.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "見つかりません")
+		assert.Contains(t, err.Error(), "not found")
 	})
 
 	t.Run("複数候補から重みづけランダム選択", func(t *testing.T) {
@@ -840,7 +840,7 @@ func TestTemplateLoader_RegisterAllChunks(t *testing.T) {
 
 		err := loader.RegisterAllChunks([]string{"nonexistent"})
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "ディレクトリ読み込みエラー")
+		assert.Contains(t, err.Error(), "failed to read directory")
 	})
 }
 
@@ -981,7 +981,7 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 
 		_, _, _, err := loader.LoadTemplateByName("nonexistent", 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "見つかりません")
+		assert.Contains(t, err.Error(), "not found")
 	})
 
 	t.Run("チャンクなしのテンプレートも読み込める", func(t *testing.T) {

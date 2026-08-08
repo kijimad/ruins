@@ -145,7 +145,7 @@ func TestTemperatureSystem_極低温ゾーンで低体温が急進する(t *test
 			// 前線なしの通常環境。基本気温0度のダンジョンを現ステージにする
 			d.CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
 		}
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 0}, "ash")
 		require.NoError(t, err)
 		require.NoError(t, (&TemperatureSystem{}).Update(world))
 		return world.Components.HealthStatus.Get(player)
@@ -329,7 +329,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1) // 基本気温0度
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
 		sys := &TemperatureSystem{}
@@ -393,7 +393,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備なしの場合は全て0", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
 		insulation := CalculateEquippedInsulation(world, player)
@@ -404,7 +404,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備の断熱値が合算される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
 		// 胴体装備（耐寒10, 耐熱5）
@@ -537,43 +537,43 @@ func TestLogTemperatureChange(t *testing.T) {
 	t.Run("悪化時のメッセージが取得できる", func(t *testing.T) {
 		t.Parallel()
 		msg := getWorseningMessage(gc.ConditionHypothermia, gc.SeverityMinor)
-		assert.Contains(t, msg, "冷えてきた")
+		assert.Contains(t, msg, "The cold is setting in")
 	})
 
 	t.Run("中程度悪化のメッセージ", func(t *testing.T) {
 		t.Parallel()
 		msg := getWorseningMessage(gc.ConditionHypothermia, gc.SeverityMedium)
-		assert.Contains(t, msg, "かなり冷えている")
+		assert.Contains(t, msg, "You are quite cold")
 	})
 
 	t.Run("重度悪化のメッセージ", func(t *testing.T) {
 		t.Parallel()
 		msg := getWorseningMessage(gc.ConditionHypothermia, gc.SeveritySevere)
-		assert.Contains(t, msg, "危険な状態")
+		assert.Contains(t, msg, "The cold is dangerous")
 	})
 
 	t.Run("高体温悪化のメッセージ", func(t *testing.T) {
 		t.Parallel()
 		msg := getWorseningMessage(gc.ConditionHyperthermia, gc.SeverityMinor)
-		assert.Contains(t, msg, "火照ってきた")
+		assert.Contains(t, msg, "The heat is flushing you")
 	})
 
 	t.Run("回復時のメッセージが取得できる", func(t *testing.T) {
 		t.Parallel()
 		msg := getRecoveryMessage(gc.ConditionHypothermia, gc.SeverityNone)
-		assert.Contains(t, msg, "温まった")
+		assert.Contains(t, msg, "You have warmed up")
 	})
 
 	t.Run("部分回復のメッセージ", func(t *testing.T) {
 		t.Parallel()
 		msg := getRecoveryMessage(gc.ConditionHypothermia, gc.SeverityMinor)
-		assert.Contains(t, msg, "少し温まってきた")
+		assert.Contains(t, msg, "You are warming up a little")
 	})
 
 	t.Run("高体温回復のメッセージ", func(t *testing.T) {
 		t.Parallel()
 		msg := getRecoveryMessage(gc.ConditionHyperthermia, gc.SeverityNone)
-		assert.Contains(t, msg, "涼しくなった")
+		assert.Contains(t, msg, "You have cooled down")
 	})
 
 	t.Run("SeverityNoneの悪化メッセージは空", func(t *testing.T) {

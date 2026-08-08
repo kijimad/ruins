@@ -49,7 +49,7 @@ func BenchmarkProcessAll(b *testing.B) {
 	for _, sc := range scenarios {
 		b.Run(sc.name, func(b *testing.B) {
 			world := testutil.InitTestWorld(b, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(mapSize), TileHeight: consts.Tile(mapSize)}))
-			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, "Ash")
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: cx, Y: cy}, "ash")
 			require.NoError(b, err)
 
 			// 敵配置は固定 seed で再現性を持たせる
@@ -62,7 +62,7 @@ func BenchmarkProcessAll(b *testing.B) {
 					x = cx + rng.IntN(2*activationRadius+1) - activationRadius
 					y = cy + rng.IntN(2*activationRadius+1) - activationRadius
 				}
-				_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, "火の玉")
+				_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, "fireball")
 				require.NoError(b, err)
 			}
 

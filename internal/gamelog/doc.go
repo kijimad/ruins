@@ -25,7 +25,7 @@
 //	gamelog.New(store).
 //	    PlayerName("Hero").
 //	    Append("が").
-//	    ItemName("Iron Sword").
+//	    Id("Iron Sword").
 //	    Append("を入手した。").
 //	    Log()
 //
@@ -42,7 +42,7 @@
 //
 //   - PlayerName(name): 緑色 - プレイヤー名
 //   - NPCName(name): 黄色 - NPC名
-//   - ItemName(item): シアン色 - アイテム名
+//   - Id(item): シアン色 - アイテム名
 //   - Location(place): オレンジ色 - 場所名
 //   - Action(action): 紫色 - アクション名
 //   - Money(amount): 黄色 - 金額

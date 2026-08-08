@@ -14,21 +14,21 @@ func TestFindDisassembly(t *testing.T) {
 	propDisassembly := &oapi.Disassembly{
 		ToolCategory: oapi.Prying,
 		BaseAP:       100,
-		Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+		Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 	}
 	itemDisassembly := &oapi.Disassembly{
 		ToolCategory: oapi.Precision,
 		BaseAP:       200,
-		Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Count: "1d2"}},
+		Yields:       []oapi.DisassemblyYield{{Id: "ネジ", Count: "1d2"}},
 	}
 	raws := oapi.Raws{
 		Props: &[]oapi.Prop{
-			{Name: "棚", Disassembly: propDisassembly},
-			{Name: "机"},
+			{Id: "棚", Name: "棚", Disassembly: propDisassembly},
+			{Id: "机", Name: "机"},
 		},
 		Items: &[]oapi.Item{
-			{Name: "廃品", Disassembly: itemDisassembly},
-			{Name: "回復薬"},
+			{Id: "廃品", Name: "廃品", Disassembly: itemDisassembly},
+			{Id: "回復薬", Name: "回復薬"},
 		},
 	}
 
@@ -77,8 +77,8 @@ func TestFindDisassemblyTool(t *testing.T) {
 	}
 	raws := oapi.Raws{
 		Items: &[]oapi.Item{
-			{Name: "バール", DisassemblyTool: tool},
-			{Name: "回復薬"},
+			{Id: "バール", Name: "バール", DisassemblyTool: tool},
+			{Id: "回復薬", Name: "回復薬"},
 		},
 	}
 
@@ -116,41 +116,47 @@ func TestValidateReferences(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items: &[]oapi.Item{
-				{Name: "鉄くず"},
-				{Name: "刀"},
+				{Id: "鉄くず", Name: "鉄くず"},
+				{Id: "刀", Name: "刀"},
 			},
 			Props: &[]oapi.Prop{{
 				Name: "棚",
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 				},
 			}},
 			DropTables: &[]oapi.DropTable{{
+				Id:      "廃墟",
 				Name:    "廃墟",
 				Entries: []oapi.DropTableEntry{{Material: "鉄くず", Weight: 1}},
 			}},
 			EnemyTables: &[]oapi.EnemyTable{{
+				Id:      "通常",
 				Name:    "通常",
-				Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム", Pack: "1d3"}},
+				Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "1d3"}},
 			}},
 			CommandTables: &[]oapi.CommandTable{{
+				Id:      "剣術",
 				Name:    "剣術",
 				Entries: []oapi.CommandTableEntry{{Weapon: "刀"}},
 			}},
 			ItemGroups: &[]oapi.ItemGroup{{
+				Id:      "素材",
 				Name:    "素材",
-				Entries: []oapi.ItemGroupEntry{{ItemName: "鉄くず", Pack: "1d1"}},
+				Entries: []oapi.ItemGroupEntry{{Id: "鉄くず", Pack: "1d1"}},
 			}},
 			ItemTables: &[]oapi.ItemTable{{
+				Id:      "宝箱",
 				Name:    "宝箱",
-				Entries: []oapi.ItemTableEntry{{GroupName: "素材"}},
+				Entries: []oapi.ItemTableEntry{{Id: "素材"}},
 			}},
 			Members: &[]oapi.Member{{
-				Name:             "スライム",
-				DropTableName:    new(oapi.EntityName("廃墟")),
-				CommandTableName: new(oapi.EntityName("剣術")),
+				Id:             "スライム",
+				Name:           "スライム",
+				DropTableId:    new(oapi.EntityName("廃墟")),
+				CommandTableId: new(oapi.EntityName("剣術")),
 			}},
 		}
 		assert.NoError(t, ValidateReferences(raws))
@@ -165,7 +171,7 @@ func TestValidateReferences(t *testing.T) {
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "存在しない素材", Count: "1d1"}},
+					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
 				},
 			}},
 			DropTables: &[]oapi.DropTable{{
@@ -175,7 +181,7 @@ func TestValidateReferences(t *testing.T) {
 		}
 		err := ValidateReferences(raws)
 		require.Error(t, err)
-		require.ErrorContains(t, err, "分解産出")
+		require.ErrorContains(t, err, "disassembly yield")
 		require.ErrorContains(t, err, "存在しない素材")
 	})
 

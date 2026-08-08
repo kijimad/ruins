@@ -22,7 +22,7 @@ type DemoStartState struct {
 
 // OnStart はステート開始時にデフォルトプレイヤーを生成し、オーバーワールドへの遷移を設定する
 func (st *DemoStartState) OnStart(world w.World) error {
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	if err != nil {
 		return fmt.Errorf("failed to spawn player: %w", err)
 	}

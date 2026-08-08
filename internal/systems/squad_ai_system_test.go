@@ -29,7 +29,7 @@ func TestSquadProcessor_護衛ポリシーでリーダーに追従する(t *test
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
@@ -69,7 +69,7 @@ func TestSquadProcessor_護衛ポリシーでリーダー近くなら待機す�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員B", testAbilities(), "player")
@@ -93,7 +93,7 @@ func TestSquadProcessor_待機ポリシーで移動しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員C", testAbilities(), "player")
@@ -128,7 +128,7 @@ func TestSquadProcessor_死亡した隊員は処理されない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員D", testAbilities(), "player")
@@ -154,7 +154,7 @@ func TestSquadProcessor_攻撃ポリシーで隣接した敵を攻撃する(t *t
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員E", testAbilities(), "player")
@@ -166,7 +166,7 @@ func TestSquadProcessor_攻撃ポリシーで隣接した敵を攻撃する(t *t
 	memberGrid.Y = consts.Tile(10)
 
 	// 隊員の隣に敵を配置する
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 	require.NoError(t, err)
 
 	// 探索済みタイルを設定する
@@ -195,7 +195,7 @@ func TestSquadProcessor_回避ポリシーで敵から離れる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員F", testAbilities(), "player")
@@ -209,7 +209,7 @@ func TestSquadProcessor_回避ポリシーで敵から離れる(t *testing.T) {
 	memberGrid.Y = consts.Tile(10)
 
 	// 隊員の近くに敵を配置する
-	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
+	_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
 	require.NoError(t, err)
 
 	// 探索済みタイルを設定する
@@ -235,7 +235,7 @@ func TestSquadProcessor_プレイヤーを迂回してアイテムを拾いに�
 	world := testutil.InitTestWorld(t)
 
 	// レイアウト: アイテム(8,10) - プレイヤー(9,10) - 隊員(10,10)
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 9, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 9, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員G", testAbilities(), "player")
@@ -279,7 +279,7 @@ func TestSquadProcessor_HP低下で後退する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員H", testAbilities(), "player")
@@ -320,7 +320,7 @@ func TestSquadProcessor_前衛ポリシーでリーダーから離れすぎる�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員I", testAbilities(), "player")
@@ -360,7 +360,7 @@ func TestSquadProcessor_前衛ポリシーでリーダー近くならランダ�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員J", testAbilities(), "player")
@@ -397,7 +397,7 @@ func TestSquadProcessor_巡回ポリシーで移動する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員K", testAbilities(), "player")
@@ -434,7 +434,7 @@ func TestSquadProcessor_CombatIgnoreで戦闘しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員L", testAbilities(), "player")
@@ -450,7 +450,7 @@ func TestSquadProcessor_CombatIgnoreで戦闘しない(t *testing.T) {
 	memberGrid.Y = consts.Tile(10)
 
 	// 隣接する敵を配置する。敵からの攻撃を防ぐためCombatIgnoreにする
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 	require.NoError(t, err)
 	enemySolo := world.Components.SoloAI.Get(enemy)
 	enemySolo.CombatDefault = gc.CombatIgnore

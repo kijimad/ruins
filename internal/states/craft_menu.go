@@ -105,7 +105,8 @@ type craftTabData struct {
 }
 
 type craftItemData struct {
-	RecipeName string
+	RecipeID   string // 合成の同定キー。NewRecipeSpec/CanCraft/Craft はこれで引く
+	RecipeName string // 表示名
 	CanCraft   bool
 }
 
@@ -133,13 +134,18 @@ func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
 	}
 }
 
-func (st *CraftMenuState) createMenuItems(world w.World, recipeNames []string) []craftItemData {
-	items := make([]craftItemData, len(recipeNames))
+func (st *CraftMenuState) createMenuItems(world w.World, recipeIDs []string) []craftItemData {
+	items := make([]craftItemData, len(recipeIDs))
 
-	for i, recipeName := range recipeNames {
-		canCraft, _ := gameaction.CanCraft(world, recipeName)
+	for i, recipeID := range recipeIDs {
+		canCraft, _ := gameaction.CanCraft(world, recipeID)
+		name := recipeID
+		if spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipeID); err == nil {
+			name = spec.Name.Name
+		}
 		items[i] = craftItemData{
-			RecipeName: recipeName,
+			RecipeID:   recipeID,
+			RecipeName: name,
 			CanCraft:   canCraft,
 		}
 	}
@@ -151,12 +157,12 @@ func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
 	var items []string
 
 	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)
 		if err != nil {
 			continue
 		}
 		if spec.Consumable != nil {
-			items = append(items, recipe.Name)
+			items = append(items, recipe.Id)
 		}
 	}
 
@@ -168,13 +174,13 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
 	var items []string
 
 	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)
 		if err != nil {
 			continue
 		}
 		// TODO: カテゴリ定義で判定したい
 		if spec.Melee != nil || spec.Fire != nil {
-			items = append(items, recipe.Name)
+			items = append(items, recipe.Id)
 		}
 	}
 
@@ -186,12 +192,12 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 	var items []string
 
 	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)
 		if err != nil {
 			continue
 		}
 		if spec.Wearable != nil {
-			items = append(items, recipe.Name)
+			items = append(items, recipe.Id)
 		}
 	}
 
@@ -210,7 +216,7 @@ func (st *CraftMenuState) craftSelected(world w.World) error {
 	if !ok || !item.CanCraft {
 		return nil
 	}
-	resultEntity, err := gameaction.Craft(world, item.RecipeName)
+	resultEntity, err := gameaction.Craft(world, item.RecipeID)
 	if err != nil {
 		return fmt.Errorf("failed to craft: %w", err)
 	}
@@ -256,7 +262,7 @@ func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menurt.Se
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, query.T(world, "x Details")),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 
@@ -283,10 +289,10 @@ func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData,
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
 func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
 	item, ok := st.selectedRecipe()
-	if !ok || item.RecipeName == "" {
+	if !ok || item.RecipeID == "" {
 		return menuscreen.DetailContent{}, false
 	}
-	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeName)
+	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeID)
 	if err != nil {
 		return menuscreen.DetailContent{}, false
 	}
@@ -298,14 +304,15 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 		rows = append(rows, menuscreen.SpecRow{Label: query.T(world, "Materials"), Header: true})
 		for _, in := range spec.Recipe.Inputs {
 			owned := 0
-			if entity, found := query.FindStackableInInventory(world, in.Name); found {
+			if entity, found := query.FindStackableInInventory(world, in.ID); found {
 				owned = query.GetEntityCount(world, entity)
 			}
 			rowColor := theme.StatusDanger
 			if owned >= in.Amount {
 				rowColor = theme.StatusSuccess
 			}
-			rows = append(rows, menuscreen.SpecRow{Label: in.Name, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
+			label := raw.ItemName(world.Resources.RawMaster, in.ID)
+			rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
 	rows = append(rows, views.SpecRowsFromSpec(world, spec)...)

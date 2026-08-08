@@ -100,12 +100,12 @@ type DepthStat struct {
 func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*Report, error) {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
-		return nil, fmt.Errorf("プレイヤーのロードに失敗: %w", err)
+		return nil, fmt.Errorf("failed to load player: %w", err)
 	}
 
 	weapon, err := LoadWeaponFromItem(master, weaponName)
 	if err != nil {
-		return nil, fmt.Errorf("武器のロードに失敗: %w", err)
+		return nil, fmt.Errorf("failed to load weapon: %w", err)
 	}
 
 	report := &Report{
@@ -127,7 +127,7 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 	}
 
 	for _, table := range raw.PtrSlice(master.EnemyTables) {
-		stats := RunSimulations(master, table.Name, player, weapon, maxDepth, trials, seed)
+		stats := RunSimulations(master, table.Id, player, weapon, maxDepth, trials, seed)
 
 		run := EnemyTableRun{
 			Name:        table.Name,
@@ -217,7 +217,7 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
 	items := raw.PtrSlice(master.Items)
 	for i := range items {
 		item := &items[i]
-		w, err := LoadWeaponFromItem(master, item.Name)
+		w, err := LoadWeaponFromItem(master, item.Id)
 		if err != nil {
 			continue
 		}
@@ -228,7 +228,7 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
 	enemySet := make(map[string]struct{})
 	for _, table := range raw.PtrSlice(master.EnemyTables) {
 		for _, entry := range table.Entries {
-			enemySet[entry.EnemyName] = struct{}{}
+			enemySet[entry.Id] = struct{}{}
 		}
 	}
 

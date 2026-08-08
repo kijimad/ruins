@@ -3,6 +3,7 @@ package messagedata
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,7 +13,7 @@ func TestGetDialogue(t *testing.T) {
 	t.Run("登録済みの会話データを取得", func(t *testing.T) {
 		t.Parallel()
 
-		msg := GetDialogue("old_soldier_greeting", "老兵テスト")
+		msg := GetDialogue(testutil.InitTestWorld(t), "old_soldier_greeting", "老兵テスト")
 		assert.Equal(t, "老兵テスト", msg.Speaker)
 		// 複数ページの会話なので、TextSegmentLinesが存在することを確認
 		assert.NotEmpty(t, msg.TextSegmentLines, "会話にテキストが含まれているべき")
@@ -27,7 +28,7 @@ func TestGetDialogue(t *testing.T) {
 	t.Run("未登録のキーはデフォルトメッセージを返す", func(t *testing.T) {
 		t.Parallel()
 
-		msg := GetDialogue("存在しないNPC", "テストNPC")
+		msg := GetDialogue(testutil.InitTestWorld(t), "存在しないNPC", "テストNPC")
 		assert.Equal(t, "テストNPC", msg.Speaker)
 		assert.Equal(t, "...", getMessageText(msg))
 	})
@@ -38,7 +39,7 @@ func TestGetDialogue(t *testing.T) {
 		dialogueFunc, ok := DialogueTable["old_soldier_greeting"]
 		assert.True(t, ok, "old_soldier_greetingの会話データが存在するべき")
 
-		msg := dialogueFunc("老兵A")
+		msg := dialogueFunc(testutil.InitTestWorld(t), "老兵A")
 		assert.Equal(t, "老兵A", msg.Speaker)
 		// 複数ページの会話なので、TextSegmentLinesが存在することを確認
 		assert.NotEmpty(t, msg.TextSegmentLines, "会話にテキストが含まれているべき")

@@ -15,7 +15,7 @@ func TestNewItemPlanner(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	plannerType := PlannerType{
 		Name:          "test",
-		ItemTableName: "通常",
+		ItemTableName: "normal",
 		Depth:         1,
 	}
 	planner := NewItemPlanner(world, plannerType)
@@ -55,7 +55,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name:          "test_with_items",
-			ItemTableName: "通常",
+			ItemTableName: "normal",
 			Depth:         1,
 		}
 
@@ -78,7 +78,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name:          "test_valid_position",
-			ItemTableName: "通常",
+			ItemTableName: "normal",
 			Depth:         1,
 		}
 
@@ -106,7 +106,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		worldShallow := testutil.InitTestWorld(t)
 		plannerTypeShallow := PlannerType{
 			Name:          "test_depth_shallow",
-			ItemTableName: "通常",
+			ItemTableName: "normal",
 			Depth:         1,
 		}
 
@@ -124,7 +124,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		worldDeep := testutil.InitTestWorld(t)
 		plannerTypeDeep := PlannerType{
 			Name:          "test_depth_deep",
-			ItemTableName: "通常",
+			ItemTableName: "normal",
 			Depth:         10,
 		}
 
@@ -150,7 +150,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		// 「通常」テーブルには回復アイテムと鉱石類が含まれる
 		plannerType := PlannerType{
 			Name:          "test_multiple_items",
-			ItemTableName: "通常",
+			ItemTableName: "normal",
 			Depth:         5,
 		}
 
@@ -174,7 +174,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		// 「通常」テーブルの回復アイテムグループに回復薬(PackMin:1,PackMax:3)がある
 		plannerType := PlannerType{
 			Name:          "test_stackable",
-			ItemTableName: "通常",
+			ItemTableName: "normal",
 			Depth:         1,
 		}
 
@@ -209,7 +209,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name:          "test_room_based_items",
-			ItemTableName: "通常",
+			ItemTableName: "normal",
 			Depth:         1,
 		}
 
@@ -249,11 +249,11 @@ func TestResolveDistribution(t *testing.T) {
 		chain := NewPlannerChain(10, 10, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
-		entries := []SpawnEntry{{Name: "回復薬", Weight: 1.0, Pack: consts.MustParseDice("3d1")}}
+		entries := []SpawnEntry{{Name: "healing_potion", Weight: 1.0, Pack: consts.MustParseDice("3d1")}}
 		result := resolveDistribution(entries, &chain.PlanData)
 
 		require.Len(t, result, 1)
-		assert.Equal(t, "回復薬", result[0].Name)
+		assert.Equal(t, "healing_potion", result[0].Name)
 		assert.Equal(t, 3, result[0].Count)
 	})
 
@@ -262,12 +262,12 @@ func TestResolveDistribution(t *testing.T) {
 		chain := NewPlannerChain(10, 10, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
-		entries := []SpawnEntry{{Name: "木刀", Weight: 1.0, Pack: consts.MustParseDice("2d1")}}
+		entries := []SpawnEntry{{Name: "wooden_sword", Weight: 1.0, Pack: consts.MustParseDice("2d1")}}
 		result := resolveDistribution(entries, &chain.PlanData)
 
 		require.Len(t, result, 2)
 		for _, item := range result {
-			assert.Equal(t, "木刀", item.Name)
+			assert.Equal(t, "wooden_sword", item.Name)
 			assert.Equal(t, 1, item.Count)
 		}
 	})
@@ -277,7 +277,7 @@ func TestResolveDistribution(t *testing.T) {
 		chain := NewPlannerChain(10, 10, 12345)
 		// RawMaster未設定
 
-		entries := []SpawnEntry{{Name: "回復薬", Weight: 1.0, Pack: consts.MustParseDice("3d1")}}
+		entries := []SpawnEntry{{Name: "healing_potion", Weight: 1.0, Pack: consts.MustParseDice("3d1")}}
 		result := resolveDistribution(entries, &chain.PlanData)
 
 		require.Len(t, result, 3)
@@ -296,11 +296,11 @@ func TestResolveCollection(t *testing.T) {
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
 		// weight=100で確実に当選させる
-		entries := []SpawnEntry{{Name: "回復薬", Weight: 100, Pack: consts.MustParseDice("4d1")}}
+		entries := []SpawnEntry{{Name: "healing_potion", Weight: 100, Pack: consts.MustParseDice("4d1")}}
 		result := resolveCollection(entries, &chain.PlanData)
 
 		require.Len(t, result, 1)
-		assert.Equal(t, "回復薬", result[0].Name)
+		assert.Equal(t, "healing_potion", result[0].Name)
 		assert.Equal(t, 4, result[0].Count)
 	})
 
@@ -310,12 +310,12 @@ func TestResolveCollection(t *testing.T) {
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
 		// weight=100で確実に当選させる
-		entries := []SpawnEntry{{Name: "木刀", Weight: 100, Pack: consts.MustParseDice("2d1")}}
+		entries := []SpawnEntry{{Name: "wooden_sword", Weight: 100, Pack: consts.MustParseDice("2d1")}}
 		result := resolveCollection(entries, &chain.PlanData)
 
 		require.Len(t, result, 2)
 		for _, item := range result {
-			assert.Equal(t, "木刀", item.Name)
+			assert.Equal(t, "wooden_sword", item.Name)
 			assert.Equal(t, 1, item.Count)
 		}
 	})
@@ -329,7 +329,7 @@ func TestIsStackableItem(t *testing.T) {
 		chain := NewPlannerChain(10, 10, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
-		assert.True(t, isStackableItem(&chain.PlanData, "回復薬"))
+		assert.True(t, isStackableItem(&chain.PlanData, "healing_potion"))
 	})
 
 	t.Run("非Stackableアイテムはfalseを返す", func(t *testing.T) {
@@ -337,7 +337,7 @@ func TestIsStackableItem(t *testing.T) {
 		chain := NewPlannerChain(10, 10, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
-		assert.False(t, isStackableItem(&chain.PlanData, "木刀"))
+		assert.False(t, isStackableItem(&chain.PlanData, "wooden_sword"))
 	})
 
 	t.Run("存在しないアイテムはfalseを返す", func(t *testing.T) {
@@ -352,6 +352,6 @@ func TestIsStackableItem(t *testing.T) {
 		t.Parallel()
 		chain := NewPlannerChain(10, 10, 12345)
 
-		assert.False(t, isStackableItem(&chain.PlanData, "回復薬"))
+		assert.False(t, isStackableItem(&chain.PlanData, "healing_potion"))
 	})
 }

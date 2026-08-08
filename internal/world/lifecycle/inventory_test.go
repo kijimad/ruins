@@ -84,7 +84,7 @@ func TestChangeItemCount(t *testing.T) {
 		// 5個消費（所持数を超える）
 		err := ChangeItemCount(world, item, -5)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "アイテム数が不足しています")
+		assert.Contains(t, err.Error(), "insufficient item count")
 
 		// エンティティは削除されていない
 		assert.True(t, world.Components.Name.Has(item), "アイテムは残っているべき")
