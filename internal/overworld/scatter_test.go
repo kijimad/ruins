@@ -68,6 +68,7 @@ func firstNonWastelandChunk(t *testing.T) consts.Coord[consts.Chunk] {
 // propAt は配置済み prop の座標と名前。散布結果の比較に使う。
 type propAt struct {
 	pos  consts.Coord[consts.Tile]
+	id   string
 	name string
 }
 
@@ -83,7 +84,11 @@ func collectProps(world w.World) []propAt {
 		if world.Components.Name.Has(e) {
 			name = world.Components.Name.Get(e).Name
 		}
-		out = append(out, propAt{pos: ge.Coord, name: name})
+		id := ""
+		if world.Components.RawID.Has(e) {
+			id = world.Components.RawID.Get(e).ID
+		}
+		out = append(out, propAt{pos: ge.Coord, id: id, name: name})
 	}
 	sort.Slice(out, func(i, j int) bool {
 		if out[i].pos.Y != out[j].pos.Y {
@@ -160,7 +165,7 @@ func TestScatterFeature_草を撒く(t *testing.T) {
 
 	grass := 0
 	for _, p := range collectProps(world) {
-		if p.name == scatterGrassProp || p.name == scatterWeedProp {
+		if p.id == scatterGrassProp || p.id == scatterWeedProp {
 			grass++
 		}
 	}

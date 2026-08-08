@@ -13399,7 +13399,7 @@ blockPass = false
 blockView = false
 description = "金色の丸い目覚まし時計。上部に2つのベル、白い文字盤。机や棚に置く小物"
 hp = 5
-name = "alarm_clock"
+name = "Alarm Clock"
 id = "alarm_clock"
 
 [props.spriteRender]
@@ -13411,7 +13411,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "各種の計器が並ぶ管制盤。キューブ全体の状態を映し、拡張の操作もここから行う"
-name = "control_panel"
+name = "Control Panel"
 id = "control_panel"
 
 [props.spriteRender]
@@ -13426,7 +13426,7 @@ blockPass = false
 blockView = false
 description = "濃茶のジグザグに組まれた装飾的な木製オープン棚。洒落た室内の飾り棚"
 hp = 20
-name = "artistic_shelf"
+name = "Artistic Shelf"
 id = "artistic_shelf"
 
 [props.spriteRender]
@@ -13439,7 +13439,7 @@ blockPass = true
 blockView = false
 description = "茶色の木製樽。上面に濃色の栓。倉庫や酒場の保管用。中身が入っていることがある"
 hp = 20
-name = "barrel"
+name = "Barrel"
 id = "barrel"
 
 [props.spriteRender]
@@ -13470,7 +13470,7 @@ blockPass = false
 blockView = false
 description = "白い猫足の浴槽。内側は水色。浴室に置く"
 hp = 30
-name = "bathtub"
+name = "Bathtub"
 id = "bathtub"
 
 [props.spriteRender]
@@ -13483,7 +13483,7 @@ blockPass = true
 blockView = false
 description = "茶の木枠に白いマットレスと枕、赤茶の掛布団。寝室・宿・診療所の寝台"
 hp = 25
-name = "bed"
+name = "Bed"
 id = "bed"
 
 [props.spriteRender]
@@ -13496,7 +13496,7 @@ blockPass = false
 blockView = false
 description = "黄色い笠の小型スタンドランプ。ベッド脇や卓上を照らす"
 hp = 5
-name = "bed_lamp"
+name = "Bed Lamp"
 id = "bed_lamp"
 
 [props.spriteRender]
@@ -13519,7 +13519,7 @@ blockPass = true
 blockView = false
 description = "茶の木製の背もたれ付き長椅子。公園・待合・通路に"
 hp = 20
-name = "bench"
+name = "Bench"
 id = "bench"
 
 [props.spriteRender]
@@ -13533,7 +13533,7 @@ blockPass = true
 blockView = false
 description = "石で囲った中でオレンジから黄に揺れる炎。屋外や野営の光源"
 hp = 15
-name = "bonfire"
+name = "Bonfire"
 id = "bonfire"
 
 [props.spriteRender]
@@ -13556,7 +13556,7 @@ blockPass = true
 blockView = false
 description = "濃茶の木枠に色とりどりの本がぎっしり詰まった本棚。書斎・図書室"
 hp = 25
-name = "book_shelf_2"
+name = "Bookshelf"
 id = "book_shelf_2"
 
 [props.spriteRender]
@@ -13569,7 +13569,7 @@ blockPass = true
 blockView = false
 description = "茶枠にガラス扉が付き中の本が見える飾り本棚"
 hp = 20
-name = "book_showcase"
+name = "Book Showcase"
 id = "book_showcase"
 
 [props.spriteRender]
@@ -13582,7 +13582,7 @@ blockPass = true
 blockView = true
 description = "茶の木製オープン棚に本が並ぶ。書斎向け"
 hp = 25
-name = "bookshelf"
+name = "Bookshelf"
 id = "bookshelf"
 
 [props.spriteRender]
@@ -13600,7 +13600,7 @@ blockPass = false
 blockView = false
 description = "真鍮の燭台に立てた白い蝋燭と小さな炎。卓上や祭壇の微光源"
 hp = 3
-name = "candle"
+name = "Candle"
 id = "candle"
 
 [props.spriteRender]
@@ -13613,7 +13613,7 @@ blockPass = false
 blockView = false
 description = "赤地に金の縁飾りが入った四角い敷物。床の装飾"
 hp = 10
-name = "carpet"
+name = "Carpet"
 id = "carpet"
 passCost = 10
 
@@ -13627,7 +13627,7 @@ blockPass = false
 blockView = false
 description = "崩れた壁やコンクリの破片が積もった瓦礫の山。廃墟化の跡"
 hp = 20
-name = "rubble"
+name = "Rubble"
 id = "rubble"
 
 [props.spriteRender]
@@ -13640,7 +13640,7 @@ blockPass = false
 blockView = false
 description = "床に散らばった埃と紙片と小さな欠片。人がいた頃の散らかり"
 hp = 1
-name = "debris"
+name = "Debris"
 id = "debris"
 
 [props.spriteRender]
@@ -13653,7 +13653,7 @@ blockPass = false
 blockView = false
 description = "鉢植えの観葉植物。緑を添える室内の装飾"
 hp = 3
-name = "plant"
+name = "Plant"
 id = "plant"
 
 [props.spriteRender]
@@ -13666,7 +13666,7 @@ blockPass = true
 blockView = false
 description = "白い前面投入式の洗濯機。脱衣所の水回り什器"
 hp = 15
-name = "washer"
+name = "Washer"
 id = "washer"
 
 [props.spriteRender]
@@ -13679,7 +13679,7 @@ blockPass = true
 blockView = false
 description = "茶色のオフィス回転椅子。背もたれと脚付き。机まわりに"
 hp = 15
-name = "chair"
+name = "Chair"
 id = "chair"
 
 [props.spriteRender]
@@ -13692,7 +13692,7 @@ blockPass = false
 blockView = false
 description = "白文字盤の丸い壁掛け時計。壁に掛ける"
 hp = 5
-name = "clock"
+name = "Clock"
 id = "clock"
 
 [props.spriteRender]
@@ -13705,7 +13705,7 @@ blockPass = true
 blockView = false
 description = "茶の木製の両開き戸棚。衣類などの収納"
 hp = 25
-name = "closet"
+name = "Closet"
 id = "closet"
 
 [props.spriteRender]
@@ -13723,7 +13723,7 @@ blockPass = false
 blockView = false
 description = "黒い本体にガラスポットのコーヒーメーカー。台所や給湯コーナー"
 hp = 8
-name = "coffee_maker"
+name = "Coffee Maker"
 id = "coffee_maker"
 
 [props.spriteRender]
@@ -13736,7 +13736,7 @@ blockPass = false
 blockView = false
 description = "黄色い看板に赤字、三脚スタンド付きの工事標識。屋外の封鎖表示"
 hp = 10
-name = "construction_sign"
+name = "Construction Sign"
 id = "construction_sign"
 passCost = 30
 
@@ -13750,7 +13750,7 @@ blockPass = true
 blockView = false
 description = "茶の木製の箱、金具付き。倉庫の保管用。中身が入っていることがある"
 hp = 30
-name = "crate"
+name = "Crate"
 id = "crate"
 
 [props.spriteRender]
@@ -13781,7 +13781,7 @@ blockPass = true
 blockView = false
 description = "茶の木製の作業机。脚付きの平机。書斎・オフィス"
 hp = 20
-name = "desk"
+name = "Desk"
 id = "desk"
 
 [props.spriteRender]
@@ -13794,7 +13794,7 @@ blockPass = false
 blockView = false
 description = "赤い笠のアーム式デスクランプ。机上を照らす"
 hp = 5
-name = "desk_light"
+name = "Desk Light"
 id = "desk_light"
 
 [props.spriteRender]
@@ -13807,7 +13807,7 @@ blockPass = true
 blockView = false
 description = "黒いモニタとキーボードのデスクトップPC。オフィスや自室"
 hp = 20
-name = "desktop_pc"
+name = "Desktop PC"
 id = "desktop_pc"
 
 [props.spriteRender]
@@ -13820,7 +13820,7 @@ blockPass = true
 blockView = false
 description = "茶の木製食器棚。上段はガラス扉で皿が見え、下段は引き出し。台所・食堂"
 hp = 20
-name = "dish_shelf"
+name = "Dish Shelf"
 id = "dish_shelf"
 
 [props.spriteRender]
@@ -13837,7 +13837,7 @@ lootCount = "1d3"
 blockPass = true
 blockView = false
 description = "青い縦長の扉。出入口"
-name = "door"
+name = "Door"
 id = "door"
 
 [props.spriteRender]
@@ -13850,7 +13850,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "青い縦扉のロック仕掛け。踏むと扉が施錠される"
-name = "door_lock_trigger"
+name = "Door Lock"
 id = "door_lock_trigger"
 
 [props.spriteRender]
@@ -13864,7 +13864,7 @@ blockPass = true
 blockView = false
 description = "茶の木製チェスト。取っ手付きの引き出しが3〜4段。寝室・収納"
 hp = 20
-name = "drawer_chest"
+name = "Chest of Drawers"
 id = "drawer_chest"
 
 [props.spriteRender]
@@ -13882,7 +13882,7 @@ blockPass = true
 blockView = false
 description = "灰色の金属製ロッカー3連。縦長の扉に取っ手。更衣室や職場の収納"
 hp = 35
-name = "electric_locker"
+name = "Electric Locker"
 id = "electric_locker"
 
 [props.spriteRender]
@@ -13895,7 +13895,7 @@ blockPass = false
 blockView = false
 description = "茶色の壺から旗を立てる装飾台。目印や飾り"
 hp = 5
-name = "flag_pot"
+name = "Flag Stand"
 id = "flag_pot"
 
 [props.spriteRender]
@@ -13908,7 +13908,7 @@ blockPass = true
 blockView = false
 description = "赤い産業用フォークリフト。倉庫や工場の運搬車"
 hp = 50
-name = "forklift"
+name = "Forklift"
 id = "forklift"
 
 [props.spriteRender]
@@ -13921,7 +13921,7 @@ blockPass = true
 blockView = false
 description = "灰色の溶鉱炉。前面に赤い炎の焚口。金属精錬や作業場"
 hp = 40
-name = "furnace"
+name = "Furnace"
 id = "furnace"
 
 [props.spriteRender]
@@ -13934,7 +13934,7 @@ blockPass = true
 blockView = false
 description = "灰色の機械に計器やダイヤルが並ぶ制御盤。工場や設備"
 hp = 30
-name = "gauge_machine"
+name = "Gauge Machine"
 id = "gauge_machine"
 
 [props.spriteRender]
@@ -13947,7 +13947,7 @@ blockPass = true
 blockView = false
 description = "緑色の箱型発電機。側面に通気口。電源設備"
 hp = 40
-name = "generator_green"
+name = "Generator"
 id = "generator_green"
 
 [props.spriteRender]
@@ -13960,7 +13960,7 @@ blockPass = true
 blockView = false
 description = "黄色の箱型発電機。パネルと通気口。電源設備"
 hp = 40
-name = "generator_yellow"
+name = "Generator"
 id = "generator_yellow"
 
 [props.spriteRender]
@@ -13973,7 +13973,7 @@ blockPass = true
 blockView = false
 description = "濃茶の金属オープン棚に赤黄白の商品が並ぶ。コンビニや店舗の陳列棚"
 hp = 20
-name = "goods_shelf"
+name = "Goods Shelf"
 id = "goods_shelf"
 
 [props.spriteRender]
@@ -13991,7 +13991,7 @@ blockPass = true
 blockView = false
 description = "灰色から黒の鉄製ラック棚。倉庫や作業場の収納"
 hp = 30
-name = "iron_shelf"
+name = "Iron Shelf"
 id = "iron_shelf"
 
 [props.spriteRender]
@@ -14027,7 +14027,7 @@ blockPass = true
 blockView = false
 description = "黒枠のランタンの中にオレンジの炎。床置きの広範囲光源。金属製で重い"
 hp = 15
-name = "lantern"
+name = "Lantern"
 id = "lantern"
 
 [props.spriteRender]
@@ -14050,7 +14050,7 @@ blockPass = true
 blockView = false
 description = "水色の洗濯かごに衣類が入る。洗面やランドリー"
 hp = 30
-name = "laundry"
+name = "Laundry"
 id = "laundry"
 
 [props.spriteRender]
@@ -14063,7 +14063,7 @@ blockPass = false
 blockView = false
 description = "建物の外壁の窓。木枠にガラス。居室や店舗の正面。仮画像"
 hp = 15
-name = "window"
+name = "Window"
 id = "window"
 
 [props.spriteRender]
@@ -14076,7 +14076,7 @@ blockPass = false
 blockView = true
 description = "閉じた金属シャッター。廃業した店舗の正面。仮画像"
 hp = 40
-name = "shutter"
+name = "Shutter"
 id = "shutter"
 
 [props.spriteRender]
@@ -14089,7 +14089,7 @@ blockPass = true
 blockView = false
 description = "低い木の塀。敷地の境界を囲う。門で出入りする。仮画像"
 hp = 25
-name = "fence"
+name = "Fence"
 id = "fence"
 
 [props.spriteRender]
@@ -14102,7 +14102,7 @@ blockPass = true
 blockView = false
 description = "濃い木の観音扉に金の内陣の仏壇。和室の一角。仮画像"
 hp = 25
-name = "仏壇"
+name = "Buddhist Altar"
 id = "buddhist_altar"
 
 [props.spriteRender]
@@ -14115,7 +14115,7 @@ blockPass = false
 blockView = false
 description = "壁上に祀る宮形の神棚。榊と御札。仮画像"
 hp = 15
-name = "神棚"
+name = "Household Shrine"
 id = "household_shrine"
 
 [props.spriteRender]
@@ -14128,7 +14128,7 @@ blockPass = true
 blockView = false
 description = "玄関の木の下駄箱。格子の棚に履物。仮画像"
 hp = 20
-name = "下駄箱"
+name = "Shoe Cabinet"
 id = "shoe_cabinet"
 
 [props.spriteRender]
@@ -14141,7 +14141,7 @@ blockPass = true
 blockView = false
 description = "白い電子レンジ。前面に扉と操作パネル。台所や給湯"
 hp = 20
-name = "microwave"
+name = "Microwave"
 id = "microwave"
 
 [props.spriteRender]
@@ -14154,7 +14154,7 @@ blockPass = false
 blockView = false
 description = "銀枠の縦長の姿見。鏡面が反射する。寝室や浴室"
 hp = 5
-name = "mirror"
+name = "Mirror"
 id = "mirror"
 
 [props.spriteRender]
@@ -14167,7 +14167,7 @@ blockPass = false
 blockView = false
 description = "灰色の食品用ミキサー。台所や厨房"
 hp = 8
-name = "mixer"
+name = "Mixer"
 id = "mixer"
 
 [props.spriteRender]
@@ -14180,7 +14180,7 @@ blockPass = false
 blockView = false
 description = "紫の結晶が突き出た石。微かに振動する特殊オブジェクト"
 passCost = 50
-name = "moving_stone"
+name = "Moving Stone"
 id = "moving_stone"
 
 [props.spriteRender]
@@ -14193,7 +14193,7 @@ blockPass = false
 blockView = false
 description = "[dummy] ごろりと転がる岩。屋外散布の石。乗り越えられるよう通行可能にし passCost で歩きにくさだけ表す。実アート未実装の仮素材"
 passCost = 50
-name = "rock"
+name = "Rock"
 id = "rock"
 
 [props.spriteRender]
@@ -14205,7 +14205,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "[dummy] 地面に生えた草の房。屋外散布の下地。透明背景の prop でタイルのオートタイル縁が出ず地面に重なる。歩行可能。実アート未実装の仮素材"
-name = "grass"
+name = "Grass"
 id = "grass"
 
 [props.spriteRender]
@@ -14217,7 +14217,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "[dummy] 乾いた雑草の茂み。屋外散布で草より乾いた色味を混ぜて単調さを崩す。歩行可能。実アート未実装の仮素材"
-name = "weeds"
+name = "Weeds"
 id = "weeds"
 
 [props.spriteRender]
@@ -14230,7 +14230,7 @@ blockPass = false
 blockView = false
 description = "古びた黒枠のランタン。中に暖色の光。まだ灯る"
 hp = 5
-name = "old_lamp"
+name = "Old Lamp"
 id = "old_lamp"
 
 [props.spriteRender]
@@ -14243,7 +14243,7 @@ blockPass = true
 blockView = false
 description = "大きな濃茶の本棚に色とりどりの本。書斎や図書室"
 hp = 25
-name = "prop_bookshelf"
+name = "Bookshelf"
 id = "prop_bookshelf"
 
 [props.spriteRender]
@@ -14256,7 +14256,7 @@ blockPass = false
 blockView = false
 description = "茶の木製の椅子。背もたれ付きの素朴な座具"
 hp = 15
-name = "prop_chair"
+name = "Chair"
 id = "prop_chair"
 
 [props.spriteRender]
@@ -14269,7 +14269,7 @@ blockPass = true
 blockView = false
 description = "茶の木製の小さなテーブル。素朴な卓"
 hp = 20
-name = "prop_table"
+name = "Table"
 id = "prop_table"
 
 [props.spriteRender]
@@ -14282,7 +14282,7 @@ blockPass = true
 blockView = false
 description = "銀灰の縦型2ドア冷蔵庫。取っ手付き。台所や店舗。中に食料が残っているかも"
 hp = 35
-name = "refrigerator"
+name = "Refrigerator"
 id = "refrigerator"
 
 [props.spriteRender]
@@ -14323,7 +14323,7 @@ blockPass = true
 blockView = false
 description = "橙色の低いレジカウンター。上面に暗色のレジ機。店舗の会計"
 hp = 15
-name = "register"
+name = "Cash Register"
 id = "register"
 
 [props.disassembly]
@@ -14359,7 +14359,7 @@ blockPass = true
 blockView = false
 description = "白い流し台。蛇口付き。台所や洗面"
 hp = 25
-name = "sink"
+name = "Sink"
 id = "sink"
 
 [props.spriteRender]
@@ -14372,7 +14372,7 @@ blockPass = false
 blockView = false
 description = "茶色の革張りの2人掛けソファ。居間や待合"
 hp = 20
-name = "sofa"
+name = "Sofa"
 id = "sofa"
 
 [props.spriteRender]
@@ -14385,7 +14385,7 @@ blockPass = true
 blockView = false
 description = "灰色の石柱。装飾や構造物"
 hp = 50
-name = "stone_pillar"
+name = "Stone Pillar"
 id = "stone_pillar"
 
 [props.spriteRender]
@@ -14398,7 +14398,7 @@ blockPass = true
 blockView = false
 description = "茶の頑丈な木製テーブル。食堂や作業台"
 hp = 25
-name = "table"
+name = "Table"
 id = "table"
 
 [props.spriteRender]
@@ -14411,7 +14411,7 @@ blockPass = false
 blockView = false
 description = "背の高い黒脚に白笠のスタンドランプ。室内照明"
 hp = 8
-name = "tall_lamp"
+name = "Tall Lamp"
 id = "tall_lamp"
 
 [props.spriteRender]
@@ -14424,7 +14424,7 @@ blockPass = false
 blockView = false
 description = "白い洋式便器。水は出ない。トイレや浴室"
 hp = 15
-name = "toilet"
+name = "Toilet"
 id = "toilet"
 
 [props.spriteRender]
@@ -14437,7 +14437,7 @@ animKeys = [ "warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_n
 blockPass = false
 blockView = false
 description = "金色に渦巻くポータル。次の階層へ続く"
-name = "warp_next"
+name = "Stairs Down"
 id = "warp_next"
 
 [props.spriteRender]
@@ -14461,7 +14461,7 @@ animKeys = [ "warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_n
 blockPass = false
 blockView = false
 description = "金色に渦巻くポータル。1つ上の階層へ戻る"
-name = "warp_prev"
+name = "Stairs Up"
 id = "warp_prev"
 
 [props.spriteRender]
@@ -14485,7 +14485,7 @@ animKeys = [ "warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_n
 blockPass = false
 blockView = false
 description = "キューブの出口。ここからオーバーワールドへ戻る"
-name = "cube_exit"
+name = "Cube Exit"
 id = "cube_exit"
 
 [props.spriteRender]
@@ -14499,7 +14499,7 @@ blockPass = true
 blockView = false
 description = "茶の木製本棚に色とりどりの本が並ぶ。書斎"
 hp = 25
-name = "wood_bookshelf"
+name = "Wooden Bookshelf"
 id = "wood_bookshelf"
 
 [props.spriteRender]
@@ -14512,7 +14512,7 @@ blockPass = true
 blockView = false
 description = "茶の木製の長持ち。保管用。何か入っているかも"
 hp = 25
-name = "wood_chest"
+name = "Wooden Chest"
 id = "wood_chest"
 
 [props.spriteRender]
@@ -14525,7 +14525,7 @@ blockPass = false
 blockView = false
 description = "茶の木製の地図看板。方向や場所を示す道標"
 hp = 10
-name = "wooden_map_sign"
+name = "Map Sign"
 id = "wooden_map_sign"
 
 [props.spriteRender]
@@ -14538,7 +14538,7 @@ blockPass = false
 blockView = false
 description = "茶の木製の看板に矢印板。道標や案内"
 hp = 10
-name = "wooden_sign"
+name = "Wooden Sign"
 id = "wooden_sign"
 
 [props.spriteRender]
@@ -14551,7 +14551,7 @@ blockPass = true
 blockView = false
 description = "茶の木枠に白い流し台と蛇口。台所"
 hp = 25
-name = "シンク"
+name = "Kitchen Sink"
 id = "kitchen_sink"
 
 [props.spriteRender]
@@ -14564,7 +14564,7 @@ blockPass = true
 blockView = false
 description = "丸鏡とスツールが付いた鏡台ドレッサー。寝室"
 hp = 20
-name = "ドレッサー"
+name = "Dresser"
 id = "dresser"
 
 [props.spriteRender]
@@ -14582,7 +14582,7 @@ blockPass = false
 blockView = false
 description = "茶の木製のベッドサイドテーブル。ベッド脇の小卓"
 hp = 10
-name = "ベッドサイド"
+name = "Bedside Table"
 id = "bedside_table"
 
 [props.spriteRender]
@@ -14595,7 +14595,7 @@ blockPass = true
 blockView = false
 description = "茶色の革張りの2人掛けソファ。居間や待合"
 hp = 25
-name = "二人がけのソファ"
+name = "Two-Seat Sofa"
 id = "two_seat_sofa"
 
 [props.spriteRender]
@@ -14608,7 +14608,7 @@ blockPass = true
 blockView = false
 description = "茶の使い込まれた木製の仕事机。オフィス"
 hp = 20
-name = "仕事机"
+name = "Work Desk"
 id = "work_desk"
 
 [props.spriteRender]
@@ -14621,7 +14621,7 @@ blockPass = true
 blockView = false
 description = "石とレンガの暖炉。中に薪や火。居間の暖房。かすかに温もりが残る"
 hp = 40
-name = "暖炉"
+name = "Fireplace"
 id = "fireplace"
 
 [props.spriteRender]
@@ -14634,7 +14634,7 @@ blockPass = true
 blockView = false
 description = "緑色のドラム缶に毒々しい液体。危険物"
 hp = 15
-name = "毒樽"
+name = "Poison Barrel"
 id = "poison_barrel"
 
 [props.spriteRender]
@@ -14647,7 +14647,7 @@ blockPass = true
 blockView = false
 description = "茶色の革張りの高級な椅子。座り心地が良い"
 hp = 20
-name = "毛皮張りの椅子"
+name = "Fur-Upholstered Chair"
 id = "fur_upholstered_chair"
 
 [props.spriteRender]
@@ -14660,7 +14660,7 @@ blockPass = true
 blockView = false
 description = "白いドラム式洗濯機。ランドリー。廃墟に残されもう動かない"
 hp = 30
-name = "洗濯機"
+name = "Washing Machine"
 id = "washing_machine"
 
 [props.spriteRender]
@@ -14673,7 +14673,7 @@ blockPass = true
 blockView = false
 description = "白い洗濯機に青い水が残る。重くて動かせない"
 hp = 35
-name = "洗濯機(満杯)"
+name = "Full Washing Machine"
 id = "washing_machine_full"
 
 [props.spriteRender]
@@ -14686,7 +14686,7 @@ blockPass = true
 blockView = false
 description = "白く塗られた清潔な木樽。保管用"
 hp = 20
-name = "白い樽"
+name = "White Barrel"
 id = "white_barrel"
 
 [props.spriteRender]
@@ -14699,7 +14699,7 @@ blockPass = true
 blockView = false
 description = "深緑のドラム缶。軍用物資が入っている"
 hp = 30
-name = "緑のドラム缶"
+name = "Green Drum"
 id = "green_drum"
 
 [props.spriteRender]
@@ -14712,7 +14712,7 @@ blockPass = true
 blockView = false
 description = "赤いドラム缶に可燃物の警告マーク。危険物"
 hp = 30
-name = "赤いドラム缶"
+name = "Red Drum"
 id = "red_drum"
 
 [props.spriteRender]
@@ -14725,7 +14725,7 @@ blockPass = true
 blockView = false
 description = "黒い革張りのオフィス椅子"
 hp = 20
-name = "黒いチェア"
+name = "Black Chair"
 id = "black_chair"
 
 [props.spriteRender]
@@ -14738,7 +14738,7 @@ blockPass = true
 blockView = false
 description = "艶のある黒い花瓶。高級感のある飾り"
 hp = 5
-name = "黒い花瓶"
+name = "Black Vase"
 id = "black_vase"
 
 [props.spriteRender]
@@ -14751,7 +14751,7 @@ blockPass = true
 blockView = false
 description = "古びた茶の木箱。何か入っているかも"
 hp = 20
-name = "木箱"
+name = "Wooden Crate"
 id = "wooden_crate"
 
 [props.spriteRender]
@@ -14787,7 +14787,7 @@ blockPass = true
 blockView = false
 description = "灰色の金属ロッカー2連。更衣室や職場の収納"
 hp = 40
-name = "ロッカー"
+name = "Locker"
 id = "locker"
 
 [props.spriteRender]
@@ -15171,7 +15171,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 展示冷蔵ケース。飲料や惣菜を並べるオープン型の冷蔵陳列棚。コンビニ向け。実アート未実装の仮素材"
 hp = 15
-name = "display_cooler"
+name = "Display Cooler"
 id = "display_cooler"
 
 [props.spriteRender]
@@ -15184,7 +15184,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 雑誌ラック。雑誌や新聞を立てて並べる棚。店舗や待合。実アート未実装の仮素材"
 hp = 15
-name = "magazine_rack"
+name = "Magazine Rack"
 id = "magazine_rack"
 
 [props.spriteRender]
@@ -15197,7 +15197,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 自動販売機。飲料などを売る箱型の機械。屋内外。実アート未実装の仮素材"
 hp = 15
-name = "vending_machine"
+name = "Vending Machine"
 id = "vending_machine"
 
 [props.spriteRender]
@@ -15210,7 +15210,7 @@ blockPass = false
 blockView = false
 description = "[dummy] 買い物カゴ。手提げの買い物用カゴ。店舗。実アート未実装の仮素材"
 hp = 15
-name = "shopping_basket"
+name = "Shopping Basket"
 id = "shopping_basket"
 
 [props.spriteRender]
@@ -15223,7 +15223,7 @@ blockPass = true
 blockView = false
 description = "[dummy] ゴンドラ什器。店舗中央に置く両面の陳列棚。コンビニやスーパー。実アート未実装の仮素材"
 hp = 15
-name = "gondola_shelf"
+name = "Gondola Shelf"
 id = "gondola_shelf"
 
 [props.spriteRender]
@@ -15236,7 +15236,7 @@ blockPass = true
 blockView = false
 description = "[dummy] レジカウンター。会計を行う横長のカウンター。店舗。実アート未実装の仮素材"
 hp = 15
-name = "checkout_counter"
+name = "Checkout Counter"
 id = "checkout_counter"
 
 [props.spriteRender]
@@ -15249,7 +15249,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 診察台。患者を診る医療用ベッド。診療所。実アート未実装の仮素材"
 hp = 15
-name = "exam_bed"
+name = "Exam Bed"
 id = "exam_bed"
 
 [props.spriteRender]
@@ -15262,7 +15262,7 @@ blockPass = false
 blockView = false
 description = "[dummy] 点滴スタンド。点滴バッグを吊るす支柱。診療所。実アート未実装の仮素材"
 hp = 15
-name = "iv_stand"
+name = "IV Stand"
 id = "iv_stand"
 
 [props.spriteRender]
@@ -15275,7 +15275,7 @@ blockPass = false
 blockView = false
 description = "[dummy] 車椅子。移動用の車輪付き椅子。診療所。実アート未実装の仮素材"
 hp = 15
-name = "wheelchair"
+name = "Wheelchair"
 id = "wheelchair"
 
 [props.spriteRender]
@@ -15288,7 +15288,7 @@ blockPass = true
 blockView = false
 description = "[dummy] ストレッチャー。搬送用の車輪付き寝台。診療所。実アート未実装の仮素材"
 hp = 15
-name = "stretcher"
+name = "Stretcher"
 id = "stretcher"
 
 [props.spriteRender]
@@ -15301,7 +15301,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 薬品キャビネット。薬や医療品を収める戸棚。診療所。実アート未実装の仮素材"
 hp = 15
-name = "medicine_cabinet"
+name = "Medicine Cabinet"
 id = "medicine_cabinet"
 
 [props.spriteRender]
@@ -15319,7 +15319,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 受付カウンター。案内や受付の横長カウンター。診療所や施設。実アート未実装の仮素材"
 hp = 15
-name = "reception_counter"
+name = "Reception Counter"
 id = "reception_counter"
 
 [props.spriteRender]
@@ -15332,7 +15332,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 医療モニタ。生体情報を表示する画面付き機器。診療所。実アート未実装の仮素材"
 hp = 15
-name = "medical_monitor"
+name = "Medical Monitor"
 id = "medical_monitor"
 
 [props.spriteRender]
@@ -15345,7 +15345,7 @@ blockPass = true
 blockView = false
 description = "[dummy] パーティション。オフィスを仕切る間仕切り。事務所。実アート未実装の仮素材"
 hp = 15
-name = "cubicle_partition"
+name = "Cubicle Partition"
 id = "cubicle_partition"
 
 [props.spriteRender]
@@ -15358,7 +15358,7 @@ blockPass = true
 blockView = false
 description = "[dummy] サーバラック。サーバ機器を収める縦型ラック。事務所や機械室。実アート未実装の仮素材"
 hp = 15
-name = "server_rack"
+name = "Server Rack"
 id = "server_rack"
 
 [props.spriteRender]
@@ -15371,7 +15371,7 @@ blockPass = true
 blockView = false
 description = "[dummy] プリンタ。印刷機。事務所。実アート未実装の仮素材"
 hp = 15
-name = "printer"
+name = "Printer"
 id = "printer"
 
 [props.spriteRender]
@@ -15384,7 +15384,7 @@ blockPass = true
 blockView = false
 description = "[dummy] ホワイトボード。書き込む白い掲示板。事務所や会議室。実アート未実装の仮素材"
 hp = 15
-name = "whiteboard"
+name = "Whiteboard"
 id = "whiteboard"
 
 [props.spriteRender]
@@ -15397,7 +15397,7 @@ blockPass = true
 blockView = false
 description = "[dummy] ウォーターサーバー。冷水を供給する給水機。事務所や待合。実アート未実装の仮素材"
 hp = 15
-name = "water_cooler"
+name = "Water Cooler"
 id = "water_cooler"
 
 [props.spriteRender]
@@ -15410,7 +15410,7 @@ blockPass = false
 blockView = false
 description = "[dummy] パレット。荷を載せる荷役台。倉庫。実アート未実装の仮素材"
 hp = 15
-name = "pallet"
+name = "Pallet"
 id = "pallet"
 
 [props.spriteRender]
@@ -15423,7 +15423,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 保管ケージ。金網の保管檻。倉庫。実アート未実装の仮素材"
 hp = 15
-name = "cage"
+name = "Cage"
 id = "cage"
 
 [props.spriteRender]
@@ -15436,7 +15436,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 小さな鳥居。神社の朱い門。祠や境内。実アート未実装の仮素材"
 hp = 15
-name = "torii_small"
+name = "Small Torii"
 id = "torii_small"
 
 [props.spriteRender]
@@ -15449,7 +15449,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 賽銭箱。参拝の賽銭を入れる木箱。神社。実アート未実装の仮素材"
 hp = 15
-name = "offering_box"
+name = "Offering Box"
 id = "offering_box"
 
 [props.spriteRender]
@@ -15462,7 +15462,7 @@ blockPass = true
 blockView = false
 description = "[dummy] 狛犬。神社を守る石像の獣。境内。実アート未実装の仮素材"
 hp = 15
-name = "komainu"
+name = "Guardian Lion"
 id = "komainu"
 
 [props.spriteRender]
@@ -15475,7 +15475,7 @@ blockPass = false
 blockView = false
 description = "[dummy] 絵馬掛け。願い事を書く絵馬を吊るす棚。神社。実アート未実装の仮素材"
 hp = 15
-name = "ema_rack"
+name = "Ema Rack"
 id = "ema_rack"
 
 [props.spriteRender]
@@ -15488,7 +15488,7 @@ blockPass = false
 blockView = false
 description = "[dummy] 香炉。線香を焚く器。神社や仏閣。実アート未実装の仮素材"
 hp = 15
-name = "incense_burner"
+name = "Incense Burner"
 id = "incense_burner"
 
 [props.spriteRender]
@@ -16280,7 +16280,7 @@ blockPass = true
 blockView = true
 description = "こんもりと葉を茂らせた大きな緑の木"
 hp = 30
-name = "big_tree"
+name = "Big Tree"
 id = "big_tree"
 
 [props.spriteRender]
@@ -16293,7 +16293,7 @@ blockPass = true
 blockView = false
 description = "葉を落とし枝を広げた木"
 hp = 20
-name = "tree_a"
+name = "Tree"
 id = "tree_a"
 
 [props.spriteRender]
@@ -16306,7 +16306,7 @@ blockPass = true
 blockView = true
 description = "緑の葉を茂らせた木"
 hp = 20
-name = "tree_b"
+name = "Tree"
 id = "tree_b"
 
 [props.spriteRender]
@@ -16319,7 +16319,7 @@ blockPass = true
 blockView = false
 description = "大きなラッパ型のホーンが付いた蓄音機。木製の台座に載る"
 hp = 10
-name = "phonograph"
+name = "Phonograph"
 id = "phonograph"
 
 [props.spriteRender]
@@ -16332,7 +16332,7 @@ animKeys = [ "warp_escape_0", "warp_escape_1", "warp_escape_2", "warp_escape_3",
 blockPass = false
 blockView = false
 description = "青白く明滅する魔法陣。淡い光の輪が脈打つように輝く"
-name = "warp_escape"
+name = "Escape Exit"
 id = "warp_escape"
 
 [props.spriteRender]

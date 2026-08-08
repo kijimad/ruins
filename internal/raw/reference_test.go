@@ -324,14 +324,16 @@ func TestRawDuplicateNames(t *testing.T) {
 		}
 	})
 
-	t.Run("Prop名の重複がない", func(t *testing.T) {
+	t.Run("Prop idの重複がない", func(t *testing.T) {
 		t.Parallel()
-		names := make(map[string]int)
+		// prop の表示名は素材でまとめる方針で意図的に重複しうる。generator の色違いは両方 Generator。
+		// 同定は id で行うので、一意性は表示名でなく id に対して検証する。
+		ids := make(map[string]int)
 		for _, prop := range PtrSlice(raws.Props) {
-			names[prop.Name]++
+			ids[prop.Id]++
 		}
-		for name, count := range names {
-			assert.Equal(t, 1, count, "Prop名 '%s' が重複しています（%d個）", name, count)
+		for id, count := range ids {
+			assert.Equal(t, 1, count, "Prop id '%s' が重複しています（%d個）", id, count)
 		}
 	})
 }

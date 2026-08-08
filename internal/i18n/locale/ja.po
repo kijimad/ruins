@@ -1663,3 +1663,345 @@ msgstr "「あんたは...、そうか、母親が<keyword>虚ろ</keyword>か�
 
 msgid "\"So, the next <keyword>scavenger</keyword> has shown up... a bottom-seeker too, they say.\"\n"
 msgstr "「でさ、次の<keyword>拾い屋</keyword>が来たんだが...そいつも底狙いだと。」\n"
+
+msgid "Alarm Clock"
+msgstr "目覚まし時計"
+
+msgid "Control Panel"
+msgstr "制御盤"
+
+msgid "Artistic Shelf"
+msgstr "飾り棚"
+
+msgid "Barrel"
+msgstr "樽"
+
+msgid "Bathtub"
+msgstr "浴槽"
+
+msgid "Bed"
+msgstr "ベッド"
+
+msgid "Bed Lamp"
+msgstr "ベッドランプ"
+
+msgid "Bench"
+msgstr "ベンチ"
+
+msgid "Bonfire"
+msgstr "焚き火"
+
+msgid "Bookshelf"
+msgstr "本棚"
+
+msgid "Book Showcase"
+msgstr "本の陳列棚"
+
+msgid "Candle"
+msgstr "ろうそく"
+
+msgid "Carpet"
+msgstr "カーペット"
+
+msgid "Rubble"
+msgstr "瓦礫"
+
+msgid "Debris"
+msgstr "残骸"
+
+msgid "Plant"
+msgstr "観葉植物"
+
+msgid "Washer"
+msgstr "洗濯機"
+
+msgid "Chair"
+msgstr "椅子"
+
+msgid "Clock"
+msgstr "時計"
+
+msgid "Closet"
+msgstr "クローゼット"
+
+msgid "Coffee Maker"
+msgstr "コーヒーメーカー"
+
+msgid "Construction Sign"
+msgstr "工事看板"
+
+msgid "Crate"
+msgstr "木箱"
+
+msgid "Desk"
+msgstr "机"
+
+msgid "Desk Light"
+msgstr "デスクライト"
+
+msgid "Desktop PC"
+msgstr "デスクトップPC"
+
+msgid "Dish Shelf"
+msgstr "食器棚"
+
+msgid "Door Lock"
+msgstr "施錠装置"
+
+msgid "Chest of Drawers"
+msgstr "タンス"
+
+msgid "Electric Locker"
+msgstr "電動ロッカー"
+
+msgid "Flag Stand"
+msgstr "旗立て"
+
+msgid "Forklift"
+msgstr "フォークリフト"
+
+msgid "Furnace"
+msgstr "炉"
+
+msgid "Gauge Machine"
+msgstr "計器盤"
+
+msgid "Generator"
+msgstr "発電機"
+
+msgid "Goods Shelf"
+msgstr "商品棚"
+
+msgid "Iron Shelf"
+msgstr "鉄製棚"
+
+msgid "Lantern"
+msgstr "ランタン"
+
+msgid "Laundry"
+msgstr "洗濯物"
+
+msgid "Window"
+msgstr "窓"
+
+msgid "Shutter"
+msgstr "シャッター"
+
+msgid "Fence"
+msgstr "フェンス"
+
+msgid "Buddhist Altar"
+msgstr "仏壇"
+
+msgid "Household Shrine"
+msgstr "神棚"
+
+msgid "Shoe Cabinet"
+msgstr "下駄箱"
+
+msgid "Microwave"
+msgstr "電子レンジ"
+
+msgid "Mirror"
+msgstr "鏡"
+
+msgid "Mixer"
+msgstr "ミキサー"
+
+msgid "Moving Stone"
+msgstr "動く石"
+
+msgid "Rock"
+msgstr "岩"
+
+msgid "Grass"
+msgstr "草"
+
+msgid "Weeds"
+msgstr "雑草"
+
+msgid "Old Lamp"
+msgstr "古いランプ"
+
+msgid "Table"
+msgstr "テーブル"
+
+msgid "Refrigerator"
+msgstr "冷蔵庫"
+
+msgid "Cash Register"
+msgstr "レジ"
+
+msgid "Sink"
+msgstr "流し台"
+
+msgid "Sofa"
+msgstr "ソファ"
+
+msgid "Stone Pillar"
+msgstr "石柱"
+
+msgid "Tall Lamp"
+msgstr "背の高いランプ"
+
+msgid "Toilet"
+msgstr "トイレ"
+
+msgid "Stairs Down"
+msgstr "下り階段"
+
+msgid "Stairs Up"
+msgstr "上り階段"
+
+msgid "Cube Exit"
+msgstr "出口"
+
+msgid "Wooden Bookshelf"
+msgstr "木製本棚"
+
+msgid "Wooden Chest"
+msgstr "木箱"
+
+msgid "Map Sign"
+msgstr "地図の立て札"
+
+msgid "Wooden Sign"
+msgstr "木の立て札"
+
+msgid "Kitchen Sink"
+msgstr "シンク"
+
+msgid "Dresser"
+msgstr "ドレッサー"
+
+msgid "Bedside Table"
+msgstr "ベッドサイド"
+
+msgid "Two-Seat Sofa"
+msgstr "二人がけのソファ"
+
+msgid "Work Desk"
+msgstr "仕事机"
+
+msgid "Fireplace"
+msgstr "暖炉"
+
+msgid "Poison Barrel"
+msgstr "毒樽"
+
+msgid "Fur-Upholstered Chair"
+msgstr "毛皮張りの椅子"
+
+msgid "Washing Machine"
+msgstr "洗濯機"
+
+msgid "Full Washing Machine"
+msgstr "満杯の洗濯機"
+
+msgid "White Barrel"
+msgstr "白い樽"
+
+msgid "Green Drum"
+msgstr "緑のドラム缶"
+
+msgid "Red Drum"
+msgstr "赤いドラム缶"
+
+msgid "Black Chair"
+msgstr "黒いチェア"
+
+msgid "Black Vase"
+msgstr "黒い花瓶"
+
+msgid "Wooden Crate"
+msgstr "木箱"
+
+msgid "Locker"
+msgstr "ロッカー"
+
+msgid "Display Cooler"
+msgstr "冷蔵ショーケース"
+
+msgid "Magazine Rack"
+msgstr "雑誌ラック"
+
+msgid "Vending Machine"
+msgstr "自動販売機"
+
+msgid "Shopping Basket"
+msgstr "買い物かご"
+
+msgid "Gondola Shelf"
+msgstr "陳列棚"
+
+msgid "Checkout Counter"
+msgstr "レジカウンター"
+
+msgid "Exam Bed"
+msgstr "診察台"
+
+msgid "IV Stand"
+msgstr "点滴スタンド"
+
+msgid "Wheelchair"
+msgstr "車椅子"
+
+msgid "Stretcher"
+msgstr "担架"
+
+msgid "Medicine Cabinet"
+msgstr "薬品棚"
+
+msgid "Reception Counter"
+msgstr "受付カウンター"
+
+msgid "Medical Monitor"
+msgstr "医療モニター"
+
+msgid "Cubicle Partition"
+msgstr "間仕切り"
+
+msgid "Server Rack"
+msgstr "サーバーラック"
+
+msgid "Printer"
+msgstr "プリンター"
+
+msgid "Whiteboard"
+msgstr "ホワイトボード"
+
+msgid "Water Cooler"
+msgstr "ウォーターサーバー"
+
+msgid "Pallet"
+msgstr "パレット"
+
+msgid "Cage"
+msgstr "檻"
+
+msgid "Small Torii"
+msgstr "小さな鳥居"
+
+msgid "Offering Box"
+msgstr "賽銭箱"
+
+msgid "Guardian Lion"
+msgstr "狛犬"
+
+msgid "Ema Rack"
+msgstr "絵馬掛け"
+
+msgid "Incense Burner"
+msgstr "香炉"
+
+msgid "Big Tree"
+msgstr "大木"
+
+msgid "Tree"
+msgstr "木"
+
+msgid "Phonograph"
+msgstr "蓄音機"
+
+msgid "Escape Exit"
+msgstr "脱出口"
