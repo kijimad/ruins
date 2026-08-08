@@ -29,14 +29,9 @@ func (b *PlannerChain) takeSnapshot(label string) {
 		return
 	}
 	d := &b.PlanData
-	// タイルの Name を Id へ正規化し、golden をタイル表示名の英語化から独立させる。
-	tiles := slices.Clone(d.Tiles)
-	for i := range tiles {
-		tiles[i].Name = tiles[i].Id
-	}
 	b.Snapshots = append(b.Snapshots, Snapshot{
 		Label:       label,
-		Tiles:       tiles,
+		Tiles:       slices.Clone(d.Tiles),
 		Rooms:       slices.Clone(d.Rooms),
 		Corridors:   deepCloneCorridors(d.Corridors),
 		NPCs:        slices.Clone(d.NPCs),
