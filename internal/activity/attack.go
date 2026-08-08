@@ -196,8 +196,12 @@ func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
 	if bareHandsSpec.Melee == nil {
 		return nil, "", fmt.Errorf("bare hands weapon has no Melee component")
 	}
-	// "bare hands" は攻撃方法名の英語 msgid。表示する logAttackResult が query.T で訳す。
-	return bareHandsSpec.Melee, "bare hands", nil
+	if bareHandsSpec.Name == nil {
+		return nil, "", fmt.Errorf("bare hands weapon has no Name component")
+	}
+	// 攻撃方法名は素手武器の表示名。武器と同じく raw の英語 name を返し、表示側の logAttackResult が
+	// query.T で訳す。表示 name なので raw の翻訳カバレッジゲートが訳の有無を検証する。
+	return bareHandsSpec.Melee, bareHandsSpec.Name.Name, nil
 }
 
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する

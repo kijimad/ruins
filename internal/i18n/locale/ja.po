@@ -1351,9 +1351,6 @@ msgstr "攻撃できません"
 msgid "took an attack"
 msgstr "攻撃を受けた"
 
-msgid "bare hands"
-msgstr "素手"
-
 msgid "%s's skill rose! (%s Lv%d)"
 msgstr "%s のスキルが上がった！（%s Lv%d）"
 
