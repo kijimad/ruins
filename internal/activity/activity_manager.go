@@ -162,7 +162,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 
 	// Behaviorでの検証
 	if err := behavior.Validate(comp, actor, world); err != nil {
-		return fmt.Errorf("activity validation failed: %w", err)
+		return fmt.Errorf("%w: %w", ErrValidationFailed, err)
 	}
 
 	// アクティビティをコンポーネントとして登録する

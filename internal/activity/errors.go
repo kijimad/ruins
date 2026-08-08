@@ -5,6 +5,9 @@ import "errors"
 // アクティビティ関連のエラー定数
 var (
 	// アクティビティ一般エラー
+	// ErrValidationFailed は Validate による検証失敗を包むセンチネル。スキル不足など
+	// ユーザー入力起因の失敗を示す。呼び出し側は errors.Is で見分け、システムエラーと扱いを分ける
+	ErrValidationFailed      = errors.New("activity validation failed")
 	ErrActivityNil           = errors.New("activity is nil")
 	ErrActorNotSet           = errors.New("actor is not set")
 	ErrActivityNotFound      = errors.New("activity not found")

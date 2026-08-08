@@ -1,6 +1,7 @@
 package states
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ebitenui/ebitenui"
@@ -155,11 +156,15 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
-	// 読書開始の検証失敗、スキル不足や周囲の敵、はゲームを止めない。理由をログに出して閉じる。
-	// state が返すエラーは最上位まで伝播して致命化するため、ユーザー入力の失敗はここで吸収する
 	if _, err := activity.Execute(act, player, world); err != nil {
-		gamelog.New(query.GetGameLog(world)).Markup(err.Error()).Log()
-		return es.Transition[w.World]{Type: es.TransPop}, nil
+		// 検証失敗、スキル不足や周囲の敵、はユーザー入力の失敗なのでゲームを止めない。
+		// 理由をログに出して閉じる。state が返すエラーは最上位まで伝播して致命化するため、
+		// ここで吸収するのは検証失敗だけにする。システムエラーは握りつぶさず伝播させる
+		if errors.Is(err, activity.ErrValidationFailed) {
+			gamelog.New(query.GetGameLog(world)).Markup(err.Error()).Log()
+			return es.Transition[w.World]{Type: es.TransPop}, nil
+		}
+		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
 }
