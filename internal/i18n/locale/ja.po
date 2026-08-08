@@ -2005,3 +2005,3267 @@ msgstr "蓄音機"
 
 msgid "Escape Exit"
 msgstr "脱出口"
+
+msgid "Utility Knife"
+msgstr "カッターナイフ"
+
+msgid "A knife with snap-off blades to keep its edge sharp. Light and easy to handle."
+msgstr "刃を折って切れ味を維持するナイフ。軽くて扱いやすい"
+
+msgid "Claymore"
+msgstr "クレイモア"
+
+msgid "A two-handed greatsword. Heavy, but each blow strikes hard."
+msgstr "両手持ちの大剣。重いが一撃が強い"
+
+msgid "Shovel"
+msgstr "シャベル"
+
+msgid "A large digging tool with a pointed tip. Swung down, it doubles as a weapon."
+msgstr "先の尖った大型の掘削道具。振り下ろせば武器にもなる"
+
+msgid "Pickaxe"
+msgstr "ツルハシ"
+
+msgid "A tool for mining ore. It can serve as a weapon too, more or less."
+msgstr "鉱石を掘るための道具。武器としても使えなくはない"
+
+msgid "Screwdriver"
+msgstr "ドライバー"
+
+msgid "A screwdriver. Delivers precise thrusts."
+msgstr "ドライバー。精密な突きができる"
+
+msgid "Nunchaku"
+msgstr "ヌンチャク"
+
+msgid "Two sticks joined by a chain. It excels at swift, rapid strikes."
+msgstr "二本の棒を鎖で繋いだ武器。素早い連打が得意"
+
+msgid "Halberd"
+msgstr "ハルバード"
+
+msgid "A long-hafted axe-spear. It combines reach with power."
+msgstr "長柄の斧槍。リーチと威力を兼ね備える"
+
+msgid "Hammer"
+msgstr "ハンマー"
+
+msgid "A heavy iron hammer. Its blows are devastating, but slow to swing."
+msgstr "重量のある鉄製ハンマー。一撃の破壊力は高いが振りが遅い"
+
+msgid "Battle Axe"
+msgstr "バトルアックス"
+
+msgid "A massive battle axe. It boasts tremendous destructive power, but is hard to wield."
+msgstr "巨大な戦斧。凄まじい破壊力を誇るが扱いが難しい"
+
+msgid "Fork"
+msgstr "フォーク"
+
+msgid "A dining fork. As a stabbing weapon, it has the bare minimum of function."
+msgstr "食事用のフォーク。突き刺す武器として最低限の機能は持つ"
+
+msgid "Block Hammer"
+msgstr "ブロックハンマー"
+
+msgid "A massive hammer. Built for construction, but powerful as a weapon too."
+msgstr "巨大なハンマー。建築用だが武器としても強力"
+
+msgid "Pliers"
+msgstr "プライヤー"
+
+msgid "A kind of pliers. An all-purpose tool that grips, bends, and cuts."
+msgstr "ペンチの一種。挟む・曲げる・切るの万能工具"
+
+msgid "Monkey Wrench"
+msgstr "モンキーレンチ"
+
+msgid "A sturdy wrench. It also makes an excellent bludgeon."
+msgstr "頑丈なスパナ。殴打武器としても優秀"
+
+msgid "Trident"
+msgstr "三叉槍"
+
+msgid "A spear split into three prongs. It works for both thrusting and sweeping."
+msgstr "三又に分かれた槍。突きと薙ぎの両方に使える"
+
+msgid "Tackle"
+msgstr "体当たり"
+
+msgid "Build up momentum and slam your body into the foe to deal damage."
+msgstr "勢いをつけて体を衝突させてダメージを与える"
+
+msgid "Light Shot"
+msgstr "光弾"
+
+msgid "Attacks with the power of light."
+msgstr "光の力で攻撃する"
+
+msgid "Frost Attack"
+msgstr "冷気攻撃"
+
+msgid "An attack imbued with frost."
+msgstr "冷気を帯びた攻撃"
+
+msgid "Smash"
+msgstr "叩き潰し"
+
+msgid "A powerful blow that crushes with sheer bulk."
+msgstr "巨体で押し潰す強力な一撃"
+
+msgid "Roar"
+msgstr "咆哮"
+
+msgid "Strikes all foes with a mighty roar."
+msgstr "強力な咆哮で全体を攻撃する"
+
+msgid "Bite"
+msgstr "噛みつき"
+
+msgid "Bites down with sharp fangs and claws."
+msgstr "鋭い牙や爪で噛みつく"
+
+msgid "Scythe"
+msgstr "大鎌"
+
+msgid "A farming tool with a large blade on a long shaft, able to sweep a wide area."
+msgstr "長い柄の先に大きな刃がついた農具。広範囲を薙ぎ払える"
+
+msgid "Angel Sword"
+msgstr "天使の剣"
+
+msgid "A holy sword forged from heavenly metal."
+msgstr "天界の金属で鍛えられた聖なる剣"
+
+msgid "Rend"
+msgstr "引き裂き"
+
+msgid "Tears the enemy apart with sharp claws."
+msgstr "鋭利な爪で引き裂く"
+
+msgid "Axe"
+msgstr "斧"
+
+msgid "An axe with wide, destructive swings."
+msgstr "大振りだが破壊力のある斧"
+
+msgid "Bright Mace"
+msgstr "明メイス"
+
+msgid "A brightly shining mace that crushes foes with the power of light."
+msgstr "明るく輝く鈍器。光の力で敵を打ち砕く"
+
+msgid "Wooden Stick"
+msgstr "木の棒"
+
+msgid "A smooth stick, light and easy to hold."
+msgstr "滑らかな表面を持ち、軽くて持ちやすい棒"
+
+msgid "Wooden Sword"
+msgstr "木刀"
+
+msgid "A bladeless wooden katana, a familiar travel souvenir."
+msgstr "旅行の土産でおなじみの、木でできた刃のない刀"
+
+msgid "Strafing Fire"
+msgstr "機銃掃射"
+
+msgid "Lays down a barrage with rapid fire."
+msgstr "高速連射で弾幕を張る"
+
+msgid "Warped Blade"
+msgstr "歪曲刀"
+
+msgid "A foreign sword with a wavy blade, slipping past defenses with an unusual arc."
+msgstr "波打つ刃を持つ異国の剣。独特な軌道で防御を掻い潜る"
+
+msgid "Venom Fang"
+msgstr "毒牙"
+
+msgid "Attacks with venom-laced fangs and spines."
+msgstr "毒を帯びた牙や棘で攻撃する"
+
+msgid "Crystal Sword"
+msgstr "水晶の剣"
+
+msgid "A sword carved from crystal, its clear blade holding a strange hardness."
+msgstr "水晶を削り出して作られた剣。透き通った刃は不思議な硬さを持つ"
+
+msgid "Ice Spear"
+msgstr "氷の槍"
+
+msgid "A spear formed from ice crystals."
+msgstr "氷の結晶で作られた槍"
+
+msgid "Fire Extinguisher"
+msgstr "消火器"
+
+msgid "A pressurized canister for putting out fires, it works as a blunt weapon when swung."
+msgstr "消火用の加圧式容器。殴れば鈍器として使える"
+
+msgid "Fire Breath"
+msgstr "火炎ブレス"
+
+msgid "Exhales an intense breath of flame."
+msgstr "強烈な炎のブレスを吐く"
+
+msgid "Flame Attack"
+msgstr "火炎攻撃"
+
+msgid "An attack wreathed in fire."
+msgstr "炎を纏った攻撃"
+
+msgid "Bombard"
+msgstr "砲撃"
+
+msgid "Attacks with a vehicle-mounted cannon."
+msgstr "車載砲で攻撃する"
+
+msgid "Bare Hands"
+msgstr "素手"
+
+msgid "A strike delivered with bare hands."
+msgstr "素手による打撃"
+
+msgid "Purple Katana"
+msgstr "紫の刀"
+
+msgid "A purple-gleaming katana forged by a master smith, it delivers sharp slashes."
+msgstr "名匠が鍛えた紫色に輝く刀。鋭い斬撃を繰り出せる"
+
+msgid "Purple Mace"
+msgstr "紫メイス"
+
+msgid "A magic blunt weapon glowing purple, it delivers strikes laced with magic."
+msgstr "紫色に発光する魔法の鈍器。魔力を纏った打撃を繰り出す"
+
+msgid "Slender Rapier"
+msgstr "細いレイピア"
+
+msgid "A slim, light rapier that excels at swift thrusts."
+msgstr "細身で軽い突剣。素早い突きを得意とする"
+
+msgid "Green Screwdriver"
+msgstr "緑のドライバー"
+
+msgid "A green screwdriver with a sharpened tip, it doubles as a thrusting weapon."
+msgstr "先端が尖った緑色のドライバー。刺突武器にもなる"
+
+msgid "Green Sword"
+msgstr "緑剣"
+
+msgid "A magic sword that shines green, light and easy to swing."
+msgstr "緑色に輝く魔法の剣。軽くて振りやすい"
+
+msgid "Sewing Kit"
+msgstr "裁縫セット"
+
+msgid "A sewing set of needle and thread, it can be used as a thrusting weapon."
+msgstr "針と糸がセットになった裁縫道具。突き刺す武器として使える"
+
+msgid "Heavy Scimitar"
+msgstr "重い曲刀"
+
+msgid "A single-edged scimitar weighted at the tip, its downward swing is devastating."
+msgstr "重心が先端にある片刃の曲刀。振り下ろしの破壊力が凄まじい"
+
+msgid "Nail Bat"
+msgstr "釘バット"
+
+msgid "A bat studded with rusty nails scavenged from the ruins, crude but effective."
+msgstr "廃墟で見つかる錆びた釘を打ち込んだバット。荒々しいが有効"
+
+msgid "Needle Tool"
+msgstr "針工具"
+
+msgid "A sharp tool used for sewing, a flimsy weapon but a fair early choice."
+msgstr "縫製に使う鋭い道具。武器としては頼りないが序盤の選択肢"
+
+msgid "Iron Knife"
+msgstr "鉄のナイフ"
+
+msgid "A knife made of iron."
+msgstr "鉄で作られたナイフ"
+
+msgid "Iron Sword"
+msgstr "鉄の剣"
+
+msgid "A battle-ready sword forged by a smith, combining a keen edge with durability."
+msgstr "鍛冶師が打った実戦用の剣。切れ味と耐久性を兼ね備える"
+
+msgid "Iron Scimitar"
+msgstr "鉄の曲刀"
+
+msgid "A curved single-edged sword. Well suited to slashing strikes."
+msgstr "刃が弧を描く片手剣。斬りつけに適している"
+
+msgid "Iron Straight Sword"
+msgstr "鉄の直剣"
+
+msgid "A straight sword forged from iron. Well balanced and easy to handle."
+msgstr "鉄を鍛えた直剣。バランスがよく扱いやすい"
+
+msgid "Iron Cutter"
+msgstr "鉄カッター"
+
+msgid "A tool for cutting metal. It has a sharp blade."
+msgstr "金属を切断するための工具。鋭い刃を持つ"
+
+msgid "Cast Iron Sword"
+msgstr "鋳鉄の剣"
+
+msgid "A sword of cast iron. Heavy but sturdy and long-lasting."
+msgstr "鋳鉄製の剣。重いが頑丈で長く使える"
+
+msgid "Electric Screwdriver"
+msgstr "電動ドライバー"
+
+msgid "A powered screwdriver. Its high-speed spinning tip is a real threat."
+msgstr "電動ドライバー。動力で高速回転する先端は脅威"
+
+msgid "Shock"
+msgstr "電撃"
+
+msgid "Unleashes a burst of electricity."
+msgstr "電撃を放つ"
+
+msgid "Blue Battle Axe"
+msgstr "青いバトルアックス"
+
+msgid "A battle axe made of glowing blue metal. It carries a chill of frost."
+msgstr "青く輝く金属で作られた戦斧。冷気を帯びている"
+
+msgid "Black Battle Axe"
+msgstr "黒いバトルアックス"
+
+msgid "A battle axe made of black metal. It radiates an ominous aura."
+msgstr "黒い金属で作られた戦斧。禍々しいオーラを放つ"
+
+msgid "Black Katana"
+msgstr "黒い刀"
+
+msgid "A katana dyed jet black. It carries an eerie presence."
+msgstr "漆黒に染まった刀。不気味な気配を纏う"
+
+msgid "50mm Cannon"
+msgstr "50ミリ砲"
+
+msgid "A vehicle-mounted cannon that handles with ease."
+msgstr "取り回しがよい車両用の大砲"
+
+msgid "M1919 Heavy Machine Gun"
+msgstr "M1919重機関銃"
+
+msgid "A vehicle-mounted air-cooled machine gun."
+msgstr "車載型の空冷式機関銃"
+
+msgid "M72 LAW"
+msgstr "M72 LAW"
+
+msgid "An anti-tank rocket launcher that fires a shaped-charge round."
+msgstr "成形炸薬弾を投射する対戦車ロケット弾発射機"
+
+msgid "Automatic Pistol"
+msgstr "ハンドガン"
+
+msgid "An automatic pistol built largely from resin materials."
+msgstr "樹脂素材を多用した自動拳銃"
+
+msgid "Ray Gun"
+msgstr "レイガン"
+
+msgid "A pistol that fires beams of light."
+msgstr "光線を発射する拳銃"
+
+msgid "Freeze Grenade"
+msgstr "冷凍グレネード"
+
+msgid "A launched grenade that projects a cryogenic substance."
+msgstr "極低温物質を投射する擲弾銃"
+
+msgid "Dissolving Fluid"
+msgstr "溶解液"
+
+msgid "A highly concentrated, strongly acidic liquid."
+msgstr "濃度の高い強酸性の液体"
+
+msgid "Rapid-Fire Cannon"
+msgstr "連射砲"
+
+msgid "A cannon that launches shots in rapid succession."
+msgstr "高速に射出する砲"
+
+msgid "Shock Grenade"
+msgstr "電撃グレネード"
+
+msgid "A grenade launcher that fires discharging matter."
+msgstr "放電物質を投射する擲弾銃"
+
+msgid "Boomerang"
+msgstr "ブーメラン"
+
+msgid "A spinning weapon thrown in an arc, it returns to the thrower."
+msgstr "回転させて投げる弧を描く武器。戻ってくる性質がある"
+
+msgid "Shuriken"
+msgstr "手裏剣"
+
+msgid "A small throwing blade with high accuracy, thrown several at a time in quick succession."
+msgstr "投擲用の小型刃物。命中精度が高く複数枚を連続で投げられる"
+
+msgid "Crystal Staff"
+msgstr "水晶杖"
+
+msgid "A staff made of crystal that amplifies and releases magic."
+msgstr "水晶で作られた杖。魔力を増幅して放出する"
+
+msgid "Hunter's Bow"
+msgstr "狩人の弓"
+
+msgid "A bow favored by hunters, it strikes silently from afar."
+msgstr "狩人が愛用する弓。静かに遠距離から狙える"
+
+msgid "Iron Crossbow"
+msgstr "鉄のクロスボウ"
+
+msgid "An iron crossbow, more powerful than a bow but slow to reload."
+msgstr "鉄製の弩弓。弓より威力が高いが装填に時間がかかる"
+
+msgid "Iron Chakram"
+msgstr "鉄のチャクラム"
+
+msgid "A ring-shaped weapon hurled with a spin."
+msgstr "回転させて投げつける円環型の武器"
+
+msgid "Pointy Shoes"
+msgstr "とんがり靴"
+
+msgid "Strange shoes with sharply pointed tips."
+msgstr "先が尖った不思議な靴"
+
+msgid "Brown Gauntlet"
+msgstr "ガントレット(茶)"
+
+msgid "A gauntlet of brown leather."
+msgstr "茶色い革のガントレット"
+
+msgid "Gold Gauntlet"
+msgstr "ガントレット(金)"
+
+msgid "A golden gauntlet."
+msgstr "黄金のガントレット"
+
+msgid "Iron Gauntlet"
+msgstr "ガントレット(鉄)"
+
+msgid "A heavy gauntlet made of iron."
+msgstr "鉄製の重厚なガントレット"
+
+msgid "Blue Gauntlet"
+msgstr "ガントレット(青)"
+
+msgid "A gauntlet of blue metal."
+msgstr "青い金属製のガントレット"
+
+msgid "Magic Gauntlet"
+msgstr "ガントレット(魔)"
+
+msgid "A gauntlet imbued with magic."
+msgstr "魔力を帯びたガントレット"
+
+msgid "Captain's Coat"
+msgstr "キャプテンのコート"
+
+msgid "A fine coat worn by a ship's captain, dignified and sturdy."
+msgstr "船長が着用する立派なコート。威厳があり丈夫"
+
+msgid "Chef's Hat"
+msgstr "コック帽"
+
+msgid "A white hat worn by cooks, it offers no real protection."
+msgstr "料理人が被る白い帽子。特に防御力はない"
+
+msgid "Sandals"
+msgstr "サンダル"
+
+msgid "Light, easy-walking footwear well suited to long journeys."
+msgstr "軽くて歩きやすい履物。長旅に適している"
+
+msgid "Sailor Uniform"
+msgstr "セーラー服"
+
+msgid "A crisp, clean sailor uniform that keeps you free to move."
+msgstr "清潔感のあるセーラー服。動きやすさを確保している"
+
+msgid "Diamond Ring"
+msgstr "ダイヤの指輪"
+
+msgid "A ring set with a glittering diamond."
+msgstr "ダイヤモンドが輝く指輪"
+
+msgid "Check Shirt"
+msgstr "チェックシャツ"
+
+msgid "A sturdy checkered shirt."
+msgstr "丈夫な格子柄のシャツ"
+
+msgid "Tool Vest"
+msgstr "ツールチョッキ"
+
+msgid "A vest fitted with many pockets for tools."
+msgstr "工具用ポケットが多数付いたチョッキ"
+
+msgid "Denim Clothes"
+msgstr "デニム素材の服"
+
+msgid "Clothes made of tough denim fabric, ideal for everyday wear."
+msgstr "丈夫なデニム生地で作られた服。日常使いに最適"
+
+msgid "Heart Ring"
+msgstr "ハートの指輪"
+
+msgid "A heart-shaped ring."
+msgstr "ハート型の指輪"
+
+msgid "Fur Jacket"
+msgstr "ファージャケット"
+
+msgid "A brown fur jacket that is extremely warm."
+msgstr "茶色の毛皮ジャケット。極めて暖かい"
+
+msgid "Fur Hat"
+msgstr "ファー帽子"
+
+msgid "A warm hat lined with fur."
+msgstr "毛皮で裏打ちされた温かい帽子"
+
+msgid "Host Clothes"
+msgstr "ホストの服"
+
+msgid "A flashy outfit worn at host clubs."
+msgstr "ホストクラブで使われる派手な衣装"
+
+msgid "Large Messenger Bag"
+msgstr "メッセンジャーバッグ(大)"
+
+msgid "A big messenger bag."
+msgstr "大きなメッセンジャーバッグ"
+
+msgid "Waist Messenger Bag"
+msgstr "メッセンジャーバッグ(腰)"
+
+msgid "A messenger bag worn at the waist."
+msgstr "腰に下げるメッセンジャーバッグ"
+
+msgid "Leather Coat"
+msgstr "レザーコート"
+
+msgid "A long coat made of leather."
+msgstr "革製の長いコート"
+
+msgid "Leather Vest"
+msgstr "レザーチョッキ"
+
+msgid "A leather vest that is easy to move in."
+msgstr "動きやすい革のチョッキ"
+
+msgid "Leather Hand"
+msgstr "レザーハンド"
+
+msgid "A bracer made of leather."
+msgstr "革製の腕当て"
+
+msgid "Leather Bandana"
+msgstr "レザーバンダナ"
+
+msgid "A leather bandana wound around the arm."
+msgstr "腕に巻く革のバンダナ"
+
+msgid "Leather Belt"
+msgstr "レザーベルト"
+
+msgid "A sturdy belt made of leather."
+msgstr "革製の丈夫なベルト"
+
+msgid "Leather Long Boots"
+msgstr "レザーロングブーツ"
+
+msgid "Long boots that cover up to the knees."
+msgstr "膝まで覆うロングブーツ"
+
+msgid "Leather Gloves"
+msgstr "レザー手袋"
+
+msgid "Gloves made of leather."
+msgstr "革で作った手袋"
+
+msgid "Leather Clothes"
+msgstr "レザー服"
+
+msgid "Clothes tailored from leather."
+msgstr "革で仕立てた服"
+
+msgid "Fine Chainmail"
+msgstr "上等鎖帷子"
+
+msgid "Fine armor woven tightly from iron links."
+msgstr "鉄の鎖を細かく編み込んだ上等な鎧"
+
+msgid "Superior Knight Armor"
+msgstr "上級騎士の鎧"
+
+msgid "First-rate armor worn by elite knights."
+msgstr "精鋭騎士が纏う一級品の鎧"
+
+msgid "Apocalypse Clothes"
+msgstr "世紀末の服"
+
+msgid "Clothes of a warrior who survived the end times, battered but functional."
+msgstr "世紀末を生き抜いた戦士の服。傷だらけだが機能的"
+
+msgid "Work Helmet"
+msgstr "作業用ヘルメット"
+
+msgid "An industrial hat with excellent shock absorption."
+msgstr "衝撃吸収性に優れた産業用の帽子"
+
+msgid "Adventurer's Clothes"
+msgstr "冒険者の服"
+
+msgid "Sturdy clothes suited for travel."
+msgstr "旅に適した丈夫な服"
+
+msgid "Strength Stone"
+msgstr "力の石"
+
+msgid "A cluster of stones that holds a mysterious power."
+msgstr "不思議な力を宿す石の集合体"
+
+msgid "Crusader Clothes"
+msgstr "十字軍の服"
+
+msgid "Historic armor worn by crusader soldiers, heavy but tough."
+msgstr "十字軍の兵士が着用した歴史ある鎧。重いが頑強"
+
+msgid "Thick-Sole Leather Boots"
+msgstr "厚底革ブーツ"
+
+msgid "Sturdy leather boots with thick soles."
+msgstr "厚底の丈夫な革ブーツ"
+
+msgid "Old Knight Helm"
+msgstr "古い騎士兜"
+
+msgid "A rusted knight's helm."
+msgstr "錆びついた騎士の兜"
+
+msgid "Ancient Robe"
+msgstr "古代の法衣"
+
+msgid "A robe once worn by an ancient sorcerer."
+msgstr "古代の魔術師が着ていた法衣"
+
+msgid "Merchant's Clothes"
+msgstr "商人の服"
+
+msgid "Practical attire favored by merchants."
+msgstr "商人が好む実用的な服装"
+
+msgid "Crest Shield"
+msgstr "城紋の盾"
+
+msgid "A shield engraved with a castle crest."
+msgstr "城の紋章が刻まれた盾"
+
+msgid "Thick Belt"
+msgstr "太ベルト"
+
+msgid "A wide, sturdy belt."
+msgstr "幅広の頑丈なベルト"
+
+msgid "Thick Gold Ring"
+msgstr "太金の指輪"
+
+msgid "A thick gold ring."
+msgstr "太い金の指輪"
+
+msgid "Thick Silver Ring"
+msgstr "太銀の指輪"
+
+msgid "A thick silver ring."
+msgstr "太い銀の指輪"
+
+msgid "Thick Copper Ring"
+msgstr "太銅の指輪"
+
+msgid "A thick copper ring."
+msgstr "太い銅の指輪"
+
+msgid "Sun Armor"
+msgstr "太陽鎧"
+
+msgid "Armor engraved with the crest of the sun."
+msgstr "太陽の紋章が刻まれた鎧"
+
+msgid "Queen's Crown"
+msgstr "女王の冠"
+
+msgid "A jeweled crown that displays a queen's dignity, and it is extremely valuable."
+msgstr "女王の威厳を示す宝冠。非常に高価"
+
+msgid "Cosmic Crown"
+msgstr "宇宙冠"
+
+msgid "A crown forged from an unknown metal."
+msgstr "未知の金属で作られた冠"
+
+msgid "Red Cosmic Shield"
+msgstr "宇宙盾(赤)"
+
+msgid "A shield made of red cosmic alloy."
+msgstr "赤い宇宙合金の盾"
+
+msgid "Blue Cosmic Shield"
+msgstr "宇宙盾(青)"
+
+msgid "A shield made of blue cosmic alloy."
+msgstr "青い宇宙合金の盾"
+
+msgid "Cosmic Armor"
+msgstr "宇宙鎧"
+
+msgid "Armor designed for activity in outer space."
+msgstr "宇宙空間での活動用に設計された鎧"
+
+msgid "Green Cosmic Boots"
+msgstr "宇宙靴(緑)"
+
+msgid "Green boots made for activity in space."
+msgstr "緑色の宇宙活動用ブーツ"
+
+msgid "Red Cosmic Boots"
+msgstr "宇宙靴(赤)"
+
+msgid "Red boots made for activity in space."
+msgstr "赤色の宇宙活動用ブーツ"
+
+msgid "Blue Cosmic Boots"
+msgstr "宇宙靴(青)"
+
+msgid "Blue boots made for activity in space."
+msgstr "青色の宇宙活動用ブーツ"
+
+msgid "Jewel Ring"
+msgstr "宝石の指輪"
+
+msgid "An elegant ring set with a gem."
+msgstr "宝石が嵌った上品な指輪"
+
+msgid "Jewel Belt"
+msgstr "宝石ベルト"
+
+msgid "A belt decorated with gems."
+msgstr "宝石が装飾されたベルト"
+
+msgid "Jeweled Gold Armor"
+msgstr "宝石黄金鎧"
+
+msgid "The finest golden armor studded with gems."
+msgstr "宝石が散りばめられた最高級の黄金鎧"
+
+msgid "General's Helm"
+msgstr "将軍の兜"
+
+msgid "A helm once worn by a battle-hardened general."
+msgstr "歴戦の将軍が被った兜"
+
+msgid "Cloth Shirt"
+msgstr "布のシャツ"
+
+msgid "An everyday shirt. Offers little protection."
+msgstr "普段着のシャツ。防御力は期待できない"
+
+msgid "Cloth Pants"
+msgstr "布のズボン"
+
+msgid "A perfectly ordinary pair of pants."
+msgstr "ごく普通のズボン"
+
+msgid "Cloth Hat"
+msgstr "布の帽子"
+
+msgid "A common cloth hat."
+msgstr "ありふれた布の帽子"
+
+msgid "Cloth Gloves"
+msgstr "布の手袋"
+
+msgid "Thin cloth gloves."
+msgstr "薄手の布手袋"
+
+msgid "Cloth Armband"
+msgstr "布の腕巻き"
+
+msgid "A sleeve cover made of thin cloth."
+msgstr "薄い布地の袖カバー"
+
+msgid "Cloth Shoes"
+msgstr "布の靴"
+
+msgid "Thin-soled cloth shoes."
+msgstr "底の薄い布靴"
+
+msgid "Veiled Hat"
+msgstr "幕付き帽子"
+
+msgid "A sand-guard hat fitted with a hanging veil."
+msgstr "垂れ幕が付いた防砂帽子"
+
+msgid "Reinforced Mechanical Arm"
+msgstr "強化機械腕"
+
+msgid "An improved mechanical arm that delivers greater output."
+msgstr "改良型の機械腕。より高い出力を発揮する"
+
+msgid "Shadow Cloak"
+msgstr "影の外套"
+
+msgid "A special cloak that melts into the darkness."
+msgstr "闇に溶け込む特殊な外套"
+
+msgid "Shadow Hood"
+msgstr "影の頭巾"
+
+msgid "A hood favored by assassins."
+msgstr "暗殺者が愛用する頭巾"
+
+msgid "Manager's Attire"
+msgstr "支配人の服"
+
+msgid "Refined clothing worn by the manager of a luxury hotel."
+msgstr "高級ホテルの支配人が着用する格式高い衣服"
+
+msgid "Travel Bag"
+msgstr "旅行カバン"
+
+msgid "A leather bag used by travelers."
+msgstr "旅人が使う革のカバン"
+
+msgid "Traveler's Clothes"
+msgstr "旅行者の服"
+
+msgid "Versatile clothing for travelers, with many pockets for storage."
+msgstr "旅行者向けの多機能な服。ポケットが多く収納に優れる"
+
+msgid "Star Accessory"
+msgstr "星のアクセサリー"
+
+msgid "An ornament that holds the power of the stars. Wearing it stirs a mysterious strength."
+msgstr "星の力を宿す装飾品。身に着けると不思議な力が湧く"
+
+msgid "Star Iron Ring"
+msgstr "星鉄の指輪"
+
+msgid "A ring made from meteoric metal."
+msgstr "隕石の金属で作られた指輪"
+
+msgid "Moon Armor"
+msgstr "月の鎧"
+
+msgid "A mystical armor that radiates moonlight."
+msgstr "月光を放つ神秘的な鎧"
+
+msgid "Wooden Shield"
+msgstr "木の盾"
+
+msgid "A light shield made of wood."
+msgstr "木で作った軽い盾"
+
+msgid "Wood Cord Ring"
+msgstr "木紐の指輪"
+
+msgid "A simple ring woven from wooden cord."
+msgstr "木の紐で作った素朴な指輪"
+
+msgid "Owl Ring"
+msgstr "梟の指輪"
+
+msgid "A ring shaped like an owl."
+msgstr "梟を模した指輪"
+
+msgid "Plant Ring"
+msgstr "植物の指輪"
+
+msgid "A ring shaped like a plant."
+msgstr "植物を模した指輪"
+
+msgid "Machine Ring"
+msgstr "機械の指輪"
+
+msgid "A tiny machine in the form of a ring."
+msgstr "指輪型の小さな機械"
+
+msgid "Mechanical Arm"
+msgstr "機械腕"
+
+msgid "A mechanical arm that boosts strength when worn."
+msgstr "機械の腕。装着すると腕力が上がる"
+
+msgid "Fur Coat"
+msgstr "毛皮付きコート"
+
+msgid "A warm coat lined with fur, made for the bitter cold."
+msgstr "毛皮の裏地がついた暖かいコート。極寒地向け"
+
+msgid "Polka Dot Boots"
+msgstr "水玉長靴"
+
+msgid "Polka dot boots that come in handy around water."
+msgstr "水玉模様の長靴。水場で役立つ"
+
+msgid "Flame Ring"
+msgstr "炎の指輪"
+
+msgid "A ring imbued with flame."
+msgstr "炎を宿した指輪"
+
+msgid "Claw Ring"
+msgstr "爪の指輪"
+
+msgid "A ring fitted with a sharp claw."
+msgstr "鋭い爪が付いた指輪"
+
+msgid "Hunter Cloak"
+msgstr "狩人の外套"
+
+msgid "A cloak stained with the blood of beasts."
+msgstr "獣の血で染まった外套"
+
+msgid "Hunter Hat"
+msgstr "狩人の帽子"
+
+msgid "A traditional hat worn for hunting beasts."
+msgstr "獣狩りの伝統的な帽子"
+
+msgid "Hunter Leggings"
+msgstr "狩人の脚絆"
+
+msgid "Leggings designed for freedom of movement."
+msgstr "動きやすさを重視した脚絆"
+
+msgid "Wolf Head Shield"
+msgstr "狼頭の盾"
+
+msgid "A shield carved with the head of a wolf."
+msgstr "狼の頭が彫られた盾"
+
+msgid "Lion Shield"
+msgstr "獅子の盾"
+
+msgid "A shield bearing the crest of a lion."
+msgstr "獅子の紋章が入った盾"
+
+msgid "Crown"
+msgstr "王冠"
+
+msgid "A golden crown that displays a king's dignity, extremely valuable as an ornament."
+msgstr "王の威厳を示す黄金の冠。装飾品として極めて高価"
+
+msgid "Royal Crest Shield"
+msgstr "王紋の盾"
+
+msgid "A shield bearing the royal family's crest."
+msgstr "王家の紋章が入った盾"
+
+msgid "Mountaineering Boots"
+msgstr "登山靴"
+
+msgid "Sturdy boots built for traversing mountains."
+msgstr "山岳踏破用の頑丈な靴"
+
+msgid "White Leggings"
+msgstr "白い脚絆"
+
+msgid "Clean white leggings, light and easy to move in."
+msgstr "清潔な白い脚絆。軽くて動きやすい"
+
+msgid "Grain Ring"
+msgstr "粒の指輪"
+
+msgid "A ring lined with small beads."
+msgstr "小さな粒が連なる指輪"
+
+msgid "Purple Stone Ring"
+msgstr "紫石の指輪"
+
+msgid "A ring set with a purple stone."
+msgstr "紫の石が嵌った指輪"
+
+msgid "Gentleman's Clothes"
+msgstr "紳士の服"
+
+msgid "An evening coat, fine attire worn in high society."
+msgstr "夜会服の上着。社交界で使われる上質な衣服"
+
+msgid "Green Ring"
+msgstr "緑の指輪"
+
+msgid "A ring of pale green."
+msgstr "淡い緑色の指輪"
+
+msgid "Green Clothes"
+msgstr "緑の服"
+
+msgid "Plain but sturdy green garments."
+msgstr "質素だが丈夫な緑色の衣服"
+
+msgid "Green Adventurer's Clothes"
+msgstr "緑冒険者の服"
+
+msgid "Green clothes for adventurers, balancing durability and freedom of movement."
+msgstr "冒険者向けの緑色の服。耐久性と動きやすさを両立"
+
+msgid "Green Gem Shield"
+msgstr "緑宝石の盾"
+
+msgid "A shield set with a green gem."
+msgstr "緑の宝石が嵌った盾"
+
+msgid "Green Stone Ring"
+msgstr "緑石の指輪"
+
+msgid "A ring set with a green stone."
+msgstr "緑の石が嵌った指輪"
+
+msgid "Green Boots"
+msgstr "緑長靴"
+
+msgid "Sturdy green boots."
+msgstr "緑色の頑丈な長靴"
+
+msgid "Stitched Shirt"
+msgstr "縫いシャツ"
+
+msgid "A handmade shirt carefully sewn together."
+msgstr "丁寧に縫い合わせた手製のシャツ"
+
+msgid "Pegasus Barding"
+msgstr "翼馬鎧"
+
+msgid "Armor engraved with the crest of a winged horse."
+msgstr "翼を持つ馬の紋章が刻まれた鎧"
+
+msgid "Cleric Crown"
+msgstr "聖職者の冠"
+
+msgid "A crown imbued with holy power."
+msgstr "聖なる力を宿す冠"
+
+msgid "Cleric Robe"
+msgstr "聖職者の法衣"
+
+msgid "A robe worn by clerics."
+msgstr "聖職者が纏う法衣"
+
+msgid "Paladin Armor"
+msgstr "聖騎士の鎧"
+
+msgid "Armor blessed with holy power."
+msgstr "聖なる力で祝福された鎧"
+
+msgid "Rainbow Ring"
+msgstr "虹の指輪"
+
+msgid "A ring that shines in seven colors."
+msgstr "七色に輝く指輪"
+
+msgid "Snake Ring"
+msgstr "蛇の指輪"
+
+msgid "A ring shaped like a snake."
+msgstr "蛇を模した指輪"
+
+msgid "Octopus Ring"
+msgstr "蛸の指輪"
+
+msgid "A strange ring shaped like an octopus."
+msgstr "蛸を模した奇妙な指輪"
+
+msgid "Blood Ring"
+msgstr "血の指輪"
+
+msgid "A ring made of bloodstone."
+msgstr "血赤石で作られた指輪"
+
+msgid "Western Armor"
+msgstr "西洋鎧"
+
+msgid "Heavy armor with a traditional design, weighing you down."
+msgstr "伝統的な意匠が施されたずっしりと重い鎧"
+
+msgid "Red Cloak"
+msgstr "赤いマント"
+
+msgid "A vivid red cloak that fills you with strength when worn."
+msgstr "鮮やかな赤い外套。纏うと力が湧いてくる"
+
+msgid "Red Gem Shield"
+msgstr "赤宝石の盾"
+
+msgid "A shield set with a red gem."
+msgstr "赤い宝石が嵌った盾"
+
+msgid "Red Stone Ring"
+msgstr "赤石の指輪"
+
+msgid "A ring set with a red stone."
+msgstr "赤い石が嵌った指輪"
+
+msgid "Military Boots"
+msgstr "軍靴"
+
+msgid "Sturdy boots for military use."
+msgstr "軍用の頑丈なブーツ"
+
+msgid "Training Gi"
+msgstr "道着"
+
+msgid "Clothing worn by trainees, made for lightness and mobility."
+msgstr "修行者が着る衣服。身軽さを重視した作り"
+
+msgid "Golden Helm"
+msgstr "金の兜"
+
+msgid "A lavish helm adorned with gold."
+msgstr "黄金で装飾された豪華な兜"
+
+msgid "Gold Ring"
+msgstr "金の指輪"
+
+msgid "A ring made of gold."
+msgstr "金で作られた指輪"
+
+msgid "Gold Cord Ring"
+msgstr "金紐の指輪"
+
+msgid "A ring woven from gold cord."
+msgstr "金の紐で編んだ指輪"
+
+msgid "Iron Boots"
+msgstr "鉄のブーツ"
+
+msgid "Heavy boots reinforced with iron."
+msgstr "鉄で補強された重厚なブーツ"
+
+msgid "Iron Spiked Knuckles"
+msgstr "鉄の棘拳"
+
+msgid "An iron fist weapon studded with spikes."
+msgstr "棘が付いた鉄拳"
+
+msgid "Iron Claw"
+msgstr "鉄の爪"
+
+msgid "A hand guard fitted with sharp iron claws."
+msgstr "鉄製の鋭い爪が付いた手甲"
+
+msgid "Iron Crown"
+msgstr "鉄の王冠"
+
+msgid "A rugged, unadorned crown forged from iron."
+msgstr "鉄製の無骨な王冠"
+
+msgid "Iron Shield"
+msgstr "鉄の盾"
+
+msgid "A sturdy shield made of iron."
+msgstr "鉄製の堅固な盾"
+
+msgid "Iron Kote"
+msgstr "鉄の篭手"
+
+msgid "A metal gauntlet that limits finger movement but is rugged."
+msgstr "金属製の篭手。指先の自由度は低いが堅牢"
+
+msgid "Iron Breastplate"
+msgstr "鉄の胸当て"
+
+msgid "A simple breastplate made of iron."
+msgstr "簡素な鉄製の胸当て"
+
+msgid "Iron Leg Armor"
+msgstr "鉄の脚鎧"
+
+msgid "Heavy leg armor reinforced with iron plates."
+msgstr "鉄板で補強された重量級の脚鎧"
+
+msgid "Iron Greaves"
+msgstr "鉄の脛当て"
+
+msgid "Sturdy greaves made of iron."
+msgstr "頑丈な鉄製の脛当て"
+
+msgid "Iron Vambrace"
+msgstr "鉄の腕甲"
+
+msgid "An iron vambrace that is heavy but offers strong defense."
+msgstr "鉄製の腕甲。重いが防御力が高い"
+
+msgid "Iron Gloves"
+msgstr "鉄手袋"
+
+msgid "Gloves with iron plates sewn into them."
+msgstr "鉄板を縫い込んだ手袋"
+
+msgid "Silver Ring"
+msgstr "銀の指輪"
+
+msgid "A ring made of silver."
+msgstr "銀で作られた指輪"
+
+msgid "Silver Cord Ring"
+msgstr "銀紐の指輪"
+
+msgid "A ring woven from silver cord."
+msgstr "銀の紐で編んだ指輪"
+
+msgid "Silver Armor"
+msgstr "銀鎧"
+
+msgid "Beautiful armor made of silver."
+msgstr "銀製の美しい鎧"
+
+msgid "Copper Ring"
+msgstr "銅の指輪"
+
+msgid "A plain ring made of copper."
+msgstr "銅で作られた素朴な指輪"
+
+msgid "Anchor Pendant"
+msgstr "錨のペンダント"
+
+msgid "A pendant shaped like an anchor."
+msgstr "錨を模したペンダント"
+
+msgid "Chainmail"
+msgstr "鎖帷子"
+
+msgid "Armor woven from interlocking chains, balancing mobility and defense."
+msgstr "鎖を編み込んだ鎧。動きやすさと防御を両立する"
+
+msgid "Dark Armor"
+msgstr "闇鎧"
+
+msgid "Jet-black armor holding the power of darkness."
+msgstr "闇の力を秘めた漆黒の鎧"
+
+msgid "Winter Boots"
+msgstr "防寒ブーツ"
+
+msgid "Fur-lined boots for warmth."
+msgstr "裏地に毛皮を使用した防寒ブーツ"
+
+msgid "Winter Gloves"
+msgstr "防寒手袋"
+
+msgid "Thick winter gloves with excellent heat retention."
+msgstr "厚手の防寒手袋。保温性に優れる"
+
+msgid "Winter Gaiters"
+msgstr "防寒脚絆"
+
+msgid "Gaiters with excellent heat retention, prized in cold regions."
+msgstr "保温性に優れた脚絆。寒冷地で重宝する"
+
+msgid "Electric Shield"
+msgstr "電盾"
+
+msgid "A shield crackling with electric current."
+msgstr "電流が走る盾"
+
+msgid "Blue Crown"
+msgstr "青の王冠"
+
+msgid "A crown set with a shining blue gem."
+msgstr "青い宝石が輝く王冠"
+
+msgid "Blue Stone Ring"
+msgstr "青石の指輪"
+
+msgid "A ring set with a blue stone."
+msgstr "青い石が嵌った指輪"
+
+msgid "Blue Line Ring"
+msgstr "青線の指輪"
+
+msgid "A ring traced with a blue line."
+msgstr "青い線が走る指輪"
+
+msgid "Blue Boots"
+msgstr "青長靴"
+
+msgid "Waterproof blue boots."
+msgstr "青い防水の長靴"
+
+msgid "Leather Duster Coat"
+msgstr "革のダスターコート"
+
+msgid "A long leather duster coat."
+msgstr "長い革のダスターコート"
+
+msgid "Leather Jumpsuit"
+msgstr "革のツナギ"
+
+msgid "A full-body leather jumpsuit."
+msgstr "全身を覆う革のツナギ"
+
+msgid "Leather Bandage"
+msgstr "革のバンデージ"
+
+msgid "A simple breastplate wrapped with leather cords."
+msgstr "革紐を巻いた簡素な胸当て"
+
+msgid "Leather Boots"
+msgstr "革のブーツ"
+
+msgid "Boots shaped from well-tanned leather."
+msgstr "よくなめされた革で成形された長靴"
+
+msgid "Leather Cloak"
+msgstr "革のマント"
+
+msgid "A large leather cloak that covers the back."
+msgstr "背中を覆う大きな革のマント"
+
+msgid "Hide Gloves"
+msgstr "革の手袋"
+
+msgid "Leather gloves useful for both work and combat."
+msgstr "革製の手袋。作業にも戦闘にも使える"
+
+msgid "Leather Quiver"
+msgstr "革の矢筒"
+
+msgid "A leather quiver for holding arrows."
+msgstr "矢を収める革の矢筒"
+
+msgid "Leather Gaiters"
+msgstr "革の脚絆"
+
+msgid "Gaiters made of thick leather, a well-balanced piece of armor."
+msgstr "厚手の革で作られた脚絆。バランスのよい防具"
+
+msgid "Leather Bracer"
+msgstr "革の腕当て"
+
+msgid "A leather bracer designed for freedom of movement."
+msgstr "革製の腕当て。動きやすさを重視した設計"
+
+msgid "Leather Footwear"
+msgstr "革ブーツ"
+
+msgid "Simple leather boots."
+msgstr "シンプルな革のブーツ"
+
+msgid "Leather Shoes"
+msgstr "革靴"
+
+msgid "Well-worn leather shoes."
+msgstr "履き慣れた革靴"
+
+msgid "Knight Shield"
+msgstr "騎士の盾"
+
+msgid "A shield bearing the crest of a knightly order."
+msgstr "騎士団の紋章が入った盾"
+
+msgid "Knight Greaves"
+msgstr "騎士の脚甲"
+
+msgid "Heavy leg armor worn by knights, with the defense of steel."
+msgstr "騎士が着用する重厚な脚鎧。鋼鉄の防御力"
+
+msgid "Knight Leg Armor"
+msgstr "騎士の脚鎧"
+
+msgid "Leg armor for heavily armored knights."
+msgstr "重装騎士の脚部防具"
+
+msgid "Knight Armor"
+msgstr "騎士の鎧"
+
+msgid "The standard armor issued to a knightly order."
+msgstr "騎士団の標準装備の鎧"
+
+msgid "Knight Boots"
+msgstr "騎士の靴"
+
+msgid "Iron-soled boots worn by knights."
+msgstr "騎士が履く鉄底の靴"
+
+msgid "Bone Ring"
+msgstr "骨の指輪"
+
+msgid "A ring made of bone."
+msgstr "骨で作られた指輪"
+
+msgid "Skeleton Ring"
+msgstr "骸骨の指輪"
+
+msgid "An eerie ring shaped like a skeleton."
+msgstr "骸骨を模した不気味な指輪"
+
+msgid "Demon Shield"
+msgstr "魔の盾"
+
+msgid "A shield imbued with magic."
+msgstr "魔力を帯びた盾"
+
+msgid "Golden Shield"
+msgstr "黄金の盾"
+
+msgid "A lavish shield made of gold."
+msgstr "黄金で作られた豪華な盾"
+
+msgid "Golden Leg Armor"
+msgstr "黄金の脚鎧"
+
+msgid "Leg armor adorned with gold craftsmanship, first-rate in both looks and defense."
+msgstr "金細工で装飾された脚鎧。見た目も防御も一級品"
+
+msgid "Golden Bell"
+msgstr "黄金の鈴"
+
+msgid "A small bell that shines golden, warding off evil."
+msgstr "金色に輝く小さな鈴。魔除けの効果がある"
+
+msgid "Golden Armor"
+msgstr "黄金鎧"
+
+msgid "Lavish armor cast from pure gold."
+msgstr "純金で鋳造された豪華な鎧"
+
+msgid "Golden Boots"
+msgstr "黄金靴"
+
+msgid "Boots adorned with gold."
+msgstr "黄金で装飾された靴"
+
+msgid "Yellow Armor"
+msgstr "黄鎧"
+
+msgid "Heavy armor shining like gold, boasting top-class defense."
+msgstr "黄金に輝く重厚な鎧。最高クラスの防御力を誇る"
+
+msgid "Black Gaiters"
+msgstr "黒い脚絆"
+
+msgid "Pitch-black gaiters made of special material that blends into the darkness."
+msgstr "漆黒の脚絆。闇に溶け込む特殊素材"
+
+msgid "Black Gi"
+msgstr "黒い道着"
+
+msgid "A black martial arts gi, a functional garment favored by fighters."
+msgstr "黒い武道着。格闘家が愛用する機能的な衣服"
+
+msgid "Black Cosmic Armor"
+msgstr "黒の宇宙鎧"
+
+msgid "Special cosmic armor painted black."
+msgstr "黒く塗装された特殊な宇宙鎧"
+
+msgid "Black Ring"
+msgstr "黒の指輪"
+
+msgid "A pitch-black ring, imbued with the power of darkness."
+msgstr "漆黒の指輪。闇の力が宿っている"
+
+msgid "Black Crown"
+msgstr "黒の王冠"
+
+msgid "A crown wrapped in darkness."
+msgstr "闇を纏った王冠"
+
+msgid "Black Jacket"
+msgstr "黒ジャケット"
+
+msgid "A jacket made of black cloth."
+msgstr "黒い布製のジャケット"
+
+msgid "Black Boots"
+msgstr "黒ブーツ"
+
+msgid "Boots made of black leather."
+msgstr "黒い革製のブーツ"
+
+msgid "Dragon Helm"
+msgstr "龍の兜"
+
+msgid "A sinister helm shaped like a dragon."
+msgstr "竜を模した禍々しい兜"
+
+msgid "Dragon Ring"
+msgstr "龍の指輪"
+
+msgid "A ring shaped like a dragon."
+msgstr "龍を模した指輪"
+
+msgid "Ice Cream"
+msgstr "アイスクリーム"
+
+msgid "A cold, sweet dessert that melts in hot places."
+msgstr "冷たく甘いデザート。暑い場所では溶けてしまう"
+
+msgid "Almond"
+msgstr "アーモンド"
+
+msgid "A nutritious nut that provides high energy in small amounts."
+msgstr "栄養豊富なナッツ類。少量で高いエネルギーを得られる"
+
+msgid "Pumpkin"
+msgstr "カボチャ"
+
+msgid "A soft, sweet pumpkin that is delicious grilled or stewed."
+msgstr "柔らかくて甘いカボチャ。焼いても煮ても美味しい"
+
+msgid "Garlic Bread"
+msgstr "ガーリックパン"
+
+msgid "Bread whose garlic aroma whets the appetite."
+msgstr "にんにくの香りが食欲をそそるパン"
+
+msgid "Cookie"
+msgstr "クッキー"
+
+msgid "A crisp baked treat that satisfies hunger just a little."
+msgstr "サクサクした焼き菓子。少しだけ空腹を満たす"
+
+msgid "Croissant"
+msgstr "クロワッサン"
+
+msgid "A buttery, fragrant pastry with high nutritional value."
+msgstr "バターの香るパン。栄養価が高い"
+
+msgid "Cola"
+msgstr "コーラ"
+
+msgid "A carbonated drink with a refreshing kick."
+msgstr "炭酸飲料。爽快感がある"
+
+msgid "Sandwich"
+msgstr "サンドイッチ"
+
+msgid "A quick meal of fillings between bread, well balanced in nutrition."
+msgstr "具材をパンで挟んだ手軽な食事。栄養バランスがよい"
+
+msgid "Watermelon"
+msgstr "スイカ"
+
+msgid "A large green fruit, rich in water and filling."
+msgstr "大きな緑色の果物。水分が豊富で腹持ちがよい"
+
+msgid "Smoothie"
+msgstr "スムージー"
+
+msgid "A smooth, cold drink that soothes a weary body."
+msgstr "滑らかに流れる冷たい飲み物。疲れた体を癒す"
+
+msgid "Sausage"
+msgstr "ソーセージ"
+
+msgid "A juicy link sausage."
+msgstr "ジューシーな腸詰めソーセージ"
+
+msgid "Beef Tongue"
+msgstr "タン"
+
+msgid "Tender, richly marbled beef tongue."
+msgstr "柔らかく脂の乗った牛タン"
+
+msgid "Cherry"
+msgstr "チェリー"
+
+msgid "A small red fruit that staves off hunger just a little."
+msgstr "小さな赤い果実。少しだけ空腹を凌げる"
+
+msgid "Churros"
+msgstr "チュロッキー"
+
+msgid "A fried treat dusted with sugar."
+msgstr "砂糖をまぶした揚げ菓子"
+
+msgid "Chocolate"
+msgstr "チョコレート"
+
+msgid "A sweet, delicious treat that sinks into a tired body."
+msgstr "甘くて美味しい菓子。疲れた体に染み渡る"
+
+msgid "Cheese"
+msgstr "チーズ"
+
+msgid "Aged cheese, full of nutrition."
+msgstr "熟成したチーズ。栄養満点"
+
+msgid "Tomato"
+msgstr "トマト"
+
+msgid "A ripe red vegetable that can be eaten raw."
+msgstr "赤く熟れた野菜。生でもそのまま食べられる"
+
+msgid "Donut"
+msgstr "ドーナツ"
+
+msgid "A sweet fried treat that fills you up."
+msgstr "甘い揚げ菓子。腹持ちがよい"
+
+msgid "Naan"
+msgstr "ナン"
+
+msgid "A soft, chewy flatbread."
+msgstr "もちもちした平たいパン"
+
+msgid "Hamburger"
+msgstr "ハンバーガー"
+
+msgid "Meat and bread together, thoroughly satisfying."
+msgstr "肉とパンの組み合わせ。食べごたえ満点"
+
+msgid "Baguette"
+msgstr "バケット"
+
+msgid "A French bread known for its hard crust."
+msgstr "硬い皮が特徴のフランスパン"
+
+msgid "Banana"
+msgstr "バナナ"
+
+msgid "A sweet fruit that is easy to eat on the go."
+msgstr "手軽に食べられる甘い果物"
+
+msgid "Bread"
+msgstr "パン"
+
+msgid "Freshly baked bread that fills an empty stomach."
+msgstr "焼きたてのパン。空腹を満たす"
+
+msgid "Pancake"
+msgstr "パンケーキ"
+
+msgid "A fluffy baked treat whose sweet aroma whets the appetite."
+msgstr "ふわふわの焼き菓子。甘い香りが食欲をそそる"
+
+msgid "Biscuit"
+msgstr "ビスケット"
+
+msgid "A hard biscuit that keeps well as a preserved food."
+msgstr "固いビスケット。保存食として優秀"
+
+msgid "Beef Jerky"
+msgstr "ビーフジャーキー"
+
+msgid "Dried beef that lasts a long time."
+msgstr "乾燥させた牛肉。保存がきく"
+
+msgid "Pizza"
+msgstr "ピザ"
+
+msgid "Thinly stretched dough topped with ingredients and baked."
+msgstr "薄く伸ばされた生地に具材を乗せて焼いた食べ物"
+
+msgid "Broccoli"
+msgstr "ブロッコリー"
+
+msgid "A boiled green vegetable with very high nutritional value."
+msgstr "茹でた緑の野菜。栄養価が非常に高い"
+
+msgid "Bagel"
+msgstr "ベーグル"
+
+msgid "A chewy ring-shaped bread."
+msgstr "もちもちしたリング型のパン"
+
+msgid "Sesame Bagel"
+msgstr "ベーグル(胡麻)"
+
+msgid "A bagel loaded with sesame seeds."
+msgstr "胡麻がたっぷりのベーグル"
+
+msgid "Popcorn"
+msgstr "ポップコーン"
+
+msgid "A light snack with a popping texture that is hard to stop eating."
+msgstr "弾けるような食感の軽食。止まらなくなる"
+
+msgid "Minced Meat"
+msgstr "ミンチ"
+
+msgid "Finely ground raw meat."
+msgstr "細かく挽いた生肉"
+
+msgid "Ramen"
+msgstr "ラーメン"
+
+msgid "A warm meal of noodles in rich broth that heats you to the core."
+msgstr "濃厚なスープに麺が入った温かい食事。体の芯から温まる"
+
+msgid "Round Meat"
+msgstr "丸肉"
+
+msgid "A round-cut hunk of meat."
+msgstr "丸くカットされた肉塊"
+
+msgid "Jerky"
+msgstr "乾肉"
+
+msgid "Preserved meat with high nutritional value."
+msgstr "保存用の肉。栄養価が高い"
+
+msgid "Scored Bread"
+msgstr "切り込みパン"
+
+msgid "Fragrant bread with a slit cut into the top."
+msgstr "切れ目の入った香ばしいパン"
+
+msgid "Healing Potion"
+msgstr "回復薬"
+
+msgid "Restores about half of your HP."
+msgstr "体力を半分程度回復する"
+
+msgid "Dried Meat"
+msgstr "干し肉"
+
+msgid "Meat preserved by drying in the sun."
+msgstr "天日で干した保存肉"
+
+msgid "Flat Meat"
+msgstr "平肉"
+
+msgid "Thinly sliced meat."
+msgstr "薄くスライスされた肉"
+
+msgid "Grenade"
+msgstr "手榴弾"
+
+msgid "A hand-thrown bomb that deals damage with its blast and shrapnel."
+msgstr "爆発と破片で被害を与える手投げ弾"
+
+msgid "Toothbrush Set"
+msgstr "歯磨きセット"
+
+msgid "A toothbrush and toothpaste, using it restores a bit of vigor."
+msgstr "歯ブラシと歯磨き粉のセット。使うと少し元気が出る"
+
+msgid "Venom Grenade"
+msgstr "毒グレネード"
+
+msgid "A thrown bomb coated in poison, a hit spreads venom."
+msgstr "毒を塗った投擲弾。当たると毒が回る"
+
+msgid "Antidote"
+msgstr "毒消し"
+
+msgid "A herb that cures poison and status ailments."
+msgstr "毒や状態異常を治す薬草"
+
+msgid "Shrimp"
+msgstr "海老"
+
+msgid "Fresh shrimp, high in protein and delicious."
+msgstr "新鮮な海老。高タンパクで美味"
+
+msgid "Swirl Bread"
+msgstr "渦巻きパン"
+
+msgid "Bread with a beautiful swirling pattern."
+msgstr "渦巻き模様が美しいパン"
+
+msgid "Flame Grenade"
+msgstr "火炎グレネード"
+
+msgid "A thrown bomb that unleashes fire, dealing flame damage over a wide area."
+msgstr "炎を放つ投擲弾。広範囲に火炎ダメージを与える"
+
+msgid "Smoke Bomb"
+msgstr "煙幕弾"
+
+msgid "A hand-thrown bomb that creates a screen of vision-blocking smoke."
+msgstr "視界を遮る煙を発生させる手投げ弾"
+
+msgid "Beef"
+msgstr "牛肉"
+
+msgid "Quality beef, grilling it makes a supreme feast."
+msgstr "良質な牛肉。焼けば最高のご馳走になる"
+
+msgid "Prosciutto"
+msgstr "生ハム"
+
+msgid "Salt-cured and aged pork."
+msgstr "塩漬けにして熟成させた豚肉"
+
+msgid "Raw Meat"
+msgstr "生肉"
+
+msgid "Fresh raw meat, delicious once cooked."
+msgstr "新鮮な生肉。調理すれば美味しい"
+
+msgid "Green Herb"
+msgstr "緑ハーブ"
+
+msgid "A fragrant plant with calming and stimulating effects, pressing it to a wound restores a little health."
+msgstr "よい香りに鎮静・興奮などの作用がある植物。傷口に貼ると少し回復する"
+
+msgid "Meatball"
+msgstr "肉団子"
+
+msgid "A ball of rolled minced meat."
+msgstr "丸めた挽き肉の団子"
+
+msgid "Cured Sausage"
+msgstr "腸詰め肉"
+
+msgid "Meat stuffed into a casing and smoked."
+msgstr "腸に詰めて燻製にした肉"
+
+msgid "Belly Meat"
+msgstr "腹肉"
+
+msgid "A fatty cut of belly meat."
+msgstr "脂の乗った腹部の肉"
+
+msgid "Pig Head"
+msgstr "豚頭"
+
+msgid "A pig's head, prized as a delicacy."
+msgstr "豚の頭。珍味として価値がある"
+
+msgid "Flashbang"
+msgstr "閃光弾"
+
+msgid "A thrown grenade that stuns with a burst of blinding light and sound."
+msgstr "強烈な光と音でショック状態にする手投げ弾"
+
+msgid "Loaf of Bread"
+msgstr "食パン"
+
+msgid "A soft, fluffy loaf of white bread."
+msgstr "ふわふわの白い食パン"
+
+msgid "Black Bread"
+msgstr "食パン(黒)"
+
+msgid "Bread baked from dark grain."
+msgstr "黒い穀物で焼いた食パン"
+
+msgid "Meat on the Bone"
+msgstr "骨付き肉"
+
+msgid "A large cut of meat on the bone, hearty and filling."
+msgstr "骨付きの大きな肉。食べごたえがある"
+
+msgid "Chicken Meat"
+msgstr "鶏肉"
+
+msgid "Tender chicken that works in many dishes."
+msgstr "柔らかい鶏肉。様々な料理に使える"
+
+msgid "Yellow Herb"
+msgstr "黄ハーブ"
+
+msgid "A plant that bolsters vitality, brewed into a drink to mend wounds."
+msgstr "体力を増強させる作用がある植物。煎じて飲むと傷が癒える"
+
+msgid "9mm AP"
+msgstr "9mm AP"
+
+msgid "A 9mm round with a hardened core that pierces armor."
+msgstr "硬質弾芯で装甲を貫通する9mm弾"
+
+msgid "9mm FMJ"
+msgstr "9mm FMJ"
+
+msgid "Standard 9mm caliber ammunition."
+msgstr "標準的な9mm口径の弾薬"
+
+msgid "9mm HP"
+msgstr "9mm HP"
+
+msgid "A 9mm round with a soft tip that deals heavy damage to living targets."
+msgstr "軟質弾頭で生体に高い殺傷力を発揮する9mm弾"
+
+msgid "Energy Cell"
+msgstr "エネルギーセル"
+
+msgid "A compact energy battery."
+msgstr "小型のエネルギー電池"
+
+msgid "Tesla Coil Orb"
+msgstr "テスラコイル玉"
+
+msgid "A special round charged with electric energy."
+msgstr "電気エネルギーを蓄えた特殊弾"
+
+msgid "Rifle Round"
+msgstr "ライフル弾"
+
+msgid "A general-purpose rifle round."
+msgstr "汎用ライフル弾"
+
+msgid "Gray Small-Caliber Round"
+msgstr "小口径弾(灰)"
+
+msgid "A gray small-caliber round."
+msgstr "灰色の小口径弾"
+
+msgid "Yellow Small-Caliber Round"
+msgstr "小口径弾(黄)"
+
+msgid "A yellow small-caliber round with standard performance."
+msgstr "黄色の小口径弾。標準的な性能"
+
+msgid "Heavy Round"
+msgstr "強装弾"
+
+msgid "A high-powered round packed with extra propellant."
+msgstr "火薬量を増した高威力弾"
+
+msgid "Wooden Arrow"
+msgstr "木の矢"
+
+msgid "A crude arrow whittled from wood."
+msgstr "木を削って作った簡素な矢"
+
+msgid "Water Arrow"
+msgstr "水の矢"
+
+msgid "An arrow imbued with the magic of water."
+msgstr "水の魔力が込められた矢"
+
+msgid "Ice Arrow"
+msgstr "氷矢"
+
+msgid "An arrow imbued with the magic of ice that freezes wherever it strikes."
+msgstr "氷の魔力が込められた矢。刺さった箇所を凍らせる"
+
+msgid "Fire Arrow"
+msgstr "火矢"
+
+msgid "An arrow wreathed in flame that spreads fire on impact."
+msgstr "炎を纏う矢。命中時に燃え広がる"
+
+msgid "Cannon Shell"
+msgstr "砲弾"
+
+msgid "A large-caliber cannon shell."
+msgstr "大口径の砲弾"
+
+msgid "Holy Arrow"
+msgstr "聖なる矢"
+
+msgid "An arrow blessed with holy power, especially effective against creatures of darkness."
+msgstr "聖なる力を宿す矢。闇の存在に特に有効"
+
+msgid "Iron Arrow"
+msgstr "鉄の矢"
+
+msgid "A standard arrow tipped with an iron head."
+msgstr "鉄の矢尻がついた標準的な矢"
+
+msgid "UFO Magazine"
+msgstr "UFO本"
+
+msgid "A magazine collecting reports of UFO sightings."
+msgstr "UFOの目撃情報を集めた雑誌"
+
+msgid "Grape Book"
+msgstr "ぶどう本"
+
+msgid "A book explaining grape cultivation and varieties."
+msgstr "ぶどうの栽培と品種について解説した本"
+
+msgid "Ice Cream Book"
+msgstr "アイス本"
+
+msgid "A book full of ice cream recipes."
+msgstr "アイスクリームのレシピが載った本"
+
+msgid "Art Book"
+msgstr "アート本"
+
+msgid "An introductory guide to the fundamentals of art."
+msgstr "美術の基礎を学べる入門書"
+
+msgid "Art Book II"
+msgstr "アート本2"
+
+msgid "A book explaining the techniques of modern art."
+msgstr "現代アートの技法を解説した本"
+
+msgid "It's Ruins"
+msgstr "イッツ廃墟"
+
+msgid "A photo collection chronicling visits to ruins."
+msgstr "廃墟探訪の記録をまとめた写真集"
+
+msgid "Off-Road Car Book"
+msgstr "オフロードカー本"
+
+msgid "A maintenance manual for off-road vehicles."
+msgstr "オフロード車両の整備マニュアル"
+
+msgid "Car Life"
+msgstr "カーライフ"
+
+msgid "A magazine for automobile enthusiasts."
+msgstr "自動車趣味の雑誌"
+
+msgid "Arcade Book"
+msgstr "ゲーセン本"
+
+msgid "A book chronicling the history of arcades."
+msgstr "ゲームセンターの歴史を記した本"
+
+msgid "Gamers' Book"
+msgstr "ゲーマーズ本"
+
+msgid "A collection of game strategy know-how."
+msgstr "ゲーム攻略のノウハウ集"
+
+msgid "Coffee Book"
+msgstr "コーヒー本"
+
+msgid "A book explaining how to brew coffee."
+msgstr "コーヒーの淹れ方を解説した本"
+
+msgid "Cyborg Days"
+msgstr "サイボーグデイズ"
+
+msgid "A sci-fi novel depicting the future of cyborg technology."
+msgstr "サイボーグ技術の未来を描いたSF小説"
+
+msgid "Zaeko"
+msgstr "ザエコ"
+
+msgid "A book discussing environmental conservation."
+msgstr "環境保護について論じた書籍"
+
+msgid "The Science"
+msgstr "ザ科学"
+
+msgid "A magazine that explains science clearly across every field."
+msgstr "科学全般を分かりやすく解説した雑誌"
+
+msgid "Hamburger Book"
+msgstr "ハンバーガー本"
+
+msgid "A book on the history and recipes of hamburgers."
+msgstr "ハンバーガーの歴史とレシピの本"
+
+msgid "Pie Cookbook"
+msgstr "パイ料理本"
+
+msgid "A collection of pie recipes."
+msgstr "パイ料理のレシピ集"
+
+msgid "Pyramid Book"
+msgstr "ピラミッド本"
+
+msgid "An archaeology book delving into the mysteries of the pyramids."
+msgstr "ピラミッドの謎に迫る考古学書"
+
+msgid "Sun Book"
+msgstr "太陽の本"
+
+msgid "An astronomy book explaining the sun and stars."
+msgstr "太陽と恒星について解説した天文書"
+
+msgid "Diary"
+msgstr "日記帳"
+
+msgid "A diary left behind by someone."
+msgstr "誰かが書き残した日記帳"
+
+msgid "Star Book"
+msgstr "星の本"
+
+msgid "An observation guide to constellations and stars."
+msgstr "星座と星の観測ガイド"
+
+msgid "Moon Book"
+msgstr "月の本"
+
+msgid "A book covering the science and myths of the moon."
+msgstr "月の科学と神話を扱った書籍"
+
+msgid "Moonlit Night Book"
+msgstr "月夜本"
+
+msgid "A photo collection of moonlit landscapes."
+msgstr "月夜の風景を集めた写真集"
+
+msgid "Plant Book"
+msgstr "植物本"
+
+msgid "An illustrated guide explaining the ecology of plants."
+msgstr "植物の生態を解説した図鑑"
+
+msgid "History Guide"
+msgstr "歴史ガイド"
+
+msgid "A book outlining the major events of world history."
+msgstr "世界史の主要な出来事を概説した本"
+
+msgid "Frost Book"
+msgstr "氷本"
+
+msgid "A book explaining the science of ice and snow."
+msgstr "氷と雪の科学を解説した書籍"
+
+msgid "Abyss Digest"
+msgstr "深淵娯楽本"
+
+msgid "A book introducing the strange creatures of the deep sea."
+msgstr "深海の不思議な生物を紹介した本"
+
+msgid "Volcano Book"
+msgstr "火山本"
+
+msgid "A guide to volcanic activity and geology."
+msgstr "火山活動と地質学の解説書"
+
+msgid "Ash Moon Book"
+msgstr "灰月の本"
+
+msgid "A book collecting the legends of the gray moon."
+msgstr "灰色の月にまつわる伝承を集めた本"
+
+msgid "Ash Book"
+msgstr "灰本"
+
+msgid "A book on the uses of ash and minerals."
+msgstr "灰と鉱物の利用法を記した本"
+
+msgid "White Mania Book"
+msgstr "白マニア本"
+
+msgid "A collector's guide to white minerals."
+msgstr "白い鉱物のコレクション案内"
+
+msgid "Shield Book"
+msgstr "盾の本"
+
+msgid "A manual on the history of shields and the art of defense."
+msgstr "盾の歴史と防御術を記した教本"
+
+msgid "Unknown Faces"
+msgstr "知られざる顔"
+
+msgid "A collection of biographies of little-known great figures."
+msgstr "知られざる偉人たちの伝記集"
+
+msgid "Purple Book"
+msgstr "紫本"
+
+msgid "A book of poetry in a beautiful purple binding."
+msgstr "紫色の装丁が美しい詩集"
+
+msgid "Cell Biology Book"
+msgstr "細胞本"
+
+msgid "An introduction to cell biology."
+msgstr "細胞生物学の入門書"
+
+msgid "Green Book"
+msgstr "緑本"
+
+msgid "A natural history essay on the color green."
+msgstr "緑に関する博物学的エッセイ"
+
+msgid "Scripture, Brown"
+msgstr "聖書(茶)"
+
+msgid "A scripture bound in brown leather."
+msgstr "茶色の革装丁の聖書"
+
+msgid "Scripture, Black"
+msgstr "聖書(黒)"
+
+msgid "A scripture bound in black leather."
+msgstr "黒い革装丁の聖書"
+
+msgid "Automation Engineering Book"
+msgstr "自動工学本"
+
+msgid "A textbook covering the fundamentals of automation technology."
+msgstr "自動化技術の基礎を解説した教科書"
+
+msgid "Ship Book"
+msgstr "船本"
+
+msgid "A guide to ship construction and navigation."
+msgstr "船舶の構造と航海術の解説書"
+
+msgid "Brown Book"
+msgstr "茶本"
+
+msgid "A book on the culture and history of tea."
+msgstr "お茶の文化と歴史を記した本"
+
+msgid "Thin Book"
+msgstr "薄い本"
+
+msgid "A thin, light pamphlet, its contents unknown."
+msgstr "薄くて軽い小冊子。内容は不明"
+
+msgid "Hefty Book"
+msgstr "重厚な本"
+
+msgid "A thick, heavy academic tome with plenty to read."
+msgstr "分厚く重い学術書。読みごたえがある"
+
+msgid "Mineral Life"
+msgstr "鉱物ライフ"
+
+msgid "A hobby magazine for mineral collectors."
+msgstr "鉱物収集の趣味雑誌"
+
+msgid "Army Shooting Manual"
+msgstr "陸軍射撃マニュアル"
+
+msgid "A military marksmanship manual, systematic and thorough."
+msgstr "軍が発行した射撃技術の教本。体系的で内容が濃い"
+
+msgid "Electronics Book"
+msgstr "電子機器本"
+
+msgid "A technical book explaining how electronic devices work."
+msgstr "電子機器の仕組みを解説した技術書"
+
+msgid "Blue Book"
+msgstr "青本"
+
+msgid "An old volume with a blue cover."
+msgstr "青い表紙の古い書物"
+
+msgid "Airplane Book"
+msgstr "飛行機本"
+
+msgid "A guide to aircraft design and aerodynamics."
+msgstr "飛行機の設計と航空力学の解説書"
+
+msgid "Peak Survival Life"
+msgstr "高みのサバイバルライフ"
+
+msgid "A book on survival techniques in extreme environments."
+msgstr "極限環境での生存術を記した書籍"
+
+msgid "Sorcery Life"
+msgstr "魔術生活"
+
+msgid "A guide to weaving the basics of magic into daily life."
+msgstr "魔術の基礎を日常に取り入れる指南書"
+
+msgid "Scale"
+msgstr "はかり"
+
+msgid "A precise scale, needed to weigh out alchemy materials."
+msgstr "精密なはかり。錬金術の素材計量に必要"
+
+msgid "Honey"
+msgstr "はちみつ"
+
+msgid "Sweet honey. Spread on a wound, it speeds healing."
+msgstr "甘い蜂蜜。傷口に塗ると治癒を促進する"
+
+msgid "Kettle"
+msgstr "やかん"
+
+msgid "A metal vessel for boiling water."
+msgstr "お湯を沸かすための金属製の容器"
+
+msgid "Seaweed Fossil"
+msgstr "わかめ化石"
+
+msgid "A fossil shaped like seaweed, a rare specimen."
+msgstr "わかめの形をした化石。珍しい標本"
+
+msgid "Atomic Core"
+msgstr "アトミックコア"
+
+msgid "A power core containing a trace of radioactive material."
+msgstr "微量の放射性物質を含む動力核"
+
+msgid "Aluminum"
+msgstr "アルミニウム"
+
+msgid "A light metal material that is easy to work."
+msgstr "軽量で加工しやすい金属素材"
+
+msgid "Emerald"
+msgstr "エメラルド"
+
+msgid "A rare gem shining deep green."
+msgstr "深い緑色に輝く希少な宝石"
+
+msgid "Omega"
+msgstr "オメガ"
+
+msgid "An omega-shaped metal part of unknown use."
+msgstr "Ω型の金属部品。用途は不明"
+
+msgid "Mushroom Extract"
+msgstr "キノコのエキス"
+
+msgid "A vial holding liquid extracted from mushrooms."
+msgstr "キノコから抽出した液体が入った瓶"
+
+msgid "Cable Bundle"
+msgstr "ケーブル束"
+
+msgid "A bundle of cables, useful for electrical work."
+msgstr "ケーブルを束ねたもの。電気工事に使える"
+
+msgid "Compass"
+msgstr "コンパス"
+
+msgid "A handheld device that points the way, an aid to exploration."
+msgstr "方角を示す携帯器具。探索の助けになる"
+
+msgid "Cord Bundle"
+msgstr "コード束"
+
+msgid "A tangled bundle of cables usable as material."
+msgstr "絡まったケーブルの束。素材として使える"
+
+msgid "Coffee Beans"
+msgstr "コーヒー豆"
+
+msgid "Fragrant coffee beans. Roasted, they become a drink."
+msgstr "香ばしい匂いのコーヒー豆。焙煎すると飲み物になる"
+
+msgid "Towel"
+msgstr "タオル"
+
+msgid "A clean towel usable as material."
+msgstr "清潔なタオル。素材として使える"
+
+msgid "Charger"
+msgstr "チャージャー"
+
+msgid "A small device that charges batteries."
+msgstr "バッテリーを充電する小型装置"
+
+msgid "Teapot"
+msgstr "ティーポット"
+
+msgid "A pot for brewing tea."
+msgstr "紅茶を淹れるための急須"
+
+msgid "Teddy Bear"
+msgstr "テディベア"
+
+msgid "A battered stuffed bear that someone seems to have cherished."
+msgstr "傷だらけのクマのぬいぐるみ。誰かが大切にしていたようだ"
+
+msgid "Toilet Paper"
+msgstr "トイレットペーパー"
+
+msgid "Often found in the ruins, useful for trade."
+msgstr "廃墟でよく見つかる。交易に使える"
+
+msgid "Topaz"
+msgstr "トパーズ"
+
+msgid "A clear, golden gem."
+msgstr "透明感のある黄金色の宝石"
+
+msgid "Toaster"
+msgstr "トースター"
+
+msgid "A small electric appliance for toasting bread."
+msgstr "食パンを焼く小型の電気機器"
+
+msgid "Heart Charm"
+msgstr "ハートのお守り"
+
+msgid "A small charm shaped like a red heart."
+msgstr "小さな赤い心臓の形をしたお守り"
+
+msgid "Parasol"
+msgstr "パラソル"
+
+msgid "A portable umbrella for shade from the sun."
+msgstr "日除けに使う携帯用の傘"
+
+msgid "Ferrite Core"
+msgstr "フェライトコア"
+
+msgid "A magnetic body made of ferrite."
+msgstr "フェライト製の磁性体"
+
+msgid "Magnelite"
+msgstr "マグネライト"
+
+msgid "A stone that glows faintly with magnetism, used for lighting and power."
+msgstr "磁力で淡く光る石。照明や動力源に使われる"
+
+msgid "Sewing Machine"
+msgstr "ミシン"
+
+msgid "A treadle-powered machine used for sewing."
+msgstr "裁縫に使う足踏み式のミシン"
+
+msgid "Ring Cell"
+msgstr "リングセル"
+
+msgid "A ring-shaped energy cell."
+msgstr "リング型のエネルギー電池"
+
+msgid "Raw Ruby"
+msgstr "ルビー原石"
+
+msgid "A red-glowing mineral, worked into costly ornaments."
+msgstr "赤く光る鉱物。高価な装飾用に加工される"
+
+msgid "Record"
+msgstr "レコード"
+
+msgid "An old phonograph record with music on it."
+msgstr "古い蓄音機用のレコード盤。音楽が入っている"
+
+msgid "Wire Cutter"
+msgstr "ワイヤーカッター"
+
+msgid "A tool for cutting red-insulated wire."
+msgstr "赤い絶縁被覆の電線を切る工具"
+
+msgid "Tricolor Staff"
+msgstr "三色の杖"
+
+msgid "A mysterious staff that shines in three colors and wields several elements."
+msgstr "三色に輝く不思議な杖。複数の属性を操る"
+
+msgid "Replaceable Cell"
+msgstr "交換式セル"
+
+msgid "A small, swappable energy cell."
+msgstr "交換可能な小型エネルギーセル"
+
+msgid "Photo"
+msgstr "写真"
+
+msgid "A faded photograph, a keepsake of someone's memories."
+msgstr "色褪せた写真。誰かの思い出の品"
+
+msgid "Chemical Container"
+msgstr "化学容器"
+
+msgid "A heat-resistant glass vessel for experiments, used for chemical reactions."
+msgstr "実験用の耐熱ガラス容器。化学反応に使う"
+
+msgid "Old Globe"
+msgstr "古い地球儀"
+
+msgid "An aged globe that depicts the world as it once was."
+msgstr "古びた地球儀。かつての世界の姿を映している"
+
+msgid "Old Gear"
+msgstr "古い歯車"
+
+msgid "A rusted brass gear crafted with exquisite skill."
+msgstr "錆びついた真鍮の歯車。精巧な工芸技術で作られている"
+
+msgid "Ancient Pot"
+msgstr "古代の壺"
+
+msgid "A finely decorated ceramic pot, prized as an antique."
+msgstr "精巧な装飾が施された陶製の壺。骨董品として価値が高い"
+
+msgid "Ancient Bone"
+msgstr "古代の骨"
+
+msgid "An animal bone aged over long years, oddly hard yet light."
+msgstr "長い年月を経た動物の骨。異様に硬く軽い"
+
+msgid "Ancient Gold Coin"
+msgstr "古代金貨"
+
+msgid "Currency of a lost civilization."
+msgstr "失われた文明の通貨"
+
+msgid "Orrery"
+msgstr "周回儀"
+
+msgid "A precision instrument that measures the orbits of celestial bodies."
+msgstr "天体の周回を計測する精密機器"
+
+msgid "Great Rainbow Crystal"
+msgstr "大虹水晶"
+
+msgid "A large rainbow-hued crystal radiating powerful magic."
+msgstr "大きな虹色の水晶。強い魔力を感じる"
+
+msgid "Angel Feather"
+msgstr "天使の羽根"
+
+msgid "A beautiful feather shining pure white."
+msgstr "純白に輝く美しい羽根"
+
+msgid "Cosmic Cornerstone"
+msgstr "宇宙角石"
+
+msgid "An angular ore of cosmic origin."
+msgstr "宇宙由来の角張った鉱石"
+
+msgid "Experiment Container"
+msgstr "実験容器"
+
+msgid "A sturdy glass vessel used for various experiments."
+msgstr "各種実験に使う丈夫なガラス容器"
+
+msgid "Sharp Stone"
+msgstr "尖った石"
+
+msgid "A pointed stone that can serve as a weapon when thrown."
+msgstr "尖った石。投げつければ武器にもなる"
+
+msgid "Hay"
+msgstr "干し草"
+
+msgid "Dried grass, usable as fuel or livestock feed."
+msgstr "乾燥した草。燃料や家畜の餌に使える"
+
+msgid "Heart"
+msgstr "心臓"
+
+msgid "A strange heart that still beats."
+msgstr "まだ拍動している不思議な心臓"
+
+msgid "Tank Model"
+msgstr "戦車の模型"
+
+msgid "A small model tank, exquisitely crafted."
+msgstr "小型の戦車の模型。精巧に作られている"
+
+msgid "Folding Fan"
+msgstr "扇子"
+
+msgid "A folding fan that stirs a cool breeze when waved."
+msgstr "扇子。仰げば涼しい風が起きる"
+
+msgid "Origami"
+msgstr "折り紙"
+
+msgid "An artwork made by folding paper, small yet finely crafted."
+msgstr "紙を折って作った芸術作品。小さいが精巧"
+
+msgid "Slanted Crystal"
+msgstr "斜水晶"
+
+msgid "A rare crystal that grew at an angle."
+msgstr "斜めに結晶化した珍しい水晶"
+
+msgid "Bright Green Stone"
+msgstr "明緑石"
+
+msgid "A stone that glows a vivid green."
+msgstr "鮮やかな緑色に光る石"
+
+msgid "Star Fragment"
+msgstr "星の欠片"
+
+msgid "A mysterious ore fallen from the night sky."
+msgstr "夜空から落ちた神秘的な鉱石"
+
+msgid "Star Crystal"
+msgstr "星の結晶"
+
+msgid "A crystal holding the glimmer of the stars, prized as an ornament."
+msgstr "星の輝きを宿す結晶。装飾品として高い価値がある"
+
+msgid "Star Iron"
+msgstr "星鉄"
+
+msgid "A special metal taken from meteorites, far harder than ordinary iron."
+msgstr "隕石から取れる特殊な金属。普通の鉄より遥かに硬い"
+
+msgid "Lumber Pile"
+msgstr "木材の山"
+
+msgid "A stack of lumber that can be used as building material."
+msgstr "積み上げられた木材。建築資材として使える"
+
+msgid "Pillow"
+msgstr "枕"
+
+msgid "A soft pillow, essential for a comfortable sleep."
+msgstr "柔らかい枕。快適な睡眠に欠かせない"
+
+msgid "Dye"
+msgstr "染料"
+
+msgid "A pigment for coloring cloth and leather, available in many hues."
+msgstr "布や革を染めるための色素。さまざまな色がある"
+
+msgid "Resin Stone"
+msgstr "樹脂石"
+
+msgid "Hardened resin with a texture much like amber."
+msgstr "固まった樹脂。琥珀に近い質感がある"
+
+msgid "Resin Craft"
+msgstr "樹脂細工"
+
+msgid "A finely made craftwork shaped from resin."
+msgstr "樹脂で作られた精巧な工芸品"
+
+msgid "Orange Ore"
+msgstr "橙鉱石"
+
+msgid "A rare ore that glows orange."
+msgstr "橙色に光る珍しい鉱石"
+
+msgid "Equipment Core"
+msgstr "機材コア"
+
+msgid "The central part at the heart of a machine."
+msgstr "機械装置の中核となる部品"
+
+msgid "Crystal Powder"
+msgstr "水晶の粉"
+
+msgid "Powder ground from clear crystal, faintly giving off light."
+msgstr "透明な結晶を砕いた粉末。微かに光を放っている"
+
+msgid "Spirit Level"
+msgstr "水準器"
+
+msgid "A tool for measuring level, needed for precise construction."
+msgstr "水平を測る道具。精密な建築に必要"
+
+msgid "Ice Stone"
+msgstr "氷石"
+
+msgid "A cold blue stone that nearly freezes your hand at a touch."
+msgstr "冷たく青い石。触れると手が凍りつきそうになる"
+
+msgid "Floating Stone"
+msgstr "浮遊石"
+
+msgid "A strange stone with a faint buoyancy."
+msgstr "わずかに浮力を持つ不思議な石"
+
+msgid "Sea Cube"
+msgstr "海のキューブ"
+
+msgid "A cubic crystal raised from the seabed."
+msgstr "海底から引き上げられた立方体の結晶"
+
+msgid "Swirl Stone"
+msgstr "渦巻石"
+
+msgid "An ore marked with a spiral pattern."
+msgstr "渦巻き模様の入った鉱石"
+
+msgid "Ashes"
+msgstr "灰"
+
+msgid "The ash left after something burned away."
+msgstr "何かが燃え尽きた後の灰"
+
+msgid "Beast Fur"
+msgstr "獣の毛皮"
+
+msgid "Fur skinned from a beast, tough and water-resistant."
+msgstr "獣から剥いだ毛皮。丈夫で防水性に優れる"
+
+msgid "Amber"
+msgstr "琥珀"
+
+msgid "A gem of fossilized ancient sap, with a tiny insect trapped inside."
+msgstr "太古の樹液が化石化した宝石。中に小さな虫が閉じ込められている"
+
+msgid "Pile of Plates"
+msgstr "皿の山"
+
+msgid "A stack of plates, fragile so handle with care."
+msgstr "重ねられた皿の山。割れ物注意"
+
+msgid "Stone"
+msgstr "石"
+
+msgid "A common stone, of little worth but a weapon when thrown."
+msgstr "ありふれた石。特に価値はないが投げれば武器になる"
+
+msgid "Stone Pedestal"
+msgstr "石の台座"
+
+msgid "A stone fixture used to hold something in place."
+msgstr "石で作られた器具。何かを固定するために使う"
+
+msgid "Stone Tablet"
+msgstr "石板"
+
+msgid "A stone slab carved with ancient script."
+msgstr "古代文字が刻まれた石の板"
+
+msgid "Coal"
+msgstr "石炭"
+
+msgid "Black glossy coal, usable as fuel."
+msgstr "黒く光る石炭。燃料として使える"
+
+msgid "Jar of Sand"
+msgstr "砂の瓶"
+
+msgid "A jar packed with fine sand, a material for clocks."
+msgstr "細かい砂が詰められた瓶。時計の素材になる"
+
+msgid "Hardwood"
+msgstr "硬木"
+
+msgid "Heavy, sturdy lumber, excellent as a building material."
+msgstr "重くて頑丈な木材。建築資材として優秀"
+
+msgid "Seed Core"
+msgstr "種コア"
+
+msgid "An energy core of plant origin."
+msgstr "植物由来のエネルギー核"
+
+msgid "Dragon Skull"
+msgstr "竜の頭骨"
+
+msgid "The skull of a huge dragon, highly prized as a decoration."
+msgstr "巨大な竜の頭骨。装飾品として非常に価値がある"
+
+msgid "Rough Brown Crystal"
+msgstr "粗い茶水晶"
+
+msgid "An unpolished raw stone of brown crystal."
+msgstr "研磨されていない茶色い水晶の原石"
+
+msgid "Clay"
+msgstr "粘土"
+
+msgid "Moist clay, used as raw material for pottery."
+msgstr "湿った粘土。陶器の原料になる"
+
+msgid "Pure Crystal"
+msgstr "純水晶"
+
+msgid "A clear, beautiful crystal that amplifies magic."
+msgstr "透き通った美しい結晶。魔力を増幅させる性質がある"
+
+msgid "Purple Gem"
+msgstr "紫の宝石"
+
+msgid "A gem shining in a noble purple hue."
+msgstr "高貴な紫色に輝く宝石"
+
+msgid "Purple Core"
+msgstr "紫コア"
+
+msgid "An energy core glowing purple."
+msgstr "紫色に光るエネルギー核"
+
+msgid "Purple Star"
+msgstr "紫星"
+
+msgid "A star-shaped ore shining purple."
+msgstr "紫色に輝く星形の鉱石"
+
+msgid "Amethyst"
+msgstr "紫水晶"
+
+msgid "A beautiful purple crystal."
+msgstr "美しい紫色の水晶"
+
+msgid "Purple Stone"
+msgstr "紫石"
+
+msgid "A deep purple ore said to be a source of magic."
+msgstr "深い紫色の鉱石。魔力の源とされる"
+
+msgid "Green Stone"
+msgstr "緑の石"
+
+msgid "A small stone of pale green color."
+msgstr "淡い緑色をした小さな石"
+
+msgid "Green Lattice"
+msgstr "緑格子"
+
+msgid "A green crystal formed in a lattice shape."
+msgstr "緑色の格子状の結晶体"
+
+msgid "Green Crystal"
+msgstr "緑水晶"
+
+msgid "A crystal green like a forest."
+msgstr "森のような緑色の水晶"
+
+msgid "Green Crystal Stone"
+msgstr "緑水晶石"
+
+msgid "A raw stone containing green crystal."
+msgstr "緑の水晶が含まれた原石"
+
+msgid "Feather"
+msgstr "羽根"
+
+msgid "A soft bird feather, used as a crafting material."
+msgstr "柔らかい鳥の羽根。工芸素材として使われる"
+
+msgid "Jar of Spores"
+msgstr "胞子の瓶"
+
+msgid "A sealed jar filled with mushroom spores."
+msgstr "キノコの胞子が入った密封瓶"
+
+msgid "Fine Amber"
+msgstr "良質な琥珀"
+
+msgid "Clear and beautiful amber, well suited for ornaments."
+msgstr "透明度が高く美しい琥珀。装飾品に適している"
+
+msgid "Mossy Stone"
+msgstr "苔石"
+
+msgid "An old stone covered in moss, imbued with magic."
+msgstr "苔に覆われた古い石。魔力を帯びている"
+
+msgid "Brown Crystal"
+msgstr "茶水晶"
+
+msgid "A smoky brown crystal, also known as smoky quartz."
+msgstr "煙のような茶色い水晶。スモーキークォーツとも呼ばれる"
+
+msgid "Brown Gear"
+msgstr "茶色い歯車"
+
+msgid "A rusted brown gear. It still looks usable."
+msgstr "錆びた茶色の歯車。まだ使えそうだ"
+
+msgid "Brown Medicine Bottle"
+msgstr "茶色い薬瓶"
+
+msgid "A medicine bottle filled with a brown liquid."
+msgstr "茶色い液体が入った薬瓶"
+
+msgid "Distilled Water"
+msgstr "蒸留水"
+
+msgid "A bottle of purified, perfectly clean water."
+msgstr "精製された純粋な水が入った瓶"
+
+msgid "Azure Stone"
+msgstr "蒼石"
+
+msgid "A mysterious stone of deep indigo."
+msgstr "深い藍色をした不思議な石"
+
+msgid "Void Stone"
+msgstr "虚空石"
+
+msgid "A jet-black stone that harbors the energy of nothingness."
+msgstr "虚無のエネルギーを宿す漆黒の石"
+
+msgid "Rainbow Crystal"
+msgstr "虹水晶"
+
+msgid "A beautiful crystal that shines in seven colors."
+msgstr "七色に光る美しい水晶"
+
+msgid "Rainbow Stone"
+msgstr "虹石"
+
+msgid "A mysterious stone that shifts to rainbow hues with the angle of light."
+msgstr "光の角度で虹色に変わる不思議な石"
+
+msgid "Jar of Snake Venom"
+msgstr "蛇毒の瓶"
+
+msgid "A dangerous jar of snake venom. It can be applied to a weapon."
+msgstr "蛇の毒液が入った危険な瓶。武器に塗ることができる"
+
+msgid "Serpentine Stone"
+msgstr "蛇紋石"
+
+msgid "A stone marked with snakelike patterns, believed to have an antidote effect."
+msgstr "蛇のような模様がある石。解毒作用があると信じられている"
+
+msgid "Vial of Blood"
+msgstr "血の小瓶"
+
+msgid "A vial sealing someone's blood. It feels ominous."
+msgstr "何者かの血が封じられた小瓶。禍々しい"
+
+msgid "Blood Ruby"
+msgstr "血染めのルビー"
+
+msgid "A gem of especially beautiful brilliance, traded at high prices."
+msgstr "特に美しい輝きをもつ宝石。高額で取引される"
+
+msgid "Blood"
+msgstr "血液"
+
+msgid "A crimson-stained liquid. It seems to be someone's blood."
+msgstr "赤く染まった液体。何かの血のようだ"
+
+msgid "Bloodstone"
+msgstr "血赤石"
+
+msgid "An ore dyed deep crimson. It is warm to the touch."
+msgstr "深紅に染まった鉱石。触れると温かい"
+
+msgid "Houseplant"
+msgstr "観葉植物"
+
+msgid "A withering houseplant. A little green still remains."
+msgstr "枯れかけた観葉植物。まだ少し緑が残っている"
+
+msgid "Test Tube"
+msgstr "試験管"
+
+msgid "A glass tube for experiments, handy for handling small amounts of liquid."
+msgstr "実験用のガラス管。少量の液体を扱うのに便利"
+
+msgid "Bean Extract"
+msgstr "豆のエキス"
+
+msgid "A small bottle holding extract drawn from beans."
+msgstr "豆から抽出したエキスが入った小瓶"
+
+msgid "Red Stone"
+msgstr "赤い石"
+
+msgid "A stone of a blood-like red hue, warm to the touch."
+msgstr "血のような赤色をした石。温かみがある"
+
+msgid "Red Stone Gear"
+msgstr "赤石の歯車"
+
+msgid "A gear set with a red stone, driven by magic."
+msgstr "赤い石が組み込まれた歯車。魔力で動く"
+
+msgid "Brilliant Stone"
+msgstr "輝石"
+
+msgid "A mineral found in volcanic rock, dark green in color."
+msgstr "火山岩に含まれる鉱物。暗い緑色をしている"
+
+msgid "Gold Gear"
+msgstr "金の歯車"
+
+msgid "A precise gear made of pure gold, exceedingly valuable."
+msgstr "純金で作られた精密な歯車。非常に高価"
+
+msgid "Iron"
+msgstr "鉄"
+
+msgid "A metal easy to work, forming the core of industry."
+msgstr "加工しやすく産業の中核をなす金属"
+
+msgid "Scrap Iron"
+msgstr "鉄くず"
+
+msgid "A lump of metal rich in iron."
+msgstr "鉄を多く含む金属の塊"
+
+msgid "Iron Ore"
+msgstr "鉄鉱石"
+
+msgid "Raw iron ore that becomes iron once smelted."
+msgstr "未加工の鉄鉱石。製錬すれば鉄になる"
+
+msgid "Silver Shard"
+msgstr "銀の欠片"
+
+msgid "A faintly glowing sliver of silver, said to ward off the unclean."
+msgstr "淡く光る銀色の金属片。不浄なものを退ける力があるとされる"
+
+msgid "Rusted Chain"
+msgstr "錆びた鎖"
+
+msgid "A piece of old chain that once held something bound."
+msgstr "古い鎖の一部。何かを繋ぎ止めていた痕跡がある"
+
+msgid "Meteoric Iron"
+msgstr "隕鉄"
+
+msgid "A rare ore mined from a fallen meteorite."
+msgstr "隕石から採掘された希少な鉱石"
+
+msgid "Lightning Stone"
+msgstr "雷光石"
+
+msgid "A stone born of a lightning strike, faintly charged with electricity."
+msgstr "雷に打たれて生まれた石。微かに電気を帯びている"
+
+msgid "Electric Wire"
+msgstr "電線"
+
+msgid "A copper-colored wire with excellent conductivity."
+msgstr "銅色の電線。導電性に優れる"
+
+msgid "Mist Crystal"
+msgstr "霧の結晶"
+
+msgid "A strange substance like crystallized mist, cold to the touch."
+msgstr "霧が結晶化したような不思議な物質。触れると冷たい"
+
+msgid "Blue Crystal"
+msgstr "青水晶"
+
+msgid "A clear blue crystal that radiates a chill."
+msgstr "澄んだ青色の水晶。冷気を感じる"
+
+msgid "Blue Crystal Stone"
+msgstr "青水晶石"
+
+msgid "A raw stone embedded with blue crystal."
+msgstr "青い水晶が埋まった原石"
+
+msgid "Skeleton Gear"
+msgstr "骸骨の歯車"
+
+msgid "An eerie gear fashioned from bone."
+msgstr "骨で作られた不気味な歯車"
+
+msgid "Yellow Orb"
+msgstr "黄色い球"
+
+msgid "A springy yellow sphere. Its use is unknown."
+msgstr "黄色い弾力のある球体。何に使えるか不明"
+
+msgid "Yellow Wire"
+msgstr "黄色い電線"
+
+msgid "An electrical wire with yellow insulation."
+msgstr "黄色い被覆の電線"
+
+msgid "Black Core Stone"
+msgstr "黒コア石"
+
+msgid "A blackly glowing power core with high output."
+msgstr "黒く輝く動力核。高い出力を持つ"
+
+msgid "Obsidian"
+msgstr "黒曜石"
+
+msgid "Volcanic glass with a jet-black sheen, well suited to making sharp blades."
+msgstr "漆黒に輝く火山ガラス。鋭い刃を作るのに適している"
+
+msgid "Black Pearl"
+msgstr "黒真珠"
+
+msgid "A jet-black pearl from the deep sea, exceedingly rare."
+msgstr "深海から取れる漆黒の真珠。極めて稀少"
+
+msgid "Black Powder"
+msgstr "黒色火薬"
+
+msgid "A dangerous powder used as the raw material for explosives."
+msgstr "爆発物の原料になる危険な粉末"
+
+msgid "Shelter Notice"
+msgstr "避難所の張り紙"
+
+msgid "\"Third Shelter is full. Head to the school in the west.\" The ink has bled, and the date is no longer legible."
+msgstr "「第三避難所は満員。西の学校へ向かえ」インクは滲み、日付はもう読めない。"
+
+msgid "Scribbled Note"
+msgstr "落書きのメモ"
+
+msgid "Graffiti peeled from a wall. \"Water at the southern supply point. Don't move at night.\" Written in a child's hand."
+msgstr "壁からはがした落書き。「水は南の給水所。夜は動くな」子どもの字だ。"
+
+msgid "Handwritten Receipt"
+msgstr "手書きのレシート"
+
+msgid "A faded receipt. Two cup noodles, four bottles of water, packing tape. Dated three days before the disaster."
+msgstr "色褪せたレシート。カップ麺2・水4本・ガムテープ。日付は災害の三日前。"
+
+msgid "Diary Scrap"
+msgstr "日記の切れ端"
+
+msgid "\"No one came again today. Five days of supplies left.\" The rest is torn away and unreadable."
+msgstr "「今日も誰も来なかった。備蓄はあと五日分」続きは破れて読めない。"
+
+msgid "Message to Family"
+msgstr "家族への伝言"
+
+msgid "\"Heading north ahead of you. If you survive, meet at Grandma's house. —Dad.\" Four pushpin marks remain."
+msgstr "「先に北へ行く。生きてたら祖母の家で。—父」画鋲の跡が四つ残る。"
+
+msgid "Job Posting"
+msgstr "求人の貼り紙"
+
+msgid "\"Demolition workers urgently wanted, daily pay negotiable.\" The phone number is blacked out."
+msgstr "「解体作業員 急募 日給応相談」電話番号は塗り潰されている。"
+
+msgid "Roadblock Notice"
+msgstr "通行止めの告知"
+
+msgid "\"Road closed ahead due to collapse. —City.\" It was tied to a rusted barricade."
+msgstr "「この先 崩落につき通行止め 市」錆びたバリケードに括られていた。"
+
+msgid "Someone's Scrawl"
+msgstr "誰かの走り書き"
+
+msgid "A note in the corner. \"Don't trust him. Hide your supplies yourself.\" Pressed hard into the page."
+msgstr "隅にメモ。「あいつを信じるな。物資は自分で隠せ」筆圧が強い。"
+
+msgid "Cupcake"
+msgstr "カップケーキ"
+
+msgid "A baked treat in a brown cup, topped with a swirl of dark brown cream."
+msgstr "茶色いカップに入った焼き菓子。上に濃い茶色のクリームが渦を巻いて絞られている"
+
+msgid "Chicken"
+msgstr "鶏"
+
+msgid "A white-feathered chicken with a red comb and yellow beak, good for cooking."
+msgstr "白い羽毛の鶏。赤いとさかと黄色いくちばしを持つ。食材になる"
+
+msgid "Corn"
+msgstr "とうもろこし"
+
+msgid "A long ear of grain ripened to golden yellow."
+msgstr "黄色く実った細長い穀物の穂"
+
+msgid "Black Tea"
+msgstr "紅茶"
+
+msgid "A cup of black tea on a white saucer, filled with amber liquid."
+msgstr "白い受け皿に乗った紅茶のカップ。琥珀色の液体が入る"
+
+msgid "Fried Chicken"
+msgstr "からあげ"
+
+msgid "Chicken fried to a golden brown, its crisp batter dimpled all over."
+msgstr "きつね色に揚がった鶏肉。表面に衣の凹凸がある"
+
+msgid "Grape Soda"
+msgstr "グレープソーダ"
+
+msgid "A fizzy drink in a purple can labeled with white lettering."
+msgstr "紫色の缶に入った炭酸飲料。側面に白い文字のラベル"
+
+msgid "Green Soda"
+msgstr "グリーンソーダ"
+
+msgid "A fizzy drink in a green bottle."
+msgstr "緑色の瓶に入った炭酸飲料"
+
+msgid "Hawaiian Soda"
+msgstr "ハワイアンソーダ"
+
+msgid "A blue tropical drink served in a glass with a straw."
+msgstr "青いトロピカルドリンク。グラスにストローが挿さる"
+
+msgid "Lemon Soda"
+msgstr "レモンソーダ"
+
+msgid "A fizzy drink in yellow packaging."
+msgstr "黄色いパッケージの炭酸飲料"
+
+msgid "Mint"
+msgstr "ミント"
+
+msgid "Bright green mint leaves."
+msgstr "鮮やかな緑色のミントの葉"
+
+msgid "Chili Pepper"
+msgstr "とうがらし"
+
+msgid "A long red chili with a pointed tip."
+msgstr "赤く細長い唐辛子。先が尖る"
+
+msgid "Salmon"
+msgstr "サーモン"
+
+msgid "A salmon fillet, its orange flesh streaked with white lines of fat."
+msgstr "橙色の身に白い脂の筋が入るサーモンの切り身"
+
+msgid "Sushi Roll"
+msgstr "巻き寿司"
+
+msgid "Sushi wrapped in seaweed, with two pieces set side by side."
+msgstr "海苔で巻いた寿司。二切れが並ぶ"
+
+msgid "Hard Disk"
+msgstr "ハードディスク"
+
+msgid "A gray external hard disk with a small indicator light glowing on the front."
+msgstr "灰色の外付けハードディスク。前面に小さな表示ランプが灯る"
+
+msgid "Mobile Device"
+msgstr "携帯端末"
+
+msgid "A purple handheld device with a small screen and buttons on the front."
+msgstr "紫色の携帯端末。前面に小さな画面とボタンが並ぶ"
+
+msgid "Octahedral Crystal"
+msgstr "八面体の結晶"
+
+msgid "A glowing blue octahedral crystal whose sharp faces reflect the light."
+msgstr "青く輝く八面体の結晶。鋭い面が光を反射する"
+
+msgid "Rainbow Orb"
+msgstr "虹色の球"
+
+msgid "A sphere that glows with rainbow light across its surface."
+msgstr "表面が虹色に発光する球体"
+
+msgid "Angel Statue"
+msgstr "天使像"
+
+msgid "A statue shaped as an angel with its white wings spread wide."
+msgstr "白い翼を広げた天使をかたどった像"
+
+msgid "Machine Gun Magazine Vol. 43"
+msgstr "マシンガンマガジン vol.43"
+
+msgid "A magazine with detailed coverage of operating automatic firearms. An easy read."
+msgstr "自動火器の運用について詳しく解説した雑誌。読みやすい"
+
+msgid "Universe News"
+msgstr "ユニバースニュース"
+
+msgid "A magazine compiling the latest news about space."
+msgstr "宇宙に関する最新ニュースをまとめた雑誌"
+
+msgid "Robotics 49"
+msgstr "ロボティクス49"
+
+msgid "The 49th issue of a specialist robotics engineering journal."
+msgstr "ロボット工学の専門誌第49号"
+
+msgid "Vehicle Guide"
+msgstr "乗り物本"
+
+msgid "An illustrated guide introducing all kinds of vehicles."
+msgstr "様々な乗り物を紹介した図鑑"
+
+msgid "Book of Swords"
+msgstr "剣の本"
+
+msgid "A manual for learning the basics of swordsmanship."
+msgstr "剣術の基本を学べる教本"
+
+msgid "Animal Feelings"
+msgstr "動物のきもち"
+
+msgid "A book about the study of animal behavior."
+msgstr "動物の行動学について書かれた本"
+
+msgid "Gardening Guide"
+msgstr "園芸のすすめ"
+
+msgid "An introductory book covering the fundamentals of gardening."
+msgstr "園芸の基礎知識をまとめた入門書"

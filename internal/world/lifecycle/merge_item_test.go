@@ -36,7 +36,7 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	for ironQuery.Next() {
 		entity := ironQuery.Entity()
 		name := world.Components.Name.Get(entity)
-		if name.Name == "鉄くず" {
+		if name.Name == "Scrap Iron" {
 			ironCount++
 			stackable := world.Components.Stackable.Get(entity)
 			totalCount += stackable.Count

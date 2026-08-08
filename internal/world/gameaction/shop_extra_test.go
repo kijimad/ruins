@@ -28,7 +28,7 @@ func TestBuyItem_スタッカブルアイテムはスタックに加算される
 	found := false
 	for stackQuery.Next() {
 		name := world.Components.Name.Get(stackQuery.Entity())
-		if name.Name != "木の棒" {
+		if name.Name != "Wooden Stick" {
 			continue
 		}
 		found = true

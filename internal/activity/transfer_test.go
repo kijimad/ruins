@@ -159,7 +159,7 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 
 		// 元スタックは1減り、隊員は1個だけ受け取る
 		assert.Equal(t, 2, world.Components.Stackable.Get(pool).Count, "プールは1個ずつ減る")
-		memberBread := findBackpackItem(world, member, "パン")
+		memberBread := findBackpackItem(world, member, "Bread")
 		require.NotNil(t, memberBread, "隊員がパンを受け取る")
 		assert.Equal(t, 1, world.Components.Stackable.Get(*memberBread).Count, "受け取りは1個")
 
@@ -193,14 +193,14 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, ta.DoTurn(comp, member, world))
 
 		assert.Equal(t, 3, world.Components.Stackable.Get(pool).Count, "プールは指定個数ぶん減る")
-		memberBread := findBackpackItem(world, member, "パン")
+		memberBread := findBackpackItem(world, member, "Bread")
 		require.NotNil(t, memberBread, "隊員がパンを受け取る")
 		assert.Equal(t, 2, world.Components.Stackable.Get(*memberBread).Count, "受け取りは2個")
 
 		// ログは在庫全体でなく渡した個数で表示する
 		recent := query.GetGameLog(world).GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "パン(2個)", "ログは渡した個数を表示する")
+		assert.Contains(t, recent[0], "Bread(2個)", "ログは渡した個数を表示する")
 	})
 }
 

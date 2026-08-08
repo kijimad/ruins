@@ -1,13 +1,9 @@
 # raw.toml の表示される name のうち、まだ ja.po に訳が無いものの暫定 allowlist。
 # TestRawTranslationCoverage のラチェット用。既存債務をここに置き、新規の英語化漏れを止める。
 # 訳を ja.po に追加したら、その行をここから削除する。allowlist は債務が減るたび縮める。
-# 多くは prop/tile の name が snake_case id のまま look_around UI に露出しているもの。
+# 残りは tile の name が snake_case id のままのものと、未英語化の member Ash。
 # # で始まる行と空行は無視される。
-9mm AP
-9mm FMJ
-9mm HP
 Ash
-M72 LAW
 brick_amber
 brick_beige
 brick_blue
