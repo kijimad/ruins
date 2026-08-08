@@ -52,8 +52,9 @@ func RecruitValue(a gc.Abilities) int {
 // 個数を掛けた実体まるごとの価値にする。買値・売値はこの値を CalculateBuyPrice/SellPrice に通して出す
 func StockBaseValue(world w.World, entity ecs.Entity) int {
 	count := GetEntityCount(world, entity)
-	// 候補の価値は能力値から出す。Abilities を持つ候補だけがこの経路に乗る。
-	// アイテムの類型にもキャラの能力にも当てはまらない実体は Value 経由へ落とす
+	// IsRecruit はアイテムの類型でない実体を候補とみなすため、アイテムでも候補でもない裸の実体も
+	// true になりうる。Abilities.Has は冗長でなく安全網で、能力を持たない実体を Value 経由へ落として
+	// Abilities.Get の panic を防ぐ。実際の候補は SpawnStorageRecruit で必ず Abilities を持つ
 	if IsRecruit(world, entity) && world.Components.Abilities.Has(entity) {
 		return RecruitValue(*world.Components.Abilities.Get(entity)) * count
 	}

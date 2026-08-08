@@ -43,7 +43,11 @@ func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.E
 	if err := lifecycle.MoveToStorage(world, item, merchant); err != nil {
 		return fmt.Errorf("failed to move item to merchant storage: %w", err)
 	}
+	// 代金の付与に失敗したら実体を手元へ戻し、品も金も失わないようにする。BuyStock の返金と対称
 	if err := query.AddCurrency(world, player, price); err != nil {
+		if rbErr := lifecycle.MoveToBackpack(world, item, player); rbErr != nil {
+			return fmt.Errorf("payment failed and item rollback also failed: %w (rollback error: %w)", err, rbErr)
+		}
 		return fmt.Errorf("failed to add currency: %w", err)
 	}
 
