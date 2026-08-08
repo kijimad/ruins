@@ -76,10 +76,9 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
 	return nil
 }
 
-// tileSpec は1種類のタイルをどう実体化するかの仕様。
-// プランナーが出力する論理名 tile.Name をキーに引く。
+// tileSpec は1種類のタイルをどう実体化するかの仕様。タイルの論理キー tile.Id で引く。
 type tileSpec struct {
-	// spawnName は生成するスプライト名。多くは論理名と同じだが wall→dwall のように異なるものもある
+	// spawnName は生成するスプライト名。多くは tile.Id と同じだが wall→dwall のように異なるものもある
 	spawnName string
 	// autotile は周囲を見てオートタイル添字を計算するか。void のように単一絵柄のタイルは false
 	autotile bool
