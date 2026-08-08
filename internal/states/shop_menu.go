@@ -105,7 +105,7 @@ type shopTabData struct {
 }
 
 type shopItemData struct {
-	Entity    ecs.Entity // 在庫・持ち物の実体。買=これを移動、売=これを移動、雇用=これを活性化
+	Entity    ecs.Entity // 在庫・持ち物の実体。買=これを移動、売=これを移動
 	ItemID    string     // アイテムの raw 同定キー。詳細表示に使う。隊員候補は空
 	Label     string     // 表示名
 	Weight    string
