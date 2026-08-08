@@ -334,7 +334,7 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 // isEarthTile は帯ローカル座標 pos が土系タイル、dirt か砂土、かを返す。道の floor や壁、他フィーチャの
 // 生成物は土系でないので散布から外れる。
 func isEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
-	return scatterEarthTiles[tileNameAt(world, tiles, pos)]
+	return scatterEarthTiles[tileIDAt(world, tiles, pos)]
 }
 
 // hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ
@@ -344,13 +344,14 @@ func hashTileCoord(seed uint64, p consts.Coord[consts.Tile]) uint64 {
 	return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))
 }
 
-// tileNameAt は帯ローカル座標 pos のタイル名を返す。タイルが無ければ空文字。
-func tileNameAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {
+// tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。散布可否は表示名でなく
+// 同定キーの id で判定する。scatterEarthTiles も id をキーにしている。
+func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {
 	e, ok := tiles[gc.GridElement{Coord: pos}]
-	if !ok || !world.ECS.Alive(e) || !world.Components.Name.Has(e) {
+	if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {
 		return ""
 	}
-	return world.Components.Name.Get(e).Name
+	return world.Components.RawID.Get(e).ID
 }
 
 // chunkChebyshev は2チャンク座標のチェビシェフ距離を返す。ゾーン判定の近接度に使う。

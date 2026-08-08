@@ -45,19 +45,19 @@ func RecalcAutotileInXRange(world w.World, loX, hiX consts.Tile) {
 			tiles[g] = e
 		}
 	}
-	nameOf := func(g gc.GridElement) (string, bool) {
+	idOf := func(g gc.GridElement) (string, bool) {
 		e, ok := tiles[g]
-		if !ok || !world.Components.Name.Has(e) {
+		if !ok || !world.Components.RawID.Has(e) {
 			return "", false
 		}
-		return world.Components.Name.Get(e).Name, true
+		return world.Components.RawID.Get(e).ID, true
 	}
 	for _, e := range tiles {
 		g := *world.Components.GridElement.Get(e)
 		if g.X < loX || g.X >= hiX {
 			continue
 		}
-		recalcTileAutotile(world, e, g, nameOf)
+		recalcTileAutotile(world, e, g, idOf)
 	}
 }
 
@@ -90,12 +90,12 @@ func recalcSeamAutotileAlong(world w.World, boundary consts.Tile, axis func(g gc
 		return
 	}
 
-	nameOf := func(g gc.GridElement) (string, bool) {
+	idOf := func(g gc.GridElement) (string, bool) {
 		e, ok := tiles[g]
-		if !ok || !world.Components.Name.Has(e) {
+		if !ok || !world.Components.RawID.Has(e) {
 			return "", false
 		}
-		return world.Components.Name.Get(e).Name, true
+		return world.Components.RawID.Get(e).ID, true
 	}
 
 	// 境界の2ラインを再計算する
@@ -105,26 +105,27 @@ func recalcSeamAutotileAlong(world w.World, boundary consts.Tile, axis func(g gc
 		if c != boundary-1 && c != boundary {
 			continue
 		}
-		recalcTileAutotile(world, e, g, nameOf)
+		recalcTileAutotile(world, e, g, idOf)
 	}
 }
 
 // recalcTileAutotile は1タイルのオートタイル SpriteKey を4近傍から再計算する。
-func recalcTileAutotile(world w.World, e ecs.Entity, g gc.GridElement, nameOf func(gc.GridElement) (string, bool)) {
-	if !world.Components.Name.Has(e) {
+func recalcTileAutotile(world w.World, e ecs.Entity, g gc.GridElement, idOf func(gc.GridElement) (string, bool)) {
+	if !world.Components.RawID.Has(e) {
 		return
 	}
-	self := world.Components.Name.Get(e).Name
+	self := world.Components.RawID.Get(e).ID
 	sr := world.Components.SpriteRender.Get(e)
 	base, ok := autotileBase(sr.SpriteKey)
 	if !ok {
 		return // オートタイルでないタイルはスキップする。数値サフィックスが無い void 等が該当する
 	}
 
-	// 同名タイルとだけ接続する。ビット割り当ては mapplanner.AutoTileBits に集約し、生成時の
-	// CalculateAutoTileIndex と継ぎ目再計算でビットがずれないようにする。
+	// 同 id タイルとだけ接続する。表示名は素材でまとめられ色違いが同名になるので、接続判定は同定キーの
+	// id で行う。ビット割り当ては mapplanner.AutoTileBits に集約し、生成時の CalculateAutoTileIndex と
+	// 継ぎ目再計算でビットがずれないようにする。
 	same := func(x, y consts.Tile) bool {
-		n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		n, ok := idOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 		return ok && n == self
 	}
 	up := same(g.X, g.Y-1)
