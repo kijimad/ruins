@@ -121,9 +121,9 @@ func recalcTileAutotile(world w.World, e ecs.Entity, g gc.GridElement, idOf func
 		return // オートタイルでないタイルはスキップする。数値サフィックスが無い void 等が該当する
 	}
 
-	// 同 id タイルとだけ接続する。表示名は素材でまとめられ色違いが同名になるので、接続判定は同定キーの
-	// id で行う。ビット割り当ては mapplanner.AutoTileBits に集約し、生成時の CalculateAutoTileIndex と
-	// 継ぎ目再計算でビットがずれないようにする。
+	// 同 id タイルとだけ接続する。表示名は色違いをまとめるので接続判定には使わない。ビット割り当ては
+	// mapplanner.AutoTileBits に集約し、生成時の CalculateAutoTileIndex と継ぎ目再計算でビットがずれない
+	// ようにする。
 	same := func(x, y consts.Tile) bool {
 		n, ok := idOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 		return ok && n == self

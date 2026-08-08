@@ -315,8 +315,7 @@ func TestRawDuplicateNames(t *testing.T) {
 
 	t.Run("Tile idの重複がない", func(t *testing.T) {
 		t.Parallel()
-		// tile の表示名は素材でまとめる方針で意図的に重複しうる。brick の色違いは全て Brick。
-		// 同定は id で行うので、一意性は表示名でなく id に対して検証する。
+		// 表示名は素材でまとめて重複しうるので、一意性は id で検証する。brick の色違いは全て Brick。
 		ids := make(map[string]int)
 		for _, tile := range PtrSlice(raws.Tiles) {
 			ids[tile.Id]++
@@ -328,8 +327,7 @@ func TestRawDuplicateNames(t *testing.T) {
 
 	t.Run("Prop idの重複がない", func(t *testing.T) {
 		t.Parallel()
-		// prop の表示名は素材でまとめる方針で意図的に重複しうる。generator の色違いは両方 Generator。
-		// 同定は id で行うので、一意性は表示名でなく id に対して検証する。
+		// 表示名は素材でまとめて重複しうるので、一意性は id で検証する。generator の色違いは両方 Generator。
 		ids := make(map[string]int)
 		for _, prop := range PtrSlice(raws.Props) {
 			ids[prop.Id]++

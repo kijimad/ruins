@@ -344,8 +344,7 @@ func hashTileCoord(seed uint64, p consts.Coord[consts.Tile]) uint64 {
 	return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))
 }
 
-// tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。散布可否は表示名でなく
-// 同定キーの id で判定する。scatterEarthTiles も id をキーにしている。
+// tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。
 func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {
 	e, ok := tiles[gc.GridElement{Coord: pos}]
 	if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {
