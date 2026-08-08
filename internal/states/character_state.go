@@ -146,7 +146,7 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 		if charTabAt(st.screen.Selection().TabIndex) == charTabCommand {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
-		st.detail.Open()
+		st.detail.Open(world)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)
@@ -192,7 +192,7 @@ func (st *CharacterState) onBrowseSelect(world w.World) error {
 			st.cycleCommand(world, row.Kind)
 		}
 	default:
-		st.detail.Open()
+		st.detail.Open(world)
 	}
 	return nil
 }

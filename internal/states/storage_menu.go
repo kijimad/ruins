@@ -81,7 +81,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		if err := st.executeTransfer(world); err != nil {
 			return es.Transition[w.World]{}, err

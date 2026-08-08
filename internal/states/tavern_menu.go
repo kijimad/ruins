@@ -64,12 +64,12 @@ func (st *TavernMenuState) ExtraInput() (inputmapper.ActionID, bool) {
 }
 
 // DoAction はアクションを実行してステート遷移を返す
-func (st *TavernMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *TavernMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		st.actionWin.Open()
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:

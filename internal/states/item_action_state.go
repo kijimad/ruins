@@ -242,7 +242,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.executeSelected(world)
@@ -271,7 +271,7 @@ func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World
 	}
 	verb := vs[cursor.TabIndex]
 	if verb.Exec == nil {
-		st.detail.Open()
+		st.detail.Open(world)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 

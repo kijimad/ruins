@@ -76,7 +76,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		if err := st.craftSelected(world); err != nil {
 			return es.Transition[w.World]{}, err
@@ -221,7 +221,7 @@ func (st *CraftMenuState) craftSelected(world w.World) error {
 		return fmt.Errorf("failed to craft: %w", err)
 	}
 	st.resultEntity = resultEntity
-	st.result.Open()
+	st.result.Open(world)
 	return nil
 }
 
