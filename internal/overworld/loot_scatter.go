@@ -25,6 +25,10 @@ const outdoorLootDensity = 0.008
 // 1 で引く。深度 0 では全 entry が弾かれ何も出ない。収納 loot の populateStorageLoot と同じ扱い。
 const outdoorLootDepth = 1
 
+// outdoorLootItemChannel はアイテム抽選を座標選択と無相関にするハッシュチャネル。ScatterArea のタイル選択
+// seed と別チャネルにし、どのタイルに何が出るかの相関を切る。scatter.go の grass/weed チャネルと同じ考え方。
+const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
+
 // outdoorLootTableFor は屋外ゾーンに応じた item テーブル id を返す。道沿いは人の営みの残りで廃墟テーブル、
 // 奥地は野外の森テーブルから引く。exhaustive linter が outdoorZone の網羅を強制するので default を置かず、
 // 末尾 panic で未知ゾーンのランタイム保護も兼ねる。
@@ -49,8 +53,10 @@ func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chu
 	}
 
 	area := interior.Rect{X: 0, Y: 0, W: g.chunkW, H: g.chunkH}
+	// タイル選択の seed とアイテム抽選の rng を別チャネルにする。同一 seed だと「どこに置くか」と「何を置くか」が
+	// 相関しうるので、アイテム側は専用チャネルを XOR して無相関にする
 	selSeed := ChunkSeed2D(runSeed^outdoorLootSalt, c.X, c.Y)
-	rng := rand.New(rand.NewPCG(selSeed, outdoorLootSalt))
+	rng := rand.New(rand.NewPCG(selSeed^outdoorLootItemChannel, outdoorLootSalt))
 	count := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * outdoorLootDensity))
 
 	for _, rel := range interior.ScatterArea(area, accept, selSeed, count) {

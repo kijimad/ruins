@@ -132,7 +132,7 @@ func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile]
 	}
 	for _, d := range draws {
 		if d.Name == "" {
-			continue
+			continue // 防衛的ガード。現状 SelectFromItemGroup は空名を返さないが、将来の抽選変更で空名が来ても spawn を試みない
 		}
 		if _, err := lifecycle.SpawnFieldItem(world, d.Name, pos.X, pos.Y, d.Count); err != nil {
 			return err
