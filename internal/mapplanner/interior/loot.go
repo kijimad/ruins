@@ -6,11 +6,13 @@ package interior
 // 当面は既存の item group へ暫定的に写す。語彙を細分化したくなったら raw に専用 group を足して写像先を
 // 差し替える。interior の抽象語彙は変えずに済む。
 var lootRaw = map[string]string{
-	"snacks":  "food",
-	"drinks":  "food",
-	"bento":   "food",
-	"meds":    "healing_item",
-	"bandage": "healing_item",
+	"snacks":    "food",
+	"drinks":    "food",
+	"bento":     "food",
+	"meds":      "healing_item",
+	"bandage":   "healing_item",
+	"documents": "scrap_of_paper", // 事務所の散らばった書類
+	"supplies":  "materials",      // 倉庫の保管資材
 }
 
 // LootGroupName は loot Ref に対応する raw item group 名と、spawn されるかを返す。overworld の床 loot spawn と

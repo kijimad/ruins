@@ -13447,6 +13447,11 @@ depth = 2
 spriteKey = "wood_barrel"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "40 kg"
+lootTableId = "storage_box"
+lootCount = "1d3"
+
 [props.disassembly]
 toolCategory = "prying"
 baseAP = 2500
@@ -13788,6 +13793,11 @@ id = "desk"
 depth = 2
 spriteKey = "wood_desk"
 spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "20 kg"
+lootTableId = "storage_box"
+lootCount = "1d2"
 
 [[props]]
 blockPass = false
