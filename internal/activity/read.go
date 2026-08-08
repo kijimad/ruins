@@ -63,10 +63,25 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		skills = skillsComp
 	}
 	if err := book.CanRead(skills); err != nil {
+		// 読めない理由をプレイヤーへ出す。スキル不足なら必要・現在レベルを添えて現在言語で組む。
+		// 検証失敗の文言は世界を持つこの層で作る。呼び出し側はエラーを吸収して閉じるだけにできる
+		msg := err.Error()
+		if book.Skill != nil && book.Skill.RequiredLevel > 0 {
+			current := 0
+			if skills != nil {
+				current = skills.Get(book.Skill.TargetSkill).Value
+			}
+			if current < book.Skill.RequiredLevel {
+				msg = query.T(world, "You need %s Lv%d or higher to read this. Current Lv%d",
+					query.T(world, gc.SkillName(book.Skill.TargetSkill)), book.Skill.RequiredLevel, current)
+			}
+		}
+		gamelog.New(query.GetGameLog(world)).Markup(msg).Log()
 		return err
 	}
 
 	if !isAreaSafe(actor, world) {
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "cannot read because enemies are nearby")).Log()
 		return fmt.Errorf("cannot read because enemies are nearby")
 	}
 

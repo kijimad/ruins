@@ -5536,3 +5536,6 @@ msgstr "訓練を積んだ兵隊"
 
 msgid "You need %s Lv%d or higher to read this. Current Lv%d"
 msgstr "この本を読むには %s Lv%d 以上が必要。現在 Lv%d"
+
+msgid "cannot read because enemies are nearby"
+msgstr "敵が近くにいるので読めない"

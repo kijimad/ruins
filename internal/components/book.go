@@ -17,21 +17,8 @@ func (b *Book) IsCompleted() bool {
 	return b.Effort.Current >= b.Effort.Max
 }
 
-// BookSkillError は本を読むのに必要なスキルレベルが足りないことを表す検証エラー。
-// 表示側はフィールドから現在言語のメッセージを組み立てる。Error はログ向けの英語表現を返す
-type BookSkillError struct {
-	Skill    SkillID
-	Required int
-	Current  int
-}
-
-// Error はエラーインターフェースを満たす
-func (e *BookSkillError) Error() string {
-	return fmt.Sprintf("reading this book requires %s at level %d or higher; current %d",
-		SkillName(e.Skill), e.Required, e.Current)
-}
-
-// CanRead はこの本を読めるかチェックする。読めない場合はエラーを返す
+// CanRead はこの本を読めるかチェックする。読めない場合はエラーを返す。
+// エラーは制御用で、プレイヤー向けの文言は呼び出し側が本の情報から現在言語で組み立てる
 func (b *Book) CanRead(skills *Skills) error {
 	if b.IsCompleted() {
 		return fmt.Errorf("this book is already read")
@@ -44,7 +31,8 @@ func (b *Book) CanRead(skills *Skills) error {
 		playerLevel = skills.Get(b.Skill.TargetSkill).Value
 	}
 	if playerLevel < b.Skill.RequiredLevel {
-		return &BookSkillError{Skill: b.Skill.TargetSkill, Required: b.Skill.RequiredLevel, Current: playerLevel}
+		return fmt.Errorf("reading this book requires %s at level %d or higher; current %d",
+			SkillName(b.Skill.TargetSkill), b.Skill.RequiredLevel, playerLevel)
 	}
 	return nil
 }

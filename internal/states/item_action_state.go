@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menurt"
@@ -157,18 +156,10 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 		return es.Transition[w.World]{}, err
 	}
 	if _, err := activity.Execute(act, player, world); err != nil {
-		// 検証失敗、スキル不足や周囲の敵、はユーザー入力の失敗なのでゲームを止めない。
-		// 理由をログに出して閉じる。state が返すエラーは最上位まで伝播して致命化するため、
-		// ここで吸収するのは検証失敗だけにする。システムエラーは握りつぶさず伝播させる
+		// 検証失敗、スキル不足や周囲の敵、はユーザー入力の失敗。理由は activity 側が gamelog に
+		// 出しているのでここは閉じるだけにする。state が返すエラーは最上位まで伝播して致命化する
+		// ため、握りつぶすのは検証失敗だけにし、システムエラーは伝播させる
 		if errors.Is(err, activity.ErrValidationFailed) {
-			// スキル不足は本のスキルと必要・現在レベルから現在言語の文を組む。ほかの検証失敗は生のまま
-			msg := err.Error()
-			var skillErr *gc.BookSkillError
-			if errors.As(err, &skillErr) {
-				msg = query.T(world, "You need %s Lv%d or higher to read this. Current Lv%d",
-					query.T(world, gc.SkillName(skillErr.Skill)), skillErr.Required, skillErr.Current)
-			}
-			gamelog.New(query.GetGameLog(world)).Markup(msg).Log()
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}
 		return es.Transition[w.World]{}, err
