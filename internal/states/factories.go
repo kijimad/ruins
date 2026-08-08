@@ -264,10 +264,11 @@ func formatSaveSlotLabel(world w.World, saveManager *save.SerializationManager, 
 	return query.T(world, "  Has data")
 }
 
-// NewMessageState はメッセージデータを受け取って新しいMessageStateを作成するファクトリー関数
+// NewMessageState は組み立て済みメッセージから MessageState を作成する。
+// 構築を build へ一本化するため、受け取った messageData を返すだけの build で包む
 func NewMessageState(messageData *messagedata.MessageData) (es.State[w.World], error) {
 	return &MessageState{
-		messageData: messageData,
+		build: func(_ w.World) *messagedata.MessageData { return messageData },
 	}, nil
 }
 
@@ -289,9 +290,10 @@ func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
 // NewInteractionMenuState はインタラクションメニューStateを作成する
 func NewInteractionMenuState(world w.World) (es.State[w.World], error) {
 	if len(GetInteractionActions(world)) == 0 {
-		// ファクトリで world を持つので build を介さず messageData を直接組む
 		messageState := &MessageState{}
-		messageState.messageData = messagedata.NewSystemMessage(query.T(world, "No actions available."))
+		messageState.build = func(world w.World) *messagedata.MessageData {
+			return messagedata.NewSystemMessage(query.T(world, "No actions available."))
+		}
 		return messageState, nil
 	}
 	return NewChoiceMenu(interactionChoices), nil
@@ -328,7 +330,7 @@ func sameTileActionChoices(world w.World) (string, []Choice) {
 
 // NewMerchantDialogState は商人との会話ステートを作成
 func NewMerchantDialogState(speakerName string) (es.State[w.World], error) {
-	persistentState := NewPersistentMessageState(nil)
+	persistentState := &PersistentMessageState{}
 
 	persistentState.build = func(world w.World) *messagedata.MessageData {
 		return messagedata.NewDialogMessage("", speakerName).
@@ -351,7 +353,7 @@ func NewMerchantDialogState(speakerName string) (es.State[w.World], error) {
 
 // NewTavernKeeperDialogState は酒場の主人との会話ステートを作成
 func NewTavernKeeperDialogState(speakerName string) (es.State[w.World], error) {
-	persistentState := NewPersistentMessageState(nil)
+	persistentState := &PersistentMessageState{}
 
 	persistentState.build = func(world w.World) *messagedata.MessageData {
 		return messagedata.NewDialogMessage("", speakerName).
@@ -374,7 +376,7 @@ func NewTavernKeeperDialogState(speakerName string) (es.State[w.World], error) {
 
 // NewDoctorDialogState は怪しい科学者との会話ステートを作成
 func NewDoctorDialogState(speakerName string) (es.State[w.World], error) {
-	persistentState := NewPersistentMessageState(nil)
+	persistentState := &PersistentMessageState{}
 
 	persistentState.build = func(world w.World) *messagedata.MessageData {
 		return messagedata.NewDialogMessage("", speakerName).

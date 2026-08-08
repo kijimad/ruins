@@ -54,11 +54,13 @@ func (st *PersistentMessageState) OnResume(world w.World) error {
 	return nil
 }
 
-// NewPersistentMessageState は永続的なメッセージステートを作成する
+// NewPersistentMessageState は組み立て済みメッセージから永続メッセージステートを作成する。
+// 構築を build へ一本化するため、受け取った messageData を返すだけの build で包む。
+// world 依存の構築が要る呼び出しは &PersistentMessageState{} を直接組んで build を設定する
 func NewPersistentMessageState(messageData *messagedata.MessageData) *PersistentMessageState {
 	return &PersistentMessageState{
 		MessageState: MessageState{
-			messageData: messageData,
+			build: func(_ w.World) *messagedata.MessageData { return messageData },
 		},
 	}
 }
