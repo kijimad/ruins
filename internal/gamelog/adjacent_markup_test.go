@@ -32,10 +32,8 @@ func TestNoAdjacentMarkup(t *testing.T) {
 			return nil
 		}
 		f, perr := parser.ParseFile(fset, path, nil, 0)
-		if perr != nil {
-			t.Logf("パース失敗をスキップする: %s: %v", path, perr)
-			return nil
-		}
+		// ビルドが通れば必ずパースできる。失敗は検査漏れになるのでハードエラーにする
+		require.NoError(t, perr, "パースできない: %s", path)
 		ast.Inspect(f, func(n ast.Node) bool {
 			outer, ok := n.(*ast.CallExpr)
 			if !ok {
