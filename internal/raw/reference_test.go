@@ -313,14 +313,16 @@ func TestRawDuplicateNames(t *testing.T) {
 		}
 	})
 
-	t.Run("Tile名の重複がない", func(t *testing.T) {
+	t.Run("Tile idの重複がない", func(t *testing.T) {
 		t.Parallel()
-		names := make(map[string]int)
+		// tile の表示名は素材でまとめる方針で意図的に重複しうる。brick の色違いは全て Brick。
+		// 同定は id で行うので、一意性は表示名でなく id に対して検証する。
+		ids := make(map[string]int)
 		for _, tile := range PtrSlice(raws.Tiles) {
-			names[tile.Name]++
+			ids[tile.Id]++
 		}
-		for name, count := range names {
-			assert.Equal(t, 1, count, "Tile名 '%s' が重複しています（%d個）", name, count)
+		for id, count := range ids {
+			assert.Equal(t, 1, count, "Tile id '%s' が重複しています（%d個）", id, count)
 		}
 	})
 

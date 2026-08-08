@@ -5452,3 +5452,51 @@ msgstr "骸骨兵"
 
 msgid "Black Corpse"
 msgstr "黒屍"
+
+msgid "Dirt"
+msgstr "土"
+
+msgid "Dungeon Wall"
+msgstr "ダンジョンの壁"
+
+msgid "Floor"
+msgstr "床"
+
+msgid "Void"
+msgstr "暗闇"
+
+msgid "Wall"
+msgstr "壁"
+
+msgid "Linoleum Floor"
+msgstr "リノリウムの床"
+
+msgid "Tile Floor"
+msgstr "タイルの床"
+
+msgid "Concrete Floor"
+msgstr "コンクリートの床"
+
+msgid "Wooden Floor"
+msgstr "木の床"
+
+msgid "Tatami"
+msgstr "畳"
+
+msgid "Brick"
+msgstr "レンガ"
+
+msgid "Cobblestone"
+msgstr "石畳"
+
+msgid "Grass Field"
+msgstr "草地"
+
+msgid "Sand"
+msgstr "砂"
+
+msgid "Smooth Floor"
+msgstr "なめらかな床"
+
+msgid "Planks"
+msgstr "板張り"

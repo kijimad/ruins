@@ -29,7 +29,7 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 		}
 
 		// wallタイルで床に隣接していない場合、変換対象とする
-		if tile.Name == consts.TileNameWall && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
+		if tile.Id == consts.TileNameWall && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
 			tilesToConvert = append(tilesToConvert, i)
 		}
 	}

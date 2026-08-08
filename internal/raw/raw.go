@@ -577,10 +577,10 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {
 
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
-func GetTile(raws oapi.Raws, name string) (oapi.Tile, error) {
-	tile, ok := findByKey(raws.Tiles, func(t oapi.Tile) string { return t.Name }, name)
+func GetTile(raws oapi.Raws, id string) (oapi.Tile, error) {
+	tile, ok := findByKey(raws.Tiles, func(t oapi.Tile) string { return t.Id }, id)
 	if !ok {
-		return oapi.Tile{}, NewKeyNotFoundError(name, "Tiles")
+		return oapi.Tile{}, NewKeyNotFoundError(id, "Tiles")
 	}
 	return tile, nil
 }

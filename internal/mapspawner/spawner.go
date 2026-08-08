@@ -101,7 +101,7 @@ var (
 )
 
 // spawnTile は1タイルを生成する。
-// 通行可否で仕様表を選び、論理名 tile.Name で仕様を引いて実体化する。
+// 通行可否で仕様表を選び、論理キー tile.Id で仕様を引いて実体化する。
 func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) {
 	specs := passableTileSpecs
 	category := "walkable"
@@ -110,15 +110,15 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 		category = "impassable"
 	}
 
-	spec, ok := specs[tile.Name]
+	spec, ok := specs[tile.Id]
 	if !ok {
-		return gc.InvalidEntity, fmt.Errorf("unsupported %s tile name: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
+		return gc.InvalidEntity, fmt.Errorf("unsupported %s tile id: %s (%d, %d)", category, tile.Id, int(tileX), int(tileY))
 	}
 
-	// オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。
+	// オートタイル添字は論理キー tile.Id で計算する。生成スプライト名 spec.spawnName とは別物。
 	var indexPtr *int
 	if spec.autotile {
-		index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
+		index := int(metaPlan.CalculateAutoTileIndex(i, tile.Id))
 		indexPtr = &index
 	}
 	return lifecycle.SpawnTile(world, spec.spawnName, tileX, tileY, indexPtr)

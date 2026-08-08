@@ -31,9 +31,9 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 		for i := range 25 {
 			x, y := i%5, i/5
 			if x == 0 || x == 4 || y == 0 || y == 4 {
-				mp.Tiles[i] = oapi.Tile{Name: "wall", BlockPass: true}
+				mp.Tiles[i] = oapi.Tile{Id: "wall", Name: "wall", BlockPass: true}
 			} else {
-				mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
+				mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 			}
 		}
 
@@ -60,7 +60,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 		}
 
 		for i := range 25 {
-			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
 
 		planner := EnvironmentPlanner{}
@@ -88,7 +88,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 		}
 
 		for i := range 35 {
-			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
 
 		// 壁を配置
@@ -98,7 +98,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 			3*7 + 1, 3*7 + 2, 3*7 + 3, 3*7 + 4, // 下の壁
 		}
 		for _, idx := range wallPositions {
-			mp.Tiles[idx] = oapi.Tile{Name: "wall", BlockPass: true}
+			mp.Tiles[idx] = oapi.Tile{Id: "wall", Name: "wall", BlockPass: true}
 		}
 
 		planner := EnvironmentPlanner{}
@@ -126,9 +126,9 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 			Tiles: make([]oapi.Tile, 9),
 		}
 		for i := range 9 {
-			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
-		mp.Tiles[4] = oapi.Tile{Name: "water", BlockPass: false}
+		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false}
 
 		planner := EnvironmentPlanner{}
 		result := planner.calcWater(mp, 4)
@@ -144,9 +144,9 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 			Tiles: make([]oapi.Tile, 9),
 		}
 		for i := range 9 {
-			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
-		mp.Tiles[4] = oapi.Tile{Name: "water", BlockPass: false}
+		mp.Tiles[4] = oapi.Tile{Id: "water", Name: "water", BlockPass: false}
 
 		planner := EnvironmentPlanner{}
 
@@ -165,7 +165,7 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 			Tiles: make([]oapi.Tile, 9),
 		}
 		for i := range 9 {
-			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
 
 		planner := EnvironmentPlanner{}
@@ -196,7 +196,7 @@ func TestEnvironmentPlanner_calcFoliage(t *testing.T) {
 
 			mp := &MetaPlan{
 				Level: newTestLevel(1, 1),
-				Tiles: []oapi.Tile{{Name: tt.tileName}},
+				Tiles: []oapi.Tile{{Id: tt.tileName, Name: tt.tileName}},
 			}
 
 			planner := EnvironmentPlanner{}
