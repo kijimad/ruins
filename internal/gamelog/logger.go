@@ -7,8 +7,9 @@ type Logger struct {
 	store     *SafeSlice
 }
 
-// New は指定されたストアでLoggerを作成する。
-// 本番: New(GameLog) など、グローバルストアを渡す。テスト: ローカルストアを渡す
+// New は指定されたストアで Logger を作成する。ストアは呼び出し側が注入する。
+// 本番はワールドの GameLog シングルトンのストアを渡す。取得は query.GetGameLog(world)。
+// テストは検証用の独立した SafeSlice か、テスト用ワールドの singleton ストアを渡す。
 func New(store *SafeSlice) *Logger {
 	return &Logger{
 		fragments: make([]LogFragment, 0),
