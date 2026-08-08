@@ -105,15 +105,14 @@ type shopTabData struct {
 }
 
 type shopItemData struct {
-	Entity    ecs.Entity // 在庫・持ち物の実体。買=これを移動、売=これを移動
-	ItemID    string     // アイテムの raw 同定キー。詳細表示に使う。隊員候補は空
-	Label     string     // 表示名
-	Weight    string
-	Price     int
-	Count     int // 実体の個数
-	IsBuy     bool
-	IsRecruit bool // 隊員候補なら真。買うと雇用になる
-	Disabled  bool
+	Entity   ecs.Entity // 在庫・持ち物の実体。買=これを移動、売=これを移動。候補かどうかは実体の Abilities で判別する
+	ItemID   string     // アイテムの raw 同定キー。詳細表示に使う。隊員候補は空
+	Label    string     // 表示名
+	Weight   string
+	Price    int
+	Count    int // 実体の個数
+	IsBuy    bool
+	Disabled bool
 }
 
 // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
@@ -158,16 +157,15 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 	for _, entity := range stock {
 		price := buyPriceMod.ApplyInt(query.CalculateBuyPrice(query.StockBaseValue(world, entity)))
 		data := shopItemData{
-			Entity:    entity,
-			Price:     price,
-			Weight:    query.GetEntityWeight(world, entity).KgString(),
-			Count:     query.GetEntityCount(world, entity),
-			IsBuy:     true,
-			IsRecruit: query.IsRecruit(world, entity),
-			Disabled:  currency < price,
+			Entity:   entity,
+			Price:    price,
+			Weight:   query.GetEntityWeight(world, entity).KgString(),
+			Count:    query.GetEntityCount(world, entity),
+			IsBuy:    true,
+			Disabled: currency < price,
 		}
 		name := world.Components.Name.Get(entity).Name
-		if data.IsRecruit {
+		if query.IsRecruit(world, entity) {
 			// 候補名はローマ字の固有名なので言語に依らずそのまま出す
 			data.Label = name
 		} else {
@@ -228,8 +226,13 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 		if !canAfford {
 			return nil
 		}
+		// 選択が古く実体が消えていれば何もしない。dead entity への Has/移動は panic するため先に守る
+		if !world.ECS.Alive(item.Entity) {
+			return nil
+		}
+		// 隊員候補は雇用、アイテムは購入。実体の Abilities で分岐する
 		var err error
-		if item.IsRecruit {
+		if query.IsRecruit(world, item.Entity) {
 			query.Player(world, func(p ecs.Entity) { err = gameaction.HireRecruit(world, p, item.Entity) })
 		} else {
 			query.Player(world, func(p ecs.Entity) { err = gameaction.BuyStock(world, p, item.Entity) })
@@ -288,10 +291,9 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
 		return menuscreen.DetailContent{}, false
 	}
 
-	if item.IsRecruit {
-		if !world.ECS.Alive(item.Entity) || !world.Components.Abilities.Has(item.Entity) {
-			return menuscreen.DetailContent{}, false
-		}
+	// 隊員候補は能力を、アイテムは raw 性能を出す。候補かどうかは実体の Abilities で判別する。
+	// dead entity への Has は panic するため、生存を確認してから判別する
+	if world.ECS.Alive(item.Entity) && query.IsRecruit(world, item.Entity) {
 		a := world.Components.Abilities.Get(item.Entity)
 		// 能力はキャラ画面と同じラベルで縦に並べる。ラベル左・値右の1行1能力にする
 		rows := []menuscreen.SpecRow{
