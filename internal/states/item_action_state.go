@@ -158,32 +158,10 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 	// 読書開始の検証失敗、スキル不足や周囲の敵、はゲームを止めない。理由をログに出して閉じる。
 	// state が返すエラーは最上位まで伝播して致命化するため、ユーザー入力の失敗はここで吸収する
 	if _, err := activity.Execute(act, player, world); err != nil {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(readBlockedMessage(world, player, entity)).
-			Log()
-		//nolint:nilerr // 検証失敗はログに出して吸収する。state のエラーは致命化するため伝播させない
+		gamelog.New(query.GetGameLog(world)).Markup(err.Error()).Log()
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
-}
-
-// readBlockedMessage は読書を始められない理由をプレイヤー向けの文言で返す。
-// スキル不足なら必要スキルと現在値を、それ以外は汎用の文言を出す
-func readBlockedMessage(world w.World, player, book ecs.Entity) string {
-	if world.Components.Book.Has(book) {
-		b := world.Components.Book.Get(book)
-		if b.Skill != nil && b.Skill.RequiredLevel > 0 {
-			current := 0
-			if world.Components.Skills.Has(player) {
-				current = world.Components.Skills.Get(player).Get(b.Skill.TargetSkill).Value
-			}
-			if current < b.Skill.RequiredLevel {
-				return query.T(world, "Cannot read: %s Lv%d required, current Lv%d",
-					query.T(world, gc.SkillName(b.Skill.TargetSkill)), b.Skill.RequiredLevel, current)
-			}
-		}
-	}
-	return query.T(world, "Cannot read this now")
 }
 
 // verbByAction はダンジョン等からの直達アクションを対応する動詞へ対応づける。verbList から導く
