@@ -85,6 +85,7 @@ func SpawnStorageRecruit(world w.World, merchant ecs.Entity, name string, abilit
 	recruit := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:      &gc.Name{Name: name},
 		Abilities: &abilities,
+		Weight:    &gc.Weight{Milligram: abilities.BodyWeight()},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
 			SpriteKey:       spriteKey,

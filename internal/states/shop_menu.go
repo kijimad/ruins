@@ -159,6 +159,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 		data := shopItemData{
 			Entity:    entity,
 			Price:     price,
+			Weight:    query.GetEntityWeight(world, entity).KgString(),
 			Count:     query.GetEntityCount(world, entity),
 			IsBuy:     true,
 			IsRecruit: query.IsRecruit(world, entity),
@@ -171,7 +172,6 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 		} else {
 			data.ItemID = world.Components.RawID.Get(entity).ID
 			data.Label = query.T(world, name)
-			data.Weight = query.GetEntityWeight(world, entity).KgString()
 		}
 		items = append(items, data)
 	}

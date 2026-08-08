@@ -201,6 +201,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	memberEntity := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:           &gc.Name{Name: name},
 		Abilities:      &abilities,
+		Weight:         &gc.Weight{Milligram: abilities.BodyWeight()},
 		HP:             &gc.HP{},
 		TurnBased:      &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}},
 		Skills:         skills,
