@@ -14801,9 +14801,9 @@ lootTableId = "ruins_area"
 lootCount = "1d4+1"
 
 [[professions]]
-description = "逃げてきた一般人"
+description = "An ordinary person who fled the collapse."
 id = "evacuee"
-name = "避難民"
+name = "Refugee"
 
 [professions.abilities]
 agility = 5
@@ -14854,9 +14854,9 @@ name = "cloth_shoes"
 slot = "FEET"
 
 [[professions]]
-description = "野外活動に長けた生存者"
+description = "A survivor skilled in outdoor activity."
 id = "hunter"
-name = "猟師"
+name = "Hunter"
 
 [professions.abilities]
 agility = 7
@@ -14923,9 +14923,9 @@ name = "leather_boots"
 slot = "FEET"
 
 [[professions]]
-description = "技術者"
+description = "An engineer skilled with machines."
 id = "mechanic"
-name = "整備士"
+name = "Engineer"
 
 [professions.abilities]
 agility = 4
@@ -14984,9 +14984,9 @@ name = "cloth_shoes"
 slot = "FEET"
 
 [[professions]]
-description = "医療知識を持つ"
+description = "Trained in medical knowledge."
 id = "medic"
-name = "衛生兵"
+name = "Medic"
 
 [professions.abilities]
 agility = 4
@@ -15053,9 +15053,9 @@ name = "cloth_shoes"
 slot = "FEET"
 
 [[professions]]
-description = "射撃の達人"
+description = "A master of marksmanship."
 id = "sniper"
-name = "狙撃手"
+name = "Sniper"
 
 [professions.abilities]
 agility = 6
@@ -15114,9 +15114,9 @@ name = "cloth_shoes"
 slot = "FEET"
 
 [[professions]]
-description = "訓練を積んだ兵隊"
+description = "A trained soldier."
 id = "soldier"
-name = "軍人"
+name = "Soldier"
 
 [professions.abilities]
 agility = 4

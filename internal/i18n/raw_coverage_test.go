@@ -31,8 +31,9 @@ func TestRawTranslationCoverage(t *testing.T) {
 
 	// プレイヤーに表示される文字列だけを収集する。Prop/Tile の Description は spawn 時に
 	// コンポーネントへ入るが読み出す表示経路が無いので対象外。テーブル名も内部キーで非表示。
-	items, members, props, tiles := raw.PtrSlice(raws.Items), raw.PtrSlice(raws.Members), raw.PtrSlice(raws.Props), raw.PtrSlice(raws.Tiles)
-	texts := make([]string, 0, len(items)*2+len(members)+len(props)+len(tiles))
+	items, members, props := raw.PtrSlice(raws.Items), raw.PtrSlice(raws.Members), raw.PtrSlice(raws.Props)
+	tiles, profs := raw.PtrSlice(raws.Tiles), raw.PtrSlice(raws.Professions)
+	texts := make([]string, 0, len(items)*2+len(members)+len(props)+len(tiles)+len(profs)*2)
 	for _, it := range items {
 		texts = append(texts, it.Name, it.Description)
 	}
@@ -44,6 +45,9 @@ func TestRawTranslationCoverage(t *testing.T) {
 	}
 	for _, tl := range tiles {
 		texts = append(texts, tl.Name)
+	}
+	for _, pr := range profs {
+		texts = append(texts, pr.Name, pr.Description)
 	}
 
 	// 現在の債務: 英語化済みだが ja.po に無い表示文字列。日本語のままのものは移行前なので数えるだけ。

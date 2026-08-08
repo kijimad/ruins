@@ -5500,3 +5500,39 @@ msgstr "なめらかな床"
 
 msgid "Planks"
 msgstr "板張り"
+
+msgid "Refugee"
+msgstr "避難民"
+
+msgid "An ordinary person who fled the collapse."
+msgstr "逃げてきた一般人"
+
+msgid "Hunter"
+msgstr "猟師"
+
+msgid "A survivor skilled in outdoor activity."
+msgstr "野外活動に長けた生存者"
+
+msgid "Engineer"
+msgstr "整備士"
+
+msgid "An engineer skilled with machines."
+msgstr "技術者"
+
+msgid "Medic"
+msgstr "衛生兵"
+
+msgid "Trained in medical knowledge."
+msgstr "医療知識を持つ"
+
+msgid "Sniper"
+msgstr "狙撃手"
+
+msgid "A master of marksmanship."
+msgstr "射撃の達人"
+
+msgid "Soldier"
+msgstr "軍人"
+
+msgid "A trained soldier."
+msgstr "訓練を積んだ兵隊"

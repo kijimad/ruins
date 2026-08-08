@@ -190,7 +190,7 @@ func (st *CharacterJobState) View(world w.World, props JobMenuProps, cursor menu
 	leftContainer := styled.NewVerticalContainer()
 	rows := make([]menuRow, len(props.Items))
 	for i := range props.Items {
-		rows[i] = menuRow{Cells: []string{props.Items[i].Profession.Name}}
+		rows[i] = menuRow{Cells: []string{query.T(world, props.Items[i].Profession.Name)}}
 	}
 	leftContainer.AddChild(renderMenuList(itemIndex, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
 	rightContainer := st.buildDetailPanel(world, props, itemIndex, res)
@@ -205,7 +205,7 @@ func (st *CharacterJobState) View(world w.World, props JobMenuProps, cursor menu
 	)
 	description := ""
 	if itemIndex < len(props.Items) {
-		description = props.Items[itemIndex].Profession.Description
+		description = query.T(world, props.Items[itemIndex].Profession.Description)
 	}
 	descriptionText := widget.NewText(
 		widget.TextOpts.Text(description, &res.Text.SmallFace, theme.TextAccent),
