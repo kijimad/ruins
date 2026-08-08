@@ -1,6 +1,6 @@
 [[items]]
-description = "火をつけた松明。照明にも武器にもなる"
-name = "たいまつ"
+description = "A lit torch. Serves as both light and weapon."
+name = "Torch"
 id = "torch"
 spriteKey = "torch"
 spriteSheetName = "field"
@@ -18,8 +18,8 @@ targetGroup = "ENEMY"
 targetNum = "SINGLE"
 
 [[items]]
-description = "掃除用の長い柄。リーチがあり、殴打武器として意外と使える"
-name = "ほうき"
+description = "A long-handled cleaning tool. Its reach makes it a surprisingly usable bludgeon."
+name = "Broom"
 id = "broom"
 spriteKey = "broom"
 spriteSheetName = "field"
@@ -37,8 +37,8 @@ targetGroup = "ENEMY"
 targetNum = "SINGLE"
 
 [[items]]
-description = "氷の魔力を宿す鈍器。打撃と同時に冷気が走る"
-name = "アイスメイス"
+description = "A blunt weapon imbued with ice magic. Cold surges with each strike."
+name = "Ice Mace"
 id = "ice_mace"
 spriteKey = "ice_mace"
 spriteSheetName = "field"

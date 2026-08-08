@@ -541,11 +541,11 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 func entityDetailContent(world w.World, entity ecs.Entity) menuscreen.DetailContent {
 	name := ""
 	if world.Components.Name.Has(entity) {
-		name = world.Components.Name.Get(entity).Name
+		name = query.T(world, world.Components.Name.Get(entity).Name)
 	}
 	desc := ""
 	if world.Components.Description.Has(entity) {
-		desc = world.Components.Description.Get(entity).Description
+		desc = query.T(world, world.Components.Description.Get(entity).Description)
 	}
 	return menuscreen.DetailContent{Name: name, Desc: desc, Entity: entity}
 }

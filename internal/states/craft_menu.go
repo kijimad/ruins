@@ -311,7 +311,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 			if owned >= in.Amount {
 				rowColor = theme.StatusSuccess
 			}
-			label := raw.ItemName(world.Resources.RawMaster, in.ID)
+			label := query.T(world, raw.ItemName(world.Resources.RawMaster, in.ID))
 			rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
@@ -319,7 +319,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 
 	desc := ""
 	if spec.Description != nil {
-		desc = spec.Description.Description
+		desc = query.T(world, spec.Description.Description)
 	}
 	return menuscreen.DetailContent{Name: item.RecipeName, Desc: desc, Rows: rows}, true
 }

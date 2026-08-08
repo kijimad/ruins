@@ -1441,6 +1441,28 @@ msgstr "引くスペースがなくなった"
 msgid "book is not set"
 msgstr "本が指定されていません"
 
+msgid "Unknown"
+msgstr "不明"
+
+# raw items（データ英語化: name/description）
+msgid "Torch"
+msgstr "たいまつ"
+
+msgid "A lit torch. Serves as both light and weapon."
+msgstr "火をつけた松明。照明にも武器にもなる"
+
+msgid "Broom"
+msgstr "ほうき"
+
+msgid "A long-handled cleaning tool. Its reach makes it a surprisingly usable bludgeon."
+msgstr "掃除用の長い柄。リーチがあり、殴打武器として意外と使える"
+
+msgid "Ice Mace"
+msgstr "アイスメイス"
+
+msgid "A blunt weapon imbued with ice magic. Cold surges with each strike."
+msgstr "氷の魔力を宿す鈍器。打撃と同時に冷気が走る"
+
 msgid "Unknown Item"
 msgstr "不明なアイテム"
 
