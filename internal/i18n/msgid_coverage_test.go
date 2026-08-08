@@ -43,15 +43,9 @@ func TestMsgidCoverage(t *testing.T) {
 			if !ok {
 				return true
 			}
-			sel, ok := call.Fun.(*ast.SelectorExpr)
-			if !ok || sel.Sel.Name != "T" {
-				return true
-			}
-			pkgIdent, ok := sel.X.(*ast.Ident)
-			if !ok || pkgIdent.Name != "query" {
-				return true
-			}
-			if len(call.Args) < 2 {
+			// 第2引数が msgid になる呼び出しを拾う。query.T はその場で訳し、
+			// Cancel は reason を CancelReason に積んで activity_manager が query.T で訳す。
+			if !isMsgidCall(call.Fun) || len(call.Args) < 2 {
 				return true
 			}
 			lit, ok := call.Args[1].(*ast.BasicLit)
@@ -80,6 +74,22 @@ func TestMsgidCoverage(t *testing.T) {
 
 	t.Logf("静的 msgid %d 種, ja.po 定義 %d 種, 非リテラル引数 %d 箇所は静的検査不可", len(used), len(defined), dynamic)
 	require.Empty(t, missing, "ja.po に欠落している msgid:\n%s", strings.Join(missing, "\n"))
+}
+
+// isMsgidCall は呼び出しの第2引数が msgid になる関数かを返す。
+// query.T はその場で訳す。activity.Cancel は reason を CancelReason に積み、activity_manager が
+// query.T で訳すため、その reason も msgid として ja.po 存在を検証する。
+func isMsgidCall(fun ast.Expr) bool {
+	switch fn := fun.(type) {
+	case *ast.SelectorExpr:
+		if pkg, ok := fn.X.(*ast.Ident); ok && pkg.Name == "query" && fn.Sel.Name == "T" {
+			return true
+		}
+		return fn.Sel.Name == "Cancel"
+	case *ast.Ident:
+		return fn.Name == "Cancel"
+	}
+	return false
 }
 
 // moduleRoot は go.mod を上位へ辿ってリポジトリルートを返す。

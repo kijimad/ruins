@@ -209,7 +209,7 @@ func (db *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, wor
 		if p, ok := comp.Params.(*gc.DisassembleParams); ok && world.ECS.Alive(p.Target) {
 			logger.Markup(query.T(world, "Interrupted disassembling %s", gamelog.Tag("item", query.GetEntityName(p.Target, world))))
 		} else {
-			logger.Markup(query.T(world, "interrupted disassembly"))
+			logger.Markup(query.T(world, "Interrupted disassembly"))
 		}
 		logger.Log()
 	}

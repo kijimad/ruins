@@ -15,6 +15,11 @@ import (
 // RestBehavior はBehaviorの実装
 type RestBehavior struct{}
 
+const (
+	restHealPerTurn       = 5 // 1ターンあたりの直接HP回復量
+	restFullRestBonusHeal = 2 // 完全休息を終えたときの追加HP回復量
+)
+
 // Info はBehaviorの実装
 func (rb *RestBehavior) Info() Info {
 	return Info{
@@ -98,7 +103,7 @@ func (rb *RestBehavior) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 	if world.Components.HP.Has(actor) {
 		hp := world.Components.HP.Get(actor)
 		if hp.Current < hp.Max {
-			bonusHealing := 2
+			bonusHealing := restFullRestBonusHeal
 			hp.Current += bonusHealing
 			if hp.Current > hp.Max {
 				hp.Current = hp.Max
@@ -138,8 +143,7 @@ func (rb *RestBehavior) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 		return nil
 	}
 
-	// 直接HP回復（1ターンあたり5HP）
-	healAmount := 5
+	healAmount := restHealPerTurn
 	beforeHP := hp.Current
 	hp.Current += healAmount
 	if hp.Current > hp.Max {
