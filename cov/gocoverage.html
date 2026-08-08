@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.1%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (76.6%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.1%)</option>
 				
@@ -75,7 +75,7 @@
 				
 				<option value="file9">github.com/kijimaD/ruins/internal/activity/pickup.go (75.9%)</option>
 				
-				<option value="file10">github.com/kijimaD/ruins/internal/activity/player_actions.go (78.9%)</option>
+				<option value="file10">github.com/kijimaD/ruins/internal/activity/player_actions.go (80.0%)</option>
 				
 				<option value="file11">github.com/kijimaD/ruins/internal/activity/push.go (69.4%)</option>
 				
@@ -621,7 +621,7 @@
 				
 				<option value="file282">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (78.3%)</option>
 				
-				<option value="file283">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (74.6%)</option>
+				<option value="file283">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (75.1%)</option>
 				
 				<option value="file284">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (94.6%)</option>
 				
@@ -1639,7 +1639,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -3156,13 +3156,13 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error <span class=
 
         next := current.Add(direction.GetDelta())
 
-        // 移動先にOnCollision方式のInteractableがある場合は自動実行
+        // 移動先の同居 Interactable を全て見て、OnCollision 方式のものを自動実行する。ポータルのような
+        // Manual 単独の Interactable が同じタイルに同居しても、NPC の会話などの OnCollision を取りこぼさない。
         targetGrid := &amp;gc.GridElement{Coord: next}
-        interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
-
-        if interactable != nil </span><span class="cov8" title="1">{
+        for _, interactableEntity := range interactablesAtSameTile(world, targetGrid) </span><span class="cov8" title="1">{
+                interactable := world.Components.Interactable.Get(interactableEntity)
                 for _, interaction := range interactable.Interactions </span><span class="cov8" title="1">{
-                        if interaction.Config().ActivationWay != gc.ActivationWayOnCollision </span><span class="cov0" title="0">{
+                        if interaction.Config().ActivationWay != gc.ActivationWayOnCollision </span><span class="cov8" title="1">{
                                 continue</span>
                         }
                         <span class="cov8" title="1">switch interaction </span>{
@@ -3249,27 +3249,20 @@ func ExecuteWaitAction(world w.World) error <span class="cov8" title="1">{
         return err</span>
 }
 
-// getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する。
-// 複数ある場合は最初に見つかったものを返す。
-// 見つからない場合は interactable が nil になる。interactable != nil のときのみ entity は有効値。
-func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) <span class="cov8" title="1">{
-        var found *gc.Interactable
-        var foundEntity ecs.Entity
+// interactablesAtSameTile は指定タイルにある生存 Interactable を全て返す。同一タイルにポータルと
+// NPC のように複数の Interactable が同居しうるため、先着1件でなく全件を返して取りこぼしを防ぐ。
+func interactablesAtSameTile(world w.World, targetGrid *gc.GridElement) []ecs.Entity <span class="cov8" title="1">{
+        var found []ecs.Entity
         interactableQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Without(ecs.C[gc.Dead]()).Query()
         for interactableQuery.Next() </span><span class="cov8" title="1">{
                 entity := interactableQuery.Entity()
-                if found != nil </span><span class="cov0" title="0">{
-                        // 先着1件を採用する。途中 return せず反復は最後まで続ける。Ark のワールドロックを外すため
-                        continue</span>
-                }
-                <span class="cov8" title="1">ge := world.Components.GridElement.Get(entity)
+                ge := world.Components.GridElement.Get(entity)
                 // 直上タイルのみ
                 if ge.X == targetGrid.X &amp;&amp; ge.Y == targetGrid.Y </span><span class="cov8" title="1">{
-                        found = world.Components.Interactable.Get(entity)
-                        foundEntity = entity
+                        found = append(found, entity)
                 }</span>
         }
-        <span class="cov8" title="1">return found, foundEntity</span>
+        <span class="cov8" title="1">return found</span>
 }
 
 // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する
@@ -54695,7 +54688,7 @@ func initialPatrolDir() consts.Tile <span class="cov8" title="1">{
         if rand.IntN(2) == 0 </span><span class="cov8" title="1">{
                 return 1
         }</span>
-        <span class="cov0" title="0">return -1</span>
+        <span class="cov8" title="1">return -1</span>
 }
 
 // SpawnTile はタイルを生成する

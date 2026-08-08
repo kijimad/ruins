@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">72.9&nbsp;%</td>
-            <td class="headerCovTableEntry">166</td>
-            <td class="headerCovTableEntry">121</td>
+            <td class="headerCovTableEntryLo">73.9&nbsp;%</td>
+            <td class="headerCovTableEntry">161</td>
+            <td class="headerCovTableEntry">119</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 11:21:52</td>
+            <td class="headerValue">2026-08-08 12:07:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,16 +91,16 @@
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         next := current.Add(direction.GetDelta())</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         // 移動先にOnCollision方式のInteractableがある場合は自動実行</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         targetGrid := &amp;gc.GridElement{Coord: next}</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 :         if interactable != nil {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         // 移動先の同居 Interactable を全て見て、OnCollision 方式のものを自動実行する。ポータルのような</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         // Manual 単独の Interactable が同じタイルに同居しても、NPC の会話などの OnCollision を取りこぼさない。</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         targetGrid := &amp;gc.GridElement{Coord: next}</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :         for _, interactableEntity := range interactablesAtSameTile(world, targetGrid) {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 interactable := world.Components.Interactable.Get(interactableEntity)</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           2 :                 for _, interaction := range interactable.Interactions {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                         if interaction.Config().ActivationWay != gc.ActivationWayOnCollision {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 :                         if interaction.Config().ActivationWay != gc.ActivationWayOnCollision {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L40"><span class="lineNum">      40</span>              :                         }</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :                         switch interaction {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                         switch interaction {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :                         case gc.InteractionDoor:</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                                 // 扉は閉じている場合のみ実行（開いている場合は通過）</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                                 if world.Components.Door.Has(interactableEntity) {</span></span>
@@ -184,121 +184,114 @@
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         return err</span></span>
 <span id="L123"><span class="lineNum">     123</span>              : }</span>
 <span id="L124"><span class="lineNum">     124</span>              : </span>
-<span id="L125"><span class="lineNum">     125</span>              : // getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する。</span>
-<span id="L126"><span class="lineNum">     126</span>              : // 複数ある場合は最初に見つかったものを返す。</span>
-<span id="L127"><span class="lineNum">     127</span>              : // 見つからない場合は interactable が nil になる。interactable != nil のときのみ entity は有効値。</span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 : func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         var found *gc.Interactable</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         var foundEntity ecs.Entity</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         interactableQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Without(ecs.C[gc.Dead]()).Query()</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           2 :         for interactableQuery.Next() {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 entity := interactableQuery.Entity()</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 if found != nil {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC tlaBgUNC">           0 :                         // 先着1件を採用する。途中 return せず反復は最後まで続ける。Ark のワールドロックを外すため</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L137"><span class="lineNum">     137</span>              :                 }</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC tlaBgGNC">           1 :                 ge := world.Components.GridElement.Get(entity)</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 // 直上タイルのみ</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           2 :                 if ge.X == targetGrid.X &amp;&amp; ge.Y == targetGrid.Y {</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                         found = world.Components.Interactable.Get(entity)</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                         foundEntity = entity</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L144"><span class="lineNum">     144</span>              :         }</span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         return found, foundEntity</span></span>
-<span id="L146"><span class="lineNum">     146</span>              : }</span>
-<span id="L147"><span class="lineNum">     147</span>              : </span>
-<span id="L148"><span class="lineNum">     148</span>              : // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する</span>
-<span id="L149"><span class="lineNum">     149</span>              : // Manual と OnCollision 方式のInteractableが対象</span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 : func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         var results []ecs.Entity</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         rangeQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Query()</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           2 :         for rangeQuery.Next() {</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 entity := rangeQuery.Entity()</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 interactable := world.Components.Interactable.Get(entity)</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           2 :                 for _, interaction := range interactable.Interactions {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                         way := interaction.Config().ActivationWay</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                         if (way == gc.ActivationWayManual || way == gc.ActivationWayOnCollision) &amp;&amp;</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           2 :                                 query.IsInActivationRange(targetGrid, gridElement, interaction.Config().ActivationRange) {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                                 results = append(results, entity)</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                                 break // 同じエンティティを重複追加しない</span></span>
-<span id="L165"><span class="lineNum">     165</span>              :                         }</span>
-<span id="L166"><span class="lineNum">     166</span>              :                 }</span>
-<span id="L167"><span class="lineNum">     167</span>              :         }</span>
-<span id="L168"><span class="lineNum">     168</span>              : </span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         return results</span></span>
-<span id="L170"><span class="lineNum">     170</span>              : }</span>
-<span id="L171"><span class="lineNum">     171</span>              : </span>
-<span id="L172"><span class="lineNum">     172</span>              : // GetDirectionLabel はプレイヤーからターゲットへの方向ラベルを取得する</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 : func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         d := targetGrid.Sub(playerGrid.Coord)</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           2 :         if d.X == 0 &amp;&amp; d.Y == 0 {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 return &quot;here&quot;</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L179"><span class="lineNum">     179</span>              : </span>
-<span id="L180"><span class="lineNum">     180</span>              :         // 8方向を判定</span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :         if d.Y &lt; 0 {</span></span>
+<span id="L125"><span class="lineNum">     125</span>              : // interactablesAtSameTile は指定タイルにある生存 Interactable を全て返す。同一タイルにポータルと</span>
+<span id="L126"><span class="lineNum">     126</span>              : // NPC のように複数の Interactable が同居しうるため、先着1件でなく全件を返して取りこぼしを防ぐ。</span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 : func interactablesAtSameTile(world w.World, targetGrid *gc.GridElement) []ecs.Entity {</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         var found []ecs.Entity</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         interactableQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Without(ecs.C[gc.Dead]()).Query()</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           2 :         for interactableQuery.Next() {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 entity := interactableQuery.Entity()</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 ge := world.Components.GridElement.Get(entity)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 // 直上タイルのみ</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           2 :                 if ge.X == targetGrid.X &amp;&amp; ge.Y == targetGrid.Y {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                         found = append(found, entity)</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :         }</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         return found</span></span>
+<span id="L139"><span class="lineNum">     139</span>              : }</span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span>              : // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する</span>
+<span id="L142"><span class="lineNum">     142</span>              : // Manual と OnCollision 方式のInteractableが対象</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 : func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         var results []ecs.Entity</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         rangeQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Query()</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           2 :         for rangeQuery.Next() {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 entity := rangeQuery.Entity()</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 interactable := world.Components.Interactable.Get(entity)</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           2 :                 for _, interaction := range interactable.Interactions {</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                         way := interaction.Config().ActivationWay</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                         if (way == gc.ActivationWayManual || way == gc.ActivationWayOnCollision) &amp;&amp;</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           2 :                                 query.IsInActivationRange(targetGrid, gridElement, interaction.Config().ActivationRange) {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                                 results = append(results, entity)</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                                 break // 同じエンティティを重複追加しない</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :                         }</span>
+<span id="L159"><span class="lineNum">     159</span>              :                 }</span>
+<span id="L160"><span class="lineNum">     160</span>              :         }</span>
+<span id="L161"><span class="lineNum">     161</span>              : </span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         return results</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : }</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : // GetDirectionLabel はプレイヤーからターゲットへの方向ラベルを取得する</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 : func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         d := targetGrid.Sub(playerGrid.Coord)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           2 :         if d.X == 0 &amp;&amp; d.Y == 0 {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 return &quot;here&quot;</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L172"><span class="lineNum">     172</span>              : </span>
+<span id="L173"><span class="lineNum">     173</span>              :         // 8方向を判定</span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           2 :         if d.Y &lt; 0 {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           2 :                 if d.X &lt; 0 {</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                         return &quot;upper left&quot;</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           3 :                 } else if d.X &gt; 0 {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                         return &quot;upper right&quot;</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 return &quot;up&quot;</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :         } else if d.Y &gt; 0 {</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           2 :                 if d.X &lt; 0 {</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                         return &quot;upper left&quot;</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                         return &quot;lower left&quot;</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           3 :                 } else if d.X &gt; 0 {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         return &quot;upper right&quot;</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         return &quot;lower right&quot;</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 return &quot;up&quot;</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           2 :         } else if d.Y &gt; 0 {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :                 if d.X &lt; 0 {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                         return &quot;lower left&quot;</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           3 :                 } else if d.X &gt; 0 {</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                         return &quot;lower right&quot;</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 return &quot;down&quot;</span></span>
-<span id="L195"><span class="lineNum">     195</span>              :         }</span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           2 :         if d.X &lt; 0 {</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 return &quot;left&quot;</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         return &quot;right&quot;</span></span>
-<span id="L200"><span class="lineNum">     200</span>              : }</span>
-<span id="L201"><span class="lineNum">     201</span>              : </span>
-<span id="L202"><span class="lineNum">     202</span>              : // showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する</span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 : func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         entities := GetAllInteractiveInteractablesInRange(world, playerGrid)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         for _, entity := range entities {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactable := world.Components.Interactable.Get(entity)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 for _, interaction := range interactable.Interactions {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                         if interaction.Config().ActivationWay != gc.ActivationWayManual {</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                                 continue</span></span>
-<span id="L210"><span class="lineNum">     210</span>              :                         }</span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                         switch interaction {</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                         case gc.InteractionItem:</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                                 formattedName := query.FormatItemName(world, entity)</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;%s is here.&quot;, gamelog.Tag(&quot;item&quot;, formattedName))).</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                         case gc.InteractionPortalNext:</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;There is a warp gate. Press Enter to move.&quot;)).</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                         case gc.InteractionPortalPrev:</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;There is an up staircase. Press Enter to move.&quot;)).</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                         case gc.InteractionDungeonEnter:</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;There is a ruins entrance. Press Enter to enter.&quot;)).</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                         case gc.InteractionEnterCube:</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;%s is here. You can enter it from the Space action menu.&quot;, gamelog.Tag(&quot;item&quot;, query.GetEntityName(entity, world)))).</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                         case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:</span></span>
-<span id="L234"><span class="lineNum">     234</span>              :                                 // 足元ログを出さない種類。default を置かず exhaustive に全種別を</span>
-<span id="L235"><span class="lineNum">     235</span>              :                                 // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
-<span id="L236"><span class="lineNum">     236</span>              :                         }</span>
-<span id="L237"><span class="lineNum">     237</span>              :                 }</span>
-<span id="L238"><span class="lineNum">     238</span>              :         }</span>
-<span id="L239"><span class="lineNum">     239</span>              : }</span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 return &quot;down&quot;</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :         }</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :         if d.X &lt; 0 {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 return &quot;left&quot;</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         return &quot;right&quot;</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : }</span>
+<span id="L194"><span class="lineNum">     194</span>              : </span>
+<span id="L195"><span class="lineNum">     195</span>              : // showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         entities := GetAllInteractiveInteractablesInRange(world, playerGrid)</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         for _, entity := range entities {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactable := world.Components.Interactable.Get(entity)</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 for _, interaction := range interactable.Interactions {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                         if interaction.Config().ActivationWay != gc.ActivationWayManual {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                                 continue</span></span>
+<span id="L203"><span class="lineNum">     203</span>              :                         }</span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                         switch interaction {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :                         case gc.InteractionItem:</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                                 formattedName := query.FormatItemName(world, entity)</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;%s is here.&quot;, gamelog.Tag(&quot;item&quot;, formattedName))).</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                         case gc.InteractionPortalNext:</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;There is a warp gate. Press Enter to move.&quot;)).</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                         case gc.InteractionPortalPrev:</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;There is an up staircase. Press Enter to move.&quot;)).</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                         case gc.InteractionDungeonEnter:</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;There is a ruins entrance. Press Enter to enter.&quot;)).</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                         case gc.InteractionEnterCube:</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;%s is here. You can enter it from the Space action menu.&quot;, gamelog.Tag(&quot;item&quot;, query.GetEntityName(entity, world)))).</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                         case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:</span></span>
+<span id="L227"><span class="lineNum">     227</span>              :                                 // 足元ログを出さない種類。default を置かず exhaustive に全種別を</span>
+<span id="L228"><span class="lineNum">     228</span>              :                                 // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
+<span id="L229"><span class="lineNum">     229</span>              :                         }</span>
+<span id="L230"><span class="lineNum">     230</span>              :                 }</span>
+<span id="L231"><span class="lineNum">     231</span>              :         }</span>
+<span id="L232"><span class="lineNum">     232</span>              : }</span>
         </pre>
               </td>
             </tr>
