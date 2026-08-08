@@ -1,3 +1,0 @@
-# raw.toml の表示される name が全て ja.po に訳を持つ。現在 debt はゼロ。
-# 英語化した name を ja.po へ入れ忘れたら、その原文がここに現れ TestRawTranslationCoverage が落ちる。
-# 新たな債務を暫定的に許すときだけ、原文を1行ずつ追記する。# で始まる行と空行は無視される。
