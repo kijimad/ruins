@@ -12,7 +12,9 @@ import (
 const fence = "---"
 
 var (
-	reTitle           = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
+	reTitle = regexp.MustCompile(`(?m)^#\s+(.+?)\s*$`)
+	// reProgressHeading は `## 進捗` 見出しにマッチする。\x{9032}\x{6357} は 進捗 のコードポイントで、
+	// リテラルで書くと gosmopolitan が日本語リテラルとして検知するため escape している。
 	reProgressHeading = regexp.MustCompile(`(?m)^##\s+\x{9032}\x{6357}\s*$`)
 	reAnyHeading      = regexp.MustCompile(`(?m)^##\s`)
 	reOpenTask        = regexp.MustCompile(`(?m)^- \[ \]`)
