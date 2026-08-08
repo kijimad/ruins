@@ -27,7 +27,7 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 
 	if world.Components.Stackable.Has(entity) {
-		id := world.Components.RawID.Get(entity).Value
+		id := world.Components.RawID.Get(entity).ID
 		if err := mergeStackableItems(world, id, mergeInBackpack, owner); err != nil {
 			return fmt.Errorf("failed to merge items in backpack: %w", err)
 		}
@@ -44,7 +44,7 @@ func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count i
 		return MoveToBackpack(world, item, recipient)
 	}
 
-	id := world.Components.RawID.Get(item).Value
+	id := world.Components.RawID.Get(item).ID
 	if err := ChangeItemCount(world, item, -count); err != nil {
 		return fmt.Errorf("failed to decrement source stack: %w", err)
 	}
@@ -115,7 +115,7 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	ensureMarker(world, world.Components.WeightDirty, storage, &gc.WeightDirty{})
 
 	if world.Components.Stackable.Has(entity) {
-		id := world.Components.RawID.Get(entity).Value
+		id := world.Components.RawID.Get(entity).ID
 		if err := mergeStackableItems(world, id, mergeInStorage, storage); err != nil {
 			return fmt.Errorf("failed to merge items in storage: %w", err)
 		}
@@ -202,7 +202,7 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
-			if world.Components.RawID.Get(entity).Value != itemID {
+			if world.Components.RawID.Get(entity).ID != itemID {
 				continue
 			}
 			if world.Components.LocationInBackpack.Get(entity).Owner == owner {
@@ -213,7 +213,7 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.RawID](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
-			if world.Components.RawID.Get(entity).Value != itemID {
+			if world.Components.RawID.Get(entity).ID != itemID {
 				continue
 			}
 			if world.Components.LocationInStorage.Get(entity).Owner == owner {

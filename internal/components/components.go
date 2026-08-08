@@ -61,8 +61,8 @@ type Name struct {
 
 // RawID は生成元 raw 定義の Id を保持する同定キー。raw 参照とスタックの同種判定に使う。表示には使わない
 type RawID struct {
-	// Value は raw 定義や recipe 参照との照合に使う英語の同定キー
-	Value string
+	// ID は raw 定義や recipe 参照との照合に使う英語の同定キー
+	ID string
 }
 
 // Description は説明

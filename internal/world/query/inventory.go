@@ -18,7 +18,7 @@ func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
 		if found {
 			continue
 		}
-		if world.Components.RawID.Get(entity).Value == id {
+		if world.Components.RawID.Get(entity).ID == id {
 			foundEntity = entity
 			found = true
 		}

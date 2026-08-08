@@ -104,7 +104,7 @@ func GetEntityID(entity ecs.Entity, world w.World) string {
 	if !world.ECS.Alive(entity) || !world.Components.RawID.Has(entity) {
 		return ""
 	}
-	return world.Components.RawID.Get(entity).Value
+	return world.Components.RawID.Get(entity).ID
 }
 
 // NameMarkup はエンティティ種別に応じたタグで名前を包んだマークアップ文字列を返す。

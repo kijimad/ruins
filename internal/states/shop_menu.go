@@ -188,7 +188,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 			count := query.GetEntityCount(world, entity)
 
 			items = append(items, shopItemData{
-				ItemID: rawID.Value,
+				ItemID: rawID.ID,
 				Label:  nameComp.Name,
 				Weight: query.GetEntityWeight(world, entity).KgString(),
 				Price:  price,
