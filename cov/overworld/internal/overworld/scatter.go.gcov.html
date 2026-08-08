@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -189,7 +189,7 @@
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         case zoneWild:</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 return wildCatalog</span></span>
 <span id="L129"><span class="lineNum">     129</span>              :         }</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;未知の outdoorZone: &quot; + string(zone))</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;unknown outdoorZone: &quot; + string(zone))</span></span>
 <span id="L131"><span class="lineNum">     131</span>              : }</span>
 <span id="L132"><span class="lineNum">     132</span>              : </span>
 <span id="L133"><span class="lineNum">     133</span>              : // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。</span>
@@ -248,7 +248,7 @@
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                         name = scatterWeedProp</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;草の配置に失敗 (%s): %w&quot;, name, err)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place grass (%s): %w&quot;, name, err)</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC tlaBgGNC">           1 :                 occupied[gc.GridElement{Coord: bl}] = true</span></span>
 <span id="L192"><span class="lineNum">     192</span>              :         }</span>
@@ -280,7 +280,7 @@
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC tlaBgGNC">           1 :         if _, err := lifecycle.SpawnProp(world, entry.Ref, origin.X, origin.Y); err != nil {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;散布 prop の配置に失敗 (%s): %w&quot;, entry.Ref, err)</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to place scatter prop (%s): %w&quot;, entry.Ref, err)</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC tlaBgGNC">           1 :         occupied[gc.GridElement{Coord: origin}] = true</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           2 :         for _, s := range entry.Satellites {</span></span>
@@ -290,7 +290,7 @@
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L229"><span class="lineNum">     229</span>              :                 }</span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;散布衛星の配置に失敗 (%s): %w&quot;, s.name, err)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place scatter satellite (%s): %w&quot;, s.name, err)</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC tlaBgGNC">           1 :                 occupied[key] = true</span></span>
 <span id="L234"><span class="lineNum">     234</span>              :         }</span>
@@ -322,7 +322,7 @@
 <span id="L260"><span class="lineNum">     260</span>              :         }</span>
 <span id="L261"><span class="lineNum">     261</span>              :         // total は候補の重み合計で r は [0, total) なので、候補の重みを引き切る前に必ず r &lt; 0 になる。</span>
 <span id="L262"><span class="lineNum">     262</span>              :         // ここへ来るのは重み合計の計算と減算がずれたときだけで、内部データの不変条件違反にあたる</span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;pickScatterEntry: 重み抽選が候補を引けなかった&quot;)</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;pickScatterEntry: weighted selection drew no candidate&quot;)</span></span>
 <span id="L264"><span class="lineNum">     264</span>              : }</span>
 <span id="L265"><span class="lineNum">     265</span>              : </span>
 <span id="L266"><span class="lineNum">     266</span>              : // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、</span>

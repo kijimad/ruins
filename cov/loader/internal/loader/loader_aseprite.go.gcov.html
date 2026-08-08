@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,19 +77,19 @@
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         // JSONファイルを読み込み</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         bs, err := assets.FS.ReadFile(jsonPath)</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 return components.SpriteSheet{}, fmt.Errorf(&quot;JSONファイルの読み込みに失敗: %w&quot;, err)</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 return components.SpriteSheet{}, fmt.Errorf(&quot;failed to load JSON file: %w&quot;, err)</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         var aseData AsepriteJSON</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         if err := json.Unmarshal(bs, &amp;aseData); err != nil {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 :                 return components.SpriteSheet{}, fmt.Errorf(&quot;JSONのパースに失敗: %w&quot;, err)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 :                 return components.SpriteSheet{}, fmt.Errorf(&quot;failed to parse JSON: %w&quot;, err)</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              :         // 画像ファイルを読み込み</span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 :         imagePath := filepath.Join(filepath.Dir(jsonPath), aseData.Meta.Image)</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         var texture components.Texture</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         if err := texture.UnmarshalText([]byte(imagePath)); err != nil {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC tlaBgUNC">           0 :                 return components.SpriteSheet{}, fmt.Errorf(&quot;画像の読み込みに失敗: %w&quot;, err)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC tlaBgUNC">           0 :                 return components.SpriteSheet{}, fmt.Errorf(&quot;failed to load image: %w&quot;, err)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              :         // スプライト辞書を構築</span>
@@ -104,14 +104,14 @@
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 if !strings.HasSuffix(frame.Filename, &quot;_&quot;) {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :                         return components.SpriteSheet{}, fmt.Errorf(&quot;スプライトファイル名は'_'で終わる必要があります: %s&quot;, frame.Filename)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :                         return components.SpriteSheet{}, fmt.Errorf(&quot;sprite file name must end with '_': %s&quot;, frame.Filename)</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L47"><span class="lineNum">      47</span>              :                 // キー名の生成（末尾のアンダースコアを削除）</span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">           1 :                 key := strings.TrimSuffix(frame.Filename, &quot;_&quot;)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 // 重複チェック</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 if _, exists := sprites[key]; exists {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC tlaBgUNC">           0 :                         return components.SpriteSheet{}, fmt.Errorf(&quot;重複したスプライトキー: %s&quot;, key)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC tlaBgUNC">           0 :                         return components.SpriteSheet{}, fmt.Errorf(&quot;duplicate sprite key: %s&quot;, key)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 :                 sprites[key] = sprite</span></span>

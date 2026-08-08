@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,7 +83,7 @@
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         newCount := currentCount + delta</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         if newCount &lt; 0 {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;アイテム数が不足しています: 現在=%d, 変更=%d, 結果=%d&quot;, currentCount, delta, newCount)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;insufficient item count: current=%d, delta=%d, result=%d&quot;, currentCount, delta, newCount)</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :         if newCount == 0 {</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,8 +67,8 @@
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;fmt&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : )</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
-<span id="L8"><span class="lineNum">       8</span>              : // ErrInvalidEnumType はenumに無効な値が指定された場合のエラー</span>
-<span id="L9"><span class="lineNum">       9</span>              : var ErrInvalidEnumType = errors.New(&quot;enumに無効な値が指定された&quot;)</span>
+<span id="L8"><span class="lineNum">       8</span>              : // ErrInvalidEnumType はinvalid enum value場合のエラー</span>
+<span id="L9"><span class="lineNum">       9</span>              : var ErrInvalidEnumType = errors.New(&quot;invalid enum value&quot;)</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // ================</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
@@ -91,21 +91,21 @@
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 : func (bp BodyPart) String() string {</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         switch bp {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 :         case BodyPartHead:</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 return &quot;頭&quot;</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 return &quot;Head&quot;</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         case BodyPartTorso:</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return &quot;胴体&quot;</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return &quot;Torso&quot;</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         case BodyPartArms:</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 return &quot;腕&quot;</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 return &quot;Arm&quot;</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         case BodyPartHands:</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 return &quot;手&quot;</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 return &quot;Hand&quot;</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         case BodyPartLegs:</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return &quot;脚&quot;</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return &quot;Leg&quot;</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         case BodyPartFeet:</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 return &quot;足&quot;</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 return &quot;Foot&quot;</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         case BodyPartWholeBody:</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return &quot;全身&quot;</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return &quot;Whole body&quot;</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC tlaBgGNC">           1 :         default:</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 panic(&quot;不正なBodyPart値&quot;)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 panic(&quot;invalid BodyPart value&quot;)</span></span>
 <span id="L47"><span class="lineNum">      47</span>              :         }</span>
 <span id="L48"><span class="lineNum">      48</span>              : }</span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
@@ -172,19 +172,19 @@
 <span id="L110"><span class="lineNum">     110</span>              : </span>
 <span id="L111"><span class="lineNum">     111</span>              : var (</span>
 <span id="L112"><span class="lineNum">     112</span>              :         // AttackSword は刀剣</span>
-<span id="L113"><span class="lineNum">     113</span>              :         AttackSword = AttackType{Type: &quot;SWORD&quot;, Range: AttackRangeMelee, Label: &quot;刀剣&quot;}</span>
+<span id="L113"><span class="lineNum">     113</span>              :         AttackSword = AttackType{Type: &quot;SWORD&quot;, Range: AttackRangeMelee, Label: &quot;Sword&quot;}</span>
 <span id="L114"><span class="lineNum">     114</span>              :         // AttackSpear は長物</span>
-<span id="L115"><span class="lineNum">     115</span>              :         AttackSpear = AttackType{Type: &quot;SPEAR&quot;, Range: AttackRangeMelee, Label: &quot;長物&quot;}</span>
+<span id="L115"><span class="lineNum">     115</span>              :         AttackSpear = AttackType{Type: &quot;SPEAR&quot;, Range: AttackRangeMelee, Label: &quot;Spear&quot;}</span>
 <span id="L116"><span class="lineNum">     116</span>              :         // AttackHandgun は拳銃</span>
-<span id="L117"><span class="lineNum">     117</span>              :         AttackHandgun = AttackType{Type: &quot;HANDGUN&quot;, Range: AttackRangeRanged, Label: &quot;拳銃&quot;}</span>
+<span id="L117"><span class="lineNum">     117</span>              :         AttackHandgun = AttackType{Type: &quot;HANDGUN&quot;, Range: AttackRangeRanged, Label: &quot;Handgun&quot;}</span>
 <span id="L118"><span class="lineNum">     118</span>              :         // AttackRifle は小銃</span>
-<span id="L119"><span class="lineNum">     119</span>              :         AttackRifle = AttackType{Type: &quot;RIFLE&quot;, Range: AttackRangeRanged, Label: &quot;小銃&quot;}</span>
+<span id="L119"><span class="lineNum">     119</span>              :         AttackRifle = AttackType{Type: &quot;RIFLE&quot;, Range: AttackRangeRanged, Label: &quot;Rifle&quot;}</span>
 <span id="L120"><span class="lineNum">     120</span>              :         // AttackFist は格闘</span>
-<span id="L121"><span class="lineNum">     121</span>              :         AttackFist = AttackType{Type: &quot;FIST&quot;, Range: AttackRangeMelee, Label: &quot;格闘&quot;}</span>
+<span id="L121"><span class="lineNum">     121</span>              :         AttackFist = AttackType{Type: &quot;FIST&quot;, Range: AttackRangeMelee, Label: &quot;Martial arts&quot;}</span>
 <span id="L122"><span class="lineNum">     122</span>              :         // AttackCanon は大砲</span>
-<span id="L123"><span class="lineNum">     123</span>              :         AttackCanon = AttackType{Type: &quot;CANON&quot;, Range: AttackRangeRanged, Label: &quot;大砲&quot;}</span>
+<span id="L123"><span class="lineNum">     123</span>              :         AttackCanon = AttackType{Type: &quot;CANON&quot;, Range: AttackRangeRanged, Label: &quot;Cannon&quot;}</span>
 <span id="L124"><span class="lineNum">     124</span>              :         // AttackBow は弓</span>
-<span id="L125"><span class="lineNum">     125</span>              :         AttackBow = AttackType{Type: &quot;BOW&quot;, Range: AttackRangeRanged, Label: &quot;弓&quot;}</span>
+<span id="L125"><span class="lineNum">     125</span>              :         AttackBow = AttackType{Type: &quot;BOW&quot;, Range: AttackRangeRanged, Label: &quot;Bow&quot;}</span>
 <span id="L126"><span class="lineNum">     126</span>              : )</span>
 <span id="L127"><span class="lineNum">     127</span>              : </span>
 <span id="L128"><span class="lineNum">     128</span>              : // AllAttackTypes は定義済みの全AttackTypeのリスト</span>
@@ -282,27 +282,27 @@
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         case EquipmentJewelry:</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 return SlotJewelry</span></span>
 <span id="L222"><span class="lineNum">     222</span>              :         }</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(fmt.Sprintf(&quot;不正なEquipmentType値: %s&quot;, string(enum)))</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(fmt.Sprintf(&quot;invalid EquipmentType value: %s&quot;, string(enum)))</span></span>
 <span id="L224"><span class="lineNum">     224</span>              : }</span>
 <span id="L225"><span class="lineNum">     225</span>              : </span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC tlaBgGNC">           1 : func (enum EquipmentType) String() string {</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         switch enum {</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         case EquipmentHead:</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 return &quot;頭部&quot;</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 return &quot;Head&quot;</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         case EquipmentTorso:</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 return &quot;胴体&quot;</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 return &quot;Torso&quot;</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         case EquipmentArms:</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 return &quot;腕部&quot;</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 return &quot;Arms&quot;</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         case EquipmentHands:</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 return &quot;手部&quot;</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 return &quot;Hands&quot;</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         case EquipmentLegs:</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 return &quot;脚部&quot;</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 return &quot;Legs&quot;</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         case EquipmentFeet:</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 return &quot;足部&quot;</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 return &quot;Feet&quot;</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         case EquipmentJewelry:</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 return &quot;装飾&quot;</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 return &quot;Accessory&quot;</span></span>
 <span id="L242"><span class="lineNum">     242</span>              :         }</span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         panic(fmt.Sprintf(&quot;不正なEquipmentType値: %s&quot;, string(enum)))</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         panic(fmt.Sprintf(&quot;invalid EquipmentType value: %s&quot;, string(enum)))</span></span>
 <span id="L244"><span class="lineNum">     244</span>              : }</span>
 <span id="L245"><span class="lineNum">     245</span>              : </span>
 <span id="L246"><span class="lineNum">     246</span>              : // ================</span>
@@ -326,17 +326,17 @@
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 : func (enum ElementType) String() string {</span></span>
 <span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         switch enum {</span></span>
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC tlaBgUNC">           0 :         case ElementTypeNone:</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 return &quot;無&quot;</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 return &quot;None&quot;</span></span>
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :         case ElementTypeFire:</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                 return &quot;火&quot;</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                 return &quot;Fire&quot;</span></span>
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         case ElementTypeThunder:</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                 return &quot;雷&quot;</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                 return &quot;Thunder&quot;</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         case ElementTypeChill:</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 return &quot;氷&quot;</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 return &quot;Ice&quot;</span></span>
 <span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         case ElementTypePhoton:</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                 return &quot;光&quot;</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                 return &quot;Light&quot;</span></span>
 <span id="L276"><span class="lineNum">     276</span>              :         }</span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC tlaBgGNC">           1 :         panic(fmt.Sprintf(&quot;不正なElementType値: %s&quot;, string(enum)))</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC tlaBgGNC">           1 :         panic(fmt.Sprintf(&quot;invalid ElementType value: %s&quot;, string(enum)))</span></span>
 <span id="L278"><span class="lineNum">     278</span>              : }</span>
         </pre>
               </td>

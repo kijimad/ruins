@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">46.7&nbsp;%</td>
-            <td class="headerCovTableEntry">30</td>
-            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">40.7&nbsp;%</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">11</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -105,23 +105,27 @@
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC tlaBgUNC">           0 :         return st.ConsumeTransition(), nil</span></span>
 <span id="L44"><span class="lineNum">      44</span>              : }</span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span>              : // OnResume はステートが再開される際に呼ばれる</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : func (st *PersistentMessageState) OnResume(world w.World) error {</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         // メッセージウィンドウを強制的に再構築</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         if st.messageData != nil {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 st.messageWindow = messagewindow.NewWindow(world, st.messageData)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L53"><span class="lineNum">      53</span>              : }</span>
-<span id="L54"><span class="lineNum">      54</span>              : </span>
-<span id="L55"><span class="lineNum">      55</span>              : // NewPersistentMessageState は永続的なメッセージステートを作成する</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           1 : func NewPersistentMessageState(messageData *messagedata.MessageData) *PersistentMessageState {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         return &amp;PersistentMessageState{</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 MessageState: MessageState{</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         messageData: messageData,</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : // OnResume はステートが再開される際に呼ばれる。</span>
+<span id="L47"><span class="lineNum">      47</span>              : // messageData は OnStart で build 済みなので再構築のみ行い build は呼ばない。</span>
+<span id="L48"><span class="lineNum">      48</span>              : // 表示中の言語切り替えには追従せず、切り替えるには OnStart から開き直す</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 : func (st *PersistentMessageState) OnResume(world w.World) error {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         // メッセージウィンドウを強制的に再構築</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         if st.messageData != nil {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 st.messageWindow = messagewindow.NewWindow(world, st.messageData)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : }</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : // NewPersistentMessageState は組み立て済みメッセージから永続メッセージステートを作成する。</span>
+<span id="L58"><span class="lineNum">      58</span>              : // 構築を build へ一本化するため、受け取った messageData を返すだけの build で包む。</span>
+<span id="L59"><span class="lineNum">      59</span>              : // world 依存の構築が要る呼び出しは &amp;PersistentMessageState{} を直接組んで build を設定する</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC tlaBgGNC">           1 : func NewPersistentMessageState(messageData *messagedata.MessageData) *PersistentMessageState {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         return &amp;PersistentMessageState{</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 MessageState: MessageState{</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           2 :                         build: func(_ w.World) *messagedata.MessageData { return messageData },</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :                 },</span>
+<span id="L65"><span class="lineNum">      65</span>              :         }</span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
         </pre>
               </td>
             </tr>

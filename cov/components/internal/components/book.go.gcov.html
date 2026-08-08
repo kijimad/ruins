@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,7 +82,7 @@
 <span id="L20"><span class="lineNum">      20</span>              : // CanRead はこの本を読めるかチェックする。読めない場合はエラーを返す</span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : func (b *Book) CanRead(skills *Skills) error {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :         if b.IsCompleted() {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;この本は読了済みです&quot;)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;this book is already read&quot;)</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         if b.Skill == nil || b.Skill.RequiredLevel &lt;= 0 {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 return nil</span></span>
@@ -92,7 +92,7 @@
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 playerLevel = skills.Get(b.Skill.TargetSkill).Value</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :         if playerLevel &lt; b.Skill.RequiredLevel {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;この本を読むには%sスキルがレベル%d以上必要です（現在: %d）&quot;,</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;reading this book requires %s skill at level %d or higher; current %d&quot;,</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                         SkillName(b.Skill.TargetSkill), b.Skill.RequiredLevel, playerLevel)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return nil</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">39.1&nbsp;%</td>
-            <td class="headerCovTableEntry">115</td>
-            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntryLo">38.6&nbsp;%</td>
+            <td class="headerCovTableEntry">114</td>
+            <td class="headerCovTableEntry">44</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,7 +91,7 @@
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC tlaBgUNC">           0 : func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         retroFilter, err := screeneffect.NewRetroFilter()</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;レトロフィルタの初期化に失敗: %w&quot;, err)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to initialize retro filter: %w&quot;, err)</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         return &amp;MainGame{</span></span>
@@ -226,11 +226,10 @@
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC tlaBgGNC">           1 :         world.Resources.UIResources = uir</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         // initialize systems</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         world.Updaters, world.Renderers = gs.InitializeSystems(world)</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         return world, nil</span></span>
-<span id="L171"><span class="lineNum">     171</span>              : }</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         world.Updaters, world.Renderers = gs.InitializeSystems(world)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         return world, nil</span></span>
+<span id="L170"><span class="lineNum">     170</span>              : }</span>
         </pre>
               </td>
             </tr>

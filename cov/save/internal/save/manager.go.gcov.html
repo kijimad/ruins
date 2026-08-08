@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -115,7 +115,7 @@
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error) {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         worldJSON, err := serializeWorld(world)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, fmt.Errorf(&quot;ワールドのシリアライズに失敗: %w&quot;, err)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;, fmt.Errorf(&quot;failed to serialize world: %w&quot;, err)</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">           1 :         env := saveEnvelope{</span></span>
@@ -173,7 +173,7 @@
 <span id="L111"><span class="lineNum">     111</span>              :         // 復元を2回走らせるコストは、ロードがゲーム開始時の1回きりの操作なので許容する。</span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         probe, err := w.InitWorld(&amp;gc.Components{}, world.Config)</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;検証用ワールドの生成に失敗: %w&quot;, err)</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to create probe world: %w&quot;, err)</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC tlaBgGNC">           2 :         if err := restoreInto(probe, env.World); err != nil {</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 return err</span></span>
@@ -279,10 +279,10 @@
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) AutoSave(world w.World) error {</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         slotName := fmt.Sprintf(&quot;%s%d&quot;, autoSavePrefix, time.Now().UnixNano())</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         if err := sm.SaveWorld(world, slotName); err != nil {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;オートセーブに失敗: %w&quot;, err)</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to auto save: %w&quot;, err)</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := sm.rotateAutoSaves(); err != nil {</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;古いオートセーブの削除に失敗: %w&quot;, err)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to delete old auto save: %w&quot;, err)</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
 <span id="L226"><span class="lineNum">     226</span>              : }</span>
@@ -329,11 +329,11 @@
 <span id="L267"><span class="lineNum">     267</span>              : // validateChecksum はセーブデータのチェックサムを検証する</span>
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 : func validateChecksum(env *saveEnvelope) error {</span></span>
 <span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           2 :         if env.Checksum == &quot;&quot; {</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum field is missing: このセーブデータは改ざんされているか、古いバージョンです&quot;)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum field is missing: this save data is tampered or from an old version&quot;)</span></span>
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         expected := checksumOf(env)</span></span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           2 :         if env.Checksum != expected {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum mismatch: expected %s, got %s (データが改ざんされている可能性があります)&quot;,</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum mismatch: expected %s, got %s; data may be tampered&quot;,</span></span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                         expected, env.Checksum)</span></span>
 <span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         return nil</span></span>

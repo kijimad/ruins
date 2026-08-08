@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -114,7 +114,7 @@
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 wx := g.offsetX + (px - loX)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 wy := g.offsetY + (py - loY)</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 if err := replaceDirtTile(world, tiles, consts.Coord[consts.Tile]{X: wx, Y: wy}); err != nil {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;道の舗装に失敗 (x=%d, y=%d): %w&quot;, wx, wy, err)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to pave road (x=%d, y=%d): %w&quot;, wx, wy, err)</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">           1 :                 return nil</span></span>
 <span id="L58"><span class="lineNum">      58</span>              :         }</span>

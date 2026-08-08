@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -89,9 +89,9 @@
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         ensureMarker(world, world.Components.WeightDirty, owner, &amp;gc.WeightDirty{})</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :         if world.Components.Stackable.Has(entity) {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 name := world.Components.Name.Get(entity)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 if err := mergeStackableItems(world, name.Name, mergeInBackpack, owner); err != nil {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;バックパック内のアイテム統合に失敗: %w&quot;, err)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 id := world.Components.RawID.Get(entity).ID</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 if err := mergeStackableItems(world, id, mergeInBackpack, owner); err != nil {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to merge items in backpack: %w&quot;, err)</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              :         }</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
@@ -106,13 +106,13 @@
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return MoveToBackpack(world, item, recipient)</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         name := world.Components.Name.Get(item).Name</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         id := world.Components.RawID.Get(item).ID</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         if err := ChangeItemCount(world, item, -count); err != nil {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;転送元スタックの減算に失敗: %w&quot;, err)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to decrement source stack: %w&quot;, err)</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         moved, err := spawnItemBase(world, name, count)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         moved, err := spawnItemBase(world, id, count)</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;転送する%d個の生成に失敗: %w&quot;, count, err)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to generate %d units to transfer: %w&quot;, count, err)</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         return MoveToBackpack(world, moved, recipient)</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : }</span>
@@ -177,9 +177,9 @@
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         ensureMarker(world, world.Components.WeightDirty, storage, &amp;gc.WeightDirty{})</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           2 :         if world.Components.Stackable.Has(entity) {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 name := world.Components.Name.Get(entity)</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 if err := mergeStackableItems(world, name.Name, mergeInStorage, storage); err != nil {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;収納内のアイテム統合に失敗: %w&quot;, err)</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 id := world.Components.RawID.Get(entity).ID</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 if err := mergeStackableItems(world, id, mergeInStorage, storage); err != nil {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to merge items in storage: %w&quot;, err)</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L122"><span class="lineNum">     122</span>              :         }</span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
@@ -255,16 +255,16 @@
 <span id="L193"><span class="lineNum">     193</span>              :         mergeInStorage</span>
 <span id="L194"><span class="lineNum">     194</span>              : )</span>
 <span id="L195"><span class="lineNum">     195</span>              : </span>
-<span id="L196"><span class="lineNum">     196</span>              : // mergeStackableItems は指定ロケーション内の同一Owner配下にある同名Stackableアイテムを1つに統合する</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 : func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owner ecs.Entity) error {</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : // mergeStackableItems は指定ロケーション内の同一Owner配下にある同一idのStackableアイテムを1つに統合する</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 : func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner ecs.Entity) error {</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         // Ark のフィルタは静的な型引数を要求するため、ロケーション種別ごとに分岐する</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         var stackableItems []ecs.Entity</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         switch loc {</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         case mergeInBackpack:</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()</span></span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           2 :                 for q.Next() {</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                         entity := q.Entity()</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                         if world.Components.Name.Get(entity).Name != itemName {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                         if world.Components.RawID.Get(entity).ID != itemID {</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
 <span id="L207"><span class="lineNum">     207</span>              :                         }</span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC tlaBgGNC">           2 :                         if world.Components.LocationInBackpack.Get(entity).Owner == owner {</span></span>
@@ -272,10 +272,10 @@
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L211"><span class="lineNum">     211</span>              :                 }</span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         case mergeInStorage:</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.Name](world.ECS).Query()</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.RawID](world.ECS).Query()</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           2 :                 for q.Next() {</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                         entity := q.Entity()</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :                         if world.Components.Name.Get(entity).Name != itemName {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :                         if world.Components.RawID.Get(entity).ID != itemID {</span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L218"><span class="lineNum">     218</span>              :                         }</span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           2 :                         if world.Components.LocationInStorage.Get(entity).Owner == owner {</span></span>
@@ -283,7 +283,7 @@
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L222"><span class="lineNum">     222</span>              :                 }</span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :         default:</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;未対応のmergeLocation: %d&quot;, loc)</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;unsupported mergeLocation: %d&quot;, loc)</span></span>
 <span id="L225"><span class="lineNum">     225</span>              :         }</span>
 <span id="L226"><span class="lineNum">     226</span>              : </span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC tlaBgGNC">           2 :         if len(stackableItems) &lt;= 1 {</span></span>
@@ -296,7 +296,7 @@
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 mergeCount := query.GetEntityCount(world, itemToMerge)</span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;数量統合エラー: %w&quot;, err)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to merge counts: %w&quot;, err)</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L239"><span class="lineNum">     239</span>              : </span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC tlaBgGNC">           1 :                 world.ECS.RemoveEntity(itemToMerge)</span></span>
@@ -378,7 +378,7 @@
 <span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L317"><span class="lineNum">     317</span>              :         }</span>
 <span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           2 :         if !found {</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;必須コンポーネントを持つプレイヤーエンティティが見つかりません&quot;)</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;no player entity with required components found&quot;)</span></span>
 <span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L321"><span class="lineNum">     321</span>              : </span>
 <span id="L322"><span class="lineNum">     322</span>              :         // プレイヤーの位置を更新する</span>

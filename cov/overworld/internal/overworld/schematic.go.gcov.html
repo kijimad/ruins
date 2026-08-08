@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -94,13 +94,13 @@
 <span id="L32"><span class="lineNum">      32</span>              : // facilityGlyphs は施設種別の1文字表記。1マスに1文字で建物の種別を示す。</span>
 <span id="L33"><span class="lineNum">      33</span>              : // 武器屋にあたるのは現代日本設定では骨董品店で、A で表す。</span>
 <span id="L34"><span class="lineNum">      34</span>              : var facilityGlyphs = map[facilityType]GlyphInfo{</span>
-<span id="L35"><span class="lineNum">      35</span>              :         facilityHouse:   {'h', &quot;住宅&quot;, color.RGBA{R: 154, G: 160, B: 166, A: 255}},   // 灰</span>
-<span id="L36"><span class="lineNum">      36</span>              :         facilityStore:   {'S', &quot;商店&quot;, color.RGBA{R: 74, G: 144, B: 226, A: 255}},    // 青</span>
-<span id="L37"><span class="lineNum">      37</span>              :         facilityOffice:  {'O', &quot;事務所&quot;, color.RGBA{R: 80, G: 200, B: 208, A: 255}},   // シアン</span>
-<span id="L38"><span class="lineNum">      38</span>              :         facilityDepot:   {'D', &quot;倉庫&quot;, color.RGBA{R: 176, G: 122, B: 58, A: 255}},    // 茶</span>
-<span id="L39"><span class="lineNum">      39</span>              :         facilityAntique: {'A', &quot;骨董品店&quot;, color.RGBA{R: 212, G: 160, B: 23, A: 255}},  // 金</span>
-<span id="L40"><span class="lineNum">      40</span>              :         facilityClinic:  {'C', &quot;診療所&quot;, color.RGBA{R: 232, G: 106, B: 154, A: 255}},  // 桃</span>
-<span id="L41"><span class="lineNum">      41</span>              :         facilityLab:     {'L', &quot;研究施設&quot;, color.RGBA{R: 160, G: 106, B: 208, A: 255}}, // 紫</span>
+<span id="L35"><span class="lineNum">      35</span>              :         facilityHouse:   {'h', &quot;House&quot;, color.RGBA{R: 154, G: 160, B: 166, A: 255}},             // 灰</span>
+<span id="L36"><span class="lineNum">      36</span>              :         facilityStore:   {'S', &quot;Shop&quot;, color.RGBA{R: 74, G: 144, B: 226, A: 255}},               // 青</span>
+<span id="L37"><span class="lineNum">      37</span>              :         facilityOffice:  {'O', &quot;Office&quot;, color.RGBA{R: 80, G: 200, B: 208, A: 255}},             // シアン</span>
+<span id="L38"><span class="lineNum">      38</span>              :         facilityDepot:   {'D', &quot;Warehouse&quot;, color.RGBA{R: 176, G: 122, B: 58, A: 255}},          // 茶</span>
+<span id="L39"><span class="lineNum">      39</span>              :         facilityAntique: {'A', &quot;Antique Shop&quot;, color.RGBA{R: 212, G: 160, B: 23, A: 255}},       // 金</span>
+<span id="L40"><span class="lineNum">      40</span>              :         facilityClinic:  {'C', &quot;Clinic&quot;, color.RGBA{R: 232, G: 106, B: 154, A: 255}},            // 桃</span>
+<span id="L41"><span class="lineNum">      41</span>              :         facilityLab:     {'L', &quot;Research Facility&quot;, color.RGBA{R: 160, G: 106, B: 208, A: 255}}, // 紫</span>
 <span id="L42"><span class="lineNum">      42</span>              : }</span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              : // facilityOrder は凡例に出す施設種別を表示順で並べる。placeOrder と同じく、map は順序を持たない</span>
@@ -127,12 +127,12 @@
 <span id="L65"><span class="lineNum">      65</span>              : // placeGlyphs は地物種別の1文字表記と凡例名。facilityGlyphs と同じ形で、記号と名前を1箇所に</span>
 <span id="L66"><span class="lineNum">      66</span>              : // 集約する。UI の着色や凡例はこれ1つを源にし、記号や名前を別の箇所へ直書きしない。</span>
 <span id="L67"><span class="lineNum">      67</span>              : var placeGlyphs = map[placeType]GlyphInfo{</span>
-<span id="L68"><span class="lineNum">      68</span>              :         placeField:           {'.', &quot;荒れ地&quot;, color.RGBA{R: 46, G: 59, B: 46, A: 255}},      // 暗緑</span>
-<span id="L69"><span class="lineNum">      69</span>              :         placeVillage:         {'T', &quot;村&quot;, color.RGBA{R: 255, G: 210, B: 74, A: 255}},      // 黄</span>
-<span id="L70"><span class="lineNum">      70</span>              :         placeHamlet:          {'t', &quot;一軒家&quot;, color.RGBA{R: 208, G: 168, B: 58, A: 255}},    // 濃黄</span>
-<span id="L71"><span class="lineNum">      71</span>              :         placeDungeonEntrance: {'&gt;', &quot;遺跡入口&quot;, color.RGBA{R: 224, G: 69, B: 58, A: 255}},    // 赤</span>
-<span id="L72"><span class="lineNum">      72</span>              :         placePOI:             {'*', &quot;点在POI&quot;, color.RGBA{R: 111, G: 191, B: 111, A: 255}}, // 緑</span>
-<span id="L73"><span class="lineNum">      73</span>              :         placeUnknown:         {'?', &quot;未分類&quot;, color.RGBA{R: 90, G: 90, B: 90, A: 255}},      // 灰。凡例外なので実際は既定へ落ちる</span>
+<span id="L68"><span class="lineNum">      68</span>              :         placeField:           {'.', &quot;Wasteland&quot;, color.RGBA{R: 46, G: 59, B: 46, A: 255}},        // 暗緑</span>
+<span id="L69"><span class="lineNum">      69</span>              :         placeVillage:         {'T', &quot;Village&quot;, color.RGBA{R: 255, G: 210, B: 74, A: 255}},        // 黄</span>
+<span id="L70"><span class="lineNum">      70</span>              :         placeHamlet:          {'t', &quot;Lone House&quot;, color.RGBA{R: 208, G: 168, B: 58, A: 255}},     // 濃黄</span>
+<span id="L71"><span class="lineNum">      71</span>              :         placeDungeonEntrance: {'&gt;', &quot;Ruins Entrance&quot;, color.RGBA{R: 224, G: 69, B: 58, A: 255}},  // 赤</span>
+<span id="L72"><span class="lineNum">      72</span>              :         placePOI:             {'*', &quot;Scattered POI&quot;, color.RGBA{R: 111, G: 191, B: 111, A: 255}}, // 緑</span>
+<span id="L73"><span class="lineNum">      73</span>              :         placeUnknown:         {'?', &quot;Unclassified&quot;, color.RGBA{R: 90, G: 90, B: 90, A: 255}},     // 灰。凡例外なので実際は既定へ落ちる</span>
 <span id="L74"><span class="lineNum">      74</span>              : }</span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span>              : // placeOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。</span>

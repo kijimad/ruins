@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,8 +86,8 @@
 <span id="L24"><span class="lineNum">      24</span>              : // Info はBehaviorの実装</span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 : func (sb *ShootBehavior) Info() Info {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         return Info{</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 Name:            &quot;射撃&quot;,</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 Description:     &quot;遠距離から敵を攻撃する&quot;,</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 Name:            &quot;Shoot&quot;,</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 Description:     &quot;Attack an enemy from range&quot;,</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 Interruptible:   false,</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 Resumable:       false,</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 ActionPointCost: consts.StandardActionCost,</span></span>
@@ -154,7 +154,7 @@
 <span id="L92"><span class="lineNum">      92</span>              : // Start はBehaviorの実装</span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 : func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           2 :         if p, ok := comp.Params.(*gc.ShootParams); ok {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;射撃開始&quot;, &quot;actor&quot;, actor, &quot;target&quot;, p.Target)</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;shoot started&quot;, &quot;actor&quot;, actor, &quot;target&quot;, p.Target)</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L98"><span class="lineNum">      98</span>              : }</span>
@@ -163,7 +163,7 @@
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.ShootParams)</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;射撃対象が設定されていません&quot;)</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;shoot target is not set&quot;)</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 return ErrAttackTargetNotSet</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L107"><span class="lineNum">     107</span>              : </span>
@@ -172,7 +172,7 @@
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         // 装備武器を取得</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         fire, weaponName, err := getEquippedFire(actor, world)</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;遠距離武器が装備されていません&quot;)</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;no ranged weapon equipped&quot;)</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L116"><span class="lineNum">     116</span>              : </span>
@@ -194,13 +194,13 @@
 <span id="L132"><span class="lineNum">     132</span>              : </span>
 <span id="L133"><span class="lineNum">     133</span>              : // Finish はBehaviorの実装</span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 : func (sb *ShootBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         log.Debug(&quot;射撃完了&quot;, &quot;actor&quot;, actor)</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         log.Debug(&quot;shoot finished&quot;, &quot;actor&quot;, actor)</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L138"><span class="lineNum">     138</span>              : </span>
 <span id="L139"><span class="lineNum">     139</span>              : // Canceled はBehaviorの実装</span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC tlaBgUNC">           0 : func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         log.Debug(&quot;射撃キャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         log.Debug(&quot;shoot canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L144"><span class="lineNum">     144</span>              : </span>
@@ -209,7 +209,7 @@
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         selectedSlot := query.GetWeaponSelection(world).Slot</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         weaponIndex := selectedSlot - 1</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         if weaponIndex &lt; 0 || weaponIndex &gt;= 5 {</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;無効な武器スロット番号: %d&quot;, selectedSlot)</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;invalid weapon slot number: %d&quot;, selectedSlot)</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L152"><span class="lineNum">     152</span>              : </span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC tlaBgGNC">           1 :         weapons := query.GetWeapons(world, actor)</span></span>

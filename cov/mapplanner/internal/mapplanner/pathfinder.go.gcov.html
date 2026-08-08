@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -231,7 +231,7 @@
 <span id="L169"><span class="lineNum">     169</span>              :                 }</span>
 <span id="L170"><span class="lineNum">     170</span>              :         }</span>
 <span id="L171"><span class="lineNum">     171</span>              : </span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         return consts.Coord[consts.Tile]{}, fmt.Errorf(&quot;ポータルに到達可能な歩行可能タイルが見つかりません&quot;)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         return consts.Coord[consts.Tile]{}, fmt.Errorf(&quot;no walkable tile that can reach a portal found&quot;)</span></span>
 <span id="L173"><span class="lineNum">     173</span>              : }</span>
 <span id="L174"><span class="lineNum">     174</span>              : </span>
 <span id="L175"><span class="lineNum">     175</span>              : // isValidSpawnPosition は指定位置がスポーン可能かつ十分な広さに到達可能かを判定する</span>
@@ -274,13 +274,13 @@
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         // プレイヤー開始位置を取得</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         playerPos, err := pf.FindPlayerStartPosition()</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;%w: プレイヤー開始位置が設定されていません&quot;, ErrConnectivity)</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;%w: player start position is not set&quot;, ErrConnectivity)</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L217"><span class="lineNum">     217</span>              : </span>
 <span id="L218"><span class="lineNum">     218</span>              :         // NextPortalsの到達性をチェック</span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC tlaBgGNC">           2 :         for i, portal := range pf.planData.NextPortals {</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 if !pf.IsReachable(playerPos, portal) {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;%w: プレイヤー開始位置(%d,%d)からNextPortal[%d](%d,%d)への到達不可&quot;,</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;%w: player start (%d,%d) cannot reach NextPortal[%d](%d,%d)&quot;,</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                                 ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L224"><span class="lineNum">     224</span>              :         }</span>

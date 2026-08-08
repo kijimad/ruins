@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 01:57:29</td>
+            <td class="headerValue">2026-08-08 04:27:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -170,7 +170,7 @@
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L109"><span class="lineNum">     109</span>              :         }</span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC tlaBgGNC">           1 :         lifecycle.MoveToEquip(world, item, props.TargetMember, props.SlotNumber)</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         logEquipChange(world, props.TargetMember, itemName, &quot;を装備した。&quot;)</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         logEquipChange(world, props.TargetMember, itemName, query.T(world, &quot;%s equipped %s.&quot;))</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L113"><span class="lineNum">     113</span>              : }</span>
 <span id="L114"><span class="lineNum">     114</span>              : </span>
