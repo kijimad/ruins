@@ -144,7 +144,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 				},
 			}},
 		}
@@ -160,7 +160,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "存在しない素材", Count: "1d1"}},
+					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
 				},
 			}},
 		}
@@ -177,8 +177,8 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 			{Id: "分解対象", Name: "分解対象", Disassembly: &oapi.Disassembly{
 				ToolCategory: oapi.Precision,
 				BaseAP:       100,
-				Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
-				Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
+				Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+				Bonus:        &[]oapi.DisassemblyBonus{{Id: "存在しないボーナス", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
 			}},
 		}
 		raws := oapi.Raws{Items: &items}

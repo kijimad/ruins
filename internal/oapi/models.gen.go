@@ -701,7 +701,7 @@ type CombatPolicyType string
 type CommandTable struct {
 	Entries []CommandTableEntry `json:"entries"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// Name エンティティ名
@@ -710,7 +710,7 @@ type CommandTable struct {
 
 // CommandTableEntry コマンドテーブルエントリ
 type CommandTableEntry struct {
-	// Weapon エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Weapon エンティティの英語 id
 	Weapon EntityID `json:"weapon"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
@@ -778,14 +778,14 @@ type DisassemblyBonus struct {
 	// Count 産出個数のダイス表記
 	Count Dice `json:"count"`
 
+	// Id エンティティの英語 id
+	Id EntityID `json:"id"`
+
 	// MinGrade 工具グレードがこの値以上で産出に加わる
 	MinGrade *ToolGrade `json:"minGrade,omitempty"`
 
 	// MinSkill 機械スキルがこの値以上で産出に加わる
 	MinSkill *SkillLevel `json:"minSkill,omitempty"`
-
-	// Name エンティティ名
-	Name EntityName `json:"name"`
 }
 
 // DisassemblyChance 分解産出の確率。百分率
@@ -807,8 +807,8 @@ type DisassemblyYield struct {
 	// Count 産出個数のダイス表記
 	Count Dice `json:"count"`
 
-	// Name エンティティ名
-	Name EntityName `json:"name"`
+	// Id エンティティの英語 id
+	Id EntityID `json:"id"`
 }
 
 // DoorLockTriggerRaw 扉ロックトリガー
@@ -821,7 +821,7 @@ type DoorRaw = map[string]interface{}
 type DropTable struct {
 	Entries []DropTableEntry `json:"entries"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// Name エンティティ名
@@ -850,7 +850,7 @@ type Element string
 type EnemyTable struct {
 	Entries []EnemyTableEntry `json:"entries"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// Name エンティティ名
@@ -859,7 +859,7 @@ type EnemyTable struct {
 
 // EnemyTableEntry 敵テーブルエントリ
 type EnemyTableEntry struct {
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// MaxDepth 階層レベル
@@ -884,7 +884,7 @@ type EnemyTableList struct {
 // EntityDescription 説明文
 type EntityDescription = string
 
-// EntityID エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+// EntityID エンティティの英語 id
 type EntityID = string
 
 // EntityName エンティティ名
@@ -1019,7 +1019,7 @@ type Item struct {
 	// Fire 遠距離攻撃設定
 	Fire *Fire `json:"fire,omitempty"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// InflictsDamage 基本ダメージ
@@ -1064,7 +1064,7 @@ type ItemCount = int32
 type ItemGroup struct {
 	Entries []ItemGroupEntry `json:"entries"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// Name エンティティ名
@@ -1076,7 +1076,7 @@ type ItemGroup struct {
 
 // ItemGroupEntry アイテムグループエントリ
 type ItemGroupEntry struct {
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// Pack 1山あたりの個数のダイス表記
@@ -1105,7 +1105,7 @@ type ItemList struct {
 type ItemTable struct {
 	Entries []ItemTableEntry `json:"entries"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// Name エンティティ名
@@ -1208,7 +1208,7 @@ type Member struct {
 	// FactionType 派閥タイプ
 	FactionType *FactionMemberType `json:"factionType,omitempty"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// IsBoss ボスモンスターかどうか
@@ -1366,7 +1366,7 @@ type Prop struct {
 	// Hp 耐久値。設定すると破壊可能になる
 	Hp *HitPoints `json:"hp,omitempty"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// LightSource 光源設定
@@ -1448,7 +1448,7 @@ type ReadingEffort = int32
 
 // Recipe レシピ
 type Recipe struct {
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id     EntityID      `json:"id"`
 	Inputs []RecipeInput `json:"inputs"`
 
@@ -1461,7 +1461,7 @@ type RecipeInput struct {
 	// Amount 素材必要数
 	Amount MaterialAmount `json:"amount"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 }
 
@@ -2331,7 +2331,7 @@ type Tile struct {
 	// Foliage 植生タイプ
 	Foliage FoliageType `json:"foliage"`
 
-	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
 	// Name エンティティ名

@@ -1688,11 +1688,11 @@ components:
     DisassemblyBonus:
       type: object
       required:
-        - name
+        - id
         - count
       properties:
-        name:
-          $ref: '#/components/schemas/EntityName'
+        id:
+          $ref: '#/components/schemas/EntityID'
         count:
           allOf:
             - $ref: '#/components/schemas/Dice'
@@ -1728,11 +1728,11 @@ components:
     DisassemblyYield:
       type: object
       required:
-        - name
+        - id
         - count
       properties:
-        name:
-          $ref: '#/components/schemas/EntityName'
+        id:
+          $ref: '#/components/schemas/EntityID'
         count:
           allOf:
             - $ref: '#/components/schemas/Dice'
@@ -1858,7 +1858,7 @@ components:
       type: string
       minLength: 1
       maxLength: 50
-      description: エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+      description: エンティティの英語 id
     EntityName:
       type: string
       minLength: 1

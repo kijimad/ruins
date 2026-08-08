@@ -204,22 +204,22 @@ func validateDisassemblyReferences(raws oapi.Raws) error {
 			return nil
 		}
 		for _, y := range def.Yields {
-			if _, ok := itemNames[y.Name]; !ok {
-				return fmt.Errorf("%s '%s' disassembly yield '%s' does not exist in item definitions", ownerKind, ownerName, y.Name)
+			if _, ok := itemNames[y.Id]; !ok {
+				return fmt.Errorf("%s '%s' disassembly yield '%s' does not exist in item definitions", ownerKind, ownerName, y.Id)
 			}
 			if _, err := consts.ParseDice(y.Count); err != nil {
-				return fmt.Errorf("%s '%s' disassembly yield '%s' has invalid count notation: %w", ownerKind, ownerName, y.Name, err)
+				return fmt.Errorf("%s '%s' disassembly yield '%s' has invalid count notation: %w", ownerKind, ownerName, y.Id, err)
 			}
 		}
 		if def.Bonus == nil {
 			return nil
 		}
 		for _, b := range *def.Bonus {
-			if _, ok := itemNames[b.Name]; !ok {
-				return fmt.Errorf("%s '%s' disassembly bonus '%s' does not exist in item definitions", ownerKind, ownerName, b.Name)
+			if _, ok := itemNames[b.Id]; !ok {
+				return fmt.Errorf("%s '%s' disassembly bonus '%s' does not exist in item definitions", ownerKind, ownerName, b.Id)
 			}
 			if _, err := consts.ParseDice(b.Count); err != nil {
-				return fmt.Errorf("%s '%s' disassembly bonus '%s' has invalid count notation: %w", ownerKind, ownerName, b.Name, err)
+				return fmt.Errorf("%s '%s' disassembly bonus '%s' has invalid count notation: %w", ownerKind, ownerName, b.Id, err)
 			}
 		}
 		return nil

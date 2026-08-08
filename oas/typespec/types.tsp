@@ -76,7 +76,7 @@ scalar EntityDescription extends string;
 @maxLength(50)
 scalar EntityName extends string;
 
-/** エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id */
+/** エンティティの英語 id */
 @minLength(1)
 @maxLength(50)
 scalar EntityID extends string;

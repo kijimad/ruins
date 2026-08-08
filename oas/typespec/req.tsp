@@ -341,7 +341,7 @@ model Prop {
 
 /** 分解の産出エントリ。chance 省略は確定枠 */
 model DisassemblyYield {
-  name: EntityName;
+  id: EntityID;
   /** 産出個数のダイス表記 */
   count: Dice;
   chance?: DisassemblyChance;
@@ -349,7 +349,7 @@ model DisassemblyYield {
 
 /** 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある */
 model DisassemblyBonus {
-  name: EntityName;
+  id: EntityID;
   /** 産出個数のダイス表記 */
   count: Dice;
   /** 機械スキルがこの値以上で産出に加わる */

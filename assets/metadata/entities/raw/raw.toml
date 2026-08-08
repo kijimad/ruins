@@ -13452,16 +13452,16 @@ toolCategory = "prying"
 baseAP = 2500
 
 [[props.disassembly.yields]]
-name = "hardwood"
+id = "hardwood"
 count = "1d3"
 
 [[props.disassembly.yields]]
-name = "rusted_chain"
+id = "rusted_chain"
 count = "1d1"
 chance = 40
 
 [[props.disassembly.bonus]]
-name = "hardwood"
+id = "hardwood"
 count = "1d1"
 minSkill = 10
 
@@ -13763,16 +13763,16 @@ toolCategory = "prying"
 baseAP = 2000
 
 [[props.disassembly.yields]]
-name = "hardwood"
+id = "hardwood"
 count = "1d2"
 
 [[props.disassembly.yields]]
-name = "scrap_iron"
+id = "scrap_iron"
 count = "1d1"
 chance = 50
 
 [[props.disassembly.bonus]]
-name = "hardwood"
+id = "hardwood"
 count = "1d1"
 minSkill = 10
 
@@ -14004,21 +14004,21 @@ toolCategory = "prying"
 baseAP = 4000
 
 [[props.disassembly.yields]]
-name = "scrap_iron"
+id = "scrap_iron"
 count = "1d2+1"
 
 [[props.disassembly.yields]]
-name = "iron"
+id = "iron"
 count = "1d1"
 chance = 60
 
 [[props.disassembly.bonus]]
-name = "iron"
+id = "iron"
 count = "1d1"
 minSkill = 10
 
 [[props.disassembly.bonus]]
-name = "iron"
+id = "iron"
 count = "1d2"
 minGrade = 2
 
@@ -14300,21 +14300,21 @@ toolCategory = "cutting"
 baseAP = 6000
 
 [[props.disassembly.yields]]
-name = "scrap_iron"
+id = "scrap_iron"
 count = "1d3+1"
 
 [[props.disassembly.yields]]
-name = "iron"
+id = "iron"
 count = "1d1"
 chance = 50
 
 [[props.disassembly.bonus]]
-name = "cord_bundle"
+id = "cord_bundle"
 count = "1d1"
 minSkill = 10
 
 [[props.disassembly.bonus]]
-name = "iron"
+id = "iron"
 count = "1d1"
 minGrade = 3
 
@@ -14331,16 +14331,16 @@ toolCategory = "precision"
 baseAP = 3000
 
 [[props.disassembly.yields]]
-name = "electric_wire"
+id = "electric_wire"
 count = "1d2"
 
 [[props.disassembly.yields]]
-name = "cord_bundle"
+id = "cord_bundle"
 count = "1d1"
 chance = 50
 
 [[props.disassembly.bonus]]
-name = "ferrite_core"
+id = "ferrite_core"
 count = "1d1"
 minSkill = 10
 
@@ -14769,16 +14769,16 @@ toolCategory = "prying"
 baseAP = 2000
 
 [[props.disassembly.yields]]
-name = "hardwood"
+id = "hardwood"
 count = "1d2"
 
 [[props.disassembly.yields]]
-name = "scrap_iron"
+id = "scrap_iron"
 count = "1d1"
 chance = 50
 
 [[props.disassembly.bonus]]
-name = "hardwood"
+id = "hardwood"
 count = "1d1"
 minSkill = 10
 
@@ -16218,16 +16218,16 @@ toolCategory = "precision"
 baseAP = 1000
 
 [[items.disassembly.yields]]
-name = "scrap_iron"
+id = "scrap_iron"
 count = "1d1"
 
 [[items.disassembly.yields]]
-name = "electric_wire"
+id = "electric_wire"
 count = "1d1"
 chance = 50
 
 [[items.disassembly.bonus]]
-name = "ferrite_core"
+id = "ferrite_core"
 count = "1d1"
 minSkill = 10
 

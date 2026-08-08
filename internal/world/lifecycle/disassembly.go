@@ -36,7 +36,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if err != nil {
 				return nil, err
 			}
-			stacks = append(stacks, YieldStack{Name: y.Name, Count: count})
+			stacks = append(stacks, YieldStack{Name: y.Id, Count: count})
 			continue
 		}
 		if !full {
@@ -49,7 +49,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if err != nil {
 				return nil, err
 			}
-			stacks = append(stacks, YieldStack{Name: y.Name, Count: count})
+			stacks = append(stacks, YieldStack{Name: y.Id, Count: count})
 		}
 	}
 
@@ -70,7 +70,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if err != nil {
 				return nil, err
 			}
-			stacks = append(stacks, YieldStack{Name: b.Name, Count: count})
+			stacks = append(stacks, YieldStack{Name: b.Id, Count: count})
 		}
 	}
 

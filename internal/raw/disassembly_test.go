@@ -14,12 +14,12 @@ func TestFindDisassembly(t *testing.T) {
 	propDisassembly := &oapi.Disassembly{
 		ToolCategory: oapi.Prying,
 		BaseAP:       100,
-		Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+		Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 	}
 	itemDisassembly := &oapi.Disassembly{
 		ToolCategory: oapi.Precision,
 		BaseAP:       200,
-		Yields:       []oapi.DisassemblyYield{{Name: "ネジ", Count: "1d2"}},
+		Yields:       []oapi.DisassemblyYield{{Id: "ネジ", Count: "1d2"}},
 	}
 	raws := oapi.Raws{
 		Props: &[]oapi.Prop{
@@ -124,7 +124,7 @@ func TestValidateReferences(t *testing.T) {
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 				},
 			}},
 			DropTables: &[]oapi.DropTable{{
@@ -171,7 +171,7 @@ func TestValidateReferences(t *testing.T) {
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "存在しない素材", Count: "1d1"}},
+					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
 				},
 			}},
 			DropTables: &[]oapi.DropTable{{
