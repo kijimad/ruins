@@ -1,7 +1,6 @@
 package gamelog
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -37,26 +36,19 @@ func TestParseMarkup(t *testing.T) {
 		assert.Equal(t, []LogFragment{{Color: ColorRed, Text: "危険"}}, frags)
 	})
 
-	t.Run("未知タグは地の文として残す", func(t *testing.T) {
+	t.Run("未知タグは panic する", func(t *testing.T) {
 		t.Parallel()
-		frags := ParseMarkup("a<unknown>b</unknown>c")
-		// 未知タグは色付けされず、開きタグと中身と閉じタグが白のまま残る
-		var got strings.Builder
-		for _, f := range frags {
-			assert.Equal(t, ColorWhite, f.Color)
-			got.WriteString(f.Text)
-		}
-		assert.Equal(t, "a<unknown>b</unknown>c", got.String())
+		assert.Panics(t, func() { ParseMarkup("a<unknown>b</unknown>c") })
 	})
 
-	t.Run("閉じ括弧が無いマークは本文を落とさない", func(t *testing.T) {
+	t.Run("閉じ括弧が無いマークは panic する", func(t *testing.T) {
 		t.Parallel()
-		frags := ParseMarkup("壊れた<item タグ")
-		var got strings.Builder
-		for _, f := range frags {
-			got.WriteString(f.Text)
-		}
-		assert.Equal(t, "壊れた<item タグ", got.String())
+		assert.Panics(t, func() { ParseMarkup("壊れた<item タグ") })
+	})
+
+	t.Run("閉じタグ抜けは panic する", func(t *testing.T) {
+		t.Parallel()
+		assert.Panics(t, func() { ParseMarkup("<item>薬") })
 	})
 
 	t.Run("タグ無しは白1断片", func(t *testing.T) {

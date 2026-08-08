@@ -1,6 +1,7 @@
 package gamelog
 
 import (
+	"fmt"
 	"image/color"
 	"strings"
 )
@@ -36,14 +37,14 @@ var namedColors = map[string]color.RGBA{
 }
 
 // Markup は <tag>...</tag> マークアップ付き文字列を色付き断片へ解釈してログへ積む。
-// 未知のタグや閉じ忘れは通常テキストとして扱い、本文を落とさない
+// マークアップは開発者が書く信頼できる入力なので、未知タグや閉じ忘れは記述ミスとして panic する
 func (l *Logger) Markup(s string) *Logger {
 	l.fragments = append(l.fragments, ParseMarkup(s)...)
 	return l
 }
 
 // ParseMarkup は <tag>...</tag> を色付き断片列へ分解する。タグの外は白。
-// 対応しないタグや閉じ括弧の無いマークは literal として本文に残す
+// 未知タグ・閉じ括弧の無いマーク・閉じタグ抜けは記述ミスとして panic し、黙って地の文に落とさない。
 func ParseMarkup(s string) []LogFragment {
 	var frags []LogFragment
 	add := func(text string, c color.RGBA) {
@@ -62,18 +63,17 @@ func ParseMarkup(s string) []LogFragment {
 
 		gt := strings.IndexByte(s, '>')
 		if gt < 0 {
-			add(s, ColorWhite)
-			break
+			panic(fmt.Sprintf("gamelog: unclosed markup bracket in %q", s))
 		}
 		tag := s[1:gt]
 		c, known := tagColor(tag)
+		if !known {
+			panic(fmt.Sprintf("gamelog: unknown markup tag <%s>", tag))
+		}
 		closeTag := "</" + tag + ">"
 		ci := strings.Index(s[gt+1:], closeTag)
-		if !known || ci < 0 {
-			// 未知タグ・閉じ無しは開きタグ1つぶんを地の文にして先へ進める
-			add(s[:gt+1], ColorWhite)
-			s = s[gt+1:]
-			continue
+		if ci < 0 {
+			panic(fmt.Sprintf("gamelog: missing close tag %s", closeTag))
 		}
 		add(s[gt+1:gt+1+ci], c)
 		s = s[gt+1+ci+len(closeTag):]
@@ -97,5 +97,5 @@ func tagColor(tag string) (color.RGBA, bool) {
 // Tag は text を tag で包んだマークアップ文字列を返す。色付きの値を書式の引数として
 // 渡したいときに使う。例: query.T(world, "%[1]s を得た", gamelog.Tag("item", name))
 func Tag(tag, text string) string {
-	return "<" + tag + ">" + text + "</" + tag + ">"
+	return fmt.Sprintf("<%s>%s</%s>", tag, text, tag)
 }
