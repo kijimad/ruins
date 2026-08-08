@@ -78,15 +78,8 @@ func spawnSettlement(world w.World, center consts.Coord[consts.Tile], village bo
 	}
 	for _, n := range npcs {
 		pos := consts.Coord[consts.Tile]{X: center.X + n.dx, Y: center.Y + n.dy}
-		npc, err := lifecycle.SpawnNeutralNPC(world, pos, n.name)
-		if err != nil {
+		if _, err := lifecycle.SpawnNeutralNPC(world, pos, n.name); err != nil {
 			return fmt.Errorf("failed to place settlement NPC (%s): %w", n.name, err)
-		}
-		// 商人は品揃えを在庫として持つ。売買と雇用はこの在庫を出し入れする
-		if n.name == "merchant" {
-			if err := lifecycle.PopulateMerchantStock(world, npc, world.Config.RNG); err != nil {
-				return fmt.Errorf("failed to stock merchant: %w", err)
-			}
 		}
 	}
 	for _, p := range props {
