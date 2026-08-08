@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 09:05:00</td>
+            <td class="headerValue">2026-08-08 11:21:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -396,7 +396,7 @@
 <span id="L334"><span class="lineNum">     334</span>              : // isEarthTile は帯ローカル座標 pos が土系タイル、dirt か砂土、かを返す。道の floor や壁、他フィーチャの</span>
 <span id="L335"><span class="lineNum">     335</span>              : // 生成物は土系でないので散布から外れる。</span>
 <span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 : func isEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         return scatterEarthTiles[tileNameAt(world, tiles, pos)]</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         return scatterEarthTiles[tileIDAt(world, tiles, pos)]</span></span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L339"><span class="lineNum">     339</span>              : </span>
 <span id="L340"><span class="lineNum">     340</span>              : // hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ</span>
@@ -406,13 +406,13 @@
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))</span></span>
 <span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L346"><span class="lineNum">     346</span>              : </span>
-<span id="L347"><span class="lineNum">     347</span>              : // tileNameAt は帯ローカル座標 pos のタイル名を返す。タイルが無ければ空文字。</span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 : func tileNameAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {</span></span>
+<span id="L347"><span class="lineNum">     347</span>              : // tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 : func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {</span></span>
 <span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :         e, ok := tiles[gc.GridElement{Coord: pos}]</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(e) || !world.Components.Name.Has(e) {</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {</span></span>
 <span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;</span></span>
 <span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.Name.Get(e).Name</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.RawID.Get(e).ID</span></span>
 <span id="L354"><span class="lineNum">     354</span>              : }</span>
 <span id="L355"><span class="lineNum">     355</span>              : </span>
 <span id="L356"><span class="lineNum">     356</span>              : // chunkChebyshev は2チャンク座標のチェビシェフ距離を返す。ゾーン判定の近接度に使う。</span>

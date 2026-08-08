@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 09:05:00</td>
+            <td class="headerValue">2026-08-08 11:21:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -135,7 +135,7 @@
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         ki := input.GetSharedKeyboardInput()</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         if ki.IsKeyJustPressed(ebiten.KeyX) &amp;&amp; !ki.IsKeyPressed(ebiten.KeyShift) {</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 o.detail.Open()</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 o.detail.Open(world)</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         } else if action, ok := menurt.HandleMenuInput(); ok {</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 switch action {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>

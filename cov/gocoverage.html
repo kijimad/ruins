@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.1%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.1%)</option>
 				
@@ -87,7 +87,7 @@
 				
 				<option value="file15">github.com/kijimaD/ruins/internal/activity/shoot.go (90.2%)</option>
 				
-				<option value="file16">github.com/kijimaD/ruins/internal/activity/talk.go (82.0%)</option>
+				<option value="file16">github.com/kijimaD/ruins/internal/activity/talk.go (81.6%)</option>
 				
 				<option value="file17">github.com/kijimaD/ruins/internal/activity/transfer.go (68.1%)</option>
 				
@@ -409,7 +409,7 @@
 				
 				<option value="file176">github.com/kijimaD/ruins/internal/overworld/schematic.go (94.3%)</option>
 				
-				<option value="file177">github.com/kijimaD/ruins/internal/overworld/seam.go (98.6%)</option>
+				<option value="file177">github.com/kijimaD/ruins/internal/overworld/seam.go (100.0%)</option>
 				
 				<option value="file178">github.com/kijimaD/ruins/internal/overworld/settlement.go (88.9%)</option>
 				
@@ -445,7 +445,7 @@
 				
 				<option value="file194">github.com/kijimaD/ruins/internal/skill/growth.go (100.0%)</option>
 				
-				<option value="file195">github.com/kijimaD/ruins/internal/states/action_handlers.go (67.9%)</option>
+				<option value="file195">github.com/kijimaD/ruins/internal/states/action_handlers.go (70.0%)</option>
 				
 				<option value="file196">github.com/kijimaD/ruins/internal/states/character_equip_overlay.go (48.8%)</option>
 				
@@ -475,7 +475,7 @@
 				
 				<option value="file209">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (78.5%)</option>
 				
-				<option value="file210">github.com/kijimaD/ruins/internal/states/dungeon_input.go (41.5%)</option>
+				<option value="file210">github.com/kijimaD/ruins/internal/states/dungeon_input.go (41.7%)</option>
 				
 				<option value="file211">github.com/kijimaD/ruins/internal/states/factories.go (52.0%)</option>
 				
@@ -571,7 +571,7 @@
 				
 				<option value="file257">github.com/kijimaD/ruins/internal/widgets/menuscreen/actionwindow.go (0.0%)</option>
 				
-				<option value="file258">github.com/kijimaD/ruins/internal/widgets/menuscreen/detail.go (0.0%)</option>
+				<option value="file258">github.com/kijimaD/ruins/internal/widgets/menuscreen/detail.go (22.2%)</option>
 				
 				<option value="file259">github.com/kijimaD/ruins/internal/widgets/menuscreen/layout.go (0.0%)</option>
 				
@@ -1452,7 +1452,12 @@ func getBareHandsAttack(world w.World) (gc.Attacker, string, error) <span class=
         <span class="cov8" title="1">if bareHandsSpec.Melee == nil </span><span class="cov0" title="0">{
                 return nil, "", fmt.Errorf("bare hands weapon has no Melee component")
         }</span>
-        <span class="cov8" title="1">return bareHandsSpec.Melee, query.T(world, "bare hands"), nil</span>
+        <span class="cov8" title="1">if bareHandsSpec.Name == nil </span><span class="cov0" title="0">{
+                return nil, "", fmt.Errorf("bare hands weapon has no Name component")
+        }</span>
+        // 攻撃方法名は素手武器の表示名。武器と同じく raw の英語 name を返し、表示側の logAttackResult が
+        // query.T で訳す。表示 name なので raw の翻訳カバレッジゲートが訳の有無を検証する。
+        <span class="cov8" title="1">return bareHandsSpec.Melee, bareHandsSpec.Name.Name, nil</span>
 }
 
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
@@ -1695,22 +1700,27 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 
         logger := gamelog.New(query.GetGameLog(world))
         withMethod := attackMethodName != ""
-        switch </span>{
+        // 攻撃方法名は武器名や素手の英語原文なので、表示前に現在言語へ訳す。
+        methodName := attackMethodName
+        if withMethod </span><span class="cov8" title="1">{
+                methodName = query.T(world, attackMethodName)
+        }</span>
+        <span class="cov8" title="1">switch </span>{
         case !hit:<span class="cov0" title="0">
                 if withMethod </span><span class="cov0" title="0">{
-                        logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, attackMethodName, targetMarkup))
+                        logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
         case critical:<span class="cov0" title="0">
                 if withMethod </span><span class="cov0" title="0">{
-                        logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, attackMethodName, targetMarkup, damageStr))
+                        logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
                 }</span>
         default:<span class="cov8" title="1">
                 if withMethod </span><span class="cov8" title="1">{
-                        logger.Markup(query.T(world, "%s used %s to attack %s and dealt %s damage.", attackerMarkup, attackMethodName, targetMarkup, damageStr))
+                        logger.Markup(query.T(world, "%s used %s to attack %s and dealt %s damage.", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s and dealt %s damage.", attackerMarkup, targetMarkup, damageStr))
                 }</span>
@@ -4605,10 +4615,8 @@ func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
                 if !world.Components.Name.Has(targetEntity) </span><span class="cov0" title="0">{
                         return fmt.Errorf("target entity has no Name component")
                 }</span>
-                <span class="cov8" title="1">nameComp := world.Components.Name.Get(targetEntity)
-
-                gamelog.New(query.GetGameLog(world)).
-                        Markup(query.T(world, "Talked with %s.", nameComp.Name)).
+                <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
+                        Markup(query.T(world, "Talked with %s.", query.GetEntityName(targetEntity, world))).
                         Log()
 
                 // 会話ダイアログを表示
@@ -4753,7 +4761,7 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
         // query.FormatItemName は在庫数を出すので分割転送には使えない。
         <span class="cov8" title="1">itemName := query.T(world, "Unknown Item")
         if nameComp := world.Components.Name.Get(item); nameComp != nil </span><span class="cov8" title="1">{
-                itemName = nameComp.Name
+                itemName = query.T(world, nameComp.Name)
         }</span>
         <span class="cov8" title="1">if moving &gt; 1 </span><span class="cov8" title="1">{
                 itemName = query.T(world, "%s (x%d)", itemName, moving)
@@ -4994,7 +5002,7 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 // getItemName はアイテムの名前を取得する
 func (u *UseItemBehavior) getItemName(item ecs.Entity, world w.World) string <span class="cov8" title="1">{
         if world.Components.Name.Has(item) </span><span class="cov8" title="1">{
-                return world.Components.Name.Get(item).Name
+                return query.T(world, world.Components.Name.Get(item).Name)
         }</span>
         <span class="cov0" title="0">return query.T(world, "Item")</span>
 }
@@ -15870,10 +15878,10 @@ func AutoTileBits(up, right, down, left bool) AutoTileIndex <span class="cov8" t
 // 同じタイル名のタイルとのみ接続する
 func (mp *MetaPlan) CalculateAutoTileIndex(idx gc.TileIdx, tileType string) AutoTileIndex <span class="cov8" title="1">{
         // 4方向の隣接チェック - 同じタイル名の場合のみ接続
-        up := mp.UpTile(idx).Name == tileType
-        right := mp.RightTile(idx).Name == tileType
-        down := mp.DownTile(idx).Name == tileType
-        left := mp.LeftTile(idx).Name == tileType
+        up := mp.UpTile(idx).Id == tileType
+        right := mp.RightTile(idx).Id == tileType
+        down := mp.DownTile(idx).Id == tileType
+        left := mp.LeftTile(idx).Id == tileType
         return AutoTileBits(up, right, down, left)
 }</span>
 
@@ -15957,14 +15965,14 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) <span class="cov8" tit
                         // 左辺
                         if x := room.Min.X - 1; x &gt;= 0 </span><span class="cov0" title="0">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].Name != b.FloorTile </span><span class="cov0" title="0">{
+                                if planData.Tiles[idx].Id != b.FloorTile </span><span class="cov0" title="0">{
                                         planData.Tiles[idx] = planData.GetTile(b.WallTile)
                                 }</span>
                         }
                         // 右辺
                         <span class="cov8" title="1">if x := room.Max.X + 1; int(x) &lt; int(planData.Level.TileWidth) </span><span class="cov0" title="0">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].Name != b.FloorTile </span><span class="cov0" title="0">{
+                                if planData.Tiles[idx].Id != b.FloorTile </span><span class="cov0" title="0">{
                                         planData.Tiles[idx] = planData.GetTile(b.WallTile)
                                 }</span>
                         }
@@ -15974,14 +15982,14 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) <span class="cov8" tit
                         // 上辺
                         if y := room.Min.Y - 1; y &gt;= 0 </span><span class="cov0" title="0">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].Name != b.FloorTile </span><span class="cov0" title="0">{
+                                if planData.Tiles[idx].Id != b.FloorTile </span><span class="cov0" title="0">{
                                         planData.Tiles[idx] = planData.GetTile(b.WallTile)
                                 }</span>
                         }
                         // 下辺
                         <span class="cov8" title="1">if y := room.Max.Y + 1; int(y) &lt; int(planData.Level.TileHeight) </span><span class="cov0" title="0">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: x, Y: y})
-                                if planData.Tiles[idx].Name != b.FloorTile </span><span class="cov0" title="0">{
+                                if planData.Tiles[idx].Id != b.FloorTile </span><span class="cov0" title="0">{
                                         planData.Tiles[idx] = planData.GetTile(b.WallTile)
                                 }</span>
                         }
@@ -16003,7 +16011,7 @@ func (b BigRoomDraw) applyPillars(planData *MetaPlan) <span class="cov8" title="
                 for x := startX; x &lt; int(room.Max.X); x += spacing + 1 </span><span class="cov8" title="1">{
                         for y := startY; y &lt; int(room.Max.Y); y += spacing + 1 </span><span class="cov8" title="1">{
                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-                                planData.Tiles[idx] = planData.GetTile("wall")
+                                planData.Tiles[idx] = planData.GetTile(consts.TileNameWall)
                         }</span>
                 }
         }
@@ -16026,7 +16034,7 @@ func (b BigRoomDraw) applyObstacles(planData *MetaPlan) <span class="cov8" title
                         y := int(room.Min.Y) + 1 + planData.RNG.IntN(maxYRange)
 
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-                        planData.Tiles[idx] = planData.GetTile("wall")
+                        planData.Tiles[idx] = planData.GetTile(consts.TileNameWall)
                 }</span>
         }
 }
@@ -16042,7 +16050,7 @@ func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) <span class="cov8" tit
                                 // 縦の壁を配置（ランダムに開口部を作る）
                                 if planData.RNG.Float64() &gt; 0.3 </span><span class="cov8" title="1">{
                                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-                                        planData.Tiles[idx] = planData.GetTile("wall")
+                                        planData.Tiles[idx] = planData.GetTile(consts.TileNameWall)
                                 }</span>
                         }
                 }
@@ -16053,7 +16061,7 @@ func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) <span class="cov8" tit
                                 // 横の壁を配置（ランダムに開口部を作る）
                                 if planData.RNG.Float64() &gt; 0.3 </span><span class="cov8" title="1">{
                                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
-                                        planData.Tiles[idx] = planData.GetTile("wall")
+                                        planData.Tiles[idx] = planData.GetTile(consts.TileNameWall)
                                 }</span>
                         }
                 }
@@ -16081,7 +16089,7 @@ func (b BigRoomDraw) applyCenterPlatform(planData *MetaPlan) <span class="cov8" 
                                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
                                                 // 外周は壁、内部は床のまま
                                                 if distance &gt;= (platformSize-1)*(platformSize-1) </span><span class="cov8" title="1">{
-                                                        planData.Tiles[idx] = planData.GetTile("wall")
+                                                        planData.Tiles[idx] = planData.GetTile(consts.TileNameWall)
                                                 }</span>
                                         }
                                 }
@@ -16477,7 +16485,7 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error <span class="co
                 }
 
                 // wallタイルで床に隣接していない場合、変換対象とする
-                <span class="cov8" title="1">if tile.Name == consts.TileNameWall &amp;&amp; !planData.AdjacentAnyFloor(gc.TileIdx(i)) </span><span class="cov8" title="1">{
+                <span class="cov8" title="1">if tile.Id == consts.TileNameWall &amp;&amp; !planData.AdjacentAnyFloor(gc.TileIdx(i)) </span><span class="cov8" title="1">{
                         tilesToConvert = append(tilesToConvert, i)
                 }</span>
         }
@@ -16656,7 +16664,7 @@ func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool <span class="c
 // calcWater は隣接タイルから水の影響を計算する
 func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType <span class="cov8" title="1">{
         // 現在のタイルが水タイルかチェック
-        if isWaterTile(mp.Tiles[idx].Name) </span><span class="cov8" title="1">{
+        if isWaterTile(mp.Tiles[idx].Id) </span><span class="cov8" title="1">{
                 return gc.WaterSubmerged
         }</span>
 
@@ -16680,7 +16688,7 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType <span 
         }</span>
 
         <span class="cov8" title="1">for _, adjIdx := range adjacentIndices </span><span class="cov8" title="1">{
-                if isWaterTile(mp.Tiles[adjIdx].Name) </span><span class="cov8" title="1">{
+                if isWaterTile(mp.Tiles[adjIdx].Id) </span><span class="cov8" title="1">{
                         return gc.WaterNearby
                 }</span>
         }
@@ -16691,7 +16699,7 @@ func (p EnvironmentPlanner) calcWater(mp *MetaPlan, idx int) gc.WaterType <span 
 // calcFoliage はタイル名から植生の影響を計算する
 // TODO: 名前ではなくタイルの属性で判定する
 func (p EnvironmentPlanner) calcFoliage(mp *MetaPlan, idx int) gc.FoliageType <span class="cov8" title="1">{
-        name := mp.Tiles[idx].Name
+        name := mp.Tiles[idx].Id
 
         switch name </span>{
         case "forest", "tree":<span class="cov8" title="1">
@@ -21274,7 +21282,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) <span class="cov
                         // 中心線は無条件に床に変換する
                         for _, p := range centerPoints </span><span class="cov8" title="1">{
                                 idx := planData.Level.CoordToIndex(p)
-                                if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Name == consts.TileNameWall </span><span class="cov8" title="1">{
+                                if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Id == consts.TileNameWall </span><span class="cov8" title="1">{
                                         planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)
                                 }</span>
                                 <span class="cov8" title="1">corridor = append(corridor, idx)</span>
@@ -21283,7 +21291,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) <span class="cov
                         // サイドは部屋に隣接するタイルをスキップして、接続部を1タイル幅に狭める
                         <span class="cov8" title="1">for _, p := range sidePoints </span><span class="cov8" title="1">{
                                 idx := planData.Level.CoordToIndex(p)
-                                if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Name == consts.TileNameWall </span><span class="cov8" title="1">{
+                                if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Id == consts.TileNameWall </span><span class="cov8" title="1">{
                                         if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) </span><span class="cov8" title="1">{
                                                 continue</span>
                                         }
@@ -22102,7 +22110,7 @@ func (r RuinsDebris) PlanMeta(planData *MetaPlan) error <span class="cov8" title
                 for y := 1; y &lt; height-1; y++ </span><span class="cov8" title="1">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 
-                        if planData.Tiles[idx].Name == r.FloorTile </span><span class="cov8" title="1">{
+                        if planData.Tiles[idx].Id == r.FloorTile </span><span class="cov8" title="1">{
                                 // 建物から離れた場所ほど瓦礫が少ない
                                 debrisChance := r.calculateDebrisChance(planData, x, y)
 
@@ -22193,7 +22201,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
                 // 70%の確率で通路を作成（部分的に破損）
                 <span class="cov8" title="1">if planData.RNG.Float64() &gt; 0.3 </span><span class="cov8" title="1">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-                        if planData.Tiles[idx].Name == r.WallTile </span><span class="cov8" title="1">{
+                        if planData.Tiles[idx].Id == r.WallTile </span><span class="cov8" title="1">{
                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)
                         }</span>
                 }
@@ -22210,7 +22218,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
                 // 70%の確率で通路を作成
                 <span class="cov8" title="1">if planData.RNG.Float64() &gt; 0.3 </span><span class="cov8" title="1">{
                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})
-                        if planData.Tiles[idx].Name == r.WallTile </span><span class="cov8" title="1">{
+                        if planData.Tiles[idx].Id == r.WallTile </span><span class="cov8" title="1">{
                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)
                         }</span>
                 }
@@ -22495,14 +22503,14 @@ import (
 func CreateTestRawMaster() *oapi.Raws <span class="cov8" title="1">{
         // テスト用の基本的なタイルデータを定義
         testTiles := []oapi.Tile{
-                {Name: "wall", BlockPass: true},
-                {Name: "floor", BlockPass: false},
-                {Name: "dirt", BlockPass: false},
-                {Name: "void", BlockPass: true},
-                {Name: "bridge_a", BlockPass: false},
-                {Name: "bridge_b", BlockPass: false},
-                {Name: "bridge_c", BlockPass: false},
-                {Name: "bridge_d", BlockPass: false},
+                {Id: "wall", Name: "wall", BlockPass: true},
+                {Id: "floor", Name: "floor", BlockPass: false},
+                {Id: "dirt", Name: "dirt", BlockPass: false},
+                {Id: "void", Name: "void", BlockPass: true},
+                {Id: "bridge_a", Name: "bridge_a", BlockPass: false},
+                {Id: "bridge_b", Name: "bridge_b", BlockPass: false},
+                {Id: "bridge_c", Name: "bridge_c", BlockPass: false},
+                {Id: "bridge_d", Name: "bridge_d", BlockPass: false},
         }
 
         // テスト用のアイテムテーブルを定義
@@ -22816,10 +22824,9 @@ func spawnTiles(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY c
         <span class="cov8" title="1">return nil</span>
 }
 
-// tileSpec は1種類のタイルをどう実体化するかの仕様。
-// プランナーが出力する論理名 tile.Name をキーに引く。
+// tileSpec は1種類のタイルをどう実体化するかの仕様。タイルの論理キー tile.Id で引く。
 type tileSpec struct {
-        // spawnName は生成するスプライト名。多くは論理名と同じだが wall→dwall のように異なるものもある
+        // spawnName は生成するスプライト名。多くは tile.Id と同じだが wall→dwall のように異なるものもある
         spawnName string
         // autotile は周囲を見てオートタイル添字を計算するか。void のように単一絵柄のタイルは false
         autotile bool
@@ -22841,7 +22848,7 @@ var (
 )
 
 // spawnTile は1タイルを生成する。
-// 通行可否で仕様表を選び、論理名 tile.Name で仕様を引いて実体化する。
+// 通行可否で仕様表を選び、tile.Id で仕様を引いて実体化する。
 func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i gc.TileIdx, tileX, tileY consts.Tile) (ecs.Entity, error) <span class="cov8" title="1">{
         specs := passableTileSpecs
         category := "walkable"
@@ -22850,15 +22857,15 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
                 category = "impassable"
         }</span>
 
-        <span class="cov8" title="1">spec, ok := specs[tile.Name]
+        <span class="cov8" title="1">spec, ok := specs[tile.Id]
         if !ok </span><span class="cov8" title="1">{
-                return gc.InvalidEntity, fmt.Errorf("unsupported %s tile name: %s (%d, %d)", category, tile.Name, int(tileX), int(tileY))
+                return gc.InvalidEntity, fmt.Errorf("unsupported %s tile id: %s (%d, %d)", category, tile.Id, int(tileX), int(tileY))
         }</span>
 
-        // オートタイル添字は論理名 tile.Name で計算する。生成スプライト名 spec.spawnName とは別物。
+        // オートタイル添字は tile.Id で計算する。生成スプライト名 spec.spawnName とは別物。
         <span class="cov8" title="1">var indexPtr *int
         if spec.autotile </span><span class="cov8" title="1">{
-                index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
+                index := int(metaPlan.CalculateAutoTileIndex(i, tile.Id))
                 indexPtr = &amp;index
         }</span>
         <span class="cov8" title="1">return lifecycle.SpawnTile(world, spec.spawnName, tileX, tileY, indexPtr)</span>
@@ -33771,10 +33778,10 @@ func drawRoadSegments(world w.World, tiles map[gc.GridElement]ecs.Entity, a, b, 
 func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) error <span class="cov8" title="1">{
         g := gc.GridElement{Coord: pos}
         e, ok := tiles[g]
-        if !ok || !world.ECS.Alive(e) || !world.Components.Name.Has(e) </span><span class="cov0" title="0">{
+        if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) </span><span class="cov0" title="0">{
                 return nil
         }</span>
-        <span class="cov8" title="1">if world.Components.Name.Get(e).Name != consts.TileNameDirt </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if world.Components.RawID.Get(e).ID != consts.TileNameDirt </span><span class="cov8" title="1">{
                 return nil
         }</span>
         <span class="cov8" title="1">return replaceTile(world, tiles, pos, consts.TileNameFloor)</span>
@@ -34117,7 +34124,7 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool <sp
 // isEarthTile は帯ローカル座標 pos が土系タイル、dirt か砂土、かを返す。道の floor や壁、他フィーチャの
 // 生成物は土系でないので散布から外れる。
 func isEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool <span class="cov8" title="1">{
-        return scatterEarthTiles[tileNameAt(world, tiles, pos)]
+        return scatterEarthTiles[tileIDAt(world, tiles, pos)]
 }</span>
 
 // hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ
@@ -34127,13 +34134,13 @@ func hashTileCoord(seed uint64, p consts.Coord[consts.Tile]) uint64 <span class=
         return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))
 }</span>
 
-// tileNameAt は帯ローカル座標 pos のタイル名を返す。タイルが無ければ空文字。
-func tileNameAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string <span class="cov8" title="1">{
+// tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。
+func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string <span class="cov8" title="1">{
         e, ok := tiles[gc.GridElement{Coord: pos}]
-        if !ok || !world.ECS.Alive(e) || !world.Components.Name.Has(e) </span><span class="cov0" title="0">{
+        if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) </span><span class="cov0" title="0">{
                 return ""
         }</span>
-        <span class="cov8" title="1">return world.Components.Name.Get(e).Name</span>
+        <span class="cov8" title="1">return world.Components.RawID.Get(e).ID</span>
 }
 
 // chunkChebyshev は2チャンク座標のチェビシェフ距離を返す。ゾーン判定の近接度に使う。
@@ -34386,19 +34393,19 @@ func RecalcAutotileInXRange(world w.World, loX, hiX consts.Tile) <span class="co
                         tiles[g] = e
                 }</span>
         }
-        <span class="cov8" title="1">nameOf := func(g gc.GridElement) (string, bool) </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">idOf := func(g gc.GridElement) (string, bool) </span><span class="cov8" title="1">{
                 e, ok := tiles[g]
-                if !ok || !world.Components.Name.Has(e) </span><span class="cov8" title="1">{
+                if !ok || !world.Components.RawID.Has(e) </span><span class="cov8" title="1">{
                         return "", false
                 }</span>
-                <span class="cov8" title="1">return world.Components.Name.Get(e).Name, true</span>
+                <span class="cov8" title="1">return world.Components.RawID.Get(e).ID, true</span>
         }
         <span class="cov8" title="1">for _, e := range tiles </span><span class="cov8" title="1">{
                 g := *world.Components.GridElement.Get(e)
                 if g.X &lt; loX || g.X &gt;= hiX </span><span class="cov8" title="1">{
                         continue</span>
                 }
-                <span class="cov8" title="1">recalcTileAutotile(world, e, g, nameOf)</span>
+                <span class="cov8" title="1">recalcTileAutotile(world, e, g, idOf)</span>
         }
 }
 
@@ -34431,12 +34438,12 @@ func recalcSeamAutotileAlong(world w.World, boundary consts.Tile, axis func(g gc
                 return
         }</span>
 
-        <span class="cov8" title="1">nameOf := func(g gc.GridElement) (string, bool) </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">idOf := func(g gc.GridElement) (string, bool) </span><span class="cov8" title="1">{
                 e, ok := tiles[g]
-                if !ok || !world.Components.Name.Has(e) </span><span class="cov8" title="1">{
+                if !ok || !world.Components.RawID.Has(e) </span><span class="cov8" title="1">{
                         return "", false
                 }</span>
-                <span class="cov8" title="1">return world.Components.Name.Get(e).Name, true</span>
+                <span class="cov8" title="1">return world.Components.RawID.Get(e).ID, true</span>
         }
 
         // 境界の2ラインを再計算する
@@ -34446,26 +34453,27 @@ func recalcSeamAutotileAlong(world w.World, boundary consts.Tile, axis func(g gc
                 if c != boundary-1 &amp;&amp; c != boundary </span><span class="cov8" title="1">{
                         continue</span>
                 }
-                <span class="cov8" title="1">recalcTileAutotile(world, e, g, nameOf)</span>
+                <span class="cov8" title="1">recalcTileAutotile(world, e, g, idOf)</span>
         }
 }
 
 // recalcTileAutotile は1タイルのオートタイル SpriteKey を4近傍から再計算する。
-func recalcTileAutotile(world w.World, e ecs.Entity, g gc.GridElement, nameOf func(gc.GridElement) (string, bool)) <span class="cov8" title="1">{
-        if !world.Components.Name.Has(e) </span><span class="cov0" title="0">{
+func recalcTileAutotile(world w.World, e ecs.Entity, g gc.GridElement, idOf func(gc.GridElement) (string, bool)) <span class="cov8" title="1">{
+        if !world.Components.RawID.Has(e) </span><span class="cov8" title="1">{
                 return
         }</span>
-        <span class="cov8" title="1">self := world.Components.Name.Get(e).Name
+        <span class="cov8" title="1">self := world.Components.RawID.Get(e).ID
         sr := world.Components.SpriteRender.Get(e)
         base, ok := autotileBase(sr.SpriteKey)
         if !ok </span><span class="cov8" title="1">{
                 return // オートタイルでないタイルはスキップする。数値サフィックスが無い void 等が該当する
         }</span>
 
-        // 同名タイルとだけ接続する。ビット割り当ては mapplanner.AutoTileBits に集約し、生成時の
-        // CalculateAutoTileIndex と継ぎ目再計算でビットがずれないようにする。
+        // 同 id タイルとだけ接続する。表示名は色違いをまとめるので接続判定には使わない。ビット割り当ては
+        // mapplanner.AutoTileBits に集約し、生成時の CalculateAutoTileIndex と継ぎ目再計算でビットがずれない
+        // ようにする。
         <span class="cov8" title="1">same := func(x, y consts.Tile) bool </span><span class="cov8" title="1">{
-                n, ok := nameOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+                n, ok := idOf(gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
                 return ok &amp;&amp; n == self
         }</span>
         <span class="cov8" title="1">up := same(g.X, g.Y-1)
@@ -35529,10 +35537,10 @@ func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) <span c
 
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
-func GetTile(raws oapi.Raws, name string) (oapi.Tile, error) <span class="cov8" title="1">{
-        tile, ok := findByKey(raws.Tiles, func(t oapi.Tile) string </span><span class="cov8" title="1">{ return t.Name }</span>, name)
+func GetTile(raws oapi.Raws, id string) (oapi.Tile, error) <span class="cov8" title="1">{
+        tile, ok := findByKey(raws.Tiles, func(t oapi.Tile) string </span><span class="cov8" title="1">{ return t.Id }</span>, id)
         <span class="cov8" title="1">if !ok </span><span class="cov8" title="1">{
-                return oapi.Tile{}, NewKeyNotFoundError(name, "Tiles")
+                return oapi.Tile{}, NewKeyNotFoundError(id, "Tiles")
         }</span>
         <span class="cov8" title="1">return tile, nil</span>
 }
@@ -38088,9 +38096,8 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
                         }
                 case gc.InteractionTalk:<span class="cov0" title="0">
                         if world.Components.Name.Has(interactableEntity) </span><span class="cov0" title="0">{
-                                name := world.Components.Name.Get(interactableEntity)
                                 result = append(result, InteractionAction{
-                                        Label:       query.T(world, "Talk (%s)", name.Name),
+                                        Label:       query.T(world, "Talk (%s)", query.GetEntityName(interactableEntity, world)),
                                         Target:      interactableEntity,
                                         Interaction: interaction,
                                 })
@@ -38122,27 +38129,24 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
                         })</span>
                 case gc.InteractionStorage:<span class="cov0" title="0">
                         if world.Components.Name.Has(interactableEntity) </span><span class="cov0" title="0">{
-                                name := world.Components.Name.Get(interactableEntity)
                                 result = append(result, InteractionAction{
-                                        Label:       query.T(world, "Inspect (%s)", name.Name),
+                                        Label:       query.T(world, "Inspect (%s)", query.GetEntityName(interactableEntity, world)),
                                         Target:      interactableEntity,
                                         Interaction: interaction,
                                 })
                         }</span>
                 case gc.InteractionMelee:<span class="cov8" title="1">
                         if world.Components.Name.Has(interactableEntity) </span><span class="cov8" title="1">{
-                                name := world.Components.Name.Get(interactableEntity)
                                 result = append(result, InteractionAction{
-                                        Label:       query.T(world, "Attack (%s)", name.Name),
+                                        Label:       query.T(world, "Attack (%s)", query.GetEntityName(interactableEntity, world)),
                                         Target:      interactableEntity,
                                         Interaction: interaction,
                                 })
                         }</span>
                 case gc.InteractionDisassemble:<span class="cov0" title="0">
                         if world.Components.Name.Has(interactableEntity) </span><span class="cov0" title="0">{
-                                name := world.Components.Name.Get(interactableEntity)
                                 result = append(result, InteractionAction{
-                                        Label:       query.T(world, "Disassemble (%s)", name.Name),
+                                        Label:       query.T(world, "Disassemble (%s)", query.GetEntityName(interactableEntity, world)),
                                         Target:      interactableEntity,
                                         Interaction: interaction,
                                 })
@@ -38256,7 +38260,7 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error <span class="co
 
         ki := input.GetSharedKeyboardInput()
         if ki.IsKeyJustPressed(ebiten.KeyX) &amp;&amp; !ki.IsKeyPressed(ebiten.KeyShift) </span><span class="cov0" title="0">{
-                o.detail.Open()
+                o.detail.Open(world)
         }</span> else<span class="cov0" title="0"> if action, ok := menurt.HandleMenuInput(); ok </span><span class="cov0" title="0">{
                 switch action </span>{
                 case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:<span class="cov0" title="0">
@@ -38371,7 +38375,7 @@ func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []stat
         if query.AliveHas(world, world.Components.Profession, player) </span><span class="cov8" title="1">{
                 profComp := world.Components.Profession.Get(player)
                 if prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID); err == nil </span><span class="cov8" title="1">{
-                        professionName = prof.Name
+                        professionName = query.T(world, prof.Name)
                 }</span>
         }
 
@@ -38794,7 +38798,7 @@ func (st *CharacterJobState) View(world w.World, props JobMenuProps, cursor menu
         leftContainer := styled.NewVerticalContainer()
         rows := make([]menuRow, len(props.Items))
         for i := range props.Items </span><span class="cov8" title="1">{
-                rows[i] = menuRow{Cells: []string{props.Items[i].Profession.Name}}
+                rows[i] = menuRow{Cells: []string{query.T(world, props.Items[i].Profession.Name)}}
         }</span>
         <span class="cov8" title="1">leftContainer.AddChild(renderMenuList(itemIndex, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
         rightContainer := st.buildDetailPanel(world, props, itemIndex, res)
@@ -38809,7 +38813,7 @@ func (st *CharacterJobState) View(world w.World, props JobMenuProps, cursor menu
         )
         description := ""
         if itemIndex &lt; len(props.Items) </span><span class="cov8" title="1">{
-                description = props.Items[itemIndex].Profession.Description
+                description = query.T(world, props.Items[itemIndex].Profession.Description)
         }</span>
         <span class="cov8" title="1">descriptionText := widget.NewText(
                 widget.TextOpts.Text(description, &amp;res.Text.SmallFace, theme.TextAccent),
@@ -38857,7 +38861,7 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
                         if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok </span><span class="cov8" title="1">{
                                 slotLabel = query.T(world, slot.String())
                         }</span>
-                        <span class="cov8" title="1">container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, raw.ItemName(world.Resources.RawMaster, equip.Name)), res))</span>
+                        <span class="cov8" title="1">container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, query.T(world, raw.ItemName(world.Resources.RawMaster, equip.Name))), res))</span>
                 }
         }
 
@@ -38865,7 +38869,7 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
         <span class="cov8" title="1">if len(prof.Items) &gt; 0 </span><span class="cov8" title="1">{
                 container.AddChild(styled.NewDescriptionText(query.T(world, "Items"), res))
                 for _, item := range prof.Items </span><span class="cov8" title="1">{
-                        container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", raw.ItemName(world.Resources.RawMaster, item.Name), item.Count), res))
+                        container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", query.T(world, raw.ItemName(world.Resources.RawMaster, item.Name)), item.Count), res))
                 }</span>
         }
 
@@ -39324,7 +39328,7 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
                 if charTabAt(st.screen.Selection().TabIndex) == charTabCommand </span><span class="cov0" title="0">{
                         return es.Transition[w.World]{Type: es.TransNone}, nil
                 }</span>
-                <span class="cov0" title="0">st.detail.Open()
+                <span class="cov0" title="0">st.detail.Open(world)
                 return es.Transition[w.World]{Type: es.TransNone}, nil</span>
         case inputmapper.ActionMenuSelect:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)</span>
@@ -39370,7 +39374,7 @@ func (st *CharacterState) onBrowseSelect(world w.World) error <span class="cov0"
                         st.cycleCommand(world, row.Kind)
                 }</span>
         default:<span class="cov0" title="0">
-                st.detail.Open()</span>
+                st.detail.Open(world)</span>
         }
         <span class="cov0" title="0">return nil</span>
 }
@@ -39647,7 +39651,7 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData <span cl
         for i, weapon := range weapons </span><span class="cov8" title="1">{
                 name := ""
                 if weapon != nil </span><span class="cov0" title="0">{
-                        name = world.Components.Name.Get(*weapon).Name
+                        name = query.GetEntityName(*weapon, world)
                 }</span>
                 <span class="cov8" title="1">items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})</span>
         }
@@ -39660,7 +39664,7 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData <span cl
         for i, slot := range armor </span><span class="cov8" title="1">{
                 name := ""
                 if slot != nil </span><span class="cov8" title="1">{
-                        name = world.Components.Name.Get(*slot).Name
+                        name = query.GetEntityName(*slot, world)
                 }</span>
                 <span class="cov8" title="1">items = append(items, equipItemData{SlotLabel: armorLabels[i], ItemName: name, SlotNumber: armorSlots[i], Entity: slot, Member: player})</span>
         }
@@ -39719,11 +39723,11 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 func entityDetailContent(world w.World, entity ecs.Entity) menuscreen.DetailContent <span class="cov0" title="0">{
         name := ""
         if world.Components.Name.Has(entity) </span><span class="cov0" title="0">{
-                name = world.Components.Name.Get(entity).Name
+                name = query.T(world, world.Components.Name.Get(entity).Name)
         }</span>
         <span class="cov0" title="0">desc := ""
         if world.Components.Description.Has(entity) </span><span class="cov0" title="0">{
-                desc = world.Components.Description.Get(entity).Description
+                desc = query.T(world, world.Components.Description.Get(entity).Description)
         }</span>
         <span class="cov0" title="0">return menuscreen.DetailContent{Name: name, Desc: desc, Entity: entity}</span>
 }
@@ -39830,7 +39834,7 @@ func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex i
                 content.AddChild(styled.NewDescriptionText(query.T(world, "Nothing to equip"), res))
         }</span>
         <span class="cov0" title="0">for i, entity := range props.Items </span><span class="cov0" title="0">{
-                name := world.Components.Name.Get(entity).Name
+                name := query.GetEntityName(entity, world)
                 content.AddChild(styled.NewListItemText(name, theme.TextSecondary, i == selectedIndex, res))
         }</span>
         <span class="cov0" title="0">win.SetLocation(rect)
@@ -40195,7 +40199,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:<span class="cov8" title="1">
                 return es.Transition[w.World]{Type: es.TransPop}, nil</span>
         case inputmapper.ActionOpenItemDetail:<span class="cov0" title="0">
-                st.detail.Open()</span>
+                st.detail.Open(world)</span>
         case inputmapper.ActionMenuSelect:<span class="cov8" title="1">
                 if err := st.craftSelected(world); err != nil </span><span class="cov0" title="0">{
                         return es.Transition[w.World]{}, err
@@ -40340,7 +40344,7 @@ func (st *CraftMenuState) craftSelected(world w.World) error <span class="cov8" 
                 return fmt.Errorf("failed to craft: %w", err)
         }</span>
         <span class="cov0" title="0">st.resultEntity = resultEntity
-        st.result.Open()
+        st.result.Open(world)
         return nil</span>
 }
 
@@ -40430,7 +40434,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
                         if owned &gt;= in.Amount </span><span class="cov0" title="0">{
                                 rowColor = theme.StatusSuccess
                         }</span>
-                        <span class="cov0" title="0">label := raw.ItemName(world.Resources.RawMaster, in.ID)
+                        <span class="cov0" title="0">label := query.T(world, raw.ItemName(world.Resources.RawMaster, in.ID))
                         rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &amp;rowColor})</span>
                 }
         }
@@ -40438,7 +40442,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 
         desc := ""
         if spec.Description != nil </span><span class="cov0" title="0">{
-                desc = spec.Description.Description
+                desc = query.T(world, spec.Description.Description)
         }</span>
         <span class="cov0" title="0">return menuscreen.DetailContent{Name: item.RecipeName, Desc: desc, Rows: rows}, true</span>
 }
@@ -41801,8 +41805,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
                 if !world.Components.Name.Has(p.SpeakerEntity) </span><span class="cov0" title="0">{
                         return es.Transition[w.World]{}, fmt.Errorf("speaker entity does not have Name component")
                 }</span>
-                <span class="cov0" title="0">nameComp := world.Components.Name.Get(p.SpeakerEntity)
-                speakerName := nameComp.Name
+                <span class="cov0" title="0">speakerName := query.GetEntityName(p.SpeakerEntity, world)
 
                 // NPCの種類に応じて専用ステートを返す
                 switch p.MessageKey </span>{
@@ -41901,8 +41904,8 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) <span cl
 
                 if weapon != nil </span><span class="cov0" title="0">{
                         // 武器が装備されている場合は武器名を表示
-                        if nameComp := world.Components.Name.Get(*weapon); nameComp != nil </span><span class="cov0" title="0">{
-                                weaponName := nameComp.Name
+                        if world.Components.Name.Has(*weapon) </span><span class="cov0" title="0">{
+                                weaponName := query.GetEntityName(*weapon, world)
                                 gamelog.New(query.GetGameLog(world)).
                                         Markup(query.T(world, "Readied %s.", gamelog.Tag("item", weaponName))).
                                         Log()
@@ -42639,7 +42642,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransPop}, nil</span>
         case inputmapper.ActionOpenItemDetail:<span class="cov8" title="1">
-                st.detail.Open()
+                st.detail.Open(world)
                 return es.Transition[w.World]{Type: es.TransNone}, nil</span>
         case inputmapper.ActionMenuSelect:<span class="cov0" title="0">
                 return st.executeSelected(world)</span>
@@ -42668,7 +42671,7 @@ func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World
         }</span>
         <span class="cov0" title="0">verb := vs[cursor.TabIndex]
         if verb.Exec == nil </span><span class="cov0" title="0">{
-                st.detail.Open()
+                st.detail.Open(world)
                 return es.Transition[w.World]{Type: es.TransNone}, nil
         }</span>
 
@@ -42744,14 +42747,14 @@ func playerBackpackItems(world w.World, player ecs.Entity) []ecs.Entity <span cl
 func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry <span class="cov8" title="1">{
         entry := itemActionEntry{
                 Entity: entity,
-                Name:   world.Components.Name.Get(entity).Name,
+                Name:   query.GetEntityName(entity, world),
                 Weight: query.GetEntityWeight(world, entity).KgString(),
         }
         if world.Components.Stackable.Has(entity) </span><span class="cov8" title="1">{
                 entry.Count = world.Components.Stackable.Get(entity).Count
         }</span>
         <span class="cov8" title="1">if world.Components.Description.Has(entity) </span><span class="cov8" title="1">{
-                entry.Desc = world.Components.Description.Get(entity).Description
+                entry.Desc = query.T(world, world.Components.Description.Get(entity).Description)
         }</span>
         <span class="cov8" title="1">return entry</span>
 }
@@ -44944,7 +44947,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:<span class="cov8" title="1">
                 return es.Transition[w.World]{Type: es.TransPop}, nil</span>
         case inputmapper.ActionOpenItemDetail:<span class="cov0" title="0">
-                st.detail.Open()</span>
+                st.detail.Open(world)</span>
         case inputmapper.ActionMenuSelect:<span class="cov8" title="1">
                 if err := st.buySellSelected(world); err != nil </span><span class="cov0" title="0">{
                         return es.Transition[w.World]{}, err
@@ -45025,7 +45028,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
                 price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemID, true))
                 canAfford := currency &gt;= price
 
-                label := raw.ItemName(world.Resources.RawMaster, itemID)
+                label := query.T(world, raw.ItemName(world.Resources.RawMaster, itemID))
 
                 items = append(items, shopItemData{
                         ItemID:   itemID,
@@ -45057,7 +45060,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 
                         items = append(items, shopItemData{
                                 ItemID: rawID.ID,
-                                Label:  nameComp.Name,
+                                Label:  query.T(world, nameComp.Name),
                                 Weight: query.GetEntityWeight(world, entity).KgString(),
                                 Price:  price,
                                 Count:  count,
@@ -45165,7 +45168,7 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
         // 価格・重さは一覧に出すので、詳細の説明は raw のアイテム説明だけにする
         <span class="cov0" title="0">desc := ""
         if spec.Description != nil </span><span class="cov0" title="0">{
-                desc = spec.Description.Description
+                desc = query.T(world, spec.Description.Description)
         }</span>
         <span class="cov0" title="0">return menuscreen.DetailContent{Name: item.Label, Desc: desc, Spec: &amp;spec}, true</span>
 }
@@ -45295,7 +45298,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransPop}, nil</span>
         case inputmapper.ActionOpenItemDetail:<span class="cov0" title="0">
-                st.detail.Open()</span>
+                st.detail.Open(world)</span>
         case inputmapper.ActionMenuSelect:<span class="cov0" title="0">
                 if err := st.executeTransfer(world); err != nil </span><span class="cov0" title="0">{
                         return es.Transition[w.World]{}, err
@@ -45454,7 +45457,7 @@ func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailConte
         }</span>
         <span class="cov0" title="0">desc := ""
         if world.Components.Description.Has(e) </span><span class="cov0" title="0">{
-                desc = world.Components.Description.Get(e).Description
+                desc = query.T(world, world.Components.Description.Get(e).Description)
         }</span>
         <span class="cov0" title="0">return menuscreen.DetailContent{Name: query.GetEntityName(e, world), Desc: desc, Entity: e}, true</span>
 }
@@ -45555,12 +45558,12 @@ func (st *TavernMenuState) ExtraInput() (inputmapper.ActionID, bool) <span class
 }
 
 // DoAction はアクションを実行してステート遷移を返す
-func (st *TavernMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) <span class="cov0" title="0">{
+func (st *TavernMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) <span class="cov0" title="0">{
         switch action </span>{
         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:<span class="cov0" title="0">
                 return es.Transition[w.World]{Type: es.TransPop}, nil</span>
         case inputmapper.ActionOpenItemDetail:<span class="cov0" title="0">
-                st.detail.Open()</span>
+                st.detail.Open(world)</span>
         case inputmapper.ActionMenuSelect:<span class="cov0" title="0">
                 st.actionWin.Open()</span>
         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:<span class="cov0" title="0"></span>
@@ -46754,7 +46757,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData <span class="cov8
                         if weapon != nil </span><span class="cov8" title="1">{
                                 // 武器名を取得
                                 if nameComp := world.Components.Name.Get(*weapon); nameComp != nil </span><span class="cov8" title="1">{
-                                        weaponName = nameComp.Name
+                                        weaponName = query.T(world, nameComp.Name)
                                 }</span> else<span class="cov0" title="0"> {
                                         weaponName = "???"
                                 }</span>
@@ -50735,18 +50738,22 @@ type Detail struct {
 
 // NewDetail は現在カーソルが指す対象の詳細内容を返す provide を受け取り Detail を作る。
 // provide は対象が無ければ ok=false を返す
-func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail <span class="cov0" title="0">{
+func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail <span class="cov8" title="1">{
         return Detail{provide: provide}
 }</span>
 
 // Active は詳細モーダルを表示中かを返す
-func (d *Detail) Active() bool <span class="cov0" title="0">{ return d.active }</span>
+func (d *Detail) Active() bool <span class="cov8" title="1">{ return d.active }</span>
 
-// Open は詳細モーダルを先頭ページで開く
-func (d *Detail) Open() <span class="cov0" title="0">{
-        d.active = true
-        d.page = 0
-}</span>
+// Open は詳細モーダルを先頭ページで開く。出す内容が無ければ開かない。
+// アイテムが無いメニューで開くと、中身の無いモーダルが入力を奪って抜けられなくなるのを防ぐ。
+func (d *Detail) Open(world w.World) <span class="cov8" title="1">{
+        if _, ok := d.provide(world); !ok </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">d.active = true
+        d.page = 0</span>
+}
 
 // HandleInput は表示中のキー入力を処理する。ページ数は provide の内容から自身で算出する。
 // 表示中でなければ何もしない。
@@ -55928,9 +55935,9 @@ func GetEntityCount(world w.World, entity ecs.Entity) int <span class="cov8" tit
 // 名前はNameコンポーネントから取得し、見つからない場合は "Unknown Item" を返す。
 // 個数が1以下の場合は名前のみ、2以上の場合は "名前(個数)" の形式で返す
 func FormatItemName(world w.World, itemEntity ecs.Entity) string <span class="cov8" title="1">{
-        name := "Unknown Item"
+        name := T(world, "Unknown Item")
         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil </span><span class="cov8" title="1">{
-                name = nameComp.Name
+                name = T(world, nameComp.Name)
         }</span>
 
         <span class="cov8" title="1">count := GetEntityCount(world, itemEntity)
@@ -56001,12 +56008,13 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
-// GetEntityName はエンティティの表示名を取得する
+// GetEntityName はエンティティの表示名を現在言語で返す。Name コンポーネントの英語原文を
+// query.T で訳す。移行中の未訳 name は原文フォールバックでそのまま返る
 func GetEntityName(entity ecs.Entity, world w.World) string <span class="cov8" title="1">{
         if !world.ECS.Alive(entity) || !world.Components.Name.Has(entity) </span><span class="cov0" title="0">{
-                return "Unknown"
+                return T(world, "Unknown")
         }</span>
-        <span class="cov8" title="1">return world.Components.Name.Get(entity).Name</span>
+        <span class="cov8" title="1">return T(world, world.Components.Name.Get(entity).Name)</span>
 }
 
 // GetEntityID はエンティティの同定キーを返す。raw 定義やレシピ参照との照合に使う。

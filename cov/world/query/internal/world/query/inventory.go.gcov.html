@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 09:05:00</td>
+            <td class="headerValue">2026-08-08 11:21:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -123,9 +123,9 @@
 <span id="L61"><span class="lineNum">      61</span>              : // 名前はNameコンポーネントから取得し、見つからない場合は &quot;Unknown Item&quot; を返す。</span>
 <span id="L62"><span class="lineNum">      62</span>              : // 個数が1以下の場合は名前のみ、2以上の場合は &quot;名前(個数)&quot; の形式で返す</span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 : func FormatItemName(world w.World, itemEntity ecs.Entity) string {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         name := &quot;Unknown Item&quot;</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         name := T(world, &quot;Unknown Item&quot;)</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           2 :         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 name = nameComp.Name</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 name = T(world, nameComp.Name)</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         count := GetEntityCount(world, itemEntity)</span></span>

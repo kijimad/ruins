@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 09:05:00</td>
+            <td class="headerValue">2026-08-08 11:21:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                         // 中心線は無条件に床に変換する</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           2 :                         for _, p := range centerPoints {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                                 idx := planData.Level.CoordToIndex(p)</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :                                 if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Name == consts.TileNameWall {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :                                 if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Id == consts.TileNameWall {</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                                         planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                                 }</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                                 corridor = append(corridor, idx)</span></span>
@@ -141,7 +141,7 @@
 <span id="L79"><span class="lineNum">      79</span>              :                         // サイドは部屋に隣接するタイルをスキップして、接続部を1タイル幅に狭める</span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           2 :                         for _, p := range sidePoints {</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                                 idx := planData.Level.CoordToIndex(p)</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           2 :                                 if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Name == consts.TileNameWall {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           2 :                                 if isValidTileIdx(planData, idx) &amp;&amp; planData.Tiles[idx].Id == consts.TileNameWall {</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           2 :                                         if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) {</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                                                 continue</span></span>
 <span id="L85"><span class="lineNum">      85</span>              :                                         }</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 09:05:00</td>
+            <td class="headerValue">2026-08-08 11:21:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -304,7 +304,7 @@
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC tlaBgGNC">           1 :         case inputmapper.ActionOpenItemDetail:</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 st.detail.Open()</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 st.detail.Open(world)</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                 return st.executeSelected(world)</span></span>
@@ -333,7 +333,7 @@
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         verb := vs[cursor.TabIndex]</span></span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         if verb.Exec == nil {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 st.detail.Open()</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L277"><span class="lineNum">     277</span>              : </span>
@@ -409,14 +409,14 @@
 <span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 : func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {</span></span>
 <span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         entry := itemActionEntry{</span></span>
 <span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :                 Entity: entity,</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 Name:   world.Components.Name.Get(entity).Name,</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 Name:   query.GetEntityName(entity, world),</span></span>
 <span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :                 Weight: query.GetEntityWeight(world, entity).KgString(),</span></span>
 <span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           2 :         if world.Components.Stackable.Has(entity) {</span></span>
 <span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :                 entry.Count = world.Components.Stackable.Get(entity).Count</span></span>
 <span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           2 :         if world.Components.Description.Has(entity) {</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :                 entry.Desc = world.Components.Description.Get(entity).Description</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :                 entry.Desc = query.T(world, world.Components.Description.Get(entity).Description)</span></span>
 <span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :         return entry</span></span>
 <span id="L360"><span class="lineNum">     360</span>              : }</span>

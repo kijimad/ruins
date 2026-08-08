@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 09:05:00</td>
+            <td class="headerValue">2026-08-08 11:21:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -194,7 +194,7 @@
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           2 :                 for y := 1; y &lt; height-1; y++ {</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           2 :                         if planData.Tiles[idx].Name == r.FloorTile {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           2 :                         if planData.Tiles[idx].Id == r.FloorTile {</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                                 // 建物から離れた場所ほど瓦礫が少ない</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                                 debrisChance := r.calculateDebrisChance(planData, x, y)</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 : </span></span>
@@ -285,7 +285,7 @@
 <span id="L223"><span class="lineNum">     223</span>              :                 // 70%の確率で通路を作成（部分的に破損）</span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           2 :                 if planData.RNG.Float64() &gt; 0.3 {</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           2 :                         if planData.Tiles[idx].Name == r.WallTile {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           2 :                         if planData.Tiles[idx].Id == r.WallTile {</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L229"><span class="lineNum">     229</span>              :                 }</span>
@@ -302,7 +302,7 @@
 <span id="L240"><span class="lineNum">     240</span>              :                 // 70%の確率で通路を作成</span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           2 :                 if planData.RNG.Float64() &gt; 0.3 {</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                         idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: currentX, Y: currentY})</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           2 :                         if planData.Tiles[idx].Name == r.WallTile {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           2 :                         if planData.Tiles[idx].Id == r.WallTile {</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                                 planData.Tiles[idx] = planData.GetTile(r.FloorTile)</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L246"><span class="lineNum">     246</span>              :                 }</span>

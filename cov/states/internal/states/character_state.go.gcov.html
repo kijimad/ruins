@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 09:05:00</td>
+            <td class="headerValue">2026-08-08 11:21:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -208,7 +208,7 @@
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 if charTabAt(st.screen.Selection().TabIndex) == charTabCommand {</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 st.detail.Open()</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)</span></span>
@@ -254,7 +254,7 @@
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                         st.cycleCommand(world, row.Kind)</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 st.detail.Open()</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
 <span id="L196"><span class="lineNum">     196</span>              :         }</span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L198"><span class="lineNum">     198</span>              : }</span>
@@ -531,7 +531,7 @@
 <span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           2 :         for i, weapon := range weapons {</span></span>
 <span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                 name := &quot;&quot;</span></span>
 <span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                 if weapon != nil {</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC tlaBgUNC">           0 :                         name = world.Components.Name.Get(*weapon).Name</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC tlaBgUNC">           0 :                         name = query.GetEntityName(*weapon, world)</span></span>
 <span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC tlaBgGNC">           1 :                 items = append(items, equipItemData{SlotLabel: query.T(world, &quot;Weapon %d&quot;, i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})</span></span>
 <span id="L475"><span class="lineNum">     475</span>              :         }</span>
@@ -544,7 +544,7 @@
 <span id="L482"><span class="lineNum">     482</span> <span class="tlaGNC">           2 :         for i, slot := range armor {</span></span>
 <span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           1 :                 name := &quot;&quot;</span></span>
 <span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           2 :                 if slot != nil {</span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                         name = world.Components.Name.Get(*slot).Name</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                         name = query.GetEntityName(*slot, world)</span></span>
 <span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :                 items = append(items, equipItemData{SlotLabel: armorLabels[i], ItemName: name, SlotNumber: armorSlots[i], Entity: slot, Member: player})</span></span>
 <span id="L488"><span class="lineNum">     488</span>              :         }</span>
@@ -603,11 +603,11 @@
 <span id="L541"><span class="lineNum">     541</span> <span class="tlaUNC tlaBgUNC">           0 : func entityDetailContent(world w.World, entity ecs.Entity) menuscreen.DetailContent {</span></span>
 <span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :         name := &quot;&quot;</span></span>
 <span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :         if world.Components.Name.Has(entity) {</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 name = world.Components.Name.Get(entity).Name</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 name = query.T(world, world.Components.Name.Get(entity).Name)</span></span>
 <span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :         desc := &quot;&quot;</span></span>
 <span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :         if world.Components.Description.Has(entity) {</span></span>
-<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :                 desc = world.Components.Description.Get(entity).Description</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :                 desc = query.T(world, world.Components.Description.Get(entity).Description)</span></span>
 <span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :         return menuscreen.DetailContent{Name: name, Desc: desc, Entity: entity}</span></span>
 <span id="L551"><span class="lineNum">     551</span>              : }</span>
