@@ -16,12 +16,11 @@ type relSpot struct {
 	dy   consts.Tile
 }
 
-// villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店(商人)・雇用(酒場の主人)・
-// 合成(怪しい科学者)を開く。小集落は無状態の補給地で、stash となる収納は置かない。
+// villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店の売買と雇用を商人が、
+// 合成を怪しい科学者が開く。小集落は無状態の補給地で、stash となる収納は置かない。
 // フィールドにアイテムを残さない方針のため、seed からの決定的再生成と整合する。
 var villageNPCs = []relSpot{
 	{"merchant", -2, -1},
-	{"tavern_keeper", -2, 1},
 	{"suspicious_scientist", -4, 0},
 }
 
@@ -79,8 +78,15 @@ func spawnSettlement(world w.World, center consts.Coord[consts.Tile], village bo
 	}
 	for _, n := range npcs {
 		pos := consts.Coord[consts.Tile]{X: center.X + n.dx, Y: center.Y + n.dy}
-		if _, err := lifecycle.SpawnNeutralNPC(world, pos, n.name); err != nil {
+		npc, err := lifecycle.SpawnNeutralNPC(world, pos, n.name)
+		if err != nil {
 			return fmt.Errorf("failed to place settlement NPC (%s): %w", n.name, err)
+		}
+		// 商人は品揃えを在庫として持つ。売買と雇用はこの在庫を出し入れする
+		if n.name == "merchant" {
+			if err := lifecycle.PopulateMerchantStock(world, npc, world.Config.RNG); err != nil {
+				return fmt.Errorf("failed to stock merchant: %w", err)
+			}
 		}
 	}
 	for _, p := range props {

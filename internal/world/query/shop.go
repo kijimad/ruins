@@ -1,6 +1,7 @@
 package query
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -27,4 +28,30 @@ func GetItemValue(world w.World, entity ecs.Entity) int {
 		return 0
 	}
 	return world.Components.Value.Get(entity).Value
+}
+
+// recruitValueMultiplier は隊員候補の能力値合計に掛ける基準価値の係数
+const recruitValueMultiplier = 30
+
+// IsRecruit は在庫実体が隊員候補かを返す。Abilities を持つ実体を候補とみなす。
+// 商人の収納にはアイテムと隊員候補が混在するため、この判別で扱いを分ける
+func IsRecruit(world w.World, entity ecs.Entity) bool {
+	return world.Components.Abilities.Has(entity)
+}
+
+// RecruitValue は隊員候補の基準価値を能力値合計から算出する。売買価格の元になる
+func RecruitValue(a gc.Abilities) int {
+	total := a.Vitality.Base + a.Strength.Base + a.Sensation.Base +
+		a.Dexterity.Base + a.Agility.Base + a.Defense.Base
+	return total * recruitValueMultiplier
+}
+
+// StockBaseValue は在庫実体1件の基準価値を返す。隊員候補は能力値から、アイテムは Value から出し、
+// 個数を掛けた実体まるごとの価値にする。買値・売値はこの値を CalculateBuyPrice/SellPrice に通して出す
+func StockBaseValue(world w.World, entity ecs.Entity) int {
+	count := GetEntityCount(world, entity)
+	if IsRecruit(world, entity) {
+		return RecruitValue(*world.Components.Abilities.Get(entity)) * count
+	}
+	return GetItemValue(world, entity) * count
 }

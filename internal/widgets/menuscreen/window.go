@@ -7,7 +7,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -16,20 +15,6 @@ import (
 // detailRowsPerPage は詳細ウィンドウ1ページに収める性能行の数。
 // 行数でページ分割することで、短い項目は1ページに収まり、行の多い項目だけがはみ出さないよう分割される
 const detailRowsPerPage = 12
-
-// BuildActionWindow は選択肢を縦に並べるサブウィンドウを組み立て、rect の位置に置く。
-// selectedIndex の行にカーソルを表示する。title が空でもヘッダ帯は描かれる
-func BuildActionWindow(world w.World, rect image.Rectangle, title string, actions []string, selectedIndex int) *widget.Window {
-	res := world.Resources.UIResources
-	content := styled.NewWindowContainer(res)
-	header := styled.NewWindowHeaderContainer(title, res)
-	window := styled.NewSmallWindow(header, content)
-	for i, action := range actions {
-		content.AddChild(styled.NewListItemText(action, theme.TextSecondary, i == selectedIndex, res))
-	}
-	window.SetLocation(rect)
-	return window
-}
 
 // detailPageCount は行数からページ数を返す。行が無くても1を返す
 func detailPageCount(rowCount int) int {

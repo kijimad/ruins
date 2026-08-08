@@ -24,11 +24,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ShopMenuState はショップメニューのゲームステート
+// ShopMenuState はショップメニューのゲームステート。
+// 商人の在庫を売買する。買うと在庫が減り、売ると売った品が在庫に並ぶ
 type ShopMenuState struct {
 	es.BaseState[w.World]
-	detail menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen *menurt.Screen[ShopProps]
+	merchant ecs.Entity        // 品揃えを LocationInStorage で持つ商人。売買の相手
+	detail   menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen   *menurt.Screen[ShopProps]
 }
 
 // State interface ================
@@ -102,14 +104,15 @@ type shopTabData struct {
 }
 
 type shopItemData struct {
-	ItemID   string // アイテムの同定キー。NewItemSpec/BuyItem/価格はこれで引く
-	Label    string // 表示名
-	Weight   string
-	Price    int
-	Count    int // 売却時のアイテム個数
-	Entity   ecs.Entity
-	IsBuy    bool
-	Disabled bool
+	Entity    ecs.Entity // 在庫・持ち物の実体。買=これを移動、売=これを移動、雇用=これを活性化
+	ItemID    string     // アイテムの raw 同定キー。詳細表示に使う。隊員候補は空
+	Label     string     // 表示名
+	Weight    string
+	Price     int
+	Count     int // 実体の個数
+	IsBuy     bool
+	IsRecruit bool // 隊員候補なら真。買うと雇用になる
+	Disabled  bool
 }
 
 // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
@@ -146,29 +149,37 @@ func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, se
 	}
 }
 
+// createBuyItems は商人の在庫を買いタブへ並べる。アイテムと隊員候補が同列に並ぶ
 func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod consts.Percent) []shopItemData {
-	shopInventory := gameaction.GetShopInventory()
-	items := make([]shopItemData, 0, len(shopInventory))
+	stock := query.GetStorageItems(world, st.merchant)
+	items := make([]shopItemData, 0, len(stock))
 
-	for _, itemID := range shopInventory {
-		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemID, true))
-		canAfford := currency >= price
-
-		label := query.T(world, raw.ItemName(world.Resources.RawMaster, itemID))
-
-		items = append(items, shopItemData{
-			ItemID:   itemID,
-			Label:    label,
-			Weight:   shopItemWeight(world, itemID),
-			Price:    price,
-			IsBuy:    true,
-			Disabled: !canAfford,
-		})
+	for _, entity := range stock {
+		price := buyPriceMod.ApplyInt(query.CalculateBuyPrice(query.StockBaseValue(world, entity)))
+		data := shopItemData{
+			Entity:    entity,
+			Price:     price,
+			Count:     query.GetEntityCount(world, entity),
+			IsBuy:     true,
+			IsRecruit: query.IsRecruit(world, entity),
+			Disabled:  currency < price,
+		}
+		name := world.Components.Name.Get(entity).Name
+		if data.IsRecruit {
+			// 候補名はローマ字の固有名なので言語に依らずそのまま出す
+			data.Label = name
+		} else {
+			data.ItemID = world.Components.RawID.Get(entity).ID
+			data.Label = query.T(world, name)
+			data.Weight = query.GetEntityWeight(world, entity).KgString()
+		}
+		items = append(items, data)
 	}
 
 	return items
 }
 
+// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る
 func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Percent) []shopItemData {
 	var items []shopItemData
 
@@ -179,18 +190,15 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 			nameComp := world.Components.Name.Get(entity)
 			rawID := world.Components.RawID.Get(entity)
 
-			baseValue := query.GetItemValue(world, entity)
-			price := sellPriceMod.ApplyInt(query.CalculateSellPrice(baseValue))
-
-			count := query.GetEntityCount(world, entity)
+			price := sellPriceMod.ApplyInt(query.CalculateSellPrice(query.StockBaseValue(world, entity)))
 
 			items = append(items, shopItemData{
+				Entity: entity,
 				ItemID: rawID.ID,
 				Label:  query.T(world, nameComp.Name),
 				Weight: query.GetEntityWeight(world, entity).KgString(),
 				Price:  price,
-				Count:  count,
-				Entity: entity,
+				Count:  query.GetEntityCount(world, entity),
 				IsBuy:  false,
 			})
 		}
@@ -199,36 +207,15 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 	return items
 }
 
-// shopItemWeight は raw 定義から商品1個の重量表記を返す。重量を持たない品は空文字を返す
-func shopItemWeight(world w.World, itemID string) string {
-	spec, err := raw.NewItemSpec(world.Resources.RawMaster, itemID)
-	if err != nil || spec.Weight == nil {
-		return ""
-	}
-	return spec.Weight.KgString()
-}
-
-func (st *ShopMenuState) getItemPrice(world w.World, itemID string, isBuy bool) int {
-	itemDef, err := raw.FindItem(world.Resources.RawMaster, itemID)
-	if err != nil {
-		return 0
-	}
-	baseValue := int(itemDef.Value)
-	if isBuy {
-		return query.CalculateBuyPrice(baseValue)
-	}
-	return query.CalculateSellPrice(baseValue)
-}
-
 // ================
 // Window
 // ================
 
-// buySellSelected は現在カーソルが当たっている商品を、購入タブなら購入、売却タブなら売却する。
-// 決定で即実行し、途中のアクション選択は挟まない。購入は所持金が足りなければ何もしない
+// buySellSelected は現在カーソルが当たっている行を、買いタブなら購入・雇用、売りタブなら売却する。
+// 決定で即実行し、途中のアクション選択は挟まない。購入・雇用は所持金が足りなければ何もしない
 func (st *ShopMenuState) buySellSelected(world w.World) error {
 	item, ok := st.selectedShopItem()
-	if !ok || item.ItemID == "" {
+	if !ok {
 		return nil
 	}
 	if item.IsBuy {
@@ -238,21 +225,25 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 			return nil
 		}
 		var err error
-		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.ItemID) })
+		if item.IsRecruit {
+			query.Player(world, func(p ecs.Entity) { err = gameaction.HireRecruit(world, p, item.Entity) })
+		} else {
+			query.Player(world, func(p ecs.Entity) { err = gameaction.BuyStock(world, p, item.Entity) })
+		}
 		if err != nil {
 			return fmt.Errorf("failed to buy: %w", err)
 		}
 		return nil
 	}
 	var err error
-	query.Player(world, func(p ecs.Entity) { err = gameaction.SellItem(world, p, item.Entity) })
+	query.Player(world, func(p ecs.Entity) { err = gameaction.SellStock(world, p, st.merchant, item.Entity) })
 	if err != nil {
 		return fmt.Errorf("failed to sell: %w", err)
 	}
 	return nil
 }
 
-// selectedShopItem は現在カーソルが当たっている商品を返す
+// selectedShopItem は現在カーソルが当たっている行を返す
 func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
@@ -285,10 +276,25 @@ func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Sele
 	})
 }
 
-// detailContent は現在カーソルが当たっている商品の詳細内容を raw 定義から解決する。詳細モーダルの唯一の定義点。
+// detailContent は現在カーソルが当たっている行の詳細内容を返す。詳細モーダルの唯一の定義点。
+// アイテムは raw 定義から性能を、隊員候補は能力値を出す
 func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
-	item, spec, ok := st.selectedDetail(world)
+	item, ok := st.selectedShopItem()
 	if !ok {
+		return menuscreen.DetailContent{}, false
+	}
+
+	if item.IsRecruit {
+		if !world.ECS.Alive(item.Entity) || !world.Components.Abilities.Has(item.Entity) {
+			return menuscreen.DetailContent{}, false
+		}
+		a := world.Components.Abilities.Get(item.Entity)
+		stats := query.T(world, "Vit%d Str%d Sen%d Dex%d Agi%d Def%d", a.Vitality.Base, a.Strength.Base, a.Sensation.Base, a.Dexterity.Base, a.Agility.Base, a.Defense.Base)
+		return menuscreen.DetailContent{Name: item.Label, Desc: stats}, true
+	}
+
+	spec, err := raw.NewItemSpec(world.Resources.RawMaster, item.ItemID)
+	if err != nil {
 		return menuscreen.DetailContent{}, false
 	}
 	// 価格・重さは一覧に出すので、詳細の説明は raw のアイテム説明だけにする
@@ -297,25 +303,6 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
 		desc = query.T(world, spec.Description.Description)
 	}
 	return menuscreen.DetailContent{Name: item.Label, Desc: desc, Spec: &spec}, true
-}
-
-// selectedDetail は現在カーソルが当たっている商品と、その raw 由来の性能を解決する
-func (st *ShopMenuState) selectedDetail(world w.World) (shopItemData, gc.EntitySpec, bool) {
-	props := st.screen.Props()
-	cursor := st.screen.Selection()
-	if cursor.TabIndex >= len(props.Tabs) {
-		return shopItemData{}, gc.EntitySpec{}, false
-	}
-	items := props.Tabs[cursor.TabIndex].Items
-	if cursor.ItemIndex >= len(items) {
-		return shopItemData{}, gc.EntitySpec{}, false
-	}
-	item := items[cursor.ItemIndex]
-	s, err := raw.NewItemSpec(world.Resources.RawMaster, item.ItemID)
-	if err != nil {
-		return shopItemData{}, gc.EntitySpec{}, false
-	}
-	return item, s, true
 }
 
 func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

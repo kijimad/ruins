@@ -23,7 +23,3 @@ tile = 'dirt'
 [palette.npcs.2]
 id = 'suspicious_scientist'
 tile = 'dirt'
-
-[palette.npcs.3]
-id = 'tavern_keeper'
-tile = 'dirt'

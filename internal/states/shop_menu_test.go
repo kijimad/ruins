@@ -111,8 +111,10 @@ func TestShopMenuState_detailContent_選択なしは表示しない(t *testing.T
 func TestNewShopMenuState(t *testing.T) {
 	t.Parallel()
 
-	factory := NewShopMenuState
-	state, err := factory()
+	world := testutil.InitTestWorld(t)
+	merchant := world.ECS.NewEntity()
+
+	state, err := NewShopMenuState(merchant)
 	require.NoError(t, err)
 	assert.NotNil(t, state, "Stateが作成される")
 	_, ok := state.(*ShopMenuState)
