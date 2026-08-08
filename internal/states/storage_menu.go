@@ -240,7 +240,7 @@ func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailConte
 	}
 	desc := ""
 	if world.Components.Description.Has(e) {
-		desc = world.Components.Description.Get(e).Description
+		desc = query.T(world, world.Components.Description.Get(e).Description)
 	}
 	return menuscreen.DetailContent{Name: query.GetEntityName(e, world), Desc: desc, Entity: e}, true
 }

@@ -5269,3 +5269,186 @@ msgstr "園芸のすすめ"
 
 msgid "An introductory book covering the fundamentals of gardening."
 msgstr "園芸の基礎知識をまとめた入門書"
+
+msgid "Ash"
+msgstr "アッシュ"
+
+msgid "Bat"
+msgstr "コウモリ"
+
+msgid "Gorilla"
+msgstr "ゴリラ"
+
+msgid "Jeep"
+msgstr "ジープ"
+
+msgid "Slime"
+msgstr "スライム"
+
+msgid "Rat"
+msgstr "ネズミ"
+
+msgid "Pink Slime"
+msgstr "ピンクスライム"
+
+msgid "Penguin"
+msgstr "ペンギン"
+
+msgid "Three Headed Dragon"
+msgstr "三頭竜"
+
+msgid "Glow Bug"
+msgstr "光虫"
+
+msgid "Frozen Hunter"
+msgstr "凍晶化した猟師"
+
+msgid "Chemical Tank"
+msgstr "化学戦車"
+
+msgid "Merchant"
+msgstr "商人"
+
+msgid "Dream Moth"
+msgstr "夢蛾"
+
+msgid "Dream Whale"
+msgstr "夢鯨"
+
+msgid "Giant Bee"
+msgstr "大蜂"
+
+msgid "Shadow Priest"
+msgstr "影司祭"
+
+msgid "Shadow Rat"
+msgstr "影鼠"
+
+msgid "Suspicious Scientist"
+msgstr "怪しい科学者"
+
+msgid "Old Tank"
+msgstr "旧式戦車"
+
+msgid "Dark Doctor"
+msgstr "暗黒医師"
+
+msgid "Decayed Soldier"
+msgstr "朽ちた兵士"
+
+msgid "Tree Spirit"
+msgstr "樹霊"
+
+msgid "Poison Mushroom"
+msgstr "毒キノコ"
+
+msgid "Poison Frog"
+msgstr "毒蛙"
+
+msgid "Poison Spider"
+msgstr "毒蜘蛛"
+
+msgid "Crystal Wraith"
+msgstr "水晶の亡霊"
+
+msgid "Ice Dog"
+msgstr "氷犬"
+
+msgid "Frozen Tank"
+msgstr "氷結戦車"
+
+msgid "Floating Eye"
+msgstr "浮遊眼"
+
+msgid "Fireball"
+msgstr "火の玉"
+
+msgid "Fire Cat"
+msgstr "火猫"
+
+msgid "Ash Idol"
+msgstr "灰の偶像"
+
+msgid "Gray Tank"
+msgstr "灰色戦車"
+
+msgid "Ash Bug"
+msgstr "灰蟲"
+
+msgid "Desert Tank"
+msgstr "砂漠戦車"
+
+msgid "Dragon Head"
+msgstr "竜頭"
+
+msgid "Purple Floater"
+msgstr "紫の浮遊体"
+
+msgid "Green Devourer"
+msgstr "緑喰い"
+
+msgid "Green Dragon"
+msgstr "緑竜"
+
+msgid "Old Soldier"
+msgstr "老兵"
+
+msgid "Tavern Keeper"
+msgstr "酒場の主人"
+
+msgid "Moss Turtle"
+msgstr "苔亀"
+
+msgid "Rainbow Dragon"
+msgstr "虹竜"
+
+msgid "Butterfly"
+msgstr "蝶"
+
+msgid "Red Tank"
+msgstr "赤戦車"
+
+msgid "Red Line Man"
+msgstr "赤線の男"
+
+msgid "Light Tank"
+msgstr "軽戦車"
+
+msgid "Heavy Artillery Tank"
+msgstr "重砲戦車"
+
+msgid "Stray Dog"
+msgstr "野犬"
+
+msgid "Gold Slime"
+msgstr "金スライム"
+
+msgid "Iron Sentinel"
+msgstr "鉄の番兵"
+
+msgid "Rusted Doll"
+msgstr "錆びた人形"
+
+msgid "Armor Ghost"
+msgstr "鎧ゴースト"
+
+msgid "Dark Crab"
+msgstr "闇蟹"
+
+msgid "Guard Soldier"
+msgstr "防衛兵"
+
+msgid "Shock Orb"
+msgstr "電撃球"
+
+msgid "Blue Figure"
+msgstr "青い人影"
+
+msgid "Blue Beast"
+msgstr "青獣"
+
+msgid "Skeleton Soldier"
+msgstr "骸骨兵"
+
+msgid "Black Corpse"
+msgstr "黒屍"

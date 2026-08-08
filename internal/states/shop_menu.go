@@ -186,7 +186,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 
 			items = append(items, shopItemData{
 				ItemID: rawID.ID,
-				Label:  nameComp.Name,
+				Label:  query.T(world, nameComp.Name),
 				Weight: query.GetEntityWeight(world, entity).KgString(),
 				Price:  price,
 				Count:  count,
@@ -294,7 +294,7 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
 	// 価格・重さは一覧に出すので、詳細の説明は raw のアイテム説明だけにする
 	desc := ""
 	if spec.Description != nil {
-		desc = spec.Description.Description
+		desc = query.T(world, spec.Description.Description)
 	}
 	return menuscreen.DetailContent{Name: item.Label, Desc: desc, Spec: &spec}, true
 }

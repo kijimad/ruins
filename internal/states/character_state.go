@@ -469,7 +469,7 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 	for i, weapon := range weapons {
 		name := ""
 		if weapon != nil {
-			name = world.Components.Name.Get(*weapon).Name
+			name = query.GetEntityName(*weapon, world)
 		}
 		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})
 	}
@@ -482,7 +482,7 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 	for i, slot := range armor {
 		name := ""
 		if slot != nil {
-			name = world.Components.Name.Get(*slot).Name
+			name = query.GetEntityName(*slot, world)
 		}
 		items = append(items, equipItemData{SlotLabel: armorLabels[i], ItemName: name, SlotNumber: armorSlots[i], Entity: slot, Member: player})
 	}

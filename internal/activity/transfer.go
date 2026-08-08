@@ -121,7 +121,7 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 	// query.FormatItemName は在庫数を出すので分割転送には使えない。
 	itemName := query.T(world, "Unknown Item")
 	if nameComp := world.Components.Name.Get(item); nameComp != nil {
-		itemName = nameComp.Name
+		itemName = query.T(world, nameComp.Name)
 	}
 	if moving > 1 {
 		itemName = query.T(world, "%s (x%d)", itemName, moving)

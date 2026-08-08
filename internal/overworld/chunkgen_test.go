@@ -168,7 +168,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 }
 
 // merchantName は小集落の店NPC名。テスト間で共有する。
-const merchantName = "商人"
+const merchantName = "Merchant"
 
 // settlementBucket は 商人 が立つチャンクスロットと、商人がいるかを返す。
 func settlementBucket(world w.World) (int, bool) {

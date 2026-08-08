@@ -196,7 +196,8 @@ func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
 	if bareHandsSpec.Melee == nil {
 		return nil, "", fmt.Errorf("bare hands weapon has no Melee component")
 	}
-	return bareHandsSpec.Melee, query.T(world, "bare hands"), nil
+	// 攻撃方法名は表示側で一括翻訳するため、ここでは英語原文のまま返す。武器名と扱いを揃える。
+	return bareHandsSpec.Melee, "bare hands", nil
 }
 
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
@@ -439,22 +440,27 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 
 	logger := gamelog.New(query.GetGameLog(world))
 	withMethod := attackMethodName != ""
+	// 攻撃方法名は武器名や素手の英語原文なので、表示前に現在言語へ訳す。
+	methodName := attackMethodName
+	if withMethod {
+		methodName = query.T(world, attackMethodName)
+	}
 	switch {
 	case !hit:
 		if withMethod {
-			logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, attackMethodName, targetMarkup))
+			logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 		} else {
 			logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 		}
 	case critical:
 		if withMethod {
-			logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, attackMethodName, targetMarkup, damageStr))
+			logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 		} else {
 			logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 		}
 	default:
 		if withMethod {
-			logger.Markup(query.T(world, "%s used %s to attack %s and dealt %s damage.", attackerMarkup, attackMethodName, targetMarkup, damageStr))
+			logger.Markup(query.T(world, "%s used %s to attack %s and dealt %s damage.", attackerMarkup, methodName, targetMarkup, damageStr))
 		} else {
 			logger.Markup(query.T(world, "%s attacked %s and dealt %s damage.", attackerMarkup, targetMarkup, damageStr))
 		}

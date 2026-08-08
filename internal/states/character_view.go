@@ -83,7 +83,7 @@ func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex i
 		content.AddChild(styled.NewDescriptionText(query.T(world, "Nothing to equip"), res))
 	}
 	for i, entity := range props.Items {
-		name := world.Components.Name.Get(entity).Name
+		name := query.GetEntityName(entity, world)
 		content.AddChild(styled.NewListItemText(name, theme.TextSecondary, i == selectedIndex, res))
 	}
 	win.SetLocation(rect)

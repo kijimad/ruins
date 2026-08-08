@@ -61,9 +61,9 @@ func GetEntityCount(world w.World, entity ecs.Entity) int {
 // 名前はNameコンポーネントから取得し、見つからない場合は "Unknown Item" を返す。
 // 個数が1以下の場合は名前のみ、2以上の場合は "名前(個数)" の形式で返す
 func FormatItemName(world w.World, itemEntity ecs.Entity) string {
-	name := "Unknown Item"
+	name := T(world, "Unknown Item")
 	if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {
-		name = nameComp.Name
+		name = T(world, nameComp.Name)
 	}
 
 	count := GetEntityCount(world, itemEntity)

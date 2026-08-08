@@ -130,9 +130,8 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			}
 		case gc.InteractionTalk:
 			if world.Components.Name.Has(interactableEntity) {
-				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
-					Label:       query.T(world, "Talk (%s)", name.Name),
+					Label:       query.T(world, "Talk (%s)", query.GetEntityName(interactableEntity, world)),
 					Target:      interactableEntity,
 					Interaction: interaction,
 				})
@@ -164,27 +163,24 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			})
 		case gc.InteractionStorage:
 			if world.Components.Name.Has(interactableEntity) {
-				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
-					Label:       query.T(world, "Inspect (%s)", name.Name),
+					Label:       query.T(world, "Inspect (%s)", query.GetEntityName(interactableEntity, world)),
 					Target:      interactableEntity,
 					Interaction: interaction,
 				})
 			}
 		case gc.InteractionMelee:
 			if world.Components.Name.Has(interactableEntity) {
-				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
-					Label:       query.T(world, "Attack (%s)", name.Name),
+					Label:       query.T(world, "Attack (%s)", query.GetEntityName(interactableEntity, world)),
 					Target:      interactableEntity,
 					Interaction: interaction,
 				})
 			}
 		case gc.InteractionDisassemble:
 			if world.Components.Name.Has(interactableEntity) {
-				name := world.Components.Name.Get(interactableEntity)
 				result = append(result, InteractionAction{
-					Label:       query.T(world, "Disassemble (%s)", name.Name),
+					Label:       query.T(world, "Disassemble (%s)", query.GetEntityName(interactableEntity, world)),
 					Target:      interactableEntity,
 					Interaction: interaction,
 				})
