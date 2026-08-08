@@ -84,7 +84,7 @@ func replaceDirtTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos con
 	if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {
 		return nil
 	}
-	// タイルの同定は表示名でなく論理キーの id で行う。表示名は英語原文化されうる。
+	// タイルの同定は表示名 Name でなく論理キー id で行う。Name は表示専用で id と別。
 	if world.Components.RawID.Get(e).ID != consts.TileNameDirt {
 		return nil
 	}

@@ -29,8 +29,8 @@ func (b *PlannerChain) takeSnapshot(label string) {
 		return
 	}
 	d := &b.PlanData
-	// スナップショットはマップ生成の論理状態を表す。タイルの表示名 Name は英語原文化されうるので、
-	// 同定は論理キーの Id に正規化する。golden がタイル表示名の英語化に左右されないようにする。
+	// スナップショットはマップ生成の論理状態を表すので、タイルは表示名 Name でなく論理キー Id で
+	// 同定する。Name を Id へ正規化し、golden を表示名から独立させる。
 	tiles := slices.Clone(d.Tiles)
 	for i := range tiles {
 		tiles[i].Name = tiles[i].Id
