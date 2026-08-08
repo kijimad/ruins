@@ -3,7 +3,6 @@ package mapplanner
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -241,117 +240,5 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 	})
 }
 
-func TestResolveDistribution(t *testing.T) {
-	t.Parallel()
-
-	t.Run("StackableアイテムはCount=PackSizeの1エントリにまとめられる", func(t *testing.T) {
-		t.Parallel()
-		chain := NewPlannerChain(10, 10, 12345)
-		chain.PlanData.RawMaster = CreateTestRawMaster()
-
-		entries := []SpawnEntry{{Name: "healing_potion", Weight: 1.0, Pack: consts.MustParseDice("3d1")}}
-		result := resolveDistribution(entries, &chain.PlanData)
-
-		require.Len(t, result, 1)
-		assert.Equal(t, "healing_potion", result[0].Name)
-		assert.Equal(t, 3, result[0].Count)
-	})
-
-	t.Run("非StackableアイテムはPackSize分の個別エントリになる", func(t *testing.T) {
-		t.Parallel()
-		chain := NewPlannerChain(10, 10, 12345)
-		chain.PlanData.RawMaster = CreateTestRawMaster()
-
-		entries := []SpawnEntry{{Name: "wooden_sword", Weight: 1.0, Pack: consts.MustParseDice("2d1")}}
-		result := resolveDistribution(entries, &chain.PlanData)
-
-		require.Len(t, result, 2)
-		for _, item := range result {
-			assert.Equal(t, "wooden_sword", item.Name)
-			assert.Equal(t, 1, item.Count)
-		}
-	})
-
-	t.Run("RawMasterがnilの場合は非Stackableとして扱う", func(t *testing.T) {
-		t.Parallel()
-		chain := NewPlannerChain(10, 10, 12345)
-		// RawMaster未設定
-
-		entries := []SpawnEntry{{Name: "healing_potion", Weight: 1.0, Pack: consts.MustParseDice("3d1")}}
-		result := resolveDistribution(entries, &chain.PlanData)
-
-		require.Len(t, result, 3)
-		for _, item := range result {
-			assert.Equal(t, 1, item.Count)
-		}
-	})
-}
-
-func TestResolveCollection(t *testing.T) {
-	t.Parallel()
-
-	t.Run("StackableアイテムはCount=PackSizeの1エントリにまとめられる", func(t *testing.T) {
-		t.Parallel()
-		chain := NewPlannerChain(10, 10, 99999)
-		chain.PlanData.RawMaster = CreateTestRawMaster()
-
-		// weight=100で確実に当選させる
-		entries := []SpawnEntry{{Name: "healing_potion", Weight: 100, Pack: consts.MustParseDice("4d1")}}
-		result := resolveCollection(entries, &chain.PlanData)
-
-		require.Len(t, result, 1)
-		assert.Equal(t, "healing_potion", result[0].Name)
-		assert.Equal(t, 4, result[0].Count)
-	})
-
-	t.Run("非StackableアイテムはPackSize分の個別エントリになる", func(t *testing.T) {
-		t.Parallel()
-		chain := NewPlannerChain(10, 10, 99999)
-		chain.PlanData.RawMaster = CreateTestRawMaster()
-
-		// weight=100で確実に当選させる
-		entries := []SpawnEntry{{Name: "wooden_sword", Weight: 100, Pack: consts.MustParseDice("2d1")}}
-		result := resolveCollection(entries, &chain.PlanData)
-
-		require.Len(t, result, 2)
-		for _, item := range result {
-			assert.Equal(t, "wooden_sword", item.Name)
-			assert.Equal(t, 1, item.Count)
-		}
-	})
-}
-
-func TestIsStackableItem(t *testing.T) {
-	t.Parallel()
-
-	t.Run("Stackableアイテムはtrueを返す", func(t *testing.T) {
-		t.Parallel()
-		chain := NewPlannerChain(10, 10, 12345)
-		chain.PlanData.RawMaster = CreateTestRawMaster()
-
-		assert.True(t, isStackableItem(&chain.PlanData, "healing_potion"))
-	})
-
-	t.Run("非Stackableアイテムはfalseを返す", func(t *testing.T) {
-		t.Parallel()
-		chain := NewPlannerChain(10, 10, 12345)
-		chain.PlanData.RawMaster = CreateTestRawMaster()
-
-		assert.False(t, isStackableItem(&chain.PlanData, "wooden_sword"))
-	})
-
-	t.Run("存在しないアイテムはfalseを返す", func(t *testing.T) {
-		t.Parallel()
-		chain := NewPlannerChain(10, 10, 12345)
-		chain.PlanData.RawMaster = CreateTestRawMaster()
-
-		assert.False(t, isStackableItem(&chain.PlanData, "存在しないアイテム"))
-	})
-
-	t.Run("RawMasterがnilの場合はfalseを返す", func(t *testing.T) {
-		t.Parallel()
-		chain := NewPlannerChain(10, 10, 12345)
-
-		assert.False(t, isStackableItem(&chain.PlanData, "healing_potion"))
-	})
-}
+// distribution/collection の抽選と stackable の扱いは raw.SelectFromItemGroup へ寄せた。単体検証は
+// internal/raw/item_group_test.go が担う。ここではプランナー経由の配置を TestItemPlanner_PlanMeta で見る。
