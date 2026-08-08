@@ -1,7 +1,5 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/consts"
-
 // Severity は状態の重症度
 type Severity int
 
@@ -46,17 +44,17 @@ const (
 func (st StatType) String() string {
 	switch st {
 	case StatVitality:
-		return consts.VitalityLabel
+		return "Vitality"
 	case StatStrength:
-		return consts.StrengthLabel
+		return "Strength"
 	case StatSensation:
-		return consts.SensationLabel
+		return "Sensation"
 	case StatDexterity:
-		return consts.DexterityLabel
+		return "Dexterity"
 	case StatAgility:
-		return consts.AgilityLabel
+		return "Agility"
 	case StatDefense:
-		return consts.DefenseLabel
+		return "Defense"
 	default:
 		return string(st)
 	}

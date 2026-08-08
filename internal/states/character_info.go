@@ -106,12 +106,12 @@ func (st *CharacterState) createAbilityItems(world w.World, playerEntity ecs.Ent
 	if query.AliveHas(world, world.Components.Abilities, playerEntity) {
 		abils := world.Components.Abilities.Get(playerEntity)
 		items = append(items,
-			statusItemData{Label: query.T(world, consts.VitalityLabel), Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: query.T(world, "Vitality. Affects max HP and SP")},
-			statusItemData{Label: query.T(world, consts.StrengthLabel), Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: query.T(world, "Strength. Affects melee attack damage")},
-			statusItemData{Label: query.T(world, consts.SensationLabel), Value: fmt.Sprintf("%d", abils.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", abils.Sensation.Modifier), Description: query.T(world, "Sensation. Affects ranged attack damage")},
-			statusItemData{Label: query.T(world, consts.DexterityLabel), Value: fmt.Sprintf("%d", abils.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", abils.Dexterity.Modifier), Description: query.T(world, "Dexterity. Affects accuracy")},
-			statusItemData{Label: query.T(world, consts.AgilityLabel), Value: fmt.Sprintf("%d", abils.Agility.Total), Modifier: fmt.Sprintf("(%+d)", abils.Agility.Modifier), Description: query.T(world, "Agility. Affects evasion and action speed")},
-			statusItemData{Label: query.T(world, consts.DefenseLabel), Value: fmt.Sprintf("%d", abils.Defense.Total), Modifier: fmt.Sprintf("(%+d)", abils.Defense.Modifier), Description: query.T(world, "Defense. Reduces damage taken")},
+			statusItemData{Label: query.T(world, "Vitality"), Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: query.T(world, "Vitality. Affects max HP and SP")},
+			statusItemData{Label: query.T(world, "Strength"), Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: query.T(world, "Strength. Affects melee attack damage")},
+			statusItemData{Label: query.T(world, "Sensation"), Value: fmt.Sprintf("%d", abils.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", abils.Sensation.Modifier), Description: query.T(world, "Sensation. Affects ranged attack damage")},
+			statusItemData{Label: query.T(world, "Dexterity"), Value: fmt.Sprintf("%d", abils.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", abils.Dexterity.Modifier), Description: query.T(world, "Dexterity. Affects accuracy")},
+			statusItemData{Label: query.T(world, "Agility"), Value: fmt.Sprintf("%d", abils.Agility.Total), Modifier: fmt.Sprintf("(%+d)", abils.Agility.Modifier), Description: query.T(world, "Agility. Affects evasion and action speed")},
+			statusItemData{Label: query.T(world, "Defense"), Value: fmt.Sprintf("%d", abils.Defense.Total), Modifier: fmt.Sprintf("(%+d)", abils.Defense.Modifier), Description: query.T(world, "Defense. Reduces damage taken")},
 		)
 	}
 	return items

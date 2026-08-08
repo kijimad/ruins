@@ -133,9 +133,9 @@ func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec g
 func attackerRows(world w.World, attack gc.Attacker) []SpecRow {
 	rows := []SpecRow{
 		{Label: query.T(world, attack.GetAttackCategory().Label), Header: true},
-		{Label: query.T(world, consts.DamageLabel), Value: strconv.Itoa(attack.GetDamage())},
-		{Label: query.T(world, consts.AccuracyLabel), Value: strconv.Itoa(attack.GetAccuracy())},
-		{Label: query.T(world, consts.AttackCountLabel), Value: strconv.Itoa(attack.GetAttackCount())},
+		{Label: query.T(world, "Attack power"), Value: strconv.Itoa(attack.GetDamage())},
+		{Label: query.T(world, "Accuracy"), Value: strconv.Itoa(attack.GetAccuracy())},
+		{Label: query.T(world, "Hits"), Value: strconv.Itoa(attack.GetAttackCount())},
 		{Label: query.T(world, "Attack cost"), Value: strconv.Itoa(attack.GetCost())},
 	}
 	if attack.GetElement() != gc.ElementTypeNone {
@@ -166,7 +166,7 @@ func fireAmmoRows(world w.World, fire *gc.Fire) []SpecRow {
 func wearableRows(world w.World, wearable *gc.Wearable) []SpecRow {
 	rows := []SpecRow{
 		{Label: query.T(world, wearable.EquipmentCategory.String()), Header: true},
-		{Label: query.T(world, consts.DefenseLabel), Value: fmt.Sprintf("%+d", wearable.Defense)},
+		{Label: query.T(world, "Defense"), Value: fmt.Sprintf("%+d", wearable.Defense)},
 	}
 	if wearable.InsulationCold != 0 {
 		rows = append(rows, SpecRow{Label: query.T(world, "Cold resist"), Value: fmt.Sprintf("%+d", wearable.InsulationCold)})
@@ -186,11 +186,11 @@ func equipBonusRows(world w.World, equipBonus gc.EquipBonus) []SpecRow {
 			rows = append(rows, SpecRow{Label: label, Value: fmt.Sprintf("%+d", v)})
 		}
 	}
-	add(query.T(world, consts.VitalityLabel), equipBonus.Vitality)
-	add(query.T(world, consts.StrengthLabel), equipBonus.Strength)
-	add(query.T(world, consts.SensationLabel), equipBonus.Sensation)
-	add(query.T(world, consts.DexterityLabel), equipBonus.Dexterity)
-	add(query.T(world, consts.AgilityLabel), equipBonus.Agility)
+	add(query.T(world, "Vitality"), equipBonus.Vitality)
+	add(query.T(world, "Strength"), equipBonus.Strength)
+	add(query.T(world, "Sensation"), equipBonus.Sensation)
+	add(query.T(world, "Dexterity"), equipBonus.Dexterity)
+	add(query.T(world, "Agility"), equipBonus.Agility)
 	return rows
 }
 
@@ -205,7 +205,7 @@ func healingRows(world w.World, healing *gc.ProvidesHealing) []SpecRow {
 	default:
 		healValue = "-"
 	}
-	return []SpecRow{{Label: query.T(world, consts.VitalityLabel), Value: healValue}}
+	return []SpecRow{{Label: query.T(world, "Vitality"), Value: healValue}}
 }
 
 // nutritionRows は栄養の行を返す
