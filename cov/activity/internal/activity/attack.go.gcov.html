@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">76.4&nbsp;%</td>
+            <td class="headerCovTableEntryMed">75.2&nbsp;%</td>
             <td class="headerCovTableEntry">335</td>
-            <td class="headerCovTableEntry">256</td>
+            <td class="headerCovTableEntry">252</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 04:27:30</td>
+            <td class="headerValue">2026-08-08 09:05:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -508,11 +508,11 @@
 <span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :                 } else {</span></span>
 <span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :                         logger.Markup(query.T(world, &quot;%s attacked %s but missed.&quot;, attackerMarkup, targetMarkup))</span></span>
 <span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC tlaBgGNC">           1 :         case critical:</span></span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           2 :                 if withMethod {</span></span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                         logger.Markup(query.T(world, &quot;%s used %s to score a critical hit on %s and dealt %s damage!&quot;, attackerMarkup, attackMethodName, targetMarkup, damageStr))</span></span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                 } else {</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC tlaBgUNC">           0 :                         logger.Markup(query.T(world, &quot;%s scored a critical hit on %s and dealt %s damage!&quot;, attackerMarkup, targetMarkup, damageStr))</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :         case critical:</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :                 if withMethod {</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :                         logger.Markup(query.T(world, &quot;%s used %s to score a critical hit on %s and dealt %s damage!&quot;, attackerMarkup, attackMethodName, targetMarkup, damageStr))</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :                 } else {</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :                         logger.Markup(query.T(world, &quot;%s scored a critical hit on %s and dealt %s damage!&quot;, attackerMarkup, targetMarkup, damageStr))</span></span>
 <span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC tlaBgGNC">           1 :         default:</span></span>
 <span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           2 :                 if withMethod {</span></span>

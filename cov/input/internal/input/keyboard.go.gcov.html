@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">12.1&nbsp;%</td>
+            <td class="headerCovTableEntryLo">58.6&nbsp;%</td>
             <td class="headerCovTableEntry">58</td>
-            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">34</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-08 04:27:30</td>
+            <td class="headerValue">2026-08-08 09:05:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -115,36 +115,36 @@
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         return keyboardInstance</span></span>
 <span id="L54"><span class="lineNum">      54</span>              : }</span>
 <span id="L55"><span class="lineNum">      55</span>              : </span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC tlaBgUNC">           0 : func (s *sharedKeyboardInput) IsKeyJustPressed(key ebiten.Key) bool {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         return inpututil.IsKeyJustPressed(key)</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : func (s *sharedKeyboardInput) IsKeyJustPressed(key ebiten.Key) bool {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         return inpututil.IsKeyJustPressed(key)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L59"><span class="lineNum">      59</span>              : </span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 : func (s *sharedKeyboardInput) IsKeyPressed(key ebiten.Key) bool {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         return ebiten.IsKeyPressed(key)</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : func (s *sharedKeyboardInput) IsKeyPressed(key ebiten.Key) bool {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         return ebiten.IsKeyPressed(key)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L63"><span class="lineNum">      63</span>              : </span>
 <span id="L64"><span class="lineNum">      64</span>              : // IsEnterJustPressedOnce はEnterキーが押下-押上のワンセットで押されたかどうかを返す</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 : func (s *sharedKeyboardInput) IsEnterJustPressedOnce() bool {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         s.mu.Lock()</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         defer s.mu.Unlock()</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         currentlyPressed := ebiten.IsKeyPressed(ebiten.KeyEnter)</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         wasInSession := s.enterPressSession</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         s.enterPressSession = currentlyPressed</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         // セッション終了時（押下から押上への遷移）のみtrueを返す</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         return wasInSession &amp;&amp; !currentlyPressed</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : func (s *sharedKeyboardInput) IsEnterJustPressedOnce() bool {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         currentlyPressed := ebiten.IsKeyPressed(ebiten.KeyEnter)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         wasInSession := s.enterPressSession</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         s.enterPressSession = currentlyPressed</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         // セッション終了時（押下から押上への遷移）のみtrueを返す</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         return wasInSession &amp;&amp; !currentlyPressed</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L77"><span class="lineNum">      77</span>              : </span>
 <span id="L78"><span class="lineNum">      78</span>              : // IsKeyPressedWithRepeat はキーリピート機能付きの押下判定を行う</span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 : func (s *sharedKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         s.mu.Lock()</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         defer s.mu.Unlock()</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         // 初回押下</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         if inpututil.IsKeyJustPressed(key) {</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :                 now := time.Now()</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : func (s *sharedKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         // 初回押下</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         if inpututil.IsKeyJustPressed(key) {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC tlaBgUNC">           0 :                 now := time.Now()</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :                 s.keyRepeatStates[key] = &amp;keyRepeatState{</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :                         pressStartTime: now,</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                         lastRepeatTime: now,</span></span>
@@ -153,8 +153,8 @@
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L92"><span class="lineNum">      92</span>              : </span>
 <span id="L93"><span class="lineNum">      93</span>              :         // キーが押され続けている場合</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         if ebiten.IsKeyPressed(key) {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                 state, exists := s.keyRepeatStates[key]</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC tlaBgGNC">           1 :         if ebiten.IsKeyPressed(key) {</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC tlaBgUNC">           0 :                 state, exists := s.keyRepeatStates[key]</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                 if !exists {</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                         return false</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -178,8 +178,8 @@
 <span id="L116"><span class="lineNum">     116</span>              :         }</span>
 <span id="L117"><span class="lineNum">     117</span>              : </span>
 <span id="L118"><span class="lineNum">     118</span>              :         // キーが離された場合、状態をクリア</span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         delete(s.keyRepeatStates, key)</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         return false</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC tlaBgGNC">           1 :         delete(s.keyRepeatStates, key)</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         return false</span></span>
 <span id="L121"><span class="lineNum">     121</span>              : }</span>
         </pre>
               </td>

@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (75.6%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.0%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.1%)</option>
 				
@@ -253,7 +253,7 @@
 				
 				<option value="file98">github.com/kijimaD/ruins/internal/i18n/i18n.go (91.7%)</option>
 				
-				<option value="file99">github.com/kijimaD/ruins/internal/input/keyboard.go (9.4%)</option>
+				<option value="file99">github.com/kijimaD/ruins/internal/input/keyboard.go (53.1%)</option>
 				
 				<option value="file100">github.com/kijimaD/ruins/internal/input/mock_keyboard.go (100.0%)</option>
 				
@@ -621,7 +621,7 @@
 				
 				<option value="file282">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (78.3%)</option>
 				
-				<option value="file283">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (75.1%)</option>
+				<option value="file283">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (74.6%)</option>
 				
 				<option value="file284">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (94.6%)</option>
 				
@@ -1702,8 +1702,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
-        case critical:<span class="cov8" title="1">
-                if withMethod </span><span class="cov8" title="1">{
+        case critical:<span class="cov0" title="0">
+                if withMethod </span><span class="cov0" title="0">{
                         logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, attackMethodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
@@ -14962,16 +14962,16 @@ func GetSharedKeyboardInput() KeyboardInput <span class="cov8" title="1">{
         <span class="cov8" title="1">return keyboardInstance</span>
 }
 
-func (s *sharedKeyboardInput) IsKeyJustPressed(key ebiten.Key) bool <span class="cov0" title="0">{
+func (s *sharedKeyboardInput) IsKeyJustPressed(key ebiten.Key) bool <span class="cov8" title="1">{
         return inpututil.IsKeyJustPressed(key)
 }</span>
 
-func (s *sharedKeyboardInput) IsKeyPressed(key ebiten.Key) bool <span class="cov0" title="0">{
+func (s *sharedKeyboardInput) IsKeyPressed(key ebiten.Key) bool <span class="cov8" title="1">{
         return ebiten.IsKeyPressed(key)
 }</span>
 
 // IsEnterJustPressedOnce はEnterキーが押下-押上のワンセットで押されたかどうかを返す
-func (s *sharedKeyboardInput) IsEnterJustPressedOnce() bool <span class="cov0" title="0">{
+func (s *sharedKeyboardInput) IsEnterJustPressedOnce() bool <span class="cov8" title="1">{
         s.mu.Lock()
         defer s.mu.Unlock()
 
@@ -14985,7 +14985,7 @@ func (s *sharedKeyboardInput) IsEnterJustPressedOnce() bool <span class="cov0" t
 }</span>
 
 // IsKeyPressedWithRepeat はキーリピート機能付きの押下判定を行う
-func (s *sharedKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool <span class="cov0" title="0">{
+func (s *sharedKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool <span class="cov8" title="1">{
         s.mu.Lock()
         defer s.mu.Unlock()
 
@@ -15000,7 +15000,7 @@ func (s *sharedKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool <span 
         }</span>
 
         // キーが押され続けている場合
-        <span class="cov0" title="0">if ebiten.IsKeyPressed(key) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if ebiten.IsKeyPressed(key) </span><span class="cov0" title="0">{
                 state, exists := s.keyRepeatStates[key]
                 if !exists </span><span class="cov0" title="0">{
                         return false
@@ -15025,7 +15025,7 @@ func (s *sharedKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool <span 
         }
 
         // キーが離された場合、状態をクリア
-        <span class="cov0" title="0">delete(s.keyRepeatStates, key)
+        <span class="cov8" title="1">delete(s.keyRepeatStates, key)
         return false</span>
 }
 </pre>
@@ -54688,7 +54688,7 @@ func initialPatrolDir() consts.Tile <span class="cov8" title="1">{
         if rand.IntN(2) == 0 </span><span class="cov8" title="1">{
                 return 1
         }</span>
-        <span class="cov8" title="1">return -1</span>
+        <span class="cov0" title="0">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
