@@ -40,6 +40,34 @@ func TestExecuteMoveAction_コントロールパネルへ歩き込むと開く(t
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(player).Coord, "パネルを開いても移動はしない")
 }
 
+// TestExecuteMoveAction_同居ポータルは歩き込みの発動を隠さない は、Manual のポータルが OnCollision の
+// 対象と同じタイルに同居しても歩き込みの自動発動を取りこぼさないことを固定する。移動先の先着1件しか
+// 見ておらず、ポータルが先着すると NPC の会話などが発動しなかった回帰。
+func TestExecuteMoveAction_同居ポータルは歩き込みの発動を隠さない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	addPusher(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5}, consts.PushCostBase)
+	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
+
+	// 先に Manual のポータルを置く。先着で拾われても OnCollision を隠さないことを確かめる。
+	portal := world.ECS.NewEntity()
+	world.Components.GridElement.Add(portal, &gc.GridElement{Coord: tile})
+	world.Components.Interactable.Add(portal, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionPortalNext}})
+
+	// 同じタイルに OnCollision のコントロールパネルを同居させる。会話 NPC と同じ発動方式を代表させる。
+	panel := world.ECS.NewEntity()
+	world.Components.GridElement.Add(panel, &gc.GridElement{Coord: tile})
+	world.Components.BlockPass.Add(panel, &gc.BlockPass{})
+	world.Components.Interactable.Add(panel, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionCubePanel}})
+
+	require.NoError(t, activity.ExecuteMoveAction(world, gc.DirectionRight))
+
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req, "ポータルが同居しても歩き込みの発動が出る")
+	_, ok := req.Payload.(gc.OpenCubePanel)
+	assert.True(t, ok, "同居ポータルに隠されずコントロールパネルが開く")
+}
+
 // addCube は指定座標に押せるキューブを作る
 func addCube(t *testing.T, world w.World, coord consts.Coord[consts.Tile]) ecs.Entity {
 	t.Helper()
