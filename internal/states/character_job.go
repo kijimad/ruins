@@ -253,7 +253,7 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
 			if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {
 				slotLabel = query.T(world, slot.String())
 			}
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, professionItemDisplayName(world, equip.Name)), res))
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, raw.ItemName(world.Resources.RawMaster, equip.Name)), res))
 		}
 	}
 
@@ -261,7 +261,7 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
 	if len(prof.Items) > 0 {
 		container.AddChild(styled.NewDescriptionText(query.T(world, "Items"), res))
 		for _, item := range prof.Items {
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", professionItemDisplayName(world, item.Name), item.Count), res))
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", raw.ItemName(world.Resources.RawMaster, item.Name), item.Count), res))
 		}
 	}
 
@@ -279,13 +279,4 @@ func (st *CharacterJobState) buildDetailPanel(world w.World, props JobMenuProps,
 	}
 
 	return container
-}
-
-// professionItemDisplayName は profession が参照するアイテム id を表示名へ解決する。
-// 定義が見つからなければ id をそのまま返す
-func professionItemDisplayName(world w.World, id string) string {
-	if item, err := raw.FindItem(world.Resources.RawMaster, id); err == nil {
-		return item.Name
-	}
-	return id
 }

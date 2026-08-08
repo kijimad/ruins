@@ -74,6 +74,15 @@ func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {
 	return item, nil
 }
 
+// ItemName は id からアイテムの表示名を返す。定義が見つからなければ id をそのまま返す
+func ItemName(raws oapi.Raws, id string) string {
+	item, err := FindItem(raws, id)
+	if err != nil {
+		return id
+	}
+	return item.Name
+}
+
 // FindMember は指定された名前のメンバー定義を検索する
 func FindMember(raws oapi.Raws, name string) (oapi.Member, error) {
 	member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Id }, name)

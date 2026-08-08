@@ -311,11 +311,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 			if owned >= in.Amount {
 				rowColor = theme.StatusSuccess
 			}
-			// in.ID は材料の同定キー。表示は材料の表示名へ解決する
-			label := in.ID
-			if mat, err := raw.FindItem(world.Resources.RawMaster, in.ID); err == nil {
-				label = mat.Name
-			}
+			label := raw.ItemName(world.Resources.RawMaster, in.ID)
 			rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}

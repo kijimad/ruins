@@ -154,10 +154,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemID, true))
 		canAfford := currency >= price
 
-		label := itemID
-		if itemDef, err := raw.FindItem(world.Resources.RawMaster, itemID); err == nil {
-			label = itemDef.Name
-		}
+		label := raw.ItemName(world.Resources.RawMaster, itemID)
 
 		items = append(items, shopItemData{
 			ItemID:   itemID,
