@@ -26,15 +26,19 @@ type DetailContent struct {
 	Rows   []SpecRow      // 明示的な行。情報タブなど spec でない詳細に使う
 }
 
-// resolveRows は内容から表示行を解決する。Rows 優先、次に Spec、最後に Entity
+// resolveRows は内容から表示行を解決する。Rows 優先、次に Spec、最後に Entity。
+// Name と Desc だけを渡す使い方では Entity がゼロ値になるため、生存を確認してから性能行を引く。
+// 死亡・未設定の実体には行を出さない。ゼロ実体への Get で panic するのを防ぐ
 func (c DetailContent) resolveRows(world w.World) []SpecRow {
 	switch {
 	case c.Rows != nil:
 		return c.Rows
 	case c.Spec != nil:
 		return views.SpecRowsFromSpec(world, *c.Spec)
-	default:
+	case world.ECS.Alive(c.Entity):
 		return views.SpecRows(world, c.Entity)
+	default:
+		return nil
 	}
 }
 
