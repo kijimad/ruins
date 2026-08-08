@@ -412,6 +412,21 @@ func drawLabel(img *image.RGBA, px, py int, s string) {
 	d.DrawString(s)
 }
 
+// drawLootMarker は床 loot の位置を汎用マーカーで示す。中身は executor の抽選で決まり計画層からは描けないので、
+// セル中央に小さな四角を置いて「そこに拾える物がある」ことだけを示す。in-game の field item と位置で対応させる。
+func drawLootMarker(img *image.RGBA, origin, pos Vec) {
+	const m = 10
+	dx, dy := int(pos.X-origin.X)*cellPx, int(pos.Y-origin.Y)*cellPx
+	off := (cellPx - m) / 2
+	for yy := dy + off; yy < dy+off+m && yy < img.Bounds().Dy(); yy++ {
+		for xx := dx + off; xx < dx+off+m && xx < img.Bounds().Dx(); xx++ {
+			if xx >= 0 && yy >= 0 {
+				img.SetRGBA(xx, yy, color.RGBA{R: 210, G: 160, B: 40, A: 255})
+			}
+		}
+	}
+}
+
 // drawPlaced は placed を origin を原点とする 32px セルへ描く。in-game に spawn される prop だけを描き、
 // PropRawName が写像を持たない Ref(戦利品・raw の無い装飾)は overworld と同じく置かない。これで VRT が
 // in-game に無い物を描いて乖離することが構造的に起きない。スプライトのある什器は実画像を重ねる。
@@ -419,6 +434,15 @@ func drawPlaced(t *testing.T, img *image.RGBA, origin Vec, placed []Placed) {
 	t.Helper()
 	cache := make(map[string]image.Image)
 	for _, p := range placed {
+		if p.Kind == KindLoot {
+			// 床 loot は中身が executor の抽選で決まり、計画層からは実アイテムを描けない。位置だけを汎用
+			// マーカーで示し、in-game でそこに拾える物が出ることと対応させる。写像を持たない Ref は描かない。
+			// lootRaw を overworld の spawn 判定と共有し、描く物と置く物の乖離を防ぐ
+			if _, ok := LootGroupName(p.Ref); ok {
+				drawLootMarker(img, origin, p.Pos)
+			}
+			continue
+		}
 		if _, ok := PropRawName(p.Ref); !ok {
 			continue // in-game で spawn されない Ref は VRT でも描かない。overworld の spawn 判定と共有する
 		}

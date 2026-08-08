@@ -74,25 +74,39 @@ func furnishBuilding(world w.World, g chunkGeom, footprint interior.Rect, door i
 		}
 	}
 
-	// 家具と装飾を spawn する。写像できる Ref だけを建物の内側へ置く。坪庭の観葉もここで庭の土の上へ乗る。
-	// 写像は interior.PropRawName が持つ単一のソースで、VRT の描画も同じ判定を共有する。収納家具には戦利品を
-	// 格納するので、建物ごとに別ストリーム 0x4 の決定的 RNG で引く。グローバル乱数でなく建物ローカルで
-	// 決定的にし、再訪で一致させる
+	// 配置指示を spawn する。建物ごとに別ストリーム 0x4 の決定的 RNG で loot を引く。グローバル乱数でなく
+	// 建物ローカルで決定的にし、再訪で一致させる。KindLoot は床 loot として実アイテムに実体化し、それ以外の
+	// 家具と装飾は prop として置く。写像は interior が持つ単一のソースで、VRT の描画も同じ判定を共有する
 	lootRNG := rand.New(rand.NewPCG(seed, 0x4))
 	for _, p := range placed {
-		name, ok := interior.PropRawName(p.Ref)
-		if !ok {
-			continue // raw の無い戦利品や装飾は置かない
-		}
 		pos := consts.Coord[consts.Tile]{X: g.offsetX + p.Pos.X, Y: g.offsetY + p.Pos.Y}
-		ent, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y)
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to place interior prop (%s at %d,%d): %w", name, pos.X, pos.Y, err)
+		switch p.Kind {
+		case interior.KindLoot:
+			// 抽象 loot Ref を item group へ写し、1山を抽選して床へ置く。写像を持たない Ref は置かない
+			groupID, ok := interior.LootGroupName(p.Ref)
+			if !ok {
+				continue
+			}
+			if err := spawnFieldLoot(world, groupID, pos, lootRNG); err != nil {
+				return nil, nil, fmt.Errorf("failed to place field loot (%s at %d,%d): %w", groupID, pos.X, pos.Y, err)
+			}
+			occupied[pos] = true
+		default:
+			// 家具と装飾。写像できる Ref だけを建物の内側へ置く。坪庭の観葉もここで庭の土の上へ乗る。
+			// 収納家具には戦利品を格納する。raw の無い装飾や、敵・罠など prop でない指示は置かない
+			name, ok := interior.PropRawName(p.Ref)
+			if !ok {
+				continue
+			}
+			ent, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y)
+			if err != nil {
+				return nil, nil, fmt.Errorf("failed to place interior prop (%s at %d,%d): %w", name, pos.X, pos.Y, err)
+			}
+			if err := populateStorageLoot(world, ent, name, lootRNG); err != nil {
+				return nil, nil, fmt.Errorf("failed to populate storage loot (%s): %w", name, err)
+			}
+			occupied[pos] = true
 		}
-		if err := populateStorageLoot(world, ent, name, lootRNG); err != nil {
-			return nil, nil, fmt.Errorf("failed to populate storage loot (%s): %w", name, err)
-		}
-		occupied[pos] = true
 	}
 
 	isWall := func(lx, ly consts.Tile) bool { return wallSet[interior.Vec{X: lx, Y: ly}] }
@@ -106,6 +120,25 @@ func doorOrientation(wallSet map[interior.Vec]bool, pos interior.Vec) gc.DoorOri
 		return gc.DoorOrientationVertical
 	}
 	return gc.DoorOrientationHorizontal
+}
+
+// spawnFieldLoot は loot の item group から1山を抽選し、床へアイテムを spawn する。抽選は
+// raw.SelectFromItemGroup が distribution/collection と pack を解釈する。地上フロアなので深度は扱わず
+// group を直接引く。収納 loot の populateStorageLoot と同型で、建物ローカルの決定的 RNG を使い再訪で一致させる。
+func spawnFieldLoot(world w.World, groupID string, pos consts.Coord[consts.Tile], rng *rand.Rand) error {
+	draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)
+	if err != nil {
+		return err
+	}
+	for _, d := range draws {
+		if d.Name == "" {
+			continue // 防衛的ガード。現状 SelectFromItemGroup は空名を返さないが、将来の抽選変更で空名が来ても spawn を試みない
+		}
+		if _, err := lifecycle.SpawnFieldItem(world, d.Name, pos.X, pos.Y, d.Count); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // populateStorageLoot は収納家具に戦利品を格納する。prop の raw が Storage.LootTableId を持てば、その item

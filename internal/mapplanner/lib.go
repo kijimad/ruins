@@ -379,24 +379,6 @@ func (e SpawnEntry) PackSize(rng *rand.Rand) int {
 	return e.Pack.Roll(rng)
 }
 
-// ItemGroupSubtype はアイテムグループの選択方式
-type ItemGroupSubtype string
-
-const (
-	// ItemGroupDistribution はエントリ群から重み比率に基づいて1つだけ選ぶ。weightは相対比率として扱う
-	ItemGroupDistribution ItemGroupSubtype = "distribution"
-	// ItemGroupCollection は各エントリを独立に確率判定する。weightは0-100の出現確率(%)として扱う。両方出ることも、どちらも出ないこともある
-	ItemGroupCollection ItemGroupSubtype = "collection"
-)
-
-// ItemSource はアイテム配置の元になるデータ
-// テーブルエントリから解決済みの状態で保持する
-type ItemSource struct {
-	Weight  float64          // テーブルレベルの重み
-	Subtype ItemGroupSubtype // グループの選択方式
-	Entries []SpawnEntry     // グループ内のエントリ
-}
-
 // PlannerType はマップ生成の設定を表す構造体
 type PlannerType struct {
 	// プランナー名

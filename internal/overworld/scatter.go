@@ -205,6 +205,11 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 			return err
 		}
 	}
+
+	// 草・樹木の後に拾える loot を疎に撒く。accept と occupied を共有し、地面かつ非占有のタイルにだけ置く
+	if err := scatterOutdoorLoot(world, runSeed, c, g, cat, accept, occupied); err != nil {
+		return err
+	}
 	return nil
 }
 
