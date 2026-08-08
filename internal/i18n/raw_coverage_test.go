@@ -11,8 +11,7 @@ import (
 
 // TestRawTranslationCoverage は raw.toml の表示される name/description が英語原文の msgid で ja.po に
 // 訳を持つことを検証する完全性ゲート。既定言語が ja のため、日本語のまま残す、または英語化しても
-// ja.po へ訳を入れ忘れると日本語プレイヤーへ英語が漏れる。それを fail-closed で止める。CDDA の抽出
-// ツール相当だが、既定 en の CDDA と違い既定 ja の ruins は未訳を許さない。
+// ja.po へ訳を入れ忘れると日本語プレイヤーへ英語が漏れる。それを fail-closed で止める。
 func TestRawTranslationCoverage(t *testing.T) {
 	t.Parallel()
 
