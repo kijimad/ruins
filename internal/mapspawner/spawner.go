@@ -86,7 +86,6 @@ type tileSpec struct {
 }
 
 var (
-	// walkableタイル
 	passableTileSpecs = map[string]tileSpec{
 		consts.TileNameDirt:    {spawnName: consts.TileNameDirt, autotile: true},
 		consts.TileNameFloor:   {spawnName: consts.TileNameFloor, autotile: true},
@@ -95,7 +94,6 @@ var (
 		consts.TileNameBridgeC: {spawnName: consts.TileNameBridgeC, autotile: true},
 		consts.TileNameBridgeD: {spawnName: consts.TileNameBridgeD, autotile: true},
 	}
-	// impassableタイル
 	blockedTileSpecs = map[string]tileSpec{
 		consts.TileNameWall: {spawnName: consts.TileNameDWall, autotile: true},
 		consts.TileNameVoid: {spawnName: consts.TileNameVoid, autotile: false},

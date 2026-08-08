@@ -21,7 +21,6 @@ type FloatPool = Pool[float64]
 // TurnBased はエンティティのアクションポイント管理コンポーネント
 // ターン制戦闘で、プレイヤー・敵共通で使用される
 type TurnBased struct {
-	// Action Point
 	AP IntPool
 	// Speed は毎ターンのAP回復量。能力値・状態異常・装備で変動する
 	Speed int

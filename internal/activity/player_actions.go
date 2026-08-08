@@ -173,7 +173,6 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
 	d := targetGrid.Sub(playerGrid.Coord)
 
-	// 同じタイル
 	if d.X == 0 && d.Y == 0 {
 		return "here"
 	}

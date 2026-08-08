@@ -164,7 +164,6 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 	world.Resources.UIResources = uir
 
-	// initialize systems
 	world.Updaters, world.Renderers = gs.InitializeSystems(world)
 
 	return world, nil

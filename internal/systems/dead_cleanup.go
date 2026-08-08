@@ -46,7 +46,6 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 	}
 
-	// spawn drop item
 	rawMaster := world.Resources.RawMaster
 
 	for _, entity := range toDelete {

@@ -106,7 +106,6 @@ func runAIPhase(world w.World) error {
 
 // runEndPhase はturn end processingをして1ゲームターンを確定させる。
 func runEndPhase(world w.World, turnState *gc.TurnState) error {
-	// turn end processing
 	if err := processTurnEnd(world); err != nil {
 		return err
 	}
