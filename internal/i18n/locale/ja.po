@@ -5533,3 +5533,6 @@ msgstr "軍人"
 
 msgid "A trained soldier."
 msgstr "訓練を積んだ兵隊"
+
+msgid "You need %s Lv%d or higher to read this. Current Lv%d"
+msgstr "この本を読むには %s Lv%d 以上が必要。現在 Lv%d"
