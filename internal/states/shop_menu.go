@@ -40,14 +40,15 @@ var _ menurt.ExtraInput = &ShopMenuState{}
 func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.screen = menurt.NewScreen[ShopProps](st, &st.detail)
-	// 売買で所持品が変わると WeightDirty が立つ。この画面でも再計算を回し、
-	// 総重量の表示を売買のたびに更新する
-	st.screen.WithSystems(&gs.WeightDirtySystem{})
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
+	// 売買で所持品が変わると WeightDirty が立つ。この画面でも再計算を回し、総重量の表示を売買のたびに更新する
+	if err := runUpdaters(world, &gs.WeightDirtySystem{}); err != nil {
+		return es.Transition[w.World]{}, err
+	}
 	return st.screen.Update(world)
 }
 

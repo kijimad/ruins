@@ -217,7 +217,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		}
 	}
 
-	for _, updater := range []w.Updater{
+	if err := runUpdaters(world,
 		&gs.AnimationSystem{},
 		&gs.DeadCleanupSystem{},
 		&gs.TurnSystem{},
@@ -227,12 +227,8 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.StatsChangedSystem{},
 		&gs.WeightDirtySystem{},
 		&gs.VisualEffectSystem{},
-	} {
-		if sys, ok := world.Updaters[updater.String()]; ok {
-			if err := sys.Update(world); err != nil {
-				return es.Transition[w.World]{}, err
-			}
-		}
+	); err != nil {
+		return es.Transition[w.World]{}, err
 	}
 
 	// プレイヤー死亡チェック

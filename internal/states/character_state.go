@@ -102,12 +102,15 @@ func (st *CharacterState) OnStart(_ w.World) error {
 	st.equip = newCharacterEquipOverlay(&st.detail)
 	// detail を equip より前に登録する。装備選択中に x で開いた詳細が入力を優先する
 	st.screen = menurt.NewScreen[CharacterProps](st, &st.detail, &st.equip)
-	st.screen.WithSystems(&gs.StatsChangedSystem{}, &gs.WeightDirtySystem{})
 	return nil
 }
 
 // Update はステートの更新処理を Screen へ委譲する
 func (st *CharacterState) Update(world w.World) (es.Transition[w.World], error) {
+	// 装備の着脱でステータスと重量が変わる。再計算を回して表示を更新する
+	if err := runUpdaters(world, &gs.StatsChangedSystem{}, &gs.WeightDirtySystem{}); err != nil {
+		return es.Transition[w.World]{}, err
+	}
 	return st.screen.Update(world)
 }
 
