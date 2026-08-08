@@ -1,6 +1,7 @@
 package states
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ebitenui/ebitenui"
@@ -155,6 +156,12 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 		return es.Transition[w.World]{}, err
 	}
 	if _, err := activity.Execute(act, player, world); err != nil {
+		// 検証失敗、スキル不足や周囲の敵、はユーザー入力の失敗。理由は activity 側が gamelog に
+		// 出しているのでここは閉じるだけにする。state が返すエラーは最上位まで伝播して致命化する
+		// ため、握りつぶすのは検証失敗だけにし、システムエラーは伝播させる
+		if errors.Is(err, activity.ErrValidationFailed) {
+			return es.Transition[w.World]{Type: es.TransPop}, nil
+		}
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil

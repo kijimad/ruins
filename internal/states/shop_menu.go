@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -24,11 +25,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ShopMenuState はショップメニューのゲームステート
+// ShopMenuState はショップメニューのゲームステート。
+// 商人の在庫を売買する。買うと在庫が減り、売ると売った品が在庫に並ぶ
 type ShopMenuState struct {
 	es.BaseState[w.World]
-	detail menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen *menurt.Screen[ShopProps]
+	merchant ecs.Entity        // 品揃えを LocationInStorage で持つ商人。売買の相手
+	detail   menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen   *menurt.Screen[ShopProps]
 }
 
 // State interface ================
@@ -102,12 +105,12 @@ type shopTabData struct {
 }
 
 type shopItemData struct {
-	ItemID   string // アイテムの同定キー。NewItemSpec/BuyItem/価格はこれで引く
-	Label    string // 表示名
+	Entity   ecs.Entity // 在庫・持ち物の実体。買=これを移動、売=これを移動。候補かどうかは実体の Abilities で判別する
+	ItemID   string     // アイテムの raw 同定キー。詳細表示に使う。隊員候補は空
+	Label    string     // 表示名
 	Weight   string
 	Price    int
-	Count    int // 売却時のアイテム個数
-	Entity   ecs.Entity
+	Count    int // 実体の個数
 	IsBuy    bool
 	Disabled bool
 }
@@ -146,89 +149,75 @@ func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, se
 	}
 }
 
+// createBuyItems は商人の在庫を買いタブへ並べる。アイテムと隊員候補が同列に並ぶ
 func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod consts.Percent) []shopItemData {
-	shopInventory := gameaction.GetShopInventory()
-	items := make([]shopItemData, 0, len(shopInventory))
+	stock := query.GetStorageItems(world, st.merchant)
+	items := make([]shopItemData, 0, len(stock))
 
-	for _, itemID := range shopInventory {
-		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemID, true))
-		canAfford := currency >= price
+	for _, entity := range stock {
+		price := buyPriceMod.ApplyInt(query.CalculateBuyPrice(query.StockBaseValue(world, entity)))
+		data := shopItemData{
+			Entity:   entity,
+			Price:    price,
+			Weight:   query.GetEntityWeight(world, entity).KgString(),
+			Count:    query.GetEntityCount(world, entity),
+			IsBuy:    true,
+			Disabled: currency < price,
+		}
+		name := world.Components.Name.Get(entity).Name
+		if query.IsRecruit(world, entity) {
+			// 候補名はローマ字の固有名なので言語に依らずそのまま出す
+			data.Label = name
+		} else {
+			data.ItemID = world.Components.RawID.Get(entity).ID
+			data.Label = query.T(world, name)
+		}
+		items = append(items, data)
+	}
 
-		label := query.T(world, raw.ItemName(world.Resources.RawMaster, itemID))
+	return items
+}
+
+// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る。
+// プレイヤーが居ないときは何も並べない。存在確認を先に済ませ、収集クエリは query.Player の
+// コールバック外で回してクエリのネストを避ける
+func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Percent) []shopItemData {
+	if _, err := query.GetPlayerEntity(world); err != nil {
+		return nil
+	}
+
+	var items []shopItemData
+	sellQuery := ecs.NewFilter3[gc.Name, gc.RawID, gc.LocationInBackpack](world.ECS).Query()
+	for sellQuery.Next() {
+		entity := sellQuery.Entity()
+		nameComp := world.Components.Name.Get(entity)
+		rawID := world.Components.RawID.Get(entity)
+
+		price := sellPriceMod.ApplyInt(query.CalculateSellPrice(query.StockBaseValue(world, entity)))
 
 		items = append(items, shopItemData{
-			ItemID:   itemID,
-			Label:    label,
-			Weight:   shopItemWeight(world, itemID),
-			Price:    price,
-			IsBuy:    true,
-			Disabled: !canAfford,
+			Entity: entity,
+			ItemID: rawID.ID,
+			Label:  query.T(world, nameComp.Name),
+			Weight: query.GetEntityWeight(world, entity).KgString(),
+			Price:  price,
+			Count:  query.GetEntityCount(world, entity),
+			IsBuy:  false,
 		})
 	}
 
 	return items
 }
 
-func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Percent) []shopItemData {
-	var items []shopItemData
-
-	query.Player(world, func(_ ecs.Entity) {
-		sellQuery := ecs.NewFilter3[gc.Name, gc.RawID, gc.LocationInBackpack](world.ECS).Query()
-		for sellQuery.Next() {
-			entity := sellQuery.Entity()
-			nameComp := world.Components.Name.Get(entity)
-			rawID := world.Components.RawID.Get(entity)
-
-			baseValue := query.GetItemValue(world, entity)
-			price := sellPriceMod.ApplyInt(query.CalculateSellPrice(baseValue))
-
-			count := query.GetEntityCount(world, entity)
-
-			items = append(items, shopItemData{
-				ItemID: rawID.ID,
-				Label:  query.T(world, nameComp.Name),
-				Weight: query.GetEntityWeight(world, entity).KgString(),
-				Price:  price,
-				Count:  count,
-				Entity: entity,
-				IsBuy:  false,
-			})
-		}
-	})
-
-	return items
-}
-
-// shopItemWeight は raw 定義から商品1個の重量表記を返す。重量を持たない品は空文字を返す
-func shopItemWeight(world w.World, itemID string) string {
-	spec, err := raw.NewItemSpec(world.Resources.RawMaster, itemID)
-	if err != nil || spec.Weight == nil {
-		return ""
-	}
-	return spec.Weight.KgString()
-}
-
-func (st *ShopMenuState) getItemPrice(world w.World, itemID string, isBuy bool) int {
-	itemDef, err := raw.FindItem(world.Resources.RawMaster, itemID)
-	if err != nil {
-		return 0
-	}
-	baseValue := int(itemDef.Value)
-	if isBuy {
-		return query.CalculateBuyPrice(baseValue)
-	}
-	return query.CalculateSellPrice(baseValue)
-}
-
 // ================
 // Window
 // ================
 
-// buySellSelected は現在カーソルが当たっている商品を、購入タブなら購入、売却タブなら売却する。
-// 決定で即実行し、途中のアクション選択は挟まない。購入は所持金が足りなければ何もしない
+// buySellSelected は現在カーソルが当たっている行を、買いタブなら購入・雇用、売りタブなら売却する。
+// 決定で即実行し、途中のアクション選択は挟まない。購入・雇用は所持金が足りなければ何もしない
 func (st *ShopMenuState) buySellSelected(world w.World) error {
 	item, ok := st.selectedShopItem()
-	if !ok || item.ItemID == "" {
+	if !ok {
 		return nil
 	}
 	if item.IsBuy {
@@ -237,22 +226,31 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 		if !canAfford {
 			return nil
 		}
+		// 選択が古く実体が消えていれば何もしない。dead entity への Has/移動は panic するため先に守る
+		if !world.ECS.Alive(item.Entity) {
+			return nil
+		}
+		// 隊員候補は雇用、アイテムは購入。実体の Abilities で分岐する
 		var err error
-		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.ItemID) })
+		if query.IsRecruit(world, item.Entity) {
+			query.Player(world, func(p ecs.Entity) { err = gameaction.HireRecruit(world, p, item.Entity) })
+		} else {
+			query.Player(world, func(p ecs.Entity) { err = gameaction.BuyStock(world, p, item.Entity) })
+		}
 		if err != nil {
 			return fmt.Errorf("failed to buy: %w", err)
 		}
 		return nil
 	}
 	var err error
-	query.Player(world, func(p ecs.Entity) { err = gameaction.SellItem(world, p, item.Entity) })
+	query.Player(world, func(p ecs.Entity) { err = gameaction.SellStock(world, p, st.merchant, item.Entity) })
 	if err != nil {
 		return fmt.Errorf("failed to sell: %w", err)
 	}
 	return nil
 }
 
-// selectedShopItem は現在カーソルが当たっている商品を返す
+// selectedShopItem は現在カーソルが当たっている行を返す
 func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
@@ -285,10 +283,32 @@ func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Sele
 	})
 }
 
-// detailContent は現在カーソルが当たっている商品の詳細内容を raw 定義から解決する。詳細モーダルの唯一の定義点。
+// detailContent は現在カーソルが当たっている行の詳細内容を返す。詳細モーダルの唯一の定義点。
+// アイテムは raw 定義から性能を、隊員候補は能力値を出す
 func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
-	item, spec, ok := st.selectedDetail(world)
+	item, ok := st.selectedShopItem()
 	if !ok {
+		return menuscreen.DetailContent{}, false
+	}
+
+	// 隊員候補は能力を、アイテムは raw 性能を出す。候補かどうかは実体の Abilities で判別する。
+	// dead entity への Has は panic するため、生存を確認してから判別する
+	if world.ECS.Alive(item.Entity) && query.IsRecruit(world, item.Entity) {
+		a := world.Components.Abilities.Get(item.Entity)
+		// 能力はキャラ画面と同じラベルで縦に並べる。ラベル左・値右の1行1能力にする
+		rows := []menuscreen.SpecRow{
+			{Label: query.T(world, "Vitality"), Value: strconv.Itoa(a.Vitality.Base)},
+			{Label: query.T(world, "Strength"), Value: strconv.Itoa(a.Strength.Base)},
+			{Label: query.T(world, "Sensation"), Value: strconv.Itoa(a.Sensation.Base)},
+			{Label: query.T(world, "Dexterity"), Value: strconv.Itoa(a.Dexterity.Base)},
+			{Label: query.T(world, "Agility"), Value: strconv.Itoa(a.Agility.Base)},
+			{Label: query.T(world, "Defense"), Value: strconv.Itoa(a.Defense.Base)},
+		}
+		return menuscreen.DetailContent{Name: item.Label, Rows: rows}, true
+	}
+
+	spec, err := raw.NewItemSpec(world.Resources.RawMaster, item.ItemID)
+	if err != nil {
 		return menuscreen.DetailContent{}, false
 	}
 	// 価格・重さは一覧に出すので、詳細の説明は raw のアイテム説明だけにする
@@ -297,25 +317,6 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
 		desc = query.T(world, spec.Description.Description)
 	}
 	return menuscreen.DetailContent{Name: item.Label, Desc: desc, Spec: &spec}, true
-}
-
-// selectedDetail は現在カーソルが当たっている商品と、その raw 由来の性能を解決する
-func (st *ShopMenuState) selectedDetail(world w.World) (shopItemData, gc.EntitySpec, bool) {
-	props := st.screen.Props()
-	cursor := st.screen.Selection()
-	if cursor.TabIndex >= len(props.Tabs) {
-		return shopItemData{}, gc.EntitySpec{}, false
-	}
-	items := props.Tabs[cursor.TabIndex].Items
-	if cursor.ItemIndex >= len(items) {
-		return shopItemData{}, gc.EntitySpec{}, false
-	}
-	item := items[cursor.ItemIndex]
-	s, err := raw.NewItemSpec(world.Resources.RawMaster, item.ItemID)
-	if err != nil {
-		return shopItemData{}, gc.EntitySpec{}, false
-	}
-	return item, s, true
 }
 
 func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

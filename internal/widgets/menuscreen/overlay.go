@@ -19,7 +19,4 @@ type Overlay interface {
 	Window(world w.World, rect image.Rectangle) *widget.Window
 }
 
-var (
-	_ Overlay = (*Detail)(nil)
-	_ Overlay = (*ActionWindow)(nil)
-)
+var _ Overlay = (*Detail)(nil)

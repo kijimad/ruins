@@ -290,16 +290,13 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		// NPCの種類に応じて専用ステートを返す
 		switch p.MessageKey {
 		case "merchant_greeting":
+			merchant := p.SpeakerEntity
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName) },
+				func() (es.State[w.World], error) { return NewMerchantDialogState(speakerName, merchant) },
 			}}, nil
 		case "doctor_greeting":
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() (es.State[w.World], error) { return NewDoctorDialogState(speakerName) },
-			}}, nil
-		case "tavern_keeper_greeting":
-			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() (es.State[w.World], error) { return NewTavernKeeperDialogState(speakerName) },
 			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得

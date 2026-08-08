@@ -76,3 +76,43 @@ func TestRemoveEntitiesInXRange_境界は半開区間(t *testing.T) {
 	assert.False(t, world.ECS.Alive(atLo), "X=lo は範囲内で削除")
 	assert.True(t, world.ECS.Alive(atHi), "X=hi は範囲外で残る")
 }
+
+// TestRemoveEntitiesInXRange_所有者の収納在庫も道連れにする は、破棄される所有者が収納に持つ実体も
+// 一緒に消えることを固定する。収納在庫は GridElement を持たず座標カリングでは拾われないため、
+// 所有者だけ消えて在庫が孤児化するのを防ぐ。
+func TestRemoveEntitiesInXRange_所有者の収納在庫も道連れにする(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)}))
+
+	// 所有者はフィールド上。在庫は GridElement を持たず収納にある
+	owner := world.ECS.NewEntity()
+	world.Components.GridElement.Add(owner, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 2, Y: 5}})
+	stock, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, owner)
+	require.NoError(t, err)
+	require.False(t, world.Components.GridElement.Has(stock), "在庫は座標を持たない")
+
+	// 所有者を含む範囲を破棄する
+	worldstream.RemoveEntitiesInXRange(world, 0, 10, nil)
+
+	assert.False(t, world.ECS.Alive(owner), "所有者が消える")
+	assert.False(t, world.ECS.Alive(stock), "収納在庫も道連れで消える")
+}
+
+// TestRemoveEntitiesInXRange_範囲外の所有者の在庫は残す は、破棄されない所有者の収納在庫は
+// 消さないことを固定する。所有者ごとに在庫の可否を分ける。
+func TestRemoveEntitiesInXRange_範囲外の所有者の在庫は残す(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(100), TileHeight: consts.Tile(60)}))
+
+	owner := world.ECS.NewEntity()
+	world.Components.GridElement.Add(owner, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 50, Y: 5}}) // 範囲外
+	stock, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, owner)
+	require.NoError(t, err)
+
+	worldstream.RemoveEntitiesInXRange(world, 0, 10, nil)
+
+	assert.True(t, world.ECS.Alive(owner), "範囲外の所有者は残る")
+	assert.True(t, world.ECS.Alive(stock), "範囲外の所有者の在庫も残る")
+}

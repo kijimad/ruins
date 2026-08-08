@@ -53,12 +53,14 @@ func TestNewGameOverMessageState(t *testing.T) {
 func TestNewMerchantDialogState(t *testing.T) {
 	t.Parallel()
 
-	state, err := NewMerchantDialogState("商人")
+	world := testutil.InitTestWorld(t)
+	merchant := world.ECS.NewEntity()
+
+	state, err := NewMerchantDialogState("商人", merchant)
 	require.NoError(t, err)
 	ps, ok := state.(*PersistentMessageState)
 	require.True(t, ok, "PersistentMessageState型である")
 
-	world := testutil.InitTestWorld(t)
 	require.NotNil(t, ps.build, "build が設定されている")
 	md := ps.build(world)
 

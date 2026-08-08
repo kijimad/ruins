@@ -15006,11 +15006,6 @@
   "Corridors": [],
   "NPCs": [
     {
-      "X": 19,
-      "Y": 3,
-      "Name": "tavern_keeper"
-    },
-    {
       "X": 3,
       "Y": 5,
       "Name": "merchant"

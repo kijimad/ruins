@@ -7,10 +7,6 @@ import (
 
 // DialogueTable は会話データのテーブル。表示文字列は query.T で現在言語へ引く
 var DialogueTable = map[string]func(world w.World, speakerName string) *MessageData{
-	"tavern_keeper_greeting": func(world w.World, speakerName string) *MessageData {
-		return NewDialogMessage("", speakerName).
-			AddText(query.T(world, "We've got some capable folks here.\n\nWant to hire a squad member?"))
-	},
 	"old_soldier_greeting": func(world w.World, speakerName string) *MessageData {
 		// 会話は1ページ=1文字列。強調語は <keyword> で囲む。断片を連結せず語順ごと訳せる
 		msg1 := NewDialogMessage("", speakerName).
