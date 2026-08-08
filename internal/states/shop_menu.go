@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -289,8 +290,16 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
 			return menuscreen.DetailContent{}, false
 		}
 		a := world.Components.Abilities.Get(item.Entity)
-		stats := query.T(world, "Vit%d Str%d Sen%d Dex%d Agi%d Def%d", a.Vitality.Base, a.Strength.Base, a.Sensation.Base, a.Dexterity.Base, a.Agility.Base, a.Defense.Base)
-		return menuscreen.DetailContent{Name: item.Label, Desc: stats}, true
+		// 能力はキャラ画面と同じラベルで縦に並べる。ラベル左・値右の1行1能力にする
+		rows := []menuscreen.SpecRow{
+			{Label: query.T(world, "Vitality"), Value: strconv.Itoa(a.Vitality.Base)},
+			{Label: query.T(world, "Strength"), Value: strconv.Itoa(a.Strength.Base)},
+			{Label: query.T(world, "Sensation"), Value: strconv.Itoa(a.Sensation.Base)},
+			{Label: query.T(world, "Dexterity"), Value: strconv.Itoa(a.Dexterity.Base)},
+			{Label: query.T(world, "Agility"), Value: strconv.Itoa(a.Agility.Base)},
+			{Label: query.T(world, "Defense"), Value: strconv.Itoa(a.Defense.Base)},
+		}
+		return menuscreen.DetailContent{Name: item.Label, Rows: rows}, true
 	}
 
 	spec, err := raw.NewItemSpec(world.Resources.RawMaster, item.ItemID)
