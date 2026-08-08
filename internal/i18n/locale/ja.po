@@ -611,9 +611,6 @@ msgstr "「何人目だ。」\n"
 msgid "\"Who knows. I quit counting long ago.\"\n\n"
 msgstr "「さあな。数えるのはとっくにやめた。」\n\n"
 
-
-
-
 msgid "Tab"
 msgstr "タブ"
 
@@ -732,7 +729,6 @@ msgstr "スキル"
 msgid "Progress"
 msgstr "進捗"
 
-
 # widgets プレースホルダ
 msgid "No log messages"
 msgstr "ログメッセージなし"
@@ -740,19 +736,9 @@ msgstr "ログメッセージなし"
 msgid "(No items)"
 msgstr "(アイテムなし)"
 
-
 # NPC 会話（dialogues）
 msgid "We've got some capable folks here.\n\nWant to hire a squad member?"
 msgstr "うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?"
-
-
-
-
-
-
-
-
-
 
 # systems 温度・死亡・扉
 msgid "death"
@@ -796,7 +782,6 @@ msgstr "少し涼しくなってきた"
 
 msgid "Still hot, but a little better"
 msgstr "まだ暑いが、少しマシになった"
-
 
 # components enum 表示・カテゴリ・ステージ名
 msgid "Head"
@@ -1294,7 +1279,6 @@ msgstr "オーバーワールド"
 msgid "Cube interior"
 msgstr "キューブ内部"
 
-
 msgid "Debug"
 msgstr "デバッグ"
 
@@ -1313,7 +1297,6 @@ msgstr "忘却の廃都"
 msgid "%s began disassembling %s"
 msgstr "%sで%sの分解を始めた"
 
-
 msgid "Interrupted disassembling %s"
 msgstr "%sの分解を中断した"
 
@@ -1323,10 +1306,8 @@ msgstr "分解を中断した"
 msgid "%s skill rose to %d"
 msgstr "%sスキルが %d に上がった"
 
-
 msgid ", "
 msgstr "、"
-
 
 msgid "disassembly target is not set"
 msgstr "分解対象が指定されていません"
@@ -1529,12 +1510,8 @@ msgstr "%s(%d個)"
 msgid "%s handed over %s to %s."
 msgstr "%s は %s を %s に渡した。"
 
-
-
-
 msgid "%s ate %s"
 msgstr "%s は %s を食べた。"
-
 
 msgid "Item"
 msgstr "アイテム"
