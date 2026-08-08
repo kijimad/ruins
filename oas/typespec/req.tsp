@@ -82,7 +82,7 @@ model Book {
 
 /** アイテム */
 model Item {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   description: EntityDescription;
   spriteSheetName: SpriteSheetName;
@@ -141,7 +141,7 @@ model Dialog {
 
 /** メンバー */
 model Member {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   player?: IsPlayer;
   isBoss: IsBoss;
@@ -156,22 +156,22 @@ model Member {
   viewDistance?: ViewDistance;
   dialog?: Dialog;
   /** プレイヤーキャラクターでは省略可能 */
-  commandTableId?: EntityName;
+  commandTableId?: EntityID;
   /** プレイヤーキャラクターでは省略可能 */
-  dropTableId?: EntityName;
+  dropTableId?: EntityID;
 }
 
 // ================== レシピ ==================
 
 /** レシピ素材 */
 model RecipeInput {
-  id: EntityName;
+  id: EntityID;
   amount: MaterialAmount;
 }
 
 /** レシピ */
 model Recipe {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   inputs: RecipeInput[];
 }
@@ -180,13 +180,13 @@ model Recipe {
 
 /** コマンドテーブルエントリ */
 model CommandTableEntry {
-  weapon: EntityName;
+  weapon: EntityID;
   weight: EntryWeight;
 }
 
 /** コマンドテーブル */
 model CommandTable {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   entries: CommandTableEntry[];
 }
@@ -200,7 +200,7 @@ model DropTableEntry {
 
 /** ドロップテーブル */
 model DropTable {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   entries: DropTableEntry[];
 }
@@ -217,7 +217,7 @@ enum ItemGroupSubtype {
 
 /** アイテムグループエントリ */
 model ItemGroupEntry {
-  id: EntityName;
+  id: EntityID;
   /** distribution: 相対重み。collection: 確率（0-100） */
   weight: EntryWeight;
   /** 1山あたりの個数のダイス表記 */
@@ -226,7 +226,7 @@ model ItemGroupEntry {
 
 /** アイテムグループ。アイテムの出現セットを定義する */
 model ItemGroup {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   subtype: ItemGroupSubtype;
   entries: ItemGroupEntry[];
@@ -235,7 +235,7 @@ model ItemGroup {
 /** アイテムテーブルエントリ。アイテムグループを参照する */
 model ItemTableEntry {
   /** 参照するアイテムグループの id */
-  id: EntityName;
+  id: EntityID;
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
@@ -243,14 +243,14 @@ model ItemTableEntry {
 
 /** アイテムテーブル */
 model ItemTable {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   entries: ItemTableEntry[];
 }
 
 /** 敵テーブルエントリ */
 model EnemyTableEntry {
-  id: EntityName;
+  id: EntityID;
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
@@ -260,7 +260,7 @@ model EnemyTableEntry {
 
 /** 敵テーブル */
 model EnemyTable {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   entries: EnemyTableEntry[];
 }
@@ -276,7 +276,7 @@ model SpriteRender {
 
 /** タイル */
 model Tile {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   description: EntityDescription;
   blockPass: BlocksPassage;
@@ -312,14 +312,14 @@ model StorageRaw {
   /** 収納の最大格納重量 */
   maxWeight: Weight;
   /** 初期アイテムの抽選に使うItemTable名 */
-  lootTableId?: EntityName;
+  lootTableId?: EntityID;
   /** 初期アイテム数のダイス表記。省略時は1 */
   lootCount?: Dice;
 }
 
 /** 置物 */
 model Prop {
-  id: EntityName;
+  id: EntityID;
   name: EntityName;
   description: EntityDescription;
   spriteRender: SpriteRender;

@@ -701,8 +701,8 @@ type CombatPolicyType string
 type CommandTable struct {
 	Entries []CommandTableEntry `json:"entries"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -710,8 +710,8 @@ type CommandTable struct {
 
 // CommandTableEntry コマンドテーブルエントリ
 type CommandTableEntry struct {
-	// Weapon エンティティ名
-	Weapon EntityName `json:"weapon"`
+	// Weapon エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Weapon EntityID `json:"weapon"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -821,8 +821,8 @@ type DoorRaw = map[string]interface{}
 type DropTable struct {
 	Entries []DropTableEntry `json:"entries"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -850,8 +850,8 @@ type Element string
 type EnemyTable struct {
 	Entries []EnemyTableEntry `json:"entries"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -859,8 +859,8 @@ type EnemyTable struct {
 
 // EnemyTableEntry 敵テーブルエントリ
 type EnemyTableEntry struct {
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// MaxDepth 階層レベル
 	MaxDepth DepthLevel `json:"maxDepth"`
@@ -883,6 +883,9 @@ type EnemyTableList struct {
 
 // EntityDescription 説明文
 type EntityDescription = string
+
+// EntityID エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+type EntityID = string
 
 // EntityName エンティティ名
 type EntityName = string
@@ -1016,8 +1019,8 @@ type Item struct {
 	// Fire 遠距離攻撃設定
 	Fire *Fire `json:"fire,omitempty"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// InflictsDamage 基本ダメージ
 	InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
@@ -1061,8 +1064,8 @@ type ItemCount = int32
 type ItemGroup struct {
 	Entries []ItemGroupEntry `json:"entries"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1073,8 +1076,8 @@ type ItemGroup struct {
 
 // ItemGroupEntry アイテムグループエントリ
 type ItemGroupEntry struct {
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// Pack 1山あたりの個数のダイス表記
 	Pack Dice `json:"pack"`
@@ -1102,8 +1105,8 @@ type ItemList struct {
 type ItemTable struct {
 	Entries []ItemTableEntry `json:"entries"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
@@ -1112,7 +1115,7 @@ type ItemTable struct {
 // ItemTableEntry アイテムテーブルエントリ。アイテムグループを参照する
 type ItemTableEntry struct {
 	// Id 参照するアイテムグループの id
-	Id EntityName `json:"id"`
+	Id EntityID `json:"id"`
 
 	// MaxDepth 階層レベル
 	MaxDepth DepthLevel `json:"maxDepth"`
@@ -1194,19 +1197,19 @@ type Member struct {
 	CombatPolicy *CombatPolicyType `json:"combatPolicy,omitempty"`
 
 	// CommandTableId プレイヤーキャラクターでは省略可能
-	CommandTableId *EntityName `json:"commandTableId,omitempty"`
+	CommandTableId *EntityID `json:"commandTableId,omitempty"`
 
 	// Dialog 会話データ
 	Dialog *Dialog `json:"dialog,omitempty"`
 
 	// DropTableId プレイヤーキャラクターでは省略可能
-	DropTableId *EntityName `json:"dropTableId,omitempty"`
+	DropTableId *EntityID `json:"dropTableId,omitempty"`
 
 	// FactionType 派閥タイプ
 	FactionType *FactionMemberType `json:"factionType,omitempty"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// IsBoss ボスモンスターかどうか
 	IsBoss IsBoss `json:"isBoss"`
@@ -1363,8 +1366,8 @@ type Prop struct {
 	// Hp 耐久値。設定すると破壊可能になる
 	Hp *HitPoints `json:"hp,omitempty"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
@@ -1445,8 +1448,8 @@ type ReadingEffort = int32
 
 // Recipe レシピ
 type Recipe struct {
-	// Id エンティティ名
-	Id     EntityName    `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id     EntityID      `json:"id"`
 	Inputs []RecipeInput `json:"inputs"`
 
 	// Name エンティティ名
@@ -1458,8 +1461,8 @@ type RecipeInput struct {
 	// Amount 素材必要数
 	Amount MaterialAmount `json:"amount"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 }
 
 // RecipeList レシピ一覧レスポンス
@@ -2299,7 +2302,7 @@ type StorageRaw struct {
 	LootCount *Dice `json:"lootCount,omitempty"`
 
 	// LootTableId 初期アイテムの抽選に使うItemTable名
-	LootTableId *EntityName `json:"lootTableId,omitempty"`
+	LootTableId *EntityID `json:"lootTableId,omitempty"`
 
 	// MaxWeight 収納の最大格納重量
 	MaxWeight Weight `json:"maxWeight"`
@@ -2328,8 +2331,8 @@ type Tile struct {
 	// Foliage 植生タイプ
 	Foliage FoliageType `json:"foliage"`
 
-	// Id エンティティ名
-	Id EntityName `json:"id"`
+	// Id エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
+	Id EntityID `json:"id"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`

@@ -76,6 +76,11 @@ scalar EntityDescription extends string;
 @maxLength(50)
 scalar EntityName extends string;
 
+/** エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id */
+@minLength(1)
+@maxLength(50)
+scalar EntityID extends string;
+
 /** テーブルエントリの重み。大きいほど選ばれやすい */
 @minValue(0)
 scalar EntryWeight extends float64;

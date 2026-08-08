@@ -1572,7 +1572,7 @@ components:
         - entries
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -1587,7 +1587,7 @@ components:
         - weight
       properties:
         weapon:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         weight:
           $ref: '#/components/schemas/EntryWeight'
       description: コマンドテーブルエントリ
@@ -1754,7 +1754,7 @@ components:
         - entries
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -1805,7 +1805,7 @@ components:
         - entries
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -1823,7 +1823,7 @@ components:
         - pack
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         weight:
           $ref: '#/components/schemas/EntryWeight'
         minDepth:
@@ -1854,6 +1854,11 @@ components:
       minLength: 1
       maxLength: 200
       description: 説明文
+    EntityID:
+      type: string
+      minLength: 1
+      maxLength: 50
+      description: エンティティの同定キー。raw 定義やレシピ参照との照合に使う英語の id
     EntityName:
       type: string
       minLength: 1
@@ -2028,7 +2033,7 @@ components:
         - value
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         description:
@@ -2091,7 +2096,7 @@ components:
         - entries
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         subtype:
@@ -2109,7 +2114,7 @@ components:
         - pack
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         weight:
           allOf:
             - $ref: '#/components/schemas/EntryWeight'
@@ -2161,7 +2166,7 @@ components:
         - entries
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -2179,7 +2184,7 @@ components:
       properties:
         id:
           allOf:
-            - $ref: '#/components/schemas/EntityName'
+            - $ref: '#/components/schemas/EntityID'
           description: 参照するアイテムグループの id
         weight:
           $ref: '#/components/schemas/EntryWeight'
@@ -2283,7 +2288,7 @@ components:
         - spriteKey
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         player:
@@ -2314,11 +2319,11 @@ components:
           $ref: '#/components/schemas/Dialog'
         commandTableId:
           allOf:
-            - $ref: '#/components/schemas/EntityName'
+            - $ref: '#/components/schemas/EntityID'
           description: プレイヤーキャラクターでは省略可能
         dropTableId:
           allOf:
-            - $ref: '#/components/schemas/EntityName'
+            - $ref: '#/components/schemas/EntityID'
           description: プレイヤーキャラクターでは省略可能
       description: メンバー
     MemberList:
@@ -2516,7 +2521,7 @@ components:
         - blockView
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         description:
@@ -2665,7 +2670,7 @@ components:
         - inputs
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         inputs:
@@ -2680,7 +2685,7 @@ components:
         - amount
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         amount:
           $ref: '#/components/schemas/MaterialAmount'
       description: レシピ素材
@@ -3883,7 +3888,7 @@ components:
           description: 収納の最大格納重量
         lootTableId:
           allOf:
-            - $ref: '#/components/schemas/EntityName'
+            - $ref: '#/components/schemas/EntityID'
           description: 初期アイテムの抽選に使うItemTable名
         lootCount:
           allOf:
@@ -3924,7 +3929,7 @@ components:
         - foliage
       properties:
         id:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         description:
