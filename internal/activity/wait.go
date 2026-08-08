@@ -1,8 +1,6 @@
 package activity
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -48,7 +46,7 @@ func (wb *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 
 	// 待機回数が妥当かチェック
 	if comp.Progress.Max <= 0 {
-		return fmt.Errorf("wait count is invalid")
+		return ErrWaitInvalidDuration
 	}
 
 	return nil

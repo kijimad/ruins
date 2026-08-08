@@ -1441,6 +1441,9 @@ msgstr "引くスペースがなくなった"
 msgid "book is not set"
 msgstr "本が指定されていません"
 
+msgid "Unknown Item"
+msgstr "不明なアイテム"
+
 msgid "item is not set"
 msgstr "アイテムが指定されていません"
 

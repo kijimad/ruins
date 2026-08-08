@@ -105,7 +105,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 		ra := &RestBehavior{}
 		err = ra.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "enemies are nearby")
+		require.ErrorIs(t, err, ErrRestEnemiesNearby)
 	})
 
 	t.Run("Requiredが0以下の場合はエラー", func(t *testing.T) {
@@ -123,7 +123,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 		ra := &RestBehavior{}
 		err = ra.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "rest requirement amount is invalid")
+		require.ErrorIs(t, err, ErrRestInvalidDuration)
 	})
 }
 

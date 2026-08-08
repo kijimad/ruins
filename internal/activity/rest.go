@@ -1,8 +1,6 @@
 package activity
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -46,12 +44,12 @@ func NewRestActivity() *gc.Activity {
 func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
 	if !isAreaSafe(actor, world) {
-		return fmt.Errorf("cannot rest because enemies are nearby")
+		return ErrRestEnemiesNearby
 	}
 
 	// 必要量が妥当かチェック
 	if comp.Progress.Max <= 0 {
-		return fmt.Errorf("rest requirement amount is invalid")
+		return ErrRestInvalidDuration
 	}
 
 	return nil
@@ -68,7 +66,7 @@ func (rb *RestBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	// 周囲の安全性をチェック
 	if !isAreaSafe(actor, world) {
 		Cancel(comp, "rest interrupted because enemies are nearby")
-		return fmt.Errorf("cannot rest because enemies are nearby")
+		return ErrRestEnemiesNearby
 	}
 
 	// 今ターンのAPを注ぐ。APが高いほど速く休息が進む

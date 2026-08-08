@@ -49,10 +49,8 @@ var (
 	// 休息関連エラー
 	ErrRestEnemiesNearby   = errors.New("cannot rest because enemies are nearby")
 	ErrRestInvalidDuration = errors.New("rest duration is invalid")
-	ErrRestEntityNotSet    = errors.New("resting entity is not set")
 
 	// 待機関連エラー
-	ErrWaitEntityNotSet    = errors.New("waiting entity is not set")
 	ErrWaitInvalidDuration = errors.New("wait duration is invalid")
 
 	// 読書関連エラー
