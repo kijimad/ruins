@@ -6,7 +6,6 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -106,24 +105,14 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 	}
 
-	// ボス撃破時の処理: 扉アンロック + クリアフラグ
+	// ボス撃破時の処理: クリアフラグ
 	for _, entity := range toDelete {
 		if world.Components.Boss.Has(entity) {
-			// 全扉をアンロックして開く
-			if lifecycle.UnlockAllDoors(world) > 0 {
-				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "It seems a door opened somewhere.")).
-					Log()
-			}
-
-			// DoorLockTriggerエンティティを削除する。ボス撃破後はトリガー不要
-			lifecycle.DeleteDoorLockTriggers(world)
-
 			// ダンジョンクリアフラグを立てる
 			dungeonName := query.GetDungeon(world).CurrentStage.Name
 			query.GetGameProgress(world).MarkDungeonCleared(dungeonName)
 
-			logger.Debug("boss defeated: unlock doors and set clear flag", "dungeon", dungeonName)
+			logger.Debug("boss defeated: set clear flag", "dungeon", dungeonName)
 		}
 	}
 

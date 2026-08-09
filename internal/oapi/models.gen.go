@@ -811,9 +811,6 @@ type DisassemblyYield struct {
 	Id EntityID `json:"id"`
 }
 
-// DoorLockTriggerRaw 扉ロックトリガー
-type DoorLockTriggerRaw = map[string]interface{}
-
 // DoorRaw 扉ローデータ
 type DoorRaw = map[string]interface{}
 
@@ -1359,9 +1356,6 @@ type Prop struct {
 
 	// Door 扉ローデータ
 	Door *DoorRaw `json:"door,omitempty"`
-
-	// DoorLockTrigger 扉ロックトリガー
-	DoorLockTrigger *DoorLockTriggerRaw `json:"doorLockTrigger,omitempty"`
 
 	// Hp 耐久値。設定すると破壊可能になる
 	Hp *HitPoints `json:"hp,omitempty"`

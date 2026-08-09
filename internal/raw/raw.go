@@ -688,10 +688,6 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		interactions = append(interactions, gc.InteractionDoor)
 	}
 
-	if propRaw.DoorLockTrigger != nil {
-		interactions = append(interactions, gc.InteractionDoorLock)
-	}
-
 	if propRaw.WarpNextTrigger != nil {
 		interactions = append(interactions, gc.InteractionPortalNext)
 	}

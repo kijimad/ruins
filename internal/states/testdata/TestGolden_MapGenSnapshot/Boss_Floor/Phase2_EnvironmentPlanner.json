@@ -37514,24 +37514,9 @@
   "Items": [],
   "Props": [
     {
-      "X": 7,
-      "Y": 1,
-      "Name": "door_lock_trigger"
-    },
-    {
       "X": 6,
       "Y": 2,
       "Name": "door"
-    },
-    {
-      "X": 7,
-      "Y": 2,
-      "Name": "door_lock_trigger"
-    },
-    {
-      "X": 7,
-      "Y": 3,
-      "Name": "door_lock_trigger"
     },
     {
       "X": 10,

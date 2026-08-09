@@ -4,11 +4,9 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -33,8 +31,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executeDungeonEnter(target, world)
 	case gc.InteractionDoor:
 		return executeDoor(actor, target, world)
-	case gc.InteractionDoorLock:
-		return executeDoorLock(world)
 	case gc.InteractionTalk:
 		return executeTalk(actor, target, world)
 	case gc.InteractionItem:
@@ -102,15 +98,6 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 		return Execute(NewCloseDoorActivity(doorEntity), actor, world)
 	}
 	return Execute(NewOpenDoorActivity(doorEntity), actor, world)
-}
-
-func executeDoorLock(world w.World) (*ActionResult, error) {
-	if lifecycle.LockAllDoors(world) > 0 {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "A door seems to have closed somewhere.")).
-			Log()
-	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorDoorLock, Message: "door lock"}, nil
 }
 
 func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {

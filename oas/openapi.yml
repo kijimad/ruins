@@ -1740,9 +1740,6 @@ components:
         chance:
           $ref: '#/components/schemas/DisassemblyChance'
       description: 分解の産出エントリ。chance 省略は確定枠
-    DoorLockTriggerRaw:
-      type: object
-      description: 扉ロックトリガー
     DoorRaw:
       type: object
       description: 扉ローデータ
@@ -2544,8 +2541,6 @@ components:
           $ref: '#/components/schemas/LightSource'
         door:
           $ref: '#/components/schemas/DoorRaw'
-        doorLockTrigger:
-          $ref: '#/components/schemas/DoorLockTriggerRaw'
         warpNextTrigger:
           $ref: '#/components/schemas/WarpNextTriggerRaw'
         warpPrevTrigger:

@@ -339,7 +339,6 @@ type LightSource struct {
 type Door struct {
 	IsOpen      bool            // 開いているかどうか
 	Orientation DoorOrientation // 扉の向き
-	Locked      bool            // ロック中は開閉不可
 }
 
 // DoorOrientation は扉の向き

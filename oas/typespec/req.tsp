@@ -292,9 +292,6 @@ model Tile {
 /** 扉ローデータ */
 model DoorRaw {}
 
-/** 扉ロックトリガー */
-model DoorLockTriggerRaw {}
-
 /** 次階層ワープトリガー */
 model WarpNextTriggerRaw {}
 
@@ -330,7 +327,6 @@ model Prop {
   hp?: HitPoints;
   lightSource?: LightSource;
   door?: DoorRaw;
-  doorLockTrigger?: DoorLockTriggerRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;
   warpCubeExitTrigger?: WarpCubeExitTriggerRaw;

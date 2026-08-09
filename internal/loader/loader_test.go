@@ -227,7 +227,6 @@ var externallyReferencedSprites = []string{
 }
 
 // knownOrphanSprites は raw からも Go からも参照されない既存スプライトの逃げ道。
-// 現状はゼロ。かつての未参照スプライトは全て raw.toml へ登録済みで孤児は無い。
 // やむを得ず孤児化したものだけをここに載せ、原則は空を保つ。
 var knownOrphanSprites = []string{}
 

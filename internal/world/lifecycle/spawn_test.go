@@ -360,53 +360,6 @@ func TestSpawnDoor(t *testing.T) {
 	})
 }
 
-func TestDeleteDoorLockTriggers(t *testing.T) {
-	t.Parallel()
-
-	t.Run("DoorLockInteractionを持つエンティティだけ削除する", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// DoorLockTriggerを2つ作成
-		trigger1 := world.ECS.NewEntity()
-		world.Components.Interactable.Add(trigger1, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoorLock}})
-		trigger2 := world.ECS.NewEntity()
-		world.Components.Interactable.Add(trigger2, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoorLock}})
-
-		// 他のInteractableも作成
-		other := world.ECS.NewEntity()
-		world.Components.Interactable.Add(other, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDoor}})
-
-		DeleteDoorLockTriggers(world)
-
-		// DoorLockTriggerは削除されている
-		count := 0
-		interactableQuery := ecs.NewFilter1[gc.Interactable](world.ECS).Query()
-		for interactableQuery.Next() {
-			entity := interactableQuery.Entity()
-			interactable := world.Components.Interactable.Get(entity)
-			for _, interaction := range interactable.Interactions {
-				if interaction == gc.InteractionDoorLock {
-					count++
-				}
-			}
-		}
-		assert.Equal(t, 0, count, "DoorLockTriggerは全削除されるべき")
-
-		// 他のInteractableは残っている
-		assert.True(t, world.Components.Interactable.Has(other), "DoorInteractionは残るべき")
-	})
-
-	t.Run("対象がない場合でもエラーにならない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		assert.NotPanics(t, func() {
-			DeleteDoorLockTriggers(world)
-		})
-	})
-}
-
 func TestSpawnVisualEffect(t *testing.T) {
 	t.Parallel()
 
