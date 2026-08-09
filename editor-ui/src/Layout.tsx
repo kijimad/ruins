@@ -47,6 +47,7 @@ const sections: NavSection[] = [
     items: [
       { path: "/balance", label: "バランス" },
       { path: "/dps", label: "DPS" },
+      { path: "/room-loot", label: "部屋別loot" },
       { path: "/table-viewer", label: "スポーンテーブル" },
     ],
   },

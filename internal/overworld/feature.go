@@ -87,6 +87,7 @@ const (
 	dungeonEntranceSalt
 	poiSalt
 	scatterSalt
+	outdoorLootSalt
 )
 
 // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。

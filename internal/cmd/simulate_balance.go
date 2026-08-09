@@ -30,7 +30,7 @@ func runSimulateBalance(_ context.Context, _ *cli.Command) error {
 		return fmt.Errorf("failed to load raw.toml: %w", err)
 	}
 
-	report, err := balance.GenerateReport(master, "Ash", "bare_hands", simMaxDepth, simTrials, simSeed)
+	report, err := balance.GenerateReport(master, "ash", "bare_hands", simMaxDepth, simTrials, simSeed)
 	if err != nil {
 		return err
 	}

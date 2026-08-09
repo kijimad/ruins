@@ -16,6 +16,7 @@ type Report struct {
 	Weapon        *WeaponInfo     `json:"weapon,omitempty"`
 	EnemyTables   []EnemyTableRun `json:"enemyTables,omitempty"`
 	BattleMetrics []BattleMetric  `json:"battleMetrics,omitempty"`
+	RoomLoot      []FacilityLoot  `json:"roomLoot,omitempty"`
 }
 
 // BattleMetric は武器×敵の戦闘シミュレーション結果
@@ -196,8 +197,14 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 	// 武器×敵の戦闘メトリクスを生成する
 	report.BattleMetrics = generateBattleMetrics(master, playerName, seed)
 
+	// 施設種別ごとの loot 分布を生成する
+	report.RoomLoot = GenerateRoomLoot(master, roomLootTrials, seed)
+
 	return report, nil
 }
+
+// roomLootTrials は施設 loot 集計の試行数。多いほど確率が安定する。
+const roomLootTrials = 2000
 
 const battleMetricTrials = 500
 
