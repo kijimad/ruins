@@ -42,9 +42,9 @@ func NewTalkActivity(target ecs.Entity) *gc.Activity {
 
 // Validate は会話アクティビティの検証を行う
 func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.TalkParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.TalkParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 
 	targetEntity := p.Target
@@ -70,10 +70,10 @@ func (tb *TalkBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 
 // DoTurn は会話アクティビティの1ターン分の処理を実行する
 func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.TalkParams](comp)
-	if err != nil {
+	p, ok := comp.Params.(*gc.TalkParams)
+	if !ok {
 		Cancel(comp, "talk target is not set")
-		return err
+		return ErrParamsTypeMismatch
 	}
 	targetEntity := p.Target
 
@@ -102,9 +102,9 @@ func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 func (tb *TalkBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("talk activity finished", "actor", actor)
 
-	p, err := paramsOf[gc.TalkParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.TalkParams)
+	if !ok {
+		return nil
 	}
 
 	targetEntity := p.Target

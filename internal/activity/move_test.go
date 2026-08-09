@@ -45,10 +45,7 @@ func TestMoveBehavior_Validate(t *testing.T) {
 
 		ma := &MoveBehavior{}
 		err = ma.Validate(comp, player, world)
-		// Params 型不一致は構築ミスのシステムエラー。UserError ではない
-		require.Error(t, err)
-		var ue *UserError
-		require.NotErrorAs(t, err, &ue)
+		assert.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 
 	t.Run("位置情報がない場合はエラー", func(t *testing.T) {

@@ -53,9 +53,9 @@ func NewMeleeActivity(target ecs.Entity) *gc.Activity {
 
 // Validate はBehaviorの実装
 func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.MeleeParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.MeleeParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 
 	if world.Components.Dead.Has(actor) {
@@ -90,7 +90,7 @@ func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 
 // Start はBehaviorの実装
 func (ab *MeleeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, err := paramsOf[gc.MeleeParams](comp); err == nil {
+	if p, ok := comp.Params.(*gc.MeleeParams); ok {
 		log.Debug("attack started", "actor", actor, "target", p.Target)
 	}
 	return nil
@@ -98,9 +98,9 @@ func (ab *MeleeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 
 // DoTurn はBehaviorの実装
 func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if _, err := paramsOf[gc.MeleeParams](comp); err != nil {
+	if _, ok := comp.Params.(*gc.MeleeParams); !ok {
 		Cancel(comp, "attack target is not set")
-		return err
+		return ErrParamsTypeMismatch
 	}
 
 	if !ab.canAttack(comp, actor, world) {
@@ -119,9 +119,10 @@ func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 
 // Finish はBehaviorの実装
 func (ab *MeleeBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	p, err := paramsOf[gc.MeleeParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.MeleeParams)
+	if !ok {
+		log.Debug("reached finish with attack target unset; no attack was performed", "actor", actor)
+		return nil
 	}
 	log.Debug("attack activity finished",
 		"actor", actor,
@@ -137,9 +138,9 @@ func (ab *MeleeBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
 }
 
 func (ab *MeleeBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.MeleeParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.MeleeParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 	target := p.Target
 
@@ -154,7 +155,7 @@ func (ab *MeleeBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, worl
 }
 
 func (ab *MeleeBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
-	if _, err := paramsOf[gc.MeleeParams](comp); err != nil {
+	if _, ok := comp.Params.(*gc.MeleeParams); !ok {
 		return false
 	}
 

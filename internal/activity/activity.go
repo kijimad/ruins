@@ -198,22 +198,12 @@ func Cancel(comp *gc.Activity, reason string) {
 	comp.CancelReason = reason
 }
 
-// paramsOf は Activity の Params を期待型で取り出す。型が合わないのは構築ミスのシステムエラー。
-// Params は ActivityParams インターフェースなので、いったん any へ通して型アサートする
-func paramsOf[T any](comp *gc.Activity) (*T, error) {
-	p, ok := any(comp.Params).(*T)
-	if !ok {
-		return nil, fmt.Errorf("activity params type mismatch: got %T, want *%T", comp.Params, new(T))
-	}
-	return p, nil
-}
-
 // requireDestination はActivityのPlaceParamsからタイル座標を取得する。
 // PlaceParamsが未設定の場合はエラーを返す
 func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
-	p, err := paramsOf[gc.PlaceParams](comp)
-	if err != nil {
-		return consts.Coord[consts.Tile]{}, err
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
+		return consts.Coord[consts.Tile]{}, ErrParamsTypeMismatch
 	}
 	return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil
 }

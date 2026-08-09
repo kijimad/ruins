@@ -20,6 +20,9 @@ var (
 	ErrActivityCannotResume  = errors.New("activity cannot be resumed")
 	ErrUnsupportedActivity   = errors.New("unsupported activity type")
 
+	// ErrParamsTypeMismatch は Params の型がアクティビティと合わないことを示す。構築ミスのシステムエラー
+	ErrParamsTypeMismatch = errors.New("activity params type mismatch")
+
 	// 攻撃関連エラー
 	ErrAttackTargetInvalid = errors.New("attack target is invalid")
 	ErrAttackerDead        = errors.New("attacker is dead")

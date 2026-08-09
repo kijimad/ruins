@@ -66,10 +66,7 @@ func TestPickupBehavior_Validate(t *testing.T) {
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
-		// Params 型不一致は構築ミスのシステムエラー。UserError ではない
-		require.Error(t, err)
-		var ue *UserError
-		require.NotErrorAs(t, err, &ue)
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 }
 

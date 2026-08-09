@@ -42,9 +42,9 @@ func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity
 
 // Validate はアイテムドロップアクティビティの検証を行う
 func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.PlaceParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 
 	target := p.Target
@@ -64,7 +64,7 @@ func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 
 // Start はアイテムドロップ開始時の処理を実行する
 func (db *DropBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, err := paramsOf[gc.PlaceParams](comp); err == nil {
+	if p, ok := comp.Params.(*gc.PlaceParams); ok {
 		log.Debug("item drop started", "actor", actor, "target", p.Target)
 	}
 	return nil
@@ -97,9 +97,9 @@ func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 
 // performDrop は実際のアイテムドロップ処理を実行する
 func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.PlaceParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.PlaceParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 	targetTile, err := requireDestination(comp)
 	if err != nil {

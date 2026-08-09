@@ -43,9 +43,9 @@ func NewUseItemActivity(target ecs.Entity) *gc.Activity {
 
 // Validate はBehaviorの実装
 func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.UseItemParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.UseItemParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 
 	item := p.Target
@@ -69,7 +69,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 // Start はBehaviorの実装
 func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, err := paramsOf[gc.UseItemParams](comp); err == nil {
+	if p, ok := comp.Params.(*gc.UseItemParams); ok {
 		log.Debug("item use started", "actor", actor, "item", p.Target)
 	}
 	return nil
@@ -77,10 +77,10 @@ func (u *UseItemBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) 
 
 // DoTurn はBehaviorの実装
 func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.UseItemParams](comp)
-	if err != nil {
+	p, ok := comp.Params.(*gc.UseItemParams)
+	if !ok {
 		Cancel(comp, "item is not set")
-		return err
+		return ErrParamsTypeMismatch
 	}
 
 	item := p.Target

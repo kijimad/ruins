@@ -305,7 +305,7 @@ func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
 	cost := behavior.Info().ActionPointCost
 
 	// 移動行動の場合、移動先タイルのPassCostを加算する。MoveParams を持つのは移動だけ
-	if mp, err := paramsOf[gc.MoveParams](comp); err == nil {
+	if mp, ok := comp.Params.(*gc.MoveParams); ok {
 		cost += getPassCostAt(world, int(mp.Destination.X), int(mp.Destination.Y))
 	}
 

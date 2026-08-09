@@ -46,9 +46,9 @@ func NewShootActivity(target ecs.Entity) *gc.Activity {
 
 // Validate は射撃の検証を行う
 func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.ShootParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.ShootParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
@@ -94,7 +94,7 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 
 // Start はBehaviorの実装
 func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, err := paramsOf[gc.ShootParams](comp); err == nil {
+	if p, ok := comp.Params.(*gc.ShootParams); ok {
 		log.Debug("shoot started", "actor", actor, "target", p.Target)
 	}
 	return nil
@@ -102,10 +102,10 @@ func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 
 // DoTurn は射撃の実行処理
 func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.ShootParams](comp)
-	if err != nil {
+	p, ok := comp.Params.(*gc.ShootParams)
+	if !ok {
 		Cancel(comp, "shoot target is not set")
-		return err
+		return ErrParamsTypeMismatch
 	}
 
 	target := p.Target

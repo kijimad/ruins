@@ -46,9 +46,9 @@ func NewTransferActivity(target, recipient ecs.Entity, count int) *gc.Activity {
 
 // Validate はアイテム転送アクティビティの検証を行う
 func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.TransferParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.TransferParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 	// 値型のパラメータでは未指定が無効エンティティになる。ArkのHasはゼロ値でパニックするため、
 	// Aliveで存在を確かめてから所持判定へ進む
@@ -98,9 +98,9 @@ func (tb *TransferBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Wo
 
 // performTransfer はアイテムを受取人のバックパックに移動する
 func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) error {
-	p, err := paramsOf[gc.TransferParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.TransferParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 	item := p.Target
 	recipient := p.Recipient

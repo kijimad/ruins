@@ -57,9 +57,9 @@ func NewDisassembleActivity(target, actor ecs.Entity, world w.World) *gc.Activit
 
 // Validate は分解アクティビティの検証を行う
 func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.DisassembleParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.DisassembleParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("target does not exist")
@@ -79,9 +79,9 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 
 // Start は分解開始時の処理を実行する
 func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.DisassembleParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.DisassembleParams)
+	if !ok {
+		return ErrParamsTypeMismatch
 	}
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
@@ -104,10 +104,10 @@ func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world 
 // DoTurn は分解アクティビティの1ターン分の処理を実行する。
 // 対象が消えている可能性があるため、毎ターン先頭で生存を確認する
 func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.DisassembleParams](comp)
-	if err != nil {
+	p, ok := comp.Params.(*gc.DisassembleParams)
+	if !ok {
 		Cancel(comp, "disassembly target is not set")
-		return err
+		return nil
 	}
 	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "interrupted because the disassembly target disappeared")
@@ -138,9 +138,9 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 // Finish は分解完了時の処理を実行する。産出を抽選し、propは足元へ落として
 // エンティティを除去、アイテムは1個消費して所持品へ加える
 func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, err := paramsOf[gc.DisassembleParams](comp)
-	if err != nil {
-		return err
+	p, ok := comp.Params.(*gc.DisassembleParams)
+	if !ok {
+		return nil
 	}
 	target := p.Target
 	if !world.ECS.Alive(target) {
@@ -202,7 +202,7 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 func (db *DisassembleBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
 		logger := gamelog.New(query.GetGameLog(world))
-		if p, err := paramsOf[gc.DisassembleParams](comp); err == nil && world.ECS.Alive(p.Target) {
+		if p, ok := comp.Params.(*gc.DisassembleParams); ok && world.ECS.Alive(p.Target) {
 			logger.Markup(query.T(world, "Interrupted disassembling %s", gamelog.Tag("item", query.GetEntityName(p.Target, world))))
 		} else {
 			logger.Markup(query.T(world, "Interrupted disassembly"))
