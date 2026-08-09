@@ -2,6 +2,7 @@ package balance
 
 import (
 	"fmt"
+	"log"
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -37,6 +38,9 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 			Damage:   int32(weapon.Damage),
 			Accuracy: int32(weapon.Accuracy),
 		},
+		// tsp で required の配列は空でも JSON を null でなく [] にする。nil スライスは null になり、UI の map が
+		// フォールバック無しで回せなくなるため、append する配列は空スライスで初期化して契約を守る。
+		EnemyTables: []oapi.BalanceEnemyTableRun{},
 	}
 
 	for _, table := range raw.PtrSlice(master.EnemyTables) {
@@ -48,6 +52,8 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 			Trials:      int32(trials),
 			MedianDepth: int32(stats.MedianDepth()),
 			DeathRate:   stats.DeathRate(),
+			Depths:      []oapi.BalanceDepthStat{},
+			TrialData:   []oapi.BalanceTrialResult{},
 		}
 
 		for depth := 1; depth <= maxDepth; depth++ {
@@ -83,6 +89,7 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 				Index:        int32(i),
 				ReachedDepth: int32(r.ReachedDepth),
 				Died:         r.Died,
+				Depths:       []oapi.BalanceTrialDepthStat{},
 			}
 			for depth := 1; depth <= r.ReachedDepth; depth++ {
 				td := oapi.BalanceTrialDepthStat{Depth: int32(depth)}
@@ -124,6 +131,7 @@ const battleMetricTrials = 500
 func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []oapi.BalanceBattleMetric {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
+		log.Printf("generateBattleMetrics: failed to load player %q: %v", playerName, err)
 		return nil
 	}
 
@@ -151,7 +159,8 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []o
 		}
 	}
 
-	var metrics []oapi.BalanceBattleMetric
+	// 空でも report.BattleMetrics を null でなく [] にするため空スライスで初期化する
+	metrics := []oapi.BalanceBattleMetric{}
 	rng := rand.New(rand.NewPCG(seed, 0))
 
 	for _, w := range weapons {
