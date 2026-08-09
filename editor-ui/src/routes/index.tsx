@@ -4,6 +4,7 @@ import { ResourcePage } from "../pages/ResourcePage";
 import { LayoutPage } from "../pages/LayoutPage";
 import { BalancePage } from "../pages/BalancePage";
 import { DPSPage } from "../pages/DPSPage";
+import { RoomLootPage } from "../pages/RoomLootPage";
 import { TableViewerPage } from "../pages/TableViewerPage";
 import { CutterPage } from "../pages/CutterPage";
 
@@ -81,6 +82,7 @@ export const router = createBrowserRouter([
       { path: "layouts", element: <LayoutPage /> },
       { path: "balance", element: <BalancePage /> },
       { path: "dps", element: <DPSPage /> },
+      { path: "room-loot", element: <RoomLootPage /> },
       { path: "table-viewer", element: <TableViewerPage /> },
       { path: "cutter", element: <CutterPage /> },
     ],
