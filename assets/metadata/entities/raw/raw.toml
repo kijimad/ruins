@@ -12611,12 +12611,6 @@ minDepth = 1
 weight = 3
 
 [[itemTables.entries]]
-id = "materials"
-maxDepth = 30
-minDepth = 1
-weight = 2
-
-[[itemTables.entries]]
 id = "healing_item"
 maxDepth = 30
 minDepth = 1

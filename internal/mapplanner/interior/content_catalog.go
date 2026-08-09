@@ -333,8 +333,9 @@ func storageRoomContent() Content {
 		{Style: PickEach, Items: []Stuff{
 			{Kind: KindFurniture, Ref: "barrel", Amount: consts.Dice{Base: 3, Sides: 1}},
 		}},
+		// 店のバックヤードは在庫の食料を積む。鉱物の supplies は倉庫 depot と屋外に寄せる
 		{Style: PickEach, Items: []Stuff{
-			{Kind: KindLoot, Ref: "supplies", Amount: consts.Dice{Base: 2, Sides: 2}},
+			{Kind: KindLoot, Ref: "snacks", Amount: consts.Dice{Base: 2, Sides: 2}},
 		}},
 	}}
 }

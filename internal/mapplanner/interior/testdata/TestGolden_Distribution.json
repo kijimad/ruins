@@ -25,15 +25,15 @@
     },
     "Decor": {
       "cage": 1,
-      "candle": 176,
+      "candle": 175,
       "carpet": 176,
       "chest": 2,
-      "crate": 148,
-      "debris": 346,
+      "crate": 146,
+      "debris": 343,
       "fence": 918,
       "komainu": 1,
       "litter": 289,
-      "rubble": 469,
+      "rubble": 476,
       "shutter": 85,
       "sign": 100,
       "vending": 54,
@@ -43,8 +43,7 @@
       "bento": 121,
       "documents": 94,
       "drinks": 228,
-      "snacks": 422,
-      "supplies": 282
+      "snacks": 711
     },
     "Heroes": 4
   },
@@ -107,19 +106,20 @@
     },
     "Decor": {
       "cage": 1,
-      "candle": 249,
+      "candle": 248,
       "carpet": 245,
       "chest": 2,
       "crate": 122,
-      "debris": 269,
+      "debris": 278,
       "fence": 1700,
       "komainu": 1,
       "plant": 100,
-      "rubble": 640,
+      "rubble": 663,
       "window": 500
     },
     "Loot": {
-      "supplies": 1260
+      "snacks": 838,
+      "supplies": 422
     },
     "Heroes": 4
   },
@@ -243,20 +243,20 @@
     },
     "Decor": {
       "cage": 1,
-      "candle": 249,
+      "candle": 248,
       "carpet": 245,
       "chest": 2,
       "crate": 135,
-      "debris": 307,
+      "debris": 316,
       "fence": 1700,
       "komainu": 1,
       "plant": 100,
-      "rubble": 613,
+      "rubble": 636,
       "window": 500
     },
     "Loot": {
       "documents": 280,
-      "supplies": 838
+      "snacks": 838
     },
     "Heroes": 4
   },
@@ -287,15 +287,15 @@
     },
     "Decor": {
       "cage": 1,
-      "candle": 176,
+      "candle": 175,
       "carpet": 176,
       "chest": 2,
-      "crate": 133,
-      "debris": 327,
+      "crate": 131,
+      "debris": 324,
       "fence": 918,
       "komainu": 1,
       "litter": 83,
-      "rubble": 473,
+      "rubble": 480,
       "shutter": 85,
       "sign": 100,
       "vending": 54,
@@ -307,8 +307,7 @@
       "documents": 94,
       "drinks": 243,
       "meds": 205,
-      "snacks": 296,
-      "supplies": 282
+      "snacks": 585
     },
     "Heroes": 4
   }
