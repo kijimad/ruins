@@ -10,6 +10,8 @@ import (
 
 // resolveEnemyEntries は敵テーブル名とRawMasterから、指定深度でフィルタリングしたSpawnEntryを返す
 func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]SpawnEntry, error) {
+	// tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。
+	// どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。
 	if rawMaster == nil || tableName == "" {
 		return nil, nil
 	}
@@ -39,6 +41,8 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]S
 // グループ中身の解決と抽選は draw 時に raw.SelectFromItemGroup が担うので、ここはテーブルの深度フィルタと
 // 参照先グループの収集だけを行う。テーブルから group への参照の実在は raw のロード時検証が担保する。
 func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]itemGroupRef, error) {
+	// tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。
+	// どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。
 	if rawMaster == nil || tableName == "" {
 		return nil, nil
 	}
