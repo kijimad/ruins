@@ -159,9 +159,7 @@ func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
 	return world.Components.LastActivity.Get(actor)
 }
 
-// StartActivity は新しいアクティビティを開始する。
-// 返す error が *UserError ならユーザ起因の検証失敗で、アクティビティは開始しない。
-// それ以外の error はシステムエラー。nil なら開始に成功している。
+// StartActivity は新しいアクティビティを開始する。検証か開始に失敗すれば error を返す
 func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp == nil {
 		return ErrActivityNil
