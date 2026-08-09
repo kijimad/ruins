@@ -81,10 +81,10 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 
 		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrAttackTargetNotSet)
+		assert.Error(t, err)
 	})
 
-	t.Run("弾切れでエラー", func(t *testing.T) {
+	t.Run("弾切れは不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
@@ -97,10 +97,12 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootNoAmmo)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
-	t.Run("射程外でエラー", func(t *testing.T) {
+	t.Run("射程外は不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -121,10 +123,12 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err = sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrAttackOutOfRange)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
-	t.Run("近接武器でエラー", func(t *testing.T) {
+	t.Run("近接武器は不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -145,10 +149,12 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err = sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
-	t.Run("射線上に壁があるとエラー", func(t *testing.T) {
+	t.Run("射線上に壁があると不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
 
@@ -162,7 +168,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootLineOfSightBlocked)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
 	t.Run("死亡した攻撃者はエラー", func(t *testing.T) {
@@ -178,7 +186,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		assert.ErrorIs(t, err, ErrAttackerDead)
 	})
 
-	t.Run("死亡したターゲットはエラー", func(t *testing.T) {
+	t.Run("死亡したターゲットは不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
 		world.Components.Dead.Add(enemy, &gc.Dead{})
@@ -188,7 +196,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrAttackTargetDead)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 }
 

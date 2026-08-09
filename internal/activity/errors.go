@@ -2,6 +2,13 @@ package activity
 
 import "errors"
 
+// UserError はユーザ起因の検証失敗。Validate が返す error のうち *UserError だけが
+// ユーザ起因で、呼び出し側は Msg を gamelog へ出して操作を取り消す。それ以外の error は致命的
+type UserError struct{ Msg string }
+
+// Error は error インターフェースを満たす
+func (e *UserError) Error() string { return e.Msg }
+
 // アクティビティ関連のエラー定数
 var (
 	// アクティビティ一般エラー
@@ -14,37 +21,24 @@ var (
 	ErrUnsupportedActivity   = errors.New("unsupported activity type")
 
 	// 攻撃関連エラー
-	ErrAttackTargetNotSet    = errors.New("attack target is not set")
-	ErrAttackTargetInvalid   = errors.New("attack target is invalid")
-	ErrAttackerDead          = errors.New("attacker is dead")
-	ErrAttackTargetNotExists = errors.New("attack target does not exist")
-	ErrAttackTargetDead      = errors.New("attack target is already dead")
-	ErrAttackOutOfRange      = errors.New("attack target is out of range")
-	ErrAttackNoWeapon        = errors.New("no means of attack")
-	ErrTargetNoHPComponent   = errors.New("target has no HP component")
+	ErrAttackTargetNotSet  = errors.New("attack target is not set")
+	ErrAttackTargetInvalid = errors.New("attack target is invalid")
+	ErrAttackerDead        = errors.New("attacker is dead")
+	ErrTargetNoHPComponent = errors.New("target has no HP component")
 
 	// 射撃関連エラー
-	ErrShootNoFireWeapon       = errors.New("no ranged weapon equipped")
-	ErrShootNoAmmo             = errors.New("out of ammo, please reload")
-	ErrShootLineOfSightBlocked = errors.New("line of sight is blocked")
-	ErrReloadNotNeeded         = errors.New("reload is not needed")
-	ErrReloadNoAmmo            = errors.New("no ammo")
+	ErrShootNoFireWeapon = errors.New("no ranged weapon equipped")
 
 	// 移動関連エラー
-	ErrMoveTargetNotSet       = errors.New("move destination is not set")
-	ErrMoveTargetInvalid      = errors.New("move destination is invalid")
-	ErrMoveTargetCoordInvalid = errors.New("move destination coordinate is invalid")
-	ErrMoveNoGridElement      = errors.New("GridElement not found on moving entity")
-	ErrMoveOverweight         = errors.New("too heavy to move")
-	ErrGridElementNotFound    = errors.New("GridElement component not found")
+	ErrMoveTargetNotSet    = errors.New("move destination is not set")
+	ErrMoveTargetInvalid   = errors.New("move destination is invalid")
+	ErrGridElementNotFound = errors.New("GridElement component not found")
 
 	// アイテム関連エラー
 	ErrPositionNotFound = errors.New("position not found")
 	ErrNoItemsToPickup  = errors.New("no items to pick up")
 	ErrItemPickupFailed = errors.New("failed to pick up item")
 	ErrItemNotSet       = errors.New("item is not set")
-	ErrItemNoEffect     = errors.New("this item has no effect")
-	ErrActorNoHP        = errors.New("actor has no HP component")
 
 	// 休息関連エラー
 	ErrRestEnemiesNearby   = errors.New("cannot rest because enemies are nearby")

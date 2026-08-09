@@ -44,10 +44,9 @@ func NewRestActivity() *gc.Activity {
 func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
 	if !isAreaSafe(actor, world) {
-		return ErrRestEnemiesNearby
+		return &UserError{Msg: query.T(world, "cannot rest because enemies are nearby")}
 	}
 
-	// 必要量が妥当かチェック
 	if comp.Progress.Max <= 0 {
 		return ErrRestInvalidDuration
 	}

@@ -168,8 +168,33 @@ func TestExecuteWaitAction(t *testing.T) {
 	})
 }
 
-func TestGetInteractableAtSameTile(t *testing.T) {
+func TestInteractablesAtSameTile(t *testing.T) {
 	t.Parallel()
+
+	t.Run("同一タイルに複数あれば全件返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		coord := consts.Coord[consts.Tile]{X: 10, Y: 10}
+
+		// ポータルと NPC が同じタイルに同居する。先着1件でなく両方返ることを固定する。
+		portal := world.ECS.NewEntity()
+		world.Components.GridElement.Add(portal, &gc.GridElement{Coord: coord})
+		world.Components.Interactable.Add(portal, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionPortalNext},
+		})
+		npc := world.ECS.NewEntity()
+		world.Components.GridElement.Add(npc, &gc.GridElement{Coord: coord})
+		world.Components.Interactable.Add(npc, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionTalk},
+		})
+
+		targetGrid := &gc.GridElement{Coord: coord}
+		found := interactablesAtSameTile(world, targetGrid)
+
+		require.Len(t, found, 2)
+		assert.Contains(t, found, portal)
+		assert.Contains(t, found, npc)
+	})
 
 	t.Run("同じタイルのInteractableを取得できる", func(t *testing.T) {
 		t.Parallel()
@@ -183,10 +208,10 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		})
 
 		targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
-		interactable, foundEntity := getInteractableAtSameTile(world, targetGrid)
+		found := interactablesAtSameTile(world, targetGrid)
 
-		require.NotNil(t, interactable)
-		assert.Equal(t, interactableEntity, foundEntity)
+		require.Len(t, found, 1)
+		assert.Equal(t, interactableEntity, found[0])
 	})
 
 	t.Run("異なるタイルのInteractableは取得されない", func(t *testing.T) {
@@ -201,9 +226,9 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		})
 
 		targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
-		interactable, _ := getInteractableAtSameTile(world, targetGrid)
+		found := interactablesAtSameTile(world, targetGrid)
 
-		assert.Nil(t, interactable)
+		assert.Empty(t, found)
 	})
 
 	t.Run("死亡エンティティはInteractable対象から除外される", func(t *testing.T) {
@@ -219,9 +244,9 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		world.Components.Dead.Add(deadEntity, &gc.Dead{})
 
 		targetGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
-		interactable, _ := getInteractableAtSameTile(world, targetGrid)
+		found := interactablesAtSameTile(world, targetGrid)
 
-		assert.Nil(t, interactable)
+		assert.Empty(t, found)
 	})
 }
 

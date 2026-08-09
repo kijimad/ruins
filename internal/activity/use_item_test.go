@@ -235,8 +235,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrItemNotSet, err)
+		assert.ErrorIs(t, err, ErrItemNotSet)
 	})
 
 	t.Run("効果コンポーネントがない場合はエラー", func(t *testing.T) {
@@ -254,7 +253,8 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
 		require.Error(t, err)
-		assert.Equal(t, ErrItemNoEffect, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
 	t.Run("効果がないアイテムの場合はエラー", func(t *testing.T) {
@@ -275,7 +275,8 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
 		require.Error(t, err)
-		assert.Equal(t, ErrItemNoEffect, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
 	t.Run("ActorにHPがない場合はエラー", func(t *testing.T) {
@@ -296,8 +297,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrActorNoHP, err)
+		assert.Error(t, err)
 	})
 }
 

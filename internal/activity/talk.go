@@ -51,12 +51,12 @@ func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 
 	// Dialogコンポーネントを持っているか確認
 	if !world.Components.Dialog.Has(targetEntity) {
-		return fmt.Errorf("target entity cannot be talked to")
+		return fmt.Errorf("target has no dialog")
 	}
 
-	// 中立派閥か確認
+	// 敵対は歩き込みで攻撃になり talk は中立にしか発動しない。ここで非中立なのは不変条件違反
 	if !query.IsNeutral(world, targetEntity) {
-		return fmt.Errorf("target entity is not in a neutral faction")
+		return fmt.Errorf("target is not in a neutral faction")
 	}
 
 	return nil

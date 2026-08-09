@@ -3,8 +3,35 @@ package components
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestAbilities_BodyWeight(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		vitality int
+		strength int
+		wantKg   int
+	}{
+		{"体格ゼロは基準体重", 0, 0, 40},
+		{"標準的な体格", 5, 5, 50},
+		{"頑健な体格ほど重い", 11, 11, 62},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			a := Abilities{
+				Vitality: Ability{Base: tt.vitality},
+				Strength: Ability{Base: tt.strength},
+			}
+			assert.Equal(t, consts.Milligram(tt.wantKg*consts.MilligramPerKg), a.BodyWeight())
+		})
+	}
+}
 
 func TestAbilityName(t *testing.T) {
 	t.Parallel()

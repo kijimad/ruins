@@ -55,13 +55,13 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		world.Components.ProvidesNutrition.Has(item) ||
 		world.Components.InflictsDamage.Has(item)
 
+	// Use は効果のあるアイテムにしか提示されない。ここで効果なしなのは不変条件違反
 	if !hasEffect {
-		return ErrItemNoEffect
+		return fmt.Errorf("item has no effect")
 	}
 
-	// アクターがHPコンポーネントを持っているかチェック
 	if !world.Components.HP.Has(actor) {
-		return ErrActorNoHP
+		return fmt.Errorf("actor has no HP component")
 	}
 
 	return nil

@@ -5533,3 +5533,73 @@ msgstr "軍人"
 
 msgid "A trained soldier."
 msgstr "訓練を積んだ兵隊"
+
+msgid "You need %s Lv%d or higher to read this. Current Lv%d"
+msgstr "この本を読むには %s Lv%d 以上が必要。現在 Lv%d"
+
+msgid "cannot read because enemies are nearby"
+msgstr "敵が近くにいるので読めない"
+
+msgid "this book is already read"
+msgstr "この本はもう読んだ"
+
+msgid "Recruit"
+msgstr "隊員候補"
+
+msgid "Jin"
+msgstr "ジン"
+
+msgid "Kai"
+msgstr "カイ"
+
+msgid "Ren"
+msgstr "レン"
+
+msgid "Mira"
+msgstr "ミラ"
+
+msgid "Sei"
+msgstr "セイ"
+
+msgid "Noa"
+msgstr "ノア"
+
+msgid "Riku"
+msgstr "リク"
+
+msgid "Yu"
+msgstr "ユウ"
+
+msgid "Haru"
+msgstr "ハル"
+
+msgid "Sora"
+msgstr "ソラ"
+
+# activity.Behavior.Validate のユーザ向け失敗メッセージ
+
+
+msgid "cannot rest because enemies are nearby"
+msgstr "敵が近くにいるので休息できない"
+
+msgid "nothing to pick up"
+msgstr "拾えるものがない"
+
+
+msgid "does not have the tool required for disassembly"
+msgstr "分解に必要な工具を持っていない"
+
+msgid "cannot disassemble because enemies are nearby"
+msgstr "敵が近くにいるので分解できない"
+
+msgid "cannot push in that direction"
+msgstr "その方向には押せない"
+
+msgid "no space to pull"
+msgstr "引くための空間がない"
+
+msgid "reload is not needed"
+msgstr "リロードは必要ない"
+
+msgid "no ammo"
+msgstr "弾薬がない"

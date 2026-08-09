@@ -112,6 +112,14 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
 		return gc.InvalidEntity, fmt.Errorf("NPC recovery failed: %w", err)
 	}
 
+	// 商人は品揃えを在庫として持つ。生成経路に依らずここで積むことで、集落でも街マップの
+	// マッププランナ経由でも同じ在庫を持たせる。売買と雇用はこの在庫を出し入れする
+	if name == "merchant" {
+		if err := PopulateMerchantStock(world, npcEntity, world.Config.RNG); err != nil {
+			return gc.InvalidEntity, fmt.Errorf("failed to stock merchant: %w", err)
+		}
+	}
+
 	query.InvalidateSpatialIndex(world)
 	return npcEntity, nil
 }
@@ -193,6 +201,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	memberEntity := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:           &gc.Name{Name: name},
 		Abilities:      &abilities,
+		Weight:         &gc.Weight{Milligram: abilities.BodyWeight()},
 		HP:             &gc.HP{},
 		TurnBased:      &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}},
 		Skills:         skills,

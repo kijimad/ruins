@@ -36,6 +36,9 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	if cat, ok := world.Components.CategoryOf(gc.ItemTypeCategoryKey, entity); ok {
 		rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: query.T(world, cat)})
 	}
+	if world.Components.Abilities.Has(entity) {
+		rows = append(rows, abilityRows(world, world.Components.Abilities.Get(entity))...)
+	}
 	if world.Components.Melee.Has(entity) {
 		rows = append(rows, attackerRows(world, world.Components.Melee.Get(entity))...)
 	}
@@ -163,6 +166,18 @@ func fireAmmoRows(world w.World, fire *gc.Fire) []SpecRow {
 }
 
 // wearableRows は防具の行を返す。先頭は装備部位の見出し
+// abilityRows は能力値をキャラ画面と同じラベルで縦に並べる。能力を持つ実体の詳細で使う
+func abilityRows(world w.World, a *gc.Abilities) []SpecRow {
+	return []SpecRow{
+		{Label: query.T(world, "Vitality"), Value: strconv.Itoa(a.Vitality.Base)},
+		{Label: query.T(world, "Strength"), Value: strconv.Itoa(a.Strength.Base)},
+		{Label: query.T(world, "Sensation"), Value: strconv.Itoa(a.Sensation.Base)},
+		{Label: query.T(world, "Dexterity"), Value: strconv.Itoa(a.Dexterity.Base)},
+		{Label: query.T(world, "Agility"), Value: strconv.Itoa(a.Agility.Base)},
+		{Label: query.T(world, "Defense"), Value: strconv.Itoa(a.Defense.Base)},
+	}
+}
+
 func wearableRows(world w.World, wearable *gc.Wearable) []SpecRow {
 	rows := []SpecRow{
 		{Label: query.T(world, wearable.EquipmentCategory.String()), Header: true},

@@ -45,8 +45,7 @@ func TestMoveBehavior_Validate(t *testing.T) {
 
 		ma := &MoveBehavior{}
 		err = ma.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrMoveTargetNotSet, err)
+		assert.ErrorIs(t, err, ErrMoveTargetNotSet)
 	})
 
 	t.Run("位置情報がない場合はエラー", func(t *testing.T) {
@@ -64,8 +63,7 @@ func TestMoveBehavior_Validate(t *testing.T) {
 
 		ma := &MoveBehavior{}
 		err := ma.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrMoveNoGridElement, err)
+		assert.Error(t, err)
 	})
 }
 

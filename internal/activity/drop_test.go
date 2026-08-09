@@ -53,7 +53,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 		assert.Contains(t, err.Error(), "drop target is not set")
 	})
 
-	t.Run("バックパック内にないアイテムの場合はエラー", func(t *testing.T) {
+	t.Run("バックパック内にないアイテムの場合は不変条件違反", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -70,7 +70,8 @@ func TestDropBehavior_Validate(t *testing.T) {
 		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "is not in the backpack")
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
 	t.Run("パラメータがない場合はエラー", func(t *testing.T) {

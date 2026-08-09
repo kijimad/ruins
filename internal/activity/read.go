@@ -63,11 +63,23 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		skills = skillsComp
 	}
 	if err := book.CanRead(skills); err != nil {
-		return err
+		// 読めない理由ごとに翻訳した文言を組む。CanRead の英語 err はプレイヤーに出さない
+		if book.IsCompleted() {
+			return &UserError{Msg: query.T(world, "this book is already read")}
+		}
+		if book.Skill != nil && book.Skill.RequiredLevel > 0 {
+			current := 0
+			if skills != nil {
+				current = skills.Get(book.Skill.TargetSkill).Value
+			}
+			return &UserError{Msg: query.T(world, "You need %s Lv%d or higher to read this. Current Lv%d",
+				query.T(world, gc.SkillName(book.Skill.TargetSkill)), book.Skill.RequiredLevel, current)}
+		}
+		return fmt.Errorf("read validation failed: %w", err)
 	}
 
 	if !isAreaSafe(actor, world) {
-		return fmt.Errorf("cannot read because enemies are nearby")
+		return &UserError{Msg: query.T(world, "cannot read because enemies are nearby")}
 	}
 
 	return nil

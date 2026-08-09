@@ -62,25 +62,27 @@ func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		return ErrAttackerDead
 	}
 
-	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
+	// 近接は隣接歩き込み専用で、対象選択が生存・隣接・攻撃能力を保証する。以降で弾かれるのは
+	// 選択後の消失など通常プレイで起きない不変条件違反なのでシステムエラーとする。
+	// ゼロ値・死亡エンティティは Ark の Has でパニックするため先に弾く
 	if !world.ECS.Alive(p.Target) {
-		return ErrAttackTargetNotExists
+		return fmt.Errorf("target does not exist")
 	}
 
 	if !world.Components.GridElement.Has(p.Target) {
-		return ErrAttackTargetNotExists
+		return fmt.Errorf("target has no position")
 	}
 
 	if world.Components.Dead.Has(p.Target) {
-		return ErrAttackTargetDead
+		return fmt.Errorf("target is already dead")
 	}
 
 	if !ab.isInRange(actor, p.Target, world) {
-		return ErrAttackOutOfRange
+		return fmt.Errorf("target is out of melee range")
 	}
 
 	if !ab.canPerformAttack(actor, world) {
-		return ErrAttackNoWeapon
+		return fmt.Errorf("attacker has no attack means")
 	}
 
 	return nil

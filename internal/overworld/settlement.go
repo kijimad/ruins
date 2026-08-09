@@ -16,12 +16,11 @@ type relSpot struct {
 	dy   consts.Tile
 }
 
-// villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店(商人)・雇用(酒場の主人)・
-// 合成(怪しい科学者)を開く。小集落は無状態の補給地で、stash となる収納は置かない。
+// villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店の売買と雇用を商人が、
+// 合成を怪しい科学者が開く。小集落は無状態の補給地で、stash となる収納は置かない。
 // フィールドにアイテムを残さない方針のため、seed からの決定的再生成と整合する。
 var villageNPCs = []relSpot{
 	{"merchant", -2, -1},
-	{"tavern_keeper", -2, 1},
 	{"suspicious_scientist", -4, 0},
 }
 

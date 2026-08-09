@@ -47,7 +47,6 @@ func TestWaitBehavior_Validate(t *testing.T) {
 
 		wa := &WaitBehavior{}
 		err = wa.Validate(comp, player, world)
-		require.Error(t, err)
 		require.ErrorIs(t, err, ErrWaitInvalidDuration)
 	})
 }

@@ -1,7 +1,6 @@
 package activity
 
 import (
-	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -29,11 +28,11 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 	next := current.Add(direction.GetDelta())
 
-	// 移動先にOnCollision方式のInteractableがある場合は自動実行
+	// 移動先の同居 Interactable を全て見て、OnCollision 方式のものを自動実行する。ポータルのような
+	// Manual 単独の Interactable が同じタイルに同居しても、NPC の会話などの OnCollision を取りこぼさない。
 	targetGrid := &gc.GridElement{Coord: next}
-	interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
-
-	if interactable != nil {
+	for _, interactableEntity := range interactablesAtSameTile(world, targetGrid) {
+		interactable := world.Components.Interactable.Get(interactableEntity)
 		for _, interaction := range interactable.Interactions {
 			if interaction.Config().ActivationWay != gc.ActivationWayOnCollision {
 				continue
@@ -72,12 +71,8 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	// 押しはキューブだけを動かす。プレイヤーの追随は次入力の通常移動が担い、方向を押し続けると
 	// 押しと一歩が交互に起きてキューブが進む
 	if cube, ok := pushableAt(world, next); ok {
-		// 押し先が塞がっていれば、壁に歩き込むのと同じく何もしない。エラーにすると
-		// 入力層で致命化するため、実行可否をここで判定して不可なら no-op にする
-		cubeCoord := world.Components.GridElement.Get(cube).Coord
-		if !CanMoveTo(world, cubeCoord.Add(direction.GetDelta()), cubeCoord, cube) {
-			return nil
-		}
+		// 押し先が塞がっていれば Push.Validate が理由を gamelog へ出し err=nil で閉じる。
+		// 壁への歩き込みと同じく no-op になる
 		comp, err := NewPushActivity(cube, direction, world)
 		if err != nil {
 			return err
@@ -89,12 +84,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	canMove := CanMoveTo(world, next, current, entity)
 	if canMove {
 		destination := gc.GridElement{Coord: next}
+		// 重量超過はプレイヤーの通常状態。Execute はユーザ起因の失敗を gamelog へ出したうえで
+		// err=nil を返すため、壁への歩き込みと同じく no-op になる
 		_, err := Execute(NewMoveActivity(destination), entity, world)
-		// 重量超過はプレイヤーの通常状態。エラーにすると入力層で致命化するため、
-		// 壁への歩き込みと同じく no-op にする。理由のログは Validate が既に出している
-		if errors.Is(err, ErrMoveOverweight) {
-			return nil
-		}
 		return err
 	}
 
@@ -122,27 +114,20 @@ func ExecuteWaitAction(world w.World) error {
 	return err
 }
 
-// getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する。
-// 複数ある場合は最初に見つかったものを返す。
-// 見つからない場合は interactable が nil になる。interactable != nil のときのみ entity は有効値。
-func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
-	var found *gc.Interactable
-	var foundEntity ecs.Entity
+// interactablesAtSameTile は指定タイルにある生存 Interactable を全て返す。同一タイルにポータルと
+// NPC のように複数の Interactable が同居しうるため、先着1件でなく全件を返して取りこぼしを防ぐ。
+func interactablesAtSameTile(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
+	var found []ecs.Entity
 	interactableQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Without(ecs.C[gc.Dead]()).Query()
 	for interactableQuery.Next() {
 		entity := interactableQuery.Entity()
-		if found != nil {
-			// 先着1件を採用する。途中 return せず反復は最後まで続ける。Ark のワールドロックを外すため
-			continue
-		}
 		ge := world.Components.GridElement.Get(entity)
 		// 直上タイルのみ
 		if ge.X == targetGrid.X && ge.Y == targetGrid.Y {
-			found = world.Components.Interactable.Get(entity)
-			foundEntity = entity
+			found = append(found, entity)
 		}
 	}
-	return found, foundEntity
+	return found
 }
 
 // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する

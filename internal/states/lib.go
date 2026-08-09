@@ -207,13 +207,6 @@ func nameWithCount(name string, count int) string {
 	return name
 }
 
-// newCurrencyRow は所持金を表示する行を組み立てる。酒場で使う
-func newCurrencyRow(currency int, res resources.UIResources) *widget.Container {
-	container := styled.NewRowContainer()
-	container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))
-	return container
-}
-
 // newPageIndicator はページ位置を示す行を組み立てる。1ページに収まり表示が空になるときも
 // 高さを一定に保つため半角空白を置く。ページングを持つ一覧で共通に使う
 func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widget.Container {

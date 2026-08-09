@@ -432,6 +432,8 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	entitySpec.HP = &gc.HP{}
 	entitySpec.WeightCapacity = &gc.WeightCapacity{}
+	// 体重は能力値の体格から算出する。売買や運搬で member 自身の重量として扱う
+	entitySpec.Weight = &gc.Weight{Milligram: entitySpec.Abilities.BodyWeight()}
 	if member.Player != nil && *member.Player {
 		entitySpec.Player = &gc.Player{}
 	}
