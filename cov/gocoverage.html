@@ -527,7 +527,7 @@
 				
 				<option value="file235">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file236">github.com/kijimaD/ruins/internal/systems/render_sprite.go (0.4%)</option>
+				<option value="file236">github.com/kijimaD/ruins/internal/systems/render_sprite.go (6.8%)</option>
 				
 				<option value="file237">github.com/kijimaD/ruins/internal/systems/stats_changed.go (92.0%)</option>
 				
@@ -47112,16 +47112,16 @@ func setTranslate(world w.World, op *ebiten.DrawImageOptions, camera *gc.Camera)
 
 // viewportTileBounds はカメラの可視範囲をタイル座標の矩形で返す。margin タイル分だけ外側に広げる。
 // 画面外のタイル/スプライト描画をスキップするための可視カリングに使う。
-func viewportTileBounds(world w.World, margin consts.Tile, camera *gc.Camera) (minX, maxX, minY, maxY int) <span class="cov0" title="0">{
+func viewportTileBounds(world w.World, margin consts.Tile, camera *gc.Camera) (minX, maxX, minY, maxY int) <span class="cov8" title="1">{
         var cameraX, cameraY float64
         cameraScale := 1.0
-        if camera != nil </span><span class="cov0" title="0">{
+        if camera != nil </span><span class="cov8" title="1">{
                 cameraX, cameraY, cameraScale = float64(camera.Pos.X), float64(camera.Pos.Y), camera.Scale
         }</span>
-        <span class="cov0" title="0">if cameraScale &lt;= 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if cameraScale &lt;= 0 </span><span class="cov8" title="1">{
                 cameraScale = 1.0
         }</span>
-        <span class="cov0" title="0">ts := int(consts.TileSize)
+        <span class="cov8" title="1">ts := int(consts.TileSize)
         m := int(margin)
         halfW := int(float64(world.Resources.ScreenDimensions.Width)/cameraScale) / 2
         halfH := int(float64(world.Resources.ScreenDimensions.Height)/cameraScale) / 2
@@ -47133,7 +47133,7 @@ func viewportTileBounds(world w.World, margin consts.Tile, camera *gc.Camera) (m
 }
 
 // inViewport は指定タイルが可視範囲矩形内かを返す
-func inViewport(grid *gc.GridElement, minX, maxX, minY, maxY int) bool <span class="cov0" title="0">{
+func inViewport(grid *gc.GridElement, minX, maxX, minY, maxY int) bool <span class="cov8" title="1">{
         x, y := int(grid.X), int(grid.Y)
         return x &gt;= minX &amp;&amp; x &lt;= maxX &amp;&amp; y &gt;= minY &amp;&amp; y &lt;= maxY
 }</span>
