@@ -239,6 +239,3 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		assert.Greater(t, inRoomCount, len(chain.PlanData.Items)/2, "部屋内のアイテムが半数未満")
 	})
 }
-
-// distribution/collection の抽選と stackable の単体検証は internal/raw/item_group_test.go が担う。
-// ここではプランナー経由の配置を TestItemPlanner_PlanMeta で見る。
