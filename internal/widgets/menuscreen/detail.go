@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -40,6 +41,29 @@ func (c DetailContent) resolveRows(world w.World) []SpecRow {
 	default:
 		return nil
 	}
+}
+
+// resolveName は表示名を解決する。明示した Name を優先し、無ければ Entity の名前を現在言語で引く。
+// 在庫や持ち物の詳細は Entity を渡すだけでよく、名前を別途組み立てなくてよい
+func (c DetailContent) resolveName(world w.World) string {
+	if c.Name != "" {
+		return c.Name
+	}
+	if world.ECS.Alive(c.Entity) {
+		return query.GetEntityName(c.Entity, world)
+	}
+	return ""
+}
+
+// resolveDesc は説明を解決する。明示した Desc を優先し、無ければ Entity の Description を現在言語で引く
+func (c DetailContent) resolveDesc(world w.World) string {
+	if c.Desc != "" {
+		return c.Desc
+	}
+	if world.ECS.Alive(c.Entity) && world.Components.Description.Has(c.Entity) {
+		return query.T(world, world.Components.Description.Get(c.Entity).Description)
+	}
+	return ""
 }
 
 // Detail は詳細モーダルの表示状態・ページ送り入力・ウィンドウ組み立てをまとめて担う。
@@ -101,5 +125,5 @@ func (d *Detail) Window(world w.World, rect image.Rectangle) *widget.Window {
 	if !ok {
 		return nil
 	}
-	return buildDetailFromRows(world, rect, content.Name, content.Desc, content.resolveRows(world), d.page)
+	return buildDetailFromRows(world, rect, content.resolveName(world), content.resolveDesc(world), content.resolveRows(world), d.page)
 }
