@@ -61,7 +61,7 @@ func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.Wo
 
 	target := p.Target
 	if !world.Components.LocationInBackpack.Has(target) {
-		return fmt.Errorf("TransferBehavior.Validate: item is not in the backpack")
+		return fmt.Errorf("item is not in the backpack")
 	}
 
 	return nil

@@ -60,7 +60,7 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	}
 
 	if !world.Components.HP.Has(actor) {
-		return fmt.Errorf("UseItemBehavior.Validate: actor has no HP component")
+		return fmt.Errorf("actor has no HP component")
 	}
 
 	return nil

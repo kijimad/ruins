@@ -56,10 +56,10 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	// 対象は CanShootTarget が事前に絞る。存在しない・死亡はここでは選べないので、
 	// 発火するのは選択後の消失など不変条件違反。システムエラーとして伝播させる
 	if !world.Components.GridElement.Has(p.Target) {
-		return fmt.Errorf("ShootBehavior.Validate: target has no position")
+		return fmt.Errorf("target has no position")
 	}
 	if world.Components.Dead.Has(p.Target) {
-		return fmt.Errorf("ShootBehavior.Validate: target is already dead")
+		return fmt.Errorf("target is already dead")
 	}
 
 	// 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、武器スロット不正も
@@ -71,22 +71,22 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 
 	// 残弾チェック
 	if fire.Magazine <= 0 {
-		return fmt.Errorf("ShootBehavior.Validate: out of ammo")
+		return fmt.Errorf("out of ammo")
 	}
 
 	// 射程・射線チェック
 	distance := EntityDistance(actor, p.Target, world)
 	rangeParams, rangeOK := gc.GetRangeParams(fire.AttackCategory)
 	if !rangeOK {
-		return fmt.Errorf("ShootBehavior.Validate: no ranged weapon equipped")
+		return fmt.Errorf("no ranged weapon equipped")
 	}
 	if distance > float64(rangeParams.MaxRange) {
-		return fmt.Errorf("ShootBehavior.Validate: target is out of range")
+		return fmt.Errorf("target is out of range")
 	}
 
 	// 射線上に壁がないか
 	if blocked, _ := checkLineOfSight(actor, p.Target, world); blocked {
-		return fmt.Errorf("ShootBehavior.Validate: line of sight is blocked")
+		return fmt.Errorf("line of sight is blocked")
 	}
 
 	return nil

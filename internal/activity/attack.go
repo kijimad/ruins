@@ -66,23 +66,23 @@ func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 	// 選択後の消失など通常プレイで起きない不変条件違反なのでシステムエラーとする。
 	// ゼロ値・死亡エンティティは Ark の Has でパニックするため先に弾く
 	if !world.ECS.Alive(p.Target) {
-		return fmt.Errorf("AttackBehavior.Validate: target does not exist")
+		return fmt.Errorf("target does not exist")
 	}
 
 	if !world.Components.GridElement.Has(p.Target) {
-		return fmt.Errorf("AttackBehavior.Validate: target has no position")
+		return fmt.Errorf("target has no position")
 	}
 
 	if world.Components.Dead.Has(p.Target) {
-		return fmt.Errorf("AttackBehavior.Validate: target is already dead")
+		return fmt.Errorf("target is already dead")
 	}
 
 	if !ab.isInRange(actor, p.Target, world) {
-		return fmt.Errorf("AttackBehavior.Validate: target is out of melee range")
+		return fmt.Errorf("target is out of melee range")
 	}
 
 	if !ab.canPerformAttack(actor, world) {
-		return fmt.Errorf("AttackBehavior.Validate: attacker has no attack means")
+		return fmt.Errorf("attacker has no attack means")
 	}
 
 	return nil
