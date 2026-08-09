@@ -199,11 +199,10 @@ func TestExecuteInteraction_Melee(t *testing.T) {
 	})
 	world.Components.Name.Add(enemyEntity, &gc.Name{Name: "テスト敵"})
 
-	result, err := ExecuteInteraction(player, enemyEntity, gc.InteractionMelee, world)
+	// 攻撃能力を欠くのは不変条件違反なのでシステムエラーとして伝播する
+	_, err := ExecuteInteraction(player, enemyEntity, gc.InteractionMelee, world)
 
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.False(t, result.Success)
+	require.Error(t, err)
 }
 
 // TestExecuteInteraction_Melee_BareHands は武器がない場合の素手攻撃を確認
@@ -501,10 +500,9 @@ func TestExecuteInteraction_Fixed(t *testing.T) {
 			Interactions: []gc.InteractionKind{gc.InteractionMelee},
 		})
 
-		result, err := ExecuteInteraction(player, prop, gc.InteractionMelee, world)
+		// 対象選択が死亡を除外するため、Dead 対象への攻撃は不変条件違反でシステムエラーになる
+		_, err := ExecuteInteraction(player, prop, gc.InteractionMelee, world)
 
-		require.NoError(t, err)
-		require.NotNil(t, result)
-		assert.False(t, result.Success)
+		require.Error(t, err)
 	})
 }

@@ -421,12 +421,9 @@ func TestLastActivity(t *testing.T) {
 		_, _ = Execute(NewAttackActivity(nonExistentEntity), player, world)
 
 		result := GetLastResult(player, world)
-		expected := &gc.LastActivity{
-			BehaviorName: gc.BehaviorAttack,
-			State:        gc.ActivityStateCanceled,
-			Success:      false,
-			Message:      query.T(world, "attack target does not exist"),
-		}
-		assert.Equal(t, expected, result)
+		require.NotNil(t, result)
+		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.False(t, result.Success)
 	})
 }

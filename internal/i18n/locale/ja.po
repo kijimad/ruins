@@ -5598,8 +5598,6 @@ msgstr "攻撃対象が射程外だ"
 msgid "line of sight is blocked"
 msgstr "射線が遮られている"
 
-msgid "no means of attack"
-msgstr "攻撃手段がない"
 
 msgid "cannot rest because enemies are nearby"
 msgstr "敵が近くにいるので休息できない"
