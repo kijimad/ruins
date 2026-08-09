@@ -49,10 +49,8 @@ func (c DetailContent) resolveName(world w.World) string {
 	if c.Name != "" {
 		return c.Name
 	}
-	if world.ECS.Alive(c.Entity) {
-		return query.GetEntityName(c.Entity, world)
-	}
-	return ""
+	// GetEntityName は死亡・名前なしを内部で吸収するので、ここで生存を確認しなくてよい
+	return query.GetEntityName(c.Entity, world)
 }
 
 // resolveDesc は説明を解決する。明示した Desc を優先し、無ければ Entity の Description を現在言語で引く
