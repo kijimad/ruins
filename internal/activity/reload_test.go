@@ -36,7 +36,8 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		ra := &ReloadBehavior{}
 		comp := NewActivity(gc.BehaviorReload, 0)
 
-		err := ra.Validate(comp, player, world)
+		msg, err := ra.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -47,8 +48,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		ra := &ReloadBehavior{}
 		comp := NewActivity(gc.BehaviorReload, 0)
 
-		err := ra.Validate(comp, player, world)
-		assert.ErrorIs(t, err, ErrReloadNotNeeded)
+		msg, err := ra.Validate(comp, player, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 
 	t.Run("弾薬なしでエラー", func(t *testing.T) {
@@ -70,8 +72,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		ra := &ReloadBehavior{}
 		comp := NewActivity(gc.BehaviorReload, 0)
 
-		err = ra.Validate(comp, player, world)
-		assert.ErrorIs(t, err, ErrReloadNoAmmo)
+		msg, err := ra.Validate(comp, player, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 
 	t.Run("近接武器ではリロード不可", func(t *testing.T) {
@@ -89,8 +92,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		ra := &ReloadBehavior{}
 		comp := NewActivity(gc.BehaviorReload, 0)
 
-		err = ra.Validate(comp, player, world)
-		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
+		msg, err := ra.Validate(comp, player, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 }
 
@@ -278,8 +282,9 @@ func TestExecuteReloadAction(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
+		// マガジン満タンはユーザ起因の失敗。gamelog へ出して err=nil を返し、アクティビティは設定しない
 		err := ExecuteReloadAction(player, world)
-		require.Error(t, err)
+		require.NoError(t, err)
 
 		assert.False(t, world.Components.Activity.Has(player))
 	})

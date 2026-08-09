@@ -74,12 +74,13 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 type Behavior interface {
 	Info() Info
 	Name() gc.BehaviorName
-	// Validate は実行前提を検査する。返す error は「プレイヤーに提示して操作をキャンセルすべき
-	// ユーザ起因の失敗」だけとする。弾切れ・敵接近・本が無い等がこれにあたる。
-	// Execute はこの error を ErrValidationFailed で包み、呼び出し側は握りつぶして gamelog へ流す。
-	// 本来必ず成立する前提が崩れているなら、それはユーザ起因ではなく不変条件違反なので、
-	// error を返さず panic する。握りつぶすとバグが「たまに無反応」として隠れるため
-	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
+	// Validate は実行前提を検査する副作用のない純粋関数。失敗の種別を戻り値の形で表す。
+	// msg が非空ならユーザ起因の失敗で、msg はプレイヤーへ見せる文言。呼び出し側が gamelog へ出して
+	// 操作を取り消す。弾切れ・敵接近・本が無い等がこれにあたる。
+	// err が非nilならシステムまたは致命的なエラーで、呼び出し側が伝播させる。構築ミスや不変条件違反、
+	// 手番を得た actor の死亡などがこれにあたる。
+	// msg と err は排他で、両方ゼロなら検証通過。Validate 内で gamelog を呼ばず panic もしない。
+	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (msg string, err error)
 	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error

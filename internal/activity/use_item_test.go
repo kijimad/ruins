@@ -218,7 +218,8 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		err := ua.Validate(comp, actor, world)
+		msg, err := ua.Validate(comp, actor, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -234,9 +235,9 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		err := ua.Validate(comp, actor, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrItemNotSet, err)
+		msg, err := ua.Validate(comp, actor, world)
+		assert.Empty(t, msg)
+		assert.ErrorIs(t, err, ErrItemNotSet)
 	})
 
 	t.Run("効果コンポーネントがない場合はエラー", func(t *testing.T) {
@@ -252,9 +253,9 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		err := ua.Validate(comp, actor, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrItemNoEffect, err)
+		msg, err := ua.Validate(comp, actor, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 
 	t.Run("効果がないアイテムの場合はエラー", func(t *testing.T) {
@@ -273,9 +274,9 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		err := ua.Validate(comp, actor, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrItemNoEffect, err)
+		msg, err := ua.Validate(comp, actor, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 
 	t.Run("ActorにHPがない場合はエラー", func(t *testing.T) {
@@ -295,10 +296,10 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		// HP 欠落は不変条件違反。検証失敗ではなく panic で表面化させる
-		assert.Panics(t, func() {
-			_ = ua.Validate(comp, actor, world)
-		})
+		// HP 欠落は不変条件違反。ユーザ起因の失敗ではなくシステムエラーで表面化させる
+		msg, err := ua.Validate(comp, actor, world)
+		assert.Empty(t, msg)
+		assert.Error(t, err)
 	})
 }
 

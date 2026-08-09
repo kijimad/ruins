@@ -18,7 +18,9 @@ func TestReadBehavior_Validate_NoTarget(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{}
-	assert.Error(t, ra.Validate(comp, actor, world))
+	msg, err := ra.Validate(comp, actor, world)
+	assert.Empty(t, msg)
+	assert.Error(t, err)
 }
 
 func TestReadBehavior_Validate_NotABook(t *testing.T) {
@@ -30,7 +32,9 @@ func TestReadBehavior_Validate_NotABook(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: item}}
-	assert.Error(t, ra.Validate(comp, actor, world))
+	msg, err := ra.Validate(comp, actor, world)
+	assert.Empty(t, msg)
+	assert.Error(t, err)
 }
 
 func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
@@ -48,9 +52,9 @@ func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	err := ra.Validate(comp, actor, world)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "already read")
+	msg, err := ra.Validate(comp, actor, world)
+	require.NoError(t, err)
+	assert.Contains(t, msg, "already read")
 }
 
 func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
@@ -70,9 +74,9 @@ func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	err := ra.Validate(comp, actor, world)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "level 3 or higher")
+	msg, err := ra.Validate(comp, actor, world)
+	require.NoError(t, err)
+	assert.NotEmpty(t, msg)
 }
 
 func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {
@@ -95,7 +99,9 @@ func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	assert.NoError(t, ra.Validate(comp, actor, world))
+	msg, err := ra.Validate(comp, actor, world)
+	assert.Empty(t, msg)
+	assert.NoError(t, err)
 }
 
 func TestReadBehavior_Validate_Success(t *testing.T) {
@@ -114,7 +120,9 @@ func TestReadBehavior_Validate_Success(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	assert.NoError(t, ra.Validate(comp, actor, world))
+	msg, err := ra.Validate(comp, actor, world)
+	assert.Empty(t, msg)
+	assert.NoError(t, err)
 }
 
 func TestReadBehavior_DoTurn_AdvancesProgress(t *testing.T) {

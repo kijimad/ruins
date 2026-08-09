@@ -41,25 +41,25 @@ func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity
 }
 
 // Validate はアイテムドロップアクティビティの検証を行う
-func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) (string, error) {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return fmt.Errorf("drop target is not set")
+		return "", fmt.Errorf("drop target is not set")
 	}
 
 	target := p.Target
 
 	// Targetがバックパック内にあることを確認する
 	if !world.Components.LocationInBackpack.Has(target) {
-		return fmt.Errorf("item is not in the backpack")
+		return query.T(world, "item is not in the backpack"), nil
 	}
 
-	// 配置先タイル座標を取得できるか確認する
+	// 配置先タイル座標を取得できるか確認する。取得できないのは構築ミス
 	if _, err := requireDestination(comp); err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return "", nil
 }
 
 // Start はアイテムドロップ開始時の処理を実行する

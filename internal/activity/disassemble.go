@@ -60,25 +60,25 @@ func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activi
 }
 
 // Validate は分解アクティビティの検証を行う
-func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
-		return fmt.Errorf("disassembly target is not set")
+		return "", fmt.Errorf("disassembly target is not set")
 	}
 	if !world.ECS.Alive(p.Target) {
-		return fmt.Errorf("disassembly target does not exist")
+		return query.T(world, "disassembly target does not exist"), nil
 	}
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
-		return fmt.Errorf("target has no disassembly definition")
+		return query.T(world, "target has no disassembly definition"), nil
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
-		return fmt.Errorf("does not have the tool required for disassembly")
+		return query.T(world, "does not have the tool required for disassembly"), nil
 	}
 	if !isAreaSafe(actor, world) {
-		return fmt.Errorf("cannot disassemble because enemies are nearby")
+		return query.T(world, "cannot disassemble because enemies are nearby"), nil
 	}
-	return nil
+	return "", nil
 }
 
 // Start は分解開始時の処理を実行する

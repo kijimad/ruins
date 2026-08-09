@@ -68,10 +68,12 @@ func TestOpenDoorBehavior(t *testing.T) {
 		// OpenDoorBehaviorを実行
 		result, err := Execute(NewOpenDoorActivity(wall), player, world)
 
-		require.Error(t, err)
+		// 扉でない対象はユーザ起因の失敗。gamelog へ出して err=nil を返す
+		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.False(t, result.Success, "検証失敗で成功フラグがfalseであるべき")
-		assert.Contains(t, err.Error(), "target entity is not a door")
+		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.NotEmpty(t, result.Message)
 
 		world.ECS.RemoveEntity(player)
 		world.ECS.RemoveEntity(wall)
@@ -126,10 +128,12 @@ func TestOpenDoorBehavior(t *testing.T) {
 		// OpenDoorを実行（ゼロ値Entityは扉ではない）
 		result, err := Execute(NewOpenDoorActivity(gc.InvalidEntity), player, world)
 
-		require.Error(t, err)
+		// 扉でない対象はユーザ起因の失敗。gamelog へ出して err=nil を返す
+		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.False(t, result.Success, "検証失敗で成功フラグがfalseであるべき")
-		assert.Contains(t, result.Message, "target entity is not a door")
+		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.NotEmpty(t, result.Message)
 
 		world.ECS.RemoveEntity(player)
 	})

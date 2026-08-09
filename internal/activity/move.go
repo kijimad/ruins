@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -108,23 +107,23 @@ func NewMoveActivity(destination gc.GridElement) *gc.Activity {
 }
 
 // Validate はBehaviorの実装
-func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
 	p, ok := comp.Params.(*gc.MoveParams)
 	if !ok {
-		return ErrMoveTargetNotSet
+		return "", ErrMoveTargetNotSet
 	}
 
 	if p.Destination.X < 0 || p.Destination.Y < 0 {
-		return ErrMoveTargetCoordInvalid
+		return query.T(world, "move destination is invalid"), nil
 	}
 
 	if !world.Components.GridElement.Has(actor) {
-		// 移動する actor が GridElement を欠くのは不変条件違反。ユーザ起因ではないので panic
-		panic("MoveBehavior.Validate: GridElement not found on moving actor")
+		// 移動する actor が GridElement を欠くのは不変条件違反。ユーザ起因ではないのでシステムエラー
+		return "", fmt.Errorf("MoveBehavior.Validate: GridElement not found on moving actor")
 	}
 	gridElement := world.Components.GridElement.Get(actor)
 	if !CanMoveTo(world, p.Destination.Coord, gridElement.Coord, actor) {
-		return ErrMoveTargetInvalid
+		return query.T(world, "move destination is invalid"), nil
 	}
 
 	// 所持重量が最大の1.5倍を超えていたら動けない
@@ -132,16 +131,11 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		cw := world.Components.WeightCapacity.Get(actor)
 		overweightLimit := cw.Max * 3 / 2
 		if cw.Current > overweightLimit {
-			if world.Components.Player.Has(actor) {
-				gamelog.New(query.GetGameLog(world)).
-					Markup(gamelog.Tag("warning", query.T(world, "Too heavy to move"))).
-					Log()
-			}
-			return ErrMoveOverweight
+			return query.T(world, "Too heavy to move"), nil
 		}
 	}
 
-	return nil
+	return "", nil
 }
 
 // Start はBehaviorの実装

@@ -1,7 +1,6 @@
 package activity
 
 import (
-	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -89,12 +88,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	canMove := CanMoveTo(world, next, current, entity)
 	if canMove {
 		destination := gc.GridElement{Coord: next}
+		// 重量超過はプレイヤーの通常状態。Execute はユーザ起因の失敗を gamelog へ出したうえで
+		// err=nil を返すため、壁への歩き込みと同じく no-op になる。理由のログは Execute が出す
 		_, err := Execute(NewMoveActivity(destination), entity, world)
-		// 重量超過はプレイヤーの通常状態。エラーにすると入力層で致命化するため、
-		// 壁への歩き込みと同じく no-op にする。理由のログは Validate が既に出している
-		if errors.Is(err, ErrMoveOverweight) {
-			return nil
-		}
 		return err
 	}
 

@@ -49,30 +49,31 @@ func NewPushActivity(cube ecs.Entity, dir gc.Direction, world w.World) (*gc.Acti
 }
 
 // Validate はBehaviorの実装
-func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return fmt.Errorf("push target is not set")
+		return "", fmt.Errorf("push target is not set")
 	}
 	if !world.ECS.Alive(p.Target) {
-		return fmt.Errorf("push target does not exist")
+		return query.T(world, "push target does not exist"), nil
 	}
 	if !world.Components.Pushable.Has(p.Target) {
-		return fmt.Errorf("target cannot be pushed")
+		return query.T(world, "target cannot be pushed"), nil
 	}
 	if !world.Components.GridElement.Has(p.Target) {
-		return fmt.Errorf("push target has no position")
+		return query.T(world, "push target has no position"), nil
 	}
 	if !world.Components.GridElement.Has(actor) {
-		return fmt.Errorf("pusher has no position")
+		// 押し手の位置欠落は不変条件違反
+		return "", fmt.Errorf("pusher has no position")
 	}
 	// 押せる先はプレイヤーが行ける先に一致させる。CanMoveTo が寒波前線の破棄域や
 	// 壁を弾くので、押し専用の前線チェックは持たない
 	cubeCoord := world.Components.GridElement.Get(p.Target).Coord
 	if !CanMoveTo(world, p.Destination.Coord, cubeCoord, p.Target) {
-		return fmt.Errorf("cannot push in that direction")
+		return query.T(world, "cannot push in that direction"), nil
 	}
-	return nil
+	return "", nil
 }
 
 // Start はBehaviorの実装
@@ -215,27 +216,31 @@ func NewPullActivity(cube, actor ecs.Entity, world w.World) (*gc.Activity, error
 }
 
 // Validate はBehaviorの実装。後退先が通行可能であることを確かめる。
-func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
 	p, ok := comp.Params.(*gc.PlaceParams)
-	if !ok || !world.ECS.Alive(p.Target) {
-		return fmt.Errorf("pull target does not exist")
+	if !ok {
+		return "", fmt.Errorf("pull target is not set")
+	}
+	if !world.ECS.Alive(p.Target) {
+		return query.T(world, "pull target does not exist"), nil
 	}
 	if !world.Components.Pushable.Has(p.Target) {
-		return fmt.Errorf("target cannot be pulled")
+		return query.T(world, "target cannot be pulled"), nil
 	}
 	if !world.Components.GridElement.Has(p.Target) {
-		return fmt.Errorf("pull target has no position")
+		return query.T(world, "pull target has no position"), nil
 	}
 	if !world.Components.GridElement.Has(actor) {
-		return fmt.Errorf("puller has no position")
+		// 引き手の位置欠落は不変条件違反
+		return "", fmt.Errorf("puller has no position")
 	}
 	cubeCoord := world.Components.GridElement.Get(p.Target).Coord
 	retreat := pullRetreat(cubeCoord, p.Destination.Coord)
 	// 後退先がプレイヤーの行ける先であること。キューブの入る先はプレイヤーが退いて空く
 	if !CanMoveTo(world, retreat, p.Destination.Coord, actor) {
-		return fmt.Errorf("no space to pull")
+		return query.T(world, "no space to pull"), nil
 	}
-	return nil
+	return "", nil
 }
 
 // Start はBehaviorの実装

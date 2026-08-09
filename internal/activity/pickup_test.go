@@ -28,7 +28,8 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
-		err = pa.Validate(comp, player, world)
+		msg, err := pa.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -47,9 +48,9 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
-		err = pa.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "nothing to pick up")
+		msg, err := pa.Validate(comp, player, world)
+		require.NoError(t, err)
+		assert.NotEmpty(t, msg)
 	})
 
 	t.Run("パラメータがない場合はエラー", func(t *testing.T) {
@@ -65,7 +66,8 @@ func TestPickupBehavior_Validate(t *testing.T) {
 		}
 
 		pa := &PickupBehavior{}
-		err = pa.Validate(comp, player, world)
+		msg, err := pa.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "pickup target is not set")
 	})
@@ -208,7 +210,8 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		comp := NewPickupActivity(item)
 
 		pa := &PickupBehavior{}
-		err = pa.Validate(comp, player, world)
+		msg, err := pa.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -228,9 +231,9 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		comp := NewPickupActivity(prop)
 
 		pa := &PickupBehavior{}
-		err = pa.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "nothing to pick up")
+		msg, err := pa.Validate(comp, player, world)
+		require.NoError(t, err)
+		assert.NotEmpty(t, msg)
 	})
 }
 
@@ -254,9 +257,9 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 10, Y: 10})
 
 		pa := &PickupBehavior{}
-		err = pa.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "nothing to pick up")
+		msg, err := pa.Validate(comp, player, world)
+		require.NoError(t, err)
+		assert.NotEmpty(t, msg)
 	})
 
 	t.Run("アイテムと固定物が同じタイルにある場合も拾える", func(t *testing.T) {
@@ -278,7 +281,8 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 		comp := NewPickupTileActivity(world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 
 		pa := &PickupBehavior{}
-		err = pa.Validate(comp, player, world)
+		msg, err := pa.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 }

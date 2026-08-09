@@ -32,7 +32,8 @@ func TestDropBehavior_Validate(t *testing.T) {
 		}
 
 		da := &DropBehavior{}
-		err = da.Validate(comp, player, world)
+		msg, err := da.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -48,7 +49,8 @@ func TestDropBehavior_Validate(t *testing.T) {
 		}
 
 		da := &DropBehavior{}
-		err = da.Validate(comp, player, world)
+		msg, err := da.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "drop target is not set")
 	})
@@ -68,9 +70,9 @@ func TestDropBehavior_Validate(t *testing.T) {
 		}
 
 		da := &DropBehavior{}
-		err = da.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "is not in the backpack")
+		msg, err := da.Validate(comp, player, world)
+		require.NoError(t, err)
+		assert.NotEmpty(t, msg)
 	})
 
 	t.Run("パラメータがない場合はエラー", func(t *testing.T) {
@@ -87,7 +89,8 @@ func TestDropBehavior_Validate(t *testing.T) {
 		}
 
 		da := &DropBehavior{}
-		err = da.Validate(comp, player, world)
+		msg, err := da.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "drop target is not set")
 	})

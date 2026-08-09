@@ -28,7 +28,8 @@ func TestMoveBehavior_Validate(t *testing.T) {
 		}
 
 		ma := &MoveBehavior{}
-		err = ma.Validate(comp, player, world)
+		msg, err := ma.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -44,9 +45,9 @@ func TestMoveBehavior_Validate(t *testing.T) {
 		}
 
 		ma := &MoveBehavior{}
-		err = ma.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrMoveTargetNotSet, err)
+		msg, err := ma.Validate(comp, player, world)
+		assert.Empty(t, msg)
+		assert.ErrorIs(t, err, ErrMoveTargetNotSet)
 	})
 
 	t.Run("位置情報がない場合はエラー", func(t *testing.T) {
@@ -63,10 +64,10 @@ func TestMoveBehavior_Validate(t *testing.T) {
 		}
 
 		ma := &MoveBehavior{}
-		// GridElement 欠落は不変条件違反。検証失敗ではなく panic で表面化させる
-		assert.Panics(t, func() {
-			_ = ma.Validate(comp, player, world)
-		})
+		// GridElement 欠落は不変条件違反。ユーザ起因の失敗ではなくシステムエラーで表面化させる
+		msg, err := ma.Validate(comp, player, world)
+		assert.Empty(t, msg)
+		assert.Error(t, err)
 	})
 }
 

@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -49,22 +50,26 @@ func NewReloadActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
 }
 
 // Validate はリロードの検証を行う
-func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
-		return err
+		// 遠距離武器を持たないのはユーザ起因。武器スロット不正などのシステムエラーは伝播させる
+		if errors.Is(err, ErrShootNoFireWeapon) {
+			return query.T(world, "no ranged weapon equipped"), nil
+		}
+		return "", err
 	}
 
 	if fire.Magazine >= fire.MagazineSize {
-		return ErrReloadNotNeeded
+		return query.T(world, "reload is not needed"), nil
 	}
 
 	// 弾薬の在庫チェック
 	if _, found := query.FindAmmoInInventory(world, fire.AmmoTag); !found {
-		return ErrReloadNoAmmo
+		return query.T(world, "no ammo"), nil
 	}
 
-	return nil
+	return "", nil
 }
 
 // Start はリロード開始時の処理

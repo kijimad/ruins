@@ -52,38 +52,40 @@ func NewAttackActivity(target ecs.Entity) *gc.Activity {
 }
 
 // Validate はBehaviorの実装
-func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
 	p, ok := comp.Params.(*gc.AttackParams)
 	if !ok {
-		return ErrAttackTargetNotSet
+		// 構築ミス。ユーザ起因ではないのでシステムエラー
+		return "", ErrAttackTargetNotSet
 	}
 
 	if world.Components.Dead.Has(actor) {
-		return ErrAttackerDead
+		// 手番を得た actor が死亡しているのは不変条件違反
+		return "", ErrAttackerDead
 	}
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(p.Target) {
-		return ErrAttackTargetNotExists
+		return query.T(world, "attack target does not exist"), nil
 	}
 
 	if !world.Components.GridElement.Has(p.Target) {
-		return ErrAttackTargetNotExists
+		return query.T(world, "attack target does not exist"), nil
 	}
 
 	if world.Components.Dead.Has(p.Target) {
-		return ErrAttackTargetDead
+		return query.T(world, "attack target is already dead"), nil
 	}
 
 	if !ab.isInRange(actor, p.Target, world) {
-		return ErrAttackOutOfRange
+		return query.T(world, "attack target is out of range"), nil
 	}
 
 	if !ab.canPerformAttack(actor, world) {
-		return ErrAttackNoWeapon
+		return query.T(world, "no means of attack"), nil
 	}
 
-	return nil
+	return "", nil
 }
 
 // Start はBehaviorの実装
@@ -157,7 +159,8 @@ func (ab *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w
 		return false
 	}
 
-	if err := ab.Validate(comp, actor, world); err != nil {
+	msg, err := ab.Validate(comp, actor, world)
+	if msg != "" || err != nil {
 		return false
 	}
 

@@ -41,25 +41,25 @@ func NewTalkActivity(target ecs.Entity) *gc.Activity {
 }
 
 // Validate は会話アクティビティの検証を行う
-func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) (string, error) {
 	p, ok := comp.Params.(*gc.TalkParams)
 	if !ok {
-		return fmt.Errorf("talk target is not set")
+		return "", fmt.Errorf("talk target is not set")
 	}
 
 	targetEntity := p.Target
 
 	// Dialogコンポーネントを持っているか確認
 	if !world.Components.Dialog.Has(targetEntity) {
-		return fmt.Errorf("target entity cannot be talked to")
+		return query.T(world, "target entity cannot be talked to"), nil
 	}
 
 	// 中立派閥か確認
 	if !query.IsNeutral(world, targetEntity) {
-		return fmt.Errorf("target entity is not in a neutral faction")
+		return query.T(world, "target entity is not in a neutral faction"), nil
 	}
 
-	return nil
+	return "", nil
 }
 
 // Start は会話開始時の処理を実行する

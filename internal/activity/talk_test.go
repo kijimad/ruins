@@ -31,7 +31,8 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TalkBehavior{}
-		err = ta.Validate(comp, player, world)
+		msg, err := ta.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -47,7 +48,8 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TalkBehavior{}
-		err = ta.Validate(comp, player, world)
+		msg, err := ta.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "talk target is not set")
 	})
@@ -69,9 +71,9 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TalkBehavior{}
-		err = ta.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "target entity cannot be talked to")
+		msg, err := ta.Validate(comp, player, world)
+		require.NoError(t, err)
+		assert.NotEmpty(t, msg)
 	})
 
 	t.Run("FactionNeutralがない場合はエラー", func(t *testing.T) {
@@ -91,9 +93,9 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TalkBehavior{}
-		err = ta.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "target entity is not in a neutral faction")
+		msg, err := ta.Validate(comp, player, world)
+		require.NoError(t, err)
+		assert.NotEmpty(t, msg)
 	})
 }
 

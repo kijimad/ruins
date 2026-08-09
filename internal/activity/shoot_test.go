@@ -69,7 +69,8 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		err := sa.Validate(activity, player, world)
+		msg, err := sa.Validate(activity, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -80,8 +81,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		sa := &ShootBehavior{}
 		activity := NewActivity(gc.BehaviorShoot, 0)
 
-		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrAttackTargetNotSet)
+		msg, err := sa.Validate(activity, player, world)
+		assert.Empty(t, msg)
+		assert.Error(t, err)
 	})
 
 	t.Run("弾切れでエラー", func(t *testing.T) {
@@ -96,8 +98,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootNoAmmo)
+		msg, err := sa.Validate(activity, player, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 
 	t.Run("射程外でエラー", func(t *testing.T) {
@@ -120,8 +123,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		err = sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrAttackOutOfRange)
+		msg, err := sa.Validate(activity, player, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 
 	t.Run("近接武器でエラー", func(t *testing.T) {
@@ -144,8 +148,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		err = sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
+		msg, err := sa.Validate(activity, player, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 
 	t.Run("射線上に壁があるとエラー", func(t *testing.T) {
@@ -161,8 +166,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootLineOfSightBlocked)
+		msg, err := sa.Validate(activity, player, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 
 	t.Run("死亡した攻撃者はエラー", func(t *testing.T) {
@@ -174,7 +180,8 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		err := sa.Validate(activity, player, world)
+		msg, err := sa.Validate(activity, player, world)
+		assert.Empty(t, msg)
 		assert.ErrorIs(t, err, ErrAttackerDead)
 	})
 
@@ -187,8 +194,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrAttackTargetDead)
+		msg, err := sa.Validate(activity, player, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 }
 
@@ -260,8 +268,9 @@ func TestExecuteShootAction(t *testing.T) {
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 		require.NoError(t, err)
 
+		// 近接武器での射撃はユーザ起因の失敗。gamelog へ出して err=nil を返し、アクティビティは設定しない
 		err = ExecuteShootAction(player, enemy, world)
-		require.Error(t, err)
+		require.NoError(t, err)
 
 		assert.False(t, world.Components.Activity.Has(player))
 	})

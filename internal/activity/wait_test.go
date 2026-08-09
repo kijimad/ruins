@@ -29,7 +29,8 @@ func TestWaitBehavior_Validate(t *testing.T) {
 		}
 
 		wa := &WaitBehavior{}
-		err = wa.Validate(comp, player, world)
+		msg, err := wa.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -46,8 +47,8 @@ func TestWaitBehavior_Validate(t *testing.T) {
 		}
 
 		wa := &WaitBehavior{}
-		err = wa.Validate(comp, player, world)
-		require.Error(t, err)
+		msg, err := wa.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		require.ErrorIs(t, err, ErrWaitInvalidDuration)
 	})
 }

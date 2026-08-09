@@ -158,8 +158,9 @@ func TestPushBehavior_プレイヤーが行けない先へは押せない(t *tes
 
 	pushComp, perr := activity.NewPushActivity(cube, gc.DirectionRight, world)
 	require.NoError(t, perr)
+	// 押し先が壁なのはユーザ起因の失敗。gamelog へ出して err=nil を返し、キューブは動かない
 	_, err := activity.Execute(pushComp, player, world)
-	require.Error(t, err, "押し先が壁なら押せない")
+	require.NoError(t, err)
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "押せなければキューブは動かない")
 }
 
@@ -238,8 +239,9 @@ func TestPullBehavior_後退スペースが無ければ引けない(t *testing.T
 
 	pullComp, perr := activity.NewPullActivity(cube, player, world)
 	require.NoError(t, perr)
+	// 後退スペースが無いのはユーザ起因の失敗。gamelog へ出して err=nil を返し、キューブは動かない
 	_, err := activity.Execute(pullComp, player, world)
-	require.Error(t, err, "後退スペースが無ければ引けない")
+	require.NoError(t, err)
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "引けないのでキューブは動かない")
 }
 

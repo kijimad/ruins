@@ -81,7 +81,8 @@ func TestRestBehavior_Validate(t *testing.T) {
 		}
 
 		ra := &RestBehavior{}
-		err = ra.Validate(comp, player, world)
+		msg, err := ra.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		assert.NoError(t, err)
 	})
 
@@ -103,9 +104,9 @@ func TestRestBehavior_Validate(t *testing.T) {
 		}
 
 		ra := &RestBehavior{}
-		err = ra.Validate(comp, player, world)
-		require.Error(t, err)
-		require.ErrorIs(t, err, ErrRestEnemiesNearby)
+		msg, err := ra.Validate(comp, player, world)
+		assert.NotEmpty(t, msg)
+		assert.NoError(t, err)
 	})
 
 	t.Run("Requiredが0以下の場合はエラー", func(t *testing.T) {
@@ -121,8 +122,8 @@ func TestRestBehavior_Validate(t *testing.T) {
 		}
 
 		ra := &RestBehavior{}
-		err = ra.Validate(comp, player, world)
-		require.Error(t, err)
+		msg, err := ra.Validate(comp, player, world)
+		assert.Empty(t, msg)
 		require.ErrorIs(t, err, ErrRestInvalidDuration)
 	})
 }
