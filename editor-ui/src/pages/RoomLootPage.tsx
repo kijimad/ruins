@@ -7,6 +7,7 @@ import {
   Flex,
   NativeSelect,
 } from "@chakra-ui/react";
+import { WeightBar } from "../components/WeightBar";
 
 interface LootItemStat {
   name: string;
@@ -73,6 +74,19 @@ export function RoomLootPage() {
   const current = roomLoot.find((f) => f.facility === facility) ?? roomLoot[0];
   if (!current) return null;
 
+  // 期待個数の割合バー。上位を色分けし、残りは「その他」へ畳んで読みやすくする。
+  const topN = 12;
+  const barEntries = current.items
+    .slice(0, topN)
+    .map((it) => ({ name: it.name, weight: it.expectedCount }));
+  const restWeight = current.items
+    .slice(topN)
+    .reduce((s, it) => s + it.expectedCount, 0);
+  if (restWeight > 0) {
+    barEntries.push({ name: "その他", weight: restWeight });
+  }
+  const barTotal = barEntries.reduce((s, e) => s + e.weight, 0);
+
   return (
     <Box>
       <Heading size="lg" mb="2">
@@ -103,6 +117,13 @@ export function RoomLootPage() {
           {current.items.length} 種
         </Text>
       </Flex>
+
+      <Box mb="4">
+        <Text fontSize="sm" mb="1">
+          期待個数の割合
+        </Text>
+        <WeightBar entries={barEntries} totalWeight={barTotal} />
+      </Box>
 
       <Table.Root size="sm">
         <Table.Header>
