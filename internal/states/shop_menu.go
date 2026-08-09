@@ -274,8 +274,7 @@ func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Sele
 	})
 }
 
-// detailContent は現在カーソルが当たっている行の詳細内容を返す。詳細モーダルの唯一の定義点。
-// 在庫は実体化済み
+// detailContent は現在カーソルが当たっている行の詳細内容を返す。詳細モーダルの唯一の定義点
 func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
 	item, ok := st.selectedShopItem()
 	if !ok {
@@ -286,7 +285,7 @@ func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent,
 	if !world.ECS.Alive(item.Entity) {
 		return menuscreen.DetailContent{}, false
 	}
-	// 名前・説明・性能は DetailContent が Entity から組む。在庫は実体化済みなので Entity を渡すだけでよい
+	// 名前・説明・性能は DetailContent が Entity から組む
 	return menuscreen.DetailContent{Entity: item.Entity}, true
 }
 

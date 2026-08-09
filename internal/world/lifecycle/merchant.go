@@ -21,8 +21,7 @@ var merchantStockItems = []string{
 	"army_shooting_manual",
 }
 
-// recruitNamePool は隊員候補名のプール。値は抽選と生成時翻訳に使う msgid。訳は
-// internal/i18n/locale/ja.po に持つ。名前は生成時に query.T で確定し、以後は表示名として扱う
+// recruitNamePool は隊員候補名のプール。値は msgid で、訳は internal/i18n/locale/ja.po に持つ
 var recruitNamePool = []string{
 	"Jin", "Kai", "Ren", "Mira", "Sei",
 	"Noa", "Riku", "Yu", "Haru", "Sora",
@@ -48,7 +47,6 @@ func PopulateMerchantStock(world w.World, merchant ecs.Entity, rng *rand.Rand) e
 		if len(used) >= len(recruitNamePool) {
 			break
 		}
-		// 名前の重複を避ける
 		var name string
 		for {
 			name = recruitNamePool[rng.IntN(len(recruitNamePool))]
@@ -83,10 +81,8 @@ func randomRecruitAbilities(rng *rand.Rand) gc.Abilities {
 
 // SpawnStorageRecruit は商人の在庫に inert な隊員候補を生成する。
 // GridElement を持たないためフィールドに出ず、描画も戦闘もAIも対象にならない。雇用で活性化する。
-// 名前・能力・スプライトだけ持たせ、雇用時にこの3つから隊員を復元する。
-// name は生成時に確定した表示名。以後そのまま表示し、翻訳し直さない
+// name は生成時に確定した表示名で、以後翻訳し直さない
 func SpawnStorageRecruit(world w.World, merchant ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
-	// 将来は全エンティティ共通の価値算出へ寄せる
 	const valuePerAbility = 30
 	value := (abilities.Vitality.Base + abilities.Strength.Base + abilities.Sensation.Base +
 		abilities.Dexterity.Base + abilities.Agility.Base + abilities.Defense.Base) * valuePerAbility
