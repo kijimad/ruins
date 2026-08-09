@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 10:03:33</td>
+            <td class="headerValue">2026-08-09 13:01:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,21 +97,21 @@
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // NewReadActivity は読む本を指定して読書アクティビティを組む。進捗は本の Effort に</span>
 <span id="L37"><span class="lineNum">      37</span>              : // 永続するので、Progress.Max も本の総工数に据えて表示を揃える。</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         book := getBook(target, world)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         if book == nil {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;target has no Book component&quot;)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : func NewReadActivity(target ecs.Entity, world w.World) *gc.Activity {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         effort := 0</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         if book := getBook(target, world); book != nil {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 effort = book.Effort.Max</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         comp := NewActivity(gc.BehaviorRead, book.Effort.Max)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         comp := NewActivity(gc.BehaviorRead, effort)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         comp.Params = &amp;gc.ReadParams{Target: target}</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         return comp, nil</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         return comp</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : }</span>
 <span id="L47"><span class="lineNum">      47</span>              : </span>
 <span id="L48"><span class="lineNum">      48</span>              : // Validate は読書アクティビティの検証を行う</span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC tlaBgGNC">           1 : func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.ReadParams)</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;book is not set&quot;)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 return ErrParamsTypeMismatch</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         book := getBook(p.Target, world)</span></span>
@@ -151,7 +151,7 @@
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC tlaBgUNC">           0 : func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         p, ok := comp.Params.(*gc.ReadParams)</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                 return ErrReadTargetNotSet</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                 return ErrParamsTypeMismatch</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L94"><span class="lineNum">      94</span>              : </span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         book := getBook(p.Target, world)</span></span>
@@ -174,7 +174,7 @@
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.ReadParams)</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;book is not set&quot;)</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 return ErrParamsTypeMismatch</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC tlaBgGNC">           2 :         if !world.ECS.Alive(p.Target) {</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;interrupted because the book disappeared&quot;)</span></span>
@@ -217,7 +217,7 @@
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 : func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.ReadParams)</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ErrParamsTypeMismatch</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC tlaBgGNC">           2 :         if !world.ECS.Alive(p.Target) {</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 return nil</span></span>

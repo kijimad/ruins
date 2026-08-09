@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 10:03:33</td>
+            <td class="headerValue">2026-08-09 13:01:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -172,7 +172,7 @@
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 : func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.MoveParams)</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 return ErrMoveTargetNotSet</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 return ErrParamsTypeMismatch</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L115"><span class="lineNum">     115</span>              : </span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         if p.Destination.X &lt; 0 || p.Destination.Y &lt; 0 {</span></span>
@@ -212,7 +212,7 @@
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.MoveParams)</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;move destination is not set&quot;)</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 return ErrMoveTargetNotSet</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 return ErrParamsTypeMismatch</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L155"><span class="lineNum">     155</span>              : </span>
 <span id="L156"><span class="lineNum">     156</span>              :         // GridElementの存在確認</span>
@@ -261,7 +261,7 @@
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC tlaBgGNC">           1 : func (mb *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.MoveParams)</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ErrMoveTargetNotSet</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ErrParamsTypeMismatch</span></span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(actor) {</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC tlaBgUNC">           0 :                 return ErrGridElementNotFound</span></span>

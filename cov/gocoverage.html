@@ -59,9 +59,9 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.7%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.0%)</option>
 				
-				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (81.1%)</option>
+				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
 				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (74.7%)</option>
 				
@@ -69,7 +69,7 @@
 				
 				<option value="file6">github.com/kijimaD/ruins/internal/activity/errors.go (0.0%)</option>
 				
-				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (48.6%)</option>
+				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (61.4%)</option>
 				
 				<option value="file8">github.com/kijimaD/ruins/internal/activity/move.go (85.4%)</option>
 				
@@ -77,17 +77,17 @@
 				
 				<option value="file10">github.com/kijimaD/ruins/internal/activity/pickup.go (75.9%)</option>
 				
-				<option value="file11">github.com/kijimaD/ruins/internal/activity/player_actions.go (79.0%)</option>
+				<option value="file11">github.com/kijimaD/ruins/internal/activity/player_actions.go (79.4%)</option>
 				
-				<option value="file12">github.com/kijimaD/ruins/internal/activity/push.go (69.0%)</option>
+				<option value="file12">github.com/kijimaD/ruins/internal/activity/push.go (73.2%)</option>
 				
 				<option value="file13">github.com/kijimaD/ruins/internal/activity/read.go (64.0%)</option>
 				
-				<option value="file14">github.com/kijimaD/ruins/internal/activity/reload.go (80.4%)</option>
+				<option value="file14">github.com/kijimaD/ruins/internal/activity/reload.go (79.6%)</option>
 				
 				<option value="file15">github.com/kijimaD/ruins/internal/activity/rest.go (92.0%)</option>
 				
-				<option value="file16">github.com/kijimaD/ruins/internal/activity/shoot.go (90.2%)</option>
+				<option value="file16">github.com/kijimaD/ruins/internal/activity/shoot.go (89.8%)</option>
 				
 				<option value="file17">github.com/kijimaD/ruins/internal/activity/talk.go (81.6%)</option>
 				
@@ -481,7 +481,7 @@
 				
 				<option value="file212">github.com/kijimaD/ruins/internal/states/factories.go (54.3%)</option>
 				
-				<option value="file213">github.com/kijimaD/ruins/internal/states/item_action_state.go (67.9%)</option>
+				<option value="file213">github.com/kijimaD/ruins/internal/states/item_action_state.go (68.2%)</option>
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/states/lib.go (94.1%)</option>
 				
@@ -722,8 +722,8 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) <span class="cov8" titl
         switch name </span>{
         case gc.BehaviorMove:<span class="cov8" title="1">
                 return &amp;MoveBehavior{}, nil</span>
-        case gc.BehaviorAttack:<span class="cov8" title="1">
-                return &amp;AttackBehavior{}, nil</span>
+        case gc.BehaviorMelee:<span class="cov8" title="1">
+                return &amp;MeleeBehavior{}, nil</span>
         case gc.BehaviorRest:<span class="cov8" title="1">
                 return &amp;RestBehavior{}, nil</span>
         case gc.BehaviorWait:<span class="cov8" title="1">
@@ -898,7 +898,7 @@ func Cancel(comp *gc.Activity, reason string) <span class="cov8" title="1">{
 func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.PlaceParams)
         if !ok </span><span class="cov0" title="0">{
-                return consts.Coord[consts.Tile]{}, fmt.Errorf("destination is not set")
+                return consts.Coord[consts.Tile]{}, ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil</span>
 }
@@ -1300,11 +1300,11 @@ const (
         MeleeAttackRange = 1.5 // 近接攻撃の最大射程（斜めも考慮）
 )
 
-// AttackBehavior はBehaviorの実装
-type AttackBehavior struct{}
+// MeleeBehavior はBehaviorの実装
+type MeleeBehavior struct{}
 
 // Info はBehaviorの実装
-func (ab *AttackBehavior) Info() Info <span class="cov8" title="1">{
+func (ab *MeleeBehavior) Info() Info <span class="cov8" title="1">{
         return Info{
                 Name:            "Attack",
                 Description:     "Attack an enemy",
@@ -1316,22 +1316,22 @@ func (ab *AttackBehavior) Info() Info <span class="cov8" title="1">{
 }</span>
 
 // Name はBehaviorの実装
-func (ab *AttackBehavior) Name() gc.BehaviorName <span class="cov8" title="1">{
-        return gc.BehaviorAttack
+func (ab *MeleeBehavior) Name() gc.BehaviorName <span class="cov8" title="1">{
+        return gc.BehaviorMelee
 }</span>
 
-// NewAttackActivity は攻撃対象を指定して攻撃アクティビティを組む。
-func NewAttackActivity(target ecs.Entity) *gc.Activity <span class="cov8" title="1">{
-        comp := NewActivity(gc.BehaviorAttack, 0)
-        comp.Params = &amp;gc.AttackParams{Target: target}
+// NewMeleeActivity は攻撃対象を指定して攻撃アクティビティを組む。
+func NewMeleeActivity(target ecs.Entity) *gc.Activity <span class="cov8" title="1">{
+        comp := NewActivity(gc.BehaviorMelee, 0)
+        comp.Params = &amp;gc.MeleeParams{Target: target}
         return comp
 }</span>
 
 // Validate はBehaviorの実装
-func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        p, ok := comp.Params.(*gc.AttackParams)
+func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
+        p, ok := comp.Params.(*gc.MeleeParams)
         if !ok </span><span class="cov0" title="0">{
-                return ErrAttackTargetNotSet
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">if world.Components.Dead.Has(actor) </span><span class="cov0" title="0">{
@@ -1365,18 +1365,18 @@ func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 }
 
 // Start はBehaviorの実装
-func (ab *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov8" title="1">{
-        if p, ok := comp.Params.(*gc.AttackParams); ok </span><span class="cov8" title="1">{
+func (ab *MeleeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov8" title="1">{
+        if p, ok := comp.Params.(*gc.MeleeParams); ok </span><span class="cov8" title="1">{
                 log.Debug("attack started", "actor", actor, "target", p.Target)
         }</span>
         <span class="cov8" title="1">return nil</span>
 }
 
 // DoTurn はBehaviorの実装
-func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        if _, ok := comp.Params.(*gc.AttackParams); !ok </span><span class="cov0" title="0">{
+func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
+        if _, ok := comp.Params.(*gc.MeleeParams); !ok </span><span class="cov0" title="0">{
                 Cancel(comp, "attack target is not set")
-                return ErrAttackTargetNotSet
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">if !ab.canAttack(comp, actor, world) </span><span class="cov0" title="0">{
@@ -1394,11 +1394,10 @@ func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Finish はBehaviorの実装
-func (ab *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov8" title="1">{
-        p, ok := comp.Params.(*gc.AttackParams)
+func (ab *MeleeBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov8" title="1">{
+        p, ok := comp.Params.(*gc.MeleeParams)
         if !ok </span><span class="cov0" title="0">{
-                log.Debug("reached finish with attack target unset; no attack was performed", "actor", actor)
-                return nil
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">log.Debug("attack activity finished",
                 "actor", actor,
@@ -1408,15 +1407,15 @@ func (ab *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 // Canceled はBehaviorの実装
-func (ab *AttackBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov0" title="0">{
+func (ab *MeleeBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov0" title="0">{
         log.Debug("attack canceled", "actor", actor, "reason", comp.CancelReason)
         return nil
 }</span>
 
-func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        p, ok := comp.Params.(*gc.AttackParams)
+func (ab *MeleeBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
+        p, ok := comp.Params.(*gc.MeleeParams)
         if !ok </span><span class="cov0" title="0">{
-                return ErrAttackTargetNotSet
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">target := p.Target
 
@@ -1430,8 +1429,8 @@ func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, wor
         <span class="cov8" title="1">return applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)</span>
 }
 
-func (ab *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool <span class="cov8" title="1">{
-        if _, ok := comp.Params.(*gc.AttackParams); !ok </span><span class="cov0" title="0">{
+func (ab *MeleeBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool <span class="cov8" title="1">{
+        if _, ok := comp.Params.(*gc.MeleeParams); !ok </span><span class="cov0" title="0">{
                 return false
         }</span>
 
@@ -1442,7 +1441,7 @@ func (ab *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w
         <span class="cov8" title="1">return true</span>
 }
 
-func (ab *AttackBehavior) isInRange(attacker, target ecs.Entity, world w.World) bool <span class="cov8" title="1">{
+func (ab *MeleeBehavior) isInRange(attacker, target ecs.Entity, world w.World) bool <span class="cov8" title="1">{
         if !world.Components.GridElement.Has(attacker) </span><span class="cov0" title="0">{
                 return false
         }</span>
@@ -1459,7 +1458,7 @@ func (ab *AttackBehavior) isInRange(attacker, target ecs.Entity, world w.World) 
         return distance &lt;= MeleeAttackRange</span>
 }
 
-func (ab *AttackBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bool <span class="cov8" title="1">{
+func (ab *MeleeBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bool <span class="cov8" title="1">{
         // TODO: 装備武器のチェック
         abils := world.Components.Abilities.Get(attacker)
         return abils != nil
@@ -1571,7 +1570,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1728,8 +1727,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 methodName = query.T(world, attackMethodName)
         }</span>
         <span class="cov8" title="1">switch </span>{
-        case !hit:<span class="cov8" title="1">
-                if withMethod </span><span class="cov8" title="1">{
+        case !hit:<span class="cov0" title="0">
+                if withMethod </span><span class="cov0" title="0">{
                         logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
@@ -1796,37 +1795,33 @@ func (db *DisassembleBehavior) Name() gc.BehaviorName <span class="cov0" title="
 
 // NewDisassembleActivity は分解対象を指定して分解アクティビティを組む。
 // 必要APは対象のbaseAPに機械スキルと工具グレードの短縮を掛けて求める。
-func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activity, error) <span class="cov8" title="1">{
-        def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
-        if !ok </span><span class="cov8" title="1">{
-                return nil, fmt.Errorf("target has no disassembly definition")
-        }</span>
-        <span class="cov8" title="1">grade, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory)
-        if !ok </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("does not have the tool required for disassembly")
-        }</span>
-
-        <span class="cov8" title="1">requiredAP := RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
-        comp := NewActivity(gc.BehaviorDisassemble, requiredAP)
+func NewDisassembleActivity(target, actor ecs.Entity, world w.World) *gc.Activity <span class="cov8" title="1">{
+        requiredAP := 0
+        if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok </span><span class="cov8" title="1">{
+                if grade, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); ok </span><span class="cov8" title="1">{
+                        requiredAP = RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
+                }</span>
+        }
+        <span class="cov8" title="1">comp := NewActivity(gc.BehaviorDisassemble, requiredAP)
         comp.Params = &amp;gc.DisassembleParams{Target: target}
-        return comp, nil</span>
+        return comp</span>
 }
 
 // Validate は分解アクティビティの検証を行う
 func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.DisassembleParams)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("disassembly target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">if !world.ECS.Alive(p.Target) </span><span class="cov0" title="0">{
                 return fmt.Errorf("target does not exist")
         }</span>
         <span class="cov8" title="1">def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
-        if !ok </span><span class="cov0" title="0">{
+        if !ok </span><span class="cov8" title="1">{
                 return fmt.Errorf("target has no disassembly definition")
         }</span>
         <span class="cov8" title="1">if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok </span><span class="cov8" title="1">{
-                return &amp;UserError{Msg: query.T(world, "does not have the tool required for disassembly")}
+                return &amp;UserError{Msg: query.T(world, "Do not have a tool to disassemble %s", gamelog.Tag("item", query.GetEntityName(p.Target, world)))}
         }</span>
         <span class="cov8" title="1">if !isAreaSafe(actor, world) </span><span class="cov8" title="1">{
                 return &amp;UserError{Msg: query.T(world, "cannot disassemble because enemies are nearby")}
@@ -1838,7 +1833,7 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.DisassembleParams)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("disassembly target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
         if !ok </span><span class="cov0" title="0">{
@@ -1864,7 +1859,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
         p, ok := comp.Params.(*gc.DisassembleParams)
         if !ok </span><span class="cov0" title="0">{
                 Cancel(comp, "disassembly target is not set")
-                return nil
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">if !world.ECS.Alive(p.Target) </span><span class="cov8" title="1">{
                 Cancel(comp, "interrupted because the disassembly target disappeared")
@@ -1897,7 +1892,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.DisassembleParams)
         if !ok </span><span class="cov0" title="0">{
-                return nil
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">target := p.Target
         if !world.ECS.Alive(target) </span><span class="cov8" title="1">{
@@ -2104,7 +2099,7 @@ func NewOpenDoorActivity(target ecs.Entity) *gc.Activity <span class="cov8" titl
 func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.OpenDoorParams)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("door entity is not set")
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">targetEntity := p.Target
@@ -2133,7 +2128,7 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
         p, ok := comp.Params.(*gc.OpenDoorParams)
         if !ok </span><span class="cov0" title="0">{
                 Cancel(comp, "door entity is not set")
-                return fmt.Errorf("door entity is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">targetEntity := p.Target
 
@@ -2220,7 +2215,7 @@ func NewCloseDoorActivity(target ecs.Entity) *gc.Activity <span class="cov8" tit
 func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.CloseDoorParams)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("door entity is not set")
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">targetEntity := p.Target
@@ -2249,7 +2244,7 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
         p, ok := comp.Params.(*gc.CloseDoorParams)
         if !ok </span><span class="cov0" title="0">{
                 Cancel(comp, "door entity is not set")
-                return fmt.Errorf("door entity is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">targetEntity := p.Target
 
@@ -2349,7 +2344,7 @@ func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity
 func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.PlaceParams)
         if !ok </span><span class="cov8" title="1">{
-                return fmt.Errorf("drop target is not set")
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">target := p.Target
@@ -2404,7 +2399,7 @@ func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.PlaceParams)
         if !ok </span><span class="cov8" title="1">{
-                return fmt.Errorf("drop target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">targetTile, err := requireDestination(comp)
         if err != nil </span><span class="cov0" title="0">{
@@ -2447,8 +2442,10 @@ var (
         ErrActivityCannotResume  = errors.New("activity cannot be resumed")
         ErrUnsupportedActivity   = errors.New("unsupported activity type")
 
+        // ErrParamsTypeMismatch は Params の型がアクティビティと合わないことを示す。構築ミスのシステムエラー
+        ErrParamsTypeMismatch = errors.New("activity params type mismatch")
+
         // 攻撃関連エラー
-        ErrAttackTargetNotSet  = errors.New("attack target is not set")
         ErrAttackTargetInvalid = errors.New("attack target is invalid")
         ErrAttackerDead        = errors.New("attacker is dead")
         ErrTargetNoHPComponent = errors.New("target has no HP component")
@@ -2457,7 +2454,6 @@ var (
         ErrShootNoFireWeapon = errors.New("no ranged weapon equipped")
 
         // 移動関連エラー
-        ErrMoveTargetNotSet    = errors.New("move destination is not set")
         ErrMoveTargetInvalid   = errors.New("move destination is invalid")
         ErrGridElementNotFound = errors.New("GridElement component not found")
 
@@ -2465,7 +2461,6 @@ var (
         ErrPositionNotFound = errors.New("position not found")
         ErrNoItemsToPickup  = errors.New("no items to pick up")
         ErrItemPickupFailed = errors.New("failed to pick up item")
-        ErrItemNotSet       = errors.New("item is not set")
 
         // 休息関連エラー
         ErrRestEnemiesNearby   = errors.New("cannot rest because enemies are nearby")
@@ -2479,7 +2474,6 @@ var (
         ErrReadTargetInvalid     = errors.New("read target is invalid")
         ErrReadTargetNotItem     = errors.New("read target is not an item")
         ErrReadBookNotInBackpack = errors.New("book is not in the backpack")
-        ErrReadTargetNotSet      = errors.New("read target is not set")
 
         // クラフト関連エラー
         ErrCraftNeedsRecipe      = errors.New("crafting requires a recipe")
@@ -2503,7 +2497,6 @@ import (
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/gamelog"
-        "github.com/kijimaD/ruins/internal/raw"
         w "github.com/kijimaD/ruins/internal/world"
 
         "github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -2585,19 +2578,10 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 }
 
 // executePullCube はキューブを自分の側へ引く。後退スペースが無いなど引けないときは、
-// 致命エラーにせずログで知らせて no-op にする。プレイヤーのできない操作は異常系でないため、
-// Execute を呼ぶ前に可否を判定してから分岐する。
+// Validate が理由を gamelog へ出して no-op にする。プレイヤーのできない操作は異常系でない。
 func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) <span class="cov0" title="0">{
-        if !canPullCube(world, actor, cube) </span><span class="cov0" title="0">{
-                gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "There is no space to pull.")).Log()
-                return &amp;ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: "cannot pull"}, nil
-        }</span>
-        <span class="cov0" title="0">comp, err := NewPullActivity(cube, actor, world)
-        if err != nil </span><span class="cov0" title="0">{
-                return nil, err
-        }</span>
-        <span class="cov0" title="0">return Execute(comp, actor, world)</span>
-}
+        return Execute(NewPullActivity(cube, actor, world), actor, world)
+}</span>
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
         if !world.Components.Door.Has(doorEntity) </span><span class="cov8" title="1">{
@@ -2654,28 +2638,14 @@ func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, err
 }
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
-        return Execute(NewAttackActivity(target), actor, world)
+        return Execute(NewMeleeActivity(target), actor, world)
 }</span>
 
-// executeDisassemble は工具の有無を先に確かめ、無ければエラーでなくログで知らせる。
-// 工具不足はプレイヤーの通常操作で起きる状態であり、異常系ではないため
+// executeDisassemble は分解アクティビティを組んで実行する。工具不足や定義なしなどの
+// 可否判定は Validate が担い、理由を gamelog へ出して no-op にする。
 func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) <span class="cov0" title="0">{
-        def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
-        if !ok </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("target has no disassembly definition")
-        }</span>
-        <span class="cov0" title="0">if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok </span><span class="cov0" title="0">{
-                gamelog.New(query.GetGameLog(world)).
-                        Markup(query.T(world, "Do not have a tool to disassemble %s", gamelog.Tag("item", query.GetEntityName(target, world)))).
-                        Log()
-                return &amp;ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: "no tool"}, nil
-        }</span>
-        <span class="cov0" title="0">comp, err := NewDisassembleActivity(target, actor, world)
-        if err != nil </span><span class="cov0" title="0">{
-                return nil, err
-        }</span>
-        <span class="cov0" title="0">return Execute(comp, actor, world)</span>
-}
+        return Execute(NewDisassembleActivity(target, actor, world), actor, world)
+}</span>
 </pre>
 		
 		<pre class="file" id="file8" style="display: none">package activity
@@ -2790,7 +2760,7 @@ func NewMoveActivity(destination gc.GridElement) *gc.Activity <span class="cov8"
 func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.MoveParams)
         if !ok </span><span class="cov8" title="1">{
-                return ErrMoveTargetNotSet
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">if p.Destination.X &lt; 0 || p.Destination.Y &lt; 0 </span><span class="cov0" title="0">{
@@ -2830,7 +2800,7 @@ func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
         p, ok := comp.Params.(*gc.MoveParams)
         if !ok </span><span class="cov8" title="1">{
                 Cancel(comp, "move destination is not set")
-                return ErrMoveTargetNotSet
+                return ErrParamsTypeMismatch
         }</span>
 
         // GridElementの存在確認
@@ -2879,7 +2849,7 @@ func (mb *MoveBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 func (mb *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.MoveParams)
         if !ok </span><span class="cov0" title="0">{
-                return ErrMoveTargetNotSet
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">if !world.Components.GridElement.Has(actor) </span><span class="cov0" title="0">{
                 return ErrGridElementNotFound
@@ -3108,7 +3078,7 @@ func NewPickupTileActivity(world w.World, tile consts.Coord[consts.Tile]) *gc.Ac
 func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.PickupParams)
         if !ok </span><span class="cov8" title="1">{
-                return fmt.Errorf("pickup target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">for _, entity := range p.Targets </span><span class="cov8" title="1">{
                 if query.IsPickable(entity, world) </span><span class="cov8" title="1">{
@@ -3154,7 +3124,7 @@ func (pb *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.PickupParams)
         if !ok </span><span class="cov8" title="1">{
-                return fmt.Errorf("pickup target is not set")
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">collectedCount := 0
@@ -3287,13 +3257,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error <span class=
         <span class="cov8" title="1">if cube, ok := pushableAt(world, next); ok </span><span class="cov8" title="1">{
                 // 押し先が塞がっていれば Push.Validate が理由を gamelog へ出し err=nil で閉じる。
                 // 壁への歩き込みと同じく no-op になる
-                comp, err := NewPushActivity(cube, direction, world)
-                if err != nil </span><span class="cov0" title="0">{
-                        return err
-                }</span>
-                <span class="cov8" title="1">_, err = Execute(comp, entity, world)
-                return err</span>
-        }
+                _, err := Execute(NewPushActivity(cube, direction, world), entity, world)
+                return err
+        }</span>
 
         <span class="cov8" title="1">canMove := CanMoveTo(world, next, current, entity)
         if canMove </span><span class="cov8" title="1">{
@@ -3479,20 +3445,19 @@ func (pb *PushBehavior) Name() gc.BehaviorName <span class="cov8" title="1">{
 }</span>
 
 // NewPushActivity は押すキューブと向きを指定して押しアクティビティを組む。
-func NewPushActivity(cube ecs.Entity, dir gc.Direction, world w.World) (*gc.Activity, error) <span class="cov8" title="1">{
-        if !world.Components.GridElement.Has(cube) </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("push target has no position")
+func NewPushActivity(cube ecs.Entity, dir gc.Direction, world w.World) *gc.Activity <span class="cov8" title="1">{
+        dest := consts.Coord[consts.Tile]{}
+        if world.Components.GridElement.Has(cube) </span><span class="cov8" title="1">{
+                dest = world.Components.GridElement.Get(cube).Add(dir.GetDelta())
         }</span>
-        <span class="cov8" title="1">cubeCoord := world.Components.GridElement.Get(cube).Coord
-        dest := cubeCoord.Add(dir.GetDelta())
-        return buildCubeMove(gc.BehaviorPush, cube, dest, world)</span>
+        <span class="cov8" title="1">return buildCubeMove(gc.BehaviorPush, cube, dest, world)</span>
 }
 
 // Validate はBehaviorの実装
 func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.PlaceParams)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("push target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">if !world.ECS.Alive(p.Target) </span><span class="cov0" title="0">{
                 return fmt.Errorf("target does not exist")
@@ -3574,30 +3539,23 @@ func (pb *PushBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }</span>
 
 // cubePushCost はキューブを1タイル動かすのに要する総コストを返す。総重量が重いほど増える。
-// 押しと引きで共通。APが無ければエラー。毎ターン注ぐAPは DoTurn でパーティの押し力から
+// 押しと引きで共通。毎ターン注ぐAPは DoTurn でパーティの押し力から
 // 再計算するため、着手時に凍結するのは総コストだけにする。
 //
 // 総重量は内部ステージに置いた物の総和。内部はオーバーワールドと同じく単一の永続ステージなので、
 // 固定キー NewCubeInteriorStage で直接引く。どのキューブを押しても同じ内部の総重量が押しの重さに
 // なる。内部をキューブごとに分ける拡張へ進むときは、キューブから内部へのリンクをここで解決し直す。
-func cubePushCost(world w.World) (int, error) <span class="cov8" title="1">{
-        if query.PartyPushPower(world) &lt;= 0 </span><span class="cov8" title="1">{
-                return 0, fmt.Errorf("not enough AP to move it")
-        }</span>
-        <span class="cov8" title="1">return query.PushCost(query.CubeWeight(world, gc.NewCubeInteriorStage())), nil</span>
-}
+func cubePushCost(world w.World) int <span class="cov8" title="1">{
+        return query.PushCost(query.CubeWeight(world, gc.NewCubeInteriorStage()))
+}</span>
 
 // buildCubeMove は押しと引きで共通の gc.Activity を組む。総コストは総重量で決まり、
 // 押し引きで違うのは対象キューブと移動先だけなので、それを引数で受ける。
-func buildCubeMove(name gc.BehaviorName, cube ecs.Entity, dest consts.Coord[consts.Tile], world w.World) (*gc.Activity, error) <span class="cov8" title="1">{
-        required, err := cubePushCost(world)
-        if err != nil </span><span class="cov8" title="1">{
-                return nil, err
-        }</span>
-        <span class="cov8" title="1">comp := NewActivity(name, required)
+func buildCubeMove(name gc.BehaviorName, cube ecs.Entity, dest consts.Coord[consts.Tile], world w.World) *gc.Activity <span class="cov8" title="1">{
+        comp := NewActivity(name, cubePushCost(world))
         comp.Params = &amp;gc.PlaceParams{Target: cube, Destination: gc.GridElement{Coord: dest}}
-        return comp, nil</span>
-}
+        return comp
+}</span>
 
 // PullBehavior は BehaviorPull の実装。プレイヤーが隣接する Pushable キューブを自分の側へ引き、
 // 自分は1タイル後退する。押しでは動かせない壁際・角のキューブを引き出して詰みを解く。
@@ -3629,36 +3587,20 @@ func pullRetreat(cubeCoord, playerCoord consts.Coord[consts.Tile]) consts.Coord[
         return playerCoord.Add(delta)
 }</span>
 
-// canPullCube はプレイヤーがキューブを引けるかを返す。後退先が通行可能なら引ける。
-// アクション実行前の可否判定に使い、引けないときは致命エラーでなく no-op にできるようにする。
-func canPullCube(world w.World, actor, cube ecs.Entity) bool <span class="cov0" title="0">{
-        if !world.Components.GridElement.Has(actor) || !world.Components.GridElement.Has(cube) </span><span class="cov0" title="0">{
-                return false
-        }</span>
-        <span class="cov0" title="0">playerCoord := world.Components.GridElement.Get(actor).Coord
-        cubeCoord := world.Components.GridElement.Get(cube).Coord
-        retreat := pullRetreat(cubeCoord, playerCoord)
-        return CanMoveTo(world, retreat, playerCoord, actor)</span>
-}
-
 // NewPullActivity は引くキューブと引き手を指定して引きアクティビティを組む。
-func NewPullActivity(cube, actor ecs.Entity, world w.World) (*gc.Activity, error) <span class="cov8" title="1">{
-        if !world.Components.GridElement.Has(cube) </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("pull target has no position")
+func NewPullActivity(cube, actor ecs.Entity, world w.World) *gc.Activity <span class="cov8" title="1">{
+        dest := consts.Coord[consts.Tile]{}
+        if world.Components.GridElement.Has(actor) </span><span class="cov8" title="1">{
+                dest = world.Components.GridElement.Get(actor).Coord
         }</span>
-        <span class="cov8" title="1">if !world.Components.GridElement.Has(actor) </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("puller has no position")
-        }</span>
-        // キューブはプレイヤーの立っているタイルへ入る。プレイヤーはそのぶん後退する
-        <span class="cov8" title="1">dest := world.Components.GridElement.Get(actor).Coord
-        return buildCubeMove(gc.BehaviorPull, cube, dest, world)</span>
+        <span class="cov8" title="1">return buildCubeMove(gc.BehaviorPull, cube, dest, world)</span>
 }
 
 // Validate はBehaviorの実装。後退先が通行可能であることを確かめる。
 func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.PlaceParams)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("pull target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">if !world.ECS.Alive(p.Target) </span><span class="cov0" title="0">{
                 return fmt.Errorf("target does not exist")
@@ -3782,21 +3724,21 @@ func (rb *ReadBehavior) Name() gc.BehaviorName <span class="cov0" title="0">{
 
 // NewReadActivity は読む本を指定して読書アクティビティを組む。進捗は本の Effort に
 // 永続するので、Progress.Max も本の総工数に据えて表示を揃える。
-func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) <span class="cov0" title="0">{
-        book := getBook(target, world)
-        if book == nil </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("target has no Book component")
+func NewReadActivity(target ecs.Entity, world w.World) *gc.Activity <span class="cov0" title="0">{
+        effort := 0
+        if book := getBook(target, world); book != nil </span><span class="cov0" title="0">{
+                effort = book.Effort.Max
         }</span>
-        <span class="cov0" title="0">comp := NewActivity(gc.BehaviorRead, book.Effort.Max)
+        <span class="cov0" title="0">comp := NewActivity(gc.BehaviorRead, effort)
         comp.Params = &amp;gc.ReadParams{Target: target}
-        return comp, nil</span>
+        return comp</span>
 }
 
 // Validate は読書アクティビティの検証を行う
 func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.ReadParams)
         if !ok </span><span class="cov8" title="1">{
-                return fmt.Errorf("book is not set")
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">book := getBook(p.Target, world)
@@ -3836,7 +3778,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov0" title="0">{
         p, ok := comp.Params.(*gc.ReadParams)
         if !ok </span><span class="cov0" title="0">{
-                return ErrReadTargetNotSet
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov0" title="0">book := getBook(p.Target, world)
@@ -3859,7 +3801,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
         p, ok := comp.Params.(*gc.ReadParams)
         if !ok </span><span class="cov0" title="0">{
                 Cancel(comp, "book is not set")
-                return nil
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">if !world.ECS.Alive(p.Target) </span><span class="cov8" title="1">{
                 Cancel(comp, "interrupted because the book disappeared")
@@ -3902,7 +3844,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.ReadParams)
         if !ok </span><span class="cov0" title="0">{
-                return nil
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">if !world.ECS.Alive(p.Target) </span><span class="cov8" title="1">{
                 return nil
@@ -4173,12 +4115,6 @@ func (rb *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 
         <span class="cov8" title="1">return effort</span>
 }
-
-// ExecuteReloadAction はリロードアクションを実行する
-func ExecuteReloadAction(actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        _, err := Execute(NewReloadActivity(actor, world), actor, world)
-        return err
-}</span>
 </pre>
 		
 		<pre class="file" id="file15" style="display: none">package activity
@@ -4386,7 +4322,7 @@ func NewShootActivity(target ecs.Entity) *gc.Activity <span class="cov8" title="
 func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.ShootParams)
         if !ok </span><span class="cov8" title="1">{
-                return fmt.Errorf("shoot target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">if world.Components.Dead.Has(actor) </span><span class="cov8" title="1">{
                 return ErrAttackerDead
@@ -4443,7 +4379,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
         p, ok := comp.Params.(*gc.ShootParams)
         if !ok </span><span class="cov8" title="1">{
                 Cancel(comp, "shoot target is not set")
-                return ErrAttackTargetNotSet
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">target := p.Target
@@ -4576,15 +4512,6 @@ func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int <span cl
 
         return calculateHitRate(actor, target, world, fire, modifier)</span>
 }
-
-// ExecuteShootAction は射撃アクションを実行する
-func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        _, err := Execute(NewShootActivity(target), actor, world)
-        if err != nil </span><span class="cov8" title="1">{
-                return err
-        }</span>
-        <span class="cov8" title="1">return nil</span>
-}
 </pre>
 		
 		<pre class="file" id="file17" style="display: none">package activity
@@ -4633,7 +4560,7 @@ func NewTalkActivity(target ecs.Entity) *gc.Activity <span class="cov8" title="1
 func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.TalkParams)
         if !ok </span><span class="cov8" title="1">{
-                return fmt.Errorf("talk target is not set")
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">targetEntity := p.Target
@@ -4662,7 +4589,7 @@ func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
         p, ok := comp.Params.(*gc.TalkParams)
         if !ok </span><span class="cov0" title="0">{
                 Cancel(comp, "talk target is not set")
-                return fmt.Errorf("talk target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">targetEntity := p.Target
 
@@ -4776,7 +4703,7 @@ func NewTransferActivity(target, recipient ecs.Entity, count int) *gc.Activity <
 func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.TransferParams)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("transfer target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         // 値型のパラメータでは未指定が無効エンティティになる。ArkのHasはゼロ値でパニックするため、
         // Aliveで存在を確かめてから所持判定へ進む
@@ -4828,7 +4755,7 @@ func (tb *TransferBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Wo
 func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.TransferParams)
         if !ok </span><span class="cov0" title="0">{
-                return fmt.Errorf("transfer target is not set")
+                return ErrParamsTypeMismatch
         }</span>
         <span class="cov8" title="1">item := p.Target
         recipient := p.Recipient
@@ -4917,7 +4844,7 @@ func NewUseItemActivity(target ecs.Entity) *gc.Activity <span class="cov0" title
 func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         p, ok := comp.Params.(*gc.UseItemParams)
         if !ok </span><span class="cov8" title="1">{
-                return ErrItemNotSet
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">item := p.Target
@@ -4952,7 +4879,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
         p, ok := comp.Params.(*gc.UseItemParams)
         if !ok </span><span class="cov8" title="1">{
                 Cancel(comp, "item is not set")
-                return ErrItemNotSet
+                return ErrParamsTypeMismatch
         }</span>
 
         <span class="cov8" title="1">item := p.Target
@@ -5564,7 +5491,7 @@ func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs
         playerGrid := world.Components.GridElement.Get(playerEntity)
 
         if isAdjacent(aiGrid, playerGrid) </span><span class="cov8" title="1">{
-                return activity.NewAttackActivity(playerEntity)
+                return activity.NewMeleeActivity(playerEntity)
         }</span>
 
         <span class="cov8" title="1">dx := playerGrid.X - aiGrid.X
@@ -5921,7 +5848,7 @@ func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, snap 
         }</span>
 
         <span class="cov8" title="1">if dist == 1 </span><span class="cov8" title="1">{
-                return activity.NewAttackActivity(*nearestEnemy), true
+                return activity.NewMeleeActivity(*nearestEnemy), true
         }</span>
 
         <span class="cov8" title="1">return sp.tryMoveToward(world, entity, snap.Grid, nearestGrid)</span>
@@ -7996,7 +7923,7 @@ type BehaviorName string
 // BehaviorName の定義
 const (
         BehaviorMove      BehaviorName = "Move"
-        BehaviorAttack    BehaviorName = "Attack"
+        BehaviorMelee     BehaviorName = "Melee"
         BehaviorRest      BehaviorName = "Rest"
         BehaviorWait      BehaviorName = "Wait"
         BehaviorPickup    BehaviorName = "Pickup"
@@ -8036,7 +7963,7 @@ type Activity struct {
 // 実行ロジックを持つ Behavior は w.World に依存するため activity 層に置く。
 //
 // 型の分け方: 対象が1エンティティでも意味が behavior ごとに違うものは共有せず専用型に分ける。
-// 攻撃対象と会話相手と分解対象は同じ ecs.Entity だが意味が違うので AttackParams などに分ける。
+// 攻撃対象と会話相手と分解対象は同じ ecs.Entity だが意味が違うので MeleeParams などに分ける。
 // 一方 PlaceParams のように共有ヘルパを介して同じ形を使い回すものは共有型のままにする。
 type ActivityParams interface {
         isActivityParams()
@@ -8049,12 +7976,12 @@ type MoveParams struct {
 
 func (*MoveParams) isActivityParams() {<span class="cov0" title="0">}</span>
 
-// AttackParams は近接攻撃のパラメータ。
-type AttackParams struct {
+// MeleeParams は近接攻撃のパラメータ。
+type MeleeParams struct {
         Target ecs.Entity // 攻撃対象のエンティティ
 }
 
-func (*AttackParams) isActivityParams() {<span class="cov0" title="0">}</span>
+func (*MeleeParams) isActivityParams() {<span class="cov0" title="0">}</span>
 
 // TalkParams は会話のパラメータ。
 type TalkParams struct {
@@ -42603,11 +42530,8 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
         if err != nil </span><span class="cov0" title="0">{
                 return es.Transition[w.World]{}, err
         }</span>
-        <span class="cov8" title="1">act, err := activity.NewReadActivity(entity, world)
-        if err != nil </span><span class="cov0" title="0">{
-                return es.Transition[w.World]{}, err
-        }</span>
-        <span class="cov8" title="1">if _, err := activity.Execute(act, player, world); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">act := activity.NewReadActivity(entity, world)
+        if _, err := activity.Execute(act, player, world); err != nil </span><span class="cov0" title="0">{
                 // Execute が返すエラーはシステムの致命エラーだけ。最上位まで伝播させる。
                 // スキル不足や周囲の敵などのユーザー起因の失敗は Execute が gamelog へ出したうえで
                 // err=nil を返すため、ここには来ず通常どおり閉じる
@@ -44657,7 +44581,7 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
                                 return es.Transition[w.World]{}, err
                         }</span>
                         <span class="cov0" title="0">target := st.enemies[st.targetIndex]
-                        if err := activity.ExecuteShootAction(playerEntity, target, world); err != nil </span><span class="cov0" title="0">{
+                        if _, err := activity.Execute(activity.NewShootActivity(target), playerEntity, world); err != nil </span><span class="cov0" title="0">{
                                 return es.Transition[w.World]{}, err
                         }</span>
                         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil</span>
@@ -44668,7 +44592,7 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
                 if err != nil </span><span class="cov0" title="0">{
                         return es.Transition[w.World]{}, err
                 }</span>
-                <span class="cov0" title="0">if err := activity.ExecuteReloadAction(playerEntity, world); err != nil </span><span class="cov0" title="0">{
+                <span class="cov0" title="0">if _, err := activity.Execute(activity.NewReloadActivity(playerEntity, world), playerEntity, world); err != nil </span><span class="cov0" title="0">{
                         return es.Transition[w.World]{}, err
                 }</span>
                 <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil</span>

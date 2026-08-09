@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 10:03:33</td>
+            <td class="headerValue">2026-08-09 13:01:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -102,7 +102,7 @@
 <span id="L40"><span class="lineNum">      40</span>              : // BehaviorName の定義</span>
 <span id="L41"><span class="lineNum">      41</span>              : const (</span>
 <span id="L42"><span class="lineNum">      42</span>              :         BehaviorMove      BehaviorName = &quot;Move&quot;</span>
-<span id="L43"><span class="lineNum">      43</span>              :         BehaviorAttack    BehaviorName = &quot;Attack&quot;</span>
+<span id="L43"><span class="lineNum">      43</span>              :         BehaviorMelee     BehaviorName = &quot;Melee&quot;</span>
 <span id="L44"><span class="lineNum">      44</span>              :         BehaviorRest      BehaviorName = &quot;Rest&quot;</span>
 <span id="L45"><span class="lineNum">      45</span>              :         BehaviorWait      BehaviorName = &quot;Wait&quot;</span>
 <span id="L46"><span class="lineNum">      46</span>              :         BehaviorPickup    BehaviorName = &quot;Pickup&quot;</span>
@@ -142,7 +142,7 @@
 <span id="L80"><span class="lineNum">      80</span>              : // 実行ロジックを持つ Behavior は w.World に依存するため activity 層に置く。</span>
 <span id="L81"><span class="lineNum">      81</span>              : //</span>
 <span id="L82"><span class="lineNum">      82</span>              : // 型の分け方: 対象が1エンティティでも意味が behavior ごとに違うものは共有せず専用型に分ける。</span>
-<span id="L83"><span class="lineNum">      83</span>              : // 攻撃対象と会話相手と分解対象は同じ ecs.Entity だが意味が違うので AttackParams などに分ける。</span>
+<span id="L83"><span class="lineNum">      83</span>              : // 攻撃対象と会話相手と分解対象は同じ ecs.Entity だが意味が違うので MeleeParams などに分ける。</span>
 <span id="L84"><span class="lineNum">      84</span>              : // 一方 PlaceParams のように共有ヘルパを介して同じ形を使い回すものは共有型のままにする。</span>
 <span id="L85"><span class="lineNum">      85</span>              : type ActivityParams interface {</span>
 <span id="L86"><span class="lineNum">      86</span>              :         isActivityParams()</span>
@@ -155,12 +155,12 @@
 <span id="L93"><span class="lineNum">      93</span>              : </span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 : func (*MoveParams) isActivityParams() {}</span></span>
 <span id="L95"><span class="lineNum">      95</span>              : </span>
-<span id="L96"><span class="lineNum">      96</span>              : // AttackParams は近接攻撃のパラメータ。</span>
-<span id="L97"><span class="lineNum">      97</span>              : type AttackParams struct {</span>
+<span id="L96"><span class="lineNum">      96</span>              : // MeleeParams は近接攻撃のパラメータ。</span>
+<span id="L97"><span class="lineNum">      97</span>              : type MeleeParams struct {</span>
 <span id="L98"><span class="lineNum">      98</span>              :         Target ecs.Entity // 攻撃対象のエンティティ</span>
 <span id="L99"><span class="lineNum">      99</span>              : }</span>
 <span id="L100"><span class="lineNum">     100</span>              : </span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 : func (*AttackParams) isActivityParams() {}</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 : func (*MeleeParams) isActivityParams() {}</span></span>
 <span id="L102"><span class="lineNum">     102</span>              : </span>
 <span id="L103"><span class="lineNum">     103</span>              : // TalkParams は会話のパラメータ。</span>
 <span id="L104"><span class="lineNum">     104</span>              : type TalkParams struct {</span>

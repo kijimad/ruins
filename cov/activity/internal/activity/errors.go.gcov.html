@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 10:03:33</td>
+            <td class="headerValue">2026-08-09 13:01:21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,25 +82,25 @@
 <span id="L20"><span class="lineNum">      20</span>              :         ErrActivityCannotResume  = errors.New(&quot;activity cannot be resumed&quot;)</span>
 <span id="L21"><span class="lineNum">      21</span>              :         ErrUnsupportedActivity   = errors.New(&quot;unsupported activity type&quot;)</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              :         // 攻撃関連エラー</span>
-<span id="L24"><span class="lineNum">      24</span>              :         ErrAttackTargetNotSet  = errors.New(&quot;attack target is not set&quot;)</span>
-<span id="L25"><span class="lineNum">      25</span>              :         ErrAttackTargetInvalid = errors.New(&quot;attack target is invalid&quot;)</span>
-<span id="L26"><span class="lineNum">      26</span>              :         ErrAttackerDead        = errors.New(&quot;attacker is dead&quot;)</span>
-<span id="L27"><span class="lineNum">      27</span>              :         ErrTargetNoHPComponent = errors.New(&quot;target has no HP component&quot;)</span>
-<span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span>              :         // 射撃関連エラー</span>
-<span id="L30"><span class="lineNum">      30</span>              :         ErrShootNoFireWeapon = errors.New(&quot;no ranged weapon equipped&quot;)</span>
-<span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span>              :         // 移動関連エラー</span>
-<span id="L33"><span class="lineNum">      33</span>              :         ErrMoveTargetNotSet    = errors.New(&quot;move destination is not set&quot;)</span>
-<span id="L34"><span class="lineNum">      34</span>              :         ErrMoveTargetInvalid   = errors.New(&quot;move destination is invalid&quot;)</span>
-<span id="L35"><span class="lineNum">      35</span>              :         ErrGridElementNotFound = errors.New(&quot;GridElement component not found&quot;)</span>
-<span id="L36"><span class="lineNum">      36</span>              : </span>
-<span id="L37"><span class="lineNum">      37</span>              :         // アイテム関連エラー</span>
-<span id="L38"><span class="lineNum">      38</span>              :         ErrPositionNotFound = errors.New(&quot;position not found&quot;)</span>
-<span id="L39"><span class="lineNum">      39</span>              :         ErrNoItemsToPickup  = errors.New(&quot;no items to pick up&quot;)</span>
-<span id="L40"><span class="lineNum">      40</span>              :         ErrItemPickupFailed = errors.New(&quot;failed to pick up item&quot;)</span>
-<span id="L41"><span class="lineNum">      41</span>              :         ErrItemNotSet       = errors.New(&quot;item is not set&quot;)</span>
+<span id="L23"><span class="lineNum">      23</span>              :         // ErrParamsTypeMismatch は Params の型がアクティビティと合わないことを示す。構築ミスのシステムエラー</span>
+<span id="L24"><span class="lineNum">      24</span>              :         ErrParamsTypeMismatch = errors.New(&quot;activity params type mismatch&quot;)</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              :         // 攻撃関連エラー</span>
+<span id="L27"><span class="lineNum">      27</span>              :         ErrAttackTargetInvalid = errors.New(&quot;attack target is invalid&quot;)</span>
+<span id="L28"><span class="lineNum">      28</span>              :         ErrAttackerDead        = errors.New(&quot;attacker is dead&quot;)</span>
+<span id="L29"><span class="lineNum">      29</span>              :         ErrTargetNoHPComponent = errors.New(&quot;target has no HP component&quot;)</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              :         // 射撃関連エラー</span>
+<span id="L32"><span class="lineNum">      32</span>              :         ErrShootNoFireWeapon = errors.New(&quot;no ranged weapon equipped&quot;)</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              :         // 移動関連エラー</span>
+<span id="L35"><span class="lineNum">      35</span>              :         ErrMoveTargetInvalid   = errors.New(&quot;move destination is invalid&quot;)</span>
+<span id="L36"><span class="lineNum">      36</span>              :         ErrGridElementNotFound = errors.New(&quot;GridElement component not found&quot;)</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              :         // アイテム関連エラー</span>
+<span id="L39"><span class="lineNum">      39</span>              :         ErrPositionNotFound = errors.New(&quot;position not found&quot;)</span>
+<span id="L40"><span class="lineNum">      40</span>              :         ErrNoItemsToPickup  = errors.New(&quot;no items to pick up&quot;)</span>
+<span id="L41"><span class="lineNum">      41</span>              :         ErrItemPickupFailed = errors.New(&quot;failed to pick up item&quot;)</span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
 <span id="L43"><span class="lineNum">      43</span>              :         // 休息関連エラー</span>
 <span id="L44"><span class="lineNum">      44</span>              :         ErrRestEnemiesNearby   = errors.New(&quot;cannot rest because enemies are nearby&quot;)</span>
@@ -114,21 +114,20 @@
 <span id="L52"><span class="lineNum">      52</span>              :         ErrReadTargetInvalid     = errors.New(&quot;read target is invalid&quot;)</span>
 <span id="L53"><span class="lineNum">      53</span>              :         ErrReadTargetNotItem     = errors.New(&quot;read target is not an item&quot;)</span>
 <span id="L54"><span class="lineNum">      54</span>              :         ErrReadBookNotInBackpack = errors.New(&quot;book is not in the backpack&quot;)</span>
-<span id="L55"><span class="lineNum">      55</span>              :         ErrReadTargetNotSet      = errors.New(&quot;read target is not set&quot;)</span>
-<span id="L56"><span class="lineNum">      56</span>              : </span>
-<span id="L57"><span class="lineNum">      57</span>              :         // クラフト関連エラー</span>
-<span id="L58"><span class="lineNum">      58</span>              :         ErrCraftNeedsRecipe      = errors.New(&quot;crafting requires a recipe&quot;)</span>
-<span id="L59"><span class="lineNum">      59</span>              :         ErrCraftTargetInvalid    = errors.New(&quot;craft target is invalid&quot;)</span>
-<span id="L60"><span class="lineNum">      60</span>              :         ErrCraftTargetNotRecipe  = errors.New(&quot;craft target is not a recipe&quot;)</span>
-<span id="L61"><span class="lineNum">      61</span>              :         ErrCraftRecipeNameGet    = errors.New(&quot;cannot get recipe name&quot;)</span>
-<span id="L62"><span class="lineNum">      62</span>              :         ErrCraftMaterialShortage = errors.New(&quot;required materials or tools are insufficient&quot;)</span>
-<span id="L63"><span class="lineNum">      63</span>              :         ErrCraftEntityNotSet     = errors.New(&quot;crafting entity is not set&quot;)</span>
-<span id="L64"><span class="lineNum">      64</span>              : </span>
-<span id="L65"><span class="lineNum">      65</span>              :         // ワープ関連エラー</span>
-<span id="L66"><span class="lineNum">      66</span>              :         ErrWarpHoleNotFound = errors.New(&quot;warp hole not found&quot;)</span>
-<span id="L67"><span class="lineNum">      67</span>              :         ErrWarpUnknownType  = errors.New(&quot;unknown warp type&quot;)</span>
-<span id="L68"><span class="lineNum">      68</span>              :         ErrWarpNoHole       = errors.New(&quot;no warp hole&quot;)</span>
-<span id="L69"><span class="lineNum">      69</span>              : )</span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              :         // クラフト関連エラー</span>
+<span id="L57"><span class="lineNum">      57</span>              :         ErrCraftNeedsRecipe      = errors.New(&quot;crafting requires a recipe&quot;)</span>
+<span id="L58"><span class="lineNum">      58</span>              :         ErrCraftTargetInvalid    = errors.New(&quot;craft target is invalid&quot;)</span>
+<span id="L59"><span class="lineNum">      59</span>              :         ErrCraftTargetNotRecipe  = errors.New(&quot;craft target is not a recipe&quot;)</span>
+<span id="L60"><span class="lineNum">      60</span>              :         ErrCraftRecipeNameGet    = errors.New(&quot;cannot get recipe name&quot;)</span>
+<span id="L61"><span class="lineNum">      61</span>              :         ErrCraftMaterialShortage = errors.New(&quot;required materials or tools are insufficient&quot;)</span>
+<span id="L62"><span class="lineNum">      62</span>              :         ErrCraftEntityNotSet     = errors.New(&quot;crafting entity is not set&quot;)</span>
+<span id="L63"><span class="lineNum">      63</span>              : </span>
+<span id="L64"><span class="lineNum">      64</span>              :         // ワープ関連エラー</span>
+<span id="L65"><span class="lineNum">      65</span>              :         ErrWarpHoleNotFound = errors.New(&quot;warp hole not found&quot;)</span>
+<span id="L66"><span class="lineNum">      66</span>              :         ErrWarpUnknownType  = errors.New(&quot;unknown warp type&quot;)</span>
+<span id="L67"><span class="lineNum">      67</span>              :         ErrWarpNoHole       = errors.New(&quot;no warp hole&quot;)</span>
+<span id="L68"><span class="lineNum">      68</span>              : )</span>
         </pre>
               </td>
             </tr>
