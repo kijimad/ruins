@@ -11662,6 +11662,21 @@ weight = 8
 pack = "1d1"
 
 [[itemGroups]]
+name = "がらくた"
+id = "junk"
+subtype = "collection"
+
+[[itemGroups.entries]]
+id = "scrap_iron"
+weight = 20
+pack = "1d1"
+
+[[itemGroups.entries]]
+id = "old_gear"
+weight = 10
+pack = "1d1"
+
+[[itemGroups]]
 name = "食料"
 id = "food"
 subtype = "distribution"

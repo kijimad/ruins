@@ -14,9 +14,9 @@ import (
 )
 
 // 屋外の散布 loot は開けた地形へ拾える物をごくまばらに撒く。建物内の役割別 loot と違い、屋外は屑物だけを
-// 置く。屋外に武器・防具・回復薬のような価値ある品を撒くと拾い放題になりバランスを壊し、原野に装備が
-// 落ちている絵面も不自然なので、価値の低い item group からだけ引く。道沿いは人の営みの残りの紙屑、奥地は
-// 自然に転がる廃材・鉱片。密度も低くして原野を埋め尽くさない。土系の地面かつ非占有のタイルにだけ置く。
+// 置く。屋外に武器・防具・回復薬や錬金素材のような価値ある品を撒くと拾い放題になりバランスを壊し、原野に
+// 装備が落ちている絵面も不自然なので、無価値な item group からだけ引く。道沿いは人の営みの残りの紙屑、奥地は
+// 打ち捨てられた廃材やくず鉄。密度も低くして原野を埋め尽くさない。土系の地面かつ非占有のタイルにだけ置く。
 
 // outdoorLootDensity は屋外散布 loot の面積あたり係数。count = round(area * density) で置くタイル数を密度から
 // 導く。反復乱数でなく密度で決めるので純関数のまま。屋外の loot は稀であるべきなので低く抑える。1チャンク
@@ -27,16 +27,17 @@ const outdoorLootDensity = 0.002
 // seed と別チャネルにし、どのタイルに何が出るかの相関を切る。scatter.go の grass/weed チャネルと同じ考え方。
 const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // "loot_itm"
 
-// outdoorLootGroupFor は屋外ゾーンに応じた低価値な item group を返す。屋外には屑物だけを置き、武器・防具・
-// 回復薬のような価値ある品は建物内の loot に限る。道沿いは人の営みの残りの紙屑、奥地は自然に転がる廃材・鉱片。
-// exhaustive linter が outdoorZone の網羅を強制するので default を置かず、末尾 panic で未知ゾーンのランタイム
-// 保護も兼ねる。
+// outdoorLootGroupFor は屋外ゾーンに応じた無価値な item group を返す。屋外には屑物だけを置き、武器・防具・
+// 回復薬や錬金素材のような価値ある品は建物内の loot に限る。道沿いは人の営みの残りの紙屑 scrap_of_paper、
+// 奥地は打ち捨てられた廃材やくず鉄 junk。銀片・結晶粉などを含む materials は中深度のダンジョン報酬で、地上へ
+// 撒くと価値が釣り合わないため屋外には使わない。exhaustive linter が outdoorZone の網羅を強制するので default
+// を置かず、末尾 panic で未知ゾーンのランタイム保護も兼ねる。
 func outdoorLootGroupFor(zone outdoorZone) string {
 	switch zone {
 	case zoneRoadside:
 		return "scrap_of_paper"
 	case zoneWild:
-		return "materials"
+		return "junk"
 	}
 	panic("unknown outdoorZone: " + string(zone))
 }

@@ -13,7 +13,7 @@ func TestOutdoorLootGroupFor_ゾーンごとに低価値groupを返す(t *testin
 	t.Parallel()
 
 	assert.Equal(t, "scrap_of_paper", outdoorLootGroupFor(zoneRoadside), "道沿いは紙屑の group")
-	assert.Equal(t, "materials", outdoorLootGroupFor(zoneWild), "奥地は廃材・鉱片の group")
+	assert.Equal(t, "junk", outdoorLootGroupFor(zoneWild), "奥地は廃材・くず鉄の group")
 }
 
 // TestOutdoorLootGroupFor_未知ゾーンはpanic は不変条件違反を早期に落とすことを固定する。
