@@ -114,7 +114,7 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	if p.Destination.X < 0 || p.Destination.Y < 0 {
-		return &UserError{Msg: query.T(world, "move destination is invalid")}
+		return fmt.Errorf("MoveBehavior.Validate: destination coordinate is invalid")
 	}
 
 	if !world.Components.GridElement.Has(actor) {
@@ -122,7 +122,7 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 	gridElement := world.Components.GridElement.Get(actor)
 	if !CanMoveTo(world, p.Destination.Coord, gridElement.Coord, actor) {
-		return &UserError{Msg: query.T(world, "move destination is invalid")}
+		return fmt.Errorf("MoveBehavior.Validate: destination is not movable")
 	}
 
 	// 所持重量が最大の1.5倍を超えていたら動けない

@@ -51,7 +51,7 @@ func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 
 	// Targetがバックパック内にあることを確認する
 	if !world.Components.LocationInBackpack.Has(target) {
-		return &UserError{Msg: query.T(world, "item is not in the backpack")}
+		return fmt.Errorf("DropBehavior.Validate: item is not in the backpack")
 	}
 
 	// 配置先タイル座標を取得できるか確認する

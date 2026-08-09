@@ -68,7 +68,7 @@ func TestOpenDoorBehavior(t *testing.T) {
 		// OpenDoorBehaviorを実行
 		result, err := Execute(NewOpenDoorActivity(wall), player, world)
 
-		require.NoError(t, err)
+		require.Error(t, err)
 		require.NotNil(t, result)
 		assert.False(t, result.Success, "検証失敗で成功フラグがfalseであるべき")
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
@@ -127,7 +127,7 @@ func TestOpenDoorBehavior(t *testing.T) {
 		// OpenDoorを実行（ゼロ値Entityは扉ではない）
 		result, err := Execute(NewOpenDoorActivity(gc.InvalidEntity), player, world)
 
-		require.NoError(t, err)
+		require.Error(t, err)
 		require.NotNil(t, result)
 		assert.False(t, result.Success, "検証失敗で成功フラグがfalseであるべき")
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)

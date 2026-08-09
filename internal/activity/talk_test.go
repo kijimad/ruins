@@ -52,7 +52,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		assert.Contains(t, err.Error(), "talk target is not set")
 	})
 
-	t.Run("Dialogコンポーネントがない場合はエラー", func(t *testing.T) {
+	t.Run("Dialogコンポーネントがない場合は不変条件違反", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -70,8 +70,9 @@ func TestTalkBehavior_Validate(t *testing.T) {
 
 		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
+		require.Error(t, err)
 		var ve *UserError
-		require.ErrorAs(t, err, &ve)
+		require.NotErrorAs(t, err, &ve)
 	})
 
 	t.Run("FactionNeutralがない場合はエラー", func(t *testing.T) {

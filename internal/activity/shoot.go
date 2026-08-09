@@ -67,29 +67,29 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		if errors.Is(err, ErrShootNoFireWeapon) {
-			return &UserError{Msg: query.T(world, "no ranged weapon equipped")}
+			return fmt.Errorf("ShootBehavior.Validate: no ranged weapon equipped")
 		}
 		return err
 	}
 
 	// 残弾チェック
 	if fire.Magazine <= 0 {
-		return &UserError{Msg: query.T(world, "out of ammo, please reload")}
+		return fmt.Errorf("ShootBehavior.Validate: out of ammo")
 	}
 
 	// 射程・射線チェック
 	distance := EntityDistance(actor, p.Target, world)
 	rangeParams, rangeOK := gc.GetRangeParams(fire.AttackCategory)
 	if !rangeOK {
-		return &UserError{Msg: query.T(world, "no ranged weapon equipped")}
+		return fmt.Errorf("ShootBehavior.Validate: no ranged weapon equipped")
 	}
 	if distance > float64(rangeParams.MaxRange) {
-		return &UserError{Msg: query.T(world, "attack target is out of range")}
+		return fmt.Errorf("ShootBehavior.Validate: target is out of range")
 	}
 
 	// 射線上に壁がないか
 	if blocked, _ := checkLineOfSight(actor, p.Target, world); blocked {
-		return &UserError{Msg: query.T(world, "line of sight is blocked")}
+		return fmt.Errorf("ShootBehavior.Validate: line of sight is blocked")
 	}
 
 	return nil

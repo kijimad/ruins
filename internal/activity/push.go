@@ -55,13 +55,13 @@ func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return fmt.Errorf("push target is not set")
 	}
 	if !world.ECS.Alive(p.Target) {
-		return &UserError{Msg: query.T(world, "push target does not exist")}
+		return fmt.Errorf("PushBehavior.Validate: target does not exist")
 	}
 	if !world.Components.Pushable.Has(p.Target) {
-		return &UserError{Msg: query.T(world, "target cannot be pushed")}
+		return fmt.Errorf("PushBehavior.Validate: target is not pushable")
 	}
 	if !world.Components.GridElement.Has(p.Target) {
-		return &UserError{Msg: query.T(world, "push target has no position")}
+		return fmt.Errorf("PushBehavior.Validate: target has no position")
 	}
 	if !world.Components.GridElement.Has(actor) {
 		return fmt.Errorf("pusher has no position")
@@ -221,13 +221,13 @@ func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return fmt.Errorf("pull target is not set")
 	}
 	if !world.ECS.Alive(p.Target) {
-		return &UserError{Msg: query.T(world, "pull target does not exist")}
+		return fmt.Errorf("PullBehavior.Validate: target does not exist")
 	}
 	if !world.Components.Pushable.Has(p.Target) {
-		return &UserError{Msg: query.T(world, "target cannot be pulled")}
+		return fmt.Errorf("PullBehavior.Validate: target is not pushable")
 	}
 	if !world.Components.GridElement.Has(p.Target) {
-		return &UserError{Msg: query.T(world, "pull target has no position")}
+		return fmt.Errorf("PullBehavior.Validate: target has no position")
 	}
 	if !world.Components.GridElement.Has(actor) {
 		return fmt.Errorf("puller has no position")

@@ -84,7 +84,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("弾切れでエラー", func(t *testing.T) {
+	t.Run("弾切れは不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
@@ -97,11 +97,12 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err := sa.Validate(activity, player, world)
+		require.Error(t, err)
 		var ve *UserError
-		assert.ErrorAs(t, err, &ve)
+		require.NotErrorAs(t, err, &ve)
 	})
 
-	t.Run("射程外でエラー", func(t *testing.T) {
+	t.Run("射程外は不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -122,11 +123,12 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err = sa.Validate(activity, player, world)
+		require.Error(t, err)
 		var ve *UserError
-		assert.ErrorAs(t, err, &ve)
+		require.NotErrorAs(t, err, &ve)
 	})
 
-	t.Run("近接武器でエラー", func(t *testing.T) {
+	t.Run("近接武器は不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -147,11 +149,12 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err = sa.Validate(activity, player, world)
+		require.Error(t, err)
 		var ve *UserError
-		assert.ErrorAs(t, err, &ve)
+		require.NotErrorAs(t, err, &ve)
 	})
 
-	t.Run("射線上に壁があるとエラー", func(t *testing.T) {
+	t.Run("射線上に壁があると不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
 
@@ -165,8 +168,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err := sa.Validate(activity, player, world)
+		require.Error(t, err)
 		var ve *UserError
-		assert.ErrorAs(t, err, &ve)
+		require.NotErrorAs(t, err, &ve)
 	})
 
 	t.Run("死亡した攻撃者はエラー", func(t *testing.T) {
@@ -267,7 +271,7 @@ func TestExecuteShootAction(t *testing.T) {
 		require.NoError(t, err)
 
 		err = ExecuteShootAction(player, enemy, world)
-		require.NoError(t, err)
+		require.Error(t, err)
 
 		assert.False(t, world.Components.Activity.Has(player))
 	})

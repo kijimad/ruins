@@ -66,11 +66,11 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 		return fmt.Errorf("disassembly target is not set")
 	}
 	if !world.ECS.Alive(p.Target) {
-		return &UserError{Msg: query.T(world, "disassembly target does not exist")}
+		return fmt.Errorf("DisassembleBehavior.Validate: target does not exist")
 	}
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
-		return &UserError{Msg: query.T(world, "target has no disassembly definition")}
+		return fmt.Errorf("DisassembleBehavior.Validate: target has no disassembly definition")
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
 		return &UserError{Msg: query.T(world, "does not have the tool required for disassembly")}

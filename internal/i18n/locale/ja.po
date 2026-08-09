@@ -5577,20 +5577,8 @@ msgid "Sora"
 msgstr "ソラ"
 
 # activity.Behavior.Validate のユーザ向け失敗メッセージ
-msgid "move destination is invalid"
-msgstr "そこには移動できない"
-
 msgid "this item has no effect"
 msgstr "このアイテムには効果がない"
-
-msgid "out of ammo, please reload"
-msgstr "弾切れだ。リロードしよう"
-
-msgid "attack target is out of range"
-msgstr "攻撃対象が射程外だ"
-
-msgid "line of sight is blocked"
-msgstr "射線が遮られている"
 
 
 msgid "cannot rest because enemies are nearby"
@@ -5599,23 +5587,8 @@ msgstr "敵が近くにいるので休息できない"
 msgid "nothing to pick up"
 msgstr "拾えるものがない"
 
-msgid "item is not in the backpack"
-msgstr "アイテムがバックパックにない"
-
-msgid "target entity is not a door"
-msgstr "扉ではない"
-
-msgid "target entity cannot be talked to"
-msgstr "話しかけられる相手ではない"
-
 msgid "target entity is not in a neutral faction"
 msgstr "中立の相手ではない"
-
-msgid "disassembly target does not exist"
-msgstr "分解対象が存在しない"
-
-msgid "target has no disassembly definition"
-msgstr "分解できる対象ではない"
 
 msgid "does not have the tool required for disassembly"
 msgstr "分解に必要な工具を持っていない"
@@ -5623,26 +5596,8 @@ msgstr "分解に必要な工具を持っていない"
 msgid "cannot disassemble because enemies are nearby"
 msgstr "敵が近くにいるので分解できない"
 
-msgid "push target does not exist"
-msgstr "押す対象が存在しない"
-
-msgid "target cannot be pushed"
-msgstr "押せない対象だ"
-
-msgid "push target has no position"
-msgstr "押す対象の位置が不明だ"
-
 msgid "cannot push in that direction"
 msgstr "その方向には押せない"
-
-msgid "pull target does not exist"
-msgstr "引く対象が存在しない"
-
-msgid "target cannot be pulled"
-msgstr "引けない対象だ"
-
-msgid "pull target has no position"
-msgstr "引く対象の位置が不明だ"
 
 msgid "no space to pull"
 msgstr "引くための空間がない"

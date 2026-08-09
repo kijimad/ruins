@@ -51,7 +51,7 @@ func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 
 	// Dialogコンポーネントを持っているか確認
 	if !world.Components.Dialog.Has(targetEntity) {
-		return &UserError{Msg: query.T(world, "target entity cannot be talked to")}
+		return fmt.Errorf("TalkBehavior.Validate: target has no dialog")
 	}
 
 	// 中立派閥か確認
