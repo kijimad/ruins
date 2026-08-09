@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.9&nbsp;%</td>
-            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">15</td>
             <td class="headerCovTableEntry">15</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 02:33:17</td>
+            <td class="headerValue">2026-08-09 10:03:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,30 +69,26 @@
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              : // DialogueTable は会話データのテーブル。表示文字列は query.T で現在言語へ引く</span>
 <span id="L9"><span class="lineNum">       9</span>              : var DialogueTable = map[string]func(world w.World, speakerName string) *MessageData{</span>
-<span id="L10"><span class="lineNum">      10</span> <span class="tlaUNC tlaBgUNC">           0 :         &quot;tavern_keeper_greeting&quot;: func(world w.World, speakerName string) *MessageData {</span></span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaUNC">           0 :                 return NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaUNC">           0 :                         AddText(query.T(world, &quot;We've got some capable folks here.\n\nWant to hire a squad member?&quot;))</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC">           0 :         },</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 :         &quot;old_soldier_greeting&quot;: func(world w.World, speakerName string) *MessageData {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 // 会話は1ページ=1文字列。強調語は &lt;keyword&gt; で囲む。断片を連結せず語順ごと訳せる</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 msg1 := NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                         AddMarkup(query.T(world, &quot;\&quot;You, &lt;keyword&gt;ruins&lt;/keyword&gt; of the &lt;keyword&gt;delver&lt;/keyword&gt;..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\&quot;&quot;))</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 msg2 := NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                         AddMarkup(query.T(world, &quot;\&quot;You... I see, so your mother was &lt;keyword&gt;Hollow&lt;/keyword&gt;..., huh.\n\nWhat an irredeemable world.\&quot;&quot;))</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 return ChainMessages(msg1, msg2)</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         },</span></span>
-<span id="L24"><span class="lineNum">      24</span>              : }</span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span>              : // GetDialogue は指定されたキーに対応する会話データを取得する</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : func GetDialogue(world w.World, key string, speakerName string) *MessageData {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         if dialogueFunc, ok := DialogueTable[key]; ok {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return dialogueFunc(world, speakerName)</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L31"><span class="lineNum">      31</span>              :         // デフォルトメッセージ</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         return NewDialogMessage(&quot;...&quot;, speakerName)</span></span>
-<span id="L33"><span class="lineNum">      33</span>              : }</span>
+<span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC tlaBgGNC">           1 :         &quot;old_soldier_greeting&quot;: func(world w.World, speakerName string) *MessageData {</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           1 :                 // 会話は1ページ=1文字列。強調語は &lt;keyword&gt; で囲む。断片を連結せず語順ごと訳せる</span></span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           1 :                 msg1 := NewDialogMessage(&quot;&quot;, speakerName).</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :                         AddMarkup(query.T(world, &quot;\&quot;You, &lt;keyword&gt;ruins&lt;/keyword&gt; of the &lt;keyword&gt;delver&lt;/keyword&gt;..., right?\n\nEveryone strangely young who comes to this town from outside is like that.\nReckless and self-destructive,...\n\nthey carry some hopeless burden.\&quot;&quot;))</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 msg2 := NewDialogMessage(&quot;&quot;, speakerName).</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                         AddMarkup(query.T(world, &quot;\&quot;You... I see, so your mother was &lt;keyword&gt;Hollow&lt;/keyword&gt;..., huh.\n\nWhat an irredeemable world.\&quot;&quot;))</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 return ChainMessages(msg1, msg2)</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         },</span></span>
+<span id="L20"><span class="lineNum">      20</span>              : }</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // GetDialogue は指定されたキーに対応する会話データを取得する</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 : func GetDialogue(world w.World, key string, speakerName string) *MessageData {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :         if dialogueFunc, ok := DialogueTable[key]; ok {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return dialogueFunc(world, speakerName)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L27"><span class="lineNum">      27</span>              :         // デフォルトメッセージ</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return NewDialogMessage(&quot;...&quot;, speakerName)</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : }</span>
         </pre>
               </td>
             </tr>

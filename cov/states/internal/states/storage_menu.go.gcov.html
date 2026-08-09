@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">51.9&nbsp;%</td>
-            <td class="headerCovTableEntry">156</td>
+            <td class="headerCovTableEntryLo">55.5&nbsp;%</td>
+            <td class="headerCovTableEntry">146</td>
             <td class="headerCovTableEntry">81</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 02:33:17</td>
+            <td class="headerValue">2026-08-09 10:03:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -108,7 +108,7 @@
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span>              : // OnStart はステートが開始される際に呼ばれる</span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) OnStart(_ w.World) error {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         st.detail = menuscreen.NewDetail(st.detailContent)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         st.detail = menuscreen.NewEntityDetail(st.selectedEntity)</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         st.screen = menurt.NewScreen[StorageProps](st, &amp;st.detail)</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : }</span></span>
@@ -294,47 +294,34 @@
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L233"><span class="lineNum">     233</span>              : }</span>
 <span id="L234"><span class="lineNum">     234</span>              : </span>
-<span id="L235"><span class="lineNum">     235</span>              : // detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :         e, ok := st.selectedEntity()</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                 return menuscreen.DetailContent{}, false</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         desc := &quot;&quot;</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         if world.Components.Description.Has(e) {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                 desc = query.T(world, world.Components.Description.Get(e).Description)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         return menuscreen.DetailContent{Name: query.GetEntityName(e, world), Desc: desc, Entity: e}, true</span></span>
-<span id="L246"><span class="lineNum">     246</span>              : }</span>
-<span id="L247"><span class="lineNum">     247</span>              : </span>
-<span id="L248"><span class="lineNum">     248</span>              : // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す</span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 : func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                 return ecs.Entity{}, false</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         items := props.Tabs[cursor.TabIndex].Items</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         if cursor.ItemIndex &gt;= len(items) {</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                 return ecs.Entity{}, false</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         return items[cursor.ItemIndex].Entity, true</span></span>
-<span id="L260"><span class="lineNum">     260</span>              : }</span>
-<span id="L261"><span class="lineNum">     261</span>              : </span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) buildActiveListContainer(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC tlaBgUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L266"><span class="lineNum">     266</span>              : </span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC tlaBgGNC">           1 :         currentTab := props.Tabs[tabIndex]</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         columnWidths := []int{260, 80}</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(currentTab.Items))</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           2 :         for i, it := range currentTab.Items {</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No items&quot;)}, res)</span></span>
-<span id="L275"><span class="lineNum">     275</span>              : }</span>
+<span id="L235"><span class="lineNum">     235</span>              : // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す</span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         items := props.Tabs[cursor.TabIndex].Items</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         if cursor.ItemIndex &gt;= len(items) {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         return items[cursor.ItemIndex].Entity, true</span></span>
+<span id="L247"><span class="lineNum">     247</span>              : }</span>
+<span id="L248"><span class="lineNum">     248</span>              : </span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) buildActiveListContainer(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC tlaBgUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L253"><span class="lineNum">     253</span>              : </span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC tlaBgGNC">           1 :         currentTab := props.Tabs[tabIndex]</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         columnWidths := []int{260, 80}</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(currentTab.Items))</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           2 :         for i, it := range currentTab.Items {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No items&quot;)}, res)</span></span>
+<span id="L262"><span class="lineNum">     262</span>              : }</span>
         </pre>
               </td>
             </tr>

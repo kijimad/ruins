@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">67.8&nbsp;%</td>
-            <td class="headerCovTableEntry">205</td>
-            <td class="headerCovTableEntry">139</td>
+            <td class="headerCovTableEntryLo">67.3&nbsp;%</td>
+            <td class="headerCovTableEntry">208</td>
+            <td class="headerCovTableEntry">140</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 02:33:17</td>
+            <td class="headerValue">2026-08-09 10:03:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -117,13 +117,13 @@
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;push target is not set&quot;)</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.ECS.Alive(p.Target) {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;push target does not exist&quot;)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target does not exist&quot;)</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.Pushable.Has(p.Target) {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target cannot be pushed&quot;)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target is not pushable&quot;)</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(p.Target) {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;push target has no position&quot;)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target has no position&quot;)</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(actor) {</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;pusher has no position&quot;)</span></span>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span>              :         // 壁を弾くので、押し専用の前線チェックは持たない</span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC tlaBgGNC">           1 :         cubeCoord := world.Components.GridElement.Get(p.Target).Coord</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           2 :         if !CanMoveTo(world, p.Destination.Coord, cubeCoord, p.Target) {</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;cannot push in that direction&quot;)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;cannot push in that direction&quot;)}</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L76"><span class="lineNum">      76</span>              : }</span>
@@ -279,89 +279,92 @@
 <span id="L217"><span class="lineNum">     217</span>              : // Validate はBehaviorの実装。後退先が通行可能であることを確かめる。</span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 : func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.PlaceParams)</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(p.Target) {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;pull target does not exist&quot;)</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;pull target is not set&quot;)</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.Pushable.Has(p.Target) {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target cannot be pulled&quot;)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.ECS.Alive(p.Target) {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target does not exist&quot;)</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(p.Target) {</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;pull target has no position&quot;)</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.Pushable.Has(p.Target) {</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target is not pushable&quot;)</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(actor) {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;puller has no position&quot;)</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(p.Target) {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target has no position&quot;)</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC tlaBgGNC">           1 :         cubeCoord := world.Components.GridElement.Get(p.Target).Coord</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         retreat := pullRetreat(cubeCoord, p.Destination.Coord)</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         // 後退先がプレイヤーの行ける先であること。キューブの入る先はプレイヤーが退いて空く</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           2 :         if !CanMoveTo(world, retreat, p.Destination.Coord, actor) {</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;no space to pull&quot;)</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L239"><span class="lineNum">     239</span>              : }</span>
-<span id="L240"><span class="lineNum">     240</span>              : </span>
-<span id="L241"><span class="lineNum">     241</span>              : // Start はBehaviorの実装</span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 : func (pb *PullBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         log.Debug(&quot;pull started&quot;, &quot;actor&quot;, actor)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L246"><span class="lineNum">     246</span>              : </span>
-<span id="L247"><span class="lineNum">     247</span>              : // DoTurn はBehaviorの実装。毎ターン対象の生存と後退先の通行可否を確かめ、ターンを1つ消費する。</span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 : func (pb *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.PlaceParams)</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(p.Target) {</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;interrupted because the pull target disappeared&quot;)</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(p.Target) || !world.Components.GridElement.Has(actor) {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;interrupted because it can no longer be pulled&quot;)</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC tlaBgGNC">           1 :         cubeCoord := world.Components.GridElement.Get(p.Target).Coord</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         retreat := pullRetreat(cubeCoord, p.Destination.Coord)</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         if !CanMoveTo(world, retreat, p.Destination.Coord, actor) {</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;ran out of space to pull&quot;)</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L264"><span class="lineNum">     264</span>              : </span>
-<span id="L265"><span class="lineNum">     265</span>              :         // パーティの押し力を注ぐ。強いパーティほど速く動かす</span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC tlaBgGNC">           1 :         comp.Progress.Current += query.PartyPushPower(world)</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           2 :         if comp.Progress.Current &gt;= comp.Progress.Max {</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 Complete(comp)</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L271"><span class="lineNum">     271</span>              : }</span>
-<span id="L272"><span class="lineNum">     272</span>              : </span>
-<span id="L273"><span class="lineNum">     273</span>              : // Finish はBehaviorの実装。キューブをプレイヤーの元タイルへ引き入れ、プレイヤーは1タイル後退する。</span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 : func (pb *PullBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.PlaceParams)</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC tlaBgGNC">           1 :         cube := p.Target</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) || !world.Components.GridElement.Has(actor) {</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC tlaBgGNC">           1 :         cubeGrid := world.Components.GridElement.Get(cube)</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         cubeOld := cubeGrid.Coord</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         retreat := pullRetreat(cubeOld, p.Destination.Coord)</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         // 先にプレイヤーを後退させてタイルを空け、そこへキューブを引き入れる</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         world.Components.GridElement.Get(actor).Coord = retreat</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         cubeGrid.Coord = p.Destination.Coord</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         // キューブは BlockPass なので通行索引が変わる。全再構築で確実に反映する</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(actor) {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;puller has no position&quot;)</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           1 :         cubeCoord := world.Components.GridElement.Get(p.Target).Coord</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         retreat := pullRetreat(cubeCoord, p.Destination.Coord)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         // 後退先がプレイヤーの行ける先であること。キューブの入る先はプレイヤーが退いて空く</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           2 :         if !CanMoveTo(world, retreat, p.Destination.Coord, actor) {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 return &amp;UserError{Msg: query.T(world, &quot;no space to pull&quot;)}</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L242"><span class="lineNum">     242</span>              : }</span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span>              : // Start はBehaviorの実装</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 : func (pb *PullBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         log.Debug(&quot;pull started&quot;, &quot;actor&quot;, actor)</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L249"><span class="lineNum">     249</span>              : </span>
+<span id="L250"><span class="lineNum">     250</span>              : // DoTurn はBehaviorの実装。毎ターン対象の生存と後退先の通行可否を確かめ、ターンを1つ消費する。</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 : func (pb *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.PlaceParams)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(p.Target) {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;interrupted because the pull target disappeared&quot;)</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.GridElement.Has(p.Target) || !world.Components.GridElement.Has(actor) {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;interrupted because it can no longer be pulled&quot;)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC tlaBgGNC">           1 :         cubeCoord := world.Components.GridElement.Get(p.Target).Coord</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         retreat := pullRetreat(cubeCoord, p.Destination.Coord)</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         if !CanMoveTo(world, retreat, p.Destination.Coord, actor) {</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC tlaBgUNC">           0 :                 Cancel(comp, &quot;ran out of space to pull&quot;)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span>              :         // パーティの押し力を注ぐ。強いパーティほど速く動かす</span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC tlaBgGNC">           1 :         comp.Progress.Current += query.PartyPushPower(world)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           2 :         if comp.Progress.Current &gt;= comp.Progress.Max {</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 Complete(comp)</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L274"><span class="lineNum">     274</span>              : }</span>
+<span id="L275"><span class="lineNum">     275</span>              : </span>
+<span id="L276"><span class="lineNum">     276</span>              : // Finish はBehaviorの実装。キューブをプレイヤーの元タイルへ引き入れ、プレイヤーは1タイル後退する。</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 : func (pb *PullBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         p, ok := comp.Params.(*gc.PlaceParams)</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC tlaBgGNC">           1 :         cube := p.Target</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) || !world.Components.GridElement.Has(actor) {</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC tlaBgGNC">           1 :         cubeGrid := world.Components.GridElement.Get(cube)</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         cubeOld := cubeGrid.Coord</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         retreat := pullRetreat(cubeOld, p.Destination.Coord)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :         // 先にプレイヤーを後退させてタイルを空け、そこへキューブを引き入れる</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         world.Components.GridElement.Get(actor).Coord = retreat</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :         cubeGrid.Coord = p.Destination.Coord</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         log.Debug(&quot;pull finished&quot;, &quot;actor&quot;, actor, &quot;cube&quot;, cube, &quot;to&quot;, p.Destination.String())</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L296"><span class="lineNum">     296</span>              : }</span>
-<span id="L297"><span class="lineNum">     297</span>              : </span>
-<span id="L298"><span class="lineNum">     298</span>              : // Canceled はBehaviorの実装</span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC tlaBgUNC">           0 : func (pb *PullBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :         log.Debug(&quot;pull canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         // キューブは BlockPass なので通行索引が変わる。全再構築で確実に反映する</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :         log.Debug(&quot;pull finished&quot;, &quot;actor&quot;, actor, &quot;cube&quot;, cube, &quot;to&quot;, p.Destination.String())</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L299"><span class="lineNum">     299</span>              : }</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span>              : // Canceled はBehaviorの実装</span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC tlaBgUNC">           0 : func (pb *PullBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :         log.Debug(&quot;pull canceled&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>

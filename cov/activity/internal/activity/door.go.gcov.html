@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 02:33:17</td>
+            <td class="headerValue">2026-08-09 10:03:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -113,12 +113,12 @@
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         // ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :         if !world.ECS.Alive(targetEntity) {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;target entity is not a door&quot;)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;target is not alive&quot;)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : </span>
 <span id="L57"><span class="lineNum">      57</span>              :         // Doorコンポーネントを持っているか確認</span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :         if !world.Components.Door.Has(targetEntity) {</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;target entity is not a door&quot;)</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;target is not a door&quot;)</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L61"><span class="lineNum">      61</span>              : </span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         return nil</span></span>
@@ -229,12 +229,12 @@
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         // ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         if !world.ECS.Alive(targetEntity) {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target entity is not a door&quot;)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target is not alive&quot;)</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L172"><span class="lineNum">     172</span>              : </span>
 <span id="L173"><span class="lineNum">     173</span>              :         // Doorコンポーネントを持っているか確認</span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.Components.Door.Has(targetEntity) {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target entity is not a door&quot;)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;target is not a door&quot;)</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L177"><span class="lineNum">     177</span>              : </span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">50.9&nbsp;%</td>
-            <td class="headerCovTableEntry">279</td>
-            <td class="headerCovTableEntry">142</td>
+            <td class="headerCovTableEntryLo">54.1&nbsp;%</td>
+            <td class="headerCovTableEntry">257</td>
+            <td class="headerCovTableEntry">139</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 02:33:17</td>
+            <td class="headerValue">2026-08-09 10:03:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -334,160 +334,135 @@
 <span id="L272"><span class="lineNum">     272</span>              :         }, nil</span>
 <span id="L273"><span class="lineNum">     273</span>              : }</span>
 <span id="L274"><span class="lineNum">     274</span>              : </span>
-<span id="L275"><span class="lineNum">     275</span>              : // NewTavernMenuState は酒場の雇用画面のStateを作成するファクトリー関数</span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 : func NewTavernMenuState() (es.State[w.World], error) {</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         return &amp;TavernMenuState{}, nil</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L279"><span class="lineNum">     279</span>              : </span>
-<span id="L280"><span class="lineNum">     280</span>              : // NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数</span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 : func NewShopMenuState() (es.State[w.World], error) {</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         return &amp;ShopMenuState{}, nil</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L284"><span class="lineNum">     284</span>              : </span>
-<span id="L285"><span class="lineNum">     285</span>              : // NewStorageMenuState は収納メニューStateを作成する</span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 : func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         return &amp;StorageMenuState{storageEntity: storageEntity}, nil</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L289"><span class="lineNum">     289</span>              : </span>
-<span id="L290"><span class="lineNum">     290</span>              : // NewInteractionMenuState はインタラクションメニューStateを作成する</span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC tlaBgUNC">           0 : func NewInteractionMenuState(world w.World) (es.State[w.World], error) {</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :         if len(GetInteractionActions(world)) == 0 {</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 messageState := &amp;MessageState{}</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 messageState.build = func(world w.World) *messagedata.MessageData {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                         return messagedata.NewSystemMessage(query.T(world, &quot;No actions available.&quot;))</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                 return messageState, nil</span></span>
-<span id="L298"><span class="lineNum">     298</span>              :         }</span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :         return NewChoiceMenu(interactionChoices), nil</span></span>
-<span id="L300"><span class="lineNum">     300</span>              : }</span>
-<span id="L301"><span class="lineNum">     301</span>              : </span>
-<span id="L302"><span class="lineNum">     302</span>              : // interactionActionChoices は交流アクション列を選択肢へ変換する。選ぶと実行してダンジョンへ戻る。</span>
-<span id="L303"><span class="lineNum">     303</span>              : // キャンセルは選択肢でなく Esc で閉じる。他メニューと操作を揃える</span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 : func interactionActionChoices(actions []InteractionAction) []Choice {</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :         choices := make([]Choice, 0, len(actions))</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :         for _, action := range actions {</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                 choices = append(choices, Choice{Label: action.Label, Run: func(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                         playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                         if err != nil {</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, fmt.Errorf(&quot;failed to get player: %w&quot;, err)</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                         if _, err := activity.ExecuteInteraction(playerEntity, action.Target, action.Interaction, world); err != nil {</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, fmt.Errorf(&quot;failed to execute action: %w&quot;, err)</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
-<span id="L316"><span class="lineNum">     316</span>              :                 }})</span>
-<span id="L317"><span class="lineNum">     317</span>              :         }</span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         return choices</span></span>
-<span id="L319"><span class="lineNum">     319</span>              : }</span>
-<span id="L320"><span class="lineNum">     320</span>              : </span>
-<span id="L321"><span class="lineNum">     321</span>              : // interactionChoices は範囲内の交流アクションを選択肢にする。交流メニューで使う</span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 : func interactionChoices(world w.World) (string, []Choice) {</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :         return &quot;&quot;, interactionActionChoices(GetInteractionActions(world))</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L325"><span class="lineNum">     325</span>              : </span>
-<span id="L326"><span class="lineNum">     326</span>              : // sameTileActionChoices は足元タイルの手動アクションを選択肢にする。ダンジョンの相互作用キーで使う</span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 : func sameTileActionChoices(world w.World) (string, []Choice) {</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :         return &quot;&quot;, interactionActionChoices(GetSameTileManualActions(world))</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L330"><span class="lineNum">     330</span>              : </span>
-<span id="L331"><span class="lineNum">     331</span>              : // NewMerchantDialogState は商人との会話ステートを作成</span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC tlaBgGNC">           1 : func NewMerchantDialogState(speakerName string) (es.State[w.World], error) {</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         persistentState := &amp;PersistentMessageState{}</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           2 :         persistentState.build = func(world w.World) *messagedata.MessageData {</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                 return messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;Want to make a deal?\n\nI've got good stuff.&quot;)).</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                         WithChoice(query.T(world, &quot;Look&quot;), func(_ w.World) error {</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC tlaBgUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                                         Type:          es.TransPush,</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                                         NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                                 })</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                         }).</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                         WithChoice(query.T(world, &quot;No business&quot;), func(_ w.World) error {</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                         })</span></span>
-<span id="L349"><span class="lineNum">     349</span>              :         }</span>
-<span id="L350"><span class="lineNum">     350</span>              : </span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC tlaBgGNC">           1 :         return persistentState, nil</span></span>
-<span id="L352"><span class="lineNum">     352</span>              : }</span>
-<span id="L353"><span class="lineNum">     353</span>              : </span>
-<span id="L354"><span class="lineNum">     354</span>              : // NewTavernKeeperDialogState は酒場の主人との会話ステートを作成</span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC tlaBgUNC">           0 : func NewTavernKeeperDialogState(speakerName string) (es.State[w.World], error) {</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :         persistentState := &amp;PersistentMessageState{}</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :         persistentState.build = func(world w.World) *messagedata.MessageData {</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                 return messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                         AddText(query.T(world, &quot;Skilled folk gather here.\n\nWant to hire a squad member?&quot;)).</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                         WithChoice(query.T(world, &quot;Hire&quot;), func(_ w.World) error {</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                                         Type:          es.TransPush,</span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                                         NewStateFuncs: []es.StateFactory[w.World]{NewTavernMenuState},</span></span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                                 })</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                         }).</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                         WithChoice(query.T(world, &quot;No business&quot;), func(_ w.World) error {</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :                         })</span></span>
-<span id="L372"><span class="lineNum">     372</span>              :         }</span>
-<span id="L373"><span class="lineNum">     373</span>              : </span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         return persistentState, nil</span></span>
-<span id="L375"><span class="lineNum">     375</span>              : }</span>
-<span id="L376"><span class="lineNum">     376</span>              : </span>
-<span id="L377"><span class="lineNum">     377</span>              : // NewDoctorDialogState は怪しい科学者との会話ステートを作成</span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 : func NewDoctorDialogState(speakerName string) (es.State[w.World], error) {</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         persistentState := &amp;PersistentMessageState{}</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         persistentState.build = func(world w.World) *messagedata.MessageData {</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                 return messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                         AddText(query.T(world, &quot;Heh heh... I'll reconstruct matter with my secret technique.\n\nBring me core and materials!&quot;)).</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                         WithChoice(query.T(world, &quot;I want to craft&quot;), func(_ w.World) error {</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :                                         Type:          es.TransPush,</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :                                         NewStateFuncs: []es.StateFactory[w.World]{NewCraftMenuState},</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                                 })</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                         }).</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                         WithChoice(query.T(world, &quot;No business&quot;), func(_ w.World) error {</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                         })</span></span>
-<span id="L395"><span class="lineNum">     395</span>              :         }</span>
-<span id="L396"><span class="lineNum">     396</span>              : </span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :         return persistentState, nil</span></span>
-<span id="L398"><span class="lineNum">     398</span>              : }</span>
-<span id="L399"><span class="lineNum">     399</span>              : </span>
-<span id="L400"><span class="lineNum">     400</span>              : // NewOpeningState はオープニングを表示するStateを作成するファクトリー関数</span>
-<span id="L401"><span class="lineNum">     401</span>              : // 完了後はポップする。後続ステートが必要な場合は呼び出し側でスタックに積む</span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC tlaBgGNC">           1 : func NewOpeningState() (es.State[w.World], error) {</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :         messageState := &amp;MessageState{}</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :         // 翻訳は world を要するので OnStart でページを組む</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           2 :         messageState.build = func(world w.World) *messagedata.MessageData {</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :                 // 1. 黒背景: 荒野の大穴</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :                 page1a := &amp;messagedata.MessageData{Speaker: &quot;&quot;, BackgroundKey: &quot;black1&quot;}</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :                 page1a.AddText(query.T(world, &quot;A vast wasteland, with a single great hole gaping open.&quot;))</span></span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :                 // 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                 blank := &amp;messagedata.MessageData{Speaker: &quot;&quot;, BackgroundKey: &quot;hole1&quot;}</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                 page1b := &amp;messagedata.MessageData{Speaker: &quot;&quot;}</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                 page1b.AddText(query.T(world, &quot;At the bottom of the hole lie ruins of an ancient civilization.\n&quot;)).</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;Treasure comes out. Monsters too. Half of those who dive never return.\n&quot;)).</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;Around the hole a town has formed of divers, sellers, and buyers.&quot;))</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :                 // 3. 酒場背景: 空ページ（背景だけ見せる）→ 拾い屋の噂</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :                 blankBar := &amp;messagedata.MessageData{Speaker: &quot;&quot;, BackgroundKey: &quot;bar1&quot;}</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :                 page2 := &amp;messagedata.MessageData{Speaker: &quot;&quot;}</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :                 page2.AddText(query.T(world, &quot;\&quot;Heard about it? Another bottom-seeker vanished.\&quot;\n&quot;)).</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;\&quot;How many is that now?\&quot;\n&quot;)).</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;\&quot;Who knows. I quit counting long ago.\&quot;\n\n&quot;)).</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                         AddMarkup(query.T(world, &quot;\&quot;So, the next &lt;keyword&gt;scavenger&lt;/keyword&gt; has shown up... a bottom-seeker too, they say.\&quot;\n&quot;))</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :                 return messagedata.ChainMessages(page1a, blank, page1b, blankBar, page2)</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :         return messageState, nil</span></span>
-<span id="L428"><span class="lineNum">     428</span>              : }</span>
+<span id="L275"><span class="lineNum">     275</span>              : // NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数。</span>
+<span id="L276"><span class="lineNum">     276</span>              : // merchant はこの店の在庫を持つ商人。売買はこの商人の収納を出し入れする</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 : func NewShopMenuState(merchant ecs.Entity) (es.State[w.World], error) {</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :         return &amp;ShopMenuState{merchant: merchant}, nil</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L280"><span class="lineNum">     280</span>              : </span>
+<span id="L281"><span class="lineNum">     281</span>              : // NewStorageMenuState は収納メニューStateを作成する</span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 : func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         return &amp;StorageMenuState{storageEntity: storageEntity}, nil</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span>              : // NewInteractionMenuState はインタラクションメニューStateを作成する</span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC tlaBgUNC">           0 : func NewInteractionMenuState(world w.World) (es.State[w.World], error) {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         if len(GetInteractionActions(world)) == 0 {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 messageState := &amp;MessageState{}</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 messageState.build = func(world w.World) *messagedata.MessageData {</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                         return messagedata.NewSystemMessage(query.T(world, &quot;No actions available.&quot;))</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 return messageState, nil</span></span>
+<span id="L294"><span class="lineNum">     294</span>              :         }</span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :         return NewChoiceMenu(interactionChoices), nil</span></span>
+<span id="L296"><span class="lineNum">     296</span>              : }</span>
+<span id="L297"><span class="lineNum">     297</span>              : </span>
+<span id="L298"><span class="lineNum">     298</span>              : // interactionActionChoices は交流アクション列を選択肢へ変換する。選ぶと実行してダンジョンへ戻る。</span>
+<span id="L299"><span class="lineNum">     299</span>              : // キャンセルは選択肢でなく Esc で閉じる。他メニューと操作を揃える</span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 : func interactionActionChoices(actions []InteractionAction) []Choice {</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         choices := make([]Choice, 0, len(actions))</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         for _, action := range actions {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                 choices = append(choices, Choice{Label: action.Label, Run: func(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                         playerEntity, err := query.GetPlayerEntity(world)</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                         if err != nil {</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, fmt.Errorf(&quot;failed to get player: %w&quot;, err)</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                         if _, err := activity.ExecuteInteraction(playerEntity, action.Target, action.Interaction, world); err != nil {</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, fmt.Errorf(&quot;failed to execute action: %w&quot;, err)</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L312"><span class="lineNum">     312</span>              :                 }})</span>
+<span id="L313"><span class="lineNum">     313</span>              :         }</span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :         return choices</span></span>
+<span id="L315"><span class="lineNum">     315</span>              : }</span>
+<span id="L316"><span class="lineNum">     316</span>              : </span>
+<span id="L317"><span class="lineNum">     317</span>              : // interactionChoices は範囲内の交流アクションを選択肢にする。交流メニューで使う</span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 : func interactionChoices(world w.World) (string, []Choice) {</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         return &quot;&quot;, interactionActionChoices(GetInteractionActions(world))</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L321"><span class="lineNum">     321</span>              : </span>
+<span id="L322"><span class="lineNum">     322</span>              : // sameTileActionChoices は足元タイルの手動アクションを選択肢にする。ダンジョンの相互作用キーで使う</span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 : func sameTileActionChoices(world w.World) (string, []Choice) {</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :         return &quot;&quot;, interactionActionChoices(GetSameTileManualActions(world))</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L326"><span class="lineNum">     326</span>              : </span>
+<span id="L327"><span class="lineNum">     327</span>              : // NewMerchantDialogState は商人との会話ステートを作成。merchant はこの商人の実体で、店を開くとき在庫の持ち主として渡す</span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC tlaBgGNC">           1 : func NewMerchantDialogState(speakerName string, merchant ecs.Entity) (es.State[w.World], error) {</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         persistentState := &amp;PersistentMessageState{}</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           2 :         persistentState.build = func(world w.World) *messagedata.MessageData {</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 return messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;Want to make a deal?\n\nI've got good stuff.&quot;)).</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                         WithChoice(query.T(world, &quot;Look&quot;), func(_ w.World) error {</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC tlaBgUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                                         Type: es.TransPush,</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                                         NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                                                 func() (es.State[w.World], error) { return NewShopMenuState(merchant) },</span></span>
+<span id="L339"><span class="lineNum">     339</span>              :                                         },</span>
+<span id="L340"><span class="lineNum">     340</span>              :                                 })</span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
+<span id="L342"><span class="lineNum">     342</span>              :                         }).</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                         WithChoice(query.T(world, &quot;No business&quot;), func(_ w.World) error {</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                         })</span></span>
+<span id="L347"><span class="lineNum">     347</span>              :         }</span>
+<span id="L348"><span class="lineNum">     348</span>              : </span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC tlaBgGNC">           1 :         return persistentState, nil</span></span>
+<span id="L350"><span class="lineNum">     350</span>              : }</span>
+<span id="L351"><span class="lineNum">     351</span>              : </span>
+<span id="L352"><span class="lineNum">     352</span>              : // NewDoctorDialogState は怪しい科学者との会話ステートを作成</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC tlaBgUNC">           0 : func NewDoctorDialogState(speakerName string) (es.State[w.World], error) {</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         persistentState := &amp;PersistentMessageState{}</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :         persistentState.build = func(world w.World) *messagedata.MessageData {</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                 return messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                         AddText(query.T(world, &quot;Heh heh... I'll reconstruct matter with my secret technique.\n\nBring me core and materials!&quot;)).</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                         WithChoice(query.T(world, &quot;I want to craft&quot;), func(_ w.World) error {</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                                         Type:          es.TransPush,</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                                         NewStateFuncs: []es.StateFactory[w.World]{NewCraftMenuState},</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                                 })</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                         }).</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                         WithChoice(query.T(world, &quot;No business&quot;), func(_ w.World) error {</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                                 return nil</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                         })</span></span>
+<span id="L370"><span class="lineNum">     370</span>              :         }</span>
+<span id="L371"><span class="lineNum">     371</span>              : </span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :         return persistentState, nil</span></span>
+<span id="L373"><span class="lineNum">     373</span>              : }</span>
+<span id="L374"><span class="lineNum">     374</span>              : </span>
+<span id="L375"><span class="lineNum">     375</span>              : // NewOpeningState はオープニングを表示するStateを作成するファクトリー関数</span>
+<span id="L376"><span class="lineNum">     376</span>              : // 完了後はポップする。後続ステートが必要な場合は呼び出し側でスタックに積む</span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC tlaBgGNC">           1 : func NewOpeningState() (es.State[w.World], error) {</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :         messageState := &amp;MessageState{}</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         // 翻訳は world を要するので OnStart でページを組む</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           2 :         messageState.build = func(world w.World) *messagedata.MessageData {</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :                 // 1. 黒背景: 荒野の大穴</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :                 page1a := &amp;messagedata.MessageData{Speaker: &quot;&quot;, BackgroundKey: &quot;black1&quot;}</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :                 page1a.AddText(query.T(world, &quot;A vast wasteland, with a single great hole gaping open.&quot;))</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :                 // 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :                 blank := &amp;messagedata.MessageData{Speaker: &quot;&quot;, BackgroundKey: &quot;hole1&quot;}</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :                 page1b := &amp;messagedata.MessageData{Speaker: &quot;&quot;}</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :                 page1b.AddText(query.T(world, &quot;At the bottom of the hole lie ruins of an ancient civilization.\n&quot;)).</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;Treasure comes out. Monsters too. Half of those who dive never return.\n&quot;)).</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;Around the hole a town has formed of divers, sellers, and buyers.&quot;))</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :                 // 3. 酒場背景: 空ページ（背景だけ見せる）→ 拾い屋の噂</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :                 blankBar := &amp;messagedata.MessageData{Speaker: &quot;&quot;, BackgroundKey: &quot;bar1&quot;}</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :                 page2 := &amp;messagedata.MessageData{Speaker: &quot;&quot;}</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                 page2.AddText(query.T(world, &quot;\&quot;Heard about it? Another bottom-seeker vanished.\&quot;\n&quot;)).</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;\&quot;How many is that now?\&quot;\n&quot;)).</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :                         AddText(query.T(world, &quot;\&quot;Who knows. I quit counting long ago.\&quot;\n\n&quot;)).</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                         AddMarkup(query.T(world, &quot;\&quot;So, the next &lt;keyword&gt;scavenger&lt;/keyword&gt; has shown up... a bottom-seeker too, they say.\&quot;\n&quot;))</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :                 return messagedata.ChainMessages(page1a, blank, page1b, blankBar, page2)</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :         return messageState, nil</span></span>
+<span id="L403"><span class="lineNum">     403</span>              : }</span>
         </pre>
               </td>
             </tr>

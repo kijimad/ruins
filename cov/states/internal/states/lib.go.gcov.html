@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.0&nbsp;%</td>
-            <td class="headerCovTableEntry">151</td>
-            <td class="headerCovTableEntry">142</td>
+            <td class="headerCovTableEntryHi">95.2&nbsp;%</td>
+            <td class="headerCovTableEntry">146</td>
+            <td class="headerCovTableEntry">139</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 02:33:17</td>
+            <td class="headerValue">2026-08-09 10:03:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -255,10 +255,10 @@
 <span id="L193"><span class="lineNum">     193</span>              :         }</span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC tlaBgGNC">           1 :         container.AddChild(table)</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         // 行が無いときの空表示を一覧側で持つ。各メニューが同じ後処理を書かずに済む</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         if len(rows) == 0 &amp;&amp; opts.EmptyText != &quot;&quot; {</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC tlaBgUNC">           0 :                 container.AddChild(styled.NewDescriptionText(opts.EmptyText, res))</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC tlaBgGNC">           1 :         return container</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           2 :         if len(rows) == 0 &amp;&amp; opts.EmptyText != &quot;&quot; {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 container.AddChild(styled.NewDescriptionText(opts.EmptyText, res))</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         return container</span></span>
 <span id="L200"><span class="lineNum">     200</span>              : }</span>
 <span id="L201"><span class="lineNum">     201</span>              : </span>
 <span id="L202"><span class="lineNum">     202</span>              : // nameWithCount は個数が2以上のとき名前に ×個数 を添える。1個や非スタックは名前だけを返す</span>
@@ -269,64 +269,57 @@
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         return name</span></span>
 <span id="L208"><span class="lineNum">     208</span>              : }</span>
 <span id="L209"><span class="lineNum">     209</span>              : </span>
-<span id="L210"><span class="lineNum">     210</span>              : // newCurrencyRow は所持金を表示する行を組み立てる。酒場で使う</span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : func newCurrencyRow(currency int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         container := styled.NewRowContainer()</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         return container</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L216"><span class="lineNum">     216</span>              : </span>
-<span id="L217"><span class="lineNum">     217</span>              : // newPageIndicator はページ位置を示す行を組み立てる。1ページに収まり表示が空になるときも</span>
-<span id="L218"><span class="lineNum">     218</span>              : // 高さを一定に保つため半角空白を置く。ページングを持つ一覧で共通に使う</span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 : func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widget.Container {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         pageText := pg.GetPageText()</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           2 :         if pageText == &quot;&quot; {</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 pageText = &quot; &quot;</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         return styled.NewPageIndicator(pageText, res)</span></span>
-<span id="L225"><span class="lineNum">     225</span>              : }</span>
-<span id="L226"><span class="lineNum">     226</span>              : </span>
-<span id="L227"><span class="lineNum">     227</span>              : // menuNavHint はメニュー共通のキー操作案内を組み立てる。全メニューのフッターに常設し、</span>
-<span id="L228"><span class="lineNum">     228</span>              : // どの画面でも同じキーで同じ操作ができることを示す。矢印や Enter/Esc は素の記号がフォントに</span>
-<span id="L229"><span class="lineNum">     229</span>              : // 無く文字化けするため FontAwesome のアイコンを使う。hasTabs が true のときタブ切替を含め、</span>
-<span id="L230"><span class="lineNum">     230</span>              : // extras に画面固有の案内を後ろへ足す</span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 : func menuNavHint(world w.World, hasTabs bool, extras ...string) string {</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, 4+len(extras))</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           2 :         if hasTabs {</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 parts = append(parts, consts.IconArrowLeft+consts.IconArrowRight+&quot; &quot;+query.T(world, &quot;Tab&quot;))</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconArrowUp+consts.IconArrowDown+&quot; &quot;+query.T(world, &quot;Select&quot;))</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconKeyEnter+&quot; &quot;+query.T(world, &quot;Confirm&quot;))</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         parts = append(parts, extras...)</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconKeyEsc+&quot; &quot;+query.T(world, &quot;Back&quot;))</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         return strings.Join(parts, &quot;   &quot;)</span></span>
-<span id="L241"><span class="lineNum">     241</span>              : }</span>
-<span id="L242"><span class="lineNum">     242</span>              : </span>
-<span id="L243"><span class="lineNum">     243</span>              : // centerRow は子を水平中央に置くアンカーコンテナを返す。タブ帯や見出しの中央寄せに使う</span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 : func centerRow(child widget.PreferredSizeLocateableWidget) *widget.Container {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         row := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         child.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         row.AddChild(child)</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         return row</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L250"><span class="lineNum">     250</span>              : </span>
-<span id="L251"><span class="lineNum">     251</span>              : // wrapModalRoot は root を画面より一回り小さい中央モーダルとして包む。</span>
-<span id="L252"><span class="lineNum">     252</span>              : // 外周は背景を持たず透明にし、周囲に後ろのフィールドを覗かせる。動詞タブ画面と各メニューで共通に使う。</span>
-<span id="L253"><span class="lineNum">     253</span>              : // 下端はゲームログの上端より上で止め、ログと重ならないようにする。</span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 : func wrapModalRoot(root *widget.Container) *widget.Container {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         bottom := consts.GameHeight - menuscreen.LogTopY(consts.GameHeight) + theme.Space3</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         outer := widget.NewContainer(</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                 widget.ContainerOpts.Layout(widget.NewGridLayout(</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                         widget.GridLayoutOpts.Columns(1),</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                         widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                         widget.GridLayoutOpts.Padding(&amp;widget.Insets{Top: 48, Bottom: bottom, Left: 96, Right: 96}),</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 )),</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         outer.AddChild(root)</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         return outer</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L266"><span class="lineNum">     266</span>              : </span>
-<span id="L267"><span class="lineNum">     267</span>              : // ================</span>
+<span id="L210"><span class="lineNum">     210</span>              : // newPageIndicator はページ位置を示す行を組み立てる。1ページに収まり表示が空になるときも</span>
+<span id="L211"><span class="lineNum">     211</span>              : // 高さを一定に保つため半角空白を置く。ページングを持つ一覧で共通に使う</span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 : func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widget.Container {</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         pageText := pg.GetPageText()</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           2 :         if pageText == &quot;&quot; {</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 pageText = &quot; &quot;</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         return styled.NewPageIndicator(pageText, res)</span></span>
+<span id="L218"><span class="lineNum">     218</span>              : }</span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              : // menuNavHint はメニュー共通のキー操作案内を組み立てる。全メニューのフッターに常設し、</span>
+<span id="L221"><span class="lineNum">     221</span>              : // どの画面でも同じキーで同じ操作ができることを示す。矢印や Enter/Esc は素の記号がフォントに</span>
+<span id="L222"><span class="lineNum">     222</span>              : // 無く文字化けするため FontAwesome のアイコンを使う。hasTabs が true のときタブ切替を含め、</span>
+<span id="L223"><span class="lineNum">     223</span>              : // extras に画面固有の案内を後ろへ足す</span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 : func menuNavHint(world w.World, hasTabs bool, extras ...string) string {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, 4+len(extras))</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           2 :         if hasTabs {</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 parts = append(parts, consts.IconArrowLeft+consts.IconArrowRight+&quot; &quot;+query.T(world, &quot;Tab&quot;))</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconArrowUp+consts.IconArrowDown+&quot; &quot;+query.T(world, &quot;Select&quot;))</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconKeyEnter+&quot; &quot;+query.T(world, &quot;Confirm&quot;))</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         parts = append(parts, extras...)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconKeyEsc+&quot; &quot;+query.T(world, &quot;Back&quot;))</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         return strings.Join(parts, &quot;   &quot;)</span></span>
+<span id="L234"><span class="lineNum">     234</span>              : }</span>
+<span id="L235"><span class="lineNum">     235</span>              : </span>
+<span id="L236"><span class="lineNum">     236</span>              : // centerRow は子を水平中央に置くアンカーコンテナを返す。タブ帯や見出しの中央寄せに使う</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 : func centerRow(child widget.PreferredSizeLocateableWidget) *widget.Container {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         row := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         child.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         row.AddChild(child)</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         return row</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L243"><span class="lineNum">     243</span>              : </span>
+<span id="L244"><span class="lineNum">     244</span>              : // wrapModalRoot は root を画面より一回り小さい中央モーダルとして包む。</span>
+<span id="L245"><span class="lineNum">     245</span>              : // 外周は背景を持たず透明にし、周囲に後ろのフィールドを覗かせる。動詞タブ画面と各メニューで共通に使う。</span>
+<span id="L246"><span class="lineNum">     246</span>              : // 下端はゲームログの上端より上で止め、ログと重ならないようにする。</span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 : func wrapModalRoot(root *widget.Container) *widget.Container {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         bottom := consts.GameHeight - menuscreen.LogTopY(consts.GameHeight) + theme.Space3</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         outer := widget.NewContainer(</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                 widget.ContainerOpts.Layout(widget.NewGridLayout(</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                         widget.GridLayoutOpts.Columns(1),</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true}),</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                         widget.GridLayoutOpts.Padding(&amp;widget.Insets{Top: 48, Bottom: bottom, Left: 96, Right: 96}),</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 )),</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         outer.AddChild(root)</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         return outer</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L259"><span class="lineNum">     259</span>              : </span>
+<span id="L260"><span class="lineNum">     260</span>              : // ================</span>
         </pre>
               </td>
             </tr>
