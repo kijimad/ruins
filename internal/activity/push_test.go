@@ -157,17 +157,18 @@ func TestPushBehavior_プレイヤーが行けない先へは押せない(t *tes
 	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "押せなければキューブは動かない")
 }
 
-func TestPushBehavior_APが無ければ押せない(t *testing.T) {
+func TestPushBehavior_APが無くても開始でき進捗0で動かないだけ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	cube := addCube(t, world, consts.Coord[consts.Tile]{X: 5, Y: 5})
 	player := addPusher(t, world, consts.Coord[consts.Tile]{X: 4, Y: 5}, 0)
 
-	// APが無ければ Validate が UserError を返し、致命エラーでなく no-op になる
+	// 押しは継続アクティビティで、AP は毎ターンの進捗量。AP が無いと進まないだけで開始は拒否しない。
+	// 完了に必要なターン数が増えるだけで、致命エラーにも UserError にもならない
 	result, err := activity.Execute(activity.NewPushActivity(cube, gc.DirectionRight, world), player, world)
 	require.NoError(t, err)
-	assert.False(t, result.Success, "APが無ければ押せない")
-	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord)
+	assert.Equal(t, gc.ActivityStateRunning, result.State, "AP が無くても開始でき、進捗0で継続する")
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 5, Y: 5}, world.Components.GridElement.Get(cube).Coord, "進捗0なので今ターンは動かない")
 }
 
 func TestExecuteMoveAction_キューブへの移動は押しになる(t *testing.T) {

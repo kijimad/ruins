@@ -65,9 +65,6 @@ func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	if !world.Components.GridElement.Has(actor) {
 		return fmt.Errorf("pusher has no position")
 	}
-	if query.PartyPushPower(world) <= 0 {
-		return &UserError{Msg: query.T(world, "not enough AP to move it")}
-	}
 	// 押せる先はプレイヤーが行ける先に一致させる。CanMoveTo が寒波前線の破棄域や
 	// 壁を弾くので、押し専用の前線チェックは持たない
 	cubeCoord := world.Components.GridElement.Get(p.Target).Coord
@@ -210,9 +207,6 @@ func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 	if !world.Components.GridElement.Has(actor) {
 		return fmt.Errorf("puller has no position")
-	}
-	if query.PartyPushPower(world) <= 0 {
-		return &UserError{Msg: query.T(world, "not enough AP to move it")}
 	}
 	cubeCoord := world.Components.GridElement.Get(p.Target).Coord
 	retreat := pullRetreat(cubeCoord, p.Destination.Coord)
