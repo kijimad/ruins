@@ -5587,8 +5587,6 @@ msgstr "敵が近くにいるので休息できない"
 msgid "nothing to pick up"
 msgstr "拾えるものがない"
 
-msgid "target entity is not in a neutral faction"
-msgstr "中立の相手ではない"
 
 msgid "does not have the tool required for disassembly"
 msgstr "分解に必要な工具を持っていない"

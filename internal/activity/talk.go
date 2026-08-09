@@ -54,9 +54,9 @@ func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 		return fmt.Errorf("target has no dialog")
 	}
 
-	// 中立派閥か確認
+	// 敵対は歩き込みで攻撃になり talk は中立にしか発動しない。ここで非中立なのは不変条件違反
 	if !query.IsNeutral(world, targetEntity) {
-		return &UserError{Msg: query.T(world, "target entity is not in a neutral faction")}
+		return fmt.Errorf("target is not in a neutral faction")
 	}
 
 	return nil

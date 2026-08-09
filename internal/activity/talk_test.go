@@ -93,8 +93,9 @@ func TestTalkBehavior_Validate(t *testing.T) {
 
 		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
+		require.Error(t, err)
 		var ve *UserError
-		require.ErrorAs(t, err, &ve)
+		require.NotErrorAs(t, err, &ve)
 	})
 }
 
