@@ -108,9 +108,9 @@ func NewMoveActivity(destination gc.GridElement) *gc.Activity {
 
 // Validate はBehaviorの実装
 func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.MoveParams)
-	if !ok {
-		return ErrMoveTargetNotSet
+	p, err := paramsOf[gc.MoveParams](comp)
+	if err != nil {
+		return err
 	}
 
 	if p.Destination.X < 0 || p.Destination.Y < 0 {
@@ -139,7 +139,7 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start はBehaviorの実装
 func (mb *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, ok := comp.Params.(*gc.MoveParams); ok {
+	if p, err := paramsOf[gc.MoveParams](comp); err == nil {
 		log.Debug("move started", "actor", actor, "destination", p.Destination)
 	}
 	return nil
@@ -147,10 +147,10 @@ func (mb *MoveBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 
 // DoTurn はBehaviorの実装
 func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.MoveParams)
-	if !ok {
+	p, err := paramsOf[gc.MoveParams](comp)
+	if err != nil {
 		Cancel(comp, "move destination is not set")
-		return ErrMoveTargetNotSet
+		return err
 	}
 
 	// GridElementの存在確認
@@ -183,7 +183,7 @@ func (mb *MoveBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	log.Debug("move activity finished", "actor", actor)
 
 	// プレイヤーの場合のみ移動先のタイルイベントをチェック
-	if p, ok := comp.Params.(*gc.MoveParams); ok && world.Components.Player.Has(actor) {
+	if p, err := paramsOf[gc.MoveParams](comp); err == nil && world.Components.Player.Has(actor) {
 		showTileInteractionMessage(world, &p.Destination)
 	}
 
@@ -197,9 +197,9 @@ func (mb *MoveBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 func (mb *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.MoveParams)
-	if !ok {
-		return ErrMoveTargetNotSet
+	p, err := paramsOf[gc.MoveParams](comp)
+	if err != nil {
+		return err
 	}
 	if !world.Components.GridElement.Has(actor) {
 		return ErrGridElementNotFound

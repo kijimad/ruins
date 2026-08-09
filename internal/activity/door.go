@@ -42,9 +42,9 @@ func NewOpenDoorActivity(target ecs.Entity) *gc.Activity {
 
 // Validate は扉開閉アクティビティの検証を行う
 func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.OpenDoorParams)
-	if !ok {
-		return fmt.Errorf("door entity is not set")
+	p, err := paramsOf[gc.OpenDoorParams](comp)
+	if err != nil {
+		return err
 	}
 
 	targetEntity := p.Target
@@ -70,10 +70,10 @@ func (odb *OpenDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) 
 
 // DoTurn は扉開閉アクティビティの1ターン分の処理を実行する
 func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.OpenDoorParams)
-	if !ok {
+	p, err := paramsOf[gc.OpenDoorParams](comp)
+	if err != nil {
 		Cancel(comp, "door entity is not set")
-		return fmt.Errorf("door entity is not set")
+		return err
 	}
 	targetEntity := p.Target
 
@@ -158,9 +158,9 @@ func NewCloseDoorActivity(target ecs.Entity) *gc.Activity {
 
 // Validate は扉閉鎖アクティビティの検証を行う
 func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.CloseDoorParams)
-	if !ok {
-		return fmt.Errorf("door entity is not set")
+	p, err := paramsOf[gc.CloseDoorParams](comp)
+	if err != nil {
+		return err
 	}
 
 	targetEntity := p.Target
@@ -186,10 +186,10 @@ func (cdb *CloseDoorBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World)
 
 // DoTurn は扉閉鎖アクティビティの1ターン分の処理を実行する
 func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.CloseDoorParams)
-	if !ok {
+	p, err := paramsOf[gc.CloseDoorParams](comp)
+	if err != nil {
 		Cancel(comp, "door entity is not set")
-		return fmt.Errorf("door entity is not set")
+		return err
 	}
 	targetEntity := p.Target
 

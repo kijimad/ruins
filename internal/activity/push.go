@@ -49,9 +49,9 @@ func NewPushActivity(cube ecs.Entity, dir gc.Direction, world w.World) *gc.Activ
 
 // Validate はBehaviorの実装
 func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.PlaceParams)
-	if !ok {
-		return fmt.Errorf("push target is not set")
+	p, err := paramsOf[gc.PlaceParams](comp)
+	if err != nil {
+		return err
 	}
 	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("target does not exist")
@@ -82,8 +82,11 @@ func (pb *PushBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 
 // DoTurn はBehaviorの実装。毎ターン対象の生存と押し先の通行可否を確かめ、ターンを1つ消費する。
 func (pb *PushBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.PlaceParams)
-	if !ok || !world.ECS.Alive(p.Target) {
+	p, err := paramsOf[gc.PlaceParams](comp)
+	if err != nil {
+		return err
+	}
+	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "interrupted because the push target disappeared")
 		return nil
 	}
@@ -109,9 +112,9 @@ func (pb *PushBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 // プレイヤーは次の移動入力で空いたタイルへ普通に一歩進む。押しと移動を別アクティビティに分け、
 // それぞれが自然な通貨、押しはターン、移動はAPで課金される。
 func (pb *PushBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.PlaceParams)
-	if !ok {
-		return nil
+	p, err := paramsOf[gc.PlaceParams](comp)
+	if err != nil {
+		return err
 	}
 	cube := p.Target
 	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) {
@@ -192,9 +195,9 @@ func NewPullActivity(cube, actor ecs.Entity, world w.World) *gc.Activity {
 
 // Validate はBehaviorの実装。後退先が通行可能であることを確かめる。
 func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.PlaceParams)
-	if !ok {
-		return fmt.Errorf("pull target is not set")
+	p, err := paramsOf[gc.PlaceParams](comp)
+	if err != nil {
+		return err
 	}
 	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("target does not exist")
@@ -225,8 +228,11 @@ func (pb *PullBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error
 
 // DoTurn はBehaviorの実装。毎ターン対象の生存と後退先の通行可否を確かめ、ターンを1つ消費する。
 func (pb *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.PlaceParams)
-	if !ok || !world.ECS.Alive(p.Target) {
+	p, err := paramsOf[gc.PlaceParams](comp)
+	if err != nil {
+		return err
+	}
+	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "interrupted because the pull target disappeared")
 		return nil
 	}
@@ -251,9 +257,9 @@ func (pb *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish はBehaviorの実装。キューブをプレイヤーの元タイルへ引き入れ、プレイヤーは1タイル後退する。
 func (pb *PullBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.PlaceParams)
-	if !ok {
-		return nil
+	p, err := paramsOf[gc.PlaceParams](comp)
+	if err != nil {
+		return err
 	}
 	cube := p.Target
 	if !world.ECS.Alive(cube) || !world.Components.GridElement.Has(cube) || !world.Components.GridElement.Has(actor) {

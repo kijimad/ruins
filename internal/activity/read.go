@@ -47,9 +47,9 @@ func NewReadActivity(target ecs.Entity, world w.World) *gc.Activity {
 
 // Validate は読書アクティビティの検証を行う
 func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.ReadParams)
-	if !ok {
-		return fmt.Errorf("book is not set")
+	p, err := paramsOf[gc.ReadParams](comp)
+	if err != nil {
+		return err
 	}
 
 	book := getBook(p.Target, world)
@@ -87,9 +87,9 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // Start は読書開始時の処理を実行する
 func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.ReadParams)
-	if !ok {
-		return ErrReadTargetNotSet
+	p, err := paramsOf[gc.ReadParams](comp)
+	if err != nil {
+		return err
 	}
 
 	book := getBook(p.Target, world)
@@ -109,10 +109,10 @@ func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 // DoTurn は読書アクティビティの1ターン分の処理を実行する。
 // スタック統合などで本エンティティが消えている可能性があるため、毎ターン先頭で生存を確認する
 func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.ReadParams)
-	if !ok {
+	p, err := paramsOf[gc.ReadParams](comp)
+	if err != nil {
 		Cancel(comp, "book is not set")
-		return nil
+		return err
 	}
 	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "interrupted because the book disappeared")
@@ -153,9 +153,9 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Finish は読書完了時の処理を実行する
 func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.ReadParams)
-	if !ok {
-		return nil
+	p, err := paramsOf[gc.ReadParams](comp)
+	if err != nil {
+		return err
 	}
 	if !world.ECS.Alive(p.Target) {
 		return nil
@@ -184,7 +184,7 @@ func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 func (rb *ReadBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if world.Components.Player.Has(actor) {
 		message := query.T(world, "interrupted reading")
-		if p, ok := comp.Params.(*gc.ReadParams); ok && world.ECS.Alive(p.Target) {
+		if p, err := paramsOf[gc.ReadParams](comp); err == nil && world.ECS.Alive(p.Target) {
 			message = query.T(world, "interrupted reading \"%s\"", query.GetEntityName(p.Target, world))
 		}
 		gamelog.New(query.GetGameLog(world)).

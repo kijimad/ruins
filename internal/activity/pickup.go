@@ -51,9 +51,9 @@ func NewPickupTileActivity(world w.World, tile consts.Coord[consts.Tile]) *gc.Ac
 
 // Validate はアイテム拾得アクティビティの検証を行う。1つでも拾えるものがあれば有効。
 func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.PickupParams)
-	if !ok {
-		return fmt.Errorf("pickup target is not set")
+	p, err := paramsOf[gc.PickupParams](comp)
+	if err != nil {
+		return err
 	}
 	for _, entity := range p.Targets {
 		if query.IsPickable(entity, world) {
@@ -97,9 +97,9 @@ func (pb *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 
 // performPickup は Params に確定済みの Targets を順に拾う。拾得不能になったものは飛ばす。
 func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.PickupParams)
-	if !ok {
-		return fmt.Errorf("pickup target is not set")
+	p, err := paramsOf[gc.PickupParams](comp)
+	if err != nil {
+		return err
 	}
 
 	collectedCount := 0

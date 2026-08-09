@@ -235,7 +235,10 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
-		assert.ErrorIs(t, err, ErrItemNotSet)
+		// Params 型不一致は構築ミスのシステムエラー。UserError ではない
+		require.Error(t, err)
+		var ue *UserError
+		require.NotErrorAs(t, err, &ue)
 	})
 
 	t.Run("効果コンポーネントがない場合はエラー", func(t *testing.T) {

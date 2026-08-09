@@ -49,8 +49,10 @@ func TestDropBehavior_Validate(t *testing.T) {
 
 		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
+		// Params 型不一致は構築ミスのシステムエラー。UserError ではない
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "drop target is not set")
+		var ue *UserError
+		require.NotErrorAs(t, err, &ue)
 	})
 
 	t.Run("バックパック内にないアイテムの場合は不変条件違反", func(t *testing.T) {
@@ -89,8 +91,10 @@ func TestDropBehavior_Validate(t *testing.T) {
 
 		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
+		// Params 型不一致は構築ミスのシステムエラー。UserError ではない
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "drop target is not set")
+		var ue *UserError
+		require.NotErrorAs(t, err, &ue)
 	})
 }
 
@@ -164,8 +168,10 @@ func TestDropBehavior_performDrop(t *testing.T) {
 
 		da := &DropBehavior{}
 		err = da.performDrop(comp, player, world)
+		// Params 型不一致は構築ミスのシステムエラー。UserError ではない
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "drop target is not set")
+		var ue *UserError
+		require.NotErrorAs(t, err, &ue)
 	})
 }
 

@@ -48,8 +48,10 @@ func TestTalkBehavior_Validate(t *testing.T) {
 
 		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
+		// Params 型不一致は構築ミスのシステムエラー。UserError ではない
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "talk target is not set")
+		var ue *UserError
+		require.NotErrorAs(t, err, &ue)
 	})
 
 	t.Run("Dialogコンポーネントがない場合は不変条件違反", func(t *testing.T) {

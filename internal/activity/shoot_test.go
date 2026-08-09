@@ -231,7 +231,10 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 		comp := NewActivity(gc.BehaviorShoot, 0)
 
 		err := sa.DoTurn(comp, player, world)
-		require.ErrorIs(t, err, ErrAttackTargetNotSet)
+		// Params 型不一致は構築ミスのシステムエラー。UserError ではない
+		require.Error(t, err)
+		var ue *UserError
+		require.NotErrorAs(t, err, &ue)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }
