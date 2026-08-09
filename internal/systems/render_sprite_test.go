@@ -3,7 +3,6 @@ package systems
 import (
 	"testing"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -18,18 +17,10 @@ func TestSpriteImageCache(t *testing.T) {
 		assert.NotNil(t, sys.spriteImageCache, "spriteImageCacheがnilになっている")
 		assert.Empty(t, sys.spriteImageCache, "新規作成時はキャッシュが空のはず")
 	})
-
-	t.Run("sprite image cache is map", func(t *testing.T) {
-		t.Parallel()
-		// キャッシュがmap型であることを確認
-		sys := NewRenderSpriteSystem()
-		cache := sys.spriteImageCache
-		expectedType := make(map[spriteImageCacheKey]*ebiten.Image)
-		assert.IsType(t, expectedType, cache, "spriteImageCacheの型が正しくない")
-	})
 }
 
-// spriteImageCacheの操作テスト（実際の画像なしでテスト）
+// spriteImageCache の set/get/delete と len の map 操作を検証する。格納する画像の中身は本テストの対象外なので、
+// キーの存在と件数だけを見る。値には画像を用意せず nil を入れ、キー操作の意味論だけを確かめる。
 func TestSpriteImageCacheOperations(t *testing.T) {
 	t.Parallel()
 	t.Run("cache operations", func(t *testing.T) {
@@ -50,7 +41,7 @@ func TestSpriteImageCacheOperations(t *testing.T) {
 		_, exists := sys.spriteImageCache[testKey]
 		assert.False(t, exists, "存在しないキーがtrueを返している")
 
-		// キャッシュに値を設定（nilでテスト）
+		// キーを登録する。値の画像は本テストの対象外なので nil を入れ、存在と件数だけを見る
 		sys.spriteImageCache[testKey] = nil
 
 		// キーが存在することを確認
@@ -68,6 +59,10 @@ func TestSpriteImageCacheOperations(t *testing.T) {
 	})
 }
 
+// 期待値の根拠。testutil.InitTestWorld が画面を 960x720 に固定し、consts.TileSize は 32。
+// scale=1 では halfW=480 halfH=360 で、maxX=480/32+margin、maxY=360/32+margin になる。
+// margin=2 なら maxX=17 maxY=13 で、min は原点対称に符号反転する。scale=2 では画面幅を半分に見るので
+// halfW=240 halfH=180 になり、カメラ位置 320 を足して割ると 2,17,4,15 になる。
 func TestViewportTileBounds(t *testing.T) {
 	t.Parallel()
 
