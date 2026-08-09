@@ -13450,7 +13450,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "40 kg"
 lootTableId = "storage_box"
-lootCount = "1d3"
+lootCount = "2d3"
 
 [props.disassembly]
 toolCategory = "prying"
@@ -13598,7 +13598,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "storage_box"
-lootCount = "1d2"
+lootCount = "2d2"
 
 [[props]]
 blockPass = false
@@ -13721,7 +13721,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "storage_box"
-lootCount = "1d3"
+lootCount = "2d3"
 
 [[props]]
 blockPass = false
@@ -13797,7 +13797,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "20 kg"
 lootTableId = "storage_box"
-lootCount = "1d2"
+lootCount = "2d2"
 
 [[props]]
 blockPass = false
@@ -13841,7 +13841,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "pantry"
-lootCount = "1d3"
+lootCount = "2d3"
 
 [[props]]
 blockPass = true
@@ -13885,7 +13885,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "storage_box"
-lootCount = "1d3"
+lootCount = "2d3"
 
 [[props]]
 blockPass = true
@@ -13994,7 +13994,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "store_shelf"
-lootCount = "1d4+1"
+lootCount = "2d4+1"
 
 [[props]]
 blockPass = true
@@ -14303,7 +14303,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "pantry"
-lootCount = "1d3"
+lootCount = "2d3"
 
 [props.disassembly]
 toolCategory = "cutting"
@@ -14362,7 +14362,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "store_shelf"
-lootCount = "1d2"
+lootCount = "2d2"
 
 [[props]]
 blockPass = true
@@ -14585,7 +14585,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "storage_box"
-lootCount = "1d3"
+lootCount = "2d3"
 
 [[props]]
 blockPass = false
@@ -14772,7 +14772,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "20 kg"
 lootTableId = "ruins_area"
-lootCount = "1d3"
+lootCount = "2d3"
 
 [props.disassembly]
 toolCategory = "prying"
@@ -14808,7 +14808,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "50 kg"
 lootTableId = "ruins_area"
-lootCount = "1d4+1"
+lootCount = "2d4+1"
 
 [[professions]]
 description = "An ordinary person who fled the collapse."
@@ -15322,7 +15322,7 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "30 kg"
 lootTableId = "medicine_shelf"
-lootCount = "1d3"
+lootCount = "2d3"
 
 [[props]]
 blockPass = true

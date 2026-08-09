@@ -24,9 +24,9 @@ func storeContent() Content {
 				{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Base: 10, Sides: 1}},
 			}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
-				{Kind: KindLoot, Ref: "snacks", Weight: 3, Amount: consts.Dice{Base: 2, Sides: 4}},
-				{Kind: KindLoot, Ref: "drinks", Weight: 2, Amount: consts.Dice{Base: 1, Sides: 4}},
-				{Kind: KindLoot, Ref: "bento", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 3}},
+				{Kind: KindLoot, Ref: "snacks", Weight: 3, Amount: consts.Dice{Base: 3, Sides: 4}},
+				{Kind: KindLoot, Ref: "drinks", Weight: 2, Amount: consts.Dice{Base: 2, Sides: 4}},
+				{Kind: KindLoot, Ref: "bento", Weight: 1, Amount: consts.Dice{Base: 2, Sides: 3}},
 			}},
 			{Style: PickOne, Items: []Stuff{
 				{Kind: KindDecor, Ref: "litter", Amount: consts.Dice{Base: 1, Sides: 3, Bonus: 1}},
@@ -48,8 +48,8 @@ func clinicContent() Content {
 				{Kind: KindFurniture, Ref: "medcabinet", Amount: consts.Dice{Base: 3, Sides: 1}},
 			}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
-				{Kind: KindLoot, Ref: "meds", Weight: 2, Amount: consts.Dice{Base: 1, Sides: 3}},
-				{Kind: KindLoot, Ref: "bandage", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 2}},
+				{Kind: KindLoot, Ref: "meds", Weight: 2, Amount: consts.Dice{Base: 2, Sides: 3}},
+				{Kind: KindLoot, Ref: "bandage", Weight: 1, Amount: consts.Dice{Base: 2, Sides: 2}},
 			}},
 			{Style: PickOne, Items: []Stuff{
 				{Kind: KindDecor, Ref: "plant", Amount: consts.Dice{Base: 2, Sides: 1}},
@@ -71,8 +71,8 @@ func houseContent() Content {
 			}},
 			// 台所の食べ物が床に残る。民家らしい控えめな量にする
 			{Style: PickN, Pick: 1, Items: []Stuff{
-				{Kind: KindLoot, Ref: "snacks", Weight: 2, Amount: consts.Dice{Base: 1, Sides: 3}},
-				{Kind: KindLoot, Ref: "drinks", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 2}},
+				{Kind: KindLoot, Ref: "snacks", Weight: 2, Amount: consts.Dice{Base: 2, Sides: 3}},
+				{Kind: KindLoot, Ref: "drinks", Weight: 1, Amount: consts.Dice{Base: 2, Sides: 2}},
 			}},
 			{Style: PickOne, Items: []Stuff{
 				{Kind: KindDecor, Ref: "plant", Amount: consts.Dice{Base: 2, Sides: 1}},
@@ -94,7 +94,7 @@ func officeContent() Content {
 			}},
 			// 散らばった書類。事務所らしさを床にも残す
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindLoot, Ref: "documents", Amount: consts.Dice{Base: 1, Sides: 3}},
+				{Kind: KindLoot, Ref: "documents", Amount: consts.Dice{Base: 2, Sides: 3}},
 			}},
 			// 事務機の添え物を seed で1つ。ホワイトボードかプリンタでオフィスらしさを足す
 			{Style: PickOne, Items: []Stuff{
@@ -117,8 +117,8 @@ func pharmacyContent() Content {
 				{Kind: KindFurniture, Ref: "gondola", Amount: consts.Dice{Base: 4, Sides: 1}},
 			}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
-				{Kind: KindLoot, Ref: "meds", Weight: 3, Amount: consts.Dice{Base: 2, Sides: 4}},
-				{Kind: KindLoot, Ref: "bandage", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 3}},
+				{Kind: KindLoot, Ref: "meds", Weight: 3, Amount: consts.Dice{Base: 3, Sides: 4}},
+				{Kind: KindLoot, Ref: "bandage", Weight: 1, Amount: consts.Dice{Base: 2, Sides: 3}},
 			}},
 		},
 	}
@@ -135,8 +135,8 @@ func groceryContent() Content {
 				{Kind: KindFurniture, Ref: "register", Amount: consts.Dice{Base: 2, Sides: 1}},
 			}},
 			{Style: PickN, Pick: 2, Items: []Stuff{
-				{Kind: KindLoot, Ref: "snacks", Weight: 2, Amount: consts.Dice{Base: 2, Sides: 4}},
-				{Kind: KindLoot, Ref: "drinks", Weight: 2, Amount: consts.Dice{Base: 2, Sides: 4}},
+				{Kind: KindLoot, Ref: "snacks", Weight: 2, Amount: consts.Dice{Base: 3, Sides: 4}},
+				{Kind: KindLoot, Ref: "drinks", Weight: 2, Amount: consts.Dice{Base: 3, Sides: 4}},
 			}},
 		},
 	}
@@ -170,7 +170,7 @@ func depotContent() Content {
 			}},
 			// 保管された資材が床にも積まれる。倉庫らしい戦利品にする
 			{Style: PickEach, Items: []Stuff{
-				{Kind: KindLoot, Ref: "supplies", Amount: consts.Dice{Base: 2, Sides: 3}},
+				{Kind: KindLoot, Ref: "supplies", Amount: consts.Dice{Base: 3, Sides: 3}},
 			}},
 		},
 	}
@@ -273,8 +273,8 @@ func houseRoomContents() map[roleName]Content {
 			}},
 			// 台所の食べ物が床に残る。奥室なので量は控えめにする
 			{Style: PickN, Pick: 1, Items: []Stuff{
-				{Kind: KindLoot, Ref: "snacks", Weight: 2, Amount: consts.Dice{Base: 1, Sides: 2}},
-				{Kind: KindLoot, Ref: "bento", Weight: 1, Amount: consts.Dice{Base: 1, Sides: 2}},
+				{Kind: KindLoot, Ref: "snacks", Weight: 2, Amount: consts.Dice{Base: 2, Sides: 2}},
+				{Kind: KindLoot, Ref: "bento", Weight: 1, Amount: consts.Dice{Base: 2, Sides: 2}},
 			}},
 		}},
 		"bedroom": bedroom,
@@ -334,7 +334,7 @@ func storageRoomContent() Content {
 			{Kind: KindFurniture, Ref: "barrel", Amount: consts.Dice{Base: 3, Sides: 1}},
 		}},
 		{Style: PickEach, Items: []Stuff{
-			{Kind: KindLoot, Ref: "supplies", Amount: consts.Dice{Base: 1, Sides: 2}},
+			{Kind: KindLoot, Ref: "supplies", Amount: consts.Dice{Base: 2, Sides: 2}},
 		}},
 	}}
 }
@@ -370,7 +370,7 @@ func officeRoomContent() Content {
 			{Kind: KindFurniture, Ref: "closet", Placement: PlaceWall, Amount: consts.Dice{Base: 1, Sides: 1}},
 		}},
 		{Style: PickEach, Items: []Stuff{
-			{Kind: KindLoot, Ref: "documents", Amount: consts.Dice{Base: 1, Sides: 2}},
+			{Kind: KindLoot, Ref: "documents", Amount: consts.Dice{Base: 2, Sides: 2}},
 		}},
 	}}
 }
@@ -402,7 +402,7 @@ func pharmacyRoomContent() Content {
 			{Kind: KindFurniture, Ref: "medcabinet", Placement: PlaceWall, Amount: consts.Dice{Base: 4, Sides: 1}},
 		}},
 		{Style: PickN, Pick: 1, Items: []Stuff{
-			{Kind: KindLoot, Ref: "meds", Placement: PlaceFarFromDoor, Amount: consts.Dice{Base: 1, Sides: 3}},
+			{Kind: KindLoot, Ref: "meds", Placement: PlaceFarFromDoor, Amount: consts.Dice{Base: 2, Sides: 3}},
 		}},
 	}}
 }
