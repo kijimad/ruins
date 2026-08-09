@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -53,7 +54,7 @@ func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
 	err := ra.Validate(comp, actor, world)
 	var ve *UserError
 	require.ErrorAs(t, err, &ve)
-	assert.Contains(t, ve.Msg, "already read")
+	assert.Equal(t, query.T(world, "this book is already read"), ve.Msg)
 }
 
 func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
