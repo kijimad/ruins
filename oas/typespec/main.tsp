@@ -6,6 +6,7 @@ import "./types.tsp";
 import "./req.tsp";
 import "./resp.tsp";
 import "./save.tsp";
+import "./balance.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.Rest;

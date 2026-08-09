@@ -673,6 +673,146 @@ type AttackCategory string
 // AttackCount 1ターンあたりの攻撃回数
 type AttackCount = int32
 
+// BalanceBattleMetric 武器×敵の戦闘シミュレーション結果
+type BalanceBattleMetric struct {
+	// Dps 1秒あたりの推定ダメージ
+	Dps   float64 `json:"dps"`
+	Enemy string  `json:"enemy"`
+
+	// IsRanged 遠距離武器かどうか
+	IsRanged bool   `json:"isRanged"`
+	Player   string `json:"player"`
+	Weapon   string `json:"weapon"`
+}
+
+// BalanceDepthStat 1深度の統計情報
+type BalanceDepthStat struct {
+	Depth              int32 `json:"depth"`
+	MedianDamage       int32 `json:"medianDamage"`
+	MedianHP           int32 `json:"medianHP"`
+	MedianHPBeforeHeal int32 `json:"medianHPBeforeHeal"`
+	MedianHealing      int32 `json:"medianHealing"`
+	MedianHunger       int32 `json:"medianHunger"`
+	MedianKillTurns    int32 `json:"medianKillTurns"`
+	MedianWeaponDamage int32 `json:"medianWeaponDamage"`
+	P5HP               int32 `json:"p5HP"`
+	P5HPBeforeHeal     int32 `json:"p5HPBeforeHeal"`
+	P5Hunger           int32 `json:"p5Hunger"`
+	P5KillTurns        int32 `json:"p5KillTurns"`
+	P5WeaponDamage     int32 `json:"p5WeaponDamage"`
+	P95HP              int32 `json:"p95HP"`
+	P95HPBeforeHeal    int32 `json:"p95HPBeforeHeal"`
+	P95Hunger          int32 `json:"p95Hunger"`
+	P95KillTurns       int32 `json:"p95KillTurns"`
+	P95WeaponDamage    int32 `json:"p95WeaponDamage"`
+
+	// SuddenDeathRate 突然死率
+	SuddenDeathRate float64 `json:"suddenDeathRate"`
+}
+
+// BalanceEnemyTableRun 1つの敵テーブルに対するシミュレーション結果
+type BalanceEnemyTableRun struct {
+	// DeathRate 死亡率
+	DeathRate float64 `json:"deathRate"`
+
+	// Depths 深度ごとの統計
+	Depths      []BalanceDepthStat `json:"depths"`
+	MaxDepth    int32              `json:"maxDepth"`
+	MedianDepth int32              `json:"medianDepth"`
+	Name        string             `json:"name"`
+
+	// TrialData 試行ごとの生データ
+	TrialData []BalanceTrialResult `json:"trialData"`
+	Trials    int32                `json:"trials"`
+}
+
+// BalanceFacilityLoot 1施設種別の loot 分布
+type BalanceFacilityLoot struct {
+	Facility string `json:"facility"`
+
+	// Rooms 部屋役割ごとの loot
+	Rooms  []BalanceRoomLoot `json:"rooms"`
+	Trials int32             `json:"trials"`
+}
+
+// BalanceLootItemStat 1アイテムの loot 統計
+type BalanceLootItemStat struct {
+	// ExpectedCount 期待個数
+	ExpectedCount float64 `json:"expectedCount"`
+	Name          string  `json:"name"`
+
+	// Prob 出現確率
+	Prob float64 `json:"prob"`
+
+	// Value 売買価値
+	Value int32 `json:"value"`
+}
+
+// BalancePlayerInfo プレイヤーのステータス情報
+type BalancePlayerInfo struct {
+	Agility   int32  `json:"agility"`
+	Defense   int32  `json:"defense"`
+	Dexterity int32  `json:"dexterity"`
+	Hp        int32  `json:"hp"`
+	Name      string `json:"name"`
+	Sensation int32  `json:"sensation"`
+	Strength  int32  `json:"strength"`
+}
+
+// BalanceReport balance.json の最上位構造。シミュレーション結果全体を表す
+type BalanceReport struct {
+	// BattleMetrics 武器×敵の戦闘メトリクス
+	BattleMetrics []BalanceBattleMetric `json:"battleMetrics"`
+
+	// EnemyTables 敵テーブルごとのシミュレーション結果
+	EnemyTables []BalanceEnemyTableRun `json:"enemyTables"`
+
+	// Mode レポートの種別
+	Mode string `json:"mode"`
+
+	// Player プレイヤーのステータス。生成しないモードでは省く
+	Player *BalancePlayerInfo `json:"player,omitempty"`
+
+	// RoomLoot 施設種別ごとの loot 分布
+	RoomLoot []BalanceFacilityLoot `json:"roomLoot"`
+
+	// Weapon 武器の情報。生成しないモードでは省く
+	Weapon *BalanceWeaponInfo `json:"weapon,omitempty"`
+}
+
+// BalanceRoomLoot 1部屋役割の loot 分布
+type BalanceRoomLoot struct {
+	// Items アイテムごとの統計
+	Items []BalanceLootItemStat `json:"items"`
+
+	// Role 部屋役割
+	Role string `json:"role"`
+}
+
+// BalanceTrialDepthStat 1試行の1深度の情報
+type BalanceTrialDepthStat struct {
+	Depth        int32  `json:"depth"`
+	Hp           int32  `json:"hp"`
+	HpBeforeHeal int32  `json:"hpBeforeHeal"`
+	Hunger       int32  `json:"hunger"`
+	Weapon       string `json:"weapon"`
+}
+
+// BalanceTrialResult 1試行の結果
+type BalanceTrialResult struct {
+	Depths       []BalanceTrialDepthStat `json:"depths"`
+	Died         bool                    `json:"died"`
+	Index        int32                   `json:"index"`
+	ReachedDepth int32                   `json:"reachedDepth"`
+}
+
+// BalanceWeaponInfo 武器の情報
+type BalanceWeaponInfo struct {
+	Accuracy int32  `json:"accuracy"`
+	Damage   int32  `json:"damage"`
+	Name     string `json:"name"`
+}
+
 // BaseDamage 基本ダメージ
 type BaseDamage = int32
 

@@ -10,27 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// FacilityLoot は1つの施設種別を trials 回生成し、部屋役割ごとに loot を集計した分布。
-type FacilityLoot struct {
-	Facility string     `json:"facility"`
-	Trials   int        `json:"trials"`
-	Rooms    []RoomLoot `json:"rooms"`
-}
-
-// RoomLoot は施設内の1役割ぶんの loot 分布。Role が "全体" のときは建物全体の合算。
-type RoomLoot struct {
-	Role  string         `json:"role"`
-	Items []LootItemStat `json:"items"`
-}
-
-// LootItemStat は1アイテムの出現統計。Prob は1棟あたり1個以上出る確率、ExpectedCount は1棟あたりの期待個数。
-type LootItemStat struct {
-	Name          string  `json:"name"`
-	Prob          float64 `json:"prob"`
-	ExpectedCount float64 `json:"expectedCount"`
-	Value         int     `json:"value"`
-}
-
 const (
 	// roomLootDepth は地上の建物の深度。床 loot も収納 loot も浅い戦利品を引く。
 	roomLootDepth = 1
@@ -48,11 +27,11 @@ var reportFacilities = []interior.FacilityKind{"house", "store", "antique", "cli
 // GenerateRoomLoot は各施設種別を trials 回生成し、床 loot と収納 loot を実際の抽選経路で materialize して
 // 部屋役割ごとにアイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで、PickN・Amount・pack・
 // lootRaw・収納テーブルの相互作用をそのまま反映する。同一 seed で同一結果になる。
-func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []FacilityLoot {
+func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceFacilityLoot {
 	footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
 	door := interior.Vec{X: 14, Y: 0}
 
-	result := make([]FacilityLoot, 0, len(reportFacilities))
+	result := make([]oapi.BalanceFacilityLoot, 0, len(reportFacilities))
 	for _, fac := range reportFacilities {
 		// role -> item -> 合計個数 / 出た試行数
 		total := map[string]map[string]int{}
@@ -93,9 +72,9 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []FacilityLoot 
 			}
 		}
 
-		result = append(result, FacilityLoot{
+		result = append(result, oapi.BalanceFacilityLoot{
 			Facility: string(fac),
-			Trials:   trials,
+			Trials:   int32(trials),
 			Rooms:    buildRoomLoot(master, total, present, trials),
 		})
 	}
@@ -162,16 +141,16 @@ func roomRoleAt(site interior.Site, pos interior.Vec) string {
 }
 
 // buildRoomLoot は集計 map を役割ごとの RoomLoot へ整える。全体を先頭に、以降は期待個数の合計が多い役割順に並べる。
-func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, trials int) []RoomLoot {
-	rooms := make([]RoomLoot, 0, len(total))
+func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, trials int) []oapi.BalanceRoomLoot {
+	rooms := make([]oapi.BalanceRoomLoot, 0, len(total))
 	for role, items := range total {
-		stats := make([]LootItemStat, 0, len(items))
+		stats := make([]oapi.BalanceLootItemStat, 0, len(items))
 		for name, c := range items {
-			stats = append(stats, LootItemStat{
+			stats = append(stats, oapi.BalanceLootItemStat{
 				Name:          name,
 				Prob:          float64(present[role][name]) / float64(trials),
 				ExpectedCount: float64(c) / float64(trials),
-				Value:         itemValue(master, name),
+				Value:         int32(itemValue(master, name)),
 			})
 		}
 		sort.Slice(stats, func(a, b int) bool {
@@ -180,7 +159,7 @@ func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, t
 			}
 			return stats[a].Name < stats[b].Name
 		})
-		rooms = append(rooms, RoomLoot{Role: role, Items: stats})
+		rooms = append(rooms, oapi.BalanceRoomLoot{Role: role, Items: stats})
 	}
 	sort.Slice(rooms, func(a, b int) bool {
 		// 全体を必ず先頭にする
@@ -196,7 +175,7 @@ func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, t
 }
 
 // roomTotalExpected は役割の期待個数合計。役割の並び順に使う。
-func roomTotalExpected(r RoomLoot) float64 {
+func roomTotalExpected(r oapi.BalanceRoomLoot) float64 {
 	var sum float64
 	for _, it := range r.Items {
 		sum += it.ExpectedCount

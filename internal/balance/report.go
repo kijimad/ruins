@@ -1,7 +1,6 @@
 package balance
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand/v2"
 
@@ -9,96 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// Report はシミュレーション結果のJSON構造
-type Report struct {
-	Mode          string          `json:"mode"`
-	Player        *PlayerInfo     `json:"player,omitempty"`
-	Weapon        *WeaponInfo     `json:"weapon,omitempty"`
-	EnemyTables   []EnemyTableRun `json:"enemyTables,omitempty"`
-	BattleMetrics []BattleMetric  `json:"battleMetrics,omitempty"`
-	RoomLoot      []FacilityLoot  `json:"roomLoot,omitempty"`
-}
-
-// BattleMetric は武器×敵の戦闘シミュレーション結果
-type BattleMetric struct {
-	Player   string  `json:"player"`
-	Weapon   string  `json:"weapon"`
-	Enemy    string  `json:"enemy"`
-	DPS      float64 `json:"dps"`
-	IsRanged bool    `json:"isRanged"`
-}
-
-// PlayerInfo はプレイヤーのステータス情報
-type PlayerInfo struct {
-	Name      string `json:"name"`
-	HP        int    `json:"hp"`
-	Strength  int    `json:"strength"`
-	Sensation int    `json:"sensation"`
-	Dexterity int    `json:"dexterity"`
-	Agility   int    `json:"agility"`
-	Defense   int    `json:"defense"`
-}
-
-// WeaponInfo は武器の情報
-type WeaponInfo struct {
-	Name     string `json:"name"`
-	Damage   int    `json:"damage"`
-	Accuracy int    `json:"accuracy"`
-}
-
-// EnemyTableRun は1つの敵テーブルに対するシミュレーション結果
-type EnemyTableRun struct {
-	Name        string        `json:"name"`
-	MaxDepth    int           `json:"maxDepth"`
-	Trials      int           `json:"trials"`
-	MedianDepth int           `json:"medianDepth"`
-	DeathRate   float64       `json:"deathRate"`
-	Depths      []DepthStat   `json:"depths"`
-	TrialData   []TrialResult `json:"trialData,omitempty"`
-}
-
-// TrialResult は1試行の結果
-type TrialResult struct {
-	Index        int              `json:"index"`
-	ReachedDepth int              `json:"reachedDepth"`
-	Died         bool             `json:"died"`
-	Depths       []TrialDepthStat `json:"depths"`
-}
-
-// TrialDepthStat は1試行の1深度の情報
-type TrialDepthStat struct {
-	Depth        int    `json:"depth"`
-	HP           int    `json:"hp"`
-	HPBeforeHeal int    `json:"hpBeforeHeal"`
-	Weapon       string `json:"weapon"`
-	Hunger       int    `json:"hunger"`
-}
-
-// DepthStat は1深度の統計情報
-type DepthStat struct {
-	Depth              int     `json:"depth"`
-	MedianHP           int     `json:"medianHP"`
-	P5HP               int     `json:"p5HP"`
-	P95HP              int     `json:"p95HP"`
-	MedianHPBeforeHeal int     `json:"medianHPBeforeHeal"`
-	P5HPBeforeHeal     int     `json:"p5HPBeforeHeal"`
-	P95HPBeforeHeal    int     `json:"p95HPBeforeHeal"`
-	SuddenDeathRate    float64 `json:"suddenDeathRate"`
-	MedianWeaponDamage int     `json:"medianWeaponDamage"`
-	P5WeaponDamage     int     `json:"p5WeaponDamage"`
-	P95WeaponDamage    int     `json:"p95WeaponDamage"`
-	MedianKillTurns    int     `json:"medianKillTurns"`
-	P5KillTurns        int     `json:"p5KillTurns"`
-	P95KillTurns       int     `json:"p95KillTurns"`
-	MedianHunger       int     `json:"medianHunger"`
-	P5Hunger           int     `json:"p5Hunger"`
-	P95Hunger          int     `json:"p95Hunger"`
-	MedianDamage       int     `json:"medianDamage"`
-	MedianHealing      int     `json:"medianHealing"`
-}
-
-// GenerateReport はマスターデータからシミュレーションを実行し、レポートを生成する
-func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*Report, error) {
+// GenerateReport はマスターデータからシミュレーションを実行し、レポートを生成する。返す型は tsp 由来の
+// oapi.BalanceReport で、balance.json の形は oas/typespec/balance.tsp を単一ソースとする。
+func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*oapi.BalanceReport, error) {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load player: %w", err)
@@ -109,32 +21,32 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 		return nil, fmt.Errorf("failed to load weapon: %w", err)
 	}
 
-	report := &Report{
+	report := &oapi.BalanceReport{
 		Mode: "simple",
-		Player: &PlayerInfo{
+		Player: &oapi.BalancePlayerInfo{
 			Name:      playerName,
-			HP:        player.HP,
-			Strength:  player.Strength,
-			Sensation: player.Sensation,
-			Dexterity: player.Dexterity,
-			Agility:   player.Agility,
-			Defense:   player.Defense,
+			Hp:        int32(player.HP),
+			Strength:  int32(player.Strength),
+			Sensation: int32(player.Sensation),
+			Dexterity: int32(player.Dexterity),
+			Agility:   int32(player.Agility),
+			Defense:   int32(player.Defense),
 		},
-		Weapon: &WeaponInfo{
+		Weapon: &oapi.BalanceWeaponInfo{
 			Name:     weaponName,
-			Damage:   weapon.Damage,
-			Accuracy: weapon.Accuracy,
+			Damage:   int32(weapon.Damage),
+			Accuracy: int32(weapon.Accuracy),
 		},
 	}
 
 	for _, table := range raw.PtrSlice(master.EnemyTables) {
 		stats := RunSimulations(master, table.Id, player, weapon, maxDepth, trials, seed)
 
-		run := EnemyTableRun{
+		run := oapi.BalanceEnemyTableRun{
 			Name:        table.Name,
-			MaxDepth:    maxDepth,
-			Trials:      trials,
-			MedianDepth: stats.MedianDepth(),
+			MaxDepth:    int32(maxDepth),
+			Trials:      int32(trials),
+			MedianDepth: int32(stats.MedianDepth()),
 			DeathRate:   stats.DeathRate(),
 		}
 
@@ -143,48 +55,48 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 			if len(hps) == 0 {
 				break
 			}
-			run.Depths = append(run.Depths, DepthStat{
-				Depth:              depth,
-				MedianHP:           stats.MedianHP(depth),
-				P5HP:               stats.P5HP(depth),
-				P95HP:              stats.P95HP(depth),
-				MedianHPBeforeHeal: stats.MedianHPBeforeHeal(depth),
-				P5HPBeforeHeal:     stats.P5HPBeforeHeal(depth),
-				P95HPBeforeHeal:    stats.P95HPBeforeHeal(depth),
+			run.Depths = append(run.Depths, oapi.BalanceDepthStat{
+				Depth:              int32(depth),
+				MedianHP:           int32(stats.MedianHP(depth)),
+				P5HP:               int32(stats.P5HP(depth)),
+				P95HP:              int32(stats.P95HP(depth)),
+				MedianHPBeforeHeal: int32(stats.MedianHPBeforeHeal(depth)),
+				P5HPBeforeHeal:     int32(stats.P5HPBeforeHeal(depth)),
+				P95HPBeforeHeal:    int32(stats.P95HPBeforeHeal(depth)),
 				SuddenDeathRate:    stats.SuddenDeathRate(depth),
-				MedianWeaponDamage: stats.MedianWeaponDamage(depth),
-				P5WeaponDamage:     stats.P5WeaponDamage(depth),
-				P95WeaponDamage:    stats.P95WeaponDamage(depth),
-				MedianKillTurns:    stats.MedianKillTurns(depth),
-				P5KillTurns:        stats.P5KillTurns(depth),
-				P95KillTurns:       stats.P95KillTurns(depth),
-				MedianHunger:       stats.MedianHunger(depth),
-				P5Hunger:           stats.P5Hunger(depth),
-				P95Hunger:          stats.P95Hunger(depth),
-				MedianDamage:       stats.MedianDamagePerFloor(depth, player.HP),
-				MedianHealing:      stats.MedianHealingPerFloor(depth),
+				MedianWeaponDamage: int32(stats.MedianWeaponDamage(depth)),
+				P5WeaponDamage:     int32(stats.P5WeaponDamage(depth)),
+				P95WeaponDamage:    int32(stats.P95WeaponDamage(depth)),
+				MedianKillTurns:    int32(stats.MedianKillTurns(depth)),
+				P5KillTurns:        int32(stats.P5KillTurns(depth)),
+				P95KillTurns:       int32(stats.P95KillTurns(depth)),
+				MedianHunger:       int32(stats.MedianHunger(depth)),
+				P5Hunger:           int32(stats.P5Hunger(depth)),
+				P95Hunger:          int32(stats.P95Hunger(depth)),
+				MedianDamage:       int32(stats.MedianDamagePerFloor(depth, player.HP)),
+				MedianHealing:      int32(stats.MedianHealingPerFloor(depth)),
 			})
 		}
 
 		for i, r := range stats.Results {
-			trial := TrialResult{
-				Index:        i,
-				ReachedDepth: r.ReachedDepth,
+			trial := oapi.BalanceTrialResult{
+				Index:        int32(i),
+				ReachedDepth: int32(r.ReachedDepth),
 				Died:         r.Died,
 			}
 			for depth := 1; depth <= r.ReachedDepth; depth++ {
-				td := TrialDepthStat{Depth: depth}
+				td := oapi.BalanceTrialDepthStat{Depth: int32(depth)}
 				if hp, ok := r.HPByDepth[depth]; ok {
-					td.HP = hp
+					td.Hp = int32(hp)
 				}
 				if hp, ok := r.HPBeforeHealByDepth[depth]; ok {
-					td.HPBeforeHeal = hp
+					td.HpBeforeHeal = int32(hp)
 				}
 				if w, ok := r.WeaponByDepth[depth]; ok {
 					td.Weapon = w
 				}
 				if h, ok := r.HungerByDepth[depth]; ok {
-					td.Hunger = h
+					td.Hunger = int32(h)
 				}
 				trial.Depths = append(trial.Depths, td)
 			}
@@ -209,7 +121,7 @@ const roomLootTrials = 2000
 const battleMetricTrials = 500
 
 // generateBattleMetrics は全武器×全敵の組み合わせで戦闘シミュレーションを実行する
-func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []BattleMetric {
+func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []oapi.BalanceBattleMetric {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
 		return nil
@@ -239,7 +151,7 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
 		}
 	}
 
-	var metrics []BattleMetric
+	var metrics []oapi.BalanceBattleMetric
 	rng := rand.New(rand.NewPCG(seed, 0))
 
 	for _, w := range weapons {
@@ -256,21 +168,15 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
 			results := RunBattles(player, enemyStats, w.stats, enemyWeapon, battleMetricTrials, rng)
 			bs := BattleStats{Results: results}
 
-			metrics = append(metrics, BattleMetric{
+			metrics = append(metrics, oapi.BalanceBattleMetric{
 				Player:   playerName,
 				Weapon:   w.name,
 				Enemy:    enemyName,
-				DPS:      bs.DPS(),
+				Dps:      bs.DPS(),
 				IsRanged: w.stats.IsRanged,
 			})
 		}
 	}
 
 	return metrics
-}
-
-// MarshalJSON はレポートをJSON形式にシリアライズする
-func (r *Report) MarshalJSON() ([]byte, error) {
-	type Alias Report
-	return json.MarshalIndent((*Alias)(r), "", "  ")
 }

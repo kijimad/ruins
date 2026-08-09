@@ -100,6 +100,180 @@ export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
 
 
 /**
+ * 武器×敵の戦闘シミュレーション結果
+ */
+export interface BalanceBattleMetric {
+    'player': string;
+    'weapon': string;
+    'enemy': string;
+    /**
+     * 1秒あたりの推定ダメージ
+     */
+    'dps': number;
+    /**
+     * 遠距離武器かどうか
+     */
+    'isRanged': boolean;
+}
+/**
+ * 1深度の統計情報
+ */
+export interface BalanceDepthStat {
+    'depth': number;
+    'medianHP': number;
+    'p5HP': number;
+    'p95HP': number;
+    'medianHPBeforeHeal': number;
+    'p5HPBeforeHeal': number;
+    'p95HPBeforeHeal': number;
+    /**
+     * 突然死率
+     */
+    'suddenDeathRate': number;
+    'medianWeaponDamage': number;
+    'p5WeaponDamage': number;
+    'p95WeaponDamage': number;
+    'medianKillTurns': number;
+    'p5KillTurns': number;
+    'p95KillTurns': number;
+    'medianHunger': number;
+    'p5Hunger': number;
+    'p95Hunger': number;
+    'medianDamage': number;
+    'medianHealing': number;
+}
+/**
+ * 1つの敵テーブルに対するシミュレーション結果
+ */
+export interface BalanceEnemyTableRun {
+    'name': string;
+    'maxDepth': number;
+    'trials': number;
+    'medianDepth': number;
+    /**
+     * 死亡率
+     */
+    'deathRate': number;
+    /**
+     * 深度ごとの統計
+     */
+    'depths': Array<BalanceDepthStat>;
+    /**
+     * 試行ごとの生データ
+     */
+    'trialData': Array<BalanceTrialResult>;
+}
+/**
+ * 1施設種別の loot 分布
+ */
+export interface BalanceFacilityLoot {
+    'facility': string;
+    'trials': number;
+    /**
+     * 部屋役割ごとの loot
+     */
+    'rooms': Array<BalanceRoomLoot>;
+}
+/**
+ * 1アイテムの loot 統計
+ */
+export interface BalanceLootItemStat {
+    'name': string;
+    /**
+     * 出現確率
+     */
+    'prob': number;
+    /**
+     * 期待個数
+     */
+    'expectedCount': number;
+    /**
+     * 売買価値
+     */
+    'value': number;
+}
+/**
+ * プレイヤーのステータス情報
+ */
+export interface BalancePlayerInfo {
+    'name': string;
+    'hp': number;
+    'strength': number;
+    'sensation': number;
+    'dexterity': number;
+    'agility': number;
+    'defense': number;
+}
+/**
+ * balance.json の最上位構造。シミュレーション結果全体を表す
+ */
+export interface BalanceReport {
+    /**
+     * レポートの種別
+     */
+    'mode': string;
+    /**
+     * プレイヤーのステータス。生成しないモードでは省く
+     */
+    'player'?: BalancePlayerInfo;
+    /**
+     * 武器の情報。生成しないモードでは省く
+     */
+    'weapon'?: BalanceWeaponInfo;
+    /**
+     * 敵テーブルごとのシミュレーション結果
+     */
+    'enemyTables': Array<BalanceEnemyTableRun>;
+    /**
+     * 武器×敵の戦闘メトリクス
+     */
+    'battleMetrics': Array<BalanceBattleMetric>;
+    /**
+     * 施設種別ごとの loot 分布
+     */
+    'roomLoot': Array<BalanceFacilityLoot>;
+}
+/**
+ * 1部屋役割の loot 分布
+ */
+export interface BalanceRoomLoot {
+    /**
+     * 部屋役割
+     */
+    'role': string;
+    /**
+     * アイテムごとの統計
+     */
+    'items': Array<BalanceLootItemStat>;
+}
+/**
+ * 1試行の1深度の情報
+ */
+export interface BalanceTrialDepthStat {
+    'depth': number;
+    'hp': number;
+    'hpBeforeHeal': number;
+    'weapon': string;
+    'hunger': number;
+}
+/**
+ * 1試行の結果
+ */
+export interface BalanceTrialResult {
+    'index': number;
+    'reachedDepth': number;
+    'died': boolean;
+    'depths': Array<BalanceTrialDepthStat>;
+}
+/**
+ * 武器の情報
+ */
+export interface BalanceWeaponInfo {
+    'name': string;
+    'damage': number;
+    'accuracy': number;
+}
+/**
  * 本の設定
  */
 export interface Book {
@@ -127,6 +301,10 @@ export type CombatPolicyType = typeof CombatPolicyType[keyof typeof CombatPolicy
  */
 export interface CommandTable {
     /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
      * エンティティ名
      */
     'name': string;
@@ -137,7 +315,7 @@ export interface CommandTable {
  */
 export interface CommandTableEntry {
     /**
-     * エンティティ名
+     * エンティティの英語 id
      */
     'weapon': string;
     /**
@@ -172,9 +350,75 @@ export interface Dialog {
     'messageKey': string;
 }
 /**
+ * 分解定義。これを持つ prop・item は対応工具で分解できる
+ */
+export interface Disassembly {
+    'toolCategory': ToolCategory;
+    /**
+     * 分解の基礎工数。100が標準1ターンに相当する
+     */
+    'baseAP': number;
+    'yields': Array<DisassemblyYield>;
+    'bonus'?: Array<DisassemblyBonus>;
+}
+
+
+/**
+ * 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
+ */
+export interface DisassemblyBonus {
+    /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
+     * 産出個数のダイス表記
+     */
+    'count': string;
+    /**
+     * 機械スキルがこの値以上で産出に加わる
+     */
+    'minSkill'?: number;
+    /**
+     * 工具グレードがこの値以上で産出に加わる
+     */
+    'minGrade'?: number;
+}
+/**
+ * 分解工具。分類の対応とグレードを持つ
+ */
+export interface DisassemblyTool {
+    'categories': Array<ToolCategory>;
+    /**
+     * 分解工具のグレード。高いほど速く多く得る
+     */
+    'grade': number;
+}
+/**
+ * 分解の産出エントリ。chance 省略は確定枠
+ */
+export interface DisassemblyYield {
+    /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
+     * 産出個数のダイス表記
+     */
+    'count': string;
+    /**
+     * 分解産出の確率。百分率
+     */
+    'chance'?: number;
+}
+/**
  * ドロップテーブル
  */
 export interface DropTable {
+    /**
+     * エンティティの英語 id
+     */
+    'id': string;
     /**
      * エンティティ名
      */
@@ -221,6 +465,10 @@ export type Element = typeof Element[keyof typeof Element];
  */
 export interface EnemyTable {
     /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
      * エンティティ名
      */
     'name': string;
@@ -231,9 +479,9 @@ export interface EnemyTable {
  */
 export interface EnemyTableEntry {
     /**
-     * エンティティ名
+     * エンティティの英語 id
      */
-    'enemyName': string;
+    'id': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
@@ -247,13 +495,9 @@ export interface EnemyTableEntry {
      */
     'maxDepth': number;
     /**
-     * パックの最小数
+     * 1群あたりの敵数のダイス表記
      */
-    'packMin': number;
-    /**
-     * パックの最大数
-     */
-    'packMax': number;
+    'pack': string;
 }
 /**
  * 敵テーブル一覧
@@ -403,6 +647,10 @@ export type HealingValueType = typeof HealingValueType[keyof typeof HealingValue
  */
 export interface Item {
     /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
      * エンティティ名
      */
     'name': string;
@@ -448,11 +696,17 @@ export interface Item {
     'fire'?: Fire;
     'book'?: Book;
     'material'?: boolean;
+    'disassembly'?: Disassembly;
+    'disassemblyTool'?: DisassemblyTool;
 }
 /**
  * アイテムグループ。アイテムの出現セットを定義する
  */
 export interface ItemGroup {
+    /**
+     * エンティティの英語 id
+     */
+    'id': string;
     /**
      * エンティティ名
      */
@@ -467,21 +721,17 @@ export interface ItemGroup {
  */
 export interface ItemGroupEntry {
     /**
-     * エンティティ名
+     * エンティティの英語 id
      */
-    'itemName': string;
+    'id': string;
     /**
      * distribution: 相対重み。collection: 確率（0-100）
      */
     'weight': number;
     /**
-     * パックの最小数
+     * 1山あたりの個数のダイス表記
      */
-    'packMin': number;
-    /**
-     * パックの最大数
-     */
-    'packMax': number;
+    'pack': string;
 }
 /**
  * アイテムグループ一覧
@@ -514,6 +764,10 @@ export interface ItemList {
  */
 export interface ItemTable {
     /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
      * エンティティ名
      */
     'name': string;
@@ -524,9 +778,9 @@ export interface ItemTable {
  */
 export interface ItemTableEntry {
     /**
-     * 参照するアイテムグループ名
+     * 参照するアイテムグループの id
      */
-    'groupName': string;
+    'id': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
      */
@@ -593,6 +847,10 @@ export interface Melee {
  */
 export interface Member {
     /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
      * エンティティ名
      */
     'name': string;
@@ -626,11 +884,11 @@ export interface Member {
     /**
      * プレイヤーキャラクターでは省略可能
      */
-    'commandTableName'?: string;
+    'commandTableId'?: string;
     /**
      * プレイヤーキャラクターでは省略可能
      */
-    'dropTableName'?: string;
+    'dropTableId'?: string;
 }
 
 
@@ -774,6 +1032,10 @@ export interface ProfessionSkill {
  */
 export interface Prop {
     /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
      * エンティティ名
      */
     'name': string;
@@ -805,10 +1067,6 @@ export interface Prop {
      */
     'door'?: object;
     /**
-     * 扉ロックトリガー
-     */
-    'doorLockTrigger'?: object;
-    /**
      * 次階層ワープトリガー
      */
     'warpNextTrigger'?: object;
@@ -816,7 +1074,16 @@ export interface Prop {
      * 前階層ワープトリガー
      */
     'warpPrevTrigger'?: object;
+    /**
+     * 移動拠点キューブの内部からの退場トリガー
+     */
+    'warpCubeExitTrigger'?: object;
+    /**
+     * 移動拠点キューブのコントロールパネルトリガー
+     */
+    'cubePanelTrigger'?: object;
     'storage'?: StorageRaw;
+    'disassembly'?: Disassembly;
 }
 /**
  * 置物一覧
@@ -884,6 +1151,10 @@ export interface Raws {
  */
 export interface Recipe {
     /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
      * エンティティ名
      */
     'name': string;
@@ -894,9 +1165,9 @@ export interface Recipe {
  */
 export interface RecipeInput {
     /**
-     * エンティティ名
+     * エンティティの英語 id
      */
-    'name': string;
+    'id': string;
     /**
      * 素材必要数
      */
@@ -1942,15 +2213,11 @@ export interface StorageRaw {
     /**
      * 初期アイテムの抽選に使うItemTable名
      */
-    'lootTableName'?: string;
+    'lootTableId'?: string;
     /**
-     * 初期アイテムの最小数
+     * 初期アイテム数のダイス表記。省略時は1
      */
-    'lootCountMin'?: number;
-    /**
-     * 初期アイテムの最大数
-     */
-    'lootCountMax'?: number;
+    'lootCount'?: string;
 }
 /**
  * ターゲットグループ
@@ -1983,6 +2250,10 @@ export type TargetNum = typeof TargetNum[keyof typeof TargetNum];
  */
 export interface Tile {
     /**
+     * エンティティの英語 id
+     */
+    'id': string;
+    /**
      * エンティティ名
      */
     'name': string;
@@ -2012,6 +2283,19 @@ export interface TileList {
     'data': Array<Tile>;
     'totalCount': number;
 }
+/**
+ * 分解工具の分類
+ */
+
+export const ToolCategory = {
+    Prying: 'prying',
+    Precision: 'precision',
+    Cutting: 'cutting',
+} as const;
+
+export type ToolCategory = typeof ToolCategory[keyof typeof ToolCategory];
+
+
 /**
  * 使用可能シーン
  */

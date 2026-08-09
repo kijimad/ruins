@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -19,15 +20,15 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 
 	require.NotNil(t, report.Player)
 	assert.Equal(t, "ash", report.Player.Name)
-	assert.Equal(t, 80, report.Player.HP)
+	assert.Equal(t, int32(80), report.Player.Hp)
 
 	require.NotNil(t, report.Weapon)
 	assert.Equal(t, "bare_hands", report.Weapon.Name)
 
 	require.Len(t, report.EnemyTables, 3, "raw.tomlのenemyTables数と一致する")
 	for _, run := range report.EnemyTables {
-		assert.Equal(t, 3, run.MaxDepth)
-		assert.Equal(t, 5, run.Trials)
+		assert.Equal(t, int32(3), run.MaxDepth)
+		assert.Equal(t, int32(5), run.Trials)
 		assert.NotEmpty(t, run.Depths, "深度1には必ず到達する")
 		assert.Len(t, run.TrialData, 5, "試行回数分のトライアルデータが記録される")
 	}
@@ -69,24 +70,23 @@ func TestGenerateBattleMetrics_武器と敵の組み合わせでDPSを算出す�
 	require.NotEmpty(t, metrics)
 	for _, m := range metrics {
 		assert.Equal(t, "ash", m.Player)
-		assert.GreaterOrEqual(t, m.DPS, 0.0)
+		assert.GreaterOrEqual(t, m.Dps, 0.0)
 	}
 }
 
-func TestReport_MarshalJSON_omitemptyでnilフィールドを省略する(t *testing.T) {
+func TestBalanceReport_nilのweaponはJSONで省略される(t *testing.T) {
 	t.Parallel()
 
-	r := &Report{
+	r := &oapi.BalanceReport{
 		Mode:   "simple",
-		Player: &PlayerInfo{Name: "ash", HP: 80},
+		Player: &oapi.BalancePlayerInfo{Name: "ash", Hp: 80},
 	}
 
 	data, err := json.Marshal(r)
 	require.NoError(t, err)
 	assert.NotContains(t, string(data), `"weapon"`, "Weaponがnilならomitemptyで省略される")
-	assert.NotContains(t, string(data), `"enemyTables"`, "EnemyTablesがnilならomitemptyで省略される")
 
-	var got Report
+	var got oapi.BalanceReport
 	require.NoError(t, json.Unmarshal(data, &got))
 	assert.Equal(t, r, &got)
 }

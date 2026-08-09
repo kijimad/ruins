@@ -1531,6 +1531,332 @@ components:
       minimum: 1
       maximum: 10
       description: 1ターンあたりの攻撃回数
+    Balance.BattleMetric:
+      type: object
+      required:
+        - player
+        - weapon
+        - enemy
+        - dps
+        - isRanged
+      properties:
+        player:
+          type: string
+        weapon:
+          type: string
+        enemy:
+          type: string
+        dps:
+          type: number
+          format: double
+          description: 1秒あたりの推定ダメージ
+        isRanged:
+          type: boolean
+          description: 遠距離武器かどうか
+      description: 武器×敵の戦闘シミュレーション結果
+    Balance.DepthStat:
+      type: object
+      required:
+        - depth
+        - medianHP
+        - p5HP
+        - p95HP
+        - medianHPBeforeHeal
+        - p5HPBeforeHeal
+        - p95HPBeforeHeal
+        - suddenDeathRate
+        - medianWeaponDamage
+        - p5WeaponDamage
+        - p95WeaponDamage
+        - medianKillTurns
+        - p5KillTurns
+        - p95KillTurns
+        - medianHunger
+        - p5Hunger
+        - p95Hunger
+        - medianDamage
+        - medianHealing
+      properties:
+        depth:
+          type: integer
+          format: int32
+        medianHP:
+          type: integer
+          format: int32
+        p5HP:
+          type: integer
+          format: int32
+        p95HP:
+          type: integer
+          format: int32
+        medianHPBeforeHeal:
+          type: integer
+          format: int32
+        p5HPBeforeHeal:
+          type: integer
+          format: int32
+        p95HPBeforeHeal:
+          type: integer
+          format: int32
+        suddenDeathRate:
+          type: number
+          format: double
+          description: 突然死率
+        medianWeaponDamage:
+          type: integer
+          format: int32
+        p5WeaponDamage:
+          type: integer
+          format: int32
+        p95WeaponDamage:
+          type: integer
+          format: int32
+        medianKillTurns:
+          type: integer
+          format: int32
+        p5KillTurns:
+          type: integer
+          format: int32
+        p95KillTurns:
+          type: integer
+          format: int32
+        medianHunger:
+          type: integer
+          format: int32
+        p5Hunger:
+          type: integer
+          format: int32
+        p95Hunger:
+          type: integer
+          format: int32
+        medianDamage:
+          type: integer
+          format: int32
+        medianHealing:
+          type: integer
+          format: int32
+      description: 1深度の統計情報
+    Balance.EnemyTableRun:
+      type: object
+      required:
+        - name
+        - maxDepth
+        - trials
+        - medianDepth
+        - deathRate
+        - depths
+        - trialData
+      properties:
+        name:
+          type: string
+        maxDepth:
+          type: integer
+          format: int32
+        trials:
+          type: integer
+          format: int32
+        medianDepth:
+          type: integer
+          format: int32
+        deathRate:
+          type: number
+          format: double
+          description: 死亡率
+        depths:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.DepthStat'
+          description: 深度ごとの統計
+        trialData:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.TrialResult'
+          description: 試行ごとの生データ
+      description: 1つの敵テーブルに対するシミュレーション結果
+    Balance.FacilityLoot:
+      type: object
+      required:
+        - facility
+        - trials
+        - rooms
+      properties:
+        facility:
+          type: string
+        trials:
+          type: integer
+          format: int32
+        rooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.RoomLoot'
+          description: 部屋役割ごとの loot
+      description: 1施設種別の loot 分布
+    Balance.LootItemStat:
+      type: object
+      required:
+        - name
+        - prob
+        - expectedCount
+        - value
+      properties:
+        name:
+          type: string
+        prob:
+          type: number
+          format: double
+          description: 出現確率
+        expectedCount:
+          type: number
+          format: double
+          description: 期待個数
+        value:
+          type: integer
+          format: int32
+          description: 売買価値
+      description: 1アイテムの loot 統計
+    Balance.PlayerInfo:
+      type: object
+      required:
+        - name
+        - hp
+        - strength
+        - sensation
+        - dexterity
+        - agility
+        - defense
+      properties:
+        name:
+          type: string
+        hp:
+          type: integer
+          format: int32
+        strength:
+          type: integer
+          format: int32
+        sensation:
+          type: integer
+          format: int32
+        dexterity:
+          type: integer
+          format: int32
+        agility:
+          type: integer
+          format: int32
+        defense:
+          type: integer
+          format: int32
+      description: プレイヤーのステータス情報
+    Balance.Report:
+      type: object
+      required:
+        - mode
+        - enemyTables
+        - battleMetrics
+        - roomLoot
+      properties:
+        mode:
+          type: string
+          description: レポートの種別
+        player:
+          allOf:
+            - $ref: '#/components/schemas/Balance.PlayerInfo'
+          description: プレイヤーのステータス。生成しないモードでは省く
+        weapon:
+          allOf:
+            - $ref: '#/components/schemas/Balance.WeaponInfo'
+          description: 武器の情報。生成しないモードでは省く
+        enemyTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.EnemyTableRun'
+          description: 敵テーブルごとのシミュレーション結果
+        battleMetrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.BattleMetric'
+          description: 武器×敵の戦闘メトリクス
+        roomLoot:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.FacilityLoot'
+          description: 施設種別ごとの loot 分布
+      description: balance.json の最上位構造。シミュレーション結果全体を表す
+    Balance.RoomLoot:
+      type: object
+      required:
+        - role
+        - items
+      properties:
+        role:
+          type: string
+          description: 部屋役割
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.LootItemStat'
+          description: アイテムごとの統計
+      description: 1部屋役割の loot 分布
+    Balance.TrialDepthStat:
+      type: object
+      required:
+        - depth
+        - hp
+        - hpBeforeHeal
+        - weapon
+        - hunger
+      properties:
+        depth:
+          type: integer
+          format: int32
+        hp:
+          type: integer
+          format: int32
+        hpBeforeHeal:
+          type: integer
+          format: int32
+        weapon:
+          type: string
+        hunger:
+          type: integer
+          format: int32
+      description: 1試行の1深度の情報
+    Balance.TrialResult:
+      type: object
+      required:
+        - index
+        - reachedDepth
+        - died
+        - depths
+      properties:
+        index:
+          type: integer
+          format: int32
+        reachedDepth:
+          type: integer
+          format: int32
+        died:
+          type: boolean
+        depths:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.TrialDepthStat'
+      description: 1試行の結果
+    Balance.WeaponInfo:
+      type: object
+      required:
+        - name
+        - damage
+        - accuracy
+      properties:
+        name:
+          type: string
+        damage:
+          type: integer
+          format: int32
+        accuracy:
+          type: integer
+          format: int32
+      description: 武器の情報
     BaseDamage:
       type: integer
       format: int32

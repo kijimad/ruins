@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -35,7 +36,7 @@ func runSimulateBalance(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	data, err := report.MarshalJSON()
+	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to serialize JSON: %w", err)
 	}

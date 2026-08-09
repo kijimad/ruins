@@ -8,28 +8,7 @@ import {
   NativeSelect,
 } from "@chakra-ui/react";
 import { WeightBar } from "../components/WeightBar";
-
-interface LootItemStat {
-  name: string;
-  prob: number;
-  expectedCount: number;
-  value: number;
-}
-
-interface RoomLoot {
-  role: string;
-  items: LootItemStat[];
-}
-
-interface FacilityLoot {
-  facility: string;
-  trials: number;
-  rooms: RoomLoot[];
-}
-
-interface BalanceReport {
-  roomLoot?: FacilityLoot[];
-}
+import type { BalanceReport } from "../generated";
 
 // 施設 id を日本語ラベルへ写す。balance レポートの facility 文字列と揃える。
 const facilityLabels: Record<string, string> = {
