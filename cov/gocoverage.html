@@ -57,19 +57,19 @@
 				
 				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (85.7%)</option>
 				
-				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.7%)</option>
+				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
 				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.0%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
-				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (74.7%)</option>
+				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (75.0%)</option>
 				
 				<option value="file5">github.com/kijimaD/ruins/internal/activity/drop.go (68.4%)</option>
 				
 				<option value="file6">github.com/kijimaD/ruins/internal/activity/errors.go (0.0%)</option>
 				
-				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (61.4%)</option>
+				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (58.5%)</option>
 				
 				<option value="file8">github.com/kijimaD/ruins/internal/activity/move.go (85.4%)</option>
 				
@@ -77,7 +77,7 @@
 				
 				<option value="file10">github.com/kijimaD/ruins/internal/activity/pickup.go (75.9%)</option>
 				
-				<option value="file11">github.com/kijimaD/ruins/internal/activity/player_actions.go (79.4%)</option>
+				<option value="file11">github.com/kijimaD/ruins/internal/activity/player_actions.go (81.9%)</option>
 				
 				<option value="file12">github.com/kijimaD/ruins/internal/activity/push.go (73.2%)</option>
 				
@@ -159,7 +159,7 @@
 				
 				<option value="file51">github.com/kijimaD/ruins/internal/components/hunger.go (85.7%)</option>
 				
-				<option value="file52">github.com/kijimaD/ruins/internal/components/interactable.go (92.3%)</option>
+				<option value="file52">github.com/kijimaD/ruins/internal/components/interactable.go (100.0%)</option>
 				
 				<option value="file53">github.com/kijimaD/ruins/internal/components/invariant.go (75.0%)</option>
 				
@@ -419,7 +419,7 @@
 				
 				<option value="file181">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
-				<option value="file182">github.com/kijimaD/ruins/internal/raw/raw.go (88.9%)</option>
+				<option value="file182">github.com/kijimaD/ruins/internal/raw/raw.go (89.1%)</option>
 				
 				<option value="file183">github.com/kijimaD/ruins/internal/raw/validate.go (90.4%)</option>
 				
@@ -515,7 +515,7 @@
 				
 				<option value="file229">github.com/kijimaD/ruins/internal/systems/camera_system.go (75.8%)</option>
 				
-				<option value="file230">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (67.5%)</option>
+				<option value="file230">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (74.3%)</option>
 				
 				<option value="file231">github.com/kijimaD/ruins/internal/systems/frost_render.go (16.3%)</option>
 				
@@ -623,7 +623,7 @@
 				
 				<option value="file283">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (73.9%)</option>
 				
-				<option value="file284">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (94.6%)</option>
+				<option value="file284">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (40.7%)</option>
 				
 				<option value="file285">github.com/kijimaD/ruins/internal/world/lifecycle/squad.go (87.5%)</option>
 				
@@ -754,7 +754,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) <span class="cov8" titl
                 return &amp;PushBehavior{}, nil</span>
         case gc.BehaviorPull:<span class="cov8" title="1">
                 return &amp;PullBehavior{}, nil</span>
-        case gc.BehaviorPortal, gc.BehaviorDoorLock, gc.BehaviorStorage:<span class="cov0" title="0"></span>
+        case gc.BehaviorPortal, gc.BehaviorStorage:<span class="cov0" title="0"></span>
                 // ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
         }
         <span class="cov8" title="1">return nil, fmt.Errorf("unregistered behavior: %s", name)</span>
@@ -1013,7 +1013,7 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
         }</span> else<span class="cov8" title="1"> {
                 // 初回で解決した即時アクション。移動コストなど behavior 固有のコストを消費する
                 consumePassCost(world, actor, comp)
-                if currentActivity != nil &amp;&amp; IsCanceled(currentActivity) </span><span class="cov8" title="1">{
+                if currentActivity != nil &amp;&amp; IsCanceled(currentActivity) </span><span class="cov0" title="0">{
                         result = &amp;ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: query.T(world, currentActivity.CancelReason)}
                 }</span> else<span class="cov8" title="1"> {
                         result = &amp;ActionResult{Success: true, State: gc.ActivityStateCompleted, ActivityName: behaviorName, Message: "action completed"}
@@ -2139,16 +2139,8 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
         <span class="cov8" title="1">raw := world.Components.Door.Get(targetEntity)
         doorComp := raw
 
-        if doorComp.Locked </span><span class="cov8" title="1">{
-                gamelog.New(query.GetGameLog(world)).
-                        Markup(query.T(world, "The door is locked.")).
-                        Log()
-                Cancel(comp, "the door is locked")
-                return nil
-        }</span>
-
         // 扉を開く
-        <span class="cov8" title="1">if !doorComp.IsOpen </span><span class="cov8" title="1">{
+        if !doorComp.IsOpen </span><span class="cov8" title="1">{
                 if err := lifecycle.OpenDoor(world, targetEntity); err != nil </span><span class="cov0" title="0">{
                         Cancel(comp, fmt.Sprintf("cannot open door: %v", err))
                         return err
@@ -2255,13 +2247,8 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
         <span class="cov8" title="1">raw := world.Components.Door.Get(targetEntity)
         doorComp := raw
 
-        if doorComp.Locked </span><span class="cov0" title="0">{
-                Cancel(comp, "the door is locked")
-                return nil
-        }</span>
-
         // 扉を閉じる
-        <span class="cov8" title="1">if doorComp.IsOpen </span><span class="cov8" title="1">{
+        if doorComp.IsOpen </span><span class="cov8" title="1">{
                 if err := lifecycle.CloseDoor(world, targetEntity); err != nil </span><span class="cov0" title="0">{
                         Cancel(comp, fmt.Sprintf("cannot close door: %v", err))
                         return err
@@ -2496,11 +2483,9 @@ import (
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
-        "github.com/kijimaD/ruins/internal/gamelog"
         w "github.com/kijimaD/ruins/internal/world"
 
         "github.com/kijimaD/ruins/internal/world/lifecycle"
-        "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
 )
 
@@ -2525,8 +2510,6 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
                 return executeDungeonEnter(target, world)</span>
         case gc.InteractionDoor:<span class="cov8" title="1">
                 return executeDoor(actor, target, world)</span>
-        case gc.InteractionDoorLock:<span class="cov8" title="1">
-                return executeDoorLock(world)</span>
         case gc.InteractionTalk:<span class="cov8" title="1">
                 return executeTalk(actor, target, world)</span>
         case gc.InteractionItem:<span class="cov8" title="1">
@@ -2594,15 +2577,6 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
                 return Execute(NewCloseDoorActivity(doorEntity), actor, world)
         }</span>
         <span class="cov8" title="1">return Execute(NewOpenDoorActivity(doorEntity), actor, world)</span>
-}
-
-func executeDoorLock(world w.World) (*ActionResult, error) <span class="cov8" title="1">{
-        if lifecycle.LockAllDoors(world) &gt; 0 </span><span class="cov8" title="1">{
-                gamelog.New(query.GetGameLog(world)).
-                        Markup(query.T(world, "A door seems to have closed somewhere.")).
-                        Log()
-        }</span>
-        <span class="cov8" title="1">return &amp;ActionResult{Success: true, ActivityName: gc.BehaviorDoorLock, Message: "door lock"}, nil</span>
 }
 
 func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
@@ -3227,13 +3201,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error <span class=
                                 if world.Components.Door.Has(interactableEntity) </span><span class="cov0" title="0">{
                                         door := world.Components.Door.Get(interactableEntity)
                                         if !door.IsOpen </span><span class="cov0" title="0">{
-                                                if door.Locked </span><span class="cov0" title="0">{
-                                                        gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "The door is locked.")).Log()
-                                                        return nil
-                                                }</span>
-                                                <span class="cov0" title="0">_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
-                                                return err</span>
-                                        }
+                                                _, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
+                                                return err
+                                        }</span>
                                 }
                         case gc.InteractionMelee:<span class="cov8" title="1">
                                 if query.FactionRelation(world, entity, interactableEntity) == query.RelationHostile </span><span class="cov8" title="1">{
@@ -3395,7 +3365,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) <span
                                 gamelog.New(query.GetGameLog(world)).
                                         Markup(query.T(world, "%s is here. You can enter it from the Space action menu.", gamelog.Tag("item", query.GetEntityName(entity, world)))).
                                         Log()</span>
-                        case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:<span class="cov0" title="0"></span>
+                        case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:<span class="cov0" title="0"></span>
                                 // 足元ログを出さない種類。default を置かず exhaustive に全種別を
                                 // 明示させ、新しい InteractionKind の対応漏れを lint で検知する
                         }
@@ -7933,7 +7903,6 @@ const (
         BehaviorOpenDoor  BehaviorName = "OpenDoor"
         BehaviorCloseDoor BehaviorName = "CloseDoor"
         BehaviorPortal    BehaviorName = "Portal"
-        BehaviorDoorLock  BehaviorName = "DoorLock"
         BehaviorStorage   BehaviorName = "Storage"
         BehaviorRead      BehaviorName = "Read"
         BehaviorShoot     BehaviorName = "Shoot"
@@ -8804,7 +8773,6 @@ type LightSource struct {
 type Door struct {
         IsOpen      bool            // 開いているかどうか
         Orientation DoorOrientation // 扉の向き
-        Locked      bool            // ロック中は開閉不可
 }
 
 // DoorOrientation は扉の向き
@@ -10347,8 +10315,6 @@ const (
         InteractionDungeonEnter InteractionKind = "DUNGEON_ENTER"
         // InteractionDoor は扉の相互作用
         InteractionDoor InteractionKind = "DOOR"
-        // InteractionDoorLock はプレイヤーが踏むと全扉をロックする相互作用
-        InteractionDoorLock InteractionKind = "DOOR_LOCK"
         // InteractionTalk は会話の相互作用
         InteractionTalk InteractionKind = "TALK"
         // InteractionItem はアイテム拾得の相互作用
@@ -10380,11 +10346,9 @@ func (k InteractionKind) Config() InteractionConfig <span class="cov8" title="1"
                 return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}</span>
         case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:<span class="cov8" title="1">
                 return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}</span>
-        case InteractionDoorLock:<span class="cov8" title="1">
-                return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayAuto}</span>
         case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube:<span class="cov8" title="1">
                 return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}</span>
-        case InteractionExitCube:<span class="cov0" title="0">
+        case InteractionExitCube:<span class="cov8" title="1">
                 return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}</span>
         }
         <span class="cov8" title="1">return InteractionConfig{}</span>
@@ -25345,9 +25309,6 @@ type DisassemblyYield struct {
         Id EntityID `json:"id"`
 }
 
-// DoorLockTriggerRaw 扉ロックトリガー
-type DoorLockTriggerRaw = map[string]interface{}
-
 // DoorRaw 扉ローデータ
 type DoorRaw = map[string]interface{}
 
@@ -25893,9 +25854,6 @@ type Prop struct {
 
         // Door 扉ローデータ
         Door *DoorRaw `json:"door,omitempty"`
-
-        // DoorLockTrigger 扉ロックトリガー
-        DoorLockTrigger *DoorLockTriggerRaw `json:"doorLockTrigger,omitempty"`
 
         // Hp 耐久値。設定すると破壊可能になる
         Hp *HitPoints `json:"hp,omitempty"`
@@ -32645,217 +32603,217 @@ import (
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-        "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",
+        "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",
+        "s0fNJT+3Q9OHjg/9vwAAAP//",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
@@ -35675,10 +35633,6 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
                 interactions = append(interactions, gc.InteractionDoor)
         }</span>
 
-        <span class="cov8" title="1">if propRaw.DoorLockTrigger != nil </span><span class="cov0" title="0">{
-                interactions = append(interactions, gc.InteractionDoorLock)
-        }</span>
-
         <span class="cov8" title="1">if propRaw.WarpNextTrigger != nil </span><span class="cov0" title="0">{
                 interactions = append(interactions, gc.InteractionPortalNext)
         }</span>
@@ -38204,7 +38158,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
                                 Target:      interactableEntity,
                                 Interaction: interaction,
                         })</span>
-                case gc.InteractionDoorLock, gc.InteractionItemAll:<span class="cov0" title="0"></span>
+                case gc.InteractionItemAll:<span class="cov0" title="0"></span>
                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を
                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する
                 }
@@ -45689,7 +45643,6 @@ import (
         "github.com/kijimaD/ruins/internal/activity"
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
-        "github.com/kijimaD/ruins/internal/gamelog"
         "github.com/kijimaD/ruins/internal/logger"
         "github.com/kijimaD/ruins/internal/raw"
         w "github.com/kijimaD/ruins/internal/world"
@@ -45789,25 +45742,15 @@ func (sys *DeadCleanupSystem) Update(world w.World) error <span class="cov8" tit
                 }</span>
         }
 
-        // ボス撃破時の処理: 扉アンロック + クリアフラグ
+        // ボス撃破時の処理: クリアフラグ
         <span class="cov8" title="1">for _, entity := range toDelete </span><span class="cov8" title="1">{
-                if world.Components.Boss.Has(entity) </span><span class="cov0" title="0">{
-                        // 全扉をアンロックして開く
-                        if lifecycle.UnlockAllDoors(world) &gt; 0 </span><span class="cov0" title="0">{
-                                gamelog.New(query.GetGameLog(world)).
-                                        Markup(query.T(world, "It seems a door opened somewhere.")).
-                                        Log()
-                        }</span>
-
-                        // DoorLockTriggerエンティティを削除する。ボス撃破後はトリガー不要
-                        <span class="cov0" title="0">lifecycle.DeleteDoorLockTriggers(world)
-
+                if world.Components.Boss.Has(entity) </span><span class="cov8" title="1">{
                         // ダンジョンクリアフラグを立てる
                         dungeonName := query.GetDungeon(world).CurrentStage.Name
                         query.GetGameProgress(world).MarkDungeonCleared(dungeonName)
 
-                        logger.Debug("boss defeated: unlock doors and set clear flag", "dungeon", dungeonName)</span>
-                }
+                        logger.Debug("boss defeated: set clear flag", "dungeon", dungeonName)
+                }</span>
         }
 
         // 死亡エンティティのバックパック内アイテムをフィールドにドロップする
@@ -54739,7 +54682,6 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 
 import (
         "fmt"
-        "slices"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
@@ -54750,94 +54692,43 @@ import (
 )
 
 // OpenDoor は扉を開く
-func OpenDoor(world w.World, doorEntity ecs.Entity) error <span class="cov8" title="1">{
+func OpenDoor(world w.World, doorEntity ecs.Entity) error <span class="cov0" title="0">{
         if !world.Components.Door.Has(doorEntity) </span><span class="cov0" title="0">{
                 return fmt.Errorf("entity is not a door")
         }</span>
 
-        <span class="cov8" title="1">doorComp := world.Components.Door.Get(doorEntity)
+        <span class="cov0" title="0">doorComp := world.Components.Door.Get(doorEntity)
         return updateDoorState(world, doorEntity, doorComp.Orientation, true)</span>
 }
 
 // CloseDoor は扉を閉じる
-func CloseDoor(world w.World, doorEntity ecs.Entity) error <span class="cov8" title="1">{
+func CloseDoor(world w.World, doorEntity ecs.Entity) error <span class="cov0" title="0">{
         if !world.Components.Door.Has(doorEntity) </span><span class="cov0" title="0">{
                 return fmt.Errorf("entity is not a door")
         }</span>
 
-        <span class="cov8" title="1">doorComp := world.Components.Door.Get(doorEntity)
+        <span class="cov0" title="0">doorComp := world.Components.Door.Get(doorEntity)
         return updateDoorState(world, doorEntity, doorComp.Orientation, false)</span>
 }
 
-// LockAllDoors は全扉を閉じてロックする。ロックされた扉の数を返す
-func LockAllDoors(world w.World) int <span class="cov8" title="1">{
-        var doors []ecs.Entity
-        // 退避中ステージの扉は操作しない。現ステージのみ対象にする
-        doorQuery := query.ActiveFilter1[gc.Door](world).Query()
-        for doorQuery.Next() </span><span class="cov8" title="1">{
-                doors = append(doors, doorQuery.Entity())
-        }</span>
-        <span class="cov8" title="1">locked := 0
-        for _, doorEntity := range doors </span><span class="cov8" title="1">{
-                if world.Components.Door.Get(doorEntity).Locked </span><span class="cov8" title="1">{
-                        continue</span>
-                }
-                <span class="cov8" title="1">if world.Components.Door.Get(doorEntity).IsOpen </span><span class="cov8" title="1">{
-                        _ = CloseDoor(world, doorEntity)
-                }</span>
-                // CloseDoorがarchetypeを変えGetポインタを失効させるため、取り直してから書き込む
-                <span class="cov8" title="1">world.Components.Door.Get(doorEntity).Locked = true
-                locked++</span>
-        }
-        <span class="cov8" title="1">if locked &gt; 0 </span><span class="cov8" title="1">{
-                // BlockView が変化したので視界を再計算させる
-                query.GetVisionState(world).RequestUpdate()
-        }</span>
-        <span class="cov8" title="1">return locked</span>
-}
-
-// UnlockAllDoors は全扉をアンロックして開く。開かれた扉の数を返す
-func UnlockAllDoors(world w.World) int <span class="cov8" title="1">{
-        var doors []ecs.Entity
-        // 退避中ステージの扉は操作しない。現ステージのみ対象にする
-        doorQuery := query.ActiveFilter1[gc.Door](world).Query()
-        for doorQuery.Next() </span><span class="cov8" title="1">{
-                doors = append(doors, doorQuery.Entity())
-        }</span>
-        <span class="cov8" title="1">opened := 0
-        for _, doorEntity := range doors </span><span class="cov8" title="1">{
-                doorComp := world.Components.Door.Get(doorEntity)
-                doorComp.Locked = false
-                if !doorComp.IsOpen </span><span class="cov8" title="1">{
-                        _ = OpenDoor(world, doorEntity)
-                        opened++
-                }</span>
-        }
-        <span class="cov8" title="1">if opened &gt; 0 </span><span class="cov8" title="1">{
-                // BlockView が変化したので視界を再計算させる
-                query.GetVisionState(world).RequestUpdate()
-        }</span>
-        <span class="cov8" title="1">return opened</span>
-}
-
 // updateDoorState は扉の向きと開閉状態に応じて、状態を更新する
-func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOrientation, isOpen bool) error <span class="cov8" title="1">{
+func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOrientation, isOpen bool) error <span class="cov0" title="0">{
         doorComp := world.Components.Door.Get(doorEntity)
         doorComp.Orientation = orientation
         doorComp.IsOpen = isOpen
 
         // スプライトキーを更新
-        if world.Components.SpriteRender.Has(doorEntity) </span><span class="cov8" title="1">{
+        if world.Components.SpriteRender.Has(doorEntity) </span><span class="cov0" title="0">{
                 spriteRender := world.Components.SpriteRender.Get(doorEntity)
 
-                if isOpen </span><span class="cov8" title="1">{
-                        if orientation == gc.DoorOrientationHorizontal </span><span class="cov8" title="1">{
+                if isOpen </span><span class="cov0" title="0">{
+                        if orientation == gc.DoorOrientationHorizontal </span><span class="cov0" title="0">{
                                 spriteRender.SpriteKey = "door_horizontal_open"
-                        }</span> else<span class="cov8" title="1"> {
+                        }</span> else<span class="cov0" title="0"> {
                                 spriteRender.SpriteKey = "door_vertical_open"
                         }</span>
-                } else<span class="cov8" title="1"> {
-                        if orientation == gc.DoorOrientationHorizontal </span><span class="cov8" title="1">{
+                } else<span class="cov0" title="0"> {
+                        if orientation == gc.DoorOrientationHorizontal </span><span class="cov0" title="0">{
                                 spriteRender.SpriteKey = "door_horizontal_closed"
                         }</span> else<span class="cov0" title="0"> {
                                 spriteRender.SpriteKey = "door_vertical_closed"
@@ -54846,23 +54737,23 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
         }
 
         // BlockPass / BlockView を更新
-        <span class="cov8" title="1">if isOpen </span><span class="cov8" title="1">{
-                if world.Components.BlockPass.Has(doorEntity) </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">if isOpen </span><span class="cov0" title="0">{
+                if world.Components.BlockPass.Has(doorEntity) </span><span class="cov0" title="0">{
                         world.Components.BlockPass.Remove(doorEntity)
                 }</span>
-                <span class="cov8" title="1">if world.Components.BlockView.Has(doorEntity) </span><span class="cov8" title="1">{
+                <span class="cov0" title="0">if world.Components.BlockView.Has(doorEntity) </span><span class="cov0" title="0">{
                         world.Components.BlockView.Remove(doorEntity)
                 }</span>
-        } else<span class="cov8" title="1"> {
-                if !world.Components.BlockPass.Has(doorEntity) </span><span class="cov8" title="1">{
+        } else<span class="cov0" title="0"> {
+                if !world.Components.BlockPass.Has(doorEntity) </span><span class="cov0" title="0">{
                         world.Components.BlockPass.Add(doorEntity, &amp;gc.BlockPass{})
                 }</span>
-                <span class="cov8" title="1">if !world.Components.BlockView.Has(doorEntity) </span><span class="cov8" title="1">{
+                <span class="cov0" title="0">if !world.Components.BlockView.Has(doorEntity) </span><span class="cov0" title="0">{
                         world.Components.BlockView.Add(doorEntity, &amp;gc.BlockView{})
                 }</span>
         }
 
-        <span class="cov8" title="1">return nil</span>
+        <span class="cov0" title="0">return nil</span>
 }
 
 // SpawnProp は置物を生成する
@@ -54956,23 +54847,6 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
                 Interactable: &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionEnterCube, gc.InteractionPullCube}},
         }), nil
 }</span>
-
-// DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する
-func DeleteDoorLockTriggers(world w.World) <span class="cov8" title="1">{
-        var toDelete []ecs.Entity
-        // 退避中ステージの鍵トリガは消さない。現ステージのみ対象にする
-        interactableQuery := query.ActiveFilter1[gc.Interactable](world).Query()
-        for interactableQuery.Next() </span><span class="cov8" title="1">{
-                triggerEntity := interactableQuery.Entity()
-                interactable := world.Components.Interactable.Get(triggerEntity)
-                if slices.Contains(interactable.Interactions, gc.InteractionDoorLock) </span><span class="cov8" title="1">{
-                        toDelete = append(toDelete, triggerEntity)
-                }</span>
-        }
-        <span class="cov8" title="1">for _, entity := range toDelete </span><span class="cov8" title="1">{
-                world.ECS.RemoveEntity(entity)
-        }</span>
-}
 </pre>
 		
 		<pre class="file" id="file285" style="display: none">package lifecycle
