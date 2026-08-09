@@ -5,6 +5,7 @@ import (
 	"image"
 	"testing"
 
+	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
@@ -93,8 +94,8 @@ func TestDetailWindow_対象が無ければnilを返す(t *testing.T) {
 	assert.Nil(t, got)
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestDetailWindow_対象があれば名前とページ位置を表示する(t *testing.T) {
+	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
 	d := NewDetail(func(_ w.World) (DetailContent, bool) {
@@ -102,7 +103,9 @@ func TestDetailWindow_対象があれば名前とページ位置を表示する(
 	})
 	d.Open(world)
 
-	win := d.Window(world, image.Rect(0, 0, 400, 400))
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	var win *widget.Window
+	vrt.WithUILock(func() { win = d.Window(world, image.Rect(0, 0, 400, 400)) })
 
 	require.NotNil(t, win)
 	labels := collectLabels(win.Contents)

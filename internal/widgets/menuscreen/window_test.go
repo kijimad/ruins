@@ -71,8 +71,8 @@ func TestDetailPageCount_性能行が無いエンティティは1ページにな
 	assert.Equal(t, 1, got)
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *testing.T) {
+	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
 	rows := make([]views.SpecRow, 15)
@@ -80,8 +80,12 @@ func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *te
 		rows[i] = views.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	firstPage := buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0)
-	lastPage := buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	var firstPage, lastPage *widget.Window
+	vrt.WithUILock(func() {
+		firstPage = buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0)
+		lastPage = buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1)
+	})
 
 	require.NotNil(t, firstPage)
 	require.NotNil(t, lastPage)
@@ -96,8 +100,8 @@ func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *te
 	assert.Contains(t, lastLabels, fmt.Sprintf("%s 2/2 %s", consts.IconArrowLeft, consts.IconArrowRight))
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestBuildDetailFromRows_ページ番号は範囲外を先頭と末尾にクランプする(t *testing.T) {
+	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
 	rows := make([]views.SpecRow, 15)
@@ -105,8 +109,12 @@ func TestBuildDetailFromRows_ページ番号は範囲外を先頭と末尾にク
 		rows[i] = views.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	negative := buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "", "", rows, -1)
-	overflow := buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "", "", rows, 99)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	var negative, overflow *widget.Window
+	vrt.WithUILock(func() {
+		negative = buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "", "", rows, -1)
+		overflow = buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "", "", rows, 99)
+	})
 
 	require.NotNil(t, negative)
 	require.NotNil(t, overflow)
