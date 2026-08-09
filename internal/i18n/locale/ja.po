@@ -5540,6 +5540,9 @@ msgstr "この本を読むには %s Lv%d 以上が必要。現在 Lv%d"
 msgid "cannot read because enemies are nearby"
 msgstr "敵が近くにいるので読めない"
 
+msgid "Recruit"
+msgstr "隊員候補"
+
 msgid "Jin"
 msgstr "ジン"
 

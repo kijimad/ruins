@@ -86,10 +86,16 @@ func randomRecruitAbilities(rng *rand.Rand) gc.Abilities {
 // 名前・能力・スプライトだけ持たせ、雇用時にこの3つから隊員を復元する。
 // name は生成時に確定した表示名。以後そのまま表示し、翻訳し直さない
 func SpawnStorageRecruit(world w.World, merchant ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
+	// 将来は全エンティティ共通の価値算出へ寄せる
+	const valuePerAbility = 30
+	value := (abilities.Vitality.Base + abilities.Strength.Base + abilities.Sensation.Base +
+		abilities.Dexterity.Base + abilities.Agility.Base + abilities.Defense.Base) * valuePerAbility
+
 	recruit := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:      &gc.Name{Name: name},
 		Abilities: &abilities,
 		Weight:    &gc.Weight{Milligram: abilities.BodyWeight()},
+		Value:     &gc.Value{Value: value},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
 			SpriteKey:       spriteKey,

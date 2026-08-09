@@ -79,7 +79,8 @@ func HireRecruit(world w.World, player ecs.Entity, recruit ecs.Entity) error {
 
 // buyPrice は交渉スキルの買値倍率込みの購入価格を返す
 func buyPrice(world w.World, player ecs.Entity, entity ecs.Entity) int {
-	price := query.CalculateBuyPrice(query.StockBaseValue(world, entity))
+	base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
+	price := query.CalculateBuyPrice(base)
 	if world.Components.CharModifiers.Has(player) {
 		price = world.Components.CharModifiers.Get(player).BuyPrice.ApplyInt(price)
 	}
@@ -88,7 +89,8 @@ func buyPrice(world w.World, player ecs.Entity, entity ecs.Entity) int {
 
 // sellPrice は交渉スキルの売値倍率込みの売却価格を返す
 func sellPrice(world w.World, player ecs.Entity, entity ecs.Entity) int {
-	price := query.CalculateSellPrice(query.StockBaseValue(world, entity))
+	base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
+	price := query.CalculateSellPrice(base)
 	if world.Components.CharModifiers.Has(player) {
 		price = world.Components.CharModifiers.Get(player).SellPrice.ApplyInt(price)
 	}

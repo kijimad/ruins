@@ -165,6 +165,8 @@ func TestHireRecruit(t *testing.T) {
 	}
 	recruit, err := lifecycle.SpawnStorageRecruit(world, merchant, "Test", abilities, "general")
 	require.NoError(t, err)
+	// 生成時に確定した基準価値。買値の期待値に使う
+	recruitValue := world.Components.Value.Get(recruit).Value
 
 	before := query.SquadMembers(world)
 	require.NoError(t, HireRecruit(world, player, recruit))
@@ -174,7 +176,7 @@ func TestHireRecruit(t *testing.T) {
 	after := query.SquadMembers(world)
 	assert.Len(t, after, len(before)+1)
 
-	// 代金は能力値から出した基準価値の買値
-	expected := 100000 - query.CalculateBuyPrice(query.RecruitValue(abilities))
+	// 代金は生成時に確定した基準価値の買値
+	expected := 100000 - query.CalculateBuyPrice(recruitValue)
 	assert.Equal(t, expected, query.GetCurrency(world, player))
 }

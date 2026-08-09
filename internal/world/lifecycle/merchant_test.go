@@ -24,7 +24,7 @@ func TestPopulateMerchantStock_在庫にアイテムと隊員候補を積む(t *
 	var recruits, items int
 	names := map[string]bool{}
 	for _, e := range stock {
-		if query.IsRecruit(world, e) {
+		if world.Components.Abilities.Has(e) {
 			recruits++
 			name := world.Components.Name.Get(e).Name
 			assert.False(t, names[name], "候補名は重複しない: %s", name)
