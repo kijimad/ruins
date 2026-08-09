@@ -1,14 +1,15 @@
 package interior
 
-// lootRef と rawItemGroupID は lootRaw のキーと値の型。実体は string だが、名前を付けて意味を持たせる。
+// 実体は string だが、名前を付けて意味を持たせる。
 type (
-	lootRef        = string
+	// content_catalog が使う抽象
+	lootRef = string
+	// raw の item group id
 	rawItemGroupID = string
 )
 
-// lootRaw は loot の対応表。キーは content_catalog が使う抽象 loot Ref、値は raw の item group id。overworld の
-// 床 loot がこの表で item group を引いてアイテムを抽選し、VRT も同じ表で loot の有無を描く。両者が同じ表を
-// 引くので VRT と in-game が乖離しない。表に無い Ref は spawn されず描かれない。prop の propRaw と対称に保つ。
+// lootRaw は loot の対応表。overworld の床 loot がこの表で item group を引いてアイテムを抽選し、VRT も同じ表で loot の有無を描く。
+// 両者が同じ表を引くので VRT と in-game が乖離しない。表に無い Ref は spawn されず描かれない。prop の propRaw と対称に保つ。
 var lootRaw = map[lootRef]rawItemGroupID{
 	"snacks":    "food",
 	"drinks":    "food",
