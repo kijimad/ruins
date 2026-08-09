@@ -5,7 +5,14 @@ package interior
 // 表に無い Ref は in-game で spawn されず、VRT でも描かれない。KindLoot の戦利品と raw の無い装飾は含めない。
 // 現状は家具と装飾だけを写し、施設固有の戦利品はアイテム設計が固まってから足す。既存の prop へ寄せ、
 // raw の無い抽象什器は近い実物へ当てる。
-var propRaw = map[string]string{
+// propRef は content が使う抽象 prop 語彙。propRaw の写像元。rawPropName は raw の prop の id。写像先。
+// どちらも実体は string だが、名前で写像の向き、すなわち Ref から prop 名へ、を型に表す。
+type (
+	propRef     = string
+	rawPropName = string
+)
+
+var propRaw = map[propRef]rawPropName{
 	"register":      "register",
 	"gondola":       "goods_shelf",
 	"walkin_cooler": "refrigerator",

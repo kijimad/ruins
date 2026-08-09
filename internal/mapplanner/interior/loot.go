@@ -1,9 +1,17 @@
 package interior
 
+// lootRef は content_catalog が使う抽象 loot 語彙。lootRaw の写像元。
+// rawItemGroupID は raw の item group の id。lootRaw の写像先。どちらも実体は string だが、名前で写像の
+// 向き、すなわち Ref から group id へ、を型に表す。
+type (
+	lootRef        = string
+	rawItemGroupID = string
+)
+
 // loot の写像。interior の抽象 loot Ref をゲームの raw item group へ写す単一のソース。overworld の床 loot が
 // この表で item group を引いてアイテムを抽選し、VRT も同じ表で loot の有無を描く。両者が同じ表を引くので
 // VRT と in-game が乖離しない。表に無い Ref は spawn されず描かれない。prop の propRaw と対称に保つ。
-var lootRaw = map[string]string{
+var lootRaw = map[lootRef]rawItemGroupID{
 	"snacks":    "food",
 	"drinks":    "food",
 	"bento":     "food",
