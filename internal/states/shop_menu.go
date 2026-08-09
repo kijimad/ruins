@@ -102,14 +102,13 @@ type shopTabData struct {
 	Items []shopItemData
 }
 
+// shopItemData は一覧1行分。名前・重量・個数は実体から都度出せるので持たず、
+// プレイヤー文脈が要る値だけを Fetch でキャッシュする
 type shopItemData struct {
-	Entity   ecs.Entity // 在庫・持ち物の実体。買=これを移動、売=これを移動、詳細=これから性能を組む
-	Label    string     // 表示名
-	Weight   string
-	Price    int
-	Count    int // 実体の個数
-	IsBuy    bool
-	Disabled bool
+	Entity   ecs.Entity // 在庫・持ち物の実体。表示も操作もこれから解決する
+	Price    int        // 価値と交渉スキルの倍率から出す。実体だけでは決まらない
+	IsBuy    bool       // 買いタブの行なら真
+	Disabled bool       // 所持金が足りず選べない
 }
 
 // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
@@ -154,16 +153,12 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 	for _, entity := range stock {
 		base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
 		price := buyPriceMod.ApplyInt(query.CalculateBuyPrice(base))
-		data := shopItemData{
+		items = append(items, shopItemData{
 			Entity:   entity,
 			Price:    price,
-			Weight:   query.GetEntityWeight(world, entity).KgString(),
-			Count:    query.GetEntityCount(world, entity),
 			IsBuy:    true,
 			Disabled: currency < price,
-		}
-		data.Label = query.T(world, world.Components.Name.Get(entity).Name)
-		items = append(items, data)
+		})
 	}
 
 	return items
@@ -181,16 +176,11 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Perc
 	sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
 	for sellQuery.Next() {
 		entity := sellQuery.Entity()
-
 		base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
 		price := sellPriceMod.ApplyInt(query.CalculateSellPrice(base))
-
 		items = append(items, shopItemData{
 			Entity: entity,
-			Label:  query.T(world, world.Components.Name.Get(entity).Name),
-			Weight: query.GetEntityWeight(world, entity).KgString(),
 			Price:  price,
-			Count:  query.GetEntityCount(world, entity),
 			IsBuy:  false,
 		})
 	}
@@ -302,7 +292,11 @@ func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, t
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count), query.FormatCurrency(it.Price), it.Weight}}
+		// 名前・個数・重量は実体から都度出す。Fetch 直後の描画なので実体は生存している
+		name := query.T(world, world.Components.Name.Get(it.Entity).Name)
+		count := query.GetEntityCount(world, it.Entity)
+		weight := query.GetEntityWeight(world, it.Entity).KgString()
+		rows[i] = menuRow{Cells: []string{nameWithCount(name, count), query.FormatCurrency(it.Price), weight}}
 	}
 	emptyText := query.T(world, "No goods")
 	if currentTab.ID == "sell" {
