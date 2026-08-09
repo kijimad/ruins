@@ -106,7 +106,7 @@ type shopTabData struct {
 }
 
 // shopItemData は一覧1行分。名前・重量・個数は実体から都度出せるので持たず、
-// プレイヤー文脈が要る値だけを Fetch でキャッシュする
+// プレイヤーの所持金や倍率が要る値だけを持つ
 type shopItemData struct {
 	Entity   ecs.Entity // 在庫・持ち物の実体。表示も操作もこれから解決する
 	Price    int        // 価値と交渉スキルの倍率から出す。実体だけでは決まらない
@@ -280,7 +280,7 @@ func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, t
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		// 名前・個数・重量は実体から都度出す。Fetch 直後の描画なので実体は生存している
+		// 名前・個数・重量は実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している
 		name := query.T(world, world.Components.Name.Get(it.Entity).Name)
 		count := query.GetEntityCount(world, it.Entity)
 		weight := query.GetEntityWeight(world, it.Entity).KgString()
