@@ -19,10 +19,10 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		npc, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "商人")
+		npc, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "merchant")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -39,7 +39,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -48,15 +48,14 @@ func TestTalkBehavior_Validate(t *testing.T) {
 
 		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "会話対象が指定されていません")
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 
-	t.Run("Dialogコンポーネントがない場合はエラー", func(t *testing.T) {
+	t.Run("Dialogコンポーネントがない場合は不変条件違反", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// Dialogなしのエンティティを手動で作成
@@ -71,14 +70,15 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "対象エンティティは会話できません")
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
 	t.Run("FactionNeutralがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// FactionNeutralなしのエンティティを手動で作成
@@ -93,7 +93,8 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		ta := &TalkBehavior{}
 		err = ta.Validate(comp, player, world)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "対象エンティティは中立派閥ではありません")
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 }
 
@@ -103,7 +104,7 @@ func TestTalkBehavior_Info(t *testing.T) {
 	ta := &TalkBehavior{}
 	info := ta.Info()
 
-	assert.Equal(t, "会話", info.Name)
+	assert.Equal(t, "Talk", info.Name)
 	assert.False(t, info.Interruptible)
 	assert.False(t, info.Resumable)
 }
@@ -122,10 +123,10 @@ func TestTalkBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		npc, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "商人")
+		npc, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "merchant")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -145,7 +146,7 @@ func TestTalkBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// Nameなしのエンティティを手動で作成

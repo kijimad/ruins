@@ -5,13 +5,12 @@ import (
 	"image"
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,15 +22,36 @@ func TestNewDetail_初期状態は非表示(t *testing.T) {
 	assert.False(t, d.Active())
 }
 
-func TestDetailOpen_先頭ページで表示状態にする(t *testing.T) {
+// TestDetail_Open_中身が無ければ開かない は、アイテムの無いメニューで詳細モーダルを開こうとしても
+// 開かないことを固定する。開くと中身の無いモーダルが入力を奪い、ESC 以外で抜けられなくなる回帰を防ぐ。
+func TestDetail_Open_中身が無ければ開かない(t *testing.T) {
 	t.Parallel()
-	d := NewDetail(func(_ w.World) (DetailContent, bool) { return DetailContent{}, false })
+
+	hasContent := false
+	d := NewDetail(func(_ w.World) (DetailContent, bool) {
+		return DetailContent{Name: "item"}, hasContent
+	})
+	var world w.World
+
+	d.Open(world)
+	assert.False(t, d.Active(), "中身が無いときは開かない")
+
+	hasContent = true
+	d.Open(world)
+	assert.True(t, d.Active(), "中身があれば開く")
+}
+
+func TestDetailOpen_開くと先頭ページに戻る(t *testing.T) {
+	t.Parallel()
+	d := NewDetail(func(_ w.World) (DetailContent, bool) {
+		return DetailContent{Name: "回復薬"}, true
+	})
 	d.page = 3
 
-	d.Open()
+	d.Open(w.World{})
 
 	assert.True(t, d.Active())
-	assert.Equal(t, 0, d.page)
+	assert.Equal(t, 0, d.page, "開くと先頭ページに戻る")
 }
 
 func TestDetailHandleInput_非表示のときは何もしない(t *testing.T) {
@@ -49,39 +69,19 @@ func TestDetailHandleInput_非表示のときは何もしない(t *testing.T) {
 	assert.False(t, d.Active())
 }
 
-func TestDetailContentResolveRows_Rowsが指定されていれば優先する(t *testing.T) {
+// TestEntityDetailContent_死んだ実体は空を返しpanicしない は、生存していない実体を渡しても
+// 性能行を引かずに空の内容を返すことを固定する。ゼロ実体への Get で落ちる回帰を防ぐ。
+func TestEntityDetailContent_死んだ実体は空を返しpanicしない(t *testing.T) {
 	t.Parallel()
-	explicit := []views.SpecRow{{Label: "任意", Value: "行"}}
-	c := DetailContent{
-		Rows: explicit,
-		Spec: &gc.EntitySpec{Value: &gc.Value{Value: 999}},
-	}
 
-	got := c.resolveRows(w.World{})
-
-	assert.Equal(t, explicit, got)
-}
-
-func TestDetailContentResolveRows_RowsがなければSpecから解決する(t *testing.T) {
-	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	c := DetailContent{Spec: &gc.EntitySpec{Value: &gc.Value{Value: 1200}}}
 
-	got := c.resolveRows(world)
-
-	assert.Equal(t, []views.SpecRow{{Label: "価値", Value: query.FormatCurrency(1200)}}, got)
-}
-
-func TestDetailContentResolveRows_RowsもSpecも無ければEntityから解決する(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	e := world.ECS.NewEntity()
-	world.Components.Value.Add(e, &gc.Value{Value: 500})
-	c := DetailContent{Entity: e}
-
-	got := c.resolveRows(world)
-
-	assert.Equal(t, []views.SpecRow{{Label: "価値", Value: query.FormatCurrency(500)}}, got)
+	var content DetailContent
+	assert.NotPanics(t, func() {
+		content = EntityDetailContent(world, ecs.Entity{})
+	})
+	assert.Empty(t, content.Name, "対象が無いので名前は出さない")
+	assert.Nil(t, content.Rows, "対象が無いので性能行は出さない")
 }
 
 func TestDetailWindow_対象が無ければnilを返す(t *testing.T) {
@@ -100,7 +100,7 @@ func TestDetailWindow_対象があれば名前とページ位置を表示する(
 	d := NewDetail(func(_ w.World) (DetailContent, bool) {
 		return DetailContent{Name: "回復薬", Rows: []views.SpecRow{{Label: "効果", Value: "10"}}}, true
 	})
-	d.Open()
+	d.Open(world)
 
 	win := d.Window(world, image.Rect(0, 0, 400, 400))
 

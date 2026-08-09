@@ -37,13 +37,13 @@ func TestTransferBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
 		require.NoError(t, err)
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
@@ -62,7 +62,7 @@ func TestTransferBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -79,10 +79,10 @@ func TestTransferBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
 		require.NoError(t, err)
 		err = lifecycle.MoveToBackpack(world, item, player)
 		require.NoError(t, err)
@@ -105,13 +105,13 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		item, err := lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
 		require.NoError(t, err)
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
@@ -137,13 +137,13 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
 		// リーダーの共有プールにパンを3個持たせる
-		pool, err := lifecycle.SpawnFieldItem(world, "パン", 5, 5, 3)
+		pool, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 3)
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.MoveToBackpack(world, pool, leader))
 		require.Equal(t, 3, world.Components.Stackable.Get(pool).Count)
@@ -159,14 +159,14 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 
 		// 元スタックは1減り、隊員は1個だけ受け取る
 		assert.Equal(t, 2, world.Components.Stackable.Get(pool).Count, "プールは1個ずつ減る")
-		memberBread := findBackpackItem(world, member, "パン")
+		memberBread := findBackpackItem(world, member, "Bread")
 		require.NotNil(t, memberBread, "隊員がパンを受け取る")
 		assert.Equal(t, 1, world.Components.Stackable.Get(*memberBread).Count, "受け取りは1個")
 
 		// 主体はアクターの隊員でなく食料の所有者リーダー。自己転送の誤ログにならないこと
 		recent := query.GetGameLog(world).GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "Ash", "渡す主体はリーダー")
+		assert.Contains(t, recent[0], "アッシュ", "渡す主体はリーダー")
 		assert.Contains(t, recent[0], "隊員A に渡した", "受取人は隊員")
 	})
 
@@ -174,13 +174,13 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
 		// リーダーの共有プールにパンを5個持たせ、うち2個だけ渡す
-		pool, err := lifecycle.SpawnFieldItem(world, "パン", 5, 5, 5)
+		pool, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 5)
 		require.NoError(t, err)
 		require.NoError(t, lifecycle.MoveToBackpack(world, pool, leader))
 
@@ -193,7 +193,7 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, ta.DoTurn(comp, member, world))
 
 		assert.Equal(t, 3, world.Components.Stackable.Get(pool).Count, "プールは指定個数ぶん減る")
-		memberBread := findBackpackItem(world, member, "パン")
+		memberBread := findBackpackItem(world, member, "Bread")
 		require.NotNil(t, memberBread, "隊員がパンを受け取る")
 		assert.Equal(t, 2, world.Components.Stackable.Get(*memberBread).Count, "受け取りは2個")
 
@@ -208,7 +208,7 @@ func TestTransferBehavior_Info(t *testing.T) {
 	t.Parallel()
 	ta := &TransferBehavior{}
 	info := ta.Info()
-	assert.Equal(t, "転送", info.Name)
+	assert.Equal(t, "Transfer", info.Name)
 	assert.Equal(t, gc.BehaviorTransfer, ta.Name())
 }
 

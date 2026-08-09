@@ -337,7 +337,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 			if weapon != nil {
 				// 武器名を取得
 				if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
-					weaponName = nameComp.Name
+					weaponName = query.T(world, nameComp.Name)
 				} else {
 					weaponName = "???"
 				}
@@ -422,7 +422,7 @@ func extractSquadHUDData(world w.World) hud.SquadHUDData {
 		hungerLevel := ""
 		if world.Components.Hunger.Has(member) {
 			if level := world.Components.Hunger.Get(member).GetLevel(); level >= gc.HungerHungry {
-				hungerLevel = level.String()
+				hungerLevel = query.T(world, level.String())
 			}
 		}
 		members = append(members, hud.SquadHUDMember{

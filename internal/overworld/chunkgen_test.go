@@ -72,7 +72,7 @@ func TestNewChunkGen_生成物をオーバーワールドへ束縛する(t *test
 	const chunkW, chunkH consts.Tile = 30, 20
 
 	// プレイヤーはステージをまたぐ訪問者で束縛されない
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	gen := overworld.NewChunkGen(world, 123, chunkW, chunkH, 1, mapplanner.PlannerTypeSmallRoom)
@@ -142,7 +142,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 		require.NoError(t, gen(consts.Coord[consts.Chunk]{X: consts.Chunk(i)}, consts.Tile(i)*chunkW, 0))
 	}
 	// プレイヤーを中央チャンク東端に置く（localX=2*chunkW → 東シフト条件）
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 2 * chunkW, Y: chunkH / 2}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 2 * chunkW, Y: chunkH / 2}, "ash")
 	require.NoError(t, err)
 
 	band := worldstream.NewBand(chunkW, chunkH, cols, 1)
@@ -168,7 +168,7 @@ func TestShiftEast_実チャンク生成との統合(t *testing.T) {
 }
 
 // merchantName は小集落の店NPC名。テスト間で共有する。
-const merchantName = "商人"
+const merchantName = "Merchant"
 
 // settlementBucket は 商人 が立つチャンクスロットと、商人がいるかを返す。
 func settlementBucket(world w.World) (int, bool) {

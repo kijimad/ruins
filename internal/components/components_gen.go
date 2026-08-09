@@ -4,174 +4,177 @@ package components
 
 import "github.com/mlange-42/ark/ecs"
 
-// EntitySpec はエンティティ作成用の仕様定義。
-// 付与するコンポーネントのセットを定義し、AddEntity でECSエンティティに変換される。
+// EntitySpec is the specification used to create an entity.
+// It defines the set of components to attach, which AddEntity converts into an ECS entity.
 type EntitySpec struct {
-	Name               *Name               // 表示名を保持する
-	Description        *Description        // 説明文を保持する
-	HP                 *HP                 // 生命力を表す。尽きると死亡する
-	Consumable         *Consumable         // 一度使うと消費される消耗品を表す
-	WeightCapacity     *WeightCapacity     // 所持・格納の重量容量を表す
-	Melee              *Melee              // 近接攻撃の性能を保持する
-	Fire               *Fire               // 遠距離攻撃の性能と弾薬を保持する
-	Value              *Value              // アイテムの基本価値を表す
-	Weight             *Weight             // アイテムの重量を表す
-	Recipe             *Recipe             // 合成に必要な素材を保持する
-	Wearable           *Wearable           // 装備品の性能を保持する
-	Abilities          *Abilities          // エンティティの能力値を保持する
-	Ammo               *Ammo               // 弾薬アイテムの性能を保持する
-	Stackable          *Stackable          // スタック可能で所持数を持つことを表す
-	Material           *Material           // 合成・売却の素材であることを示す
-	LocationInBackpack *LocationInBackpack // バックパック内にあることを表す
-	LocationEquipped   *LocationEquipped   // 装備中であることを表す
-	LocationOnField    *LocationOnField    // フィールド上にあることを表す
-	LocationInStorage  *LocationInStorage  // 収納内にあることを表す
-	Tile               *Tile               // タイルエンティティであることを示す
-	SoloAI             *SoloAI             // 単独行動AIの設定を保持する
-	SquadAI            *SquadAI            // 隊員AIの設定を保持する
-	Camera             *Camera             // カメラの位置とズームを保持する
-	Position           *Position           // フィールド上のピクセル座標を保持する
-	GridElement        *GridElement        // フィールド上のグリッド座標を保持する
-	SpriteRender       *SpriteRender       // スプライト描画情報を保持する
-	BlockView          *BlockView          // 視界を遮ることを示す
-	BlockPass          *BlockPass          // 通行不可であることを示す
-	PassCost           *PassCost           // タイルの移動コスト修正を保持する
-	Door               *Door               // 開閉可能な扉であることを表す
-	Fixed              *Fixed              // 世界に固定され拾えない固定物であることを示す
-	Pushable           *Pushable           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用
-	LightSource        *LightSource        // 光源であることを表す
-	Interactable       *Interactable       // 相互作用可能であることを示す
-	VisualEffects      *VisualEffects      // 紐づくビジュアルエフェクトを管理する
-	TileTemperature    *TileTemperature    // タイルの気温修正値を保持する
-	StageBound         *StageBound         // 束縛先ステージを保持する。往復するステージの同定に使う
-	StageField         *StageField         // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
-	SeamlessBand       *SeamlessBand       // オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる
-	PortalConnection   *PortalConnection   // ポータルの行き先ステージと着地座標を保持する
-	DungeonEntrance    *DungeonEntrance    // 遺跡入口が進入先の遺跡定義名を保持する
-	Suspended          *Suspended          // 現ステージ以外に属し稼働しないことを示すマーカー
-	Player             *Player             // 操作対象の主人公であることを示す
-	Profession         *Profession         // 選択した職業を保持する
-	Hunger             *Hunger             // プレイヤーの空腹度を保持する
-	Wallet             *Wallet             // プレイヤーの資金を保持する
-	FactionAlly        *FactionAlly        // 味方派閥であることを示す
-	FactionEnemy       *FactionEnemy       // 敵性派閥であることを示す
-	FactionNeutral     *FactionNeutral     // 中立派閥であることを示す
-	Boss               *Boss               // ボスエンティティであることを示す
-	Dialog             *Dialog             // 会話データを保持する
-	Dead               *Dead               // 死亡状態であることを示す
-	TurnBased          *TurnBased          // アクションポイントを管理する
-	HealthStatus       *HealthStatus       // 部位ごとの健康状態を保持する
-	Skills             *Skills             // スキルセットを保持する
-	CharModifiers      *CharModifiers      // 効果倍率を集約する
-	StateChangeRequest *StateChangeRequest // ステート遷移リクエストを運ぶ
-	StatsChanged       *StatsChanged       // ステータス再計算が必要なことを示すダーティフラグ
-	WeightDirty        *WeightDirty        // 重量再計算が必要なことを示すダーティフラグ
-	ProvidesHealing    *ProvidesHealing    // HP回復の性質を保持する
-	ProvidesNutrition  *ProvidesNutrition  // 空腹度回復の性質を保持する
-	InflictsDamage     *InflictsDamage     // ダメージを与える性質を保持する
-	Book               *Book               // 読書可能な本であることを表す
-	CommandTable       *CommandTable       // AI用の戦闘コマンドテーブル名を保持する
-	DropTable          *DropTable          // ドロップテーブル名を保持する
-	SquadMember        *SquadMember        // 隊員であることを示す
-	Activity           *Activity           // 実行中のアクティビティを保持する
-	LastActivity       *LastActivity       // 直近のアクティビティ実行結果を保持する
-	GameLog            *GameLog            // ゲームログストレージを保持するシングルトン
-	Dungeon            *Dungeon            // ダンジョン状態を保持するシングルトン
-	GameProgress       *GameProgress       // ゲーム進行データを保持するシングルトン
-	TurnState          *TurnState          // ターン状態を保持するシングルトン
-	SpatialIndex       *SpatialIndex       // 空間インデックスを保持するシングルトン
-	WeaponSelection    *WeaponSelection    // 選択中の武器スロットを保持するシングルトン
-	GameTime           *GameTime           // ゲーム内時間を保持するシングルトン
-	VisionState        *VisionState        // 視界計算の一時状態を保持するシングルトン
-	UserSettings       *UserSettings       // 設定画面で変更するグローバル設定を保持するシングルトン
+	Name               *Name
+	RawID              *RawID
+	Description        *Description
+	HP                 *HP
+	Consumable         *Consumable
+	WeightCapacity     *WeightCapacity
+	Melee              *Melee
+	Fire               *Fire
+	Value              *Value
+	Weight             *Weight
+	Recipe             *Recipe
+	Wearable           *Wearable
+	Abilities          *Abilities
+	Ammo               *Ammo
+	Stackable          *Stackable
+	Material           *Material
+	LocationInBackpack *LocationInBackpack
+	LocationEquipped   *LocationEquipped
+	LocationOnField    *LocationOnField
+	LocationInStorage  *LocationInStorage
+	Tile               *Tile
+	SoloAI             *SoloAI
+	SquadAI            *SquadAI
+	Camera             *Camera
+	Position           *Position
+	GridElement        *GridElement
+	SpriteRender       *SpriteRender
+	BlockView          *BlockView
+	BlockPass          *BlockPass
+	PassCost           *PassCost
+	Door               *Door
+	Fixed              *Fixed
+	Pushable           *Pushable
+	LightSource        *LightSource
+	Interactable       *Interactable
+	VisualEffects      *VisualEffects
+	TileTemperature    *TileTemperature
+	StageBound         *StageBound
+	StageField         *StageField
+	SeamlessBand       *SeamlessBand
+	PortalConnection   *PortalConnection
+	DungeonEntrance    *DungeonEntrance
+	Suspended          *Suspended
+	Player             *Player
+	Profession         *Profession
+	Hunger             *Hunger
+	Wallet             *Wallet
+	FactionAlly        *FactionAlly
+	FactionEnemy       *FactionEnemy
+	FactionNeutral     *FactionNeutral
+	Boss               *Boss
+	Dialog             *Dialog
+	Dead               *Dead
+	TurnBased          *TurnBased
+	HealthStatus       *HealthStatus
+	Skills             *Skills
+	CharModifiers      *CharModifiers
+	StateChangeRequest *StateChangeRequest
+	StatsChanged       *StatsChanged
+	WeightDirty        *WeightDirty
+	ProvidesHealing    *ProvidesHealing
+	ProvidesNutrition  *ProvidesNutrition
+	InflictsDamage     *InflictsDamage
+	Book               *Book
+	CommandTable       *CommandTable
+	DropTable          *DropTable
+	SquadMember        *SquadMember
+	Activity           *Activity
+	LastActivity       *LastActivity
+	GameLog            *GameLog
+	Dungeon            *Dungeon
+	GameProgress       *GameProgress
+	TurnState          *TurnState
+	SpatialIndex       *SpatialIndex
+	WeaponSelection    *WeaponSelection
+	GameTime           *GameTime
+	VisionState        *VisionState
+	UserSettings       *UserSettings
 }
 
-// Components はECSコンポーネントのハンドル束。
-// 各コンポーネント型の型付き *ecs.Map[T] を保持し、Add/Has/Get やクエリに使用される。
+// Components is the bundle of ECS component handles.
+// It holds a typed *ecs.Map[T] for each component type, used by Add/Has/Get and queries.
 type Components struct {
-	Name               *ecs.Map[Name]               // 表示名を保持する
-	Description        *ecs.Map[Description]        // 説明文を保持する
-	HP                 *ecs.Map[HP]                 // 生命力を表す。尽きると死亡する
-	Consumable         *ecs.Map[Consumable]         // 一度使うと消費される消耗品を表す
-	WeightCapacity     *ecs.Map[WeightCapacity]     // 所持・格納の重量容量を表す
-	Melee              *ecs.Map[Melee]              // 近接攻撃の性能を保持する
-	Fire               *ecs.Map[Fire]               // 遠距離攻撃の性能と弾薬を保持する
-	Value              *ecs.Map[Value]              // アイテムの基本価値を表す
-	Weight             *ecs.Map[Weight]             // アイテムの重量を表す
-	Recipe             *ecs.Map[Recipe]             // 合成に必要な素材を保持する
-	Wearable           *ecs.Map[Wearable]           // 装備品の性能を保持する
-	Abilities          *ecs.Map[Abilities]          // エンティティの能力値を保持する
-	Ammo               *ecs.Map[Ammo]               // 弾薬アイテムの性能を保持する
-	Stackable          *ecs.Map[Stackable]          // スタック可能で所持数を持つことを表す
-	Material           *ecs.Map[Material]           // 合成・売却の素材であることを示す
-	LocationInBackpack *ecs.Map[LocationInBackpack] // バックパック内にあることを表す
-	LocationEquipped   *ecs.Map[LocationEquipped]   // 装備中であることを表す
-	LocationOnField    *ecs.Map[LocationOnField]    // フィールド上にあることを表す
-	LocationInStorage  *ecs.Map[LocationInStorage]  // 収納内にあることを表す
-	Tile               *ecs.Map[Tile]               // タイルエンティティであることを示す
-	SoloAI             *ecs.Map[SoloAI]             // 単独行動AIの設定を保持する
-	SquadAI            *ecs.Map[SquadAI]            // 隊員AIの設定を保持する
-	Camera             *ecs.Map[Camera]             // カメラの位置とズームを保持する
-	Position           *ecs.Map[Position]           // フィールド上のピクセル座標を保持する
-	GridElement        *ecs.Map[GridElement]        // フィールド上のグリッド座標を保持する
-	SpriteRender       *ecs.Map[SpriteRender]       // スプライト描画情報を保持する
-	BlockView          *ecs.Map[BlockView]          // 視界を遮ることを示す
-	BlockPass          *ecs.Map[BlockPass]          // 通行不可であることを示す
-	PassCost           *ecs.Map[PassCost]           // タイルの移動コスト修正を保持する
-	Door               *ecs.Map[Door]               // 開閉可能な扉であることを表す
-	Fixed              *ecs.Map[Fixed]              // 世界に固定され拾えない固定物であることを示す
-	Pushable           *ecs.Map[Pushable]           // 押して動かせることを示す。移動拠点キューブが最初の利用者だが印は汎用
-	LightSource        *ecs.Map[LightSource]        // 光源であることを表す
-	Interactable       *ecs.Map[Interactable]       // 相互作用可能であることを示す
-	VisualEffects      *ecs.Map[VisualEffects]      // 紐づくビジュアルエフェクトを管理する
-	TileTemperature    *ecs.Map[TileTemperature]    // タイルの気温修正値を保持する
-	StageBound         *ecs.Map[StageBound]         // 束縛先ステージを保持する。往復するステージの同定に使う
-	StageField         *ecs.Map[StageField]         // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
-	SeamlessBand       *ecs.Map[SeamlessBand]       // オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる
-	PortalConnection   *ecs.Map[PortalConnection]   // ポータルの行き先ステージと着地座標を保持する
-	DungeonEntrance    *ecs.Map[DungeonEntrance]    // 遺跡入口が進入先の遺跡定義名を保持する
-	Suspended          *ecs.Map[Suspended]          // 現ステージ以外に属し稼働しないことを示すマーカー
-	Player             *ecs.Map[Player]             // 操作対象の主人公であることを示す
-	Profession         *ecs.Map[Profession]         // 選択した職業を保持する
-	Hunger             *ecs.Map[Hunger]             // プレイヤーの空腹度を保持する
-	Wallet             *ecs.Map[Wallet]             // プレイヤーの資金を保持する
-	FactionAlly        *ecs.Map[FactionAlly]        // 味方派閥であることを示す
-	FactionEnemy       *ecs.Map[FactionEnemy]       // 敵性派閥であることを示す
-	FactionNeutral     *ecs.Map[FactionNeutral]     // 中立派閥であることを示す
-	Boss               *ecs.Map[Boss]               // ボスエンティティであることを示す
-	Dialog             *ecs.Map[Dialog]             // 会話データを保持する
-	Dead               *ecs.Map[Dead]               // 死亡状態であることを示す
-	TurnBased          *ecs.Map[TurnBased]          // アクションポイントを管理する
-	HealthStatus       *ecs.Map[HealthStatus]       // 部位ごとの健康状態を保持する
-	Skills             *ecs.Map[Skills]             // スキルセットを保持する
-	CharModifiers      *ecs.Map[CharModifiers]      // 効果倍率を集約する
-	StateChangeRequest *ecs.Map[StateChangeRequest] // ステート遷移リクエストを運ぶ
-	StatsChanged       *ecs.Map[StatsChanged]       // ステータス再計算が必要なことを示すダーティフラグ
-	WeightDirty        *ecs.Map[WeightDirty]        // 重量再計算が必要なことを示すダーティフラグ
-	ProvidesHealing    *ecs.Map[ProvidesHealing]    // HP回復の性質を保持する
-	ProvidesNutrition  *ecs.Map[ProvidesNutrition]  // 空腹度回復の性質を保持する
-	InflictsDamage     *ecs.Map[InflictsDamage]     // ダメージを与える性質を保持する
-	Book               *ecs.Map[Book]               // 読書可能な本であることを表す
-	CommandTable       *ecs.Map[CommandTable]       // AI用の戦闘コマンドテーブル名を保持する
-	DropTable          *ecs.Map[DropTable]          // ドロップテーブル名を保持する
-	SquadMember        *ecs.Map[SquadMember]        // 隊員であることを示す
-	Activity           *ecs.Map[Activity]           // 実行中のアクティビティを保持する
-	LastActivity       *ecs.Map[LastActivity]       // 直近のアクティビティ実行結果を保持する
-	GameLog            *ecs.Map[GameLog]            // ゲームログストレージを保持するシングルトン
-	Dungeon            *ecs.Map[Dungeon]            // ダンジョン状態を保持するシングルトン
-	GameProgress       *ecs.Map[GameProgress]       // ゲーム進行データを保持するシングルトン
-	TurnState          *ecs.Map[TurnState]          // ターン状態を保持するシングルトン
-	SpatialIndex       *ecs.Map[SpatialIndex]       // 空間インデックスを保持するシングルトン
-	WeaponSelection    *ecs.Map[WeaponSelection]    // 選択中の武器スロットを保持するシングルトン
-	GameTime           *ecs.Map[GameTime]           // ゲーム内時間を保持するシングルトン
-	VisionState        *ecs.Map[VisionState]        // 視界計算の一時状態を保持するシングルトン
-	UserSettings       *ecs.Map[UserSettings]       // 設定画面で変更するグローバル設定を保持するシングルトン
+	Name               *ecs.Map[Name]
+	RawID              *ecs.Map[RawID]
+	Description        *ecs.Map[Description]
+	HP                 *ecs.Map[HP]
+	Consumable         *ecs.Map[Consumable]
+	WeightCapacity     *ecs.Map[WeightCapacity]
+	Melee              *ecs.Map[Melee]
+	Fire               *ecs.Map[Fire]
+	Value              *ecs.Map[Value]
+	Weight             *ecs.Map[Weight]
+	Recipe             *ecs.Map[Recipe]
+	Wearable           *ecs.Map[Wearable]
+	Abilities          *ecs.Map[Abilities]
+	Ammo               *ecs.Map[Ammo]
+	Stackable          *ecs.Map[Stackable]
+	Material           *ecs.Map[Material]
+	LocationInBackpack *ecs.Map[LocationInBackpack]
+	LocationEquipped   *ecs.Map[LocationEquipped]
+	LocationOnField    *ecs.Map[LocationOnField]
+	LocationInStorage  *ecs.Map[LocationInStorage]
+	Tile               *ecs.Map[Tile]
+	SoloAI             *ecs.Map[SoloAI]
+	SquadAI            *ecs.Map[SquadAI]
+	Camera             *ecs.Map[Camera]
+	Position           *ecs.Map[Position]
+	GridElement        *ecs.Map[GridElement]
+	SpriteRender       *ecs.Map[SpriteRender]
+	BlockView          *ecs.Map[BlockView]
+	BlockPass          *ecs.Map[BlockPass]
+	PassCost           *ecs.Map[PassCost]
+	Door               *ecs.Map[Door]
+	Fixed              *ecs.Map[Fixed]
+	Pushable           *ecs.Map[Pushable]
+	LightSource        *ecs.Map[LightSource]
+	Interactable       *ecs.Map[Interactable]
+	VisualEffects      *ecs.Map[VisualEffects]
+	TileTemperature    *ecs.Map[TileTemperature]
+	StageBound         *ecs.Map[StageBound]
+	StageField         *ecs.Map[StageField]
+	SeamlessBand       *ecs.Map[SeamlessBand]
+	PortalConnection   *ecs.Map[PortalConnection]
+	DungeonEntrance    *ecs.Map[DungeonEntrance]
+	Suspended          *ecs.Map[Suspended]
+	Player             *ecs.Map[Player]
+	Profession         *ecs.Map[Profession]
+	Hunger             *ecs.Map[Hunger]
+	Wallet             *ecs.Map[Wallet]
+	FactionAlly        *ecs.Map[FactionAlly]
+	FactionEnemy       *ecs.Map[FactionEnemy]
+	FactionNeutral     *ecs.Map[FactionNeutral]
+	Boss               *ecs.Map[Boss]
+	Dialog             *ecs.Map[Dialog]
+	Dead               *ecs.Map[Dead]
+	TurnBased          *ecs.Map[TurnBased]
+	HealthStatus       *ecs.Map[HealthStatus]
+	Skills             *ecs.Map[Skills]
+	CharModifiers      *ecs.Map[CharModifiers]
+	StateChangeRequest *ecs.Map[StateChangeRequest]
+	StatsChanged       *ecs.Map[StatsChanged]
+	WeightDirty        *ecs.Map[WeightDirty]
+	ProvidesHealing    *ecs.Map[ProvidesHealing]
+	ProvidesNutrition  *ecs.Map[ProvidesNutrition]
+	InflictsDamage     *ecs.Map[InflictsDamage]
+	Book               *ecs.Map[Book]
+	CommandTable       *ecs.Map[CommandTable]
+	DropTable          *ecs.Map[DropTable]
+	SquadMember        *ecs.Map[SquadMember]
+	Activity           *ecs.Map[Activity]
+	LastActivity       *ecs.Map[LastActivity]
+	GameLog            *ecs.Map[GameLog]
+	Dungeon            *ecs.Map[Dungeon]
+	GameProgress       *ecs.Map[GameProgress]
+	TurnState          *ecs.Map[TurnState]
+	SpatialIndex       *ecs.Map[SpatialIndex]
+	WeaponSelection    *ecs.Map[WeaponSelection]
+	GameTime           *ecs.Map[GameTime]
+	VisionState        *ecs.Map[VisionState]
+	UserSettings       *ecs.Map[UserSettings]
 }
 
-// InitializeComponents は全コンポーネント型を Ark のワールドに登録し、
-// 各フィールドに型付き Map ハンドルを割り当てる。
+// InitializeComponents registers every component type with the Ark world
+// and assigns a typed Map handle to each field.
 func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Name = ecs.NewMap[Name](world)
+	c.RawID = ecs.NewMap[RawID](world)
 	c.Description = ecs.NewMap[Description](world)
 	c.HP = ecs.NewMap[HP](world)
 	c.Consumable = ecs.NewMap[Consumable](world)
@@ -251,11 +254,12 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	return nil
 }
 
-// AddEntity は EntitySpec から新しいエンティティを生成し、非nilな各フィールドを
-// 対応するコンポーネントとして付与する。
+// AddEntity creates a new entity from an EntitySpec and attaches each non-nil field
+// as its corresponding component.
 func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	entity := world.NewEntity()
 	addComp(c.Name, entity, spec.Name)
+	addComp(c.RawID, entity, spec.RawID)
 	addComp(c.Description, entity, spec.Description)
 	addComp(c.HP, entity, spec.HP)
 	addComp(c.Consumable, entity, spec.Consumable)

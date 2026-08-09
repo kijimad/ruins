@@ -15,7 +15,11 @@ import (
 // MessageState はメッセージを表示する専用ステート
 type MessageState struct {
 	es.BaseState[w.World]
-	messageData     *messagedata.MessageData
+	// build は world を要するメッセージの構築。翻訳は現在言語を要するので、ファクトリ時ではなく
+	// OnStart で world を渡して messageData を組む。構築は必ずこれを通す。組み立て済みのデータは
+	// NewMessageState がそれを返すだけの build に包む
+	build           func(w.World) *messagedata.MessageData
+	messageData     *messagedata.MessageData // build の結果をキャッシュする内部フィールド
 	messageWindow   *messagewindow.Window
 	backgroundImage *ebiten.Image
 	currentBgKey    string
@@ -31,6 +35,12 @@ func (st *MessageState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *MessageState) OnStart(world w.World) error {
+	if st.build == nil {
+		return fmt.Errorf("message state has no build function")
+	}
+	if st.messageData == nil {
+		st.messageData = st.build(world)
+	}
 	if st.messageData.BackgroundKey != "" {
 		bgImage, err := loadBackgroundImage(world, st.messageData.BackgroundKey)
 		if err != nil {
@@ -52,11 +62,11 @@ func (st *MessageState) OnStop(_ w.World) error { return nil }
 func loadBackgroundImage(world w.World, spriteKey string) (*ebiten.Image, error) {
 	sheet, sheetOK := world.Resources.SpriteSheets["bg"]
 	if !sheetOK {
-		return nil, fmt.Errorf("bgスプライトシートが存在しない")
+		return nil, fmt.Errorf("bg sprite sheet does not exist")
 	}
 	sprite, ok := sheet.Sprites[spriteKey]
 	if !ok {
-		return nil, fmt.Errorf("無効なBackgroundKey: %q がbgスプライトシートに存在しない", spriteKey)
+		return nil, fmt.Errorf("invalid BackgroundKey: %q not found in bg sprite sheet", spriteKey)
 	}
 	rect := image.Rect(
 		sprite.X,

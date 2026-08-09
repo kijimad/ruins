@@ -20,6 +20,25 @@ func loadTestRaws(t *testing.T) oapi.Raws {
 	return raws
 }
 
+// TestMemberSpecTablesStoreResolvableID は、メンバーの CommandTable/DropTable コンポーネントに
+// 表示名でなく id が入り、実行時に GetCommandTable/GetDropTable で引き直せることを検証する。
+// 表示名を入れると id-keyed のルックアップに失敗し、戦闘や死亡ドロップでクラッシュする回帰を防ぐ
+func TestMemberSpecTablesStoreResolvableID(t *testing.T) {
+	t.Parallel()
+	raws := loadTestRaws(t)
+
+	// glow_bug のドロップ/コマンドテーブルは表示名が日本語(光虫)なので、表示名を入れると必ず壊れる
+	spec, err := NewMemberSpec(raws, "glow_bug")
+	require.NoError(t, err)
+	require.NotNil(t, spec.DropTable)
+	require.NotNil(t, spec.CommandTable)
+
+	_, err = GetDropTable(raws, spec.DropTable.Name)
+	require.NoError(t, err, "DropTable コンポーネントの値 %q が id で引けない", spec.DropTable.Name)
+	_, err = GetCommandTable(raws, spec.CommandTable.Name)
+	require.NoError(t, err, "CommandTable コンポーネントの値 %q が id で引けない", spec.CommandTable.Name)
+}
+
 // TestRawItemReference はアイテム関連の参照整合性を検証する
 func TestRawItemReference(t *testing.T) {
 	t.Parallel()
@@ -98,9 +117,9 @@ func TestRawTableReference(t *testing.T) {
 		t.Parallel()
 		for _, itemTable := range PtrSlice(raws.ItemTables) {
 			for _, entry := range itemTable.Entries {
-				_, err := GetItemGroup(raws, entry.GroupName)
+				_, err := GetItemGroup(raws, entry.Id)
 				assert.NoError(t, err, "ItemTable '%s' が参照するグループ '%s' が存在しません",
-					itemTable.Name, entry.GroupName)
+					itemTable.Name, entry.Id)
 			}
 		}
 	})
@@ -109,9 +128,9 @@ func TestRawTableReference(t *testing.T) {
 		t.Parallel()
 		for _, group := range PtrSlice(raws.ItemGroups) {
 			for _, entry := range group.Entries {
-				_, err := FindItem(raws, entry.ItemName)
+				_, err := FindItem(raws, entry.Id)
 				assert.NoError(t, err, "ItemGroup '%s' が参照するアイテム '%s' が存在しません",
-					group.Name, entry.ItemName)
+					group.Name, entry.Id)
 			}
 		}
 	})
@@ -134,12 +153,12 @@ func TestRawTableReference(t *testing.T) {
 		t.Parallel()
 		for _, enemyTable := range PtrSlice(raws.EnemyTables) {
 			for _, entry := range enemyTable.Entries {
-				if entry.EnemyName == "" {
+				if entry.Id == "" {
 					continue
 				}
-				_, err := FindMember(raws, entry.EnemyName)
+				_, err := FindMember(raws, entry.Id)
 				assert.NoError(t, err, "EnemyTable '%s' が参照するメンバー '%s' が存在しません",
-					enemyTable.Name, entry.EnemyName)
+					enemyTable.Name, entry.Id)
 			}
 		}
 	})
@@ -154,12 +173,12 @@ func TestRawMiscReference(t *testing.T) {
 		t.Parallel()
 		for _, recipe := range PtrSlice(raws.Recipes) {
 			for _, input := range recipe.Inputs {
-				if input.Name == "" {
+				if input.Id == "" {
 					continue
 				}
-				_, err := FindItem(raws, input.Name)
+				_, err := FindItem(raws, input.Id)
 				assert.NoError(t, err, "レシピ '%s' が参照する入力アイテム '%s' が存在しません",
-					recipe.Name, input.Name)
+					recipe.Name, input.Id)
 			}
 		}
 	})
@@ -294,25 +313,27 @@ func TestRawDuplicateNames(t *testing.T) {
 		}
 	})
 
-	t.Run("Tile名の重複がない", func(t *testing.T) {
+	t.Run("Tile idの重複がない", func(t *testing.T) {
 		t.Parallel()
-		names := make(map[string]int)
+		// 表示名は素材でまとめて重複しうるので、一意性は id で検証する。brick の色違いは全て Brick。
+		ids := make(map[string]int)
 		for _, tile := range PtrSlice(raws.Tiles) {
-			names[tile.Name]++
+			ids[tile.Id]++
 		}
-		for name, count := range names {
-			assert.Equal(t, 1, count, "Tile名 '%s' が重複しています（%d個）", name, count)
+		for id, count := range ids {
+			assert.Equal(t, 1, count, "Tile id '%s' が重複しています（%d個）", id, count)
 		}
 	})
 
-	t.Run("Prop名の重複がない", func(t *testing.T) {
+	t.Run("Prop idの重複がない", func(t *testing.T) {
 		t.Parallel()
-		names := make(map[string]int)
+		// 表示名は素材でまとめて重複しうるので、一意性は id で検証する。generator の色違いは両方 Generator。
+		ids := make(map[string]int)
 		for _, prop := range PtrSlice(raws.Props) {
-			names[prop.Name]++
+			ids[prop.Id]++
 		}
-		for name, count := range names {
-			assert.Equal(t, 1, count, "Prop名 '%s' が重複しています（%d個）", name, count)
+		for id, count := range ids {
+			assert.Equal(t, 1, count, "Prop id '%s' が重複しています（%d個）", id, count)
 		}
 	})
 }

@@ -46,10 +46,13 @@ func (st *ComponentDebugState) DoAction(_ w.World, action inputmapper.ActionID) 
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect:
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect,
+		inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight,
+		inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+		// Dispatchで処理される。単一タブでもタブ移動アクションは届くので握り潰す
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
 	}
 }
 
@@ -115,7 +118,7 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menurt.MenuConfig
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(props.Items))
@@ -126,8 +129,8 @@ func (st *ComponentDebugState) View(_ w.World, props ComponentDebugProps, cursor
 
 	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
 	return newTabScreenUI(res, tabScreen{
-		Header:  fmt.Sprintf("コンポーネント (合計: %d)", props.Total),
+		Header:  fmt.Sprintf("Components total: %d", props.Total),
 		Content: container,
-		Footer:  menuNavHint(false),
+		Footer:  menuNavHint(world, false),
 	})
 }

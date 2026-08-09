@@ -97,7 +97,7 @@ func TestValidateRaws_InvalidCases(t *testing.T) {
 			t.Parallel()
 			err := ValidateRaws(tt.raws)
 			require.Error(t, err)
-			assert.Contains(t, err.Error(), "バリデーションエラー")
+			assert.Contains(t, err.Error(), "validation error")
 			assert.Contains(t, err.Error(), tt.wantErr)
 		})
 	}
@@ -106,6 +106,7 @@ func TestValidateRaws_InvalidCases(t *testing.T) {
 // makeItemRaws は正常なアイテムを1つ持つRawsを生成し、modifyで値を改変する
 func makeItemRaws(modify func(*oapi.Item)) oapi.Raws {
 	item := oapi.Item{
+		Id:              "テスト武器",
 		Name:            "テスト武器",
 		Description:     "テスト用の武器",
 		SpriteSheetName: "test_sheet",
@@ -130,8 +131,8 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 	t.Parallel()
 
 	validItems := &[]oapi.Item{
-		{Name: "鉄くず"},
-		{Name: "分解対象"},
+		{Id: "鉄くず", Name: "鉄くず"},
+		{Id: "分解対象", Name: "分解対象"},
 	}
 
 	t.Run("実在する産出名なら通る", func(t *testing.T) {
@@ -143,7 +144,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
+					Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
 				},
 			}},
 		}
@@ -159,7 +160,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 				Disassembly: &oapi.Disassembly{
 					ToolCategory: oapi.Prying,
 					BaseAP:       100,
-					Yields:       []oapi.DisassemblyYield{{Name: "存在しない素材", Count: "1d1"}},
+					Yields:       []oapi.DisassemblyYield{{Id: "存在しない素材", Count: "1d1"}},
 				},
 			}},
 		}
@@ -172,12 +173,12 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 	t.Run("itemのボーナス名が存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
 		items := []oapi.Item{
-			{Name: "鉄くず"},
-			{Name: "分解対象", Disassembly: &oapi.Disassembly{
+			{Id: "鉄くず", Name: "鉄くず"},
+			{Id: "分解対象", Name: "分解対象", Disassembly: &oapi.Disassembly{
 				ToolCategory: oapi.Precision,
 				BaseAP:       100,
-				Yields:       []oapi.DisassemblyYield{{Name: "鉄くず", Count: "1d1"}},
-				Bonus:        &[]oapi.DisassemblyBonus{{Name: "存在しないボーナス", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
+				Yields:       []oapi.DisassemblyYield{{Id: "鉄くず", Count: "1d1"}},
+				Bonus:        &[]oapi.DisassemblyBonus{{Id: "存在しないボーナス", Count: "1d1", MinSkill: new(oapi.SkillLevel(10))}},
 			}},
 		}
 		raws := oapi.Raws{Items: &items}
@@ -190,7 +191,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 func TestValidateDropTableReferences(t *testing.T) {
 	t.Parallel()
 
-	items := &[]oapi.Item{{Name: "鉄くず"}}
+	items := &[]oapi.Item{{Id: "鉄くず", Name: "鉄くず"}}
 
 	t.Run("実在する素材と空文字は通る", func(t *testing.T) {
 		t.Parallel()
@@ -226,7 +227,7 @@ func TestValidateDropTableReferences(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items:   items,
-			Members: &[]oapi.Member{{Name: "スライム", DropTableName: new(oapi.EntityName("未定義テーブル"))}},
+			Members: &[]oapi.Member{{Name: "スライム", DropTableId: new(oapi.EntityName("未定義テーブル"))}},
 		}
 		err := validateDropTableReferences(raws)
 		require.Error(t, err)
@@ -241,8 +242,8 @@ func TestValidateSpawnDice(t *testing.T) {
 	t.Run("正しいダイス表記は通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム", Pack: "1d3"}}}},
-			ItemGroups:  &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{ItemName: "回復薬", Pack: "2d1"}}}},
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "1d3"}}}},
+			ItemGroups:  &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{Id: "回復薬", Pack: "2d1"}}}},
 			Props:       &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("1d2"))}}},
 		}
 		require.NoError(t, validateSpawnDice(raws))
@@ -251,23 +252,23 @@ func TestValidateSpawnDice(t *testing.T) {
 	t.Run("敵テーブルの不正なパック表記はエラー", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム", Pack: "0d6"}}}},
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "0d6"}}}},
 		}
 		err := validateSpawnDice(raws)
 		require.Error(t, err)
 		require.ErrorContains(t, err, "スライム")
-		require.ErrorContains(t, err, "個数は1以上")
+		require.ErrorContains(t, err, "count must be at least 1")
 	})
 
 	t.Run("アイテムグループの不正なパック表記はエラー", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			ItemGroups: &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{ItemName: "回復薬", Pack: "0d6"}}}},
+			ItemGroups: &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{Id: "回復薬", Pack: "0d6"}}}},
 		}
 		err := validateSpawnDice(raws)
 		require.Error(t, err)
 		require.ErrorContains(t, err, "回復薬")
-		require.ErrorContains(t, err, "個数は1以上")
+		require.ErrorContains(t, err, "count must be at least 1")
 	})
 
 	t.Run("収納の不正なlootCountはエラー", func(t *testing.T) {
@@ -284,24 +285,33 @@ func TestValidateSpawnDice(t *testing.T) {
 func TestValidateCommandTableReferences(t *testing.T) {
 	t.Parallel()
 
-	t.Run("実在するテーブル名と未指定と空文字は通る", func(t *testing.T) {
+	t.Run("実在するテーブル名と未指定は通る", func(t *testing.T) {
 		t.Parallel()
-		empty := oapi.EntityName("")
 		raws := oapi.Raws{
-			CommandTables: &[]oapi.CommandTable{{Name: "素手"}},
+			CommandTables: &[]oapi.CommandTable{{Id: "素手", Name: "素手"}},
 			Members: &[]oapi.Member{
-				{Name: "戦うNPC", CommandTableName: new(oapi.EntityName("素手"))},
+				{Name: "戦うNPC", CommandTableId: new(oapi.EntityName("素手"))},
 				{Name: "未指定NPC"},
-				{Name: "空文字NPC", CommandTableName: &empty},
 			},
 		}
 		require.NoError(t, validateCommandTableReferences(raws))
 	})
 
+	t.Run("空文字はテーブル名として不正でエラー", func(t *testing.T) {
+		t.Parallel()
+		raws := oapi.Raws{
+			CommandTables: &[]oapi.CommandTable{{Id: "素手", Name: "素手"}},
+			Members:       &[]oapi.Member{{Name: "空文字NPC", CommandTableId: new(oapi.EntityName(""))}},
+		}
+		err := validateCommandTableReferences(raws)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "空文字NPC")
+	})
+
 	t.Run("テーブル名が存在しないとエラー", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
-			Members: &[]oapi.Member{{Name: "スライム", CommandTableName: new(oapi.EntityName("未定義テーブル"))}},
+			Members: &[]oapi.Member{{Name: "スライム", CommandTableId: new(oapi.EntityName("未定義テーブル"))}},
 		}
 		err := validateCommandTableReferences(raws)
 		require.Error(t, err)
@@ -313,13 +323,13 @@ func TestValidateCommandTableReferences(t *testing.T) {
 func TestValidateItemTableReferences(t *testing.T) {
 	t.Parallel()
 
-	groups := &[]oapi.ItemGroup{{Name: "雑貨"}}
+	groups := &[]oapi.ItemGroup{{Id: "雑貨", Name: "雑貨"}}
 
 	t.Run("実在するグループと空文字は通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			ItemGroups: groups,
-			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{GroupName: "雑貨"}, {GroupName: ""}}}},
+			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "雑貨"}, {Id: ""}}}},
 		}
 		require.NoError(t, validateItemTableReferences(raws))
 	})
@@ -328,7 +338,7 @@ func TestValidateItemTableReferences(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			ItemGroups: groups,
-			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{GroupName: "未定義グループ"}}}},
+			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "未定義グループ"}}}},
 		}
 		err := validateItemTableReferences(raws)
 		require.Error(t, err)
@@ -340,13 +350,13 @@ func TestValidateItemTableReferences(t *testing.T) {
 func TestValidateItemGroupReferences(t *testing.T) {
 	t.Parallel()
 
-	items := &[]oapi.Item{{Name: "鉄くず"}}
+	items := &[]oapi.Item{{Id: "鉄くず", Name: "鉄くず"}}
 
 	t.Run("実在するアイテムは通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items:      items,
-			ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Entries: []oapi.ItemGroupEntry{{ItemName: "鉄くず"}}}},
+			ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Entries: []oapi.ItemGroupEntry{{Id: "鉄くず"}}}},
 		}
 		require.NoError(t, validateItemGroupReferences(raws))
 	})
@@ -355,7 +365,7 @@ func TestValidateItemGroupReferences(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Items:      items,
-			ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Entries: []oapi.ItemGroupEntry{{ItemName: "未定義アイテム"}}}},
+			ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Entries: []oapi.ItemGroupEntry{{Id: "未定義アイテム"}}}},
 		}
 		err := validateItemGroupReferences(raws)
 		require.Error(t, err)
@@ -367,13 +377,13 @@ func TestValidateItemGroupReferences(t *testing.T) {
 func TestValidateEnemyTableReferences(t *testing.T) {
 	t.Parallel()
 
-	members := &[]oapi.Member{{Name: "スライム"}}
+	members := &[]oapi.Member{{Id: "スライム", Name: "スライム"}}
 
 	t.Run("実在するメンバーは通る", func(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Members:     members,
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "スライム"}}}},
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム"}}}},
 		}
 		require.NoError(t, validateEnemyTableReferences(raws))
 	})
@@ -382,7 +392,7 @@ func TestValidateEnemyTableReferences(t *testing.T) {
 		t.Parallel()
 		raws := oapi.Raws{
 			Members:     members,
-			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{EnemyName: "未定義敵"}}}},
+			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "未定義敵"}}}},
 		}
 		err := validateEnemyTableReferences(raws)
 		require.Error(t, err)
@@ -394,7 +404,7 @@ func TestValidateEnemyTableReferences(t *testing.T) {
 func TestValidateCommandTableWeaponReferences(t *testing.T) {
 	t.Parallel()
 
-	items := &[]oapi.Item{{Name: "刀"}}
+	items := &[]oapi.Item{{Id: "刀", Name: "刀"}}
 
 	t.Run("実在する武器と空文字は通る", func(t *testing.T) {
 		t.Parallel()

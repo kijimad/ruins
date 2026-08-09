@@ -2,7 +2,6 @@ package lifecycle
 
 import (
 	"fmt"
-	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -15,7 +14,7 @@ import (
 // OpenDoor は扉を開く
 func OpenDoor(world w.World, doorEntity ecs.Entity) error {
 	if !world.Components.Door.Has(doorEntity) {
-		return fmt.Errorf("エンティティは扉ではありません")
+		return fmt.Errorf("entity is not a door")
 	}
 
 	doorComp := world.Components.Door.Get(doorEntity)
@@ -25,62 +24,11 @@ func OpenDoor(world w.World, doorEntity ecs.Entity) error {
 // CloseDoor は扉を閉じる
 func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 	if !world.Components.Door.Has(doorEntity) {
-		return fmt.Errorf("エンティティは扉ではありません")
+		return fmt.Errorf("entity is not a door")
 	}
 
 	doorComp := world.Components.Door.Get(doorEntity)
 	return updateDoorState(world, doorEntity, doorComp.Orientation, false)
-}
-
-// LockAllDoors は全扉を閉じてロックする。ロックされた扉の数を返す
-func LockAllDoors(world w.World) int {
-	var doors []ecs.Entity
-	// 退避中ステージの扉は操作しない。現ステージのみ対象にする
-	doorQuery := query.ActiveFilter1[gc.Door](world).Query()
-	for doorQuery.Next() {
-		doors = append(doors, doorQuery.Entity())
-	}
-	locked := 0
-	for _, doorEntity := range doors {
-		if world.Components.Door.Get(doorEntity).Locked {
-			continue
-		}
-		if world.Components.Door.Get(doorEntity).IsOpen {
-			_ = CloseDoor(world, doorEntity)
-		}
-		// CloseDoorがarchetypeを変えGetポインタを失効させるため、取り直してから書き込む
-		world.Components.Door.Get(doorEntity).Locked = true
-		locked++
-	}
-	if locked > 0 {
-		// BlockView が変化したので視界を再計算させる
-		query.GetVisionState(world).RequestUpdate()
-	}
-	return locked
-}
-
-// UnlockAllDoors は全扉をアンロックして開く。開かれた扉の数を返す
-func UnlockAllDoors(world w.World) int {
-	var doors []ecs.Entity
-	// 退避中ステージの扉は操作しない。現ステージのみ対象にする
-	doorQuery := query.ActiveFilter1[gc.Door](world).Query()
-	for doorQuery.Next() {
-		doors = append(doors, doorQuery.Entity())
-	}
-	opened := 0
-	for _, doorEntity := range doors {
-		doorComp := world.Components.Door.Get(doorEntity)
-		doorComp.Locked = false
-		if !doorComp.IsOpen {
-			_ = OpenDoor(world, doorEntity)
-			opened++
-		}
-	}
-	if opened > 0 {
-		// BlockView が変化したので視界を再計算させる
-		query.GetVisionState(world).RequestUpdate()
-	}
-	return opened
 }
 
 // updateDoorState は扉の向きと開閉状態に応じて、状態を更新する
@@ -153,8 +101,8 @@ func SpawnDungeonEntrance(world w.World, x consts.Tile, y consts.Tile, definitio
 	if err != nil {
 		return gc.InvalidEntity, err
 	}
-	entitySpec.Name = &gc.Name{Name: "遺跡入口"}
-	entitySpec.Description = &gc.Description{Description: "遺跡へ通じる入口"}
+	entitySpec.Name = &gc.Name{Name: query.T(world, "Ruins Entrance")}
+	entitySpec.Description = &gc.Description{Description: query.T(world, "An entrance leading to ruins")}
 	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 	entitySpec.LocationOnField = &gc.LocationOnField{}
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionDungeonEnter}}
@@ -177,8 +125,8 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 	}
 
 	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
-		Name:        &gc.Name{Name: "扉"},
-		Description: &gc.Description{Description: "開閉できる扉"},
+		Name:        &gc.Name{Name: query.T(world, "Door")},
+		Description: &gc.Description{Description: query.T(world, "An openable door")},
 		GridElement: &gc.GridElement{Coord: pos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
@@ -202,8 +150,8 @@ func SpawnDoor(world w.World, pos consts.Coord[consts.Tile], orientation gc.Door
 // 歩き込むと通行でなく押しになる。オーバーワールドの地物として帯へ明示束縛する。
 func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error) {
 	return world.Components.AddEntity(world.ECS, &gc.EntitySpec{
-		Name:        &gc.Name{Name: "キューブ"},
-		Description: &gc.Description{Description: "押して動かせる移動拠点"},
+		Name:        &gc.Name{Name: query.T(world, "Cube")},
+		Description: &gc.Description{Description: query.T(world, "A mobile base you can push")},
 		GridElement: &gc.GridElement{Coord: pos},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: fieldSpriteSheet,
@@ -218,21 +166,4 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		// 隣接して手動で内部へ入る、または引く。歩き込みは押し、明示的な入る/引くはメニューから
 		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionEnterCube, gc.InteractionPullCube}},
 	}), nil
-}
-
-// DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する
-func DeleteDoorLockTriggers(world w.World) {
-	var toDelete []ecs.Entity
-	// 退避中ステージの鍵トリガは消さない。現ステージのみ対象にする
-	interactableQuery := query.ActiveFilter1[gc.Interactable](world).Query()
-	for interactableQuery.Next() {
-		triggerEntity := interactableQuery.Entity()
-		interactable := world.Components.Interactable.Get(triggerEntity)
-		if slices.Contains(interactable.Interactions, gc.InteractionDoorLock) {
-			toDelete = append(toDelete, triggerEntity)
-		}
-	}
-	for _, entity := range toDelete {
-		world.ECS.RemoveEntity(entity)
-	}
 }

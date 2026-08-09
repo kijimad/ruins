@@ -82,6 +82,7 @@ model Book {
 
 /** アイテム */
 model Item {
+  id: EntityID;
   name: EntityName;
   description: EntityDescription;
   spriteSheetName: SpriteSheetName;
@@ -140,6 +141,7 @@ model Dialog {
 
 /** メンバー */
 model Member {
+  id: EntityID;
   name: EntityName;
   player?: IsPlayer;
   isBoss: IsBoss;
@@ -154,21 +156,22 @@ model Member {
   viewDistance?: ViewDistance;
   dialog?: Dialog;
   /** プレイヤーキャラクターでは省略可能 */
-  commandTableName?: EntityName;
+  commandTableId?: EntityID;
   /** プレイヤーキャラクターでは省略可能 */
-  dropTableName?: EntityName;
+  dropTableId?: EntityID;
 }
 
 // ================== レシピ ==================
 
 /** レシピ素材 */
 model RecipeInput {
-  name: EntityName;
+  id: EntityID;
   amount: MaterialAmount;
 }
 
 /** レシピ */
 model Recipe {
+  id: EntityID;
   name: EntityName;
   inputs: RecipeInput[];
 }
@@ -177,12 +180,13 @@ model Recipe {
 
 /** コマンドテーブルエントリ */
 model CommandTableEntry {
-  weapon: EntityName;
+  weapon: EntityID;
   weight: EntryWeight;
 }
 
 /** コマンドテーブル */
 model CommandTable {
+  id: EntityID;
   name: EntityName;
   entries: CommandTableEntry[];
 }
@@ -196,6 +200,7 @@ model DropTableEntry {
 
 /** ドロップテーブル */
 model DropTable {
+  id: EntityID;
   name: EntityName;
   entries: DropTableEntry[];
 }
@@ -212,7 +217,7 @@ enum ItemGroupSubtype {
 
 /** アイテムグループエントリ */
 model ItemGroupEntry {
-  itemName: EntityName;
+  id: EntityID;
   /** distribution: 相対重み。collection: 確率（0-100） */
   weight: EntryWeight;
   /** 1山あたりの個数のダイス表記 */
@@ -221,6 +226,7 @@ model ItemGroupEntry {
 
 /** アイテムグループ。アイテムの出現セットを定義する */
 model ItemGroup {
+  id: EntityID;
   name: EntityName;
   subtype: ItemGroupSubtype;
   entries: ItemGroupEntry[];
@@ -228,8 +234,8 @@ model ItemGroup {
 
 /** アイテムテーブルエントリ。アイテムグループを参照する */
 model ItemTableEntry {
-  /** 参照するアイテムグループ名 */
-  groupName: EntityName;
+  /** 参照するアイテムグループの id */
+  id: EntityID;
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
@@ -237,13 +243,14 @@ model ItemTableEntry {
 
 /** アイテムテーブル */
 model ItemTable {
+  id: EntityID;
   name: EntityName;
   entries: ItemTableEntry[];
 }
 
 /** 敵テーブルエントリ */
 model EnemyTableEntry {
-  enemyName: EntityName;
+  id: EntityID;
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
@@ -253,6 +260,7 @@ model EnemyTableEntry {
 
 /** 敵テーブル */
 model EnemyTable {
+  id: EntityID;
   name: EntityName;
   entries: EnemyTableEntry[];
 }
@@ -268,6 +276,7 @@ model SpriteRender {
 
 /** タイル */
 model Tile {
+  id: EntityID;
   name: EntityName;
   description: EntityDescription;
   blockPass: BlocksPassage;
@@ -282,9 +291,6 @@ model Tile {
 
 /** 扉ローデータ */
 model DoorRaw {}
-
-/** 扉ロックトリガー */
-model DoorLockTriggerRaw {}
 
 /** 次階層ワープトリガー */
 model WarpNextTriggerRaw {}
@@ -303,13 +309,14 @@ model StorageRaw {
   /** 収納の最大格納重量 */
   maxWeight: Weight;
   /** 初期アイテムの抽選に使うItemTable名 */
-  lootTableName?: EntityName;
+  lootTableId?: EntityID;
   /** 初期アイテム数のダイス表記。省略時は1 */
   lootCount?: Dice;
 }
 
 /** 置物 */
 model Prop {
+  id: EntityID;
   name: EntityName;
   description: EntityDescription;
   spriteRender: SpriteRender;
@@ -320,7 +327,6 @@ model Prop {
   hp?: HitPoints;
   lightSource?: LightSource;
   door?: DoorRaw;
-  doorLockTrigger?: DoorLockTriggerRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;
   warpCubeExitTrigger?: WarpCubeExitTriggerRaw;
@@ -331,7 +337,7 @@ model Prop {
 
 /** 分解の産出エントリ。chance 省略は確定枠 */
 model DisassemblyYield {
-  name: EntityName;
+  id: EntityID;
   /** 産出個数のダイス表記 */
   count: Dice;
   chance?: DisassemblyChance;
@@ -339,7 +345,7 @@ model DisassemblyYield {
 
 /** 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある */
 model DisassemblyBonus {
-  name: EntityName;
+  id: EntityID;
   /** 産出個数のダイス表記 */
   count: Dice;
   /** 機械スキルがこの値以上で産出に加わる */

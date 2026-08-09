@@ -16,7 +16,7 @@ func newTestMetaPlanForDoor() *MetaPlan {
 	const width, height = 10, 10
 	tiles := make([]oapi.Tile, width*height)
 	for i := range tiles {
-		tiles[i] = oapi.Tile{Name: "wall", BlockPass: true}
+		tiles[i] = oapi.Tile{Id: "wall", Name: "wall", BlockPass: true}
 	}
 
 	return &MetaPlan{
@@ -37,7 +37,7 @@ func setFloorRect(mp *MetaPlan, x1, y1, x2, y2 int) {
 	w := int(mp.Level.TileWidth)
 	for x := x1; x <= x2; x++ {
 		for y := y1; y <= y2; y++ {
-			mp.Tiles[y*w+x] = oapi.Tile{Name: "floor", BlockPass: false}
+			mp.Tiles[y*w+x] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
 	}
 }
@@ -52,8 +52,8 @@ func TestDoorPlanner_PlanMeta(t *testing.T) {
 		// 部屋(2,3)-(5,5)を配置し、上から1タイル幅の廊下(x=3, y=1〜2)を接続
 		// (3,2)がドア候補: 左右が壁、上(3,1)が床、下(3,3)が部屋の床
 		setFloorRect(mp, 2, 3, 5, 5)
-		mp.Tiles[1*10+3] = oapi.Tile{Name: "floor", BlockPass: false}
-		mp.Tiles[2*10+3] = oapi.Tile{Name: "floor", BlockPass: false}
+		mp.Tiles[1*10+3] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
+		mp.Tiles[2*10+3] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 
 		planner := DoorPlanner{DoorChance: 1.0}
 		require.NoError(t, planner.PlanMeta(mp))
@@ -70,8 +70,8 @@ func TestDoorPlanner_PlanMeta(t *testing.T) {
 		// 部屋(3,2)-(6,6)を配置し、左から1タイル幅の廊下(x=1〜2, y=3)を接続
 		// (2,3)がドア候補: 上下が壁、左(1,3)が床、右(3,3)が部屋の床
 		setFloorRect(mp, 3, 2, 6, 6)
-		mp.Tiles[3*10+1] = oapi.Tile{Name: "floor", BlockPass: false}
-		mp.Tiles[3*10+2] = oapi.Tile{Name: "floor", BlockPass: false}
+		mp.Tiles[3*10+1] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
+		mp.Tiles[3*10+2] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 
 		planner := DoorPlanner{DoorChance: 1.0}
 		require.NoError(t, planner.PlanMeta(mp))
@@ -86,8 +86,8 @@ func TestDoorPlanner_PlanMeta(t *testing.T) {
 		mp := newTestMetaPlanForDoor()
 
 		setFloorRect(mp, 2, 3, 5, 5)
-		mp.Tiles[1*10+3] = oapi.Tile{Name: "floor", BlockPass: false}
-		mp.Tiles[2*10+3] = oapi.Tile{Name: "floor", BlockPass: false}
+		mp.Tiles[1*10+3] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
+		mp.Tiles[2*10+3] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 
 		planner := DoorPlanner{DoorChance: 0.0}
 		require.NoError(t, planner.PlanMeta(mp))
@@ -102,7 +102,7 @@ func TestDoorPlanner_PlanMeta(t *testing.T) {
 		// 部屋(2,2)-(5,5)と幅広廊下(x=1〜6, y=1)
 		setFloorRect(mp, 2, 2, 5, 5)
 		for x := 1; x <= 6; x++ {
-			mp.Tiles[1*10+x] = oapi.Tile{Name: "floor", BlockPass: false}
+			mp.Tiles[1*10+x] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 		}
 
 		planner := DoorPlanner{DoorChance: 1.0}
@@ -144,9 +144,9 @@ func TestIsDoorPattern(t *testing.T) {
 		// ###
 		mp := newTestMetaPlanForDoor()
 		// 上下を床にする
-		mp.Tiles[0*10+1] = oapi.Tile{Name: "floor", BlockPass: false}
-		mp.Tiles[1*10+1] = oapi.Tile{Name: "floor", BlockPass: false}
-		mp.Tiles[2*10+1] = oapi.Tile{Name: "floor", BlockPass: false}
+		mp.Tiles[0*10+1] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
+		mp.Tiles[1*10+1] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
+		mp.Tiles[2*10+1] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 
 		assert.True(t, isDoorPattern(mp, 1, 1, 10))
 	})
@@ -157,9 +157,9 @@ func TestIsDoorPattern(t *testing.T) {
 		//  +   ← (1,1) が床、上下が壁、左右が床
 		// # #
 		mp := newTestMetaPlanForDoor()
-		mp.Tiles[1*10+0] = oapi.Tile{Name: "floor", BlockPass: false}
-		mp.Tiles[1*10+1] = oapi.Tile{Name: "floor", BlockPass: false}
-		mp.Tiles[1*10+2] = oapi.Tile{Name: "floor", BlockPass: false}
+		mp.Tiles[1*10+0] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
+		mp.Tiles[1*10+1] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
+		mp.Tiles[1*10+2] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 
 		assert.True(t, isDoorPattern(mp, 1, 1, 10))
 	})
@@ -168,7 +168,7 @@ func TestIsDoorPattern(t *testing.T) {
 		t.Parallel()
 		// 全周が壁の床タイルはドアパターンではない
 		mp := newTestMetaPlanForDoor()
-		mp.Tiles[1*10+1] = oapi.Tile{Name: "floor", BlockPass: false}
+		mp.Tiles[1*10+1] = oapi.Tile{Id: "floor", Name: "floor", BlockPass: false}
 
 		assert.False(t, isDoorPattern(mp, 1, 1, 10))
 	})

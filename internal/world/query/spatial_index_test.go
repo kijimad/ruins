@@ -17,7 +17,7 @@ func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *tes
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
@@ -79,7 +79,7 @@ func TestUpdateCharacterPositionInIndex_増分更新でBuiltを保つ(t *testing
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	si := query.GetSpatialIndex(world)
@@ -101,7 +101,7 @@ func TestUpdateCharacterPositionInIndex_入れ替えは順序非依存(t *testin
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", testAbilities(), "player")
 	require.NoError(t, err)
@@ -132,7 +132,7 @@ func TestSpatialIndex_移動で再構築チャーンが起きない(t *testing.T
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	si := query.GetSpatialIndex(world)
@@ -162,7 +162,7 @@ func TestInvalidateSpatialIndex_全マップがクリアされる(t *testing.T) 
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	_, err = lifecycle.SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")

@@ -21,7 +21,7 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 	newCount := currentCount + delta
 
 	if newCount < 0 {
-		return fmt.Errorf("アイテム数が不足しています: 現在=%d, 変更=%d, 結果=%d", currentCount, delta, newCount)
+		return fmt.Errorf("insufficient item count: current=%d, delta=%d, result=%d", currentCount, delta, newCount)
 	}
 
 	if newCount == 0 {

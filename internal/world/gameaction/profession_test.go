@@ -30,10 +30,10 @@ func newTestProfession() oapi.Profession {
 			{Id: string(gc.SkillSword), Value: 5},
 		},
 		Items: []oapi.ProfessionItem{
-			{Name: "木の棒", Count: 3},
+			{Name: "wooden_stick", Count: 3},
 		},
 		Equips: []oapi.ProfessionEquip{
-			{Name: "木刀", Slot: oapi.EquipSlotWEAPON1},
+			{Name: "wooden_sword", Slot: oapi.EquipSlotWEAPON1},
 		},
 	}
 }
@@ -44,7 +44,7 @@ func TestApplyProfession(t *testing.T) {
 	t.Run("能力値スキル装備アイテムが反映される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
 		prof := newTestProfession()
@@ -67,7 +67,7 @@ func TestApplyProfession(t *testing.T) {
 
 		assert.True(t, world.Components.CharModifiers.Has(player), "CharModifiersが再計算され付与されるべき")
 
-		item, ok := query.FindStackableInInventory(world, "木の棒")
+		item, ok := query.FindStackableInInventory(world, "wooden_stick")
 		require.True(t, ok, "初期アイテムがバックパックに生成されるべき")
 		assert.Equal(t, 3, world.Components.Stackable.Get(item).Count, "指定した個数の初期アイテムが生成されるべき")
 
@@ -75,13 +75,13 @@ func TestApplyProfession(t *testing.T) {
 		weapons := query.GetWeapons(world, player)
 		require.NotNil(t, weapons[0], "WEAPON1スロットに初期装備が装備されるべき")
 		name := world.Components.Name.Get(*weapons[0])
-		assert.Equal(t, "木刀", name.Name, "指定した装備アイテムがWEAPON1に装備されるべき")
+		assert.Equal(t, "Wooden Sword", name.Name, "指定した装備アイテムがWEAPON1に装備されるべき")
 	})
 
 	t.Run("再適用すると能力値と職業IDが上書きされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
 		first := newTestProfession()
@@ -112,7 +112,7 @@ func TestApplyProfession(t *testing.T) {
 				p.Items = []oapi.ProfessionItem{{Name: "存在しないアイテム", Count: 1}}
 				p.Equips = nil
 			},
-			errContains: "職業の初期アイテム生成に失敗",
+			errContains: "failed to generate profession starting item",
 		},
 		{
 			name: "存在しない初期装備アイテム名でエラー",
@@ -120,15 +120,15 @@ func TestApplyProfession(t *testing.T) {
 				p.Items = nil
 				p.Equips = []oapi.ProfessionEquip{{Name: "存在しないアイテム", Slot: oapi.EquipSlotWEAPON1}}
 			},
-			errContains: "職業の初期装備生成に失敗",
+			errContains: "failed to generate profession starting equipment",
 		},
 		{
 			name: "不正な装備スロット名でエラー",
 			mutate: func(p *oapi.Profession) {
 				p.Items = nil
-				p.Equips = []oapi.ProfessionEquip{{Name: "木刀", Slot: "BOGUS"}}
+				p.Equips = []oapi.ProfessionEquip{{Name: "wooden_sword", Slot: "BOGUS"}}
 			},
-			errContains: "不正な装備スロット名",
+			errContains: "invalid equipment slot name",
 		},
 	}
 
@@ -136,7 +136,7 @@ func TestApplyProfession(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
-			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "Ash")
+			player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 			require.NoError(t, err)
 
 			prof := newTestProfession()

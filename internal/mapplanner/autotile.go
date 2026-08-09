@@ -68,7 +68,7 @@ func (ati AutoTileIndex) String() string {
 	case AutoTileCenter:
 		return "Center"
 	default:
-		panic(fmt.Sprintf("不正なAutoTileIndex値: %d", int(ati)))
+		panic(fmt.Sprintf("invalid AutoTileIndex value: %d", int(ati)))
 	}
 }
 
@@ -96,10 +96,10 @@ func AutoTileBits(up, right, down, left bool) AutoTileIndex {
 // 同じタイル名のタイルとのみ接続する
 func (mp *MetaPlan) CalculateAutoTileIndex(idx gc.TileIdx, tileType string) AutoTileIndex {
 	// 4方向の隣接チェック - 同じタイル名の場合のみ接続
-	up := mp.UpTile(idx).Name == tileType
-	right := mp.RightTile(idx).Name == tileType
-	down := mp.DownTile(idx).Name == tileType
-	left := mp.LeftTile(idx).Name == tileType
+	up := mp.UpTile(idx).Id == tileType
+	right := mp.RightTile(idx).Id == tileType
+	down := mp.DownTile(idx).Id == tileType
+	left := mp.LeftTile(idx).Id == tileType
 	return AutoTileBits(up, right, down, left)
 }
 

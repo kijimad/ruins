@@ -56,7 +56,7 @@ type itemVerb struct {
 var verbList = []itemVerb{
 	{
 		ID:      verbExamine,
-		Label:   "調べる",
+		Label:   "Inspect",
 		KeyHint: "X",
 		Key:     ebiten.KeyX,
 		Shift:   true,
@@ -66,7 +66,7 @@ var verbList = []itemVerb{
 	},
 	{
 		ID:      verbPlace,
-		Label:   "置く",
+		Label:   "Drop",
 		KeyHint: "d",
 		Key:     ebiten.KeyD,
 		Action:  inputmapper.ActionVerbPlace,
@@ -75,7 +75,7 @@ var verbList = []itemVerb{
 	},
 	{
 		ID:      verbConsume,
-		Label:   "食べる",
+		Label:   "Eat",
 		KeyHint: "e",
 		Key:     ebiten.KeyE,
 		Action:  inputmapper.ActionVerbConsume,
@@ -84,7 +84,7 @@ var verbList = []itemVerb{
 	},
 	{
 		ID:      verbRead,
-		Label:   "読む",
+		Label:   "Read",
 		KeyHint: "r",
 		Key:     ebiten.KeyR,
 		Action:  inputmapper.ActionVerbRead,
@@ -93,7 +93,7 @@ var verbList = []itemVerb{
 	},
 	{
 		ID:      verbUse,
-		Label:   "使う",
+		Label:   "Use",
 		KeyHint: "t",
 		Key:     ebiten.KeyT,
 		Action:  inputmapper.ActionVerbUse,
@@ -150,11 +150,11 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
-	act, err := activity.NewReadActivity(entity, world)
-	if err != nil {
-		return es.Transition[w.World]{}, err
-	}
+	act := activity.NewReadActivity(entity, world)
 	if _, err := activity.Execute(act, player, world); err != nil {
+		// Execute が返すエラーはシステムの致命エラーだけ。最上位まで伝播させる。
+		// スキル不足や周囲の敵などのユーザー起因の失敗は Execute が gamelog へ出したうえで
+		// err=nil を返すため、ここには来ず通常どおり閉じる
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -203,7 +203,7 @@ func NewItemActionState(initial verbID) es.StateFactory[w.World] {
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.detail = menuscreen.NewEntityDetail(st.selectedEntity)
 	st.screen = menurt.NewScreen[ItemActionProps](st, &st.detail)
 	return nil
 }
@@ -242,7 +242,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.executeSelected(world)
@@ -254,7 +254,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 			st.jumpToTab(v)
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
 	}
 }
 
@@ -271,7 +271,7 @@ func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World
 	}
 	verb := vs[cursor.TabIndex]
 	if verb.Exec == nil {
-		st.detail.Open()
+		st.detail.Open(world)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 
@@ -325,7 +325,7 @@ func (st *ItemActionState) Fetch(world w.World) ItemActionProps {
 			}
 			items = append(items, newItemActionEntry(world, entity))
 		}
-		tabs[i] = verbTabData{ID: verb.ID, Label: verb.Label, Key: verb.KeyHint, Items: items}
+		tabs[i] = verbTabData{ID: verb.ID, Label: query.T(world, verb.Label), Key: verb.KeyHint, Items: items}
 	}
 	return ItemActionProps{Tabs: tabs}
 }
@@ -347,14 +347,14 @@ func playerBackpackItems(world w.World, player ecs.Entity) []ecs.Entity {
 func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {
 	entry := itemActionEntry{
 		Entity: entity,
-		Name:   world.Components.Name.Get(entity).Name,
+		Name:   query.GetEntityName(entity, world),
 		Weight: query.GetEntityWeight(world, entity).KgString(),
 	}
 	if world.Components.Stackable.Has(entity) {
 		entry.Count = world.Components.Stackable.Get(entity).Count
 	}
 	if world.Components.Description.Has(entity) {
-		entry.Desc = world.Components.Description.Get(entity).Description
+		entry.Desc = query.T(world, world.Components.Description.Get(entity).Description)
 	}
 	return entry
 }
@@ -364,7 +364,7 @@ func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ItemActionState) View(_ w.World, props ItemActionProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -378,8 +378,8 @@ func (st *ItemActionState) View(_ w.World, props ItemActionProps, cursor menurt.
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemList(props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, "x 詳細"),
+		Content:   st.buildItemList(world, props, cursor.TabIndex, cursor.ItemIndex, res),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 
@@ -392,7 +392,7 @@ func (st *ItemActionState) Menu(props ItemActionProps) menurt.MenuConfig {
 	return menurt.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage, InitialTab: verbTabIndex(st.initialVerb)}
 }
 
-func (st *ItemActionState) buildItemList(props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	if tabIndex >= len(props.Tabs) {
 		return styled.NewVerticalContainer()
 	}
@@ -403,20 +403,19 @@ func (st *ItemActionState) buildItemList(props ItemActionProps, tabIndex, itemIn
 	for i, it := range items {
 		rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "該当するアイテムがありません"}, res)
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
 }
 
-// detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
-func (st *ItemActionState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {
+// selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
+func (st *ItemActionState) selectedEntity() (ecs.Entity, bool) {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
 	if cursor.TabIndex >= len(props.Tabs) {
-		return menuscreen.DetailContent{}, false
+		return gc.InvalidEntity, false
 	}
 	items := props.Tabs[cursor.TabIndex].Items
 	if cursor.ItemIndex >= len(items) {
-		return menuscreen.DetailContent{}, false
+		return gc.InvalidEntity, false
 	}
-	item := items[cursor.ItemIndex]
-	return menuscreen.DetailContent{Name: item.Name, Desc: item.Desc, Entity: item.Entity}, true
+	return items[cursor.ItemIndex].Entity, true
 }

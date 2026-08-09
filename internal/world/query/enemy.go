@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -19,7 +18,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 	}
 
 	if !world.Components.GridElement.Has(playerEntity) {
-		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
+		return nil, fmt.Errorf("player has no GridElement")
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity)
@@ -68,7 +67,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 	}
 
 	if !world.Components.GridElement.Has(playerEntity) {
-		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
+		return nil, fmt.Errorf("player has no GridElement")
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity)
@@ -88,24 +87,4 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 	}
 
 	return items, nil
-}
-
-// GetEntityName はエンティティの名前を取得する
-func GetEntityName(entity ecs.Entity, world w.World) string {
-	if !world.ECS.Alive(entity) || !world.Components.Name.Has(entity) {
-		return "Unknown"
-	}
-	return world.Components.Name.Get(entity).Name
-}
-
-// AppendNameWithColor はエンティティの種類に応じて色付きで名前を追加する
-func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string, world w.World) {
-	switch {
-	case world.Components.Player.Has(entity):
-		logger.PlayerName(name)
-	case world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity):
-		logger.NPCName(name)
-	default:
-		logger.Append(name)
-	}
 }

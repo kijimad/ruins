@@ -14,9 +14,9 @@ import (
 // 壊れたセーブデータでも panic せず error で返ることを保証する。
 func FuzzDeserializeWorld(f *testing.F) {
 	base := testutil.InitTestWorld(f)
-	_, err := lifecycle.SpawnPlayer(base, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err := lifecycle.SpawnPlayer(base, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(f, err)
-	_, err = lifecycle.SpawnEnemy(base, consts.Coord[consts.Tile]{X: 8, Y: 8}, "火の玉")
+	_, err = lifecycle.SpawnEnemy(base, consts.Coord[consts.Tile]{X: 8, Y: 8}, "fireball")
 	require.NoError(f, err)
 	valid, err := serializeWorld(base)
 	require.NoError(f, err)
@@ -43,7 +43,7 @@ func FuzzDeserializeWorld(f *testing.F) {
 // に任意文字列を流し、壊れたセーブファイルでも panic しないことを保証する。
 func FuzzRestoreWorldFromJSON(f *testing.F) {
 	base := testutil.InitTestWorld(f)
-	_, err := lifecycle.SpawnPlayer(base, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err := lifecycle.SpawnPlayer(base, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(f, err)
 	sm, err := NewSerializationManager(WithSaveDir(f.TempDir()))
 	require.NoError(f, err)

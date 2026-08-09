@@ -118,10 +118,10 @@ func (dr *Driver) front(world w.World) worldstream.Front {
 func (dr *Driver) startInitialBand(world w.World) error {
 	p := dr.params
 	if p == nil {
-		return fmt.Errorf("新規オーバーワールドの開始には帯パラメータが必要")
+		return fmt.Errorf("starting a new overworld requires band parameters")
 	}
 	if dr.definition == nil {
-		return fmt.Errorf("新規オーバーワールドの開始には帯形状の定義が必要")
+		return fmt.Errorf("starting a new overworld requires a band shape definition")
 	}
 	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
 	chunkW, chunkH, cols, rows := dr.definition.BandShape()
@@ -167,17 +167,17 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	}
 	spawn := walkableSpawnNear(world, center)
 	if _, err := query.GetPlayerEntity(world); err != nil {
-		if _, serr := lifecycle.SpawnPlayer(world, spawn, "Ash"); serr != nil {
-			return fmt.Errorf("プレイヤー生成失敗: %w", serr)
+		if _, serr := lifecycle.SpawnPlayer(world, spawn, "ash"); serr != nil {
+			return fmt.Errorf("failed to spawn player: %w", serr)
 		}
 	} else if merr := lifecycle.MovePlayerToPosition(world, spawn); merr != nil {
-		return fmt.Errorf("プレイヤー配置失敗: %w", merr)
+		return fmt.Errorf("failed to place player: %w", merr)
 	}
 
 	// 押せる移動拠点キューブをプレイヤー近くの歩行可能タイルへ1体置く
 	cubePos := walkableSpawnNear(world, spawn.Add(consts.Coord[consts.Tile]{X: 2}))
 	if _, cerr := lifecycle.SpawnCube(world, cubePos); cerr != nil {
-		return fmt.Errorf("キューブ生成失敗: %w", cerr)
+		return fmt.Errorf("failed to spawn cube: %w", cerr)
 	}
 
 	query.InvalidateSpatialIndex(world)
@@ -222,7 +222,7 @@ func (dr *Driver) generateBandChunks(world w.World, chunkW, chunkH consts.Tile) 
 		for i := range dr.band.Cols() {
 			c := consts.Coord[consts.Chunk]{X: dr.band.EastIndex() + i, Y: cy}
 			if err := dr.gen(c, i.Tiles(chunkW), cy.Tiles(chunkH)); err != nil {
-				return fmt.Errorf("チャンク生成失敗 (x=%d, y=%d): %w", c.X, c.Y, err)
+				return fmt.Errorf("failed to generate chunk (x=%d, y=%d): %w", c.X, c.Y, err)
 			}
 		}
 	}
@@ -255,7 +255,7 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 	}
 	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
-		return false, fmt.Errorf("シフト判定にプレイヤーが必要: %w", err)
+		return false, fmt.Errorf("shift check requires a player: %w", err)
 	}
 	if query.HasActivity(world, playerEntity) {
 		return false, nil

@@ -165,19 +165,23 @@ func createTestRawMaster(t *testing.T) *oapi.Raws {
 
 	rawData := `
 [[Tiles]]
+Id = "floor"
 Name = "floor"
 Description = "床タイル"
 
 [[Tiles]]
+Id = "dirt"
 Name = "dirt"
 Description = "土タイル"
 
 [[Tiles]]
+Id = "wall"
 Name = "wall"
 Description = "壁タイル"
 BlockPass = true
 
 [[Tiles]]
+Id = "void"
 Name = "void"
 Description = "暗闇"
 BlockPass = true

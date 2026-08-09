@@ -31,7 +31,7 @@ func TestDriver_Start_プレイヤー先在でもキューブをスポーンす�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	// 本番はキャラ作成で先にプレイヤーが湧く。その状況を再現する
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
@@ -225,7 +225,7 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 	q := ecs.NewFilter1[gc.Name](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.Name.Get(e).Name != "商人" {
+		if world.Components.Name.Get(e).Name != "Merchant" {
 			continue
 		}
 		merchantFound = true

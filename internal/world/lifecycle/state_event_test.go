@@ -32,7 +32,7 @@ func TestRequestStateChange(t *testing.T) {
 
 		err = RequestStateChange(world, gc.WarpDescendEvent())
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "リクエストがすでに設定されています")
+		assert.Contains(t, err.Error(), "request is already set")
 	})
 
 	t.Run("リクエストがない場合はnilを返す", func(t *testing.T) {

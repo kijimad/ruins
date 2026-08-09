@@ -40,7 +40,7 @@ type BehaviorName string
 // BehaviorName の定義
 const (
 	BehaviorMove      BehaviorName = "Move"
-	BehaviorAttack    BehaviorName = "Attack"
+	BehaviorMelee     BehaviorName = "Melee"
 	BehaviorRest      BehaviorName = "Rest"
 	BehaviorWait      BehaviorName = "Wait"
 	BehaviorPickup    BehaviorName = "Pickup"
@@ -50,7 +50,6 @@ const (
 	BehaviorOpenDoor  BehaviorName = "OpenDoor"
 	BehaviorCloseDoor BehaviorName = "CloseDoor"
 	BehaviorPortal    BehaviorName = "Portal"
-	BehaviorDoorLock  BehaviorName = "DoorLock"
 	BehaviorStorage   BehaviorName = "Storage"
 	BehaviorRead      BehaviorName = "Read"
 	BehaviorShoot     BehaviorName = "Shoot"
@@ -80,7 +79,7 @@ type Activity struct {
 // 実行ロジックを持つ Behavior は w.World に依存するため activity 層に置く。
 //
 // 型の分け方: 対象が1エンティティでも意味が behavior ごとに違うものは共有せず専用型に分ける。
-// 攻撃対象と会話相手と分解対象は同じ ecs.Entity だが意味が違うので AttackParams などに分ける。
+// 攻撃対象と会話相手と分解対象は同じ ecs.Entity だが意味が違うので MeleeParams などに分ける。
 // 一方 PlaceParams のように共有ヘルパを介して同じ形を使い回すものは共有型のままにする。
 type ActivityParams interface {
 	isActivityParams()
@@ -93,12 +92,12 @@ type MoveParams struct {
 
 func (*MoveParams) isActivityParams() {}
 
-// AttackParams は近接攻撃のパラメータ。
-type AttackParams struct {
+// MeleeParams は近接攻撃のパラメータ。
+type MeleeParams struct {
 	Target ecs.Entity // 攻撃対象のエンティティ
 }
 
-func (*AttackParams) isActivityParams() {}
+func (*MeleeParams) isActivityParams() {}
 
 // TalkParams は会話のパラメータ。
 type TalkParams struct {

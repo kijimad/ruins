@@ -1,7 +1,6 @@
 package mapplanner
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -26,6 +25,13 @@ type ItemSpec struct {
 	consts.Coord[consts.Tile]
 	Name  string // アイテム名
 	Count int    // 個数
+}
+
+// itemGroupRef はアイテムテーブルの1エントリ。深度フィルタ後に残った参照先グループの id とテーブル重み。
+// グループ中身の抽選は raw.SelectFromItemGroup が draw 時に行う。
+type itemGroupRef struct {
+	GroupID string
+	Weight  float64
 }
 
 // ItemPlanner はアイテム配置を担当するプランナー
@@ -64,19 +70,19 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	placed := 0
 	failCount := 0
 	for placed < total && failCount <= maxItemPlacementAttempts {
-		// ソースを重みで選択
+		// 参照先グループをテーブル重みで選ぶ
 		source, err := raw.SelectByWeightFunc(
 			sources,
-			func(s ItemSource) float64 { return s.Weight },
-			func(s ItemSource) ItemSource { return s },
+			func(s itemGroupRef) float64 { return s.Weight },
+			func(s itemGroupRef) itemGroupRef { return s },
 			planData.RNG,
 		)
 		if err != nil {
 			return err
 		}
 
-		// ソースからアイテムを解決
-		items, err := resolveItemSource(source, planData)
+		// グループから1山を抽選する。distribution/collection と pack の解釈は raw が担う
+		items, err := raw.SelectFromItemGroup(*planData.RawMaster, source.GroupID, planData.RNG)
 		if err != nil {
 			return err
 		}
@@ -133,81 +139,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	if failCount > maxItemPlacementAttempts {
-		log.Printf("ItemPlanner: アイテム配置の試行回数が上限に達しました。配置数: %d/%d", placed, total)
+		log.Printf("ItemPlanner: reached max attempts placing items. placed: %d/%d", placed, total)
 	}
 	return nil
-}
-
-// resolveItemSource はソースからアイテムリストを解決する
-func resolveItemSource(source ItemSource, planData *MetaPlan) ([]resolvedItem, error) {
-	switch source.Subtype {
-	case ItemGroupCollection:
-		return resolveCollection(source.Entries, planData), nil
-	case ItemGroupDistribution:
-		return resolveDistribution(source.Entries, planData), nil
-	default:
-		return nil, fmt.Errorf("未知のItemGroupSubtype: %s", source.Subtype)
-	}
-}
-
-type resolvedItem struct {
-	Name  string
-	Count int
-}
-
-// resolveDistribution は重みで1つ選択し、PackSize分のアイテムを返す。
-// Stackableアイテムの場合はCount=PackSizeの1エントリにまとめる
-func resolveDistribution(entries []SpawnEntry, planData *MetaPlan) []resolvedItem {
-	if len(entries) == 0 {
-		return nil
-	}
-	entry, err := selectSpawnEntry(entries, planData.RNG)
-	if err != nil || entry.Name == "" {
-		return nil
-	}
-	packSize := entry.PackSize(planData.RNG)
-	if isStackableItem(planData, entry.Name) {
-		return []resolvedItem{{Name: entry.Name, Count: packSize}}
-	}
-	result := make([]resolvedItem, packSize)
-	for i := range result {
-		result[i] = resolvedItem{Name: entry.Name, Count: 1}
-	}
-	return result
-}
-
-// resolveCollection は各エントリを確率判定（weight を 0-100 の確率として扱う）し、
-// 当選したもののPackSize分を返す。Stackableアイテムの場合はCount=PackSizeの1エントリにまとめる
-func resolveCollection(entries []SpawnEntry, planData *MetaPlan) []resolvedItem {
-	var result []resolvedItem
-	for _, entry := range entries {
-		prob := entry.Weight
-		if prob <= 0 {
-			continue
-		}
-		roll := planData.RNG.Float64() * 100
-		if roll < prob {
-			packSize := entry.PackSize(planData.RNG)
-			if isStackableItem(planData, entry.Name) {
-				result = append(result, resolvedItem{Name: entry.Name, Count: packSize})
-			} else {
-				for range packSize {
-					result = append(result, resolvedItem{Name: entry.Name, Count: 1})
-				}
-			}
-		}
-	}
-	return result
-}
-
-// isStackableItem はRawMasterを参照してアイテムがStackableかを判定する
-func isStackableItem(planData *MetaPlan, name string) bool {
-	if planData.RawMaster == nil {
-		return false
-	}
-	item, err := raw.FindItem(*planData.RawMaster, name)
-	if err != nil {
-		return false
-	}
-	return item.Stackable != nil && *item.Stackable
 }

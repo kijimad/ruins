@@ -49,6 +49,8 @@ description: ruins 固有のレビュー観点チェックリスト。Ark の st
 - **エンティティ参照を Activity に持ち越さない**: 工具・装備などの資源は毎ターン所持品から再解決する。serde の参照解決が不要になり、喪失時も次ターン検査で自然に中断する。分解の工具解決とリロードの装備解決が実例。
 - **Canceled のログは対象の生存を確認してから名前を出す**: 対象消滅による中断では `GetEntityName` が "Unknown" を返し表示が壊れる。
 - **StatsChanged 等のマーカーは `Has` ガード付きで Add する**: 同一ターン内の別処理が既に付けていると Ark の二重 Add パニックになる。
+- **Params 型不一致は Validate/DoTurn/Finish の全経路で同じ扱いにする**: 型アサート `!ok` は Validate 通過後には到達しえない構築ミス。握りつぶす `return nil` を混ぜず、共通センチネル `ErrParamsTypeMismatch` を返して `stepActivity` の `log.Error` で表面化させる。対象消滅など transient な中断は `Cancel + return nil` のままにし、両者を種類で区別する。
+- **Behavior のテストは Validate→Start→DoTurn*→Finish の順で組む**: `Validate` を飛ばして `Start` を直呼びしない。Validate が唯一のゲートである契約をテストでも踏み、書式を揃える。
 
 ## 参照
 

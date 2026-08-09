@@ -14,7 +14,7 @@ func TestNewHostileNPCPlanner(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	plannerType := PlannerType{
 		Name:           "test",
-		EnemyTableName: "通常",
+		EnemyTableName: "normal",
 		Depth:          1,
 	}
 	planner := NewHostileNPCPlanner(world, plannerType)
@@ -54,7 +54,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name:           "test_with_enemies",
-			EnemyTableName: "通常",
+			EnemyTableName: "normal",
 			Depth:          1,
 		}
 
@@ -77,7 +77,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name:           "test_valid_position",
-			EnemyTableName: "通常",
+			EnemyTableName: "normal",
 			Depth:          1,
 		}
 
@@ -105,7 +105,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		// 「通常」テーブルにはスライム・火の玉・軽戦車が含まれる
 		plannerType := PlannerType{
 			Name:           "test_multiple_enemies",
-			EnemyTableName: "通常",
+			EnemyTableName: "normal",
 			Depth:          1,
 		}
 
@@ -128,7 +128,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name:           "test_room_based",
-			EnemyTableName: "通常",
+			EnemyTableName: "normal",
 			Depth:          1,
 		}
 
@@ -164,7 +164,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		// 「廃墟」テーブルを使用。PackMin/PackMaxはテーブルに依存するが、クラスタ動作の確認が目的
 		plannerType := PlannerType{
 			Name:           "test_big_room_cluster",
-			EnemyTableName: "通常",
+			EnemyTableName: "normal",
 			Depth:          1,
 		}
 
@@ -205,7 +205,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		// 「通常」テーブルには複数の敵種が含まれる
 		plannerType := PlannerType{
 			Name:           "test_same_species",
-			EnemyTableName: "通常",
+			EnemyTableName: "normal",
 			Depth:          1,
 		}
 

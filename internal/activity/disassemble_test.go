@@ -2,6 +2,7 @@ package activity
 
 import (
 	"math/rand/v2"
+	"strings"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -68,9 +69,9 @@ func TestFindBestDisassemblyTool(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		player := newDisassembleTestPlayer(world)
 
-		_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+		_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 		require.NoError(t, err)
-		_, err = lifecycle.SpawnBackpackItem(world, "鉄カッター", 1)
+		_, err = lifecycle.SpawnBackpackItem(world, "iron_cutter", 1)
 		require.NoError(t, err)
 
 		grade, name, ok := FindBestDisassemblyTool(world, player, oapi.Prying)
@@ -89,7 +90,7 @@ func TestFindBestDisassemblyTool(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		player := newDisassembleTestPlayer(world)
 
-		_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+		_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 		require.NoError(t, err)
 
 		_, _, ok := FindBestDisassemblyTool(world, player, oapi.Precision)
@@ -109,11 +110,11 @@ func TestDisassembleBehavior_Validate_工具がないとエラー(t *testing.T) 
 	da := &DisassembleBehavior{}
 	comp := &gc.Activity{Params: &gc.DisassembleParams{Target: crate}}
 	err = da.Validate(comp, player, world)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "工具")
+	var ve *UserError
+	require.ErrorAs(t, err, &ve)
 }
 
-func TestDisassembleBehavior_BuildActivity_分解定義のない対象はエラー(t *testing.T) {
+func TestDisassembleBehavior_Validate_分解定義のない対象はエラー(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -122,9 +123,11 @@ func TestDisassembleBehavior_BuildActivity_分解定義のない対象はエラ�
 	desk, err := lifecycle.SpawnProp(world, "desk", 11, 10)
 	require.NoError(t, err)
 
-	_, err = NewDisassembleActivity(desk, player, world)
+	da := &DisassembleBehavior{}
+	comp := NewDisassembleActivity(desk, player, world)
+	err = da.Validate(comp, player, world)
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "分解定義")
+	assert.ErrorContains(t, err, "disassembly definition")
 }
 
 func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t *testing.T) {
@@ -134,7 +137,7 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
@@ -143,12 +146,12 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 		"分解定義を持つpropはInteractionDisassembleを持つべき")
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
 	// baseAP2000 スキル0 グレード1 で必要AP2000
 	assert.Equal(t, 2000, comp.Progress.Max)
 
-	require.NoError(t, da.Validate(comp, player, world))
+	err = da.Validate(comp, player, world)
+	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -178,17 +181,17 @@ func TestDisassembleBehavior_アイテムを分解すると消費して素材が
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "電動ドライバー", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "electric_screwdriver", 1)
 	require.NoError(t, err)
-	hdd, err := lifecycle.SpawnBackpackItem(world, "ハードディスク", 1)
+	hdd, err := lifecycle.SpawnBackpackItem(world, "hard_disk", 1)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(hdd, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(hdd, player, world)
 	// baseAP1000 グレード2 で必要AP800
 	assert.Equal(t, 800, comp.Progress.Max)
 
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -212,19 +215,19 @@ func TestDisassembleBehavior_収納propを分解すると中身が足元に出�
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
-	crate, err := lifecycle.SpawnProp(world, "木箱", 11, 10)
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 11, 10)
 	require.NoError(t, err)
 
 	// 収納に中身を入れる
-	loot, err := lifecycle.SpawnFieldItem(world, "パン", 12, 12, 1)
+	loot, err := lifecycle.SpawnFieldItem(world, "bread", 12, 12, 1)
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MoveToStorage(world, loot, crate))
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -244,14 +247,14 @@ func TestDisassembleBehavior_Finish_対象が既に消えていれば何もし�
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 
 	world.ECS.RemoveEntity(crate)
@@ -273,14 +276,14 @@ func TestDisassembleBehavior_スタックのあるアイテムは1個だけ消�
 	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "電動ドライバー", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "electric_screwdriver", 1)
 	require.NoError(t, err)
-	hdd, err := lifecycle.SpawnBackpackItem(world, "ハードディスク", 2)
+	hdd, err := lifecycle.SpawnBackpackItem(world, "hard_disk", 2)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(hdd, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(hdd, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -302,14 +305,14 @@ func TestDisassembleBehavior_Finish_レベルアップでStatsChangedが付く(t
 	mechanic := world.Components.Skills.Get(player).Get(gc.SkillMechanic)
 	mechanic.Exp.Current = mechanic.Exp.Max - 1
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -327,7 +330,7 @@ func TestDisassembleBehavior_Validate_敵が隣接していると開始できな
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
@@ -336,8 +339,8 @@ func TestDisassembleBehavior_Validate_敵が隣接していると開始できな
 	da := &DisassembleBehavior{}
 	comp := &gc.Activity{Params: &gc.DisassembleParams{Target: crate}}
 	err = da.Validate(comp, player, world)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "敵")
+	var ve *UserError
+	require.ErrorAs(t, err, &ve)
 }
 
 func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing.T) {
@@ -346,15 +349,15 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
+	comp := NewDisassembleActivity(crate, player, world)
+	err = da.Validate(comp, player, world)
 	require.NoError(t, err)
-	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	require.NoError(t, da.DoTurn(comp, player, world))
 	require.Equal(t, gc.ActivityStateRunning, comp.State, "敵がいなければ継続するべき")
@@ -364,10 +367,10 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 
 	require.NoError(t, da.DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "周囲に敵がいるため分解を中断", comp.CancelReason)
+	assert.Equal(t, "disassembly interrupted because enemies are nearby", comp.CancelReason)
 }
 
-func TestAppendYields(t *testing.T) {
+func TestYieldsMarkup(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -375,22 +378,19 @@ func TestAppendYields(t *testing.T) {
 		stacks []lifecycle.YieldStack
 		want   string
 	}{
-		{"空なら何も得られなかった", nil, "何も得られなかった"},
-		{"1件は単独表記", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}}, "鉄くず x2 を得た"},
-		{"複数件は読点で連結", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}, {Name: "硬木", Count: 1}}, "鉄くず x2、硬木 x1 を得た"},
+		{"1件は単独表記", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}}, "鉄くず x2"},
+		{"複数件は読点で連結", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}, {Name: "硬木", Count: 1}}, "鉄くず x2、硬木 x1"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
-			store := query.GetGameLog(world)
-			logger := gamelog.New(store)
-			appendYields(logger, tt.stacks)
-			logger.Log()
-
-			recent := store.GetRecent(1)
-			require.Len(t, recent, 1)
-			assert.Equal(t, tt.want, recent[0])
+			// マークアップを描画した後の表示テキストが期待どおり並ぶことを確認する
+			var got strings.Builder
+			for _, f := range gamelog.ParseMarkup(yieldsMarkup(tt.stacks, world)) {
+				got.WriteString(f.Text)
+			}
+			assert.Equal(t, tt.want, got.String())
 		})
 	}
 }
@@ -401,21 +401,21 @@ func TestDisassembleBehavior_DoTurn_対象が消えると中断する(t *testing
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	_, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	_, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 
 	world.ECS.RemoveEntity(crate)
 
 	require.NoError(t, da.DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "分解対象が消えたため中断", comp.CancelReason)
+	assert.Equal(t, "interrupted because the disassembly target disappeared", comp.CancelReason)
 
 	// 対象が消えた後のキャンセル処理でもエラーにならない
 	require.NoError(t, da.Canceled(comp, player, world))
@@ -427,19 +427,19 @@ func TestDisassembleBehavior_DoTurn_工具を失うと中断する(t *testing.T)
 	world := testutil.InitTestWorld(t)
 	player := newDisassembleTestPlayer(world)
 
-	wrench, err := lifecycle.SpawnBackpackItem(world, "モンキーレンチ", 1)
+	wrench, err := lifecycle.SpawnBackpackItem(world, "monkey_wrench", 1)
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 
 	world.ECS.RemoveEntity(wrench)
 
 	require.NoError(t, da.DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
-	assert.Equal(t, "工具を失ったため分解を中断", comp.CancelReason)
+	assert.Equal(t, "disassembly interrupted because the tool was lost", comp.CancelReason)
 }

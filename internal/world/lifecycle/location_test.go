@@ -63,7 +63,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 		// プレイヤーなしで実行
 		err := MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "必須コンポーネントを持つプレイヤーエンティティが見つかりません")
+		assert.Contains(t, err.Error(), "no player entity with required components found")
 	})
 
 	t.Run("必須コンポーネントが欠けている場合はエラー", func(t *testing.T) {
@@ -78,7 +78,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 
 		err := MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "必須コンポーネントを持つプレイヤーエンティティが見つかりません")
+		assert.Contains(t, err.Error(), "no player entity with required components found")
 	})
 }
 
@@ -86,7 +86,7 @@ func TestMovePlayerToPosition_隊員も隣接位置に再配置される(t *test
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	member, err := SpawnSquadMember(world, player, "隊員A", testAbilities(), "player")
@@ -119,7 +119,7 @@ func TestMovePlayerToPosition_複数隊員が重複しない位置に配置さ�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	member1, err := SpawnSquadMember(world, player, "隊員A", testAbilities(), "player")
@@ -142,7 +142,7 @@ func TestMovePlayerToPosition_地図端の密集でも隊員が重ならず散�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	// 隊員を多数連れる。近傍リングだけでは全員を収めきれない数にする
@@ -187,7 +187,7 @@ func TestSpawnSquadMember_連続生成で重ならない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	const numMembers = 8

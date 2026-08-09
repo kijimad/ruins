@@ -20,7 +20,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	if !world.Components.GridElement.Has(entity) {
-		return fmt.Errorf("プレイヤーにGridElementコンポーネントがありません")
+		return fmt.Errorf("player has no GridElement component")
 	}
 
 	gridElement := world.Components.GridElement.Get(entity)
@@ -28,11 +28,11 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 	next := current.Add(direction.GetDelta())
 
-	// 移動先にOnCollision方式のInteractableがある場合は自動実行
+	// 移動先の同居 Interactable を全て見て、OnCollision 方式のものを自動実行する。ポータルのような
+	// Manual 単独の Interactable が同じタイルに同居しても、NPC の会話などの OnCollision を取りこぼさない。
 	targetGrid := &gc.GridElement{Coord: next}
-	interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
-
-	if interactable != nil {
+	for _, interactableEntity := range interactablesAtSameTile(world, targetGrid) {
+		interactable := world.Components.Interactable.Get(interactableEntity)
 		for _, interaction := range interactable.Interactions {
 			if interaction.Config().ActivationWay != gc.ActivationWayOnCollision {
 				continue
@@ -43,10 +43,6 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 				if world.Components.Door.Has(interactableEntity) {
 					door := world.Components.Door.Get(interactableEntity)
 					if !door.IsOpen {
-						if door.Locked {
-							gamelog.New(query.GetGameLog(world)).Append("扉はロックされている。").Log()
-							return nil
-						}
 						_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 						return err
 					}
@@ -71,23 +67,17 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	// 押しはキューブだけを動かす。プレイヤーの追随は次入力の通常移動が担い、方向を押し続けると
 	// 押しと一歩が交互に起きてキューブが進む
 	if cube, ok := pushableAt(world, next); ok {
-		// 押し先が塞がっていれば、壁に歩き込むのと同じく何もしない。エラーにすると
-		// 入力層で致命化するため、実行可否をここで判定して不可なら no-op にする
-		cubeCoord := world.Components.GridElement.Get(cube).Coord
-		if !CanMoveTo(world, cubeCoord.Add(direction.GetDelta()), cubeCoord, cube) {
-			return nil
-		}
-		comp, err := NewPushActivity(cube, direction, world)
-		if err != nil {
-			return err
-		}
-		_, err = Execute(comp, entity, world)
+		// 押し先が塞がっていれば Push.Validate が理由を gamelog へ出し err=nil で閉じる。
+		// 壁への歩き込みと同じく no-op になる
+		_, err := Execute(NewPushActivity(cube, direction, world), entity, world)
 		return err
 	}
 
 	canMove := CanMoveTo(world, next, current, entity)
 	if canMove {
 		destination := gc.GridElement{Coord: next}
+		// 重量超過はプレイヤーの通常状態。Execute はユーザ起因の失敗を gamelog へ出したうえで
+		// err=nil を返すため、壁への歩き込みと同じく no-op になる
 		_, err := Execute(NewMoveActivity(destination), entity, world)
 		return err
 	}
@@ -116,27 +106,20 @@ func ExecuteWaitAction(world w.World) error {
 	return err
 }
 
-// getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する。
-// 複数ある場合は最初に見つかったものを返す。
-// 見つからない場合は interactable が nil になる。interactable != nil のときのみ entity は有効値。
-func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
-	var found *gc.Interactable
-	var foundEntity ecs.Entity
+// interactablesAtSameTile は指定タイルにある生存 Interactable を全て返す。同一タイルにポータルと
+// NPC のように複数の Interactable が同居しうるため、先着1件でなく全件を返して取りこぼしを防ぐ。
+func interactablesAtSameTile(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
+	var found []ecs.Entity
 	interactableQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Without(ecs.C[gc.Dead]()).Query()
 	for interactableQuery.Next() {
 		entity := interactableQuery.Entity()
-		if found != nil {
-			// 先着1件を採用する。途中 return せず反復は最後まで続ける。Ark のワールドロックを外すため
-			continue
-		}
 		ge := world.Components.GridElement.Get(entity)
 		// 直上タイルのみ
 		if ge.X == targetGrid.X && ge.Y == targetGrid.Y {
-			found = world.Components.Interactable.Get(entity)
-			foundEntity = entity
+			found = append(found, entity)
 		}
 	}
-	return found, foundEntity
+	return found
 }
 
 // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する
@@ -167,31 +150,30 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
 	d := targetGrid.Sub(playerGrid.Coord)
 
-	// 同じタイル
 	if d.X == 0 && d.Y == 0 {
-		return "直上"
+		return "here"
 	}
 
 	// 8方向を判定
 	if d.Y < 0 {
 		if d.X < 0 {
-			return "左上"
+			return "upper left"
 		} else if d.X > 0 {
-			return "右上"
+			return "upper right"
 		}
-		return "上"
+		return "up"
 	} else if d.Y > 0 {
 		if d.X < 0 {
-			return "左下"
+			return "lower left"
 		} else if d.X > 0 {
-			return "右下"
+			return "lower right"
 		}
-		return "下"
+		return "down"
 	}
 	if d.X < 0 {
-		return "左"
+		return "left"
 	}
-	return "右"
+	return "right"
 }
 
 // showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する
@@ -207,27 +189,25 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			case gc.InteractionItem:
 				formattedName := query.FormatItemName(world, entity)
 				gamelog.New(query.GetGameLog(world)).
-					ItemName(formattedName).
-					Append(" がある。").
+					Markup(query.T(world, "%s is here.", gamelog.Tag("item", formattedName))).
 					Log()
 			case gc.InteractionPortalNext:
 				gamelog.New(query.GetGameLog(world)).
-					Append("転移ゲートがある。Enterキーで移動。").
+					Markup(query.T(world, "There is a warp gate. Press Enter to move.")).
 					Log()
 			case gc.InteractionPortalPrev:
 				gamelog.New(query.GetGameLog(world)).
-					Append("上り階段がある。Enterキーで移動。").
+					Markup(query.T(world, "There is an up staircase. Press Enter to move.")).
 					Log()
 			case gc.InteractionDungeonEnter:
 				gamelog.New(query.GetGameLog(world)).
-					Append("遺跡の入口がある。Enterキーで入る。").
+					Markup(query.T(world, "There is a ruins entrance. Press Enter to enter.")).
 					Log()
 			case gc.InteractionEnterCube:
 				gamelog.New(query.GetGameLog(world)).
-					ItemName(query.GetEntityName(entity, world)).
-					Append("がある。Spaceのアクションメニューから入れる。").
+					Markup(query.T(world, "%s is here. You can enter it from the Space action menu.", gamelog.Tag("item", query.GetEntityName(entity, world)))).
 					Log()
-			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
+			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}

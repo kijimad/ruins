@@ -27,8 +27,8 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 	switch name {
 	case gc.BehaviorMove:
 		return &MoveBehavior{}, nil
-	case gc.BehaviorAttack:
-		return &AttackBehavior{}, nil
+	case gc.BehaviorMelee:
+		return &MeleeBehavior{}, nil
 	case gc.BehaviorRest:
 		return &RestBehavior{}, nil
 	case gc.BehaviorWait:
@@ -59,10 +59,10 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 		return &PushBehavior{}, nil
 	case gc.BehaviorPull:
 		return &PullBehavior{}, nil
-	case gc.BehaviorPortal, gc.BehaviorDoorLock, gc.BehaviorStorage:
+	case gc.BehaviorPortal, gc.BehaviorStorage:
 		// ExecuteInteraction が直接処理する結果ラベルで、対応する Behavior 実装は持たない
 	}
-	return nil, fmt.Errorf("未登録のBehavior: %s", name)
+	return nil, fmt.Errorf("unregistered behavior: %s", name)
 }
 
 // Behavior はアクティビティの実行を担当するインターフェース。
@@ -74,6 +74,12 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 type Behavior interface {
 	Info() Info
 	Name() gc.BehaviorName
+	// Validate は実行前提を検査する副作用のない純粋関数。失敗の種別を error の型で表す。
+	// 返す error のうち *UserError だけがユーザ起因で、呼び出し側が Msg を gamelog へ出して
+	// 操作を取り消す。弾切れ・敵接近・本が無い等がこれにあたる。
+	// それ以外の error は致命的で、呼び出し側が伝播させる。構築ミスや不変条件違反、
+	// 手番を得た actor の死亡などがこれにあたる。
+	// 検証通過なら nil を返す。副作用はなく、gamelog も呼ばず panic もしない。
 	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
 	DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error
@@ -132,7 +138,7 @@ func CanResume(comp *gc.Activity) bool {
 // Interrupt はアクティビティを中断する
 func Interrupt(comp *gc.Activity, reason string) error {
 	if !CanInterrupt(comp) {
-		return fmt.Errorf("アクティビティ '%s' は中断できません", GetDisplayName(comp))
+		return fmt.Errorf("activity '%s' cannot be paused", GetDisplayName(comp))
 	}
 	comp.State = gc.ActivityStatePaused
 	comp.CancelReason = reason
@@ -142,7 +148,7 @@ func Interrupt(comp *gc.Activity, reason string) error {
 // Resume はアクティビティを再開する
 func Resume(comp *gc.Activity) error {
 	if !CanResume(comp) {
-		return fmt.Errorf("アクティビティ '%s' は再開できません", GetDisplayName(comp))
+		return fmt.Errorf("activity '%s' cannot be resumed", GetDisplayName(comp))
 	}
 	comp.State = gc.ActivityStateRunning
 	comp.CancelReason = ""
@@ -197,7 +203,7 @@ func Cancel(comp *gc.Activity, reason string) {
 func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return consts.Coord[consts.Tile]{}, fmt.Errorf("目的地が指定されていません")
+		return consts.Coord[consts.Tile]{}, ErrParamsTypeMismatch
 	}
 	return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil
 }

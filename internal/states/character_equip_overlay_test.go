@@ -25,9 +25,9 @@ func newEquipOverlayForTest() characterEquipOverlay {
 func TestCharacterEquipOverlay_Openで候補を読み込み選択中になる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	sword, err := lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
+	sword, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 
 	o := newEquipOverlayForTest()
@@ -44,9 +44,9 @@ func TestCharacterEquipOverlay_Openで候補を読み込み選択中になる(t 
 func TestCharacterEquipOverlay_executeで空きスロットに候補を装着する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	sword, err := lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
+	sword, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 
 	o := newEquipOverlayForTest()
@@ -63,17 +63,17 @@ func TestCharacterEquipOverlay_executeで空きスロットに候補を装着す
 func TestCharacterEquipOverlay_executeで既存装備を持ち物へ戻す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	// 先に1本装備しておく。これが差し替えで持ち物へ戻る旧装備になる
-	old, err := lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
+	old, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 	lifecycle.MoveToEquip(world, old, player, gc.SlotWeapon1)
 	require.False(t, world.Components.LocationInBackpack.Has(old), "旧装備は一旦持ち物から外れている")
 
 	// 別の武器を持ち、旧装備を PreviousEquipment に持つスロットで開く
-	fresh, err := lifecycle.SpawnBackpackItem(world, "鉄の剣", 1)
+	fresh, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 	o := newEquipOverlayForTest()
 	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Member: player, Entity: &old})
@@ -95,7 +95,7 @@ func TestCharacterEquipOverlay_executeで既存装備を持ち物へ戻す(t *te
 func TestCharacterEquipOverlay_候補が無ければ何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
 	o := newEquipOverlayForTest()

@@ -12,8 +12,8 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menurt"
-	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -23,11 +23,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ShopMenuState はショップメニューのゲームステート
+// ShopMenuState はショップメニューのゲームステート。
+// 商人の在庫を売買する。買うと在庫が減り、売ると売った品が在庫に並ぶ
 type ShopMenuState struct {
 	es.BaseState[w.World]
-	detail menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen *menurt.Screen[ShopProps]
+	merchant ecs.Entity        // 品揃えを LocationInStorage で持つ商人。売買の相手
+	detail   menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen   *menurt.Screen[ShopProps]
 }
 
 // State interface ================
@@ -37,13 +39,20 @@ var _ menurt.ExtraInput = &ShopMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.detail = menuscreen.NewEntityDetail(func() (ecs.Entity, bool) {
+		it, ok := st.selectedShopItem()
+		return it.Entity, ok
+	})
 	st.screen = menurt.NewScreen[ShopProps](st, &st.detail)
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
+	// 売買で所持品が変わると WeightDirty が立つ。この画面でも再計算を回し、総重量の表示を売買のたびに更新する
+	if err := runUpdaters(world, &gs.WeightDirtySystem{}); err != nil {
+		return es.Transition[w.World]{}, err
+	}
 	return st.screen.Update(world)
 }
 
@@ -68,7 +77,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		if err := st.buySellSelected(world); err != nil {
 			return es.Transition[w.World]{}, err
@@ -76,7 +85,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("shopMenu: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("shopMenu: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -96,14 +105,13 @@ type shopTabData struct {
 	Items []shopItemData
 }
 
+// shopItemData は一覧1行分。名前・重量・個数は実体から都度出せるので持たず、
+// プレイヤーの所持金や倍率が要る値だけを持つ
 type shopItemData struct {
-	Label    string
-	Weight   string
-	Price    int
-	Count    int // 売却時のアイテム個数
-	Entity   ecs.Entity
-	IsBuy    bool
-	Disabled bool
+	Entity   ecs.Entity // 在庫・持ち物の実体。表示も操作もこれから解決する
+	Price    int        // 価値と交渉スキルの倍率から出す。実体だけでは決まらない
+	IsBuy    bool       // 買いタブの行なら真
+	Disabled bool       // 所持金が足りず選べない
 }
 
 // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
@@ -135,90 +143,63 @@ func (st *ShopMenuState) Menu(props ShopProps) menurt.MenuConfig {
 
 func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, sellPriceMod consts.Percent) []shopTabData {
 	return []shopTabData{
-		{ID: "buy", Label: "購入", Items: st.createBuyItems(world, currency, buyPriceMod)},
-		{ID: "sell", Label: "売却", Items: st.createSellItems(world, sellPriceMod)},
+		{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, currency, buyPriceMod)},
+		{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, sellPriceMod)},
 	}
 }
 
+// createBuyItems は商人の在庫を買いタブへ並べる。アイテムと隊員候補が同列に並ぶ
 func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod consts.Percent) []shopItemData {
-	shopInventory := gameaction.GetShopInventory()
-	items := make([]shopItemData, 0, len(shopInventory))
+	stock := query.GetStorageItems(world, st.merchant)
+	items := make([]shopItemData, 0, len(stock))
 
-	for _, itemName := range shopInventory {
-		price := buyPriceMod.ApplyInt(st.getItemPrice(world, itemName, true))
-		canAfford := currency >= price
-
+	for _, entity := range stock {
+		base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
+		price := buyPriceMod.ApplyInt(query.CalculateBuyPrice(base))
 		items = append(items, shopItemData{
-			Label:    itemName,
-			Weight:   shopItemWeight(world, itemName),
+			Entity:   entity,
 			Price:    price,
 			IsBuy:    true,
-			Disabled: !canAfford,
+			Disabled: currency < price,
 		})
 	}
 
 	return items
 }
 
+// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る。
+// プレイヤーが居ないときは何も並べない。存在確認を先に済ませ、収集クエリは query.Player の
+// コールバック外で回してクエリのネストを避ける
 func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Percent) []shopItemData {
+	if _, err := query.GetPlayerEntity(world); err != nil {
+		return nil
+	}
+
 	var items []shopItemData
-
-	query.Player(world, func(_ ecs.Entity) {
-		sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
-		for sellQuery.Next() {
-			entity := sellQuery.Entity()
-			nameComp := world.Components.Name.Get(entity)
-			itemName := nameComp.Name
-
-			baseValue := query.GetItemValue(world, entity)
-			price := sellPriceMod.ApplyInt(query.CalculateSellPrice(baseValue))
-
-			count := query.GetEntityCount(world, entity)
-
-			items = append(items, shopItemData{
-				Label:  itemName,
-				Weight: query.GetEntityWeight(world, entity).KgString(),
-				Price:  price,
-				Count:  count,
-				Entity: entity,
-				IsBuy:  false,
-			})
-		}
-	})
+	sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
+	for sellQuery.Next() {
+		entity := sellQuery.Entity()
+		base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
+		price := sellPriceMod.ApplyInt(query.CalculateSellPrice(base))
+		items = append(items, shopItemData{
+			Entity: entity,
+			Price:  price,
+			IsBuy:  false,
+		})
+	}
 
 	return items
-}
-
-// shopItemWeight は raw 定義から商品1個の重量表記を返す。重量を持たない品は空文字を返す
-func shopItemWeight(world w.World, label string) string {
-	spec, err := raw.NewItemSpec(world.Resources.RawMaster, label)
-	if err != nil || spec.Weight == nil {
-		return ""
-	}
-	return spec.Weight.KgString()
-}
-
-func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool) int {
-	itemDef, err := raw.FindItem(world.Resources.RawMaster, itemName)
-	if err != nil {
-		return 0
-	}
-	baseValue := int(itemDef.Value)
-	if isBuy {
-		return query.CalculateBuyPrice(baseValue)
-	}
-	return query.CalculateSellPrice(baseValue)
 }
 
 // ================
 // Window
 // ================
 
-// buySellSelected は現在カーソルが当たっている商品を、購入タブなら購入、売却タブなら売却する。
-// 決定で即実行し、途中のアクション選択は挟まない。購入は所持金が足りなければ何もしない
+// buySellSelected は現在カーソルが当たっている行を、買いタブなら購入・雇用、売りタブなら売却する。
+// 決定で即実行し、途中のアクション選択は挟まない。購入・雇用は所持金が足りなければ何もしない
 func (st *ShopMenuState) buySellSelected(world w.World) error {
 	item, ok := st.selectedShopItem()
-	if !ok || item.Label == "" {
+	if !ok {
 		return nil
 	}
 	if item.IsBuy {
@@ -227,22 +208,33 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 		if !canAfford {
 			return nil
 		}
+		// 選択が古く実体が消えていれば何もしない。dead entity への Has/移動は panic するため先に守る
+		if !world.ECS.Alive(item.Entity) {
+			return nil
+		}
+		// 在庫の類型で分ける。多数のアイテム類型から隊員候補だけ雇用へ、残りは購入へ振る
 		var err error
-		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyItem(world, p, item.Label) })
+		cat, _ := world.Components.CategoryOf(gc.ItemTypeCategoryKey, item.Entity)
+		switch cat {
+		case gc.CategoryRecruit:
+			query.Player(world, func(p ecs.Entity) { err = gameaction.HireRecruit(world, p, item.Entity) })
+		default:
+			query.Player(world, func(p ecs.Entity) { err = gameaction.BuyStock(world, p, item.Entity) })
+		}
 		if err != nil {
-			return fmt.Errorf("購入に失敗: %w", err)
+			return fmt.Errorf("failed to buy: %w", err)
 		}
 		return nil
 	}
 	var err error
-	query.Player(world, func(p ecs.Entity) { err = gameaction.SellItem(world, p, item.Entity) })
+	query.Player(world, func(p ecs.Entity) { err = gameaction.SellStock(world, p, st.merchant, item.Entity) })
 	if err != nil {
-		return fmt.Errorf("売却に失敗: %w", err)
+		return fmt.Errorf("failed to sell: %w", err)
 	}
 	return nil
 }
 
-// selectedShopItem は現在カーソルが当たっている商品を返す
+// selectedShopItem は現在カーソルが当たっている行を返す
 func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
@@ -261,7 +253,7 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ShopMenuState) View(_ w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -270,45 +262,12 @@ func (st *ShopMenuState) View(_ w.World, props ShopProps, cursor menurt.Selectio
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemContainer(props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, "x 詳細"),
+		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 
-// detailContent は現在カーソルが当たっている商品の詳細内容を raw 定義から解決する。詳細モーダルの唯一の定義点。
-func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
-	item, spec, ok := st.selectedDetail(world)
-	if !ok {
-		return menuscreen.DetailContent{}, false
-	}
-	// 価格・重さは一覧に出すので、詳細の説明は raw のアイテム説明だけにする
-	desc := ""
-	if spec.Description != nil {
-		desc = spec.Description.Description
-	}
-	return menuscreen.DetailContent{Name: item.Label, Desc: desc, Spec: &spec}, true
-}
-
-// selectedDetail は現在カーソルが当たっている商品と、その raw 由来の性能を解決する
-func (st *ShopMenuState) selectedDetail(world w.World) (shopItemData, gc.EntitySpec, bool) {
-	props := st.screen.Props()
-	cursor := st.screen.Selection()
-	if cursor.TabIndex >= len(props.Tabs) {
-		return shopItemData{}, gc.EntitySpec{}, false
-	}
-	items := props.Tabs[cursor.TabIndex].Items
-	if cursor.ItemIndex >= len(items) {
-		return shopItemData{}, gc.EntitySpec{}, false
-	}
-	item := items[cursor.ItemIndex]
-	s, err := raw.NewItemSpec(world.Resources.RawMaster, item.Label)
-	if err != nil {
-		return shopItemData{}, gc.EntitySpec{}, false
-	}
-	return item, s, true
-}
-
-func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	if tabIndex >= len(tabs) {
 		return styled.NewVerticalContainer()
 	}
@@ -321,11 +280,15 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = menuRow{Cells: []string{nameWithCount(it.Label, it.Count), query.FormatCurrency(it.Price), it.Weight}}
+		// 名前・個数・重量は実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している
+		name := query.T(world, world.Components.Name.Get(it.Entity).Name)
+		count := query.GetEntityCount(world, it.Entity)
+		weight := query.GetEntityWeight(world, it.Entity).KgString()
+		rows[i] = menuRow{Cells: []string{nameWithCount(name, count), query.FormatCurrency(it.Price), weight}}
 	}
-	emptyText := "(商品なし)"
+	emptyText := query.T(world, "No goods")
 	if currentTab.ID == "sell" {
-		emptyText = "売却可能なアイテムがありません"
+		emptyText = query.T(world, "No items to sell")
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
 }

@@ -61,7 +61,7 @@ func (st *SettingsMenuState) DoAction(_ w.World, action inputmapper.ActionID) (e
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("settingsMenu: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("settingsMenu: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -96,8 +96,8 @@ type settingsMenuItem struct {
 func (st *SettingsMenuState) Fetch(world w.World) SettingsMenuProps {
 	return SettingsMenuProps{
 		Items: []settingsMenuItem{
-			{Kind: settingsItemLanguage, Label: "言語", Value: currentLanguageLabel(query.GetUserSettings(world).Language)},
-			{Kind: settingsItemBack, Label: "戻る"},
+			{Kind: settingsItemLanguage, Label: query.T(world, "Language"), Value: query.T(world, currentLanguageLabel(query.GetUserSettings(world).Language))},
+			{Kind: settingsItemBack, Label: query.T(world, "Back")},
 		},
 	}
 }
@@ -138,13 +138,13 @@ func (st *SettingsMenuState) handleSelection() es.Transition[w.World] {
 
 // language は選択できる表示言語を表す
 type language struct {
-	Code  string // 言語コード（"ja" / "en"）
-	Label string // 表示名（"日本語" / "English"）
+	Code  string // 言語コード。"ja" / "en"
+	Label string // 表示名の msgid。query.T で現在言語の訳を引く
 }
 
 // languagePresets は選択できる言語の一覧を保持する
 var languagePresets = []language{
-	{Code: "ja", Label: "日本語"},
+	{Code: "ja", Label: "Japanese"},
 	{Code: "en", Label: "English"},
 }
 
@@ -165,17 +165,17 @@ func NewLanguageMenuState() (es.State[w.World], error) {
 }
 
 // languageChoices は選択できる表示言語を選択肢にする。選ぶとシングルトンへ反映し設定を保存して閉じる
-func languageChoices(_ w.World) (string, []Choice) {
+func languageChoices(world w.World) (string, []Choice) {
 	choices := make([]Choice, 0, len(languagePresets))
 	for _, l := range languagePresets {
-		choices = append(choices, Choice{Label: l.Label, Run: func(world w.World) (es.Transition[w.World], error) {
+		choices = append(choices, Choice{Label: query.T(world, l.Label), Run: func(world w.World) (es.Transition[w.World], error) {
 			// シングルトンの設定言語を書き換える。Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
 			if s := query.GetUserSettings(world); s != nil {
 				s.Language = l.Code
 			}
 			world.Config.User.Language = l.Code
 			if err := world.Config.SaveUserConfig(); err != nil {
-				logger.New(logger.CategorySave).Warn("言語設定の保存に失敗しました", "error", err)
+				logger.New(logger.CategorySave).Warn("failed to save language setting", "error", err)
 			}
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}})
@@ -188,7 +188,7 @@ func languageChoices(_ w.World) (string, []Choice) {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *SettingsMenuState) View(_ w.World, props SettingsMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
 	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {
@@ -208,11 +208,11 @@ func (st *SettingsMenuState) View(_ w.World, props SettingsMenuProps, cursor men
 	)
 
 	titleText := widget.NewText(
-		widget.TextOpts.Text("設定", &res.Text.BodyFace, theme.TextPrimary),
+		widget.TextOpts.Text(query.T(world, "Settings"), &res.Text.BodyFace, theme.TextPrimary),
 	)
 	menuContainer.AddChild(titleText)
 	menuContainer.AddChild(table)
-	menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(false), res))
+	menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(world, false), res))
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

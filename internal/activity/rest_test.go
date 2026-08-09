@@ -20,7 +20,7 @@ func TestIsAreaSafe(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		assert.True(t, isAreaSafe(player, world))
@@ -30,7 +30,7 @@ func TestIsAreaSafe(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		enemy := world.ECS.NewEntity()
@@ -44,7 +44,7 @@ func TestIsAreaSafe(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		enemy := world.ECS.NewEntity()
@@ -72,7 +72,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -89,7 +89,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 敵を手動で作成
@@ -104,15 +104,15 @@ func TestRestBehavior_Validate(t *testing.T) {
 
 		ra := &RestBehavior{}
 		err = ra.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "敵がいる")
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("Requiredが0以下の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -122,8 +122,7 @@ func TestRestBehavior_Validate(t *testing.T) {
 
 		ra := &RestBehavior{}
 		err = ra.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "休息の必要量が無効")
+		require.ErrorIs(t, err, ErrRestInvalidDuration)
 	})
 }
 
@@ -134,7 +133,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// HPを減らす
@@ -159,7 +158,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// HPを最大値付近に設定
@@ -184,7 +183,7 @@ func TestRestBehavior_performHealing(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// SpawnPlayerは満タンHPで作成される
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -227,7 +226,7 @@ func TestRestBehavior_所要はAP量で伸縮する(t *testing.T) {
 	// 指定したAP最大値で、必要量に達するまでのターン数を数える
 	stepsToComplete := func(apMax int) int {
 		world := testutil.InitTestWorld(t)
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		world.Components.TurnBased.Get(player).AP.Max = apMax
@@ -260,7 +259,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// HPを減らす
@@ -287,7 +286,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 敵を手動で作成
@@ -312,7 +311,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// HPを減らして満タン早期完了を避け、必要量到達での完了を確かめる
@@ -336,7 +335,7 @@ func TestRestBehavior_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// HPを減らす
@@ -364,13 +363,14 @@ func TestRestBehavior_Canceled(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
 			State:        gc.ActivityStateCanceled,
-			CancelReason: "敵の接近",
+			// 実コードと同じ英語の CancelReason を使う。表示時に query.T で日本語へ訳される
+			CancelReason: "rest interrupted because enemies are nearby",
 		}
 
 		ra := &RestBehavior{}
@@ -381,7 +381,7 @@ func TestRestBehavior_Canceled(t *testing.T) {
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
 		assert.Contains(t, recent[0], "休息が中断された")
-		assert.Contains(t, recent[0], "敵の接近")
+		assert.Contains(t, recent[0], "周囲に敵がいるため休息を中断")
 	})
 }
 
@@ -392,7 +392,7 @@ func TestRestBehavior_Finish(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// HPを減らす

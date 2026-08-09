@@ -36,7 +36,7 @@ func NewCatalog() Catalog {
 func mustParse(path string) *gotext.Po {
 	data, err := localeFS.ReadFile(path)
 	if err != nil {
-		panic(fmt.Sprintf("i18n: 埋め込み PO の読み込みに失敗した: %s: %v", path, err))
+		panic(fmt.Sprintf("i18n: failed to read embedded PO: %s: %v", path, err))
 	}
 	po := gotext.NewPo()
 	po.Parse(data)
@@ -44,14 +44,15 @@ func mustParse(path string) *gotext.Po {
 }
 
 // Translate は lang における msgid の訳を返す。未知の言語や未訳は原文の英語へフォールバックする。
+// args を渡すと訳を書式として printf 整形する。args が無ければ整形せずそのまま返す。
 //
-// gotext の Get は可変引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。
-// 整形しないのでメソッド値を介して呼び回避する。
-func (c Catalog) Translate(lang, msgid string) string {
+// gotext の Get は書式引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。
+// メソッド値を介して呼び回避する。
+func (c Catalog) Translate(lang, msgid string, args ...any) string {
 	po, ok := c.langs[lang]
 	if !ok {
 		po = c.langs[defaultLang]
 	}
 	get := po.Get
-	return get(msgid)
+	return get(msgid, args...)
 }

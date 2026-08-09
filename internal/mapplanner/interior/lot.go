@@ -52,7 +52,7 @@ func lotEdgeSpan(f Rect, fside side) (lo, hi consts.Tile, edge tileLine) {
 	case sideEast:
 		return f.Y, f.Y + f.H - 1, tileLine{cross: f.X + f.W - 1, horiz: false}
 	}
-	panic("未知の side: " + strconv.Itoa(int(fside)))
+	panic("unknown side: " + strconv.Itoa(int(fside)))
 }
 
 // yardSpot は前庭の外構を置くタイルを返す。門の脇で塀の1マス内側の前庭タイルを試す。前庭でなければ置かない。

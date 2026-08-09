@@ -31,73 +31,62 @@ func TestRetroFilter_Apply(t *testing.T) {
 	}, "Applyでパニックが発生しないこと")
 }
 
-func TestPipeline_BeginEnd(t *testing.T) {
+func TestPipeline_Apply(t *testing.T) {
 	t.Parallel()
 
 	filter, err := NewRetroFilter()
 	require.NoError(t, err)
 
 	pipeline := NewPipeline(filter)
-
-	// Beginでオフスクリーンバッファを取得
-	offscreen := pipeline.Begin(100, 100)
-	require.NotNil(t, offscreen, "オフスクリーンバッファがnilではないこと")
-
-	bounds := offscreen.Bounds()
-	assert.Equal(t, 100, bounds.Dx(), "幅が正しいこと")
-	assert.Equal(t, 100, bounds.Dy(), "高さが正しいこと")
-
-	// Endで画面に描画
+	src := ebiten.NewImage(100, 100)
 	screen := ebiten.NewImage(100, 100)
-	pipeline.End(screen)
+
+	assert.NotPanics(t, func() {
+		pipeline.Apply(screen, src)
+	}, "Filter を1枚かける Apply がパニックしないこと")
 }
 
-func TestPipeline_NilReceiver(t *testing.T) {
+func TestPipeline_Apply_多段チェーン(t *testing.T) {
 	t.Parallel()
 
-	// nilレシーバーでもパニックしないことを確認
-	var pipeline *Pipeline
+	f1, err := NewRetroFilter()
+	require.NoError(t, err)
+	f2, err := NewRetroFilter()
+	require.NoError(t, err)
 
-	offscreen := pipeline.Begin(100, 100)
-	assert.Nil(t, offscreen, "nilパイプラインのBeginはnilを返す")
+	// 多段は中間バッファを ping-pong する。パニックせず適用できること。
+	pipeline := NewPipeline(f1, f2)
+	src := ebiten.NewImage(120, 80)
+	screen := ebiten.NewImage(120, 80)
 
-	screen := ebiten.NewImage(100, 100)
 	assert.NotPanics(t, func() {
-		pipeline.End(screen)
-	}, "nilパイプラインのEndはパニックしない")
-}
-
-func TestPipeline_NilFilter(t *testing.T) {
-	t.Parallel()
-
-	pipeline := NewPipeline(nil)
-	offscreen := pipeline.Begin(100, 100)
-	require.NotNil(t, offscreen)
-
-	// nilフィルタの場合はそのまま描画される
-	screen := ebiten.NewImage(100, 100)
-	assert.NotPanics(t, func() {
-		pipeline.End(screen)
+		pipeline.Apply(screen, src)
 	})
 }
 
-func TestPipeline_ResizeBuffer(t *testing.T) {
+func TestPipeline_Apply_フィルタなしは素通し(t *testing.T) {
 	t.Parallel()
 
-	filter, err := NewRetroFilter()
-	require.NoError(t, err)
+	src := ebiten.NewImage(100, 100)
+	screen := ebiten.NewImage(100, 100)
 
-	pipeline := NewPipeline(filter)
+	// Filter を渡さない、および nil のみの場合はどちらも素通しでパニックしない。
+	assert.NotPanics(t, func() {
+		NewPipeline().Apply(screen, src)
+	})
+	assert.NotPanics(t, func() {
+		NewPipeline(nil).Apply(screen, src)
+	})
+}
 
-	// 最初のサイズ
-	offscreen1 := pipeline.Begin(100, 100)
-	require.NotNil(t, offscreen1)
+func TestPipeline_Apply_nilレシーバは無処理(t *testing.T) {
+	t.Parallel()
 
-	// サイズ変更
-	offscreen2 := pipeline.Begin(200, 150)
-	require.NotNil(t, offscreen2)
+	var pipeline *Pipeline
+	screen := ebiten.NewImage(100, 100)
+	src := ebiten.NewImage(100, 100)
 
-	bounds := offscreen2.Bounds()
-	assert.Equal(t, 200, bounds.Dx(), "新しい幅が正しいこと")
-	assert.Equal(t, 150, bounds.Dy(), "新しい高さが正しいこと")
+	assert.NotPanics(t, func() {
+		pipeline.Apply(screen, src)
+	}, "nil パイプラインの Apply はパニックしない")
 }

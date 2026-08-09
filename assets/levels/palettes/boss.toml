@@ -10,8 +10,7 @@
 
   # Propsの定義
   [palette.props]
-    "!" = {id = "door_lock_trigger", tile = "floor"} # ドアロックトリガー
 
   # NPCの定義
   [palette.npcs]
-    "M" = {id = "凍晶化した猟師", tile = "floor"}
+    "M" = {id = "frozen_hunter", tile = "floor"}

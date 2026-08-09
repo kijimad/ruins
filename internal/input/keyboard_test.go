@@ -8,17 +8,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSharedKeyboardInput(t *testing.T) {
+func TestGetSharedKeyboardInput_同一インスタンスを返す(t *testing.T) {
 	t.Parallel()
 
-	keyboard1 := GetSharedKeyboardInput()
-	keyboard2 := GetSharedKeyboardInput()
+	// シングルトンの同一性は具体型 *sharedKeyboardInput のポインタで比較する。
+	// KeyboardInput インターフェース値を assert.Same に渡すと内部ポインタの
+	// 取り出しが testify の実装に依存するため、意図が曖昧になる
+	keyboard1, ok1 := GetSharedKeyboardInput().(*sharedKeyboardInput)
+	keyboard2, ok2 := GetSharedKeyboardInput().(*sharedKeyboardInput)
 
+	require.True(t, ok1)
+	require.True(t, ok2)
 	assert.Same(t, keyboard1, keyboard2, "GetSharedKeyboardInput()は同一インスタンスを返す")
-	require.NotNil(t, keyboard1)
 }
 
-func TestMockKeyboardInput_EnterFunction(t *testing.T) {
+func TestMockKeyboardInput_Enterキー押下押上のワンセットとResetで状態が変化する(t *testing.T) {
 	t.Parallel()
 
 	mock := NewMockKeyboardInput()
@@ -35,7 +39,7 @@ func TestMockKeyboardInput_EnterFunction(t *testing.T) {
 	assert.False(t, mock.IsKeyPressed(ebiten.KeyEnter), "Reset()後にキー状態がクリアされる")
 }
 
-func TestMockKeyboardInput_PressReleaseSequence(t *testing.T) {
+func TestMockKeyboardInput_押下押上シミュレートを繰り返すたびに検出される(t *testing.T) {
 	t.Parallel()
 
 	mock := NewMockKeyboardInput()
@@ -54,7 +58,7 @@ func TestMockKeyboardInput_PressReleaseSequence(t *testing.T) {
 	assert.True(t, mock.IsEnterJustPressedOnce(), "押上時に検出される")
 }
 
-func TestMockKeyboardInput_BasicKeys(t *testing.T) {
+func TestMockKeyboardInput_各キー状態をセットしResetでクリアされる(t *testing.T) {
 	t.Parallel()
 
 	mock := NewMockKeyboardInput()
@@ -77,8 +81,45 @@ func TestMockKeyboardInput_BasicKeys(t *testing.T) {
 	assert.False(t, mock.IsKeyPressedWithRepeat(ebiten.KeyC))
 }
 
-func TestMockKeyboardInput_ImplementsInterface(t *testing.T) {
+func TestMockKeyboardInput_KeyboardInputインターフェースを満たす(t *testing.T) {
 	t.Parallel()
 
 	var _ KeyboardInput = NewMockKeyboardInput()
+}
+
+func TestSharedKeyboardInput_IsKeyPressed_未押下ならfalseを返す(t *testing.T) {
+	t.Parallel()
+
+	keyboard := GetSharedKeyboardInput()
+
+	assert.False(t, keyboard.IsKeyPressed(ebiten.KeyA), "テスト環境では実際のキー入力が発生しないため常にfalse")
+}
+
+func TestSharedKeyboardInput_IsKeyJustPressed_未押下ならfalseを返す(t *testing.T) {
+	t.Parallel()
+
+	keyboard := GetSharedKeyboardInput()
+
+	assert.False(t, keyboard.IsKeyJustPressed(ebiten.KeyB), "テスト環境では実際のキー入力が発生しないため常にfalse")
+}
+
+func TestSharedKeyboardInput_IsEnterJustPressedOnce_未押下が続く間はfalseを返す(t *testing.T) {
+	t.Parallel()
+
+	// GetSharedKeyboardInput()のシングルトンは他のテストとenterPressSessionを共有するため、
+	// 独立したインスタンスを直接生成して他テストの実行順序に依存しないようにする
+	keyboard := &sharedKeyboardInput{keyRepeatStates: make(map[ebiten.Key]*keyRepeatState)}
+
+	// 実際のキー入力が発生しない環境では押下-押上のセットが成立しないため、
+	// 何度呼んでもfalseのままであることを確認する
+	assert.False(t, keyboard.IsEnterJustPressedOnce())
+	assert.False(t, keyboard.IsEnterJustPressedOnce())
+}
+
+func TestSharedKeyboardInput_IsKeyPressedWithRepeat_未押下ならfalseを返す(t *testing.T) {
+	t.Parallel()
+
+	keyboard := GetSharedKeyboardInput()
+
+	assert.False(t, keyboard.IsKeyPressedWithRepeat(ebiten.KeyC), "テスト環境では実際のキー入力が発生しないため常にfalse")
 }

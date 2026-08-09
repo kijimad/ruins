@@ -73,7 +73,7 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 
 	ki := input.GetSharedKeyboardInput()
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-		o.detail.Open()
+		o.detail.Open(world)
 	} else if action, ok := menurt.HandleMenuInput(); ok {
 		switch action {
 		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
@@ -108,7 +108,7 @@ func (o *characterEquipOverlay) execute(world w.World) error {
 		}
 	}
 	lifecycle.MoveToEquip(world, item, props.TargetMember, props.SlotNumber)
-	logEquipChange(world, props.TargetMember, itemName, "を装備した。")
+	logEquipChange(world, props.TargetMember, itemName, query.T(world, "%s equipped %s."))
 	return nil
 }
 

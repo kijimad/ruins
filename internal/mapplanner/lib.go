@@ -379,24 +379,6 @@ func (e SpawnEntry) PackSize(rng *rand.Rand) int {
 	return e.Pack.Roll(rng)
 }
 
-// ItemGroupSubtype はアイテムグループの選択方式
-type ItemGroupSubtype string
-
-const (
-	// ItemGroupDistribution はエントリ群から重み比率に基づいて1つだけ選ぶ。weightは相対比率として扱う
-	ItemGroupDistribution ItemGroupSubtype = "distribution"
-	// ItemGroupCollection は各エントリを独立に確率判定する。weightは0-100の出現確率(%)として扱う。両方出ることも、どちらも出ないこともある
-	ItemGroupCollection ItemGroupSubtype = "collection"
-)
-
-// ItemSource はアイテム配置の元になるデータ
-// テーブルエントリから解決済みの状態で保持する
-type ItemSource struct {
-	Weight  float64          // テーブルレベルの重み
-	Subtype ItemGroupSubtype // グループの選択方式
-	Entries []SpawnEntry     // グループ内のエントリ
-}
-
 // PlannerType はマップ生成の設定を表す構造体
 type PlannerType struct {
 	// プランナー名
@@ -416,36 +398,36 @@ type PlannerType struct {
 var (
 	// PlannerTypeRandom はランダム選択用のプランナータイプ
 	PlannerTypeRandom = PlannerType{
-		Name: "ランダム",
+		Name: "Random",
 	}
 
 	// PlannerTypeSmallRoom は小部屋ダンジョンのプランナータイプ
 	PlannerTypeSmallRoom = PlannerType{
-		Name:        "小部屋",
+		Name:        "Small Room",
 		PlannerFunc: NewSmallRoomPlanner,
 	}
 
 	// PlannerTypeBigRoom は大部屋ダンジョンのプランナータイプ
 	PlannerTypeBigRoom = PlannerType{
-		Name:        "大部屋",
+		Name:        "Big Room",
 		PlannerFunc: NewBigRoomPlanner,
 	}
 
 	// PlannerTypeCave は洞窟ダンジョンのプランナータイプ
 	PlannerTypeCave = PlannerType{
-		Name:        "洞窟",
+		Name:        "Cave",
 		PlannerFunc: NewCavePlanner,
 	}
 
 	// PlannerTypeRuins は廃墟ダンジョンのプランナータイプ
 	PlannerTypeRuins = PlannerType{
-		Name:        "廃墟",
+		Name:        "Ruins",
 		PlannerFunc: NewRuinsPlanner,
 	}
 
 	// PlannerTypeForest は森ダンジョンのプランナータイプ
 	PlannerTypeForest = PlannerType{
-		Name:        "森",
+		Name:        "Forest",
 		PlannerFunc: NewForestPlanner,
 	}
 
@@ -454,14 +436,14 @@ var (
 	// UseFixedPortalPos=true はフロア降り/帰還ポータルを持たないため、
 	// 手続き的なポータル配置をスキップさせる意味で使う。
 	PlannerTypeOverworldField = PlannerType{
-		Name:              "原野",
+		Name:              "Overworld Field",
 		UseFixedPortalPos: true,
 		PlannerFunc:       NewOverworldFieldPlanner,
 	}
 
 	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
 	PlannerTypeOfficeBuilding = PlannerType{
-		Name:              "事務所ビル",
+		Name:              "Office Building",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)
@@ -470,7 +452,7 @@ var (
 
 	// PlannerTypeSmallTown は小さな町（複数の建物を配置）
 	PlannerTypeSmallTown = PlannerType{
-		Name:              "小さな町",
+		Name:              "Small Town",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)
@@ -479,7 +461,7 @@ var (
 
 	// PlannerTypeTownPlaza は町の広場
 	PlannerTypeTownPlaza = PlannerType{
-		Name:              "広場",
+		Name:              "Town Plaza",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
@@ -488,7 +470,7 @@ var (
 
 	// PlannerTypeBossFloor はボスフロアのプランナータイプ
 	PlannerTypeBossFloor = PlannerType{
-		Name:              "ボスフロア",
+		Name:              "Boss Floor",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeBossFloor, seed)
@@ -500,7 +482,7 @@ var (
 	// 到達性検証はポータルを要求せず通る。移動拠点キューブ専用の内部で、手続きダンジョンの
 	// ランダム選択セットではないため AllPlannerTypes には入れない。
 	PlannerTypeCubeInterior = PlannerType{
-		Name:              "キューブ内部",
+		Name:              "Cube interior",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeCubeInteriorInitial, seed)
@@ -511,7 +493,7 @@ var (
 	// 狭い部屋なので入ってすぐデバッグ物へ触れられる。敵の抑止は敵テーブルの無い DungeonDebugTown 側で
 	// 行うため、ここに特別扱いは要らない。UseFixedPortalPos で手続き的なポータル配置はしない
 	PlannerTypeDebugTown = PlannerType{
-		Name:              "デバッグ街",
+		Name:              "Debug Town",
 		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeDebugTown, seed)
@@ -581,7 +563,7 @@ func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
 
 	chain, err := selectedType.PlannerFunc(width, height, seed)
 	if err != nil {
-		return nil, fmt.Errorf("ランダムプランナー選択エラー: %w", err)
+		return nil, fmt.Errorf("random planner selection error: %w", err)
 	}
 	return chain, nil
 }
@@ -670,11 +652,11 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 // TODO: エラーを潰しているだけなので直す
 func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 	if bm.RawMaster == nil {
-		panic("RawMasterが設定されていない。TOMLからのタイル生成が必須である")
+		panic("RawMaster is not set; tile generation from TOML is required")
 	}
 	tile, err := raw.GetTile(*bm.RawMaster, name)
 	if err != nil {
-		panic(fmt.Sprintf("タイル生成エラー: %v", err))
+		panic(fmt.Sprintf("tile generation error: %v", err))
 	}
 	return tile
 }

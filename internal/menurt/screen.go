@@ -52,7 +52,7 @@ type ExtraInput interface {
 	ExtraInput() (inputmapper.ActionID, bool)
 }
 
-// Screen はメニューの UI ランタイム。mount・widget と overlay・systems を保持し、毎フレームの
+// Screen はメニューの UI ランタイム。mount・widget と overlay を保持し、毎フレームの
 // 手順を回す。state は構造体にこれをポインタで持ち、Update と Draw を委譲する。widget は毎フレーム
 // View から組み直すので、表示は常に最新の props とカーソルに追従する
 type Screen[P any] struct {
@@ -60,21 +60,14 @@ type Screen[P any] struct {
 	mount         *hooks.Mount[P]
 	widget        *ebitenui.UI
 	overlays      []menuscreen.Overlay
-	systems       []w.Updater
 	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
 	seeded        bool      // 初期タブへ寄せたか
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
-// 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す。追加 systems は WithSystems で登録する
+// 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す
 func NewScreen[P any](model Model[P], overlays ...menuscreen.Overlay) *Screen[P] {
 	return &Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
-}
-
-// WithSystems は毎フレーム回す systems を登録する
-func (s *Screen[P]) WithSystems(systems ...w.Updater) *Screen[P] {
-	s.systems = systems
-	return s
 }
 
 // Props は現在の props を返す。View 以外から現在値を参照する必要があるとき使う
@@ -101,18 +94,10 @@ func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) {
 	return HandleMenuInput()
 }
 
-// Update はメニュー1フレームを進める。systems 実行、入力ゲート、Fetch/SetProps、
+// Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、
 // UseTabMenu、View 再構築と overlay 重ね、widget.Update、の順で回す
 func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	m := s.model
-	// systems は登録済みインスタンスを名前で引いて回す。状態を持つ system を壊さない
-	for _, u := range s.systems {
-		if sys, ok := world.Updaters[u.String()]; ok {
-			if err := sys.Update(world); err != nil {
-				return es.Transition[w.World]{}, err
-			}
-		}
-	}
 
 	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を DoAction へ流す
 	if ov := s.activeOverlay(); ov != nil {

@@ -39,7 +39,7 @@ func TestGatherSquadSnapshot(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -92,7 +92,7 @@ func TestSquadPlanner_Plan(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		member := world.ECS.NewEntity()
@@ -106,7 +106,7 @@ func TestSquadPlanner_Plan(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
@@ -262,8 +262,8 @@ func TestPlanAttackAction(t *testing.T) {
 
 		b, ok := sp.planAttackAction(world, member, snap)
 		require.True(t, ok)
-		require.Equal(t, gc.BehaviorAttack, b.BehaviorName)
-		assert.Equal(t, enemy, activityParams[*gc.AttackParams](t, b).Target)
+		require.Equal(t, gc.BehaviorMelee, b.BehaviorName)
+		assert.Equal(t, enemy, activityParams[*gc.MeleeParams](t, b).Target)
 	})
 
 	t.Run("視界内の離れた敵に接近する", func(t *testing.T) {

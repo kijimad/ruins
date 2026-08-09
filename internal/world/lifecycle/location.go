@@ -27,9 +27,9 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
 
 	if world.Components.Stackable.Has(entity) {
-		name := world.Components.Name.Get(entity)
-		if err := mergeStackableItems(world, name.Name, mergeInBackpack, owner); err != nil {
-			return fmt.Errorf("バックパック内のアイテム統合に失敗: %w", err)
+		id := world.Components.RawID.Get(entity).ID
+		if err := mergeStackableItems(world, id, mergeInBackpack, owner); err != nil {
+			return fmt.Errorf("failed to merge items in backpack: %w", err)
 		}
 	}
 	return nil
@@ -44,13 +44,13 @@ func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count i
 		return MoveToBackpack(world, item, recipient)
 	}
 
-	name := world.Components.Name.Get(item).Name
+	id := world.Components.RawID.Get(item).ID
 	if err := ChangeItemCount(world, item, -count); err != nil {
-		return fmt.Errorf("転送元スタックの減算に失敗: %w", err)
+		return fmt.Errorf("failed to decrement source stack: %w", err)
 	}
-	moved, err := spawnItemBase(world, name, count)
+	moved, err := spawnItemBase(world, id, count)
 	if err != nil {
-		return fmt.Errorf("転送する%d個の生成に失敗: %w", count, err)
+		return fmt.Errorf("failed to generate %d units to transfer: %w", count, err)
 	}
 	return MoveToBackpack(world, moved, recipient)
 }
@@ -115,9 +115,9 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	ensureMarker(world, world.Components.WeightDirty, storage, &gc.WeightDirty{})
 
 	if world.Components.Stackable.Has(entity) {
-		name := world.Components.Name.Get(entity)
-		if err := mergeStackableItems(world, name.Name, mergeInStorage, storage); err != nil {
-			return fmt.Errorf("収納内のアイテム統合に失敗: %w", err)
+		id := world.Components.RawID.Get(entity).ID
+		if err := mergeStackableItems(world, id, mergeInStorage, storage); err != nil {
+			return fmt.Errorf("failed to merge items in storage: %w", err)
 		}
 	}
 	return nil
@@ -193,16 +193,16 @@ const (
 	mergeInStorage
 )
 
-// mergeStackableItems は指定ロケーション内の同一Owner配下にある同名Stackableアイテムを1つに統合する
-func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owner ecs.Entity) error {
+// mergeStackableItems は指定ロケーション内の同一Owner配下にある同一idのStackableアイテムを1つに統合する
+func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner ecs.Entity) error {
 	// Ark のフィルタは静的な型引数を要求するため、ロケーション種別ごとに分岐する
 	var stackableItems []ecs.Entity
 	switch loc {
 	case mergeInBackpack:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
-			if world.Components.Name.Get(entity).Name != itemName {
+			if world.Components.RawID.Get(entity).ID != itemID {
 				continue
 			}
 			if world.Components.LocationInBackpack.Get(entity).Owner == owner {
@@ -210,10 +210,10 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 			}
 		}
 	case mergeInStorage:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.Name](world.ECS).Query()
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.RawID](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
-			if world.Components.Name.Get(entity).Name != itemName {
+			if world.Components.RawID.Get(entity).ID != itemID {
 				continue
 			}
 			if world.Components.LocationInStorage.Get(entity).Owner == owner {
@@ -221,7 +221,7 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 			}
 		}
 	default:
-		return fmt.Errorf("未対応のmergeLocation: %d", loc)
+		return fmt.Errorf("unsupported mergeLocation: %d", loc)
 	}
 
 	if len(stackableItems) <= 1 {
@@ -234,7 +234,7 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 		mergeCount := query.GetEntityCount(world, itemToMerge)
 
 		if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {
-			return fmt.Errorf("数量統合エラー: %w", err)
+			return fmt.Errorf("failed to merge counts: %w", err)
 		}
 
 		world.ECS.RemoveEntity(itemToMerge)
@@ -316,7 +316,7 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 		}
 	}
 	if !found {
-		return errors.New("必須コンポーネントを持つプレイヤーエンティティが見つかりません")
+		return errors.New("no player entity with required components found")
 	}
 
 	// プレイヤーの位置を更新する

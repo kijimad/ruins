@@ -1,27 +1,24 @@
 package query
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// FindStackableInInventory は名前でバックパック内のStackableアイテムを検索する
-func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
+// FindStackableInInventory は同定キーでバックパック内のStackableアイテムを検索する
+func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
+	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 	for stackableQuery.Next() {
 		entity := stackableQuery.Entity()
 		if found {
 			continue
 		}
-		itemName := world.Components.Name.Get(entity)
-		if itemName.Name == name {
+		if world.Components.RawID.Get(entity).ID == id {
 			foundEntity = entity
 			found = true
 		}
@@ -64,9 +61,9 @@ func GetEntityCount(world w.World, entity ecs.Entity) int {
 // 名前はNameコンポーネントから取得し、見つからない場合は "Unknown Item" を返す。
 // 個数が1以下の場合は名前のみ、2以上の場合は "名前(個数)" の形式で返す
 func FormatItemName(world w.World, itemEntity ecs.Entity) string {
-	name := "Unknown Item"
+	name := T(world, "Unknown Item")
 	if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {
-		name = nameComp.Name
+		name = T(world, nameComp.Name)
 	}
 
 	count := GetEntityCount(world, itemEntity)
@@ -74,5 +71,5 @@ func FormatItemName(world w.World, itemEntity ecs.Entity) string {
 	if count <= 1 {
 		return name
 	}
-	return fmt.Sprintf("%s(%d個)", name, count)
+	return T(world, "%s (x%d)", name, count)
 }

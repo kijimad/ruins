@@ -16,14 +16,14 @@ func TestBuildImageTableFrom_Empty(t *testing.T) {
 
 	result, err := buildImageTableFrom(dir)
 	require.NoError(t, err)
-	assert.Equal(t, "*画像なし*", result)
+	assert.Equal(t, "*no images*", result)
 }
 
 func TestBuildImageTableFrom_NonExistentDir(t *testing.T) {
 	t.Parallel()
 	_, err := buildImageTableFrom("/nonexistent/path")
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "読み込みに失敗")
+	assert.Contains(t, err.Error(), "failed to read")
 }
 
 func TestBuildImageTableFrom_SingleImage(t *testing.T) {

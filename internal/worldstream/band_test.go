@@ -34,13 +34,13 @@ func TestBand_ShiftEast(t *testing.T) {
 	visState := query.GetVisionState(world)
 
 	// プレイヤーは東チャンクへ踏み込んでいる（localX=210）
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 210, Y: 30}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 210, Y: 30}, "ash")
 	require.NoError(t, err)
 	// 西端チャンク [0,100) の敵 → 破棄される
-	westEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 30}, "火の玉")
+	westEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 30}, "fireball")
 	require.NoError(t, err)
 	// 東チャンク [200,300) の敵 → 残ってリベースされる
-	eastEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 250, Y: 30}, "火の玉")
+	eastEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 250, Y: 30}, "fireball")
 	require.NoError(t, err)
 
 	// 探索済み: 中央(150,30)は生存→(50,30)へ、西(50,30)は破棄ゾーンへ落ちて消える
@@ -104,13 +104,13 @@ func TestBand_ShiftWest(t *testing.T) {
 	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: 300, TileHeight: 60}))
 
 	// プレイヤーは西チャンクへ踏み込んでいる（localX=90）
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 90, Y: 30}, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 90, Y: 30}, "ash")
 	require.NoError(t, err)
 	// 東端チャンク [200,300) の敵 → 破棄される
-	eastEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 250, Y: 30}, "火の玉")
+	eastEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 250, Y: 30}, "fireball")
 	require.NoError(t, err)
 	// 西チャンク [0,100) の敵 → 残ってリベースされる
-	westEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 30}, "火の玉")
+	westEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 30}, "fireball")
 	require.NoError(t, err)
 
 	b := worldstream.NewBandAt(100, 60, 3, 1, 1) // 一度東へ進んだ状態から西へ戻る

@@ -17,12 +17,12 @@ import (
 // 通常はトップの //go:generate から呼ばれる。
 var CmdGenComponents = &cli.Command{
 	Name:  "gencomponents",
-	Usage: "コンポーネント定義(EntitySpec/Components等)を登録表から生成する",
+	Usage: "generate component definitions such as EntitySpec and Components from the registry",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "out",
 			Value: "internal/components/components_gen.go",
-			Usage: "出力先ファイルパス",
+			Usage: "output file path",
 		},
 	},
 	Action: runGenComponents,
@@ -34,7 +34,7 @@ func runGenComponents(_ context.Context, c *cli.Command) error {
 		return err
 	}
 	if err := os.WriteFile(c.String("out"), formatted, 0o644); err != nil {
-		return fmt.Errorf("生成コードの書き込みに失敗した: %w", err)
+		return fmt.Errorf("failed to write generated code: %w", err)
 	}
 	fmt.Printf("Generated %s\n", c.String("out"))
 	return nil
@@ -45,12 +45,12 @@ func runGenComponents(_ context.Context, c *cli.Command) error {
 func generateComponents() ([]byte, error) {
 	var buf bytes.Buffer
 	if err := componentsTmpl.Execute(&buf, genspec.Registry); err != nil {
-		return nil, fmt.Errorf("テンプレート展開に失敗した: %w", err)
+		return nil, fmt.Errorf("failed to expand template: %w", err)
 	}
 
 	formatted, err := format.Source(buf.Bytes())
 	if err != nil {
-		return nil, fmt.Errorf("生成コードのフォーマットに失敗した: %w\n%s", err, buf.String())
+		return nil, fmt.Errorf("failed to format generated code: %w\n%s", err, buf.String())
 	}
 	return formatted, nil
 }
@@ -61,24 +61,24 @@ package components
 
 import "github.com/mlange-42/ark/ecs"
 
-// EntitySpec はエンティティ作成用の仕様定義。
-// 付与するコンポーネントのセットを定義し、AddEntity でECSエンティティに変換される。
+// EntitySpec is the specification used to create an entity.
+// It defines the set of components to attach, which AddEntity converts into an ECS entity.
 type EntitySpec struct {
 {{- range .}}
-	{{.Field}} *{{.Field}} // {{.Comment}}
+	{{.Field}} *{{.Field}}
 {{- end}}
 }
 
-// Components はECSコンポーネントのハンドル束。
-// 各コンポーネント型の型付き *ecs.Map[T] を保持し、Add/Has/Get やクエリに使用される。
+// Components is the bundle of ECS component handles.
+// It holds a typed *ecs.Map[T] for each component type, used by Add/Has/Get and queries.
 type Components struct {
 {{- range .}}
-	{{.Field}} *ecs.Map[{{.Field}}] // {{.Comment}}
+	{{.Field}} *ecs.Map[{{.Field}}]
 {{- end}}
 }
 
-// InitializeComponents は全コンポーネント型を Ark のワールドに登録し、
-// 各フィールドに型付き Map ハンドルを割り当てる。
+// InitializeComponents registers every component type with the Ark world
+// and assigns a typed Map handle to each field.
 func (c *Components) InitializeComponents(world *ecs.World) error {
 {{- range .}}
 	c.{{.Field}} = ecs.NewMap[{{.Field}}](world)
@@ -86,8 +86,8 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	return nil
 }
 
-// AddEntity は EntitySpec から新しいエンティティを生成し、非nilな各フィールドを
-// 対応するコンポーネントとして付与する。
+// AddEntity creates a new entity from an EntitySpec and attaches each non-nil field
+// as its corresponding component.
 func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	entity := world.NewEntity()
 {{- range .}}

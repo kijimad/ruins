@@ -72,20 +72,6 @@ func TestDetailPageCount_性能行が無いエンティティは1ページにな
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
-func TestBuildActionWindow_見出しと選択肢ラベルを表示する(t *testing.T) {
-	world := testutil.InitTestWorld(t)
-	world.Resources.UIResources = vrt.SharedUIResources(t)
-
-	win := BuildActionWindow(world, image.Rect(0, 0, 300, 200), "操作", []string{"つかう", "すてる"}, 0)
-
-	require.NotNil(t, win)
-	assert.Contains(t, collectLabels(win.TitleBar), "操作")
-	contentLabels := collectLabels(win.Contents)
-	assert.Contains(t, contentLabels, "つかう")
-	assert.Contains(t, contentLabels, "すてる")
-}
-
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)

@@ -17,11 +17,11 @@ type PaletteEntry struct {
 }
 
 // Palette はマップ生成用のパレット定義
-// 地形とPropsとNPCの文字マッピングを提供する
+// terrainとPropsとNPCの文字マッピングを提供する
 type Palette struct {
 	ID          string                  `toml:"id"`
 	Description string                  `toml:"description"`
-	Terrain     map[string]string       `toml:"terrain,omitempty"` // {文字: 地形名}
+	Terrain     map[string]string       `toml:"terrain,omitempty"` // {文字: terrain名}
 	Props       map[string]PaletteEntry `toml:"props,omitempty"`   // {文字: Prop定義}
 	NPCs        map[string]PaletteEntry `toml:"npcs,omitempty"`    // {文字: NPC定義}
 }
@@ -43,16 +43,16 @@ func NewPaletteLoader() *PaletteLoader {
 func (l *PaletteLoader) Load(r io.Reader) (*Palette, error) {
 	data, err := io.ReadAll(r)
 	if err != nil {
-		return nil, fmt.Errorf("パレット読み込みエラー: %w", err)
+		return nil, fmt.Errorf("failed to read palette: %w", err)
 	}
 
 	var file PaletteFile
 	if err := toml.Unmarshal(data, &file); err != nil {
-		return nil, fmt.Errorf("パレットTOMLパースエラー: %w", err)
+		return nil, fmt.Errorf("failed to parse palette TOML: %w", err)
 	}
 
 	if err := l.validate(&file.Palette); err != nil {
-		return nil, fmt.Errorf("パレット検証エラー: %w", err)
+		return nil, fmt.Errorf("failed to validate palette: %w", err)
 	}
 
 	return &file.Palette, nil
@@ -62,7 +62,7 @@ func (l *PaletteLoader) Load(r io.Reader) (*Palette, error) {
 func (l *PaletteLoader) LoadFile(path string) (*Palette, error) {
 	f, err := assets.FS.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("パレットファイル読み込みエラー: %w", err)
+		return nil, fmt.Errorf("failed to read palette file: %w", err)
 	}
 	defer func() { _ = f.Close() }()
 
@@ -72,51 +72,51 @@ func (l *PaletteLoader) LoadFile(path string) (*Palette, error) {
 // validate はパレット定義の妥当性を検証する
 func (l *PaletteLoader) validate(p *Palette) error {
 	if p.ID == "" {
-		return fmt.Errorf("パレットIDが空です")
+		return fmt.Errorf("palette ID is empty")
 	}
 
 	if len(p.Terrain) == 0 && len(p.Props) == 0 && len(p.NPCs) == 0 {
-		return fmt.Errorf("地形、Props、またはNPCsの定義が必要です")
+		return fmt.Errorf("terrain, Props, or NPCs definition is required")
 	}
 
 	for char := range p.Terrain {
 		if utf8.RuneCountInString(char) != 1 {
-			return fmt.Errorf("地形のキーは1文字である必要があります: %q", char)
+			return fmt.Errorf("terrain key must be a single character: %q", char)
 		}
 	}
 
 	for char, entry := range p.Props {
 		if utf8.RuneCountInString(char) != 1 {
-			return fmt.Errorf("propsのキーは1文字である必要があります: %q", char)
+			return fmt.Errorf("props key must be a single character: %q", char)
 		}
 		if entry.Tile == "" {
-			return fmt.Errorf("propsのtileは必須です: %q", char)
+			return fmt.Errorf("props tile is required: %q", char)
 		}
 	}
 
 	for char, entry := range p.NPCs {
 		if utf8.RuneCountInString(char) != 1 {
-			return fmt.Errorf("npcsのキーは1文字である必要があります: %q", char)
+			return fmt.Errorf("npcs key must be a single character: %q", char)
 		}
 		if entry.Tile == "" {
-			return fmt.Errorf("npcsのtileは必須です: %q", char)
+			return fmt.Errorf("npcs tile is required: %q", char)
 		}
 	}
 
 	// 文字の重複チェック
 	used := make(map[string]string)
 	for char := range p.Terrain {
-		used[char] = "地形"
+		used[char] = "terrain"
 	}
 	for char := range p.Props {
 		if category, ok := used[char]; ok {
-			return fmt.Errorf("文字 %q が%sとpropsで重複しています", char, category)
+			return fmt.Errorf("char %q is duplicated between %s and props", char, category)
 		}
 		used[char] = "props"
 	}
 	for char := range p.NPCs {
 		if category, ok := used[char]; ok {
-			return fmt.Errorf("文字 %q が%sとnpcsで重複しています", char, category)
+			return fmt.Errorf("char %q is duplicated between %s and npcs", char, category)
 		}
 	}
 
@@ -128,7 +128,7 @@ func (l *PaletteLoader) validate(p *Palette) error {
 func MergePalettes(palettes ...*Palette) *Palette {
 	merged := &Palette{
 		ID:          "merged",
-		Description: "マージされたパレット",
+		Description: "merged palette",
 		Terrain:     make(map[string]string),
 		Props:       make(map[string]PaletteEntry),
 		NPCs:        make(map[string]PaletteEntry),
@@ -143,7 +143,7 @@ func MergePalettes(palettes ...*Palette) *Palette {
 	return merged
 }
 
-// GetTerrain は文字から地形名を取得する。
+// GetTerrain は文字からterrain名を取得する。
 // Terrain定義を優先し、なければProps/NPCsのTileフィールドを参照する
 func (p *Palette) GetTerrain(char string) (string, bool) {
 	if terrain, ok := p.Terrain[char]; ok {

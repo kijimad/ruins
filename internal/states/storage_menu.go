@@ -46,14 +46,17 @@ var _ menurt.ExtraInput = &StorageMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.detail = menuscreen.NewEntityDetail(st.selectedEntity)
 	st.screen = menurt.NewScreen[StorageProps](st, &st.detail)
-	st.screen.WithSystems(&gs.WeightDirtySystem{})
 	return nil
 }
 
 // Update はゲームステートの更新処理を行う
 func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error) {
+	// 収納の出し入れで所持品が変わると WeightDirty が立つ。再計算を回して総重量表示を更新する
+	if err := runUpdaters(world, &gs.WeightDirtySystem{}); err != nil {
+		return es.Transition[w.World]{}, err
+	}
 	return st.screen.Update(world)
 }
 
@@ -78,7 +81,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		if err := st.executeTransfer(world); err != nil {
 			return es.Transition[w.World]{}, err
@@ -86,7 +89,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("storageMenu: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("storageMenu: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -117,8 +120,8 @@ type storageItemData struct {
 func (st *StorageMenuState) Fetch(world w.World) StorageProps {
 	return StorageProps{
 		Tabs: []storageTabData{
-			{ID: tabIDRetrieve, Label: "取得", Items: st.createStorageItemData(world)},
-			{ID: tabIDStore, Label: "収納", Items: st.createBackpackItemData(world)},
+			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.createStorageItemData(world)},
+			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.createBackpackItemData(world)},
 		},
 	}
 }
@@ -215,7 +218,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *StorageMenuState) View(_ w.World, props StorageProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -224,22 +227,9 @@ func (st *StorageMenuState) View(_ w.World, props StorageProps, cursor menurt.Se
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
-		Content:   st.buildActiveListContainer(props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, "x 詳細"),
+		Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
-}
-
-// detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
-func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
-	e, ok := st.selectedEntity()
-	if !ok {
-		return menuscreen.DetailContent{}, false
-	}
-	desc := ""
-	if world.Components.Description.Has(e) {
-		desc = world.Components.Description.Get(e).Description
-	}
-	return menuscreen.DetailContent{Name: query.GetEntityName(e, world), Desc: desc, Entity: e}, true
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
@@ -256,7 +246,7 @@ func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {
 	return items[cursor.ItemIndex].Entity, true
 }
 
-func (st *StorageMenuState) buildActiveListContainer(props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+func (st *StorageMenuState) buildActiveListContainer(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	if tabIndex >= len(props.Tabs) {
 		return styled.NewVerticalContainer()
 	}
@@ -268,5 +258,5 @@ func (st *StorageMenuState) buildActiveListContainer(props StorageProps, tabInde
 	for i, it := range currentTab.Items {
 		rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(アイテムなし)"}, res)
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res)
 }

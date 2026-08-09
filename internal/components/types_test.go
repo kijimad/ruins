@@ -82,20 +82,20 @@ func TestRecipeInput(t *testing.T) {
 	t.Run("create recipe input", func(t *testing.T) {
 		t.Parallel()
 		input := RecipeInput{
-			Name:   "鉄",
+			ID:     "鉄",
 			Amount: 3,
 		}
-		assert.Equal(t, "鉄", input.Name, "素材名が正しく設定されない")
+		assert.Equal(t, "鉄", input.ID, "素材名が正しく設定されない")
 		assert.Equal(t, 3, input.Amount, "必要量が正しく設定されない")
 	})
 
 	t.Run("empty name", func(t *testing.T) {
 		t.Parallel()
 		input := RecipeInput{
-			Name:   "",
+			ID:     "",
 			Amount: 1,
 		}
-		assert.Empty(t, input.Name, "空の素材名が正しく設定されない")
+		assert.Empty(t, input.ID, "空の素材名が正しく設定されない")
 		assert.Equal(t, 1, input.Amount, "必要量が正しく設定されない")
 	})
 }
@@ -185,18 +185,18 @@ func TestEquipmentSlotNumber(t *testing.T) {
 			slot     EquipmentSlotNumber
 			expected string
 		}{
-			{SlotHead, "頭部"},
-			{SlotTorso, "胴体"},
-			{SlotArms, "腕部"},
-			{SlotHands, "手部"},
-			{SlotLegs, "脚部"},
-			{SlotFeet, "足部"},
-			{SlotJewelry, "装飾"},
-			{SlotWeapon1, "武器1"},
-			{SlotWeapon2, "武器2"},
-			{SlotWeapon3, "武器3"},
-			{SlotWeapon4, "武器4"},
-			{SlotWeapon5, "武器5"},
+			{SlotHead, "Head"},
+			{SlotTorso, "Torso"},
+			{SlotArms, "Arms"},
+			{SlotHands, "Hands"},
+			{SlotLegs, "Legs"},
+			{SlotFeet, "Feet"},
+			{SlotJewelry, "Accessory"},
+			{SlotWeapon1, "Weapon 1"},
+			{SlotWeapon2, "Weapon 2"},
+			{SlotWeapon3, "Weapon 3"},
+			{SlotWeapon4, "Weapon 4"},
+			{SlotWeapon5, "Weapon 5"},
 		}
 
 		for _, tt := range tests {

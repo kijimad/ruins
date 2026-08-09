@@ -127,7 +127,7 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 	case zoneWild:
 		return wildCatalog
 	}
-	panic("未知の outdoorZone: " + string(zone))
+	panic("unknown outdoorZone: " + string(zone))
 }
 
 // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。
@@ -186,7 +186,7 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 			name = scatterWeedProp
 		}
 		if _, err := lifecycle.SpawnProp(world, name, bl.X, bl.Y); err != nil {
-			return fmt.Errorf("草の配置に失敗 (%s): %w", name, err)
+			return fmt.Errorf("failed to place grass (%s): %w", name, err)
 		}
 		occupied[gc.GridElement{Coord: bl}] = true
 	}
@@ -205,6 +205,11 @@ func (openTerrainFeature) place(world w.World, runSeed uint64, c consts.Coord[co
 			return err
 		}
 	}
+
+	// 草・樹木の後に拾える loot を疎に撒く。accept と occupied を共有し、地面かつ非占有のタイルにだけ置く
+	if err := scatterOutdoorLoot(world, runSeed, c, g, cat, accept, occupied); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -218,7 +223,7 @@ func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occup
 		return nil
 	}
 	if _, err := lifecycle.SpawnProp(world, entry.Ref, origin.X, origin.Y); err != nil {
-		return fmt.Errorf("散布 prop の配置に失敗 (%s): %w", entry.Ref, err)
+		return fmt.Errorf("failed to place scatter prop (%s): %w", entry.Ref, err)
 	}
 	occupied[gc.GridElement{Coord: origin}] = true
 	for _, s := range entry.Satellites {
@@ -228,7 +233,7 @@ func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occup
 			continue
 		}
 		if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil {
-			return fmt.Errorf("散布衛星の配置に失敗 (%s): %w", s.name, err)
+			return fmt.Errorf("failed to place scatter satellite (%s): %w", s.name, err)
 		}
 		occupied[key] = true
 	}
@@ -260,7 +265,7 @@ func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatter
 	}
 	// total は候補の重み合計で r は [0, total) なので、候補の重みを引き切る前に必ず r < 0 になる。
 	// ここへ来るのは重み合計の計算と減算がずれたときだけで、内部データの不変条件違反にあたる
-	panic("pickScatterEntry: 重み抽選が候補を引けなかった")
+	panic("pickScatterEntry: weighted selection drew no candidate")
 }
 
 // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、
@@ -334,7 +339,7 @@ func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {
 // isEarthTile は帯ローカル座標 pos が土系タイル、dirt か砂土、かを返す。道の floor や壁、他フィーチャの
 // 生成物は土系でないので散布から外れる。
 func isEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {
-	return scatterEarthTiles[tileNameAt(world, tiles, pos)]
+	return scatterEarthTiles[tileIDAt(world, tiles, pos)]
 }
 
 // hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ
@@ -344,13 +349,13 @@ func hashTileCoord(seed uint64, p consts.Coord[consts.Tile]) uint64 {
 	return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))
 }
 
-// tileNameAt は帯ローカル座標 pos のタイル名を返す。タイルが無ければ空文字。
-func tileNameAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {
+// tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。
+func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {
 	e, ok := tiles[gc.GridElement{Coord: pos}]
-	if !ok || !world.ECS.Alive(e) || !world.Components.Name.Has(e) {
+	if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {
 		return ""
 	}
-	return world.Components.Name.Get(e).Name
+	return world.Components.RawID.Get(e).ID
 }
 
 // chunkChebyshev は2チャンク座標のチェビシェフ距離を返す。ゾーン判定の近接度に使う。

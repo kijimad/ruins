@@ -25,24 +25,25 @@
     },
     "Decor": {
       "cage": 1,
-      "candle": 177,
-      "carpet": 177,
+      "candle": 175,
+      "carpet": 176,
       "chest": 2,
-      "crate": 156,
-      "debris": 356,
+      "crate": 146,
+      "debris": 343,
       "fence": 918,
       "komainu": 1,
       "litter": 289,
-      "rubble": 496,
+      "rubble": 476,
       "shutter": 85,
       "sign": 100,
       "vending": 54,
       "window": 415
     },
     "Loot": {
-      "bento": 44,
-      "drinks": 139,
-      "snacks": 311
+      "bento": 121,
+      "documents": 94,
+      "drinks": 228,
+      "snacks": 711
     },
     "Heroes": 4
   },
@@ -77,15 +78,16 @@
       "carpet": 192,
       "chest": 2,
       "crate": 116,
-      "debris": 240,
+      "debris": 237,
       "fence": 1700,
       "komainu": 1,
       "plant": 300,
-      "rubble": 794,
+      "rubble": 783,
       "window": 500
     },
     "Loot": {
-      "meds": 156
+      "documents": 88,
+      "meds": 295
     },
     "Heroes": 4
   },
@@ -104,18 +106,21 @@
     },
     "Decor": {
       "cage": 1,
-      "candle": 249,
+      "candle": 248,
       "carpet": 245,
       "chest": 2,
-      "crate": 127,
-      "debris": 286,
+      "crate": 122,
+      "debris": 278,
       "fence": 1700,
       "komainu": 1,
       "plant": 100,
-      "rubble": 674,
+      "rubble": 663,
       "window": 500
     },
-    "Loot": {},
+    "Loot": {
+      "snacks": 838,
+      "supplies": 422
+    },
     "Heroes": 4
   },
   "house": {
@@ -159,16 +164,19 @@
       "candle": 219,
       "carpet": 240,
       "chest": 2,
-      "crate": 85,
+      "crate": 84,
       "debris": 258,
       "fence": 1700,
       "komainu": 1,
       "laundry": 10,
       "plant": 234,
-      "rubble": 776,
+      "rubble": 768,
       "window": 500
     },
-    "Loot": {},
+    "Loot": {
+      "bento": 61,
+      "snacks": 152
+    },
     "Heroes": 4
   },
   "lab": {
@@ -202,15 +210,16 @@
       "carpet": 192,
       "chest": 2,
       "crate": 116,
-      "debris": 240,
+      "debris": 237,
       "fence": 1700,
       "komainu": 1,
       "plant": 300,
-      "rubble": 794,
+      "rubble": 783,
       "window": 500
     },
     "Loot": {
-      "meds": 156
+      "documents": 88,
+      "meds": 295
     },
     "Heroes": 4
   },
@@ -226,26 +235,29 @@
     },
     "Furniture": {
       "barrel": 949,
-      "chair": 338,
-      "closet": 156,
+      "chair": 339,
+      "closet": 155,
       "desk": 339,
-      "printer": 45,
-      "whiteboard": 55
+      "printer": 52,
+      "whiteboard": 48
     },
     "Decor": {
       "cage": 1,
-      "candle": 249,
+      "candle": 248,
       "carpet": 245,
       "chest": 2,
-      "crate": 137,
-      "debris": 320,
+      "crate": 135,
+      "debris": 316,
       "fence": 1700,
       "komainu": 1,
       "plant": 100,
-      "rubble": 647,
+      "rubble": 636,
       "window": 500
     },
-    "Loot": {},
+    "Loot": {
+      "documents": 280,
+      "snacks": 838
+    },
     "Heroes": 4
   },
   "store": {
@@ -275,26 +287,27 @@
     },
     "Decor": {
       "cage": 1,
-      "candle": 177,
-      "carpet": 177,
+      "candle": 175,
+      "carpet": 176,
       "chest": 2,
-      "crate": 137,
-      "debris": 337,
+      "crate": 131,
+      "debris": 324,
       "fence": 918,
       "komainu": 1,
       "litter": 83,
-      "rubble": 493,
+      "rubble": 480,
       "shutter": 85,
       "sign": 100,
       "vending": 54,
       "window": 415
     },
     "Loot": {
-      "bandage": 57,
-      "bento": 9,
-      "drinks": 162,
-      "meds": 138,
-      "snacks": 206
+      "bandage": 104,
+      "bento": 27,
+      "documents": 94,
+      "drinks": 243,
+      "meds": 205,
+      "snacks": 585
     },
     "Heroes": 4
   }

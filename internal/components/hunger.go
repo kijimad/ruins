@@ -28,15 +28,15 @@ const (
 func (h HungerLevel) String() string {
 	switch h {
 	case HungerSatiated:
-		return "満腹"
+		return "Full"
 	case HungerNormal:
-		return "普通"
+		return "Normal"
 	case HungerHungry:
-		return "空腹"
+		return "Hungry"
 	case HungerStarving:
-		return "飢餓"
+		return "Starving"
 	default:
-		panic("不正なHungerLevel値")
+		panic("invalid HungerLevel value")
 	}
 }
 

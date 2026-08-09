@@ -7,7 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
-	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -71,47 +70,11 @@ func TestOpenDoorBehavior(t *testing.T) {
 		require.Error(t, err)
 		require.NotNil(t, result)
 		assert.False(t, result.Success, "検証失敗で成功フラグがfalseであるべき")
-		assert.Contains(t, err.Error(), "対象エンティティは扉ではありません")
+		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.NotEmpty(t, result.Message)
 
 		world.ECS.RemoveEntity(player)
 		world.ECS.RemoveEntity(wall)
-	})
-
-	t.Run("ロック済み扉を開こうとするとキャンセルされる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.TurnBased.Add(player, &gc.TurnBased{})
-
-		door := world.ECS.NewEntity()
-		world.Components.Door.Add(door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal, Locked: true})
-		world.Components.GridElement.Add(door, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.BlockPass.Add(door, &gc.BlockPass{})
-		world.Components.BlockView.Add(door, &gc.BlockView{})
-
-		result, err := Execute(NewOpenDoorActivity(door), player, world)
-
-		require.NoError(t, err, "ロック済み扉のキャンセルは致命的エラーではない")
-		require.NotNil(t, result)
-		assert.False(t, result.Success, "ロック済み扉は開けない")
-		assert.Equal(t, gc.ActivityStateCanceled, result.State)
-
-		// 扉は閉じたまま
-		doorComp := world.Components.Door.Get(door)
-		assert.False(t, doorComp.IsOpen)
-		assert.True(t, doorComp.Locked)
-
-		// ロック済みログが出力されていることを確認する
-		store := query.GetGameLog(world)
-		recent := store.GetRecent(1)
-		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "扉はロックされている")
-
-		world.ECS.RemoveEntity(player)
-		world.ECS.RemoveEntity(door)
 	})
 
 	t.Run("Targetがnilの場合はエラー", func(t *testing.T) {
@@ -129,7 +92,8 @@ func TestOpenDoorBehavior(t *testing.T) {
 		require.Error(t, err)
 		require.NotNil(t, result)
 		assert.False(t, result.Success, "検証失敗で成功フラグがfalseであるべき")
-		assert.Contains(t, result.Message, "対象エンティティは扉ではありません")
+		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.NotEmpty(t, result.Message)
 
 		world.ECS.RemoveEntity(player)
 	})

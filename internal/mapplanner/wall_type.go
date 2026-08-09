@@ -48,6 +48,6 @@ func (wt WallType) String() string {
 	case WallTypeGeneric:
 		return "Generic"
 	default:
-		panic(fmt.Sprintf("不正なWallType値: %d", int(wt)))
+		panic(fmt.Sprintf("invalid WallType value: %d", int(wt)))
 	}
 }

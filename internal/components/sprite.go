@@ -15,7 +15,7 @@ import (
 func SubImage(img *ebiten.Image, r image.Rectangle) *ebiten.Image {
 	sub, ok := img.SubImage(r).(*ebiten.Image)
 	if !ok {
-		panic("ebiten.Image.SubImage が *ebiten.Image を返さなかった")
+		panic("ebiten.Image.SubImage did not return *ebiten.Image")
 	}
 	return sub
 }
@@ -23,19 +23,14 @@ func SubImage(img *ebiten.Image, r image.Rectangle) *ebiten.Image {
 // Sprite は1つ1つの意味をなす画像の位置を示す情報
 // 1ファイルに対して複数のスプライトが定義されている
 type Sprite struct {
-	// Horizontal position of the sprite in the sprite sheet
-	X int
-	// Vertical position of the sprite in the sprite sheet
-	Y int
-	// Width of the sprite
-	Width int
-	// Height of the sprite
+	X      int
+	Y      int
+	Width  int
 	Height int
 }
 
 // Texture は複数のスプライトが格納された画像ファイル
 type Texture struct {
-	// Texture image
 	Image *ebiten.Image
 }
 

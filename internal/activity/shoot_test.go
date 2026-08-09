@@ -24,21 +24,21 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	world = testutil.InitTestWorld(t)
 
 	// プレイヤーを生成
-	p, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+	p, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
 	// ハンドガンを生成して装備
-	we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
+	we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
 	require.NoError(t, err)
 	lifecycle.MoveToEquip(world, we, p, gc.SlotWeapon1)
 	query.GetWeaponSelection(world).Slot = 1
 
 	// 弾薬を持たせる
-	_, err = lifecycle.SpawnBackpackItem(world, "9mm FMJ", 30)
+	_, err = lifecycle.SpawnBackpackItem(world, "9mm_fmj", 30)
 	require.NoError(t, err)
 
 	// 敵を生成（射程内）
-	e, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
+	e, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
 	require.NoError(t, err)
 
 	// 敵の位置を探索済みにする
@@ -53,7 +53,7 @@ func TestShootBehavior_Info(t *testing.T) {
 	t.Parallel()
 	sa := &ShootBehavior{}
 	info := sa.Info()
-	assert.Equal(t, "射撃", info.Name)
+	assert.Equal(t, "Shoot", info.Name)
 	assert.Equal(t, gc.BehaviorShoot, sa.Name())
 	assert.False(t, info.Interruptible)
 }
@@ -81,10 +81,10 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 
 		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrAttackTargetNotSet)
+		assert.Error(t, err)
 	})
 
-	t.Run("弾切れでエラー", func(t *testing.T) {
+	t.Run("弾切れは不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
@@ -97,23 +97,25 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootNoAmmo)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
-	t.Run("射程外でエラー", func(t *testing.T) {
+	t.Run("射程外は不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetWeaponSelection(world).Slot = 1
 
 		// ハンドガンの最大射程(8)より遠くに配置
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "fireball")
 		require.NoError(t, err)
 
 		sa := &ShootBehavior{}
@@ -121,23 +123,25 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err = sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrAttackOutOfRange)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
-	t.Run("近接武器でエラー", func(t *testing.T) {
+	t.Run("近接武器は不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 近接武器（木刀）を装備
-		we, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetWeaponSelection(world).Slot = 1
 
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 		require.NoError(t, err)
 
 		sa := &ShootBehavior{}
@@ -145,10 +149,12 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err = sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
-	t.Run("射線上に壁があるとエラー", func(t *testing.T) {
+	t.Run("射線上に壁があると不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
 
@@ -162,7 +168,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootLineOfSightBlocked)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 
 	t.Run("死亡した攻撃者はエラー", func(t *testing.T) {
@@ -178,7 +186,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		assert.ErrorIs(t, err, ErrAttackerDead)
 	})
 
-	t.Run("死亡したターゲットはエラー", func(t *testing.T) {
+	t.Run("死亡したターゲットは不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
 		world.Components.Dead.Add(enemy, &gc.Dead{})
@@ -188,7 +196,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err := sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrAttackTargetDead)
+		require.Error(t, err)
+		var ve *UserError
+		require.NotErrorAs(t, err, &ve)
 	})
 }
 
@@ -221,12 +231,12 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 		comp := NewActivity(gc.BehaviorShoot, 0)
 
 		err := sa.DoTurn(comp, player, world)
-		require.ErrorIs(t, err, ErrAttackTargetNotSet)
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }
 
-func TestExecuteShootAction(t *testing.T) {
+func TestExecute_Shoot(t *testing.T) {
 	t.Parallel()
 
 	t.Run("射撃が即時実行され弾薬が消費される", func(t *testing.T) {
@@ -236,7 +246,7 @@ func TestExecuteShootAction(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		before := fire.Magazine
 
-		err := ExecuteShootAction(player, enemy, world)
+		_, err := Execute(NewShootActivity(enemy), player, world)
 		require.NoError(t, err)
 
 		// 1ターンアクションなので即時完了し、Activityは残らない
@@ -249,18 +259,18 @@ func TestExecuteShootAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		we, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetWeaponSelection(world).Slot = 1
 
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 		require.NoError(t, err)
 
-		err = ExecuteShootAction(player, enemy, world)
+		_, err = Execute(NewShootActivity(enemy), player, world)
 		require.Error(t, err)
 
 		assert.False(t, world.Components.Activity.Has(player))
@@ -283,15 +293,15 @@ func TestCanShootTarget(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
-		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "handgun", 1)
 		require.NoError(t, err)
 		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		query.GetWeaponSelection(world).Slot = 1
 
 		// ハンドガン最大射程(8)より遠く
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 20, Y: 10}, "fireball")
 		require.NoError(t, err)
 
 		assert.False(t, CanShootTarget(player, enemy, world))
@@ -496,7 +506,7 @@ func TestGetEquippedFire(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 		query.GetWeaponSelection(world).Slot = 1
 
@@ -524,13 +534,13 @@ func TestCalculateShootHitRate(t *testing.T) {
 		worldNear, playerNear, _, _ := setupShootingWorld(t)
 
 		// 近い敵（距離3）
-		nearEnemy, err := lifecycle.SpawnEnemy(worldNear, consts.Coord[consts.Tile]{X: 13, Y: 10}, "火の玉")
+		nearEnemy, err := lifecycle.SpawnEnemy(worldNear, consts.Coord[consts.Tile]{X: 13, Y: 10}, "fireball")
 		require.NoError(t, err)
 		nearRate := CalculateShootHitRate(playerNear, nearEnemy, worldNear)
 
 		// 遠い敵用のWorldを別に構築
 		worldFar, playerFar, _, _ := setupShootingWorld(t)
-		farEnemy, err := lifecycle.SpawnEnemy(worldFar, consts.Coord[consts.Tile]{X: 17, Y: 10}, "火の玉")
+		farEnemy, err := lifecycle.SpawnEnemy(worldFar, consts.Coord[consts.Tile]{X: 17, Y: 10}, "fireball")
 		require.NoError(t, err)
 		farRate := CalculateShootHitRate(playerFar, farEnemy, worldFar)
 

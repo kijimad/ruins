@@ -24,8 +24,8 @@ type ShootBehavior struct{}
 // Info はBehaviorの実装
 func (sb *ShootBehavior) Info() Info {
 	return Info{
-		Name:            "射撃",
-		Description:     "遠距離から敵を攻撃する",
+		Name:            "Shoot",
+		Description:     "Attack an enemy from range",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: consts.StandardActionCost,
@@ -48,19 +48,22 @@ func NewShootActivity(target ecs.Entity) *gc.Activity {
 func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
-		return ErrAttackTargetNotSet
+		return ErrParamsTypeMismatch
 	}
 	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
 	}
+	// 対象は CanShootTarget が事前に絞る。存在しない・死亡はここでは選べないので、
+	// 発火するのは選択後の消失など不変条件違反。システムエラーとして伝播させる
 	if !world.Components.GridElement.Has(p.Target) {
-		return ErrAttackTargetNotExists
+		return fmt.Errorf("target has no position")
 	}
 	if world.Components.Dead.Has(p.Target) {
-		return ErrAttackTargetDead
+		return fmt.Errorf("target is already dead")
 	}
 
-	// 遠距離武器が装備されているか
+	// 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、武器スロット不正も
+	// 遠距離武器なしもここでは起こらない。発火したら不変条件違反なのでそのまま伝播させる
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
@@ -68,22 +71,22 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 
 	// 残弾チェック
 	if fire.Magazine <= 0 {
-		return ErrShootNoAmmo
+		return fmt.Errorf("out of ammo")
 	}
 
 	// 射程・射線チェック
 	distance := EntityDistance(actor, p.Target, world)
 	rangeParams, rangeOK := gc.GetRangeParams(fire.AttackCategory)
 	if !rangeOK {
-		return ErrShootNoFireWeapon
+		return fmt.Errorf("no ranged weapon equipped")
 	}
 	if distance > float64(rangeParams.MaxRange) {
-		return ErrAttackOutOfRange
+		return fmt.Errorf("target is out of range")
 	}
 
 	// 射線上に壁がないか
 	if blocked, _ := checkLineOfSight(actor, p.Target, world); blocked {
-		return ErrShootLineOfSightBlocked
+		return fmt.Errorf("line of sight is blocked")
 	}
 
 	return nil
@@ -92,7 +95,7 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 // Start はBehaviorの実装
 func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	if p, ok := comp.Params.(*gc.ShootParams); ok {
-		log.Debug("射撃開始", "actor", actor, "target", p.Target)
+		log.Debug("shoot started", "actor", actor, "target", p.Target)
 	}
 	return nil
 }
@@ -101,8 +104,8 @@ func (sb *ShootBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) e
 func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
-		Cancel(comp, "射撃対象が設定されていません")
-		return ErrAttackTargetNotSet
+		Cancel(comp, "shoot target is not set")
+		return ErrParamsTypeMismatch
 	}
 
 	target := p.Target
@@ -110,7 +113,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	// 装備武器を取得
 	fire, weaponName, err := getEquippedFire(actor, world)
 	if err != nil {
-		Cancel(comp, "遠距離武器が装備されていません")
+		Cancel(comp, "no ranged weapon equipped")
 		return err
 	}
 
@@ -132,13 +135,13 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 
 // Finish はBehaviorの実装
 func (sb *ShootBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("射撃完了", "actor", actor)
+	log.Debug("shoot finished", "actor", actor)
 	return nil
 }
 
 // Canceled はBehaviorの実装
 func (sb *ShootBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	log.Debug("射撃キャンセル", "actor", actor, "reason", comp.CancelReason)
+	log.Debug("shoot canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
@@ -147,7 +150,7 @@ func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, string, error) 
 	selectedSlot := query.GetWeaponSelection(world).Slot
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= 5 {
-		return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
+		return nil, "", fmt.Errorf("invalid weapon slot number: %d", selectedSlot)
 	}
 
 	weapons := query.GetWeapons(world, actor)
@@ -234,13 +237,4 @@ func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {
 	modifier += fire.LoadedAccuracyBonus
 
 	return calculateHitRate(actor, target, world, fire, modifier)
-}
-
-// ExecuteShootAction は射撃アクションを実行する
-func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) error {
-	_, err := Execute(NewShootActivity(target), actor, world)
-	if err != nil {
-		return err
-	}
-	return nil
 }

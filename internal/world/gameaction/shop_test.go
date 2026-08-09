@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -54,22 +55,32 @@ func TestCalculateSellPrice(t *testing.T) {
 	}
 }
 
-func TestBuyItem(t *testing.T) {
+// woodenSwordValue は wooden_sword の基準価値。価格計算の期待値に使う
+const woodenSwordValue = 80
+
+func TestBuyStock(t *testing.T) {
 	t.Parallel()
 
-	t.Run("通常アイテムの購入成功", func(t *testing.T) {
+	t.Run("在庫アイテムの購入成功", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player := world.ECS.NewEntity()
 		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 
-		err := BuyItem(world, player, "木刀")
+		merchant := world.ECS.NewEntity()
+		item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
 		require.NoError(t, err)
 
+		require.NoError(t, BuyStock(world, player, item))
+
+		// 実体がプレイヤーのバックパックへ移り、商人の在庫から消えている
+		require.True(t, world.Components.LocationInBackpack.Has(item))
+		assert.Equal(t, player, world.Components.LocationInBackpack.Get(item).Owner)
+		assert.False(t, world.Components.LocationInStorage.Has(item))
+
 		currency := query.GetCurrency(world, player)
-		expectedCurrency := 1000 - query.CalculateBuyPrice(80)
-		assert.Equal(t, expectedCurrency, currency)
+		assert.Equal(t, 1000-query.CalculateBuyPrice(woodenSwordValue), currency)
 	})
 
 	t.Run("通貨不足で購入失敗", func(t *testing.T) {
@@ -79,12 +90,17 @@ func TestBuyItem(t *testing.T) {
 		player := world.ECS.NewEntity()
 		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 10})
 
-		err := BuyItem(world, player, "木刀")
-		assert.Error(t, err)
+		merchant := world.ECS.NewEntity()
+		item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
+		require.NoError(t, err)
+
+		require.Error(t, BuyStock(world, player, item))
+		// 在庫に残ったまま
+		assert.True(t, world.Components.LocationInStorage.Has(item))
 	})
 
-	// query.Player のコールバック内で購入するとエンティティ生成が
-	// クエリ反復中に走りワールドロック違反でパニックしていた回帰ケース
+	// query.Player のコールバック内で購入すると実体移送がクエリ反復中に走り
+	// ワールドロック違反でパニックしていた回帰ケース
 	t.Run("query.Player経由の購入でパニックしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -94,43 +110,73 @@ func TestBuyItem(t *testing.T) {
 		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
 		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
 
+		merchant := world.ECS.NewEntity()
+		item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
+		require.NoError(t, err)
+
 		var buyErr error
 		require.NotPanics(t, func() {
 			query.Player(world, func(p ecs.Entity) {
-				buyErr = BuyItem(world, p, "木刀")
+				buyErr = BuyStock(world, p, item)
 			})
 		})
 		require.NoError(t, buyErr)
-
-		currency := query.GetCurrency(world, player)
-		assert.Equal(t, 1000-query.CalculateBuyPrice(80), currency, "購入後は通貨が減っているべき")
+		assert.Equal(t, 1000-query.CalculateBuyPrice(woodenSwordValue), query.GetCurrency(world, player))
 	})
 }
 
-func TestSellItem(t *testing.T) {
+func TestSellStock(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	player := world.ECS.NewEntity()
 	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
 
-	item, _ := lifecycle.SpawnBackpackItem(world, "木刀", 1)
+	merchant := world.ECS.NewEntity()
 
-	t.Run("アイテムの売却成功", func(t *testing.T) {
-		t.Parallel()
-		err := SellItem(world, player, item)
-		require.NoError(t, err)
+	item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
+	require.NoError(t, err)
 
-		currency := query.GetCurrency(world, player)
-		expectedCurrency := query.CalculateSellPrice(80)
-		assert.Equal(t, expectedCurrency, currency)
-	})
+	require.NoError(t, SellStock(world, player, merchant, item))
+
+	// 代金を受け取り、実体が商人の在庫へ並ぶ
+	assert.Equal(t, query.CalculateSellPrice(woodenSwordValue), query.GetCurrency(world, player))
+	require.True(t, world.Components.LocationInStorage.Has(item))
+	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
 }
 
-func TestGetShopInventory(t *testing.T) {
+func TestHireRecruit(t *testing.T) {
 	t.Parallel()
-	inventory := GetShopInventory()
+	world := testutil.InitTestWorld(t)
 
-	assert.NotEmpty(t, inventory)
-	assert.Contains(t, inventory, "木刀")
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 100000})
+	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+
+	merchant := world.ECS.NewEntity()
+	abilities := gc.Abilities{
+		Vitality:  gc.Ability{Base: 5},
+		Strength:  gc.Ability{Base: 5},
+		Sensation: gc.Ability{Base: 5},
+		Dexterity: gc.Ability{Base: 5},
+		Agility:   gc.Ability{Base: 5},
+		Defense:   gc.Ability{Base: 5},
+	}
+	recruit, err := lifecycle.SpawnStorageRecruit(world, merchant, "Test", abilities, "general")
+	require.NoError(t, err)
+	// 生成時に確定した基準価値。買値の期待値に使う
+	recruitValue := world.Components.Value.Get(recruit).Value
+
+	before := query.SquadMembers(world)
+	require.NoError(t, HireRecruit(world, player, recruit))
+
+	// 候補実体は消え、隊員が1人増えている
+	assert.False(t, world.ECS.Alive(recruit))
+	after := query.SquadMembers(world)
+	assert.Len(t, after, len(before)+1)
+
+	// 代金は生成時に確定した基準価値の買値
+	expected := 100000 - query.CalculateBuyPrice(recruitValue)
+	assert.Equal(t, expected, query.GetCurrency(world, player))
 }

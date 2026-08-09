@@ -21,7 +21,6 @@ type FloatPool = Pool[float64]
 // TurnBased はエンティティのアクションポイント管理コンポーネント
 // ターン制戦闘で、プレイヤー・敵共通で使用される
 type TurnBased struct {
-	// Action Point
 	AP IntPool
 	// Speed は毎ターンのAP回復量。能力値・状態異常・装備で変動する
 	Speed int
@@ -35,7 +34,7 @@ type TargetType struct {
 
 // RecipeInput は合成の元になる素材
 type RecipeInput struct {
-	Name   string // 素材名
+	ID     string // 素材アイテムの id
 	Amount int    // 必要量
 }
 
@@ -89,17 +88,17 @@ func (s EquipmentSlotNumber) String() string {
 	case SlotJewelry:
 		return EquipmentJewelry.String()
 	case SlotWeapon1:
-		return "武器1"
+		return "Weapon 1"
 	case SlotWeapon2:
-		return "武器2"
+		return "Weapon 2"
 	case SlotWeapon3:
-		return "武器3"
+		return "Weapon 3"
 	case SlotWeapon4:
-		return "武器4"
+		return "Weapon 4"
 	case SlotWeapon5:
-		return "武器5"
+		return "Weapon 5"
 	default:
-		panic(fmt.Sprintf("未知のEquipmentSlotNumber: %d", s))
+		panic(fmt.Sprintf("unknown EquipmentSlotNumber: %d", s))
 	}
 }
 

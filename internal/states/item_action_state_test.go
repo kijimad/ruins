@@ -4,12 +4,34 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
+	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestExecRead_スキル不足でもゲームを止めない は、読むのに必要なスキルが足りない本を読もうとしても
+// エラーを返さず、メニューを閉じることを固定する。state のエラーは致命化するため、ユーザー入力の
+// 検証失敗はログに出して吸収する。
+func TestExecRead_スキル不足でもゲームを止めない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+
+	// rifle Lv2 が要る本。新規プレイヤーは rifle 0 なので読めない
+	book, err := lifecycle.SpawnBackpackItem(world, "army_shooting_manual", 1)
+	require.NoError(t, err)
+
+	trans, err := execRead(world, book)
+	require.NoError(t, err, "検証失敗でもエラーを返さない")
+	assert.Equal(t, es.TransPop, trans.Type, "メニューを閉じる")
+	assert.True(t, world.ECS.Alive(book), "読めないので本は消費されない")
+}
 
 func TestVerbByAction_直達アクションを動詞へ対応づける(t *testing.T) {
 	t.Parallel()
@@ -98,8 +120,8 @@ func TestAcceptConsumeFood_食べる対象と使う対象は排他になる(t *t
 		consume bool
 		use     bool
 	}{
-		{"回復薬は回復を持つので食べる対象", "回復薬", true, false},
-		{"手榴弾は栄養も回復も持たないので使う対象", "手榴弾", false, true},
+		{"回復薬は回復を持つので食べる対象", "healing_potion", true, false},
+		{"手榴弾は栄養も回復も持たないので使う対象", "grenade", false, true},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {

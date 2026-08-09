@@ -1567,9 +1567,12 @@ components:
     CommandTable:
       type: object
       required:
+        - id
         - name
         - entries
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -1584,7 +1587,7 @@ components:
         - weight
       properties:
         weapon:
-          $ref: '#/components/schemas/EntityName'
+          $ref: '#/components/schemas/EntityID'
         weight:
           $ref: '#/components/schemas/EntryWeight'
       description: コマンドテーブルエントリ
@@ -1685,11 +1688,11 @@ components:
     DisassemblyBonus:
       type: object
       required:
-        - name
+        - id
         - count
       properties:
-        name:
-          $ref: '#/components/schemas/EntityName'
+        id:
+          $ref: '#/components/schemas/EntityID'
         count:
           allOf:
             - $ref: '#/components/schemas/Dice'
@@ -1725,11 +1728,11 @@ components:
     DisassemblyYield:
       type: object
       required:
-        - name
+        - id
         - count
       properties:
-        name:
-          $ref: '#/components/schemas/EntityName'
+        id:
+          $ref: '#/components/schemas/EntityID'
         count:
           allOf:
             - $ref: '#/components/schemas/Dice'
@@ -1737,18 +1740,18 @@ components:
         chance:
           $ref: '#/components/schemas/DisassemblyChance'
       description: 分解の産出エントリ。chance 省略は確定枠
-    DoorLockTriggerRaw:
-      type: object
-      description: 扉ロックトリガー
     DoorRaw:
       type: object
       description: 扉ローデータ
     DropTable:
       type: object
       required:
+        - id
         - name
         - entries
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -1794,9 +1797,12 @@ components:
     EnemyTable:
       type: object
       required:
+        - id
         - name
         - entries
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -1807,14 +1813,14 @@ components:
     EnemyTableEntry:
       type: object
       required:
-        - enemyName
+        - id
         - weight
         - minDepth
         - maxDepth
         - pack
       properties:
-        enemyName:
-          $ref: '#/components/schemas/EntityName'
+        id:
+          $ref: '#/components/schemas/EntityID'
         weight:
           $ref: '#/components/schemas/EntryWeight'
         minDepth:
@@ -1845,6 +1851,11 @@ components:
       minLength: 1
       maxLength: 200
       description: 説明文
+    EntityID:
+      type: string
+      minLength: 1
+      maxLength: 50
+      description: エンティティの英語 id
     EntityName:
       type: string
       minLength: 1
@@ -2011,12 +2022,15 @@ components:
     Item:
       type: object
       required:
+        - id
         - name
         - description
         - spriteSheetName
         - spriteKey
         - value
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         description:
@@ -2073,10 +2087,13 @@ components:
     ItemGroup:
       type: object
       required:
+        - id
         - name
         - subtype
         - entries
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         subtype:
@@ -2089,12 +2106,12 @@ components:
     ItemGroupEntry:
       type: object
       required:
-        - itemName
+        - id
         - weight
         - pack
       properties:
-        itemName:
-          $ref: '#/components/schemas/EntityName'
+        id:
+          $ref: '#/components/schemas/EntityID'
         weight:
           allOf:
             - $ref: '#/components/schemas/EntryWeight'
@@ -2141,9 +2158,12 @@ components:
     ItemTable:
       type: object
       required:
+        - id
         - name
         - entries
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         entries:
@@ -2154,15 +2174,15 @@ components:
     ItemTableEntry:
       type: object
       required:
-        - groupName
+        - id
         - weight
         - minDepth
         - maxDepth
       properties:
-        groupName:
+        id:
           allOf:
-            - $ref: '#/components/schemas/EntityName'
-          description: 参照するアイテムグループ名
+            - $ref: '#/components/schemas/EntityID'
+          description: 参照するアイテムグループの id
         weight:
           $ref: '#/components/schemas/EntryWeight'
         minDepth:
@@ -2257,12 +2277,15 @@ components:
     Member:
       type: object
       required:
+        - id
         - name
         - isBoss
         - abilities
         - spriteSheetName
         - spriteKey
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         player:
@@ -2291,13 +2314,13 @@ components:
           $ref: '#/components/schemas/ViewDistance'
         dialog:
           $ref: '#/components/schemas/Dialog'
-        commandTableName:
+        commandTableId:
           allOf:
-            - $ref: '#/components/schemas/EntityName'
+            - $ref: '#/components/schemas/EntityID'
           description: プレイヤーキャラクターでは省略可能
-        dropTableName:
+        dropTableId:
           allOf:
-            - $ref: '#/components/schemas/EntityName'
+            - $ref: '#/components/schemas/EntityID'
           description: プレイヤーキャラクターでは省略可能
       description: メンバー
     MemberList:
@@ -2487,12 +2510,15 @@ components:
     Prop:
       type: object
       required:
+        - id
         - name
         - description
         - spriteRender
         - blockPass
         - blockView
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         description:
@@ -2515,8 +2541,6 @@ components:
           $ref: '#/components/schemas/LightSource'
         door:
           $ref: '#/components/schemas/DoorRaw'
-        doorLockTrigger:
-          $ref: '#/components/schemas/DoorLockTriggerRaw'
         warpNextTrigger:
           $ref: '#/components/schemas/WarpNextTriggerRaw'
         warpPrevTrigger:
@@ -2636,9 +2660,12 @@ components:
     Recipe:
       type: object
       required:
+        - id
         - name
         - inputs
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         inputs:
@@ -2649,11 +2676,11 @@ components:
     RecipeInput:
       type: object
       required:
-        - name
+        - id
         - amount
       properties:
-        name:
-          $ref: '#/components/schemas/EntityName'
+        id:
+          $ref: '#/components/schemas/EntityID'
         amount:
           $ref: '#/components/schemas/MaterialAmount'
       description: レシピ素材
@@ -3854,9 +3881,9 @@ components:
           allOf:
             - $ref: '#/components/schemas/Weight'
           description: 収納の最大格納重量
-        lootTableName:
+        lootTableId:
           allOf:
-            - $ref: '#/components/schemas/EntityName'
+            - $ref: '#/components/schemas/EntityID'
           description: 初期アイテムの抽選に使うItemTable名
         lootCount:
           allOf:
@@ -3886,6 +3913,7 @@ components:
     Tile:
       type: object
       required:
+        - id
         - name
         - description
         - blockPass
@@ -3895,6 +3923,8 @@ components:
         - water
         - foliage
       properties:
+        id:
+          $ref: '#/components/schemas/EntityID'
         name:
           $ref: '#/components/schemas/EntityName'
         description:

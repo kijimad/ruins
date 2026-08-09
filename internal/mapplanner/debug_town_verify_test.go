@@ -18,13 +18,13 @@ func TestPlannerTypeDebugTown_テンプレが読めて街用NPCと収納箱を�
 	for _, n := range chain.PlanData.NPCs {
 		npcNames = append(npcNames, n.Name)
 	}
-	assert.ElementsMatch(t, []string{"商人", "老兵", "怪しい科学者", "酒場の主人"}, npcNames, "街用NPC4種が配置される")
+	assert.ElementsMatch(t, []string{"merchant", "old_soldier", "suspicious_scientist"}, npcNames, "街用NPC3種が配置される")
 
 	propNames := make([]string, 0, len(chain.PlanData.Props))
 	for _, p := range chain.PlanData.Props {
 		propNames = append(propNames, p.Name)
 	}
-	assert.Contains(t, propNames, "木箱", "収納箱が配置される")
+	assert.Contains(t, propNames, "wooden_crate", "収納箱が配置される")
 
 	assert.NotEmpty(t, chain.PlanData.SpawnPoints, "スポーン地点がある")
 }

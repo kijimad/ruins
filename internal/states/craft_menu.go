@@ -42,7 +42,7 @@ var _ menurt.ExtraInput = &CraftMenuState{}
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.result = menuscreen.NewDetail(st.resultDetailContent)
+	st.result = menuscreen.NewEntityDetail(func() (ecs.Entity, bool) { return st.resultEntity, true })
 	// result を先に登録する。合成結果が開いている間はそちらが入力を専有する
 	st.screen = menurt.NewScreen[CraftProps](st, &st.result, &st.detail)
 	return nil
@@ -76,7 +76,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
-		st.detail.Open()
+		st.detail.Open(world)
 	case inputmapper.ActionMenuSelect:
 		if err := st.craftSelected(world); err != nil {
 			return es.Transition[w.World]{}, err
@@ -84,7 +84,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("craftMenu: 未対応のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("craftMenu: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
@@ -105,7 +105,8 @@ type craftTabData struct {
 }
 
 type craftItemData struct {
-	RecipeName string
+	RecipeID   string // 合成の同定キー。NewRecipeSpec/CanCraft/Craft はこれで引く
+	RecipeName string // 表示名
 	CanCraft   bool
 }
 
@@ -127,19 +128,24 @@ func (st *CraftMenuState) Menu(props CraftProps) menurt.MenuConfig {
 
 func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
 	return []craftTabData{
-		{ID: "consumables", Label: "道具", Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
-		{ID: "weapons", Label: "武器", Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
-		{ID: "wearables", Label: "防具", Items: st.createMenuItems(world, st.queryMenuWearable(world))},
+		{ID: "consumables", Label: query.T(world, "Consumables"), Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
+		{ID: "weapons", Label: query.T(world, "Weapons"), Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
+		{ID: "wearables", Label: query.T(world, "Armor"), Items: st.createMenuItems(world, st.queryMenuWearable(world))},
 	}
 }
 
-func (st *CraftMenuState) createMenuItems(world w.World, recipeNames []string) []craftItemData {
-	items := make([]craftItemData, len(recipeNames))
+func (st *CraftMenuState) createMenuItems(world w.World, recipeIDs []string) []craftItemData {
+	items := make([]craftItemData, len(recipeIDs))
 
-	for i, recipeName := range recipeNames {
-		canCraft, _ := gameaction.CanCraft(world, recipeName)
+	for i, recipeID := range recipeIDs {
+		canCraft, _ := gameaction.CanCraft(world, recipeID)
+		name := recipeID
+		if spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipeID); err == nil {
+			name = spec.Name.Name
+		}
 		items[i] = craftItemData{
-			RecipeName: recipeName,
+			RecipeID:   recipeID,
+			RecipeName: name,
 			CanCraft:   canCraft,
 		}
 	}
@@ -151,12 +157,12 @@ func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
 	var items []string
 
 	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)
 		if err != nil {
 			continue
 		}
 		if spec.Consumable != nil {
-			items = append(items, recipe.Name)
+			items = append(items, recipe.Id)
 		}
 	}
 
@@ -168,13 +174,13 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
 	var items []string
 
 	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)
 		if err != nil {
 			continue
 		}
 		// TODO: カテゴリ定義で判定したい
 		if spec.Melee != nil || spec.Fire != nil {
-			items = append(items, recipe.Name)
+			items = append(items, recipe.Id)
 		}
 	}
 
@@ -186,12 +192,12 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 	var items []string
 
 	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
-		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)
 		if err != nil {
 			continue
 		}
 		if spec.Wearable != nil {
-			items = append(items, recipe.Name)
+			items = append(items, recipe.Id)
 		}
 	}
 
@@ -210,12 +216,12 @@ func (st *CraftMenuState) craftSelected(world w.World) error {
 	if !ok || !item.CanCraft {
 		return nil
 	}
-	resultEntity, err := gameaction.Craft(world, item.RecipeName)
+	resultEntity, err := gameaction.Craft(world, item.RecipeID)
 	if err != nil {
-		return fmt.Errorf("合成に失敗: %w", err)
+		return fmt.Errorf("failed to craft: %w", err)
 	}
 	st.resultEntity = resultEntity
-	st.result.Open()
+	st.result.Open(world)
 	return nil
 }
 
@@ -233,20 +239,12 @@ func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 	return items[cursor.ItemIndex], true
 }
 
-// resultDetailContent は直近で合成したアイテムを詳細モーダルの内容にする
-func (st *CraftMenuState) resultDetailContent(world w.World) (menuscreen.DetailContent, bool) {
-	if !world.ECS.Alive(st.resultEntity) {
-		return menuscreen.DetailContent{}, false
-	}
-	return entityDetailContent(world, st.resultEntity), true
-}
-
 // ================
 // View
 // ================
 
 // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *CraftMenuState) View(_ w.World, props CraftProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	// カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -255,12 +253,12 @@ func (st *CraftMenuState) View(_ w.World, props CraftProps, cursor menurt.Select
 	return newTabScreenUI(res, tabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemContainer(props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(true, "x 詳細"),
+		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 
-func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	if tabIndex >= len(tabs) {
 		return styled.NewVerticalContainer()
 	}
@@ -277,16 +275,16 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 		}
 		rows[i] = menuRow{Cells: []string{mark, it.RecipeName}}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: "(レシピなし)"}, res)
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res)
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
 func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
 	item, ok := st.selectedRecipe()
-	if !ok || item.RecipeName == "" {
+	if !ok || item.RecipeID == "" {
 		return menuscreen.DetailContent{}, false
 	}
-	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeName)
+	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeID)
 	if err != nil {
 		return menuscreen.DetailContent{}, false
 	}
@@ -295,24 +293,25 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 	// その後ろに生成物の性能行を続ける
 	var rows []menuscreen.SpecRow
 	if spec.Recipe != nil {
-		rows = append(rows, menuscreen.SpecRow{Label: "材料", Header: true})
+		rows = append(rows, menuscreen.SpecRow{Label: query.T(world, "Materials"), Header: true})
 		for _, in := range spec.Recipe.Inputs {
 			owned := 0
-			if entity, found := query.FindStackableInInventory(world, in.Name); found {
+			if entity, found := query.FindStackableInInventory(world, in.ID); found {
 				owned = query.GetEntityCount(world, entity)
 			}
 			rowColor := theme.StatusDanger
 			if owned >= in.Amount {
 				rowColor = theme.StatusSuccess
 			}
-			rows = append(rows, menuscreen.SpecRow{Label: in.Name, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
+			label := query.T(world, raw.ItemName(world.Resources.RawMaster, in.ID))
+			rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
 	rows = append(rows, views.SpecRowsFromSpec(world, spec)...)
 
 	desc := ""
 	if spec.Description != nil {
-		desc = spec.Description.Description
+		desc = query.T(world, spec.Description.Description)
 	}
 	return menuscreen.DetailContent{Name: item.RecipeName, Desc: desc, Rows: rows}, true
 }

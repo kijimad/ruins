@@ -10,12 +10,14 @@ import (
 
 // resolveEnemyEntries は敵テーブル名とRawMasterから、指定深度でフィルタリングしたSpawnEntryを返す
 func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]SpawnEntry, error) {
+	// tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。
+	// どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。
 	if rawMaster == nil || tableName == "" {
 		return nil, nil
 	}
 	enemyTable, err := raw.GetEnemyTable(*rawMaster, tableName)
 	if err != nil {
-		return nil, fmt.Errorf("敵テーブルが見つかりません: %s: %w", tableName, err)
+		return nil, fmt.Errorf("enemy table not found: %s: %w", tableName, err)
 	}
 	result := make([]SpawnEntry, 0, len(enemyTable.Entries))
 	for _, entry := range enemyTable.Entries {
@@ -24,10 +26,10 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]S
 		}
 		pack, err := consts.ParseDice(entry.Pack)
 		if err != nil {
-			return nil, fmt.Errorf("敵テーブル '%s' の '%s' のパック表記が不正です: %w", tableName, entry.EnemyName, err)
+			return nil, fmt.Errorf("enemy table '%s' entry '%s' has invalid pack notation: %w", tableName, entry.Id, err)
 		}
 		result = append(result, SpawnEntry{
-			Name:   entry.EnemyName,
+			Name:   entry.Id,
 			Weight: entry.Weight,
 			Pack:   pack,
 		})
@@ -35,41 +37,25 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]S
 	return result, nil
 }
 
-// resolveItemSources はアイテムテーブル名とRawMasterから、指定深度でフィルタリングしたItemSourceを返す
-func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]ItemSource, error) {
+// resolveItemSources はアイテムテーブル名と RawMaster から、指定深度でフィルタリングした参照先グループを返す。
+// グループ中身の解決と抽選は draw 時に raw.SelectFromItemGroup が担うので、ここはテーブルの深度フィルタと
+// 参照先グループの収集だけを行う。テーブルから group への参照の実在は raw のロード時検証が担保する。
+func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]itemGroupRef, error) {
+	// tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。
+	// どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。
 	if rawMaster == nil || tableName == "" {
 		return nil, nil
 	}
 	itemTable, err := raw.GetItemTable(*rawMaster, tableName)
 	if err != nil {
-		return nil, fmt.Errorf("アイテムテーブルが見つかりません: %s: %w", tableName, err)
+		return nil, fmt.Errorf("item table not found: %s: %w", tableName, err)
 	}
-	result := make([]ItemSource, 0, len(itemTable.Entries))
+	result := make([]itemGroupRef, 0, len(itemTable.Entries))
 	for _, entry := range itemTable.Entries {
 		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
 			continue
 		}
-		group, err := raw.GetItemGroup(*rawMaster, entry.GroupName)
-		if err != nil {
-			return nil, fmt.Errorf("アイテムグループが見つかりません: %s: %w", entry.GroupName, err)
-		}
-		spawnEntries := make([]SpawnEntry, len(group.Entries))
-		for i, ge := range group.Entries {
-			pack, err := consts.ParseDice(ge.Pack)
-			if err != nil {
-				return nil, fmt.Errorf("アイテムグループ '%s' の '%s' のパック表記が不正です: %w", entry.GroupName, ge.ItemName, err)
-			}
-			spawnEntries[i] = SpawnEntry{
-				Name:   ge.ItemName,
-				Weight: ge.Weight,
-				Pack:   pack,
-			}
-		}
-		result = append(result, ItemSource{
-			Weight:  entry.Weight,
-			Subtype: ItemGroupSubtype(group.Subtype),
-			Entries: spawnEntries,
-		})
+		result = append(result, itemGroupRef{GroupID: entry.Id, Weight: entry.Weight})
 	}
 	return result, nil
 }

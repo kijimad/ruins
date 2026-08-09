@@ -161,9 +161,9 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
 		require.NoError(t, err)
 		enemyHP := world.Components.HP.Get(enemy)
 		initialEnemyHP := enemyHP.Current
@@ -175,7 +175,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		// 検証: Attackが実行される
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.True(t, result.Success)
 		gridAfter := world.Components.GridElement.Get(player)
 		assert.Equal(t, 10, int(gridAfter.X))
@@ -188,7 +188,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -199,7 +199,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 			Timer:    90,
 		})
 
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
 		require.NoError(t, err)
 		// APが0以上なら行動可能であることを確認
 		tb := world.Components.TurnBased.Get(player)
@@ -214,7 +214,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		// 検証: Attackが実行される
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 
@@ -223,7 +223,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -234,7 +234,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 			Timer:    90,
 		})
 
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
 		require.NoError(t, err)
 		turnBased := world.Components.TurnBased.Get(player)
 		initialAP := turnBased.AP.Current
@@ -248,7 +248,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		// 検証: Attackが実行される
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.True(t, result.Success)
 		assert.Less(t, turnBased.AP.Current, initialAP)
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
@@ -263,9 +263,9 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
 		require.NoError(t, err)
 		world.Components.Dead.Add(enemy, &gc.Dead{})
 
@@ -285,9 +285,9 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
 		require.NoError(t, err)
 		enemyHP := world.Components.HP.Get(enemy)
 		enemyHP.Current = 1
@@ -298,7 +298,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		assert.True(t, world.Components.Dead.Has(enemy))
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 
 		// 2回目: 死亡した敵がいた場所への移動
 		err = activity.ExecuteMoveAction(world, gc.DirectionUp)

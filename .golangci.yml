@@ -37,13 +37,22 @@ linters:
     - bidichk        # 不可視の危険なUnicode（トロイソース攻撃）を検出
     - forbidigo      # t.Error/t.Fatal を禁止しtestifyの使用を強制する
     - forcetypeassert # 未チェックの型アサーションを禁止する
+    - gosmopolitan   # 文字列リテラルの日本語などを検出し、UIの源泉英語化を促す
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
   exclusions:
     paths:
       - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
+    rules:
+      # gosmopolitan の源泉英語化 allowlist。移行が済んだ領域から外していく。
+      # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする
+      - linters: [gosmopolitan]
+        path: '_test\.go$'
 
   settings:
+    gosmopolitan:
+      # 日本語の3スクリプトを監視する。漢字・ひらがな・カタカナのリテラルを検出する
+      watch-for-scripts: [Han, Hiragana, Katakana]
     goconst:
       # テストは独立して読めることが重要で、フィクスチャ文字列の重複は許容する。
       # テストを数えないことで、テストとの合算で誤検知される本体側の指摘も消える。

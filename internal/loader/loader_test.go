@@ -96,7 +96,7 @@ func TestLoadSpriteSheets(t *testing.T) {
 
 		sheets, err := LoadSpriteSheets(raws)
 
-		require.ErrorContains(t, err, "スプライトシート 'nonexistent' の読み込みに失敗")
+		require.ErrorContains(t, err, "failed to load sprite sheet 'nonexistent'")
 		assert.Nil(t, sheets)
 	})
 }
@@ -192,7 +192,7 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 		_, err := LoadSpriteSheetFromAseprite("file/textures/dist/nonexistent.json")
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "JSONファイルの読み込みに失敗")
+		assert.Contains(t, err.Error(), "failed to load JSON file")
 	})
 
 	t.Run("不正なパスを指定するとエラー", func(t *testing.T) {
@@ -227,7 +227,6 @@ var externallyReferencedSprites = []string{
 }
 
 // knownOrphanSprites は raw からも Go からも参照されない既存スプライトの逃げ道。
-// 現状はゼロ。かつての未参照スプライトは全て raw.toml へ登録済みで孤児は無い。
 // やむを得ず孤児化したものだけをここに載せ、原則は空を保つ。
 var knownOrphanSprites = []string{}
 

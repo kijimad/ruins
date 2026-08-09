@@ -1,11 +1,17 @@
 package interior
 
-// prop の写像。interior の抽象 Ref をゲームの raw prop 名へ写す単一のソース。overworld がこの表で prop を
-// spawn し、VRT がこの表で「in-game に出る物だけ」を描く。両者が同じ表を引くので VRT と in-game が乖離しない。
+// 実体は string だが、名前を付けて意味を持たせる。
+type (
+	// content が使う抽象
+	propRef = string
+	// raw の prop 名
+	rawPropName = string
+)
+
+// propRaw は prop の対応表。overworld がこの表で prop をspawn し、VRT がこの表で「in-game に出る物だけ」を描く。両者が同じ表を引くので VRT と in-game が乖離しない。
 // 表に無い Ref は in-game で spawn されず、VRT でも描かれない。KindLoot の戦利品と raw の無い装飾は含めない。
-// 現状は家具と装飾だけを写し、施設固有の戦利品はアイテム設計が固まってから足す。既存の prop へ寄せ、
-// raw の無い抽象什器は近い実物へ当てる。
-var propRaw = map[string]string{
+// 家具と装飾だけを対応させ、raw の無い抽象什器は近い実物へ当てる。
+var propRaw = map[propRef]rawPropName{
 	"register":      "register",
 	"gondola":       "goods_shelf",
 	"walkin_cooler": "refrigerator",
@@ -50,16 +56,16 @@ var propRaw = map[string]string{
 	"komainu":    "komainu",
 	"pillar":     "stone_pillar",
 	"cage":       "cage",
-	"poison":     "毒樽",
+	"poison":     "poison_barrel",
 	// 和家具。民家の believability を上げる。仮画像。raw 名は日本語
-	"butsudan": "仏壇",
-	"kamidana": "神棚",
-	"getabako": "下駄箱",
+	"butsudan": "buddhist_altar",
+	"kamidana": "household_shrine",
+	"getabako": "shoe_cabinet",
 	// 部屋の語彙拡充。既存の実物 prop を room content の添え物へ回し、家具プールを増やす
-	"dresser":     "ドレッサー",
-	"bedside":     "ベッドサイド",
+	"dresser":     "dresser",
+	"bedside":     "bedside_table",
 	"bookshelf":   "bookshelf",
-	"fireplace":   "暖炉",
+	"fireplace":   "fireplace",
 	"clock":       "clock",
 	"microwave":   "microwave",
 	"coffeemaker": "coffee_maker",
@@ -74,7 +80,7 @@ func PropRawName(ref string) (string, bool) {
 	return name, ok
 }
 
-// PropRaws は Ref→raw prop 名の写像を返す。写像先の raw が実在するかを検査するテストが全対を舐めるのに使う。
+// PropRaws は Ref から raw prop 名への対応表を返す。値の raw が実在するかを検査するテストが全対を舐めるのに使う。
 // 返す map は書き換えない前提。
 func PropRaws() map[string]string {
 	return propRaw

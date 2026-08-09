@@ -23,7 +23,6 @@ func TestInteractionKind_Config(t *testing.T) {
 		{InteractionItemAll, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionPortalNext, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual},
-		{InteractionDoorLock, ActivationRangeSameTile, ActivationWayAuto},
 	}
 
 	for _, tt := range tests {
@@ -142,9 +141,13 @@ func TestActivationWay_Valid(t *testing.T) {
 func TestInteractionKind_ConfigConsistency(t *testing.T) {
 	t.Parallel()
 
+	// Config() の default なし exhaustive switch に対応する全種を列挙する。
+	// InteractionKind を足したらここにも足す。抜けると Config() の regression を見逃す
 	kinds := []InteractionKind{
-		InteractionPortalNext, InteractionPortalPrev, InteractionDoor, InteractionDoorLock,
-		InteractionTalk, InteractionItem, InteractionItemAll, InteractionStorage, InteractionMelee,
+		InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter,
+		InteractionDoor, InteractionTalk, InteractionItem, InteractionItemAll,
+		InteractionStorage, InteractionMelee, InteractionDisassemble,
+		InteractionEnterCube, InteractionExitCube, InteractionPullCube, InteractionCubePanel,
 	}
 
 	for _, kind := range kinds {

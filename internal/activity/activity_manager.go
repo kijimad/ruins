@@ -1,10 +1,12 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -27,12 +29,25 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 		return nil, ErrActivityNil
 	}
 	behaviorName := comp.BehaviorName
-	log.Debug("アクション実行開始",
+	log.Debug("action execution started",
 		"type", behaviorName,
 		"actor", actor)
 
 	// アクティビティを開始
 	if err := StartActivity(comp, actor, world); err != nil {
+		var ve *UserError
+		if errors.As(err, &ve) {
+			// ユーザ起因の失敗はここで gamelog へ出し、err=nil で閉じる
+			gamelog.New(query.GetGameLog(world)).Markup(ve.Msg).Log()
+			result := &ActionResult{
+				Success:      false,
+				State:        gc.ActivityStateCanceled,
+				ActivityName: behaviorName,
+				Message:      ve.Msg,
+			}
+			setLastResult(actor, result, world)
+			return result, nil
+		}
 		result := &ActionResult{
 			Success:      false,
 			State:        gc.ActivityStateCanceled,
@@ -58,14 +73,14 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 	if currentActivity != nil && !IsCompleted(currentActivity) && !IsCanceled(currentActivity) {
 		// 継続アクション。この初回ターン分のコストを消費し、残りは ProcessContinuousActivities が進める
 		query.ConsumeActionPoints(world, actor, consts.StandardActionCost)
-		result = &ActionResult{Success: true, State: gc.ActivityStateRunning, ActivityName: behaviorName, Message: "アクション開始"}
+		result = &ActionResult{Success: true, State: gc.ActivityStateRunning, ActivityName: behaviorName, Message: "action started"}
 	} else {
 		// 初回で解決した即時アクション。移動コストなど behavior 固有のコストを消費する
 		consumePassCost(world, actor, comp)
 		if currentActivity != nil && IsCanceled(currentActivity) {
-			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: currentActivity.CancelReason}
+			result = &ActionResult{Success: false, State: gc.ActivityStateCanceled, ActivityName: behaviorName, Message: query.T(world, currentActivity.CancelReason)}
 		} else {
-			result = &ActionResult{Success: true, State: gc.ActivityStateCompleted, ActivityName: behaviorName, Message: "アクション完了"}
+			result = &ActionResult{Success: true, State: gc.ActivityStateCompleted, ActivityName: behaviorName, Message: "action completed"}
 		}
 	}
 	setLastResult(actor, result, world)
@@ -93,14 +108,14 @@ func stepActivity(entity ecs.Entity, world w.World) {
 	behaviorName := stored.BehaviorName
 	behavior, err := GetBehavior(behaviorName)
 	if err != nil {
-		log.Error("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
+		log.Error("failed to get behavior", "entity", entity, "error", err.Error())
 		query.RemoveActivity(world, entity)
 		return
 	}
 
 	if err := behavior.DoTurn(stored, entity, world); err != nil {
-		log.Error("アクティビティターン処理エラー", "entity", entity, "type", behaviorName, "error", err.Error())
-		CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
+		log.Error("activity turn processing error", "entity", entity, "type", behaviorName, "error", err.Error())
+		CancelActivity(entity, fmt.Sprintf("error: %s", err.Error()), world)
 		return
 	}
 
@@ -109,13 +124,13 @@ func stepActivity(entity ecs.Entity, world w.World) {
 	}
 
 	if err := behavior.Finish(stored, entity, world); err != nil {
-		log.Error("アクティビティ完了処理エラー", "entity", entity, "type", behaviorName, "error", err.Error())
+		log.Error("activity finish processing error", "entity", entity, "type", behaviorName, "error", err.Error())
 	}
 	setLastResult(entity, &ActionResult{
 		Success:      true,
 		State:        gc.ActivityStateCompleted,
 		ActivityName: behaviorName,
-		Message:      "完了",
+		Message:      "completed",
 	}, world)
 	query.RemoveActivity(world, entity)
 }
@@ -130,7 +145,7 @@ func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
 	}
 
 	if err := gc.Upsert(world.ECS, world.Components.LastActivity, actor, lastResult); err != nil {
-		log.Warn("直近アクティビティ結果の記録に失敗", "actor", actor, "error", err.Error())
+		log.Warn("failed to record last activity result", "actor", actor, "error", err.Error())
 	}
 }
 
@@ -142,7 +157,7 @@ func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
 	return world.Components.LastActivity.Get(actor)
 }
 
-// StartActivity は新しいアクティビティを開始する
+// StartActivity は新しいアクティビティを開始する。検証か開始に失敗すれば error を返す
 func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp == nil {
 		return ErrActivityNil
@@ -155,19 +170,18 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 
 	// 既存のアクティビティがある場合は中断
 	if currentActivity := query.GetActivity(world, actor); currentActivity != nil {
-		if err := InterruptActivity(actor, "新しいアクティビティを開始", world); err != nil {
-			log.Warn("既存アクティビティの中断に失敗", "entity", actor, "error", err.Error())
+		if err := InterruptActivity(actor, "starting a new activity", world); err != nil {
+			log.Warn("failed to interrupt existing activity", "entity", actor, "error", err.Error())
 		}
 	}
 
-	// Behaviorでの検証
 	if err := behavior.Validate(comp, actor, world); err != nil {
-		return fmt.Errorf("アクティビティ検証失敗: %w", err)
+		return err
 	}
 
 	// アクティビティをコンポーネントとして登録する
 	if err := query.SetActivity(world, actor, comp); err != nil {
-		return fmt.Errorf("アクティビティ登録失敗: %w", err)
+		return fmt.Errorf("failed to register activity: %w", err)
 	}
 	stored := query.GetActivity(world, actor)
 	stored.State = gc.ActivityStateRunning
@@ -176,10 +190,10 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if err := behavior.Start(stored, actor, world); err != nil {
 		// 開始に失敗した場合はクリーンアップ
 		query.RemoveActivity(world, actor)
-		return fmt.Errorf("アクティビティ開始失敗: %w", err)
+		return fmt.Errorf("failed to start activity: %w", err)
 	}
 
-	log.Debug("アクティビティ開始",
+	log.Debug("activity started",
 		"entity", actor,
 		"type", behavior.Name(),
 		"required", stored.Progress.Max)
@@ -205,7 +219,7 @@ func ResumeActivity(entity ecs.Entity, world w.World) error {
 	}
 
 	if !CanResume(comp) {
-		return fmt.Errorf("アクティビティ '%s' は再開できません", GetDisplayName(comp))
+		return fmt.Errorf("activity '%s' cannot be resumed", GetDisplayName(comp))
 	}
 
 	return Resume(comp)
@@ -220,14 +234,14 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 
 	behavior, err := GetBehavior(comp.BehaviorName)
 	if err != nil {
-		log.Warn("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
+		log.Warn("failed to get behavior", "entity", entity, "error", err.Error())
 		query.RemoveActivity(world, entity)
 		return
 	}
 
 	// BehaviorのCanceled処理を実行
 	if err := behavior.Canceled(comp, entity, world); err != nil {
-		log.Warn("アクティビティキャンセル処理エラー",
+		log.Warn("activity cancel processing error",
 			"entity", entity,
 			"error", err.Error())
 	}
@@ -246,7 +260,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 
 	query.RemoveActivity(world, entity)
 
-	log.Debug("アクティビティキャンセル",
+	log.Debug("activity canceled",
 		"entity", entity,
 		"type", comp.BehaviorName,
 		"reason", reason)
@@ -285,7 +299,7 @@ func ProcessContinuousActivities(world w.World) {
 func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
 	behavior, err := GetBehavior(comp.BehaviorName)
 	if err != nil {
-		log.Error("Behaviorの取得に失敗", "actor", actor, "error", err.Error())
+		log.Error("failed to get behavior", "actor", actor, "error", err.Error())
 		return
 	}
 	cost := behavior.Info().ActionPointCost
@@ -296,7 +310,7 @@ func consumePassCost(world w.World, actor ecs.Entity, comp *gc.Activity) {
 	}
 
 	if !query.ConsumeActionPoints(world, actor, cost) {
-		log.Debug("TurnBasedコンポーネントがない", "actor", actor)
+		log.Debug("no TurnBased component", "actor", actor)
 	}
 }
 
@@ -318,7 +332,7 @@ func getPassCostAt(world w.World, x, y int) int {
 // getEntityMaxAP はエンティティの最大AP値を取得する
 func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {
 	if !world.Components.TurnBased.Has(entity) {
-		return 0, fmt.Errorf("TurnBasedコンポーネントが見つからない: entity=%v", entity)
+		return 0, fmt.Errorf("TurnBased component not found: entity=%v", entity)
 	}
 	return world.Components.TurnBased.Get(entity).AP.Max, nil
 }

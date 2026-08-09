@@ -8,6 +8,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -121,7 +122,7 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "灰の偶像"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
-	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "灰の偶像"})
+	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "ash_idol"})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	// DeadCleanupSystem実行前のアイテムエンティティ数をカウント
@@ -162,7 +163,7 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 	enemy := world.ECS.NewEntity()
 	world.Components.Name.Add(enemy, &gc.Name{Name: "火の玉"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
-	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "火の玉"})
+	world.Components.DropTable.Add(enemy, &gc.DropTable{Name: "fireball"})
 	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
 	// 実行前のアイテム数
@@ -229,7 +230,7 @@ func TestDeadCleanupSystem_CancelsActivity(t *testing.T) {
 	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
 
-	comp := activity.NewActivity(gc.BehaviorAttack, 1)
+	comp := activity.NewActivity(gc.BehaviorMelee, 1)
 	comp.State = gc.ActivityStateRunning
 	world.Components.Activity.Add(enemy, comp)
 
@@ -295,4 +296,49 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 		assert.Equal(t, consts.Tile(5), ge.X, "エフェクトは敵の位置に生成されるべき")
 		assert.Equal(t, consts.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
 	}
+}
+
+// TestDeadCleanupSystem_ボス撃破でクリアフラグを立てる は、ボス撃破が現ステージを
+// クリア済みにすること、通常の敵撃破ではクリアにならないことを検証する。ボス死亡処理は
+// クリアフラグを立てるだけであることを固定する。
+func TestDeadCleanupSystem_ボス撃破でクリアフラグを立てる(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ボス撃破でダンジョンがクリア済みになる", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
+
+		boss := world.ECS.NewEntity()
+		world.Components.Name.Add(boss, &gc.Name{Name: "ボス"})
+		world.Components.Boss.Add(boss, &gc.Boss{})
+		world.Components.Dead.Add(boss, &gc.Dead{})
+
+		require.False(t, query.GetGameProgress(world).IsDungeonCleared("テスト遺跡"),
+			"撃破前はクリア済みでないべき")
+
+		require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+		assert.True(t, query.GetGameProgress(world).IsDungeonCleared("テスト遺跡"),
+			"ボス撃破でダンジョンがクリア済みになるべき")
+		assert.False(t, world.ECS.Alive(boss), "撃破したボスは削除されるべき")
+	})
+
+	t.Run("通常の敵撃破ではクリアにならない", func(t *testing.T) {
+		t.Parallel()
+
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
+
+		enemy := world.ECS.NewEntity()
+		world.Components.Name.Add(enemy, &gc.Name{Name: "雑魚"})
+		world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
+		world.Components.Dead.Add(enemy, &gc.Dead{})
+
+		require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+		assert.False(t, query.GetGameProgress(world).IsDungeonCleared("テスト遺跡"),
+			"ボスでない敵の撃破ではクリアにならないべき")
+	})
 }

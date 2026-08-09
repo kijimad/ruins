@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // UIBuilder はTabMenuのUI要素を構築する
@@ -133,7 +134,7 @@ func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, confi
 		case displayItem:
 			container.AddChild(styled.NewListItemText(row.Label, theme.TextSecondary, row.Selected, res, row.AdditionalLabels...))
 		case displayEmptyPlaceholder:
-			container.AddChild(styled.NewDescriptionText(row.Label, res))
+			container.AddChild(styled.NewDescriptionText(query.T(b.world, row.Label), res))
 		}
 	}
 }
