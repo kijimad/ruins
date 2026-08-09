@@ -159,9 +159,3 @@ func (rb *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 
 	return effort
 }
-
-// ExecuteReloadAction はリロードアクションを実行する
-func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
-	_, err := Execute(NewReloadActivity(actor, world), actor, world)
-	return err
-}

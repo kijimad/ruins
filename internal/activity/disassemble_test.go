@@ -114,7 +114,7 @@ func TestDisassembleBehavior_Validate_工具がないとエラー(t *testing.T) 
 	require.ErrorAs(t, err, &ve)
 }
 
-func TestDisassembleBehavior_BuildActivity_分解定義のない対象はエラー(t *testing.T) {
+func TestDisassembleBehavior_Validate_分解定義のない対象はエラー(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -123,7 +123,9 @@ func TestDisassembleBehavior_BuildActivity_分解定義のない対象はエラ�
 	desk, err := lifecycle.SpawnProp(world, "desk", 11, 10)
 	require.NoError(t, err)
 
-	_, err = NewDisassembleActivity(desk, player, world)
+	da := &DisassembleBehavior{}
+	comp := NewDisassembleActivity(desk, player, world)
+	err = da.Validate(comp, player, world)
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "disassembly definition")
 }
@@ -144,8 +146,7 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 		"分解定義を持つpropはInteractionDisassembleを持つべき")
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
 	// baseAP2000 スキル0 グレード1 で必要AP2000
 	assert.Equal(t, 2000, comp.Progress.Max)
 
@@ -186,11 +187,11 @@ func TestDisassembleBehavior_アイテムを分解すると消費して素材が
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(hdd, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(hdd, player, world)
 	// baseAP1000 グレード2 で必要AP800
 	assert.Equal(t, 800, comp.Progress.Max)
 
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -225,8 +226,8 @@ func TestDisassembleBehavior_収納propを分解すると中身が足元に出�
 	require.NoError(t, lifecycle.MoveToStorage(world, loot, crate))
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -252,8 +253,8 @@ func TestDisassembleBehavior_Finish_対象が既に消えていれば何もし�
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 
 	world.ECS.RemoveEntity(crate)
@@ -281,8 +282,8 @@ func TestDisassembleBehavior_スタックのあるアイテムは1個だけ消�
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(hdd, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(hdd, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -310,8 +311,8 @@ func TestDisassembleBehavior_Finish_レベルアップでStatsChangedが付く(t
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -354,8 +355,7 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
 	err = da.Validate(comp, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
@@ -407,8 +407,8 @@ func TestDisassembleBehavior_DoTurn_対象が消えると中断する(t *testing
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 
 	world.ECS.RemoveEntity(crate)
@@ -433,8 +433,8 @@ func TestDisassembleBehavior_DoTurn_工具を失うと中断する(t *testing.T)
 	require.NoError(t, err)
 
 	da := &DisassembleBehavior{}
-	comp, err := NewDisassembleActivity(crate, player, world)
-	require.NoError(t, err)
+	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 
 	world.ECS.RemoveEntity(wrench)

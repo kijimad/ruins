@@ -45,7 +45,7 @@ func TestMoveBehavior_Validate(t *testing.T) {
 
 		ma := &MoveBehavior{}
 		err = ma.Validate(comp, player, world)
-		assert.ErrorIs(t, err, ErrMoveTargetNotSet)
+		assert.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 
 	t.Run("位置情報がない場合はエラー", func(t *testing.T) {

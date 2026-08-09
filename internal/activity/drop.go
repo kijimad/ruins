@@ -44,7 +44,7 @@ func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity
 func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return fmt.Errorf("drop target is not set")
+		return ErrParamsTypeMismatch
 	}
 
 	target := p.Target
@@ -99,7 +99,7 @@ func (db *DropBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return fmt.Errorf("drop target is not set")
+		return ErrParamsTypeMismatch
 	}
 	targetTile, err := requireDestination(comp)
 	if err != nil {

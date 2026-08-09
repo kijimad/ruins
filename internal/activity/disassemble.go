@@ -43,27 +43,23 @@ func (db *DisassembleBehavior) Name() gc.BehaviorName {
 
 // NewDisassembleActivity は分解対象を指定して分解アクティビティを組む。
 // 必要APは対象のbaseAPに機械スキルと工具グレードの短縮を掛けて求める。
-func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
-	if !ok {
-		return nil, fmt.Errorf("target has no disassembly definition")
+func NewDisassembleActivity(target, actor ecs.Entity, world w.World) *gc.Activity {
+	requiredAP := 0
+	if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok {
+		if grade, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); ok {
+			requiredAP = RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
+		}
 	}
-	grade, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory)
-	if !ok {
-		return nil, fmt.Errorf("does not have the tool required for disassembly")
-	}
-
-	requiredAP := RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
 	comp := NewActivity(gc.BehaviorDisassemble, requiredAP)
 	comp.Params = &gc.DisassembleParams{Target: target}
-	return comp, nil
+	return comp
 }
 
 // Validate は分解アクティビティの検証を行う
 func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
-		return fmt.Errorf("disassembly target is not set")
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("target does not exist")
@@ -73,7 +69,7 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 		return fmt.Errorf("target has no disassembly definition")
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
-		return &UserError{Msg: query.T(world, "does not have the tool required for disassembly")}
+		return &UserError{Msg: query.T(world, "Do not have a tool to disassemble %s", gamelog.Tag("item", query.GetEntityName(p.Target, world)))}
 	}
 	if !isAreaSafe(actor, world) {
 		return &UserError{Msg: query.T(world, "cannot disassemble because enemies are nearby")}
@@ -85,7 +81,7 @@ func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, wor
 func (db *DisassembleBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
-		return fmt.Errorf("disassembly target is not set")
+		return ErrParamsTypeMismatch
 	}
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
@@ -111,7 +107,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
 		Cancel(comp, "disassembly target is not set")
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "interrupted because the disassembly target disappeared")
@@ -144,7 +140,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	target := p.Target
 	if !world.ECS.Alive(target) {

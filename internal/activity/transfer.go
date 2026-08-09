@@ -48,7 +48,7 @@ func NewTransferActivity(target, recipient ecs.Entity, count int) *gc.Activity {
 func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.TransferParams)
 	if !ok {
-		return fmt.Errorf("transfer target is not set")
+		return ErrParamsTypeMismatch
 	}
 	// 値型のパラメータでは未指定が無効エンティティになる。ArkのHasはゼロ値でパニックするため、
 	// Aliveで存在を確かめてから所持判定へ進む
@@ -100,7 +100,7 @@ func (tb *TransferBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Wo
 func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) error {
 	p, ok := comp.Params.(*gc.TransferParams)
 	if !ok {
-		return fmt.Errorf("transfer target is not set")
+		return ErrParamsTypeMismatch
 	}
 	item := p.Target
 	recipient := p.Recipient

@@ -150,10 +150,7 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
-	act, err := activity.NewReadActivity(entity, world)
-	if err != nil {
-		return es.Transition[w.World]{}, err
-	}
+	act := activity.NewReadActivity(entity, world)
 	if _, err := activity.Execute(act, player, world); err != nil {
 		// Execute が返すエラーはシステムの致命エラーだけ。最上位まで伝播させる。
 		// スキル不足や周囲の敵などのユーザー起因の失敗は Execute が gamelog へ出したうえで

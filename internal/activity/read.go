@@ -35,21 +35,21 @@ func (rb *ReadBehavior) Name() gc.BehaviorName {
 
 // NewReadActivity は読む本を指定して読書アクティビティを組む。進捗は本の Effort に
 // 永続するので、Progress.Max も本の総工数に据えて表示を揃える。
-func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {
-	book := getBook(target, world)
-	if book == nil {
-		return nil, fmt.Errorf("target has no Book component")
+func NewReadActivity(target ecs.Entity, world w.World) *gc.Activity {
+	effort := 0
+	if book := getBook(target, world); book != nil {
+		effort = book.Effort.Max
 	}
-	comp := NewActivity(gc.BehaviorRead, book.Effort.Max)
+	comp := NewActivity(gc.BehaviorRead, effort)
 	comp.Params = &gc.ReadParams{Target: target}
-	return comp, nil
+	return comp
 }
 
 // Validate は読書アクティビティの検証を行う
 func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
-		return fmt.Errorf("book is not set")
+		return ErrParamsTypeMismatch
 	}
 
 	book := getBook(p.Target, world)
@@ -89,7 +89,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 func (rb *ReadBehavior) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
-		return ErrReadTargetNotSet
+		return ErrParamsTypeMismatch
 	}
 
 	book := getBook(p.Target, world)
@@ -112,7 +112,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
 		Cancel(comp, "book is not set")
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "interrupted because the book disappeared")
@@ -155,7 +155,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		return nil

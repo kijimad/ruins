@@ -110,7 +110,7 @@ func NewMoveActivity(destination gc.GridElement) *gc.Activity {
 func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.MoveParams)
 	if !ok {
-		return ErrMoveTargetNotSet
+		return ErrParamsTypeMismatch
 	}
 
 	if p.Destination.X < 0 || p.Destination.Y < 0 {
@@ -150,7 +150,7 @@ func (mb *MoveBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	p, ok := comp.Params.(*gc.MoveParams)
 	if !ok {
 		Cancel(comp, "move destination is not set")
-		return ErrMoveTargetNotSet
+		return ErrParamsTypeMismatch
 	}
 
 	// GridElementの存在確認
@@ -199,7 +199,7 @@ func (mb *MoveBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 func (mb *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.MoveParams)
 	if !ok {
-		return ErrMoveTargetNotSet
+		return ErrParamsTypeMismatch
 	}
 	if !world.Components.GridElement.Has(actor) {
 		return ErrGridElementNotFound

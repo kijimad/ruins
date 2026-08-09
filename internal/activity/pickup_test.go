@@ -66,8 +66,7 @@ func TestPickupBehavior_Validate(t *testing.T) {
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "pickup target is not set")
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 }
 

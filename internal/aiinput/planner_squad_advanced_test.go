@@ -180,7 +180,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 
 		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
-		isAttack := b.BehaviorName == gc.BehaviorAttack
+		isAttack := b.BehaviorName == gc.BehaviorMelee
 		assert.False(t, isAttack, "HP低下時は攻撃せず後退するべき")
 		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
@@ -240,7 +240,7 @@ func TestSquadPlanner_PlanAction(t *testing.T) {
 
 		b := sp.planAction(world, member, snap)
 		require.NotNil(t, b)
-		isAttack := b.BehaviorName == gc.BehaviorAttack
+		isAttack := b.BehaviorName == gc.BehaviorMelee
 		assert.False(t, isAttack, "未探索エリアでは攻撃せずリーダーへ復帰するべき")
 		assert.Equal(t, gc.BehaviorMove, b.BehaviorName)
 	})
@@ -302,8 +302,8 @@ func TestSquadPlanner_PlanCombatAction(t *testing.T) {
 
 		b, ok := sp.planCombatAction(world, member, snap)
 		require.True(t, ok)
-		assert.Equal(t, gc.BehaviorAttack, b.BehaviorName)
-		assert.Equal(t, enemy, activityParams[*gc.AttackParams](t, b).Target)
+		assert.Equal(t, gc.BehaviorMelee, b.BehaviorName)
+		assert.Equal(t, enemy, activityParams[*gc.MeleeParams](t, b).Target)
 	})
 
 	t.Run("CombatEvadeなら回避計画に委譲する", func(t *testing.T) {

@@ -262,8 +262,8 @@ func TestPlanAttackAction(t *testing.T) {
 
 		b, ok := sp.planAttackAction(world, member, snap)
 		require.True(t, ok)
-		require.Equal(t, gc.BehaviorAttack, b.BehaviorName)
-		assert.Equal(t, enemy, activityParams[*gc.AttackParams](t, b).Target)
+		require.Equal(t, gc.BehaviorMelee, b.BehaviorName)
+		assert.Equal(t, enemy, activityParams[*gc.MeleeParams](t, b).Target)
 	})
 
 	t.Run("視界内の離れた敵に接近する", func(t *testing.T) {

@@ -231,12 +231,12 @@ func TestShootBehavior_DoTurn(t *testing.T) {
 		comp := NewActivity(gc.BehaviorShoot, 0)
 
 		err := sa.DoTurn(comp, player, world)
-		require.ErrorIs(t, err, ErrAttackTargetNotSet)
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }
 
-func TestExecuteShootAction(t *testing.T) {
+func TestExecute_Shoot(t *testing.T) {
 	t.Parallel()
 
 	t.Run("射撃が即時実行され弾薬が消費される", func(t *testing.T) {
@@ -246,7 +246,7 @@ func TestExecuteShootAction(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		before := fire.Magazine
 
-		err := ExecuteShootAction(player, enemy, world)
+		_, err := Execute(NewShootActivity(enemy), player, world)
 		require.NoError(t, err)
 
 		// 1ターンアクションなので即時完了し、Activityは残らない
@@ -270,7 +270,7 @@ func TestExecuteShootAction(t *testing.T) {
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 		require.NoError(t, err)
 
-		err = ExecuteShootAction(player, enemy, world)
+		_, err = Execute(NewShootActivity(enemy), player, world)
 		require.Error(t, err)
 
 		assert.False(t, world.Components.Activity.Has(player))

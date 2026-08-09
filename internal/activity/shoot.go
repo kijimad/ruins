@@ -48,7 +48,7 @@ func NewShootActivity(target ecs.Entity) *gc.Activity {
 func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
-		return fmt.Errorf("shoot target is not set")
+		return ErrParamsTypeMismatch
 	}
 	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
@@ -105,7 +105,7 @@ func (sb *ShootBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
 		Cancel(comp, "shoot target is not set")
-		return ErrAttackTargetNotSet
+		return ErrParamsTypeMismatch
 	}
 
 	target := p.Target
@@ -237,13 +237,4 @@ func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {
 	modifier += fire.LoadedAccuracyBonus
 
 	return calculateHitRate(actor, target, world, fire, modifier)
-}
-
-// ExecuteShootAction は射撃アクションを実行する
-func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) error {
-	_, err := Execute(NewShootActivity(target), actor, world)
-	if err != nil {
-		return err
-	}
-	return nil
 }

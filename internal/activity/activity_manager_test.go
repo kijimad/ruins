@@ -418,11 +418,11 @@ func TestLastActivity(t *testing.T) {
 
 		// 存在しないターゲットへの攻撃（失敗する）
 		nonExistentEntity := gc.InvalidEntity
-		_, _ = Execute(NewAttackActivity(nonExistentEntity), player, world)
+		_, _ = Execute(NewMeleeActivity(nonExistentEntity), player, world)
 
 		result := GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
 		assert.False(t, result.Success)
 	})

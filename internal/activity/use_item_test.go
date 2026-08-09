@@ -235,7 +235,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		ua := &UseItemBehavior{}
 		err := ua.Validate(comp, actor, world)
-		assert.ErrorIs(t, err, ErrItemNotSet)
+		assert.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 
 	t.Run("効果コンポーネントがない場合はエラー", func(t *testing.T) {

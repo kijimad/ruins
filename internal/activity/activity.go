@@ -27,8 +27,8 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 	switch name {
 	case gc.BehaviorMove:
 		return &MoveBehavior{}, nil
-	case gc.BehaviorAttack:
-		return &AttackBehavior{}, nil
+	case gc.BehaviorMelee:
+		return &MeleeBehavior{}, nil
 	case gc.BehaviorRest:
 		return &RestBehavior{}, nil
 	case gc.BehaviorWait:
@@ -203,7 +203,7 @@ func Cancel(comp *gc.Activity, reason string) {
 func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return consts.Coord[consts.Tile]{}, fmt.Errorf("destination is not set")
+		return consts.Coord[consts.Tile]{}, ErrParamsTypeMismatch
 	}
 	return consts.Coord[consts.Tile]{X: p.Destination.X, Y: p.Destination.Y}, nil
 }

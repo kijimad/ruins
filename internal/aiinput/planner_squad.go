@@ -174,7 +174,7 @@ func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, snap 
 	}
 
 	if dist == 1 {
-		return activity.NewAttackActivity(*nearestEnemy), true
+		return activity.NewMeleeActivity(*nearestEnemy), true
 	}
 
 	return sp.tryMoveToward(world, entity, snap.Grid, nearestGrid)

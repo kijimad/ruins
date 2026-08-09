@@ -131,7 +131,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		// 検証: Attackが実行される
 		result := GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.True(t, result.Success)
 		gridAfter := world.Components.GridElement.Get(player)
 		assert.Equal(t, 10, int(gridAfter.X))
@@ -367,7 +367,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		assert.True(t, world.Components.Dead.Has(enemy))
 		result := GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 
 		// 2回目: 死亡した敵がいた場所への移動
 		err = ExecuteMoveAction(world, gc.DirectionUp)

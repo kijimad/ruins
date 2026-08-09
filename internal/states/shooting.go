@@ -112,7 +112,7 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
 				return es.Transition[w.World]{}, err
 			}
 			target := st.enemies[st.targetIndex]
-			if err := activity.ExecuteShootAction(playerEntity, target, world); err != nil {
+			if _, err := activity.Execute(activity.NewShootActivity(target), playerEntity, world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
 			return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -123,7 +123,7 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
 		if err != nil {
 			return es.Transition[w.World]{}, err
 		}
-		if err := activity.ExecuteReloadAction(playerEntity, world); err != nil {
+		if _, err := activity.Execute(activity.NewReloadActivity(playerEntity, world), playerEntity, world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
 		return es.Transition[w.World]{Type: es.TransPop}, nil

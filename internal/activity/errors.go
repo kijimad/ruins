@@ -20,8 +20,10 @@ var (
 	ErrActivityCannotResume  = errors.New("activity cannot be resumed")
 	ErrUnsupportedActivity   = errors.New("unsupported activity type")
 
+	// ErrParamsTypeMismatch は Params の型がアクティビティと合わないことを示す。構築ミスのシステムエラー
+	ErrParamsTypeMismatch = errors.New("activity params type mismatch")
+
 	// 攻撃関連エラー
-	ErrAttackTargetNotSet  = errors.New("attack target is not set")
 	ErrAttackTargetInvalid = errors.New("attack target is invalid")
 	ErrAttackerDead        = errors.New("attacker is dead")
 	ErrTargetNoHPComponent = errors.New("target has no HP component")
@@ -30,7 +32,6 @@ var (
 	ErrShootNoFireWeapon = errors.New("no ranged weapon equipped")
 
 	// 移動関連エラー
-	ErrMoveTargetNotSet    = errors.New("move destination is not set")
 	ErrMoveTargetInvalid   = errors.New("move destination is invalid")
 	ErrGridElementNotFound = errors.New("GridElement component not found")
 
@@ -38,7 +39,6 @@ var (
 	ErrPositionNotFound = errors.New("position not found")
 	ErrNoItemsToPickup  = errors.New("no items to pick up")
 	ErrItemPickupFailed = errors.New("failed to pick up item")
-	ErrItemNotSet       = errors.New("item is not set")
 
 	// 休息関連エラー
 	ErrRestEnemiesNearby   = errors.New("cannot rest because enemies are nearby")
@@ -52,7 +52,6 @@ var (
 	ErrReadTargetInvalid     = errors.New("read target is invalid")
 	ErrReadTargetNotItem     = errors.New("read target is not an item")
 	ErrReadBookNotInBackpack = errors.New("book is not in the backpack")
-	ErrReadTargetNotSet      = errors.New("read target is not set")
 
 	// クラフト関連エラー
 	ErrCraftNeedsRecipe      = errors.New("crafting requires a recipe")

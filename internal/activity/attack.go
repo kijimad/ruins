@@ -24,11 +24,11 @@ const (
 	MeleeAttackRange = 1.5 // 近接攻撃の最大射程（斜めも考慮）
 )
 
-// AttackBehavior はBehaviorの実装
-type AttackBehavior struct{}
+// MeleeBehavior はBehaviorの実装
+type MeleeBehavior struct{}
 
 // Info はBehaviorの実装
-func (ab *AttackBehavior) Info() Info {
+func (ab *MeleeBehavior) Info() Info {
 	return Info{
 		Name:            "Attack",
 		Description:     "Attack an enemy",
@@ -40,22 +40,22 @@ func (ab *AttackBehavior) Info() Info {
 }
 
 // Name はBehaviorの実装
-func (ab *AttackBehavior) Name() gc.BehaviorName {
-	return gc.BehaviorAttack
+func (ab *MeleeBehavior) Name() gc.BehaviorName {
+	return gc.BehaviorMelee
 }
 
-// NewAttackActivity は攻撃対象を指定して攻撃アクティビティを組む。
-func NewAttackActivity(target ecs.Entity) *gc.Activity {
-	comp := NewActivity(gc.BehaviorAttack, 0)
-	comp.Params = &gc.AttackParams{Target: target}
+// NewMeleeActivity は攻撃対象を指定して攻撃アクティビティを組む。
+func NewMeleeActivity(target ecs.Entity) *gc.Activity {
+	comp := NewActivity(gc.BehaviorMelee, 0)
+	comp.Params = &gc.MeleeParams{Target: target}
 	return comp
 }
 
 // Validate はBehaviorの実装
-func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.AttackParams)
+func (ab *MeleeBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	p, ok := comp.Params.(*gc.MeleeParams)
 	if !ok {
-		return ErrAttackTargetNotSet
+		return ErrParamsTypeMismatch
 	}
 
 	if world.Components.Dead.Has(actor) {
@@ -89,18 +89,18 @@ func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 }
 
 // Start はBehaviorの実装
-func (ab *AttackBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	if p, ok := comp.Params.(*gc.AttackParams); ok {
+func (ab *MeleeBehavior) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	if p, ok := comp.Params.(*gc.MeleeParams); ok {
 		log.Debug("attack started", "actor", actor, "target", p.Target)
 	}
 	return nil
 }
 
 // DoTurn はBehaviorの実装
-func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	if _, ok := comp.Params.(*gc.AttackParams); !ok {
+func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if _, ok := comp.Params.(*gc.MeleeParams); !ok {
 		Cancel(comp, "attack target is not set")
-		return ErrAttackTargetNotSet
+		return ErrParamsTypeMismatch
 	}
 
 	if !ab.canAttack(comp, actor, world) {
@@ -118,11 +118,10 @@ func (ab *AttackBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Finish はBehaviorの実装
-func (ab *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	p, ok := comp.Params.(*gc.AttackParams)
+func (ab *MeleeBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	p, ok := comp.Params.(*gc.MeleeParams)
 	if !ok {
-		log.Debug("reached finish with attack target unset; no attack was performed", "actor", actor)
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	log.Debug("attack activity finished",
 		"actor", actor,
@@ -132,15 +131,15 @@ func (ab *AttackBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 // Canceled はBehaviorの実装
-func (ab *AttackBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+func (ab *MeleeBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("attack canceled", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
-func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	p, ok := comp.Params.(*gc.AttackParams)
+func (ab *MeleeBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	p, ok := comp.Params.(*gc.MeleeParams)
 	if !ok {
-		return ErrAttackTargetNotSet
+		return ErrParamsTypeMismatch
 	}
 	target := p.Target
 
@@ -154,8 +153,8 @@ func (ab *AttackBehavior) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 	return applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
 }
 
-func (ab *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
-	if _, ok := comp.Params.(*gc.AttackParams); !ok {
+func (ab *MeleeBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
+	if _, ok := comp.Params.(*gc.MeleeParams); !ok {
 		return false
 	}
 
@@ -166,7 +165,7 @@ func (ab *AttackBehavior) canAttack(comp *gc.Activity, actor ecs.Entity, world w
 	return true
 }
 
-func (ab *AttackBehavior) isInRange(attacker, target ecs.Entity, world w.World) bool {
+func (ab *MeleeBehavior) isInRange(attacker, target ecs.Entity, world w.World) bool {
 	if !world.Components.GridElement.Has(attacker) {
 		return false
 	}
@@ -183,7 +182,7 @@ func (ab *AttackBehavior) isInRange(attacker, target ecs.Entity, world w.World) 
 	return distance <= MeleeAttackRange
 }
 
-func (ab *AttackBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bool {
+func (ab *MeleeBehavior) canPerformAttack(attacker ecs.Entity, world w.World) bool {
 	// TODO: 装備武器のチェック
 	abils := world.Components.Abilities.Get(attacker)
 	return abils != nil

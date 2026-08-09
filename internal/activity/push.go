@@ -39,12 +39,11 @@ func (pb *PushBehavior) Name() gc.BehaviorName {
 }
 
 // NewPushActivity は押すキューブと向きを指定して押しアクティビティを組む。
-func NewPushActivity(cube ecs.Entity, dir gc.Direction, world w.World) (*gc.Activity, error) {
-	if !world.Components.GridElement.Has(cube) {
-		return nil, fmt.Errorf("push target has no position")
+func NewPushActivity(cube ecs.Entity, dir gc.Direction, world w.World) *gc.Activity {
+	dest := consts.Coord[consts.Tile]{}
+	if world.Components.GridElement.Has(cube) {
+		dest = world.Components.GridElement.Get(cube).Add(dir.GetDelta())
 	}
-	cubeCoord := world.Components.GridElement.Get(cube).Coord
-	dest := cubeCoord.Add(dir.GetDelta())
 	return buildCubeMove(gc.BehaviorPush, cube, dest, world)
 }
 
@@ -52,7 +51,7 @@ func NewPushActivity(cube ecs.Entity, dir gc.Direction, world w.World) (*gc.Acti
 func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return fmt.Errorf("push target is not set")
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("target does not exist")
@@ -134,29 +133,22 @@ func (pb *PushBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 // cubePushCost はキューブを1タイル動かすのに要する総コストを返す。総重量が重いほど増える。
-// 押しと引きで共通。APが無ければエラー。毎ターン注ぐAPは DoTurn でパーティの押し力から
+// 押しと引きで共通。毎ターン注ぐAPは DoTurn でパーティの押し力から
 // 再計算するため、着手時に凍結するのは総コストだけにする。
 //
 // 総重量は内部ステージに置いた物の総和。内部はオーバーワールドと同じく単一の永続ステージなので、
 // 固定キー NewCubeInteriorStage で直接引く。どのキューブを押しても同じ内部の総重量が押しの重さに
 // なる。内部をキューブごとに分ける拡張へ進むときは、キューブから内部へのリンクをここで解決し直す。
-func cubePushCost(world w.World) (int, error) {
-	if query.PartyPushPower(world) <= 0 {
-		return 0, fmt.Errorf("not enough AP to move it")
-	}
-	return query.PushCost(query.CubeWeight(world, gc.NewCubeInteriorStage())), nil
+func cubePushCost(world w.World) int {
+	return query.PushCost(query.CubeWeight(world, gc.NewCubeInteriorStage()))
 }
 
 // buildCubeMove は押しと引きで共通の gc.Activity を組む。総コストは総重量で決まり、
 // 押し引きで違うのは対象キューブと移動先だけなので、それを引数で受ける。
-func buildCubeMove(name gc.BehaviorName, cube ecs.Entity, dest consts.Coord[consts.Tile], world w.World) (*gc.Activity, error) {
-	required, err := cubePushCost(world)
-	if err != nil {
-		return nil, err
-	}
-	comp := NewActivity(name, required)
+func buildCubeMove(name gc.BehaviorName, cube ecs.Entity, dest consts.Coord[consts.Tile], world w.World) *gc.Activity {
+	comp := NewActivity(name, cubePushCost(world))
 	comp.Params = &gc.PlaceParams{Target: cube, Destination: gc.GridElement{Coord: dest}}
-	return comp, nil
+	return comp
 }
 
 // PullBehavior は BehaviorPull の実装。プレイヤーが隣接する Pushable キューブを自分の側へ引き、
@@ -189,28 +181,12 @@ func pullRetreat(cubeCoord, playerCoord consts.Coord[consts.Tile]) consts.Coord[
 	return playerCoord.Add(delta)
 }
 
-// canPullCube はプレイヤーがキューブを引けるかを返す。後退先が通行可能なら引ける。
-// アクション実行前の可否判定に使い、引けないときは致命エラーでなく no-op にできるようにする。
-func canPullCube(world w.World, actor, cube ecs.Entity) bool {
-	if !world.Components.GridElement.Has(actor) || !world.Components.GridElement.Has(cube) {
-		return false
-	}
-	playerCoord := world.Components.GridElement.Get(actor).Coord
-	cubeCoord := world.Components.GridElement.Get(cube).Coord
-	retreat := pullRetreat(cubeCoord, playerCoord)
-	return CanMoveTo(world, retreat, playerCoord, actor)
-}
-
 // NewPullActivity は引くキューブと引き手を指定して引きアクティビティを組む。
-func NewPullActivity(cube, actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	if !world.Components.GridElement.Has(cube) {
-		return nil, fmt.Errorf("pull target has no position")
+func NewPullActivity(cube, actor ecs.Entity, world w.World) *gc.Activity {
+	dest := consts.Coord[consts.Tile]{}
+	if world.Components.GridElement.Has(actor) {
+		dest = world.Components.GridElement.Get(actor).Coord
 	}
-	if !world.Components.GridElement.Has(actor) {
-		return nil, fmt.Errorf("puller has no position")
-	}
-	// キューブはプレイヤーの立っているタイルへ入る。プレイヤーはそのぶん後退する
-	dest := world.Components.GridElement.Get(actor).Coord
 	return buildCubeMove(gc.BehaviorPull, cube, dest, world)
 }
 
@@ -218,7 +194,7 @@ func NewPullActivity(cube, actor ecs.Entity, world w.World) (*gc.Activity, error
 func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PlaceParams)
 	if !ok {
-		return fmt.Errorf("pull target is not set")
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("target does not exist")

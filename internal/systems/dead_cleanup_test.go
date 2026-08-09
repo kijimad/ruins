@@ -229,7 +229,7 @@ func TestDeadCleanupSystem_CancelsActivity(t *testing.T) {
 	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
 	world.Components.Dead.Add(enemy, &gc.Dead{})
 
-	comp := activity.NewActivity(gc.BehaviorAttack, 1)
+	comp := activity.NewActivity(gc.BehaviorMelee, 1)
 	comp.State = gc.ActivityStateRunning
 	world.Components.Activity.Add(enemy, comp)
 

@@ -91,8 +91,8 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 	rp := newSoloPlanner(newTestRNG())
 
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorAttack, behavior.BehaviorName)
-	attack := activityParams[*gc.AttackParams](t, behavior)
+	assert.Equal(t, gc.BehaviorMelee, behavior.BehaviorName)
+	attack := activityParams[*gc.MeleeParams](t, behavior)
 	assert.NotZero(t, attack.Target)
 }
 
@@ -839,8 +839,8 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorAttack, behavior.BehaviorName, "隣接する隊員を攻撃すべき")
-	attack := activityParams[*gc.AttackParams](t, behavior)
+	assert.Equal(t, gc.BehaviorMelee, behavior.BehaviorName, "隣接する隊員を攻撃すべき")
+	attack := activityParams[*gc.MeleeParams](t, behavior)
 	assert.NotZero(t, attack.Target)
 }
 

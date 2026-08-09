@@ -49,8 +49,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 
 		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "drop target is not set")
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 
 	t.Run("バックパック内にないアイテムの場合は不変条件違反", func(t *testing.T) {
@@ -89,8 +88,7 @@ func TestDropBehavior_Validate(t *testing.T) {
 
 		da := &DropBehavior{}
 		err = da.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "drop target is not set")
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 }
 
@@ -164,8 +162,7 @@ func TestDropBehavior_performDrop(t *testing.T) {
 
 		da := &DropBehavior{}
 		err = da.performDrop(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "drop target is not set")
+		require.ErrorIs(t, err, ErrParamsTypeMismatch)
 	})
 }
 

@@ -44,7 +44,7 @@ func NewOpenDoorActivity(target ecs.Entity) *gc.Activity {
 func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.OpenDoorParams)
 	if !ok {
-		return fmt.Errorf("door entity is not set")
+		return ErrParamsTypeMismatch
 	}
 
 	targetEntity := p.Target
@@ -73,7 +73,7 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 	p, ok := comp.Params.(*gc.OpenDoorParams)
 	if !ok {
 		Cancel(comp, "door entity is not set")
-		return fmt.Errorf("door entity is not set")
+		return ErrParamsTypeMismatch
 	}
 	targetEntity := p.Target
 
@@ -160,7 +160,7 @@ func NewCloseDoorActivity(target ecs.Entity) *gc.Activity {
 func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.CloseDoorParams)
 	if !ok {
-		return fmt.Errorf("door entity is not set")
+		return ErrParamsTypeMismatch
 	}
 
 	targetEntity := p.Target
@@ -189,7 +189,7 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 	p, ok := comp.Params.(*gc.CloseDoorParams)
 	if !ok {
 		Cancel(comp, "door entity is not set")
-		return fmt.Errorf("door entity is not set")
+		return ErrParamsTypeMismatch
 	}
 	targetEntity := p.Target
 

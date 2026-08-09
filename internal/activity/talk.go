@@ -44,7 +44,7 @@ func NewTalkActivity(target ecs.Entity) *gc.Activity {
 func (tb *TalkBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.TalkParams)
 	if !ok {
-		return fmt.Errorf("talk target is not set")
+		return ErrParamsTypeMismatch
 	}
 
 	targetEntity := p.Target
@@ -73,7 +73,7 @@ func (tb *TalkBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 	p, ok := comp.Params.(*gc.TalkParams)
 	if !ok {
 		Cancel(comp, "talk target is not set")
-		return fmt.Errorf("talk target is not set")
+		return ErrParamsTypeMismatch
 	}
 	targetEntity := p.Target
 

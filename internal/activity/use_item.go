@@ -45,7 +45,7 @@ func NewUseItemActivity(target ecs.Entity) *gc.Activity {
 func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.UseItemParams)
 	if !ok {
-		return ErrItemNotSet
+		return ErrParamsTypeMismatch
 	}
 
 	item := p.Target
@@ -80,7 +80,7 @@ func (u *UseItemBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	p, ok := comp.Params.(*gc.UseItemParams)
 	if !ok {
 		Cancel(comp, "item is not set")
-		return ErrItemNotSet
+		return ErrParamsTypeMismatch
 	}
 
 	item := p.Target
