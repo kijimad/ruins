@@ -287,7 +287,7 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 		if !ok {
 			return menuscreen.DetailContent{}, false
 		}
-		return entityDetailContent(world, item), true
+		return menuscreen.EntityDetailContent(world, item), true
 	}
 
 	cursor := st.screen.Selection()
@@ -299,10 +299,10 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 		}
 		slot := props.EquipSlots[cursor.ItemIndex]
 		if slot.Entity != nil {
-			return entityDetailContent(world, *slot.Entity), true
+			return menuscreen.EntityDetailContent(world, *slot.Entity), true
 		}
-		// 空スロットは性能行を持たず、案内だけ出す。Rows を空で与え entity 解決を避ける
-		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: query.T(world, "Nothing equipped"), Rows: []menuscreen.SpecRow{}}, true
+		// 空スロットは性能行を持たず案内だけ出す
+		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: query.T(world, "Nothing equipped")}, true
 	case charTabCommand:
 		return menuscreen.DetailContent{}, false
 	default:
@@ -535,19 +535,6 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 		}
 	}
 	return query.SortEntities(world, items)
-}
-
-// entityDetailContent はエンティティの名前・説明・性能を詳細内容にする
-func entityDetailContent(world w.World, entity ecs.Entity) menuscreen.DetailContent {
-	name := ""
-	if world.Components.Name.Has(entity) {
-		name = query.T(world, world.Components.Name.Get(entity).Name)
-	}
-	desc := ""
-	if world.Components.Description.Has(entity) {
-		desc = query.T(world, world.Components.Description.Get(entity).Description)
-	}
-	return menuscreen.DetailContent{Name: name, Desc: desc, Entity: entity}
 }
 
 // infoDetailContent は情報タブの1行を詳細内容にする。見出しと説明、内訳の行を出す

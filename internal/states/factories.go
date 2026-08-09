@@ -272,14 +272,10 @@ func NewMessageState(messageData *messagedata.MessageData) (es.State[w.World], e
 	}, nil
 }
 
-// NewTavernMenuState は酒場の雇用画面のStateを作成するファクトリー関数
-func NewTavernMenuState() (es.State[w.World], error) {
-	return &TavernMenuState{}, nil
-}
-
-// NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数
-func NewShopMenuState() (es.State[w.World], error) {
-	return &ShopMenuState{}, nil
+// NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数。
+// merchant はこの店の在庫を持つ商人。売買はこの商人の収納を出し入れする
+func NewShopMenuState(merchant ecs.Entity) (es.State[w.World], error) {
+	return &ShopMenuState{merchant: merchant}, nil
 }
 
 // NewStorageMenuState は収納メニューStateを作成する
@@ -328,8 +324,8 @@ func sameTileActionChoices(world w.World) (string, []Choice) {
 	return "", interactionActionChoices(GetSameTileManualActions(world))
 }
 
-// NewMerchantDialogState は商人との会話ステートを作成
-func NewMerchantDialogState(speakerName string) (es.State[w.World], error) {
+// NewMerchantDialogState は商人との会話ステートを作成。merchant はこの商人の実体で、店を開くとき在庫の持ち主として渡す
+func NewMerchantDialogState(speakerName string, merchant ecs.Entity) (es.State[w.World], error) {
 	persistentState := &PersistentMessageState{}
 
 	persistentState.build = func(world w.World) *messagedata.MessageData {
@@ -337,31 +333,10 @@ func NewMerchantDialogState(speakerName string) (es.State[w.World], error) {
 			AddText(query.T(world, "Want to make a deal?\n\nI've got good stuff.")).
 			WithChoice(query.T(world, "Look"), func(_ w.World) error {
 				persistentState.SetTransition(es.Transition[w.World]{
-					Type:          es.TransPush,
-					NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},
-				})
-				return nil
-			}).
-			WithChoice(query.T(world, "No business"), func(_ w.World) error {
-				persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-				return nil
-			})
-	}
-
-	return persistentState, nil
-}
-
-// NewTavernKeeperDialogState は酒場の主人との会話ステートを作成
-func NewTavernKeeperDialogState(speakerName string) (es.State[w.World], error) {
-	persistentState := &PersistentMessageState{}
-
-	persistentState.build = func(world w.World) *messagedata.MessageData {
-		return messagedata.NewDialogMessage("", speakerName).
-			AddText(query.T(world, "Skilled folk gather here.\n\nWant to hire a squad member?")).
-			WithChoice(query.T(world, "Hire"), func(_ w.World) error {
-				persistentState.SetTransition(es.Transition[w.World]{
-					Type:          es.TransPush,
-					NewStateFuncs: []es.StateFactory[w.World]{NewTavernMenuState},
+					Type: es.TransPush,
+					NewStateFuncs: []es.StateFactory[w.World]{
+						func() (es.State[w.World], error) { return NewShopMenuState(merchant) },
+					},
 				})
 				return nil
 			}).

@@ -46,7 +46,7 @@ var _ menurt.ExtraInput = &StorageMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.detail = menuscreen.NewEntityDetail(st.selectedEntity)
 	st.screen = menurt.NewScreen[StorageProps](st, &st.detail)
 	return nil
 }
@@ -230,19 +230,6 @@ func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menur
 		Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
 		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
-}
-
-// detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
-func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
-	e, ok := st.selectedEntity()
-	if !ok {
-		return menuscreen.DetailContent{}, false
-	}
-	desc := ""
-	if world.Components.Description.Has(e) {
-		desc = query.T(world, world.Components.Description.Get(e).Description)
-	}
-	return menuscreen.DetailContent{Name: query.GetEntityName(e, world), Desc: desc, Entity: e}, true
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

@@ -155,6 +155,9 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 		return es.Transition[w.World]{}, err
 	}
 	if _, err := activity.Execute(act, player, world); err != nil {
+		// Execute が返すエラーはシステムの致命エラーだけ。最上位まで伝播させる。
+		// スキル不足や周囲の敵などのユーザー起因の失敗は Execute が gamelog へ出したうえで
+		// err=nil を返すため、ここには来ず通常どおり閉じる
 		return es.Transition[w.World]{}, err
 	}
 	return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -203,7 +206,7 @@ func NewItemActionState(initial verbID) es.StateFactory[w.World] {
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.detail = menuscreen.NewEntityDetail(st.selectedEntity)
 	st.screen = menurt.NewScreen[ItemActionProps](st, &st.detail)
 	return nil
 }
@@ -406,17 +409,16 @@ func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, t
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
 }
 
-// detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
-func (st *ItemActionState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {
+// selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
+func (st *ItemActionState) selectedEntity() (ecs.Entity, bool) {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
 	if cursor.TabIndex >= len(props.Tabs) {
-		return menuscreen.DetailContent{}, false
+		return gc.InvalidEntity, false
 	}
 	items := props.Tabs[cursor.TabIndex].Items
 	if cursor.ItemIndex >= len(items) {
-		return menuscreen.DetailContent{}, false
+		return gc.InvalidEntity, false
 	}
-	item := items[cursor.ItemIndex]
-	return menuscreen.DetailContent{Name: item.Name, Desc: item.Desc, Entity: item.Entity}, true
+	return items[cursor.ItemIndex].Entity, true
 }

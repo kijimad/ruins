@@ -48,8 +48,8 @@ func TestPickupBehavior_Validate(t *testing.T) {
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "nothing to pick up")
+		var ve *UserError
+		require.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("パラメータがない場合はエラー", func(t *testing.T) {
@@ -229,8 +229,8 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "nothing to pick up")
+		var ve *UserError
+		require.ErrorAs(t, err, &ve)
 	})
 }
 
@@ -255,8 +255,8 @@ func TestPickupBehavior_Validate_Fixed(t *testing.T) {
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "nothing to pick up")
+		var ve *UserError
+		require.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("アイテムと固定物が同じタイルにある場合も拾える", func(t *testing.T) {

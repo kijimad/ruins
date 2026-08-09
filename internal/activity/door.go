@@ -51,12 +51,12 @@ func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.W
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
-		return fmt.Errorf("target entity is not a door")
+		return fmt.Errorf("target is not alive")
 	}
 
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
-		return fmt.Errorf("target entity is not a door")
+		return fmt.Errorf("target is not a door")
 	}
 
 	return nil
@@ -167,12 +167,12 @@ func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
-		return fmt.Errorf("target entity is not a door")
+		return fmt.Errorf("target is not alive")
 	}
 
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
-		return fmt.Errorf("target entity is not a door")
+		return fmt.Errorf("target is not a door")
 	}
 
 	return nil

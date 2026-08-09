@@ -48,19 +48,22 @@ func NewShootActivity(target ecs.Entity) *gc.Activity {
 func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
-		return ErrAttackTargetNotSet
+		return fmt.Errorf("shoot target is not set")
 	}
 	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
 	}
+	// 対象は CanShootTarget が事前に絞る。存在しない・死亡はここでは選べないので、
+	// 発火するのは選択後の消失など不変条件違反。システムエラーとして伝播させる
 	if !world.Components.GridElement.Has(p.Target) {
-		return ErrAttackTargetNotExists
+		return fmt.Errorf("target has no position")
 	}
 	if world.Components.Dead.Has(p.Target) {
-		return ErrAttackTargetDead
+		return fmt.Errorf("target is already dead")
 	}
 
-	// 遠距離武器が装備されているか
+	// 遠距離武器が装備されているか。CanShootTarget が事前に絞るので、武器スロット不正も
+	// 遠距離武器なしもここでは起こらない。発火したら不変条件違反なのでそのまま伝播させる
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
@@ -68,22 +71,22 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 
 	// 残弾チェック
 	if fire.Magazine <= 0 {
-		return ErrShootNoAmmo
+		return fmt.Errorf("out of ammo")
 	}
 
 	// 射程・射線チェック
 	distance := EntityDistance(actor, p.Target, world)
 	rangeParams, rangeOK := gc.GetRangeParams(fire.AttackCategory)
 	if !rangeOK {
-		return ErrShootNoFireWeapon
+		return fmt.Errorf("no ranged weapon equipped")
 	}
 	if distance > float64(rangeParams.MaxRange) {
-		return ErrAttackOutOfRange
+		return fmt.Errorf("target is out of range")
 	}
 
 	// 射線上に壁がないか
 	if blocked, _ := checkLineOfSight(actor, p.Target, world); blocked {
-		return ErrShootLineOfSightBlocked
+		return fmt.Errorf("line of sight is blocked")
 	}
 
 	return nil

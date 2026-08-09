@@ -37,6 +37,10 @@
   ],
   "item_type": [
     {
+      "name": "Recruit",
+      "pred": "Abilities"
+    },
+    {
       "name": "Material",
       "pred": "Material"
     },

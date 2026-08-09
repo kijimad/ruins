@@ -118,8 +118,8 @@ func TestCraftMenuState_resultDetailContent_合成前は表示しない(t *testi
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	_, ok := state.resultDetailContent(world)
-	assert.False(t, ok, "合成前は結果モーダルを出さない")
+	state.result.Open(world)
+	assert.False(t, state.result.Active(), "合成前は結果モーダルを出さない")
 }
 
 func TestNewCraftMenuState(t *testing.T) {

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +19,8 @@ func TestReadBehavior_Validate_NoTarget(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{}
-	assert.Error(t, ra.Validate(comp, actor, world))
+	err := ra.Validate(comp, actor, world)
+	assert.Error(t, err)
 }
 
 func TestReadBehavior_Validate_NotABook(t *testing.T) {
@@ -30,7 +32,8 @@ func TestReadBehavior_Validate_NotABook(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: item}}
-	assert.Error(t, ra.Validate(comp, actor, world))
+	err := ra.Validate(comp, actor, world)
+	assert.Error(t, err)
 }
 
 func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
@@ -49,8 +52,9 @@ func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
 	err := ra.Validate(comp, actor, world)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "already read")
+	var ve *UserError
+	require.ErrorAs(t, err, &ve)
+	assert.Equal(t, query.T(world, "this book is already read"), ve.Msg)
 }
 
 func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
@@ -71,8 +75,8 @@ func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
 	err := ra.Validate(comp, actor, world)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "level 3 or higher")
+	var ve *UserError
+	require.ErrorAs(t, err, &ve)
 }
 
 func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {
@@ -95,7 +99,8 @@ func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	assert.NoError(t, ra.Validate(comp, actor, world))
+	err := ra.Validate(comp, actor, world)
+	assert.NoError(t, err)
 }
 
 func TestReadBehavior_Validate_Success(t *testing.T) {
@@ -114,7 +119,8 @@ func TestReadBehavior_Validate_Success(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	assert.NoError(t, ra.Validate(comp, actor, world))
+	err := ra.Validate(comp, actor, world)
+	assert.NoError(t, err)
 }
 
 func TestReadBehavior_DoTurn_AdvancesProgress(t *testing.T) {

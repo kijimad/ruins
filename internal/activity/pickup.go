@@ -60,7 +60,7 @@ func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 			return nil
 		}
 	}
-	return fmt.Errorf("nothing to pick up")
+	return &UserError{Msg: query.T(world, "nothing to pick up")}
 }
 
 // Start はアイテム拾得開始時の処理を実行する

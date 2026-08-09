@@ -44,7 +44,6 @@ func (wb *WaitBehavior) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
 	// 待機は基本的に常に実行可能
 	// ただし、最低限のチェックは行う
 
-	// 待機回数が妥当かチェック
 	if comp.Progress.Max <= 0 {
 		return ErrWaitInvalidDuration
 	}

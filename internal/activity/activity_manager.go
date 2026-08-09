@@ -1,10 +1,12 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -33,6 +35,19 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 
 	// アクティビティを開始
 	if err := StartActivity(comp, actor, world); err != nil {
+		var ve *UserError
+		if errors.As(err, &ve) {
+			// ユーザ起因の失敗はここで gamelog へ出し、err=nil で閉じる
+			gamelog.New(query.GetGameLog(world)).Markup(ve.Msg).Log()
+			result := &ActionResult{
+				Success:      false,
+				State:        gc.ActivityStateCanceled,
+				ActivityName: behaviorName,
+				Message:      ve.Msg,
+			}
+			setLastResult(actor, result, world)
+			return result, nil
+		}
 		result := &ActionResult{
 			Success:      false,
 			State:        gc.ActivityStateCanceled,
@@ -142,7 +157,7 @@ func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
 	return world.Components.LastActivity.Get(actor)
 }
 
-// StartActivity は新しいアクティビティを開始する
+// StartActivity は新しいアクティビティを開始する。検証か開始に失敗すれば error を返す
 func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp == nil {
 		return ErrActivityNil
@@ -160,9 +175,8 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 		}
 	}
 
-	// Behaviorでの検証
 	if err := behavior.Validate(comp, actor, world); err != nil {
-		return fmt.Errorf("activity validation failed: %w", err)
+		return err
 	}
 
 	// アクティビティをコンポーネントとして登録する

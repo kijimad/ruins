@@ -48,7 +48,8 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		comp := NewActivity(gc.BehaviorReload, 0)
 
 		err := ra.Validate(comp, player, world)
-		assert.ErrorIs(t, err, ErrReloadNotNeeded)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("弾薬なしでエラー", func(t *testing.T) {
@@ -71,7 +72,8 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		comp := NewActivity(gc.BehaviorReload, 0)
 
 		err = ra.Validate(comp, player, world)
-		assert.ErrorIs(t, err, ErrReloadNoAmmo)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("近接武器ではリロード不可", func(t *testing.T) {
@@ -90,7 +92,8 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		comp := NewActivity(gc.BehaviorReload, 0)
 
 		err = ra.Validate(comp, player, world)
-		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 }
 
@@ -104,8 +107,7 @@ func TestReloadBehavior_Start(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		fire.Magazine = 0
 
-		comp, err := NewReloadActivity(player, world)
-		require.NoError(t, err)
+		comp := NewReloadActivity(player, world)
 
 		assert.Equal(t, fire.ReloadEffort, comp.Progress.Max)
 	})
@@ -122,10 +124,9 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		fire.Magazine = 0
 
 		ra := &ReloadBehavior{}
-		comp, err := NewReloadActivity(player, world)
-		require.NoError(t, err)
+		comp := NewReloadActivity(player, world)
 
-		err = ra.Start(comp, player, world)
+		err := ra.Start(comp, player, world)
 		require.NoError(t, err)
 
 		// DoTurnを繰り返してリロード完了させる
@@ -161,8 +162,7 @@ func TestReloadBehavior_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		ra := &ReloadBehavior{}
-		comp, err := NewReloadActivity(player, world)
-		require.NoError(t, err)
+		comp := NewReloadActivity(player, world)
 
 		err = ra.Start(comp, player, world)
 		require.NoError(t, err)
@@ -199,12 +199,10 @@ func TestReloadBehavior_進捗はアクティビティごとに独立する(t *t
 	require.Truef(t, ok, "GetBehavior(BehaviorReload) は *ReloadBehavior を返すべきだが %T だった", b)
 
 	// 同一インスタンスに通す2つの独立したアクティビティを用意する
-	comp1, err := NewReloadActivity(player, world)
-	require.NoError(t, err)
+	comp1 := NewReloadActivity(player, world)
 	require.NoError(t, ra.Start(comp1, player, world))
 
-	comp2, err := NewReloadActivity(player, world)
-	require.NoError(t, err)
+	comp2 := NewReloadActivity(player, world)
 	require.NoError(t, ra.Start(comp2, player, world))
 
 	// 1ターンあたりの工数。同一アクター・同一武器なので両アクティビティで等しい
@@ -279,7 +277,7 @@ func TestExecuteReloadAction(t *testing.T) {
 		world, player, _, _ := setupShootingWorld(t)
 
 		err := ExecuteReloadAction(player, world)
-		require.Error(t, err)
+		require.NoError(t, err)
 
 		assert.False(t, world.Components.Activity.Has(player))
 	})

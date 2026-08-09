@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -40,28 +41,32 @@ func (rb *ReloadBehavior) Name() gc.BehaviorName {
 }
 
 // NewReloadActivity は装填アクティビティを組む。必要総工数は装備中の遠距離武器から求める。
-func NewReloadActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
-	fire, _, err := getEquippedFire(actor, world)
-	if err != nil {
-		return nil, err
+// 遠距離武器が無ければ工数0で組み、遠距離武器なしの判定は Validate に委ねる
+func NewReloadActivity(actor ecs.Entity, world w.World) *gc.Activity {
+	effort := 0
+	if fire, _, err := getEquippedFire(actor, world); err == nil {
+		effort = fire.ReloadEffort
 	}
-	return NewActivity(gc.BehaviorReload, fire.ReloadEffort), nil
+	return NewActivity(gc.BehaviorReload, effort)
 }
 
 // Validate はリロードの検証を行う
 func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
+		if errors.Is(err, ErrShootNoFireWeapon) {
+			return &UserError{Msg: query.T(world, "no ranged weapon equipped")}
+		}
 		return err
 	}
 
 	if fire.Magazine >= fire.MagazineSize {
-		return ErrReloadNotNeeded
+		return &UserError{Msg: query.T(world, "reload is not needed")}
 	}
 
 	// 弾薬の在庫チェック
 	if _, found := query.FindAmmoInInventory(world, fire.AmmoTag); !found {
-		return ErrReloadNoAmmo
+		return &UserError{Msg: query.T(world, "no ammo")}
 	}
 
 	return nil
@@ -157,12 +162,6 @@ func (rb *ReloadBehavior) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, wor
 
 // ExecuteReloadAction はリロードアクションを実行する
 func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
-	comp, err := NewReloadActivity(actor, world)
-	if err != nil {
-		return err
-	}
-	if _, err := Execute(comp, actor, world); err != nil {
-		return err
-	}
-	return nil
+	_, err := Execute(NewReloadActivity(actor, world), actor, world)
+	return err
 }

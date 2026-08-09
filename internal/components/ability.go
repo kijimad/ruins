@@ -1,6 +1,10 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // Ability は変動するパラメータ値
 type Ability struct {
@@ -17,6 +21,16 @@ type Abilities struct {
 	Dexterity Ability // 器用。攻撃時の命中率に影響する
 	Agility   Ability // 敏捷。回避率、行動の速さに影響する
 	Defense   Ability // 防御。被弾ダメージを軽減させる
+}
+
+// bodyWeightBaseKg は体重の基準値。体格を持たない状態での下限にあたる
+const bodyWeightBaseKg = 40
+
+// BodyWeight は能力値から算出する体の重量を返す。基準体重に体格分、Vitality と Strength、を足す。
+// member や NPC の体重に使い、価格と同じく体格を反映させる
+func (a Abilities) BodyWeight() consts.Milligram {
+	physiqueKg := a.Vitality.Base + a.Strength.Base
+	return consts.Milligram((bodyWeightBaseKg + physiqueKg) * consts.MilligramPerKg)
 }
 
 // AbilityID は能力値の識別子

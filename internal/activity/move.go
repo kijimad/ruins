@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -115,15 +114,15 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	if p.Destination.X < 0 || p.Destination.Y < 0 {
-		return ErrMoveTargetCoordInvalid
+		return fmt.Errorf("destination coordinate is invalid")
 	}
 
 	if !world.Components.GridElement.Has(actor) {
-		return ErrMoveNoGridElement
+		return fmt.Errorf("GridElement not found on moving actor")
 	}
 	gridElement := world.Components.GridElement.Get(actor)
 	if !CanMoveTo(world, p.Destination.Coord, gridElement.Coord, actor) {
-		return ErrMoveTargetInvalid
+		return fmt.Errorf("destination is not movable")
 	}
 
 	// 所持重量が最大の1.5倍を超えていたら動けない
@@ -131,12 +130,7 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		cw := world.Components.WeightCapacity.Get(actor)
 		overweightLimit := cw.Max * 3 / 2
 		if cw.Current > overweightLimit {
-			if world.Components.Player.Has(actor) {
-				gamelog.New(query.GetGameLog(world)).
-					Markup(gamelog.Tag("warning", query.T(world, "Too heavy to move"))).
-					Log()
-			}
-			return ErrMoveOverweight
+			return &UserError{Msg: query.T(world, "Too heavy to move")}
 		}
 	}
 
