@@ -141,9 +141,13 @@ func TestActivationWay_Valid(t *testing.T) {
 func TestInteractionKind_ConfigConsistency(t *testing.T) {
 	t.Parallel()
 
+	// Config() の default なし exhaustive switch に対応する全種を列挙する。
+	// InteractionKind を足したらここにも足す。抜けると Config() の regression を見逃す
 	kinds := []InteractionKind{
-		InteractionPortalNext, InteractionPortalPrev, InteractionDoor,
-		InteractionTalk, InteractionItem, InteractionItemAll, InteractionStorage, InteractionMelee,
+		InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter,
+		InteractionDoor, InteractionTalk, InteractionItem, InteractionItemAll,
+		InteractionStorage, InteractionMelee, InteractionDisassemble,
+		InteractionEnterCube, InteractionExitCube, InteractionPullCube, InteractionCubePanel,
 	}
 
 	for _, kind := range kinds {
