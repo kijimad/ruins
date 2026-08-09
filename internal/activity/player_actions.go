@@ -71,12 +71,8 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	// 押しはキューブだけを動かす。プレイヤーの追随は次入力の通常移動が担い、方向を押し続けると
 	// 押しと一歩が交互に起きてキューブが進む
 	if cube, ok := pushableAt(world, next); ok {
-		// 押し先が塞がっていれば、壁に歩き込むのと同じく何もしない。エラーにすると
-		// 入力層で致命化するため、実行可否をここで判定して不可なら no-op にする
-		cubeCoord := world.Components.GridElement.Get(cube).Coord
-		if !CanMoveTo(world, cubeCoord.Add(direction.GetDelta()), cubeCoord, cube) {
-			return nil
-		}
+		// 押し先が塞がっていれば Push.Validate が理由を gamelog へ出し err=nil で閉じる。
+		// 壁への歩き込みと同じく no-op になる
 		comp, err := NewPushActivity(cube, direction, world)
 		if err != nil {
 			return err
