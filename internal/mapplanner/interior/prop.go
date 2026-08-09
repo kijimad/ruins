@@ -1,13 +1,14 @@
 package interior
 
-// propRef と rawPropName は propRaw のキーと値の型。実体は string だが、名前を付けて意味を持たせる。
+// 実体は string だが、名前を付けて意味を持たせる。
 type (
-	propRef     = string
+	// content が使う抽象
+	propRef = string
+	// raw の prop 名
 	rawPropName = string
 )
 
-// propRaw は prop の対応表。キーは content が使う抽象 prop Ref、値は raw の prop 名。overworld がこの表で prop を
-// spawn し、VRT がこの表で「in-game に出る物だけ」を描く。両者が同じ表を引くので VRT と in-game が乖離しない。
+// propRaw は prop の対応表。overworld がこの表で prop をspawn し、VRT がこの表で「in-game に出る物だけ」を描く。両者が同じ表を引くので VRT と in-game が乖離しない。
 // 表に無い Ref は in-game で spawn されず、VRT でも描かれない。KindLoot の戦利品と raw の無い装飾は含めない。
 // 家具と装飾だけを対応させ、raw の無い抽象什器は近い実物へ当てる。
 var propRaw = map[propRef]rawPropName{
