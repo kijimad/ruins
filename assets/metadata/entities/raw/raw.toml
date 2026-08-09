@@ -12577,16 +12577,16 @@ minDepth = 1
 weight = 1
 
 [[itemTables.entries]]
-id = "materials"
+id = "food"
 maxDepth = 30
 minDepth = 1
-weight = 3
+weight = 2
 
 [[itemTables.entries]]
 id = "early_armor"
 maxDepth = 30
 minDepth = 1
-weight = 2
+weight = 3
 
 [[itemTables.entries]]
 id = "healing_item"
