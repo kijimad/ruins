@@ -54,8 +54,7 @@ func TestTransferBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TransferBehavior{}
-		msg, err := ta.Validate(comp, member, world)
-		assert.Empty(t, msg)
+		err = ta.Validate(comp, member, world)
 		assert.NoError(t, err)
 	})
 
@@ -72,8 +71,7 @@ func TestTransferBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TransferBehavior{}
-		msg, err := ta.Validate(comp, leader, world)
-		assert.Empty(t, msg)
+		err = ta.Validate(comp, leader, world)
 		assert.Error(t, err)
 	})
 
@@ -95,8 +93,7 @@ func TestTransferBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TransferBehavior{}
-		msg, err := ta.Validate(comp, player, world)
-		assert.Empty(t, msg)
+		err = ta.Validate(comp, player, world)
 		assert.Error(t, err)
 	})
 }

@@ -46,21 +46,21 @@ func NewShootActivity(target ecs.Entity) *gc.Activity {
 }
 
 // Validate は射撃の検証を行う
-func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
+func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
 		// 構築ミス。ユーザ起因ではないのでシステムエラー
-		return "", fmt.Errorf("shoot target is not set")
+		return fmt.Errorf("shoot target is not set")
 	}
 	if world.Components.Dead.Has(actor) {
 		// 手番を得た actor が死亡しているのは不変条件違反
-		return "", ErrAttackerDead
+		return ErrAttackerDead
 	}
 	if !world.Components.GridElement.Has(p.Target) {
-		return query.T(world, "attack target does not exist"), nil
+		return &UserError{Msg: query.T(world, "attack target does not exist")}
 	}
 	if world.Components.Dead.Has(p.Target) {
-		return query.T(world, "attack target is already dead"), nil
+		return &UserError{Msg: query.T(world, "attack target is already dead")}
 	}
 
 	// 遠距離武器が装備されているか
@@ -68,32 +68,32 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	if err != nil {
 		// 遠距離武器を持たないのはユーザ起因。武器スロット不正などのシステムエラーは伝播させる
 		if errors.Is(err, ErrShootNoFireWeapon) {
-			return query.T(world, "no ranged weapon equipped"), nil
+			return &UserError{Msg: query.T(world, "no ranged weapon equipped")}
 		}
-		return "", err
+		return err
 	}
 
 	// 残弾チェック
 	if fire.Magazine <= 0 {
-		return query.T(world, "out of ammo, please reload"), nil
+		return &UserError{Msg: query.T(world, "out of ammo, please reload")}
 	}
 
 	// 射程・射線チェック
 	distance := EntityDistance(actor, p.Target, world)
 	rangeParams, rangeOK := gc.GetRangeParams(fire.AttackCategory)
 	if !rangeOK {
-		return query.T(world, "no ranged weapon equipped"), nil
+		return &UserError{Msg: query.T(world, "no ranged weapon equipped")}
 	}
 	if distance > float64(rangeParams.MaxRange) {
-		return query.T(world, "attack target is out of range"), nil
+		return &UserError{Msg: query.T(world, "attack target is out of range")}
 	}
 
 	// 射線上に壁がないか
 	if blocked, _ := checkLineOfSight(actor, p.Target, world); blocked {
-		return query.T(world, "line of sight is blocked"), nil
+		return &UserError{Msg: query.T(world, "line of sight is blocked")}
 	}
 
-	return "", nil
+	return nil
 }
 
 // Start はBehaviorの実装
@@ -227,8 +227,7 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 // 射撃対象選択UIでのフィルタリング用
 func CanShootTarget(actor, target ecs.Entity, world w.World) bool {
 	comp := NewShootActivity(target)
-	msg, err := (&ShootBehavior{}).Validate(comp, actor, world)
-	return msg == "" && err == nil
+	return (&ShootBehavior{}).Validate(comp, actor, world) == nil
 }
 
 // CalculateShootHitRate は射撃の命中率を計算して返す。情報パネル表示用

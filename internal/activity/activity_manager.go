@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -33,8 +34,22 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 		"actor", actor)
 
 	// アクティビティを開始
-	msg, err := StartActivity(comp, actor, world)
-	if err != nil {
+	if err := StartActivity(comp, actor, world); err != nil {
+		var ve *UserError
+		if errors.As(err, &ve) {
+			// ユーザ起因の検証失敗。文言をここで gamelog へ出し、操作は開始せず取り消す。
+			// 致命エラーではないため err=nil で通常どおり閉じる
+			gamelog.New(query.GetGameLog(world)).Markup(ve.Msg).Log()
+			result := &ActionResult{
+				Success:      false,
+				State:        gc.ActivityStateCanceled,
+				ActivityName: behaviorName,
+				Message:      ve.Msg,
+			}
+			setLastResult(actor, result, world)
+			return result, nil
+		}
+		// システムまたは致命的なエラー。伝播させる
 		result := &ActionResult{
 			Success:      false,
 			State:        gc.ActivityStateCanceled,
@@ -43,19 +58,6 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 		}
 		setLastResult(actor, result, world)
 		return result, err
-	}
-	if msg != "" {
-		// ユーザ起因の検証失敗。文言をここで gamelog へ出し、操作は開始せず取り消す。
-		// 呼び出し側は致命エラーでないため err=nil で通常どおり閉じる
-		gamelog.New(query.GetGameLog(world)).Markup(msg).Log()
-		result := &ActionResult{
-			Success:      false,
-			State:        gc.ActivityStateCanceled,
-			ActivityName: behaviorName,
-			Message:      msg,
-		}
-		setLastResult(actor, result, world)
-		return result, nil
 	}
 
 	// 全アクションを継続アクションとして扱い、常にここで1ターン進める。
@@ -158,16 +160,16 @@ func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
 }
 
 // StartActivity は新しいアクティビティを開始する。
-// 戻り値の msg が非空ならユーザ起因の検証失敗で、アクティビティは開始しない。
-// err が非nilならシステムエラー。両方ゼロなら開始に成功している。
-func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
+// 返す error が *UserError ならユーザ起因の検証失敗で、アクティビティは開始しない。
+// それ以外の error はシステムエラー。nil なら開始に成功している。
+func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp == nil {
-		return "", ErrActivityNil
+		return ErrActivityNil
 	}
 
 	behavior, err := GetBehavior(comp.BehaviorName)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	// 既存のアクティビティがある場合は中断
@@ -177,18 +179,14 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) (string, 
 		}
 	}
 
-	// Behaviorでの検証
-	msg, err := behavior.Validate(comp, actor, world)
-	if err != nil {
-		return "", err
-	}
-	if msg != "" {
-		return msg, nil
+	// Behaviorでの検証。ユーザ起因も致命的もそのまま返し、呼び出し側が種別で分岐する
+	if err := behavior.Validate(comp, actor, world); err != nil {
+		return err
 	}
 
 	// アクティビティをコンポーネントとして登録する
 	if err := query.SetActivity(world, actor, comp); err != nil {
-		return "", fmt.Errorf("failed to register activity: %w", err)
+		return fmt.Errorf("failed to register activity: %w", err)
 	}
 	stored := query.GetActivity(world, actor)
 	stored.State = gc.ActivityStateRunning
@@ -197,7 +195,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) (string, 
 	if err := behavior.Start(stored, actor, world); err != nil {
 		// 開始に失敗した場合はクリーンアップ
 		query.RemoveActivity(world, actor)
-		return "", fmt.Errorf("failed to start activity: %w", err)
+		return fmt.Errorf("failed to start activity: %w", err)
 	}
 
 	log.Debug("activity started",
@@ -205,7 +203,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) (string, 
 		"type", behavior.Name(),
 		"required", stored.Progress.Max)
 
-	return "", nil
+	return nil
 }
 
 // InterruptActivity は指定されたエンティティのアクティビティを中断する

@@ -18,8 +18,7 @@ func TestReadBehavior_Validate_NoTarget(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{}
-	msg, err := ra.Validate(comp, actor, world)
-	assert.Empty(t, msg)
+	err := ra.Validate(comp, actor, world)
 	assert.Error(t, err)
 }
 
@@ -32,8 +31,7 @@ func TestReadBehavior_Validate_NotABook(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: item}}
-	msg, err := ra.Validate(comp, actor, world)
-	assert.Empty(t, msg)
+	err := ra.Validate(comp, actor, world)
 	assert.Error(t, err)
 }
 
@@ -52,9 +50,10 @@ func TestReadBehavior_Validate_AlreadyCompleted(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	msg, err := ra.Validate(comp, actor, world)
-	require.NoError(t, err)
-	assert.Contains(t, msg, "already read")
+	err := ra.Validate(comp, actor, world)
+	var ve *UserError
+	require.ErrorAs(t, err, &ve)
+	assert.Contains(t, ve.Msg, "already read")
 }
 
 func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
@@ -74,9 +73,9 @@ func TestReadBehavior_Validate_RequiredLevelNotMet(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	msg, err := ra.Validate(comp, actor, world)
-	require.NoError(t, err)
-	assert.NotEmpty(t, msg)
+	err := ra.Validate(comp, actor, world)
+	var ve *UserError
+	require.ErrorAs(t, err, &ve)
 }
 
 func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {
@@ -99,8 +98,7 @@ func TestReadBehavior_Validate_RequiredLevelMet(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	msg, err := ra.Validate(comp, actor, world)
-	assert.Empty(t, msg)
+	err := ra.Validate(comp, actor, world)
 	assert.NoError(t, err)
 }
 
@@ -120,8 +118,7 @@ func TestReadBehavior_Validate_Success(t *testing.T) {
 
 	ra := &ReadBehavior{}
 	comp := &gc.Activity{Params: &gc.ReadParams{Target: bookEntity}}
-	msg, err := ra.Validate(comp, actor, world)
-	assert.Empty(t, msg)
+	err := ra.Validate(comp, actor, world)
 	assert.NoError(t, err)
 }
 

@@ -41,25 +41,25 @@ func NewOpenDoorActivity(target ecs.Entity) *gc.Activity {
 }
 
 // Validate は扉開閉アクティビティの検証を行う
-func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) (string, error) {
+func (odb *OpenDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.OpenDoorParams)
 	if !ok {
-		return "", fmt.Errorf("door entity is not set")
+		return fmt.Errorf("door entity is not set")
 	}
 
 	targetEntity := p.Target
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
-		return query.T(world, "target entity is not a door"), nil
+		return &UserError{Msg: query.T(world, "target entity is not a door")}
 	}
 
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
-		return query.T(world, "target entity is not a door"), nil
+		return &UserError{Msg: query.T(world, "target entity is not a door")}
 	}
 
-	return "", nil
+	return nil
 }
 
 // Start は扉開閉開始時の処理を実行する
@@ -157,25 +157,25 @@ func NewCloseDoorActivity(target ecs.Entity) *gc.Activity {
 }
 
 // Validate は扉閉鎖アクティビティの検証を行う
-func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) (string, error) {
+func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.CloseDoorParams)
 	if !ok {
-		return "", fmt.Errorf("door entity is not set")
+		return fmt.Errorf("door entity is not set")
 	}
 
 	targetEntity := p.Target
 
 	// ゼロ値・死亡エンティティはArkのHasでパニックするため先に弾く
 	if !world.ECS.Alive(targetEntity) {
-		return query.T(world, "target entity is not a door"), nil
+		return &UserError{Msg: query.T(world, "target entity is not a door")}
 	}
 
 	// Doorコンポーネントを持っているか確認
 	if !world.Components.Door.Has(targetEntity) {
-		return query.T(world, "target entity is not a door"), nil
+		return &UserError{Msg: query.T(world, "target entity is not a door")}
 	}
 
-	return "", nil
+	return nil
 }
 
 // Start は扉閉鎖開始時の処理を実行する

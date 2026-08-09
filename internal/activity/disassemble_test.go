@@ -109,9 +109,9 @@ func TestDisassembleBehavior_Validate_工具がないとエラー(t *testing.T) 
 
 	da := &DisassembleBehavior{}
 	comp := &gc.Activity{Params: &gc.DisassembleParams{Target: crate}}
-	msg, err := da.Validate(comp, player, world)
-	require.NoError(t, err)
-	assert.NotEmpty(t, msg)
+	err = da.Validate(comp, player, world)
+	var ve *UserError
+	require.ErrorAs(t, err, &ve)
 }
 
 func TestDisassembleBehavior_BuildActivity_分解定義のない対象はエラー(t *testing.T) {
@@ -149,8 +149,7 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 	// baseAP2000 スキル0 グレード1 で必要AP2000
 	assert.Equal(t, 2000, comp.Progress.Max)
 
-	validateMsg, err := da.Validate(comp, player, world)
-	require.Empty(t, validateMsg)
+	err = da.Validate(comp, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
@@ -338,9 +337,9 @@ func TestDisassembleBehavior_Validate_敵が隣接していると開始できな
 
 	da := &DisassembleBehavior{}
 	comp := &gc.Activity{Params: &gc.DisassembleParams{Target: crate}}
-	msg, err := da.Validate(comp, player, world)
-	require.NoError(t, err)
-	assert.NotEmpty(t, msg)
+	err = da.Validate(comp, player, world)
+	var ve *UserError
+	require.ErrorAs(t, err, &ve)
 }
 
 func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing.T) {
@@ -357,8 +356,7 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 	da := &DisassembleBehavior{}
 	comp, err := NewDisassembleActivity(crate, player, world)
 	require.NoError(t, err)
-	validateMsg, err := da.Validate(comp, player, world)
-	require.Empty(t, validateMsg)
+	err = da.Validate(comp, player, world)
 	require.NoError(t, err)
 	require.NoError(t, da.Start(comp, player, world))
 	require.NoError(t, da.DoTurn(comp, player, world))

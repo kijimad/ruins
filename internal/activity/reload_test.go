@@ -36,8 +36,7 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		ra := &ReloadBehavior{}
 		comp := NewActivity(gc.BehaviorReload, 0)
 
-		msg, err := ra.Validate(comp, player, world)
-		assert.Empty(t, msg)
+		err := ra.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
 
@@ -48,9 +47,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		ra := &ReloadBehavior{}
 		comp := NewActivity(gc.BehaviorReload, 0)
 
-		msg, err := ra.Validate(comp, player, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err := ra.Validate(comp, player, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("弾薬なしでエラー", func(t *testing.T) {
@@ -72,9 +71,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		ra := &ReloadBehavior{}
 		comp := NewActivity(gc.BehaviorReload, 0)
 
-		msg, err := ra.Validate(comp, player, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err = ra.Validate(comp, player, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("近接武器ではリロード不可", func(t *testing.T) {
@@ -92,9 +91,9 @@ func TestReloadBehavior_Validate(t *testing.T) {
 		ra := &ReloadBehavior{}
 		comp := NewActivity(gc.BehaviorReload, 0)
 
-		msg, err := ra.Validate(comp, player, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err = ra.Validate(comp, player, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 }
 

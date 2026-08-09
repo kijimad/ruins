@@ -45,26 +45,26 @@ func NewTransferActivity(target, recipient ecs.Entity, count int) *gc.Activity {
 }
 
 // Validate はアイテム転送アクティビティの検証を行う
-func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) (string, error) {
+func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.TransferParams)
 	if !ok {
-		return "", fmt.Errorf("transfer target is not set")
+		return fmt.Errorf("transfer target is not set")
 	}
 	// 値型のパラメータでは未指定が無効エンティティになる。ArkのHasはゼロ値でパニックするため、
 	// Aliveで存在を確かめてから所持判定へ進む。未指定は構築ミスなのでシステムエラー
 	if !world.ECS.Alive(p.Target) {
-		return "", fmt.Errorf("transfer target is not set")
+		return fmt.Errorf("transfer target is not set")
 	}
 	if !world.ECS.Alive(p.Recipient) {
-		return "", fmt.Errorf("recipient is not set")
+		return fmt.Errorf("recipient is not set")
 	}
 
 	target := p.Target
 	if !world.Components.LocationInBackpack.Has(target) {
-		return query.T(world, "item is not in the backpack"), nil
+		return &UserError{Msg: query.T(world, "item is not in the backpack")}
 	}
 
-	return "", nil
+	return nil
 }
 
 // Start はアイテム転送開始時の処理を実行する

@@ -46,16 +46,16 @@ func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {
 }
 
 // Validate は読書アクティビティの検証を行う
-func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
+func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
-		return "", fmt.Errorf("book is not set")
+		return fmt.Errorf("book is not set")
 	}
 
 	book := getBook(p.Target, world)
 	if book == nil {
 		// 構築時に本を確定しているため、ここで欠けるのは不変条件違反
-		return "", fmt.Errorf("target has no Book component")
+		return fmt.Errorf("target has no Book component")
 	}
 
 	var skills *gc.Skills
@@ -65,7 +65,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 	if err := book.CanRead(skills); err != nil {
 		// 読めない理由をプレイヤーへ出す。スキル不足なら必要・現在レベルを添えて現在言語で組む。
-		// 検証失敗の文言は世界を持つこの層で作り、msg として返す
+		// 検証失敗の文言は世界を持つこの層で作り、UserError として返す
 		msg := err.Error()
 		if book.Skill != nil && book.Skill.RequiredLevel > 0 {
 			current := 0
@@ -77,14 +77,14 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 					query.T(world, gc.SkillName(book.Skill.TargetSkill)), book.Skill.RequiredLevel, current)
 			}
 		}
-		return msg, nil
+		return &UserError{Msg: msg}
 	}
 
 	if !isAreaSafe(actor, world) {
-		return query.T(world, "cannot read because enemies are nearby"), nil
+		return &UserError{Msg: query.T(world, "cannot read because enemies are nearby")}
 	}
 
-	return "", nil
+	return nil
 }
 
 // Start は読書開始時の処理を実行する

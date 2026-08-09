@@ -218,8 +218,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		msg, err := ua.Validate(comp, actor, world)
-		assert.Empty(t, msg)
+		err := ua.Validate(comp, actor, world)
 		assert.NoError(t, err)
 	})
 
@@ -235,8 +234,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		msg, err := ua.Validate(comp, actor, world)
-		assert.Empty(t, msg)
+		err := ua.Validate(comp, actor, world)
 		assert.ErrorIs(t, err, ErrItemNotSet)
 	})
 
@@ -253,9 +251,9 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		msg, err := ua.Validate(comp, actor, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err := ua.Validate(comp, actor, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("効果がないアイテムの場合はエラー", func(t *testing.T) {
@@ -274,9 +272,9 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		msg, err := ua.Validate(comp, actor, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err := ua.Validate(comp, actor, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("ActorにHPがない場合はエラー", func(t *testing.T) {
@@ -297,8 +295,7 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 
 		ua := &UseItemBehavior{}
 		// HP 欠落は不変条件違反。ユーザ起因の失敗ではなくシステムエラーで表面化させる
-		msg, err := ua.Validate(comp, actor, world)
-		assert.Empty(t, msg)
+		err := ua.Validate(comp, actor, world)
 		assert.Error(t, err)
 	})
 }

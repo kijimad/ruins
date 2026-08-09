@@ -28,8 +28,7 @@ func TestMoveBehavior_Validate(t *testing.T) {
 		}
 
 		ma := &MoveBehavior{}
-		msg, err := ma.Validate(comp, player, world)
-		assert.Empty(t, msg)
+		err = ma.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
 
@@ -45,8 +44,7 @@ func TestMoveBehavior_Validate(t *testing.T) {
 		}
 
 		ma := &MoveBehavior{}
-		msg, err := ma.Validate(comp, player, world)
-		assert.Empty(t, msg)
+		err = ma.Validate(comp, player, world)
 		assert.ErrorIs(t, err, ErrMoveTargetNotSet)
 	})
 
@@ -65,8 +63,7 @@ func TestMoveBehavior_Validate(t *testing.T) {
 
 		ma := &MoveBehavior{}
 		// GridElement 欠落は不変条件違反。ユーザ起因の失敗ではなくシステムエラーで表面化させる
-		msg, err := ma.Validate(comp, player, world)
-		assert.Empty(t, msg)
+		err := ma.Validate(comp, player, world)
 		assert.Error(t, err)
 	})
 }

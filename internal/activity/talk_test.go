@@ -31,8 +31,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TalkBehavior{}
-		msg, err := ta.Validate(comp, player, world)
-		assert.Empty(t, msg)
+		err = ta.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
 
@@ -48,8 +47,7 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TalkBehavior{}
-		msg, err := ta.Validate(comp, player, world)
-		assert.Empty(t, msg)
+		err = ta.Validate(comp, player, world)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "talk target is not set")
 	})
@@ -71,9 +69,9 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TalkBehavior{}
-		msg, err := ta.Validate(comp, player, world)
-		require.NoError(t, err)
-		assert.NotEmpty(t, msg)
+		err = ta.Validate(comp, player, world)
+		var ve *UserError
+		require.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("FactionNeutralがない場合はエラー", func(t *testing.T) {
@@ -93,9 +91,9 @@ func TestTalkBehavior_Validate(t *testing.T) {
 		}
 
 		ta := &TalkBehavior{}
-		msg, err := ta.Validate(comp, player, world)
-		require.NoError(t, err)
-		assert.NotEmpty(t, msg)
+		err = ta.Validate(comp, player, world)
+		var ve *UserError
+		require.ErrorAs(t, err, &ve)
 	})
 }
 

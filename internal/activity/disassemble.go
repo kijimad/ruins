@@ -60,25 +60,25 @@ func NewDisassembleActivity(target, actor ecs.Entity, world w.World) (*gc.Activi
 }
 
 // Validate は分解アクティビティの検証を行う
-func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
+func (db *DisassembleBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
-		return "", fmt.Errorf("disassembly target is not set")
+		return fmt.Errorf("disassembly target is not set")
 	}
 	if !world.ECS.Alive(p.Target) {
-		return query.T(world, "disassembly target does not exist"), nil
+		return &UserError{Msg: query.T(world, "disassembly target does not exist")}
 	}
 	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(p.Target, world))
 	if !ok {
-		return query.T(world, "target has no disassembly definition"), nil
+		return &UserError{Msg: query.T(world, "target has no disassembly definition")}
 	}
 	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
-		return query.T(world, "does not have the tool required for disassembly"), nil
+		return &UserError{Msg: query.T(world, "does not have the tool required for disassembly")}
 	}
 	if !isAreaSafe(actor, world) {
-		return query.T(world, "cannot disassemble because enemies are nearby"), nil
+		return &UserError{Msg: query.T(world, "cannot disassemble because enemies are nearby")}
 	}
-	return "", nil
+	return nil
 }
 
 // Start は分解開始時の処理を実行する

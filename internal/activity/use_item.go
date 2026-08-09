@@ -42,10 +42,10 @@ func NewUseItemActivity(target ecs.Entity) *gc.Activity {
 }
 
 // Validate はBehaviorの実装
-func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
+func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.UseItemParams)
 	if !ok {
-		return "", ErrItemNotSet
+		return ErrItemNotSet
 	}
 
 	item := p.Target
@@ -56,15 +56,15 @@ func (u *UseItemBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		world.Components.InflictsDamage.Has(item)
 
 	if !hasEffect {
-		return query.T(world, "this item has no effect"), nil
+		return &UserError{Msg: query.T(world, "this item has no effect")}
 	}
 
 	// actor が HP を欠くのは不変条件違反。ユーザ起因ではないのでシステムエラー
 	if !world.Components.HP.Has(actor) {
-		return "", fmt.Errorf("UseItemBehavior.Validate: actor has no HP component")
+		return fmt.Errorf("UseItemBehavior.Validate: actor has no HP component")
 	}
 
-	return "", nil
+	return nil
 }
 
 // Start はBehaviorの実装

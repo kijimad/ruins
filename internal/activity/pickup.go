@@ -50,17 +50,17 @@ func NewPickupTileActivity(world w.World, tile consts.Coord[consts.Tile]) *gc.Ac
 }
 
 // Validate はアイテム拾得アクティビティの検証を行う。1つでも拾えるものがあれば有効。
-func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) (string, error) {
+func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PickupParams)
 	if !ok {
-		return "", fmt.Errorf("pickup target is not set")
+		return fmt.Errorf("pickup target is not set")
 	}
 	for _, entity := range p.Targets {
 		if query.IsPickable(entity, world) {
-			return "", nil
+			return nil
 		}
 	}
-	return query.T(world, "nothing to pick up"), nil
+	return &UserError{Msg: query.T(world, "nothing to pick up")}
 }
 
 // Start はアイテム拾得開始時の処理を実行する

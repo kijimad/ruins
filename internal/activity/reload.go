@@ -50,26 +50,26 @@ func NewReloadActivity(actor ecs.Entity, world w.World) (*gc.Activity, error) {
 }
 
 // Validate はリロードの検証を行う
-func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
+func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		// 遠距離武器を持たないのはユーザ起因。武器スロット不正などのシステムエラーは伝播させる
 		if errors.Is(err, ErrShootNoFireWeapon) {
-			return query.T(world, "no ranged weapon equipped"), nil
+			return &UserError{Msg: query.T(world, "no ranged weapon equipped")}
 		}
-		return "", err
+		return err
 	}
 
 	if fire.Magazine >= fire.MagazineSize {
-		return query.T(world, "reload is not needed"), nil
+		return &UserError{Msg: query.T(world, "reload is not needed")}
 	}
 
 	// 弾薬の在庫チェック
 	if _, found := query.FindAmmoInInventory(world, fire.AmmoTag); !found {
-		return query.T(world, "no ammo"), nil
+		return &UserError{Msg: query.T(world, "no ammo")}
 	}
 
-	return "", nil
+	return nil
 }
 
 // Start はリロード開始時の処理

@@ -41,18 +41,18 @@ func NewRestActivity() *gc.Activity {
 }
 
 // Validate は休息アクティビティの検証を行う
-func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) (string, error) {
+func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
 	if !isAreaSafe(actor, world) {
-		return query.T(world, "cannot rest because enemies are nearby"), nil
+		return &UserError{Msg: query.T(world, "cannot rest because enemies are nearby")}
 	}
 
 	// 必要量が妥当かチェック。構築時に必ず正の値を据えるため、ここで非正なのは不変条件違反
 	if comp.Progress.Max <= 0 {
-		return "", ErrRestInvalidDuration
+		return ErrRestInvalidDuration
 	}
 
-	return "", nil
+	return nil
 }
 
 // Start は休息開始時の処理を実行する

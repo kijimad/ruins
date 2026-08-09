@@ -2,6 +2,13 @@ package activity
 
 import "errors"
 
+// UserError はユーザ起因の検証失敗。Validate が返す error のうち *UserError だけが
+// ユーザ起因で、呼び出し側は Msg を gamelog へ出して操作を取り消す。それ以外の error は致命的
+type UserError struct{ Msg string }
+
+// Error は error インターフェースを満たす
+func (e *UserError) Error() string { return e.Msg }
+
 // アクティビティ関連のエラー定数
 var (
 	// アクティビティ一般エラー

@@ -69,8 +69,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		msg, err := sa.Validate(activity, player, world)
-		assert.Empty(t, msg)
+		err := sa.Validate(activity, player, world)
 		assert.NoError(t, err)
 	})
 
@@ -81,8 +80,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		sa := &ShootBehavior{}
 		activity := NewActivity(gc.BehaviorShoot, 0)
 
-		msg, err := sa.Validate(activity, player, world)
-		assert.Empty(t, msg)
+		err := sa.Validate(activity, player, world)
 		assert.Error(t, err)
 	})
 
@@ -98,9 +96,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		msg, err := sa.Validate(activity, player, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err := sa.Validate(activity, player, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("射程外でエラー", func(t *testing.T) {
@@ -123,9 +121,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		msg, err := sa.Validate(activity, player, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err = sa.Validate(activity, player, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("近接武器でエラー", func(t *testing.T) {
@@ -148,9 +146,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		msg, err := sa.Validate(activity, player, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err = sa.Validate(activity, player, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("射線上に壁があるとエラー", func(t *testing.T) {
@@ -166,9 +164,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		msg, err := sa.Validate(activity, player, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err := sa.Validate(activity, player, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 
 	t.Run("死亡した攻撃者はエラー", func(t *testing.T) {
@@ -180,8 +178,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		msg, err := sa.Validate(activity, player, world)
-		assert.Empty(t, msg)
+		err := sa.Validate(activity, player, world)
 		assert.ErrorIs(t, err, ErrAttackerDead)
 	})
 
@@ -194,9 +191,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity := NewActivity(gc.BehaviorShoot, 0)
 		activity.Params = &gc.ShootParams{Target: enemy}
 
-		msg, err := sa.Validate(activity, player, world)
-		assert.NotEmpty(t, msg)
-		assert.NoError(t, err)
+		err := sa.Validate(activity, player, world)
+		var ve *UserError
+		assert.ErrorAs(t, err, &ve)
 	})
 }
 

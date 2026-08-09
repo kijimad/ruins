@@ -52,7 +52,7 @@ func TestStartActivity(t *testing.T) {
 	comp := NewActivity(gc.BehaviorWait, 5)
 
 	// アクティビティ開始
-	_, err := StartActivity(comp, actor, world)
+	err := StartActivity(comp, actor, world)
 	require.NoError(t, err)
 
 	// アクティビティが登録されているかチェック
@@ -81,10 +81,10 @@ func TestMultipleActivities(t *testing.T) {
 	comp1 := NewActivity(gc.BehaviorWait, 10)
 	comp2 := NewActivity(gc.BehaviorWait, 5)
 
-	_, err := StartActivity(comp1, actor1, world)
+	err := StartActivity(comp1, actor1, world)
 	require.NoError(t, err)
 
-	_, err = StartActivity(comp2, actor2, world)
+	err = StartActivity(comp2, actor2, world)
 	require.NoError(t, err)
 
 	// 両方のアクティビティが登録されているかチェック
@@ -107,7 +107,7 @@ func TestReplaceActivity(t *testing.T) {
 
 	// 最初のアクティビティを開始
 	comp1 := NewActivity(gc.BehaviorWait, 10)
-	_, err := StartActivity(comp1, actor, world)
+	err := StartActivity(comp1, actor, world)
 	require.NoError(t, err)
 
 	// 最初のアクティビティが実行中であることを確認
@@ -115,7 +115,7 @@ func TestReplaceActivity(t *testing.T) {
 
 	// 新しいアクティビティを開始（古いものを置き換え）
 	comp2 := NewActivity(gc.BehaviorWait, 5)
-	_, err = StartActivity(comp2, actor, world)
+	err = StartActivity(comp2, actor, world)
 	require.NoError(t, err)
 
 	// 置き換え後は現在のアクティビティが2つ目になっている。
@@ -134,7 +134,7 @@ func TestInterruptAndResume(t *testing.T) {
 
 	// アクティビティを開始
 	comp := NewActivity(gc.BehaviorWait, 10)
-	_, err := StartActivity(comp, actor, world)
+	err := StartActivity(comp, actor, world)
 	require.NoError(t, err)
 
 	// アクティビティを中断
@@ -172,7 +172,7 @@ func TestCancelActivity(t *testing.T) {
 
 	// アクティビティを開始
 	comp := NewActivity(gc.BehaviorWait, 5)
-	_, err := StartActivity(comp, actor, world)
+	err := StartActivity(comp, actor, world)
 	require.NoError(t, err)
 
 	// アクティビティをキャンセル
@@ -206,9 +206,9 @@ func TestProcessContinuousActivities(t *testing.T) {
 	shortComp := NewActivity(gc.BehaviorWait, 2) // 2ターンで完了
 	longComp := NewActivity(gc.BehaviorWait, 5)  // 5ターンで完了
 
-	_, err := StartActivity(shortComp, actor1, world)
+	err := StartActivity(shortComp, actor1, world)
 	require.NoError(t, err)
-	_, err = StartActivity(longComp, actor2, world)
+	err = StartActivity(longComp, actor2, world)
 	require.NoError(t, err)
 
 	// 初期状態の確認
@@ -258,9 +258,9 @@ func TestActivitySummary(t *testing.T) {
 	comp1 := NewActivity(gc.BehaviorWait, 10)
 	comp2 := NewActivity(gc.BehaviorWait, 5)
 
-	_, err := StartActivity(comp1, actor1, world)
+	err := StartActivity(comp1, actor1, world)
 	require.NoError(t, err)
-	_, err = StartActivity(comp2, actor2, world)
+	err = StartActivity(comp2, actor2, world)
 	require.NoError(t, err)
 
 	// 1つを中断
