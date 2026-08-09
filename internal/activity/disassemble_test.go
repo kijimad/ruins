@@ -191,6 +191,7 @@ func TestDisassembleBehavior_アイテムを分解すると消費して素材が
 	// baseAP1000 グレード2 で必要AP800
 	assert.Equal(t, 800, comp.Progress.Max)
 
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -226,6 +227,7 @@ func TestDisassembleBehavior_収納propを分解すると中身が足元に出�
 
 	da := &DisassembleBehavior{}
 	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -252,6 +254,7 @@ func TestDisassembleBehavior_Finish_対象が既に消えていれば何もし�
 
 	da := &DisassembleBehavior{}
 	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 
 	world.ECS.RemoveEntity(crate)
@@ -280,6 +283,7 @@ func TestDisassembleBehavior_スタックのあるアイテムは1個だけ消�
 
 	da := &DisassembleBehavior{}
 	comp := NewDisassembleActivity(hdd, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -308,6 +312,7 @@ func TestDisassembleBehavior_Finish_レベルアップでStatsChangedが付く(t
 
 	da := &DisassembleBehavior{}
 	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 	for comp.State == gc.ActivityStateRunning {
 		require.NoError(t, da.DoTurn(comp, player, world))
@@ -403,6 +408,7 @@ func TestDisassembleBehavior_DoTurn_対象が消えると中断する(t *testing
 
 	da := &DisassembleBehavior{}
 	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 
 	world.ECS.RemoveEntity(crate)
@@ -428,6 +434,7 @@ func TestDisassembleBehavior_DoTurn_工具を失うと中断する(t *testing.T)
 
 	da := &DisassembleBehavior{}
 	comp := NewDisassembleActivity(crate, player, world)
+	require.NoError(t, da.Validate(comp, player, world))
 	require.NoError(t, da.Start(comp, player, world))
 
 	world.ECS.RemoveEntity(wrench)

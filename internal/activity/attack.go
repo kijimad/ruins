@@ -121,8 +121,7 @@ func (ab *MeleeBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 func (ab *MeleeBehavior) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	p, ok := comp.Params.(*gc.MeleeParams)
 	if !ok {
-		log.Debug("reached finish with attack target unset; no attack was performed", "actor", actor)
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	log.Debug("attack activity finished",
 		"actor", actor,

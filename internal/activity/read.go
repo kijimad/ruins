@@ -112,7 +112,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
 		Cancel(comp, "book is not set")
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "interrupted because the book disappeared")
@@ -155,7 +155,7 @@ func (rb *ReadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 func (rb *ReadBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ReadParams)
 	if !ok {
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		return nil

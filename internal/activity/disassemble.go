@@ -107,7 +107,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
 		Cancel(comp, "disassembly target is not set")
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	if !world.ECS.Alive(p.Target) {
 		Cancel(comp, "interrupted because the disassembly target disappeared")
@@ -140,7 +140,7 @@ func (db *DisassembleBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world
 func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.DisassembleParams)
 	if !ok {
-		return nil
+		return ErrParamsTypeMismatch
 	}
 	target := p.Target
 	if !world.ECS.Alive(target) {
