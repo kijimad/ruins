@@ -5539,3 +5539,33 @@ msgstr "この本を読むには %s Lv%d 以上が必要。現在 Lv%d"
 
 msgid "cannot read because enemies are nearby"
 msgstr "敵が近くにいるので読めない"
+
+msgid "Jin"
+msgstr "ジン"
+
+msgid "Kai"
+msgstr "カイ"
+
+msgid "Ren"
+msgstr "レン"
+
+msgid "Mira"
+msgstr "ミラ"
+
+msgid "Sei"
+msgstr "セイ"
+
+msgid "Noa"
+msgstr "ノア"
+
+msgid "Riku"
+msgstr "リク"
+
+msgid "Yu"
+msgstr "ユウ"
+
+msgid "Haru"
+msgstr "ハル"
+
+msgid "Sora"
+msgstr "ソラ"

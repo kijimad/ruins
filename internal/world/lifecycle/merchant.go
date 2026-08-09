@@ -20,7 +20,8 @@ var merchantStockItems = []string{
 	"army_shooting_manual",
 }
 
-// recruitNamePool は隊員候補名のプール。ローマ字の固有名なので言語に依らずそのまま表示する
+// recruitNamePool は隊員候補名のプール。値は msgid で、表示側は query.T で現在言語へ引く。
+// 訳は internal/i18n/locale/ja.po に持つ
 var recruitNamePool = []string{
 	"Jin", "Kai", "Ren", "Mira", "Sei",
 	"Noa", "Riku", "Yu", "Haru", "Sora",

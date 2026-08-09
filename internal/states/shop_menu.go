@@ -164,13 +164,10 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 			IsBuy:    true,
 			Disabled: currency < price,
 		}
-		name := world.Components.Name.Get(entity).Name
-		if query.IsRecruit(world, entity) {
-			// 候補名はローマ字の固有名なので言語に依らずそのまま出す
-			data.Label = name
-		} else {
+		// 名前は msgid。候補もアイテムも現在言語へ訳す。アイテムだけ raw 同定キーを持つ
+		data.Label = query.T(world, world.Components.Name.Get(entity).Name)
+		if !query.IsRecruit(world, entity) {
 			data.ItemID = world.Components.RawID.Get(entity).ID
-			data.Label = query.T(world, name)
 		}
 		items = append(items, data)
 	}
