@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -20,8 +21,8 @@ var merchantStockItems = []string{
 	"army_shooting_manual",
 }
 
-// recruitNamePool は隊員候補名のプール。値は msgid で、表示側は query.T で現在言語へ引く。
-// 訳は internal/i18n/locale/ja.po に持つ
+// recruitNamePool は隊員候補名のプール。値は抽選と生成時翻訳に使う msgid。訳は
+// internal/i18n/locale/ja.po に持つ。名前は生成時に query.T で確定し、以後は表示名として扱う
 var recruitNamePool = []string{
 	"Jin", "Kai", "Ren", "Mira", "Sei",
 	"Noa", "Riku", "Yu", "Haru", "Sora",
@@ -58,7 +59,8 @@ func PopulateMerchantStock(world w.World, merchant ecs.Entity, rng *rand.Rand) e
 		}
 		abilities := randomRecruitAbilities(rng)
 		sprite := recruitSpritePool[rng.IntN(len(recruitSpritePool))]
-		if _, err := SpawnStorageRecruit(world, merchant, name, abilities, sprite); err != nil {
+		// 名前は生成時に現在言語へ確定する。抽選と重複排除は msgid の name で行う
+		if _, err := SpawnStorageRecruit(world, merchant, query.T(world, name), abilities, sprite); err != nil {
 			return fmt.Errorf("failed to stock recruit %s: %w", name, err)
 		}
 	}
@@ -81,7 +83,8 @@ func randomRecruitAbilities(rng *rand.Rand) gc.Abilities {
 
 // SpawnStorageRecruit は商人の在庫に inert な隊員候補を生成する。
 // GridElement を持たないためフィールドに出ず、描画も戦闘もAIも対象にならない。雇用で活性化する。
-// 名前・能力・スプライトだけ持たせ、雇用時にこの3つから隊員を復元する
+// 名前・能力・スプライトだけ持たせ、雇用時にこの3つから隊員を復元する。
+// name は生成時に確定した表示名。以後そのまま表示し、翻訳し直さない
 func SpawnStorageRecruit(world w.World, merchant ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
 	recruit := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
 		Name:      &gc.Name{Name: name},
