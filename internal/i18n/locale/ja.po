@@ -5577,8 +5577,6 @@ msgid "Sora"
 msgstr "ソラ"
 
 # activity.Behavior.Validate のユーザ向け失敗メッセージ
-msgid "this item has no effect"
-msgstr "このアイテムには効果がない"
 
 
 msgid "cannot rest because enemies are nearby"
