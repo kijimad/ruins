@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">25.5&nbsp;%</td>
+            <td class="headerCovTableEntryLo">43.6&nbsp;%</td>
             <td class="headerCovTableEntry">55</td>
-            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">24</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 17:38:23</td>
+            <td class="headerValue">2026-08-09 23:54:54</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -146,11 +146,11 @@
 <span id="L84"><span class="lineNum">      84</span>              : // HandleInput は表示中のキー入力を処理する。ページ数は provide の内容から自身で算出する。</span>
 <span id="L85"><span class="lineNum">      85</span>              : // 表示中でなければ何もしない。</span>
 <span id="L86"><span class="lineNum">      86</span>              : // error は Overlay インターフェースに合わせた形で、詳細モーダルでは常に nil</span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC tlaBgUNC">           0 : func (d *Detail) HandleInput(world w.World) error {</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         if !d.active {</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         ki := input.GetSharedKeyboardInput()</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 : func (d *Detail) HandleInput(world w.World) error {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           2 :         if !d.active {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC tlaBgUNC">           0 :         ki := input.GetSharedKeyboardInput()</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         if ki.IsKeyJustPressed(ebiten.KeyEscape) || ki.IsKeyJustPressed(ebiten.KeyX) || ki.IsEnterJustPressedOnce() {</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                 d.active = false</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                 return nil</span></span>
@@ -169,12 +169,12 @@
 <span id="L107"><span class="lineNum">     107</span>              : }</span>
 <span id="L108"><span class="lineNum">     108</span>              : </span>
 <span id="L109"><span class="lineNum">     109</span>              : // Window は現在の内容から詳細ウィンドウを rect の位置へ組み立てる。対象が無ければ nil を返す</span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 : func (d *Detail) Window(world w.World, rect image.Rectangle) *widget.Window {</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         content, ok := d.provide(world)</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         return buildDetailFromRows(world, rect, content.Name, content.Desc, content.Rows, d.page)</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC tlaBgGNC">           1 : func (d *Detail) Window(world w.World, rect image.Rectangle) *widget.Window {</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         content, ok := d.provide(world)</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         return buildDetailFromRows(world, rect, content.Name, content.Desc, content.Rows, d.page)</span></span>
 <span id="L116"><span class="lineNum">     116</span>              : }</span>
         </pre>
               </td>

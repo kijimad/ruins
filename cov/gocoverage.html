@@ -577,11 +577,11 @@
 				
 				<option value="file260">github.com/kijimaD/ruins/internal/widgets/hud/weapon_slots.go (0.0%)</option>
 				
-				<option value="file261">github.com/kijimaD/ruins/internal/widgets/menuscreen/detail.go (23.5%)</option>
+				<option value="file261">github.com/kijimaD/ruins/internal/widgets/menuscreen/detail.go (41.2%)</option>
 				
-				<option value="file262">github.com/kijimaD/ruins/internal/widgets/menuscreen/layout.go (0.0%)</option>
+				<option value="file262">github.com/kijimaD/ruins/internal/widgets/menuscreen/layout.go (100.0%)</option>
 				
-				<option value="file263">github.com/kijimaD/ruins/internal/widgets/menuscreen/window.go (0.0%)</option>
+				<option value="file263">github.com/kijimaD/ruins/internal/widgets/menuscreen/window.go (100.0%)</option>
 				
 				<option value="file264">github.com/kijimaD/ruins/internal/widgets/messagelog/widget.go (76.6%)</option>
 				
@@ -1592,7 +1592,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         gameaction.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
+        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
                 CancelActivity(target, "took an attack", world)
         }</span>
 
@@ -1668,7 +1668,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1735,14 +1735,14 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 methodName = query.T(world, attackMethodName)
         }</span>
         <span class="cov8" title="1">switch </span>{
-        case !hit:<span class="cov8" title="1">
-                if withMethod </span><span class="cov8" title="1">{
+        case !hit:<span class="cov0" title="0">
+                if withMethod </span><span class="cov0" title="0">{
                         logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
-        case critical:<span class="cov0" title="0">
-                if withMethod </span><span class="cov0" title="0">{
+        case critical:<span class="cov8" title="1">
+                if withMethod </span><span class="cov8" title="1">{
                         logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
@@ -50710,8 +50710,8 @@ func (d *Detail) Open(world w.World) <span class="cov8" title="1">{
 // HandleInput は表示中のキー入力を処理する。ページ数は provide の内容から自身で算出する。
 // 表示中でなければ何もしない。
 // error は Overlay インターフェースに合わせた形で、詳細モーダルでは常に nil
-func (d *Detail) HandleInput(world w.World) error <span class="cov0" title="0">{
-        if !d.active </span><span class="cov0" title="0">{
+func (d *Detail) HandleInput(world w.World) error <span class="cov8" title="1">{
+        if !d.active </span><span class="cov8" title="1">{
                 return nil
         }</span>
         <span class="cov0" title="0">ki := input.GetSharedKeyboardInput()
@@ -50733,12 +50733,12 @@ func (d *Detail) HandleInput(world w.World) error <span class="cov0" title="0">{
 }
 
 // Window は現在の内容から詳細ウィンドウを rect の位置へ組み立てる。対象が無ければ nil を返す
-func (d *Detail) Window(world w.World, rect image.Rectangle) *widget.Window <span class="cov0" title="0">{
+func (d *Detail) Window(world w.World, rect image.Rectangle) *widget.Window <span class="cov8" title="1">{
         content, ok := d.provide(world)
-        if !ok </span><span class="cov0" title="0">{
+        if !ok </span><span class="cov8" title="1">{
                 return nil
         }</span>
-        <span class="cov0" title="0">return buildDetailFromRows(world, rect, content.Name, content.Desc, content.Rows, d.page)</span>
+        <span class="cov8" title="1">return buildDetailFromRows(world, rect, content.Name, content.Desc, content.Rows, d.page)</span>
 }
 </pre>
 		
@@ -50753,7 +50753,7 @@ import (
 )
 
 // LogTopY はゲームログ領域の上端Yを返す。モーダルやパネルをログに被らせないための基準にする
-func LogTopY(screenHeight int) int <span class="cov0" title="0">{
+func LogTopY(screenHeight int) int <span class="cov8" title="1">{
         cfg := hud.DefaultMessageAreaConfig
         logHeight := cfg.LogAreaMargin*2 + cfg.MaxLogLines*cfg.LineHeight + cfg.YPadding*2
         return screenHeight - logHeight - theme.Space3
@@ -50761,7 +50761,7 @@ func LogTopY(screenHeight int) int <span class="cov0" title="0">{
 
 // CenterWindowRect はゲームワールドの画面サイズから、ログ上端より上に収まる中央のウィンドウ矩形を返す。
 // overlay の小窓を置く共通の位置で、画面ごとに位置合わせをしなくてよいようにする
-func CenterWindowRect(world w.World) image.Rectangle <span class="cov0" title="0">{
+func CenterWindowRect(world w.World) image.Rectangle <span class="cov8" title="1">{
         windowWidth, windowHeight := 400, 400
 
         screenWidth := world.Resources.ScreenDimensions.Width
@@ -50795,15 +50795,15 @@ import (
 const detailRowsPerPage = 12
 
 // detailPageCount は行数からページ数を返す。行が無くても1を返す
-func detailPageCount(rowCount int) int <span class="cov0" title="0">{
-        if rowCount &lt;= 0 </span><span class="cov0" title="0">{
+func detailPageCount(rowCount int) int <span class="cov8" title="1">{
+        if rowCount &lt;= 0 </span><span class="cov8" title="1">{
                 return 1
         }</span>
-        <span class="cov0" title="0">return (rowCount + detailRowsPerPage - 1) / detailRowsPerPage</span>
+        <span class="cov8" title="1">return (rowCount + detailRowsPerPage - 1) / detailRowsPerPage</span>
 }
 
 // DetailPageCount はエンティティの詳細ウィンドウのページ数を返す
-func DetailPageCount(world w.World, entity ecs.Entity) int <span class="cov0" title="0">{
+func DetailPageCount(world w.World, entity ecs.Entity) int <span class="cov8" title="1">{
         return detailPageCount(len(views.SpecRows(world, entity)))
 }</span>
 
@@ -50811,21 +50811,21 @@ func DetailPageCount(world w.World, entity ecs.Entity) int <span class="cov0" ti
 // name が空なら名前行を省き、desc が空なら説明行を省く。タイトルバーは表示しない。
 // 行が多いときは page でページ分割する。位置表示は1ページでも常に出し、ページ有無で
 // 位置がずれないようにする。page は範囲外なら内部でクランプする
-func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string, rows []views.SpecRow, page int) *widget.Window <span class="cov0" title="0">{
+func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string, rows []views.SpecRow, page int) *widget.Window <span class="cov8" title="1">{
         res := world.Resources.UIResources
         content := styled.NewWindowContainer(res)
-        if name != "" </span><span class="cov0" title="0">{
+        if name != "" </span><span class="cov8" title="1">{
                 content.AddChild(styled.NewMenuText(name, res))
         }</span>
 
-        <span class="cov0" title="0">total := detailPageCount(len(rows))
-        if page &lt; 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">total := detailPageCount(len(rows))
+        if page &lt; 0 </span><span class="cov8" title="1">{
                 page = 0
         }</span>
-        <span class="cov0" title="0">if page &gt;= total </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if page &gt;= total </span><span class="cov8" title="1">{
                 page = total - 1
         }</span>
-        <span class="cov0" title="0">start := page * detailRowsPerPage
+        <span class="cov8" title="1">start := page * detailRowsPerPage
         end := min(start+detailRowsPerPage, len(rows))
 
         spec := styled.NewVerticalContainer()
@@ -50833,11 +50833,11 @@ func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string,
         content.AddChild(spec)
 
         // 説明は性能行のページ送りとは別物なので、最終ページのページャ直上にだけ出す。全ページへの重複を避ける
-        if desc != "" &amp;&amp; page == total-1 </span><span class="cov0" title="0">{
+        if desc != "" &amp;&amp; page == total-1 </span><span class="cov8" title="1">{
                 content.AddChild(styled.NewDescriptionText(desc, res))
         }</span>
         // 位置表示は最下段に固定する。1ページでも常設し、ページ有無で表示がずれないようにする。左右キーでページを繰る
-        <span class="cov0" title="0">content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s %d/%d %s", consts.IconArrowLeft, page+1, total, consts.IconArrowRight), res))
+        <span class="cov8" title="1">content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s %d/%d %s", consts.IconArrowLeft, page+1, total, consts.IconArrowRight), res))
         win := styled.NewSmallWindow(widget.NewContainer(), content)
         win.SetLocation(rect)
         return win</span>
