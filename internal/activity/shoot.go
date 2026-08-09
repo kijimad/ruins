@@ -54,11 +54,13 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	if world.Components.Dead.Has(actor) {
 		return ErrAttackerDead
 	}
+	// 対象は CanShootTarget が事前に絞る。存在しない・死亡はここでは選べないので、
+	// 発火するのは選択後の消失など不変条件違反。システムエラーとして伝播させる
 	if !world.Components.GridElement.Has(p.Target) {
-		return &UserError{Msg: query.T(world, "attack target does not exist")}
+		return fmt.Errorf("ShootBehavior.Validate: target has no position")
 	}
 	if world.Components.Dead.Has(p.Target) {
-		return &UserError{Msg: query.T(world, "attack target is already dead")}
+		return fmt.Errorf("ShootBehavior.Validate: target is already dead")
 	}
 
 	// 遠距離武器が装備されているか

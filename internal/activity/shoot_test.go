@@ -182,7 +182,7 @@ func TestShootBehavior_Validate(t *testing.T) {
 		assert.ErrorIs(t, err, ErrAttackerDead)
 	})
 
-	t.Run("死亡したターゲットはエラー", func(t *testing.T) {
+	t.Run("死亡したターゲットは不変条件違反でシステムエラー", func(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, _ := setupShootingWorld(t)
 		world.Components.Dead.Add(enemy, &gc.Dead{})
@@ -192,8 +192,9 @@ func TestShootBehavior_Validate(t *testing.T) {
 		activity.Params = &gc.ShootParams{Target: enemy}
 
 		err := sa.Validate(activity, player, world)
+		require.Error(t, err)
 		var ve *UserError
-		assert.ErrorAs(t, err, &ve)
+		require.NotErrorAs(t, err, &ve)
 	})
 }
 

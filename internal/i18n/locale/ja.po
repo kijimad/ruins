@@ -5586,12 +5586,6 @@ msgstr "このアイテムには効果がない"
 msgid "out of ammo, please reload"
 msgstr "弾切れだ。リロードしよう"
 
-msgid "attack target does not exist"
-msgstr "攻撃対象が存在しない"
-
-msgid "attack target is already dead"
-msgstr "攻撃対象はすでに倒れている"
-
 msgid "attack target is out of range"
 msgstr "攻撃対象が射程外だ"
 
