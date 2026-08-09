@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - overworld/internal/overworld/loot_scatter.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">overworld/internal/overworld</a> - loot_scatter.go<span style="font-size: 80%;"> (source / <a href="loot_scatter.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">69.7&nbsp;%</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntry">23</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-08-09 17:38:23</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package overworld</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;math&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;math/rand/v2&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/mapplanner/interior&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              : )</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // 屋外の散布 loot は開けた地形へ拾える物をごくまばらに撒く。建物内の役割別 loot と違い、屋外は屑物だけを</span>
+<span id="L17"><span class="lineNum">      17</span>              : // 置く。屋外に武器・防具・回復薬や錬金素材のような価値ある品を撒くと拾い放題になりバランスを壊し、原野に</span>
+<span id="L18"><span class="lineNum">      18</span>              : // 装備が落ちている絵面も不自然なので、無価値な item group からだけ引く。道沿いは人の営みの残りの紙屑、奥地は</span>
+<span id="L19"><span class="lineNum">      19</span>              : // 打ち捨てられた廃材やくず鉄。密度も低くして原野を埋め尽くさない。土系の地面かつ非占有のタイルにだけ置く。</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              : // outdoorLootDensity は屋外散布 loot の面積あたり係数。count = round(area * density) で置くタイル数を密度から</span>
+<span id="L22"><span class="lineNum">      22</span>              : // 導く。反復乱数でなく密度で決めるので純関数のまま。屋外の loot は稀であるべきなので低く抑える。1チャンク</span>
+<span id="L23"><span class="lineNum">      23</span>              : // 約600タイルで期待 1 タイル強に相当する。屑物 group 側も低確率なので、実際に物が出るのはさらに疎になる。</span>
+<span id="L24"><span class="lineNum">      24</span>              : const outdoorLootDensity = 0.002</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // outdoorLootItemChannel はアイテム抽選を座標選択と無相関にするハッシュチャネル。ScatterArea のタイル選択</span>
+<span id="L27"><span class="lineNum">      27</span>              : // seed と別チャネルにし、どのタイルに何が出るかの相関を切る。scatter.go の grass/weed チャネルと同じ考え方。</span>
+<span id="L28"><span class="lineNum">      28</span>              : const outdoorLootItemChannel uint64 = 0x6c6f6f745f69746d // &quot;loot_itm&quot;</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // outdoorLootGroupFor は屋外ゾーンに応じた無価値な item group を返す。屋外には屑物だけを置き、武器・防具・</span>
+<span id="L31"><span class="lineNum">      31</span>              : // 回復薬や錬金素材のような価値ある品は建物内の loot に限る。道沿いは人の営みの残りの紙屑 scrap_of_paper、</span>
+<span id="L32"><span class="lineNum">      32</span>              : // 奥地は打ち捨てられた廃材やくず鉄 junk。銀片・結晶粉などを含む materials は中深度のダンジョン報酬で、地上へ</span>
+<span id="L33"><span class="lineNum">      33</span>              : // 撒くと価値が釣り合わないため屋外には使わない。exhaustive linter が outdoorZone の網羅を強制するので default</span>
+<span id="L34"><span class="lineNum">      34</span>              : // を置かず、末尾 panic で未知ゾーンのランタイム保護も兼ねる。</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           1 : func outdoorLootGroupFor(zone outdoorZone) string {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         switch zone {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         case zoneRoadside:</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 return &quot;scrap_of_paper&quot;</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         case zoneWild:</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 return &quot;junk&quot;</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :         }</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         panic(&quot;unknown outdoorZone: &quot; + string(zone))</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : }</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : // scatterOutdoorLoot は開けたチャンクの地表へ屑物をごく疎に撒く。候補は土系の地面かつ非占有で、accept と</span>
+<span id="L46"><span class="lineNum">      46</span>              : // occupied は草・樹木の散布と共有して重なりを避ける。抽選は建物 loot と同じ raw.SelectFromItemGroup で低価値</span>
+<span id="L47"><span class="lineNum">      47</span>              : // group から引き、深度は扱わない。乱数は散布とは別の salt から引き、地物や建物 loot の消費順と干渉させない。</span>
+<span id="L48"><span class="lineNum">      48</span>              : // 同一 seed で同一結果、再訪で一致する。</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], g chunkGeom, cat scatterCatalog, accept func(interior.Vec) bool, occupied map[gc.GridElement]bool) error {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         groupID := outdoorLootGroupFor(cat.Zone)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         area := interior.Rect{X: 0, Y: 0, W: g.chunkW, H: g.chunkH}</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         // タイル選択の seed とアイテム抽選の rng を別チャネルにする。同一 seed だと「どこに置くか」と「何を置くか」が</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         // 相関しうるので、アイテム側は専用チャネルを XOR して無相関にする</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         selSeed := ChunkSeed2D(runSeed^outdoorLootSalt, c.X, c.Y)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(selSeed^outdoorLootItemChannel, outdoorLootSalt))</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         count := int(math.Round(float64(g.chunkW) * float64(g.chunkH) * outdoorLootDensity))</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           2 :         for _, rel := range interior.ScatterArea(area, accept, selSeed, count) {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 draws, err := raw.SelectFromItemGroup(world.Resources.RawMaster, groupID, rng)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC tlaBgGNC">           2 :                 if len(draws) == 0 {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         continue // 屑物 group は確率が低く、何も出ないタイルが多い。そのタイルは空けておく</span></span>
+<span id="L66"><span class="lineNum">      66</span>              :                 }</span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC tlaBgUNC">           0 :                 bl := consts.Coord[consts.Tile]{X: g.offsetX + rel.X, Y: g.offsetY + rel.Y}</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                 for _, d := range draws {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                         if d.Name == &quot;&quot; {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                                 continue</span></span>
+<span id="L71"><span class="lineNum">      71</span>              :                         }</span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                         if _, err := lifecycle.SpawnFieldItem(world, d.Name, bl.X, bl.Y, d.Count); err != nil {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;failed to place outdoor loot (%s): %w&quot;, d.Name, err)</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L75"><span class="lineNum">      75</span>              :                 }</span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 occupied[gc.GridElement{Coord: bl}] = true</span></span>
+<span id="L77"><span class="lineNum">      77</span>              :         }</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

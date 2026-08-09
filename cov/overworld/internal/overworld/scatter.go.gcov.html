@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.2&nbsp;%</td>
-            <td class="headerCovTableEntry">174</td>
-            <td class="headerCovTableEntry">157</td>
+            <td class="headerCovTableEntryMed">89.3&nbsp;%</td>
+            <td class="headerCovTableEntry">177</td>
+            <td class="headerCovTableEntry">158</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 17:28:59</td>
+            <td class="headerValue">2026-08-09 17:38:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -267,182 +267,187 @@
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L207"><span class="lineNum">     207</span>              :         }</span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L209"><span class="lineNum">     209</span>              : }</span>
-<span id="L210"><span class="lineNum">     210</span>              : </span>
-<span id="L211"><span class="lineNum">     211</span>              : // placeScatterEntry は anchor へ prop を1個置き、Satellites を anchor 相対へ順に置く。anchor が</span>
-<span id="L212"><span class="lineNum">     212</span>              : // 先に占有されていれば丸ごと諦める。衛星は土系の地面かつ非占有のタイルにだけ置き、収まらない衛星は</span>
-<span id="L213"><span class="lineNum">     213</span>              : // 落とす。anchor だけ置いて衛星を諦める「尽きたら諦める」方針にする。</span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occupied map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         // ScatterArea は選定時点の occupied で候補を絞るが、その後この関数が衛星を置いて occupied を更新する。</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         // 同じ ScatterArea が返した後続の anchor が、先の entry の衛星に占有されうるので入口で再確認する。</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         if occupied[gc.GridElement{Coord: origin}] {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC tlaBgGNC">           1 :         if _, err := lifecycle.SpawnProp(world, entry.Ref, origin.X, origin.Y); err != nil {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to place scatter prop (%s): %w&quot;, entry.Ref, err)</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC tlaBgGNC">           1 :         occupied[gc.GridElement{Coord: origin}] = true</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           2 :         for _, s := range entry.Satellites {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 pos := consts.Coord[consts.Tile]{X: origin.X + s.dx, Y: origin.Y + s.dy}</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 key := gc.GridElement{Coord: pos}</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           2 :                 if occupied[key] || !isEarthTile(world, tiles, pos) {</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L229"><span class="lineNum">     229</span>              :                 }</span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place scatter satellite (%s): %w&quot;, s.name, err)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC tlaBgGNC">           1 :                 occupied[key] = true</span></span>
-<span id="L234"><span class="lineNum">     234</span>              :         }</span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L236"><span class="lineNum">     236</span>              : }</span>
-<span id="L237"><span class="lineNum">     237</span>              : </span>
-<span id="L238"><span class="lineNum">     238</span>              : // pickScatterEntry は重み付きで散布物を1つ選ぶ。bigAllowed が偽なら Big の大物を候補から外し、</span>
-<span id="L239"><span class="lineNum">     239</span>              : // 実効的に大物を1位相かつ経路外へ寄せる。Go の map を抽選に使わず slice を順に走って決定的に引く。</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 : func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatterEntry {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         total := 0</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           2 :         for _, e := range entries {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           2 :                 if e.Big &amp;&amp; !bigAllowed {</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                         continue</span></span>
-<span id="L245"><span class="lineNum">     245</span>              :                 }</span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 total += e.Weight</span></span>
-<span id="L247"><span class="lineNum">     247</span>              :         }</span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         if total &lt;= 0 {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC tlaBgUNC">           0 :                 return scatterEntry{}</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC tlaBgGNC">           1 :         r := int(h % uint64(total))</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           2 :         for _, e := range entries {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                 if e.Big &amp;&amp; !bigAllowed {</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L255"><span class="lineNum">     255</span>              :                 }</span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC tlaBgGNC">           1 :                 r -= e.Weight</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           2 :                 if r &lt; 0 {</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                         return e</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L260"><span class="lineNum">     260</span>              :         }</span>
-<span id="L261"><span class="lineNum">     261</span>              :         // total は候補の重み合計で r は [0, total) なので、候補の重みを引き切る前に必ず r &lt; 0 になる。</span>
-<span id="L262"><span class="lineNum">     262</span>              :         // ここへ来るのは重み合計の計算と減算がずれたときだけで、内部データの不変条件違反にあたる</span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;pickScatterEntry: weighted selection drew no candidate&quot;)</span></span>
-<span id="L264"><span class="lineNum">     264</span>              : }</span>
-<span id="L265"><span class="lineNum">     265</span>              : </span>
-<span id="L266"><span class="lineNum">     266</span>              : // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、</span>
-<span id="L267"><span class="lineNum">     267</span>              : // それ以外を奥地にする。道は集落間を結ぶので、集落・市街の近傍が道沿いの帯を兼ねる。近傍地物の</span>
-<span id="L268"><span class="lineNum">     268</span>              : // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。</span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC tlaBgGNC">           1 : func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) outdoorZone {</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         sr := floorDiv(c.X, settlementPlacement.Spacing)</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           2 :         for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} {</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           2 :                 if chunkChebyshev(c, settlementPlacement.WinnerOf(runSeed, pr, rows)) &lt;= scatterRoadsideRange {</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                         return zoneRoadside</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L275"><span class="lineNum">     275</span>              :         }</span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         ur := floorDiv(c.X, urbanPlacement.Spacing)</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           2 :         for _, pr := range []consts.Chunk{ur - 1, ur, ur + 1} {</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           2 :                 if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, rows)) &lt;= scatterRoadsideRange {</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                         return zoneRoadside</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L281"><span class="lineNum">     281</span>              :         }</span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         return zoneWild</span></span>
-<span id="L283"><span class="lineNum">     283</span>              : }</span>
-<span id="L284"><span class="lineNum">     284</span>              : </span>
-<span id="L285"><span class="lineNum">     285</span>              : // onBigPhase は相対タイルが大物を乗せる位相かを返す。パリティ格子 (x+y)%2 を一般の P 位相へ広げたもの。</span>
-<span id="L286"><span class="lineNum">     286</span>              : // 相対座標で判定するのでチャンクごとに同じ格子が並び、帯の整列に依らず決定的になる。</span>
-<span id="L287"><span class="lineNum">     287</span>              : // 負の座標でも周期が途切れないよう剰余を床方向へ寄せる。</span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 : func onBigPhase(rel consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         m := (rel.X + scatterBigPhaseK*rel.Y) % scatterBigPhaseMod</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           2 :         if m &lt; 0 {</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                 m += scatterBigPhaseMod</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :         return m == 0</span></span>
-<span id="L294"><span class="lineNum">     294</span>              : }</span>
-<span id="L295"><span class="lineNum">     295</span>              : </span>
-<span id="L296"><span class="lineNum">     296</span>              : // onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを</span>
-<span id="L297"><span class="lineNum">     297</span>              : // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、</span>
-<span id="L298"><span class="lineNum">     298</span>              : // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。</span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 : func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :         r := floorDiv(c.X, settlementPlacement.Spacing)</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         // c を横切りうるのは (r-1, r) と (r, r+1) を結ぶ2本だけ。roadFeature と同じ結線</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           2 :         for _, pr := range []consts.Chunk{r - 1, r} {</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                 a := settlementPlacement.WinnerOf(runSeed, pr, rows)</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 b := settlementPlacement.WinnerOf(runSeed, pr+1, rows)</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                 ax := a.X.Tiles(g.chunkW) + g.chunkW/2</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :                 ay := a.Y.Tiles(g.chunkH) + g.chunkH/2</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 bx := b.X.Tiles(g.chunkW) + g.chunkW/2</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 by := b.Y.Tiles(g.chunkH) + g.chunkH/2</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 // 集落 a から b への L 字。水平辺 y=ay と垂直辺 x=bx の近い方までの距離を見る</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 d := min(chebToHSeg(pos, ay, ax, bx), chebToVSeg(pos, bx, ay, by))</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           2 :                 if d &lt;= scatterRouteBuffer {</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                         return true</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L314"><span class="lineNum">     314</span>              :         }</span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :         return false</span></span>
-<span id="L316"><span class="lineNum">     316</span>              : }</span>
-<span id="L317"><span class="lineNum">     317</span>              : </span>
-<span id="L318"><span class="lineNum">     318</span>              : // blockedTilesInChunk はチャンク g の範囲で BlockPass を持つエンティティの占有タイルを集める。</span>
-<span id="L319"><span class="lineNum">     319</span>              : // 散布はこの占有を避けて空きにだけ置く。フィーチャ間で共有される占有索引は持たない。</span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 : func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :         blocked := make(map[gc.GridElement]bool)</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :         loX, hiX := g.offsetX, g.offsetX+g.chunkW</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :         loY, hiY := g.offsetY, g.offsetY+g.chunkH</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                 ge := *world.Components.GridElement.Get(q.Entity())</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           2 :                 if ge.X &gt;= loX &amp;&amp; ge.X &lt; hiX &amp;&amp; ge.Y &gt;= loY &amp;&amp; ge.Y &lt; hiY {</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :                         blocked[ge] = true</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L330"><span class="lineNum">     330</span>              :         }</span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :         return blocked</span></span>
-<span id="L332"><span class="lineNum">     332</span>              : }</span>
-<span id="L333"><span class="lineNum">     333</span>              : </span>
-<span id="L334"><span class="lineNum">     334</span>              : // isEarthTile は帯ローカル座標 pos が土系タイル、dirt か砂土、かを返す。道の floor や壁、他フィーチャの</span>
-<span id="L335"><span class="lineNum">     335</span>              : // 生成物は土系でないので散布から外れる。</span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 : func isEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         return scatterEarthTiles[tileIDAt(world, tiles, pos)]</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L339"><span class="lineNum">     339</span>              : </span>
-<span id="L340"><span class="lineNum">     340</span>              : // hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ</span>
-<span id="L341"><span class="lineNum">     341</span>              : // なのでタイル座標にも使えるが、引数型が consts.Chunk なのでキャストをここへ隔離し、呼び出し側の意味を</span>
-<span id="L342"><span class="lineNum">     342</span>              : // 「タイル単位の抽選」に保つ。散布物やアクセントの per-tile 抽選に使う。</span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 : func hashTileCoord(seed uint64, p consts.Coord[consts.Tile]) uint64 {</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L346"><span class="lineNum">     346</span>              : </span>
-<span id="L347"><span class="lineNum">     347</span>              : // tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。</span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 : func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :         e, ok := tiles[gc.GridElement{Coord: pos}]</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;</span></span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.RawID.Get(e).ID</span></span>
-<span id="L354"><span class="lineNum">     354</span>              : }</span>
-<span id="L355"><span class="lineNum">     355</span>              : </span>
-<span id="L356"><span class="lineNum">     356</span>              : // chunkChebyshev は2チャンク座標のチェビシェフ距離を返す。ゾーン判定の近接度に使う。</span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 : func chunkChebyshev(a, b consts.Coord[consts.Chunk]) consts.Chunk {</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :         return max(geometry.Abs(a.X-b.X), geometry.Abs(a.Y-b.Y))</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L208"><span class="lineNum">     208</span>              : </span>
+<span id="L209"><span class="lineNum">     209</span>              :         // 草・樹木の後に拾える loot を疎に撒く。accept と occupied を共有し、地面かつ非占有のタイルにだけ置く</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := scatterOutdoorLoot(world, runSeed, c, g, cat, accept, occupied); err != nil {</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : }</span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span>              : // placeScatterEntry は anchor へ prop を1個置き、Satellites を anchor 相対へ順に置く。anchor が</span>
+<span id="L217"><span class="lineNum">     217</span>              : // 先に占有されていれば丸ごと諦める。衛星は土系の地面かつ非占有のタイルにだけ置き、収まらない衛星は</span>
+<span id="L218"><span class="lineNum">     218</span>              : // 落とす。anchor だけ置いて衛星を諦める「尽きたら諦める」方針にする。</span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 : func placeScatterEntry(world w.World, tiles map[gc.GridElement]ecs.Entity, occupied map[gc.GridElement]bool, entry scatterEntry, origin consts.Coord[consts.Tile]) error {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         // ScatterArea は選定時点の occupied で候補を絞るが、その後この関数が衛星を置いて occupied を更新する。</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         // 同じ ScatterArea が返した後続の anchor が、先の entry の衛星に占有されうるので入口で再確認する。</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         if occupied[gc.GridElement{Coord: origin}] {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC tlaBgGNC">           1 :         if _, err := lifecycle.SpawnProp(world, entry.Ref, origin.X, origin.Y); err != nil {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to place scatter prop (%s): %w&quot;, entry.Ref, err)</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC tlaBgGNC">           1 :         occupied[gc.GridElement{Coord: origin}] = true</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           2 :         for _, s := range entry.Satellites {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 pos := consts.Coord[consts.Tile]{X: origin.X + s.dx, Y: origin.Y + s.dy}</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 key := gc.GridElement{Coord: pos}</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           2 :                 if occupied[key] || !isEarthTile(world, tiles, pos) {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L234"><span class="lineNum">     234</span>              :                 }</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnProp(world, s.name, pos.X, pos.Y); err != nil {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place scatter satellite (%s): %w&quot;, s.name, err)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC tlaBgGNC">           1 :                 occupied[key] = true</span></span>
+<span id="L239"><span class="lineNum">     239</span>              :         }</span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L241"><span class="lineNum">     241</span>              : }</span>
+<span id="L242"><span class="lineNum">     242</span>              : </span>
+<span id="L243"><span class="lineNum">     243</span>              : // pickScatterEntry は重み付きで散布物を1つ選ぶ。bigAllowed が偽なら Big の大物を候補から外し、</span>
+<span id="L244"><span class="lineNum">     244</span>              : // 実効的に大物を1位相かつ経路外へ寄せる。Go の map を抽選に使わず slice を順に走って決定的に引く。</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 : func pickScatterEntry(entries []scatterEntry, bigAllowed bool, h uint64) scatterEntry {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         total := 0</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           2 :         for _, e := range entries {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           2 :                 if e.Big &amp;&amp; !bigAllowed {</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L250"><span class="lineNum">     250</span>              :                 }</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 total += e.Weight</span></span>
+<span id="L252"><span class="lineNum">     252</span>              :         }</span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         if total &lt;= 0 {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC tlaBgUNC">           0 :                 return scatterEntry{}</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC tlaBgGNC">           1 :         r := int(h % uint64(total))</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           2 :         for _, e := range entries {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 if e.Big &amp;&amp; !bigAllowed {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L260"><span class="lineNum">     260</span>              :                 }</span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC tlaBgGNC">           1 :                 r -= e.Weight</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           2 :                 if r &lt; 0 {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                         return e</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L265"><span class="lineNum">     265</span>              :         }</span>
+<span id="L266"><span class="lineNum">     266</span>              :         // total は候補の重み合計で r は [0, total) なので、候補の重みを引き切る前に必ず r &lt; 0 になる。</span>
+<span id="L267"><span class="lineNum">     267</span>              :         // ここへ来るのは重み合計の計算と減算がずれたときだけで、内部データの不変条件違反にあたる</span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;pickScatterEntry: weighted selection drew no candidate&quot;)</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : }</span>
+<span id="L270"><span class="lineNum">     270</span>              : </span>
+<span id="L271"><span class="lineNum">     271</span>              : // outdoorZoneAt は wasteland チャンクのゾーンを返す。集落・市街の当選チャンクの近傍を道沿いにし、</span>
+<span id="L272"><span class="lineNum">     272</span>              : // それ以外を奥地にする。道は集落間を結ぶので、集落・市街の近傍が道沿いの帯を兼ねる。近傍地物の</span>
+<span id="L273"><span class="lineNum">     273</span>              : // 位置は既存の道結線と同じく WinnerOf で生成せずに算出する。</span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC tlaBgGNC">           1 : func outdoorZoneAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) outdoorZone {</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         sr := floorDiv(c.X, settlementPlacement.Spacing)</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           2 :         for _, pr := range []consts.Chunk{sr - 1, sr, sr + 1} {</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           2 :                 if chunkChebyshev(c, settlementPlacement.WinnerOf(runSeed, pr, rows)) &lt;= scatterRoadsideRange {</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                         return zoneRoadside</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L280"><span class="lineNum">     280</span>              :         }</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         ur := floorDiv(c.X, urbanPlacement.Spacing)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           2 :         for _, pr := range []consts.Chunk{ur - 1, ur, ur + 1} {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           2 :                 if chunkChebyshev(c, urbanPlacement.WinnerOf(runSeed, pr, rows)) &lt;= scatterRoadsideRange {</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                         return zoneRoadside</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L286"><span class="lineNum">     286</span>              :         }</span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         return zoneWild</span></span>
+<span id="L288"><span class="lineNum">     288</span>              : }</span>
+<span id="L289"><span class="lineNum">     289</span>              : </span>
+<span id="L290"><span class="lineNum">     290</span>              : // onBigPhase は相対タイルが大物を乗せる位相かを返す。パリティ格子 (x+y)%2 を一般の P 位相へ広げたもの。</span>
+<span id="L291"><span class="lineNum">     291</span>              : // 相対座標で判定するのでチャンクごとに同じ格子が並び、帯の整列に依らず決定的になる。</span>
+<span id="L292"><span class="lineNum">     292</span>              : // 負の座標でも周期が途切れないよう剰余を床方向へ寄せる。</span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 : func onBigPhase(rel consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         m := (rel.X + scatterBigPhaseK*rel.Y) % scatterBigPhaseMod</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           2 :         if m &lt; 0 {</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                 m += scatterBigPhaseMod</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :         return m == 0</span></span>
+<span id="L299"><span class="lineNum">     299</span>              : }</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span>              : // onScatterRoute は絶対タイル pos が近傍集落間の道の直線からバッファ以内かを返す。実際の道タイルを</span>
+<span id="L302"><span class="lineNum">     302</span>              : // 読まず WinnerOf で算出した集落中心の L 字経路と比べる。道は floor 化済みで散布は土にしか置かないので、</span>
+<span id="L303"><span class="lineNum">     303</span>              : // 経路マスクが守るのは舗装路でない wasteland 内の横断レーンである。</span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 : func onScatterRoute(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom, pos consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         r := floorDiv(c.X, settlementPlacement.Spacing)</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         // c を横切りうるのは (r-1, r) と (r, r+1) を結ぶ2本だけ。roadFeature と同じ結線</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           2 :         for _, pr := range []consts.Chunk{r - 1, r} {</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 a := settlementPlacement.WinnerOf(runSeed, pr, rows)</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 b := settlementPlacement.WinnerOf(runSeed, pr+1, rows)</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 ax := a.X.Tiles(g.chunkW) + g.chunkW/2</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 ay := a.Y.Tiles(g.chunkH) + g.chunkH/2</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 bx := b.X.Tiles(g.chunkW) + g.chunkW/2</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                 by := b.Y.Tiles(g.chunkH) + g.chunkH/2</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                 // 集落 a から b への L 字。水平辺 y=ay と垂直辺 x=bx の近い方までの距離を見る</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 d := min(chebToHSeg(pos, ay, ax, bx), chebToVSeg(pos, bx, ay, by))</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           2 :                 if d &lt;= scatterRouteBuffer {</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                         return true</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L319"><span class="lineNum">     319</span>              :         }</span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         return false</span></span>
+<span id="L321"><span class="lineNum">     321</span>              : }</span>
+<span id="L322"><span class="lineNum">     322</span>              : </span>
+<span id="L323"><span class="lineNum">     323</span>              : // blockedTilesInChunk はチャンク g の範囲で BlockPass を持つエンティティの占有タイルを集める。</span>
+<span id="L324"><span class="lineNum">     324</span>              : // 散布はこの占有を避けて空きにだけ置く。フィーチャ間で共有される占有索引は持たない。</span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 : func blockedTilesInChunk(world w.World, g chunkGeom) map[gc.GridElement]bool {</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         blocked := make(map[gc.GridElement]bool)</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         loX, hiX := g.offsetX, g.offsetX+g.chunkW</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         loY, hiY := g.offsetY, g.offsetY+g.chunkH</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).Query()</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 ge := *world.Components.GridElement.Get(q.Entity())</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           2 :                 if ge.X &gt;= loX &amp;&amp; ge.X &lt; hiX &amp;&amp; ge.Y &gt;= loY &amp;&amp; ge.Y &lt; hiY {</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                         blocked[ge] = true</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L335"><span class="lineNum">     335</span>              :         }</span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         return blocked</span></span>
+<span id="L337"><span class="lineNum">     337</span>              : }</span>
+<span id="L338"><span class="lineNum">     338</span>              : </span>
+<span id="L339"><span class="lineNum">     339</span>              : // isEarthTile は帯ローカル座標 pos が土系タイル、dirt か砂土、かを返す。道の floor や壁、他フィーチャの</span>
+<span id="L340"><span class="lineNum">     340</span>              : // 生成物は土系でないので散布から外れる。</span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 : func isEarthTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :         return scatterEarthTiles[tileIDAt(world, tiles, pos)]</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L344"><span class="lineNum">     344</span>              : </span>
+<span id="L345"><span class="lineNum">     345</span>              : // hashTileCoord は seed とタイル座標から決定的な 64bit を返す。ChunkSeed2D は2次元整数の純ハッシュ</span>
+<span id="L346"><span class="lineNum">     346</span>              : // なのでタイル座標にも使えるが、引数型が consts.Chunk なのでキャストをここへ隔離し、呼び出し側の意味を</span>
+<span id="L347"><span class="lineNum">     347</span>              : // 「タイル単位の抽選」に保つ。散布物やアクセントの per-tile 抽選に使う。</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 : func hashTileCoord(seed uint64, p consts.Coord[consts.Tile]) uint64 {</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :         return ChunkSeed2D(seed, consts.Chunk(p.X), consts.Chunk(p.Y))</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L351"><span class="lineNum">     351</span>              : </span>
+<span id="L352"><span class="lineNum">     352</span>              : // tileIDAt は帯ローカル座標 pos のタイル id を返す。タイルが無ければ空文字。</span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 : func tileIDAt(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile]) string {</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :         e, ok := tiles[gc.GridElement{Coord: pos}]</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :         if !ok || !world.ECS.Alive(e) || !world.Components.RawID.Has(e) {</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.RawID.Get(e).ID</span></span>
+<span id="L359"><span class="lineNum">     359</span>              : }</span>
 <span id="L360"><span class="lineNum">     360</span>              : </span>
-<span id="L361"><span class="lineNum">     361</span>              : // chebToHSeg は点 p から水平線分、y=segY で x が [x0, x1]、までのチェビシェフ距離を返す。</span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 : func chebToHSeg(p consts.Coord[consts.Tile], segY, x0, x1 consts.Tile) consts.Tile {</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         lo, hi := min(x0, x1), max(x0, x1)</span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :         var dx consts.Tile</span></span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           2 :         if p.X &lt; lo {</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :                 dx = lo - p.X</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           3 :         } else if p.X &gt; hi {</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :                 dx = p.X - hi</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :         return max(dx, geometry.Abs(p.Y-segY))</span></span>
-<span id="L371"><span class="lineNum">     371</span>              : }</span>
-<span id="L372"><span class="lineNum">     372</span>              : </span>
-<span id="L373"><span class="lineNum">     373</span>              : // chebToVSeg は点 p から垂直線分、x=segX で y が [y0, y1]、までのチェビシェフ距離を返す。</span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 : func chebToVSeg(p consts.Coord[consts.Tile], segX, y0, y1 consts.Tile) consts.Tile {</span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         lo, hi := min(y0, y1), max(y0, y1)</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :         var dy consts.Tile</span></span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           2 :         if p.Y &lt; lo {</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :                 dy = lo - p.Y</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           3 :         } else if p.Y &gt; hi {</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :                 dy = p.Y - hi</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :         return max(dy, geometry.Abs(p.X-segX))</span></span>
-<span id="L383"><span class="lineNum">     383</span>              : }</span>
+<span id="L361"><span class="lineNum">     361</span>              : // chunkChebyshev は2チャンク座標のチェビシェフ距離を返す。ゾーン判定の近接度に使う。</span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 : func chunkChebyshev(a, b consts.Coord[consts.Chunk]) consts.Chunk {</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         return max(geometry.Abs(a.X-b.X), geometry.Abs(a.Y-b.Y))</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L365"><span class="lineNum">     365</span>              : </span>
+<span id="L366"><span class="lineNum">     366</span>              : // chebToHSeg は点 p から水平線分、y=segY で x が [x0, x1]、までのチェビシェフ距離を返す。</span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 : func chebToHSeg(p consts.Coord[consts.Tile], segY, x0, x1 consts.Tile) consts.Tile {</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :         lo, hi := min(x0, x1), max(x0, x1)</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         var dx consts.Tile</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           2 :         if p.X &lt; lo {</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                 dx = lo - p.X</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           3 :         } else if p.X &gt; hi {</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                 dx = p.X - hi</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         return max(dx, geometry.Abs(p.Y-segY))</span></span>
+<span id="L376"><span class="lineNum">     376</span>              : }</span>
+<span id="L377"><span class="lineNum">     377</span>              : </span>
+<span id="L378"><span class="lineNum">     378</span>              : // chebToVSeg は点 p から垂直線分、x=segX で y が [y0, y1]、までのチェビシェフ距離を返す。</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 : func chebToVSeg(p consts.Coord[consts.Tile], segX, y0, y1 consts.Tile) consts.Tile {</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :         lo, hi := min(y0, y1), max(y0, y1)</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :         var dy consts.Tile</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           2 :         if p.Y &lt; lo {</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :                 dy = lo - p.Y</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           3 :         } else if p.Y &gt; hi {</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :                 dy = p.Y - hi</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         return max(dy, geometry.Abs(p.X-segX))</span></span>
+<span id="L388"><span class="lineNum">     388</span>              : }</span>
         </pre>
               </td>
             </tr>

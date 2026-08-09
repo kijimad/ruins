@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 17:28:59</td>
+            <td class="headerValue">2026-08-09 17:38:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -149,22 +149,23 @@
 <span id="L87"><span class="lineNum">      87</span>              :         dungeonEntranceSalt</span>
 <span id="L88"><span class="lineNum">      88</span>              :         poiSalt</span>
 <span id="L89"><span class="lineNum">      89</span>              :         scatterSalt</span>
-<span id="L90"><span class="lineNum">      90</span>              : )</span>
-<span id="L91"><span class="lineNum">      91</span>              : </span>
-<span id="L92"><span class="lineNum">      92</span>              : // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。</span>
-<span id="L93"><span class="lineNum">      93</span>              : // 判定はすべて (runSeed, 座標, rows) の純関数で、開始チャンクの特例は持たない。</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 : func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         g := chunkGeom{</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH,</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 tiles: &amp;tileIndex{world: world, loX: offsetX, hiX: offsetX + chunkW},</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           2 :         for _, f := range features() {</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 if err := f.place(world, runSeed, c, rows, g); err != nil {</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L103"><span class="lineNum">     103</span>              :         }</span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L105"><span class="lineNum">     105</span>              : }</span>
+<span id="L90"><span class="lineNum">      90</span>              :         outdoorLootSalt</span>
+<span id="L91"><span class="lineNum">      91</span>              : )</span>
+<span id="L92"><span class="lineNum">      92</span>              : </span>
+<span id="L93"><span class="lineNum">      93</span>              : // PlaceFeatures は登録済みの地物を評価し、該当チャンクへ中身を配置する。</span>
+<span id="L94"><span class="lineNum">      94</span>              : // 判定はすべて (runSeed, 座標, rows) の純関数で、開始チャンクの特例は持たない。</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 : func PlaceFeatures(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, offsetX, offsetY, chunkW, chunkH consts.Tile) error {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         g := chunkGeom{</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 offsetX: offsetX, offsetY: offsetY, chunkW: chunkW, chunkH: chunkH,</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                 tiles: &amp;tileIndex{world: world, loX: offsetX, hiX: offsetX + chunkW},</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           2 :         for _, f := range features() {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 if err := f.place(world, runSeed, c, rows, g); err != nil {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L104"><span class="lineNum">     104</span>              :         }</span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L106"><span class="lineNum">     106</span>              : }</span>
         </pre>
               </td>
             </tr>
