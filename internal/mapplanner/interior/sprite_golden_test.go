@@ -432,6 +432,7 @@ func drawLootMarker(img *image.RGBA, origin, pos Vec) {
 			}
 		}
 	}
+	// 文字は image/draw が dst 境界でクリップするので上限ガードは要らない。配置も計画層が footprint 内へ限る。
 	d.Dot = fixed.P(x0, y0+11) // basicfont.Face7x13 のベースラインは上端から約11px
 	d.DrawString(label)
 }

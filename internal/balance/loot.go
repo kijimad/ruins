@@ -57,6 +57,8 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []FacilityLoot 
 		// role -> item -> 合計個数 / 出た試行数
 		total := map[string]map[string]int{}
 		present := map[string]map[string]int{}
+		// add は合計個数だけを積む。present は「その item が出た試行数」で試行ごとに1回だけ数えるため、
+		// ここでは触らず試行末尾の集計ループで加算する。present[role] の初期化だけここで揃えておく。
 		add := func(role, name string, count int) {
 			if total[role] == nil {
 				total[role] = map[string]int{}
