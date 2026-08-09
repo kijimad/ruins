@@ -81,6 +81,18 @@ func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail {
 	return Detail{provide: provide}
 }
 
+// NewEntityDetail は選択中のエンティティをそのまま詳細に出す Detail を作る。
+// 名前・説明・性能は Entity から組めるので、対象の解決だけ渡せばよい。対象が無いか死んでいれば開かない
+func NewEntityDetail(provide func() (ecs.Entity, bool)) Detail {
+	return NewDetail(func(world w.World) (DetailContent, bool) {
+		e, ok := provide()
+		if !ok || !world.ECS.Alive(e) {
+			return DetailContent{}, false
+		}
+		return DetailContent{Entity: e}, true
+	})
+}
+
 // Active は詳細モーダルを表示中かを返す
 func (d *Detail) Active() bool { return d.active }
 

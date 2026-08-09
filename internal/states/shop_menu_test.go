@@ -104,8 +104,8 @@ func TestShopMenuState_detailContent_選択なしは表示しない(t *testing.T
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	_, ok := state.detailContent(world)
-	assert.False(t, ok, "商品未選択では詳細モーダルを出さない")
+	state.detail.Open(world)
+	assert.False(t, state.detail.Active(), "商品未選択では詳細モーダルを出さない")
 }
 
 func TestNewShopMenuState(t *testing.T) {

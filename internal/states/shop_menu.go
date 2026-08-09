@@ -39,7 +39,10 @@ var _ menurt.ExtraInput = &ShopMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.detail = menuscreen.NewEntityDetail(func() (ecs.Entity, bool) {
+		it, ok := st.selectedShopItem()
+		return it.Entity, ok
+	})
 	st.screen = menurt.NewScreen[ShopProps](st, &st.detail)
 	return nil
 }
@@ -262,21 +265,6 @@ func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Sele
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
 		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
-}
-
-// detailContent は現在カーソルが当たっている行の詳細内容を返す。詳細モーダルの唯一の定義点
-func (st *ShopMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
-	item, ok := st.selectedShopItem()
-	if !ok {
-		return menuscreen.DetailContent{}, false
-	}
-
-	// 選択が古く実体が消えていれば出さない
-	if !world.ECS.Alive(item.Entity) {
-		return menuscreen.DetailContent{}, false
-	}
-	// 名前・説明・性能は DetailContent が Entity から組む
-	return menuscreen.DetailContent{Entity: item.Entity}, true
 }
 
 func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

@@ -210,7 +210,7 @@ func NewItemActionState(initial verbID) es.StateFactory[w.World] {
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.detail = menuscreen.NewEntityDetail(st.selectedEntity)
 	st.screen = menurt.NewScreen[ItemActionProps](st, &st.detail)
 	return nil
 }
@@ -413,18 +413,16 @@ func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, t
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
 }
 
-// detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
-func (st *ItemActionState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {
+// selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
+func (st *ItemActionState) selectedEntity() (ecs.Entity, bool) {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
 	if cursor.TabIndex >= len(props.Tabs) {
-		return menuscreen.DetailContent{}, false
+		return gc.InvalidEntity, false
 	}
 	items := props.Tabs[cursor.TabIndex].Items
 	if cursor.ItemIndex >= len(items) {
-		return menuscreen.DetailContent{}, false
+		return gc.InvalidEntity, false
 	}
-	item := items[cursor.ItemIndex]
-	// 名前・説明・性能は DetailContent が Entity から組む
-	return menuscreen.DetailContent{Entity: item.Entity}, true
+	return items[cursor.ItemIndex].Entity, true
 }

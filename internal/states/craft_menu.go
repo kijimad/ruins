@@ -42,7 +42,7 @@ var _ menurt.ExtraInput = &CraftMenuState{}
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.result = menuscreen.NewDetail(st.resultDetailContent)
+	st.result = menuscreen.NewEntityDetail(func() (ecs.Entity, bool) { return st.resultEntity, true })
 	// result を先に登録する。合成結果が開いている間はそちらが入力を専有する
 	st.screen = menurt.NewScreen[CraftProps](st, &st.result, &st.detail)
 	return nil
@@ -237,14 +237,6 @@ func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 		return craftItemData{}, false
 	}
 	return items[cursor.ItemIndex], true
-}
-
-// resultDetailContent は直近で合成したアイテムを詳細モーダルの内容にする
-func (st *CraftMenuState) resultDetailContent(world w.World) (menuscreen.DetailContent, bool) {
-	if !world.ECS.Alive(st.resultEntity) {
-		return menuscreen.DetailContent{}, false
-	}
-	return menuscreen.DetailContent{Entity: st.resultEntity}, true
 }
 
 // ================
