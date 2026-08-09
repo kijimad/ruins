@@ -240,5 +240,5 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 	})
 }
 
-// distribution/collection の抽選と stackable の扱いは raw.SelectFromItemGroup へ寄せた。単体検証は
-// internal/raw/item_group_test.go が担う。ここではプランナー経由の配置を TestItemPlanner_PlanMeta で見る。
+// distribution/collection の抽選と stackable の単体検証は internal/raw/item_group_test.go が担う。
+// ここではプランナー経由の配置を TestItemPlanner_PlanMeta で見る。

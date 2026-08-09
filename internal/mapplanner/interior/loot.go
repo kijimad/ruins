@@ -3,8 +3,6 @@ package interior
 // loot の写像。interior の抽象 loot Ref をゲームの raw item group へ写す単一のソース。overworld の床 loot が
 // この表で item group を引いてアイテムを抽選し、VRT も同じ表で loot の有無を描く。両者が同じ表を引くので
 // VRT と in-game が乖離しない。表に無い Ref は spawn されず描かれない。prop の propRaw と対称に保つ。
-// 当面は既存の item group へ暫定的に写す。語彙を細分化したくなったら raw に専用 group を足して写像先を
-// 差し替える。interior の抽象語彙は変えずに済む。
 var lootRaw = map[string]string{
 	"snacks":    "food",
 	"drinks":    "food",
