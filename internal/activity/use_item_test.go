@@ -295,9 +295,10 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		err := ua.Validate(comp, actor, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrActorNoHP, err)
+		// HP 欠落は不変条件違反。検証失敗ではなく panic で表面化させる
+		assert.Panics(t, func() {
+			_ = ua.Validate(comp, actor, world)
+		})
 	})
 }
 

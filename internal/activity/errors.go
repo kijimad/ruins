@@ -5,8 +5,10 @@ import "errors"
 // アクティビティ関連のエラー定数
 var (
 	// アクティビティ一般エラー
-	// ErrValidationFailed は Validate による検証失敗を包むセンチネル。スキル不足など
-	// ユーザー入力起因の失敗を示す。呼び出し側は errors.Is で見分け、システムエラーと扱いを分ける
+	// ErrValidationFailed は Validate によるユーザ起因の検証失敗を包むセンチネル。
+	// 弾切れ・敵接近・スキル不足など、プレイヤーに提示して操作をキャンセルすべき失敗を示す。
+	// 呼び出し側は errors.Is で見分けて握りつぶし、それ以外のシステムエラーは伝播させる。
+	// Validate は不変条件違反を error で返さず panic するため、これに紛れ込まない。契約は Behavior.Validate
 	ErrValidationFailed      = errors.New("activity validation failed")
 	ErrActivityNil           = errors.New("activity is nil")
 	ErrActorNotSet           = errors.New("actor is not set")
@@ -37,7 +39,6 @@ var (
 	ErrMoveTargetNotSet       = errors.New("move destination is not set")
 	ErrMoveTargetInvalid      = errors.New("move destination is invalid")
 	ErrMoveTargetCoordInvalid = errors.New("move destination coordinate is invalid")
-	ErrMoveNoGridElement      = errors.New("GridElement not found on moving entity")
 	ErrMoveOverweight         = errors.New("too heavy to move")
 	ErrGridElementNotFound    = errors.New("GridElement component not found")
 
@@ -47,7 +48,6 @@ var (
 	ErrItemPickupFailed = errors.New("failed to pick up item")
 	ErrItemNotSet       = errors.New("item is not set")
 	ErrItemNoEffect     = errors.New("this item has no effect")
-	ErrActorNoHP        = errors.New("actor has no HP component")
 
 	// 休息関連エラー
 	ErrRestEnemiesNearby   = errors.New("cannot rest because enemies are nearby")

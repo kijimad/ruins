@@ -63,9 +63,10 @@ func TestMoveBehavior_Validate(t *testing.T) {
 		}
 
 		ma := &MoveBehavior{}
-		err := ma.Validate(comp, player, world)
-		require.Error(t, err)
-		assert.Equal(t, ErrMoveNoGridElement, err)
+		// GridElement 欠落は不変条件違反。検証失敗ではなく panic で表面化させる
+		assert.Panics(t, func() {
+			_ = ma.Validate(comp, player, world)
+		})
 	})
 }
 

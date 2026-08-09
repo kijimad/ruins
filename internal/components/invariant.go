@@ -127,7 +127,6 @@ const (
 )
 
 // アイテム種別カテゴリ名の定数。値は query.T の msgid として使う。
-// CategoryRecruit は在庫に並ぶ隊員候補で、買うと隊員になる。
 const (
 	CategoryMaterial   = "Material"
 	CategoryAmmo       = "Ammunition"
@@ -136,7 +135,8 @@ const (
 	CategoryConsumable = "Consumable"
 	CategoryMelee      = "Melee weapon"
 	CategoryFire       = "Ranged weapon"
-	CategoryRecruit    = "Recruit"
+	// CategoryRecruit は在庫に並ぶ隊員候補で、買うと隊員になる。
+	CategoryRecruit = "Recruit"
 )
 
 // フィールド観察カテゴリ名の定数。値は query.T の msgid として使う
