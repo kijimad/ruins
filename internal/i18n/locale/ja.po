@@ -5592,7 +5592,6 @@ msgstr "その方向には押せない"
 msgid "no space to pull"
 msgstr "引くための空間がない"
 
-
 msgid "reload is not needed"
 msgstr "リロードは必要ない"
 
