@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,17 +28,17 @@ func TestDetail_Open_中身が無ければ開かない(t *testing.T) {
 	assert.True(t, d.Active(), "中身があれば開く")
 }
 
-// TestDetailContent_resolveRows_NameDescのみは行を出さずpanicしない は、Name と Desc だけを
-// 渡した詳細で性能行を解決してもゼロ実体への Get で落ちないことを固定する。人身売買の隊員候補が実例。
-func TestDetailContent_resolveRows_NameDescのみは行を出さずpanicしない(t *testing.T) {
+// TestEntityDetailContent_死んだ実体は空を返しpanicしない は、生存していない実体を渡しても
+// 性能行を引かずに空の内容を返すことを固定する。ゼロ実体への Get で落ちる回帰を防ぐ。
+func TestEntityDetailContent_死んだ実体は空を返しpanicしない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	c := DetailContent{Name: "Someone", Desc: "Vit5 Str5"} // Entity はゼロ値
 
-	var rows []SpecRow
+	var content DetailContent
 	assert.NotPanics(t, func() {
-		rows = c.resolveRows(world)
+		content = EntityDetailContent(world, ecs.Entity{})
 	})
-	assert.Nil(t, rows, "対象が無いので性能行は出さない")
+	assert.Empty(t, content.Name, "対象が無いので名前は出さない")
+	assert.Nil(t, content.Rows, "対象が無いので性能行は出さない")
 }

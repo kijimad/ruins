@@ -5,7 +5,6 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -16,52 +15,30 @@ import (
 // SpecRow は詳細モーダルの1行。情報タブなど spec 由来でない詳細を組む際に呼び出し側が使う
 type SpecRow = views.SpecRow
 
-// DetailContent は詳細モーダルに出す1件分の内容。中身は次のいずれかで指定する。
-// Rows を与えればそれを使う。無ければ Spec、無ければ Entity から性能行を解決する。
-// 呼び出し側は名前・説明と対象だけを渡し、行の生成やページ計算には触れない
+// DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行をそのまま持つ。
+// 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える
 type DetailContent struct {
-	Name   string
-	Desc   string
-	Entity ecs.Entity     // エンティティ由来の性能
-	Spec   *gc.EntitySpec // raw 定義由来の性能。商店の購入品など未生成の対象に使う
-	Rows   []SpecRow      // 明示的な行。情報タブなど spec でない詳細に使う
+	Name string
+	Desc string
+	Rows []SpecRow
 }
 
-// resolveRows は内容から表示行を解決する。Rows 優先、次に Spec、最後に Entity。
-// Name と Desc だけを渡す使い方では Entity がゼロ値になるため、生存を確認してから性能行を引く。
-// 死亡・未設定の実体には行を出さない。ゼロ実体への Get で panic するのを防ぐ
-func (c DetailContent) resolveRows(world w.World) []SpecRow {
-	switch {
-	case c.Rows != nil:
-		return c.Rows
-	case c.Spec != nil:
-		return views.SpecRowsFromSpec(world, *c.Spec)
-	case world.ECS.Alive(c.Entity):
-		return views.SpecRows(world, c.Entity)
-	default:
-		return nil
+// EntityDetailContent は実体から名前・説明・性能行を組んだ詳細内容を返す。
+// 在庫や持ち物のように対象の実体さえあれば表示を導ける詳細で使う。
+// 死んだ実体には空を返し、ゼロ実体への Get で落ちるのを防ぐ
+func EntityDetailContent(world w.World, e ecs.Entity) DetailContent {
+	if !world.ECS.Alive(e) {
+		return DetailContent{}
 	}
-}
-
-// resolveName は表示名を解決する。明示した Name を優先し、無ければ Entity の名前を現在言語で引く。
-// 在庫や持ち物の詳細は Entity を渡すだけでよく、名前を別途組み立てなくてよい
-func (c DetailContent) resolveName(world w.World) string {
-	if c.Name != "" {
-		return c.Name
+	desc := ""
+	if world.Components.Description.Has(e) {
+		desc = query.T(world, world.Components.Description.Get(e).Description)
 	}
-	// GetEntityName は死亡・名前なしを内部で吸収するので、ここで生存を確認しなくてよい
-	return query.GetEntityName(c.Entity, world)
-}
-
-// resolveDesc は説明を解決する。明示した Desc を優先し、無ければ Entity の Description を現在言語で引く
-func (c DetailContent) resolveDesc(world w.World) string {
-	if c.Desc != "" {
-		return c.Desc
+	return DetailContent{
+		Name: query.GetEntityName(e, world),
+		Desc: desc,
+		Rows: views.SpecRows(world, e),
 	}
-	if world.ECS.Alive(c.Entity) && world.Components.Description.Has(c.Entity) {
-		return query.T(world, world.Components.Description.Get(c.Entity).Description)
-	}
-	return ""
 }
 
 // Detail は詳細モーダルの表示状態・ページ送り入力・ウィンドウ組み立てをまとめて担う。
@@ -79,15 +56,15 @@ func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail {
 	return Detail{provide: provide}
 }
 
-// NewEntityDetail は選択中のエンティティをそのまま詳細に出す Detail を作る。
-// 名前・説明・性能は Entity から組めるので、対象の解決だけ渡せばよい。対象が無いか死んでいれば開かない
+// NewEntityDetail は選択中の実体をそのまま詳細に出す Detail を作る。
+// 対象の解決だけ渡せば、名前・説明・性能は実体から組む。対象が無いか死んでいれば開かない
 func NewEntityDetail(provide func() (ecs.Entity, bool)) Detail {
 	return NewDetail(func(world w.World) (DetailContent, bool) {
 		e, ok := provide()
 		if !ok || !world.ECS.Alive(e) {
 			return DetailContent{}, false
 		}
-		return DetailContent{Entity: e}, true
+		return EntityDetailContent(world, e), true
 	})
 }
 
@@ -118,7 +95,7 @@ func (d *Detail) HandleInput(world w.World) error {
 	}
 	total := 1
 	if content, ok := d.provide(world); ok {
-		total = detailPageCount(len(content.resolveRows(world)))
+		total = detailPageCount(len(content.Rows))
 	}
 	switch {
 	case ki.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) && d.page > 0:
@@ -135,5 +112,5 @@ func (d *Detail) Window(world w.World, rect image.Rectangle) *widget.Window {
 	if !ok {
 		return nil
 	}
-	return buildDetailFromRows(world, rect, content.resolveName(world), content.resolveDesc(world), content.resolveRows(world), d.page)
+	return buildDetailFromRows(world, rect, content.Name, content.Desc, content.Rows, d.page)
 }

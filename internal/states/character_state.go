@@ -287,7 +287,7 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 		if !ok {
 			return menuscreen.DetailContent{}, false
 		}
-		return menuscreen.DetailContent{Entity: item}, true
+		return menuscreen.EntityDetailContent(world, item), true
 	}
 
 	cursor := st.screen.Selection()
@@ -299,10 +299,10 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 		}
 		slot := props.EquipSlots[cursor.ItemIndex]
 		if slot.Entity != nil {
-			return menuscreen.DetailContent{Entity: *slot.Entity}, true
+			return menuscreen.EntityDetailContent(world, *slot.Entity), true
 		}
-		// 空スロットは性能行を持たず、案内だけ出す。Rows を空で与え entity 解決を避ける
-		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: query.T(world, "Nothing equipped"), Rows: []menuscreen.SpecRow{}}, true
+		// 空スロットは性能行を持たず案内だけ出す
+		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: query.T(world, "Nothing equipped")}, true
 	case charTabCommand:
 		return menuscreen.DetailContent{}, false
 	default:
