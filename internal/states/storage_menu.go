@@ -233,16 +233,13 @@ func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menur
 }
 
 // detailContent は現在カーソルが当たっているアイテムの詳細内容を返す。詳細モーダルの唯一の定義点
-func (st *StorageMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+func (st *StorageMenuState) detailContent(_ w.World) (menuscreen.DetailContent, bool) {
 	e, ok := st.selectedEntity()
 	if !ok {
 		return menuscreen.DetailContent{}, false
 	}
-	desc := ""
-	if world.Components.Description.Has(e) {
-		desc = query.T(world, world.Components.Description.Get(e).Description)
-	}
-	return menuscreen.DetailContent{Name: query.GetEntityName(e, world), Desc: desc, Entity: e}, true
+	// 名前・説明・性能は DetailContent が Entity から組む
+	return menuscreen.DetailContent{Entity: e}, true
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

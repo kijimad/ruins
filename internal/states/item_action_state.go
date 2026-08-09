@@ -425,5 +425,6 @@ func (st *ItemActionState) detailContent(_ w.World) (menuscreen.DetailContent, b
 		return menuscreen.DetailContent{}, false
 	}
 	item := items[cursor.ItemIndex]
-	return menuscreen.DetailContent{Name: item.Name, Desc: item.Desc, Entity: item.Entity}, true
+	// 名前・説明・性能は DetailContent が Entity から組む
+	return menuscreen.DetailContent{Entity: item.Entity}, true
 }

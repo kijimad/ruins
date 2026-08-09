@@ -244,7 +244,7 @@ func (st *CraftMenuState) resultDetailContent(world w.World) (menuscreen.DetailC
 	if !world.ECS.Alive(st.resultEntity) {
 		return menuscreen.DetailContent{}, false
 	}
-	return entityDetailContent(world, st.resultEntity), true
+	return menuscreen.DetailContent{Entity: st.resultEntity}, true
 }
 
 // ================
