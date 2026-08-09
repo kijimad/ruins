@@ -42,6 +42,10 @@
 // result, err := activity.Execute(behavior, actor, world)
 // ```
 //
+// Execute は任意の gc.Activity を回す唯一のエンジン。ExecuteMoveAction や ExecuteWaitAction の
+// ような Execute*Action ラッパは、プレイヤー解決や押し処理など build と Execute 以上のロジックを
+// 抱えるときだけ置く。それ以外の状態は Execute(NewXActivity(...)) を直接呼ぶ。
+//
 // ### 個別Behavior実装
 // - **MoveBehavior**: 移動アクション（即座実行）
 // - **MeleeBehavior**: 攻撃アクション（即座実行）

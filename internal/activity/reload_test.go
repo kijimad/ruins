@@ -254,7 +254,7 @@ func TestReloadBehavior_CalcEffortPerTurn(t *testing.T) {
 	})
 }
 
-func TestExecuteReloadAction(t *testing.T) {
+func TestExecute_Reload(t *testing.T) {
 	t.Parallel()
 
 	t.Run("正常にリロードアクティビティが設定される", func(t *testing.T) {
@@ -264,7 +264,7 @@ func TestExecuteReloadAction(t *testing.T) {
 		fire := world.Components.Fire.Get(weaponEntity)
 		fire.Magazine = 0
 
-		err := ExecuteReloadAction(player, world)
+		_, err := Execute(NewReloadActivity(player, world), player, world)
 		require.NoError(t, err)
 
 		assert.True(t, world.Components.Activity.Has(player))
@@ -276,7 +276,7 @@ func TestExecuteReloadAction(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
-		err := ExecuteReloadAction(player, world)
+		_, err := Execute(NewReloadActivity(player, world), player, world)
 		require.NoError(t, err)
 
 		assert.False(t, world.Components.Activity.Has(player))

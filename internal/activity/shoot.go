@@ -238,12 +238,3 @@ func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {
 
 	return calculateHitRate(actor, target, world, fire, modifier)
 }
-
-// ExecuteShootAction は射撃アクションを実行する
-func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) error {
-	_, err := Execute(NewShootActivity(target), actor, world)
-	if err != nil {
-		return err
-	}
-	return nil
-}
