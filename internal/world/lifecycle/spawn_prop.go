@@ -2,7 +2,6 @@ package lifecycle
 
 import (
 	"fmt"
-	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -30,57 +29,6 @@ func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 
 	doorComp := world.Components.Door.Get(doorEntity)
 	return updateDoorState(world, doorEntity, doorComp.Orientation, false)
-}
-
-// LockAllDoors は全扉を閉じてロックする。ロックされた扉の数を返す
-func LockAllDoors(world w.World) int {
-	var doors []ecs.Entity
-	// 退避中ステージの扉は操作しない。現ステージのみ対象にする
-	doorQuery := query.ActiveFilter1[gc.Door](world).Query()
-	for doorQuery.Next() {
-		doors = append(doors, doorQuery.Entity())
-	}
-	locked := 0
-	for _, doorEntity := range doors {
-		if world.Components.Door.Get(doorEntity).Locked {
-			continue
-		}
-		if world.Components.Door.Get(doorEntity).IsOpen {
-			_ = CloseDoor(world, doorEntity)
-		}
-		// CloseDoorがarchetypeを変えGetポインタを失効させるため、取り直してから書き込む
-		world.Components.Door.Get(doorEntity).Locked = true
-		locked++
-	}
-	if locked > 0 {
-		// BlockView が変化したので視界を再計算させる
-		query.GetVisionState(world).RequestUpdate()
-	}
-	return locked
-}
-
-// UnlockAllDoors は全扉をアンロックして開く。開かれた扉の数を返す
-func UnlockAllDoors(world w.World) int {
-	var doors []ecs.Entity
-	// 退避中ステージの扉は操作しない。現ステージのみ対象にする
-	doorQuery := query.ActiveFilter1[gc.Door](world).Query()
-	for doorQuery.Next() {
-		doors = append(doors, doorQuery.Entity())
-	}
-	opened := 0
-	for _, doorEntity := range doors {
-		doorComp := world.Components.Door.Get(doorEntity)
-		doorComp.Locked = false
-		if !doorComp.IsOpen {
-			_ = OpenDoor(world, doorEntity)
-			opened++
-		}
-	}
-	if opened > 0 {
-		// BlockView が変化したので視界を再計算させる
-		query.GetVisionState(world).RequestUpdate()
-	}
-	return opened
 }
 
 // updateDoorState は扉の向きと開閉状態に応じて、状態を更新する
@@ -218,21 +166,4 @@ func SpawnCube(world w.World, pos consts.Coord[consts.Tile]) (ecs.Entity, error)
 		// 隣接して手動で内部へ入る、または引く。歩き込みは押し、明示的な入る/引くはメニューから
 		Interactable: &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionEnterCube, gc.InteractionPullCube}},
 	}), nil
-}
-
-// DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する
-func DeleteDoorLockTriggers(world w.World) {
-	var toDelete []ecs.Entity
-	// 退避中ステージの鍵トリガは消さない。現ステージのみ対象にする
-	interactableQuery := query.ActiveFilter1[gc.Interactable](world).Query()
-	for interactableQuery.Next() {
-		triggerEntity := interactableQuery.Entity()
-		interactable := world.Components.Interactable.Get(triggerEntity)
-		if slices.Contains(interactable.Interactions, gc.InteractionDoorLock) {
-			toDelete = append(toDelete, triggerEntity)
-		}
-	}
-	for _, entity := range toDelete {
-		world.ECS.RemoveEntity(entity)
-	}
 }

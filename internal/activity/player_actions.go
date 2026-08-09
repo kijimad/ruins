@@ -43,10 +43,6 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 				if world.Components.Door.Has(interactableEntity) {
 					door := world.Components.Door.Get(interactableEntity)
 					if !door.IsOpen {
-						if door.Locked {
-							gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "The door is locked.")).Log()
-							return nil
-						}
 						_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 						return err
 					}
@@ -211,7 +207,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "%s is here. You can enter it from the Space action menu.", gamelog.Tag("item", query.GetEntityName(entity, world)))).
 					Log()
-			case gc.InteractionDoor, gc.InteractionDoorLock, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
+			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}

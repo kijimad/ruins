@@ -744,9 +744,6 @@ msgstr "うちには腕の立つ連中が集まってるよ。\n\n隊員を雇�
 msgid "death"
 msgstr "死亡"
 
-msgid "It seems a door opened somewhere."
-msgstr "どこかで扉が開いたようだ。"
-
 msgid "The cold is setting in"
 msgstr "寒さで冷えてきた"
 
@@ -1330,12 +1327,6 @@ msgstr "扉エンティティが指定されていません"
 msgid "cannot get door component"
 msgstr "扉コンポーネントが取得できません"
 
-msgid "the door is locked"
-msgstr "扉はロックされている"
-
-msgid "The door is locked."
-msgstr "扉はロックされている。"
-
 msgid "Opened the door."
 msgstr "扉を開いた。"
 
@@ -1374,9 +1365,6 @@ msgstr "%s は %s を攻撃し、%s のダメージを与えた。"
 
 msgid "starting a new activity"
 msgstr "新しいアクティビティを開始"
-
-msgid "A door seems to have closed somewhere."
-msgstr "どこかで扉が閉じたようだ。"
 
 msgid "Do not have a tool to disassemble %s"
 msgstr "%sを分解できる工具を持っていない"
@@ -1738,9 +1726,6 @@ msgstr "デスクトップPC"
 
 msgid "Dish Shelf"
 msgstr "食器棚"
-
-msgid "Door Lock"
-msgstr "施錠装置"
 
 msgid "Chest of Drawers"
 msgstr "タンス"

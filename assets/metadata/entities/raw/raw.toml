@@ -13825,19 +13825,6 @@ spriteSheetName = "field"
 
 [props.door]
 [[props]]
-blockPass = false
-blockView = false
-description = "青い縦扉のロック仕掛け。踏むと扉が施錠される"
-name = "Door Lock"
-id = "door_lock_trigger"
-
-[props.spriteRender]
-depth = 0
-spriteKey = "door_lock_trigger"
-spriteSheetName = "field"
-
-[props.doorLockTrigger]
-[[props]]
 blockPass = true
 blockView = false
 description = "茶の木製チェスト。取っ手付きの引き出しが3〜4段。寝室・収納"

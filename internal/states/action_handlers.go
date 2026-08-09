@@ -209,7 +209,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
-		case gc.InteractionDoorLock, gc.InteractionItemAll:
+		case gc.InteractionItemAll:
 			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
 			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 		}

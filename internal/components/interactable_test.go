@@ -23,7 +23,6 @@ func TestInteractionKind_Config(t *testing.T) {
 		{InteractionItemAll, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionPortalNext, ActivationRangeSameTile, ActivationWayManual},
 		{InteractionStorage, ActivationRangeAdjacent, ActivationWayManual},
-		{InteractionDoorLock, ActivationRangeSameTile, ActivationWayAuto},
 	}
 
 	for _, tt := range tests {
@@ -143,7 +142,7 @@ func TestInteractionKind_ConfigConsistency(t *testing.T) {
 	t.Parallel()
 
 	kinds := []InteractionKind{
-		InteractionPortalNext, InteractionPortalPrev, InteractionDoor, InteractionDoorLock,
+		InteractionPortalNext, InteractionPortalPrev, InteractionDoor,
 		InteractionTalk, InteractionItem, InteractionItemAll, InteractionStorage, InteractionMelee,
 	}
 

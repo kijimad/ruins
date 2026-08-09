@@ -84,14 +84,6 @@ func (odb *OpenDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw
 
-	if doorComp.Locked {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "The door is locked.")).
-			Log()
-		Cancel(comp, "the door is locked")
-		return nil
-	}
-
 	// 扉を開く
 	if !doorComp.IsOpen {
 		if err := lifecycle.OpenDoor(world, targetEntity); err != nil {
@@ -199,11 +191,6 @@ func (cdb *CloseDoorBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 	}
 	raw := world.Components.Door.Get(targetEntity)
 	doorComp := raw
-
-	if doorComp.Locked {
-		Cancel(comp, "the door is locked")
-		return nil
-	}
 
 	// 扉を閉じる
 	if doorComp.IsOpen {

@@ -39,8 +39,6 @@ const (
 	InteractionDungeonEnter InteractionKind = "DUNGEON_ENTER"
 	// InteractionDoor は扉の相互作用
 	InteractionDoor InteractionKind = "DOOR"
-	// InteractionDoorLock はプレイヤーが踏むと全扉をロックする相互作用
-	InteractionDoorLock InteractionKind = "DOOR_LOCK"
 	// InteractionTalk は会話の相互作用
 	InteractionTalk InteractionKind = "TALK"
 	// InteractionItem はアイテム拾得の相互作用
@@ -72,8 +70,6 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
-	case InteractionDoorLock:
-		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayAuto}
 	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
 	case InteractionExitCube:

@@ -10,7 +10,6 @@
 
   # Propsの定義
   [palette.props]
-    "!" = {id = "door_lock_trigger", tile = "floor"} # ドアロックトリガー
 
   # NPCの定義
   [palette.npcs]
