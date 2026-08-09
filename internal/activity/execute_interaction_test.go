@@ -472,7 +472,7 @@ func TestExecuteInteraction_Fixed(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.True(t, result.Success)
-		assert.Equal(t, gc.BehaviorAttack, result.ActivityName)
+		assert.Equal(t, gc.BehaviorMelee, result.ActivityName)
 
 		hp := world.Components.HP.Get(prop)
 		assert.Less(t, hp.Current, 30, "攻撃でダメージが入るべき")

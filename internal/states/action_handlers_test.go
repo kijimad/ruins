@@ -175,7 +175,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		// 検証: Attackが実行される
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.True(t, result.Success)
 		gridAfter := world.Components.GridElement.Get(player)
 		assert.Equal(t, 10, int(gridAfter.X))
@@ -214,7 +214,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		// 検証: Attackが実行される
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 
@@ -248,7 +248,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		// 検証: Attackが実行される
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.True(t, result.Success)
 		assert.Less(t, turnBased.AP.Current, initialAP)
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
@@ -298,7 +298,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		assert.True(t, world.Components.Dead.Has(enemy))
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 
 		// 2回目: 死亡した敵がいた場所への移動
 		err = activity.ExecuteMoveAction(world, gc.DirectionUp)

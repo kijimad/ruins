@@ -146,7 +146,7 @@ func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, err
 }
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	return Execute(NewAttackActivity(target), actor, world)
+	return Execute(NewMeleeActivity(target), actor, world)
 }
 
 // executeDisassemble は分解アクティビティを組んで実行する。工具不足や定義なしなどの

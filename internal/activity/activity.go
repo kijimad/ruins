@@ -27,8 +27,8 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 	switch name {
 	case gc.BehaviorMove:
 		return &MoveBehavior{}, nil
-	case gc.BehaviorAttack:
-		return &AttackBehavior{}, nil
+	case gc.BehaviorMelee:
+		return &MeleeBehavior{}, nil
 	case gc.BehaviorRest:
 		return &RestBehavior{}, nil
 	case gc.BehaviorWait:

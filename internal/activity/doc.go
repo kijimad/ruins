@@ -44,7 +44,7 @@
 //
 // ### 個別Behavior実装
 // - **MoveBehavior**: 移動アクション（即座実行）
-// - **AttackBehavior**: 攻撃アクション（即座実行）
+// - **MeleeBehavior**: 攻撃アクション（即座実行）
 // - **RestBehavior**: 休息アクション（継続実行、中断可能）
 // - **WaitBehavior**: 待機アクション（継続実行、中断可能）
 //
