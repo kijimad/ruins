@@ -35,14 +35,14 @@ func (rb *ReadBehavior) Name() gc.BehaviorName {
 
 // NewReadActivity は読む本を指定して読書アクティビティを組む。進捗は本の Effort に
 // 永続するので、Progress.Max も本の総工数に据えて表示を揃える。
-func NewReadActivity(target ecs.Entity, world w.World) (*gc.Activity, error) {
-	book := getBook(target, world)
-	if book == nil {
-		return nil, fmt.Errorf("target has no Book component")
+func NewReadActivity(target ecs.Entity, world w.World) *gc.Activity {
+	effort := 0
+	if book := getBook(target, world); book != nil {
+		effort = book.Effort.Max
 	}
-	comp := NewActivity(gc.BehaviorRead, book.Effort.Max)
+	comp := NewActivity(gc.BehaviorRead, effort)
 	comp.Params = &gc.ReadParams{Target: target}
-	return comp, nil
+	return comp
 }
 
 // Validate は読書アクティビティの検証を行う

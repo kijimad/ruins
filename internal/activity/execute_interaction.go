@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -87,18 +86,9 @@ func executeDungeonEnter(target ecs.Entity, world w.World) (*ActionResult, error
 }
 
 // executePullCube はキューブを自分の側へ引く。後退スペースが無いなど引けないときは、
-// 致命エラーにせずログで知らせて no-op にする。プレイヤーのできない操作は異常系でないため、
-// Execute を呼ぶ前に可否を判定してから分岐する。
+// Validate が理由を gamelog へ出して no-op にする。プレイヤーのできない操作は異常系でない。
 func executePullCube(actor ecs.Entity, cube ecs.Entity, world w.World) (*ActionResult, error) {
-	if !canPullCube(world, actor, cube) {
-		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "There is no space to pull.")).Log()
-		return &ActionResult{Success: false, ActivityName: gc.BehaviorPull, Message: "cannot pull"}, nil
-	}
-	comp, err := NewPullActivity(cube, actor, world)
-	if err != nil {
-		return nil, err
-	}
-	return Execute(comp, actor, world)
+	return Execute(NewPullActivity(cube, actor, world), actor, world)
 }
 
 func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
@@ -159,22 +149,8 @@ func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRe
 	return Execute(NewAttackActivity(target), actor, world)
 }
 
-// executeDisassemble は工具の有無を先に確かめ、無ければエラーでなくログで知らせる。
-// 工具不足はプレイヤーの通常操作で起きる状態であり、異常系ではないため
+// executeDisassemble は分解アクティビティを組んで実行する。工具不足や定義なしなどの
+// 可否判定は Validate が担い、理由を gamelog へ出して no-op にする。
 func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world))
-	if !ok {
-		return nil, fmt.Errorf("target has no disassembly definition")
-	}
-	if _, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); !ok {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "Do not have a tool to disassemble %s", gamelog.Tag("item", query.GetEntityName(target, world)))).
-			Log()
-		return &ActionResult{Success: false, ActivityName: gc.BehaviorDisassemble, Message: "no tool"}, nil
-	}
-	comp, err := NewDisassembleActivity(target, actor, world)
-	if err != nil {
-		return nil, err
-	}
-	return Execute(comp, actor, world)
+	return Execute(NewDisassembleActivity(target, actor, world), actor, world)
 }

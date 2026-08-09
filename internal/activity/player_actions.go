@@ -73,11 +73,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	if cube, ok := pushableAt(world, next); ok {
 		// 押し先が塞がっていれば Push.Validate が理由を gamelog へ出し err=nil で閉じる。
 		// 壁への歩き込みと同じく no-op になる
-		comp, err := NewPushActivity(cube, direction, world)
-		if err != nil {
-			return err
-		}
-		_, err = Execute(comp, entity, world)
+		_, err := Execute(NewPushActivity(cube, direction, world), entity, world)
 		return err
 	}
 
