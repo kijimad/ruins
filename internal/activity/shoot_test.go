@@ -265,7 +265,6 @@ func TestExecuteShootAction(t *testing.T) {
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 10}, "fireball")
 		require.NoError(t, err)
 
-		// 近接武器での射撃はユーザ起因の失敗。gamelog へ出して err=nil を返し、アクティビティは設定しない
 		err = ExecuteShootAction(player, enemy, world)
 		require.NoError(t, err)
 

@@ -51,7 +51,7 @@ func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.Wo
 		return fmt.Errorf("transfer target is not set")
 	}
 	// 値型のパラメータでは未指定が無効エンティティになる。ArkのHasはゼロ値でパニックするため、
-	// Aliveで存在を確かめてから所持判定へ進む。未指定は構築ミスなのでシステムエラー
+	// Aliveで存在を確かめてから所持判定へ進む
 	if !world.ECS.Alive(p.Target) {
 		return fmt.Errorf("transfer target is not set")
 	}

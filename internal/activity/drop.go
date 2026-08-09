@@ -54,7 +54,7 @@ func (db *DropBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 		return &UserError{Msg: query.T(world, "item is not in the backpack")}
 	}
 
-	// 配置先タイル座標を取得できるか確認する。取得できないのは構築ミス
+	// 配置先タイル座標を取得できるか確認する
 	if _, err := requireDestination(comp); err != nil {
 		return err
 	}

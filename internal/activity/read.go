@@ -54,7 +54,6 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 	book := getBook(p.Target, world)
 	if book == nil {
-		// 構築時に本を確定しているため、ここで欠けるのは不変条件違反
 		return fmt.Errorf("target has no Book component")
 	}
 
@@ -64,8 +63,7 @@ func (rb *ReadBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		skills = skillsComp
 	}
 	if err := book.CanRead(skills); err != nil {
-		// 読めない理由ごとに翻訳した文言を組む。CanRead の英語 err はプレイヤーに出さない。
-		// 既読とスキル不足はユーザ起因、想定外の失敗はシステムエラーとして伝播させる
+		// 読めない理由ごとに翻訳した文言を組む。CanRead の英語 err はプレイヤーに出さない
 		if book.IsCompleted() {
 			return &UserError{Msg: query.T(world, "this book is already read")}
 		}

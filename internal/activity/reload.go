@@ -54,7 +54,6 @@ func NewReloadActivity(actor ecs.Entity, world w.World) *gc.Activity {
 func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
-		// 遠距離武器を持たないのはユーザ起因。武器スロット不正などのシステムエラーは伝播させる
 		if errors.Is(err, ErrShootNoFireWeapon) {
 			return &UserError{Msg: query.T(world, "no ranged weapon equipped")}
 		}

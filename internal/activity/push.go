@@ -64,7 +64,6 @@ func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return &UserError{Msg: query.T(world, "push target has no position")}
 	}
 	if !world.Components.GridElement.Has(actor) {
-		// 押し手の位置欠落は不変条件違反
 		return fmt.Errorf("pusher has no position")
 	}
 	// 押せる先はプレイヤーが行ける先に一致させる。CanMoveTo が寒波前線の破棄域や
@@ -231,7 +230,6 @@ func (pb *PullBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return &UserError{Msg: query.T(world, "pull target has no position")}
 	}
 	if !world.Components.GridElement.Has(actor) {
-		// 引き手の位置欠落は不変条件違反
 		return fmt.Errorf("puller has no position")
 	}
 	cubeCoord := world.Components.GridElement.Get(p.Target).Coord

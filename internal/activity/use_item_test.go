@@ -294,7 +294,6 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		}
 
 		ua := &UseItemBehavior{}
-		// HP 欠落は不変条件違反。ユーザ起因の失敗ではなくシステムエラーで表面化させる
 		err := ua.Validate(comp, actor, world)
 		assert.Error(t, err)
 	})

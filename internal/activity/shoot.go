@@ -49,11 +49,9 @@ func NewShootActivity(target ecs.Entity) *gc.Activity {
 func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.ShootParams)
 	if !ok {
-		// 構築ミス。ユーザ起因ではないのでシステムエラー
 		return fmt.Errorf("shoot target is not set")
 	}
 	if world.Components.Dead.Has(actor) {
-		// 手番を得た actor が死亡しているのは不変条件違反
 		return ErrAttackerDead
 	}
 	if !world.Components.GridElement.Has(p.Target) {
@@ -66,7 +64,6 @@ func (sb *ShootBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	// 遠距離武器が装備されているか
 	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
-		// 遠距離武器を持たないのはユーザ起因。武器スロット不正などのシステムエラーは伝播させる
 		if errors.Is(err, ErrShootNoFireWeapon) {
 			return &UserError{Msg: query.T(world, "no ranged weapon equipped")}
 		}

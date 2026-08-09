@@ -118,7 +118,6 @@ func (mb *MoveBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	if !world.Components.GridElement.Has(actor) {
-		// 移動する actor が GridElement を欠くのは不変条件違反。ユーザ起因ではないのでシステムエラー
 		return fmt.Errorf("MoveBehavior.Validate: GridElement not found on moving actor")
 	}
 	gridElement := world.Components.GridElement.Get(actor)

@@ -37,8 +37,7 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 	if err := StartActivity(comp, actor, world); err != nil {
 		var ve *UserError
 		if errors.As(err, &ve) {
-			// ユーザ起因の検証失敗。文言をここで gamelog へ出し、操作は開始せず取り消す。
-			// 致命エラーではないため err=nil で通常どおり閉じる
+			// ユーザ起因の失敗はここで gamelog へ出し、err=nil で閉じる
 			gamelog.New(query.GetGameLog(world)).Markup(ve.Msg).Log()
 			result := &ActionResult{
 				Success:      false,
@@ -49,7 +48,6 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 			setLastResult(actor, result, world)
 			return result, nil
 		}
-		// システムまたは致命的なエラー。伝播させる
 		result := &ActionResult{
 			Success:      false,
 			State:        gc.ActivityStateCanceled,
@@ -177,7 +175,6 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 		}
 	}
 
-	// Behaviorでの検証。ユーザ起因も致命的もそのまま返し、呼び出し側が種別で分岐する
 	if err := behavior.Validate(comp, actor, world); err != nil {
 		return err
 	}

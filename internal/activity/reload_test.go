@@ -276,7 +276,6 @@ func TestExecuteReloadAction(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
-		// マガジン満タンはユーザ起因の失敗。gamelog へ出して err=nil を返し、アクティビティは設定しない
 		err := ExecuteReloadAction(player, world)
 		require.NoError(t, err)
 

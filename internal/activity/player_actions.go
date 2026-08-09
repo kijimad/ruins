@@ -85,7 +85,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	if canMove {
 		destination := gc.GridElement{Coord: next}
 		// 重量超過はプレイヤーの通常状態。Execute はユーザ起因の失敗を gamelog へ出したうえで
-		// err=nil を返すため、壁への歩き込みと同じく no-op になる。理由のログは Execute が出す
+		// err=nil を返すため、壁への歩き込みと同じく no-op になる
 		_, err := Execute(NewMoveActivity(destination), entity, world)
 		return err
 	}

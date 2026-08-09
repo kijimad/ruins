@@ -55,12 +55,10 @@ func NewAttackActivity(target ecs.Entity) *gc.Activity {
 func (ab *AttackBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.AttackParams)
 	if !ok {
-		// 構築ミス。ユーザ起因ではないのでシステムエラー
 		return ErrAttackTargetNotSet
 	}
 
 	if world.Components.Dead.Has(actor) {
-		// 手番を得た actor が死亡しているのは不変条件違反
 		return ErrAttackerDead
 	}
 

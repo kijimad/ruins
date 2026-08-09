@@ -47,7 +47,6 @@ func (rb *RestBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return &UserError{Msg: query.T(world, "cannot rest because enemies are nearby")}
 	}
 
-	// 必要量が妥当かチェック。構築時に必ず正の値を据えるため、ここで非正なのは不変条件違反
 	if comp.Progress.Max <= 0 {
 		return ErrRestInvalidDuration
 	}

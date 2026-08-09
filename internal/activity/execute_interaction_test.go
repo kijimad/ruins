@@ -173,8 +173,6 @@ func TestExecuteInteraction_Item(t *testing.T) {
 	world.Components.Name.Add(itemEntity, &gc.Name{Name: "テストアイテム"})
 	world.Components.Consumable.Add(itemEntity, &gc.Consumable{})
 
-	// ExecuteInteractionを実行。拾えるアイテムが見つからないのはユーザ起因の失敗で、
-	// gamelog へ出して err=nil を返し、結果は成功フラグが false になる
 	result, err := ExecuteInteraction(player, itemEntity, gc.InteractionItem, world)
 
 	require.NoError(t, err)
@@ -201,8 +199,6 @@ func TestExecuteInteraction_Melee(t *testing.T) {
 	})
 	world.Components.Name.Add(enemyEntity, &gc.Name{Name: "テスト敵"})
 
-	// ExecuteInteractionを実行。攻撃手段がないのはユーザ起因の失敗で、
-	// gamelog へ出して err=nil を返し、結果は成功フラグが false になる
 	result, err := ExecuteInteraction(player, enemyEntity, gc.InteractionMelee, world)
 
 	require.NoError(t, err)
@@ -505,8 +501,6 @@ func TestExecuteInteraction_Fixed(t *testing.T) {
 			Interactions: []gc.InteractionKind{gc.InteractionMelee},
 		})
 
-		// Dead 済みの対象への攻撃はユーザ起因の失敗で、gamelog へ出して err=nil を返し、
-		// 結果は成功フラグが false になる
 		result, err := ExecuteInteraction(player, prop, gc.InteractionMelee, world)
 
 		require.NoError(t, err)
