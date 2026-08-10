@@ -139,13 +139,10 @@ func (st *CraftMenuState) createMenuItems(world w.World, recipeIDs []string) []c
 
 	for i, recipeID := range recipeIDs {
 		canCraft, _ := gameaction.CanCraft(world, recipeID)
-		name := recipeID
-		if spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipeID); err == nil {
-			name = spec.Name.Name
-		}
+		// レシピ id は生成アイテム id と一致する。表示名はアイテムの英語名を翻訳して出し、材料表示と経路を揃える
 		items[i] = craftItemData{
 			RecipeID:   recipeID,
-			RecipeName: name,
+			RecipeName: query.T(world, raw.ItemName(world.Resources.RawMaster, recipeID)),
 			CanCraft:   canCraft,
 		}
 	}
