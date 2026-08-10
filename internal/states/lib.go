@@ -6,7 +6,6 @@ import (
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
@@ -263,7 +262,7 @@ func itemMenuColumns(nameWidth int, trailing ...menuColumn) ([]int, []styled.Tex
 func itemMenuRow(world w.World, e ecs.Entity, trailing ...string) menuRow {
 	name := query.GetEntityName(e, world)
 	count := query.GetEntityCount(world, e)
-	icon, _ := gc.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))
+	icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))
 	cells := append([]styled.Cell{styled.IconCell(icon), styled.TextCell(nameWithCount(name, count))}, styled.TextCells(trailing...)...)
 	return menuRow{Cells: cells}
 }

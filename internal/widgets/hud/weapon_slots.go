@@ -1,13 +1,12 @@
 package hud
 
 import (
-	"image"
-
 	euiimage "github.com/ebitenui/ebitenui/image"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/resources"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -111,40 +110,18 @@ func drawWeaponSprite(screen *ebiten.Image, x, y, slotSize int, slot WeaponSlotI
 		return
 	}
 
-	// スプライトシートを取得
-	sheet, ok := spriteSheets[slot.SpriteSheet]
+	// スプライトを解決する。シートやキーが無ければ描画しない
+	img, ok := resources.SpriteImage(spriteSheets, &gc.SpriteRender{SpriteSheetName: slot.SpriteSheet, SpriteKey: slot.SpriteName})
 	if !ok {
 		return
 	}
 
-	// スプライトシートの画像を取得
-	spriteImage := sheet.Texture.Image
-	if spriteImage == nil {
-		return
-	}
+	// スプライトをスロットの中央に配置する
+	b := img.Bounds()
+	offsetX := float64(x) + (float64(slotSize)-float64(b.Dx()))/2
+	offsetY := float64(y) + (float64(slotSize)-float64(b.Dy()))/2
 
-	// スプライトデータを取得
-	spriteData, ok := sheet.Sprites[slot.SpriteName]
-	if !ok {
-		return
-	}
-
-	// スプライトの矩形を作成
-	spriteRect := image.Rect(
-		spriteData.X,
-		spriteData.Y,
-		spriteData.X+spriteData.Width,
-		spriteData.Y+spriteData.Height,
-	)
-
-	// スプライトをスロットの中央に配置
-	offsetX := float64(x) + (float64(slotSize)-float64(spriteData.Width))/2
-	offsetY := float64(y) + (float64(slotSize)-float64(spriteData.Height))/2
-
-	// 描画オプション
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(offsetX, offsetY)
-
-	// スプライトをそのまま描画
-	screen.DrawImage(gc.SubImage(spriteImage, spriteRect), op)
+	screen.DrawImage(img, op)
 }
