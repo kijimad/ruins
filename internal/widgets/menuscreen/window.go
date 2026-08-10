@@ -6,6 +6,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -16,12 +17,13 @@ import (
 // 行数でページ分割することで、短い項目は1ページに収まり、行の多い項目だけがはみ出さないよう分割される
 const detailRowsPerPage = 12
 
-// detailPageCount は行数からページ数を返す。行が無くても1を返す
+// detailPageCount は行数からページ数を返す。ページ計算は pagination に委ねる。
+// pagination は負数の総数を想定しないため、行が無いか負数のときはここで1に丸める
 func detailPageCount(rowCount int) int {
 	if rowCount <= 0 {
 		return 1
 	}
-	return (rowCount + detailRowsPerPage - 1) / detailRowsPerPage
+	return pagination.New(0, rowCount, detailRowsPerPage).GetTotalPages()
 }
 
 // DetailPageCount はエンティティの詳細ウィンドウのページ数を返す
@@ -47,8 +49,9 @@ func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string,
 	if page >= total {
 		page = total - 1
 	}
-	start := page * detailRowsPerPage
-	end := min(start+detailRowsPerPage, len(rows))
+	// page を先頭アイテム位置に読み替えて pagination に可視範囲を委ねる
+	pg := pagination.New(page*detailRowsPerPage, len(rows), detailRowsPerPage)
+	start, end := pg.GetVisibleRange()
 
 	spec := styled.NewVerticalContainer()
 	views.RenderSpecRows(spec, rows[start:end], res)
@@ -58,8 +61,9 @@ func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string,
 	if desc != "" && page == total-1 {
 		content.AddChild(styled.NewDescriptionText(desc, res))
 	}
-	// 位置表示は最下段に固定する。1ページでも常設し、ページ有無で表示がずれないようにする。左右キーでページを繰る
-	content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s %d/%d %s", consts.IconArrowLeft, page+1, total, consts.IconArrowRight), res))
+	// 位置表示は最下段に固定する。1ページでも常設し、ページ有無で表示がずれないようにする。左右キーでページを繰る。
+	// GetPageText は単一ページで空を返すため、1/1 を常設したいここでは GetCurrentPage/GetTotalPages を使う
+	content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s %d/%d %s", consts.IconArrowLeft, pg.GetCurrentPage(), pg.GetTotalPages(), consts.IconArrowRight), res))
 	win := styled.NewSmallWindow(widget.NewContainer(), content)
 	win.SetLocation(rect)
 	return win
