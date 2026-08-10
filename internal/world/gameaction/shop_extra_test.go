@@ -67,8 +67,8 @@ func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 	assert.Equal(t, 1000-discountedPrice, currency, "買値倍率50%で半額になる")
 }
 
-// TestSellStock_価値0のアイテムは売却できない はValueコンポーネントを持たないアイテムの売却がエラーになることを確認する。
-func TestSellStock_価値0のアイテムは売却できない(t *testing.T) {
+// TestSellStock_価値0のアイテムは対価0で売れる は無価値な品でも売却は成功し、対価が0になることを確認する。
+func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -76,12 +76,19 @@ func TestSellStock_価値0のアイテムは売却できない(t *testing.T) {
 	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
 	merchant := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()
+	world.Components.Value.Add(item, &gc.Value{Value: 0})
+	world.Components.Name.Add(item, &gc.Name{Name: "Scrap"})
+	world.Components.RawID.Add(item, &gc.RawID{ID: "scrap"})
+	world.Components.Stackable.Add(item, &gc.Stackable{Count: 1})
 
-	err := SellStock(world, player, merchant, item)
-	require.ErrorContains(t, err, "cannot be sold")
+	require.NoError(t, SellStock(world, player, merchant, item), "価値0でも売却は成功する")
 
 	currency := query.GetCurrency(world, player)
-	assert.Equal(t, 0, currency, "売却失敗時は通貨が変動しない")
+	assert.Equal(t, 0, currency, "無価値な品の対価は0で通貨は増えない")
+
+	// 売った品は商人の在庫へ並ぶ
+	require.True(t, world.Components.LocationInStorage.Has(item), "実体は商人の収納へ移る")
+	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
 }
 
 // TestSellStock_交渉スキルで売値が変わる はCharModifiers.SellPriceが売却価格に反映されることを確認する。

@@ -3,9 +3,11 @@ package states
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,6 +29,9 @@ func TestShopMenuState_FetchProps(t *testing.T) {
 	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
+	// ショップはプレイヤーが居て初めて開く。価格はプレイヤーの交渉スキルから決まるため必須
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
 
 	props := state.Fetch(world)
 
