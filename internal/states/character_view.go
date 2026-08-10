@@ -6,6 +6,8 @@ import (
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -51,13 +53,18 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menur
 	})
 }
 
-// buildEquipList は装備タブの一覧を組み立てる。左にスロット名、右に装備名を並べ、未装備は空欄にする
+// buildEquipList は装備タブの一覧を組み立てる。スロット名、装備アイコン、装備名を並べ、
+// 未装備はアイコンと名前を空欄にする。アイコンは装備名の左に置く
 func buildEquipList(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
-	columnWidths := []int{120, 220}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
+	columnWidths := []int{120, itemIconColumnWidth, 220}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft}
 	rows := make([]menuRow, len(slots))
 	for i, slot := range slots {
-		rows[i] = menuRow{Cells: []string{slot.SlotLabel, slot.ItemName}}
+		var icon *ebiten.Image
+		if slot.Entity != nil {
+			icon, _ = gc.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(*slot.Entity))
+		}
+		rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName)}}
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots")}, res)
 }
@@ -68,7 +75,7 @@ func buildCommandTable(world w.World, cmdRows []commandRow, itemIndex int, res r
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
 	rows := make([]menuRow, len(cmdRows))
 	for i, row := range cmdRows {
-		rows[i] = menuRow{Cells: []string{query.T(world, string(row.Kind)), row.Value}}
+		rows[i] = menuRow{Cells: styled.TextCells(query.T(world, string(row.Kind)), row.Value)}
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No formation orders")}, res)
 }

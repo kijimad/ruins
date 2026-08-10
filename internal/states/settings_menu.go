@@ -192,7 +192,7 @@ func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor
 	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
 	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {
-		rows[i] = menuRow{Cells: []string{item.Label, item.Value}}
+		rows[i] = menuRow{Cells: styled.TextCells(item.Label, item.Value)}
 	}
 	table := renderMenuList(cursor.ItemIndex, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
 

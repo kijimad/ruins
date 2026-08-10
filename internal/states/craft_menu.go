@@ -273,7 +273,7 @@ func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData,
 		if it.CanCraft {
 			mark = consts.IconCheck
 		}
-		rows[i] = menuRow{Cells: []string{mark, it.RecipeName}}
+		rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res)
 }

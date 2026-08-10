@@ -123,7 +123,7 @@ func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cu
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(props.Items))
 	for i, it := range props.Items {
-		rows[i] = menuRow{Cells: []string{it.Name, fmt.Sprintf("%d", it.Count)}}
+		rows[i] = menuRow{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}
 	}
 	container := renderMenuList(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
 

@@ -124,9 +124,9 @@ func TestNewShopMenuState(t *testing.T) {
 }
 
 // TestShopMenuState_buildItemContainer_商品ありでpanicしない は、売買メニューが商品を
-// 1件以上持つとき列数不整合で落ちないことを固定する。アイコン列を含む列指定に対して
-// 行のアイコン列を立て忘れると renderMenuList が panic する。golden は既定タブが空で行に
-// 到達せず覆えないため、実体を直接渡してこの経路を覆う。
+// 1件以上持つとき列数不整合で落ちないことを固定する。行のセル数が列幅数と合わないと
+// renderMenuList が panic する。golden は既定タブが空で行に到達せず覆えないため、
+// 実体を直接渡してこの経路を覆う。
 func TestShopMenuState_buildItemContainer_商品ありでpanicしない(t *testing.T) {
 	t.Parallel()
 

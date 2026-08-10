@@ -22,6 +22,29 @@ const (
 // tableRowHeight はテーブル1行の高さ。本文は BodyFace、ヘッダは SmallFace。行を詰めて1画面に多く収める
 const tableRowHeight = 20
 
+// Cell は一覧の1セル。Icon が非 nil ならアイコンセル、nil なら文字列セル。
+// アイコンは任意の列に置けるので、行はアイコンと文字列が混ざった一様な []Cell になる。
+// 将来アイコンと文字列を1セルへ併記したくなったら両方を持たせて拡張できる
+type Cell struct {
+	Text string
+	Icon *ebiten.Image
+}
+
+// TextCell は文字列を表すセルを返す
+func TextCell(s string) Cell { return Cell{Text: s} }
+
+// IconCell はアイコンを表すセルを返す。img が nil のときは透明セルになり、桁だけ合う
+func IconCell(img *ebiten.Image) Cell { return Cell{Icon: img} }
+
+// TextCells は文字列だけの行を手早く組む
+func TextCells(ss ...string) []Cell {
+	cells := make([]Cell, len(ss))
+	for i, s := range ss {
+		cells[i] = TextCell(s)
+	}
+	return cells
+}
+
 // NewTableContainer はテーブルのコンテナを作成する
 // 各行がコンテナとなる縦並びレイアウトで、行単位の背景色設定が可能
 func NewTableContainer(_ []int, _ resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {
@@ -69,26 +92,16 @@ func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers 
 	container.AddChild(row)
 }
 
-// NewTableRow はテーブル行を作成する
-// isSelectedがnilの場合は通常行、非nilの場合は最初の列にカーソルを表示する選択可能行になる
-// alignsがnilの場合は全て左揃えになる
-func NewTableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected *bool, res resources.UIResources) {
+// NewTableRow はテーブル行を作成する。
+// 各セルは Icon が非 nil ならアイコン、nil なら文字列で描く。
+// isSelected が nil の場合は通常行、非 nil の場合は最初の列にカーソルを表示する選択可能行になる。
+// aligns が nil の場合は全て左揃えになる
+func NewTableRow(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, isSelected *bool, res resources.UIResources) {
 	if isSelected != nil {
-		addSelectableRow(container, columnWidths, nil, false, values, aligns, *isSelected, res)
+		addSelectableRow(container, columnWidths, cells, aligns, *isSelected, res)
 		return
 	}
-	addDataRowColored(container, columnWidths, nil, false, values, aligns, theme.TextPrimary, res)
-}
-
-// NewTableRowWithIcon は先頭にアイコン列を持つテーブル行を作成する。
-// icon が nil のときは透明なセルを置き、列数を columnWidths と揃える。
-// columnWidths[0] がアイコン列で、values は後続の列に対応する
-func NewTableRowWithIcon(container *widget.Container, columnWidths []int, icon *ebiten.Image, values []string, aligns []TextAlign, isSelected *bool, res resources.UIResources) {
-	if isSelected != nil {
-		addSelectableRow(container, columnWidths, icon, true, values, aligns, *isSelected, res)
-		return
-	}
-	addDataRowColored(container, columnWidths, icon, true, values, aligns, theme.TextPrimary, res)
+	addDataRowColored(container, columnWidths, cells, aligns, theme.TextPrimary, res)
 }
 
 // NewSpriteCell は img を一辺 size のアイコン widget にする。原寸が size より大きければ縮小する。
@@ -163,7 +176,7 @@ func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Conta
 	)
 }
 
-func addSelectableRow(container *widget.Container, columnWidths []int, icon *ebiten.Image, hasIcon bool, values []string, aligns []TextAlign, isSelected bool, res resources.UIResources) {
+func addSelectableRow(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, isSelected bool, res resources.UIResources) {
 	bgImage := image.NewNineSliceColor(theme.Transparent)
 	textColor := theme.TextSecondary
 	if isSelected {
@@ -172,48 +185,46 @@ func addSelectableRow(container *widget.Container, columnWidths []int, icon *ebi
 	}
 
 	row := newRowContainer(columnWidths, bgImage)
-	addRowCells(row, columnWidths, icon, hasIcon, values, aligns, textColor, res)
+	addRowCells(row, columnWidths, cells, aligns, textColor, res)
 	container.AddChild(row)
 
 	container.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))
 }
 
 // NewTableRowColored はデータ行を指定色の文字で描く。詳細モーダルで条件可否を色分けする用途に使う
-func NewTableRowColored(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
-	addDataRowColored(container, columnWidths, nil, false, values, aligns, textColor, res)
+func NewTableRowColored(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
+	addDataRowColored(container, columnWidths, cells, aligns, textColor, res)
 }
 
-func addDataRowColored(container *widget.Container, columnWidths []int, icon *ebiten.Image, hasIcon bool, values []string, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
+func addDataRowColored(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
 	row := newRowContainer(columnWidths, image.NewNineSliceColor(theme.Transparent))
-	addRowCells(row, columnWidths, icon, hasIcon, values, aligns, textColor, res)
+	addRowCells(row, columnWidths, cells, aligns, textColor, res)
 	container.AddChild(row)
 }
 
-// addRowCells は行コンテナへセルを並べる。hasIcon なら先頭にアイコンセルを1つ置き、
-// values を後続の列に対応させる。columnWidths とアイコンぶんのずれをここで吸収する
-func addRowCells(row *widget.Container, columnWidths []int, icon *ebiten.Image, hasIcon bool, values []string, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
-	col := 0
-	if hasIcon {
-		row.AddChild(NewSpriteCell(icon, tableRowHeight))
-		col = 1
-	}
-
-	for i, value := range values {
-		ci := col + i
+// addRowCells は行コンテナへセルを並べる。各セルは Icon が非 nil ならアイコン、nil なら文字列で描く。
+// 列幅と揃えは列ごとの配列で受け、セルの位置がそのまま列の位置になる
+func addRowCells(row *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
+	for i, cell := range cells {
 		width := 80
-		if ci < len(columnWidths) {
-			width = columnWidths[ci]
+		if i < len(columnWidths) {
+			width = columnWidths[i]
+		}
+
+		if cell.Icon != nil {
+			row.AddChild(NewSpriteCell(cell.Icon, tableRowHeight))
+			continue
 		}
 
 		textPos := widget.TextPositionStart
 		gridData := widget.GridLayoutData{}
-		if aligns != nil && ci < len(aligns) && aligns[ci] == AlignRight {
+		if aligns != nil && i < len(aligns) && aligns[i] == AlignRight {
 			textPos = widget.TextPositionEnd
 			gridData.HorizontalPosition = widget.GridLayoutPositionEnd
 		}
 
 		textWidget := widget.NewText(
-			widget.TextOpts.Text(value, &res.Text.BodyFace, textColor),
+			widget.TextOpts.Text(cell.Text, &res.Text.BodyFace, textColor),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(gridData),
