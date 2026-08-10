@@ -58,9 +58,8 @@ func (sys *CameraSystem) Update(world w.World) error {
 	// 参考: https://ebitengine.org/ja/examples/isometric.html
 	var scrollY float64
 	switch {
-	case ebiten.IsKeyPressed(ebiten.KeyC) || ebiten.IsKeyPressed(ebiten.KeyPageDown):
+	case ebiten.IsKeyPressed(ebiten.KeyPageDown):
 		scrollY = -0.25
-	// ズームインは PageUp とホイール。E は食べる・飲むの動詞キーに割り当てたので使わない
 	case ebiten.IsKeyPressed(ebiten.KeyPageUp):
 		scrollY = 0.25
 	default:
