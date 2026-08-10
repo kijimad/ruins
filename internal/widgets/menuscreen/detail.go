@@ -12,15 +12,13 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// SpecRow は詳細モーダルの1行。情報タブなど spec 由来でない詳細を組む際に呼び出し側が使う
-type SpecRow = views.SpecRow
-
 // DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行をそのまま持つ。
-// 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える
+// 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える。
+// 行の型は views.SpecRow を正とし、menuscreen 側では再輸出しない
 type DetailContent struct {
 	Name string
 	Desc string
-	Rows []SpecRow
+	Rows []views.SpecRow
 }
 
 // EntityDetailContent は実体から名前・説明・性能行を組んだ詳細内容を返す。

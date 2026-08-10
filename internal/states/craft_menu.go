@@ -288,9 +288,9 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 
 	// 必要材料を先頭に置き、所持数が足りていれば成功色、足りなければ警告色で示す。
 	// その後ろに生成物の性能行を続ける
-	var rows []menuscreen.SpecRow
+	var rows []views.SpecRow
 	if spec.Recipe != nil {
-		rows = append(rows, menuscreen.SpecRow{Label: query.T(world, "Materials"), Header: true})
+		rows = append(rows, views.SpecRow{Label: query.T(world, "Materials"), Header: true})
 		for _, in := range spec.Recipe.Inputs {
 			owned := 0
 			if entity, found := query.FindStackableInInventory(world, in.ID); found {
@@ -301,7 +301,7 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 				rowColor = theme.StatusSuccess
 			}
 			label := query.T(world, raw.ItemName(world.Resources.RawMaster, in.ID))
-			rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
+			rows = append(rows, views.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
 	rows = append(rows, views.SpecRowsFromSpec(world, spec)...)
