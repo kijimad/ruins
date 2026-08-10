@@ -154,7 +154,7 @@ func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menurt.Sele
 	// 行は共通ヘルパで組み、縦幅・行間・幅を他メニューと揃える
 	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {
-		rows[i] = menuRow{Cells: []string{item.Label}}
+		rows[i] = menuRow{Cells: styled.TextCells(item.Label)}
 	}
 	menuContainer.AddChild(renderMenuList(itemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
 

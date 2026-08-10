@@ -288,7 +288,7 @@ func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resourc
 				cells[2] = it.Modifier
 			}
 		}
-		rows[i] = menuRow{Cells: cells, Header: it.IsHeader}
+		rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries")}, res)
 }

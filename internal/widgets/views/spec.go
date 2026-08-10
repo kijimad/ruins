@@ -114,10 +114,10 @@ func RenderSpecRows(targetContainer *widget.Container, rows []SpecRow, res resou
 			continue
 		}
 		if r.Color != nil {
-			styled.NewTableRowColored(table, columnWidths, []string{r.Label, r.Value}, specTableAligns, *r.Color, res)
+			styled.NewTableRowColored(table, columnWidths, styled.TextCells(r.Label, r.Value), specTableAligns, *r.Color, res)
 			continue
 		}
-		styled.NewTableRow(table, columnWidths, []string{r.Label, r.Value}, specTableAligns, nil, res)
+		styled.NewTableRow(table, columnWidths, styled.TextCells(r.Label, r.Value), specTableAligns, nil, res)
 	}
 	targetContainer.AddChild(table)
 }
