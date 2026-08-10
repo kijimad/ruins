@@ -1,15 +1,19 @@
 package states
 
 import (
+	"image"
 	"testing"
 
+	"github.com/ebitenui/ebitenui/widget"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -107,4 +111,26 @@ func TestCharacterEquipOverlay_候補が無ければ何もしない(t *testing.T
 
 	weapons := query.GetWeapons(world, player)
 	assert.Nil(t, weapons[0], "武器1スロットは空のまま")
+}
+
+// TestGolden_EquipSelect は装備選択ポップアップの見た目を固定する。候補ごとにアイテムの
+// アイコンが名前の左に出ることを覆う。overlay で開くポップアップは他の golden に写らないため、
+// 内容コンテナを直接描いて視覚の死角を埋める
+func TestGolden_EquipSelect(t *testing.T) {
+	t.Parallel()
+
+	// InitVRTWorld は SpriteSheets 込みの完全な world を作る。アイコン解決にテクスチャが要る
+	world := vrt.InitVRTWorld(t)
+	world.Resources.UIResources = vrt.SharedUIResources(t)
+	sword, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
+	require.NoError(t, err)
+	gun, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
+	require.NoError(t, err)
+
+	props := charEquipProps{Items: []ecs.Entity{sword, gun}, SlotNumber: gc.SlotWeapon1}
+	vrt.AssertContainerGolden(t, func() *widget.Container {
+		win := buildEquipSelectWindow(world, props, 0, image.Rect(0, 0, 400, 300), world.Resources.UIResources)
+		content, _ := win.Contents.(*widget.Container)
+		return content
+	}, 400, 300)
 }
