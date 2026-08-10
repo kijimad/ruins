@@ -61,7 +61,7 @@
   <div class="titlebar">
     <span class="b">◆ RUINS</span><span>キューブ &nbsp;―― 押して進める我が家</span>
     <span class="s">|</span><span class="s">3x3・4方向に押す・障害は壊すか迂回</span>
-    <span class="right">ラン・ターン <span style="color:#dce7f0">42</span> · <span class="cold">❄ 寒波前線まで 6タイル</span> · 隊 8人</span>
+    <span class="right">ラン・ターン <span style="color:#dce7f0">42</span> · <span class="cold">❄ 寒波前線まで 6タイル</span> · 総重量 340</span>
   </div>
 
   <div class="wrap">
@@ -91,14 +91,14 @@
 
           <div class="gauge"><div class="l"><span class="k">総重量（置いた物の合計）</span><span class="v warn">340</span></div>
             <div class="bar"><i style="width:68%;background:var(--gold)"></i></div></div>
-          <div class="gauge"><div class="l"><span class="k">パーティAP / ターン（隊8人）</span><span class="v">120</span></div>
+          <div class="gauge"><div class="l"><span class="k">行動点 / ターン</span><span class="v">120</span></div>
             <div class="bar"><i style="width:60%;background:var(--crystal)"></i></div></div>
           <div class="gauge"><div class="l"><span class="k">→ 1ターンに進めるタイル</span><span class="v">約 2.5</span></div>
             <div class="bar"><i style="width:50%;background:var(--hp)"></i></div></div>
           <div class="gauge"><div class="l"><span class="k">寒波前線までの余裕</span><span class="v bad">6タイル ― 長居は危険</span></div>
             <div class="bar"><i style="width:30%;background:var(--enemy)"></i></div></div>
 
-          <div class="expl">重量は1タイルのコストを決める。仲間はコストを下げず、パーティAPを増やして同じコストを少ないターンで払わせる。速く進めるのはターンが減るからで、寒波への露出が減る。</div>
+          <div class="expl">重量が1タイルのコストを決める。重いほど1タイルの押しに要する行動点が増え、1ターンで進めるタイルが減る。積荷を絞るほど速く進め、寒波への露出が減る。何を残し何を捨てるかが速さを決める。</div>
         </div>
       </div>
 
@@ -167,11 +167,11 @@
   s+='<text x="'+(mx+16)+'" y="'+(my+8)+'" fill="#ffb570" font-size="18" text-anchor="middle">→</text>';
   s+='<text x="'+mx+'" y="'+(my+52)+'" fill="#ffb570" font-size="10" font-family="monospace" text-anchor="middle">4方向に押す</text>';
 
-  /* 担ぎ手（AP供給・キューブの押し面側） */
-  [['A',cx-16,cy+20],['B',cx-16,cy+cubeW-30],['C',cx+14,cy+cubeW+14]].forEach(function(p){
-    s+='<rect x="'+(p[1]-8)+'" y="'+(p[2]-8)+'" width="16" height="16" rx="3" fill="#5fd0ff" stroke="#08111a"/>';
-    s+='<text x="'+p[1]+'" y="'+(p[2]+4)+'" fill="#062033" font-size="9" font-weight="bold" font-family="monospace" text-anchor="middle">'+p[0]+'</text>';
-  });
+  /* プレイヤー（押し手・キューブの押し面側） */
+  var px=cx-16, py=cy+cubeW/2;
+  s+='<rect x="'+(px-9)+'" y="'+(py-9)+'" width="18" height="18" rx="3" fill="#5fd0ff" stroke="#08111a"/>';
+  s+='<text x="'+px+'" y="'+(py+5)+'" fill="#062033" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle">@</text>';
+  s+='<text x="'+px+'" y="'+(py+26)+'" fill="#8f98a0" font-size="9" font-family="monospace" text-anchor="middle">押し手</text>';
 
   /* 押し先の障害（東） */
   var obX=cx+cubeW+64, obY=cy+C;
