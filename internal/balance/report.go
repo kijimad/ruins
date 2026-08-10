@@ -132,7 +132,8 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []o
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
 		log.Printf("generateBattleMetrics: failed to load player %q: %v", playerName, err)
-		return nil
+		// required 配列は全経路で [] を返す。null にすると battleMetrics: null になり契約を破る。
+		return []oapi.BalanceBattleMetric{}
 	}
 
 	// 武器一覧を収集する
