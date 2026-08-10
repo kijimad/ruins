@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/screenui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
@@ -247,7 +248,7 @@ func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menurt.Se
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	return newTabScreenUI(res, tabScreen{
+	return screenui.NewTabScreen(res, screenui.TabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),

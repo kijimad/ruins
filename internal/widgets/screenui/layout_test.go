@@ -1,4 +1,4 @@
-package menuscreen
+package screenui
 
 import (
 	"image"

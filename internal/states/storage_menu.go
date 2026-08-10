@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/screenui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -217,7 +218,7 @@ func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menur
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	return newTabScreenUI(res, tabScreen{
+	return screenui.NewTabScreen(res, screenui.TabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
