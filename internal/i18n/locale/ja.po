@@ -1514,9 +1514,6 @@ msgstr "対象エンティティにNameコンポーネントがありません"
 msgid "Talked with %s."
 msgstr "%sと話した。"
 
-msgid "%s (x%d)"
-msgstr "%s(%d個)"
-
 msgid "%s handed over %s to %s."
 msgstr "%s は %s を %s に渡した。"
 

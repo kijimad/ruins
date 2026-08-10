@@ -117,14 +117,6 @@ func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []sty
 	return container
 }
 
-// nameWithCount は個数が2以上のとき名前に ×個数 を添える。1個や非スタックは名前だけを返す
-func nameWithCount(name string, count int) string {
-	if count > 1 {
-		return fmt.Sprintf("%s %s%d", name, consts.IconTimes, count)
-	}
-	return name
-}
-
 // cellTexts は見出し行のセルから文字列を取り出す。見出しはアイコンを持たない前提で Text を並べる
 func cellTexts(cells []styled.Cell) []string {
 	texts := make([]string, len(cells))
@@ -173,7 +165,7 @@ func itemMenuRow(world w.World, e ecs.Entity, trailing ...string) menuRow {
 	name := query.GetEntityName(e, world)
 	count := query.GetEntityCount(world, e)
 	icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))
-	cells := append([]styled.Cell{styled.IconCell(icon), styled.TextCell(nameWithCount(name, count))}, styled.TextCells(trailing...)...)
+	cells := append([]styled.Cell{styled.IconCell(icon), styled.TextCell(query.FormatNameCount(name, count))}, styled.TextCells(trailing...)...)
 	return menuRow{Cells: cells}
 }
 

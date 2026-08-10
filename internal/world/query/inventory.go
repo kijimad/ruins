@@ -1,7 +1,10 @@
 package query
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -57,19 +60,22 @@ func GetEntityCount(world w.World, entity ecs.Entity) int {
 	return 1
 }
 
+// FormatNameCount は個数が2以上のとき名前に ×個数 を添える。1個や非スタックは名前だけを返す。
+// メニュー行とログの両方がこの1関数を通し、名前×個数の表記を揃える
+func FormatNameCount(name string, count int) string {
+	if count > 1 {
+		return fmt.Sprintf("%s %s%d", name, consts.IconTimes, count)
+	}
+	return name
+}
+
 // FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする。
 // 名前はNameコンポーネントから取得し、見つからない場合は "Unknown Item" を返す。
-// 個数が1以下の場合は名前のみ、2以上の場合は "名前(個数)" の形式で返す
+// 表記は FormatNameCount に委ね、個数が2以上のとき "名前 ×個数" になる
 func FormatItemName(world w.World, itemEntity ecs.Entity) string {
 	name := T(world, "Unknown Item")
 	if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {
 		name = T(world, nameComp.Name)
 	}
-
-	count := GetEntityCount(world, itemEntity)
-
-	if count <= 1 {
-		return name
-	}
-	return T(world, "%s (x%d)", name, count)
+	return FormatNameCount(name, GetEntityCount(world, itemEntity))
 }

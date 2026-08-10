@@ -200,7 +200,7 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		// ログは在庫全体でなく渡した個数で表示する
 		recent := query.GetGameLog(world).GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "パン(2個)", "ログは渡した個数を表示する")
+		assert.Contains(t, recent[0], "パン ×2", "ログは渡した個数を表示する")
 	})
 }
 
