@@ -6,6 +6,8 @@ import (
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
@@ -14,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // tabScreen はモーダル画面の共通レイアウト入力。
@@ -125,8 +128,14 @@ const menuItemsPerPage = 18
 // 分割レイアウト内の小さい一覧、能力タブや職業一覧、は独自の幅にするのでこの限りでない
 const menuRowWidth = 340
 
-// menuRow は一覧の1行。Cells は各列の文字列、Header が真なら見出し行でカーソルが止まらない
+// itemIconColumnWidth はアイテム一覧のアイコン列の幅。テーブル行高と同じ正方にしてアイコンを収める。
+// 行高 styled.tableRowHeight は 20 で、アイコンもその大きさへ縮小して描く
+const itemIconColumnWidth = 20
+
+// menuRow は一覧の1行。Cells は各列の文字列、Header が真なら見出し行でカーソルが止まらない。
+// Icon はアイコン列を持つ一覧で各行の先頭セルに描く画像。nil なら空セルになる
 type menuRow struct {
+	Icon   *ebiten.Image
 	Cells  []string
 	Header bool
 }
@@ -134,12 +143,15 @@ type menuRow struct {
 // menuListOpts は一覧描画の方針。Spaced はコマンドメニュー向けに行間を空けるか、
 // AlwaysIndicator は1ページでもページ表示行を確保しタブ切替で開始位置を揃えるか、
 // HeaderRow は表の先頭に置く列見出し、選択やページ送りの対象には含めない、
-// EmptyText は行が無いときに表の下へ出す説明
+// EmptyText は行が無いときに表の下へ出す説明、
+// HasIcon は表の先頭にアイコン列を持たせるか。真のとき colWidths[0] がアイコン列で
+// 各行の Cells は後続の列に対応する
 type menuListOpts struct {
 	Spaced          bool
 	AlwaysIndicator bool
 	HeaderRow       []string
 	EmptyText       string
+	HasIcon         bool
 }
 
 // renderMenuList は一覧を共通の作法で組む唯一の入口。ページ送り・ページ表示・空行埋め・
@@ -147,14 +159,21 @@ type menuListOpts struct {
 // ページ送り忘れ・行間ずれを構造的に防ぐ。
 // 列幅と行の値は呼び出し側が対で用意する。全幅の一覧では列幅の合計を menuRowWidth に揃える
 func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) *widget.Container {
+	// アイコン列を持つときは colWidths[0] がアイコン列で、各行の Cells は後続の列に対応する。
+	// 文字列セルの数はアイコン列ぶん少ないので、検査と空行埋めの基準幅を分けて数える
+	dataCols := len(colWidths)
+	if opts.HasIcon {
+		dataCols = len(colWidths) - 1
+	}
+
 	// 列幅と行の値の対応を検査する。ずれると列が既定幅へ無言で落ちて崩れるため、内部の呼び出し
 	// 不整合として早期に panic させる
-	if opts.HeaderRow != nil && len(opts.HeaderRow) != len(colWidths) {
-		panic(fmt.Sprintf("renderMenuList: HeaderRow column count %d does not match column widths %d", len(opts.HeaderRow), len(colWidths)))
+	if opts.HeaderRow != nil && len(opts.HeaderRow) != dataCols {
+		panic(fmt.Sprintf("renderMenuList: HeaderRow column count %d does not match column widths %d", len(opts.HeaderRow), dataCols))
 	}
 	for i, r := range rows {
-		if len(r.Cells) != len(colWidths) {
-			panic(fmt.Sprintf("renderMenuList: row %d column count %d does not match column widths %d", i, len(r.Cells), len(colWidths)))
+		if len(r.Cells) != dataCols {
+			panic(fmt.Sprintf("renderMenuList: row %d column count %d does not match column widths %d", i, len(r.Cells), dataCols))
 		}
 	}
 
@@ -169,25 +188,33 @@ func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []sty
 		table = newMenuListTable(colWidths, res)
 	}
 	if opts.HeaderRow != nil {
-		styled.NewTableHeaderRow(table, colWidths, opts.HeaderRow, res)
+		styled.NewTableHeaderRow(table, colWidths, withIconHeader(opts.HasIcon, opts.HeaderRow), res)
 	}
 	visible := pagination.VisibleEntries(rows, pg)
 	for _, entry := range visible {
 		if entry.Item.Header {
-			styled.NewTableHeaderRow(table, colWidths, entry.Item.Cells, res)
+			styled.NewTableHeaderRow(table, colWidths, withIconHeader(opts.HasIcon, entry.Item.Cells), res)
 			continue
 		}
 		isSelected := pg.IsSelectedInPage(entry.Index)
+		if opts.HasIcon {
+			styled.NewTableRowWithIcon(table, colWidths, entry.Item.Icon, entry.Item.Cells, aligns, &isSelected, res)
+			continue
+		}
 		styled.NewTableRow(table, colWidths, entry.Item.Cells, aligns, &isSelected, res)
 	}
 	// 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
 	if len(rows) > menuItemsPerPage {
-		blank := make([]string, len(colWidths))
+		blank := make([]string, dataCols)
 		for i := range blank {
 			blank[i] = " "
 		}
 		for i := len(visible); i < menuItemsPerPage; i++ {
 			notSelected := false
+			if opts.HasIcon {
+				styled.NewTableRowWithIcon(table, colWidths, nil, blank, aligns, &notSelected, res)
+				continue
+			}
 			styled.NewTableRow(table, colWidths, blank, aligns, &notSelected, res)
 		}
 	}
@@ -205,6 +232,60 @@ func nameWithCount(name string, count int) string {
 		return fmt.Sprintf("%s %s%d", name, consts.IconTimes, count)
 	}
 	return name
+}
+
+// withIconHeader はアイコン列を持つ表の見出し行の先頭へ空セルを足し、列数をアイコン列込みに揃える。
+// アイコン列を持たない表では見出しをそのまま返す
+func withIconHeader(hasIcon bool, cells []string) []string {
+	if !hasIcon {
+		return cells
+	}
+	return append([]string{""}, cells...)
+}
+
+// itemRowData はアイテム一覧の1行の元データ。名前×個数で並べる複数のアイテムメニューで共通に使う。
+// 表示の名前・個数・アイコンは itemMenuRow が entity から解決するので、Name・Count は元データの
+// 保持にとどまる。Desc は詳細用途で、収納メニューなど使わない画面ではゼロ値のままにする
+type itemRowData struct {
+	Entity ecs.Entity
+	Name   string
+	Weight string
+	Count  int
+	Desc   string
+}
+
+// menuColumn は一覧の1列の幅と揃え。アイテムメニュー固有の trailing 列の指定に使う
+type menuColumn struct {
+	Width int
+	Align styled.TextAlign
+}
+
+// itemMenuColumns は アイコン列と名前列の共通の先頭2列に、メニュー固有の trailing 列を足した
+// 列幅と揃えを返す。アイコン列は行高と同じ正方、名前列は nameWidth で左揃え。
+// これで対象メニュー間でアイコンと名前の見た目が揃う
+func itemMenuColumns(nameWidth int, trailing ...menuColumn) ([]int, []styled.TextAlign) {
+	colWidths := make([]int, 0, 2+len(trailing))
+	aligns := make([]styled.TextAlign, 0, 2+len(trailing))
+	colWidths = append(colWidths, itemIconColumnWidth, nameWidth)
+	aligns = append(aligns, styled.AlignLeft, styled.AlignLeft)
+	for _, c := range trailing {
+		colWidths = append(colWidths, c.Width)
+		aligns = append(aligns, c.Align)
+	}
+	return colWidths, aligns
+}
+
+// itemMenuRow は アイテム entity から共通の先頭部 [アイコン + 名前×個数] を組み、
+// メニュー固有の trailing 文字列セルを後続に付けた menuRow を返す。
+// 名前・個数・アイコンは全て entity から解決するので、呼び出し側は追加列だけ渡せばよい
+func itemMenuRow(world w.World, e ecs.Entity, trailing ...string) menuRow {
+	name := query.GetEntityName(e, world)
+	count := query.GetEntityCount(world, e)
+	icon, _ := gc.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))
+	return menuRow{
+		Icon:  icon,
+		Cells: append([]string{nameWithCount(name, count)}, trailing...),
+	}
 }
 
 // newPageIndicator はページ位置を示す行を組み立てる。1ページに収まり表示が空になるときも

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
@@ -73,10 +74,50 @@ func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers 
 // alignsがnilの場合は全て左揃えになる
 func NewTableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected *bool, res resources.UIResources) {
 	if isSelected != nil {
-		addSelectableRow(container, columnWidths, values, aligns, *isSelected, res)
+		addSelectableRow(container, columnWidths, nil, false, values, aligns, *isSelected, res)
 		return
 	}
-	addDataRow(container, columnWidths, values, aligns, res)
+	addDataRowColored(container, columnWidths, nil, false, values, aligns, theme.TextPrimary, res)
+}
+
+// NewTableRowWithIcon は先頭にアイコン列を持つテーブル行を作成する。
+// icon が nil のときは透明なセルを置き、列数を columnWidths と揃える。
+// columnWidths[0] がアイコン列で、values は後続の列に対応する
+func NewTableRowWithIcon(container *widget.Container, columnWidths []int, icon *ebiten.Image, values []string, aligns []TextAlign, isSelected *bool, res resources.UIResources) {
+	if isSelected != nil {
+		addSelectableRow(container, columnWidths, icon, true, values, aligns, *isSelected, res)
+		return
+	}
+	addDataRowColored(container, columnWidths, icon, true, values, aligns, theme.TextPrimary, res)
+}
+
+// NewSpriteCell は img を一辺 size のアイコン widget にする。原寸が size より大きければ縮小する。
+// img が nil のときは透明な size×size のセルを返し、アイコンの無い行の桁を合わせる
+func NewSpriteCell(img *ebiten.Image, size int) *widget.Graphic {
+	scaled := ebiten.NewImage(size, size)
+	if img != nil {
+		bounds := img.Bounds()
+		iw, ih := bounds.Dx(), bounds.Dy()
+		if iw > 0 && ih > 0 {
+			longest := max(ih, iw)
+			scale := 1.0
+			if longest > size {
+				scale = float64(size) / float64(longest)
+			}
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Scale(scale, scale)
+			// 縮小後のアイコンをセル中央へ寄せる
+			op.GeoM.Translate((float64(size)-float64(iw)*scale)/2, (float64(size)-float64(ih)*scale)/2)
+			scaled.DrawImage(img, op)
+		}
+	}
+	return widget.NewGraphic(
+		widget.GraphicOpts.Image(scaled),
+		widget.GraphicOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.GridLayoutData{}),
+			widget.WidgetOpts.MinSize(size, size),
+		),
+	)
 }
 
 // ================
@@ -122,7 +163,7 @@ func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Conta
 	)
 }
 
-func addSelectableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected bool, res resources.UIResources) {
+func addSelectableRow(container *widget.Container, columnWidths []int, icon *ebiten.Image, hasIcon bool, values []string, aligns []TextAlign, isSelected bool, res resources.UIResources) {
 	bgImage := image.NewNineSliceColor(theme.Transparent)
 	textColor := theme.TextSecondary
 	if isSelected {
@@ -131,57 +172,42 @@ func addSelectableRow(container *widget.Container, columnWidths []int, values []
 	}
 
 	row := newRowContainer(columnWidths, bgImage)
-
-	for i := range values {
-		width := 80
-		if i < len(columnWidths) {
-			width = columnWidths[i]
-		}
-
-		textPos := widget.TextPositionStart
-		gridData := widget.GridLayoutData{}
-		if aligns != nil && i < len(aligns) && aligns[i] == AlignRight {
-			textPos = widget.TextPositionEnd
-			gridData.HorizontalPosition = widget.GridLayoutPositionEnd
-		}
-
-		textWidget := widget.NewText(
-			widget.TextOpts.Text(values[i], &res.Text.BodyFace, textColor),
-			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
-			widget.TextOpts.WidgetOpts(
-				widget.WidgetOpts.LayoutData(gridData),
-				widget.WidgetOpts.MinSize(width, tableRowHeight),
-			),
-		)
-		row.AddChild(textWidget)
-	}
-
+	addRowCells(row, columnWidths, icon, hasIcon, values, aligns, textColor, res)
 	container.AddChild(row)
 
 	container.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))
 }
 
-func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res resources.UIResources) {
-	addDataRowColored(container, columnWidths, values, aligns, theme.TextPrimary, res)
-}
-
 // NewTableRowColored はデータ行を指定色の文字で描く。詳細モーダルで条件可否を色分けする用途に使う
 func NewTableRowColored(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
-	addDataRowColored(container, columnWidths, values, aligns, textColor, res)
+	addDataRowColored(container, columnWidths, nil, false, values, aligns, textColor, res)
 }
 
-func addDataRowColored(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
+func addDataRowColored(container *widget.Container, columnWidths []int, icon *ebiten.Image, hasIcon bool, values []string, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
 	row := newRowContainer(columnWidths, image.NewNineSliceColor(theme.Transparent))
+	addRowCells(row, columnWidths, icon, hasIcon, values, aligns, textColor, res)
+	container.AddChild(row)
+}
+
+// addRowCells は行コンテナへセルを並べる。hasIcon なら先頭にアイコンセルを1つ置き、
+// values を後続の列に対応させる。columnWidths とアイコンぶんのずれをここで吸収する
+func addRowCells(row *widget.Container, columnWidths []int, icon *ebiten.Image, hasIcon bool, values []string, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
+	col := 0
+	if hasIcon {
+		row.AddChild(NewSpriteCell(icon, tableRowHeight))
+		col = 1
+	}
 
 	for i, value := range values {
+		ci := col + i
 		width := 80
-		if i < len(columnWidths) {
-			width = columnWidths[i]
+		if ci < len(columnWidths) {
+			width = columnWidths[ci]
 		}
 
 		textPos := widget.TextPositionStart
 		gridData := widget.GridLayoutData{}
-		if aligns != nil && i < len(aligns) && aligns[i] == AlignRight {
+		if aligns != nil && ci < len(aligns) && aligns[ci] == AlignRight {
 			textPos = widget.TextPositionEnd
 			gridData.HorizontalPosition = widget.GridLayoutPositionEnd
 		}
@@ -196,6 +222,4 @@ func addDataRowColored(container *widget.Container, columnWidths []int, values [
 		)
 		row.AddChild(textWidget)
 	}
-
-	container.AddChild(row)
 }

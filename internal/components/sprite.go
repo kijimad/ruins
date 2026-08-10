@@ -20,6 +20,26 @@ func SubImage(img *ebiten.Image, r image.Rectangle) *ebiten.Image {
 	return sub
 }
 
+// SpriteImage は SpriteRender が指すスプライトの部分画像を返す。
+// シートかキーが見つからなければ ok=false
+func SpriteImage(sheets map[string]SpriteSheet, sr *SpriteRender) (*ebiten.Image, bool) {
+	if sr == nil {
+		return nil, false
+	}
+	sheet, ok := sheets[sr.SpriteSheetName]
+	if !ok {
+		return nil, false
+	}
+	sp, ok := sheet.Sprites[sr.SpriteKey]
+	if !ok {
+		return nil, false
+	}
+	if sheet.Texture.Image == nil {
+		return nil, false
+	}
+	return SubImage(sheet.Texture.Image, image.Rect(sp.X, sp.Y, sp.X+sp.Width, sp.Y+sp.Height)), true
+}
+
 // Sprite は1つ1つの意味をなす画像の位置を示す情報
 // 1ファイルに対して複数のスプライトが定義されている
 type Sprite struct {

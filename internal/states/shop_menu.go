@@ -273,18 +273,15 @@ func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, t
 	}
 
 	currentTab := tabs[tabIndex]
-	// 名前+個数、価格、重さの3列。名前を伸縮させ、価格・重さを右側にまとめる。
+	// アイコン、名前+個数、価格、重さの4列。名前を伸縮させ、価格・重さを右側にまとめる。
 	// 重さは最も重い値、15.00kg 相当、が収まる幅を固定で取り、値の桁数で価格位置がぶれないようにする。
 	// 売却の個数は名前に x個数 として添える。性能は x の詳細モーダルで見る
-	columnWidths := []int{0, 80, 90}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+	columnWidths, aligns := itemMenuColumns(0, menuColumn{Width: 80, Align: styled.AlignRight}, menuColumn{Width: 90, Align: styled.AlignRight})
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		// 名前・個数・重量は実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している
-		name := query.T(world, world.Components.Name.Get(it.Entity).Name)
-		count := query.GetEntityCount(world, it.Entity)
+		// 名前・個数・重量・アイコンは実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している
 		weight := query.GetEntityWeight(world, it.Entity).KgString()
-		rows[i] = menuRow{Cells: []string{nameWithCount(name, count), query.FormatCurrency(it.Price), weight}}
+		rows[i] = itemMenuRow(world, it.Entity, query.FormatCurrency(it.Price), weight)
 	}
 	emptyText := query.T(world, "No goods")
 	if currentTab.ID == "sell" {
