@@ -7,7 +7,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -114,21 +113,17 @@ type shopItemData struct {
 	Disabled bool       // 所持金が足りず選べない
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる。
+// プレイヤーが居なければ空の props を返す。価格は query.BuyPrice/SellPrice が取引と揃えて出す
 func (st *ShopMenuState) Fetch(world w.World) ShopProps {
-	var currency int
-	buyPriceMod, sellPriceMod := consts.PercentBase, consts.PercentBase
-	query.Player(world, func(playerEntity ecs.Entity) {
-		currency = query.GetCurrency(world, playerEntity)
-		if world.Components.CharModifiers.Has(playerEntity) {
-			mods := world.Components.CharModifiers.Get(playerEntity)
-			buyPriceMod = mods.BuyPrice
-			sellPriceMod = mods.SellPrice
-		}
-	})
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return ShopProps{}
+	}
+	currency := query.GetCurrency(world, player)
 
 	return ShopProps{
-		Tabs: st.createTabs(world, currency, buyPriceMod, sellPriceMod),
+		Tabs: st.createTabs(world, player, currency),
 	}
 }
 
@@ -141,21 +136,20 @@ func (st *ShopMenuState) Menu(props ShopProps) menurt.MenuConfig {
 	return menurt.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, sellPriceMod consts.Percent) []shopTabData {
+func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency int) []shopTabData {
 	return []shopTabData{
-		{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, currency, buyPriceMod)},
-		{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, sellPriceMod)},
+		{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, player, currency)},
+		{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
 	}
 }
 
 // createBuyItems は商人の在庫を買いタブへ並べる。アイテムと隊員候補が同列に並ぶ
-func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod consts.Percent) []shopItemData {
+func (st *ShopMenuState) createBuyItems(world w.World, player ecs.Entity, currency int) []shopItemData {
 	stock := query.GetStorageItems(world, st.merchant)
 	items := make([]shopItemData, 0, len(stock))
 
 	for _, entity := range stock {
-		base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
-		price := buyPriceMod.ApplyInt(query.CalculateBuyPrice(base))
+		price := query.BuyPrice(world, player, entity)
 		items = append(items, shopItemData{
 			Entity:   entity,
 			Price:    price,
@@ -167,20 +161,13 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
 	return items
 }
 
-// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る。
-// プレイヤーが居ないときは何も並べない。存在確認を先に済ませ、収集クエリは query.Player の
-// コールバック外で回してクエリのネストを避ける
-func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Percent) []shopItemData {
-	if _, err := query.GetPlayerEntity(world); err != nil {
-		return nil
-	}
-
+// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る
+func (st *ShopMenuState) createSellItems(world w.World, player ecs.Entity) []shopItemData {
 	var items []shopItemData
 	sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
 	for sellQuery.Next() {
 		entity := sellQuery.Entity()
-		base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
-		price := sellPriceMod.ApplyInt(query.CalculateSellPrice(base))
+		price := query.SellPrice(world, player, entity)
 		items = append(items, shopItemData{
 			Entity: entity,
 			Price:  price,
@@ -224,6 +211,10 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 		if err != nil {
 			return fmt.Errorf("failed to buy: %w", err)
 		}
+		return nil
+	}
+	// 選択が古く実体が消えていれば何もしない。dead entity への移動は panic するため先に守る
+	if !world.ECS.Alive(item.Entity) {
 		return nil
 	}
 	var err error

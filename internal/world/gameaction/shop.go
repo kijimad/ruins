@@ -12,7 +12,7 @@ import (
 // BuyStock はプレイヤーが商人の在庫アイテムを買う。実体を商人の収納からプレイヤーのバックパックへ移す。
 // 通貨が足りなければ何もせずエラーを返す
 func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {
-	price := buyPrice(world, player, item)
+	price := query.BuyPrice(world, player, item)
 
 	if !query.HasCurrency(world, player, price) {
 		return fmt.Errorf("not enough currency: need %d, have %d", price, query.GetCurrency(world, player))
@@ -35,10 +35,7 @@ func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {
 // SellStock はプレイヤーが持ち物を商人へ売る。実体を商人の収納へ移し、代金を受け取る。
 // 売った品は商人の在庫として店頭に並ぶ
 func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.Entity) error {
-	price := sellPrice(world, player, item)
-	if price == 0 {
-		return fmt.Errorf("this item cannot be sold")
-	}
+	price := query.SellPrice(world, player, item)
 
 	if err := lifecycle.MoveToStorage(world, item, merchant); err != nil {
 		return fmt.Errorf("failed to move item to merchant storage: %w", err)
@@ -57,7 +54,7 @@ func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.E
 // HireRecruit はプレイヤーが商人の在庫の隊員候補を雇う。候補を隊員として活性化し、代金を支払う。
 // 通貨が足りなければ何もせずエラーを返す
 func HireRecruit(world w.World, player ecs.Entity, recruit ecs.Entity) error {
-	price := buyPrice(world, player, recruit)
+	price := query.BuyPrice(world, player, recruit)
 
 	if !query.HasCurrency(world, player, price) {
 		return fmt.Errorf("not enough currency: need %d, have %d", price, query.GetCurrency(world, player))
@@ -75,24 +72,4 @@ func HireRecruit(world w.World, player ecs.Entity, recruit ecs.Entity) error {
 	}
 
 	return nil
-}
-
-// buyPrice は交渉スキルの買値倍率込みの購入価格を返す
-func buyPrice(world w.World, player ecs.Entity, entity ecs.Entity) int {
-	base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
-	price := query.CalculateBuyPrice(base)
-	if world.Components.CharModifiers.Has(player) {
-		price = world.Components.CharModifiers.Get(player).BuyPrice.ApplyInt(price)
-	}
-	return price
-}
-
-// sellPrice は交渉スキルの売値倍率込みの売却価格を返す
-func sellPrice(world w.World, player ecs.Entity, entity ecs.Entity) int {
-	base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
-	price := query.CalculateSellPrice(base)
-	if world.Components.CharModifiers.Has(player) {
-		price = world.Components.CharModifiers.Get(player).SellPrice.ApplyInt(price)
-	}
-	return price
 }
