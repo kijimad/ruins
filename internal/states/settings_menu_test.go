@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -43,7 +44,7 @@ func TestNewLanguageMenuState_選択メニューで言語プリセット分の�
 
 	world := testutil.InitTestWorld(t)
 	_, choices := languageChoices(world)
-	assert.Len(t, choices, len(languagePresets))
+	assert.Len(t, choices, len(i18n.SupportedLangs()))
 }
 
 func TestLanguageChoices_選択で実行中シングルトンと設定を更新する(t *testing.T) {
@@ -54,7 +55,7 @@ func TestLanguageChoices_選択で実行中シングルトンと設定を更新�
 	require.Equal(t, "en", query.GetUserSettings(world).Language, "既定は en")
 
 	_, choices := languageChoices(world)
-	// languagePresets の並びは ja, en。ja を選んで切り替えを確かめる
+	// i18n.SupportedLangs() の並びは ja, en。ja を選んで切り替えを確かめる
 	require.Len(t, choices, 2)
 	transition, err := choices[0].Run(world)
 	require.NoError(t, err)
