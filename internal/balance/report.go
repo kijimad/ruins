@@ -2,7 +2,6 @@ package balance
 
 import (
 	"fmt"
-	"log"
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -114,7 +113,11 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
 	}
 
 	// 武器×敵の戦闘メトリクスを生成する
-	report.BattleMetrics = generateBattleMetrics(master, playerName, seed)
+	metrics, err := generateBattleMetrics(master, playerName, seed)
+	if err != nil {
+		return nil, err
+	}
+	report.BattleMetrics = metrics
 
 	// 施設種別ごとの loot 分布を生成する
 	report.RoomLoot = GenerateRoomLoot(master, roomLootTrials, seed)
@@ -128,12 +131,10 @@ const roomLootTrials = 2000
 const battleMetricTrials = 500
 
 // generateBattleMetrics は全武器×全敵の組み合わせで戦闘シミュレーションを実行する
-func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []oapi.BalanceBattleMetric {
+func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) ([]oapi.BalanceBattleMetric, error) {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
-		log.Printf("generateBattleMetrics: failed to load player %q: %v", playerName, err)
-		// required 配列は全経路で [] を返す。null にすると battleMetrics: null になり契約を破る。
-		return []oapi.BalanceBattleMetric{}
+		return nil, fmt.Errorf("failed to load player for battle metrics: %w", err)
 	}
 
 	// 武器一覧を収集する
@@ -188,5 +189,5 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []o
 		}
 	}
 
-	return metrics
+	return metrics, nil
 }

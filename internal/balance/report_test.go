@@ -54,19 +54,21 @@ func TestGenerateReport_存在しない武器はエラー(t *testing.T) {
 	assert.ErrorContains(t, err, "failed to load weapon")
 }
 
-func TestGenerateBattleMetrics_存在しないプレイヤーは空を返す(t *testing.T) {
+func TestGenerateBattleMetrics_存在しないプレイヤーはエラー(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	metrics := generateBattleMetrics(master, "存在しないプレイヤー", 1)
-	assert.Empty(t, metrics)
+	metrics, err := generateBattleMetrics(master, "存在しないプレイヤー", 1)
+	require.Error(t, err)
+	assert.Nil(t, metrics)
 }
 
 func TestGenerateBattleMetrics_武器と敵の組み合わせでDPSを算出する(t *testing.T) {
 	t.Parallel()
 	master := loadTestMaster(t)
 
-	metrics := generateBattleMetrics(master, "ash", 42)
+	metrics, err := generateBattleMetrics(master, "ash", 42)
+	require.NoError(t, err)
 	require.NotEmpty(t, metrics)
 	for _, m := range metrics {
 		assert.Equal(t, "ash", m.Player)
