@@ -90,7 +90,8 @@ func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex i
 	}
 	for i, entity := range props.Items {
 		name := query.GetEntityName(entity, world)
-		content.AddChild(styled.NewListItemText(name, theme.TextSecondary, i == selectedIndex, res))
+		icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(entity))
+		content.AddChild(styled.NewListItemIconText(icon, name, theme.TextSecondary, i == selectedIndex, res))
 	}
 	win.SetLocation(rect)
 	return win

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
@@ -204,7 +205,17 @@ func NewBodyText(title string, _ color.RGBA, res resources.UIResources) *widget.
 
 // NewListItemText はリスト項目用テキストを作成する（背景バーとカーソルで選択状態を表現）
 // additionalLabels が空の場合は単純なテキスト表示、指定された場合は右側に追加ラベルを表示
+// NewListItemText はアイコン無しのリスト項目を作る
 func NewListItemText(text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {
+	return newListItem(nil, text, textColor, isSelected, res, additionalLabels...)
+}
+
+// NewListItemIconText は名前の左にアイコンを置くリスト項目を作る。icon が nil ならアイコン列は空になる
+func NewListItemIconText(icon *ebiten.Image, text string, textColor color.RGBA, isSelected bool, res resources.UIResources) *widget.Container {
+	return newListItem(icon, text, textColor, isSelected, res)
+}
+
+func newListItem(icon *ebiten.Image, text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {
 	// 選択時: グラデーション背景バー + 明るいテキスト、非選択時: 透明背景 + 通常テキスト
 	bgImage := image.NewNineSliceColor(theme.Transparent)
 	displayTextColor := textColor
@@ -255,6 +266,10 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res res
 			}),
 		),
 	)
+	// アイコンがあれば名前の左に置く
+	if icon != nil {
+		container.AddChild(NewSpriteCell(icon, tableRowHeight))
+	}
 	container.AddChild(mainText)
 
 	// 追加ラベルがある場合は固定幅のスペーサーを追加
