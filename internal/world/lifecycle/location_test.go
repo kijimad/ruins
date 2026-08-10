@@ -64,7 +64,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 		// プレイヤーなしで実行
 		err := MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "no player entity with required components found")
+		assert.ErrorContains(t, err, "no player entity with required components found")
 	})
 
 	t.Run("必須コンポーネントが欠けている場合はエラー", func(t *testing.T) {
@@ -79,7 +79,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 
 		err := MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "no player entity with required components found")
+		assert.ErrorContains(t, err, "no player entity with required components found")
 	})
 }
 
@@ -289,27 +289,53 @@ func TestTransferUnits(t *testing.T) {
 
 func TestMoveToEquip(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
 
-	owner := world.ECS.NewEntity()
-	item := world.ECS.NewEntity()
-	world.Components.Name.Add(item, &gc.Name{Name: "テストの剣"})
-	// 移動前はフィールドに置かれ、座標を持っている
-	world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
-	world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
+	t.Run("フィールドから装備する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
 
-	MoveToEquip(world, item, owner, gc.SlotWeapon1)
+		owner := world.ECS.NewEntity()
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "テストの剣"})
+		// 移動前はフィールドに置かれ、座標を持っている
+		world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
 
-	require.True(t, world.Components.LocationEquipped.Has(item), "装備状態になる")
-	loc := world.Components.LocationEquipped.Get(item)
-	assert.Equal(t, owner, loc.Owner)
-	assert.Equal(t, gc.SlotWeapon1, loc.EquipmentSlot)
+		MoveToEquip(world, item, owner, gc.SlotWeapon1)
 
-	assert.False(t, world.Components.LocationOnField.Has(item), "フィールドの位置情報は排他的に外れる")
-	assert.False(t, world.Components.GridElement.Has(item), "装備するとGridElementは外れる")
+		require.True(t, world.Components.LocationEquipped.Has(item), "装備状態になる")
+		loc := world.Components.LocationEquipped.Get(item)
+		assert.Equal(t, owner, loc.Owner)
+		assert.Equal(t, gc.SlotWeapon1, loc.EquipmentSlot)
 
-	assert.True(t, world.Components.StatsChanged.Has(owner), "所有者にStatsChangedが付与される")
-	assert.True(t, world.Components.WeightDirty.Has(owner), "所有者にWeightDirtyが付与される")
+		assert.False(t, world.Components.LocationOnField.Has(item), "フィールドの位置情報は排他的に外れる")
+		assert.False(t, world.Components.GridElement.Has(item), "装備するとGridElementは外れる")
+
+		assert.True(t, world.Components.StatsChanged.Has(owner), "所有者にStatsChangedが付与される")
+		assert.True(t, world.Components.WeightDirty.Has(owner), "所有者にWeightDirtyが付与される")
+	})
+
+	t.Run("バックパックから装備すると元オーナーと新オーナーの両方にWeightDirtyが付く", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		prevOwner := world.ECS.NewEntity()
+		newOwner := world.ECS.NewEntity()
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "テストの剣"})
+		// 移動前は元オーナーのバックパックに入っている
+		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: prevOwner})
+
+		MoveToEquip(world, item, newOwner, gc.SlotWeapon1)
+
+		require.True(t, world.Components.LocationEquipped.Has(item), "装備状態になる")
+		loc := world.Components.LocationEquipped.Get(item)
+		assert.Equal(t, newOwner, loc.Owner)
+
+		assert.False(t, world.Components.LocationInBackpack.Has(item), "バックパックの位置情報は排他的に外れる")
+		assert.True(t, world.Components.WeightDirty.Has(prevOwner), "元オーナーにWeightDirtyが付与される")
+		assert.True(t, world.Components.WeightDirty.Has(newOwner), "新オーナーにWeightDirtyが付与される")
+	})
 }
 
 func TestUnequipAll(t *testing.T) {
