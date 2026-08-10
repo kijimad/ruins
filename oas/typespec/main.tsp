@@ -6,6 +6,7 @@ import "./types.tsp";
 import "./req.tsp";
 import "./resp.tsp";
 import "./save.tsp";
+import "./balance.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.Rest;
@@ -35,7 +36,7 @@ interface Items {
   @get list(): ItemList | Error;
 
   /** アイテム詳細取得 */
-  @get @route("/{index}") get(@path index: int32): Item | Error;
+  @get @route("/{index}") get(@path index: integer): Item | Error;
 
   /** アイテム作成 */
   @post create(@body item: Item): {
@@ -44,10 +45,10 @@ interface Items {
   } | Error;
 
   /** アイテム更新 */
-  @put @route("/{index}") update(@path index: int32, @body item: Item): Item | Error;
+  @put @route("/{index}") update(@path index: integer, @body item: Item): Item | Error;
 
   /** アイテム削除 */
-  @delete @route("/{index}") delete(@path index: int32): {
+  @delete @route("/{index}") delete(@path index: integer): {
     @statusCode statusCode: 204;
   } | Error;
 }
@@ -58,13 +59,13 @@ interface Members {
   /** メンバー一覧取得 */
   @get list(): MemberList | Error;
   /** メンバー詳細取得 */
-  @get @route("/{index}") get(@path index: int32): Member | Error;
+  @get @route("/{index}") get(@path index: integer): Member | Error;
   /** メンバー作成 */
   @post create(@body member: Member): { @statusCode statusCode: 201; @body body: Member; } | Error;
   /** メンバー更新 */
-  @put @route("/{index}") update(@path index: int32, @body member: Member): Member | Error;
+  @put @route("/{index}") update(@path index: integer, @body member: Member): Member | Error;
   /** メンバー削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("Recipes")
@@ -73,13 +74,13 @@ interface Recipes {
   /** レシピ一覧取得 */
   @get list(): RecipeList | Error;
   /** レシピ詳細取得 */
-  @get @route("/{index}") get(@path index: int32): Recipe | Error;
+  @get @route("/{index}") get(@path index: integer): Recipe | Error;
   /** レシピ作成 */
   @post create(@body recipe: Recipe): { @statusCode statusCode: 201; @body body: Recipe; } | Error;
   /** レシピ更新 */
-  @put @route("/{index}") update(@path index: int32, @body recipe: Recipe): Recipe | Error;
+  @put @route("/{index}") update(@path index: integer, @body recipe: Recipe): Recipe | Error;
   /** レシピ削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("CommandTables")
@@ -90,9 +91,9 @@ interface CommandTables {
   /** コマンドテーブル作成 */
   @post create(@body table: CommandTable): { @statusCode statusCode: 201; @body body: CommandTable; } | Error;
   /** コマンドテーブル更新 */
-  @put @route("/{index}") update(@path index: int32, @body table: CommandTable): CommandTable | Error;
+  @put @route("/{index}") update(@path index: integer, @body table: CommandTable): CommandTable | Error;
   /** コマンドテーブル削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("DropTables")
@@ -103,9 +104,9 @@ interface DropTables {
   /** ドロップテーブル作成 */
   @post create(@body table: DropTable): { @statusCode statusCode: 201; @body body: DropTable; } | Error;
   /** ドロップテーブル更新 */
-  @put @route("/{index}") update(@path index: int32, @body table: DropTable): DropTable | Error;
+  @put @route("/{index}") update(@path index: integer, @body table: DropTable): DropTable | Error;
   /** ドロップテーブル削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("ItemGroups")
@@ -116,9 +117,9 @@ interface ItemGroups {
   /** アイテムグループ作成 */
   @post create(@body group: ItemGroup): { @statusCode statusCode: 201; @body body: ItemGroup; } | Error;
   /** アイテムグループ更新 */
-  @put @route("/{index}") update(@path index: int32, @body group: ItemGroup): ItemGroup | Error;
+  @put @route("/{index}") update(@path index: integer, @body group: ItemGroup): ItemGroup | Error;
   /** アイテムグループ削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("ItemTables")
@@ -129,9 +130,9 @@ interface ItemTables {
   /** アイテムテーブル作成 */
   @post create(@body table: ItemTable): { @statusCode statusCode: 201; @body body: ItemTable; } | Error;
   /** アイテムテーブル更新 */
-  @put @route("/{index}") update(@path index: int32, @body table: ItemTable): ItemTable | Error;
+  @put @route("/{index}") update(@path index: integer, @body table: ItemTable): ItemTable | Error;
   /** アイテムテーブル削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("EnemyTables")
@@ -142,9 +143,9 @@ interface EnemyTables {
   /** 敵テーブル作成 */
   @post create(@body table: EnemyTable): { @statusCode statusCode: 201; @body body: EnemyTable; } | Error;
   /** 敵テーブル更新 */
-  @put @route("/{index}") update(@path index: int32, @body table: EnemyTable): EnemyTable | Error;
+  @put @route("/{index}") update(@path index: integer, @body table: EnemyTable): EnemyTable | Error;
   /** 敵テーブル削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("Tiles")
@@ -153,13 +154,13 @@ interface Tiles {
   /** タイル一覧取得 */
   @get list(): TileList | Error;
   /** タイル詳細取得 */
-  @get @route("/{index}") get(@path index: int32): Tile | Error;
+  @get @route("/{index}") get(@path index: integer): Tile | Error;
   /** タイル作成 */
   @post create(@body tile: Tile): { @statusCode statusCode: 201; @body body: Tile; } | Error;
   /** タイル更新 */
-  @put @route("/{index}") update(@path index: int32, @body tile: Tile): Tile | Error;
+  @put @route("/{index}") update(@path index: integer, @body tile: Tile): Tile | Error;
   /** タイル削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("Props")
@@ -168,13 +169,13 @@ interface Props {
   /** 置物一覧取得 */
   @get list(): PropList | Error;
   /** 置物詳細取得 */
-  @get @route("/{index}") get(@path index: int32): Prop | Error;
+  @get @route("/{index}") get(@path index: integer): Prop | Error;
   /** 置物作成 */
   @post create(@body prop: Prop): { @statusCode statusCode: 201; @body body: Prop; } | Error;
   /** 置物更新 */
-  @put @route("/{index}") update(@path index: int32, @body prop: Prop): Prop | Error;
+  @put @route("/{index}") update(@path index: integer, @body prop: Prop): Prop | Error;
   /** 置物削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("Professions")
@@ -185,9 +186,9 @@ interface Professions {
   /** 職業作成 */
   @post create(@body profession: Profession): { @statusCode statusCode: 201; @body body: Profession; } | Error;
   /** 職業更新 */
-  @put @route("/{index}") update(@path index: int32, @body profession: Profession): Profession | Error;
+  @put @route("/{index}") update(@path index: integer, @body profession: Profession): Profession | Error;
   /** 職業削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("SpriteSheets")
@@ -198,9 +199,9 @@ interface SpriteSheets {
   /** スプライトシート作成 */
   @post create(@body sheet: SpriteSheet): { @statusCode statusCode: 201; @body body: SpriteSheet; } | Error;
   /** スプライトシート更新 */
-  @put @route("/{index}") update(@path index: int32, @body sheet: SpriteSheet): SpriteSheet | Error;
+  @put @route("/{index}") update(@path index: integer, @body sheet: SpriteSheet): SpriteSheet | Error;
   /** スプライトシート削除 */
-  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+  @delete @route("/{index}") delete(@path index: integer): { @statusCode statusCode: 204; } | Error;
 }
 
 @tag("Palettes")

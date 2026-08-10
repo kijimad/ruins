@@ -122,8 +122,8 @@ msgstr "暗闇"
 msgid "Nothing here"
 msgstr "何もありません"
 
-msgid "WASD/Arrows: Move  X/Esc: Close"
-msgstr "WASD/矢印: 移動  X/Esc: 閉じる"
+msgid "Arrows: Move  X/Esc: Close"
+msgstr "矢印: 移動  X/Esc: 閉じる"
 
 msgid "Durability"
 msgstr "耐久"
@@ -410,8 +410,8 @@ msgstr "全身"
 msgid "No entries"
 msgstr "(項目なし)"
 
-msgid "WASD: Move."
-msgstr "WASD: 移動する。"
+msgid "Arrows: Move."
+msgstr "矢印: 移動する。"
 
 msgid "M key: Open base menu."
 msgstr "Mキー: 拠点メニューを開く。"

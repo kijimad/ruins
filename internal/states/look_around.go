@@ -76,16 +76,16 @@ func (st *LookAroundState) handleInput() (inputmapper.ActionID, bool) {
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) || keyboardInput.IsKeyJustPressed(ebiten.KeyX) {
 		return inputmapper.ActionCloseMenu, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyUp) || keyboardInput.IsKeyJustPressed(ebiten.KeyW) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyUp) {
 		return inputmapper.ActionMoveNorth, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyDown) || keyboardInput.IsKeyJustPressed(ebiten.KeyS) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyDown) {
 		return inputmapper.ActionMoveSouth, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) || keyboardInput.IsKeyJustPressed(ebiten.KeyA) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) {
 		return inputmapper.ActionMoveWest, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyRight) || keyboardInput.IsKeyJustPressed(ebiten.KeyD) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyRight) {
 		return inputmapper.ActionMoveEast, true
 	}
 
@@ -258,7 +258,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 
 	// 操作説明
 	y = panelY + panelHeight - 30
-	drawText(query.T(world, "WASD/Arrows: Move  X/Esc: Close"))
+	drawText(query.T(world, "Arrows: Move  X/Esc: Close"))
 
 	return nil
 }

@@ -5,37 +5,37 @@ namespace RuinsEditorApi;
 /** 命中率。0で必中なし、100で必中 */
 @minValue(0)
 @maxValue(100)
-scalar Accuracy extends int32;
+scalar Accuracy extends integer;
 
 /** 命中率補正値 */
 @minValue(-100)
 @maxValue(100)
-scalar AccuracyBonus extends int32;
+scalar AccuracyBonus extends integer;
 
 /** 行動コスト */
 @minValue(0)
 @maxValue(100)
-scalar ActionCost extends int32;
+scalar ActionCost extends integer;
 
 /** 敏捷性。行動順に影響する */
 @minValue(-100)
 @maxValue(100)
-scalar Agility extends int32;
+scalar Agility extends integer;
 
 /** 防具の防御力 */
 @minValue(0)
 @maxValue(999)
-scalar ArmorDefense extends int32;
+scalar ArmorDefense extends integer;
 
 /** 1ターンあたりの攻撃回数 */
 @minValue(1)
 @maxValue(10)
-scalar AttackCount extends int32;
+scalar AttackCount extends integer;
 
 /** 基本ダメージ */
 @minValue(0)
 @maxValue(9999)
-scalar BaseDamage extends int32;
+scalar BaseDamage extends integer;
 
 /** 通行を妨げるかどうか */
 scalar BlocksPassage extends boolean;
@@ -49,22 +49,22 @@ scalar ColorChannel extends uint8;
 /** ダメージ補正値 */
 @minValue(-100)
 @maxValue(100)
-scalar DamageBonus extends int32;
+scalar DamageBonus extends integer;
 
 /** 防御力。被ダメージを軽減する */
 @minValue(-100)
 @maxValue(100)
-scalar Defense extends int32;
+scalar Defense extends integer;
 
 /** 階層レベル */
 @minValue(0)
 @maxValue(100)
-scalar DepthLevel extends int32;
+scalar DepthLevel extends integer;
 
 /** 器用さ。クリティカル率に影響する */
 @minValue(-100)
 @maxValue(100)
-scalar Dexterity extends int32;
+scalar Dexterity extends integer;
 
 /** 説明文 */
 @minLength(1)
@@ -88,12 +88,12 @@ scalar EntryWeight extends float64;
 /** 耐久値。設定すると破壊可能になる */
 @minValue(1)
 @maxValue(9999)
-scalar HitPoints extends int32;
+scalar HitPoints extends integer;
 
 /** 回復固定量 */
 @minValue(0)
 @maxValue(9999)
-scalar HealAmount extends int32;
+scalar HealAmount extends integer;
 
 /** 回復割合。0.0〜1.0 */
 @minValue(0)
@@ -109,12 +109,12 @@ scalar ImagePath extends string;
 /** 耐寒性能 */
 @minValue(-100)
 @maxValue(100)
-scalar InsulationCold extends int32;
+scalar InsulationCold extends integer;
 
 /** 耐暑性能 */
 @minValue(-100)
 @maxValue(100)
-scalar InsulationHeat extends int32;
+scalar InsulationHeat extends integer;
 
 /** ボスモンスターかどうか */
 scalar IsBoss extends boolean;
@@ -125,12 +125,12 @@ scalar IsPlayer extends boolean;
 /** アイテム所持数 */
 @minValue(1)
 @maxValue(9999)
-scalar ItemCount extends int32;
+scalar ItemCount extends integer;
 
 /** 売買価格 */
 @minValue(0)
 @maxValue(99999)
-scalar ItemValue extends int32;
+scalar ItemValue extends integer;
 
 /** 重量。単位付き文字列で指定する。例: "500 g" "2 kg" "1 mg" */
 @pattern("^[0-9]+(\\.[0-9]+)? (mg|g|kg)$")
@@ -147,22 +147,22 @@ scalar LightEnabled extends boolean;
 /** 光の到達半径（タイル単位） */
 @minValue(1)
 @maxValue(100)
-scalar LightRadius extends int32;
+scalar LightRadius extends integer;
 
 /** マガジン容量 */
 @minValue(1)
 @maxValue(100)
-scalar MagazineSize extends int32;
+scalar MagazineSize extends integer;
 
 /** 素材必要数 */
 @minValue(1)
 @maxValue(99)
-scalar MaterialAmount extends int32;
+scalar MaterialAmount extends integer;
 
 /** 通行コスト加算値。0で変化なし、50でベースコスト+50 */
 @minValue(0)
 @maxValue(9999)
-scalar PassCost extends int32;
+scalar PassCost extends integer;
 
 /** メッセージリソースのキー */
 @minLength(1)
@@ -173,7 +173,7 @@ scalar MessageKey extends string;
 /** 栄養価 */
 @minValue(0)
 @maxValue(9999)
-scalar NutritionAmount extends int32;
+scalar NutritionAmount extends integer;
 
 /** パレットID */
 @minLength(1)
@@ -190,17 +190,17 @@ scalar ProfessionId extends string;
 /** 読了に必要な総読書量 */
 @minValue(1)
 @maxValue(9999)
-scalar ReadingEffort extends int32;
+scalar ReadingEffort extends integer;
 
 /** リロードに必要な行動力 */
 @minValue(1)
 @maxValue(100)
-scalar ReloadEffort extends int32;
+scalar ReloadEffort extends integer;
 
 /** 感覚。命中率と回避率に影響する */
 @minValue(-100)
 @maxValue(100)
-scalar Sensation extends int32;
+scalar Sensation extends integer;
 
 /** スキルID */
 @minLength(1)
@@ -211,7 +211,7 @@ scalar SkillId extends string;
 /** スキルレベル */
 @minValue(0)
 @maxValue(100)
-scalar SkillLevel extends int32;
+scalar SkillLevel extends integer;
 
 /** スプライトキー */
 @minLength(1)
@@ -231,17 +231,17 @@ scalar Stackable extends boolean;
 /** 筋力。物理ダメージに影響する */
 @minValue(-100)
 @maxValue(100)
-scalar Strength extends int32;
+scalar Strength extends integer;
 
 /** AI視界距離（タイル単位） */
 @minValue(1)
 @maxValue(100)
-scalar ViewDistance extends int32;
+scalar ViewDistance extends integer;
 
 /** 体力。HPに影響する */
 @minValue(-100)
 @maxValue(100)
-scalar Vitality extends int32;
+scalar Vitality extends integer;
 
 // ================== 共通enum ==================
 
@@ -452,17 +452,17 @@ enum HealingValueType {
 /** 分解の基礎工数。100が標準1ターンに相当する */
 @minValue(1)
 @maxValue(9999)
-scalar DisassemblyBaseAP extends int32;
+scalar DisassemblyBaseAP extends integer;
 
 /** 分解産出の確率。百分率 */
 @minValue(1)
 @maxValue(100)
-scalar DisassemblyChance extends int32;
+scalar DisassemblyChance extends integer;
 
 /** 分解工具のグレード。高いほど速く多く得る */
 @minValue(1)
 @maxValue(3)
-scalar ToolGrade extends int32;
+scalar ToolGrade extends integer;
 
 /** 分解工具の分類 */
 enum ToolCategory {

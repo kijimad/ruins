@@ -25,10 +25,10 @@ type ServerInterface interface {
 	CommandTablesCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/command-tables/{index})
-	CommandTablesDelete(w http.ResponseWriter, r *http.Request, index int32)
+	CommandTablesDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/command-tables/{index})
-	CommandTablesUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	CommandTablesUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/drop-tables)
 	DropTablesList(w http.ResponseWriter, r *http.Request)
@@ -37,10 +37,10 @@ type ServerInterface interface {
 	DropTablesCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/drop-tables/{index})
-	DropTablesDelete(w http.ResponseWriter, r *http.Request, index int32)
+	DropTablesDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/drop-tables/{index})
-	DropTablesUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	DropTablesUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/enemy-tables)
 	EnemyTablesList(w http.ResponseWriter, r *http.Request)
@@ -49,10 +49,10 @@ type ServerInterface interface {
 	EnemyTablesCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/enemy-tables/{index})
-	EnemyTablesDelete(w http.ResponseWriter, r *http.Request, index int32)
+	EnemyTablesDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/enemy-tables/{index})
-	EnemyTablesUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	EnemyTablesUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/item-groups)
 	ItemGroupsList(w http.ResponseWriter, r *http.Request)
@@ -61,10 +61,10 @@ type ServerInterface interface {
 	ItemGroupsCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/item-groups/{index})
-	ItemGroupsDelete(w http.ResponseWriter, r *http.Request, index int32)
+	ItemGroupsDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/item-groups/{index})
-	ItemGroupsUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	ItemGroupsUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/item-tables)
 	ItemTablesList(w http.ResponseWriter, r *http.Request)
@@ -73,10 +73,10 @@ type ServerInterface interface {
 	ItemTablesCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/item-tables/{index})
-	ItemTablesDelete(w http.ResponseWriter, r *http.Request, index int32)
+	ItemTablesDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/item-tables/{index})
-	ItemTablesUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	ItemTablesUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/items)
 	ItemsList(w http.ResponseWriter, r *http.Request)
@@ -85,13 +85,13 @@ type ServerInterface interface {
 	ItemsCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/items/{index})
-	ItemsDelete(w http.ResponseWriter, r *http.Request, index int32)
+	ItemsDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/items/{index})
-	ItemsGet(w http.ResponseWriter, r *http.Request, index int32)
+	ItemsGet(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/items/{index})
-	ItemsUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	ItemsUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/members)
 	MembersList(w http.ResponseWriter, r *http.Request)
@@ -100,13 +100,13 @@ type ServerInterface interface {
 	MembersCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/members/{index})
-	MembersDelete(w http.ResponseWriter, r *http.Request, index int32)
+	MembersDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/members/{index})
-	MembersGet(w http.ResponseWriter, r *http.Request, index int32)
+	MembersGet(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/members/{index})
-	MembersUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	MembersUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/palettes)
 	PalettesList(w http.ResponseWriter, r *http.Request)
@@ -130,10 +130,10 @@ type ServerInterface interface {
 	ProfessionsCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/professions/{index})
-	ProfessionsDelete(w http.ResponseWriter, r *http.Request, index int32)
+	ProfessionsDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/professions/{index})
-	ProfessionsUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	ProfessionsUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/props)
 	PropsList(w http.ResponseWriter, r *http.Request)
@@ -142,13 +142,13 @@ type ServerInterface interface {
 	PropsCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/props/{index})
-	PropsDelete(w http.ResponseWriter, r *http.Request, index int32)
+	PropsDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/props/{index})
-	PropsGet(w http.ResponseWriter, r *http.Request, index int32)
+	PropsGet(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/props/{index})
-	PropsUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	PropsUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/recipes)
 	RecipesList(w http.ResponseWriter, r *http.Request)
@@ -157,13 +157,13 @@ type ServerInterface interface {
 	RecipesCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/recipes/{index})
-	RecipesDelete(w http.ResponseWriter, r *http.Request, index int32)
+	RecipesDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/recipes/{index})
-	RecipesGet(w http.ResponseWriter, r *http.Request, index int32)
+	RecipesGet(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/recipes/{index})
-	RecipesUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	RecipesUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/sprite-sheets)
 	SpriteSheetsList(w http.ResponseWriter, r *http.Request)
@@ -172,10 +172,10 @@ type ServerInterface interface {
 	SpriteSheetsCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/sprite-sheets/{index})
-	SpriteSheetsDelete(w http.ResponseWriter, r *http.Request, index int32)
+	SpriteSheetsDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/sprite-sheets/{index})
-	SpriteSheetsUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	SpriteSheetsUpdate(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/tiles)
 	TilesList(w http.ResponseWriter, r *http.Request)
@@ -184,13 +184,13 @@ type ServerInterface interface {
 	TilesCreate(w http.ResponseWriter, r *http.Request)
 
 	// (DELETE /api/v1/tiles/{index})
-	TilesDelete(w http.ResponseWriter, r *http.Request, index int32)
+	TilesDelete(w http.ResponseWriter, r *http.Request, index int)
 
 	// (GET /api/v1/tiles/{index})
-	TilesGet(w http.ResponseWriter, r *http.Request, index int32)
+	TilesGet(w http.ResponseWriter, r *http.Request, index int)
 
 	// (PUT /api/v1/tiles/{index})
-	TilesUpdate(w http.ResponseWriter, r *http.Request, index int32)
+	TilesUpdate(w http.ResponseWriter, r *http.Request, index int)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -237,9 +237,9 @@ func (siw *ServerInterfaceWrapper) CommandTablesDelete(w http.ResponseWriter, r 
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -263,9 +263,9 @@ func (siw *ServerInterfaceWrapper) CommandTablesUpdate(w http.ResponseWriter, r 
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -317,9 +317,9 @@ func (siw *ServerInterfaceWrapper) DropTablesDelete(w http.ResponseWriter, r *ht
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -343,9 +343,9 @@ func (siw *ServerInterfaceWrapper) DropTablesUpdate(w http.ResponseWriter, r *ht
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -397,9 +397,9 @@ func (siw *ServerInterfaceWrapper) EnemyTablesDelete(w http.ResponseWriter, r *h
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -423,9 +423,9 @@ func (siw *ServerInterfaceWrapper) EnemyTablesUpdate(w http.ResponseWriter, r *h
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -477,9 +477,9 @@ func (siw *ServerInterfaceWrapper) ItemGroupsDelete(w http.ResponseWriter, r *ht
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -503,9 +503,9 @@ func (siw *ServerInterfaceWrapper) ItemGroupsUpdate(w http.ResponseWriter, r *ht
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -557,9 +557,9 @@ func (siw *ServerInterfaceWrapper) ItemTablesDelete(w http.ResponseWriter, r *ht
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -583,9 +583,9 @@ func (siw *ServerInterfaceWrapper) ItemTablesUpdate(w http.ResponseWriter, r *ht
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -637,9 +637,9 @@ func (siw *ServerInterfaceWrapper) ItemsDelete(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -663,9 +663,9 @@ func (siw *ServerInterfaceWrapper) ItemsGet(w http.ResponseWriter, r *http.Reque
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -689,9 +689,9 @@ func (siw *ServerInterfaceWrapper) ItemsUpdate(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -743,9 +743,9 @@ func (siw *ServerInterfaceWrapper) MembersDelete(w http.ResponseWriter, r *http.
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -769,9 +769,9 @@ func (siw *ServerInterfaceWrapper) MembersGet(w http.ResponseWriter, r *http.Req
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -795,9 +795,9 @@ func (siw *ServerInterfaceWrapper) MembersUpdate(w http.ResponseWriter, r *http.
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -955,9 +955,9 @@ func (siw *ServerInterfaceWrapper) ProfessionsDelete(w http.ResponseWriter, r *h
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -981,9 +981,9 @@ func (siw *ServerInterfaceWrapper) ProfessionsUpdate(w http.ResponseWriter, r *h
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1035,9 +1035,9 @@ func (siw *ServerInterfaceWrapper) PropsDelete(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1061,9 +1061,9 @@ func (siw *ServerInterfaceWrapper) PropsGet(w http.ResponseWriter, r *http.Reque
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1087,9 +1087,9 @@ func (siw *ServerInterfaceWrapper) PropsUpdate(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1141,9 +1141,9 @@ func (siw *ServerInterfaceWrapper) RecipesDelete(w http.ResponseWriter, r *http.
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1167,9 +1167,9 @@ func (siw *ServerInterfaceWrapper) RecipesGet(w http.ResponseWriter, r *http.Req
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1193,9 +1193,9 @@ func (siw *ServerInterfaceWrapper) RecipesUpdate(w http.ResponseWriter, r *http.
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1247,9 +1247,9 @@ func (siw *ServerInterfaceWrapper) SpriteSheetsDelete(w http.ResponseWriter, r *
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1273,9 +1273,9 @@ func (siw *ServerInterfaceWrapper) SpriteSheetsUpdate(w http.ResponseWriter, r *
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1327,9 +1327,9 @@ func (siw *ServerInterfaceWrapper) TilesDelete(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1353,9 +1353,9 @@ func (siw *ServerInterfaceWrapper) TilesGet(w http.ResponseWriter, r *http.Reque
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1379,9 +1379,9 @@ func (siw *ServerInterfaceWrapper) TilesUpdate(w http.ResponseWriter, r *http.Re
 	_ = err
 
 	// ------------- Path parameter "index" -------------
-	var index int32
+	var index int
 
-	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: "int32"})
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "integer", Format: ""})
 	if err != nil {
 		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
 		return
@@ -1658,7 +1658,7 @@ func (response CommandTablesCreatedefaultJSONResponse) VisitCommandTablesCreateR
 }
 
 type CommandTablesDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type CommandTablesDeleteResponseObject interface {
@@ -1691,7 +1691,7 @@ func (response CommandTablesDeletedefaultJSONResponse) VisitCommandTablesDeleteR
 }
 
 type CommandTablesUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *CommandTablesUpdateJSONRequestBody
 }
 
@@ -1808,7 +1808,7 @@ func (response DropTablesCreatedefaultJSONResponse) VisitDropTablesCreateRespons
 }
 
 type DropTablesDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type DropTablesDeleteResponseObject interface {
@@ -1841,7 +1841,7 @@ func (response DropTablesDeletedefaultJSONResponse) VisitDropTablesDeleteRespons
 }
 
 type DropTablesUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *DropTablesUpdateJSONRequestBody
 }
 
@@ -1958,7 +1958,7 @@ func (response EnemyTablesCreatedefaultJSONResponse) VisitEnemyTablesCreateRespo
 }
 
 type EnemyTablesDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type EnemyTablesDeleteResponseObject interface {
@@ -1991,7 +1991,7 @@ func (response EnemyTablesDeletedefaultJSONResponse) VisitEnemyTablesDeleteRespo
 }
 
 type EnemyTablesUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *EnemyTablesUpdateJSONRequestBody
 }
 
@@ -2108,7 +2108,7 @@ func (response ItemGroupsCreatedefaultJSONResponse) VisitItemGroupsCreateRespons
 }
 
 type ItemGroupsDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type ItemGroupsDeleteResponseObject interface {
@@ -2141,7 +2141,7 @@ func (response ItemGroupsDeletedefaultJSONResponse) VisitItemGroupsDeleteRespons
 }
 
 type ItemGroupsUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *ItemGroupsUpdateJSONRequestBody
 }
 
@@ -2258,7 +2258,7 @@ func (response ItemTablesCreatedefaultJSONResponse) VisitItemTablesCreateRespons
 }
 
 type ItemTablesDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type ItemTablesDeleteResponseObject interface {
@@ -2291,7 +2291,7 @@ func (response ItemTablesDeletedefaultJSONResponse) VisitItemTablesDeleteRespons
 }
 
 type ItemTablesUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *ItemTablesUpdateJSONRequestBody
 }
 
@@ -2408,7 +2408,7 @@ func (response ItemsCreatedefaultJSONResponse) VisitItemsCreateResponse(w http.R
 }
 
 type ItemsDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type ItemsDeleteResponseObject interface {
@@ -2441,7 +2441,7 @@ func (response ItemsDeletedefaultJSONResponse) VisitItemsDeleteResponse(w http.R
 }
 
 type ItemsGetRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type ItemsGetResponseObject interface {
@@ -2480,7 +2480,7 @@ func (response ItemsGetdefaultJSONResponse) VisitItemsGetResponse(w http.Respons
 }
 
 type ItemsUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *ItemsUpdateJSONRequestBody
 }
 
@@ -2597,7 +2597,7 @@ func (response MembersCreatedefaultJSONResponse) VisitMembersCreateResponse(w ht
 }
 
 type MembersDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type MembersDeleteResponseObject interface {
@@ -2630,7 +2630,7 @@ func (response MembersDeletedefaultJSONResponse) VisitMembersDeleteResponse(w ht
 }
 
 type MembersGetRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type MembersGetResponseObject interface {
@@ -2669,7 +2669,7 @@ func (response MembersGetdefaultJSONResponse) VisitMembersGetResponse(w http.Res
 }
 
 type MembersUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *MembersUpdateJSONRequestBody
 }
 
@@ -2975,7 +2975,7 @@ func (response ProfessionsCreatedefaultJSONResponse) VisitProfessionsCreateRespo
 }
 
 type ProfessionsDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type ProfessionsDeleteResponseObject interface {
@@ -3008,7 +3008,7 @@ func (response ProfessionsDeletedefaultJSONResponse) VisitProfessionsDeleteRespo
 }
 
 type ProfessionsUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *ProfessionsUpdateJSONRequestBody
 }
 
@@ -3125,7 +3125,7 @@ func (response PropsCreatedefaultJSONResponse) VisitPropsCreateResponse(w http.R
 }
 
 type PropsDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type PropsDeleteResponseObject interface {
@@ -3158,7 +3158,7 @@ func (response PropsDeletedefaultJSONResponse) VisitPropsDeleteResponse(w http.R
 }
 
 type PropsGetRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type PropsGetResponseObject interface {
@@ -3197,7 +3197,7 @@ func (response PropsGetdefaultJSONResponse) VisitPropsGetResponse(w http.Respons
 }
 
 type PropsUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *PropsUpdateJSONRequestBody
 }
 
@@ -3314,7 +3314,7 @@ func (response RecipesCreatedefaultJSONResponse) VisitRecipesCreateResponse(w ht
 }
 
 type RecipesDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type RecipesDeleteResponseObject interface {
@@ -3347,7 +3347,7 @@ func (response RecipesDeletedefaultJSONResponse) VisitRecipesDeleteResponse(w ht
 }
 
 type RecipesGetRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type RecipesGetResponseObject interface {
@@ -3386,7 +3386,7 @@ func (response RecipesGetdefaultJSONResponse) VisitRecipesGetResponse(w http.Res
 }
 
 type RecipesUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *RecipesUpdateJSONRequestBody
 }
 
@@ -3503,7 +3503,7 @@ func (response SpriteSheetsCreatedefaultJSONResponse) VisitSpriteSheetsCreateRes
 }
 
 type SpriteSheetsDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type SpriteSheetsDeleteResponseObject interface {
@@ -3536,7 +3536,7 @@ func (response SpriteSheetsDeletedefaultJSONResponse) VisitSpriteSheetsDeleteRes
 }
 
 type SpriteSheetsUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *SpriteSheetsUpdateJSONRequestBody
 }
 
@@ -3653,7 +3653,7 @@ func (response TilesCreatedefaultJSONResponse) VisitTilesCreateResponse(w http.R
 }
 
 type TilesDeleteRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type TilesDeleteResponseObject interface {
@@ -3686,7 +3686,7 @@ func (response TilesDeletedefaultJSONResponse) VisitTilesDeleteResponse(w http.R
 }
 
 type TilesGetRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 }
 
 type TilesGetResponseObject interface {
@@ -3725,7 +3725,7 @@ func (response TilesGetdefaultJSONResponse) VisitTilesGetResponse(w http.Respons
 }
 
 type TilesUpdateRequestObject struct {
-	Index int32 `json:"index"`
+	Index int `json:"index"`
 	Body  *TilesUpdateJSONRequestBody
 }
 
@@ -4027,7 +4027,7 @@ func (sh *strictHandler) CommandTablesCreate(w http.ResponseWriter, r *http.Requ
 }
 
 // CommandTablesDelete operation middleware
-func (sh *strictHandler) CommandTablesDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) CommandTablesDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request CommandTablesDeleteRequestObject
 
 	request.Index = index
@@ -4053,7 +4053,7 @@ func (sh *strictHandler) CommandTablesDelete(w http.ResponseWriter, r *http.Requ
 }
 
 // CommandTablesUpdate operation middleware
-func (sh *strictHandler) CommandTablesUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) CommandTablesUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request CommandTablesUpdateRequestObject
 
 	request.Index = index
@@ -4141,7 +4141,7 @@ func (sh *strictHandler) DropTablesCreate(w http.ResponseWriter, r *http.Request
 }
 
 // DropTablesDelete operation middleware
-func (sh *strictHandler) DropTablesDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) DropTablesDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request DropTablesDeleteRequestObject
 
 	request.Index = index
@@ -4167,7 +4167,7 @@ func (sh *strictHandler) DropTablesDelete(w http.ResponseWriter, r *http.Request
 }
 
 // DropTablesUpdate operation middleware
-func (sh *strictHandler) DropTablesUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) DropTablesUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request DropTablesUpdateRequestObject
 
 	request.Index = index
@@ -4255,7 +4255,7 @@ func (sh *strictHandler) EnemyTablesCreate(w http.ResponseWriter, r *http.Reques
 }
 
 // EnemyTablesDelete operation middleware
-func (sh *strictHandler) EnemyTablesDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) EnemyTablesDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request EnemyTablesDeleteRequestObject
 
 	request.Index = index
@@ -4281,7 +4281,7 @@ func (sh *strictHandler) EnemyTablesDelete(w http.ResponseWriter, r *http.Reques
 }
 
 // EnemyTablesUpdate operation middleware
-func (sh *strictHandler) EnemyTablesUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) EnemyTablesUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request EnemyTablesUpdateRequestObject
 
 	request.Index = index
@@ -4369,7 +4369,7 @@ func (sh *strictHandler) ItemGroupsCreate(w http.ResponseWriter, r *http.Request
 }
 
 // ItemGroupsDelete operation middleware
-func (sh *strictHandler) ItemGroupsDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) ItemGroupsDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request ItemGroupsDeleteRequestObject
 
 	request.Index = index
@@ -4395,7 +4395,7 @@ func (sh *strictHandler) ItemGroupsDelete(w http.ResponseWriter, r *http.Request
 }
 
 // ItemGroupsUpdate operation middleware
-func (sh *strictHandler) ItemGroupsUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) ItemGroupsUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request ItemGroupsUpdateRequestObject
 
 	request.Index = index
@@ -4483,7 +4483,7 @@ func (sh *strictHandler) ItemTablesCreate(w http.ResponseWriter, r *http.Request
 }
 
 // ItemTablesDelete operation middleware
-func (sh *strictHandler) ItemTablesDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) ItemTablesDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request ItemTablesDeleteRequestObject
 
 	request.Index = index
@@ -4509,7 +4509,7 @@ func (sh *strictHandler) ItemTablesDelete(w http.ResponseWriter, r *http.Request
 }
 
 // ItemTablesUpdate operation middleware
-func (sh *strictHandler) ItemTablesUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) ItemTablesUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request ItemTablesUpdateRequestObject
 
 	request.Index = index
@@ -4597,7 +4597,7 @@ func (sh *strictHandler) ItemsCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 // ItemsDelete operation middleware
-func (sh *strictHandler) ItemsDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) ItemsDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request ItemsDeleteRequestObject
 
 	request.Index = index
@@ -4623,7 +4623,7 @@ func (sh *strictHandler) ItemsDelete(w http.ResponseWriter, r *http.Request, ind
 }
 
 // ItemsGet operation middleware
-func (sh *strictHandler) ItemsGet(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) ItemsGet(w http.ResponseWriter, r *http.Request, index int) {
 	var request ItemsGetRequestObject
 
 	request.Index = index
@@ -4649,7 +4649,7 @@ func (sh *strictHandler) ItemsGet(w http.ResponseWriter, r *http.Request, index 
 }
 
 // ItemsUpdate operation middleware
-func (sh *strictHandler) ItemsUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) ItemsUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request ItemsUpdateRequestObject
 
 	request.Index = index
@@ -4737,7 +4737,7 @@ func (sh *strictHandler) MembersCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 // MembersDelete operation middleware
-func (sh *strictHandler) MembersDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) MembersDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request MembersDeleteRequestObject
 
 	request.Index = index
@@ -4763,7 +4763,7 @@ func (sh *strictHandler) MembersDelete(w http.ResponseWriter, r *http.Request, i
 }
 
 // MembersGet operation middleware
-func (sh *strictHandler) MembersGet(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) MembersGet(w http.ResponseWriter, r *http.Request, index int) {
 	var request MembersGetRequestObject
 
 	request.Index = index
@@ -4789,7 +4789,7 @@ func (sh *strictHandler) MembersGet(w http.ResponseWriter, r *http.Request, inde
 }
 
 // MembersUpdate operation middleware
-func (sh *strictHandler) MembersUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) MembersUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request MembersUpdateRequestObject
 
 	request.Index = index
@@ -5017,7 +5017,7 @@ func (sh *strictHandler) ProfessionsCreate(w http.ResponseWriter, r *http.Reques
 }
 
 // ProfessionsDelete operation middleware
-func (sh *strictHandler) ProfessionsDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) ProfessionsDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request ProfessionsDeleteRequestObject
 
 	request.Index = index
@@ -5043,7 +5043,7 @@ func (sh *strictHandler) ProfessionsDelete(w http.ResponseWriter, r *http.Reques
 }
 
 // ProfessionsUpdate operation middleware
-func (sh *strictHandler) ProfessionsUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) ProfessionsUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request ProfessionsUpdateRequestObject
 
 	request.Index = index
@@ -5131,7 +5131,7 @@ func (sh *strictHandler) PropsCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 // PropsDelete operation middleware
-func (sh *strictHandler) PropsDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) PropsDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request PropsDeleteRequestObject
 
 	request.Index = index
@@ -5157,7 +5157,7 @@ func (sh *strictHandler) PropsDelete(w http.ResponseWriter, r *http.Request, ind
 }
 
 // PropsGet operation middleware
-func (sh *strictHandler) PropsGet(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) PropsGet(w http.ResponseWriter, r *http.Request, index int) {
 	var request PropsGetRequestObject
 
 	request.Index = index
@@ -5183,7 +5183,7 @@ func (sh *strictHandler) PropsGet(w http.ResponseWriter, r *http.Request, index 
 }
 
 // PropsUpdate operation middleware
-func (sh *strictHandler) PropsUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) PropsUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request PropsUpdateRequestObject
 
 	request.Index = index
@@ -5271,7 +5271,7 @@ func (sh *strictHandler) RecipesCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 // RecipesDelete operation middleware
-func (sh *strictHandler) RecipesDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) RecipesDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request RecipesDeleteRequestObject
 
 	request.Index = index
@@ -5297,7 +5297,7 @@ func (sh *strictHandler) RecipesDelete(w http.ResponseWriter, r *http.Request, i
 }
 
 // RecipesGet operation middleware
-func (sh *strictHandler) RecipesGet(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) RecipesGet(w http.ResponseWriter, r *http.Request, index int) {
 	var request RecipesGetRequestObject
 
 	request.Index = index
@@ -5323,7 +5323,7 @@ func (sh *strictHandler) RecipesGet(w http.ResponseWriter, r *http.Request, inde
 }
 
 // RecipesUpdate operation middleware
-func (sh *strictHandler) RecipesUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) RecipesUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request RecipesUpdateRequestObject
 
 	request.Index = index
@@ -5411,7 +5411,7 @@ func (sh *strictHandler) SpriteSheetsCreate(w http.ResponseWriter, r *http.Reque
 }
 
 // SpriteSheetsDelete operation middleware
-func (sh *strictHandler) SpriteSheetsDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) SpriteSheetsDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request SpriteSheetsDeleteRequestObject
 
 	request.Index = index
@@ -5437,7 +5437,7 @@ func (sh *strictHandler) SpriteSheetsDelete(w http.ResponseWriter, r *http.Reque
 }
 
 // SpriteSheetsUpdate operation middleware
-func (sh *strictHandler) SpriteSheetsUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) SpriteSheetsUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request SpriteSheetsUpdateRequestObject
 
 	request.Index = index
@@ -5525,7 +5525,7 @@ func (sh *strictHandler) TilesCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 // TilesDelete operation middleware
-func (sh *strictHandler) TilesDelete(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) TilesDelete(w http.ResponseWriter, r *http.Request, index int) {
 	var request TilesDeleteRequestObject
 
 	request.Index = index
@@ -5551,7 +5551,7 @@ func (sh *strictHandler) TilesDelete(w http.ResponseWriter, r *http.Request, ind
 }
 
 // TilesGet operation middleware
-func (sh *strictHandler) TilesGet(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) TilesGet(w http.ResponseWriter, r *http.Request, index int) {
 	var request TilesGetRequestObject
 
 	request.Index = index
@@ -5577,7 +5577,7 @@ func (sh *strictHandler) TilesGet(w http.ResponseWriter, r *http.Request, index 
 }
 
 // TilesUpdate operation middleware
-func (sh *strictHandler) TilesUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+func (sh *strictHandler) TilesUpdate(w http.ResponseWriter, r *http.Request, index int) {
 	var request TilesUpdateRequestObject
 
 	request.Index = index

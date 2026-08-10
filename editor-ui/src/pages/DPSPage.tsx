@@ -16,18 +16,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-interface BattleMetric {
-  player: string;
-  weapon: string;
-  enemy: string;
-  dps: number;
-  isRanged: boolean;
-}
-
-interface BalanceReport {
-  battleMetrics?: BattleMetric[];
-}
+import type { BalanceReport } from "../generated";
 
 type WeaponRange = "all" | "melee" | "ranged";
 

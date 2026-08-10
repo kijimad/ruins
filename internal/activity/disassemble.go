@@ -47,7 +47,7 @@ func NewDisassembleActivity(target, actor ecs.Entity, world w.World) *gc.Activit
 	requiredAP := 0
 	if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok {
 		if grade, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); ok {
-			requiredAP = RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)
+			requiredAP = RequiredDisassemblyAP(def.BaseAP, mechanicSkillValue(actor, world), grade)
 		}
 	}
 	comp := NewActivity(gc.BehaviorDisassemble, requiredAP)
@@ -270,8 +270,8 @@ func FindBestDisassemblyTool(world w.World, actor ecs.Entity, category oapi.Tool
 		if !ok || !slices.Contains(tool.Categories, category) {
 			continue
 		}
-		if int(tool.Grade) > bestGrade {
-			bestGrade = int(tool.Grade)
+		if tool.Grade > bestGrade {
+			bestGrade = tool.Grade
 			bestName = query.GetEntityName(itemEntity, world)
 		}
 	}

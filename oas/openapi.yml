@@ -72,7 +72,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -103,7 +102,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -170,7 +168,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -201,7 +198,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -268,7 +264,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -299,7 +294,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -366,7 +360,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -397,7 +390,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -464,7 +456,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -495,7 +486,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -562,7 +552,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -587,7 +576,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -618,7 +606,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -685,7 +672,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -710,7 +696,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -741,7 +726,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -928,7 +912,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -959,7 +942,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1026,7 +1008,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1051,7 +1032,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1082,7 +1062,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1149,7 +1128,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1174,7 +1152,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1205,7 +1182,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1272,7 +1248,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1303,7 +1278,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1370,7 +1344,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1395,7 +1368,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1426,7 +1398,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1465,25 +1436,21 @@ components:
       description: 能力値
     Accuracy:
       type: integer
-      format: int32
       minimum: 0
       maximum: 100
       description: 命中率。0で必中なし、100で必中
     AccuracyBonus:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 命中率補正値
     ActionCost:
       type: integer
-      format: int32
       minimum: 0
       maximum: 100
       description: 行動コスト
     Agility:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 敏捷性。行動順に影響する
@@ -1510,7 +1477,6 @@ components:
       description: 弾薬タグ
     ArmorDefense:
       type: integer
-      format: int32
       minimum: 0
       maximum: 999
       description: 防具の防御力
@@ -1527,13 +1493,381 @@ components:
       description: 攻撃種別
     AttackCount:
       type: integer
-      format: int32
       minimum: 1
       maximum: 10
       description: 1ターンあたりの攻撃回数
+    Balance.AbilityScore:
+      type: integer
+      description: 能力値。プレイヤーのステータス
+    Balance.Accuracy:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 命中率。0-100
+    Balance.BattleMetric:
+      type: object
+      required:
+        - player
+        - weapon
+        - enemy
+        - dps
+        - isRanged
+      properties:
+        player:
+          $ref: '#/components/schemas/Balance.CombatantName'
+        weapon:
+          $ref: '#/components/schemas/Balance.WeaponName'
+        enemy:
+          $ref: '#/components/schemas/Balance.CombatantName'
+        dps:
+          $ref: '#/components/schemas/Balance.DPS'
+        isRanged:
+          $ref: '#/components/schemas/Balance.RangedFlag'
+      description: 武器×敵の戦闘シミュレーション結果
+    Balance.CombatantName:
+      type: string
+      description: 戦闘員名。プレイヤーや敵の raw id を指す
+    Balance.DPS:
+      type: number
+      format: double
+      minimum: 0
+      description: 1秒あたりの推定ダメージ
+    Balance.Damage:
+      type: integer
+      minimum: 0
+      description: ダメージ量
+    Balance.DeathFlag:
+      type: boolean
+      description: 死亡したかどうか
+    Balance.Depth:
+      type: integer
+      minimum: 0
+      description: 深度。地上を1とする階層
+    Balance.DepthStat:
+      type: object
+      required:
+        - depth
+        - medianHP
+        - p5HP
+        - p95HP
+        - medianHPBeforeHeal
+        - p5HPBeforeHeal
+        - p95HPBeforeHeal
+        - suddenDeathRate
+        - medianWeaponDamage
+        - p5WeaponDamage
+        - p95WeaponDamage
+        - medianKillTurns
+        - p5KillTurns
+        - p95KillTurns
+        - medianHunger
+        - p5Hunger
+        - p95Hunger
+        - medianDamage
+        - medianHealing
+      properties:
+        depth:
+          $ref: '#/components/schemas/Balance.Depth'
+        medianHP:
+          $ref: '#/components/schemas/Balance.HP'
+        p5HP:
+          $ref: '#/components/schemas/Balance.HP'
+        p95HP:
+          $ref: '#/components/schemas/Balance.HP'
+        medianHPBeforeHeal:
+          $ref: '#/components/schemas/Balance.HP'
+        p5HPBeforeHeal:
+          $ref: '#/components/schemas/Balance.HP'
+        p95HPBeforeHeal:
+          $ref: '#/components/schemas/Balance.HP'
+        suddenDeathRate:
+          $ref: '#/components/schemas/Balance.Rate'
+        medianWeaponDamage:
+          $ref: '#/components/schemas/Balance.Damage'
+        p5WeaponDamage:
+          $ref: '#/components/schemas/Balance.Damage'
+        p95WeaponDamage:
+          $ref: '#/components/schemas/Balance.Damage'
+        medianKillTurns:
+          $ref: '#/components/schemas/Balance.KillTurns'
+        p5KillTurns:
+          $ref: '#/components/schemas/Balance.KillTurns'
+        p95KillTurns:
+          $ref: '#/components/schemas/Balance.KillTurns'
+        medianHunger:
+          $ref: '#/components/schemas/Balance.Hunger'
+        p5Hunger:
+          $ref: '#/components/schemas/Balance.Hunger'
+        p95Hunger:
+          $ref: '#/components/schemas/Balance.Hunger'
+        medianDamage:
+          $ref: '#/components/schemas/Balance.Damage'
+        medianHealing:
+          $ref: '#/components/schemas/Balance.Healing'
+      description: 1深度の統計情報
+    Balance.EnemyTableName:
+      type: string
+      description: 敵テーブル名
+    Balance.EnemyTableRun:
+      type: object
+      required:
+        - name
+        - maxDepth
+        - trials
+        - medianDepth
+        - deathRate
+        - depths
+        - trialData
+      properties:
+        name:
+          $ref: '#/components/schemas/Balance.EnemyTableName'
+        maxDepth:
+          $ref: '#/components/schemas/Balance.Depth'
+        trials:
+          $ref: '#/components/schemas/Balance.TrialCount'
+        medianDepth:
+          $ref: '#/components/schemas/Balance.Depth'
+        deathRate:
+          $ref: '#/components/schemas/Balance.Rate'
+        depths:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.DepthStat'
+          description: 深度ごとの統計
+        trialData:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.TrialResult'
+          description: 試行ごとの生データ
+      description: 1つの敵テーブルに対するシミュレーション結果
+    Balance.ExpectedCount:
+      type: number
+      format: double
+      minimum: 0
+      description: 期待個数
+    Balance.FacilityId:
+      type: string
+      description: 施設種別 id
+    Balance.FacilityLoot:
+      type: object
+      required:
+        - facility
+        - trials
+        - rooms
+      properties:
+        facility:
+          $ref: '#/components/schemas/Balance.FacilityId'
+        trials:
+          $ref: '#/components/schemas/Balance.TrialCount'
+        rooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.RoomLoot'
+          description: 部屋役割ごとの loot
+      description: 1施設種別の loot 分布
+    Balance.HP:
+      type: integer
+      description: HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+    Balance.Healing:
+      type: integer
+      minimum: 0
+      description: 回復量
+    Balance.Hunger:
+      type: integer
+      description: 空腹度
+    Balance.ItemName:
+      type: string
+      description: アイテム名。loot アイテムの raw id を指す
+    Balance.ItemValue:
+      type: integer
+      minimum: 0
+      description: アイテムの売買価値
+    Balance.KillTurns:
+      type: integer
+      minimum: 0
+      description: 撃破に要するターン数
+    Balance.LootItemStat:
+      type: object
+      required:
+        - name
+        - prob
+        - expectedCount
+        - value
+      properties:
+        name:
+          $ref: '#/components/schemas/Balance.ItemName'
+        prob:
+          allOf:
+            - $ref: '#/components/schemas/Balance.Rate'
+          description: 1棟あたり1個以上出る確率
+        expectedCount:
+          allOf:
+            - $ref: '#/components/schemas/Balance.ExpectedCount'
+          description: 1棟あたりの期待個数
+        value:
+          allOf:
+            - $ref: '#/components/schemas/Balance.ItemValue'
+          description: 売買価値
+      description: 1アイテムの loot 統計
+    Balance.PlayerInfo:
+      type: object
+      required:
+        - name
+        - hp
+        - strength
+        - sensation
+        - dexterity
+        - agility
+        - defense
+      properties:
+        name:
+          $ref: '#/components/schemas/Balance.CombatantName'
+        hp:
+          $ref: '#/components/schemas/Balance.HP'
+        strength:
+          $ref: '#/components/schemas/Balance.AbilityScore'
+        sensation:
+          $ref: '#/components/schemas/Balance.AbilityScore'
+        dexterity:
+          $ref: '#/components/schemas/Balance.AbilityScore'
+        agility:
+          $ref: '#/components/schemas/Balance.AbilityScore'
+        defense:
+          $ref: '#/components/schemas/Balance.AbilityScore'
+      description: プレイヤーのステータス情報
+    Balance.RangedFlag:
+      type: boolean
+      description: 遠距離武器かどうか
+    Balance.Rate:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1
+      description: 割合。0.0-1.0
+    Balance.Report:
+      type: object
+      required:
+        - mode
+        - enemyTables
+        - battleMetrics
+        - roomLoot
+      properties:
+        mode:
+          allOf:
+            - $ref: '#/components/schemas/Balance.ReportMode'
+          description: レポートの種別
+        player:
+          allOf:
+            - $ref: '#/components/schemas/Balance.PlayerInfo'
+          description: プレイヤーのステータス。生成しないモードでは省く
+        weapon:
+          allOf:
+            - $ref: '#/components/schemas/Balance.WeaponInfo'
+          description: 武器の情報。生成しないモードでは省く
+        enemyTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.EnemyTableRun'
+          description: 敵テーブルごとのシミュレーション結果
+        battleMetrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.BattleMetric'
+          description: 武器×敵の戦闘メトリクス
+        roomLoot:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.FacilityLoot'
+          description: 施設種別ごとの loot 分布
+      description: balance.json の最上位構造。シミュレーション結果全体を表す
+    Balance.ReportMode:
+      type: string
+      description: レポートの種別
+    Balance.RoomLoot:
+      type: object
+      required:
+        - role
+        - items
+      properties:
+        role:
+          allOf:
+            - $ref: '#/components/schemas/Balance.RoomRole'
+          description: 部屋役割
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.LootItemStat'
+          description: アイテムごとの統計
+      description: 1部屋役割の loot 分布
+    Balance.RoomRole:
+      type: string
+      description: 部屋役割 id
+    Balance.TrialCount:
+      type: integer
+      minimum: 0
+      description: 試行回数
+    Balance.TrialDepthStat:
+      type: object
+      required:
+        - depth
+        - hp
+        - hpBeforeHeal
+        - weapon
+        - hunger
+      properties:
+        depth:
+          $ref: '#/components/schemas/Balance.Depth'
+        hp:
+          $ref: '#/components/schemas/Balance.HP'
+        hpBeforeHeal:
+          $ref: '#/components/schemas/Balance.HP'
+        weapon:
+          $ref: '#/components/schemas/Balance.WeaponName'
+        hunger:
+          $ref: '#/components/schemas/Balance.Hunger'
+      description: 1試行の1深度の情報
+    Balance.TrialIndex:
+      type: integer
+      minimum: 0
+      description: 試行のインデックス。0始まり
+    Balance.TrialResult:
+      type: object
+      required:
+        - index
+        - reachedDepth
+        - died
+        - depths
+      properties:
+        index:
+          $ref: '#/components/schemas/Balance.TrialIndex'
+        reachedDepth:
+          $ref: '#/components/schemas/Balance.Depth'
+        died:
+          $ref: '#/components/schemas/Balance.DeathFlag'
+        depths:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance.TrialDepthStat'
+      description: 1試行の結果
+    Balance.WeaponInfo:
+      type: object
+      required:
+        - name
+        - damage
+        - accuracy
+      properties:
+        name:
+          $ref: '#/components/schemas/Balance.WeaponName'
+        damage:
+          $ref: '#/components/schemas/Balance.Damage'
+        accuracy:
+          $ref: '#/components/schemas/Balance.Accuracy'
+      description: 武器の情報
+    Balance.WeaponName:
+      type: string
+      description: 武器名。武器アイテムの raw id を指す
     BaseDamage:
       type: integer
-      format: int32
       minimum: 0
       maximum: 9999
       description: 基本ダメージ
@@ -1603,7 +1937,6 @@ components:
             $ref: '#/components/schemas/CommandTable'
         totalCount:
           type: integer
-          format: int32
       description: コマンドテーブル一覧
     Consumable:
       type: object
@@ -1624,25 +1957,21 @@ components:
       description: 移動拠点キューブのコントロールパネルトリガー
     DamageBonus:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: ダメージ補正値
     Defense:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 防御力。被ダメージを軽減する
     DepthLevel:
       type: integer
-      format: int32
       minimum: 0
       maximum: 100
       description: 階層レベル
     Dexterity:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 器用さ。クリティカル率に影響する
@@ -1681,7 +2010,6 @@ components:
       description: 分解定義。これを持つ prop・item は対応工具で分解できる
     DisassemblyBaseAP:
       type: integer
-      format: int32
       minimum: 1
       maximum: 9999
       description: 分解の基礎工数。100が標準1ターンに相当する
@@ -1708,7 +2036,6 @@ components:
       description: 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
     DisassemblyChance:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: 分解産出の確率。百分率
@@ -1783,7 +2110,6 @@ components:
             $ref: '#/components/schemas/DropTable'
         totalCount:
           type: integer
-          format: int32
       description: ドロップテーブル一覧
     Element:
       type: string
@@ -1844,7 +2170,6 @@ components:
             $ref: '#/components/schemas/EnemyTable'
         totalCount:
           type: integer
-          format: int32
       description: 敵テーブル一覧
     EntityDescription:
       type: string
@@ -1972,7 +2297,6 @@ components:
       description: 植生タイプ
     HealAmount:
       type: integer
-      format: int32
       minimum: 0
       maximum: 9999
       description: 回復固定量
@@ -1991,7 +2315,6 @@ components:
       description: 回復量の計算方式
     HitPoints:
       type: integer
-      format: int32
       minimum: 1
       maximum: 9999
       description: 耐久値。設定すると破壊可能になる
@@ -2003,13 +2326,11 @@ components:
       description: 画像ファイルパス
     InsulationCold:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 耐寒性能
     InsulationHeat:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 耐暑性能
@@ -2080,7 +2401,6 @@ components:
       description: アイテム
     ItemCount:
       type: integer
-      format: int32
       minimum: 1
       maximum: 9999
       description: アイテム所持数
@@ -2133,7 +2453,6 @@ components:
             $ref: '#/components/schemas/ItemGroup'
         totalCount:
           type: integer
-          format: int32
       description: アイテムグループ一覧
     ItemGroupSubtype:
       type: string
@@ -2153,7 +2472,6 @@ components:
             $ref: '#/components/schemas/Item'
         totalCount:
           type: integer
-          format: int32
       description: アイテム一覧レスポンス
     ItemTable:
       type: object
@@ -2202,11 +2520,9 @@ components:
             $ref: '#/components/schemas/ItemTable'
         totalCount:
           type: integer
-          format: int32
       description: アイテムテーブル一覧
     ItemValue:
       type: integer
-      format: int32
       minimum: 0
       maximum: 99999
       description: 売買価格
@@ -2215,7 +2531,6 @@ components:
       description: 光源が有効かどうか
     LightRadius:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: 光の到達半径（タイル単位）
@@ -2235,13 +2550,11 @@ components:
       description: 光源設定
     MagazineSize:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: マガジン容量
     MaterialAmount:
       type: integer
-      format: int32
       minimum: 1
       maximum: 99
       description: 素材必要数
@@ -2335,7 +2648,6 @@ components:
             $ref: '#/components/schemas/Member'
         totalCount:
           type: integer
-          format: int32
       description: メンバー一覧レスポンス
     MessageKey:
       type: string
@@ -2356,7 +2668,6 @@ components:
       description: 非戦闘時の移動パターン
     NutritionAmount:
       type: integer
-      format: int32
       minimum: 0
       maximum: 9999
       description: 栄養価
@@ -2415,11 +2726,9 @@ components:
             $ref: '#/components/schemas/Palette'
         totalCount:
           type: integer
-          format: int32
       description: パレット一覧
     PassCost:
       type: integer
-      format: int32
       minimum: 0
       maximum: 9999
       description: 通行コスト加算値。0で変化なし、50でベースコスト+50
@@ -2494,7 +2803,6 @@ components:
             $ref: '#/components/schemas/Profession'
         totalCount:
           type: integer
-          format: int32
       description: 職業一覧
     ProfessionSkill:
       type: object
@@ -2566,7 +2874,6 @@ components:
             $ref: '#/components/schemas/Prop'
         totalCount:
           type: integer
-          format: int32
       description: 置物一覧
     ProvidesHealing:
       type: object
@@ -2653,7 +2960,6 @@ components:
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
-      format: int32
       minimum: 1
       maximum: 9999
       description: 読了に必要な総読書量
@@ -2696,11 +3002,9 @@ components:
             $ref: '#/components/schemas/Recipe'
         totalCount:
           type: integer
-          format: int32
       description: レシピ一覧レスポンス
     ReloadEffort:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: リロードに必要な行動力
@@ -2729,19 +3033,15 @@ components:
       description: 能力値
     SaveData.AbilityBase:
       type: integer
-      format: int32
       description: 能力値の基本値
     SaveData.AbilityBonus:
       type: integer
-      format: int32
       description: 能力値ボーナス
     SaveData.AbilityModifier:
       type: integer
-      format: int32
       description: 能力値の装備・状態変化による修正値
     SaveData.AbilityTotal:
       type: integer
-      format: int32
       description: 能力値の算出された現在値
     SaveData.AbilityValue:
       type: object
@@ -3023,12 +3323,10 @@ components:
       description: 消費可能アイテム設定
     SaveData.Currency:
       type: integer
-      format: int32
       minimum: 0
       description: 所持金
     SaveData.DamageAmount:
       type: integer
-      format: int32
       minimum: 0
       description: ダメージ量
     SaveData.DescriptionComponent:
@@ -3092,7 +3390,6 @@ components:
       description: 装備ボーナス
     SaveData.EquipmentSlotNumber:
       type: integer
-      format: int32
       minimum: 0
       description: 装備スロット番号
     SaveData.EventState:
@@ -3216,7 +3513,6 @@ components:
       description: 生命力。最大値と現在値を持つ
     SaveData.HealNumeral:
       type: integer
-      format: int32
       minimum: 0
       description: 固定回復量
     SaveData.HealingAmountData:
@@ -3255,7 +3551,6 @@ components:
           description: 状態の種類
         Severity:
           type: integer
-          format: int32
           description: 重症度
         Timer:
           type: number
@@ -3311,7 +3606,6 @@ components:
       description: アイテム回収ポリシー
     SaveData.LightRadius:
       type: integer
-      format: int32
       minimum: 0
       description: 光源の到達半径 (タイル単位)。無効時は0を許容する
     SaveData.LightSourceComponent:
@@ -3365,7 +3659,6 @@ components:
         Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
     SaveData.Magazine:
       type: integer
-      format: int32
       minimum: 0
       description: 現在の装弾数
     SaveData.MarkerComponent:
@@ -3438,7 +3731,6 @@ components:
       description: 行動計画の種別
     SaveData.PoolCurrent:
       type: integer
-      format: int32
       description: プール現在値 (整数)
     SaveData.PoolFloatCurrent:
       type: number
@@ -3450,7 +3742,6 @@ components:
       description: プール最大値 (浮動小数点)
     SaveData.PoolMax:
       type: integer
-      format: int32
       description: プール最大値 (整数)
     SaveData.ProvidesHealingComponent:
       type: object
@@ -3541,15 +3832,12 @@ components:
       properties:
         Value:
           type: integer
-          format: int32
           description: スキル値
         ExpMax:
           type: integer
-          format: int32
           description: 経験値の最大値
         ExpCurrent:
           type: integer
-          format: int32
           description: 蓄積経験値
       description: 個別スキルの状態
     SaveData.SkillsComponent:
@@ -3565,12 +3853,10 @@ components:
       description: スキルセット
     SaveData.Speed:
       type: integer
-      format: int32
       minimum: 0
       description: APの毎ターン回復量
     SaveData.SpriteDepth:
       type: integer
-      format: int32
       description: スプライト描画深度
     SaveData.SpriteKey:
       type: string
@@ -3666,7 +3952,6 @@ components:
           description: 影響を受けるステータスの種類
         Value:
           type: integer
-          format: int32
           description: 修正値
       description: ステータスへの影響
     SaveData.TargetTypeData:
@@ -3682,7 +3967,6 @@ components:
       description: 対象指定
     SaveData.TileCoord:
       type: integer
-      format: int32
       description: タイル座標
     SaveData.TurnBasedComponent:
       type: object
@@ -3773,7 +4057,6 @@ components:
       description: ワールド全体のセーブデータ。プレイヤーと所持品のみを保存する
     Sensation:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 感覚。命中率と回避率に影響する
@@ -3806,7 +4089,6 @@ components:
       description: スキルID
     SkillLevel:
       type: integer
-      format: int32
       minimum: 0
       maximum: 100
       description: スキルレベル
@@ -3861,7 +4143,6 @@ components:
             $ref: '#/components/schemas/SpriteSheet'
         totalCount:
           type: integer
-          format: int32
       description: スプライトシート一覧
     SpriteSheetName:
       type: string
@@ -3892,7 +4173,6 @@ components:
       description: 収納ローデータ
     Strength:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 筋力。物理ダメージに影響する
@@ -3954,7 +4234,6 @@ components:
             $ref: '#/components/schemas/Tile'
         totalCount:
           type: integer
-          format: int32
       description: タイル一覧
     ToolCategory:
       type: string
@@ -3965,7 +4244,6 @@ components:
       description: 分解工具の分類
     ToolGrade:
       type: integer
-      format: int32
       minimum: 1
       maximum: 3
       description: 分解工具のグレード。高いほど速く多く得る
@@ -3978,13 +4256,11 @@ components:
       description: 使用可能シーン
     ViewDistance:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: AI視界距離（タイル単位）
     Vitality:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 体力。HPに影響する
