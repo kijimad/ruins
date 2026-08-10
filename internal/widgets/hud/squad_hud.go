@@ -1,8 +1,6 @@
 package hud
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -46,18 +44,18 @@ func (s *SquadHUD) Draw(screen *ebiten.Image, data SquadHUDData) {
 		barY := float32(y + 2)
 
 		// 背景バー
-		vector.FillRect(screen, barX, barY, float32(barWidth), float32(barHeight), color.RGBA{40, 40, 40, 200}, false)
+		vector.FillRect(screen, barX, barY, float32(barWidth), float32(barHeight), theme.HUDSquadBarBg, false)
 
 		// HPバー
 		hpRatio := float32(0)
 		if member.MaxHP > 0 {
 			hpRatio = float32(member.CurrentHP) / float32(member.MaxHP)
 		}
-		barColor := color.RGBA{80, 200, 80, 255}
+		barColor := theme.HUDSquadHPHigh
 		if hpRatio < 0.25 {
-			barColor = color.RGBA{200, 50, 50, 255}
+			barColor = theme.HUDSquadHPLow
 		} else if hpRatio < 0.5 {
-			barColor = color.RGBA{200, 200, 50, 255}
+			barColor = theme.HUDSquadHPMid
 		}
 		vector.FillRect(screen, barX, barY, float32(barWidth)*hpRatio, float32(barHeight), barColor, false)
 
@@ -66,7 +64,7 @@ func (s *SquadHUD) Draw(screen *ebiten.Image, data SquadHUDData) {
 		if member.HungerLevel != "" {
 			hungerOp := &text.DrawOptions{}
 			hungerOp.GeoM.Translate(float64(startX+nameWidth), float64(y+barHeight+2))
-			hungerOp.ColorScale.ScaleWithColor(color.RGBA{230, 160, 60, 255})
+			hungerOp.ColorScale.ScaleWithColor(theme.HUDSquadHunger)
 			text.Draw(screen, member.HungerLevel, s.face, hungerOp)
 			rowHeight = barHeight + 2 + lineHeight + padding
 		}

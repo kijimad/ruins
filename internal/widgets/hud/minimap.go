@@ -89,7 +89,7 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 	}
 
 	// 隊員の位置を青い点で表示
-	squadColor := color.RGBA{80, 140, 255, 255}
+	squadColor := theme.HUDSquadMarker
 	for _, pos := range data.SquadPositions {
 		relX := int(pos.Tile.X - data.PlayerTile.X)
 		relY := int(pos.Tile.Y - data.PlayerTile.Y)
