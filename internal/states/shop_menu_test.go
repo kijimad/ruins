@@ -6,6 +6,8 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/vrt"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -119,4 +121,27 @@ func TestNewShopMenuState(t *testing.T) {
 	assert.NotNil(t, state, "Stateが作成される")
 	_, ok := state.(*ShopMenuState)
 	assert.True(t, ok, "ShopMenuState型である")
+}
+
+// TestShopMenuState_buildItemContainer_商品ありでpanicしない は、売買メニューが商品を
+// 1件以上持つとき列数不整合で落ちないことを固定する。アイコン列を含む列指定に対して
+// 行のアイコン列を立て忘れると renderMenuList が panic する。golden は既定タブが空で行に
+// 到達せず覆えないため、実体を直接渡してこの経路を覆う。
+func TestShopMenuState_buildItemContainer_商品ありでpanicしない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.UIResources = vrt.SharedUIResources(t)
+
+	e, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3)
+	require.NoError(t, err)
+
+	tabs := []shopTabData{{ID: "sell", Items: []shopItemData{{Entity: e, Price: 10}}}}
+	st := &ShopMenuState{}
+
+	assert.NotPanics(t, func() {
+		vrt.WithUILock(func() {
+			_ = st.buildItemContainer(world, tabs, 0, 0, world.Resources.UIResources)
+		})
+	})
 }

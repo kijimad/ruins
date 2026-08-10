@@ -250,5 +250,5 @@ func (st *StorageMenuState) buildActiveListContainer(world w.World, props Storag
 	for i, it := range currentTab.Items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Weight)
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, HasIcon: true, EmptyText: query.T(world, "No items")}, res)
+	return renderItemMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res)
 }

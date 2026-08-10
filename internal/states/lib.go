@@ -288,6 +288,14 @@ func itemMenuRow(world w.World, e ecs.Entity, trailing ...string) menuRow {
 	}
 }
 
+// renderItemMenuList は itemMenuColumns と itemMenuRow で組んだアイテム一覧を描く専用入口。
+// 列がアイコン列を含むことを前提に HasIcon を内部で立てるので、呼び出し側がフラグを立て忘れて
+// 列数不整合の panic を起こすのを防ぐ。アイテムメニューはこれを通す
+func renderItemMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) *widget.Container {
+	opts.HasIcon = true
+	return renderMenuList(itemIndex, rows, colWidths, aligns, opts, res)
+}
+
 // newPageIndicator はページ位置を示す行を組み立てる。1ページに収まり表示が空になるときも
 // 高さを一定に保つため半角空白を置く。ページングを持つ一覧で共通に使う
 func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widget.Container {
