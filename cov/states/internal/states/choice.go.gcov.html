@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-10 13:51:13</td>
+            <td class="headerValue">2026-08-10 16:02:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -163,7 +163,7 @@
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : func (st *ChoiceMenuState) View(world w.World, props ChoiceProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(props.Choices))</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           2 :         for i, c := range props.Choices {</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{c.Label}, Header: c.Header}</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: styled.TextCells(c.Label), Header: c.Header}</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L106"><span class="lineNum">     106</span>              :         // 単一タブのコマンドメニューなので行間を空け、ページ表示は複数ページのときだけ出す。</span>
 <span id="L107"><span class="lineNum">     107</span>              :         // メインメニューと先頭位置・行間を揃える</span>

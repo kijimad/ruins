@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-10 13:51:13</td>
+            <td class="headerValue">2026-08-10 16:02:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -332,7 +332,7 @@
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           2 :                 if it.CanCraft {</span></span>
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                         mark = consts.IconCheck</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{mark, it.RecipeName}}</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}</span></span>
 <span id="L274"><span class="lineNum">     274</span>              :         }</span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No recipes&quot;)}, res)</span></span>
 <span id="L276"><span class="lineNum">     276</span>              : }</span>

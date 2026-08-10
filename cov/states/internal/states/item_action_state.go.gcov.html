@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">65.5&nbsp;%</td>
-            <td class="headerCovTableEntry">206</td>
-            <td class="headerCovTableEntry">135</td>
+            <td class="headerCovTableEntryLo">65.4&nbsp;%</td>
+            <td class="headerCovTableEntry">205</td>
+            <td class="headerCovTableEntry">134</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-10 13:51:13</td>
+            <td class="headerValue">2026-08-10 16:02:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -358,129 +358,120 @@
 <span id="L296"><span class="lineNum">     296</span>              :         ID    verbID</span>
 <span id="L297"><span class="lineNum">     297</span>              :         Label string</span>
 <span id="L298"><span class="lineNum">     298</span>              :         Key   string // タブ見出しに添える直達ショートカット表記</span>
-<span id="L299"><span class="lineNum">     299</span>              :         Items []itemActionEntry</span>
+<span id="L299"><span class="lineNum">     299</span>              :         Items []itemRowData</span>
 <span id="L300"><span class="lineNum">     300</span>              : }</span>
 <span id="L301"><span class="lineNum">     301</span>              : </span>
-<span id="L302"><span class="lineNum">     302</span>              : type itemActionEntry struct {</span>
-<span id="L303"><span class="lineNum">     303</span>              :         Entity ecs.Entity</span>
-<span id="L304"><span class="lineNum">     304</span>              :         Name   string</span>
-<span id="L305"><span class="lineNum">     305</span>              :         Weight string</span>
-<span id="L306"><span class="lineNum">     306</span>              :         Count  int</span>
-<span id="L307"><span class="lineNum">     307</span>              :         Desc   string</span>
-<span id="L308"><span class="lineNum">     308</span>              : }</span>
+<span id="L302"><span class="lineNum">     302</span>              : // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる</span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *ItemActionState) Fetch(world w.World) ItemActionProps {</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         var backpack []ecs.Entity</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 backpack = playerBackpackItems(world, player)</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L309"><span class="lineNum">     309</span>              : </span>
-<span id="L310"><span class="lineNum">     310</span>              : // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる</span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *ItemActionState) Fetch(world w.World) ItemActionProps {</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         var backpack []ecs.Entity</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 backpack = playerBackpackItems(world, player)</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L317"><span class="lineNum">     317</span>              : </span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         vs := verbList</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         tabs := make([]verbTabData, len(vs))</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           2 :         for i, verb := range vs {</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                 items := make([]itemActionEntry, 0, len(backpack))</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           2 :                 for _, entity := range backpack {</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           2 :                         if !verb.Accept(world, entity) {</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L325"><span class="lineNum">     325</span>              :                         }</span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                         items = append(items, newItemActionEntry(world, entity))</span></span>
-<span id="L327"><span class="lineNum">     327</span>              :                 }</span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :                 tabs[i] = verbTabData{ID: verb.ID, Label: query.T(world, verb.Label), Key: verb.KeyHint, Items: items}</span></span>
-<span id="L329"><span class="lineNum">     329</span>              :         }</span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :         return ItemActionProps{Tabs: tabs}</span></span>
-<span id="L331"><span class="lineNum">     331</span>              : }</span>
-<span id="L332"><span class="lineNum">     332</span>              : </span>
-<span id="L333"><span class="lineNum">     333</span>              : // playerBackpackItems はプレイヤーのバックパック内アイテムを表示順に返す</span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 : func playerBackpackItems(world w.World, player ecs.Entity) []ecs.Entity {</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :         var result []ecs.Entity</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.ECS).Query()</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :                 loc := world.Components.LocationInBackpack.Get(entity)</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           2 :                 if loc.Owner == player {</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                         result = append(result, entity)</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L343"><span class="lineNum">     343</span>              :         }</span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         return query.SortEntities(world, result)</span></span>
-<span id="L345"><span class="lineNum">     345</span>              : }</span>
-<span id="L346"><span class="lineNum">     346</span>              : </span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 : func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         entry := itemActionEntry{</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :                 Entity: entity,</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 Name:   query.GetEntityName(entity, world),</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :                 Weight: query.GetEntityWeight(world, entity).KgString(),</span></span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           2 :         if world.Components.Stackable.Has(entity) {</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :                 entry.Count = world.Components.Stackable.Get(entity).Count</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           2 :         if world.Components.Description.Has(entity) {</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :                 entry.Desc = query.T(world, world.Components.Description.Get(entity).Description)</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :         return entry</span></span>
-<span id="L360"><span class="lineNum">     360</span>              : }</span>
-<span id="L361"><span class="lineNum">     361</span>              : </span>
-<span id="L362"><span class="lineNum">     362</span>              : // ================</span>
-<span id="L363"><span class="lineNum">     363</span>              : // View</span>
-<span id="L364"><span class="lineNum">     364</span>              : // ================</span>
-<span id="L365"><span class="lineNum">     365</span>              : </span>
-<span id="L366"><span class="lineNum">     366</span>              : // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる</span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 : func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :         // タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           2 :                 if tab.Key != &quot;&quot; {</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :                         labels[i] = fmt.Sprintf(&quot;%s(%s)&quot;, tab.Label, tab.Key)</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                 } else {</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC tlaBgUNC">           0 :                         labels[i] = tab.Label</span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L376"><span class="lineNum">     376</span>              :         }</span>
-<span id="L377"><span class="lineNum">     377</span>              :         // タイトルは置かず、タブ帯から始める。詳細は x のモーダルで見る</span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC tlaBgGNC">           1 :         return newTabScreenUI(res, tabScreen{</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :                 TabLabels: labels,</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :                 TabIndex:  cursor.TabIndex,</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :                 Content:   st.buildItemList(world, props, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :                 Footer:    menuNavHint(world, true, query.T(world, &quot;x Details&quot;)),</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L384"><span class="lineNum">     384</span>              : }</span>
-<span id="L385"><span class="lineNum">     385</span>              : </span>
-<span id="L386"><span class="lineNum">     386</span>              : // Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる</span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 : func (st *ItemActionState) Menu(props ItemActionProps) menurt.MenuConfig {</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         itemCounts := make([]int, len(props.Tabs))</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :                 itemCounts[i] = len(tab.Items)</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :         return menurt.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage, InitialTab: verbTabIndex(st.initialVerb)}</span></span>
-<span id="L393"><span class="lineNum">     393</span>              : }</span>
-<span id="L394"><span class="lineNum">     394</span>              : </span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 : func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC tlaBgUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC tlaBgGNC">           1 :         items := props.Tabs[tabIndex].Items</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :         columnWidths := []int{260, 80}</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(items))</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           2 :         for i, it := range items {</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No matching items&quot;)}, res)</span></span>
-<span id="L407"><span class="lineNum">     407</span>              : }</span>
-<span id="L408"><span class="lineNum">     408</span>              : </span>
-<span id="L409"><span class="lineNum">     409</span>              : // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す</span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 : func (st *ItemActionState) selectedEntity() (ecs.Entity, bool) {</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :         props := st.screen.Props()</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :         cursor := st.screen.Selection()</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, false</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC tlaBgGNC">           1 :         items := props.Tabs[cursor.TabIndex].Items</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :         if cursor.ItemIndex &gt;= len(items) {</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, false</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC tlaBgGNC">           1 :         return items[cursor.ItemIndex].Entity, true</span></span>
-<span id="L421"><span class="lineNum">     421</span>              : }</span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         vs := verbList</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         tabs := make([]verbTabData, len(vs))</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           2 :         for i, verb := range vs {</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                 items := make([]itemRowData, 0, len(backpack))</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           2 :                 for _, entity := range backpack {</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           2 :                         if !verb.Accept(world, entity) {</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L317"><span class="lineNum">     317</span>              :                         }</span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                         items = append(items, newItemActionEntry(world, entity))</span></span>
+<span id="L319"><span class="lineNum">     319</span>              :                 }</span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :                 tabs[i] = verbTabData{ID: verb.ID, Label: query.T(world, verb.Label), Key: verb.KeyHint, Items: items}</span></span>
+<span id="L321"><span class="lineNum">     321</span>              :         }</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :         return ItemActionProps{Tabs: tabs}</span></span>
+<span id="L323"><span class="lineNum">     323</span>              : }</span>
+<span id="L324"><span class="lineNum">     324</span>              : </span>
+<span id="L325"><span class="lineNum">     325</span>              : // playerBackpackItems はプレイヤーのバックパック内アイテムを表示順に返す</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 : func playerBackpackItems(world w.World, player ecs.Entity) []ecs.Entity {</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         var result []ecs.Entity</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.ECS).Query()</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 loc := world.Components.LocationInBackpack.Get(entity)</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           2 :                 if loc.Owner == player {</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                         result = append(result, entity)</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L335"><span class="lineNum">     335</span>              :         }</span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         return query.SortEntities(world, result)</span></span>
+<span id="L337"><span class="lineNum">     337</span>              : }</span>
+<span id="L338"><span class="lineNum">     338</span>              : </span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 : func newItemActionEntry(world w.World, entity ecs.Entity) itemRowData {</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :         entry := itemRowData{</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                 Entity: entity,</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                 Name:   query.GetEntityName(entity, world),</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :                 Weight: query.GetEntityWeight(world, entity).KgString(),</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           2 :         if world.Components.Stackable.Has(entity) {</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :                 entry.Count = world.Components.Stackable.Get(entity).Count</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           2 :         if world.Components.Description.Has(entity) {</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :                 entry.Desc = query.T(world, world.Components.Description.Get(entity).Description)</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :         return entry</span></span>
+<span id="L352"><span class="lineNum">     352</span>              : }</span>
+<span id="L353"><span class="lineNum">     353</span>              : </span>
+<span id="L354"><span class="lineNum">     354</span>              : // ================</span>
+<span id="L355"><span class="lineNum">     355</span>              : // View</span>
+<span id="L356"><span class="lineNum">     356</span>              : // ================</span>
+<span id="L357"><span class="lineNum">     357</span>              : </span>
+<span id="L358"><span class="lineNum">     358</span>              : // View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる</span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 : func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :         // タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           2 :                 if tab.Key != &quot;&quot; {</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaGNC">           1 :                         labels[i] = fmt.Sprintf(&quot;%s(%s)&quot;, tab.Label, tab.Key)</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 :                 } else {</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC tlaBgUNC">           0 :                         labels[i] = tab.Label</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L368"><span class="lineNum">     368</span>              :         }</span>
+<span id="L369"><span class="lineNum">     369</span>              :         // タイトルは置かず、タブ帯から始める。詳細は x のモーダルで見る</span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC tlaBgGNC">           1 :         return newTabScreenUI(res, tabScreen{</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                 TabLabels: labels,</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :                 TabIndex:  cursor.TabIndex,</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                 Content:   st.buildItemList(world, props, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :                 Footer:    menuNavHint(world, true, query.T(world, &quot;x Details&quot;)),</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L376"><span class="lineNum">     376</span>              : }</span>
+<span id="L377"><span class="lineNum">     377</span>              : </span>
+<span id="L378"><span class="lineNum">     378</span>              : // Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 : func (st *ItemActionState) Menu(props ItemActionProps) menurt.MenuConfig {</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :         itemCounts := make([]int, len(props.Tabs))</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :                 itemCounts[i] = len(tab.Items)</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 :         return menurt.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage, InitialTab: verbTabIndex(st.initialVerb)}</span></span>
+<span id="L385"><span class="lineNum">     385</span>              : }</span>
+<span id="L386"><span class="lineNum">     386</span>              : </span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 : func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC tlaBgUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC tlaBgGNC">           1 :         items := props.Tabs[tabIndex].Items</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :         columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(items))</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           2 :         for i, it := range items {</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                 rows[i] = itemMenuRow(world, it.Entity, it.Weight)</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No matching items&quot;)}, res)</span></span>
+<span id="L398"><span class="lineNum">     398</span>              : }</span>
+<span id="L399"><span class="lineNum">     399</span>              : </span>
+<span id="L400"><span class="lineNum">     400</span>              : // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す</span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 : func (st *ItemActionState) selectedEntity() (ecs.Entity, bool) {</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :         props := st.screen.Props()</span></span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaGNC">           1 :         cursor := st.screen.Selection()</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, false</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC tlaBgGNC">           1 :         items := props.Tabs[cursor.TabIndex].Items</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :         if cursor.ItemIndex &gt;= len(items) {</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, false</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC tlaBgGNC">           1 :         return items[cursor.ItemIndex].Entity, true</span></span>
+<span id="L412"><span class="lineNum">     412</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-10 13:51:13</td>
+            <td class="headerValue">2026-08-10 16:02:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -216,7 +216,7 @@
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         // 行は共通ヘルパで組み、縦幅・行間・幅を他メニューと揃える</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(props.Items))</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           2 :         for i, item := range props.Items {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []string{item.Label}}</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: styled.TextCells(item.Label)}</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         menuContainer.AddChild(renderMenuList(itemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 : </span></span>

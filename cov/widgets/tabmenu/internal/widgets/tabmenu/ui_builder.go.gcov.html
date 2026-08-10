@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-10 13:51:13</td>
+            <td class="headerValue">2026-08-10 16:02:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -110,7 +110,7 @@
 <span id="L48"><span class="lineNum">      48</span>              : </span>
 <span id="L49"><span class="lineNum">      49</span>              : // createMenuButton はメニューボタンを作成する</span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func (b *uiBuilder) createMenuButton(item Item, isFocused bool) widget.PreferredSizeLocateableWidget {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return styled.NewListItemText(</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return styled.NewListItem(nil,</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 item.Label,</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 theme.TextSecondary,</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 isFocused,</span></span>
@@ -194,7 +194,7 @@
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 case displayPageIndicator:</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                         container.AddChild(styled.NewPageIndicator(row.Label, res))</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 case displayItem:</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                         container.AddChild(styled.NewListItemText(row.Label, theme.TextSecondary, row.Selected, res, row.AdditionalLabels...))</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                         container.AddChild(styled.NewListItem(nil, row.Label, theme.TextSecondary, row.Selected, res, row.AdditionalLabels...))</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 case displayEmptyPlaceholder:</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                         container.AddChild(styled.NewDescriptionText(query.T(b.world, row.Label), res))</span></span>
 <span id="L138"><span class="lineNum">     138</span>              :                 }</span>
