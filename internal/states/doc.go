@@ -24,7 +24,7 @@
 //	        return inputmapper.ActionMenuCancel, true
 //	    }
 //	    // 複数キー同時押しの判定もここで行う
-//	    if inpututil.IsKeyJustPressed(ebiten.KeyW) && inpututil.IsKeyJustPressed(ebiten.KeyA) {
+//	    if inpututil.IsKeyJustPressed(ebiten.KeyUp) && inpututil.IsKeyPressed(ebiten.KeyLeft) {
 //	        return inputmapper.ActionMoveNorthWest, true
 //	    }
 //	    return "", false

@@ -554,22 +554,16 @@ func Test_translateChoiceInput(t *testing.T) {
 			wantOK:     true,
 		},
 		{
-			name:       "Wキーでメニュー上移動",
-			setup:      func(m *input.MockKeyboardInput) { m.SetKeyPressedWithRepeat(ebiten.KeyW, true) },
-			wantAction: inputmapper.ActionMenuUp,
-			wantOK:     true,
-		},
-		{
 			name:       "矢印下キーでメニュー下移動",
 			setup:      func(m *input.MockKeyboardInput) { m.SetKeyPressedWithRepeat(ebiten.KeyArrowDown, true) },
 			wantAction: inputmapper.ActionMenuDown,
 			wantOK:     true,
 		},
 		{
-			name:       "Sキーでメニュー下移動",
-			setup:      func(m *input.MockKeyboardInput) { m.SetKeyPressedWithRepeat(ebiten.KeyS, true) },
-			wantAction: inputmapper.ActionMenuDown,
-			wantOK:     true,
+			name:       "英字キーは移動しない",
+			setup:      func(m *input.MockKeyboardInput) { m.SetKeyPressedWithRepeat(ebiten.KeyW, true) },
+			wantAction: "",
+			wantOK:     false,
 		},
 		{
 			name:       "Enterの押下から押上のワンセットで選択",
