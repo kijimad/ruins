@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.5%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
@@ -473,7 +473,7 @@
 				
 				<option value="file208">github.com/kijimaD/ruins/internal/states/component_debug_state.go (90.9%)</option>
 				
-				<option value="file209">github.com/kijimaD/ruins/internal/states/craft_menu.go (66.7%)</option>
+				<option value="file209">github.com/kijimaD/ruins/internal/states/craft_menu.go (65.8%)</option>
 				
 				<option value="file210">github.com/kijimaD/ruins/internal/states/cube_panel.go (85.2%)</option>
 				
@@ -1668,7 +1668,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -40913,16 +40913,13 @@ func (st *CraftMenuState) createMenuItems(world w.World, recipeIDs []string) []c
 
         for i, recipeID := range recipeIDs </span><span class="cov8" title="1">{
                 canCraft, _ := gameaction.CanCraft(world, recipeID)
-                name := recipeID
-                if spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipeID); err == nil </span><span class="cov8" title="1">{
-                        name = spec.Name.Name
-                }</span>
-                <span class="cov8" title="1">items[i] = craftItemData{
+                // レシピ id は生成アイテム id と一致する。表示名はアイテムの英語名を翻訳して出し、材料表示と経路を揃える
+                items[i] = craftItemData{
                         RecipeID:   recipeID,
-                        RecipeName: name,
+                        RecipeName: query.T(world, raw.ItemName(world.Resources.RawMaster, recipeID)),
                         CanCraft:   canCraft,
-                }</span>
-        }
+                }
+        }</span>
 
         <span class="cov8" title="1">return items</span>
 }
