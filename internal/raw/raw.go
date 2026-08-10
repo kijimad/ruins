@@ -146,12 +146,12 @@ func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
 		return nil, err
 	}
 	return &gc.Melee{
-		Accuracy:       int(m.Accuracy),
-		Damage:         int(m.Damage),
-		AttackCount:    int(m.AttackCount),
+		Accuracy:       m.Accuracy,
+		Damage:         m.Damage,
+		AttackCount:    m.AttackCount,
 		Element:        gc.ElementType(string(m.Element)),
 		AttackCategory: attackType,
-		Cost:           int(m.Cost),
+		Cost:           m.Cost,
 		TargetType:     parseTargetType(m.TargetGroup, m.TargetNum),
 	}, nil
 }
@@ -167,16 +167,16 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 		ammoTag = *f.AmmoTag
 	}
 	return &gc.Fire{
-		Accuracy:       int(f.Accuracy),
-		Damage:         int(f.Damage),
-		AttackCount:    int(f.AttackCount),
+		Accuracy:       f.Accuracy,
+		Damage:         f.Damage,
+		AttackCount:    f.AttackCount,
 		Element:        gc.ElementType(string(f.Element)),
 		AttackCategory: attackType,
-		Cost:           int(f.Cost),
+		Cost:           f.Cost,
 		TargetType:     parseTargetType(f.TargetGroup, f.TargetNum),
-		Magazine:       int(f.MagazineSize),
-		MagazineSize:   int(f.MagazineSize),
-		ReloadEffort:   int(f.ReloadEffort),
+		Magazine:       f.MagazineSize,
+		MagazineSize:   f.MagazineSize,
+		ReloadEffort:   f.ReloadEffort,
 		AmmoTag:        ammoTag,
 	}, nil
 }
@@ -204,11 +204,11 @@ func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 	}
 
 	return &gc.Book{
-		Effort: gc.IntPool{Max: int(b.TotalEffort)},
+		Effort: gc.IntPool{Max: b.TotalEffort},
 		Skill: &gc.SkillBookEffect{
 			TargetSkill:   skillID,
-			MaxLevel:      int(b.Skill.MaxLevel),
-			RequiredLevel: int(b.Skill.RequiredLevel),
+			MaxLevel:      b.Skill.MaxLevel,
+			RequiredLevel: b.Skill.RequiredLevel,
 		},
 	}, nil
 }
@@ -256,10 +256,10 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.ProvidesHealing = newProvidesHealingFromAPI(item.ProvidesHealing)
 	}
 	if item.ProvidesNutrition != nil {
-		entitySpec.ProvidesNutrition = &gc.ProvidesNutrition{Amount: int(*item.ProvidesNutrition)}
+		entitySpec.ProvidesNutrition = &gc.ProvidesNutrition{Amount: *item.ProvidesNutrition}
 	}
 	if item.InflictsDamage != nil {
-		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: int(*item.InflictsDamage)}
+		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: *item.InflictsDamage}
 	}
 
 	if item.Ammo != nil {
@@ -269,8 +269,8 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 		entitySpec.Ammo = &gc.Ammo{
 			AmmoTag:       ammoAmmoTag,
-			DamageBonus:   int(item.Ammo.DamageBonus),
-			AccuracyBonus: int(item.Ammo.AccuracyBonus),
+			DamageBonus:   item.Ammo.DamageBonus,
+			AccuracyBonus: item.Ammo.AccuracyBonus,
 		}
 	}
 
@@ -292,25 +292,25 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	var bonus gc.EquipBonus
 	if item.EquipBonus != nil {
 		bonus = gc.EquipBonus{
-			Vitality:  int(item.EquipBonus.Vitality),
-			Strength:  int(item.EquipBonus.Strength),
-			Sensation: int(item.EquipBonus.Sensation),
-			Dexterity: int(item.EquipBonus.Dexterity),
-			Agility:   int(item.EquipBonus.Agility),
+			Vitality:  item.EquipBonus.Vitality,
+			Strength:  item.EquipBonus.Strength,
+			Sensation: item.EquipBonus.Sensation,
+			Dexterity: item.EquipBonus.Dexterity,
+			Agility:   item.EquipBonus.Agility,
 		}
 	}
 
 	if item.Wearable != nil {
 		entitySpec.Wearable = &gc.Wearable{
-			Defense:           int(item.Wearable.Defense),
+			Defense:           item.Wearable.Defense,
 			EquipmentCategory: gc.EquipmentType(item.Wearable.EquipmentCategory),
 			EquipBonus:        bonus,
-			InsulationCold:    int(item.Wearable.InsulationCold),
-			InsulationHeat:    int(item.Wearable.InsulationHeat),
+			InsulationCold:    item.Wearable.InsulationCold,
+			InsulationHeat:    item.Wearable.InsulationHeat,
 		}
 	}
 
-	entitySpec.Value = &gc.Value{Value: int(item.Value)}
+	entitySpec.Value = &gc.Value{Value: item.Value}
 
 	if item.Weight != nil {
 		mg, err := consts.ParseWeight(*item.Weight)
@@ -354,7 +354,7 @@ func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.Name = &gc.Name{Name: recipe.Name}
 	entitySpec.Recipe = &gc.Recipe{}
 	for _, input := range recipe.Inputs {
-		entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{ID: input.Id, Amount: int(input.Amount)})
+		entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{ID: input.Id, Amount: input.Amount})
 	}
 
 	// 説明文や分類のため、マッチしたitemの定義から持ってくる
@@ -423,12 +423,12 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		Depth:           gc.DepthNumPlayer,
 	}
 	entitySpec.Abilities = &gc.Abilities{
-		Vitality:  gc.Ability{Base: int(member.Abilities.Vitality)},
-		Strength:  gc.Ability{Base: int(member.Abilities.Strength)},
-		Sensation: gc.Ability{Base: int(member.Abilities.Sensation)},
-		Dexterity: gc.Ability{Base: int(member.Abilities.Dexterity)},
-		Agility:   gc.Ability{Base: int(member.Abilities.Agility)},
-		Defense:   gc.Ability{Base: int(member.Abilities.Defense)},
+		Vitality:  gc.Ability{Base: member.Abilities.Vitality},
+		Strength:  gc.Ability{Base: member.Abilities.Strength},
+		Sensation: gc.Ability{Base: member.Abilities.Sensation},
+		Dexterity: gc.Ability{Base: member.Abilities.Dexterity},
+		Agility:   gc.Ability{Base: member.Abilities.Agility},
+		Defense:   gc.Ability{Base: member.Abilities.Defense},
 	}
 	entitySpec.HP = &gc.HP{}
 	entitySpec.WeightCapacity = &gc.WeightCapacity{}
@@ -666,14 +666,14 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.BlockView = &gc.BlockView{}
 	}
 	if propRaw.PassCost != nil {
-		entitySpec.PassCost = &gc.PassCost{Value: int(*propRaw.PassCost)}
+		entitySpec.PassCost = &gc.PassCost{Value: *propRaw.PassCost}
 	}
 	// 各条件に対応するインタラクションを蓄積する。
 	// 1つのPropが複数のインタラクションを持てる
 	var interactions []gc.InteractionKind
 
 	if propRaw.Hp != nil {
-		hp := int(*propRaw.Hp)
+		hp := *propRaw.Hp
 		entitySpec.HP = &gc.HP{Max: hp, Current: hp}
 		interactions = append(interactions, gc.InteractionMelee)
 	}
@@ -778,7 +778,7 @@ func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
 func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, depth int) (string, error) {
 	filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))
 	for _, entry := range it.Entries {
-		if depth < int(entry.MinDepth) || depth > int(entry.MaxDepth) {
+		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
 		}
 		filtered = append(filtered, entry)
@@ -812,7 +812,7 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, depth
 func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) {
 	filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))
 	for _, entry := range et.Entries {
-		if depth < int(entry.MinDepth) || depth > int(entry.MaxDepth) {
+		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
 		}
 		filtered = append(filtered, entry)

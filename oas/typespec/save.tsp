@@ -21,10 +21,10 @@ scalar EntityName extends string;
 scalar EntityDescription extends string;
 
 /** プール最大値 (整数) */
-scalar PoolMax extends int32;
+scalar PoolMax extends integer;
 
 /** プール現在値 (整数) */
-scalar PoolCurrent extends int32;
+scalar PoolCurrent extends integer;
 
 /** プール最大値 (浮動小数点) */
 scalar PoolFloatMax extends float64;
@@ -34,16 +34,16 @@ scalar PoolFloatCurrent extends float64;
 
 /** APの毎ターン回復量 */
 @minValue(0)
-scalar Speed extends int32;
+scalar Speed extends integer;
 
 /** 能力値の基本値 */
-scalar AbilityBase extends int32;
+scalar AbilityBase extends integer;
 
 /** 能力値の装備・状態変化による修正値 */
-scalar AbilityModifier extends int32;
+scalar AbilityModifier extends integer;
 
 /** 能力値の算出された現在値 */
-scalar AbilityTotal extends int32;
+scalar AbilityTotal extends integer;
 
 /** カメラのスケール値 */
 scalar CameraScale extends float64;
@@ -52,7 +52,7 @@ scalar CameraScale extends float64;
 scalar CameraPosition extends float64;
 
 /** タイル座標 */
-scalar TileCoord extends int32;
+scalar TileCoord extends integer;
 
 /** スプライトシート名。セーブデータではパターン制約を適用しない */
 scalar SpriteSheetName extends string;
@@ -61,14 +61,14 @@ scalar SpriteSheetName extends string;
 scalar SpriteKey extends string;
 
 /** スプライト描画深度 */
-scalar SpriteDepth extends int32;
+scalar SpriteDepth extends integer;
 
 /** 光源の到達半径 (タイル単位)。無効時は0を許容する */
 @minValue(0)
-scalar LightRadius extends int32;
+scalar LightRadius extends integer;
 
 /** 能力値ボーナス */
-scalar AbilityBonus extends int32;
+scalar AbilityBonus extends integer;
 
 /** 武器種別の識別子 */
 scalar AttackTypeId extends string;
@@ -78,7 +78,7 @@ scalar AttackTypeLabel extends string;
 
 /** 現在の装弾数 */
 @minValue(0)
-scalar Magazine extends int32;
+scalar Magazine extends integer;
 
 /** 弾薬の口径タグ。セーブデータでは任意文字列を許容する */
 scalar AmmoTag extends string;
@@ -88,19 +88,19 @@ scalar MaterialName extends string;
 
 /** 固定回復量 */
 @minValue(0)
-scalar HealNumeral extends int32;
+scalar HealNumeral extends integer;
 
 /** ダメージ量 */
 @minValue(0)
-scalar DamageAmount extends int32;
+scalar DamageAmount extends integer;
 
 /** 所持金 */
 @minValue(0)
-scalar Currency extends int32;
+scalar Currency extends integer;
 
 /** 装備スロット番号 */
 @minValue(0)
-scalar EquipmentSlotNumber extends int32;
+scalar EquipmentSlotNumber extends integer;
 
 // ================== セーブデータ最上位構造 ==================
 
@@ -681,7 +681,7 @@ model HealthCondition {
   Type: string;
 
   /** 重症度 */
-  Severity: int32;
+  Severity: integer;
 
   /** 進行度タイマー */
   Timer: float64;
@@ -696,7 +696,7 @@ model StatEffect {
   Stat: string;
 
   /** 修正値 */
-  Value: int32;
+  Value: integer;
 }
 
 // ================== スキルコンポーネント ==================
@@ -710,11 +710,11 @@ model SkillsComponent {
 /** 個別スキルの状態 */
 model SkillEntry {
   /** スキル値 */
-  Value: int32;
+  Value: integer;
 
   /** 経験値の最大値 */
-  ExpMax: int32;
+  ExpMax: integer;
 
   /** 蓄積経験値 */
-  ExpCurrent: int32;
+  ExpCurrent: integer;
 }

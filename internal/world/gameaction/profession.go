@@ -20,19 +20,19 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 
 	// 職業の属性値で上書き
 	abils := world.Components.Abilities.Get(player)
-	abils.Strength = gc.Ability{Base: int(prof.Abilities.Strength)}
-	abils.Sensation = gc.Ability{Base: int(prof.Abilities.Sensation)}
-	abils.Dexterity = gc.Ability{Base: int(prof.Abilities.Dexterity)}
-	abils.Agility = gc.Ability{Base: int(prof.Abilities.Agility)}
-	abils.Vitality = gc.Ability{Base: int(prof.Abilities.Vitality)}
-	abils.Defense = gc.Ability{Base: int(prof.Abilities.Defense)}
+	abils.Strength = gc.Ability{Base: prof.Abilities.Strength}
+	abils.Sensation = gc.Ability{Base: prof.Abilities.Sensation}
+	abils.Dexterity = gc.Ability{Base: prof.Abilities.Dexterity}
+	abils.Agility = gc.Ability{Base: prof.Abilities.Agility}
+	abils.Vitality = gc.Ability{Base: prof.Abilities.Vitality}
+	abils.Defense = gc.Ability{Base: prof.Abilities.Defense}
 
 	// 職業のスキル初期値を設定
 	playerSkills := world.Components.Skills.Get(player)
 	*playerSkills = *gc.NewSkills()
 	if prof.Skills != nil {
 		for _, ps := range *prof.Skills {
-			playerSkills.Get(gc.SkillID(ps.Id)).Value = int(ps.Value)
+			playerSkills.Get(gc.SkillID(ps.Id)).Value = ps.Value
 		}
 	}
 	modifiers := gc.RecalculateCharModifiers(playerSkills, abils, nil)
@@ -45,7 +45,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 
 	// 初期アイテムをバックパックに付与
 	for _, profItem := range prof.Items {
-		if _, err := lifecycle.SpawnBackpackItem(world, profItem.Name, int(profItem.Count)); err != nil {
+		if _, err := lifecycle.SpawnBackpackItem(world, profItem.Name, profItem.Count); err != nil {
 			return fmt.Errorf("failed to generate profession starting item: %s: %w", profItem.Name, err)
 		}
 	}

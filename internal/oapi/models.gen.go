@@ -638,16 +638,16 @@ type Abilities struct {
 }
 
 // Accuracy 命中率。0で必中なし、100で必中
-type Accuracy = int32
+type Accuracy = int
 
 // AccuracyBonus 命中率補正値
-type AccuracyBonus = int32
+type AccuracyBonus = int
 
 // ActionCost 行動コスト
-type ActionCost = int32
+type ActionCost = int
 
 // Agility 敏捷性。行動順に影響する
-type Agility = int32
+type Agility = int
 
 // Ammo 弾薬設定
 type Ammo struct {
@@ -665,13 +665,13 @@ type Ammo struct {
 type AmmoTag string
 
 // ArmorDefense 防具の防御力
-type ArmorDefense = int32
+type ArmorDefense = int
 
 // AttackCategory 攻撃種別
 type AttackCategory string
 
 // AttackCount 1ターンあたりの攻撃回数
-type AttackCount = int32
+type AttackCount = int
 
 // BalanceAbilityScore 能力値。プレイヤーのステータス
 type BalanceAbilityScore = int
@@ -970,7 +970,7 @@ type BalanceWeaponInfo struct {
 type BalanceWeaponName = string
 
 // BaseDamage 基本ダメージ
-type BaseDamage = int32
+type BaseDamage = int
 
 // BlocksPassage 通行を妨げるかどうか
 type BlocksPassage = bool
@@ -1016,7 +1016,7 @@ type CommandTableEntry struct {
 // CommandTableList コマンドテーブル一覧
 type CommandTableList struct {
 	Data       []CommandTable `json:"data"`
-	TotalCount int32          `json:"totalCount"`
+	TotalCount int            `json:"totalCount"`
 }
 
 // Consumable 消費可能アイテムの設定
@@ -1035,16 +1035,16 @@ type Consumable struct {
 type CubePanelTriggerRaw = map[string]interface{}
 
 // DamageBonus ダメージ補正値
-type DamageBonus = int32
+type DamageBonus = int
 
 // Defense 防御力。被ダメージを軽減する
-type Defense = int32
+type Defense = int
 
 // DepthLevel 階層レベル
-type DepthLevel = int32
+type DepthLevel = int
 
 // Dexterity 器用さ。クリティカル率に影響する
-type Dexterity = int32
+type Dexterity = int
 
 // Dialog 会話データ
 type Dialog struct {
@@ -1067,7 +1067,7 @@ type Disassembly struct {
 }
 
 // DisassemblyBaseAP 分解の基礎工数。100が標準1ターンに相当する
-type DisassemblyBaseAP = int32
+type DisassemblyBaseAP = int
 
 // DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
 type DisassemblyBonus struct {
@@ -1085,7 +1085,7 @@ type DisassemblyBonus struct {
 }
 
 // DisassemblyChance 分解産出の確率。百分率
-type DisassemblyChance = int32
+type DisassemblyChance = int
 
 // DisassemblyTool 分解工具。分類の対応とグレードを持つ
 type DisassemblyTool struct {
@@ -1133,7 +1133,7 @@ type DropTableEntry struct {
 // DropTableList ドロップテーブル一覧
 type DropTableList struct {
 	Data       []DropTable `json:"data"`
-	TotalCount int32       `json:"totalCount"`
+	TotalCount int         `json:"totalCount"`
 }
 
 // Element 攻撃属性
@@ -1171,7 +1171,7 @@ type EnemyTableEntry struct {
 // EnemyTableList 敵テーブル一覧
 type EnemyTableList struct {
 	Data       []EnemyTable `json:"data"`
-	TotalCount int32        `json:"totalCount"`
+	TotalCount int          `json:"totalCount"`
 }
 
 // EntityDescription 説明文
@@ -1259,7 +1259,7 @@ type Fire struct {
 type FoliageType float32
 
 // HealAmount 回復固定量
-type HealAmount = int32
+type HealAmount = int
 
 // HealRatio 回復割合。0.0〜1.0
 type HealRatio = float64
@@ -1268,16 +1268,16 @@ type HealRatio = float64
 type HealingValueType string
 
 // HitPoints 耐久値。設定すると破壊可能になる
-type HitPoints = int32
+type HitPoints = int
 
 // ImagePath 画像ファイルパス
 type ImagePath = string
 
 // InsulationCold 耐寒性能
-type InsulationCold = int32
+type InsulationCold = int
 
 // InsulationHeat 耐暑性能
-type InsulationHeat = int32
+type InsulationHeat = int
 
 // IsBoss ボスモンスターかどうか
 type IsBoss = bool
@@ -1351,7 +1351,7 @@ type Item struct {
 }
 
 // ItemCount アイテム所持数
-type ItemCount = int32
+type ItemCount = int
 
 // ItemGroup アイテムグループ。アイテムの出現セットを定義する
 type ItemGroup struct {
@@ -1382,7 +1382,7 @@ type ItemGroupEntry struct {
 // ItemGroupList アイテムグループ一覧
 type ItemGroupList struct {
 	Data       []ItemGroup `json:"data"`
-	TotalCount int32       `json:"totalCount"`
+	TotalCount int         `json:"totalCount"`
 }
 
 // ItemGroupSubtype アイテムグループのサブタイプ
@@ -1391,7 +1391,7 @@ type ItemGroupSubtype string
 // ItemList アイテム一覧レスポンス
 type ItemList struct {
 	Data       []Item `json:"data"`
-	TotalCount int32  `json:"totalCount"`
+	TotalCount int    `json:"totalCount"`
 }
 
 // ItemTable アイテムテーブル
@@ -1423,17 +1423,17 @@ type ItemTableEntry struct {
 // ItemTableList アイテムテーブル一覧
 type ItemTableList struct {
 	Data       []ItemTable `json:"data"`
-	TotalCount int32       `json:"totalCount"`
+	TotalCount int         `json:"totalCount"`
 }
 
 // ItemValue 売買価格
-type ItemValue = int32
+type ItemValue = int
 
 // LightEnabled 光源が有効かどうか
 type LightEnabled = bool
 
 // LightRadius 光の到達半径（タイル単位）
-type LightRadius = int32
+type LightRadius = int
 
 // LightSource 光源設定
 type LightSource struct {
@@ -1448,10 +1448,10 @@ type LightSource struct {
 }
 
 // MagazineSize マガジン容量
-type MagazineSize = int32
+type MagazineSize = int
 
 // MaterialAmount 素材必要数
-type MaterialAmount = int32
+type MaterialAmount = int
 
 // Melee 近接攻撃設定
 type Melee struct {
@@ -1532,7 +1532,7 @@ type Member struct {
 // MemberList メンバー一覧レスポンス
 type MemberList struct {
 	Data       []Member `json:"data"`
-	TotalCount int32    `json:"totalCount"`
+	TotalCount int      `json:"totalCount"`
 }
 
 // MessageKey メッセージリソースのキー
@@ -1542,7 +1542,7 @@ type MessageKey = string
 type MovementPatternType string
 
 // NutritionAmount 栄養価
-type NutritionAmount = int32
+type NutritionAmount = int
 
 // Palette パレット
 type Palette struct {
@@ -1571,11 +1571,11 @@ type PaletteId = string
 // PaletteList パレット一覧
 type PaletteList struct {
 	Data       []Palette `json:"data"`
-	TotalCount int32     `json:"totalCount"`
+	TotalCount int       `json:"totalCount"`
 }
 
 // PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
-type PassCost = int32
+type PassCost = int
 
 // Profession 職業
 type Profession struct {
@@ -1619,7 +1619,7 @@ type ProfessionItem struct {
 // ProfessionList 職業一覧
 type ProfessionList struct {
 	Data       []Profession `json:"data"`
-	TotalCount int32        `json:"totalCount"`
+	TotalCount int          `json:"totalCount"`
 }
 
 // ProfessionSkill 職業スキル初期値
@@ -1687,7 +1687,7 @@ type Prop struct {
 // PropList 置物一覧
 type PropList struct {
 	Data       []Prop `json:"data"`
-	TotalCount int32  `json:"totalCount"`
+	TotalCount int    `json:"totalCount"`
 }
 
 // ProvidesHealing 回復効果
@@ -1734,7 +1734,7 @@ type Raws struct {
 }
 
 // ReadingEffort 読了に必要な総読書量
-type ReadingEffort = int32
+type ReadingEffort = int
 
 // Recipe レシピ
 type Recipe struct {
@@ -1758,11 +1758,11 @@ type RecipeInput struct {
 // RecipeList レシピ一覧レスポンス
 type RecipeList struct {
 	Data       []Recipe `json:"data"`
-	TotalCount int32    `json:"totalCount"`
+	TotalCount int      `json:"totalCount"`
 }
 
 // ReloadEffort リロードに必要な行動力
-type ReloadEffort = int32
+type ReloadEffort = int
 
 // SaveDataAbilitiesComponent 能力値
 type SaveDataAbilitiesComponent struct {
@@ -1786,16 +1786,16 @@ type SaveDataAbilitiesComponent struct {
 }
 
 // SaveDataAbilityBase 能力値の基本値
-type SaveDataAbilityBase = int32
+type SaveDataAbilityBase = int
 
 // SaveDataAbilityBonus 能力値ボーナス
-type SaveDataAbilityBonus = int32
+type SaveDataAbilityBonus = int
 
 // SaveDataAbilityModifier 能力値の装備・状態変化による修正値
-type SaveDataAbilityModifier = int32
+type SaveDataAbilityModifier = int
 
 // SaveDataAbilityTotal 能力値の算出された現在値
-type SaveDataAbilityTotal = int32
+type SaveDataAbilityTotal = int
 
 // SaveDataAbilityValue 単一能力値。基本値・修正値・合計値を持つ
 type SaveDataAbilityValue struct {
@@ -2004,10 +2004,10 @@ type SaveDataConsumableComponent struct {
 }
 
 // SaveDataCurrency 所持金
-type SaveDataCurrency = int32
+type SaveDataCurrency = int
 
 // SaveDataDamageAmount ダメージ量
-type SaveDataDamageAmount = int32
+type SaveDataDamageAmount = int
 
 // SaveDataDescriptionComponent 説明文
 type SaveDataDescriptionComponent struct {
@@ -2055,7 +2055,7 @@ type SaveDataEquipBonusData struct {
 }
 
 // SaveDataEquipmentSlotNumber 装備スロット番号
-type SaveDataEquipmentSlotNumber = int32
+type SaveDataEquipmentSlotNumber = int
 
 // SaveDataEventState イベントの状態
 type SaveDataEventState struct {
@@ -2145,7 +2145,7 @@ type SaveDataHPComponent struct {
 }
 
 // SaveDataHealNumeral 固定回復量
-type SaveDataHealNumeral = int32
+type SaveDataHealNumeral = int
 
 // SaveDataHealingAmountData 回復量データ。typeフィールドで計算方式を判別する
 type SaveDataHealingAmountData struct {
@@ -2168,7 +2168,7 @@ type SaveDataHealthCondition struct {
 	Effects *[]SaveDataStatEffect `json:"Effects,omitempty"`
 
 	// Severity 重症度
-	Severity int32 `json:"Severity"`
+	Severity int `json:"Severity"`
 
 	// Timer 進行度タイマー
 	Timer float64 `json:"Timer"`
@@ -2205,7 +2205,7 @@ type SaveDataItemHandlingPolicyType string
 type SaveDataItemPickupPolicyType string
 
 // SaveDataLightRadius 光源の到達半径 (タイル単位)。無効時は0を許容する
-type SaveDataLightRadius = int32
+type SaveDataLightRadius = int
 
 // SaveDataLightSourceComponent 光源設定
 type SaveDataLightSourceComponent struct {
@@ -2237,7 +2237,7 @@ type SaveDataLocationInBackpackComponent struct {
 }
 
 // SaveDataMagazine 現在の装弾数
-type SaveDataMagazine = int32
+type SaveDataMagazine = int
 
 // SaveDataMarkerComponent マーカーコンポーネント。データを持たず、存在の有無だけが意味を持つ
 type SaveDataMarkerComponent = map[string]interface{}
@@ -2288,7 +2288,7 @@ type SaveDataNameComponent struct {
 type SaveDataPlannerType string
 
 // SaveDataPoolCurrent プール現在値 (整数)
-type SaveDataPoolCurrent = int32
+type SaveDataPoolCurrent = int
 
 // SaveDataPoolFloatCurrent プール現在値 (浮動小数点)
 type SaveDataPoolFloatCurrent = float64
@@ -2297,7 +2297,7 @@ type SaveDataPoolFloatCurrent = float64
 type SaveDataPoolFloatMax = float64
 
 // SaveDataPoolMax プール最大値 (整数)
-type SaveDataPoolMax = int32
+type SaveDataPoolMax = int
 
 // SaveDataProvidesHealingComponent 回復効果。Amounterインターフェースを具体型に分解してシリアライズする
 type SaveDataProvidesHealingComponent struct {
@@ -2361,13 +2361,13 @@ type SaveDataSaveDataVersion string
 // SaveDataSkillEntry 個別スキルの状態
 type SaveDataSkillEntry struct {
 	// ExpCurrent 蓄積経験値
-	ExpCurrent int32 `json:"ExpCurrent"`
+	ExpCurrent int `json:"ExpCurrent"`
 
 	// ExpMax 経験値の最大値
-	ExpMax int32 `json:"ExpMax"`
+	ExpMax int `json:"ExpMax"`
 
 	// Value スキル値
-	Value int32 `json:"Value"`
+	Value int `json:"Value"`
 }
 
 // SaveDataSkillsComponent スキルセット
@@ -2377,10 +2377,10 @@ type SaveDataSkillsComponent struct {
 }
 
 // SaveDataSpeed APの毎ターン回復量
-type SaveDataSpeed = int32
+type SaveDataSpeed = int
 
 // SaveDataSpriteDepth スプライト描画深度
-type SaveDataSpriteDepth = int32
+type SaveDataSpriteDepth = int
 
 // SaveDataSpriteKey スプライトキー。セーブデータではパターン制約を適用しない
 type SaveDataSpriteKey = string
@@ -2451,7 +2451,7 @@ type SaveDataStatEffect struct {
 	Stat string `json:"Stat"`
 
 	// Value 修正値
-	Value int32 `json:"Value"`
+	Value int `json:"Value"`
 }
 
 // SaveDataTargetTypeData 対象指定
@@ -2464,7 +2464,7 @@ type SaveDataTargetTypeData struct {
 }
 
 // SaveDataTileCoord タイル座標
-type SaveDataTileCoord = int32
+type SaveDataTileCoord = int
 
 // SaveDataTurnBasedComponent アクションポイントと速度
 type SaveDataTurnBasedComponent struct {
@@ -2524,7 +2524,7 @@ type SaveDataWorldSaveData struct {
 }
 
 // Sensation 感覚。命中率と回避率に影響する
-type Sensation = int32
+type Sensation = int
 
 // ShelterType 遮蔽タイプ
 type ShelterType float32
@@ -2545,7 +2545,7 @@ type SkillBook struct {
 type SkillId = string
 
 // SkillLevel スキルレベル
-type SkillLevel = int32
+type SkillLevel = int
 
 // SpriteDepth スプライト描画深度
 type SpriteDepth float32
@@ -2577,7 +2577,7 @@ type SpriteSheet struct {
 // SpriteSheetList スプライトシート一覧
 type SpriteSheetList struct {
 	Data       []SpriteSheet `json:"data"`
-	TotalCount int32         `json:"totalCount"`
+	TotalCount int           `json:"totalCount"`
 }
 
 // SpriteSheetName スプライトシート名
@@ -2599,7 +2599,7 @@ type StorageRaw struct {
 }
 
 // Strength 筋力。物理ダメージに影響する
-type Strength = int32
+type Strength = int
 
 // TargetGroup ターゲットグループ
 type TargetGroup string
@@ -2640,23 +2640,23 @@ type Tile struct {
 // TileList タイル一覧
 type TileList struct {
 	Data       []Tile `json:"data"`
-	TotalCount int32  `json:"totalCount"`
+	TotalCount int    `json:"totalCount"`
 }
 
 // ToolCategory 分解工具の分類
 type ToolCategory string
 
 // ToolGrade 分解工具のグレード。高いほど速く多く得る
-type ToolGrade = int32
+type ToolGrade = int
 
 // UsableScene 使用可能シーン
 type UsableScene string
 
 // ViewDistance AI視界距離（タイル単位）
-type ViewDistance = int32
+type ViewDistance = int
 
 // Vitality 体力。HPに影響する
-type Vitality = int32
+type Vitality = int
 
 // WarpCubeExitTriggerRaw 移動拠点キューブの内部からの退場トリガー
 type WarpCubeExitTriggerRaw = map[string]interface{}

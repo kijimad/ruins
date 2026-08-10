@@ -219,5 +219,5 @@ func itemValue(master oapi.Raws, name string) int {
 	if err != nil {
 		return 0
 	}
-	return int(item.Value)
+	return item.Value
 }

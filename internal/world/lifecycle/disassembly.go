@@ -43,7 +43,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			continue
 		}
 		// グレード補正は1を基準とし、想定外の0以下が来ても確率を下げない
-		chance := min(int(*y.Chance)+skillValue+max(0, (toolGrade-1)*10), 100)
+		chance := min(*y.Chance+skillValue+max(0, (toolGrade-1)*10), 100)
 		if rng.IntN(100) < chance {
 			count, err := rollCount(rng, y.Count)
 			if err != nil {
@@ -60,10 +60,10 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 			if b.MinSkill == nil && b.MinGrade == nil {
 				continue
 			}
-			if b.MinSkill != nil && skillValue < int(*b.MinSkill) {
+			if b.MinSkill != nil && skillValue < *b.MinSkill {
 				continue
 			}
-			if b.MinGrade != nil && toolGrade < int(*b.MinGrade) {
+			if b.MinGrade != nil && toolGrade < *b.MinGrade {
 				continue
 			}
 			count, err := rollCount(rng, b.Count)

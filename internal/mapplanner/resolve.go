@@ -21,7 +21,7 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]S
 	}
 	result := make([]SpawnEntry, 0, len(enemyTable.Entries))
 	for _, entry := range enemyTable.Entries {
-		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
+		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
 		}
 		pack, err := consts.ParseDice(entry.Pack)
@@ -52,7 +52,7 @@ func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]it
 	}
 	result := make([]itemGroupRef, 0, len(itemTable.Entries))
 	for _, entry := range itemTable.Entries {
-		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
+		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
 		}
 		result = append(result, itemGroupRef{GroupID: entry.Id, Weight: entry.Weight})

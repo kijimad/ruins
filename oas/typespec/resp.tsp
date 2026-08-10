@@ -5,77 +5,77 @@ namespace RuinsEditorApi;
 /** アイテム一覧レスポンス */
 model ItemList {
   data: Item[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** メンバー一覧レスポンス */
 model MemberList {
   data: Member[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** レシピ一覧レスポンス */
 model RecipeList {
   data: Recipe[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** コマンドテーブル一覧 */
 model CommandTableList {
   data: CommandTable[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** ドロップテーブル一覧 */
 model DropTableList {
   data: DropTable[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** アイテムグループ一覧 */
 model ItemGroupList {
   data: ItemGroup[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** アイテムテーブル一覧 */
 model ItemTableList {
   data: ItemTable[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** 敵テーブル一覧 */
 model EnemyTableList {
   data: EnemyTable[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** タイル一覧 */
 model TileList {
   data: Tile[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** 置物一覧 */
 model PropList {
   data: Prop[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** 職業一覧 */
 model ProfessionList {
   data: Profession[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** スプライトシート一覧 */
 model SpriteSheetList {
   data: SpriteSheet[];
-  totalCount: int32;
+  totalCount: integer;
 }
 
 /** パレット一覧 */
 model PaletteList {
   data: Palette[];
-  totalCount: int32;
+  totalCount: integer;
 }
