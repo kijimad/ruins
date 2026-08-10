@@ -111,8 +111,8 @@ func drawWeaponSprite(screen *ebiten.Image, x, y, slotSize int, slot WeaponSlotI
 	}
 
 	// スプライトを解決する。シートやキーが無ければ描画しない
-	img, ok := resources.SpriteImage(spriteSheets, &gc.SpriteRender{SpriteSheetName: slot.SpriteSheet, SpriteKey: slot.SpriteName})
-	if !ok {
+	img, err := resources.SpriteImage(spriteSheets, &gc.SpriteRender{SpriteSheetName: slot.SpriteSheet, SpriteKey: slot.SpriteName})
+	if err != nil {
 		return
 	}
 

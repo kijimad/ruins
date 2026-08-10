@@ -357,9 +357,9 @@ func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRe
 		return v, nil
 	}
 	// 解決は resources.SpriteImage に集約する。ここは毎フレームのホットパスなので結果をキャッシュする
-	img, ok := resources.SpriteImage(world.Resources.SpriteSheets, spriteRender)
-	if !ok {
-		return nil, fmt.Errorf("sprite %q not found in sheet %q", spriteRender.SpriteKey, spriteRender.SpriteSheetName)
+	img, err := resources.SpriteImage(world.Resources.SpriteSheets, spriteRender)
+	if err != nil {
+		return nil, err
 	}
 	sys.spriteImageCache[key] = img
 	return img, nil
