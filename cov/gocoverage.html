@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.5%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.9%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
@@ -1578,7 +1578,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1592,7 +1592,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         gameaction.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
+        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
                 CancelActivity(target, "took an attack", world)
         }</span>
 
@@ -1668,7 +1668,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -39409,7 +39409,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
         name.Name = st.playerName
 
         // 操作ガイドを表示する
-        gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "WASD: Move."))).Log()
+        gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "Arrows: Move."))).Log()
         gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "M key: Open base menu."))).Log()
         gamelog.New(query.GetGameLog(world)).Markup(gamelog.Tag("system", query.T(world, "Space key: Open action menu."))).Log()
 
@@ -43773,16 +43773,16 @@ func (st *LookAroundState) handleInput() (inputmapper.ActionID, bool) <span clas
         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) || keyboardInput.IsKeyJustPressed(ebiten.KeyX) </span><span class="cov0" title="0">{
                 return inputmapper.ActionCloseMenu, true
         }</span>
-        <span class="cov8" title="1">if keyboardInput.IsKeyJustPressed(ebiten.KeyUp) || keyboardInput.IsKeyJustPressed(ebiten.KeyW) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if keyboardInput.IsKeyJustPressed(ebiten.KeyUp) </span><span class="cov0" title="0">{
                 return inputmapper.ActionMoveNorth, true
         }</span>
-        <span class="cov8" title="1">if keyboardInput.IsKeyJustPressed(ebiten.KeyDown) || keyboardInput.IsKeyJustPressed(ebiten.KeyS) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if keyboardInput.IsKeyJustPressed(ebiten.KeyDown) </span><span class="cov0" title="0">{
                 return inputmapper.ActionMoveSouth, true
         }</span>
-        <span class="cov8" title="1">if keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) || keyboardInput.IsKeyJustPressed(ebiten.KeyA) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) </span><span class="cov0" title="0">{
                 return inputmapper.ActionMoveWest, true
         }</span>
-        <span class="cov8" title="1">if keyboardInput.IsKeyJustPressed(ebiten.KeyRight) || keyboardInput.IsKeyJustPressed(ebiten.KeyD) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if keyboardInput.IsKeyJustPressed(ebiten.KeyRight) </span><span class="cov0" title="0">{
                 return inputmapper.ActionMoveEast, true
         }</span>
 
@@ -43955,7 +43955,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 
         // 操作説明
         y = panelY + panelHeight - 30
-        drawText(query.T(world, "WASD/Arrows: Move  X/Esc: Close"))
+        drawText(query.T(world, "Arrows: Move  X/Esc: Close"))
 
         return nil</span>
 }
@@ -46286,9 +46286,9 @@ func (sys *CameraSystem) Update(world w.World) error <span class="cov8" title="1
         // 参考: https://ebitengine.org/ja/examples/isometric.html
         var scrollY float64
         switch </span>{
-        case ebiten.IsKeyPressed(ebiten.KeyC) || ebiten.IsKeyPressed(ebiten.KeyPageDown):<span class="cov0" title="0">
+        case ebiten.IsKeyPressed(ebiten.KeyPageDown):<span class="cov0" title="0">
                 scrollY = -0.25</span>
-        case ebiten.IsKeyPressed(ebiten.KeyE) || ebiten.IsKeyPressed(ebiten.KeyPageUp):<span class="cov0" title="0">
+        case ebiten.IsKeyPressed(ebiten.KeyPageUp):<span class="cov0" title="0">
                 scrollY = 0.25</span>
         default:<span class="cov8" title="1">
                 _, scrollY = ebiten.Wheel()
@@ -52070,10 +52070,10 @@ func (w *Window) handleChoiceInput() error <span class="cov0" title="0">{
 
 // translateChoiceInput はキーボード入力を選択肢メニューのアクションに変換する
 func (w *Window) translateChoiceInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) <span class="cov8" title="1">{
-        if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) </span><span class="cov8" title="1">{
+        if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) </span><span class="cov8" title="1">{
                 return inputmapper.ActionMenuUp, true
         }</span>
-        <span class="cov8" title="1">if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) </span><span class="cov8" title="1">{
                 return inputmapper.ActionMenuDown, true
         }</span>
         <span class="cov8" title="1">if keyboardInput.IsEnterJustPressedOnce() </span><span class="cov8" title="1">{
