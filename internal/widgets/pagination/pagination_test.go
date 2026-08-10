@@ -101,76 +101,11 @@ func TestPagination_GetVisibleRange(t *testing.T) {
 	}
 }
 
-func TestPagination_HasPreviousPage(t *testing.T) {
-	t.Parallel()
-
-	assert.False(t, Pagination{Page: 0}.HasPreviousPage())
-	assert.True(t, Pagination{Page: 1}.HasPreviousPage())
-	assert.True(t, Pagination{Page: 5}.HasPreviousPage())
-}
-
-func TestPagination_HasNextPage(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name         string
-		page         int
-		itemCount    int
-		itemsPerPage int
-		expected     bool
-	}{
-		{"次ページあり", 0, 10, 5, true},
-		{"最後のページ", 1, 10, 5, false},
-		{"itemsPerPage=0", 0, 10, 0, false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			p := Pagination{
-				Page:         tt.page,
-				ItemCount:    tt.itemCount,
-				ItemsPerPage: tt.itemsPerPage,
-			}
-			assert.Equal(t, tt.expected, p.HasNextPage())
-		})
-	}
-}
-
 func TestPagination_IsEnabled(t *testing.T) {
 	t.Parallel()
 
 	assert.False(t, Pagination{ItemCount: 5, ItemsPerPage: 10}.IsEnabled())
 	assert.True(t, Pagination{ItemCount: 15, ItemsPerPage: 10}.IsEnabled())
-}
-
-func TestPagination_GetIndicatorText(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name         string
-		page         int
-		itemCount    int
-		itemsPerPage int
-		expected     string
-	}{
-		{"1ページのみは空文字", 0, 5, 10, ""},
-		{"最初のページ", 0, 15, 5, "  1/3 ↓"},
-		{"中間ページ", 1, 15, 5, "↑ 2/3 ↓"},
-		{"最後のページ", 2, 15, 5, "↑ 3/3"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			p := Pagination{
-				Page:         tt.page,
-				ItemCount:    tt.itemCount,
-				ItemsPerPage: tt.itemsPerPage,
-			}
-			assert.Equal(t, tt.expected, p.GetIndicatorText())
-		})
-	}
 }
 
 func TestPagination_IsSelectedInPage(t *testing.T) {
@@ -219,28 +154,6 @@ func TestPagination_GetPageText(t *testing.T) {
 				ItemsPerPage: tt.itemsPerPage,
 			}
 			assert.Equal(t, tt.expected, p.GetPageText())
-		})
-	}
-}
-
-func TestSliceVisible(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name     string
-		items    []string
-		p        Pagination
-		expected []string
-	}{
-		{"通常ページ", []string{"a", "b", "c", "d", "e", "f", "g"}, Pagination{Page: 1, ItemCount: 7, ItemsPerPage: 3}, []string{"d", "e", "f"}},
-		{"開始位置がスライス長以上なら空スライス", []string{"a", "b"}, Pagination{Page: 1, ItemCount: 10, ItemsPerPage: 5}, []string{}},
-		{"終了位置をスライス長で切り詰める", []string{"a", "b"}, Pagination{Page: 0, ItemCount: 5, ItemsPerPage: 5}, []string{"a", "b"}},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.expected, SliceVisible(tt.items, tt.p))
 		})
 	}
 }

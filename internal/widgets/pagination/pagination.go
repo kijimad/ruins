@@ -51,20 +51,6 @@ func (p Pagination) GetVisibleRange() (start, end int) {
 	return start, end
 }
 
-// HasPreviousPage は前のページがあるかを返す
-func (p Pagination) HasPreviousPage() bool {
-	return p.Page > 0
-}
-
-// HasNextPage は次のページがあるかを返す
-func (p Pagination) HasNextPage() bool {
-	if p.ItemsPerPage <= 0 {
-		return false
-	}
-	nextPageStart := (p.Page + 1) * p.ItemsPerPage
-	return nextPageStart < p.ItemCount
-}
-
 // IsEnabled はペジネーションが有効か（複数ページあるか）を返す
 func (p Pagination) IsEnabled() bool {
 	return p.GetTotalPages() > 1
@@ -75,28 +61,6 @@ func (p Pagination) IsSelectedInPage(index int) bool {
 	return index == p.ItemIndex
 }
 
-// GetIndicatorText はページインジケーターのテキストを返す
-// 例: "↑ 2/5 ↓"
-func (p Pagination) GetIndicatorText() string {
-	if !p.IsEnabled() {
-		return ""
-	}
-
-	text := fmt.Sprintf("%d/%d", p.GetCurrentPage(), p.GetTotalPages())
-
-	if p.HasPreviousPage() {
-		text = "↑ " + text
-	} else {
-		text = "  " + text
-	}
-
-	if p.HasNextPage() {
-		text += " ↓"
-	}
-
-	return text
-}
-
 // GetPageText はシンプルなページテキストを返す
 // 例: "2/5"
 func (p Pagination) GetPageText() string {
@@ -104,18 +68,6 @@ func (p Pagination) GetPageText() string {
 		return ""
 	}
 	return fmt.Sprintf("%d/%d", p.GetCurrentPage(), p.GetTotalPages())
-}
-
-// SliceVisible は任意のスライスから現在ページの要素を抽出する
-func SliceVisible[T any](items []T, p Pagination) []T {
-	start, end := p.GetVisibleRange()
-	if start >= len(items) {
-		return []T{}
-	}
-	if end > len(items) {
-		end = len(items)
-	}
-	return items[start:end]
 }
 
 // IndexedItem は元のインデックスを保持したアイテム
