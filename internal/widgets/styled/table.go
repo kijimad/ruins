@@ -97,11 +97,21 @@ func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers 
 // isSelected が nil の場合は通常行、非 nil の場合は最初の列にカーソルを表示する選択可能行になる。
 // aligns が nil の場合は全て左揃えになる
 func NewTableRow(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, isSelected *bool, res resources.UIResources) {
-	if isSelected != nil {
-		addSelectableRow(container, columnWidths, cells, aligns, *isSelected, res)
+	if isSelected == nil {
+		NewTableRowColored(container, columnWidths, cells, aligns, theme.TextPrimary, res)
 		return
 	}
-	addDataRowColored(container, columnWidths, cells, aligns, theme.TextPrimary, res)
+	// 選択行は選択バーの背景と選択色にし、行の下に区切り線を引く
+	bgImage := image.NewNineSliceColor(theme.Transparent)
+	textColor := theme.TextSecondary
+	if *isSelected {
+		bgImage = res.Panel.SelectionBar
+		textColor = theme.TextSelected
+	}
+	row := newRowContainer(columnWidths, bgImage)
+	addRowCells(row, columnWidths, cells, aligns, textColor, res)
+	container.AddChild(row)
+	container.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))
 }
 
 // NewSpriteCell は img を一辺 size のアイコン widget にする。原寸が size より大きければ縮小する。
@@ -176,27 +186,9 @@ func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Conta
 	)
 }
 
-func addSelectableRow(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, isSelected bool, res resources.UIResources) {
-	bgImage := image.NewNineSliceColor(theme.Transparent)
-	textColor := theme.TextSecondary
-	if isSelected {
-		bgImage = res.Panel.SelectionBar
-		textColor = theme.TextSelected
-	}
-
-	row := newRowContainer(columnWidths, bgImage)
-	addRowCells(row, columnWidths, cells, aligns, textColor, res)
-	container.AddChild(row)
-
-	container.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))
-}
-
-// NewTableRowColored はデータ行を指定色の文字で描く。詳細モーダルで条件可否を色分けする用途に使う
+// NewTableRowColored はデータ行を指定色の文字で描く。選択ハイライトや区切り線は付かない。
+// 詳細モーダルで条件可否を色分けする用途に使う
 func NewTableRowColored(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
-	addDataRowColored(container, columnWidths, cells, aligns, textColor, res)
-}
-
-func addDataRowColored(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {
 	row := newRowContainer(columnWidths, image.NewNineSliceColor(theme.Transparent))
 	addRowCells(row, columnWidths, cells, aligns, textColor, res)
 	container.AddChild(row)
