@@ -21,16 +21,16 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	props := state.Fetch(world)
 
 	require.Len(t, props.Items, 2)
-	assert.Equal(t, "言語", props.Items[0].Label)
+	assert.Equal(t, "Language", props.Items[0].Label)
 	assert.Equal(t, settingsItemLanguage, props.Items[0].Kind)
-	// 現在言語の表示は UserSettings 由来にする。既定 ja では日本語表示
-	assert.Equal(t, "日本語", props.Items[0].Value)
-	assert.Equal(t, "戻る", props.Items[1].Label)
+	// 現在言語の表示は UserSettings 由来にする。既定 en では英語表示
+	assert.Equal(t, "English", props.Items[0].Value)
+	assert.Equal(t, "Back", props.Items[1].Label)
 	assert.Equal(t, settingsItemBack, props.Items[1].Kind)
 
-	// UserSettings を en へ切り替えると表示も追従する
-	query.GetUserSettings(world).Language = "en"
-	assert.Equal(t, "English", state.Fetch(world).Items[0].Value, "表示は config でなく UserSettings を引く")
+	// UserSettings を ja へ切り替えると表示も追従する
+	query.GetUserSettings(world).Language = "ja"
+	assert.Equal(t, "日本語", state.Fetch(world).Items[0].Value, "表示は config でなく UserSettings を引く")
 }
 
 func TestNewLanguageMenuState_選択メニューで言語プリセット分の選択肢を持つ(t *testing.T) {
@@ -51,18 +51,18 @@ func TestLanguageChoices_選択で実行中シングルトンと設定を更新�
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 
 	world := testutil.InitTestWorld(t)
-	require.Equal(t, "ja", query.GetUserSettings(world).Language, "既定は ja")
+	require.Equal(t, "en", query.GetUserSettings(world).Language, "既定は en")
 
 	_, choices := languageChoices(world)
-	// languagePresets の並びは ja, en。en を選ぶ
+	// languagePresets の並びは ja, en。ja を選んで切り替えを確かめる
 	require.Len(t, choices, 2)
-	transition, err := choices[1].Run(world)
+	transition, err := choices[0].Run(world)
 	require.NoError(t, err)
 
 	// 実行中のシングルトンが即時に切り替わる。これが再起動なしで表示が変わる経路
-	assert.Equal(t, "en", query.GetUserSettings(world).Language, "シングルトンが en へ切り替わる")
+	assert.Equal(t, "ja", query.GetUserSettings(world).Language, "シングルトンが ja へ切り替わる")
 	// 永続層の設定値も更新される
-	assert.Equal(t, "en", world.Config.User.Language, "config も en へ更新される")
+	assert.Equal(t, "ja", world.Config.User.Language, "config も ja へ更新される")
 	assert.Equal(t, es.TransPop, transition.Type, "選択後は設定画面へ戻る")
 }
 

@@ -21,7 +21,7 @@ func TestGetDialogue(t *testing.T) {
 		assert.Len(t, msg.nextMessages, 1, "2ページ目が存在するべき")
 		// 1ページ目の2番目のテキストセグメントを確認（1番目は空文字列）
 		if len(msg.TextSegmentLines) > 0 && len(msg.TextSegmentLines[0]) > 1 {
-			assert.Equal(t, "「あんた、", msg.TextSegmentLines[0][1].Text)
+			assert.Equal(t, "\"You, ", msg.TextSegmentLines[0][1].Text)
 		}
 	})
 

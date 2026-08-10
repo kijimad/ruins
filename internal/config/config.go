@@ -86,7 +86,7 @@ func DefaultUserConfig() UserConfig {
 	return UserConfig{
 		WindowWidth:  960,
 		WindowHeight: 720,
-		Language:     "ja",
+		Language:     "en",
 	}
 }
 
