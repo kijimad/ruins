@@ -21,7 +21,7 @@ func TestGolden_ListItemText_Selected(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("選択中のアイテム", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "選択中のアイテム", theme.TextPrimary, true, res))
 		return root
 	}, 300, 30)
 }
@@ -31,7 +31,7 @@ func TestGolden_ListItemText_Unselected(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("非選択のアイテム", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択のアイテム", theme.TextPrimary, false, res))
 		return root
 	}, 300, 30)
 }
@@ -41,7 +41,7 @@ func TestGolden_ListItemText_WithLabels(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("回復薬", theme.TextPrimary, true, res, "x3", "1.5kg"))
+		root.AddChild(styled.NewListItem(nil, "回復薬", theme.TextPrimary, true, res, "x3", "1.5kg"))
 		return root
 	}, 400, 30)
 }
@@ -51,9 +51,9 @@ func TestGolden_ListItemText_Multiple(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("選択中", theme.TextPrimary, true, res))
-		root.AddChild(styled.NewListItemText("非選択1", theme.TextPrimary, false, res))
-		root.AddChild(styled.NewListItemText("非選択2", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "選択中", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "非選択1", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択2", theme.TextPrimary, false, res))
 		return root
 	}, 300, 90)
 }
@@ -153,7 +153,7 @@ func TestGolden_ListItemText_EmptyText(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "", theme.TextPrimary, true, res))
 		return root
 	}, 300, 30)
 }
@@ -163,7 +163,7 @@ func TestGolden_ListItemText_LongText(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("とても長いアイテム名が入ったリスト項目のテスト用テキスト", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "とても長いアイテム名が入ったリスト項目のテスト用テキスト", theme.TextPrimary, true, res))
 		return root
 	}, 600, 30)
 }
@@ -173,7 +173,7 @@ func TestGolden_ListItemText_ManyLabels(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("装備品", theme.TextPrimary, true, res, "x5", "2.3kg", "500G", "Lv3"))
+		root.AddChild(styled.NewListItem(nil, "装備品", theme.TextPrimary, true, res, "x5", "2.3kg", "500G", "Lv3"))
 		return root
 	}, 500, 30)
 }
@@ -183,7 +183,7 @@ func TestGolden_ListItemText_UnselectedWithLabels(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("回復薬", theme.TextPrimary, false, res, "x3", "1.5kg"))
+		root.AddChild(styled.NewListItem(nil, "回復薬", theme.TextPrimary, false, res, "x3", "1.5kg"))
 		return root
 	}, 400, 30)
 }
@@ -334,11 +334,11 @@ func TestGolden_ListItemText_MixedSelection(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("非選択1", theme.TextPrimary, false, res))
-		root.AddChild(styled.NewListItemText("非選択2", theme.TextPrimary, false, res))
-		root.AddChild(styled.NewListItemText("選択中", theme.TextPrimary, true, res))
-		root.AddChild(styled.NewListItemText("非選択3", theme.TextPrimary, false, res))
-		root.AddChild(styled.NewListItemText("非選択4", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択1", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択2", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "選択中", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "非選択3", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択4", theme.TextPrimary, false, res))
 		return root
 	}, 300, 150)
 }

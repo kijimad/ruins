@@ -33,7 +33,7 @@ func NewTabBar(labels []string, selectedIndex int, res resources.UIResources) *w
 		if isSelected {
 			clr = theme.TextPrimary
 		}
-		container.AddChild(NewListItemText(label, clr, isSelected, res))
+		container.AddChild(NewListItem(nil, label, clr, isSelected, res))
 	}
 	return container
 }
@@ -203,19 +203,10 @@ func NewBodyText(title string, _ color.RGBA, res resources.UIResources) *widget.
 	return text
 }
 
-// NewListItemText はリスト項目用テキストを作成する（背景バーとカーソルで選択状態を表現）
-// additionalLabels が空の場合は単純なテキスト表示、指定された場合は右側に追加ラベルを表示
-// NewListItemText はアイコン無しのリスト項目を作る
-func NewListItemText(text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {
-	return newListItem(nil, text, textColor, isSelected, res, additionalLabels...)
-}
-
-// NewListItemIconText は名前の左にアイコンを置くリスト項目を作る。icon が nil ならアイコン列は空になる
-func NewListItemIconText(icon *ebiten.Image, text string, textColor color.RGBA, isSelected bool, res resources.UIResources) *widget.Container {
-	return newListItem(icon, text, textColor, isSelected, res)
-}
-
-func newListItem(icon *ebiten.Image, text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {
+// NewListItem はリスト項目を作る。背景バーとカーソルで選択状態を表現する。
+// icon が nil ならアイコン列は空、非 nil なら名前の左に置く。
+// additionalLabels を渡すと右側に追加ラベルを並べる
+func NewListItem(icon *ebiten.Image, text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {
 	// 選択時: グラデーション背景バー + 明るいテキスト、非選択時: 透明背景 + 通常テキスト
 	bgImage := image.NewNineSliceColor(theme.Transparent)
 	displayTextColor := textColor

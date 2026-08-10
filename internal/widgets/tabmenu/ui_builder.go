@@ -48,7 +48,7 @@ func (b *uiBuilder) BuildUI(config Config, state ViewState) *widget.Container {
 
 // createMenuButton はメニューボタンを作成する
 func (b *uiBuilder) createMenuButton(item Item, isFocused bool) widget.PreferredSizeLocateableWidget {
-	return styled.NewListItemText(
+	return styled.NewListItem(nil,
 		item.Label,
 		theme.TextSecondary,
 		isFocused,
@@ -132,7 +132,7 @@ func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, confi
 		case displayPageIndicator:
 			container.AddChild(styled.NewPageIndicator(row.Label, res))
 		case displayItem:
-			container.AddChild(styled.NewListItemText(row.Label, theme.TextSecondary, row.Selected, res, row.AdditionalLabels...))
+			container.AddChild(styled.NewListItem(nil, row.Label, theme.TextSecondary, row.Selected, res, row.AdditionalLabels...))
 		case displayEmptyPlaceholder:
 			container.AddChild(styled.NewDescriptionText(query.T(b.world, row.Label), res))
 		}
