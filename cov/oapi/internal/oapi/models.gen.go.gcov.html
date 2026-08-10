@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-10 01:51:04</td>
+            <td class="headerValue">2026-08-10 02:59:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -700,16 +700,16 @@
 <span id="L638"><span class="lineNum">     638</span>              : }</span>
 <span id="L639"><span class="lineNum">     639</span>              : </span>
 <span id="L640"><span class="lineNum">     640</span>              : // Accuracy 命中率。0で必中なし、100で必中</span>
-<span id="L641"><span class="lineNum">     641</span>              : type Accuracy = int32</span>
+<span id="L641"><span class="lineNum">     641</span>              : type Accuracy = int</span>
 <span id="L642"><span class="lineNum">     642</span>              : </span>
 <span id="L643"><span class="lineNum">     643</span>              : // AccuracyBonus 命中率補正値</span>
-<span id="L644"><span class="lineNum">     644</span>              : type AccuracyBonus = int32</span>
+<span id="L644"><span class="lineNum">     644</span>              : type AccuracyBonus = int</span>
 <span id="L645"><span class="lineNum">     645</span>              : </span>
 <span id="L646"><span class="lineNum">     646</span>              : // ActionCost 行動コスト</span>
-<span id="L647"><span class="lineNum">     647</span>              : type ActionCost = int32</span>
+<span id="L647"><span class="lineNum">     647</span>              : type ActionCost = int</span>
 <span id="L648"><span class="lineNum">     648</span>              : </span>
 <span id="L649"><span class="lineNum">     649</span>              : // Agility 敏捷性。行動順に影響する</span>
-<span id="L650"><span class="lineNum">     650</span>              : type Agility = int32</span>
+<span id="L650"><span class="lineNum">     650</span>              : type Agility = int</span>
 <span id="L651"><span class="lineNum">     651</span>              : </span>
 <span id="L652"><span class="lineNum">     652</span>              : // Ammo 弾薬設定</span>
 <span id="L653"><span class="lineNum">     653</span>              : type Ammo struct {</span>
@@ -727,13 +727,13 @@
 <span id="L665"><span class="lineNum">     665</span>              : type AmmoTag string</span>
 <span id="L666"><span class="lineNum">     666</span>              : </span>
 <span id="L667"><span class="lineNum">     667</span>              : // ArmorDefense 防具の防御力</span>
-<span id="L668"><span class="lineNum">     668</span>              : type ArmorDefense = int32</span>
+<span id="L668"><span class="lineNum">     668</span>              : type ArmorDefense = int</span>
 <span id="L669"><span class="lineNum">     669</span>              : </span>
 <span id="L670"><span class="lineNum">     670</span>              : // AttackCategory 攻撃種別</span>
 <span id="L671"><span class="lineNum">     671</span>              : type AttackCategory string</span>
 <span id="L672"><span class="lineNum">     672</span>              : </span>
 <span id="L673"><span class="lineNum">     673</span>              : // AttackCount 1ターンあたりの攻撃回数</span>
-<span id="L674"><span class="lineNum">     674</span>              : type AttackCount = int32</span>
+<span id="L674"><span class="lineNum">     674</span>              : type AttackCount = int</span>
 <span id="L675"><span class="lineNum">     675</span>              : </span>
 <span id="L676"><span class="lineNum">     676</span>              : // BalanceAbilityScore 能力値。プレイヤーのステータス</span>
 <span id="L677"><span class="lineNum">     677</span>              : type BalanceAbilityScore = int</span>
@@ -1032,7 +1032,7 @@
 <span id="L970"><span class="lineNum">     970</span>              : type BalanceWeaponName = string</span>
 <span id="L971"><span class="lineNum">     971</span>              : </span>
 <span id="L972"><span class="lineNum">     972</span>              : // BaseDamage 基本ダメージ</span>
-<span id="L973"><span class="lineNum">     973</span>              : type BaseDamage = int32</span>
+<span id="L973"><span class="lineNum">     973</span>              : type BaseDamage = int</span>
 <span id="L974"><span class="lineNum">     974</span>              : </span>
 <span id="L975"><span class="lineNum">     975</span>              : // BlocksPassage 通行を妨げるかどうか</span>
 <span id="L976"><span class="lineNum">     976</span>              : type BlocksPassage = bool</span>
@@ -1078,7 +1078,7 @@
 <span id="L1016"><span class="lineNum">    1016</span>              : // CommandTableList コマンドテーブル一覧</span>
 <span id="L1017"><span class="lineNum">    1017</span>              : type CommandTableList struct {</span>
 <span id="L1018"><span class="lineNum">    1018</span>              :         Data       []CommandTable `json:&quot;data&quot;`</span>
-<span id="L1019"><span class="lineNum">    1019</span>              :         TotalCount int32          `json:&quot;totalCount&quot;`</span>
+<span id="L1019"><span class="lineNum">    1019</span>              :         TotalCount int            `json:&quot;totalCount&quot;`</span>
 <span id="L1020"><span class="lineNum">    1020</span>              : }</span>
 <span id="L1021"><span class="lineNum">    1021</span>              : </span>
 <span id="L1022"><span class="lineNum">    1022</span>              : // Consumable 消費可能アイテムの設定</span>
@@ -1097,16 +1097,16 @@
 <span id="L1035"><span class="lineNum">    1035</span>              : type CubePanelTriggerRaw = map[string]interface{}</span>
 <span id="L1036"><span class="lineNum">    1036</span>              : </span>
 <span id="L1037"><span class="lineNum">    1037</span>              : // DamageBonus ダメージ補正値</span>
-<span id="L1038"><span class="lineNum">    1038</span>              : type DamageBonus = int32</span>
+<span id="L1038"><span class="lineNum">    1038</span>              : type DamageBonus = int</span>
 <span id="L1039"><span class="lineNum">    1039</span>              : </span>
 <span id="L1040"><span class="lineNum">    1040</span>              : // Defense 防御力。被ダメージを軽減する</span>
-<span id="L1041"><span class="lineNum">    1041</span>              : type Defense = int32</span>
+<span id="L1041"><span class="lineNum">    1041</span>              : type Defense = int</span>
 <span id="L1042"><span class="lineNum">    1042</span>              : </span>
 <span id="L1043"><span class="lineNum">    1043</span>              : // DepthLevel 階層レベル</span>
-<span id="L1044"><span class="lineNum">    1044</span>              : type DepthLevel = int32</span>
+<span id="L1044"><span class="lineNum">    1044</span>              : type DepthLevel = int</span>
 <span id="L1045"><span class="lineNum">    1045</span>              : </span>
 <span id="L1046"><span class="lineNum">    1046</span>              : // Dexterity 器用さ。クリティカル率に影響する</span>
-<span id="L1047"><span class="lineNum">    1047</span>              : type Dexterity = int32</span>
+<span id="L1047"><span class="lineNum">    1047</span>              : type Dexterity = int</span>
 <span id="L1048"><span class="lineNum">    1048</span>              : </span>
 <span id="L1049"><span class="lineNum">    1049</span>              : // Dialog 会話データ</span>
 <span id="L1050"><span class="lineNum">    1050</span>              : type Dialog struct {</span>
@@ -1129,7 +1129,7 @@
 <span id="L1067"><span class="lineNum">    1067</span>              : }</span>
 <span id="L1068"><span class="lineNum">    1068</span>              : </span>
 <span id="L1069"><span class="lineNum">    1069</span>              : // DisassemblyBaseAP 分解の基礎工数。100が標準1ターンに相当する</span>
-<span id="L1070"><span class="lineNum">    1070</span>              : type DisassemblyBaseAP = int32</span>
+<span id="L1070"><span class="lineNum">    1070</span>              : type DisassemblyBaseAP = int</span>
 <span id="L1071"><span class="lineNum">    1071</span>              : </span>
 <span id="L1072"><span class="lineNum">    1072</span>              : // DisassemblyBonus 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある</span>
 <span id="L1073"><span class="lineNum">    1073</span>              : type DisassemblyBonus struct {</span>
@@ -1147,7 +1147,7 @@
 <span id="L1085"><span class="lineNum">    1085</span>              : }</span>
 <span id="L1086"><span class="lineNum">    1086</span>              : </span>
 <span id="L1087"><span class="lineNum">    1087</span>              : // DisassemblyChance 分解産出の確率。百分率</span>
-<span id="L1088"><span class="lineNum">    1088</span>              : type DisassemblyChance = int32</span>
+<span id="L1088"><span class="lineNum">    1088</span>              : type DisassemblyChance = int</span>
 <span id="L1089"><span class="lineNum">    1089</span>              : </span>
 <span id="L1090"><span class="lineNum">    1090</span>              : // DisassemblyTool 分解工具。分類の対応とグレードを持つ</span>
 <span id="L1091"><span class="lineNum">    1091</span>              : type DisassemblyTool struct {</span>
@@ -1195,7 +1195,7 @@
 <span id="L1133"><span class="lineNum">    1133</span>              : // DropTableList ドロップテーブル一覧</span>
 <span id="L1134"><span class="lineNum">    1134</span>              : type DropTableList struct {</span>
 <span id="L1135"><span class="lineNum">    1135</span>              :         Data       []DropTable `json:&quot;data&quot;`</span>
-<span id="L1136"><span class="lineNum">    1136</span>              :         TotalCount int32       `json:&quot;totalCount&quot;`</span>
+<span id="L1136"><span class="lineNum">    1136</span>              :         TotalCount int         `json:&quot;totalCount&quot;`</span>
 <span id="L1137"><span class="lineNum">    1137</span>              : }</span>
 <span id="L1138"><span class="lineNum">    1138</span>              : </span>
 <span id="L1139"><span class="lineNum">    1139</span>              : // Element 攻撃属性</span>
@@ -1233,7 +1233,7 @@
 <span id="L1171"><span class="lineNum">    1171</span>              : // EnemyTableList 敵テーブル一覧</span>
 <span id="L1172"><span class="lineNum">    1172</span>              : type EnemyTableList struct {</span>
 <span id="L1173"><span class="lineNum">    1173</span>              :         Data       []EnemyTable `json:&quot;data&quot;`</span>
-<span id="L1174"><span class="lineNum">    1174</span>              :         TotalCount int32        `json:&quot;totalCount&quot;`</span>
+<span id="L1174"><span class="lineNum">    1174</span>              :         TotalCount int          `json:&quot;totalCount&quot;`</span>
 <span id="L1175"><span class="lineNum">    1175</span>              : }</span>
 <span id="L1176"><span class="lineNum">    1176</span>              : </span>
 <span id="L1177"><span class="lineNum">    1177</span>              : // EntityDescription 説明文</span>
@@ -1321,7 +1321,7 @@
 <span id="L1259"><span class="lineNum">    1259</span>              : type FoliageType float32</span>
 <span id="L1260"><span class="lineNum">    1260</span>              : </span>
 <span id="L1261"><span class="lineNum">    1261</span>              : // HealAmount 回復固定量</span>
-<span id="L1262"><span class="lineNum">    1262</span>              : type HealAmount = int32</span>
+<span id="L1262"><span class="lineNum">    1262</span>              : type HealAmount = int</span>
 <span id="L1263"><span class="lineNum">    1263</span>              : </span>
 <span id="L1264"><span class="lineNum">    1264</span>              : // HealRatio 回復割合。0.0〜1.0</span>
 <span id="L1265"><span class="lineNum">    1265</span>              : type HealRatio = float64</span>
@@ -1330,16 +1330,16 @@
 <span id="L1268"><span class="lineNum">    1268</span>              : type HealingValueType string</span>
 <span id="L1269"><span class="lineNum">    1269</span>              : </span>
 <span id="L1270"><span class="lineNum">    1270</span>              : // HitPoints 耐久値。設定すると破壊可能になる</span>
-<span id="L1271"><span class="lineNum">    1271</span>              : type HitPoints = int32</span>
+<span id="L1271"><span class="lineNum">    1271</span>              : type HitPoints = int</span>
 <span id="L1272"><span class="lineNum">    1272</span>              : </span>
 <span id="L1273"><span class="lineNum">    1273</span>              : // ImagePath 画像ファイルパス</span>
 <span id="L1274"><span class="lineNum">    1274</span>              : type ImagePath = string</span>
 <span id="L1275"><span class="lineNum">    1275</span>              : </span>
 <span id="L1276"><span class="lineNum">    1276</span>              : // InsulationCold 耐寒性能</span>
-<span id="L1277"><span class="lineNum">    1277</span>              : type InsulationCold = int32</span>
+<span id="L1277"><span class="lineNum">    1277</span>              : type InsulationCold = int</span>
 <span id="L1278"><span class="lineNum">    1278</span>              : </span>
 <span id="L1279"><span class="lineNum">    1279</span>              : // InsulationHeat 耐暑性能</span>
-<span id="L1280"><span class="lineNum">    1280</span>              : type InsulationHeat = int32</span>
+<span id="L1280"><span class="lineNum">    1280</span>              : type InsulationHeat = int</span>
 <span id="L1281"><span class="lineNum">    1281</span>              : </span>
 <span id="L1282"><span class="lineNum">    1282</span>              : // IsBoss ボスモンスターかどうか</span>
 <span id="L1283"><span class="lineNum">    1283</span>              : type IsBoss = bool</span>
@@ -1413,7 +1413,7 @@
 <span id="L1351"><span class="lineNum">    1351</span>              : }</span>
 <span id="L1352"><span class="lineNum">    1352</span>              : </span>
 <span id="L1353"><span class="lineNum">    1353</span>              : // ItemCount アイテム所持数</span>
-<span id="L1354"><span class="lineNum">    1354</span>              : type ItemCount = int32</span>
+<span id="L1354"><span class="lineNum">    1354</span>              : type ItemCount = int</span>
 <span id="L1355"><span class="lineNum">    1355</span>              : </span>
 <span id="L1356"><span class="lineNum">    1356</span>              : // ItemGroup アイテムグループ。アイテムの出現セットを定義する</span>
 <span id="L1357"><span class="lineNum">    1357</span>              : type ItemGroup struct {</span>
@@ -1444,7 +1444,7 @@
 <span id="L1382"><span class="lineNum">    1382</span>              : // ItemGroupList アイテムグループ一覧</span>
 <span id="L1383"><span class="lineNum">    1383</span>              : type ItemGroupList struct {</span>
 <span id="L1384"><span class="lineNum">    1384</span>              :         Data       []ItemGroup `json:&quot;data&quot;`</span>
-<span id="L1385"><span class="lineNum">    1385</span>              :         TotalCount int32       `json:&quot;totalCount&quot;`</span>
+<span id="L1385"><span class="lineNum">    1385</span>              :         TotalCount int         `json:&quot;totalCount&quot;`</span>
 <span id="L1386"><span class="lineNum">    1386</span>              : }</span>
 <span id="L1387"><span class="lineNum">    1387</span>              : </span>
 <span id="L1388"><span class="lineNum">    1388</span>              : // ItemGroupSubtype アイテムグループのサブタイプ</span>
@@ -1453,7 +1453,7 @@
 <span id="L1391"><span class="lineNum">    1391</span>              : // ItemList アイテム一覧レスポンス</span>
 <span id="L1392"><span class="lineNum">    1392</span>              : type ItemList struct {</span>
 <span id="L1393"><span class="lineNum">    1393</span>              :         Data       []Item `json:&quot;data&quot;`</span>
-<span id="L1394"><span class="lineNum">    1394</span>              :         TotalCount int32  `json:&quot;totalCount&quot;`</span>
+<span id="L1394"><span class="lineNum">    1394</span>              :         TotalCount int    `json:&quot;totalCount&quot;`</span>
 <span id="L1395"><span class="lineNum">    1395</span>              : }</span>
 <span id="L1396"><span class="lineNum">    1396</span>              : </span>
 <span id="L1397"><span class="lineNum">    1397</span>              : // ItemTable アイテムテーブル</span>
@@ -1485,17 +1485,17 @@
 <span id="L1423"><span class="lineNum">    1423</span>              : // ItemTableList アイテムテーブル一覧</span>
 <span id="L1424"><span class="lineNum">    1424</span>              : type ItemTableList struct {</span>
 <span id="L1425"><span class="lineNum">    1425</span>              :         Data       []ItemTable `json:&quot;data&quot;`</span>
-<span id="L1426"><span class="lineNum">    1426</span>              :         TotalCount int32       `json:&quot;totalCount&quot;`</span>
+<span id="L1426"><span class="lineNum">    1426</span>              :         TotalCount int         `json:&quot;totalCount&quot;`</span>
 <span id="L1427"><span class="lineNum">    1427</span>              : }</span>
 <span id="L1428"><span class="lineNum">    1428</span>              : </span>
 <span id="L1429"><span class="lineNum">    1429</span>              : // ItemValue 売買価格</span>
-<span id="L1430"><span class="lineNum">    1430</span>              : type ItemValue = int32</span>
+<span id="L1430"><span class="lineNum">    1430</span>              : type ItemValue = int</span>
 <span id="L1431"><span class="lineNum">    1431</span>              : </span>
 <span id="L1432"><span class="lineNum">    1432</span>              : // LightEnabled 光源が有効かどうか</span>
 <span id="L1433"><span class="lineNum">    1433</span>              : type LightEnabled = bool</span>
 <span id="L1434"><span class="lineNum">    1434</span>              : </span>
 <span id="L1435"><span class="lineNum">    1435</span>              : // LightRadius 光の到達半径（タイル単位）</span>
-<span id="L1436"><span class="lineNum">    1436</span>              : type LightRadius = int32</span>
+<span id="L1436"><span class="lineNum">    1436</span>              : type LightRadius = int</span>
 <span id="L1437"><span class="lineNum">    1437</span>              : </span>
 <span id="L1438"><span class="lineNum">    1438</span>              : // LightSource 光源設定</span>
 <span id="L1439"><span class="lineNum">    1439</span>              : type LightSource struct {</span>
@@ -1510,10 +1510,10 @@
 <span id="L1448"><span class="lineNum">    1448</span>              : }</span>
 <span id="L1449"><span class="lineNum">    1449</span>              : </span>
 <span id="L1450"><span class="lineNum">    1450</span>              : // MagazineSize マガジン容量</span>
-<span id="L1451"><span class="lineNum">    1451</span>              : type MagazineSize = int32</span>
+<span id="L1451"><span class="lineNum">    1451</span>              : type MagazineSize = int</span>
 <span id="L1452"><span class="lineNum">    1452</span>              : </span>
 <span id="L1453"><span class="lineNum">    1453</span>              : // MaterialAmount 素材必要数</span>
-<span id="L1454"><span class="lineNum">    1454</span>              : type MaterialAmount = int32</span>
+<span id="L1454"><span class="lineNum">    1454</span>              : type MaterialAmount = int</span>
 <span id="L1455"><span class="lineNum">    1455</span>              : </span>
 <span id="L1456"><span class="lineNum">    1456</span>              : // Melee 近接攻撃設定</span>
 <span id="L1457"><span class="lineNum">    1457</span>              : type Melee struct {</span>
@@ -1594,7 +1594,7 @@
 <span id="L1532"><span class="lineNum">    1532</span>              : // MemberList メンバー一覧レスポンス</span>
 <span id="L1533"><span class="lineNum">    1533</span>              : type MemberList struct {</span>
 <span id="L1534"><span class="lineNum">    1534</span>              :         Data       []Member `json:&quot;data&quot;`</span>
-<span id="L1535"><span class="lineNum">    1535</span>              :         TotalCount int32    `json:&quot;totalCount&quot;`</span>
+<span id="L1535"><span class="lineNum">    1535</span>              :         TotalCount int      `json:&quot;totalCount&quot;`</span>
 <span id="L1536"><span class="lineNum">    1536</span>              : }</span>
 <span id="L1537"><span class="lineNum">    1537</span>              : </span>
 <span id="L1538"><span class="lineNum">    1538</span>              : // MessageKey メッセージリソースのキー</span>
@@ -1604,7 +1604,7 @@
 <span id="L1542"><span class="lineNum">    1542</span>              : type MovementPatternType string</span>
 <span id="L1543"><span class="lineNum">    1543</span>              : </span>
 <span id="L1544"><span class="lineNum">    1544</span>              : // NutritionAmount 栄養価</span>
-<span id="L1545"><span class="lineNum">    1545</span>              : type NutritionAmount = int32</span>
+<span id="L1545"><span class="lineNum">    1545</span>              : type NutritionAmount = int</span>
 <span id="L1546"><span class="lineNum">    1546</span>              : </span>
 <span id="L1547"><span class="lineNum">    1547</span>              : // Palette パレット</span>
 <span id="L1548"><span class="lineNum">    1548</span>              : type Palette struct {</span>
@@ -1633,11 +1633,11 @@
 <span id="L1571"><span class="lineNum">    1571</span>              : // PaletteList パレット一覧</span>
 <span id="L1572"><span class="lineNum">    1572</span>              : type PaletteList struct {</span>
 <span id="L1573"><span class="lineNum">    1573</span>              :         Data       []Palette `json:&quot;data&quot;`</span>
-<span id="L1574"><span class="lineNum">    1574</span>              :         TotalCount int32     `json:&quot;totalCount&quot;`</span>
+<span id="L1574"><span class="lineNum">    1574</span>              :         TotalCount int       `json:&quot;totalCount&quot;`</span>
 <span id="L1575"><span class="lineNum">    1575</span>              : }</span>
 <span id="L1576"><span class="lineNum">    1576</span>              : </span>
 <span id="L1577"><span class="lineNum">    1577</span>              : // PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50</span>
-<span id="L1578"><span class="lineNum">    1578</span>              : type PassCost = int32</span>
+<span id="L1578"><span class="lineNum">    1578</span>              : type PassCost = int</span>
 <span id="L1579"><span class="lineNum">    1579</span>              : </span>
 <span id="L1580"><span class="lineNum">    1580</span>              : // Profession 職業</span>
 <span id="L1581"><span class="lineNum">    1581</span>              : type Profession struct {</span>
@@ -1681,7 +1681,7 @@
 <span id="L1619"><span class="lineNum">    1619</span>              : // ProfessionList 職業一覧</span>
 <span id="L1620"><span class="lineNum">    1620</span>              : type ProfessionList struct {</span>
 <span id="L1621"><span class="lineNum">    1621</span>              :         Data       []Profession `json:&quot;data&quot;`</span>
-<span id="L1622"><span class="lineNum">    1622</span>              :         TotalCount int32        `json:&quot;totalCount&quot;`</span>
+<span id="L1622"><span class="lineNum">    1622</span>              :         TotalCount int          `json:&quot;totalCount&quot;`</span>
 <span id="L1623"><span class="lineNum">    1623</span>              : }</span>
 <span id="L1624"><span class="lineNum">    1624</span>              : </span>
 <span id="L1625"><span class="lineNum">    1625</span>              : // ProfessionSkill 職業スキル初期値</span>
@@ -1749,7 +1749,7 @@
 <span id="L1687"><span class="lineNum">    1687</span>              : // PropList 置物一覧</span>
 <span id="L1688"><span class="lineNum">    1688</span>              : type PropList struct {</span>
 <span id="L1689"><span class="lineNum">    1689</span>              :         Data       []Prop `json:&quot;data&quot;`</span>
-<span id="L1690"><span class="lineNum">    1690</span>              :         TotalCount int32  `json:&quot;totalCount&quot;`</span>
+<span id="L1690"><span class="lineNum">    1690</span>              :         TotalCount int    `json:&quot;totalCount&quot;`</span>
 <span id="L1691"><span class="lineNum">    1691</span>              : }</span>
 <span id="L1692"><span class="lineNum">    1692</span>              : </span>
 <span id="L1693"><span class="lineNum">    1693</span>              : // ProvidesHealing 回復効果</span>
@@ -1796,7 +1796,7 @@
 <span id="L1734"><span class="lineNum">    1734</span>              : }</span>
 <span id="L1735"><span class="lineNum">    1735</span>              : </span>
 <span id="L1736"><span class="lineNum">    1736</span>              : // ReadingEffort 読了に必要な総読書量</span>
-<span id="L1737"><span class="lineNum">    1737</span>              : type ReadingEffort = int32</span>
+<span id="L1737"><span class="lineNum">    1737</span>              : type ReadingEffort = int</span>
 <span id="L1738"><span class="lineNum">    1738</span>              : </span>
 <span id="L1739"><span class="lineNum">    1739</span>              : // Recipe レシピ</span>
 <span id="L1740"><span class="lineNum">    1740</span>              : type Recipe struct {</span>
@@ -1820,11 +1820,11 @@
 <span id="L1758"><span class="lineNum">    1758</span>              : // RecipeList レシピ一覧レスポンス</span>
 <span id="L1759"><span class="lineNum">    1759</span>              : type RecipeList struct {</span>
 <span id="L1760"><span class="lineNum">    1760</span>              :         Data       []Recipe `json:&quot;data&quot;`</span>
-<span id="L1761"><span class="lineNum">    1761</span>              :         TotalCount int32    `json:&quot;totalCount&quot;`</span>
+<span id="L1761"><span class="lineNum">    1761</span>              :         TotalCount int      `json:&quot;totalCount&quot;`</span>
 <span id="L1762"><span class="lineNum">    1762</span>              : }</span>
 <span id="L1763"><span class="lineNum">    1763</span>              : </span>
 <span id="L1764"><span class="lineNum">    1764</span>              : // ReloadEffort リロードに必要な行動力</span>
-<span id="L1765"><span class="lineNum">    1765</span>              : type ReloadEffort = int32</span>
+<span id="L1765"><span class="lineNum">    1765</span>              : type ReloadEffort = int</span>
 <span id="L1766"><span class="lineNum">    1766</span>              : </span>
 <span id="L1767"><span class="lineNum">    1767</span>              : // SaveDataAbilitiesComponent 能力値</span>
 <span id="L1768"><span class="lineNum">    1768</span>              : type SaveDataAbilitiesComponent struct {</span>
@@ -1848,16 +1848,16 @@
 <span id="L1786"><span class="lineNum">    1786</span>              : }</span>
 <span id="L1787"><span class="lineNum">    1787</span>              : </span>
 <span id="L1788"><span class="lineNum">    1788</span>              : // SaveDataAbilityBase 能力値の基本値</span>
-<span id="L1789"><span class="lineNum">    1789</span>              : type SaveDataAbilityBase = int32</span>
+<span id="L1789"><span class="lineNum">    1789</span>              : type SaveDataAbilityBase = int</span>
 <span id="L1790"><span class="lineNum">    1790</span>              : </span>
 <span id="L1791"><span class="lineNum">    1791</span>              : // SaveDataAbilityBonus 能力値ボーナス</span>
-<span id="L1792"><span class="lineNum">    1792</span>              : type SaveDataAbilityBonus = int32</span>
+<span id="L1792"><span class="lineNum">    1792</span>              : type SaveDataAbilityBonus = int</span>
 <span id="L1793"><span class="lineNum">    1793</span>              : </span>
 <span id="L1794"><span class="lineNum">    1794</span>              : // SaveDataAbilityModifier 能力値の装備・状態変化による修正値</span>
-<span id="L1795"><span class="lineNum">    1795</span>              : type SaveDataAbilityModifier = int32</span>
+<span id="L1795"><span class="lineNum">    1795</span>              : type SaveDataAbilityModifier = int</span>
 <span id="L1796"><span class="lineNum">    1796</span>              : </span>
 <span id="L1797"><span class="lineNum">    1797</span>              : // SaveDataAbilityTotal 能力値の算出された現在値</span>
-<span id="L1798"><span class="lineNum">    1798</span>              : type SaveDataAbilityTotal = int32</span>
+<span id="L1798"><span class="lineNum">    1798</span>              : type SaveDataAbilityTotal = int</span>
 <span id="L1799"><span class="lineNum">    1799</span>              : </span>
 <span id="L1800"><span class="lineNum">    1800</span>              : // SaveDataAbilityValue 単一能力値。基本値・修正値・合計値を持つ</span>
 <span id="L1801"><span class="lineNum">    1801</span>              : type SaveDataAbilityValue struct {</span>
@@ -2066,10 +2066,10 @@
 <span id="L2004"><span class="lineNum">    2004</span>              : }</span>
 <span id="L2005"><span class="lineNum">    2005</span>              : </span>
 <span id="L2006"><span class="lineNum">    2006</span>              : // SaveDataCurrency 所持金</span>
-<span id="L2007"><span class="lineNum">    2007</span>              : type SaveDataCurrency = int32</span>
+<span id="L2007"><span class="lineNum">    2007</span>              : type SaveDataCurrency = int</span>
 <span id="L2008"><span class="lineNum">    2008</span>              : </span>
 <span id="L2009"><span class="lineNum">    2009</span>              : // SaveDataDamageAmount ダメージ量</span>
-<span id="L2010"><span class="lineNum">    2010</span>              : type SaveDataDamageAmount = int32</span>
+<span id="L2010"><span class="lineNum">    2010</span>              : type SaveDataDamageAmount = int</span>
 <span id="L2011"><span class="lineNum">    2011</span>              : </span>
 <span id="L2012"><span class="lineNum">    2012</span>              : // SaveDataDescriptionComponent 説明文</span>
 <span id="L2013"><span class="lineNum">    2013</span>              : type SaveDataDescriptionComponent struct {</span>
@@ -2117,7 +2117,7 @@
 <span id="L2055"><span class="lineNum">    2055</span>              : }</span>
 <span id="L2056"><span class="lineNum">    2056</span>              : </span>
 <span id="L2057"><span class="lineNum">    2057</span>              : // SaveDataEquipmentSlotNumber 装備スロット番号</span>
-<span id="L2058"><span class="lineNum">    2058</span>              : type SaveDataEquipmentSlotNumber = int32</span>
+<span id="L2058"><span class="lineNum">    2058</span>              : type SaveDataEquipmentSlotNumber = int</span>
 <span id="L2059"><span class="lineNum">    2059</span>              : </span>
 <span id="L2060"><span class="lineNum">    2060</span>              : // SaveDataEventState イベントの状態</span>
 <span id="L2061"><span class="lineNum">    2061</span>              : type SaveDataEventState struct {</span>
@@ -2207,7 +2207,7 @@
 <span id="L2145"><span class="lineNum">    2145</span>              : }</span>
 <span id="L2146"><span class="lineNum">    2146</span>              : </span>
 <span id="L2147"><span class="lineNum">    2147</span>              : // SaveDataHealNumeral 固定回復量</span>
-<span id="L2148"><span class="lineNum">    2148</span>              : type SaveDataHealNumeral = int32</span>
+<span id="L2148"><span class="lineNum">    2148</span>              : type SaveDataHealNumeral = int</span>
 <span id="L2149"><span class="lineNum">    2149</span>              : </span>
 <span id="L2150"><span class="lineNum">    2150</span>              : // SaveDataHealingAmountData 回復量データ。typeフィールドで計算方式を判別する</span>
 <span id="L2151"><span class="lineNum">    2151</span>              : type SaveDataHealingAmountData struct {</span>
@@ -2230,7 +2230,7 @@
 <span id="L2168"><span class="lineNum">    2168</span>              :         Effects *[]SaveDataStatEffect `json:&quot;Effects,omitempty&quot;`</span>
 <span id="L2169"><span class="lineNum">    2169</span>              : </span>
 <span id="L2170"><span class="lineNum">    2170</span>              :         // Severity 重症度</span>
-<span id="L2171"><span class="lineNum">    2171</span>              :         Severity int32 `json:&quot;Severity&quot;`</span>
+<span id="L2171"><span class="lineNum">    2171</span>              :         Severity int `json:&quot;Severity&quot;`</span>
 <span id="L2172"><span class="lineNum">    2172</span>              : </span>
 <span id="L2173"><span class="lineNum">    2173</span>              :         // Timer 進行度タイマー</span>
 <span id="L2174"><span class="lineNum">    2174</span>              :         Timer float64 `json:&quot;Timer&quot;`</span>
@@ -2267,7 +2267,7 @@
 <span id="L2205"><span class="lineNum">    2205</span>              : type SaveDataItemPickupPolicyType string</span>
 <span id="L2206"><span class="lineNum">    2206</span>              : </span>
 <span id="L2207"><span class="lineNum">    2207</span>              : // SaveDataLightRadius 光源の到達半径 (タイル単位)。無効時は0を許容する</span>
-<span id="L2208"><span class="lineNum">    2208</span>              : type SaveDataLightRadius = int32</span>
+<span id="L2208"><span class="lineNum">    2208</span>              : type SaveDataLightRadius = int</span>
 <span id="L2209"><span class="lineNum">    2209</span>              : </span>
 <span id="L2210"><span class="lineNum">    2210</span>              : // SaveDataLightSourceComponent 光源設定</span>
 <span id="L2211"><span class="lineNum">    2211</span>              : type SaveDataLightSourceComponent struct {</span>
@@ -2299,7 +2299,7 @@
 <span id="L2237"><span class="lineNum">    2237</span>              : }</span>
 <span id="L2238"><span class="lineNum">    2238</span>              : </span>
 <span id="L2239"><span class="lineNum">    2239</span>              : // SaveDataMagazine 現在の装弾数</span>
-<span id="L2240"><span class="lineNum">    2240</span>              : type SaveDataMagazine = int32</span>
+<span id="L2240"><span class="lineNum">    2240</span>              : type SaveDataMagazine = int</span>
 <span id="L2241"><span class="lineNum">    2241</span>              : </span>
 <span id="L2242"><span class="lineNum">    2242</span>              : // SaveDataMarkerComponent マーカーコンポーネント。データを持たず、存在の有無だけが意味を持つ</span>
 <span id="L2243"><span class="lineNum">    2243</span>              : type SaveDataMarkerComponent = map[string]interface{}</span>
@@ -2350,7 +2350,7 @@
 <span id="L2288"><span class="lineNum">    2288</span>              : type SaveDataPlannerType string</span>
 <span id="L2289"><span class="lineNum">    2289</span>              : </span>
 <span id="L2290"><span class="lineNum">    2290</span>              : // SaveDataPoolCurrent プール現在値 (整数)</span>
-<span id="L2291"><span class="lineNum">    2291</span>              : type SaveDataPoolCurrent = int32</span>
+<span id="L2291"><span class="lineNum">    2291</span>              : type SaveDataPoolCurrent = int</span>
 <span id="L2292"><span class="lineNum">    2292</span>              : </span>
 <span id="L2293"><span class="lineNum">    2293</span>              : // SaveDataPoolFloatCurrent プール現在値 (浮動小数点)</span>
 <span id="L2294"><span class="lineNum">    2294</span>              : type SaveDataPoolFloatCurrent = float64</span>
@@ -2359,7 +2359,7 @@
 <span id="L2297"><span class="lineNum">    2297</span>              : type SaveDataPoolFloatMax = float64</span>
 <span id="L2298"><span class="lineNum">    2298</span>              : </span>
 <span id="L2299"><span class="lineNum">    2299</span>              : // SaveDataPoolMax プール最大値 (整数)</span>
-<span id="L2300"><span class="lineNum">    2300</span>              : type SaveDataPoolMax = int32</span>
+<span id="L2300"><span class="lineNum">    2300</span>              : type SaveDataPoolMax = int</span>
 <span id="L2301"><span class="lineNum">    2301</span>              : </span>
 <span id="L2302"><span class="lineNum">    2302</span>              : // SaveDataProvidesHealingComponent 回復効果。Amounterインターフェースを具体型に分解してシリアライズする</span>
 <span id="L2303"><span class="lineNum">    2303</span>              : type SaveDataProvidesHealingComponent struct {</span>
@@ -2423,13 +2423,13 @@
 <span id="L2361"><span class="lineNum">    2361</span>              : // SaveDataSkillEntry 個別スキルの状態</span>
 <span id="L2362"><span class="lineNum">    2362</span>              : type SaveDataSkillEntry struct {</span>
 <span id="L2363"><span class="lineNum">    2363</span>              :         // ExpCurrent 蓄積経験値</span>
-<span id="L2364"><span class="lineNum">    2364</span>              :         ExpCurrent int32 `json:&quot;ExpCurrent&quot;`</span>
+<span id="L2364"><span class="lineNum">    2364</span>              :         ExpCurrent int `json:&quot;ExpCurrent&quot;`</span>
 <span id="L2365"><span class="lineNum">    2365</span>              : </span>
 <span id="L2366"><span class="lineNum">    2366</span>              :         // ExpMax 経験値の最大値</span>
-<span id="L2367"><span class="lineNum">    2367</span>              :         ExpMax int32 `json:&quot;ExpMax&quot;`</span>
+<span id="L2367"><span class="lineNum">    2367</span>              :         ExpMax int `json:&quot;ExpMax&quot;`</span>
 <span id="L2368"><span class="lineNum">    2368</span>              : </span>
 <span id="L2369"><span class="lineNum">    2369</span>              :         // Value スキル値</span>
-<span id="L2370"><span class="lineNum">    2370</span>              :         Value int32 `json:&quot;Value&quot;`</span>
+<span id="L2370"><span class="lineNum">    2370</span>              :         Value int `json:&quot;Value&quot;`</span>
 <span id="L2371"><span class="lineNum">    2371</span>              : }</span>
 <span id="L2372"><span class="lineNum">    2372</span>              : </span>
 <span id="L2373"><span class="lineNum">    2373</span>              : // SaveDataSkillsComponent スキルセット</span>
@@ -2439,10 +2439,10 @@
 <span id="L2377"><span class="lineNum">    2377</span>              : }</span>
 <span id="L2378"><span class="lineNum">    2378</span>              : </span>
 <span id="L2379"><span class="lineNum">    2379</span>              : // SaveDataSpeed APの毎ターン回復量</span>
-<span id="L2380"><span class="lineNum">    2380</span>              : type SaveDataSpeed = int32</span>
+<span id="L2380"><span class="lineNum">    2380</span>              : type SaveDataSpeed = int</span>
 <span id="L2381"><span class="lineNum">    2381</span>              : </span>
 <span id="L2382"><span class="lineNum">    2382</span>              : // SaveDataSpriteDepth スプライト描画深度</span>
-<span id="L2383"><span class="lineNum">    2383</span>              : type SaveDataSpriteDepth = int32</span>
+<span id="L2383"><span class="lineNum">    2383</span>              : type SaveDataSpriteDepth = int</span>
 <span id="L2384"><span class="lineNum">    2384</span>              : </span>
 <span id="L2385"><span class="lineNum">    2385</span>              : // SaveDataSpriteKey スプライトキー。セーブデータではパターン制約を適用しない</span>
 <span id="L2386"><span class="lineNum">    2386</span>              : type SaveDataSpriteKey = string</span>
@@ -2513,7 +2513,7 @@
 <span id="L2451"><span class="lineNum">    2451</span>              :         Stat string `json:&quot;Stat&quot;`</span>
 <span id="L2452"><span class="lineNum">    2452</span>              : </span>
 <span id="L2453"><span class="lineNum">    2453</span>              :         // Value 修正値</span>
-<span id="L2454"><span class="lineNum">    2454</span>              :         Value int32 `json:&quot;Value&quot;`</span>
+<span id="L2454"><span class="lineNum">    2454</span>              :         Value int `json:&quot;Value&quot;`</span>
 <span id="L2455"><span class="lineNum">    2455</span>              : }</span>
 <span id="L2456"><span class="lineNum">    2456</span>              : </span>
 <span id="L2457"><span class="lineNum">    2457</span>              : // SaveDataTargetTypeData 対象指定</span>
@@ -2526,7 +2526,7 @@
 <span id="L2464"><span class="lineNum">    2464</span>              : }</span>
 <span id="L2465"><span class="lineNum">    2465</span>              : </span>
 <span id="L2466"><span class="lineNum">    2466</span>              : // SaveDataTileCoord タイル座標</span>
-<span id="L2467"><span class="lineNum">    2467</span>              : type SaveDataTileCoord = int32</span>
+<span id="L2467"><span class="lineNum">    2467</span>              : type SaveDataTileCoord = int</span>
 <span id="L2468"><span class="lineNum">    2468</span>              : </span>
 <span id="L2469"><span class="lineNum">    2469</span>              : // SaveDataTurnBasedComponent アクションポイントと速度</span>
 <span id="L2470"><span class="lineNum">    2470</span>              : type SaveDataTurnBasedComponent struct {</span>
@@ -2586,7 +2586,7 @@
 <span id="L2524"><span class="lineNum">    2524</span>              : }</span>
 <span id="L2525"><span class="lineNum">    2525</span>              : </span>
 <span id="L2526"><span class="lineNum">    2526</span>              : // Sensation 感覚。命中率と回避率に影響する</span>
-<span id="L2527"><span class="lineNum">    2527</span>              : type Sensation = int32</span>
+<span id="L2527"><span class="lineNum">    2527</span>              : type Sensation = int</span>
 <span id="L2528"><span class="lineNum">    2528</span>              : </span>
 <span id="L2529"><span class="lineNum">    2529</span>              : // ShelterType 遮蔽タイプ</span>
 <span id="L2530"><span class="lineNum">    2530</span>              : type ShelterType float32</span>
@@ -2607,7 +2607,7 @@
 <span id="L2545"><span class="lineNum">    2545</span>              : type SkillId = string</span>
 <span id="L2546"><span class="lineNum">    2546</span>              : </span>
 <span id="L2547"><span class="lineNum">    2547</span>              : // SkillLevel スキルレベル</span>
-<span id="L2548"><span class="lineNum">    2548</span>              : type SkillLevel = int32</span>
+<span id="L2548"><span class="lineNum">    2548</span>              : type SkillLevel = int</span>
 <span id="L2549"><span class="lineNum">    2549</span>              : </span>
 <span id="L2550"><span class="lineNum">    2550</span>              : // SpriteDepth スプライト描画深度</span>
 <span id="L2551"><span class="lineNum">    2551</span>              : type SpriteDepth float32</span>
@@ -2639,7 +2639,7 @@
 <span id="L2577"><span class="lineNum">    2577</span>              : // SpriteSheetList スプライトシート一覧</span>
 <span id="L2578"><span class="lineNum">    2578</span>              : type SpriteSheetList struct {</span>
 <span id="L2579"><span class="lineNum">    2579</span>              :         Data       []SpriteSheet `json:&quot;data&quot;`</span>
-<span id="L2580"><span class="lineNum">    2580</span>              :         TotalCount int32         `json:&quot;totalCount&quot;`</span>
+<span id="L2580"><span class="lineNum">    2580</span>              :         TotalCount int           `json:&quot;totalCount&quot;`</span>
 <span id="L2581"><span class="lineNum">    2581</span>              : }</span>
 <span id="L2582"><span class="lineNum">    2582</span>              : </span>
 <span id="L2583"><span class="lineNum">    2583</span>              : // SpriteSheetName スプライトシート名</span>
@@ -2661,7 +2661,7 @@
 <span id="L2599"><span class="lineNum">    2599</span>              : }</span>
 <span id="L2600"><span class="lineNum">    2600</span>              : </span>
 <span id="L2601"><span class="lineNum">    2601</span>              : // Strength 筋力。物理ダメージに影響する</span>
-<span id="L2602"><span class="lineNum">    2602</span>              : type Strength = int32</span>
+<span id="L2602"><span class="lineNum">    2602</span>              : type Strength = int</span>
 <span id="L2603"><span class="lineNum">    2603</span>              : </span>
 <span id="L2604"><span class="lineNum">    2604</span>              : // TargetGroup ターゲットグループ</span>
 <span id="L2605"><span class="lineNum">    2605</span>              : type TargetGroup string</span>
@@ -2702,23 +2702,23 @@
 <span id="L2640"><span class="lineNum">    2640</span>              : // TileList タイル一覧</span>
 <span id="L2641"><span class="lineNum">    2641</span>              : type TileList struct {</span>
 <span id="L2642"><span class="lineNum">    2642</span>              :         Data       []Tile `json:&quot;data&quot;`</span>
-<span id="L2643"><span class="lineNum">    2643</span>              :         TotalCount int32  `json:&quot;totalCount&quot;`</span>
+<span id="L2643"><span class="lineNum">    2643</span>              :         TotalCount int    `json:&quot;totalCount&quot;`</span>
 <span id="L2644"><span class="lineNum">    2644</span>              : }</span>
 <span id="L2645"><span class="lineNum">    2645</span>              : </span>
 <span id="L2646"><span class="lineNum">    2646</span>              : // ToolCategory 分解工具の分類</span>
 <span id="L2647"><span class="lineNum">    2647</span>              : type ToolCategory string</span>
 <span id="L2648"><span class="lineNum">    2648</span>              : </span>
 <span id="L2649"><span class="lineNum">    2649</span>              : // ToolGrade 分解工具のグレード。高いほど速く多く得る</span>
-<span id="L2650"><span class="lineNum">    2650</span>              : type ToolGrade = int32</span>
+<span id="L2650"><span class="lineNum">    2650</span>              : type ToolGrade = int</span>
 <span id="L2651"><span class="lineNum">    2651</span>              : </span>
 <span id="L2652"><span class="lineNum">    2652</span>              : // UsableScene 使用可能シーン</span>
 <span id="L2653"><span class="lineNum">    2653</span>              : type UsableScene string</span>
 <span id="L2654"><span class="lineNum">    2654</span>              : </span>
 <span id="L2655"><span class="lineNum">    2655</span>              : // ViewDistance AI視界距離（タイル単位）</span>
-<span id="L2656"><span class="lineNum">    2656</span>              : type ViewDistance = int32</span>
+<span id="L2656"><span class="lineNum">    2656</span>              : type ViewDistance = int</span>
 <span id="L2657"><span class="lineNum">    2657</span>              : </span>
 <span id="L2658"><span class="lineNum">    2658</span>              : // Vitality 体力。HPに影響する</span>
-<span id="L2659"><span class="lineNum">    2659</span>              : type Vitality = int32</span>
+<span id="L2659"><span class="lineNum">    2659</span>              : type Vitality = int</span>
 <span id="L2660"><span class="lineNum">    2660</span>              : </span>
 <span id="L2661"><span class="lineNum">    2661</span>              : // WarpCubeExitTriggerRaw 移動拠点キューブの内部からの退場トリガー</span>
 <span id="L2662"><span class="lineNum">    2662</span>              : type WarpCubeExitTriggerRaw = map[string]interface{}</span>

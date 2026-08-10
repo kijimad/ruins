@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-10 01:51:04</td>
+            <td class="headerValue">2026-08-10 02:59:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         requiredAP := 0</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :         if def, ok := raw.FindDisassembly(world.Resources.RawMaster, query.GetEntityID(target, world)); ok {</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           2 :                 if grade, _, ok := FindBestDisassemblyTool(world, actor, def.ToolCategory); ok {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                         requiredAP = RequiredDisassemblyAP(int(def.BaseAP), mechanicSkillValue(actor, world), grade)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                         requiredAP = RequiredDisassemblyAP(def.BaseAP, mechanicSkillValue(actor, world), grade)</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L52"><span class="lineNum">      52</span>              :         }</span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         comp := NewActivity(gc.BehaviorDisassemble, requiredAP)</span></span>
@@ -332,8 +332,8 @@
 <span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           2 :                 if !ok || !slices.Contains(tool.Categories, category) {</span></span>
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L272"><span class="lineNum">     272</span>              :                 }</span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           2 :                 if int(tool.Grade) &gt; bestGrade {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         bestGrade = int(tool.Grade)</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           2 :                 if tool.Grade &gt; bestGrade {</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         bestGrade = tool.Grade</span></span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                         bestName = query.GetEntityName(itemEntity, world)</span></span>
 <span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L277"><span class="lineNum">     277</span>              :         }</span>

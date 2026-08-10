@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-10 01:51:04</td>
+            <td class="headerValue">2026-08-10 02:59:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,7 +83,7 @@
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 :         result := make([]SpawnEntry, 0, len(enemyTable.Entries))</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         for _, entry := range enemyTable.Entries {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :                 if int32(depth) &lt; entry.MinDepth || int32(depth) &gt; entry.MaxDepth {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :                 if depth &lt; entry.MinDepth || depth &gt; entry.MaxDepth {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L26"><span class="lineNum">      26</span>              :                 }</span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 pack, err := consts.ParseDice(entry.Pack)</span></span>
@@ -114,7 +114,7 @@
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 :         result := make([]itemGroupRef, 0, len(itemTable.Entries))</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           2 :         for _, entry := range itemTable.Entries {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :                 if int32(depth) &lt; entry.MinDepth || int32(depth) &gt; entry.MaxDepth {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :                 if depth &lt; entry.MinDepth || depth &gt; entry.MaxDepth {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L57"><span class="lineNum">      57</span>              :                 }</span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 result = append(result, itemGroupRef{GroupID: entry.Id, Weight: entry.Weight})</span></span>
