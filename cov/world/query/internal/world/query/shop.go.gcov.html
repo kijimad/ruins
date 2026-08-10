@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">11</td>
-            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">25</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-10 13:37:33</td>
+            <td class="headerValue">2026-08-10 13:51:13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,13 +83,36 @@
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return int(float64(baseValue) * SellPriceMultiplier)</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
-<span id="L24"><span class="lineNum">      24</span>              : // GetItemValue はアイテムの基本価値を取得する</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : func GetItemValue(world w.World, entity ecs.Entity) int {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           2 :         if !world.Components.Value.Has(entity) {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         return world.Components.Value.Get(entity).Value</span></span>
-<span id="L30"><span class="lineNum">      30</span>              : }</span>
+<span id="L24"><span class="lineNum">      24</span>              : // BuyPrice はプレイヤーが entity を買うときの、交渉スキルの買値倍率込みの購入価格を返す。</span>
+<span id="L25"><span class="lineNum">      25</span>              : // base は価値と個数の積。店頭の表示価格と取引価格をこの1関数で揃える</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : func BuyPrice(world w.World, player ecs.Entity, entity ecs.Entity) int {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         base := GetItemValue(world, entity) * GetEntityCount(world, entity)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         price := CalculateBuyPrice(base)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :         if world.Components.CharModifiers.Has(player) {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 price = world.Components.CharModifiers.Get(player).BuyPrice.ApplyInt(price)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         return price</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : }</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : // SellPrice はプレイヤーが entity を売るときの、交渉スキルの売値倍率込みの売却価格を返す。</span>
+<span id="L36"><span class="lineNum">      36</span>              : // base は価値と個数の積。店頭の表示価格と取引価格をこの1関数で揃える。</span>
+<span id="L37"><span class="lineNum">      37</span>              : // 無価値な品は素直に 0 を返す。売却自体は他の品と同様に可能で、対価が 0 になるだけ</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : func SellPrice(world w.World, player ecs.Entity, entity ecs.Entity) int {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         base := GetItemValue(world, entity) * GetEntityCount(world, entity)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         price := CalculateSellPrice(base)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :         if world.Components.CharModifiers.Has(player) {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 price = world.Components.CharModifiers.Get(player).SellPrice.ApplyInt(price)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         return price</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : }</span>
+<span id="L46"><span class="lineNum">      46</span>              : </span>
+<span id="L47"><span class="lineNum">      47</span>              : // GetItemValue はアイテムの基本価値を取得する</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : func GetItemValue(world w.World, entity ecs.Entity) int {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           2 :         if !world.Components.Value.Has(entity) {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         return world.Components.Value.Get(entity).Value</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : }</span>
         </pre>
               </td>
             </tr>

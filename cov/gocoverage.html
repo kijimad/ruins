@@ -509,7 +509,7 @@
 				
 				<option value="file226">github.com/kijimaD/ruins/internal/states/shooting.go (41.2%)</option>
 				
-				<option value="file227">github.com/kijimaD/ruins/internal/states/shop_menu.go (60.4%)</option>
+				<option value="file227">github.com/kijimaD/ruins/internal/states/shop_menu.go (56.0%)</option>
 				
 				<option value="file228">github.com/kijimaD/ruins/internal/states/storage_menu.go (53.6%)</option>
 				
@@ -619,7 +619,7 @@
 				
 				<option value="file281">github.com/kijimaD/ruins/internal/world/gameaction/profession.go (93.3%)</option>
 				
-				<option value="file282">github.com/kijimaD/ruins/internal/world/gameaction/shop.go (67.5%)</option>
+				<option value="file282">github.com/kijimaD/ruins/internal/world/gameaction/shop.go (53.6%)</option>
 				
 				<option value="file283">github.com/kijimaD/ruins/internal/world/lifecycle/disassembly.go (79.5%)</option>
 				
@@ -45485,7 +45485,6 @@ import (
         "github.com/ebitenui/ebitenui/widget"
         "github.com/hajimehoshi/ebiten/v2"
         gc "github.com/kijimaD/ruins/internal/components"
-        "github.com/kijimaD/ruins/internal/consts"
         es "github.com/kijimaD/ruins/internal/engine/states"
         "github.com/kijimaD/ruins/internal/input"
         "github.com/kijimaD/ruins/internal/inputmapper"
@@ -45592,21 +45591,17 @@ type shopItemData struct {
         Disabled bool       // 所持金が足りず選べない
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる。
+// プレイヤーが居なければ空の props を返す。価格は query.BuyPrice/SellPrice が取引と揃えて出す
 func (st *ShopMenuState) Fetch(world w.World) ShopProps <span class="cov8" title="1">{
-        var currency int
-        buyPriceMod, sellPriceMod := consts.PercentBase, consts.PercentBase
-        query.Player(world, func(playerEntity ecs.Entity) </span><span class="cov8" title="1">{
-                currency = query.GetCurrency(world, playerEntity)
-                if world.Components.CharModifiers.Has(playerEntity) </span><span class="cov8" title="1">{
-                        mods := world.Components.CharModifiers.Get(playerEntity)
-                        buyPriceMod = mods.BuyPrice
-                        sellPriceMod = mods.SellPrice
-                }</span>
-        })
+        player, err := query.GetPlayerEntity(world)
+        if err != nil </span><span class="cov0" title="0">{
+                return ShopProps{}
+        }</span>
+        <span class="cov8" title="1">currency := query.GetCurrency(world, player)
 
-        <span class="cov8" title="1">return ShopProps{
-                Tabs: st.createTabs(world, currency, buyPriceMod, sellPriceMod),
+        return ShopProps{
+                Tabs: st.createTabs(world, player, currency),
         }</span>
 }
 
@@ -45619,21 +45614,20 @@ func (st *ShopMenuState) Menu(props ShopProps) menurt.MenuConfig <span class="co
         <span class="cov8" title="1">return menurt.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}</span>
 }
 
-func (st *ShopMenuState) createTabs(world w.World, currency int, buyPriceMod, sellPriceMod consts.Percent) []shopTabData <span class="cov8" title="1">{
+func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency int) []shopTabData <span class="cov8" title="1">{
         return []shopTabData{
-                {ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, currency, buyPriceMod)},
-                {ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, sellPriceMod)},
+                {ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, player, currency)},
+                {ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
         }
 }</span>
 
 // createBuyItems は商人の在庫を買いタブへ並べる。アイテムと隊員候補が同列に並ぶ
-func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod consts.Percent) []shopItemData <span class="cov8" title="1">{
+func (st *ShopMenuState) createBuyItems(world w.World, player ecs.Entity, currency int) []shopItemData <span class="cov8" title="1">{
         stock := query.GetStorageItems(world, st.merchant)
         items := make([]shopItemData, 0, len(stock))
 
         for _, entity := range stock </span><span class="cov0" title="0">{
-                base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
-                price := buyPriceMod.ApplyInt(query.CalculateBuyPrice(base))
+                price := query.BuyPrice(world, player, entity)
                 items = append(items, shopItemData{
                         Entity:   entity,
                         Price:    price,
@@ -45645,20 +45639,13 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int, buyPriceMod
         <span class="cov8" title="1">return items</span>
 }
 
-// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る。
-// プレイヤーが居ないときは何も並べない。存在確認を先に済ませ、収集クエリは query.Player の
-// コールバック外で回してクエリのネストを避ける
-func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod consts.Percent) []shopItemData <span class="cov8" title="1">{
-        if _, err := query.GetPlayerEntity(world); err != nil </span><span class="cov8" title="1">{
-                return nil
-        }</span>
-
-        <span class="cov8" title="1">var items []shopItemData
+// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る
+func (st *ShopMenuState) createSellItems(world w.World, player ecs.Entity) []shopItemData <span class="cov8" title="1">{
+        var items []shopItemData
         sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
         for sellQuery.Next() </span><span class="cov8" title="1">{
                 entity := sellQuery.Entity()
-                base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
-                price := sellPriceMod.ApplyInt(query.CalculateSellPrice(base))
+                price := query.SellPrice(world, player, entity)
                 items = append(items, shopItemData{
                         Entity: entity,
                         Price:  price,
@@ -45704,6 +45691,10 @@ func (st *ShopMenuState) buySellSelected(world w.World) error <span class="cov8"
                 }</span>
                 <span class="cov0" title="0">return nil</span>
         }
+        // 選択が古く実体が消えていれば何もしない。dead entity への移動は panic するため先に守る
+        <span class="cov0" title="0">if !world.ECS.Alive(item.Entity) </span><span class="cov0" title="0">{
+                return nil
+        }</span>
         <span class="cov0" title="0">var err error
         query.Player(world, func(p ecs.Entity) </span><span class="cov0" title="0">{ err = gameaction.SellStock(world, p, st.merchant, item.Entity) }</span>)
         <span class="cov0" title="0">if err != nil </span><span class="cov0" title="0">{
@@ -54226,7 +54217,7 @@ import (
 // BuyStock はプレイヤーが商人の在庫アイテムを買う。実体を商人の収納からプレイヤーのバックパックへ移す。
 // 通貨が足りなければ何もせずエラーを返す
 func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error <span class="cov8" title="1">{
-        price := buyPrice(world, player, item)
+        price := query.BuyPrice(world, player, item)
 
         if !query.HasCurrency(world, player, price) </span><span class="cov8" title="1">{
                 return fmt.Errorf("not enough currency: need %d, have %d", price, query.GetCurrency(world, player))
@@ -54249,12 +54240,9 @@ func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error <span cla
 // SellStock はプレイヤーが持ち物を商人へ売る。実体を商人の収納へ移し、代金を受け取る。
 // 売った品は商人の在庫として店頭に並ぶ
 func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.Entity) error <span class="cov8" title="1">{
-        price := sellPrice(world, player, item)
-        if price == 0 </span><span class="cov8" title="1">{
-                return fmt.Errorf("this item cannot be sold")
-        }</span>
+        price := query.SellPrice(world, player, item)
 
-        <span class="cov8" title="1">if err := lifecycle.MoveToStorage(world, item, merchant); err != nil </span><span class="cov0" title="0">{
+        if err := lifecycle.MoveToStorage(world, item, merchant); err != nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("failed to move item to merchant storage: %w", err)
         }</span>
         // 代金の付与に失敗したら実体を手元へ戻し、品も金も失わないようにする。BuyStock の返金と対称
@@ -54271,7 +54259,7 @@ func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.E
 // HireRecruit はプレイヤーが商人の在庫の隊員候補を雇う。候補を隊員として活性化し、代金を支払う。
 // 通貨が足りなければ何もせずエラーを返す
 func HireRecruit(world w.World, player ecs.Entity, recruit ecs.Entity) error <span class="cov8" title="1">{
-        price := buyPrice(world, player, recruit)
+        price := query.BuyPrice(world, player, recruit)
 
         if !query.HasCurrency(world, player, price) </span><span class="cov0" title="0">{
                 return fmt.Errorf("not enough currency: need %d, have %d", price, query.GetCurrency(world, player))
@@ -54289,26 +54277,6 @@ func HireRecruit(world w.World, player ecs.Entity, recruit ecs.Entity) error <sp
         }
 
         <span class="cov8" title="1">return nil</span>
-}
-
-// buyPrice は交渉スキルの買値倍率込みの購入価格を返す
-func buyPrice(world w.World, player ecs.Entity, entity ecs.Entity) int <span class="cov8" title="1">{
-        base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
-        price := query.CalculateBuyPrice(base)
-        if world.Components.CharModifiers.Has(player) </span><span class="cov8" title="1">{
-                price = world.Components.CharModifiers.Get(player).BuyPrice.ApplyInt(price)
-        }</span>
-        <span class="cov8" title="1">return price</span>
-}
-
-// sellPrice は交渉スキルの売値倍率込みの売却価格を返す
-func sellPrice(world w.World, player ecs.Entity, entity ecs.Entity) int <span class="cov8" title="1">{
-        base := query.GetItemValue(world, entity) * query.GetEntityCount(world, entity)
-        price := query.CalculateSellPrice(base)
-        if world.Components.CharModifiers.Has(player) </span><span class="cov8" title="1">{
-                price = world.Components.CharModifiers.Get(player).SellPrice.ApplyInt(price)
-        }</span>
-        <span class="cov8" title="1">return price</span>
 }
 </pre>
 		
@@ -56493,6 +56461,29 @@ func CalculateBuyPrice(baseValue int) int <span class="cov8" title="1">{
 func CalculateSellPrice(baseValue int) int <span class="cov8" title="1">{
         return int(float64(baseValue) * SellPriceMultiplier)
 }</span>
+
+// BuyPrice はプレイヤーが entity を買うときの、交渉スキルの買値倍率込みの購入価格を返す。
+// base は価値と個数の積。店頭の表示価格と取引価格をこの1関数で揃える
+func BuyPrice(world w.World, player ecs.Entity, entity ecs.Entity) int <span class="cov8" title="1">{
+        base := GetItemValue(world, entity) * GetEntityCount(world, entity)
+        price := CalculateBuyPrice(base)
+        if world.Components.CharModifiers.Has(player) </span><span class="cov8" title="1">{
+                price = world.Components.CharModifiers.Get(player).BuyPrice.ApplyInt(price)
+        }</span>
+        <span class="cov8" title="1">return price</span>
+}
+
+// SellPrice はプレイヤーが entity を売るときの、交渉スキルの売値倍率込みの売却価格を返す。
+// base は価値と個数の積。店頭の表示価格と取引価格をこの1関数で揃える。
+// 無価値な品は素直に 0 を返す。売却自体は他の品と同様に可能で、対価が 0 になるだけ
+func SellPrice(world w.World, player ecs.Entity, entity ecs.Entity) int <span class="cov8" title="1">{
+        base := GetItemValue(world, entity) * GetEntityCount(world, entity)
+        price := CalculateSellPrice(base)
+        if world.Components.CharModifiers.Has(player) </span><span class="cov8" title="1">{
+                price = world.Components.CharModifiers.Get(player).SellPrice.ApplyInt(price)
+        }</span>
+        <span class="cov8" title="1">return price</span>
+}
 
 // GetItemValue はアイテムの基本価値を取得する
 func GetItemValue(world w.World, entity ecs.Entity) int <span class="cov8" title="1">{
