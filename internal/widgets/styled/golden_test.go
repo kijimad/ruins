@@ -21,7 +21,7 @@ func TestGolden_ListItemText_Selected(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("選択中のアイテム", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "選択中のアイテム", theme.TextPrimary, true, res))
 		return root
 	}, 300, 30)
 }
@@ -31,7 +31,7 @@ func TestGolden_ListItemText_Unselected(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("非選択のアイテム", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択のアイテム", theme.TextPrimary, false, res))
 		return root
 	}, 300, 30)
 }
@@ -41,7 +41,7 @@ func TestGolden_ListItemText_WithLabels(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("回復薬", theme.TextPrimary, true, res, "x3", "1.5kg"))
+		root.AddChild(styled.NewListItem(nil, "回復薬", theme.TextPrimary, true, res, "x3", "1.5kg"))
 		return root
 	}, 400, 30)
 }
@@ -51,9 +51,9 @@ func TestGolden_ListItemText_Multiple(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("選択中", theme.TextPrimary, true, res))
-		root.AddChild(styled.NewListItemText("非選択1", theme.TextPrimary, false, res))
-		root.AddChild(styled.NewListItemText("非選択2", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "選択中", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "非選択1", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択2", theme.TextPrimary, false, res))
 		return root
 	}, 300, 90)
 }
@@ -65,7 +65,7 @@ func TestGolden_TableRow_Selected(t *testing.T) {
 		widths := []int{100, 200, 80}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
-			[]string{"回復薬", "HPを回復する", "3"},
+			styled.TextCells("回復薬", "HPを回復する", "3"),
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
 			new(true), res)
 		return container
@@ -79,7 +79,7 @@ func TestGolden_TableRow_Unselected(t *testing.T) {
 		widths := []int{100, 200, 80}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
-			[]string{"鉄鉱石", "合成素材", "12"},
+			styled.TextCells("鉄鉱石", "合成素材", "12"),
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
 			new(false), res)
 		return container
@@ -107,9 +107,9 @@ func TestGolden_TableWithHeaderAndRows(t *testing.T) {
 		selected := true
 		unselected := false
 		styled.NewTableRow(container, widths,
-			[]string{"回復薬", "HPを回復する", "3"}, nil, &selected, res)
+			styled.TextCells("回復薬", "HPを回復する", "3"), nil, &selected, res)
 		styled.NewTableRow(container, widths,
-			[]string{"鉄鉱石", "合成素材", "12"}, nil, &unselected, res)
+			styled.TextCells("鉄鉱石", "合成素材", "12"), nil, &unselected, res)
 		return container
 	}, 400, 80)
 }
@@ -153,7 +153,7 @@ func TestGolden_ListItemText_EmptyText(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "", theme.TextPrimary, true, res))
 		return root
 	}, 300, 30)
 }
@@ -163,7 +163,7 @@ func TestGolden_ListItemText_LongText(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("とても長いアイテム名が入ったリスト項目のテスト用テキスト", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "とても長いアイテム名が入ったリスト項目のテスト用テキスト", theme.TextPrimary, true, res))
 		return root
 	}, 600, 30)
 }
@@ -173,7 +173,7 @@ func TestGolden_ListItemText_ManyLabels(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("装備品", theme.TextPrimary, true, res, "x5", "2.3kg", "500G", "Lv3"))
+		root.AddChild(styled.NewListItem(nil, "装備品", theme.TextPrimary, true, res, "x5", "2.3kg", "500G", "Lv3"))
 		return root
 	}, 500, 30)
 }
@@ -183,7 +183,7 @@ func TestGolden_ListItemText_UnselectedWithLabels(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("回復薬", theme.TextPrimary, false, res, "x3", "1.5kg"))
+		root.AddChild(styled.NewListItem(nil, "回復薬", theme.TextPrimary, false, res, "x3", "1.5kg"))
 		return root
 	}, 400, 30)
 }
@@ -199,7 +199,7 @@ func TestGolden_TableRow_SingleColumn(t *testing.T) {
 		widths := []int{300}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
-			[]string{"単一カラムの行"},
+			styled.TextCells("単一カラムの行"),
 			[]styled.TextAlign{styled.AlignLeft},
 			new(true), res)
 		return container
@@ -213,7 +213,7 @@ func TestGolden_TableRow_ManyColumns(t *testing.T) {
 		widths := []int{80, 80, 60, 60, 60}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
-			[]string{"名前", "種別", "攻撃", "防御", "重量"},
+			styled.TextCells("名前", "種別", "攻撃", "防御", "重量"),
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight, styled.AlignRight},
 			new(true), res)
 		return container
@@ -227,7 +227,7 @@ func TestGolden_TableRow_AllRightAligned(t *testing.T) {
 		widths := []int{100, 100, 100}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
-			[]string{"100", "200", "300"},
+			styled.TextCells("100", "200", "300"),
 			[]styled.TextAlign{styled.AlignRight, styled.AlignRight, styled.AlignRight},
 			new(false), res)
 		return container
@@ -241,7 +241,7 @@ func TestGolden_TableRow_NonSelectable(t *testing.T) {
 		widths := []int{100, 200}
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableRow(container, widths,
-			[]string{"重量", "2.50kg"},
+			styled.TextCells("重量", "2.50kg"),
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignRight},
 			nil, res)
 		return container
@@ -256,10 +256,10 @@ func TestGolden_TableFull(t *testing.T) {
 		container := styled.NewTableContainer(widths, res)
 		styled.NewTableHeaderRow(container, widths, []string{"名前", "説明", "数量"}, res)
 		s0, s1, s2, s3 := true, false, false, false
-		styled.NewTableRow(container, widths, []string{"回復薬", "HPを回復", "3"}, nil, &s0, res)
-		styled.NewTableRow(container, widths, []string{"鉄鉱石", "合成素材", "12"}, nil, &s1, res)
-		styled.NewTableRow(container, widths, []string{"聖水", "状態回復", "1"}, nil, &s2, res)
-		styled.NewTableRow(container, widths, []string{"毒消し", "解毒", "5"}, nil, &s3, res)
+		styled.NewTableRow(container, widths, styled.TextCells("回復薬", "HPを回復", "3"), nil, &s0, res)
+		styled.NewTableRow(container, widths, styled.TextCells("鉄鉱石", "合成素材", "12"), nil, &s1, res)
+		styled.NewTableRow(container, widths, styled.TextCells("聖水", "状態回復", "1"), nil, &s2, res)
+		styled.NewTableRow(container, widths, styled.TextCells("毒消し", "解毒", "5"), nil, &s3, res)
 		return container
 	}, 300, 160)
 }
@@ -334,11 +334,11 @@ func TestGolden_ListItemText_MixedSelection(t *testing.T) {
 	res := vrt.SharedUIResources(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
 		root := verticalRoot()
-		root.AddChild(styled.NewListItemText("非選択1", theme.TextPrimary, false, res))
-		root.AddChild(styled.NewListItemText("非選択2", theme.TextPrimary, false, res))
-		root.AddChild(styled.NewListItemText("選択中", theme.TextPrimary, true, res))
-		root.AddChild(styled.NewListItemText("非選択3", theme.TextPrimary, false, res))
-		root.AddChild(styled.NewListItemText("非選択4", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択1", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択2", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "選択中", theme.TextPrimary, true, res))
+		root.AddChild(styled.NewListItem(nil, "非選択3", theme.TextPrimary, false, res))
+		root.AddChild(styled.NewListItem(nil, "非選択4", theme.TextPrimary, false, res))
 		return root
 	}, 300, 150)
 }

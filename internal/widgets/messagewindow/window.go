@@ -470,7 +470,7 @@ func (w *Window) createEnterPrompt() *widget.Container {
 		),
 	)
 
-	prompt := styled.NewListItemText(
+	prompt := styled.NewListItem(nil,
 		"Enter",
 		theme.TextPrimary,
 		true,

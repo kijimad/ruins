@@ -106,14 +106,7 @@ type StorageProps struct {
 type storageTabData struct {
 	ID    tabID
 	Label string
-	Items []storageItemData
-}
-
-type storageItemData struct {
-	Entity ecs.Entity
-	Name   string
-	Weight string
-	Count  int
+	Items []itemRowData
 }
 
 // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
@@ -135,13 +128,13 @@ func (st *StorageMenuState) Menu(props StorageProps) menurt.MenuConfig {
 	return menurt.MenuConfig{Key: "storage", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-func (st *StorageMenuState) createStorageItemData(world w.World) []storageItemData {
+func (st *StorageMenuState) createStorageItemData(world w.World) []itemRowData {
 	items := query.GetStorageItems(world, st.storageEntity)
 	sorted := query.SortEntities(world, items)
 	return st.toStorageItemData(world, sorted)
 }
 
-func (st *StorageMenuState) createBackpackItemData(world w.World) []storageItemData {
+func (st *StorageMenuState) createBackpackItemData(world w.World) []itemRowData {
 	var entities []ecs.Entity
 	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 	for backpackQuery.Next() {
@@ -153,11 +146,11 @@ func (st *StorageMenuState) createBackpackItemData(world w.World) []storageItemD
 	return st.toStorageItemData(world, sorted)
 }
 
-func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Entity) []storageItemData {
-	items := make([]storageItemData, len(entities))
+func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Entity) []itemRowData {
+	items := make([]itemRowData, len(entities))
 	for i, entity := range entities {
 		name := query.GetEntityName(entity, world)
-		item := storageItemData{
+		item := itemRowData{
 			Entity: entity,
 			Name:   name,
 			Weight: query.GetEntityWeight(world, entity).KgString(),
@@ -252,11 +245,10 @@ func (st *StorageMenuState) buildActiveListContainer(world w.World, props Storag
 	}
 
 	currentTab := props.Tabs[tabIndex]
-	columnWidths := []int{260, 80}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}
+		rows[i] = itemMenuRow(world, it.Entity, it.Weight)
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res)
 }

@@ -3,7 +3,6 @@ package systems
 import (
 	"cmp"
 	"fmt"
-	"image"
 	"image/color"
 	"math"
 	"slices"
@@ -12,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -349,43 +349,20 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 }
 
 func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRender) (*ebiten.Image, error) {
-	var result *ebiten.Image
 	key := spriteImageCacheKey{
 		SpriteSheetName: spriteRender.SpriteSheetName,
 		SpriteKey:       spriteRender.SpriteKey,
 	}
 	if v, ok := sys.spriteImageCache[key]; ok {
-		result = v
-	} else {
-		// Resourcesからスプライトシートを取得
-		if world.Resources.SpriteSheets == nil {
-			return nil, fmt.Errorf("sprite sheets are nil")
-		}
-		spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]
-		if !exists {
-			return nil, fmt.Errorf("sprite sheet '%s' not found", spriteRender.SpriteSheetName)
-		}
-
-		// スプライトキーからスプライトを取得
-		sprite, exists := spriteSheet.Sprites[spriteRender.SpriteKey]
-		if !exists {
-			return nil, fmt.Errorf("sprite key '%s' does not exist in sprite sheet '%s'", spriteRender.SpriteKey, spriteRender.SpriteSheetName)
-		}
-
-		texture := spriteSheet.Texture
-		textureWidth := texture.Image.Bounds().Dx()
-		textureHeight := texture.Image.Bounds().Dy()
-
-		left := max(0, sprite.X)
-		right := min(textureWidth, sprite.X+sprite.Width)
-		top := max(0, sprite.Y)
-		bottom := min(textureHeight, sprite.Y+sprite.Height)
-
-		result = gc.SubImage(texture.Image, image.Rect(left, top, right, bottom))
-		sys.spriteImageCache[key] = result
+		return v, nil
 	}
-
-	return result, nil
+	// 解決は resources.SpriteImage に集約する。ここは毎フレームのホットパスなので結果をキャッシュする
+	img, err := resources.SpriteImage(world.Resources.SpriteSheets, spriteRender)
+	if err != nil {
+		return nil, err
+	}
+	sys.spriteImageCache[key] = img
+	return img, nil
 }
 
 func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera) error {

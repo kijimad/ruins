@@ -101,7 +101,7 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menurt.MenuConfig {
 func (st *ChoiceMenuState) View(world w.World, props ChoiceProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
 	rows := make([]menuRow, len(props.Choices))
 	for i, c := range props.Choices {
-		rows[i] = menuRow{Cells: []string{c.Label}, Header: c.Header}
+		rows[i] = menuRow{Cells: styled.TextCells(c.Label), Header: c.Header}
 	}
 	// 単一タブのコマンドメニューなので行間を空け、ページ表示は複数ページのときだけ出す。
 	// メインメニューと先頭位置・行間を揃える

@@ -296,15 +296,7 @@ type verbTabData struct {
 	ID    verbID
 	Label string
 	Key   string // タブ見出しに添える直達ショートカット表記
-	Items []itemActionEntry
-}
-
-type itemActionEntry struct {
-	Entity ecs.Entity
-	Name   string
-	Weight string
-	Count  int
-	Desc   string
+	Items []itemRowData
 }
 
 // Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
@@ -318,7 +310,7 @@ func (st *ItemActionState) Fetch(world w.World) ItemActionProps {
 	vs := verbList
 	tabs := make([]verbTabData, len(vs))
 	for i, verb := range vs {
-		items := make([]itemActionEntry, 0, len(backpack))
+		items := make([]itemRowData, 0, len(backpack))
 		for _, entity := range backpack {
 			if !verb.Accept(world, entity) {
 				continue
@@ -344,8 +336,8 @@ func playerBackpackItems(world w.World, player ecs.Entity) []ecs.Entity {
 	return query.SortEntities(world, result)
 }
 
-func newItemActionEntry(world w.World, entity ecs.Entity) itemActionEntry {
-	entry := itemActionEntry{
+func newItemActionEntry(world w.World, entity ecs.Entity) itemRowData {
+	entry := itemRowData{
 		Entity: entity,
 		Name:   query.GetEntityName(entity, world),
 		Weight: query.GetEntityWeight(world, entity).KgString(),
@@ -397,11 +389,10 @@ func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, t
 		return styled.NewVerticalContainer()
 	}
 	items := props.Tabs[tabIndex].Items
-	columnWidths := []int{260, 80}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
 	rows := make([]menuRow, len(items))
 	for i, it := range items {
-		rows[i] = menuRow{Cells: []string{nameWithCount(it.Name, it.Count), it.Weight}}
+		rows[i] = itemMenuRow(world, it.Entity, it.Weight)
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
 }
