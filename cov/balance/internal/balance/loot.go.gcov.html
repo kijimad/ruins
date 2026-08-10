@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">91.1&nbsp;%</td>
-            <td class="headerCovTableEntry">146</td>
-            <td class="headerCovTableEntry">133</td>
+            <td class="headerCovTableEntryHi">91.2&nbsp;%</td>
+            <td class="headerCovTableEntry">148</td>
+            <td class="headerCovTableEntry">135</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-09 23:54:54</td>
+            <td class="headerValue">2026-08-10 01:51:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,236 +72,217 @@
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              : )</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span>              : // FacilityLoot は1つの施設種別を trials 回生成し、部屋役割ごとに loot を集計した分布。</span>
-<span id="L14"><span class="lineNum">      14</span>              : type FacilityLoot struct {</span>
-<span id="L15"><span class="lineNum">      15</span>              :         Facility string     `json:&quot;facility&quot;`</span>
-<span id="L16"><span class="lineNum">      16</span>              :         Trials   int        `json:&quot;trials&quot;`</span>
-<span id="L17"><span class="lineNum">      17</span>              :         Rooms    []RoomLoot `json:&quot;rooms&quot;`</span>
-<span id="L18"><span class="lineNum">      18</span>              : }</span>
-<span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span>              : // RoomLoot は施設内の1役割ぶんの loot 分布。Role が &quot;全体&quot; のときは建物全体の合算。</span>
-<span id="L21"><span class="lineNum">      21</span>              : type RoomLoot struct {</span>
-<span id="L22"><span class="lineNum">      22</span>              :         Role  string         `json:&quot;role&quot;`</span>
-<span id="L23"><span class="lineNum">      23</span>              :         Items []LootItemStat `json:&quot;items&quot;`</span>
-<span id="L24"><span class="lineNum">      24</span>              : }</span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span>              : // LootItemStat は1アイテムの出現統計。Prob は1棟あたり1個以上出る確率、ExpectedCount は1棟あたりの期待個数。</span>
-<span id="L27"><span class="lineNum">      27</span>              : type LootItemStat struct {</span>
-<span id="L28"><span class="lineNum">      28</span>              :         Name          string  `json:&quot;name&quot;`</span>
-<span id="L29"><span class="lineNum">      29</span>              :         Prob          float64 `json:&quot;prob&quot;`</span>
-<span id="L30"><span class="lineNum">      30</span>              :         ExpectedCount float64 `json:&quot;expectedCount&quot;`</span>
-<span id="L31"><span class="lineNum">      31</span>              :         Value         int     `json:&quot;value&quot;`</span>
-<span id="L32"><span class="lineNum">      32</span>              : }</span>
-<span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span>              : const (</span>
-<span id="L35"><span class="lineNum">      35</span>              :         // roomLootDepth は地上の建物の深度。床 loot も収納 loot も浅い戦利品を引く。</span>
-<span id="L36"><span class="lineNum">      36</span>              :         roomLootDepth = 1</span>
-<span id="L37"><span class="lineNum">      37</span>              :         // roomLootStream は施設 loot 抽選 RNG のストリーム。試行 seed と組で決定的にする。</span>
-<span id="L38"><span class="lineNum">      38</span>              :         roomLootStream = 0x1007</span>
-<span id="L39"><span class="lineNum">      39</span>              :         // roomLootAllRole は建物全体の合算を表す役割キー。表示名は UI 側で訳す。</span>
-<span id="L40"><span class="lineNum">      40</span>              :         roomLootAllRole = &quot;all&quot;</span>
-<span id="L41"><span class="lineNum">      41</span>              :         // roomLootOtherRole はどの部屋にも属さない配置の役割キー。表示名は UI 側で訳す。</span>
-<span id="L42"><span class="lineNum">      42</span>              :         roomLootOtherRole = &quot;other&quot;</span>
-<span id="L43"><span class="lineNum">      43</span>              : )</span>
-<span id="L44"><span class="lineNum">      44</span>              : </span>
-<span id="L45"><span class="lineNum">      45</span>              : // reportFacilities は集計対象の施設種別。interior の FacilityKind 定数と同じ文字列。</span>
-<span id="L46"><span class="lineNum">      46</span>              : var reportFacilities = []interior.FacilityKind{&quot;house&quot;, &quot;store&quot;, &quot;antique&quot;, &quot;clinic&quot;, &quot;lab&quot;, &quot;office&quot;, &quot;depot&quot;}</span>
-<span id="L47"><span class="lineNum">      47</span>              : </span>
-<span id="L48"><span class="lineNum">      48</span>              : // GenerateRoomLoot は各施設種別を trials 回生成し、床 loot と収納 loot を実際の抽選経路で materialize して</span>
-<span id="L49"><span class="lineNum">      49</span>              : // 部屋役割ごとにアイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで、PickN・Amount・pack・</span>
-<span id="L50"><span class="lineNum">      50</span>              : // lootRaw・収納テーブルの相互作用をそのまま反映する。同一 seed で同一結果になる。</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC tlaBgGNC">           1 : func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []FacilityLoot {</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         door := interior.Vec{X: 14, Y: 0}</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         result := make([]FacilityLoot, 0, len(reportFacilities))</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         for _, fac := range reportFacilities {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 // role -&gt; item -&gt; 合計個数 / 出た試行数</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 total := map[string]map[string]int{}</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 present := map[string]map[string]int{}</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :                 add := func(role, name string, count int) {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           2 :                         if total[role] == nil {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                                 total[role] = map[string]int{}</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                                 present[role] = map[string]int{}</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         total[role][name] += count</span></span>
-<span id="L66"><span class="lineNum">      66</span>              :                 }</span>
-<span id="L67"><span class="lineNum">      67</span>              : </span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :                 for i := range trials {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                         trialSeed := seed + uint64(i)</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                         rng := rand.New(rand.NewPCG(trialSeed, roomLootStream))</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                         site, placed := interior.FurnishBuilding(trialSeed, footprint, door, fac)</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                         // この試行の role -&gt; item -&gt; 個数。試行内で集めてから present を1回だけ加算する</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                         perRole := map[string]map[string]int{}</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           2 :                         bump := func(role, name string, count int) {</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           2 :                                 if perRole[role] == nil {</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                                         perRole[role] = map[string]int{}</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                                 perRole[role][name] += count</span></span>
-<span id="L80"><span class="lineNum">      80</span>              :                         }</span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           2 :                         for _, p := range placed {</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                                 role := roomRoleAt(site, p.Pos)</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           2 :                                 for _, it := range resolvePlacedLoot(master, p, rng) {</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                                         bump(role, it.name, it.count)</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                                         bump(roomLootAllRole, it.name, it.count) // 建物全体の合算</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L87"><span class="lineNum">      87</span>              :                         }</span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           2 :                         for role, items := range perRole {</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           2 :                                 for name, c := range items {</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                                         add(role, name, c)</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                                         present[role][name]++</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L93"><span class="lineNum">      93</span>              :                         }</span>
-<span id="L94"><span class="lineNum">      94</span>              :                 }</span>
-<span id="L95"><span class="lineNum">      95</span>              : </span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 result = append(result, FacilityLoot{</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                         Facility: string(fac),</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                         Trials:   trials,</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                         Rooms:    buildRoomLoot(master, total, present, trials),</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L101"><span class="lineNum">     101</span>              :         }</span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         return result</span></span>
-<span id="L103"><span class="lineNum">     103</span>              : }</span>
-<span id="L104"><span class="lineNum">     104</span>              : </span>
-<span id="L105"><span class="lineNum">     105</span>              : // drawnLoot は materialize した1種のアイテムと個数。</span>
-<span id="L106"><span class="lineNum">     106</span>              : type drawnLoot struct {</span>
-<span id="L107"><span class="lineNum">     107</span>              :         name  string</span>
-<span id="L108"><span class="lineNum">     108</span>              :         count int</span>
-<span id="L109"><span class="lineNum">     109</span>              : }</span>
-<span id="L110"><span class="lineNum">     110</span>              : </span>
-<span id="L111"><span class="lineNum">     111</span>              : // resolvePlacedLoot は1つの配置指示を実行と同じ経路で materialize してアイテムと個数を返す。床 loot は</span>
-<span id="L112"><span class="lineNum">     112</span>              : // item group から、収納家具は Storage.LootTableId から引く。それ以外は何も返さない。</span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 : func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []drawnLoot {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         switch p.Kind {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         case interior.KindLoot:</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 groupID, ok := interior.LootGroupName(p.Ref)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC tlaBgGNC">           1 :                 draws, err := raw.SelectFromItemGroup(master, groupID, rng)</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC tlaBgGNC">           1 :                 out := make([]drawnLoot, 0, len(draws))</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           2 :                 for _, d := range draws {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :                         if d.Name != &quot;&quot; {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                                 out = append(out, drawnLoot{name: d.Name, count: d.Count})</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L129"><span class="lineNum">     129</span>              :                 }</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 return out</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         case interior.KindFurniture:</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 name, ok := interior.PropRawName(p.Ref)</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC tlaBgGNC">           1 :                 items := rollStorageLoot(master, name, rng)</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 out := make([]drawnLoot, 0, len(items))</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           2 :                 for _, item := range items {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                         out = append(out, drawnLoot{name: item, count: 1})</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 return out</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 // 装飾・敵・罠などは loot でない</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L145"><span class="lineNum">     145</span>              :         }</span>
-<span id="L146"><span class="lineNum">     146</span>              : }</span>
-<span id="L147"><span class="lineNum">     147</span>              : </span>
-<span id="L148"><span class="lineNum">     148</span>              : // roomRoleAt は座標 pos を含む部屋の役割を返す。どの部屋にも属さなければ &quot;その他&quot;。loot は部屋の内側に置かれる</span>
-<span id="L149"><span class="lineNum">     149</span>              : // ので、外構や外皮の装飾以外は必ずいずれかの部屋に収まる。</span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 : func roomRoleAt(site interior.Site, pos interior.Vec) string {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           2 :         for _, r := range site.Rooms {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 rect := r.Room.Rect</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           2 :                 if pos.X &gt;= rect.X &amp;&amp; pos.X &lt; rect.X+rect.W &amp;&amp; pos.Y &gt;= rect.Y &amp;&amp; pos.Y &lt; rect.Y+rect.H {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                         role := string(r.Role)</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                         if role == &quot;&quot; {</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return roomLootOtherRole</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC tlaBgGNC">           1 :                         return role</span></span>
-<span id="L159"><span class="lineNum">     159</span>              :                 }</span>
-<span id="L160"><span class="lineNum">     160</span>              :         }</span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         return roomLootOtherRole</span></span>
-<span id="L162"><span class="lineNum">     162</span>              : }</span>
-<span id="L163"><span class="lineNum">     163</span>              : </span>
-<span id="L164"><span class="lineNum">     164</span>              : // buildRoomLoot は集計 map を役割ごとの RoomLoot へ整える。全体を先頭に、以降は期待個数の合計が多い役割順に並べる。</span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 : func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, trials int) []RoomLoot {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         rooms := make([]RoomLoot, 0, len(total))</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           2 :         for role, items := range total {</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 stats := make([]LootItemStat, 0, len(items))</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           2 :                 for name, c := range items {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         stats = append(stats, LootItemStat{</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                                 Name:          name,</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                                 Prob:          float64(present[role][name]) / float64(trials),</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                                 ExpectedCount: float64(c) / float64(trials),</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                                 Value:         itemValue(master, name),</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           2 :                 sort.Slice(stats, func(a, b int) bool {</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           2 :                         if stats[a].ExpectedCount != stats[b].ExpectedCount {</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                                 return stats[a].ExpectedCount &gt; stats[b].ExpectedCount</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                         return stats[a].Name &lt; stats[b].Name</span></span>
-<span id="L182"><span class="lineNum">     182</span>              :                 })</span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 rooms = append(rooms, RoomLoot{Role: role, Items: stats})</span></span>
-<span id="L184"><span class="lineNum">     184</span>              :         }</span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           2 :         sort.Slice(rooms, func(a, b int) bool {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 // 全体を必ず先頭にする</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           2 :                 if rooms[a].Role == roomLootAllRole {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                         return true</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           2 :                 if rooms[b].Role == roomLootAllRole {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                         return false</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 return roomTotalExpected(rooms[a]) &gt; roomTotalExpected(rooms[b])</span></span>
-<span id="L194"><span class="lineNum">     194</span>              :         })</span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         return rooms</span></span>
-<span id="L196"><span class="lineNum">     196</span>              : }</span>
-<span id="L197"><span class="lineNum">     197</span>              : </span>
-<span id="L198"><span class="lineNum">     198</span>              : // roomTotalExpected は役割の期待個数合計。役割の並び順に使う。</span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 : func roomTotalExpected(r RoomLoot) float64 {</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         var sum float64</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           2 :         for _, it := range r.Items {</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 sum += it.ExpectedCount</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         return sum</span></span>
-<span id="L205"><span class="lineNum">     205</span>              : }</span>
-<span id="L206"><span class="lineNum">     206</span>              : </span>
-<span id="L207"><span class="lineNum">     207</span>              : // rollStorageLoot は収納家具1個の中身を抽選し、アイテム名を並べて返す。ゲームの populateStorageLoot と同型で、</span>
-<span id="L208"><span class="lineNum">     208</span>              : // LootTableId のテーブルから LootCount 個を深度考慮で引く。収納でない家具は空を返す。</span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 : func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []string {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         prop, err := raw.GetProp(master, propName)</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           2 :         if err != nil || prop.Storage == nil || prop.Storage.LootTableId == nil || *prop.Storage.LootTableId == &quot;&quot; {</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         table, err := raw.GetItemTable(master, *prop.Storage.LootTableId)</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">           1 :         n := 1</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           2 :         if prop.Storage.LootCount != nil {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           2 :                 if d, derr := consts.ParseDice(*prop.Storage.LootCount); derr == nil {</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                         n = d.Roll(rng)</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L223"><span class="lineNum">     223</span>              :         }</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         out := make([]string, 0, n)</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           2 :         for range n {</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 itemName, serr := raw.SelectItemByWeight(master, table, rng, roomLootDepth)</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 if serr != nil || itemName == &quot;&quot; {</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L229"><span class="lineNum">     229</span>              :                 }</span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC tlaBgGNC">           1 :                 out = append(out, itemName)</span></span>
-<span id="L231"><span class="lineNum">     231</span>              :         }</span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         return out</span></span>
-<span id="L233"><span class="lineNum">     233</span>              : }</span>
-<span id="L234"><span class="lineNum">     234</span>              : </span>
-<span id="L235"><span class="lineNum">     235</span>              : // itemValue は raw のアイテム価値を返す。未定義は0。</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 : func itemValue(master oapi.Raws, name string) int {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         item, err := raw.FindItem(master, name)</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC tlaBgGNC">           1 :         return int(item.Value)</span></span>
-<span id="L242"><span class="lineNum">     242</span>              : }</span>
+<span id="L13"><span class="lineNum">      13</span>              : const (</span>
+<span id="L14"><span class="lineNum">      14</span>              :         // roomLootDepth は地上の建物の深度。床 loot も収納 loot も浅い戦利品を引く。</span>
+<span id="L15"><span class="lineNum">      15</span>              :         roomLootDepth = 1</span>
+<span id="L16"><span class="lineNum">      16</span>              :         // roomLootStream は施設 loot 抽選 RNG のストリーム。試行 seed と組で決定的にする。</span>
+<span id="L17"><span class="lineNum">      17</span>              :         roomLootStream = 0x1007</span>
+<span id="L18"><span class="lineNum">      18</span>              :         // roomLootAllRole は建物全体の合算を表す役割キー。表示名は UI 側で訳す。</span>
+<span id="L19"><span class="lineNum">      19</span>              :         roomLootAllRole = &quot;all&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              :         // roomLootOtherRole はどの部屋にも属さない配置の役割キー。表示名は UI 側で訳す。</span>
+<span id="L21"><span class="lineNum">      21</span>              :         roomLootOtherRole = &quot;other&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : )</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // reportFacilities は集計対象の施設種別。interior の FacilityKind 定数と同じ文字列。</span>
+<span id="L25"><span class="lineNum">      25</span>              : var reportFacilities = []interior.FacilityKind{&quot;house&quot;, &quot;store&quot;, &quot;antique&quot;, &quot;clinic&quot;, &quot;lab&quot;, &quot;office&quot;, &quot;depot&quot;}</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // GenerateRoomLoot は各施設種別を trials 回生成し、床 loot と収納 loot を実際の抽選経路で materialize して</span>
+<span id="L28"><span class="lineNum">      28</span>              : // 部屋役割ごとにアイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで、PickN・Amount・pack・</span>
+<span id="L29"><span class="lineNum">      29</span>              : // lootRaw・収納テーブルの相互作用をそのまま反映する。同一 seed で同一結果になる。</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 : func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceFacilityLoot {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         door := interior.Vec{X: 14, Y: 0}</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         result := make([]oapi.BalanceFacilityLoot, 0, len(reportFacilities))</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :         for _, fac := range reportFacilities {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 // role -&gt; item -&gt; 合計個数 / 出た試行数</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 total := map[string]map[string]int{}</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 present := map[string]map[string]int{}</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 // add は合計個数だけを積む。present は「その item が出た試行数」で試行ごとに1回だけ数えるため、</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 // ここでは触らず試行末尾の集計ループで加算する。present[role] の初期化だけここで揃えておく。</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :                 add := func(role, name string, count int) {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           2 :                         if total[role] == nil {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                                 total[role] = map[string]int{}</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                                 present[role] = map[string]int{}</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                         total[role][name] += count</span></span>
+<span id="L47"><span class="lineNum">      47</span>              :                 }</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           2 :                 for i := range trials {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                         trialSeed := seed + uint64(i)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                         rng := rand.New(rand.NewPCG(trialSeed, roomLootStream))</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         site, placed := interior.FurnishBuilding(trialSeed, footprint, door, fac)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                         // この試行の role -&gt; item -&gt; 個数。試行内で集めてから present を1回だけ加算する</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                         perRole := map[string]map[string]int{}</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :                         bump := func(role, name string, count int) {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :                                 if perRole[role] == nil {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                                         perRole[role] = map[string]int{}</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                                 perRole[role][name] += count</span></span>
+<span id="L61"><span class="lineNum">      61</span>              :                         }</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :                         for _, p := range placed {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                                 role := roomRoleAt(site, p.Pos)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           2 :                                 for _, it := range resolvePlacedLoot(master, p, rng) {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                                         bump(role, it.name, it.count)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                                         bump(roomLootAllRole, it.name, it.count) // 建物全体の合算</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L68"><span class="lineNum">      68</span>              :                         }</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           2 :                         for role, items := range perRole {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           2 :                                 for name, c := range items {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                                         add(role, name, c)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                                         present[role][name]++</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L74"><span class="lineNum">      74</span>              :                         }</span>
+<span id="L75"><span class="lineNum">      75</span>              :                 }</span>
+<span id="L76"><span class="lineNum">      76</span>              : </span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 result = append(result, oapi.BalanceFacilityLoot{</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                         Facility: string(fac),</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         Trials:   trials,</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                         Rooms:    buildRoomLoot(master, total, present, trials),</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L82"><span class="lineNum">      82</span>              :         }</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return result</span></span>
+<span id="L84"><span class="lineNum">      84</span>              : }</span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span>              : // drawnLoot は materialize した1種のアイテムと個数。</span>
+<span id="L87"><span class="lineNum">      87</span>              : type drawnLoot struct {</span>
+<span id="L88"><span class="lineNum">      88</span>              :         name  string</span>
+<span id="L89"><span class="lineNum">      89</span>              :         count int</span>
+<span id="L90"><span class="lineNum">      90</span>              : }</span>
+<span id="L91"><span class="lineNum">      91</span>              : </span>
+<span id="L92"><span class="lineNum">      92</span>              : // resolvePlacedLoot は1つの配置指示を実行と同じ経路で materialize してアイテムと個数を返す。床 loot は</span>
+<span id="L93"><span class="lineNum">      93</span>              : // item group から、収納家具は Storage.LootTableId から引く。それ以外は何も返さない。</span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 : func resolvePlacedLoot(master oapi.Raws, p interior.Placed, rng *rand.Rand) []drawnLoot {</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         switch p.Kind {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         case interior.KindLoot:</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 groupID, ok := interior.LootGroupName(p.Ref)</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC tlaBgGNC">           1 :                 draws, err := raw.SelectFromItemGroup(master, groupID, rng)</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC tlaBgGNC">           1 :                 out := make([]drawnLoot, 0, len(draws))</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           2 :                 for _, d := range draws {</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           2 :                         if d.Name != &quot;&quot; {</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                                 out = append(out, drawnLoot{name: d.Name, count: d.Count})</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L110"><span class="lineNum">     110</span>              :                 }</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 return out</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         case interior.KindFurniture:</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 name, ok := interior.PropRawName(p.Ref)</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC tlaBgGNC">           1 :                 items := rollStorageLoot(master, name, rng)</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 out := make([]drawnLoot, 0, len(items))</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           2 :                 for _, item := range items {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                         out = append(out, drawnLoot{name: item, count: 1})</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 return out</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 // 装飾・敵・罠などは loot でない</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L126"><span class="lineNum">     126</span>              :         }</span>
+<span id="L127"><span class="lineNum">     127</span>              : }</span>
+<span id="L128"><span class="lineNum">     128</span>              : </span>
+<span id="L129"><span class="lineNum">     129</span>              : // roomRoleAt は座標 pos を含む部屋の役割を返す。どの部屋にも属さなければ &quot;その他&quot;。loot は部屋の内側に置かれる</span>
+<span id="L130"><span class="lineNum">     130</span>              : // ので、外構や外皮の装飾以外は必ずいずれかの部屋に収まる。</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 : func roomRoleAt(site interior.Site, pos interior.Vec) string {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           2 :         for _, r := range site.Rooms {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 rect := r.Room.Rect</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           2 :                 if pos.X &gt;= rect.X &amp;&amp; pos.X &lt; rect.X+rect.W &amp;&amp; pos.Y &gt;= rect.Y &amp;&amp; pos.Y &lt; rect.Y+rect.H {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                         role := string(r.Role)</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         if role == &quot;&quot; {</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return roomLootOtherRole</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC tlaBgGNC">           1 :                         return role</span></span>
+<span id="L140"><span class="lineNum">     140</span>              :                 }</span>
+<span id="L141"><span class="lineNum">     141</span>              :         }</span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         return roomLootOtherRole</span></span>
+<span id="L143"><span class="lineNum">     143</span>              : }</span>
+<span id="L144"><span class="lineNum">     144</span>              : </span>
+<span id="L145"><span class="lineNum">     145</span>              : // buildRoomLoot は集計 map を役割ごとの RoomLoot へ整える。全体を先頭に、以降は期待個数の合計が多い役割順に並べる。</span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 : func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, trials int) []oapi.BalanceRoomLoot {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         rooms := make([]oapi.BalanceRoomLoot, 0, len(total))</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           2 :         for role, items := range total {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 stats := make([]oapi.BalanceLootItemStat, 0, len(items))</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           2 :                 for name, c := range items {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                         stats = append(stats, oapi.BalanceLootItemStat{</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                                 Name:          name,</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                                 Prob:          float64(present[role][name]) / float64(trials),</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                                 ExpectedCount: float64(c) / float64(trials),</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                                 Value:         itemValue(master, name),</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           2 :                 sort.Slice(stats, func(a, b int) bool {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           2 :                         if stats[a].ExpectedCount != stats[b].ExpectedCount {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                                 return stats[a].ExpectedCount &gt; stats[b].ExpectedCount</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                         return stats[a].Name &lt; stats[b].Name</span></span>
+<span id="L163"><span class="lineNum">     163</span>              :                 })</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 rooms = append(rooms, oapi.BalanceRoomLoot{Role: role, Items: stats})</span></span>
+<span id="L165"><span class="lineNum">     165</span>              :         }</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           2 :         sort.Slice(rooms, func(a, b int) bool {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 // 全体を必ず先頭にする</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           2 :                 if rooms[a].Role == roomLootAllRole {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                         return true</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           2 :                 if rooms[b].Role == roomLootAllRole {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                         return false</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 return roomTotalExpected(rooms[a]) &gt; roomTotalExpected(rooms[b])</span></span>
+<span id="L175"><span class="lineNum">     175</span>              :         })</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         return rooms</span></span>
+<span id="L177"><span class="lineNum">     177</span>              : }</span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span>              : // roomTotalExpected は役割の期待個数合計。役割の並び順に使う。</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 : func roomTotalExpected(r oapi.BalanceRoomLoot) float64 {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         var sum float64</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           2 :         for _, it := range r.Items {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 sum += it.ExpectedCount</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         return sum</span></span>
+<span id="L186"><span class="lineNum">     186</span>              : }</span>
+<span id="L187"><span class="lineNum">     187</span>              : </span>
+<span id="L188"><span class="lineNum">     188</span>              : // rollStorageLoot は収納家具1個の中身を抽選し、アイテム名を並べて返す。ゲームの populateStorageLoot と同型で、</span>
+<span id="L189"><span class="lineNum">     189</span>              : // LootTableId のテーブルから LootCount 個を深度考慮で引く。収納でない家具は空を返す。</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 : func rollStorageLoot(master oapi.Raws, propName string, rng *rand.Rand) []string {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         prop, err := raw.GetProp(master, propName)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           2 :         if err != nil || prop.Storage == nil || prop.Storage.LootTableId == nil || *prop.Storage.LootTableId == &quot;&quot; {</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         table, err := raw.GetItemTable(master, *prop.Storage.LootTableId)</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC tlaBgGNC">           1 :         n := 1</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           2 :         if prop.Storage.LootCount != nil {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           2 :                 if d, derr := consts.ParseDice(*prop.Storage.LootCount); derr == nil {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                         n = d.Roll(rng)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L204"><span class="lineNum">     204</span>              :         }</span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         out := make([]string, 0, n)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           2 :         for range n {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 itemName, serr := raw.SelectItemByWeight(master, table, rng, roomLootDepth)</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 if serr != nil || itemName == &quot;&quot; {</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L210"><span class="lineNum">     210</span>              :                 }</span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC tlaBgGNC">           1 :                 out = append(out, itemName)</span></span>
+<span id="L212"><span class="lineNum">     212</span>              :         }</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         return out</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : }</span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span>              : // itemValue は raw のアイテム価値を返す。未定義は0。</span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 : func itemValue(master oapi.Raws, name string) int {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         item, err := raw.FindItem(master, name)</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 :         return int(item.Value)</span></span>
+<span id="L223"><span class="lineNum">     223</span>              : }</span>
         </pre>
               </td>
             </tr>

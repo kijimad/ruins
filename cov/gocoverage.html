@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.0%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
@@ -113,7 +113,7 @@
 				
 				<option value="file28">github.com/kijimaD/ruins/internal/balance/loot.go (93.1%)</option>
 				
-				<option value="file29">github.com/kijimaD/ruins/internal/balance/report.go (95.4%)</option>
+				<option value="file29">github.com/kijimaD/ruins/internal/balance/report.go (93.9%)</option>
 				
 				<option value="file30">github.com/kijimaD/ruins/internal/balance/run.go (92.5%)</option>
 				
@@ -1578,7 +1578,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1592,7 +1592,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         gameaction.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
+        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
                 CancelActivity(target, "took an attack", world)
         }</span>
 
@@ -1668,7 +1668,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1741,8 +1741,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
-        case critical:<span class="cov8" title="1">
-                if withMethod </span><span class="cov8" title="1">{
+        case critical:<span class="cov0" title="0">
+                if withMethod </span><span class="cov0" title="0">{
                         logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
@@ -6441,27 +6441,6 @@ import (
         "github.com/kijimaD/ruins/internal/raw"
 )
 
-// FacilityLoot は1つの施設種別を trials 回生成し、部屋役割ごとに loot を集計した分布。
-type FacilityLoot struct {
-        Facility string     `json:"facility"`
-        Trials   int        `json:"trials"`
-        Rooms    []RoomLoot `json:"rooms"`
-}
-
-// RoomLoot は施設内の1役割ぶんの loot 分布。Role が "全体" のときは建物全体の合算。
-type RoomLoot struct {
-        Role  string         `json:"role"`
-        Items []LootItemStat `json:"items"`
-}
-
-// LootItemStat は1アイテムの出現統計。Prob は1棟あたり1個以上出る確率、ExpectedCount は1棟あたりの期待個数。
-type LootItemStat struct {
-        Name          string  `json:"name"`
-        Prob          float64 `json:"prob"`
-        ExpectedCount float64 `json:"expectedCount"`
-        Value         int     `json:"value"`
-}
-
 const (
         // roomLootDepth は地上の建物の深度。床 loot も収納 loot も浅い戦利品を引く。
         roomLootDepth = 1
@@ -6479,15 +6458,17 @@ var reportFacilities = []interior.FacilityKind{"house", "store", "antique", "cli
 // GenerateRoomLoot は各施設種別を trials 回生成し、床 loot と収納 loot を実際の抽選経路で materialize して
 // 部屋役割ごとにアイテム別の出現確率と期待個数を集計する。解析でなくサンプリングで、PickN・Amount・pack・
 // lootRaw・収納テーブルの相互作用をそのまま反映する。同一 seed で同一結果になる。
-func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []FacilityLoot <span class="cov8" title="1">{
+func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceFacilityLoot <span class="cov8" title="1">{
         footprint := interior.Rect{X: 0, Y: 0, W: 28, H: 20}
         door := interior.Vec{X: 14, Y: 0}
 
-        result := make([]FacilityLoot, 0, len(reportFacilities))
+        result := make([]oapi.BalanceFacilityLoot, 0, len(reportFacilities))
         for _, fac := range reportFacilities </span><span class="cov8" title="1">{
                 // role -&gt; item -&gt; 合計個数 / 出た試行数
                 total := map[string]map[string]int{}
                 present := map[string]map[string]int{}
+                // add は合計個数だけを積む。present は「その item が出た試行数」で試行ごとに1回だけ数えるため、
+                // ここでは触らず試行末尾の集計ループで加算する。present[role] の初期化だけここで揃えておく。
                 add := func(role, name string, count int) </span><span class="cov8" title="1">{
                         if total[role] == nil </span><span class="cov8" title="1">{
                                 total[role] = map[string]int{}
@@ -6524,7 +6505,7 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []FacilityLoot 
                         }
                 }
 
-                <span class="cov8" title="1">result = append(result, FacilityLoot{
+                <span class="cov8" title="1">result = append(result, oapi.BalanceFacilityLoot{
                         Facility: string(fac),
                         Trials:   trials,
                         Rooms:    buildRoomLoot(master, total, present, trials),
@@ -6593,12 +6574,12 @@ func roomRoleAt(site interior.Site, pos interior.Vec) string <span class="cov8" 
 }
 
 // buildRoomLoot は集計 map を役割ごとの RoomLoot へ整える。全体を先頭に、以降は期待個数の合計が多い役割順に並べる。
-func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, trials int) []RoomLoot <span class="cov8" title="1">{
-        rooms := make([]RoomLoot, 0, len(total))
+func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, trials int) []oapi.BalanceRoomLoot <span class="cov8" title="1">{
+        rooms := make([]oapi.BalanceRoomLoot, 0, len(total))
         for role, items := range total </span><span class="cov8" title="1">{
-                stats := make([]LootItemStat, 0, len(items))
+                stats := make([]oapi.BalanceLootItemStat, 0, len(items))
                 for name, c := range items </span><span class="cov8" title="1">{
-                        stats = append(stats, LootItemStat{
+                        stats = append(stats, oapi.BalanceLootItemStat{
                                 Name:          name,
                                 Prob:          float64(present[role][name]) / float64(trials),
                                 ExpectedCount: float64(c) / float64(trials),
@@ -6611,7 +6592,7 @@ func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, t
                         }</span>
                         <span class="cov8" title="1">return stats[a].Name &lt; stats[b].Name</span>
                 })
-                <span class="cov8" title="1">rooms = append(rooms, RoomLoot{Role: role, Items: stats})</span>
+                <span class="cov8" title="1">rooms = append(rooms, oapi.BalanceRoomLoot{Role: role, Items: stats})</span>
         }
         <span class="cov8" title="1">sort.Slice(rooms, func(a, b int) bool </span><span class="cov8" title="1">{
                 // 全体を必ず先頭にする
@@ -6627,7 +6608,7 @@ func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, t
 }
 
 // roomTotalExpected は役割の期待個数合計。役割の並び順に使う。
-func roomTotalExpected(r RoomLoot) float64 <span class="cov8" title="1">{
+func roomTotalExpected(r oapi.BalanceRoomLoot) float64 <span class="cov8" title="1">{
         var sum float64
         for _, it := range r.Items </span><span class="cov8" title="1">{
                 sum += it.ExpectedCount
@@ -6676,7 +6657,6 @@ func itemValue(master oapi.Raws, name string) int <span class="cov8" title="1">{
 		<pre class="file" id="file29" style="display: none">package balance
 
 import (
-        "encoding/json"
         "fmt"
         "math/rand/v2"
 
@@ -6684,96 +6664,9 @@ import (
         "github.com/kijimaD/ruins/internal/raw"
 )
 
-// Report はシミュレーション結果のJSON構造
-type Report struct {
-        Mode          string          `json:"mode"`
-        Player        *PlayerInfo     `json:"player,omitempty"`
-        Weapon        *WeaponInfo     `json:"weapon,omitempty"`
-        EnemyTables   []EnemyTableRun `json:"enemyTables,omitempty"`
-        BattleMetrics []BattleMetric  `json:"battleMetrics,omitempty"`
-        RoomLoot      []FacilityLoot  `json:"roomLoot,omitempty"`
-}
-
-// BattleMetric は武器×敵の戦闘シミュレーション結果
-type BattleMetric struct {
-        Player   string  `json:"player"`
-        Weapon   string  `json:"weapon"`
-        Enemy    string  `json:"enemy"`
-        DPS      float64 `json:"dps"`
-        IsRanged bool    `json:"isRanged"`
-}
-
-// PlayerInfo はプレイヤーのステータス情報
-type PlayerInfo struct {
-        Name      string `json:"name"`
-        HP        int    `json:"hp"`
-        Strength  int    `json:"strength"`
-        Sensation int    `json:"sensation"`
-        Dexterity int    `json:"dexterity"`
-        Agility   int    `json:"agility"`
-        Defense   int    `json:"defense"`
-}
-
-// WeaponInfo は武器の情報
-type WeaponInfo struct {
-        Name     string `json:"name"`
-        Damage   int    `json:"damage"`
-        Accuracy int    `json:"accuracy"`
-}
-
-// EnemyTableRun は1つの敵テーブルに対するシミュレーション結果
-type EnemyTableRun struct {
-        Name        string        `json:"name"`
-        MaxDepth    int           `json:"maxDepth"`
-        Trials      int           `json:"trials"`
-        MedianDepth int           `json:"medianDepth"`
-        DeathRate   float64       `json:"deathRate"`
-        Depths      []DepthStat   `json:"depths"`
-        TrialData   []TrialResult `json:"trialData,omitempty"`
-}
-
-// TrialResult は1試行の結果
-type TrialResult struct {
-        Index        int              `json:"index"`
-        ReachedDepth int              `json:"reachedDepth"`
-        Died         bool             `json:"died"`
-        Depths       []TrialDepthStat `json:"depths"`
-}
-
-// TrialDepthStat は1試行の1深度の情報
-type TrialDepthStat struct {
-        Depth        int    `json:"depth"`
-        HP           int    `json:"hp"`
-        HPBeforeHeal int    `json:"hpBeforeHeal"`
-        Weapon       string `json:"weapon"`
-        Hunger       int    `json:"hunger"`
-}
-
-// DepthStat は1深度の統計情報
-type DepthStat struct {
-        Depth              int     `json:"depth"`
-        MedianHP           int     `json:"medianHP"`
-        P5HP               int     `json:"p5HP"`
-        P95HP              int     `json:"p95HP"`
-        MedianHPBeforeHeal int     `json:"medianHPBeforeHeal"`
-        P5HPBeforeHeal     int     `json:"p5HPBeforeHeal"`
-        P95HPBeforeHeal    int     `json:"p95HPBeforeHeal"`
-        SuddenDeathRate    float64 `json:"suddenDeathRate"`
-        MedianWeaponDamage int     `json:"medianWeaponDamage"`
-        P5WeaponDamage     int     `json:"p5WeaponDamage"`
-        P95WeaponDamage    int     `json:"p95WeaponDamage"`
-        MedianKillTurns    int     `json:"medianKillTurns"`
-        P5KillTurns        int     `json:"p5KillTurns"`
-        P95KillTurns       int     `json:"p95KillTurns"`
-        MedianHunger       int     `json:"medianHunger"`
-        P5Hunger           int     `json:"p5Hunger"`
-        P95Hunger          int     `json:"p95Hunger"`
-        MedianDamage       int     `json:"medianDamage"`
-        MedianHealing      int     `json:"medianHealing"`
-}
-
-// GenerateReport はマスターデータからシミュレーションを実行し、レポートを生成する
-func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*Report, error) <span class="cov8" title="1">{
+// GenerateReport はマスターデータからシミュレーションを実行し、レポートを生成する。返す型は tsp 由来の
+// oapi.BalanceReport で、balance.json の形は oas/typespec/balance.tsp を単一ソースとする。
+func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*oapi.BalanceReport, error) <span class="cov8" title="1">{
         player, err := LoadCombatantFromMember(master, playerName)
         if err != nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("failed to load player: %w", err)
@@ -6784,33 +6677,38 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
                 return nil, fmt.Errorf("failed to load weapon: %w", err)
         }</span>
 
-        <span class="cov8" title="1">report := &amp;Report{
+        <span class="cov8" title="1">report := &amp;oapi.BalanceReport{
                 Mode: "simple",
-                Player: &amp;PlayerInfo{
+                Player: &amp;oapi.BalancePlayerInfo{
                         Name:      playerName,
-                        HP:        player.HP,
+                        Hp:        player.HP,
                         Strength:  player.Strength,
                         Sensation: player.Sensation,
                         Dexterity: player.Dexterity,
                         Agility:   player.Agility,
                         Defense:   player.Defense,
                 },
-                Weapon: &amp;WeaponInfo{
+                Weapon: &amp;oapi.BalanceWeaponInfo{
                         Name:     weaponName,
                         Damage:   weapon.Damage,
                         Accuracy: weapon.Accuracy,
                 },
+                // tsp で required の配列は空でも JSON を null でなく [] にする。nil スライスは null になり、UI の map が
+                // フォールバック無しで回せなくなるため、append する配列は空スライスで初期化して契約を守る。
+                EnemyTables: []oapi.BalanceEnemyTableRun{},
         }
 
         for _, table := range raw.PtrSlice(master.EnemyTables) </span><span class="cov8" title="1">{
                 stats := RunSimulations(master, table.Id, player, weapon, maxDepth, trials, seed)
 
-                run := EnemyTableRun{
+                run := oapi.BalanceEnemyTableRun{
                         Name:        table.Name,
                         MaxDepth:    maxDepth,
                         Trials:      trials,
                         MedianDepth: stats.MedianDepth(),
                         DeathRate:   stats.DeathRate(),
+                        Depths:      []oapi.BalanceDepthStat{},
+                        TrialData:   []oapi.BalanceTrialResult{},
                 }
 
                 for depth := 1; depth &lt;= maxDepth; depth++ </span><span class="cov8" title="1">{
@@ -6818,7 +6716,7 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
                         if len(hps) == 0 </span><span class="cov0" title="0">{
                                 break</span>
                         }
-                        <span class="cov8" title="1">run.Depths = append(run.Depths, DepthStat{
+                        <span class="cov8" title="1">run.Depths = append(run.Depths, oapi.BalanceDepthStat{
                                 Depth:              depth,
                                 MedianHP:           stats.MedianHP(depth),
                                 P5HP:               stats.P5HP(depth),
@@ -6842,18 +6740,19 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
                 }
 
                 <span class="cov8" title="1">for i, r := range stats.Results </span><span class="cov8" title="1">{
-                        trial := TrialResult{
+                        trial := oapi.BalanceTrialResult{
                                 Index:        i,
                                 ReachedDepth: r.ReachedDepth,
                                 Died:         r.Died,
+                                Depths:       []oapi.BalanceTrialDepthStat{},
                         }
                         for depth := 1; depth &lt;= r.ReachedDepth; depth++ </span><span class="cov8" title="1">{
-                                td := TrialDepthStat{Depth: depth}
+                                td := oapi.BalanceTrialDepthStat{Depth: depth}
                                 if hp, ok := r.HPByDepth[depth]; ok </span><span class="cov8" title="1">{
-                                        td.HP = hp
+                                        td.Hp = hp
                                 }</span>
                                 <span class="cov8" title="1">if hp, ok := r.HPBeforeHealByDepth[depth]; ok </span><span class="cov8" title="1">{
-                                        td.HPBeforeHeal = hp
+                                        td.HpBeforeHeal = hp
                                 }</span>
                                 <span class="cov8" title="1">if w, ok := r.WeaponByDepth[depth]; ok </span><span class="cov8" title="1">{
                                         td.Weapon = w
@@ -6870,7 +6769,11 @@ func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxD
         }
 
         // 武器×敵の戦闘メトリクスを生成する
-        <span class="cov8" title="1">report.BattleMetrics = generateBattleMetrics(master, playerName, seed)
+        <span class="cov8" title="1">metrics, err := generateBattleMetrics(master, playerName, seed)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">report.BattleMetrics = metrics
 
         // 施設種別ごとの loot 分布を生成する
         report.RoomLoot = GenerateRoomLoot(master, roomLootTrials, seed)
@@ -6884,10 +6787,10 @@ const roomLootTrials = 2000
 const battleMetricTrials = 500
 
 // generateBattleMetrics は全武器×全敵の組み合わせで戦闘シミュレーションを実行する
-func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []BattleMetric <span class="cov8" title="1">{
+func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) ([]oapi.BalanceBattleMetric, error) <span class="cov8" title="1">{
         player, err := LoadCombatantFromMember(master, playerName)
         if err != nil </span><span class="cov8" title="1">{
-                return nil
+                return nil, fmt.Errorf("failed to load player for battle metrics: %w", err)
         }</span>
 
         // 武器一覧を収集する
@@ -6914,7 +6817,8 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
                 }</span>
         }
 
-        <span class="cov8" title="1">var metrics []BattleMetric
+        // 空でも report.BattleMetrics を null でなく [] にするため空スライスで初期化する
+        <span class="cov8" title="1">metrics := []oapi.BalanceBattleMetric{}
         rng := rand.New(rand.NewPCG(seed, 0))
 
         for _, w := range weapons </span><span class="cov8" title="1">{
@@ -6931,24 +6835,18 @@ func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []B
                         <span class="cov8" title="1">results := RunBattles(player, enemyStats, w.stats, enemyWeapon, battleMetricTrials, rng)
                         bs := BattleStats{Results: results}
 
-                        metrics = append(metrics, BattleMetric{
+                        metrics = append(metrics, oapi.BalanceBattleMetric{
                                 Player:   playerName,
                                 Weapon:   w.name,
                                 Enemy:    enemyName,
-                                DPS:      bs.DPS(),
+                                Dps:      bs.DPS(),
                                 IsRanged: w.stats.IsRanged,
                         })</span>
                 }
         }
 
-        <span class="cov8" title="1">return metrics</span>
+        <span class="cov8" title="1">return metrics, nil</span>
 }
-
-// MarshalJSON はレポートをJSON形式にシリアライズする
-func (r *Report) MarshalJSON() ([]byte, error) <span class="cov8" title="1">{
-        type Alias Report
-        return json.MarshalIndent((*Alias)(r), "", "  ")
-}</span>
 </pre>
 		
 		<pre class="file" id="file30" style="display: none">package balance
@@ -7975,6 +7873,7 @@ func runPlay(_ context.Context, _ *cli.Command) error <span class="cov0" title="
 
 import (
         "context"
+        "encoding/json"
         "fmt"
         "os"
 
@@ -8008,7 +7907,7 @@ func runSimulateBalance(_ context.Context, _ *cli.Command) error <span class="co
                 return err
         }</span>
 
-        <span class="cov0" title="0">data, err := report.MarshalJSON()
+        <span class="cov0" title="0">data, err := json.MarshalIndent(report, "", "  ")
         if err != nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("failed to serialize JSON: %w", err)
         }</span>
@@ -25397,6 +25296,302 @@ type AttackCategory string
 // AttackCount 1ターンあたりの攻撃回数
 type AttackCount = int32
 
+// BalanceAbilityScore 能力値。プレイヤーのステータス
+type BalanceAbilityScore = int
+
+// BalanceAccuracy 命中率。0-100
+type BalanceAccuracy = int
+
+// BalanceBattleMetric 武器×敵の戦闘シミュレーション結果
+type BalanceBattleMetric struct {
+        // Dps 1秒あたりの推定ダメージ
+        Dps BalanceDPS `json:"dps"`
+
+        // Enemy 戦闘員名。プレイヤーや敵の raw id を指す
+        Enemy BalanceCombatantName `json:"enemy"`
+
+        // IsRanged 遠距離武器かどうか
+        IsRanged BalanceRangedFlag `json:"isRanged"`
+
+        // Player 戦闘員名。プレイヤーや敵の raw id を指す
+        Player BalanceCombatantName `json:"player"`
+
+        // Weapon 武器名。武器アイテムの raw id を指す
+        Weapon BalanceWeaponName `json:"weapon"`
+}
+
+// BalanceCombatantName 戦闘員名。プレイヤーや敵の raw id を指す
+type BalanceCombatantName = string
+
+// BalanceDPS 1秒あたりの推定ダメージ
+type BalanceDPS = float64
+
+// BalanceDamage ダメージ量
+type BalanceDamage = int
+
+// BalanceDeathFlag 死亡したかどうか
+type BalanceDeathFlag = bool
+
+// BalanceDepth 深度。地上を1とする階層
+type BalanceDepth = int
+
+// BalanceDepthStat 1深度の統計情報
+type BalanceDepthStat struct {
+        // Depth 深度。地上を1とする階層
+        Depth BalanceDepth `json:"depth"`
+
+        // MedianDamage ダメージ量
+        MedianDamage BalanceDamage `json:"medianDamage"`
+
+        // MedianHP HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+        MedianHP BalanceHP `json:"medianHP"`
+
+        // MedianHPBeforeHeal HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+        MedianHPBeforeHeal BalanceHP `json:"medianHPBeforeHeal"`
+
+        // MedianHealing 回復量
+        MedianHealing BalanceHealing `json:"medianHealing"`
+
+        // MedianHunger 空腹度
+        MedianHunger BalanceHunger `json:"medianHunger"`
+
+        // MedianKillTurns 撃破に要するターン数
+        MedianKillTurns BalanceKillTurns `json:"medianKillTurns"`
+
+        // MedianWeaponDamage ダメージ量
+        MedianWeaponDamage BalanceDamage `json:"medianWeaponDamage"`
+
+        // P5HP HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+        P5HP BalanceHP `json:"p5HP"`
+
+        // P5HPBeforeHeal HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+        P5HPBeforeHeal BalanceHP `json:"p5HPBeforeHeal"`
+
+        // P5Hunger 空腹度
+        P5Hunger BalanceHunger `json:"p5Hunger"`
+
+        // P5KillTurns 撃破に要するターン数
+        P5KillTurns BalanceKillTurns `json:"p5KillTurns"`
+
+        // P5WeaponDamage ダメージ量
+        P5WeaponDamage BalanceDamage `json:"p5WeaponDamage"`
+
+        // P95HP HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+        P95HP BalanceHP `json:"p95HP"`
+
+        // P95HPBeforeHeal HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+        P95HPBeforeHeal BalanceHP `json:"p95HPBeforeHeal"`
+
+        // P95Hunger 空腹度
+        P95Hunger BalanceHunger `json:"p95Hunger"`
+
+        // P95KillTurns 撃破に要するターン数
+        P95KillTurns BalanceKillTurns `json:"p95KillTurns"`
+
+        // P95WeaponDamage ダメージ量
+        P95WeaponDamage BalanceDamage `json:"p95WeaponDamage"`
+
+        // SuddenDeathRate 割合。0.0-1.0
+        SuddenDeathRate BalanceRate `json:"suddenDeathRate"`
+}
+
+// BalanceEnemyTableName 敵テーブル名
+type BalanceEnemyTableName = string
+
+// BalanceEnemyTableRun 1つの敵テーブルに対するシミュレーション結果
+type BalanceEnemyTableRun struct {
+        // DeathRate 割合。0.0-1.0
+        DeathRate BalanceRate `json:"deathRate"`
+
+        // Depths 深度ごとの統計
+        Depths []BalanceDepthStat `json:"depths"`
+
+        // MaxDepth 深度。地上を1とする階層
+        MaxDepth BalanceDepth `json:"maxDepth"`
+
+        // MedianDepth 深度。地上を1とする階層
+        MedianDepth BalanceDepth `json:"medianDepth"`
+
+        // Name 敵テーブル名
+        Name BalanceEnemyTableName `json:"name"`
+
+        // TrialData 試行ごとの生データ
+        TrialData []BalanceTrialResult `json:"trialData"`
+
+        // Trials 試行回数
+        Trials BalanceTrialCount `json:"trials"`
+}
+
+// BalanceExpectedCount 期待個数
+type BalanceExpectedCount = float64
+
+// BalanceFacilityId 施設種別 id
+type BalanceFacilityId = string
+
+// BalanceFacilityLoot 1施設種別の loot 分布
+type BalanceFacilityLoot struct {
+        // Facility 施設種別 id
+        Facility BalanceFacilityId `json:"facility"`
+
+        // Rooms 部屋役割ごとの loot
+        Rooms []BalanceRoomLoot `json:"rooms"`
+
+        // Trials 試行回数
+        Trials BalanceTrialCount `json:"trials"`
+}
+
+// BalanceHP HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+type BalanceHP = int
+
+// BalanceHealing 回復量
+type BalanceHealing = int
+
+// BalanceHunger 空腹度
+type BalanceHunger = int
+
+// BalanceItemName アイテム名。loot アイテムの raw id を指す
+type BalanceItemName = string
+
+// BalanceItemValue アイテムの売買価値
+type BalanceItemValue = int
+
+// BalanceKillTurns 撃破に要するターン数
+type BalanceKillTurns = int
+
+// BalanceLootItemStat 1アイテムの loot 統計
+type BalanceLootItemStat struct {
+        // ExpectedCount 1棟あたりの期待個数
+        ExpectedCount BalanceExpectedCount `json:"expectedCount"`
+
+        // Name アイテム名。loot アイテムの raw id を指す
+        Name BalanceItemName `json:"name"`
+
+        // Prob 1棟あたり1個以上出る確率
+        Prob BalanceRate `json:"prob"`
+
+        // Value 売買価値
+        Value BalanceItemValue `json:"value"`
+}
+
+// BalancePlayerInfo プレイヤーのステータス情報
+type BalancePlayerInfo struct {
+        // Agility 能力値。プレイヤーのステータス
+        Agility BalanceAbilityScore `json:"agility"`
+
+        // Defense 能力値。プレイヤーのステータス
+        Defense BalanceAbilityScore `json:"defense"`
+
+        // Dexterity 能力値。プレイヤーのステータス
+        Dexterity BalanceAbilityScore `json:"dexterity"`
+
+        // Hp HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+        Hp BalanceHP `json:"hp"`
+
+        // Name 戦闘員名。プレイヤーや敵の raw id を指す
+        Name BalanceCombatantName `json:"name"`
+
+        // Sensation 能力値。プレイヤーのステータス
+        Sensation BalanceAbilityScore `json:"sensation"`
+
+        // Strength 能力値。プレイヤーのステータス
+        Strength BalanceAbilityScore `json:"strength"`
+}
+
+// BalanceRangedFlag 遠距離武器かどうか
+type BalanceRangedFlag = bool
+
+// BalanceRate 割合。0.0-1.0
+type BalanceRate = float64
+
+// BalanceReport balance.json の最上位構造。シミュレーション結果全体を表す
+type BalanceReport struct {
+        // BattleMetrics 武器×敵の戦闘メトリクス
+        BattleMetrics []BalanceBattleMetric `json:"battleMetrics"`
+
+        // EnemyTables 敵テーブルごとのシミュレーション結果
+        EnemyTables []BalanceEnemyTableRun `json:"enemyTables"`
+
+        // Mode レポートの種別
+        Mode BalanceReportMode `json:"mode"`
+
+        // Player プレイヤーのステータス。生成しないモードでは省く
+        Player *BalancePlayerInfo `json:"player,omitempty"`
+
+        // RoomLoot 施設種別ごとの loot 分布
+        RoomLoot []BalanceFacilityLoot `json:"roomLoot"`
+
+        // Weapon 武器の情報。生成しないモードでは省く
+        Weapon *BalanceWeaponInfo `json:"weapon,omitempty"`
+}
+
+// BalanceReportMode レポートの種別
+type BalanceReportMode = string
+
+// BalanceRoomLoot 1部屋役割の loot 分布
+type BalanceRoomLoot struct {
+        // Items アイテムごとの統計
+        Items []BalanceLootItemStat `json:"items"`
+
+        // Role 部屋役割
+        Role BalanceRoomRole `json:"role"`
+}
+
+// BalanceRoomRole 部屋役割 id
+type BalanceRoomRole = string
+
+// BalanceTrialCount 試行回数
+type BalanceTrialCount = int
+
+// BalanceTrialDepthStat 1試行の1深度の情報
+type BalanceTrialDepthStat struct {
+        // Depth 深度。地上を1とする階層
+        Depth BalanceDepth `json:"depth"`
+
+        // Hp HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+        Hp BalanceHP `json:"hp"`
+
+        // HpBeforeHeal HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+        HpBeforeHeal BalanceHP `json:"hpBeforeHeal"`
+
+        // Hunger 空腹度
+        Hunger BalanceHunger `json:"hunger"`
+
+        // Weapon 武器名。武器アイテムの raw id を指す
+        Weapon BalanceWeaponName `json:"weapon"`
+}
+
+// BalanceTrialIndex 試行のインデックス。0始まり
+type BalanceTrialIndex = int
+
+// BalanceTrialResult 1試行の結果
+type BalanceTrialResult struct {
+        Depths []BalanceTrialDepthStat `json:"depths"`
+
+        // Died 死亡したかどうか
+        Died BalanceDeathFlag `json:"died"`
+
+        // Index 試行のインデックス。0始まり
+        Index BalanceTrialIndex `json:"index"`
+
+        // ReachedDepth 深度。地上を1とする階層
+        ReachedDepth BalanceDepth `json:"reachedDepth"`
+}
+
+// BalanceWeaponInfo 武器の情報
+type BalanceWeaponInfo struct {
+        // Accuracy 命中率。0-100
+        Accuracy BalanceAccuracy `json:"accuracy"`
+
+        // Damage ダメージ量
+        Damage BalanceDamage `json:"damage"`
+
+        // Name 武器名。武器アイテムの raw id を指す
+        Name BalanceWeaponName `json:"name"`
+}
+
+// BalanceWeaponName 武器名。武器アイテムの raw id を指す
+type BalanceWeaponName = string
+
 // BaseDamage 基本ダメージ
 type BaseDamage = int32
 
@@ -32829,217 +33024,242 @@ import (
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-        "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",
-        "s0fNJT+3Q9OHjg/9vwAAAP//",
+        "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",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
