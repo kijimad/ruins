@@ -589,10 +589,10 @@ func (w *Window) handleChoiceInput() error {
 
 // translateChoiceInput はキーボード入力を選択肢メニューのアクションに変換する
 func (w *Window) translateChoiceInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) {
 		return inputmapper.ActionMenuUp, true
 	}
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) {
 		return inputmapper.ActionMenuDown, true
 	}
 	if keyboardInput.IsEnterJustPressedOnce() {
