@@ -1,13 +1,8 @@
 namespace RuinsEditorApi.Balance;
 
-// ================== balance レポート ==================
-// simulate-balance が書き出す balance.json の構造を定義する。HTTP operation は持たず、モデルだけを
-// 両側へ生成する。Go は internal/balance が生成型を直接使い、editor-ui は生成 TS 型を import する。
-// 配信は静的 balance.json のままで、この namespace は保存ファイルの形だけを単一ソースとして固定する。
+// simulate-balance が書き出す balance.json の構造を定義する。
 
 // ================== スカラー型 ==================
-// フィールドはすべて名前付きスカラーとして定義し、モデルは参照だけを持つ。types.tsp と同じ規約に揃える。
-// 制約は実際のシミュレーション出力が必ず満たす範囲だけに付ける。計算値は範囲が読めないものを無制約にする。
 
 /** レポートの種別 */
 scalar ReportMode extends string;
