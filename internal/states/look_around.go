@@ -258,7 +258,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 
 	// 操作説明
 	y = panelY + panelHeight - 30
-	drawText(query.T(world, "WASD/Arrows: Move  X/Esc: Close"))
+	drawText(query.T(world, "Arrows: Move  X/Esc: Close"))
 
 	return nil
 }
