@@ -104,7 +104,7 @@ $ make help
 | draft | [OSS 調査 2026-08](docs/design/260801002222.md) | 0/5 | meta, worldgen, combat, ui |
 | draft | [コード監査: ダンジョン生成・リロード・セーブ 2026-08-03](docs/design/260803144226.md) | 5/5 | worldgen, combat, save, ecs |
 | draft | [天気システムを設計する](docs/design/260805144630.md) | 0/7 | gamedesign, worldgen, ecs |
-| draft | [コアデザイン: アイテム収集を軸にした survival collectathon](docs/design/260810222240.md) | 0/5（見送り1） | gamedesign, item, worldgen |
+| draft | [コアデザイン: アイテム収集を軸にした survival collectathon](docs/design/260810222240.md) | 0/4（見送り2） | gamedesign, item, worldgen |
 
 
 ## Reference
