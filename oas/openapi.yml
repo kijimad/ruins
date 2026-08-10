@@ -72,7 +72,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -103,7 +102,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -170,7 +168,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -201,7 +198,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -268,7 +264,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -299,7 +294,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -366,7 +360,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -397,7 +390,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -464,7 +456,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -495,7 +486,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -562,7 +552,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -587,7 +576,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -618,7 +606,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -685,7 +672,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -710,7 +696,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -741,7 +726,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -928,7 +912,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -959,7 +942,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1026,7 +1008,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1051,7 +1032,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1082,7 +1062,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1149,7 +1128,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1174,7 +1152,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1205,7 +1182,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1272,7 +1248,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1303,7 +1278,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1370,7 +1344,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1395,7 +1368,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '200':
           description: The request has succeeded.
@@ -1426,7 +1398,6 @@ paths:
           required: true
           schema:
             type: integer
-            format: int32
       responses:
         '204':
           description: 'There is no content to send for this request, but the headers may be useful. '
@@ -1465,25 +1436,21 @@ components:
       description: 能力値
     Accuracy:
       type: integer
-      format: int32
       minimum: 0
       maximum: 100
       description: 命中率。0で必中なし、100で必中
     AccuracyBonus:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 命中率補正値
     ActionCost:
       type: integer
-      format: int32
       minimum: 0
       maximum: 100
       description: 行動コスト
     Agility:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 敏捷性。行動順に影響する
@@ -1510,7 +1477,6 @@ components:
       description: 弾薬タグ
     ArmorDefense:
       type: integer
-      format: int32
       minimum: 0
       maximum: 999
       description: 防具の防御力
@@ -1527,7 +1493,6 @@ components:
       description: 攻撃種別
     AttackCount:
       type: integer
-      format: int32
       minimum: 1
       maximum: 10
       description: 1ターンあたりの攻撃回数
@@ -1903,7 +1868,6 @@ components:
       description: 武器名。武器アイテムの raw id を指す
     BaseDamage:
       type: integer
-      format: int32
       minimum: 0
       maximum: 9999
       description: 基本ダメージ
@@ -1973,7 +1937,6 @@ components:
             $ref: '#/components/schemas/CommandTable'
         totalCount:
           type: integer
-          format: int32
       description: コマンドテーブル一覧
     Consumable:
       type: object
@@ -1994,25 +1957,21 @@ components:
       description: 移動拠点キューブのコントロールパネルトリガー
     DamageBonus:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: ダメージ補正値
     Defense:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 防御力。被ダメージを軽減する
     DepthLevel:
       type: integer
-      format: int32
       minimum: 0
       maximum: 100
       description: 階層レベル
     Dexterity:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 器用さ。クリティカル率に影響する
@@ -2051,7 +2010,6 @@ components:
       description: 分解定義。これを持つ prop・item は対応工具で分解できる
     DisassemblyBaseAP:
       type: integer
-      format: int32
       minimum: 1
       maximum: 9999
       description: 分解の基礎工数。100が標準1ターンに相当する
@@ -2078,7 +2036,6 @@ components:
       description: 分解のボーナス産出。minSkill か minGrade の少なくとも一方を指定する。両方指定した場合は両方を満たす必要がある
     DisassemblyChance:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: 分解産出の確率。百分率
@@ -2153,7 +2110,6 @@ components:
             $ref: '#/components/schemas/DropTable'
         totalCount:
           type: integer
-          format: int32
       description: ドロップテーブル一覧
     Element:
       type: string
@@ -2214,7 +2170,6 @@ components:
             $ref: '#/components/schemas/EnemyTable'
         totalCount:
           type: integer
-          format: int32
       description: 敵テーブル一覧
     EntityDescription:
       type: string
@@ -2342,7 +2297,6 @@ components:
       description: 植生タイプ
     HealAmount:
       type: integer
-      format: int32
       minimum: 0
       maximum: 9999
       description: 回復固定量
@@ -2361,7 +2315,6 @@ components:
       description: 回復量の計算方式
     HitPoints:
       type: integer
-      format: int32
       minimum: 1
       maximum: 9999
       description: 耐久値。設定すると破壊可能になる
@@ -2373,13 +2326,11 @@ components:
       description: 画像ファイルパス
     InsulationCold:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 耐寒性能
     InsulationHeat:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 耐暑性能
@@ -2450,7 +2401,6 @@ components:
       description: アイテム
     ItemCount:
       type: integer
-      format: int32
       minimum: 1
       maximum: 9999
       description: アイテム所持数
@@ -2503,7 +2453,6 @@ components:
             $ref: '#/components/schemas/ItemGroup'
         totalCount:
           type: integer
-          format: int32
       description: アイテムグループ一覧
     ItemGroupSubtype:
       type: string
@@ -2523,7 +2472,6 @@ components:
             $ref: '#/components/schemas/Item'
         totalCount:
           type: integer
-          format: int32
       description: アイテム一覧レスポンス
     ItemTable:
       type: object
@@ -2572,11 +2520,9 @@ components:
             $ref: '#/components/schemas/ItemTable'
         totalCount:
           type: integer
-          format: int32
       description: アイテムテーブル一覧
     ItemValue:
       type: integer
-      format: int32
       minimum: 0
       maximum: 99999
       description: 売買価格
@@ -2585,7 +2531,6 @@ components:
       description: 光源が有効かどうか
     LightRadius:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: 光の到達半径（タイル単位）
@@ -2605,13 +2550,11 @@ components:
       description: 光源設定
     MagazineSize:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: マガジン容量
     MaterialAmount:
       type: integer
-      format: int32
       minimum: 1
       maximum: 99
       description: 素材必要数
@@ -2705,7 +2648,6 @@ components:
             $ref: '#/components/schemas/Member'
         totalCount:
           type: integer
-          format: int32
       description: メンバー一覧レスポンス
     MessageKey:
       type: string
@@ -2726,7 +2668,6 @@ components:
       description: 非戦闘時の移動パターン
     NutritionAmount:
       type: integer
-      format: int32
       minimum: 0
       maximum: 9999
       description: 栄養価
@@ -2785,11 +2726,9 @@ components:
             $ref: '#/components/schemas/Palette'
         totalCount:
           type: integer
-          format: int32
       description: パレット一覧
     PassCost:
       type: integer
-      format: int32
       minimum: 0
       maximum: 9999
       description: 通行コスト加算値。0で変化なし、50でベースコスト+50
@@ -2864,7 +2803,6 @@ components:
             $ref: '#/components/schemas/Profession'
         totalCount:
           type: integer
-          format: int32
       description: 職業一覧
     ProfessionSkill:
       type: object
@@ -2936,7 +2874,6 @@ components:
             $ref: '#/components/schemas/Prop'
         totalCount:
           type: integer
-          format: int32
       description: 置物一覧
     ProvidesHealing:
       type: object
@@ -3023,7 +2960,6 @@ components:
       description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
-      format: int32
       minimum: 1
       maximum: 9999
       description: 読了に必要な総読書量
@@ -3066,11 +3002,9 @@ components:
             $ref: '#/components/schemas/Recipe'
         totalCount:
           type: integer
-          format: int32
       description: レシピ一覧レスポンス
     ReloadEffort:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: リロードに必要な行動力
@@ -3099,19 +3033,15 @@ components:
       description: 能力値
     SaveData.AbilityBase:
       type: integer
-      format: int32
       description: 能力値の基本値
     SaveData.AbilityBonus:
       type: integer
-      format: int32
       description: 能力値ボーナス
     SaveData.AbilityModifier:
       type: integer
-      format: int32
       description: 能力値の装備・状態変化による修正値
     SaveData.AbilityTotal:
       type: integer
-      format: int32
       description: 能力値の算出された現在値
     SaveData.AbilityValue:
       type: object
@@ -3393,12 +3323,10 @@ components:
       description: 消費可能アイテム設定
     SaveData.Currency:
       type: integer
-      format: int32
       minimum: 0
       description: 所持金
     SaveData.DamageAmount:
       type: integer
-      format: int32
       minimum: 0
       description: ダメージ量
     SaveData.DescriptionComponent:
@@ -3462,7 +3390,6 @@ components:
       description: 装備ボーナス
     SaveData.EquipmentSlotNumber:
       type: integer
-      format: int32
       minimum: 0
       description: 装備スロット番号
     SaveData.EventState:
@@ -3586,7 +3513,6 @@ components:
       description: 生命力。最大値と現在値を持つ
     SaveData.HealNumeral:
       type: integer
-      format: int32
       minimum: 0
       description: 固定回復量
     SaveData.HealingAmountData:
@@ -3625,7 +3551,6 @@ components:
           description: 状態の種類
         Severity:
           type: integer
-          format: int32
           description: 重症度
         Timer:
           type: number
@@ -3681,7 +3606,6 @@ components:
       description: アイテム回収ポリシー
     SaveData.LightRadius:
       type: integer
-      format: int32
       minimum: 0
       description: 光源の到達半径 (タイル単位)。無効時は0を許容する
     SaveData.LightSourceComponent:
@@ -3735,7 +3659,6 @@ components:
         Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
     SaveData.Magazine:
       type: integer
-      format: int32
       minimum: 0
       description: 現在の装弾数
     SaveData.MarkerComponent:
@@ -3808,7 +3731,6 @@ components:
       description: 行動計画の種別
     SaveData.PoolCurrent:
       type: integer
-      format: int32
       description: プール現在値 (整数)
     SaveData.PoolFloatCurrent:
       type: number
@@ -3820,7 +3742,6 @@ components:
       description: プール最大値 (浮動小数点)
     SaveData.PoolMax:
       type: integer
-      format: int32
       description: プール最大値 (整数)
     SaveData.ProvidesHealingComponent:
       type: object
@@ -3911,15 +3832,12 @@ components:
       properties:
         Value:
           type: integer
-          format: int32
           description: スキル値
         ExpMax:
           type: integer
-          format: int32
           description: 経験値の最大値
         ExpCurrent:
           type: integer
-          format: int32
           description: 蓄積経験値
       description: 個別スキルの状態
     SaveData.SkillsComponent:
@@ -3935,12 +3853,10 @@ components:
       description: スキルセット
     SaveData.Speed:
       type: integer
-      format: int32
       minimum: 0
       description: APの毎ターン回復量
     SaveData.SpriteDepth:
       type: integer
-      format: int32
       description: スプライト描画深度
     SaveData.SpriteKey:
       type: string
@@ -4036,7 +3952,6 @@ components:
           description: 影響を受けるステータスの種類
         Value:
           type: integer
-          format: int32
           description: 修正値
       description: ステータスへの影響
     SaveData.TargetTypeData:
@@ -4052,7 +3967,6 @@ components:
       description: 対象指定
     SaveData.TileCoord:
       type: integer
-      format: int32
       description: タイル座標
     SaveData.TurnBasedComponent:
       type: object
@@ -4143,7 +4057,6 @@ components:
       description: ワールド全体のセーブデータ。プレイヤーと所持品のみを保存する
     Sensation:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 感覚。命中率と回避率に影響する
@@ -4176,7 +4089,6 @@ components:
       description: スキルID
     SkillLevel:
       type: integer
-      format: int32
       minimum: 0
       maximum: 100
       description: スキルレベル
@@ -4231,7 +4143,6 @@ components:
             $ref: '#/components/schemas/SpriteSheet'
         totalCount:
           type: integer
-          format: int32
       description: スプライトシート一覧
     SpriteSheetName:
       type: string
@@ -4262,7 +4173,6 @@ components:
       description: 収納ローデータ
     Strength:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 筋力。物理ダメージに影響する
@@ -4324,7 +4234,6 @@ components:
             $ref: '#/components/schemas/Tile'
         totalCount:
           type: integer
-          format: int32
       description: タイル一覧
     ToolCategory:
       type: string
@@ -4335,7 +4244,6 @@ components:
       description: 分解工具の分類
     ToolGrade:
       type: integer
-      format: int32
       minimum: 1
       maximum: 3
       description: 分解工具のグレード。高いほど速く多く得る
@@ -4348,13 +4256,11 @@ components:
       description: 使用可能シーン
     ViewDistance:
       type: integer
-      format: int32
       minimum: 1
       maximum: 100
       description: AI視界距離（タイル単位）
     Vitality:
       type: integer
-      format: int32
       minimum: -100
       maximum: 100
       description: 体力。HPに影響する
