@@ -26,76 +26,12 @@ import {
   Bar,
   ReferenceLine,
 } from "recharts";
-
-interface DepthStat {
-  depth: number;
-  medianHP: number;
-  p5HP: number;
-  p95HP: number;
-  medianHPBeforeHeal: number;
-  p5HPBeforeHeal: number;
-  p95HPBeforeHeal: number;
-  suddenDeathRate: number;
-  medianWeaponDamage: number;
-  p5WeaponDamage: number;
-  p95WeaponDamage: number;
-  medianKillTurns: number;
-  p5KillTurns: number;
-  p95KillTurns: number;
-  medianHunger: number;
-  p5Hunger: number;
-  p95Hunger: number;
-  medianDamage: number;
-  medianHealing: number;
-}
-
-interface TrialDepthStat {
-  depth: number;
-  hp: number;
-  hpBeforeHeal: number;
-  weapon: string;
-  hunger: number;
-}
-
-interface TrialResult {
-  index: number;
-  reachedDepth: number;
-  died: boolean;
-  depths: TrialDepthStat[];
-}
-
-interface EnemyTableRun {
-  name: string;
-  maxDepth: number;
-  trials: number;
-  medianDepth: number;
-  deathRate: number;
-  depths: DepthStat[];
-  trialData?: TrialResult[];
-}
-
-interface PlayerInfo {
-  name: string;
-  hp: number;
-  strength: number;
-  sensation: number;
-  dexterity: number;
-  agility: number;
-  defense: number;
-}
-
-interface WeaponInfo {
-  name: string;
-  damage: number;
-  accuracy: number;
-}
-
-interface BalanceData {
-  mode: string;
-  player?: PlayerInfo;
-  weapon?: WeaponInfo;
-  enemyTables?: EnemyTableRun[];
-}
+import type {
+  BalanceReport as BalanceData,
+  BalanceEnemyTableRun as EnemyTableRun,
+  BalancePlayerInfo as PlayerInfo,
+  BalanceWeaponInfo as WeaponInfo,
+} from "../generated";
 
 const COLORS = [
   "#8884d8",
