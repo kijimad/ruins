@@ -103,8 +103,17 @@ export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
  * 武器×敵の戦闘シミュレーション結果
  */
 export interface BalanceBattleMetric {
+    /**
+     * 戦闘員名。プレイヤーや敵の raw id を指す
+     */
     'player': string;
+    /**
+     * 武器名。武器アイテムの raw id を指す
+     */
     'weapon': string;
+    /**
+     * 戦闘員名。プレイヤーや敵の raw id を指す
+     */
     'enemy': string;
     /**
      * 1秒あたりの推定ダメージ
@@ -119,39 +128,105 @@ export interface BalanceBattleMetric {
  * 1深度の統計情報
  */
 export interface BalanceDepthStat {
+    /**
+     * 深度。地上を1とする階層
+     */
     'depth': number;
+    /**
+     * HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+     */
     'medianHP': number;
+    /**
+     * HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+     */
     'p5HP': number;
+    /**
+     * HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+     */
     'p95HP': number;
+    /**
+     * HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+     */
     'medianHPBeforeHeal': number;
+    /**
+     * HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+     */
     'p5HPBeforeHeal': number;
+    /**
+     * HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+     */
     'p95HPBeforeHeal': number;
     /**
-     * 突然死率
+     * 割合。0.0-1.0
      */
     'suddenDeathRate': number;
+    /**
+     * ダメージ量
+     */
     'medianWeaponDamage': number;
+    /**
+     * ダメージ量
+     */
     'p5WeaponDamage': number;
+    /**
+     * ダメージ量
+     */
     'p95WeaponDamage': number;
+    /**
+     * 撃破に要するターン数
+     */
     'medianKillTurns': number;
+    /**
+     * 撃破に要するターン数
+     */
     'p5KillTurns': number;
+    /**
+     * 撃破に要するターン数
+     */
     'p95KillTurns': number;
+    /**
+     * 空腹度
+     */
     'medianHunger': number;
+    /**
+     * 空腹度
+     */
     'p5Hunger': number;
+    /**
+     * 空腹度
+     */
     'p95Hunger': number;
+    /**
+     * ダメージ量
+     */
     'medianDamage': number;
+    /**
+     * 回復量
+     */
     'medianHealing': number;
 }
 /**
  * 1つの敵テーブルに対するシミュレーション結果
  */
 export interface BalanceEnemyTableRun {
+    /**
+     * 敵テーブル名
+     */
     'name': string;
+    /**
+     * 深度。地上を1とする階層
+     */
     'maxDepth': number;
+    /**
+     * 試行回数
+     */
     'trials': number;
+    /**
+     * 深度。地上を1とする階層
+     */
     'medianDepth': number;
     /**
-     * 死亡率
+     * 割合。0.0-1.0
      */
     'deathRate': number;
     /**
@@ -167,7 +242,13 @@ export interface BalanceEnemyTableRun {
  * 1施設種別の loot 分布
  */
 export interface BalanceFacilityLoot {
+    /**
+     * 施設種別 id
+     */
     'facility': string;
+    /**
+     * 試行回数
+     */
     'trials': number;
     /**
      * 部屋役割ごとの loot
@@ -178,13 +259,16 @@ export interface BalanceFacilityLoot {
  * 1アイテムの loot 統計
  */
 export interface BalanceLootItemStat {
+    /**
+     * アイテム名。loot アイテムの raw id を指す
+     */
     'name': string;
     /**
-     * 出現確率
+     * 1棟あたり1個以上出る確率
      */
     'prob': number;
     /**
-     * 期待個数
+     * 1棟あたりの期待個数
      */
     'expectedCount': number;
     /**
@@ -196,12 +280,33 @@ export interface BalanceLootItemStat {
  * プレイヤーのステータス情報
  */
 export interface BalancePlayerInfo {
+    /**
+     * 戦闘員名。プレイヤーや敵の raw id を指す
+     */
     'name': string;
+    /**
+     * HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+     */
     'hp': number;
+    /**
+     * 能力値。プレイヤーのステータス
+     */
     'strength': number;
+    /**
+     * 能力値。プレイヤーのステータス
+     */
     'sensation': number;
+    /**
+     * 能力値。プレイヤーのステータス
+     */
     'dexterity': number;
+    /**
+     * 能力値。プレイヤーのステータス
+     */
     'agility': number;
+    /**
+     * 能力値。プレイヤーのステータス
+     */
     'defense': number;
 }
 /**
@@ -250,18 +355,42 @@ export interface BalanceRoomLoot {
  * 1試行の1深度の情報
  */
 export interface BalanceTrialDepthStat {
+    /**
+     * 深度。地上を1とする階層
+     */
     'depth': number;
+    /**
+     * HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+     */
     'hp': number;
+    /**
+     * HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+     */
     'hpBeforeHeal': number;
+    /**
+     * 武器名。武器アイテムの raw id を指す
+     */
     'weapon': string;
+    /**
+     * 空腹度
+     */
     'hunger': number;
 }
 /**
  * 1試行の結果
  */
 export interface BalanceTrialResult {
+    /**
+     * 試行のインデックス。0始まり
+     */
     'index': number;
+    /**
+     * 深度。地上を1とする階層
+     */
     'reachedDepth': number;
+    /**
+     * 死亡したかどうか
+     */
     'died': boolean;
     'depths': Array<BalanceTrialDepthStat>;
 }
@@ -269,8 +398,17 @@ export interface BalanceTrialResult {
  * 武器の情報
  */
 export interface BalanceWeaponInfo {
+    /**
+     * 武器名。武器アイテムの raw id を指す
+     */
     'name': string;
+    /**
+     * ダメージ量
+     */
     'damage': number;
+    /**
+     * 命中率。0-100
+     */
     'accuracy': number;
 }
 /**

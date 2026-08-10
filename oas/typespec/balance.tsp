@@ -5,10 +5,98 @@ namespace RuinsEditorApi.Balance;
 // 両側へ生成する。Go は internal/balance が生成型を直接使い、editor-ui は生成 TS 型を import する。
 // 配信は静的 balance.json のままで、この namespace は保存ファイルの形だけを単一ソースとして固定する。
 
+// ================== スカラー型 ==================
+// フィールドはすべて名前付きスカラーとして定義し、モデルは参照だけを持つ。types.tsp と同じ規約に揃える。
+// 制約は実際のシミュレーション出力が必ず満たす範囲だけに付ける。計算値は範囲が読めないものを無制約にする。
+
+/** レポートの種別 */
+scalar ReportMode extends string;
+
+/** 戦闘員名。プレイヤーや敵の raw id を指す */
+scalar CombatantName extends string;
+
+/** 武器名。武器アイテムの raw id を指す */
+scalar WeaponName extends string;
+
+/** 敵テーブル名 */
+scalar EnemyTableName extends string;
+
+/** 施設種別 id */
+scalar FacilityId extends string;
+
+/** 部屋役割 id */
+scalar RoomRole extends string;
+
+/** アイテム名。loot アイテムの raw id を指す */
+scalar ItemName extends string;
+
+/** 能力値。プレイヤーのステータス */
+scalar AbilityScore extends int32;
+
+/** HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする */
+scalar HP extends int32;
+
+/** ダメージ量 */
+@minValue(0)
+scalar Damage extends int32;
+
+/** 命中率。0-100 */
+@minValue(0)
+@maxValue(100)
+scalar Accuracy extends int32;
+
+/** 深度。地上を1とする階層 */
+@minValue(0)
+scalar Depth extends int32;
+
+/** 撃破に要するターン数 */
+@minValue(0)
+scalar KillTurns extends int32;
+
+/** 空腹度 */
+scalar Hunger extends int32;
+
+/** 回復量 */
+@minValue(0)
+scalar Healing extends int32;
+
+/** 試行回数 */
+@minValue(0)
+scalar TrialCount extends int32;
+
+/** 試行のインデックス。0始まり */
+@minValue(0)
+scalar TrialIndex extends int32;
+
+/** アイテムの売買価値 */
+@minValue(0)
+scalar ItemValue extends int32;
+
+/** 割合。0.0-1.0 */
+@minValue(0)
+@maxValue(1)
+scalar Rate extends float64;
+
+/** 1秒あたりの推定ダメージ */
+@minValue(0)
+scalar DPS extends float64;
+
+/** 期待個数 */
+@minValue(0)
+scalar ExpectedCount extends float64;
+
+/** 遠距離武器かどうか */
+scalar RangedFlag extends boolean;
+
+/** 死亡したかどうか */
+scalar DeathFlag extends boolean;
+
+// ================== モデル ==================
+
 /** balance.json の最上位構造。シミュレーション結果全体を表す */
 model Report {
   /** レポートの種別 */
-  mode: string;
+  mode: ReportMode;
 
   /** プレイヤーのステータス。生成しないモードでは省く */
   player?: PlayerInfo;
@@ -28,44 +116,38 @@ model Report {
 
 /** プレイヤーのステータス情報 */
 model PlayerInfo {
-  name: string;
-  hp: int32;
-  strength: int32;
-  sensation: int32;
-  dexterity: int32;
-  agility: int32;
-  defense: int32;
+  name: CombatantName;
+  hp: HP;
+  strength: AbilityScore;
+  sensation: AbilityScore;
+  dexterity: AbilityScore;
+  agility: AbilityScore;
+  defense: AbilityScore;
 }
 
 /** 武器の情報 */
 model WeaponInfo {
-  name: string;
-  damage: int32;
-  accuracy: int32;
+  name: WeaponName;
+  damage: Damage;
+  accuracy: Accuracy;
 }
 
 /** 武器×敵の戦闘シミュレーション結果 */
 model BattleMetric {
-  player: string;
-  weapon: string;
-  enemy: string;
-
-  /** 1秒あたりの推定ダメージ */
-  dps: float64;
-
-  /** 遠距離武器かどうか */
-  isRanged: boolean;
+  player: CombatantName;
+  weapon: WeaponName;
+  enemy: CombatantName;
+  dps: DPS;
+  isRanged: RangedFlag;
 }
 
 /** 1つの敵テーブルに対するシミュレーション結果 */
 model EnemyTableRun {
-  name: string;
-  maxDepth: int32;
-  trials: int32;
-  medianDepth: int32;
-
-  /** 死亡率 */
-  deathRate: float64;
+  name: EnemyTableName;
+  maxDepth: Depth;
+  trials: TrialCount;
+  medianDepth: Depth;
+  deathRate: Rate;
 
   /** 深度ごとの統計 */
   depths: DepthStat[];
@@ -76,51 +158,48 @@ model EnemyTableRun {
 
 /** 1試行の結果 */
 model TrialResult {
-  index: int32;
-  reachedDepth: int32;
-  died: boolean;
+  index: TrialIndex;
+  reachedDepth: Depth;
+  died: DeathFlag;
   depths: TrialDepthStat[];
 }
 
 /** 1試行の1深度の情報 */
 model TrialDepthStat {
-  depth: int32;
-  hp: int32;
-  hpBeforeHeal: int32;
-  weapon: string;
-  hunger: int32;
+  depth: Depth;
+  hp: HP;
+  hpBeforeHeal: HP;
+  weapon: WeaponName;
+  hunger: Hunger;
 }
 
 /** 1深度の統計情報 */
 model DepthStat {
-  depth: int32;
-  medianHP: int32;
-  p5HP: int32;
-  p95HP: int32;
-  medianHPBeforeHeal: int32;
-  p5HPBeforeHeal: int32;
-  p95HPBeforeHeal: int32;
-
-  /** 突然死率 */
-  suddenDeathRate: float64;
-
-  medianWeaponDamage: int32;
-  p5WeaponDamage: int32;
-  p95WeaponDamage: int32;
-  medianKillTurns: int32;
-  p5KillTurns: int32;
-  p95KillTurns: int32;
-  medianHunger: int32;
-  p5Hunger: int32;
-  p95Hunger: int32;
-  medianDamage: int32;
-  medianHealing: int32;
+  depth: Depth;
+  medianHP: HP;
+  p5HP: HP;
+  p95HP: HP;
+  medianHPBeforeHeal: HP;
+  p5HPBeforeHeal: HP;
+  p95HPBeforeHeal: HP;
+  suddenDeathRate: Rate;
+  medianWeaponDamage: Damage;
+  p5WeaponDamage: Damage;
+  p95WeaponDamage: Damage;
+  medianKillTurns: KillTurns;
+  p5KillTurns: KillTurns;
+  p95KillTurns: KillTurns;
+  medianHunger: Hunger;
+  p5Hunger: Hunger;
+  p95Hunger: Hunger;
+  medianDamage: Damage;
+  medianHealing: Healing;
 }
 
 /** 1施設種別の loot 分布 */
 model FacilityLoot {
-  facility: string;
-  trials: int32;
+  facility: FacilityId;
+  trials: TrialCount;
 
   /** 部屋役割ごとの loot */
   rooms: RoomLoot[];
@@ -129,7 +208,7 @@ model FacilityLoot {
 /** 1部屋役割の loot 分布 */
 model RoomLoot {
   /** 部屋役割 */
-  role: string;
+  role: RoomRole;
 
   /** アイテムごとの統計 */
   items: LootItemStat[];
@@ -137,14 +216,14 @@ model RoomLoot {
 
 /** 1アイテムの loot 統計 */
 model LootItemStat {
-  name: string;
+  name: ItemName;
 
-  /** 出現確率 */
-  prob: float64;
+  /** 1棟あたり1個以上出る確率 */
+  prob: Rate;
 
-  /** 期待個数 */
-  expectedCount: float64;
+  /** 1棟あたりの期待個数 */
+  expectedCount: ExpectedCount;
 
   /** 売買価値 */
-  value: int32;
+  value: ItemValue;
 }

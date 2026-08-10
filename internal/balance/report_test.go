@@ -74,6 +74,28 @@ func TestGenerateBattleMetrics_武器と敵の組み合わせでDPSを算出す�
 	}
 }
 
+func TestGenerateReport_OpenAPIスキーマに適合する(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+
+	report, err := GenerateReport(master, "ash", "bare_hands", 3, 5, 42)
+	require.NoError(t, err)
+
+	// 生成したレポートを tsp 由来の Balance.Report スキーマで検証する。raw の ValidateRaws と同じ手法で、
+	// 生成型と埋め込みスペックの同期ズレや、balance.tsp に足した制約への違反を回帰で捕まえる。
+	spec, err := oapi.GetSpec()
+	require.NoError(t, err)
+	schemaRef, ok := spec.Components.Schemas["Balance.Report"]
+	require.True(t, ok, "Balance.Report コンポーネントがスキーマにある")
+
+	jsonBytes, err := json.Marshal(report)
+	require.NoError(t, err)
+	var jsonData any
+	require.NoError(t, json.Unmarshal(jsonBytes, &jsonData))
+
+	require.NoError(t, schemaRef.Value.VisitJSON(jsonData), "生成した balance レポートが OpenAPI スキーマに適合する")
+}
+
 func TestBalanceReport_nilのweaponはJSONで省略される(t *testing.T) {
 	t.Parallel()
 

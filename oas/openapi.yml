@@ -1531,6 +1531,16 @@ components:
       minimum: 1
       maximum: 10
       description: 1ターンあたりの攻撃回数
+    Balance.AbilityScore:
+      type: integer
+      format: int32
+      description: 能力値。プレイヤーのステータス
+    Balance.Accuracy:
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 100
+      description: 命中率。0-100
     Balance.BattleMetric:
       type: object
       required:
@@ -1541,19 +1551,37 @@ components:
         - isRanged
       properties:
         player:
-          type: string
+          $ref: '#/components/schemas/Balance.CombatantName'
         weapon:
-          type: string
+          $ref: '#/components/schemas/Balance.WeaponName'
         enemy:
-          type: string
+          $ref: '#/components/schemas/Balance.CombatantName'
         dps:
-          type: number
-          format: double
-          description: 1秒あたりの推定ダメージ
+          $ref: '#/components/schemas/Balance.DPS'
         isRanged:
-          type: boolean
-          description: 遠距離武器かどうか
+          $ref: '#/components/schemas/Balance.RangedFlag'
       description: 武器×敵の戦闘シミュレーション結果
+    Balance.CombatantName:
+      type: string
+      description: 戦闘員名。プレイヤーや敵の raw id を指す
+    Balance.DPS:
+      type: number
+      format: double
+      minimum: 0
+      description: 1秒あたりの推定ダメージ
+    Balance.Damage:
+      type: integer
+      format: int32
+      minimum: 0
+      description: ダメージ量
+    Balance.DeathFlag:
+      type: boolean
+      description: 死亡したかどうか
+    Balance.Depth:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 深度。地上を1とする階層
     Balance.DepthStat:
       type: object
       required:
@@ -1578,64 +1606,47 @@ components:
         - medianHealing
       properties:
         depth:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Depth'
         medianHP:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.HP'
         p5HP:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.HP'
         p95HP:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.HP'
         medianHPBeforeHeal:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.HP'
         p5HPBeforeHeal:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.HP'
         p95HPBeforeHeal:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.HP'
         suddenDeathRate:
-          type: number
-          format: double
-          description: 突然死率
+          $ref: '#/components/schemas/Balance.Rate'
         medianWeaponDamage:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Damage'
         p5WeaponDamage:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Damage'
         p95WeaponDamage:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Damage'
         medianKillTurns:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.KillTurns'
         p5KillTurns:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.KillTurns'
         p95KillTurns:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.KillTurns'
         medianHunger:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Hunger'
         p5Hunger:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Hunger'
         p95Hunger:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Hunger'
         medianDamage:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Damage'
         medianHealing:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Healing'
       description: 1深度の統計情報
+    Balance.EnemyTableName:
+      type: string
+      description: 敵テーブル名
     Balance.EnemyTableRun:
       type: object
       required:
@@ -1648,20 +1659,15 @@ components:
         - trialData
       properties:
         name:
-          type: string
+          $ref: '#/components/schemas/Balance.EnemyTableName'
         maxDepth:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Depth'
         trials:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.TrialCount'
         medianDepth:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Depth'
         deathRate:
-          type: number
-          format: double
-          description: 死亡率
+          $ref: '#/components/schemas/Balance.Rate'
         depths:
           type: array
           items:
@@ -1673,6 +1679,14 @@ components:
             $ref: '#/components/schemas/Balance.TrialResult'
           description: 試行ごとの生データ
       description: 1つの敵テーブルに対するシミュレーション結果
+    Balance.ExpectedCount:
+      type: number
+      format: double
+      minimum: 0
+      description: 期待個数
+    Balance.FacilityId:
+      type: string
+      description: 施設種別 id
     Balance.FacilityLoot:
       type: object
       required:
@@ -1681,16 +1695,41 @@ components:
         - rooms
       properties:
         facility:
-          type: string
+          $ref: '#/components/schemas/Balance.FacilityId'
         trials:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.TrialCount'
         rooms:
           type: array
           items:
             $ref: '#/components/schemas/Balance.RoomLoot'
           description: 部屋役割ごとの loot
       description: 1施設種別の loot 分布
+    Balance.HP:
+      type: integer
+      format: int32
+      description: HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+    Balance.Healing:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 回復量
+    Balance.Hunger:
+      type: integer
+      format: int32
+      description: 空腹度
+    Balance.ItemName:
+      type: string
+      description: アイテム名。loot アイテムの raw id を指す
+    Balance.ItemValue:
+      type: integer
+      format: int32
+      minimum: 0
+      description: アイテムの売買価値
+    Balance.KillTurns:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 撃破に要するターン数
     Balance.LootItemStat:
       type: object
       required:
@@ -1700,18 +1739,18 @@ components:
         - value
       properties:
         name:
-          type: string
+          $ref: '#/components/schemas/Balance.ItemName'
         prob:
-          type: number
-          format: double
-          description: 出現確率
+          allOf:
+            - $ref: '#/components/schemas/Balance.Rate'
+          description: 1棟あたり1個以上出る確率
         expectedCount:
-          type: number
-          format: double
-          description: 期待個数
+          allOf:
+            - $ref: '#/components/schemas/Balance.ExpectedCount'
+          description: 1棟あたりの期待個数
         value:
-          type: integer
-          format: int32
+          allOf:
+            - $ref: '#/components/schemas/Balance.ItemValue'
           description: 売買価値
       description: 1アイテムの loot 統計
     Balance.PlayerInfo:
@@ -1726,26 +1765,29 @@ components:
         - defense
       properties:
         name:
-          type: string
+          $ref: '#/components/schemas/Balance.CombatantName'
         hp:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.HP'
         strength:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.AbilityScore'
         sensation:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.AbilityScore'
         dexterity:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.AbilityScore'
         agility:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.AbilityScore'
         defense:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.AbilityScore'
       description: プレイヤーのステータス情報
+    Balance.RangedFlag:
+      type: boolean
+      description: 遠距離武器かどうか
+    Balance.Rate:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1
+      description: 割合。0.0-1.0
     Balance.Report:
       type: object
       required:
@@ -1755,7 +1797,8 @@ components:
         - roomLoot
       properties:
         mode:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/Balance.ReportMode'
           description: レポートの種別
         player:
           allOf:
@@ -1781,6 +1824,9 @@ components:
             $ref: '#/components/schemas/Balance.FacilityLoot'
           description: 施設種別ごとの loot 分布
       description: balance.json の最上位構造。シミュレーション結果全体を表す
+    Balance.ReportMode:
+      type: string
+      description: レポートの種別
     Balance.RoomLoot:
       type: object
       required:
@@ -1788,7 +1834,8 @@ components:
         - items
       properties:
         role:
-          type: string
+          allOf:
+            - $ref: '#/components/schemas/Balance.RoomRole'
           description: 部屋役割
         items:
           type: array
@@ -1796,6 +1843,14 @@ components:
             $ref: '#/components/schemas/Balance.LootItemStat'
           description: アイテムごとの統計
       description: 1部屋役割の loot 分布
+    Balance.RoomRole:
+      type: string
+      description: 部屋役割 id
+    Balance.TrialCount:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 試行回数
     Balance.TrialDepthStat:
       type: object
       required:
@@ -1806,20 +1861,21 @@ components:
         - hunger
       properties:
         depth:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Depth'
         hp:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.HP'
         hpBeforeHeal:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.HP'
         weapon:
-          type: string
+          $ref: '#/components/schemas/Balance.WeaponName'
         hunger:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Hunger'
       description: 1試行の1深度の情報
+    Balance.TrialIndex:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 試行のインデックス。0始まり
     Balance.TrialResult:
       type: object
       required:
@@ -1829,13 +1885,11 @@ components:
         - depths
       properties:
         index:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.TrialIndex'
         reachedDepth:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Depth'
         died:
-          type: boolean
+          $ref: '#/components/schemas/Balance.DeathFlag'
         depths:
           type: array
           items:
@@ -1849,14 +1903,15 @@ components:
         - accuracy
       properties:
         name:
-          type: string
+          $ref: '#/components/schemas/Balance.WeaponName'
         damage:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Damage'
         accuracy:
-          type: integer
-          format: int32
+          $ref: '#/components/schemas/Balance.Accuracy'
       description: 武器の情報
+    Balance.WeaponName:
+      type: string
+      description: 武器名。武器アイテムの raw id を指す
     BaseDamage:
       type: integer
       format: int32

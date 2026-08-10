@@ -673,91 +673,212 @@ type AttackCategory string
 // AttackCount 1ターンあたりの攻撃回数
 type AttackCount = int32
 
+// BalanceAbilityScore 能力値。プレイヤーのステータス
+type BalanceAbilityScore = int32
+
+// BalanceAccuracy 命中率。0-100
+type BalanceAccuracy = int32
+
 // BalanceBattleMetric 武器×敵の戦闘シミュレーション結果
 type BalanceBattleMetric struct {
 	// Dps 1秒あたりの推定ダメージ
-	Dps   float64 `json:"dps"`
-	Enemy string  `json:"enemy"`
+	Dps BalanceDPS `json:"dps"`
+
+	// Enemy 戦闘員名。プレイヤーや敵の raw id を指す
+	Enemy BalanceCombatantName `json:"enemy"`
 
 	// IsRanged 遠距離武器かどうか
-	IsRanged bool   `json:"isRanged"`
-	Player   string `json:"player"`
-	Weapon   string `json:"weapon"`
+	IsRanged BalanceRangedFlag `json:"isRanged"`
+
+	// Player 戦闘員名。プレイヤーや敵の raw id を指す
+	Player BalanceCombatantName `json:"player"`
+
+	// Weapon 武器名。武器アイテムの raw id を指す
+	Weapon BalanceWeaponName `json:"weapon"`
 }
+
+// BalanceCombatantName 戦闘員名。プレイヤーや敵の raw id を指す
+type BalanceCombatantName = string
+
+// BalanceDPS 1秒あたりの推定ダメージ
+type BalanceDPS = float64
+
+// BalanceDamage ダメージ量
+type BalanceDamage = int32
+
+// BalanceDeathFlag 死亡したかどうか
+type BalanceDeathFlag = bool
+
+// BalanceDepth 深度。地上を1とする階層
+type BalanceDepth = int32
 
 // BalanceDepthStat 1深度の統計情報
 type BalanceDepthStat struct {
-	Depth              int32 `json:"depth"`
-	MedianDamage       int32 `json:"medianDamage"`
-	MedianHP           int32 `json:"medianHP"`
-	MedianHPBeforeHeal int32 `json:"medianHPBeforeHeal"`
-	MedianHealing      int32 `json:"medianHealing"`
-	MedianHunger       int32 `json:"medianHunger"`
-	MedianKillTurns    int32 `json:"medianKillTurns"`
-	MedianWeaponDamage int32 `json:"medianWeaponDamage"`
-	P5HP               int32 `json:"p5HP"`
-	P5HPBeforeHeal     int32 `json:"p5HPBeforeHeal"`
-	P5Hunger           int32 `json:"p5Hunger"`
-	P5KillTurns        int32 `json:"p5KillTurns"`
-	P5WeaponDamage     int32 `json:"p5WeaponDamage"`
-	P95HP              int32 `json:"p95HP"`
-	P95HPBeforeHeal    int32 `json:"p95HPBeforeHeal"`
-	P95Hunger          int32 `json:"p95Hunger"`
-	P95KillTurns       int32 `json:"p95KillTurns"`
-	P95WeaponDamage    int32 `json:"p95WeaponDamage"`
+	// Depth 深度。地上を1とする階層
+	Depth BalanceDepth `json:"depth"`
 
-	// SuddenDeathRate 突然死率
-	SuddenDeathRate float64 `json:"suddenDeathRate"`
+	// MedianDamage ダメージ量
+	MedianDamage BalanceDamage `json:"medianDamage"`
+
+	// MedianHP HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+	MedianHP BalanceHP `json:"medianHP"`
+
+	// MedianHPBeforeHeal HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+	MedianHPBeforeHeal BalanceHP `json:"medianHPBeforeHeal"`
+
+	// MedianHealing 回復量
+	MedianHealing BalanceHealing `json:"medianHealing"`
+
+	// MedianHunger 空腹度
+	MedianHunger BalanceHunger `json:"medianHunger"`
+
+	// MedianKillTurns 撃破に要するターン数
+	MedianKillTurns BalanceKillTurns `json:"medianKillTurns"`
+
+	// MedianWeaponDamage ダメージ量
+	MedianWeaponDamage BalanceDamage `json:"medianWeaponDamage"`
+
+	// P5HP HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+	P5HP BalanceHP `json:"p5HP"`
+
+	// P5HPBeforeHeal HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+	P5HPBeforeHeal BalanceHP `json:"p5HPBeforeHeal"`
+
+	// P5Hunger 空腹度
+	P5Hunger BalanceHunger `json:"p5Hunger"`
+
+	// P5KillTurns 撃破に要するターン数
+	P5KillTurns BalanceKillTurns `json:"p5KillTurns"`
+
+	// P5WeaponDamage ダメージ量
+	P5WeaponDamage BalanceDamage `json:"p5WeaponDamage"`
+
+	// P95HP HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+	P95HP BalanceHP `json:"p95HP"`
+
+	// P95HPBeforeHeal HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+	P95HPBeforeHeal BalanceHP `json:"p95HPBeforeHeal"`
+
+	// P95Hunger 空腹度
+	P95Hunger BalanceHunger `json:"p95Hunger"`
+
+	// P95KillTurns 撃破に要するターン数
+	P95KillTurns BalanceKillTurns `json:"p95KillTurns"`
+
+	// P95WeaponDamage ダメージ量
+	P95WeaponDamage BalanceDamage `json:"p95WeaponDamage"`
+
+	// SuddenDeathRate 割合。0.0-1.0
+	SuddenDeathRate BalanceRate `json:"suddenDeathRate"`
 }
+
+// BalanceEnemyTableName 敵テーブル名
+type BalanceEnemyTableName = string
 
 // BalanceEnemyTableRun 1つの敵テーブルに対するシミュレーション結果
 type BalanceEnemyTableRun struct {
-	// DeathRate 死亡率
-	DeathRate float64 `json:"deathRate"`
+	// DeathRate 割合。0.0-1.0
+	DeathRate BalanceRate `json:"deathRate"`
 
 	// Depths 深度ごとの統計
-	Depths      []BalanceDepthStat `json:"depths"`
-	MaxDepth    int32              `json:"maxDepth"`
-	MedianDepth int32              `json:"medianDepth"`
-	Name        string             `json:"name"`
+	Depths []BalanceDepthStat `json:"depths"`
+
+	// MaxDepth 深度。地上を1とする階層
+	MaxDepth BalanceDepth `json:"maxDepth"`
+
+	// MedianDepth 深度。地上を1とする階層
+	MedianDepth BalanceDepth `json:"medianDepth"`
+
+	// Name 敵テーブル名
+	Name BalanceEnemyTableName `json:"name"`
 
 	// TrialData 試行ごとの生データ
 	TrialData []BalanceTrialResult `json:"trialData"`
-	Trials    int32                `json:"trials"`
+
+	// Trials 試行回数
+	Trials BalanceTrialCount `json:"trials"`
 }
+
+// BalanceExpectedCount 期待個数
+type BalanceExpectedCount = float64
+
+// BalanceFacilityId 施設種別 id
+type BalanceFacilityId = string
 
 // BalanceFacilityLoot 1施設種別の loot 分布
 type BalanceFacilityLoot struct {
-	Facility string `json:"facility"`
+	// Facility 施設種別 id
+	Facility BalanceFacilityId `json:"facility"`
 
 	// Rooms 部屋役割ごとの loot
-	Rooms  []BalanceRoomLoot `json:"rooms"`
-	Trials int32             `json:"trials"`
+	Rooms []BalanceRoomLoot `json:"rooms"`
+
+	// Trials 試行回数
+	Trials BalanceTrialCount `json:"trials"`
 }
+
+// BalanceHP HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+type BalanceHP = int32
+
+// BalanceHealing 回復量
+type BalanceHealing = int32
+
+// BalanceHunger 空腹度
+type BalanceHunger = int32
+
+// BalanceItemName アイテム名。loot アイテムの raw id を指す
+type BalanceItemName = string
+
+// BalanceItemValue アイテムの売買価値
+type BalanceItemValue = int32
+
+// BalanceKillTurns 撃破に要するターン数
+type BalanceKillTurns = int32
 
 // BalanceLootItemStat 1アイテムの loot 統計
 type BalanceLootItemStat struct {
-	// ExpectedCount 期待個数
-	ExpectedCount float64 `json:"expectedCount"`
-	Name          string  `json:"name"`
+	// ExpectedCount 1棟あたりの期待個数
+	ExpectedCount BalanceExpectedCount `json:"expectedCount"`
 
-	// Prob 出現確率
-	Prob float64 `json:"prob"`
+	// Name アイテム名。loot アイテムの raw id を指す
+	Name BalanceItemName `json:"name"`
+
+	// Prob 1棟あたり1個以上出る確率
+	Prob BalanceRate `json:"prob"`
 
 	// Value 売買価値
-	Value int32 `json:"value"`
+	Value BalanceItemValue `json:"value"`
 }
 
 // BalancePlayerInfo プレイヤーのステータス情報
 type BalancePlayerInfo struct {
-	Agility   int32  `json:"agility"`
-	Defense   int32  `json:"defense"`
-	Dexterity int32  `json:"dexterity"`
-	Hp        int32  `json:"hp"`
-	Name      string `json:"name"`
-	Sensation int32  `json:"sensation"`
-	Strength  int32  `json:"strength"`
+	// Agility 能力値。プレイヤーのステータス
+	Agility BalanceAbilityScore `json:"agility"`
+
+	// Defense 能力値。プレイヤーのステータス
+	Defense BalanceAbilityScore `json:"defense"`
+
+	// Dexterity 能力値。プレイヤーのステータス
+	Dexterity BalanceAbilityScore `json:"dexterity"`
+
+	// Hp HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+	Hp BalanceHP `json:"hp"`
+
+	// Name 戦闘員名。プレイヤーや敵の raw id を指す
+	Name BalanceCombatantName `json:"name"`
+
+	// Sensation 能力値。プレイヤーのステータス
+	Sensation BalanceAbilityScore `json:"sensation"`
+
+	// Strength 能力値。プレイヤーのステータス
+	Strength BalanceAbilityScore `json:"strength"`
 }
+
+// BalanceRangedFlag 遠距離武器かどうか
+type BalanceRangedFlag = bool
+
+// BalanceRate 割合。0.0-1.0
+type BalanceRate = float64
 
 // BalanceReport balance.json の最上位構造。シミュレーション結果全体を表す
 type BalanceReport struct {
@@ -768,7 +889,7 @@ type BalanceReport struct {
 	EnemyTables []BalanceEnemyTableRun `json:"enemyTables"`
 
 	// Mode レポートの種別
-	Mode string `json:"mode"`
+	Mode BalanceReportMode `json:"mode"`
 
 	// Player プレイヤーのステータス。生成しないモードでは省く
 	Player *BalancePlayerInfo `json:"player,omitempty"`
@@ -780,38 +901,73 @@ type BalanceReport struct {
 	Weapon *BalanceWeaponInfo `json:"weapon,omitempty"`
 }
 
+// BalanceReportMode レポートの種別
+type BalanceReportMode = string
+
 // BalanceRoomLoot 1部屋役割の loot 分布
 type BalanceRoomLoot struct {
 	// Items アイテムごとの統計
 	Items []BalanceLootItemStat `json:"items"`
 
 	// Role 部屋役割
-	Role string `json:"role"`
+	Role BalanceRoomRole `json:"role"`
 }
+
+// BalanceRoomRole 部屋役割 id
+type BalanceRoomRole = string
+
+// BalanceTrialCount 試行回数
+type BalanceTrialCount = int32
 
 // BalanceTrialDepthStat 1試行の1深度の情報
 type BalanceTrialDepthStat struct {
-	Depth        int32  `json:"depth"`
-	Hp           int32  `json:"hp"`
-	HpBeforeHeal int32  `json:"hpBeforeHeal"`
-	Hunger       int32  `json:"hunger"`
-	Weapon       string `json:"weapon"`
+	// Depth 深度。地上を1とする階層
+	Depth BalanceDepth `json:"depth"`
+
+	// Hp HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+	Hp BalanceHP `json:"hp"`
+
+	// HpBeforeHeal HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
+	HpBeforeHeal BalanceHP `json:"hpBeforeHeal"`
+
+	// Hunger 空腹度
+	Hunger BalanceHunger `json:"hunger"`
+
+	// Weapon 武器名。武器アイテムの raw id を指す
+	Weapon BalanceWeaponName `json:"weapon"`
 }
+
+// BalanceTrialIndex 試行のインデックス。0始まり
+type BalanceTrialIndex = int32
 
 // BalanceTrialResult 1試行の結果
 type BalanceTrialResult struct {
-	Depths       []BalanceTrialDepthStat `json:"depths"`
-	Died         bool                    `json:"died"`
-	Index        int32                   `json:"index"`
-	ReachedDepth int32                   `json:"reachedDepth"`
+	Depths []BalanceTrialDepthStat `json:"depths"`
+
+	// Died 死亡したかどうか
+	Died BalanceDeathFlag `json:"died"`
+
+	// Index 試行のインデックス。0始まり
+	Index BalanceTrialIndex `json:"index"`
+
+	// ReachedDepth 深度。地上を1とする階層
+	ReachedDepth BalanceDepth `json:"reachedDepth"`
 }
 
 // BalanceWeaponInfo 武器の情報
 type BalanceWeaponInfo struct {
-	Accuracy int32  `json:"accuracy"`
-	Damage   int32  `json:"damage"`
-	Name     string `json:"name"`
+	// Accuracy 命中率。0-100
+	Accuracy BalanceAccuracy `json:"accuracy"`
+
+	// Damage ダメージ量
+	Damage BalanceDamage `json:"damage"`
+
+	// Name 武器名。武器アイテムの raw id を指す
+	Name BalanceWeaponName `json:"name"`
 }
+
+// BalanceWeaponName 武器名。武器アイテムの raw id を指す
+type BalanceWeaponName = string
 
 // BaseDamage 基本ダメージ
 type BaseDamage = int32
