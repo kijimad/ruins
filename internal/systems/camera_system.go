@@ -60,7 +60,8 @@ func (sys *CameraSystem) Update(world w.World) error {
 	switch {
 	case ebiten.IsKeyPressed(ebiten.KeyC) || ebiten.IsKeyPressed(ebiten.KeyPageDown):
 		scrollY = -0.25
-	case ebiten.IsKeyPressed(ebiten.KeyE) || ebiten.IsKeyPressed(ebiten.KeyPageUp):
+	// ズームインは PageUp とホイール。E は食べる・飲むの動詞キーに割り当てたので使わない
+	case ebiten.IsKeyPressed(ebiten.KeyPageUp):
 		scrollY = 0.25
 	default:
 		_, scrollY = ebiten.Wheel()
