@@ -674,10 +674,10 @@ type AttackCategory string
 type AttackCount = int32
 
 // BalanceAbilityScore 能力値。プレイヤーのステータス
-type BalanceAbilityScore = int32
+type BalanceAbilityScore = int
 
 // BalanceAccuracy 命中率。0-100
-type BalanceAccuracy = int32
+type BalanceAccuracy = int
 
 // BalanceBattleMetric 武器×敵の戦闘シミュレーション結果
 type BalanceBattleMetric struct {
@@ -704,13 +704,13 @@ type BalanceCombatantName = string
 type BalanceDPS = float64
 
 // BalanceDamage ダメージ量
-type BalanceDamage = int32
+type BalanceDamage = int
 
 // BalanceDeathFlag 死亡したかどうか
 type BalanceDeathFlag = bool
 
 // BalanceDepth 深度。地上を1とする階層
-type BalanceDepth = int32
+type BalanceDepth = int
 
 // BalanceDepthStat 1深度の統計情報
 type BalanceDepthStat struct {
@@ -818,22 +818,22 @@ type BalanceFacilityLoot struct {
 }
 
 // BalanceHP HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
-type BalanceHP = int32
+type BalanceHP = int
 
 // BalanceHealing 回復量
-type BalanceHealing = int32
+type BalanceHealing = int
 
 // BalanceHunger 空腹度
-type BalanceHunger = int32
+type BalanceHunger = int
 
 // BalanceItemName アイテム名。loot アイテムの raw id を指す
 type BalanceItemName = string
 
 // BalanceItemValue アイテムの売買価値
-type BalanceItemValue = int32
+type BalanceItemValue = int
 
 // BalanceKillTurns 撃破に要するターン数
-type BalanceKillTurns = int32
+type BalanceKillTurns = int
 
 // BalanceLootItemStat 1アイテムの loot 統計
 type BalanceLootItemStat struct {
@@ -917,7 +917,7 @@ type BalanceRoomLoot struct {
 type BalanceRoomRole = string
 
 // BalanceTrialCount 試行回数
-type BalanceTrialCount = int32
+type BalanceTrialCount = int
 
 // BalanceTrialDepthStat 1試行の1深度の情報
 type BalanceTrialDepthStat struct {
@@ -938,7 +938,7 @@ type BalanceTrialDepthStat struct {
 }
 
 // BalanceTrialIndex 試行のインデックス。0始まり
-type BalanceTrialIndex = int32
+type BalanceTrialIndex = int
 
 // BalanceTrialResult 1試行の結果
 type BalanceTrialResult struct {

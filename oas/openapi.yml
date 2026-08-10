@@ -1533,11 +1533,9 @@ components:
       description: 1ターンあたりの攻撃回数
     Balance.AbilityScore:
       type: integer
-      format: int32
       description: 能力値。プレイヤーのステータス
     Balance.Accuracy:
       type: integer
-      format: int32
       minimum: 0
       maximum: 100
       description: 命中率。0-100
@@ -1571,7 +1569,6 @@ components:
       description: 1秒あたりの推定ダメージ
     Balance.Damage:
       type: integer
-      format: int32
       minimum: 0
       description: ダメージ量
     Balance.DeathFlag:
@@ -1579,7 +1576,6 @@ components:
       description: 死亡したかどうか
     Balance.Depth:
       type: integer
-      format: int32
       minimum: 0
       description: 深度。地上を1とする階層
     Balance.DepthStat:
@@ -1706,28 +1702,23 @@ components:
       description: 1施設種別の loot 分布
     Balance.HP:
       type: integer
-      format: int32
       description: HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする
     Balance.Healing:
       type: integer
-      format: int32
       minimum: 0
       description: 回復量
     Balance.Hunger:
       type: integer
-      format: int32
       description: 空腹度
     Balance.ItemName:
       type: string
       description: アイテム名。loot アイテムの raw id を指す
     Balance.ItemValue:
       type: integer
-      format: int32
       minimum: 0
       description: アイテムの売買価値
     Balance.KillTurns:
       type: integer
-      format: int32
       minimum: 0
       description: 撃破に要するターン数
     Balance.LootItemStat:
@@ -1848,7 +1839,6 @@ components:
       description: 部屋役割 id
     Balance.TrialCount:
       type: integer
-      format: int32
       minimum: 0
       description: 試行回数
     Balance.TrialDepthStat:
@@ -1873,7 +1863,6 @@ components:
       description: 1試行の1深度の情報
     Balance.TrialIndex:
       type: integer
-      format: int32
       minimum: 0
       description: 試行のインデックス。0始まり
     Balance.TrialResult:

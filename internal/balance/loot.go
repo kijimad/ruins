@@ -76,7 +76,7 @@ func GenerateRoomLoot(master oapi.Raws, trials int, seed uint64) []oapi.BalanceF
 
 		result = append(result, oapi.BalanceFacilityLoot{
 			Facility: string(fac),
-			Trials:   int32(trials),
+			Trials:   trials,
 			Rooms:    buildRoomLoot(master, total, present, trials),
 		})
 	}
@@ -152,7 +152,7 @@ func buildRoomLoot(master oapi.Raws, total, present map[string]map[string]int, t
 				Name:          name,
 				Prob:          float64(present[role][name]) / float64(trials),
 				ExpectedCount: float64(c) / float64(trials),
-				Value:         int32(itemValue(master, name)),
+				Value:         itemValue(master, name),
 			})
 		}
 		sort.Slice(stats, func(a, b int) bool {

@@ -31,46 +31,46 @@ scalar RoomRole extends string;
 scalar ItemName extends string;
 
 /** 能力値。プレイヤーのステータス */
-scalar AbilityScore extends int32;
+scalar AbilityScore extends integer;
 
 /** HP 値。最大値や統計値を表す。計算値は負になりうるので無制約にする */
-scalar HP extends int32;
+scalar HP extends integer;
 
 /** ダメージ量 */
 @minValue(0)
-scalar Damage extends int32;
+scalar Damage extends integer;
 
 /** 命中率。0-100 */
 @minValue(0)
 @maxValue(100)
-scalar Accuracy extends int32;
+scalar Accuracy extends integer;
 
 /** 深度。地上を1とする階層 */
 @minValue(0)
-scalar Depth extends int32;
+scalar Depth extends integer;
 
 /** 撃破に要するターン数 */
 @minValue(0)
-scalar KillTurns extends int32;
+scalar KillTurns extends integer;
 
 /** 空腹度 */
-scalar Hunger extends int32;
+scalar Hunger extends integer;
 
 /** 回復量 */
 @minValue(0)
-scalar Healing extends int32;
+scalar Healing extends integer;
 
 /** 試行回数 */
 @minValue(0)
-scalar TrialCount extends int32;
+scalar TrialCount extends integer;
 
 /** 試行のインデックス。0始まり */
 @minValue(0)
-scalar TrialIndex extends int32;
+scalar TrialIndex extends integer;
 
 /** アイテムの売買価値 */
 @minValue(0)
-scalar ItemValue extends int32;
+scalar ItemValue extends integer;
 
 /** 割合。0.0-1.0 */
 @minValue(0)

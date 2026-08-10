@@ -20,15 +20,15 @@ func TestGenerateReport_プレイヤーと武器と敵テーブルの結果を�
 
 	require.NotNil(t, report.Player)
 	assert.Equal(t, "ash", report.Player.Name)
-	assert.Equal(t, int32(80), report.Player.Hp)
+	assert.Equal(t, 80, report.Player.Hp)
 
 	require.NotNil(t, report.Weapon)
 	assert.Equal(t, "bare_hands", report.Weapon.Name)
 
 	require.Len(t, report.EnemyTables, 3, "raw.tomlのenemyTables数と一致する")
 	for _, run := range report.EnemyTables {
-		assert.Equal(t, int32(3), run.MaxDepth)
-		assert.Equal(t, int32(5), run.Trials)
+		assert.Equal(t, 3, run.MaxDepth)
+		assert.Equal(t, 5, run.Trials)
 		assert.NotEmpty(t, run.Depths, "深度1には必ず到達する")
 		assert.Len(t, run.TrialData, 5, "試行回数分のトライアルデータが記録される")
 	}
