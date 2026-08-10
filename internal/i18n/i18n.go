@@ -13,6 +13,19 @@ var localeFS embed.FS
 // defaultLang は源泉言語。原文が英語なので en にする。未知の言語はここへフォールバックする。
 const defaultLang = "en"
 
+// supportedLangs は対応する言語コードの集合。NewCatalog のカタログと一致させる。
+// 言語検証の唯一の定義として参照する。新言語を足すときはここと NewCatalog の両方へ加える。両者の一致はテストで担保する。
+var supportedLangs = map[string]struct{}{
+	"en": {},
+	"ja": {},
+}
+
+// IsSupportedLang は lang が対応する言語コードかを返す。設定値の検証に使う。
+func IsSupportedLang(lang string) bool {
+	_, ok := supportedLangs[lang]
+	return ok
+}
+
 // Catalog は全言語の翻訳を持つ不変マスタ。embed から構築し、以後変わらない。
 // Resources が値で保持し、query.T が現在言語とともに引く。RawMaster と同じ、起動時に構築する読み取り専用データ。
 // 内部は map なので値コピーしても実体を共有する。読み取り専用なので共有して問題ない。

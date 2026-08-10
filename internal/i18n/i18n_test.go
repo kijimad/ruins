@@ -46,3 +46,21 @@ func TestCatalog_Translate_未知の言語は原文へフォールバックす�
 	assert.Equal(t, "Start", c.Translate("fr", "Start"))
 	assert.Equal(t, "開始", c.Translate("ja", "Start"), "他言語の引きに影響しない")
 }
+
+func TestIsSupportedLang_カタログの言語と過不足なく一致する(t *testing.T) {
+	t.Parallel()
+	c := NewCatalog()
+
+	// カタログが持つ言語は全て対応言語として検証を通る
+	for code := range c.langs {
+		assert.True(t, IsSupportedLang(code), "カタログの言語 %q は対応言語のはず", code)
+	}
+	// 対応言語は全てカタログに存在する。両者の drift をこのテストで止める
+	for code := range supportedLangs {
+		_, ok := c.langs[code]
+		assert.True(t, ok, "対応言語 %q はカタログに存在するはず", code)
+	}
+	// 未対応の言語は false を返す
+	assert.False(t, IsSupportedLang("zh"), "未対応の言語コードは false")
+	assert.False(t, IsSupportedLang(""), "空文字は false")
+}
