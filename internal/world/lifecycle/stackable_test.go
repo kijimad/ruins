@@ -83,6 +83,31 @@ func TestPlusMinusAmount(t *testing.T) {
 	assert.Equal(t, 1012, stackable.Count, "個数は変更されていないべき")
 }
 
+func TestChangeStackableCount_未所持アイテムの操作(t *testing.T) {
+	t.Parallel()
+
+	t.Run("未所持で正の値を指定すると新規に生成される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		err := ChangeStackableCount(world, "healing_potion", 3)
+		require.NoError(t, err)
+
+		entity, found := query.FindStackableInInventory(world, "healing_potion")
+		require.True(t, found, "新規に生成された回復薬が見つかるべき")
+		assert.Equal(t, 3, world.Components.Stackable.Get(entity).Count)
+	})
+
+	t.Run("未所持で負の値を指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		err := ChangeStackableCount(world, "healing_potion", -1)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "stackable item not found: healing_potion")
+	})
+}
+
 func TestMergeStackableItems(t *testing.T) {
 	t.Parallel()
 	t.Run("バックパック内の同名Stackableアイテムを統合する", func(t *testing.T) {

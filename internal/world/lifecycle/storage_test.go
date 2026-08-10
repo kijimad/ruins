@@ -333,6 +333,66 @@ func TestMoveToStorage_MergesStackable(t *testing.T) {
 	assert.Equal(t, 4, totalCount, "合計個数は4個")
 }
 
+func TestSpillStorageItems(t *testing.T) {
+	t.Parallel()
+
+	t.Run("収納内のアイテムが指定タイルのフィールドへ落ちる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
+		require.NoError(t, err)
+
+		item1, err := SpawnStorageItem(world, "healing_potion", 2, storageEntity)
+		require.NoError(t, err)
+		item2, err := SpawnStorageItem(world, "grenade", 1, storageEntity)
+		require.NoError(t, err)
+
+		SpillStorageItems(world, storageEntity, consts.Tile(7), consts.Tile(9))
+
+		for _, item := range []ecs.Entity{item1, item2} {
+			assert.False(t, world.Components.LocationInStorage.Has(item), "収納から外れる")
+			require.True(t, world.Components.LocationOnField.Has(item), "フィールドへ落ちる")
+			grid := world.Components.GridElement.Get(item)
+			assert.Equal(t, consts.Tile(7), grid.X)
+			assert.Equal(t, consts.Tile(9), grid.Y)
+		}
+	})
+
+	t.Run("空の収納では何も起きない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		storageEntity, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
+		require.NoError(t, err)
+
+		assert.NotPanics(t, func() {
+			SpillStorageItems(world, storageEntity, consts.Tile(1), consts.Tile(1))
+		})
+		assert.Empty(t, query.GetStorageItems(world, storageEntity))
+	})
+
+	t.Run("他の収納の中身には影響しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		storageA, err := SpawnProp(world, "wooden_crate", consts.Tile(0), consts.Tile(0))
+		require.NoError(t, err)
+		storageB, err := SpawnProp(world, "wooden_crate", consts.Tile(1), consts.Tile(0))
+		require.NoError(t, err)
+
+		_, err = SpawnStorageItem(world, "healing_potion", 1, storageA)
+		require.NoError(t, err)
+		itemB, err := SpawnStorageItem(world, "healing_potion", 1, storageB)
+		require.NoError(t, err)
+
+		SpillStorageItems(world, storageA, consts.Tile(5), consts.Tile(5))
+
+		assert.True(t, world.Components.LocationInStorage.Has(itemB), "storageBの中身は影響を受けない")
+		assert.Empty(t, query.GetStorageItems(world, storageA), "storageAは空になる")
+	})
+}
+
 func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
