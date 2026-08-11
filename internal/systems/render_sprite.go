@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -21,6 +22,12 @@ import (
 var (
 	wallShadowImage  *ebiten.Image // 壁が落とす影
 	moverShadowImage *ebiten.Image // 動く物体が落とす影
+)
+
+// 記憶タイルの退色パラメータ。彩度を大きく落として明度を少し下げ、記憶らしい見た目にする
+const (
+	memorySaturation = 0.18 // 記憶タイルの彩度。0で完全グレー
+	memoryValue      = 0.9  // 記憶タイルの明度。わずかに暗くする
 )
 
 // spriteImageCacheKey はスプライト画像キャッシュのキー
@@ -104,7 +111,8 @@ func (sys RenderSpriteSystem) String() string {
 	return "RenderSpriteSystem"
 }
 
-// Draw は (下) タイル -> 暗闇 -> 影 -> スプライト (上) の順に表示する
+// Draw は (下) タイル -> 影 -> スプライト -> 暗闇 (上) の順に表示する。
+// 暗闇を最後に重ねることで、床だけでなく影もスプライトも同じ暗さで減光する。
 // w.Renderer interfaceを実装
 func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	// VisionSystemが計算した光源情報を取得する
@@ -119,11 +127,13 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	if err := sys.renderFloorLayer(world, screen, tileRenderMap, camera); err != nil {
 		return err
 	}
-	sys.renderDarkness(world, screen, tileRenderMap, camera)
 	sys.renderShadows(world, screen, tileRenderMap, camera)
 	if err := sys.renderObjectLayer(world, screen, tileRenderMap, camera); err != nil {
 		return err
 	}
+	// 暗闇は最後に重ねる。床だけでなく影・スプライトも同じ暗さで沈み、光源から離れた
+	// オブジェクトも暗くなる。per-tile の暗さを bilinear で拡大するのでオブジェクトも滑らかに減光する
+	sys.renderDarkness(world, screen, tileRenderMap, camera)
 
 	return nil
 }
@@ -175,14 +185,17 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 		entity := entities[i]
 		gridElement := world.Components.GridElement.Get(entity)
 
-		_, exists := tileRenderMap[*gridElement]
+		info, exists := tileRenderMap[*gridElement]
 		if !exists {
 			continue
 		}
+		// 記憶タイルの床は退色させて描く。CDDA と同様に「今見ている」ではなく
+		// 「記憶している」と一目で分かる見た目にし、平坦な暗い矩形に見えないようにする
+		_, remembered := info.(TileRenderRemembered)
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
 		pos := &gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
-		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
+		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, remembered); err != nil {
 			// エンティティ情報を追加してエラーを詳細化
 			var entityInfo string
 			if world.Components.Name.Has(entity) {
@@ -225,7 +238,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
 		pos := &gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
-		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
+		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, false); err != nil {
 			return err
 		}
 	}
@@ -355,7 +368,7 @@ func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRe
 	return img, nil
 }
 
-func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera) error {
+func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera, desaturate bool) error {
 	// Resourcesからスプライトシートを取得
 	if world.Resources.SpriteSheets == nil {
 		return fmt.Errorf("sprite sheets are nil")
@@ -381,7 +394,16 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	if err != nil {
 		return err
 	}
-	screen.DrawImage(img, op)
+	if desaturate {
+		// 記憶タイルは彩度を落として退色させる。色行列で彩度を下げ明度を少し落とし、
+		// 「今見ている」タイルと区別する。減光は後段の暗闇オーバーレイが担う
+		var cm colorm.ColorM
+		cm.ChangeHSV(0, memorySaturation, memoryValue)
+		dop := &colorm.DrawImageOptions{GeoM: op.GeoM, Blend: op.Blend, Filter: op.Filter}
+		colorm.DrawImage(screen, img, cm, dop)
+	} else {
+		screen.DrawImage(img, op)
+	}
 
 	if world.Config.ShowMapDebug {
 		// デバッグ用：スプライト番号表示(dirt, dwall)

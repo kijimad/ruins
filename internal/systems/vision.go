@@ -157,12 +157,13 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo)
 	field := query.GetCurrentStageField(world)
 	vs := query.GetVisionState(world)
 
-	// 現在見えているタイルを設定する。明るさは光源の加算結果 li.Darkness をそのまま使う。
-	// 光源から離れるほど暗くなり、松明の輪が滑らかに沈む
+	// 現在見えているタイルを設定する。明るさは光源の加算結果 li.Darkness を使う。
+	// ただし記憶タイルより暗くはしない。今見えているタイルが、ただ記憶しているだけの
+	// タイルより暗く見えると、光の輪の縁だけが黒いリングになって不自然になるのを防ぐ
 	for grid := range vs.VisibleTiles {
 		visible := TileRenderVisible{Darkness: DarknessVisible}
 		if li, ok := lights[grid]; ok {
-			visible.Darkness = VisibleDarkness(li.Darkness)
+			visible.Darkness = VisibleDarkness(math.Min(li.Darkness, float64(DarknessRemembered)))
 			// 完全な暗黒には色を乗せない。描画側も無視するが、意図を明示する
 			if li.Darkness < 1.0 {
 				visible.LightColor = li.Color
