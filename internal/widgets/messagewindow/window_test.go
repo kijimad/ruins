@@ -120,7 +120,7 @@ func Test_hasMessage(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			win := &Window{content: MessageContent{TextSegmentLines: tt.lines}}
+			win := &Window{content: messageContent{TextSegmentLines: tt.lines}}
 			assert.Equal(t, tt.want, win.hasMessage())
 		})
 	}
@@ -133,11 +133,11 @@ func Test_calculateWindowSize(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
-		win := &Window{config: DefaultConfig(), world: world, hasChoices: false}
+		win := &Window{config: defaultWindowConfig(), world: world, hasChoices: false}
 
 		size := win.calculateWindowSize()
 
-		assert.Equal(t, WindowSize{Width: MinWidth, Height: MinHeight}, size)
+		assert.Equal(t, windowSize{Width: MinWidth, Height: MinHeight}, size)
 	})
 
 	t.Run("選択肢のみの場合は選択肢数から高さを算出する", func(t *testing.T) {
@@ -145,11 +145,11 @@ func Test_calculateWindowSize(t *testing.T) {
 
 		world := testutil.InitTestWorld(t)
 		win := &Window{
-			config:     DefaultConfig(),
+			config:     defaultWindowConfig(),
 			world:      world,
 			hasChoices: true,
-			content: MessageContent{
-				Choices: []Choice{{Text: "選択肢1"}},
+			content: messageContent{
+				Choices: []choiceOption{{Text: "選択肢1"}},
 			},
 		}
 
@@ -165,13 +165,13 @@ func Test_calculateWindowSize(t *testing.T) {
 
 		world := testutil.InitTestWorld(t)
 		win := &Window{
-			config:     DefaultConfig(),
+			config:     defaultWindowConfig(),
 			world:      world,
 			hasChoices: true,
-			content: MessageContent{
+			content: messageContent{
 				SpeakerName:      "話者",
 				TextSegmentLines: [][]messagedata.TextSegment{{{Text: "本文"}}},
-				Choices:          []Choice{{Text: "選択肢1"}, {Text: "選択肢2"}},
+				Choices:          []choiceOption{{Text: "選択肢1"}, {Text: "選択肢2"}},
 			},
 		}
 
@@ -186,15 +186,15 @@ func Test_calculateWindowSize(t *testing.T) {
 
 		world := testutil.InitTestWorld(t)
 		world.Resources.SetScreenDimensions(960, 720)
-		choices := make([]Choice, 20)
+		choices := make([]choiceOption, 20)
 		for i := range choices {
-			choices[i] = Choice{Text: "選択肢"}
+			choices[i] = choiceOption{Text: "選択肢"}
 		}
 		win := &Window{
-			config:     DefaultConfig(),
+			config:     defaultWindowConfig(),
 			world:      world,
 			hasChoices: true,
-			content: MessageContent{
+			content: messageContent{
 				SpeakerName:      "話者",
 				TextSegmentLines: [][]messagedata.TextSegment{{{Text: "本文"}}},
 				Choices:          choices,
@@ -217,7 +217,7 @@ func Test_calculateWindowPosition(t *testing.T) {
 		world.Resources.SetScreenDimensions(960, 720)
 		win := &Window{world: world}
 
-		x, y := win.calculateWindowPosition(WindowSize{Width: 600, Height: 300})
+		x, y := win.calculateWindowPosition(windowSize{Width: 600, Height: 300})
 
 		assert.Equal(t, 180, x)
 		assert.Equal(t, 180, y)
@@ -230,7 +230,7 @@ func Test_calculateWindowPosition(t *testing.T) {
 		world.Resources.SetScreenDimensions(960, 720)
 		win := &Window{world: world}
 
-		_, y := win.calculateWindowPosition(WindowSize{Width: 600, Height: 550})
+		_, y := win.calculateWindowPosition(windowSize{Width: 600, Height: 550})
 
 		assert.Equal(t, 140, y)
 	})
@@ -242,7 +242,7 @@ func Test_calculateWindowPosition(t *testing.T) {
 		world.Resources.SetScreenDimensions(960, 720)
 		win := &Window{world: world}
 
-		_, y := win.calculateWindowPosition(WindowSize{Width: 600, Height: 700})
+		_, y := win.calculateWindowPosition(windowSize{Width: 600, Height: 700})
 
 		assert.Equal(t, 30, y, "上マージン30に固定される")
 	})
@@ -270,7 +270,7 @@ func Test_calculateItemsPerPage(t *testing.T) {
 		world.Resources.SetScreenDimensions(960, 720)
 		win := &Window{
 			world: world,
-			content: MessageContent{
+			content: messageContent{
 				SpeakerName:      "話者",
 				TextSegmentLines: [][]messagedata.TextSegment{{{Text: "本文"}}},
 			},
@@ -290,7 +290,7 @@ func Test_calculateItemsPerPage(t *testing.T) {
 		world.Resources.SetScreenDimensions(200, 200)
 		win := &Window{
 			world: world,
-			content: MessageContent{
+			content: messageContent{
 				SpeakerName:      "話者",
 				TextSegmentLines: [][]messagedata.TextSegment{{{Text: "本文"}}},
 			},
@@ -432,7 +432,7 @@ func Test_showNextMessage(t *testing.T) {
 		onCloseCalled := false
 		win := &Window{
 			isOpen:       true,
-			queueManager: NewQueueManager(),
+			queueManager: newQueueManager(),
 			onClose:      func() { onCloseCalled = true },
 		}
 
@@ -490,7 +490,7 @@ func Test_selectChoice(t *testing.T) {
 	t.Run("範囲外のインデックスは何もせずnilを返す", func(t *testing.T) {
 		t.Parallel()
 
-		win := &Window{isOpen: true, content: MessageContent{Choices: []Choice{{Text: "A"}}}}
+		win := &Window{isOpen: true, content: messageContent{Choices: []choiceOption{{Text: "A"}}}}
 
 		err := win.selectChoice(-1)
 		require.NoError(t, err)
@@ -504,11 +504,11 @@ func Test_selectChoice(t *testing.T) {
 	t.Run("onChoiceコールバックに選択した選択肢を渡しウィンドウを閉じる", func(t *testing.T) {
 		t.Parallel()
 
-		var got Choice
+		var got choiceOption
 		win := &Window{
 			isOpen:  true,
-			content: MessageContent{Choices: []Choice{{Text: "A"}, {Text: "B"}}},
-			onChoice: func(c Choice) {
+			content: messageContent{Choices: []choiceOption{{Text: "A"}, {Text: "B"}}},
+			onChoice: func(c choiceOption) {
 				got = c
 			},
 		}
@@ -526,8 +526,8 @@ func Test_selectChoice(t *testing.T) {
 		wantErr := errors.New("action失敗")
 		win := &Window{
 			isOpen: true,
-			content: MessageContent{
-				Choices: []Choice{{Text: "A", Action: func() error { return wantErr }}},
+			content: messageContent{
+				Choices: []choiceOption{{Text: "A", Action: func() error { return wantErr }}},
 			},
 		}
 

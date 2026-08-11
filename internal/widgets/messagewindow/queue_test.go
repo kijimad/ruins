@@ -11,7 +11,7 @@ import (
 func TestNewQueueManager_初期状態は空(t *testing.T) {
 	t.Parallel()
 
-	q := NewQueueManager()
+	q := newQueueManager()
 
 	assert.Equal(t, 0, q.Size())
 	assert.False(t, q.HasNext())
@@ -24,7 +24,7 @@ func TestQueueManager_Enqueue(t *testing.T) {
 	t.Run("末尾に追加される", func(t *testing.T) {
 		t.Parallel()
 
-		q := NewQueueManager()
+		q := newQueueManager()
 		msg1 := messagedata.NewSystemMessage("1")
 		msg2 := messagedata.NewSystemMessage("2")
 
@@ -40,7 +40,7 @@ func TestQueueManager_Enqueue(t *testing.T) {
 	t.Run("複数件を一度に追加できる", func(t *testing.T) {
 		t.Parallel()
 
-		q := NewQueueManager()
+		q := newQueueManager()
 		msg1 := messagedata.NewSystemMessage("1")
 		msg2 := messagedata.NewSystemMessage("2")
 
@@ -53,7 +53,7 @@ func TestQueueManager_Enqueue(t *testing.T) {
 func TestQueueManager_EnqueueFront(t *testing.T) {
 	t.Parallel()
 
-	q := NewQueueManager()
+	q := newQueueManager()
 	msg1 := messagedata.NewSystemMessage("後")
 	msg2 := messagedata.NewSystemMessage("先")
 
@@ -71,14 +71,14 @@ func TestQueueManager_Dequeue(t *testing.T) {
 	t.Run("空のキューはnilを返す", func(t *testing.T) {
 		t.Parallel()
 
-		q := NewQueueManager()
+		q := newQueueManager()
 		assert.Nil(t, q.Dequeue())
 	})
 
 	t.Run("取り出したメッセージがCurrentになる", func(t *testing.T) {
 		t.Parallel()
 
-		q := NewQueueManager()
+		q := newQueueManager()
 		msg := messagedata.NewSystemMessage("対象")
 		q.Enqueue(msg)
 
@@ -91,7 +91,7 @@ func TestQueueManager_Dequeue(t *testing.T) {
 	t.Run("連鎖メッセージを持つ場合は先頭に展開される", func(t *testing.T) {
 		t.Parallel()
 
-		q := NewQueueManager()
+		q := newQueueManager()
 		chained := messagedata.NewSystemMessage("親").
 			SystemMessage("子1").
 			SystemMessage("子2")
@@ -115,7 +115,7 @@ func TestQueueManager_Dequeue(t *testing.T) {
 func TestQueueManager_Clear(t *testing.T) {
 	t.Parallel()
 
-	q := NewQueueManager()
+	q := newQueueManager()
 	q.Enqueue(messagedata.NewSystemMessage("1"), messagedata.NewSystemMessage("2"))
 	q.Dequeue()
 
