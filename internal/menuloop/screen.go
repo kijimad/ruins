@@ -164,15 +164,15 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	return m.ConsumeTransition(), nil
 }
 
-// SetTab は指定タブへ直接カーソルを移して再描画を要求する。キー再生をせずにタブを設定する。
+// SetTab は指定タブへ直接カーソルを移す。キー入力を介さずにタブを設定する。
+// DoAction など入力処理の最中に呼ぶ。同じフレームの再構築で移動が反映される。
 // UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する。
 // 構成は model から導出するので呼び出し側は tab 番号だけを渡す
 func (s *Screen[P]) SetTab(tab int) {
 	s.setTab(s.model.Menu(s.Props()), tab)
 }
 
-// setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する。
-// Store を直接書き換えるため MarkDirty で次フレームの再構築を促す
+// setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する
 func (s *Screen[P]) setTab(cfg MenuConfig, tab int) {
 	if cfg.TabCount == 0 || tab < 0 || tab >= cfg.TabCount {
 		return
@@ -183,7 +183,6 @@ func (s *Screen[P]) setTab(cfg MenuConfig, tab int) {
 		ItemsPerPage: cfg.ItemsPerPage,
 		Skips:        cfg.Skips,
 	}, tab)
-	s.mount.MarkDirty()
 }
 
 // Selection は前フレームで確定したカーソル位置を返す。カーソルは DoAction のあとの

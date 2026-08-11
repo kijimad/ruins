@@ -153,25 +153,6 @@ func TestMount_Propsの最新値を参照できる(t *testing.T) {
 	assert.Equal(t, 4, selected, "5アイテムなので最大4まで移動可能")
 }
 
-func TestMount_MarkDirtyで次のUpdateがtrueを返す(t *testing.T) {
-	t.Parallel()
-	mount := NewMount[testMenuProps]()
-	props := testMenuProps{Items: []string{"a", "b"}}
-	mount.SetProps(props)
-	setupMenuState(mount.Store(), props)
-	mount.Update()
-
-	// 変更が無ければfalse
-	assert.False(t, mount.Update(), "変更が無ければfalse")
-
-	// Store を直接書き換えたと想定して MarkDirty すると次の Update が true
-	mount.MarkDirty()
-	assert.True(t, mount.Update(), "MarkDirty後はtrue")
-
-	// 一度立てた dirty は Update で消えて次は false
-	assert.False(t, mount.Update(), "MarkDirtyは一度きり")
-}
-
 func TestGetState_存在しないキーはfalseを返す(t *testing.T) {
 	t.Parallel()
 	mount := NewMount[testMenuProps]()
