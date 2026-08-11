@@ -8,24 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestReactToHostileAction_SquadAIも反応する はSquadAIを持つエンティティもCombatIgnoreから
-// CombatAttackへ遷移することを確認する。
-func TestReactToHostileAction_SquadAIも反応する(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	entity := world.ECS.NewEntity()
-	world.Components.SquadAI.Add(entity, &gc.SquadAI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore})
-
-	reactToHostileAction(world, entity)
-
-	squad := world.Components.SquadAI.Get(entity)
-	assert.Equal(t, gc.CombatAttack, squad.CombatCurrent)
-}
-
-// TestApplyDamage_プレイヤーも隊員も関与しない場合でもpanicせず死亡処理は行われる は
+// TestApplyDamage_プレイヤーが関与しない場合でもpanicせず死亡処理は行われる は
 // logDeathのisRelevant判定がfalseになる経路がpanicせず死亡処理自体は完了することを確認する。
-func TestApplyDamage_プレイヤーも隊員も関与しない場合でもpanicせず死亡処理は行われる(t *testing.T) {
+func TestApplyDamage_プレイヤーが関与しない場合でもpanicせず死亡処理は行われる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -42,5 +27,5 @@ func TestApplyDamage_プレイヤーも隊員も関与しない場合でもpanic
 
 	hp := world.Components.HP.Get(target)
 	assert.Equal(t, 0, hp.Current)
-	assert.True(t, world.Components.Dead.Has(target), "プレイヤー・隊員が関与しなくても死亡処理自体は行われる")
+	assert.True(t, world.Components.Dead.Has(target), "プレイヤーが関与しなくても死亡処理自体は行われる")
 }

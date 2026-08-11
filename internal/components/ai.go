@@ -19,8 +19,6 @@ const (
 	AIStateFleeing = AIStateSubState("FLEEING")
 )
 
-// SoloAI と SquadAI は独立したコンポーネントで、エンティティは片方だけを持つ。
-
 // SoloAI は単独行動NPC用の設定と状態を保持する
 type SoloAI struct {
 	CombatDefault CombatPolicy
@@ -52,45 +50,4 @@ func (s *SoloAI) ReactToHostile() {
 // ResetCombat は戦闘方針をデフォルトに復帰させる
 func (s *SoloAI) ResetCombat() {
 	s.CombatCurrent = s.CombatDefault
-}
-
-// SquadAI は隊員用の設定を保持する
-type SquadAI struct {
-	CombatDefault CombatPolicy
-	CombatCurrent CombatPolicy
-	Movement      SquadMovement
-	ViewDistance  consts.Tile
-	ItemPickup    ItemPickupPolicy
-	ItemHandling  ItemHandlingPolicy
-	Supply        SupplyPolicy
-}
-
-// Type はPlannerSquadを返す
-func (s *SquadAI) Type() PlannerType { return PlannerSquad }
-
-// ReactToHostile は被ダメージ時に戦闘方針を変化させる
-func (s *SquadAI) ReactToHostile() {
-	switch s.CombatDefault {
-	case CombatIgnore:
-		s.CombatCurrent = CombatAttack
-	case CombatAttack, CombatEvade:
-	}
-}
-
-// ResetCombat は戦闘方針をデフォルトに復帰させる
-func (s *SquadAI) ResetCombat() {
-	s.CombatCurrent = s.CombatDefault
-}
-
-// DefaultSquadAI は隊員のデフォルトSquadAIを返す
-func DefaultSquadAI() SquadAI {
-	return SquadAI{
-		CombatDefault: CombatAttack,
-		CombatCurrent: CombatAttack,
-		Movement:      SquadEscort,
-		ViewDistance:  consts.AIVisionDistance,
-		ItemPickup:    PolicyPickup,
-		ItemHandling:  PolicyDistribute,
-		Supply:        SupplyAuto,
-	}
 }

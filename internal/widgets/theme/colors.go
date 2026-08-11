@@ -106,18 +106,6 @@ var (
 	HUDWeightDanger = color.RGBA{R: 255, G: 50, B: 50, A: 255}
 	// HUDWeightWarning は重量警告時のテキスト色
 	HUDWeightWarning = color.RGBA{R: 255, G: 200, B: 0, A: 255}
-	// HUDSquadBarBg は隊員HPバーの背景色
-	HUDSquadBarBg = color.RGBA{R: 40, G: 40, B: 40, A: 200}
-	// HUDSquadHPHigh はHP十分な隊員のバー色
-	HUDSquadHPHigh = color.RGBA{R: 80, G: 200, B: 80, A: 255}
-	// HUDSquadHPLow はHP危険な隊員のバー色
-	HUDSquadHPLow = color.RGBA{R: 200, G: 50, B: 50, A: 255}
-	// HUDSquadHPMid はHP警告域の隊員のバー色
-	HUDSquadHPMid = color.RGBA{R: 200, G: 200, B: 50, A: 255}
-	// HUDSquadHunger は隊員の空腹表示テキスト色
-	HUDSquadHunger = color.RGBA{R: 230, G: 160, B: 60, A: 255}
-	// HUDSquadMarker はミニマップの隊員表示色
-	HUDSquadMarker = color.RGBA{R: 80, G: 140, B: 255, A: 255}
 )
 
 // ========== オーバーワールド俯瞰図色 ==========

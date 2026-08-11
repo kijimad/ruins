@@ -66,19 +66,19 @@ func (e AttackCategory) Valid() bool {
 
 // Defines values for CombatPolicyType.
 const (
-	CombatPolicyTypeAttack CombatPolicyType = "attack"
-	CombatPolicyTypeEvade  CombatPolicyType = "evade"
-	CombatPolicyTypeIgnore CombatPolicyType = "ignore"
+	Attack CombatPolicyType = "attack"
+	Evade  CombatPolicyType = "evade"
+	Ignore CombatPolicyType = "ignore"
 )
 
 // Valid indicates whether the value is a known member of the CombatPolicyType enum.
 func (e CombatPolicyType) Valid() bool {
 	switch e {
-	case CombatPolicyTypeAttack:
+	case Attack:
 		return true
-	case CombatPolicyTypeEvade:
+	case Evade:
 		return true
-	case CombatPolicyTypeIgnore:
+	case Ignore:
 		return true
 	default:
 		return false
@@ -267,31 +267,31 @@ func (e ItemGroupSubtype) Valid() bool {
 
 // Defines values for MovementPatternType.
 const (
-	MovementPatternTypePatrol      MovementPatternType = "patrol"
-	MovementPatternTypeRandom      MovementPatternType = "random"
-	MovementPatternTypeStationary  MovementPatternType = "stationary"
-	MovementPatternTypeSwarm       MovementPatternType = "swarm"
-	MovementPatternTypeTerritorial MovementPatternType = "territorial"
-	MovementPatternTypeWallHug     MovementPatternType = "wallHug"
-	MovementPatternTypeWander      MovementPatternType = "wander"
+	Patrol      MovementPatternType = "patrol"
+	Random      MovementPatternType = "random"
+	Stationary  MovementPatternType = "stationary"
+	Swarm       MovementPatternType = "swarm"
+	Territorial MovementPatternType = "territorial"
+	WallHug     MovementPatternType = "wallHug"
+	Wander      MovementPatternType = "wander"
 )
 
 // Valid indicates whether the value is a known member of the MovementPatternType enum.
 func (e MovementPatternType) Valid() bool {
 	switch e {
-	case MovementPatternTypePatrol:
+	case Patrol:
 		return true
-	case MovementPatternTypeRandom:
+	case Random:
 		return true
-	case MovementPatternTypeStationary:
+	case Stationary:
 		return true
-	case MovementPatternTypeSwarm:
+	case Swarm:
 		return true
-	case MovementPatternTypeTerritorial:
+	case Territorial:
 		return true
-	case MovementPatternTypeWallHug:
+	case WallHug:
 		return true
-	case MovementPatternTypeWander:
+	case Wander:
 		return true
 	default:
 		return false
@@ -316,27 +316,6 @@ func (e SaveDataAttackRangeType) Valid() bool {
 	}
 }
 
-// Defines values for SaveDataCombatPolicyType.
-const (
-	SaveDataCombatPolicyTypeAttack SaveDataCombatPolicyType = "attack"
-	SaveDataCombatPolicyTypeEvade  SaveDataCombatPolicyType = "evade"
-	SaveDataCombatPolicyTypeIgnore SaveDataCombatPolicyType = "ignore"
-)
-
-// Valid indicates whether the value is a known member of the SaveDataCombatPolicyType enum.
-func (e SaveDataCombatPolicyType) Valid() bool {
-	switch e {
-	case SaveDataCombatPolicyTypeAttack:
-		return true
-	case SaveDataCombatPolicyTypeEvade:
-		return true
-	case SaveDataCombatPolicyTypeIgnore:
-		return true
-	default:
-		return false
-	}
-}
-
 // Defines values for SaveDataHealingAmountType.
 const (
 	Numeral SaveDataHealingAmountType = "numeral"
@@ -349,102 +328,6 @@ func (e SaveDataHealingAmountType) Valid() bool {
 	case Numeral:
 		return true
 	case Ratio:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for SaveDataItemHandlingPolicyType.
-const (
-	Distribute SaveDataItemHandlingPolicyType = "distribute"
-	Keep       SaveDataItemHandlingPolicyType = "keep"
-)
-
-// Valid indicates whether the value is a known member of the SaveDataItemHandlingPolicyType enum.
-func (e SaveDataItemHandlingPolicyType) Valid() bool {
-	switch e {
-	case Distribute:
-		return true
-	case Keep:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for SaveDataItemPickupPolicyType.
-const (
-	Ignore SaveDataItemPickupPolicyType = "ignore"
-	Pickup SaveDataItemPickupPolicyType = "pickup"
-)
-
-// Valid indicates whether the value is a known member of the SaveDataItemPickupPolicyType enum.
-func (e SaveDataItemPickupPolicyType) Valid() bool {
-	switch e {
-	case Ignore:
-		return true
-	case Pickup:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for SaveDataMovementPolicyType.
-const (
-	SaveDataMovementPolicyTypeEscort      SaveDataMovementPolicyType = "escort"
-	SaveDataMovementPolicyTypePatrol      SaveDataMovementPolicyType = "patrol"
-	SaveDataMovementPolicyTypeRandom      SaveDataMovementPolicyType = "random"
-	SaveDataMovementPolicyTypeRetreat     SaveDataMovementPolicyType = "retreat"
-	SaveDataMovementPolicyTypeStationary  SaveDataMovementPolicyType = "stationary"
-	SaveDataMovementPolicyTypeSwarm       SaveDataMovementPolicyType = "swarm"
-	SaveDataMovementPolicyTypeTerritorial SaveDataMovementPolicyType = "territorial"
-	SaveDataMovementPolicyTypeVanguard    SaveDataMovementPolicyType = "vanguard"
-	SaveDataMovementPolicyTypeWallHug     SaveDataMovementPolicyType = "wallHug"
-	SaveDataMovementPolicyTypeWander      SaveDataMovementPolicyType = "wander"
-)
-
-// Valid indicates whether the value is a known member of the SaveDataMovementPolicyType enum.
-func (e SaveDataMovementPolicyType) Valid() bool {
-	switch e {
-	case SaveDataMovementPolicyTypeEscort:
-		return true
-	case SaveDataMovementPolicyTypePatrol:
-		return true
-	case SaveDataMovementPolicyTypeRandom:
-		return true
-	case SaveDataMovementPolicyTypeRetreat:
-		return true
-	case SaveDataMovementPolicyTypeStationary:
-		return true
-	case SaveDataMovementPolicyTypeSwarm:
-		return true
-	case SaveDataMovementPolicyTypeTerritorial:
-		return true
-	case SaveDataMovementPolicyTypeVanguard:
-		return true
-	case SaveDataMovementPolicyTypeWallHug:
-		return true
-	case SaveDataMovementPolicyTypeWander:
-		return true
-	default:
-		return false
-	}
-}
-
-// Defines values for SaveDataPlannerType.
-const (
-	Solo  SaveDataPlannerType = "solo"
-	Squad SaveDataPlannerType = "squad"
-)
-
-// Valid indicates whether the value is a known member of the SaveDataPlannerType enum.
-func (e SaveDataPlannerType) Valid() bool {
-	switch e {
-	case Solo:
-		return true
-	case Squad:
 		return true
 	default:
 		return false
@@ -1881,9 +1764,6 @@ type SaveDataCameraScale = float64
 // SaveDataChecksum SHA-256チェックサム
 type SaveDataChecksum = string
 
-// SaveDataCombatPolicyType 戦闘ポリシー
-type SaveDataCombatPolicyType string
-
 // SaveDataCommandTableComponent 戦闘コマンドテーブル名
 type SaveDataCommandTableComponent struct {
 	// Name コマンドテーブル名
@@ -1942,9 +1822,6 @@ type SaveDataComponentsMap struct {
 	// Melee 近接攻撃設定
 	Melee *SaveDataMeleeComponent `json:"Melee,omitempty"`
 
-	// MemberAppearance 隊員の外見情報
-	MemberAppearance *SaveDataMemberAppearanceComponent `json:"MemberAppearance,omitempty"`
-
 	// Name エンティティ名
 	Name *SaveDataNameComponent `json:"Name,omitempty"`
 
@@ -1965,12 +1842,6 @@ type SaveDataComponentsMap struct {
 
 	// SpriteRender スプライト描画設定
 	SpriteRender *SaveDataSpriteRenderComponent `json:"SpriteRender,omitempty"`
-
-	// SquadMember 隊員コンポーネント。リーダーへのエンティティ参照を含む
-	SquadMember *SaveDataSquadMemberComponent `json:"SquadMember,omitempty"`
-
-	// SquadPolicy 隊員の自律行動ポリシー
-	SquadPolicy *SaveDataSquadPolicyComponent `json:"SquadPolicy,omitempty"`
 
 	// Stackable スタック可能マーカー
 	Stackable *SaveDataMarkerComponent `json:"Stackable,omitempty"`
@@ -2198,12 +2069,6 @@ type SaveDataIntPool struct {
 	Max SaveDataPoolMax `json:"Max"`
 }
 
-// SaveDataItemHandlingPolicyType アイテム処理ポリシー
-type SaveDataItemHandlingPolicyType string
-
-// SaveDataItemPickupPolicyType アイテム回収ポリシー
-type SaveDataItemPickupPolicyType string
-
 // SaveDataLightRadius 光源の到達半径 (タイル単位)。無効時は0を許容する
 type SaveDataLightRadius = int
 
@@ -2269,23 +2134,11 @@ type SaveDataMeleeComponent struct {
 	TargetType SaveDataTargetTypeData `json:"TargetType"`
 }
 
-// SaveDataMemberAppearanceComponent 隊員の外見情報
-type SaveDataMemberAppearanceComponent struct {
-	// SpriteKey スプライトキー。セーブデータではパターン制約を適用しない
-	SpriteKey SaveDataSpriteKey `json:"SpriteKey"`
-}
-
-// SaveDataMovementPolicyType 移動ポリシー
-type SaveDataMovementPolicyType string
-
 // SaveDataNameComponent エンティティ名
 type SaveDataNameComponent struct {
 	// Name エンティティ名。セーブデータでは空文字を許容する
 	Name SaveDataEntityName `json:"Name"`
 }
-
-// SaveDataPlannerType 行動計画の種別
-type SaveDataPlannerType string
 
 // SaveDataPoolCurrent プール現在値 (整数)
 type SaveDataPoolCurrent = int
@@ -2404,37 +2257,6 @@ type SaveDataSpriteRenderComponent struct {
 
 // SaveDataSpriteSheetName スプライトシート名。セーブデータではパターン制約を適用しない
 type SaveDataSpriteSheetName = string
-
-// SaveDataSquadMemberComponent 隊員コンポーネント。
-// Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
-type SaveDataSquadMemberComponent struct {
-	// Active 同行中かどうか
-	Active bool `json:"Active"`
-
-	// LeaderRef リーダーのStableID
-	LeaderRef SaveDataStableID `json:"LeaderRef"`
-}
-
-// SaveDataSquadPolicyComponent AIの行動ポリシー
-type SaveDataSquadPolicyComponent struct {
-	// CombatCurrent 戦闘ポリシー
-	CombatCurrent SaveDataCombatPolicyType `json:"CombatCurrent"`
-
-	// CombatDefault 戦闘ポリシー
-	CombatDefault SaveDataCombatPolicyType `json:"CombatDefault"`
-
-	// ItemHandling アイテム処理ポリシー
-	ItemHandling SaveDataItemHandlingPolicyType `json:"ItemHandling"`
-
-	// ItemPickup アイテム回収ポリシー
-	ItemPickup SaveDataItemPickupPolicyType `json:"ItemPickup"`
-
-	// Movement 移動ポリシー
-	Movement SaveDataMovementPolicyType `json:"Movement"`
-
-	// Planner 行動計画の種別
-	Planner SaveDataPlannerType `json:"Planner"`
-}
 
 // SaveDataStableID エンティティの安定ID。セーブ/ロード間でエンティティを一意に識別する
 type SaveDataStableID struct {

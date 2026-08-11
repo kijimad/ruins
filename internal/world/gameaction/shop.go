@@ -50,26 +50,3 @@ func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.E
 
 	return nil
 }
-
-// HireRecruit はプレイヤーが商人の在庫の隊員候補を雇う。候補を隊員として活性化し、代金を支払う。
-// 通貨が足りなければ何もせずエラーを返す
-func HireRecruit(world w.World, player ecs.Entity, recruit ecs.Entity) error {
-	price := query.BuyPrice(world, player, recruit)
-
-	if !query.HasCurrency(world, player, price) {
-		return fmt.Errorf("not enough currency: need %d, have %d", price, query.GetCurrency(world, player))
-	}
-	if !query.ConsumeCurrency(world, player, price) {
-		return fmt.Errorf("failed to consume currency")
-	}
-
-	// 隊員を活性化する。失敗したら通貨を返して整合を保つ
-	if _, err := lifecycle.ActivateRecruit(world, player, recruit); err != nil {
-		if refundErr := query.AddCurrency(world, player, price); refundErr != nil {
-			return fmt.Errorf("hire failed and refund also failed: %w (refund error: %w)", err, refundErr)
-		}
-		return fmt.Errorf("failed to hire recruit: %w", err)
-	}
-
-	return nil
-}

@@ -431,21 +431,6 @@
             "SpriteKey": "idle",
             "SpriteSheetName": "npc_sheet"
           },
-          "SquadMember": {
-            "Active": false,
-            "LeaderRef": {
-              "generation": 0,
-              "index": 0
-            }
-          },
-          "SquadPolicy": {
-            "CombatCurrent": "attack",
-            "CombatDefault": "attack",
-            "ItemHandling": "keep",
-            "ItemPickup": "pickup",
-            "Movement": "escort",
-            "Planner": "squad"
-          },
           "TurnBased": {
             "AP": {
               "Current": 4,

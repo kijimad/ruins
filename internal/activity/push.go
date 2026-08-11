@@ -98,7 +98,7 @@ func (pb *PushBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 	}
 
 	// パーティの押し力を注ぐ。強いパーティほど速く動かす
-	comp.Progress.Current += query.PartyPushPower(world)
+	comp.Progress.Current += query.PushPower(world)
 	if comp.Progress.Current >= comp.Progress.Max {
 		Complete(comp)
 	}
@@ -242,7 +242,7 @@ func (pb *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	// パーティの押し力を注ぐ。強いパーティほど速く動かす
-	comp.Progress.Current += query.PartyPushPower(world)
+	comp.Progress.Current += query.PushPower(world)
 	if comp.Progress.Current >= comp.Progress.Max {
 		Complete(comp)
 	}

@@ -36,14 +36,6 @@ func (tb *TransferBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorTransfer
 }
 
-// NewTransferActivity は転送アイテム・受取人・個数を指定して転送アクティビティを組む。
-// count が0以下なら在庫全量を渡す。個数は TransferParams.Count に持たせ、継続処理でも読める。
-func NewTransferActivity(target, recipient ecs.Entity, count int) *gc.Activity {
-	comp := NewActivity(gc.BehaviorTransfer, 0)
-	comp.Params = &gc.TransferParams{Target: target, Recipient: recipient, Count: count}
-	return comp
-}
-
 // Validate はアイテム転送アクティビティの検証を行う
 func (tb *TransferBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.TransferParams)
@@ -105,8 +97,8 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 	item := p.Target
 	recipient := p.Recipient
 
-	// 渡す主体はアクターでなくアイテムの現所有者にする。補給ではアクターの隊員がリーダーの
-	// プールから引くため、アクターを主体にすると「隊員は隊員に渡した」と自己転送の誤ログになる。
+	// 渡す主体はアクターでなくアイテムの現所有者にする。受取人がアクターの場合にアクターを
+	// 主体にすると「自分が自分に渡した」という自己転送の誤ログになる。
 	giver := world.Components.LocationInBackpack.Get(item).Owner
 	giverName := query.GetEntityName(giver, world)
 	recipientName := query.GetEntityName(recipient, world)

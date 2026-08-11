@@ -7,11 +7,21 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// spawnCharacterAt はグリッド上に素の非プレイヤーキャラを置く。索引テストの2体目に使う
+func spawnCharacterAt(world w.World, x, y consts.Tile) ecs.Entity {
+	e := world.ECS.NewEntity()
+	world.Components.SoloAI.Add(e, &gc.SoloAI{})
+	world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+	return e
+}
 
 func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *testing.T) {
 	t.Parallel()
@@ -20,8 +30,7 @@ func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *tes
 	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
-	require.NoError(t, err)
+	member := spawnCharacterAt(world, 11, 10)
 
 	query.InvalidateSpatialIndex(world)
 	si := query.GetSpatialIndex(world)
@@ -31,13 +40,13 @@ func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *tes
 	leaderGrid := world.Components.GridElement.Get(leader)
 
 	assert.False(t, si.BlockPass[*leaderGrid], "プレイヤーはBlockPassに含まれない")
-	assert.False(t, si.BlockPass[*memberGrid], "隊員はBlockPassに含まれない")
+	assert.False(t, si.BlockPass[*memberGrid], "他キャラはBlockPassに含まれない")
 
 	_, leaderInChars := si.Characters[*leaderGrid]
 	assert.True(t, leaderInChars, "プレイヤーはCharactersに含まれる")
 
 	_, memberInChars := si.Characters[*memberGrid]
-	assert.True(t, memberInChars, "隊員はCharactersに含まれる")
+	assert.True(t, memberInChars, "他キャラはCharactersに含まれる")
 }
 
 func TestBuildSpatialIndex_退避中エンティティは索引に含まれない(t *testing.T) {
@@ -103,8 +112,7 @@ func TestUpdateCharacterPositionInIndex_入れ替えは順序非依存(t *testin
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", testAbilities(), "player")
-	require.NoError(t, err)
+	member := spawnCharacterAt(world, 12, 10)
 
 	si := query.GetSpatialIndex(world)
 	require.NotNil(t, si)
@@ -113,7 +121,7 @@ func TestUpdateCharacterPositionInIndex_入れ替えは順序非依存(t *testin
 	mg := world.Components.GridElement.Get(member)
 	pPos := pg.Coord
 	mPos := mg.Coord
-	require.NotEqual(t, pPos, mPos, "隊員は別タイルにスポーンする")
+	require.NotEqual(t, pPos, mPos, "2体目は別タイルにいる")
 
 	// 位置入れ替え：player を member タイルへ、member を player タイルへ（actor 先で更新）。
 	// MoveCharacter が「from が自分自身のときだけ削除」するため、順序に関わらず最終状態が正しくなる
@@ -162,11 +170,10 @@ func TestInvalidateSpatialIndex_全マップがクリアされる(t *testing.T) 
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	_, err = lifecycle.SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
-	require.NoError(t, err)
+	_ = spawnCharacterAt(world, 11, 10)
 
 	si := query.GetSpatialIndex(world)
 	require.NotNil(t, si)

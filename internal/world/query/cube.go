@@ -30,25 +30,19 @@ func CubeWeight(world w.World, interior gc.StageKey) consts.Milligram {
 }
 
 // PushCost は総重量から1タイル押すのに要するAPを返す。空のキューブでも歩行の10倍規模の
-// 基準がかかり、総重量に比例して増える。仲間や強化ではこの値は変わらず、変わるのは
-// パーティAPで何ターンで払えるかである。
+// 基準がかかり、総重量に比例して増える。変わるのは行動点で何ターンで払えるかである。
 func PushCost(total consts.Milligram) int {
 	kg := int(total / consts.MilligramPerKg)
 	return consts.PushCostBase + consts.PushCostPerKg*kg
 }
 
-// PartyPushPower はこのターン押しへ充てられるAP総量を返す。Player と SquadMember の
-// TurnBased.AP.Current を合算する。仲間を増やし強化すると増え、同じ PushCost を
-// より少ないターンで払えて速く進む。押しコスト自体は不変。
-func PartyPushPower(world w.World) int {
+// PushPower はこのターン押しへ充てられるAP総量を返す。プレイヤーの TurnBased.AP.Current を用いる。
+// 同じ PushCost をより少ないターンで払えれば速く進む。押しコスト自体は不変。
+func PushPower(world w.World) int {
 	var total int
 	playerQuery := ActiveFilter2[gc.TurnBased, gc.Player](world).Query()
 	for playerQuery.Next() {
 		total += world.Components.TurnBased.Get(playerQuery.Entity()).AP.Current
-	}
-	memberQuery := ActiveFilter2[gc.TurnBased, gc.SquadMember](world).Query()
-	for memberQuery.Next() {
-		total += world.Components.TurnBased.Get(memberQuery.Entity()).AP.Current
 	}
 	return total
 }

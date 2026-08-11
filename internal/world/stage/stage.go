@@ -71,13 +71,13 @@ func ResetExploredTiles(world w.World) {
 
 // Bind は StageBound を持たないフィールドエンティティに key を付ける。
 // ステージ生成の直後に呼び、生成物をそのステージへ束縛して識別できるようにする。
-// GridElement を持つが Player・SquadMember・既存 StageBound でないものが対象。
-// Player・SquadMember はステージをまたいで生きるので束縛しない。
+// GridElement を持つが Player・既存 StageBound でないものが対象。
+// Player はステージをまたいで生きるので束縛しない。
 // 退避中エンティティは既に StageBound を持つので自然に除外される
 func Bind(world w.World, key gc.StageKey) {
 	var targets []ecs.Entity
 	q := ecs.NewFilter1[gc.GridElement](world.ECS).
-		Without(ecs.C[gc.StageBound](), ecs.C[gc.Player](), ecs.C[gc.SquadMember]()).Query()
+		Without(ecs.C[gc.StageBound](), ecs.C[gc.Player]()).Query()
 	for q.Next() {
 		targets = append(targets, q.Entity())
 	}

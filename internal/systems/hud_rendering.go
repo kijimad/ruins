@@ -15,7 +15,6 @@ type HUDRenderingSystem struct {
 	currencyDisplay *hud.CurrencyDisplay
 	weaponSlots     *hud.WeaponSlots
 	statusBadges    *hud.StatusBadges
-	squadHUD        *hud.SquadHUD
 	enabled         bool
 }
 
@@ -32,7 +31,6 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 		currencyDisplay: hud.NewCurrencyDisplay(smallFace),
 		weaponSlots:     hud.NewWeaponSlots(smallFace),
 		statusBadges:    hud.NewStatusBadges(smallFace),
-		squadHUD:        hud.NewSquadHUD(smallFace),
 		enabled:         true,
 	}
 }
@@ -104,9 +102,6 @@ func (sys *HUDRenderingSystem) Run(world w.World, screen *ebiten.Image) {
 	}
 	if sys.statusBadges != nil {
 		sys.statusBadges.Draw(screen, hudData.StatusBadgesData)
-	}
-	if sys.squadHUD != nil {
-		sys.squadHUD.Draw(screen, hudData.SquadHUDData)
 	}
 	if sys.gameInfo != nil {
 		sys.gameInfo.Draw(screen, hudData.GameInfo)

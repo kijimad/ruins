@@ -301,7 +301,7 @@ func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiG
 
 func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) *gc.Activity {
 	_, nearestGrid, nearestDist := query.FindNearestCharacter(world, aiEntity, aiGrid, func(entity ecs.Entity) bool {
-		return world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity)
+		return world.Components.SoloAI.Has(entity)
 	})
 
 	if nearestGrid == nil || nearestDist <= 1 {

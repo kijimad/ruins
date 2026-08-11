@@ -155,22 +155,18 @@ func TestPhaseG_多層の共存がセーブロードを跨いで保持され順�
 	assert.Zero(t, owSuspended, "地上へ戻るとオーバーワールド+街が再稼働する")
 }
 
-// TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され隊員も配置される は、遺跡から
+// TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元される は、遺跡から
 // オーバーワールドへ戻る際の復帰処理を固定する。遺跡進入で Level が遺跡寸法に置き換わるため、
 // 帰還時に帯寸法へ戻し視界を強制再計算しないと、プレイヤーが帯座標にいるのにマップが遺跡寸法の
-// ままで真っ暗・ミニマップ No Data になり、隊員配置も範囲外で失敗する。この一連を1本で固める。
-func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され隊員も配置される(t *testing.T) {
+// ままで真っ暗・ミニマップ No Data になる。この一連を1本で固める。
+func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元される(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// 街中心はNPC・収納で密集する。実ゲームの帯パラメータで新規開始し隊員を1体連れる。
+	// 実ゲームの帯パラメータで新規開始する。
 	drv := overworld.NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 50, 50, 3, 1), &overworld.NewGameParams{RunSeed: 1})
 	require.NoError(t, drv.Start(world))
 	player, err := query.GetPlayerEntity(world)
-	require.NoError(t, err)
-
-	// 密集した街中心でも隊員を生成できる
-	member, err := lifecycle.SpawnDefaultSquadMember(world, player)
 	require.NoError(t, err)
 
 	// 遺跡へ入る。Level が遺跡寸法に置き換わる。
@@ -190,14 +186,14 @@ func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され�
 	assert.Equal(t, sb.ChunkH, field.Level.TileHeight, "帯高さの Level が復元される")
 	assert.True(t, query.GetVisionState(world).ConsumePendingUpdate(), "視界の強制再計算が要求される")
 
-	// 隊員は復元された帯寸法の範囲内に配置される
+	// プレイヤーは復元された帯寸法の範囲内に配置される
 	si := query.GetSpatialIndex(world)
 	require.NotNil(t, si)
-	memberPos := world.Components.GridElement.Get(member).Coord
-	assert.GreaterOrEqual(t, int(memberPos.X), 0)
-	assert.GreaterOrEqual(t, int(memberPos.Y), 0)
-	assert.Less(t, int(memberPos.X), int(si.MapWidth), "隊員はマップ範囲内に配置される")
-	assert.Less(t, int(memberPos.Y), int(si.MapHeight), "隊員はマップ範囲内に配置される")
+	playerPos := world.Components.GridElement.Get(player).Coord
+	assert.GreaterOrEqual(t, int(playerPos.X), 0)
+	assert.GreaterOrEqual(t, int(playerPos.Y), 0)
+	assert.Less(t, int(playerPos.X), int(si.MapWidth), "プレイヤーはマップ範囲内に配置される")
+	assert.Less(t, int(playerPos.Y), int(si.MapHeight), "プレイヤーはマップ範囲内に配置される")
 }
 
 // TestPhaseG_遺跡内で保存しロード復元しても現ステージが遺跡のまま は、遺跡内で保存したセーブを

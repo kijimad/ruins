@@ -48,7 +48,7 @@ func (r *Rect) Height() consts.Tile { return r.Max.Y - r.Min.Y }
 type Tile struct{}
 
 // BlockPass は壁やドアなどの静的障害物に付与する。このコンポーネントを持つタイルは常に通行不可になる。
-// キャラクター（プレイヤー・敵・隊員）には付与しない。キャラクターの通行可否は関係性で判定する
+// キャラクター（プレイヤー・敵）には付与しない。キャラクターの通行可否は関係性で判定する
 type BlockPass struct{}
 
 // BlockView はフィールド上で視界を遮る

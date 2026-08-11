@@ -40,8 +40,7 @@ func TestTransferBehavior_Validate(t *testing.T) {
 		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
-		require.NoError(t, err)
+		member := spawnRecipient(world)
 
 		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
 		require.NoError(t, err)
@@ -108,8 +107,7 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
-		require.NoError(t, err)
+		member := spawnRecipient(world)
 
 		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
 		require.NoError(t, err)
@@ -139,8 +137,7 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 
 		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
-		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
-		require.NoError(t, err)
+		member := spawnRecipient(world)
 
 		// リーダーの共有プールにパンを3個持たせる
 		pool, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 3)
@@ -166,8 +163,8 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		// 主体はアクターの隊員でなく食料の所有者リーダー。自己転送の誤ログにならないこと
 		recent := query.GetGameLog(world).GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "Ash", "渡す主体はリーダー")
-		assert.Contains(t, recent[0], "handed over Bread to 隊員A", "受取人は隊員")
+		assert.Contains(t, recent[0], "Ash", "渡す主体は所有者")
+		assert.Contains(t, recent[0], "handed over Bread to Recipient", "受取人は相手")
 	})
 
 	t.Run("Countは指定個数だけ分割して渡す", func(t *testing.T) {
@@ -176,8 +173,7 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 
 		leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
-		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
-		require.NoError(t, err)
+		member := spawnRecipient(world)
 
 		// リーダーの共有プールにパンを5個持たせ、うち2個だけ渡す
 		pool, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 5)
@@ -212,10 +208,9 @@ func TestTransferBehavior_Info(t *testing.T) {
 	assert.Equal(t, gc.BehaviorTransfer, ta.Name())
 }
 
-func testAbilities() gc.Abilities {
-	return gc.Abilities{
-		Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
-		Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
-		Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
-	}
+// spawnRecipient はアイテム授受の相手となる素のエンティティを作る。名前だけ持たせる
+func spawnRecipient(world w.World) ecs.Entity {
+	e := world.ECS.NewEntity()
+	world.Components.Name.Add(e, &gc.Name{Name: "Recipient"})
+	return e
 }

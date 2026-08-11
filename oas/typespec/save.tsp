@@ -258,15 +258,6 @@ model ComponentsMap {
   /** 戦闘コマンドテーブル名 */
   CommandTable?: CommandTableComponent;
 
-  /** 隊員コンポーネント。リーダーへのエンティティ参照を含む */
-  SquadMember?: SquadMemberComponent;
-
-  /** 隊員の自律行動ポリシー */
-  SquadPolicy?: SquadPolicyComponent;
-
-  /** 隊員の外見情報 */
-  MemberAppearance?: MemberAppearanceComponent;
-
   /** 部位ごとの健康状態 */
   HealthStatus?: HealthStatusComponent;
 
@@ -587,78 +578,10 @@ enum HealingAmountType {
   numeral,
 }
 
-// ================== 隊員コンポーネント ==================
-
-/** 行動計画の種別 */
-enum PlannerType {
-  solo: "solo",
-  squad: "squad",
-}
-
-/** 移動ポリシー */
-enum MovementPolicyType {
-  random: "random",
-  patrol: "patrol",
-  wallHug: "wallHug",
-  stationary: "stationary",
-  wander: "wander",
-  territorial: "territorial",
-  swarm: "swarm",
-  escort: "escort",
-  vanguard: "vanguard",
-  retreat: "retreat",
-}
-
-/** 戦闘ポリシー */
-enum CombatPolicyType {
-  attack: "attack",
-  evade: "evade",
-  ignore: "ignore",
-}
-
-/** アイテム回収ポリシー */
-enum ItemPickupPolicyType {
-  pickup: "pickup",
-  ignore: "ignore",
-}
-
-/** アイテム処理ポリシー */
-enum ItemHandlingPolicyType {
-  keep: "keep",
-  distribute: "distribute",
-}
-
 /** 戦闘コマンドテーブル名 */
 model CommandTableComponent {
   /** コマンドテーブル名 */
   Name: string;
-}
-
-/**
- * 隊員コンポーネント。
- * Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
- */
-model SquadMemberComponent {
-  /** リーダーのStableID */
-  LeaderRef: StableID;
-
-  /** 同行中かどうか */
-  Active: boolean;
-}
-
-/** AIの行動ポリシー */
-model SquadPolicyComponent {
-  Planner: PlannerType;
-  Movement: MovementPolicyType;
-  CombatDefault: CombatPolicyType;
-  CombatCurrent: CombatPolicyType;
-  ItemPickup: ItemPickupPolicyType;
-  ItemHandling: ItemHandlingPolicyType;
-}
-
-/** 隊員の外見情報 */
-model MemberAppearanceComponent {
-  SpriteKey: SpriteKey;
 }
 
 // ================== 健康状態コンポーネント ==================

@@ -6,9 +6,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -226,96 +224,5 @@ func TestSaveLoadGameProgress(t *testing.T) {
 
 		assert.Empty(t, query.GetGameProgress(newWorld).ClearedDungeons)
 		assert.Empty(t, query.GetGameProgress(newWorld).Events)
-	})
-}
-
-// TestSaveLoadSquadMember は隊員のセーブ/ロード往復で必要なコンポーネントが復元されることを検証する
-func TestSaveLoadSquadMember(t *testing.T) {
-	t.Parallel()
-
-	abilities := gc.Abilities{
-		Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
-		Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
-		Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
-	}
-
-	t.Run("隊員のランタイムコンポーネントが復元される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-		require.NoError(t, err)
-
-		_, err = lifecycle.SpawnSquadMember(world, player, "隊員A", abilities, "player")
-		require.NoError(t, err)
-
-		sm := createTestSerializationManager(t)
-		jsonStr, err := sm.GenerateWorldJSON(world)
-		require.NoError(t, err)
-
-		newWorld := testutil.InitTestWorld(t)
-		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
-		require.NoError(t, err)
-
-		// 復元後の隊員を検索する
-		var memberEntity ecs.Entity
-		var found bool
-		memberQuery := ecs.NewFilter1[gc.SquadMember](newWorld.ECS).Query()
-		for memberQuery.Next() {
-			memberEntity = memberQuery.Entity()
-			found = true
-		}
-		require.True(t, found, "隊員エンティティが復元されている")
-
-		// AI処理に必要なコンポーネント
-		assert.True(t, newWorld.Components.SquadAI.Has(memberEntity), "SquadAIが復元される")
-		assert.True(t, newWorld.Components.GridElement.Has(memberEntity), "GridElementが復元される")
-
-		// ステータス関連コンポーネント
-		assert.True(t, newWorld.Components.HealthStatus.Has(memberEntity), "HealthStatusが復元される")
-		assert.True(t, newWorld.Components.Skills.Has(memberEntity), "Skillsが復元される")
-
-		// AIの値が正しいことを確認
-		ai := newWorld.Components.SquadAI.Get(memberEntity)
-		assert.Equal(t, gc.PlannerSquad, ai.Type())
-		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
-	})
-
-	// SquadMember は空マーカーでリーダー参照フィールドを持たない（leader は配置位置の
-	// 決定にのみ使う）。ここではプレイヤーと隊員の両エンティティが独立に復元されることを検証する。
-	// エンティティ参照の再マッピング自体は unified_test の assertComplexWorldRestored で検証する
-	t.Run("プレイヤーと隊員の両エンティティが復元される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-		require.NoError(t, err)
-
-		_, err = lifecycle.SpawnSquadMember(world, player, "隊員A", abilities, "player")
-		require.NoError(t, err)
-
-		sm := createTestSerializationManager(t)
-		jsonStr, err := sm.GenerateWorldJSON(world)
-		require.NoError(t, err)
-
-		newWorld := testutil.InitTestWorld(t)
-		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
-		require.NoError(t, err)
-
-		// プレイヤーが復元されていること
-		var playerFound bool
-		playerQuery := ecs.NewFilter1[gc.Player](newWorld.ECS).Query()
-		for playerQuery.Next() {
-			playerFound = true
-		}
-		assert.True(t, playerFound, "プレイヤーが復元されている")
-
-		// 隊員マーカーが復元されていること
-		var memberFound bool
-		memberQuery := ecs.NewFilter1[gc.SquadMember](newWorld.ECS).Query()
-		for memberQuery.Next() {
-			memberFound = true
-		}
-		assert.True(t, memberFound, "隊員マーカーが復元されている")
 	})
 }

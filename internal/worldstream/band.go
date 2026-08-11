@@ -77,8 +77,8 @@ func (b *Band) ShouldShiftWest(playerLocalX consts.Tile) bool {
 // ShiftEast は帯を東へ1チャンク進める。
 // 西端列の破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端列の生成。
 func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
-	// 1. 西端の列を全行破棄する。前線が呑む。プレイヤーと隊員は残す
-	RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayerAndSquad(world))
+	// 1. 西端の列を全行破棄する。前線が呑む。プレイヤーは残す
+	RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayer(world))
 	// 2. リベース。全エンティティを西へ chunkW ずらしてプレイヤーを中央へ戻す
 	TranslateAllEntities(world, -b.chunkW, 0)
 	// 3. 座標キー Map を追従させる。
@@ -104,7 +104,7 @@ func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
 		return fmt.Errorf("ShiftWest can only be called when eastIndex > 0: eastIndex=%d", b.eastIndex)
 	}
 	// 東端の列を全行破棄する
-	RemoveEntitiesInXRange(world, (b.cols - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))
+	RemoveEntitiesInXRange(world, (b.cols - 1).Tiles(b.chunkW), b.Width(), KeepPlayer(world))
 	// リベース：全エンティティを東へ chunkW
 	TranslateAllEntities(world, b.chunkW, 0)
 	b.rebaseCoordMaps(world, b.chunkW)

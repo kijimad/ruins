@@ -29,7 +29,6 @@ type EntitySpec struct {
 	LocationInStorage  *LocationInStorage
 	Tile               *Tile
 	SoloAI             *SoloAI
-	SquadAI            *SquadAI
 	Camera             *Camera
 	Position           *Position
 	GridElement        *GridElement
@@ -73,7 +72,6 @@ type EntitySpec struct {
 	Book               *Book
 	CommandTable       *CommandTable
 	DropTable          *DropTable
-	SquadMember        *SquadMember
 	Activity           *Activity
 	LastActivity       *LastActivity
 	GameLog            *GameLog
@@ -112,7 +110,6 @@ type Components struct {
 	LocationInStorage  *ecs.Map[LocationInStorage]
 	Tile               *ecs.Map[Tile]
 	SoloAI             *ecs.Map[SoloAI]
-	SquadAI            *ecs.Map[SquadAI]
 	Camera             *ecs.Map[Camera]
 	Position           *ecs.Map[Position]
 	GridElement        *ecs.Map[GridElement]
@@ -156,7 +153,6 @@ type Components struct {
 	Book               *ecs.Map[Book]
 	CommandTable       *ecs.Map[CommandTable]
 	DropTable          *ecs.Map[DropTable]
-	SquadMember        *ecs.Map[SquadMember]
 	Activity           *ecs.Map[Activity]
 	LastActivity       *ecs.Map[LastActivity]
 	GameLog            *ecs.Map[GameLog]
@@ -195,7 +191,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LocationInStorage = ecs.NewMap[LocationInStorage](world)
 	c.Tile = ecs.NewMap[Tile](world)
 	c.SoloAI = ecs.NewMap[SoloAI](world)
-	c.SquadAI = ecs.NewMap[SquadAI](world)
 	c.Camera = ecs.NewMap[Camera](world)
 	c.Position = ecs.NewMap[Position](world)
 	c.GridElement = ecs.NewMap[GridElement](world)
@@ -239,7 +234,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Book = ecs.NewMap[Book](world)
 	c.CommandTable = ecs.NewMap[CommandTable](world)
 	c.DropTable = ecs.NewMap[DropTable](world)
-	c.SquadMember = ecs.NewMap[SquadMember](world)
 	c.Activity = ecs.NewMap[Activity](world)
 	c.LastActivity = ecs.NewMap[LastActivity](world)
 	c.GameLog = ecs.NewMap[GameLog](world)
@@ -280,7 +274,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LocationInStorage, entity, spec.LocationInStorage)
 	addComp(c.Tile, entity, spec.Tile)
 	addComp(c.SoloAI, entity, spec.SoloAI)
-	addComp(c.SquadAI, entity, spec.SquadAI)
 	addComp(c.Camera, entity, spec.Camera)
 	addComp(c.Position, entity, spec.Position)
 	addComp(c.GridElement, entity, spec.GridElement)
@@ -324,7 +317,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Book, entity, spec.Book)
 	addComp(c.CommandTable, entity, spec.CommandTable)
 	addComp(c.DropTable, entity, spec.DropTable)
-	addComp(c.SquadMember, entity, spec.SquadMember)
 	addComp(c.Activity, entity, spec.Activity)
 	addComp(c.LastActivity, entity, spec.LastActivity)
 	addComp(c.GameLog, entity, spec.GameLog)

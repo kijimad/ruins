@@ -605,51 +605,6 @@ func TestExtractStatusBadgesData(t *testing.T) {
 	}
 }
 
-func TestExtractSquadHUDData(t *testing.T) {
-	t.Parallel()
-
-	t.Run("プレイヤー不在時は空データを返す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		world.Resources.SetScreenDimensions(100, 200)
-
-		data := extractSquadHUDData(world)
-
-		assert.Empty(t, data.Members)
-		assert.Equal(t, 100, data.ScreenDimensions.Width)
-		assert.Equal(t, 200, data.ScreenDimensions.Height)
-	})
-
-	t.Run("生存している隊員情報を反映する", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-
-		member := world.ECS.NewEntity()
-		world.Components.SquadMember.Add(member, &gc.SquadMember{})
-		world.Components.FactionAlly.Add(member, &gc.FactionAlly{})
-		world.Components.Name.Add(member, &gc.Name{Name: "アッシュ"})
-		world.Components.HP.Add(member, &gc.HP{Current: 8, Max: 20})
-
-		// 死亡した隊員は除外される
-		deadMember := world.ECS.NewEntity()
-		world.Components.SquadMember.Add(deadMember, &gc.SquadMember{})
-		world.Components.FactionAlly.Add(deadMember, &gc.FactionAlly{})
-		world.Components.Name.Add(deadMember, &gc.Name{Name: "死者"})
-		world.Components.HP.Add(deadMember, &gc.HP{Current: 0, Max: 10})
-		world.Components.Dead.Add(deadMember, &gc.Dead{})
-
-		data := extractSquadHUDData(world)
-
-		require.Len(t, data.Members, 1)
-		assert.Equal(t, "アッシュ", data.Members[0].Name)
-		assert.Equal(t, 8, data.Members[0].CurrentHP)
-		assert.Equal(t, 20, data.Members[0].MaxHP)
-	})
-}
-
 func TestExtractMessageData_メッセージ履歴と画面情報を反映する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

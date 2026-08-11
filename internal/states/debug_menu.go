@@ -100,24 +100,6 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		Choice{Label: "All clear event", Run: pushChoice(NewAllClearEventState)},
 		Choice{Label: "Name input", Run: pushChoice(NewCharacterNamingState)},
 		Choice{Label: "Job selection", Run: pushChoice(NewCharacterJobState("Ash"))},
-		Choice{Label: "Spawn squad member", Run: popAfter(func(world w.World) error {
-			player, err := query.GetPlayerEntity(world)
-			if err != nil {
-				return err
-			}
-			abilities := gc.Abilities{
-				Vitality:  gc.Ability{Base: 10},
-				Strength:  gc.Ability{Base: 8},
-				Sensation: gc.Ability{Base: 7},
-				Dexterity: gc.Ability{Base: 6},
-				Agility:   gc.Ability{Base: 9},
-				Defense:   gc.Ability{Base: 5},
-			}
-			if _, err := lifecycle.SpawnSquadMember(world, player, "Squad member", abilities, "general"); err != nil {
-				return fmt.Errorf("failed to spawn squad member: %w", err)
-			}
-			return nil
-		})},
 		Choice{Label: "Spawn enemy: fireball (hostile)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "fireball") })},
 		Choice{Label: "Spawn enemy: moss turtle (neutral)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "moss_turtle") })},
 		Choice{Label: "Spawn enemy: rat (cowardly)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "rat") })},
