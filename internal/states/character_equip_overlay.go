@@ -26,7 +26,7 @@ type characterEquipOverlay struct {
 	detail *overlay.Detail
 }
 
-var _ overlay.Interface = (*characterEquipOverlay)(nil)
+var _ overlay.Layer = (*characterEquipOverlay)(nil)
 
 // newCharacterEquipOverlay は共有の詳細モーダルを参照する装備選択 overlay を作る
 func newCharacterEquipOverlay(detail *overlay.Detail) characterEquipOverlay {

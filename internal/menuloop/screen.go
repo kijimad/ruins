@@ -63,7 +63,7 @@ type Screen[P any] struct {
 	model         Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
 	mount         *hooks.Mount[P]
 	widget        *ebitenui.UI
-	overlays      []overlay.Interface
+	overlays      []overlay.Layer
 	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
 	lastProps     P         // 直近フレームの props。dirty 判定で DeepEqual 比較する
 	hadProps      bool      // lastProps に一度でも値が入ったか。初回の空比較を避ける
@@ -72,7 +72,7 @@ type Screen[P any] struct {
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
 // 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す
-func NewScreen[P any](model Model[P], overlays ...overlay.Interface) *Screen[P] {
+func NewScreen[P any](model Model[P], overlays ...overlay.Layer) *Screen[P] {
 	return &Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
 }
 
@@ -80,7 +80,7 @@ func NewScreen[P any](model Model[P], overlays ...overlay.Interface) *Screen[P] 
 func (s *Screen[P]) Props() P { return s.mount.GetProps() }
 
 // activeOverlay は登録順で最初の Active な overlay を返す。無ければ nil
-func (s *Screen[P]) activeOverlay() overlay.Interface {
+func (s *Screen[P]) activeOverlay() overlay.Layer {
 	for _, ov := range s.overlays {
 		if ov.Active() {
 			return ov

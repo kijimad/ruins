@@ -81,7 +81,7 @@ func (d *Detail) Open(world w.World) {
 
 // HandleInput は表示中のキー入力を処理する。ページ数は provide の内容から自身で算出する。
 // 表示中でなければ何もしない。
-// error は Interface の契約に合わせた戻り値で、詳細モーダルでは常に nil
+// error は Layer の契約に合わせた戻り値で、詳細モーダルでは常に nil
 func (d *Detail) HandleInput(world w.World) error {
 	if !d.active {
 		return nil
