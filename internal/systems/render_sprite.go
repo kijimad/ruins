@@ -31,27 +31,17 @@ type spriteImageCacheKey struct {
 	SpriteKey       string
 }
 
-// coloredDarknessCacheKey は光源色ごとの暗闇画像のキャッシュキー
-type coloredDarknessCacheKey struct {
-	R             uint8
-	G             uint8
-	B             uint8
-	DarknessLevel int
-}
-
 // RenderSpriteSystem はスプライト描画システム
 // キャッシュを保持し、描画処理を行う
 type RenderSpriteSystem struct {
-	spriteImageCache     map[spriteImageCacheKey]*ebiten.Image
-	darknessCacheImages  []*ebiten.Image
-	coloredDarknessCache map[coloredDarknessCacheKey]*ebiten.Image
+	spriteImageCache    map[spriteImageCacheKey]*ebiten.Image
+	darknessCacheImages []*ebiten.Image
 }
 
 // NewRenderSpriteSystem はRenderSpriteSystemを初期化する
 func NewRenderSpriteSystem() *RenderSpriteSystem {
 	return &RenderSpriteSystem{
-		spriteImageCache:     make(map[spriteImageCacheKey]*ebiten.Image),
-		coloredDarknessCache: make(map[coloredDarknessCacheKey]*ebiten.Image),
+		spriteImageCache: make(map[spriteImageCacheKey]*ebiten.Image),
 	}
 }
 
@@ -449,7 +439,6 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 			grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tileX), Y: consts.Tile(tileY)}}
 
 			var darkness float64
-			var lightColor color.RGBA
 			info, exists := tileRenderMap[grid]
 			if !exists {
 				// tileRenderMapにないタイルは完全に黒くする。
@@ -470,7 +459,7 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 			worldY := float64(tileY * int(consts.TileSize))
 			screenX := (worldX-cameraX)*cameraScale + float64(screenWidth)/2
 			screenY := (worldY-cameraY)*cameraScale + float64(screenHeight)/2
-			sys.drawDarknessAtLevelWithColor(screen, screenX, screenY, darkness, lightColor, cameraScale, int(consts.TileSize))
+			sys.drawDarknessAtLevel(screen, screenX, screenY, darkness, cameraScale)
 		}
 	}
 }
@@ -493,41 +482,17 @@ func (sys *RenderSpriteSystem) initializeDarknessCache(tileSize int) {
 	}
 }
 
-// drawDarknessAtLevelWithColor は光源の色を考慮した暗闇を描画する
-func (sys *RenderSpriteSystem) drawDarknessAtLevelWithColor(screen *ebiten.Image, x, y, darkness float64, lightColor color.RGBA, scale float64, tileSize int) {
+// drawDarknessAtLevel は暗さを段階に量子化して黒の暗闇オーバーレイを描画する。
+// 記憶タイルと未探索タイルの減光に使う。可視タイルの明るさはライトマップが担うのでここでは扱わない。
+func (sys *RenderSpriteSystem) drawDarknessAtLevel(screen *ebiten.Image, x, y, darkness, scale float64) {
 	if darkness <= 0.0 {
 		return
 	}
 
 	darknessLevel := max(min(int(math.Ceil(darkness*float64(DarknessLevels))), DarknessLevels), 1)
-
-	quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)
-
-	cacheKey := coloredDarknessCacheKey{
-		R:             lightColor.R,
-		G:             lightColor.G,
-		B:             lightColor.B,
-		DarknessLevel: darknessLevel,
-	}
-
-	darknessImg, exists := sys.coloredDarknessCache[cacheKey]
-	if !exists {
-		alpha := uint8(quantizedDarkness * 255)
-
-		colorStrength := 0.1
-		darknessColor := color.RGBA{
-			R: uint8(float64(lightColor.R) * colorStrength),
-			G: uint8(float64(lightColor.G) * colorStrength),
-			B: uint8(float64(lightColor.B) * colorStrength),
-			A: alpha,
-		}
-
-		darknessImg = ebiten.NewImage(tileSize, tileSize)
-		darknessImg.Fill(darknessColor)
-
-		if len(sys.coloredDarknessCache) < 1000 {
-			sys.coloredDarknessCache[cacheKey] = darknessImg
-		}
+	darknessImg := sys.darknessCacheImages[darknessLevel]
+	if darknessImg == nil {
+		return
 	}
 
 	op := &ebiten.DrawImageOptions{}

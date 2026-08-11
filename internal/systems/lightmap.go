@@ -3,6 +3,7 @@ package systems
 import (
 	"image/color"
 	"math"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -15,13 +16,20 @@ import (
 const lightGradientSize = 128
 
 // lightGradientImage は放射状グラデーションのキャッシュ。中心1、外周0へ滑らかに落ちる。
-var lightGradientImage *ebiten.Image
+// 初期化は lightGradientOnce で1度だけ行い、並列描画/テストでのデータレースを防ぐ。
+var (
+	lightGradientImage *ebiten.Image
+	lightGradientOnce  sync.Once
+)
 
 // lightGradient はソフトな放射状グラデーションを返す。光源1つぶんの光だまりの元になる。
 func lightGradient() *ebiten.Image {
-	if lightGradientImage != nil {
-		return lightGradientImage
-	}
+	lightGradientOnce.Do(buildLightGradient)
+	return lightGradientImage
+}
+
+// buildLightGradient は放射状グラデーション画像を生成してキャッシュへ入れる。
+func buildLightGradient() {
 	img := ebiten.NewImage(lightGradientSize, lightGradientSize)
 	c := float64(lightGradientSize) / 2
 	pix := make([]byte, lightGradientSize*lightGradientSize*4)
@@ -42,7 +50,6 @@ func lightGradient() *ebiten.Image {
 	}
 	img.WritePixels(pix)
 	lightGradientImage = img
-	return img
 }
 
 // BuildLightMap は乗算用のライトマップを dst へ描く。

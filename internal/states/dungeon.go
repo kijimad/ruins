@@ -368,6 +368,11 @@ func (st *DungeonState) ensureFrames(width, height int) {
 		if b.Dx() == width && b.Dy() == height {
 			return
 		}
+		// サイズが変わったので旧フレームを解放する。GPU テクスチャの即時解放を促す
+		st.worldFrame.Deallocate()
+		if st.lightMap != nil {
+			st.lightMap.Deallocate()
+		}
 	}
 	st.worldFrame = ebiten.NewImage(width, height)
 	st.lightMap = ebiten.NewImage(width, height)
