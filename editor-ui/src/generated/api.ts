@@ -836,6 +836,10 @@ export interface Item {
     'material'?: boolean;
     'disassembly'?: Disassembly;
     'disassemblyTool'?: DisassemblyTool;
+    /**
+     * 携行光源。装備すると owner を照らす
+     */
+    'lightSource'?: LightSource;
 }
 /**
  * アイテムグループ。アイテムの出現セットを定義する

@@ -337,6 +337,9 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Material = &gc.Material{}
 	}
 
+	// 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
+	entitySpec.LightSource = toGCLightSource(item.LightSource)
+
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
 

@@ -40,7 +40,8 @@ func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 		})
 
 		// StatsChangedフラグを立てる
-		world.Components.StatsChanged.Add(player, &gc.StatsChanged{})
+		// SpawnPlayer が初期装備でStatsChangedを立てるので、冪等に設定する
+		require.NoError(t, gc.Upsert(world.ECS, world.Components.StatsChanged, player, &gc.StatsChanged{}))
 
 		// システム実行
 		sys := &StatsChangedSystem{}
@@ -70,7 +71,8 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 		turnBased.AP.Max = 9999
 
 		// StatsChangedフラグを立てる
-		world.Components.StatsChanged.Add(player, &gc.StatsChanged{})
+		// SpawnPlayer が初期装備でStatsChangedを立てるので、冪等に設定する
+		require.NoError(t, gc.Upsert(world.ECS, world.Components.StatsChanged, player, &gc.StatsChanged{}))
 
 		// システム実行
 		sys := &StatsChangedSystem{}

@@ -2,6 +2,7 @@ package systems
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -70,6 +71,31 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			abils.Sensation.Modifier += wearable.EquipBonus.Sensation
 			abils.Dexterity.Modifier += wearable.EquipBonus.Dexterity
 			abils.Agility.Modifier += wearable.EquipBonus.Agility
+		}
+
+		// 装備した光源を owner の LightSource へ転写する。装備品は GridElement を持たず
+		// vision に拾われないので、位置を持つ owner へ写して照らす。トーチは武器スロットに
+		// 装備するので Wearable ではなく LightSource で拾う。最も明るい光源を採用する
+		if world.Components.LightSource.Has(entity) {
+			ls := world.Components.LightSource.Get(entity)
+			ls.Enabled = false
+			var bestRadius consts.Tile
+			lightQuery := ecs.NewFilter2[gc.LocationEquipped, gc.LightSource](world.ECS).Query()
+			for lightQuery.Next() {
+				litem := lightQuery.Entity()
+				if world.Components.LocationEquipped.Get(litem).Owner != entity {
+					continue
+				}
+				src := world.Components.LightSource.Get(litem)
+				if src.Enabled && src.Radius > bestRadius {
+					bestRadius = src.Radius
+					ls.Radius = src.Radius
+					ls.Color = src.Color
+					ls.Enabled = true
+				}
+			}
+			// 光源が変わったので視界を再計算させる
+			query.GetVisionState(world).RequestUpdate()
 		}
 
 		// 健康ペナルティを加算
