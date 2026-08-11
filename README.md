@@ -107,7 +107,6 @@ $ make help
 | draft | [コード監査: ダンジョン生成・リロード・セーブ 2026-08-03](docs/design/260803144226.md) | 5/5 | worldgen, combat, save, ecs |
 | draft | [天気システムを設計する](docs/design/260805144630.md) | 0/7 | gamedesign, worldgen, ecs |
 | draft | [コード監査: ダンジョン生成・戦闘継続・UI描画 2026-08-10](docs/design/260810001803.md) | 0/5 | worldgen, combat, item, ui, ecs |
-| draft | [UI アーキテクチャの一貫性を回復する](docs/design/260810150255.md) | 0/6 | ui, refactor |
 | draft | [隊員（NPC 仲間）を削除する](docs/design/260810222240.md) | 2/4（見送り1） | gamedesign, member |
 
 

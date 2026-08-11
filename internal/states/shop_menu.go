@@ -10,10 +10,11 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -26,23 +27,23 @@ import (
 // 商人の在庫を売買する。買うと在庫が減り、売ると売った品が在庫に並ぶ
 type ShopMenuState struct {
 	es.BaseState[w.World]
-	merchant ecs.Entity        // 品揃えを LocationInStorage で持つ商人。売買の相手
-	detail   menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen   *menurt.Screen[ShopProps]
+	merchant ecs.Entity     // 品揃えを LocationInStorage で持つ商人。売買の相手
+	detail   overlay.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen   *menuloop.Screen[ShopProps]
 }
 
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}
-var _ menurt.ExtraInput = &ShopMenuState{}
+var _ menuloop.ExtraInput = &ShopMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewEntityDetail(func() (ecs.Entity, bool) {
+	st.detail = overlay.NewEntityDetail(func() (ecs.Entity, bool) {
 		it, ok := st.selectedShopItem()
 		return it.Entity, ok
 	})
-	st.screen = menurt.NewScreen[ShopProps](st, &st.detail)
+	st.screen = menuloop.NewScreen[ShopProps](st, &st.detail)
 	return nil
 }
 
@@ -93,7 +94,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 // Props
 // ================
 
-// ShopProps は画面の表示 props。menurt.Screen の型引数として渡す
+// ShopProps は画面の表示 props。menuloop.Screen の型引数として渡す
 type ShopProps struct {
 	Tabs []shopTabData
 }
@@ -113,7 +114,7 @@ type shopItemData struct {
 	Disabled bool       // 所持金が足りず選べない
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる。
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。
 // プレイヤーが居なければ空の props を返す。価格は query.BuyPrice/SellPrice が取引と揃えて出す
 func (st *ShopMenuState) Fetch(world w.World) ShopProps {
 	player, err := query.GetPlayerEntity(world)
@@ -127,13 +128,13 @@ func (st *ShopMenuState) Fetch(world w.World) ShopProps {
 	}
 }
 
-// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
-func (st *ShopMenuState) Menu(props ShopProps) menurt.MenuConfig {
+// Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
+func (st *ShopMenuState) Menu(props ShopProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menurt.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
 func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency int) []shopTabData {
@@ -243,14 +244,14 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
+func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	// 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	return newTabScreenUI(res, tabScreen{
+	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),

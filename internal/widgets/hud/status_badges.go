@@ -6,7 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
@@ -77,10 +77,10 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		// Y位置を計算（下から積み上げる）
 		badgeY := currentY - badgeHeight
 
-		// 背景矩形を描画
-		bgX := float32(theme.Space4F)
-		bgWidth := float32(textWidth + paddingX*2)
-		vector.FillRect(screen, bgX, float32(badgeY), bgWidth, float32(badgeHeight), badge.Color, false)
+		// 背景矩形を描画。塗りはバッジの状態色を保ちつつ、枠はメニュー枠と同じ共通 chrome に揃える
+		bgX := theme.Space4
+		bgWidth := int(textWidth) + paddingX*2
+		styled.DrawFramedBackground(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(badge.Color))
 
 		// 白文字でテキストを描画
 		textY := badgeY + paddingY
@@ -98,12 +98,20 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		badgeHeight := textHeight + paddingY*2
 		badgeY := currentY - badgeHeight
 
-		// グレーの背景
-		bgX := float32(theme.Space4F)
-		bgWidth := float32(textWidth + paddingX*2)
-		vector.FillRect(screen, bgX, float32(badgeY), bgWidth, float32(badgeHeight), theme.HUDBadgeBg, false)
+		// グレーの背景。他バッジと同じ共通 chrome に揃える
+		bgX := theme.Space4
+		bgWidth := int(textWidth) + paddingX*2
+		styled.DrawFramedBackground(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(theme.HUDBadgeBg))
 
 		textY := badgeY + paddingY
 		drawOutlinedText(screen, moreText, sb.bodyFace, theme.Space4F, textY, theme.TextPrimary)
 	}
+}
+
+// badgeStyle はバッジの共通 chrome スタイルを返す。塗りはバッジごとの状態色を渡し、
+// 枠はメニュー枠と同じ PanelStyle に揃える
+func badgeStyle(fill color.RGBA) styled.BackgroundStyle {
+	s := styled.PanelStyle()
+	s.BackgroundColor = fill
+	return s
 }

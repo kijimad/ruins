@@ -8,8 +8,9 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -17,8 +18,8 @@ import (
 )
 
 // View は人物画面のタブ本体を props と選択位置から組み立てる描画。ラベルの訳のみ world から引く。
-// 詳細や装備選択のオーバーレイ窓は Screen が重ねる。menurt.Model の View 部にあたる
-func (st *CharacterState) View(world w.World, props CharacterProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// 詳細や装備選択のオーバーレイ窓は Screen が重ねる。menuloop.Model の View 部にあたる
+func (st *CharacterState) View(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	// 見出しは対象キャラ名。仲間がいれば左右矢印で切替可能を示す。
 	// 矢印は素の記号だとフォントに無く文字化けするため FontAwesome のアイコンを使う
 	header := props.TargetName
@@ -43,7 +44,7 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menur
 		extras = []string{query.T(world, ", . Switch"), query.T(world, "x Details")}
 	}
 
-	return newTabScreenUI(res, tabScreen{
+	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		Header:    header,
 		TabLabels: characterTabLabels(world),
 		TabIndex:  cursor.TabIndex,

@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -22,7 +22,7 @@ import (
 // MainMenuState はメインメニューのゲームステート
 type MainMenuState struct {
 	es.BaseState[w.World]
-	screen *menurt.Screen[MainMenuProps]
+	screen *menuloop.Screen[MainMenuProps]
 }
 
 // State interface ================
@@ -43,7 +43,7 @@ func (st *MainMenuState) OnStart(world w.World) error {
 	// シングルトンエンティティを再構築する
 	world.InitSingleton()
 
-	st.screen = menurt.NewScreen[MainMenuProps](st)
+	st.screen = menuloop.NewScreen[MainMenuProps](st)
 	return nil
 }
 
@@ -95,7 +95,7 @@ type mainMenuItem struct {
 	Transition es.Transition[w.World]
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *MainMenuState) Fetch(world w.World) MainMenuProps {
 	var startFuncs []es.StateFactory[w.World]
 	if world.Config.SkipOpening {
@@ -116,9 +116,9 @@ func (st *MainMenuState) Fetch(world w.World) MainMenuProps {
 	}
 }
 
-// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
-func (st *MainMenuState) Menu(props MainMenuProps) menurt.MenuConfig {
-	return menurt.MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
+// Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
+func (st *MainMenuState) Menu(props MainMenuProps) menuloop.MenuConfig {
+	return menuloop.MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
 }
 
 func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
@@ -134,8 +134,8 @@ func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
+func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	itemIndex := cursor.ItemIndex
 
 	rootContainer := widget.NewContainer(

@@ -1,12 +1,12 @@
 package hud
 
 import (
-	euiimage "github.com/ebitenui/ebitenui/image"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -27,15 +27,13 @@ var defaultWeaponSlotsConfig = weaponSlotsConfig{
 
 // WeaponSlots は武器スロット表示ウィジェット
 type WeaponSlots struct {
-	face      text.Face
-	slotImage *euiimage.NineSlice // スロット背景のNineSlice画像。PanelResourcesと共有する
+	face text.Face
 }
 
 // NewWeaponSlots は新しいWeaponSlotsを作成する
-func NewWeaponSlots(face text.Face, slotImage *euiimage.NineSlice) *WeaponSlots {
+func NewWeaponSlots(face text.Face) *WeaponSlots {
 	return &WeaponSlots{
-		face:      face,
-		slotImage: slotImage,
+		face: face,
 	}
 }
 
@@ -80,13 +78,8 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
 
 // drawSlotBackground はスロット背景をNineSlice描画する
 func (ws *WeaponSlots) drawSlotBackground(screen *ebiten.Image, x, y, size int, selected bool) {
-	if ws.slotImage == nil {
-		return
-	}
-
-	ws.slotImage.Draw(screen, size, size, func(opts *ebiten.DrawImageOptions) {
-		opts.GeoM.Translate(float64(x), float64(y))
-	})
+	// スロット背景をメニュー枠と同じ共通 chrome に揃える
+	styled.DrawFramedBackground(screen, x, y, size, size, styled.PanelStyle())
 
 	// 選択中のスロットには明るい枠線を重ねて描画する
 	if selected {

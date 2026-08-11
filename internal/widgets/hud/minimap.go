@@ -6,6 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -49,13 +50,9 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 	minimapX := screenWidth - minimapWidth - theme.Space4
 	minimapY := theme.Space4
 
-	// ミニマップの背景を描画
+	// ミニマップの背景を描画。メニュー枠と同じ共通 chrome に揃える
 	if minimapWidth > 0 && minimapHeight > 0 {
-		minimapBg := ebiten.NewImage(minimapWidth, minimapHeight)
-		minimapBg.Fill(theme.HUDMinimapBg)
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(minimapX), float64(minimapY))
-		screen.DrawImage(minimapBg, op)
+		styled.DrawFramedBackground(screen, minimapX, minimapY, minimapWidth, minimapHeight, styled.PanelStyle())
 	}
 
 	// ミニマップの中心をプレイヤー位置に合わせる
@@ -89,7 +86,7 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 	}
 
 	// 隊員の位置を青い点で表示
-	squadColor := color.RGBA{80, 140, 255, 255}
+	squadColor := theme.HUDSquadMarker
 	for _, pos := range data.SquadPositions {
 		relX := int(pos.Tile.X - data.PlayerTile.X)
 		relY := int(pos.Tile.Y - data.PlayerTile.Y)
@@ -115,13 +112,9 @@ func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
 	minimapX := screenWidth - minimapWidth - theme.Space4
 	minimapY := theme.Space4
 
-	// ミニマップの背景を描画（半透明の黒い四角）
+	// ミニマップの背景を描画。メニュー枠と同じ共通 chrome に揃える
 	if minimapWidth > 0 && minimapHeight > 0 {
-		minimapBg := ebiten.NewImage(minimapWidth, minimapHeight)
-		minimapBg.Fill(theme.HUDMinimapBg)
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(minimapX), float64(minimapY))
-		screen.DrawImage(minimapBg, op)
+		styled.DrawFramedBackground(screen, minimapX, minimapY, minimapWidth, minimapHeight, styled.PanelStyle())
 	}
 
 	// 中央に"No Data"テキストを表示（枠線付き）

@@ -1,4 +1,4 @@
-package tabmenu
+package messagewindow
 
 import (
 	eui_image "github.com/ebitenui/ebitenui/image"
@@ -6,7 +6,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // UIBuilder はTabMenuのUI要素を構築する
@@ -24,7 +23,7 @@ func newUIBuilder(world w.World) *uiBuilder {
 }
 
 // BuildUI はUI要素を構築する
-func (b *uiBuilder) BuildUI(config Config, state ViewState) *widget.Container {
+func (b *uiBuilder) BuildUI(config tabMenuConfig, state viewState) *widget.Container {
 	mainContainer := styled.NewVerticalContainer()
 	b.itemWidgets = make([]widget.PreferredSizeLocateableWidget, 0)
 
@@ -47,7 +46,7 @@ func (b *uiBuilder) BuildUI(config Config, state ViewState) *widget.Container {
 }
 
 // createMenuButton はメニューボタンを作成する
-func (b *uiBuilder) createMenuButton(item Item, isFocused bool) widget.PreferredSizeLocateableWidget {
+func (b *uiBuilder) createMenuButton(item item, isFocused bool) widget.PreferredSizeLocateableWidget {
 	return styled.NewListItem(nil,
 		item.Label,
 		theme.TextSecondary,
@@ -58,7 +57,7 @@ func (b *uiBuilder) createMenuButton(item Item, isFocused bool) widget.Preferred
 }
 
 // UpdateFocus はメニューのフォーカス表示を更新する
-func (b *uiBuilder) UpdateFocus(config Config, state ViewState) {
+func (b *uiBuilder) UpdateFocus(config tabMenuConfig, state viewState) {
 	if len(b.itemWidgets) == 0 {
 		return
 	}
@@ -119,22 +118,4 @@ func (b *uiBuilder) createPageIndicator(pageText string) *widget.Text {
 			widget.WidgetOpts.MinSize(300, 20),
 		),
 	)
-}
-
-// UpdateTabDisplayContainer はタブ表示コンテナを更新する。
-// 表示内容の計算は computeDisplayRows に委ね、ここは行を ebitenui widget へ変換して並べるだけにする。
-func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, config Config, state ViewState) {
-	container.RemoveChildren()
-
-	res := b.world.Resources.UIResources
-	for _, row := range computeDisplayRows(config, state) {
-		switch row.Kind {
-		case displayPageIndicator:
-			container.AddChild(styled.NewPageIndicator(row.Label, res))
-		case displayItem:
-			container.AddChild(styled.NewListItem(nil, row.Label, theme.TextSecondary, row.Selected, res, row.AdditionalLabels...))
-		case displayEmptyPlaceholder:
-			container.AddChild(styled.NewDescriptionText(query.T(b.world, row.Label), res))
-		}
-	}
 }

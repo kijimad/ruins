@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -135,12 +136,10 @@ func (st *LookAroundState) Draw(world w.World, screen *ebiten.Image) error {
 	return st.drawInfoPanel(world, screen)
 }
 
-// 画像キャッシュ。sync.Once で一度だけ初期化する
+// カーソル画像キャッシュ。sync.Once で一度だけ初期化する
 var (
 	cursorImageCache     *ebiten.Image
 	cursorImageCacheOnce sync.Once
-	panelImageCache      *ebiten.Image
-	panelImageCacheOnce  sync.Once
 )
 
 // drawCursor はカーソルを描画する
@@ -199,17 +198,10 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 		lineHeight  = 20
 	)
 
-	// パネル背景をキャッシュから取得または生成
-	panelImageCacheOnce.Do(func() {
-		panelImageCache = ebiten.NewImage(panelWidth, panelHeight)
-		panelImageCache.Fill(theme.Overlay)
-	})
-
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
-	panelOp := &ebiten.DrawImageOptions{}
-	panelOp.GeoM.Translate(float64(panelX), float64(panelY))
-	screen.DrawImage(panelImageCache, panelOp)
+	// パネル背景をメニュー枠と同じ共通 chrome に揃える
+	styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())
 
 	// テキスト描画ヘルパー
 	textX := float64(panelX + 10)

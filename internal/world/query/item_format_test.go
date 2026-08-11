@@ -27,13 +27,13 @@ func TestFormatItemName(t *testing.T) {
 			name:      "個数が10のアイテムは個数付き",
 			itemName:  "パン",
 			itemCount: 10,
-			want:      "パン (x10)",
+			want:      "10 パン",
 		},
 		{
 			name:      "個数が99のアイテムは個数付き",
 			itemName:  "矢",
 			itemCount: 99,
-			want:      "矢 (x99)",
+			want:      "99 矢",
 		},
 	}
 
@@ -67,7 +67,7 @@ func TestFormatItemName(t *testing.T) {
 		world.Components.Stackable.Add(itemEntity, &gc.Stackable{Count: 5})
 
 		got := FormatItemName(world, itemEntity)
-		assert.Equal(t, "Unknown Item (x5)", got)
+		assert.Equal(t, "5 Unknown Item", got)
 	})
 
 	t.Run("両方のコンポーネントがない場合", func(t *testing.T) {

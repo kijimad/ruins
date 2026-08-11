@@ -13,52 +13,52 @@ const (
 	MinHeight = 300 // 最小高さ
 )
 
-// WindowSize はウィンドウサイズの設定
-type WindowSize struct {
+// windowSize はウィンドウサイズの設定
+type windowSize struct {
 	Width  int
 	Height int
 }
 
-// Padding は内側余白の設定
-type Padding struct {
+// windowPadding は内側余白の設定
+type windowPadding struct {
 	Top    int
 	Bottom int
 	Left   int
 	Right  int
 }
 
-// WindowStyle はウィンドウの外観設定
-type WindowStyle struct {
+// windowStyle はウィンドウの外観設定
+type windowStyle struct {
 	BackgroundColor color.Color
 	BorderColor     color.Color
 	BorderWidth     int
-	Padding         Padding
+	windowPadding   windowPadding
 }
 
-// TextStyle はテキストの外観設定
-type TextStyle struct {
+// textStyle はテキストの外観設定
+type textStyle struct {
 	Color      color.RGBA
 	LineHeight int
 }
 
-// ActionStyle はアクション表示の外観設定
-type ActionStyle struct {
+// actionStyle はアクション表示の外観設定
+type actionStyle struct {
 	ShowCloseButton bool
 	CloseButtonText string
 	ActionAreaColor color.Color
 	ActionTextColor color.RGBA
 }
 
-// Config はメッセージウィンドウの設定
-type Config struct {
+// windowConfig はメッセージウィンドウの設定
+type windowConfig struct {
 	// レイアウト設定
-	Size   WindowSize
+	Size   windowSize
 	Center bool // 画面中央に配置するか
 
 	// 外観設定
-	WindowStyle WindowStyle
-	TextStyle   TextStyle
-	ActionStyle ActionStyle
+	windowStyle windowStyle
+	textStyle   textStyle
+	actionStyle actionStyle
 
 	// 動作設定
 	SkippableKeys  []ebiten.Key
@@ -66,20 +66,20 @@ type Config struct {
 	ShowBackground bool // 背景オーバーレイを表示
 }
 
-// DefaultConfig はデフォルト設定を返す
-func DefaultConfig() Config {
-	return Config{
-		Size: WindowSize{
+// defaultWindowConfig はデフォルト設定を返す
+func defaultWindowConfig() windowConfig {
+	return windowConfig{
+		Size: windowSize{
 			Width:  MinWidth,
 			Height: MinHeight,
 		},
 		Center: true,
 
-		WindowStyle: WindowStyle{
+		windowStyle: windowStyle{
 			BackgroundColor: theme.WindowBackground,
 			BorderColor:     theme.WindowBorder,
 			BorderWidth:     2,
-			Padding: Padding{
+			windowPadding: windowPadding{
 				Top:    20,
 				Bottom: 20,
 				Left:   20,
@@ -87,12 +87,12 @@ func DefaultConfig() Config {
 			},
 		},
 
-		TextStyle: TextStyle{
+		textStyle: textStyle{
 			Color:      theme.TextPrimary,
 			LineHeight: 24,
 		},
 
-		ActionStyle: ActionStyle{
+		actionStyle: actionStyle{
 			ShowCloseButton: true,
 			CloseButtonText: "Close [Enter/Escape]",
 			ActionAreaColor: theme.WindowActionBg,

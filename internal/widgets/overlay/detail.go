@@ -1,4 +1,4 @@
-package menuscreen
+package overlay
 
 import (
 	"image"
@@ -6,21 +6,19 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/input"
-	"github.com/kijimaD/ruins/internal/widgets/views"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// SpecRow は詳細モーダルの1行。情報タブなど spec 由来でない詳細を組む際に呼び出し側が使う
-type SpecRow = views.SpecRow
-
 // DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行をそのまま持つ。
-// 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える
+// 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える。
+// 行の型は entityspec.SpecRow を使う
 type DetailContent struct {
 	Name string
 	Desc string
-	Rows []SpecRow
+	Rows []entityspec.SpecRow
 }
 
 // EntityDetailContent は実体から名前・説明・性能行を組んだ詳細内容を返す。
@@ -37,7 +35,7 @@ func EntityDetailContent(world w.World, e ecs.Entity) DetailContent {
 	return DetailContent{
 		Name: query.GetEntityName(e, world),
 		Desc: desc,
-		Rows: views.SpecRows(world, e),
+		Rows: entityspec.SpecRows(world, e),
 	}
 }
 
@@ -83,7 +81,7 @@ func (d *Detail) Open(world w.World) {
 
 // HandleInput は表示中のキー入力を処理する。ページ数は provide の内容から自身で算出する。
 // 表示中でなければ何もしない。
-// error は Overlay インターフェースに合わせた形で、詳細モーダルでは常に nil
+// error は Layer の契約に合わせた戻り値で、詳細モーダルでは常に nil
 func (d *Detail) HandleInput(world w.World) error {
 	if !d.active {
 		return nil

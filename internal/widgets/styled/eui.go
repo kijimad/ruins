@@ -286,7 +286,7 @@ func NewListItem(icon *ebiten.Image, text string, textColor color.RGBA, isSelect
 
 	wrapper.AddChild(container)
 
-	wrapper.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))
+	wrapper.AddChild(NewGradientLine(res.GradientLine, theme.RowDivider, 1))
 
 	return wrapper
 }

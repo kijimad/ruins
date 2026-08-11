@@ -11,13 +11,14 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
-	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -28,23 +29,23 @@ import (
 // CraftMenuState はクラフトメニューのゲームステート
 type CraftMenuState struct {
 	es.BaseState[w.World]
-	detail       menuscreen.Detail // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
-	result       menuscreen.Detail // 合成結果の詳細モーダル。overlay として Screen に登録する
-	resultEntity ecs.Entity        // 直近で合成したアイテム
-	screen       *menurt.Screen[CraftProps]
+	detail       overlay.Detail // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
+	result       overlay.Detail // 合成結果の詳細モーダル。overlay として Screen に登録する
+	resultEntity ecs.Entity     // 直近で合成したアイテム
+	screen       *menuloop.Screen[CraftProps]
 }
 
 // State interface ================
 
 var _ es.State[w.World] = &CraftMenuState{}
-var _ menurt.ExtraInput = &CraftMenuState{}
+var _ menuloop.ExtraInput = &CraftMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.result = menuscreen.NewEntityDetail(func() (ecs.Entity, bool) { return st.resultEntity, true })
+	st.detail = overlay.NewDetail(st.detailContent)
+	st.result = overlay.NewEntityDetail(func() (ecs.Entity, bool) { return st.resultEntity, true })
 	// result を先に登録する。合成結果が開いている間はそちらが入力を専有する
-	st.screen = menurt.NewScreen[CraftProps](st, &st.result, &st.detail)
+	st.screen = menuloop.NewScreen[CraftProps](st, &st.result, &st.detail)
 	return nil
 }
 
@@ -93,7 +94,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 // Props
 // ================
 
-// CraftProps は画面の表示 props。menurt.Screen の型引数として渡す
+// CraftProps は画面の表示 props。menuloop.Screen の型引数として渡す
 type CraftProps struct {
 	Tabs []craftTabData
 }
@@ -110,20 +111,20 @@ type craftItemData struct {
 	CanCraft   bool
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *CraftMenuState) Fetch(world w.World) CraftProps {
 	return CraftProps{
 		Tabs: st.createTabs(world),
 	}
 }
 
-// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
-func (st *CraftMenuState) Menu(props CraftProps) menurt.MenuConfig {
+// Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
+func (st *CraftMenuState) Menu(props CraftProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menurt.MenuConfig{Key: "craft", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "craft", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
 func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
@@ -240,14 +241,14 @@ func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
+func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	// カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	return newTabScreenUI(res, tabScreen{
+	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
@@ -276,21 +277,21 @@ func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData,
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
-func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+func (st *CraftMenuState) detailContent(world w.World) (overlay.DetailContent, bool) {
 	item, ok := st.selectedRecipe()
 	if !ok || item.RecipeID == "" {
-		return menuscreen.DetailContent{}, false
+		return overlay.DetailContent{}, false
 	}
 	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeID)
 	if err != nil {
-		return menuscreen.DetailContent{}, false
+		return overlay.DetailContent{}, false
 	}
 
 	// 必要材料を先頭に置き、所持数が足りていれば成功色、足りなければ警告色で示す。
 	// その後ろに生成物の性能行を続ける
-	var rows []menuscreen.SpecRow
+	var rows []entityspec.SpecRow
 	if spec.Recipe != nil {
-		rows = append(rows, menuscreen.SpecRow{Label: query.T(world, "Materials"), Header: true})
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Materials"), Header: true})
 		for _, in := range spec.Recipe.Inputs {
 			owned := 0
 			if entity, found := query.FindStackableInInventory(world, in.ID); found {
@@ -301,14 +302,14 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 				rowColor = theme.StatusSuccess
 			}
 			label := query.T(world, raw.ItemName(world.Resources.RawMaster, in.ID))
-			rows = append(rows, menuscreen.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
+			rows = append(rows, entityspec.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
-	rows = append(rows, views.SpecRowsFromSpec(world, spec)...)
+	rows = append(rows, entityspec.SpecRowsFromSpec(world, spec)...)
 
 	desc := ""
 	if spec.Description != nil {
 		desc = query.T(world, spec.Description.Description)
 	}
-	return menuscreen.DetailContent{Name: item.RecipeName, Desc: desc, Rows: rows}, true
+	return overlay.DetailContent{Name: item.RecipeName, Desc: desc, Rows: rows}, true
 }

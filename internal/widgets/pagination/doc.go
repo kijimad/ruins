@@ -28,6 +28,6 @@
 //
 //	// ページインジケーター
 //	if pg.IsEnabled() {
-//	    text := pg.GetIndicatorText() // "↑ 2/5 ↓"
+//	    text := pg.GetPageText() // "2/5"
 //	}
 package pagination
