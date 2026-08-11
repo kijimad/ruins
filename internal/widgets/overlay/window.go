@@ -5,7 +5,6 @@ import (
 	"image"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -62,9 +61,10 @@ func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string,
 	if desc != "" && page == total-1 {
 		content.AddChild(styled.NewDescriptionText(desc, res))
 	}
-	// 位置表示は最下段に固定する。1ページでも常設し、ページ有無で表示がずれないようにする。左右キーでページを繰る。
-	// GetPageText は単一ページで空を返すため、1/1 を常設したいここでは GetCurrentPage/GetTotalPages を使う
-	content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%s %d/%d %s", consts.IconArrowLeft, pg.GetCurrentPage(), pg.GetTotalPages(), consts.IconArrowRight), res))
+	// 位置は番号だけで示す。矢印は付けない。全メニューのページ表示を番号だけに揃える。
+	// 1ページでも 1/1 を常設し、ページ有無で表示がずれないようにする。左右キーでページを繰る。
+	// GetPageText は単一ページで空を返すため、常設したいここでは GetCurrentPage/GetTotalPages を使う
+	content.AddChild(styled.NewDescriptionText(fmt.Sprintf("%d/%d", pg.GetCurrentPage(), pg.GetTotalPages()), res))
 	win := styled.NewSmallWindow(widget.NewContainer(), content)
 	win.SetLocation(rect)
 	return win

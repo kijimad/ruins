@@ -1,12 +1,10 @@
 package overlay
 
 import (
-	"fmt"
 	"image"
 	"testing"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -110,5 +108,5 @@ func TestDetailWindow_対象があれば名前とページ位置を表示する(
 	require.NotNil(t, win)
 	labels := collectLabels(win.Contents)
 	assert.Contains(t, labels, "回復薬")
-	assert.Contains(t, labels, fmt.Sprintf("%s 1/1 %s", consts.IconArrowLeft, consts.IconArrowRight))
+	assert.Contains(t, labels, "1/1")
 }

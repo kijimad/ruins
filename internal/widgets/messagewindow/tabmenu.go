@@ -1,6 +1,8 @@
 package messagewindow
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // tabItem はタブの項目を定義する
 type tabItem struct {
@@ -83,20 +85,6 @@ func pageIndicatorText(config tabMenuConfig, state viewState) string {
 		return ""
 	}
 
-	page := currentPage(config, state)
-	arrows := ""
-
-	if page > 0 {
-		arrows += " ↑"
-	} else {
-		arrows += " 　"
-	}
-
-	if (page+1)*config.ItemsPerPage < len(config.Tabs[state.TabIndex].Items) {
-		arrows += " ↓"
-	} else {
-		arrows += " 　"
-	}
-
-	return fmt.Sprintf("%d/%d%s", page+1, total, arrows)
+	// 位置は番号だけで示す。矢印は付けない。全メニューのページ表示を番号だけに揃える
+	return fmt.Sprintf("%d/%d", currentPage(config, state)+1, total)
 }
