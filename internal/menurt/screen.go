@@ -7,6 +7,8 @@
 package menurt
 
 import (
+	"reflect"
+
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -54,14 +56,17 @@ type ExtraInput interface {
 }
 
 // Screen はメニューの UI ランタイム。mount・widget と overlay を保持し、毎フレームの
-// 手順を回す。state は構造体にこれをポインタで持ち、Update と Draw を委譲する。widget は毎フレーム
-// View から組み直すので、表示は常に最新の props とカーソルに追従する
+// 手順を回す。state は構造体にこれをポインタで持ち、Update と Draw を委譲する。
+// widget は ebitenui を retained として扱い、props・カーソル・overlay が変わったフレームだけ組み直す。
+// 変化が無ければ前フレームのツリーを再利用し、毎フレームの全再構築をやめる
 type Screen[P any] struct {
 	model         Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
 	mount         *hooks.Mount[P]
 	widget        *ebitenui.UI
 	overlays      []menuscreen.Overlay
 	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
+	lastProps     P         // 直近フレームの props。dirty 判定で DeepEqual 比較する
+	hadProps      bool      // lastProps に一度でも値が入ったか。初回の空比較を避ける
 	seeded        bool      // 初期タブへ寄せたか
 }
 
@@ -96,13 +101,15 @@ func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) {
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、
-// UseTabMenu、View 再構築と overlay 重ね、widget.Update、の順で回す
+// UseTabMenu、dirty なら View 再構築と overlay 重ね、widget.Update、の順で回す
 func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	m := s.model
 
-	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を DoAction へ流す
-	if ov := s.activeOverlay(); ov != nil {
-		if err := ov.HandleInput(world); err != nil {
+	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を DoAction へ流す。
+	// overlay が絡んだフレームは内容が入力で変わりうるので後段で必ず dirty にする
+	ovBefore := s.activeOverlay()
+	if ovBefore != nil {
+		if err := ovBefore.HandleInput(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
 	} else if action, ok := s.readAction(); ok {
@@ -132,22 +139,33 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		}
 	}
 
-	// カーソル状態を進める。widget は毎フレーム組み直すので dirty 判定は要らない
+	// カーソル状態を進める
 	s.mount.Update()
-	s.lastSelection = s.selection(cfg)
-	s.widget = m.View(world, props, s.lastSelection, world.Resources.UIResources)
-	// overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、
-	// 描画は逆順に重ね、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に
-	// 隠れて操作不能になるのを防ぐ
-	for i := len(s.overlays) - 1; i >= 0; i-- {
-		ov := s.overlays[i]
-		if ov.Active() {
-			if win := ov.Window(world, screenui.CenterWindowRect(world)); win != nil {
-				s.widget.AddWindow(win)
+	sel := s.selection(cfg)
+
+	// dirty なフレームだけ widget ツリーを組み直す。overlay が開閉・表示中のフレームは
+	// 窓内容が入力で変わりうるので常に dirty にし、それ以外は props とカーソルの変化で判定する。
+	// Fetch が View に要る状態をすべて捕捉する前提で、props 不変なら再構築を省いても表示は正しい
+	overlayInvolved := ovBefore != nil || s.activeOverlay() != nil
+	dirty := s.widget == nil || overlayInvolved || sel != s.lastSelection || !s.hadProps || !reflect.DeepEqual(props, s.lastProps)
+	if dirty {
+		s.widget = m.View(world, props, sel, world.Resources.UIResources)
+		// overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、
+		// 描画は逆順に重ね、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に
+		// 隠れて操作不能になるのを防ぐ
+		for i := len(s.overlays) - 1; i >= 0; i-- {
+			ov := s.overlays[i]
+			if ov.Active() {
+				if win := ov.Window(world, screenui.CenterWindowRect(world)); win != nil {
+					s.widget.AddWindow(win)
+				}
 			}
 		}
 	}
 
+	s.lastSelection = sel
+	s.lastProps = props
+	s.hadProps = true
 	s.widget.Update()
 	return m.ConsumeTransition(), nil
 }
