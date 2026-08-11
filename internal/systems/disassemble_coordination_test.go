@@ -80,7 +80,7 @@ func TestTurnSystem_分解を完走してもAPが枯渇しない(t *testing.T) {
 
 	require.False(t, query.HasActivity(world, player), "分解が完了するべき")
 	assert.False(t, world.ECS.Alive(crate), "分解したpropは消えるべき")
-	assert.Contains(t, fieldItemNames(world), "硬木", "確定枠の産出が足元に落ちるべき")
+	assert.Contains(t, fieldItemNames(world), "Hardwood", "確定枠の産出が足元に落ちるべき")
 
 	// 毎ターンの消費100はターン終了の回復とおおむね均衡する。
 	// 大きな負債はアクティビティの複数ステップが1ターン内で走った兆候になる
@@ -156,7 +156,7 @@ func TestTurnSystem_隊員が分解産出を拾いに来る(t *testing.T) {
 		require.NoError(t, runCoordFrame(world))
 	}
 	require.False(t, query.HasActivity(world, player), "分解が完了するべき")
-	require.Contains(t, fieldItemNames(world), "硬木", "完了直後は産出がフィールドにあるべき")
+	require.Contains(t, fieldItemNames(world), "Hardwood", "完了直後は産出がフィールドにあるべき")
 
 	// 隊員が産出へ移動し拾い終えるまで回す。完了後の Player フェーズは入力待ちに
 	// なるため、プレイヤーがターンを送るだけの操作を模擬して世界を進める
@@ -167,7 +167,7 @@ func TestTurnSystem_隊員が分解産出を拾いに来る(t *testing.T) {
 		}
 		require.NoError(t, runCoordFrame(world))
 		names := fieldItemNames(world)
-		found := slices.Contains(names, "硬木")
+		found := slices.Contains(names, "Hardwood")
 		if !found {
 			picked = true
 			break
@@ -175,6 +175,6 @@ func TestTurnSystem_隊員が分解産出を拾いに来る(t *testing.T) {
 	}
 
 	require.True(t, picked, "隊員が産出を拾い終えるべき")
-	assert.Contains(t, backpackItemNames(world), "硬木",
+	assert.Contains(t, backpackItemNames(world), "Hardwood",
 		"拾った産出は誰かの所持品に入っているべき")
 }

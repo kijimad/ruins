@@ -380,8 +380,8 @@ func TestRestBehavior_Canceled(t *testing.T) {
 		store := query.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "休息が中断された")
-		assert.Contains(t, recent[0], "周囲に敵がいるため休息を中断")
+		assert.Contains(t, recent[0], "Rest interrupted")
+		assert.Contains(t, recent[0], "rest interrupted because enemies are nearby")
 	})
 }
 
@@ -410,6 +410,6 @@ func TestRestBehavior_Finish(t *testing.T) {
 		store := query.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "休息")
+		assert.Contains(t, recent[0], "rest")
 	})
 }

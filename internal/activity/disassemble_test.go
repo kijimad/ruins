@@ -77,12 +77,12 @@ func TestFindBestDisassemblyTool(t *testing.T) {
 		grade, name, ok := FindBestDisassemblyTool(world, player, oapi.Prying)
 		require.True(t, ok)
 		assert.Equal(t, 1, grade)
-		assert.Equal(t, "モンキーレンチ", name)
+		assert.Equal(t, "Monkey Wrench", name)
 
 		grade, name, ok = FindBestDisassemblyTool(world, player, oapi.Cutting)
 		require.True(t, ok)
 		assert.Equal(t, 3, grade)
-		assert.Equal(t, "鉄カッター", name)
+		assert.Equal(t, "Iron Cutter", name)
 	})
 
 	t.Run("分類に適合する工具がなければ見つからない", func(t *testing.T) {
@@ -167,7 +167,7 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 	for q.Next() {
 		fieldNames = append(fieldNames, query.GetEntityName(q.Entity(), world))
 	}
-	assert.Contains(t, fieldNames, "硬木")
+	assert.Contains(t, fieldNames, "Hardwood")
 
 	// 分解完了で機械スキルの経験値が入る
 	mechanic := world.Components.Skills.Get(player).Get(gc.SkillMechanic)
@@ -205,7 +205,7 @@ func TestDisassembleBehavior_アイテムを分解すると消費して素材が
 	for q.Next() {
 		backpackNames = append(backpackNames, query.GetEntityName(q.Entity(), world))
 	}
-	assert.Contains(t, backpackNames, "鉄くず", "確定枠の鉄くずが所持品に入るべき")
+	assert.Contains(t, backpackNames, "Scrap Iron", "確定枠の鉄くずが所持品に入るべき")
 }
 
 func TestDisassembleBehavior_収納propを分解すると中身が足元に出る(t *testing.T) {
@@ -379,7 +379,7 @@ func TestYieldsMarkup(t *testing.T) {
 		want   string
 	}{
 		{"1件は単独表記", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}}, "鉄くず x2"},
-		{"複数件は読点で連結", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}, {Name: "硬木", Count: 1}}, "鉄くず x2、硬木 x1"},
+		{"複数件は読点で連結", []lifecycle.YieldStack{{Name: "鉄くず", Count: 2}, {Name: "硬木", Count: 1}}, "鉄くず x2, 硬木 x1"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

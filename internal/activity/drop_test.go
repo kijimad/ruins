@@ -145,7 +145,7 @@ func TestDropBehavior_performDrop(t *testing.T) {
 		store := query.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "を置いた")
+		assert.Contains(t, recent[0], "Dropped")
 	})
 
 	t.Run("パラメータがない場合はエラー", func(t *testing.T) {

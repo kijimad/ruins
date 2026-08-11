@@ -332,7 +332,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 
 		actions := GetInteractionActions(world)
 		require.Len(t, actions, 1)
-		assert.Equal(t, "攻撃する(木箱)", actions[0].Label)
+		assert.Equal(t, "Attack (木箱)", actions[0].Label)
 	})
 
 	t.Run("上り階段は前階へ転移するアクションを出す", func(t *testing.T) {
@@ -352,7 +352,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 
 		actions := GetInteractionActions(world)
 		require.Len(t, actions, 1)
-		assert.Equal(t, "転移する(前階)", actions[0].Label)
+		assert.Equal(t, "Warp (previous floor)", actions[0].Label)
 	})
 
 	t.Run("敵対NPCもメニューに表示される", func(t *testing.T) {
@@ -377,7 +377,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 
 		actions := GetInteractionActions(world)
 		require.Len(t, actions, 1)
-		assert.Equal(t, "攻撃する(ゴブリン)", actions[0].Label)
+		assert.Equal(t, "Attack (ゴブリン)", actions[0].Label)
 	})
 
 	t.Run("方向キーでPropを自動攻撃しない", func(t *testing.T) {
@@ -527,7 +527,7 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		actions := GetSameTileManualActions(world)
 		require.Len(t, actions, 3, "すべて拾う + 個別2つ")
-		assert.Equal(t, "すべて拾う", actions[0].Label)
+		assert.Equal(t, "Pick up all", actions[0].Label)
 		ok := actions[0].Interaction == gc.InteractionItemAll
 		assert.True(t, ok)
 	})

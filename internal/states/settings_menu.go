@@ -7,6 +7,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/menurt"
@@ -136,21 +137,9 @@ func (st *SettingsMenuState) handleSelection() es.Transition[w.World] {
 // 言語プリセット
 // ================
 
-// language は選択できる表示言語を表す
-type language struct {
-	Code  string // 言語コード。"ja" / "en"
-	Label string // 表示名の msgid。query.T で現在言語の訳を引く
-}
-
-// languagePresets は選択できる言語の一覧を保持する
-var languagePresets = []language{
-	{Code: "ja", Label: "Japanese"},
-	{Code: "en", Label: "English"},
-}
-
-// currentLanguageLabel は言語コードに対応する表示名を返す。一覧に無ければコードをそのまま返す
+// currentLanguageLabel は言語コードに対応する表示名の msgid を返す。対応一覧に無ければコードをそのまま返す。
 func currentLanguageLabel(code string) string {
-	for _, l := range languagePresets {
+	for _, l := range i18n.SupportedLangs() {
 		if l.Code == code {
 			return l.Label
 		}
@@ -166,8 +155,9 @@ func NewLanguageMenuState() (es.State[w.World], error) {
 
 // languageChoices は選択できる表示言語を選択肢にする。選ぶとシングルトンへ反映し設定を保存して閉じる
 func languageChoices(world w.World) (string, []Choice) {
-	choices := make([]Choice, 0, len(languagePresets))
-	for _, l := range languagePresets {
+	langs := i18n.SupportedLangs()
+	choices := make([]Choice, 0, len(langs))
+	for _, l := range langs {
 		choices = append(choices, Choice{Label: query.T(world, l.Label), Run: func(world w.World) (es.Transition[w.World], error) {
 			// シングルトンの設定言語を書き換える。Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
 			if s := query.GetUserSettings(world); s != nil {

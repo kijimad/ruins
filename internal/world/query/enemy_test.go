@@ -155,7 +155,7 @@ func TestGetVisibleItems(t *testing.T) {
 		grid := world.Components.GridElement.Get(itemEntity)
 		desc := world.Components.Description.Get(itemEntity)
 
-		assert.Equal(t, "回復薬", name)
+		assert.Equal(t, "Healing Potion", name)
 		assert.NotNil(t, desc, "アイテムは説明を持つべき")
 		if desc != nil {
 			assert.NotEmpty(t, desc.Description)

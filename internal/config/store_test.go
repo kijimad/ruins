@@ -29,5 +29,5 @@ func TestUserConfig_保存に無いフィールドはデフォルトが残る(t 
 
 	assert.Equal(t, 1024, dst.User.WindowWidth) // 保存値で上書き
 	assert.Equal(t, 720, dst.User.WindowHeight) // デフォルトが残る
-	assert.Equal(t, "ja", dst.User.Language)    // デフォルトが残る
+	assert.Equal(t, "en", dst.User.Language)    // デフォルトが残る
 }
