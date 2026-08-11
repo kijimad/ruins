@@ -39,13 +39,3 @@ func (v *View) UpdateFocus() {
 func (v *View) GetCurrentPage() int {
 	return currentPage(v.config, v.state) + 1
 }
-
-// UpdateTabDisplayContainer はタブ表示コンテナを更新する
-func (v *View) UpdateTabDisplayContainer(container *widget.Container) {
-	v.uiBuilder.UpdateTabDisplayContainer(container, v.config, v.state)
-}
-
-// UpdateTabs はタブを更新する
-func (v *View) UpdateTabs(tabs []TabItem) {
-	v.config.Tabs = tabs
-}

@@ -30,16 +30,3 @@ func TestView_GetCurrentPage(t *testing.T) {
 		assert.Equal(t, 2, view.GetCurrentPage())
 	})
 }
-
-func TestView_UpdateTabs_タブを置き換える(t *testing.T) {
-	t.Parallel()
-	view := NewView(Config{
-		Tabs: []TabItem{{ID: "old", Label: "旧タブ"}},
-	}, w.World{})
-
-	newTabs := []TabItem{{ID: "new", Label: "新タブ"}}
-	view.UpdateTabs(newTabs)
-
-	// 公開APIでは置き換え後のタブを外部から取得できないため、同一パッケージの特権で内部状態を直接検証する
-	assert.Equal(t, newTabs, view.config.Tabs)
-}

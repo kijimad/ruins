@@ -89,7 +89,7 @@ func TestGolden_EmptyItems(t *testing.T) {
 			world,
 		)
 		// SetState を省くと ViewState のゼロ値 TabIndex:0 ItemIndex:0 になる。
-		// 空タブと組み合わさり computeDisplayRows が空表示の1行を返すので、その見た目を検証する。
+		// 空タブでは BuildUI が空表示の1行を出すので、その見た目を検証する。
 		return view.BuildUI()
 	}, 300, 50)
 }

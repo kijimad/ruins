@@ -6,7 +6,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // UIBuilder はTabMenuのUI要素を構築する
@@ -119,22 +118,4 @@ func (b *uiBuilder) createPageIndicator(pageText string) *widget.Text {
 			widget.WidgetOpts.MinSize(300, 20),
 		),
 	)
-}
-
-// UpdateTabDisplayContainer はタブ表示コンテナを更新する。
-// 表示内容の計算は computeDisplayRows に委ね、ここは行を ebitenui widget へ変換して並べるだけにする。
-func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, config Config, state ViewState) {
-	container.RemoveChildren()
-
-	res := b.world.Resources.UIResources
-	for _, row := range computeDisplayRows(config, state) {
-		switch row.Kind {
-		case displayPageIndicator:
-			container.AddChild(styled.NewPageIndicator(row.Label, res))
-		case displayItem:
-			container.AddChild(styled.NewListItem(nil, row.Label, theme.TextSecondary, row.Selected, res, row.AdditionalLabels...))
-		case displayEmptyPlaceholder:
-			container.AddChild(styled.NewDescriptionText(query.T(b.world, row.Label), res))
-		}
-	}
 }
