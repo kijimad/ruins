@@ -14,7 +14,7 @@ import (
 
 // DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行をそのまま持つ。
 // 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える。
-// 行の型は entityspec.SpecRow を正とし、overlay 側では再輸出しない
+// 行の型は entityspec.SpecRow を使う
 type DetailContent struct {
 	Name string
 	Desc string

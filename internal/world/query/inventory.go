@@ -60,8 +60,7 @@ func GetEntityCount(world w.World, entity ecs.Entity) int {
 }
 
 // FormatNameCount は個数が2以上のとき名前の前に個数を置く。1個や非スタックは名前だけを返す。
-// メニュー行とログの両方がこの1関数を通し、個数 名前 の表記を揃える。
-// 個数を前置し乗算記号を使わない。記号の字形選びを避けられる
+// メニュー行とログの両方がこの1関数を通し、"個数 名前" の表記を揃える
 func FormatNameCount(name string, count int) string {
 	if count > 1 {
 		return fmt.Sprintf("%d %s", count, name)

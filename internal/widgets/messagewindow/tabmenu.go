@@ -85,6 +85,6 @@ func pageIndicatorText(config tabMenuConfig, state viewState) string {
 		return ""
 	}
 
-	// 位置は番号だけで示す。矢印は付けない。全メニューのページ表示を番号だけに揃える
+	// 位置は番号だけで示す
 	return fmt.Sprintf("%d/%d", currentPage(config, state)+1, total)
 }
