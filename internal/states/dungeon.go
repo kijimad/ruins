@@ -9,6 +9,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
+	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -24,7 +25,17 @@ type DungeonState struct {
 	es.BaseState[w.World]
 	// baseImage は下に敷く背景
 	baseImage *ebiten.Image
-	Depth     int
+	// worldFrame はワールドレイヤを描くフレーム。ここへ描いてからライティングをかけて screen へ出す。
+	// HUD は分離して screen へ等倍で重ねるため、光は世界だけに当たり文字は素の明るさを保つ
+	worldFrame *ebiten.Image
+	// lightMap は配置された光源から作る乗算用の光。worldFrame へ乗算して雰囲気を出す
+	lightMap *ebiten.Image
+	// light はワールドレイヤに雰囲気ライティングをかけるフィルタ。Draw で遅延生成する
+	light *screeneffect.LightFilter
+	// dungeonDarkness はこのダンジョンの暗さ。OnStart で定義から取り込む。
+	// 地上は時間帯から求めるのでこの値は使わない
+	dungeonDarkness float64
+	Depth           int
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
@@ -115,6 +126,8 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
+	// このダンジョンの暗さを取り込む。描画時のライティング強度に使う
+	st.dungeonDarkness = def.Darkness()
 	// 単一フロアを新規生成して現ステージに確定する。初回進入や golden の単発描画で使う。
 	// これは共存を作らない: 他ステージの suspend も上り階段の結線もしないので、ゲーム中の
 	// 階層移動(地上⇄遺跡・階の上り下り)には使わないこと。それらは enterDungeon/descend の
@@ -268,20 +281,103 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	return transition, nil
 }
 
-// Draw はゲームステートの描画処理を行う
+// Draw はゲームステートの描画処理を行う。
+// ワールドレイヤに雰囲気ライティングをかけ、HUD は等倍で重ねる。暗さは地上なら時間帯、
+// ダンジョンなら定義から決めるので、昼の地上は明るく、深い洞窟は真っ暗になる。
 func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
+	if st.light == nil {
+		lf, err := screeneffect.NewLightFilter()
+		if err != nil {
+			return err
+		}
+		st.light = lf
+	}
+	// このフィールドの暗さを求める
+	darkness := st.fieldDarkness(world)
+	st.light.Darkness = float32(darkness)
+
+	b := screen.Bounds()
+	st.ensureFrames(b.Dx(), b.Dy())
+	st.worldFrame.Clear()
+
+	// ワールドレイヤを worldFrame へ描く。背景・スプライト・フロストがここに乗る
 	if st.baseImage != nil {
-		screen.DrawImage(st.baseImage, nil)
+		st.worldFrame.DrawImage(st.baseImage, nil)
+	}
+	if err := drawRenderers(world, st.worldFrame,
+		&gs.RenderSpriteSystem{}, &gs.FrostRenderSystem{}); err != nil {
+		return err
 	}
 
-	for _, renderer := range []w.Renderer{
-		&gs.RenderSpriteSystem{},
-		&gs.FrostRenderSystem{},
-		&gs.HUDRenderingSystem{},
-		&gs.VisualEffectSystem{},
-	} {
+	// 配置された光源から乗算用ライトマップを作り、世界へ乗算する。実際の LightSource がそのまま光になる
+	gs.BuildLightMap(world, st.lightMap, darkness)
+	mulOp := &ebiten.DrawImageOptions{Blend: blendMultiply}
+	st.worldFrame.DrawImage(st.lightMap, mulOp)
+
+	// 仕上げのビネットとコントラストをかけて screen へ。HUD はこの後で素の明るさで重ねる
+	st.light.Apply(screen, st.worldFrame)
+
+	// HUD レイヤは screen へ等倍で描く。文字やバーは減光せず読みやすさを保つ
+	return drawRenderers(world, screen,
+		&gs.HUDRenderingSystem{}, &gs.VisualEffectSystem{})
+}
+
+// blendMultiply は乗算合成。結果 = src.rgb × dst.rgb。ライトマップを世界へ掛けるのに使う。
+var blendMultiply = ebiten.Blend{
+	BlendFactorSourceRGB:        ebiten.BlendFactorDestinationColor,
+	BlendFactorSourceAlpha:      ebiten.BlendFactorDestinationColor,
+	BlendFactorDestinationRGB:   ebiten.BlendFactorZero,
+	BlendFactorDestinationAlpha: ebiten.BlendFactorZero,
+	BlendOperationRGB:           ebiten.BlendOperationAdd,
+	BlendOperationAlpha:         ebiten.BlendOperationAdd,
+}
+
+// fieldDarkness はこのフィールドの暗さを返す。地上は時間帯から、ダンジョンは定義から求める。
+func (st *DungeonState) fieldDarkness(world w.World) float64 {
+	if st.isSeamless() {
+		return darknessForTimeOfDay(query.GetGameTime(world).GetTimeOfDay())
+	}
+	return st.dungeonDarkness
+}
+
+// darknessForTimeOfDay は時間帯を地上の暗さへ写す。昼が最も明るく、深夜が最も暗い。
+func darknessForTimeOfDay(t gc.TimeOfDay) float64 {
+	switch t {
+	case gc.TimeDawn:
+		return 0.45
+	case gc.TimeMorning:
+		return 0.12
+	case gc.TimeDay:
+		return 0.0
+	case gc.TimeEvening:
+		return 0.4
+	case gc.TimeNight:
+		return 0.75
+	case gc.TimeMidnight:
+		return 0.9
+	default:
+		return 0.0
+	}
+}
+
+// ensureFrames はワールドレイヤとライトマップのフレームを画面サイズで用意する。
+// サイズが変われば作り直す。
+func (st *DungeonState) ensureFrames(width, height int) {
+	if st.worldFrame != nil {
+		b := st.worldFrame.Bounds()
+		if b.Dx() == width && b.Dy() == height {
+			return
+		}
+	}
+	st.worldFrame = ebiten.NewImage(width, height)
+	st.lightMap = ebiten.NewImage(width, height)
+}
+
+// drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。
+func drawRenderers(world w.World, target *ebiten.Image, renderers ...w.Renderer) error {
+	for _, renderer := range renderers {
 		if sys, ok := world.Renderers[renderer.String()]; ok {
-			if err := sys.Draw(world, screen); err != nil {
+			if err := sys.Draw(world, target); err != nil {
 				return err
 			}
 		}
