@@ -434,9 +434,10 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	return nil
 }
 
-// renderDarkness は per-tile の暗さを bilinear で滑らかに補間して暗闇オーバーレイを描く。
-// vision が壁遮蔽込みで計算した per-tile の暗さを1タイル1テクセルの小画像へ詰めて拡大する。
-// 暗さは明るい側へだけ膨張させてから拡大するので、遮蔽タイルへ光を漏らさず縁だけ滑らかになる。
+// renderDarkness は per-tile の暗さをタイル整列でそのまま描く暗闇オーバーレイ。
+// vision が壁遮蔽込みで計算した per-tile の暗さを1タイル1テクセルの小画像へ詰め、
+// FilterNearest でタイルサイズへ拡大する。補間しないので CDDA のようにタイル単位の
+// 一様な明るさになる。暗さは連続値なので段差ジャンプ(チカチカ)は出ない。
 func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {
 	var cameraX, cameraY float64
 	cameraScale := 1.0
@@ -446,8 +447,8 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 		cameraScale = camera.Scale
 	}
 
-	// bilinear の端をきれいに沈めるため viewport を少し広げてタイルを拾う
-	minX, maxX, minY, maxY := viewportTileBounds(world, 2, camera)
+	// 床レイヤのカリング余白に合わせてタイルを拾う。描き漏れを防ぐ
+	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
 	mw := maxX - minX + 1
 	mh := maxY - minY + 1
 	if mw <= 0 || mh <= 0 {
@@ -455,8 +456,8 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	}
 	sys.ensureDarknessMap(mw, mh)
 
-	// per-tile の暗さを float で組む。未探索/マップ外は完全な闇
-	darks := make([]float64, mw*mh)
+	// 1タイル1テクセル。黒 rgb=0、アルファに暗さを連続値で詰める。未探索/マップ外は完全な闇
+	pix := make([]byte, mw*mh*4)
 	for j := range mh {
 		for i := range mw {
 			grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(minX + i), Y: consts.Tile(minY + j)}}
@@ -469,20 +470,13 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 					darkness = float64(v.Darkness)
 				}
 			}
-			darks[j*mw+i] = max(0.0, min(1.0, darkness))
+			pix[(j*mw+i)*4+3] = byte(max(0.0, min(1.0, darkness)) * 255)
 		}
-	}
-	// 暗さを明るい側へ膨張させて境界を滑らかにする。遮蔽タイルは暗いままで光を漏らさない
-	darks = dilateDarkness(darks, mw, mh)
-
-	// 黒 rgb=0、アルファに暗さを詰める
-	pix := make([]byte, mw*mh*4)
-	for idx, d := range darks {
-		pix[idx*4+3] = byte(d * 255)
 	}
 	sys.darknessMap.WritePixels(pix)
 
-	// タイルグリッドへ合わせて拡大する。texel(0,0) の左上をタイル(minX,minY)の左上へ置く
+	// タイルグリッドへ合わせて拡大する。texel(0,0) の左上をタイル(minX,minY)の左上へ置く。
+	// FilterNearest なので各テクセルは1タイルの一様な四角として描かれる
 	ts := float64(consts.TileSize)
 	offsetX := (float64(minX)*ts-cameraX)*cameraScale + float64(world.Resources.ScreenDimensions.Width)/2
 	offsetY := (float64(minY)*ts-cameraY)*cameraScale + float64(world.Resources.ScreenDimensions.Height)/2
@@ -490,7 +484,7 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(ts*cameraScale, ts*cameraScale)
 	op.GeoM.Translate(offsetX, offsetY)
-	op.Filter = ebiten.FilterLinear
+	op.Filter = ebiten.FilterNearest
 	screen.DrawImage(sys.darknessMap, op)
 }
 
@@ -504,45 +498,4 @@ func (sys *RenderSpriteSystem) ensureDarknessMap(width, height int) {
 		sys.darknessMap.Deallocate()
 	}
 	sys.darknessMap = ebiten.NewImage(width, height)
-}
-
-// dilateDarkness は暗さを明るい側へ膨張させて境界を滑らかにする。
-// 分離型の [1,2,1]/4 ぼかしを2回かけ、各画素で元の暗さと比べて暗い方を残す。
-// 暗さは広げるが明るくはしないので、遮蔽/未探索タイルへ光が漏れない。
-func dilateDarkness(src []float64, width, height int) []float64 {
-	tmp := make([]float64, len(src))
-	out := make([]float64, len(src))
-	copy(out, src)
-	at := func(buf []float64, x, y int) float64 { return buf[y*width+x] }
-	for range 2 {
-		// 横方向
-		for y := range height {
-			for x := range width {
-				c := at(out, x, y)
-				l, r := c, c
-				if x > 0 {
-					l = at(out, x-1, y)
-				}
-				if x < width-1 {
-					r = at(out, x+1, y)
-				}
-				tmp[y*width+x] = (l + 2*c + r) / 4
-			}
-		}
-		// 縦方向。仕上げに元の暗さを下限として敷き直す
-		for y := range height {
-			for x := range width {
-				c := at(tmp, x, y)
-				u, d := c, c
-				if y > 0 {
-					u = at(tmp, x, y-1)
-				}
-				if y < height-1 {
-					d = at(tmp, x, y+1)
-				}
-				out[y*width+x] = max((u+2*c+d)/4, src[y*width+x])
-			}
-		}
-	}
-	return out
 }
