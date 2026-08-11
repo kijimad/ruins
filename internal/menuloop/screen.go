@@ -15,8 +15,8 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
-	"github.com/kijimaD/ruins/internal/widgets/screenui"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -156,7 +156,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		for i := len(s.overlays) - 1; i >= 0; i-- {
 			ov := s.overlays[i]
 			if ov.Active() {
-				if win := ov.Window(world, screenui.CenterWindowRect(world)); win != nil {
+				if win := ov.Window(world, menuframe.CenterWindowRect(world)); win != nil {
 					s.widget.AddWindow(win)
 				}
 			}

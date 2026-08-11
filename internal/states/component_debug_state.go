@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/screenui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -129,7 +129,7 @@ func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cu
 	container := renderMenuList(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
 
 	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
-	return screenui.NewTabScreen(res, screenui.TabScreen{
+	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		Header:  fmt.Sprintf("Components total: %d", props.Total),
 		Content: container,
 		Footer:  menuNavHint(world, false),

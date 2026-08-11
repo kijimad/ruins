@@ -13,8 +13,8 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
-	"github.com/kijimaD/ruins/internal/widgets/screenui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -368,7 +368,7 @@ func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor men
 		}
 	}
 	// タイトルは置かず、タブ帯から始める。詳細は x のモーダルで見る
-	return screenui.NewTabScreen(res, screenui.TabScreen{
+	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemList(world, props, cursor.TabIndex, cursor.ItemIndex, res),

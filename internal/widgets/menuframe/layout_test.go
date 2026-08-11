@@ -1,4 +1,4 @@
-package screenui
+package menuframe
 
 import (
 	"image"

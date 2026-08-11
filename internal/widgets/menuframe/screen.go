@@ -1,4 +1,4 @@
-package screenui
+package menuframe
 
 import (
 	"github.com/ebitenui/ebitenui"

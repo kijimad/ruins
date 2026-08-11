@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/screenui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -44,7 +44,7 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menul
 		extras = []string{query.T(world, ", . Switch"), query.T(world, "x Details")}
 	}
 
-	return screenui.NewTabScreen(res, screenui.TabScreen{
+	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		Header:    header,
 		TabLabels: characterTabLabels(world),
 		TabIndex:  cursor.TabIndex,
