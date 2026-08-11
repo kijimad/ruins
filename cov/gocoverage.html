@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.0%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
@@ -625,9 +625,9 @@
 				
 				<option value="file284">github.com/kijimaD/ruins/internal/world/lifecycle/disassembly.go (79.5%)</option>
 				
-				<option value="file285">github.com/kijimaD/ruins/internal/world/lifecycle/inventory.go (80.8%)</option>
+				<option value="file285">github.com/kijimaD/ruins/internal/world/lifecycle/inventory.go (96.2%)</option>
 				
-				<option value="file286">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (78.3%)</option>
+				<option value="file286">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (92.4%)</option>
 				
 				<option value="file287">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (63.2%)</option>
 				
@@ -1580,7 +1580,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1594,7 +1594,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         gameaction.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
+        if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
                 CancelActivity(target, "took an attack", world)
         }</span>
 
@@ -1670,7 +1670,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1743,8 +1743,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
-        case critical:<span class="cov8" title="1">
-                if withMethod </span><span class="cov8" title="1">{
+        case critical:<span class="cov0" title="0">
+                if withMethod </span><span class="cov0" title="0">{
                         logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
@@ -54542,11 +54542,11 @@ func ChangeStackableCount(world w.World, name string, amount int) error <span cl
                 return ChangeItemCount(world, entity, amount)
         }</span>
 
-        <span class="cov0" title="0">if amount &lt; 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if amount &lt; 0 </span><span class="cov8" title="1">{
                 return fmt.Errorf("stackable item not found: %s", name)
         }</span>
 
-        <span class="cov0" title="0">_, err := SpawnBackpackItem(world, name, amount)
+        <span class="cov8" title="1">_, err := SpawnBackpackItem(world, name, amount)
         return err</span>
 }
 </pre>
@@ -54591,25 +54591,25 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error <s
 // TransferUnits は item のうち count 個だけ recipient のバックパックへ移す。
 // count が0以下、または在庫数以上なら item を丸ごと移す。在庫数より少なければ、
 // 元スタックを count 個減らし、同名の count 個を生成して recipient のバックパックへ統合する。
-func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count int) error <span class="cov0" title="0">{
+func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count int) error <span class="cov8" title="1">{
         available := query.GetEntityCount(world, item)
-        if count &lt;= 0 || count &gt;= available </span><span class="cov0" title="0">{
+        if count &lt;= 0 || count &gt;= available </span><span class="cov8" title="1">{
                 return MoveToBackpack(world, item, recipient)
         }</span>
 
-        <span class="cov0" title="0">id := world.Components.RawID.Get(item).ID
+        <span class="cov8" title="1">id := world.Components.RawID.Get(item).ID
         if err := ChangeItemCount(world, item, -count); err != nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("failed to decrement source stack: %w", err)
         }</span>
-        <span class="cov0" title="0">moved, err := spawnItemBase(world, id, count)
+        <span class="cov8" title="1">moved, err := spawnItemBase(world, id, count)
         if err != nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("failed to generate %d units to transfer: %w", count, err)
         }</span>
-        <span class="cov0" title="0">return MoveToBackpack(world, moved, recipient)</span>
+        <span class="cov8" title="1">return MoveToBackpack(world, moved, recipient)</span>
 }
 
 // MoveToEquip はエンティティを指定スロットに装備する
-func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.EquipmentSlotNumber) <span class="cov0" title="0">{
+func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.EquipmentSlotNumber) <span class="cov8" title="1">{
         clearLocation(world, entity)
         world.Components.LocationEquipped.Add(entity, &amp;gc.LocationEquipped{
                 Owner:         owner,
@@ -54643,17 +54643,17 @@ func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) <s
 
 // SpillStorageItems は収納の中身をすべて指定タイルのフィールドへ落とす。
 // 収納エンティティを取り壊す前に呼び、中身が孤児化するのを防ぐ
-func SpillStorageItems(world w.World, storage ecs.Entity, x consts.Tile, y consts.Tile) <span class="cov0" title="0">{
+func SpillStorageItems(world w.World, storage ecs.Entity, x consts.Tile, y consts.Tile) <span class="cov8" title="1">{
         // クエリ走査中の構造変更を避けるため、先に集めてから移動する
         var items []ecs.Entity
         q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
-        for q.Next() </span><span class="cov0" title="0">{
+        for q.Next() </span><span class="cov8" title="1">{
                 entity := q.Entity()
-                if world.Components.LocationInStorage.Get(entity).Owner == storage </span><span class="cov0" title="0">{
+                if world.Components.LocationInStorage.Get(entity).Owner == storage </span><span class="cov8" title="1">{
                         items = append(items, entity)
                 }</span>
         }
-        <span class="cov0" title="0">for _, item := range items </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">for _, item := range items </span><span class="cov8" title="1">{
                 world.Components.GridElement.Add(item, &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
                 MoveToField(world, item, &amp;storage)
         }</span>

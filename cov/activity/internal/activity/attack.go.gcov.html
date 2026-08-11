@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">77.2&nbsp;%</td>
+            <td class="headerCovTableEntryLo">74.9&nbsp;%</td>
             <td class="headerCovTableEntry">342</td>
-            <td class="headerCovTableEntry">264</td>
+            <td class="headerCovTableEntry">256</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-11 01:16:36</td>
+            <td class="headerValue">2026-08-11 01:18:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -356,13 +356,13 @@
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L295"><span class="lineNum">     295</span>              : </span>
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC tlaBgGNC">           1 :         hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           2 :         if !hit {</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :         if !hit {</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC tlaBgUNC">           0 :                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L302"><span class="lineNum">     302</span>              : </span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :         damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC tlaBgGNC">           1 :         damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)</span></span>
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)</span></span>
 <span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           1 :         growWeaponSkill(actor, world, attack)</span></span>
@@ -370,11 +370,11 @@
 <span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :         gameaction.ApplyDamage(world, target, damage, actor)</span></span>
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         // 被ダメージで中断可能なアクティビティをキャンセルする</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) {</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC tlaBgUNC">           0 :                 CancelActivity(target, &quot;took an attack&quot;, world)</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           2 :         if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) {</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 CancelActivity(target, &quot;took an attack&quot;, world)</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L314"><span class="lineNum">     314</span>              : </span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L316"><span class="lineNum">     316</span>              : }</span>
 <span id="L317"><span class="lineNum">     317</span>              : </span>
 <span id="L318"><span class="lineNum">     318</span>              : // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する</span>
@@ -446,11 +446,11 @@
 <span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)</span></span>
 <span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           2 :         if critical {</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         if critical {</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC tlaBgUNC">           0 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L390"><span class="lineNum">     390</span>              : </span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           2 :         if attack.GetElement() != gc.ElementTypeNone {</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC tlaBgGNC">           2 :         if attack.GetElement() != gc.ElementTypeNone {</span></span>
 <span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :                 baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)</span></span>
 <span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L394"><span class="lineNum">     394</span>              : </span>
@@ -519,11 +519,11 @@
 <span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :                 } else {</span></span>
 <span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :                         logger.Markup(query.T(world, &quot;%s attacked %s but missed.&quot;, attackerMarkup, targetMarkup))</span></span>
 <span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC tlaBgGNC">           1 :         case critical:</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           2 :                 if withMethod {</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :                         logger.Markup(query.T(world, &quot;%s used %s to score a critical hit on %s and dealt %s damage!&quot;, attackerMarkup, methodName, targetMarkup, damageStr))</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :                 } else {</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC tlaBgUNC">           0 :                         logger.Markup(query.T(world, &quot;%s scored a critical hit on %s and dealt %s damage!&quot;, attackerMarkup, targetMarkup, damageStr))</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :         case critical:</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :                 if withMethod {</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :                         logger.Markup(query.T(world, &quot;%s used %s to score a critical hit on %s and dealt %s damage!&quot;, attackerMarkup, methodName, targetMarkup, damageStr))</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :                 } else {</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :                         logger.Markup(query.T(world, &quot;%s scored a critical hit on %s and dealt %s damage!&quot;, attackerMarkup, targetMarkup, damageStr))</span></span>
 <span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC tlaBgGNC">           1 :         default:</span></span>
 <span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           2 :                 if withMethod {</span></span>
