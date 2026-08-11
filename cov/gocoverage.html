@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
@@ -255,7 +255,7 @@
 				
 				<option value="file99">github.com/kijimaD/ruins/internal/hooks/timer.go (77.8%)</option>
 				
-				<option value="file100">github.com/kijimaD/ruins/internal/i18n/i18n.go (91.7%)</option>
+				<option value="file100">github.com/kijimaD/ruins/internal/i18n/i18n.go (95.2%)</option>
 				
 				<option value="file101">github.com/kijimaD/ruins/internal/input/keyboard.go (53.1%)</option>
 				
@@ -507,7 +507,7 @@
 				
 				<option value="file225">github.com/kijimaD/ruins/internal/states/persistent_message_state.go (43.8%)</option>
 				
-				<option value="file226">github.com/kijimaD/ruins/internal/states/settings_menu.go (69.1%)</option>
+				<option value="file226">github.com/kijimaD/ruins/internal/states/settings_menu.go (69.6%)</option>
 				
 				<option value="file227">github.com/kijimaD/ruins/internal/states/shooting.go (41.2%)</option>
 				
@@ -1580,7 +1580,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1670,7 +1670,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1737,14 +1737,14 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 methodName = query.T(world, attackMethodName)
         }</span>
         <span class="cov8" title="1">switch </span>{
-        case !hit:<span class="cov8" title="1">
-                if withMethod </span><span class="cov8" title="1">{
+        case !hit:<span class="cov0" title="0">
+                if withMethod </span><span class="cov0" title="0">{
                         logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
-        case critical:<span class="cov0" title="0">
-                if withMethod </span><span class="cov0" title="0">{
+        case critical:<span class="cov8" title="1">
+                if withMethod </span><span class="cov8" title="1">{
                         logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
@@ -12143,6 +12143,8 @@ import (
         "fmt"
         "math/rand/v2"
         "os"
+
+        "github.com/kijimaD/ruins/internal/i18n"
 )
 
 // Profile は設定プロファイルを表す
@@ -12224,7 +12226,7 @@ func DefaultUserConfig() UserConfig <span class="cov8" title="1">{
         return UserConfig{
                 WindowWidth:  960,
                 WindowHeight: 720,
-                Language:     "ja",
+                Language:     "en",
         }
 }</span>
 
@@ -12368,6 +12370,7 @@ var (
         errWindowHeightTooSmall = errors.New("window height is too small")
         errTargetFPSInvalid     = errors.New("invalid target FPS")
         errPProfPortOutOfRange  = errors.New("pprof port out of range")
+        errUnsupportedLanguage  = errors.New("unsupported language")
 )
 
 // Validate は設定値が妥当な範囲にあるか検証する。
@@ -12378,6 +12381,9 @@ func (c *Config) Validate() error <span class="cov8" title="1">{
         }</span>
         <span class="cov8" title="1">if c.User.WindowHeight &lt; 240 </span><span class="cov8" title="1">{
                 return fmt.Errorf("%w: %d, minimum 240", errWindowHeightTooSmall, c.User.WindowHeight)
+        }</span>
+        <span class="cov8" title="1">if !i18n.IsSupportedLang(c.User.Language) </span><span class="cov8" title="1">{
+                return fmt.Errorf("%w: %q", errUnsupportedLanguage, c.User.Language)
         }</span>
         <span class="cov8" title="1">if c.TargetFPS &lt; 1 </span><span class="cov8" title="1">{
                 return fmt.Errorf("%w: %d, at least 1", errTargetFPSInvalid, c.TargetFPS)
@@ -15016,6 +15022,7 @@ func UseTimerAt(store *Store, key string, duration time.Duration, now time.Time)
 import (
         "embed"
         "fmt"
+        "slices"
 
         "github.com/leonelquinteros/gotext"
 )
@@ -15026,6 +15033,30 @@ var localeFS embed.FS
 // defaultLang は源泉言語。原文が英語なので en にする。未知の言語はここへフォールバックする。
 const defaultLang = "en"
 
+// Lang は対応する言語1つのメタデータを表す。
+type Lang struct {
+        Code  string // 言語コード。"ja" / "en"
+        Label string // 表示名の msgid。query.T で現在言語の訳を引く
+}
+
+// supportedLangs は対応する言語の一覧。表示順もこの並び。
+// 言語検証・UI の選択肢・翻訳カタログの全てがこの1箇所から導出される唯一の定義。
+// 言語を足すときはここへ1行足し、源泉言語 en 以外は locale/&lt;code&gt;.po を置く。
+var supportedLangs = []Lang{
+        {Code: "ja", Label: "Japanese"},
+        {Code: "en", Label: "English"},
+}
+
+// SupportedLangs は対応する言語の一覧を表示順で返す。呼び出し側の変更が定義へ波及しないよう複製を返す。
+func SupportedLangs() []Lang <span class="cov8" title="1">{
+        return slices.Clone(supportedLangs)
+}</span>
+
+// IsSupportedLang は code が対応する言語コードかを返す。設定値の検証に使う。
+func IsSupportedLang(code string) bool <span class="cov8" title="1">{
+        return slices.ContainsFunc(supportedLangs, func(l Lang) bool </span><span class="cov8" title="1">{ return l.Code == code }</span>)
+}
+
 // Catalog は全言語の翻訳を持つ不変マスタ。embed から構築し、以後変わらない。
 // Resources が値で保持し、query.T が現在言語とともに引く。RawMaster と同じ、起動時に構築する読み取り専用データ。
 // 内部は map なので値コピーしても実体を共有する。読み取り専用なので共有して問題ない。
@@ -15033,16 +15064,23 @@ type Catalog struct {
         langs map[string]*gotext.Po
 }
 
-// NewCatalog は埋め込み PO から全言語のカタログを構築する。en は原文そのものなので空 PO にする。
+// NewCatalog は対応言語ごとに埋め込み PO を読んでカタログを構築する。言語集合は supportedLangs に従う。
 func NewCatalog() Catalog <span class="cov8" title="1">{
-        return Catalog{
-                langs: map[string]*gotext.Po{
-                        // 原文が英語なので PO を持たない。未訳フォールバックで原文をそのまま返す。
-                        "en": gotext.NewPo(),
-                        "ja": mustParse("locale/ja.po"),
-                },
-        }
-}</span>
+        langs := make(map[string]*gotext.Po, len(supportedLangs))
+        for _, l := range supportedLangs </span><span class="cov8" title="1">{
+                langs[l.Code] = loadPo(l.Code)
+        }</span>
+        <span class="cov8" title="1">return Catalog{langs: langs}</span>
+}
+
+// loadPo は言語コードの翻訳 PO を返す。源泉言語 en は原文そのものなので空 PO にし、未訳フォールバックで原文を返す。
+// それ以外は埋め込みの locale/&lt;code&gt;.po を解析する。
+func loadPo(code string) *gotext.Po <span class="cov8" title="1">{
+        if code == defaultLang </span><span class="cov8" title="1">{
+                return gotext.NewPo()
+        }</span>
+        <span class="cov8" title="1">return mustParse("locale/" + code + ".po")</span>
+}
 
 // mustParse は埋め込み PO を読んで解析する。埋め込みなので読み込み失敗はビルドの誤りとして panic する。
 // gotext の Parse はエラーを返さず内部で握り潰すので、解析失敗はここで検知できない。妥当性はテストで担保する。
@@ -44985,6 +45023,7 @@ import (
         "github.com/ebitenui/ebitenui/widget"
         "github.com/hajimehoshi/ebiten/v2"
         es "github.com/kijimaD/ruins/internal/engine/states"
+        "github.com/kijimaD/ruins/internal/i18n"
         "github.com/kijimaD/ruins/internal/inputmapper"
         "github.com/kijimaD/ruins/internal/logger"
         "github.com/kijimaD/ruins/internal/menurt"
@@ -45114,21 +45153,9 @@ func (st *SettingsMenuState) handleSelection() es.Transition[w.World] <span clas
 // 言語プリセット
 // ================
 
-// language は選択できる表示言語を表す
-type language struct {
-        Code  string // 言語コード。"ja" / "en"
-        Label string // 表示名の msgid。query.T で現在言語の訳を引く
-}
-
-// languagePresets は選択できる言語の一覧を保持する
-var languagePresets = []language{
-        {Code: "ja", Label: "Japanese"},
-        {Code: "en", Label: "English"},
-}
-
-// currentLanguageLabel は言語コードに対応する表示名を返す。一覧に無ければコードをそのまま返す
+// currentLanguageLabel は言語コードに対応する表示名の msgid を返す。対応一覧に無ければコードをそのまま返す。
 func currentLanguageLabel(code string) string <span class="cov8" title="1">{
-        for _, l := range languagePresets </span><span class="cov8" title="1">{
+        for _, l := range i18n.SupportedLangs() </span><span class="cov8" title="1">{
                 if l.Code == code </span><span class="cov8" title="1">{
                         return l.Label
                 }</span>
@@ -45144,8 +45171,9 @@ func NewLanguageMenuState() (es.State[w.World], error) <span class="cov8" title=
 
 // languageChoices は選択できる表示言語を選択肢にする。選ぶとシングルトンへ反映し設定を保存して閉じる
 func languageChoices(world w.World) (string, []Choice) <span class="cov8" title="1">{
-        choices := make([]Choice, 0, len(languagePresets))
-        for _, l := range languagePresets </span><span class="cov8" title="1">{
+        langs := i18n.SupportedLangs()
+        choices := make([]Choice, 0, len(langs))
+        for _, l := range langs </span><span class="cov8" title="1">{
                 choices = append(choices, Choice{Label: query.T(world, l.Label), Run: func(world w.World) (es.Transition[w.World], error) </span><span class="cov8" title="1">{
                         // シングルトンの設定言語を書き換える。Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
                         if s := query.GetUserSettings(world); s != nil </span><span class="cov8" title="1">{
