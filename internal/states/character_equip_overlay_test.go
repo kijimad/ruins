@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -20,8 +20,8 @@ import (
 
 // newEquipOverlayForTest は detail を使わない装備選択 overlay を用意する。execute は detail に触れない
 func newEquipOverlayForTest() characterEquipOverlay {
-	detail := menuscreen.NewDetail(func(w.World) (menuscreen.DetailContent, bool) {
-		return menuscreen.DetailContent{}, false
+	detail := overlay.NewDetail(func(w.World) (overlay.DetailContent, bool) {
+		return overlay.DetailContent{}, false
 	})
 	return newCharacterEquipOverlay(&detail)
 }

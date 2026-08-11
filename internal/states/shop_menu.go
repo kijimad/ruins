@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -27,8 +27,8 @@ import (
 // 商人の在庫を売買する。買うと在庫が減り、売ると売った品が在庫に並ぶ
 type ShopMenuState struct {
 	es.BaseState[w.World]
-	merchant ecs.Entity        // 品揃えを LocationInStorage で持つ商人。売買の相手
-	detail   menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
+	merchant ecs.Entity     // 品揃えを LocationInStorage で持つ商人。売買の相手
+	detail   overlay.Detail // 詳細モーダル。overlay として Screen に登録する
 	screen   *menuloop.Screen[ShopProps]
 }
 
@@ -39,7 +39,7 @@ var _ menuloop.ExtraInput = &ShopMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewEntityDetail(func() (ecs.Entity, bool) {
+	st.detail = overlay.NewEntityDetail(func() (ecs.Entity, bool) {
 		it, ok := st.selectedShopItem()
 		return it.Entity, ok
 	})

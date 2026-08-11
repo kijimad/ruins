@@ -16,7 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -29,9 +29,9 @@ import (
 // CraftMenuState はクラフトメニューのゲームステート
 type CraftMenuState struct {
 	es.BaseState[w.World]
-	detail       menuscreen.Detail // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
-	result       menuscreen.Detail // 合成結果の詳細モーダル。overlay として Screen に登録する
-	resultEntity ecs.Entity        // 直近で合成したアイテム
+	detail       overlay.Detail // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
+	result       overlay.Detail // 合成結果の詳細モーダル。overlay として Screen に登録する
+	resultEntity ecs.Entity     // 直近で合成したアイテム
 	screen       *menuloop.Screen[CraftProps]
 }
 
@@ -42,8 +42,8 @@ var _ menuloop.ExtraInput = &CraftMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
-	st.result = menuscreen.NewEntityDetail(func() (ecs.Entity, bool) { return st.resultEntity, true })
+	st.detail = overlay.NewDetail(st.detailContent)
+	st.result = overlay.NewEntityDetail(func() (ecs.Entity, bool) { return st.resultEntity, true })
 	// result を先に登録する。合成結果が開いている間はそちらが入力を専有する
 	st.screen = menuloop.NewScreen[CraftProps](st, &st.result, &st.detail)
 	return nil
@@ -277,14 +277,14 @@ func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData,
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
-func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+func (st *CraftMenuState) detailContent(world w.World) (overlay.DetailContent, bool) {
 	item, ok := st.selectedRecipe()
 	if !ok || item.RecipeID == "" {
-		return menuscreen.DetailContent{}, false
+		return overlay.DetailContent{}, false
 	}
 	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeID)
 	if err != nil {
-		return menuscreen.DetailContent{}, false
+		return overlay.DetailContent{}, false
 	}
 
 	// 必要材料を先頭に置き、所持数が足りていれば成功色、足りなければ警告色で示す。
@@ -311,5 +311,5 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 	if spec.Description != nil {
 		desc = query.T(world, spec.Description.Description)
 	}
-	return menuscreen.DetailContent{Name: item.RecipeName, Desc: desc, Rows: rows}, true
+	return overlay.DetailContent{Name: item.RecipeName, Desc: desc, Rows: rows}, true
 }

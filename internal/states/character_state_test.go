@@ -6,7 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -124,7 +124,7 @@ func TestDetailPageCount_componentが多いレイガンは複数ページにな�
 	world := testutil.InitTestWorld(t)
 	entity, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 	require.NoError(t, err)
-	assert.Greater(t, menuscreen.DetailPageCount(world, entity), 1, "性能区画が多いアイテムの詳細は複数ページに分割される")
+	assert.Greater(t, overlay.DetailPageCount(world, entity), 1, "性能区画が多いアイテムの詳細は複数ページに分割される")
 }
 
 func TestCharacterState_cycleCommandは位置ポリシーを次の値へ進める(t *testing.T) {

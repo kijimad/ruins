@@ -1,4 +1,4 @@
-package menuscreen
+package overlay
 
 import (
 	"image"
@@ -14,7 +14,7 @@ import (
 
 // DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行をそのまま持つ。
 // 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える。
-// 行の型は entityspec.SpecRow を正とし、menuscreen 側では再輸出しない
+// 行の型は entityspec.SpecRow を正とし、overlay 側では再輸出しない
 type DetailContent struct {
 	Name string
 	Desc string
@@ -81,7 +81,7 @@ func (d *Detail) Open(world w.World) {
 
 // HandleInput は表示中のキー入力を処理する。ページ数は provide の内容から自身で算出する。
 // 表示中でなければ何もしない。
-// error は Overlay インターフェースに合わせた形で、詳細モーダルでは常に nil
+// error は Interface インターフェースに合わせた形で、詳細モーダルでは常に nil
 func (d *Detail) HandleInput(world w.World) error {
 	if !d.active {
 		return nil

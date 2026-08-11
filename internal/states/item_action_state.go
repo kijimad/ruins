@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -187,8 +187,8 @@ const itemActionMenuKey = "item_action"
 // 名前のみで一覧する。Enter で即実行しダンジョンへ戻る。x で選択中アイテムの詳細モーダルを開く。
 type ItemActionState struct {
 	es.BaseState[w.World]
-	initialVerb verbID            // 開いた直後に表示する動詞タブ
-	detail      menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
+	initialVerb verbID         // 開いた直後に表示する動詞タブ
+	detail      overlay.Detail // 詳細モーダル。overlay として Screen に登録する
 	screen      *menuloop.Screen[ItemActionProps]
 }
 
@@ -204,7 +204,7 @@ func NewItemActionState(initial verbID) es.StateFactory[w.World] {
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewEntityDetail(st.selectedEntity)
+	st.detail = overlay.NewEntityDetail(st.selectedEntity)
 	st.screen = menuloop.NewScreen[ItemActionProps](st, &st.detail)
 	return nil
 }

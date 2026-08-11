@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuloop"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -23,13 +23,13 @@ import (
 type characterEquipOverlay struct {
 	active bool
 	mount  *hooks.Mount[charEquipProps]
-	detail *menuscreen.Detail
+	detail *overlay.Detail
 }
 
-var _ menuscreen.Overlay = (*characterEquipOverlay)(nil)
+var _ overlay.Interface = (*characterEquipOverlay)(nil)
 
 // newCharacterEquipOverlay は共有の詳細モーダルを参照する装備選択 overlay を作る
-func newCharacterEquipOverlay(detail *menuscreen.Detail) characterEquipOverlay {
+func newCharacterEquipOverlay(detail *overlay.Detail) characterEquipOverlay {
 	return characterEquipOverlay{mount: hooks.NewMount[charEquipProps](), detail: detail}
 }
 

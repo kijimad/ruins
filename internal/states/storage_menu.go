@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -36,7 +36,7 @@ const (
 type StorageMenuState struct {
 	es.BaseState[w.World]
 	storageEntity ecs.Entity
-	detail        menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
+	detail        overlay.Detail // 詳細モーダル。overlay として Screen に登録する
 	screen        *menuloop.Screen[StorageProps]
 }
 
@@ -47,7 +47,7 @@ var _ menuloop.ExtraInput = &StorageMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewEntityDetail(st.selectedEntity)
+	st.detail = overlay.NewEntityDetail(st.selectedEntity)
 	st.screen = menuloop.NewScreen[StorageProps](st, &st.detail)
 	return nil
 }

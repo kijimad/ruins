@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -89,7 +89,7 @@ func characterTabLabels(world w.World) []string {
 type CharacterState struct {
 	es.BaseState[w.World]
 	target ecs.Entity            // 表示対象のキャラクター。ゼロ値なら主人公
-	detail menuscreen.Detail     // 詳細モーダル。overlay として Screen に登録する
+	detail overlay.Detail        // 詳細モーダル。overlay として Screen に登録する
 	equip  characterEquipOverlay // 装備選択。overlay として Screen に登録する
 	screen *menuloop.Screen[CharacterProps]
 }
@@ -99,7 +99,7 @@ var _ menuloop.ExtraInput = &CharacterState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CharacterState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewDetail(st.detailContent)
+	st.detail = overlay.NewDetail(st.detailContent)
 	st.equip = newCharacterEquipOverlay(&st.detail)
 	// detail を equip より前に登録する。装備選択中に x で開いた詳細が入力を優先する
 	st.screen = menuloop.NewScreen[CharacterProps](st, &st.detail, &st.equip)
@@ -282,13 +282,13 @@ func (st *CharacterState) Menu(props CharacterProps) menuloop.MenuConfig {
 
 // detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
 // 装備選択中は候補、閲覧中は装備中アイテム・空スロット・情報行を出し分ける。命令タブは詳細を持たない
-func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent, bool) {
+func (st *CharacterState) detailContent(world w.World) (overlay.DetailContent, bool) {
 	if st.equip.Active() {
 		item, ok := st.equip.selectedItem()
 		if !ok {
-			return menuscreen.DetailContent{}, false
+			return overlay.DetailContent{}, false
 		}
-		return menuscreen.EntityDetailContent(world, item), true
+		return overlay.EntityDetailContent(world, item), true
 	}
 
 	cursor := st.screen.Selection()
@@ -296,24 +296,24 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 	switch charTabAt(cursor.TabIndex) {
 	case charTabEquip:
 		if cursor.ItemIndex >= len(props.EquipSlots) {
-			return menuscreen.DetailContent{}, false
+			return overlay.DetailContent{}, false
 		}
 		slot := props.EquipSlots[cursor.ItemIndex]
 		if slot.Entity != nil {
-			return menuscreen.EntityDetailContent(world, *slot.Entity), true
+			return overlay.EntityDetailContent(world, *slot.Entity), true
 		}
 		// 空スロットは性能行を持たず案内だけ出す
-		return menuscreen.DetailContent{Name: slot.SlotLabel, Desc: query.T(world, "Nothing equipped")}, true
+		return overlay.DetailContent{Name: slot.SlotLabel, Desc: query.T(world, "Nothing equipped")}, true
 	case charTabCommand:
-		return menuscreen.DetailContent{}, false
+		return overlay.DetailContent{}, false
 	default:
 		infoIdx := cursor.TabIndex - charFirstInfoTab
 		if infoIdx < 0 || infoIdx >= len(props.InfoTabs) {
-			return menuscreen.DetailContent{}, false
+			return overlay.DetailContent{}, false
 		}
 		items := props.InfoTabs[infoIdx].Items
 		if cursor.ItemIndex >= len(items) {
-			return menuscreen.DetailContent{}, false
+			return overlay.DetailContent{}, false
 		}
 		return infoDetailContent(items[cursor.ItemIndex]), true
 	}
@@ -539,7 +539,7 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 }
 
 // infoDetailContent は情報タブの1行を詳細内容にする。見出しと説明、内訳の行を出す
-func infoDetailContent(item statusItemData) menuscreen.DetailContent {
+func infoDetailContent(item statusItemData) overlay.DetailContent {
 	heading := item.Label
 	if item.Value != "" {
 		heading = fmt.Sprintf("%s  %s", item.Label, item.Value)
@@ -551,5 +551,5 @@ func infoDetailContent(item statusItemData) menuscreen.DetailContent {
 		}
 		rows = append(rows, entityspec.SpecRow{Label: d.Label, Value: d.Value})
 	}
-	return menuscreen.DetailContent{Name: heading, Desc: item.Description, Rows: rows}
+	return overlay.DetailContent{Name: heading, Desc: item.Description, Rows: rows}
 }
