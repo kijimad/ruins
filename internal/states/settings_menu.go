@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -22,7 +22,7 @@ import (
 // メインメニューから push される。現状は設定項目が無く、将来の設定（音量など）を追加する土台。
 type SettingsMenuState struct {
 	es.BaseState[w.World]
-	screen *menurt.Screen[SettingsMenuProps]
+	screen *menuloop.Screen[SettingsMenuProps]
 }
 
 // State interface ================
@@ -31,7 +31,7 @@ var _ es.State[w.World] = &SettingsMenuState{}
 
 // OnStart はステート開始時の処理を行う。メインメニューの上に重なるためワールドは操作しない
 func (st *SettingsMenuState) OnStart(_ w.World) error {
-	st.screen = menurt.NewScreen[SettingsMenuProps](st)
+	st.screen = menuloop.NewScreen[SettingsMenuProps](st)
 	return nil
 }
 
@@ -93,7 +93,7 @@ type settingsMenuItem struct {
 	Value string // 現在値の表示。値を持たない項目は空
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *SettingsMenuState) Fetch(world w.World) SettingsMenuProps {
 	return SettingsMenuProps{
 		Items: []settingsMenuItem{
@@ -103,9 +103,9 @@ func (st *SettingsMenuState) Fetch(world w.World) SettingsMenuProps {
 	}
 }
 
-// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
-func (st *SettingsMenuState) Menu(props SettingsMenuProps) menurt.MenuConfig {
-	return menurt.MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
+// Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
+func (st *SettingsMenuState) Menu(props SettingsMenuProps) menuloop.MenuConfig {
+	return menuloop.MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
 }
 
 // focusedItem は現在カーソルが当たっている項目を返す
@@ -177,8 +177,8 @@ func languageChoices(world w.World) (string, []Choice) {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
+func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
 	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {

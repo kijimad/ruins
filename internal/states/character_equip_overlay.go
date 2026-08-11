@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -74,7 +74,7 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 	ki := input.GetSharedKeyboardInput()
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		o.detail.Open(world)
-	} else if action, ok := menurt.HandleMenuInput(); ok {
+	} else if action, ok := menuloop.HandleMenuInput(); ok {
 		switch action {
 		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 			o.active = false

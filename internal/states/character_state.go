@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
@@ -91,18 +91,18 @@ type CharacterState struct {
 	target ecs.Entity            // 表示対象のキャラクター。ゼロ値なら主人公
 	detail menuscreen.Detail     // 詳細モーダル。overlay として Screen に登録する
 	equip  characterEquipOverlay // 装備選択。overlay として Screen に登録する
-	screen *menurt.Screen[CharacterProps]
+	screen *menuloop.Screen[CharacterProps]
 }
 
 var _ es.State[w.World] = &CharacterState{}
-var _ menurt.ExtraInput = &CharacterState{}
+var _ menuloop.ExtraInput = &CharacterState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CharacterState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.equip = newCharacterEquipOverlay(&st.detail)
 	// detail を equip より前に登録する。装備選択中に x で開いた詳細が入力を優先する
-	st.screen = menurt.NewScreen[CharacterProps](st, &st.detail, &st.equip)
+	st.screen = menuloop.NewScreen[CharacterProps](st, &st.detail, &st.equip)
 	return nil
 }
 
@@ -262,7 +262,7 @@ func (st *CharacterState) Fetch(world w.World) CharacterProps {
 }
 
 // Menu は装備・命令・情報タブのカーソル構成を返す。情報タブの見出し行はカーソルを飛ばす
-func (st *CharacterState) Menu(props CharacterProps) menurt.MenuConfig {
+func (st *CharacterState) Menu(props CharacterProps) menuloop.MenuConfig {
 	itemCounts := make([]int, 0, 2+len(props.InfoTabs))
 	skips := make([][]bool, 0, 2+len(props.InfoTabs))
 	itemCounts = append(itemCounts, len(props.EquipSlots))
@@ -277,7 +277,7 @@ func (st *CharacterState) Menu(props CharacterProps) menurt.MenuConfig {
 		}
 		skips = append(skips, s)
 	}
-	return menurt.MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, Skips: skips}
+	return menuloop.MenuConfig{Key: characterMenuKey, TabCount: len(itemCounts), ItemCounts: itemCounts, Skips: skips}
 }
 
 // detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
@@ -323,7 +323,7 @@ func (st *CharacterState) detailContent(world w.World) (menuscreen.DetailContent
 // Props
 // ================
 
-// CharacterProps は画面の表示 props。menurt.Screen の型引数として渡す
+// CharacterProps は画面の表示 props。menuloop.Screen の型引数として渡す
 type CharacterProps struct {
 	TargetName  string // 表示対象のキャラクター名
 	HasMultiple bool   // 切り替え可能な仲間がいるか

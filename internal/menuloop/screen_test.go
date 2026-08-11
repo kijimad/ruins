@@ -1,4 +1,4 @@
-package menurt
+package menuloop
 
 import (
 	"testing"

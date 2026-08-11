@@ -11,7 +11,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -32,20 +32,20 @@ type CraftMenuState struct {
 	detail       menuscreen.Detail // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
 	result       menuscreen.Detail // 合成結果の詳細モーダル。overlay として Screen に登録する
 	resultEntity ecs.Entity        // 直近で合成したアイテム
-	screen       *menurt.Screen[CraftProps]
+	screen       *menuloop.Screen[CraftProps]
 }
 
 // State interface ================
 
 var _ es.State[w.World] = &CraftMenuState{}
-var _ menurt.ExtraInput = &CraftMenuState{}
+var _ menuloop.ExtraInput = &CraftMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewDetail(st.detailContent)
 	st.result = menuscreen.NewEntityDetail(func() (ecs.Entity, bool) { return st.resultEntity, true })
 	// result を先に登録する。合成結果が開いている間はそちらが入力を専有する
-	st.screen = menurt.NewScreen[CraftProps](st, &st.result, &st.detail)
+	st.screen = menuloop.NewScreen[CraftProps](st, &st.result, &st.detail)
 	return nil
 }
 
@@ -94,7 +94,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 // Props
 // ================
 
-// CraftProps は画面の表示 props。menurt.Screen の型引数として渡す
+// CraftProps は画面の表示 props。menuloop.Screen の型引数として渡す
 type CraftProps struct {
 	Tabs []craftTabData
 }
@@ -111,20 +111,20 @@ type craftItemData struct {
 	CanCraft   bool
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *CraftMenuState) Fetch(world w.World) CraftProps {
 	return CraftProps{
 		Tabs: st.createTabs(world),
 	}
 }
 
-// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
-func (st *CraftMenuState) Menu(props CraftProps) menurt.MenuConfig {
+// Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
+func (st *CraftMenuState) Menu(props CraftProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menurt.MenuConfig{Key: "craft", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "craft", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
 func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
@@ -241,8 +241,8 @@ func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
+func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	// カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {

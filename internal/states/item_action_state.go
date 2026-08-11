@@ -11,7 +11,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/screenui"
@@ -189,11 +189,11 @@ type ItemActionState struct {
 	es.BaseState[w.World]
 	initialVerb verbID            // 開いた直後に表示する動詞タブ
 	detail      menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen      *menurt.Screen[ItemActionProps]
+	screen      *menuloop.Screen[ItemActionProps]
 }
 
 var _ es.State[w.World] = &ItemActionState{}
-var _ menurt.ExtraInput = &ItemActionState{}
+var _ menuloop.ExtraInput = &ItemActionState{}
 
 // NewItemActionState は動詞タブ画面を initial のタブで開くファクトリを返す
 func NewItemActionState(initial verbID) es.StateFactory[w.World] {
@@ -205,7 +205,7 @@ func NewItemActionState(initial verbID) es.StateFactory[w.World] {
 // OnStart はステートが開始される際に呼ばれる
 func (st *ItemActionState) OnStart(_ w.World) error {
 	st.detail = menuscreen.NewEntityDetail(st.selectedEntity)
-	st.screen = menurt.NewScreen[ItemActionProps](st, &st.detail)
+	st.screen = menuloop.NewScreen[ItemActionProps](st, &st.detail)
 	return nil
 }
 
@@ -288,7 +288,7 @@ func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World
 // Props
 // ================
 
-// ItemActionProps は画面の表示 props。menurt.Screen の型引数として渡す
+// ItemActionProps は画面の表示 props。menuloop.Screen の型引数として渡す
 type ItemActionProps struct {
 	Tabs []verbTabData
 }
@@ -300,7 +300,7 @@ type verbTabData struct {
 	Items []itemRowData
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *ItemActionState) Fetch(world w.World) ItemActionProps {
 	player, err := query.GetPlayerEntity(world)
 	var backpack []ecs.Entity
@@ -356,8 +356,8 @@ func newItemActionEntry(world w.World, entity ecs.Entity) itemRowData {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
+func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -376,13 +376,13 @@ func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor men
 	})
 }
 
-// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
-func (st *ItemActionState) Menu(props ItemActionProps) menurt.MenuConfig {
+// Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
+func (st *ItemActionState) Menu(props ItemActionProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menurt.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage, InitialTab: verbTabIndex(st.initialVerb)}
+	return menuloop.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage, InitialTab: verbTabIndex(st.initialVerb)}
 }
 
 func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {

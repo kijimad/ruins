@@ -1,10 +1,10 @@
-// Package menurt はメニュー画面の共通ランタイムを提供する。
+// Package menuloop はメニュー画面の共通ランタイムを提供する。
 //
 // 各メニュー state から UI 機構、mount・widget・overlay の入力ゲートと重ね、を Screen へ
 // 集約し、state は Fetch・Menu・View と既存の DoAction を提供するだけにする。MVU の Model/View/Update
 // に対応し、Screen がループを所有する。state package とは別 package にすることで、Model 契約を
 // コンパイラに強制させ、state から Screen 内部へ触れられないようにする。
-package menurt
+package menuloop
 
 import (
 	"reflect"
@@ -50,7 +50,7 @@ type Model[P any] interface {
 
 // ExtraInput は共通のメニュー入力に加えて独自キーを扱う state が満たす任意契約。
 // 返すのは独自キーの分だけでよい。共通の HandleMenuInput は Screen が必ず後段で適用する。
-// 実装 state は var _ menurt.ExtraInput = &XState{} で綴りとシグネチャを静的に検証する
+// 実装 state は var _ menuloop.ExtraInput = &XState{} で綴りとシグネチャを静的に検証する
 type ExtraInput interface {
 	ExtraInput() (inputmapper.ActionID, bool)
 }
