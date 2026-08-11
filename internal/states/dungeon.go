@@ -9,7 +9,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
-	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -30,9 +29,7 @@ type DungeonState struct {
 	worldFrame *ebiten.Image
 	// lightMap は配置された光源から作る乗算用の光。worldFrame へ乗算して雰囲気を出す
 	lightMap *ebiten.Image
-	// light はワールドレイヤに雰囲気ライティングをかけるフィルタ。Draw で遅延生成する
-	light *screeneffect.LightFilter
-	Depth int
+	Depth    int
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
@@ -280,16 +277,8 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 // ワールドレイヤに雰囲気ライティングをかけ、HUD は等倍で重ねる。暗さは地上なら時間帯、
 // ダンジョンなら定義から決めるので、昼の地上は明るく、深い洞窟は真っ暗になる。
 func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
-	if st.light == nil {
-		lf, err := screeneffect.NewLightFilter()
-		if err != nil {
-			return err
-		}
-		st.light = lf
-	}
 	// このフィールドの暗さを求める
 	darkness := st.fieldDarkness(world)
-	st.light.Darkness = float32(darkness)
 
 	b := screen.Bounds()
 	st.ensureFrames(b.Dx(), b.Dy())
@@ -309,8 +298,8 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 	mulOp := &ebiten.DrawImageOptions{Blend: blendMultiply}
 	st.worldFrame.DrawImage(st.lightMap, mulOp)
 
-	// 仕上げのビネットとコントラストをかけて screen へ。HUD はこの後で素の明るさで重ねる
-	st.light.Apply(screen, st.worldFrame)
+	// 乗算済みの世界を screen へ。HUD はこの後で素の明るさで重ねる
+	screen.DrawImage(st.worldFrame, nil)
 
 	// HUD レイヤは screen へ等倍で描く。文字やバーは減光せず読みやすさを保つ
 	return drawRenderers(world, screen,
