@@ -101,7 +101,7 @@ $ make help
 |---|---|---|---|
 | in-progress | [activity パッケージのわかりやすさ改善](docs/design/260809163430.md) | 8/8（見送り2） | refactor |
 | in-progress | [一覧のセルをアイコンを持てる型にし、アイテム・装備にアイコンを表示する](docs/design/260810093849.md) | 7/7 | ui, item |
-| in-progress | [UI アーキテクチャの一貫性を回復する](docs/design/260810150255.md) | 1/3 | ui, refactor |
+| in-progress | [UI アーキテクチャの一貫性を回復する](docs/design/260810150255.md) | 2/3 | ui, refactor |
 | draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
 | draft | [OSS 調査 2026-08](docs/design/260801002222.md) | 0/5 | meta, worldgen, combat, ui |
