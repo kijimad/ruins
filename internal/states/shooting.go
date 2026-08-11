@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -260,12 +261,6 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	screen.DrawImage(shootingCursorCache, op)
 }
 
-// shootingPanelCache は情報パネル画像のキャッシュ。sync.Once で一度だけ初期化する
-var (
-	shootingPanelCache     *ebiten.Image
-	shootingPanelCacheOnce sync.Once
-)
-
 // drawShootingPanel は射撃情報パネルを描画する
 func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) error {
 	face := world.Resources.UIResources.Text.BodyFace
@@ -278,16 +273,10 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 		lineHeight  = 20
 	)
 
-	shootingPanelCacheOnce.Do(func() {
-		shootingPanelCache = ebiten.NewImage(panelWidth, panelHeight)
-		shootingPanelCache.Fill(theme.Overlay)
-	})
-
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
-	panelOp := &ebiten.DrawImageOptions{}
-	panelOp.GeoM.Translate(float64(panelX), float64(panelY))
-	screen.DrawImage(shootingPanelCache, panelOp)
+	// パネル背景をメニュー枠と同じ共通 chrome に揃える
+	styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())
 
 	textX := float64(panelX + 10)
 	y := panelY + 10
