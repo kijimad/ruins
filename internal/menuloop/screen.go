@@ -36,8 +36,8 @@ type MenuConfig struct {
 }
 
 // Model はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
-// DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。共通のメニュー入力は
-// Screen が HandleMenuInput で必ず適用し、独自キーが要る state だけ ExtraInput でその分を足す
+// DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。メニュー入力は
+// Screen が HandleMenuInput で扱い、独自キーが要る state だけ ExtraInput で先取りする
 type Model[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
@@ -46,8 +46,8 @@ type Model[P any] interface {
 	View(world w.World, props P, cursor Selection, res resources.UIResources) *ebitenui.UI
 }
 
-// ExtraInput は共通のメニュー入力に加えて独自キーを扱う state が満たす任意契約。
-// 返すのは独自キーの分だけでよい。共通の HandleMenuInput は Screen が必ず後段で適用する。
+// ExtraInput は独自キーを扱う state が満たす任意契約。Screen は各フレームでまず ExtraInput を試し、
+// 拾わなければ共通の HandleMenuInput へフォールバックする。1フレーム1アクションで ExtraInput が優先する。
 // 実装 state は var _ menuloop.ExtraInput = &XState{} で綴りとシグネチャを静的に検証する
 type ExtraInput interface {
 	ExtraInput() (inputmapper.ActionID, bool)
@@ -85,8 +85,8 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 	return nil
 }
 
-// readAction は1フレームの入力を Action に変換する。独自キーを持つ state は extraInput でその分だけを
-// 返し、共通の HandleMenuInput は必ず後段で適用する。共通入力を Screen に集約し、state には追加分だけ書かせる
+// readAction は1フレームの入力を Action に変換する。ExtraInput を持つ state はそれを先に試し、
+// 拾わなければ共通の HandleMenuInput にフォールバックする。1フレーム1アクションで ExtraInput が優先する
 func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) {
 	if h, ok := s.model.(ExtraInput); ok {
 		if action, ok := h.ExtraInput(); ok {
@@ -135,7 +135,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		}
 	}
 
-	// カーソル状態を進める。mount は初回・props 変化・入力受理のいずれかで dirty を返す
+	// mount の dirty を読む。初回・props 変化・入力受理のいずれかで立つ。カーソルは Dispatch で更新済み
 	changed := s.mount.Update()
 	sel := s.selection(cfg)
 
@@ -171,7 +171,8 @@ func (s *Screen[P]) SetTab(tab int) {
 	s.setTab(s.model.Menu(s.Props()), tab)
 }
 
-// setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する
+// setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する。
+// Store を直接書き換えるため MarkDirty で次フレームの再構築を促す
 func (s *Screen[P]) setTab(cfg MenuConfig, tab int) {
 	if cfg.TabCount == 0 || tab < 0 || tab >= cfg.TabCount {
 		return
@@ -182,10 +183,11 @@ func (s *Screen[P]) setTab(cfg MenuConfig, tab int) {
 		ItemsPerPage: cfg.ItemsPerPage,
 		Skips:        cfg.Skips,
 	}, tab)
+	s.mount.MarkDirty()
 }
 
 // Selection は前フレームで確定したカーソル位置を返す。カーソルは DoAction のあとの
-// mount.Update で更新されるため、DoAction 内で読むと画面に見えている確定位置になる
+// Dispatch で更新されるため、DoAction 内で読むと更新前、つまり画面に見えている確定位置になる
 func (s *Screen[P]) Selection() Selection { return s.lastSelection }
 
 // selection は現在のカーソル位置を mount から読む。一覧を持たない画面はゼロ値
