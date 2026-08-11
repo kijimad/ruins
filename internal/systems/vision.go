@@ -363,13 +363,10 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 		}
 		nd := distance / float64(lightSource.Radius)
 
-		// 逆二乗の減衰に、半径の外縁で0へ落ちる窓関数を掛ける。
-		// window=1-nd^4 が縁を滑らかに閉じ、1/(1+K*nd^2) が逆二乗の効きを与える
-		window := 1.0 - nd*nd*nd*nd
-		if window < 0 {
-			window = 0
-		}
-		atten := window * window / (1.0 + lightFalloffK*nd*nd)
+		// 平坦な床を照らす見た目にする。半径の内側 lightPlateau までは一様に明るく、
+		// 外縁だけ滑らかに0へ落とす。中心だけ極端に明るい逆二乗だと、トップダウンでは
+		// 光った球のように見えてしまうのを避ける
+		atten := 1.0 - smoothstep(lightPlateau, 1.0, nd)
 
 		// 加算合成。重なるほど明るい
 		brightness += atten
@@ -408,9 +405,16 @@ const (
 	dungeonAmbient = 0.06
 	// visibilityThreshold はこの明るさ未満のタイルを見えないとみなす境界。視界を光の届く範囲へ寄せる
 	visibilityThreshold = 0.10
-	// lightFalloffK は逆二乗減衰の効き。大きいほど光源から急に暗くなる
-	lightFalloffK = 3.0
+	// lightPlateau は光源の平坦域。正規化距離がこの値までは一様に明るく、外縁で滑らかに落とす
+	lightPlateau = 0.45
 )
+
+// smoothstep は edge0..edge1 を 0..1 へ滑らかに写す。両端の傾きが0のS字。
+func smoothstep(edge0, edge1, x float64) float64 {
+	t := (x - edge0) / (edge1 - edge0)
+	t = math.Max(0, math.Min(1, t))
+	return t * t * (3 - 2*t)
+}
 
 // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
 func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
