@@ -7,8 +7,6 @@
 package menuloop
 
 import (
-	"reflect"
-
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -65,8 +63,6 @@ type Screen[P any] struct {
 	widget        *ebitenui.UI
 	overlays      []overlay.Layer
 	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
-	lastProps     P         // 直近フレームの props。dirty 判定で DeepEqual 比較する
-	hadProps      bool      // lastProps に一度でも値が入ったか。初回の空比較を避ける
 	seeded        bool      // 初期タブへ寄せたか
 }
 
@@ -139,15 +135,15 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		}
 	}
 
-	// カーソル状態を進める
-	s.mount.Update()
+	// カーソル状態を進める。mount は初回・props 変化・入力受理のいずれかで dirty を返す
+	changed := s.mount.Update()
 	sel := s.selection(cfg)
 
-	// dirty なフレームだけ widget ツリーを組み直す。overlay が開閉・表示中のフレームは
-	// 窓内容が入力で変わりうるので常に dirty にし、それ以外は props とカーソルの変化で判定する。
-	// Fetch が View に要る状態をすべて捕捉する前提で、props 不変なら再構築を省いても表示は正しい
+	// dirty なフレームだけ widget ツリーを組み直す。mount の dirty を状態変化の答えとし、
+	// hooks の外にある overlay だけ別途 OR する。overlay が開閉・表示中のフレームは窓内容が
+	// 入力で変わりうるので常に組み直す
 	overlayInvolved := ovBefore != nil || s.activeOverlay() != nil
-	dirty := s.widget == nil || overlayInvolved || sel != s.lastSelection || !s.hadProps || !reflect.DeepEqual(props, s.lastProps)
+	dirty := s.widget == nil || overlayInvolved || changed
 	if dirty {
 		s.widget = m.View(world, props, sel, world.Resources.UIResources)
 		// overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、
@@ -164,8 +160,6 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	}
 
 	s.lastSelection = sel
-	s.lastProps = props
-	s.hadProps = true
 	s.widget.Update()
 	return m.ConsumeTransition(), nil
 }
