@@ -29,9 +29,12 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	assert.Equal(t, "Back", props.Items[1].Label)
 	assert.Equal(t, settingsItemBack, props.Items[1].Kind)
 
-	// UserSettings を ja へ切り替えると表示も追従する
+	// UserSettings を ja へ切り替えると表示も追従する。
+	// 期待値は ja 訳を i18n から導出し、ja.po の訳文更新でこのテストが drift しないようにする。
+	// このテストの関心は表示が UserSettings 言語に追従することで、訳文の正当性は i18n の責務。
 	query.GetUserSettings(world).Language = "ja"
-	assert.Equal(t, "日本語", state.Fetch(world).Items[0].Value, "表示は config でなく UserSettings を引く")
+	wantJa := world.Resources.I18N.Translate("ja", "Japanese")
+	assert.Equal(t, wantJa, state.Fetch(world).Items[0].Value, "表示は config でなく UserSettings を引く")
 }
 
 func TestNewLanguageMenuState_選択メニューで言語プリセット分の選択肢を持つ(t *testing.T) {
