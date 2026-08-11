@@ -2,6 +2,8 @@ package states
 
 import (
 	"fmt"
+	"image/color"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -9,7 +11,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
-	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -25,14 +26,7 @@ type DungeonState struct {
 	es.BaseState[w.World]
 	// baseImage は下に敷く背景
 	baseImage *ebiten.Image
-	// worldFrame はワールドレイヤを描くフレーム。ここへ描いてからライティングをかけて screen へ出す。
-	// HUD は分離して screen へ等倍で重ねるため、光は世界だけに当たり文字は素の明るさを保つ
-	worldFrame *ebiten.Image
-	// lightMap は配置された光源から作る乗算用の光。worldFrame へ乗算して雰囲気を出す
-	lightMap *ebiten.Image
-	// light はワールドレイヤに雰囲気ライティングをかけるフィルタ。Draw で遅延生成する
-	light *screeneffect.LightFilter
-	Depth int
+	Depth     int
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
@@ -280,44 +274,25 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 // ワールドレイヤに雰囲気ライティングをかけ、HUD は等倍で重ねる。暗さは地上なら時間帯、
 // ダンジョンなら定義から決めるので、昼の地上は明るく、深い洞窟は真っ暗になる。
 func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
-	if st.light == nil {
-		lf, err := screeneffect.NewLightFilter()
-		if err != nil {
-			return err
-		}
-		st.light = lf
-	}
-	// このフィールドの暗さを求める
-	darkness := st.fieldDarkness(world)
-	st.light.Darkness = float32(darkness)
-
-	b := screen.Bounds()
-	st.ensureFrames(b.Dx(), b.Dy())
-	st.worldFrame.Clear()
-
-	// ワールドレイヤを worldFrame へ描く。背景・スプライト・フロストがここに乗る
 	if st.baseImage != nil {
-		st.worldFrame.DrawImage(st.baseImage, nil)
+		screen.DrawImage(st.baseImage, nil)
 	}
-	if err := drawRenderers(world, st.worldFrame,
+	// まず世界レイヤを screen へ描く。フォグと壁遮蔽は vision の per-tile 暗さで表現する
+	if err := drawRenderers(world, screen,
 		&gs.RenderSpriteSystem{}, &gs.FrostRenderSystem{}); err != nil {
 		return err
 	}
-
-	// 配置された光源から乗算用ライトマップを作り、世界へ乗算する。実際の LightSource がそのまま光になる
-	gs.BuildLightMap(world, st.lightMap, darkness)
-	mulOp := &ebiten.DrawImageOptions{Blend: blendMultiply}
-	st.worldFrame.DrawImage(st.lightMap, mulOp)
-
-	// 仕上げのビネットとコントラストをかけて screen へ。HUD はこの後で素の明るさで重ねる
-	st.light.Apply(screen, st.worldFrame)
-
-	// HUD レイヤは screen へ等倍で描く。文字やバーは減光せず読みやすさを保つ
+	// 地上は時間帯の色フィルタを世界レイヤへ一様に掛ける。朝夕は暖色、夜は寒色へ寄せる。
+	// ダンジョンは地下で昼夜がないので掛けない
+	if query.IsOnOverworld(world) {
+		applyTimeOfDayTint(screen, query.GetGameTime(world).GetTimeOfDay())
+	}
+	// HUD レイヤは screen へ等倍で描く。色フィルタを避けて文字やバーの読みやすさを保つ
 	return drawRenderers(world, screen,
 		&gs.HUDRenderingSystem{}, &gs.VisualEffectSystem{})
 }
 
-// blendMultiply は乗算合成。結果 = src.rgb × dst.rgb。ライトマップを世界へ掛けるのに使う。
+// blendMultiply は乗算合成。結果 = src.rgb × dst.rgb。時間帯の色を世界へ掛けるのに使う。
 var blendMultiply = ebiten.Blend{
 	BlendFactorSourceRGB:        ebiten.BlendFactorDestinationColor,
 	BlendFactorSourceAlpha:      ebiten.BlendFactorDestinationColor,
@@ -327,54 +302,53 @@ var blendMultiply = ebiten.Blend{
 	BlendOperationAlpha:         ebiten.BlendOperationAdd,
 }
 
-// dungeonDarkness は全ダンジョン共通の暗さ。ダンジョンは屋内・地下で常に暗いという前提で
-// 一律に扱う。ステージごとの差を付けたくなったらここを定義側の値へ戻す。
-const dungeonDarkness = 0.85
+var (
+	tintPixel     *ebiten.Image
+	tintPixelOnce sync.Once
+)
 
-// fieldDarkness はこのフィールドの暗さを返す。地上は時間帯で変わり、ダンジョンは一律。
-func (st *DungeonState) fieldDarkness(world w.World) float64 {
-	if st.isSeamless() {
-		return darknessForTimeOfDay(query.GetGameTime(world).GetTimeOfDay())
-	}
-	return dungeonDarkness
+// whiteTintPixel は色フィルタ用の白1px。全画面へ拡大し ColorScale で時間帯の色を掛ける。
+// 生成は初回だけ行い、並列描画やテストでのデータレースを防ぐ。
+func whiteTintPixel() *ebiten.Image {
+	tintPixelOnce.Do(func() {
+		tintPixel = ebiten.NewImage(1, 1)
+		tintPixel.Fill(color.White)
+	})
+	return tintPixel
 }
 
-// darknessForTimeOfDay は時間帯を地上の暗さへ写す。昼が最も明るく、深夜が最も暗い。
-func darknessForTimeOfDay(t gc.TimeOfDay) float64 {
+// applyTimeOfDayTint は時間帯の色を screen 全体へ乗算する。昼は白で素通しなので何もしない。
+func applyTimeOfDayTint(screen *ebiten.Image, t gc.TimeOfDay) {
+	r, g, b := timeOfDayTint(t)
+	if r == 1 && g == 1 && b == 1 {
+		return
+	}
+	bounds := screen.Bounds()
+	op := &ebiten.DrawImageOptions{Blend: blendMultiply}
+	op.GeoM.Scale(float64(bounds.Dx()), float64(bounds.Dy()))
+	op.ColorScale.Scale(r, g, b, 1)
+	screen.DrawImage(whiteTintPixel(), op)
+}
+
+// timeOfDayTint は時間帯を世界へ掛ける乗算色へ写す。昼は白で素通し、朝夕は暖色、夜は寒色。
+// 乗算なので各成分は 1 以下。小さいほど暗く色濃くなる。
+func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) {
 	switch t {
 	case gc.TimeDawn:
-		return 0.45
+		return 1.0, 0.80, 0.72
 	case gc.TimeMorning:
-		return 0.12
+		return 1.0, 0.96, 0.90
 	case gc.TimeDay:
-		return 0.0
+		return 1.0, 1.0, 1.0
 	case gc.TimeEvening:
-		return 0.4
+		return 1.0, 0.72, 0.52
 	case gc.TimeNight:
-		return 0.75
+		return 0.55, 0.60, 0.85
 	case gc.TimeMidnight:
-		return 0.9
+		return 0.42, 0.48, 0.78
 	default:
-		return 0.0
+		return 1.0, 1.0, 1.0
 	}
-}
-
-// ensureFrames はワールドレイヤとライトマップのフレームを画面サイズで用意する。
-// サイズが変われば作り直す。
-func (st *DungeonState) ensureFrames(width, height int) {
-	if st.worldFrame != nil {
-		b := st.worldFrame.Bounds()
-		if b.Dx() == width && b.Dy() == height {
-			return
-		}
-		// サイズが変わったので旧フレームを解放する。GPU テクスチャの即時解放を促す
-		st.worldFrame.Deallocate()
-		if st.lightMap != nil {
-			st.lightMap.Deallocate()
-		}
-	}
-	st.worldFrame = ebiten.NewImage(width, height)
-	st.lightMap = ebiten.NewImage(width, height)
 }
 
 // drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。

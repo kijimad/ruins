@@ -4,7 +4,6 @@ import (
 	"cmp"
 	"fmt"
 	"image/color"
-	"math"
 	"slices"
 	"strings"
 
@@ -34,8 +33,9 @@ type spriteImageCacheKey struct {
 // RenderSpriteSystem はスプライト描画システム
 // キャッシュを保持し、描画処理を行う
 type RenderSpriteSystem struct {
-	spriteImageCache    map[spriteImageCacheKey]*ebiten.Image
-	darknessCacheImages []*ebiten.Image
+	spriteImageCache map[spriteImageCacheKey]*ebiten.Image
+	// darknessMap は1タイル1テクセルの暗さマップ。bilinear 拡大で滑らかな暗闇を描く
+	darknessMap *ebiten.Image
 }
 
 // NewRenderSpriteSystem はRenderSpriteSystemを初期化する
@@ -412,10 +412,9 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	return nil
 }
 
-// DarknessLevels は暗闇の段階数を定義する。少ない段階数のほうが見た目が自然になる
-const DarknessLevels = 4
-
-// renderDarkness はタイルごとの暗闇オーバーレイを描画する
+// renderDarkness は per-tile の暗さを bilinear で滑らかに補間して暗闇オーバーレイを描く。
+// vision が壁遮蔽込みで計算した per-tile の暗さを1タイル1テクセルの小画像へ詰めて拡大する。
+// 暗さは明るい側へだけ膨張させてから拡大するので、遮蔽タイルへ光を漏らさず縁だけ滑らかになる。
 func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {
 	var cameraX, cameraY float64
 	cameraScale := 1.0
@@ -425,78 +424,103 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 		cameraScale = camera.Scale
 	}
 
-	if len(sys.darknessCacheImages) == 0 {
-		sys.initializeDarknessCache(int(consts.TileSize))
+	// bilinear の端をきれいに沈めるため viewport を少し広げてタイルを拾う
+	minX, maxX, minY, maxY := viewportTileBounds(world, 2, camera)
+	mw := maxX - minX + 1
+	mh := maxY - minY + 1
+	if mw <= 0 || mh <= 0 {
+		return
 	}
+	sys.ensureDarknessMap(mw, mh)
 
-	screenWidth := world.Resources.ScreenDimensions.Width
-	screenHeight := world.Resources.ScreenDimensions.Height
-	// 暗闇は可視範囲のタイルだけに描く。境界は viewportTileBounds に集約する
-	startTileX, endTileX, startTileY, endTileY := viewportTileBounds(world, 1, camera)
-
-	for tileX := startTileX; tileX <= endTileX; tileX++ {
-		for tileY := startTileY; tileY <= endTileY; tileY++ {
-			grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tileX), Y: consts.Tile(tileY)}}
-
-			var darkness float64
-			info, exists := tileRenderMap[grid]
-			if !exists {
-				// tileRenderMapにないタイルは完全に黒くする。
-				// マップ外・未探索タイルの両方が該当する
-				darkness = 1.0
-			} else {
+	// per-tile の暗さを float で組む。未探索/マップ外は完全な闇
+	darks := make([]float64, mw*mh)
+	for j := range mh {
+		for i := range mw {
+			grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(minX + i), Y: consts.Tile(minY + j)}}
+			darkness := 1.0
+			if info, ok := tileRenderMap[grid]; ok {
 				switch v := info.(type) {
 				case TileRenderVisible:
-					// 可視タイルの明るさは平滑なライトマップに任せる。ここで per-tile の暗さを
-					// 重ねるとタイル境界で明るさが急変して不自然になるため、暗さを乗せない
-					darkness = 0
+					darkness = float64(v.Darkness)
 				case TileRenderRemembered:
 					darkness = float64(v.Darkness)
 				}
 			}
-
-			worldX := float64(tileX * int(consts.TileSize))
-			worldY := float64(tileY * int(consts.TileSize))
-			screenX := (worldX-cameraX)*cameraScale + float64(screenWidth)/2
-			screenY := (worldY-cameraY)*cameraScale + float64(screenHeight)/2
-			sys.drawDarknessAtLevel(screen, screenX, screenY, darkness, cameraScale)
+			darks[j*mw+i] = max(0.0, min(1.0, darkness))
 		}
 	}
-}
+	// 暗さを明るい側へ膨張させて境界を滑らかにする。遮蔽タイルは暗いままで光を漏らさない
+	darks = dilateDarkness(darks, mw, mh)
 
-// initializeDarknessCache は段階的暗闇用の画像キャッシュを初期化する
-func (sys *RenderSpriteSystem) initializeDarknessCache(tileSize int) {
-	if tileSize <= 0 {
-		return
+	// 黒 rgb=0、アルファに暗さを詰める
+	pix := make([]byte, mw*mh*4)
+	for idx, d := range darks {
+		pix[idx*4+3] = byte(d * 255)
 	}
+	sys.darknessMap.WritePixels(pix)
 
-	sys.darknessCacheImages = make([]*ebiten.Image, DarknessLevels+1)
-	sys.darknessCacheImages[0] = nil // 0: 暗闇なし
-
-	for i := 1; i <= DarknessLevels; i++ {
-		darkness := float64(i) / float64(DarknessLevels)
-		alpha := uint8(darkness * 255)
-
-		sys.darknessCacheImages[i] = ebiten.NewImage(tileSize, tileSize)
-		sys.darknessCacheImages[i].Fill(color.RGBA{0, 0, 0, alpha})
-	}
-}
-
-// drawDarknessAtLevel は暗さを段階に量子化して黒の暗闇オーバーレイを描画する。
-// 記憶タイルと未探索タイルの減光に使う。可視タイルの明るさはライトマップが担うのでここでは扱わない。
-func (sys *RenderSpriteSystem) drawDarknessAtLevel(screen *ebiten.Image, x, y, darkness, scale float64) {
-	if darkness <= 0.0 {
-		return
-	}
-
-	darknessLevel := max(min(int(math.Ceil(darkness*float64(DarknessLevels))), DarknessLevels), 1)
-	darknessImg := sys.darknessCacheImages[darknessLevel]
-	if darknessImg == nil {
-		return
-	}
+	// タイルグリッドへ合わせて拡大する。texel(0,0) の左上をタイル(minX,minY)の左上へ置く
+	ts := float64(consts.TileSize)
+	offsetX := (float64(minX)*ts-cameraX)*cameraScale + float64(world.Resources.ScreenDimensions.Width)/2
+	offsetY := (float64(minY)*ts-cameraY)*cameraScale + float64(world.Resources.ScreenDimensions.Height)/2
 
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(scale, scale)
-	op.GeoM.Translate(x, y)
-	screen.DrawImage(darknessImg, op)
+	op.GeoM.Scale(ts*cameraScale, ts*cameraScale)
+	op.GeoM.Translate(offsetX, offsetY)
+	op.Filter = ebiten.FilterLinear
+	screen.DrawImage(sys.darknessMap, op)
+}
+
+// ensureDarknessMap は per-tile 暗さマップの小画像を用意する。サイズが変わったら作り直す。
+func (sys *RenderSpriteSystem) ensureDarknessMap(width, height int) {
+	if sys.darknessMap != nil {
+		b := sys.darknessMap.Bounds()
+		if b.Dx() == width && b.Dy() == height {
+			return
+		}
+		sys.darknessMap.Deallocate()
+	}
+	sys.darknessMap = ebiten.NewImage(width, height)
+}
+
+// dilateDarkness は暗さを明るい側へ膨張させて境界を滑らかにする。
+// 分離型の [1,2,1]/4 ぼかしを2回かけ、各画素で元の暗さと比べて暗い方を残す。
+// 暗さは広げるが明るくはしないので、遮蔽/未探索タイルへ光が漏れない。
+func dilateDarkness(src []float64, width, height int) []float64 {
+	tmp := make([]float64, len(src))
+	out := make([]float64, len(src))
+	copy(out, src)
+	at := func(buf []float64, x, y int) float64 { return buf[y*width+x] }
+	for range 2 {
+		// 横方向
+		for y := range height {
+			for x := range width {
+				c := at(out, x, y)
+				l, r := c, c
+				if x > 0 {
+					l = at(out, x-1, y)
+				}
+				if x < width-1 {
+					r = at(out, x+1, y)
+				}
+				tmp[y*width+x] = (l + 2*c + r) / 4
+			}
+		}
+		// 縦方向。仕上げに元の暗さを下限として敷き直す
+		for y := range height {
+			for x := range width {
+				c := at(tmp, x, y)
+				u, d := c, c
+				if y > 0 {
+					u = at(tmp, x, y-1)
+				}
+				if y < height-1 {
+					d = at(tmp, x, y+1)
+				}
+				out[y*width+x] = max((u+2*c+d)/4, src[y*width+x])
+			}
+		}
+	}
+	return out
 }

@@ -371,14 +371,14 @@ func TestCalculateLightSourceDarkness_壁が光を遮る(t *testing.T) {
 	t.Run("壁の手前のタイルは照らされる", func(t *testing.T) {
 		t.Parallel()
 		world := setup(t)
-		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 6, Y: 5}, wall)
+		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 6, Y: 5}, wall, 0.0)
 		assert.Less(t, info.Darkness, 1.0, "手前のタイルは光が届き暗闇が解消される")
 	})
 
 	t.Run("壁の裏のタイルは照らされない", func(t *testing.T) {
 		t.Parallel()
 		world := setup(t)
-		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 9, Y: 5}, wall)
+		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 9, Y: 5}, wall, 0.0)
 		assert.Equal(t, 1.0, info.Darkness, "壁の裏は光が遮られ完全に暗いまま")
 		// 光が寄与しないと RGB は 0 のまま。A は常に 255 が入るので RGB だけを見る。
 		// Darkness=1.0 なら描画側が色を無視するため、この色は実効に影響しない
@@ -389,7 +389,7 @@ func TestCalculateLightSourceDarkness_壁が光を遮る(t *testing.T) {
 		t.Parallel()
 		world := setup(t)
 		// 壁を除いた同座標で照らされることを示し、暗いのは距離でなく遮蔽が原因だと確定する
-		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 9, Y: 5}, map[gc.GridElement]bool{})
+		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 9, Y: 5}, map[gc.GridElement]bool{}, 0.0)
 		assert.Less(t, info.Darkness, 1.0, "壁が無ければ壁の裏と同じ位置でも照らされる")
 	})
 }

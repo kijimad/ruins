@@ -86,6 +86,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 
 	// 視界内タイルの光源情報を計算し、探索済みマークを行う。
 	// マップ外座標はデータに含めない
+	ambient := ambientLight(world)
 	visibleTiles := make(map[gc.GridElement]bool)
 	for _, tileData := range visibilityData {
 		if !tileData.Visible {
@@ -96,7 +97,13 @@ func (sys *VisionSystem) Update(world w.World) error {
 			continue
 		}
 
-		vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex)
+		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, ambient)
+		// 明るさが閾値未満なら見えない。視界を光の届く範囲へ寄せる。
+		// 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる
+		if 1.0-float64(info.Darkness) < visibilityThreshold {
+			continue
+		}
+		vs.LightSourceCache[gridElement] = info
 		field.ExploredTiles[gridElement] = true
 		visibleTiles[gridElement] = true
 	}
@@ -150,11 +157,16 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo)
 	field := query.GetCurrentStageField(world)
 	vs := query.GetVisionState(world)
 
-	// 現在見えているタイルを設定する
+	// 現在見えているタイルを設定する。明るさは光源の加算結果 li.Darkness をそのまま使う。
+	// 光源から離れるほど暗くなり、松明の輪が滑らかに沈む
 	for grid := range vs.VisibleTiles {
 		visible := TileRenderVisible{Darkness: DarknessVisible}
-		if li, ok := lights[grid]; ok && li.Darkness < 1.0 {
-			visible.LightColor = li.Color
+		if li, ok := lights[grid]; ok {
+			visible.Darkness = VisibleDarkness(li.Darkness)
+			// 完全な暗黒には色を乗せない。描画側も無視するが、意図を明示する
+			if li.Darkness < 1.0 {
+				visible.LightColor = li.Color
+			}
 		}
 		result[grid] = visible
 	}
@@ -284,12 +296,43 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 	}
 }
 
-// calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する。
-// 光源からタイルへの視線が壁で遮られている光源は寄与しない。壁の裏へ光が漏れるのを防ぐ。
-func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool) gc.LightInfo {
-	minDarkness := 1.0 // 完全に暗い状態からスタート
+// ambientLight はフィールドの環境光の明るさを返す。屋内は微小、地上は時間帯の日照で決まる。
+// 昼の屋外は全体が明るく松明が要らず、地下や深夜は松明の届く範囲だけが見える。
+func ambientLight(world w.World) float64 {
+	if query.IsOnOverworld(world) {
+		return overworldDaylight(query.GetGameTime(world).GetTimeOfDay())
+	}
+	return dungeonAmbient
+}
 
-	// 加重平均用の累積値
+// overworldDaylight は地上の時間帯ごとの日照の明るさを返す。昼が最も明るく深夜が最も暗い。
+func overworldDaylight(t gc.TimeOfDay) float64 {
+	switch t {
+	case gc.TimeDawn:
+		return 0.40
+	case gc.TimeMorning:
+		return 0.72
+	case gc.TimeDay:
+		return 0.95
+	case gc.TimeEvening:
+		return 0.38
+	case gc.TimeNight:
+		return 0.14
+	case gc.TimeMidnight:
+		return 0.06
+	default:
+		return 0.95
+	}
+}
+
+// calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
+// 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、
+// 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。
+// 色は各光源の寄与で加重平均する。
+func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64) gc.LightInfo {
+	brightness := ambient
+
+	// 色は光源の寄与で加重平均する
 	var totalR, totalG, totalB float64
 	var totalWeight float64
 
@@ -299,63 +342,56 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 		lightEntity := lightQuery.Entity()
 		lightSource := world.Components.LightSource.Get(lightEntity)
 
-		// 無効な光源はスキップ
 		if !lightSource.Enabled {
 			continue
 		}
 
 		lightGrid := world.Components.GridElement.Get(lightEntity)
-
-		// 距離計算（タイル単位）
 		distance := geometry.Distance(float64(tile.X), float64(tile.Y), float64(lightGrid.X), float64(lightGrid.Y))
-
-		// 光源範囲内かチェック
-		if distance <= float64(lightSource.Radius) {
-			// 光源からタイルまでの視線が壁で遮られているなら、この光は届かない。
-			// プレイヤー視界と同じ遮蔽判定を光源起点で行い、壁の裏へ光が漏れるのを防ぐ。
-			if !bresenhamLineOfSight(int(lightGrid.X), int(lightGrid.Y), tile.X, tile.Y, blockIndex) {
-				continue
-			}
-
-			// 光源中心（距離0-1タイル）も周囲と同じ明るさにする
-			if distance < 1.0 {
-				distance = 1.0
-			}
-
-			// 距離の正規化
-			normalizedDistance := distance / float64(lightSource.Radius)
-
-			// 光源中心から滑らかに暗くなる
-			// 中心付近も少し暗くする（最小暗闇レベル0.3）
-			darkness := math.Pow(normalizedDistance, 1.5)*0.6 + 0.3
-
-			// 暗闇レベルは最も明るい光源を採用
-			if darkness < minDarkness {
-				minDarkness = darkness
-			}
-
-			// 光の強さを重みとして使用する。近いほど強い
-			weight := 1.0 - normalizedDistance
-
-			// 加重平均のための累積
-			totalR += float64(lightSource.Color.R) * weight
-			totalG += float64(lightSource.Color.G) * weight
-			totalB += float64(lightSource.Color.B) * weight
-			totalWeight += weight
+		if distance > float64(lightSource.Radius) {
+			continue
 		}
+		// 光源からタイルへの視線が壁で遮られているなら光は届かない。壁の裏へ漏らさない。
+		if !bresenhamLineOfSight(int(lightGrid.X), int(lightGrid.Y), tile.X, tile.Y, blockIndex) {
+			continue
+		}
+
+		// 中心1タイルまでは最大の明るさにする
+		if distance < 1.0 {
+			distance = 1.0
+		}
+		nd := distance / float64(lightSource.Radius)
+
+		// 逆二乗の減衰に、半径の外縁で0へ落ちる窓関数を掛ける。
+		// window=1-nd^4 が縁を滑らかに閉じ、1/(1+K*nd^2) が逆二乗の効きを与える
+		window := 1.0 - nd*nd*nd*nd
+		if window < 0 {
+			window = 0
+		}
+		atten := window * window / (1.0 + lightFalloffK*nd*nd)
+
+		// 加算合成。重なるほど明るい
+		brightness += atten
+
+		// 色は寄与 atten で加重する
+		totalR += float64(lightSource.Color.R) * atten
+		totalG += float64(lightSource.Color.G) * atten
+		totalB += float64(lightSource.Color.B) * atten
+		totalWeight += atten
 	}
 
-	// 加重平均を計算
-	var finalR, finalG, finalB uint8
+	brightness = math.Max(0, math.Min(1, brightness))
+
+	col := color.RGBA{A: 255}
 	if totalWeight > 0 {
-		finalR = uint8(math.Min(255, totalR/totalWeight))
-		finalG = uint8(math.Min(255, totalG/totalWeight))
-		finalB = uint8(math.Min(255, totalB/totalWeight))
+		col.R = uint8(math.Min(255, totalR/totalWeight))
+		col.G = uint8(math.Min(255, totalG/totalWeight))
+		col.B = uint8(math.Min(255, totalB/totalWeight))
 	}
 
 	return gc.LightInfo{
-		Darkness: minDarkness,
-		Color:    color.RGBA{R: finalR, G: finalG, B: finalB, A: 255},
+		Darkness: 1.0 - brightness,
+		Color:    col,
 	}
 }
 
@@ -363,6 +399,16 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 const (
 	DarknessVisible    VisibleDarkness    = 0.15
 	DarknessRemembered RememberedDarkness = 0.75
+)
+
+// ライティングの調整値
+const (
+	// dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い
+	dungeonAmbient = 0.06
+	// visibilityThreshold はこの明るさ未満のタイルを見えないとみなす境界。視界を光の届く範囲へ寄せる
+	visibilityThreshold = 0.10
+	// lightFalloffK は逆二乗減衰の効き。大きいほど光源から急に暗くなる
+	lightFalloffK = 3.0
 )
 
 // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
