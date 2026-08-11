@@ -1,4 +1,4 @@
-package tabmenu
+package messagewindow
 
 import "fmt"
 
@@ -9,8 +9,8 @@ type TabItem struct {
 	Items []Item
 }
 
-// Config はタブメニューの描画設定
-type Config struct {
+// tabMenuConfig はタブメニューの描画設定
+type tabMenuConfig struct {
 	Tabs         []TabItem
 	ItemsPerPage int // 1ページに表示する項目数（0=制限なし）
 }
@@ -22,7 +22,7 @@ type ViewState struct {
 }
 
 // getVisibleItems は指定ページで表示される項目とその元のインデックスを返す
-func getVisibleItems(config Config, state ViewState) ([]Item, []int) {
+func getVisibleItems(config tabMenuConfig, state ViewState) ([]Item, []int) {
 	if len(config.Tabs) == 0 || state.TabIndex >= len(config.Tabs) {
 		return []Item{}, []int{}
 	}
@@ -55,7 +55,7 @@ func getVisibleItems(config Config, state ViewState) ([]Item, []int) {
 }
 
 // currentPage は現在のページ番号を返す（0ベース）
-func currentPage(config Config, state ViewState) int {
+func currentPage(config tabMenuConfig, state ViewState) int {
 	if config.ItemsPerPage <= 0 || state.ItemIndex < 0 {
 		return 0
 	}
@@ -63,7 +63,7 @@ func currentPage(config Config, state ViewState) int {
 }
 
 // totalPages は総ページ数を返す
-func totalPages(config Config, state ViewState) int {
+func totalPages(config tabMenuConfig, state ViewState) int {
 	if config.ItemsPerPage <= 0 {
 		return 1
 	}
@@ -77,7 +77,7 @@ func totalPages(config Config, state ViewState) int {
 }
 
 // pageIndicatorText はページインジケーターのテキストを返す
-func pageIndicatorText(config Config, state ViewState) string {
+func pageIndicatorText(config tabMenuConfig, state ViewState) string {
 	total := totalPages(config, state)
 	if config.ItemsPerPage <= 0 || total <= 1 {
 		return ""

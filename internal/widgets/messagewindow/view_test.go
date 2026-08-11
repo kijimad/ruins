@@ -1,4 +1,4 @@
-package tabmenu
+package messagewindow
 
 import (
 	"testing"
@@ -12,7 +12,7 @@ func TestView_GetCurrentPage(t *testing.T) {
 
 	t.Run("1ページ目は1を返す", func(t *testing.T) {
 		t.Parallel()
-		view := NewView(Config{
+		view := NewView(tabMenuConfig{
 			Tabs:         []TabItem{{ID: "t1", Items: make([]Item, 10)}},
 			ItemsPerPage: 3,
 		}, w.World{})
@@ -22,7 +22,7 @@ func TestView_GetCurrentPage(t *testing.T) {
 
 	t.Run("2ページ目は2を返す", func(t *testing.T) {
 		t.Parallel()
-		view := NewView(Config{
+		view := NewView(tabMenuConfig{
 			Tabs:         []TabItem{{ID: "t1", Items: make([]Item, 10)}},
 			ItemsPerPage: 3,
 		}, w.World{})

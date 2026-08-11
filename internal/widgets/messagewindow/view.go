@@ -1,4 +1,4 @@
-package tabmenu
+package messagewindow
 
 import (
 	"github.com/ebitenui/ebitenui/widget"
@@ -7,13 +7,13 @@ import (
 
 // View はタブメニューの描画を担当する。状態管理は外部（hooks）が行う
 type View struct {
-	config    Config
+	config    tabMenuConfig
 	state     ViewState
 	uiBuilder *uiBuilder
 }
 
 // NewView は View を作成する
-func NewView(config Config, world w.World) *View {
+func NewView(config tabMenuConfig, world w.World) *View {
 	return &View{
 		config:    config,
 		uiBuilder: newUIBuilder(world),

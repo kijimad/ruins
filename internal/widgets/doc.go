@@ -40,33 +40,16 @@
 //   - 静的な表示のみで状態管理は不要
 //   - 簡単なヘルパー関数で十分
 //
-// # Example
+// # Sub-packages
 //
-// widgetsパッケージの典型的な使用例：
-//
-//	// 設定でコンポーネントを構成
-//	menu := menu.NewMenu(menu.MenuConfig{
-//		Items: []tabmenu.Item{
-//			{ID: "start", Label: "ゲーム開始"},
-//			{ID: "exit", Label: "終了"},
-//		},
-//		WrapNavigation: true,
-//	}, menu.MenuCallbacks{
-//		OnSelect: func(index int, item tabmenu.Item) {
-//			// ビジネスロジック
-//			switch item.ID {
-//			case "start":
-//				startGame()
-//			case "exit":
-//				exitGame()
-//			}
-//		},
-//	})
-//
-//	// ゲームループ内で更新
-//	func Update() {
-//		menu.Update(keyboardInput)
-//	}
+// 代表的なサブパッケージ：
+//   - styled       ← 最下層の描画部品。Cell・table・text と共通枠 chrome
+//   - menuframe     ← タブ帯・パネル・モーダルの画面足場
+//   - overlay       ← overlay 契約と詳細モーダル窓
+//   - pagination    ← ページ計算の共通ロジック
+//   - entityspec    ← エンティティを spec 行にする表示部品
+//   - hud           ← HUD ウィジェット群
+//   - messagewindow ← 会話ウィンドウと選択メニュー
 //
 // # Design Principles
 //

@@ -14,7 +14,6 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -32,7 +31,7 @@ type Window struct {
 	window      *widget.Window
 
 	// 選択肢がある場合、メニューシステムでページング可能な選択肢一覧を表示
-	choiceMenuView  *tabmenu.View
+	choiceMenuView  *View
 	choiceStore     *hooks.Store
 	hasChoices      bool
 	currentMenuPage int
@@ -514,9 +513,9 @@ func (w *Window) initChoiceMenu() {
 		return
 	}
 
-	items := make([]tabmenu.Item, len(w.content.Choices))
+	items := make([]Item, len(w.content.Choices))
 	for i, choice := range w.content.Choices {
-		items[i] = tabmenu.Item{
+		items[i] = Item{
 			ID:       choice.Text,
 			Label:    choice.Text,
 			UserData: i,
@@ -525,8 +524,8 @@ func (w *Window) initChoiceMenu() {
 
 	itemsPerPage := w.calculateItemsPerPage(len(w.content.Choices))
 
-	config := tabmenu.Config{
-		Tabs: []tabmenu.TabItem{
+	config := tabMenuConfig{
+		Tabs: []TabItem{
 			{ID: "choices", Label: "", Items: items},
 		},
 		ItemsPerPage: itemsPerPage,
@@ -546,8 +545,8 @@ func (w *Window) initChoiceMenu() {
 		Skips:        [][]bool{skips},
 	})
 
-	w.choiceMenuView = tabmenu.NewView(config, w.world)
-	w.choiceMenuView.SetState(tabmenu.ViewState{
+	w.choiceMenuView = NewView(config, w.world)
+	w.choiceMenuView.SetState(ViewState{
 		TabIndex:  menuState.TabIndex,
 		ItemIndex: menuState.ItemIndex,
 	})
@@ -572,7 +571,7 @@ func (w *Window) handleChoiceInput() error {
 	default:
 		w.choiceStore.Dispatch(action)
 		menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, "choices")
-		w.choiceMenuView.SetState(tabmenu.ViewState{
+		w.choiceMenuView.SetState(ViewState{
 			TabIndex:  menuState.TabIndex,
 			ItemIndex: menuState.ItemIndex,
 		})

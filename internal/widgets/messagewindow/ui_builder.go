@@ -1,4 +1,4 @@
-package tabmenu
+package messagewindow
 
 import (
 	eui_image "github.com/ebitenui/ebitenui/image"
@@ -23,7 +23,7 @@ func newUIBuilder(world w.World) *uiBuilder {
 }
 
 // BuildUI はUI要素を構築する
-func (b *uiBuilder) BuildUI(config Config, state ViewState) *widget.Container {
+func (b *uiBuilder) BuildUI(config tabMenuConfig, state ViewState) *widget.Container {
 	mainContainer := styled.NewVerticalContainer()
 	b.itemWidgets = make([]widget.PreferredSizeLocateableWidget, 0)
 
@@ -57,7 +57,7 @@ func (b *uiBuilder) createMenuButton(item Item, isFocused bool) widget.Preferred
 }
 
 // UpdateFocus はメニューのフォーカス表示を更新する
-func (b *uiBuilder) UpdateFocus(config Config, state ViewState) {
+func (b *uiBuilder) UpdateFocus(config tabMenuConfig, state ViewState) {
 	if len(b.itemWidgets) == 0 {
 		return
 	}

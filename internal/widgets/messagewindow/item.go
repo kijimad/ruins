@@ -1,4 +1,4 @@
-package tabmenu
+package messagewindow
 
 // Item はメニュー項目を表す
 type Item struct {

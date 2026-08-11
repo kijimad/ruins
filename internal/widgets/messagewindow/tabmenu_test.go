@@ -1,4 +1,4 @@
-package tabmenu
+package messagewindow
 
 import (
 	"testing"
@@ -16,7 +16,7 @@ func TestGetVisibleItems(t *testing.T) {
 
 	t.Run("ページネーションありの場合は指定数だけ返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{
+		config := tabMenuConfig{
 			Tabs:         []TabItem{{ID: "t1", Items: items}},
 			ItemsPerPage: 3,
 		}
@@ -28,7 +28,7 @@ func TestGetVisibleItems(t *testing.T) {
 
 	t.Run("2ページ目のアイテムを返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{
+		config := tabMenuConfig{
 			Tabs:         []TabItem{{ID: "t1", Items: items}},
 			ItemsPerPage: 3,
 		}
@@ -40,7 +40,7 @@ func TestGetVisibleItems(t *testing.T) {
 
 	t.Run("ページネーションなしの場合は全件返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{
+		config := tabMenuConfig{
 			Tabs:         []TabItem{{ID: "t1", Items: items}},
 			ItemsPerPage: 0,
 		}
@@ -51,7 +51,7 @@ func TestGetVisibleItems(t *testing.T) {
 
 	t.Run("空タブの場合は空を返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{Tabs: []TabItem{}}
+		config := tabMenuConfig{Tabs: []TabItem{}}
 		state := ViewState{}
 		visible, indices := getVisibleItems(config, state)
 		assert.Empty(t, visible)
@@ -60,7 +60,7 @@ func TestGetVisibleItems(t *testing.T) {
 
 	t.Run("開始位置が総アイテム数以上の場合は空を返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{
+		config := tabMenuConfig{
 			Tabs:         []TabItem{{ID: "t1", Items: items}},
 			ItemsPerPage: 3,
 		}
@@ -81,7 +81,7 @@ func TestPageIndicatorText(t *testing.T) {
 
 	t.Run("複数ページの場合はテキストを返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{
+		config := tabMenuConfig{
 			Tabs:         []TabItem{{ID: "t1", Items: items}},
 			ItemsPerPage: 2,
 		}
@@ -92,7 +92,7 @@ func TestPageIndicatorText(t *testing.T) {
 
 	t.Run("ページネーションなしの場合は空文字を返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{
+		config := tabMenuConfig{
 			Tabs:         []TabItem{{ID: "t1", Items: items}},
 			ItemsPerPage: 0,
 		}
@@ -102,7 +102,7 @@ func TestPageIndicatorText(t *testing.T) {
 
 	t.Run("1ページの場合は空文字を返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{
+		config := tabMenuConfig{
 			Tabs:         []TabItem{{ID: "t1", Items: items}},
 			ItemsPerPage: 10,
 		}
@@ -116,25 +116,25 @@ func TestTotalPages(t *testing.T) {
 
 	t.Run("ページネーションなしは1ページ", func(t *testing.T) {
 		t.Parallel()
-		config := Config{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 5)}}, ItemsPerPage: 0}
+		config := tabMenuConfig{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 5)}}, ItemsPerPage: 0}
 		assert.Equal(t, 1, totalPages(config, ViewState{}))
 	})
 
 	t.Run("空タブは1ページ", func(t *testing.T) {
 		t.Parallel()
-		config := Config{Tabs: []TabItem{}}
+		config := tabMenuConfig{Tabs: []TabItem{}}
 		assert.Equal(t, 1, totalPages(config, ViewState{}))
 	})
 
 	t.Run("10件で3件ずつは4ページ", func(t *testing.T) {
 		t.Parallel()
-		config := Config{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 10)}}, ItemsPerPage: 3}
+		config := tabMenuConfig{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 10)}}, ItemsPerPage: 3}
 		assert.Equal(t, 4, totalPages(config, ViewState{}))
 	})
 
 	t.Run("TabIndexがタブ数以上は1ページ", func(t *testing.T) {
 		t.Parallel()
-		config := Config{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 10)}}, ItemsPerPage: 3}
+		config := tabMenuConfig{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 10)}}, ItemsPerPage: 3}
 		assert.Equal(t, 1, totalPages(config, ViewState{TabIndex: 5}))
 	})
 }
@@ -144,19 +144,19 @@ func TestCurrentPage(t *testing.T) {
 
 	t.Run("ItemsPerPageが0以下は0を返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{ItemsPerPage: 0}
+		config := tabMenuConfig{ItemsPerPage: 0}
 		assert.Equal(t, 0, currentPage(config, ViewState{ItemIndex: 5}))
 	})
 
 	t.Run("ItemIndexが負は0を返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{ItemsPerPage: 3}
+		config := tabMenuConfig{ItemsPerPage: 3}
 		assert.Equal(t, 0, currentPage(config, ViewState{ItemIndex: -1}))
 	})
 
 	t.Run("ItemIndexをItemsPerPageで割った値を返す", func(t *testing.T) {
 		t.Parallel()
-		config := Config{ItemsPerPage: 3}
+		config := tabMenuConfig{ItemsPerPage: 3}
 		assert.Equal(t, 2, currentPage(config, ViewState{ItemIndex: 7}))
 	})
 }
