@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">68.9&nbsp;%</td>
-            <td class="headerCovTableEntry">90</td>
-            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntryLo">68.5&nbsp;%</td>
+            <td class="headerCovTableEntry">89</td>
+            <td class="headerCovTableEntry">61</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-11 01:18:59</td>
+            <td class="headerValue">2026-08-11 06:05:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -180,28 +180,26 @@
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L119"><span class="lineNum">     119</span>              : </span>
 <span id="L120"><span class="lineNum">     120</span>              :         // ログ名は転送前に確定させる。在庫全体でなく実際に移す個数で表示する。</span>
-<span id="L121"><span class="lineNum">     121</span>              :         // query.FormatItemName は在庫数を出すので分割転送には使えない。</span>
+<span id="L121"><span class="lineNum">     121</span>              :         // query.FormatItemName は在庫数を出すので分割転送には使えない。名前×個数の表記だけ共通化する</span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         itemName := query.T(world, &quot;Unknown Item&quot;)</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           2 :         if nameComp := world.Components.Name.Get(item); nameComp != nil {</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 itemName = query.T(world, nameComp.Name)</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :         if moving &gt; 1 {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 itemName = query.T(world, &quot;%s (x%d)&quot;, itemName, moving)</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L129"><span class="lineNum">     129</span>              : </span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         if err := lifecycle.TransferUnits(world, item, recipient, p.Count); err != nil {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to transfer item: %w&quot;, err)</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L133"><span class="lineNum">     133</span>              : </span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC tlaBgGNC">           1 :         gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 Markup(query.T(world, &quot;%s handed over %s to %s.&quot;,</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         query.NameMarkup(giver, giverName, world),</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                         gamelog.Tag(&quot;item&quot;, itemName),</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                         recipientName)).</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 Log()</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L142"><span class="lineNum">     142</span>              : }</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         itemName = query.FormatNameCount(itemName, moving)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         if err := lifecycle.TransferUnits(world, item, recipient, p.Count); err != nil {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to transfer item: %w&quot;, err)</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC tlaBgGNC">           1 :         gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 Markup(query.T(world, &quot;%s handed over %s to %s.&quot;,</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                         query.NameMarkup(giver, giverName, world),</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                         gamelog.Tag(&quot;item&quot;, itemName),</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         recipientName)).</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 Log()</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L140"><span class="lineNum">     140</span>              : }</span>
         </pre>
               </td>
             </tr>
