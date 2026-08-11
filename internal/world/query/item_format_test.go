@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -28,13 +27,13 @@ func TestFormatItemName(t *testing.T) {
 			name:      "個数が10のアイテムは個数付き",
 			itemName:  "パン",
 			itemCount: 10,
-			want:      "パン " + consts.IconTimes + "10",
+			want:      "10 パン",
 		},
 		{
 			name:      "個数が99のアイテムは個数付き",
 			itemName:  "矢",
 			itemCount: 99,
-			want:      "矢 " + consts.IconTimes + "99",
+			want:      "99 矢",
 		},
 	}
 
@@ -68,7 +67,7 @@ func TestFormatItemName(t *testing.T) {
 		world.Components.Stackable.Add(itemEntity, &gc.Stackable{Count: 5})
 
 		got := FormatItemName(world, itemEntity)
-		assert.Equal(t, "Unknown Item "+consts.IconTimes+"5", got)
+		assert.Equal(t, "5 Unknown Item", got)
 	})
 
 	t.Run("両方のコンポーネントがない場合", func(t *testing.T) {
