@@ -23,11 +23,8 @@ func DetailPageCount(world w.World, entity ecs.Entity) int {
 }
 
 // detailPageCount は行数からページ数を返す。ページ計算は pagination に委ねる。
-// pagination は負数の総数を想定しないため、行が無いか負数のときはここで1に丸める
+// 行が無いか負数のときの1丸めも pagination.GetTotalPages が吸収する
 func detailPageCount(rowCount int) int {
-	if rowCount <= 0 {
-		return 1
-	}
 	return pagination.New(0, rowCount, detailRowsPerPage).GetTotalPages()
 }
 

@@ -32,7 +32,9 @@ func (p Pagination) GetCurrentPage() int {
 
 // GetTotalPages は総ページ数を返す
 func (p Pagination) GetTotalPages() int {
-	if p.ItemsPerPage <= 0 || p.ItemCount == 0 {
+	// アイテムが無いか負数のときは1ページに丸める。負数は総数として不正だが、
+	// 呼び出し側にガードを書かせず、ページ計算の所有者であるここで吸収する
+	if p.ItemsPerPage <= 0 || p.ItemCount <= 0 {
 		return 1
 	}
 	return (p.ItemCount + p.ItemsPerPage - 1) / p.ItemsPerPage
