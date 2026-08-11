@@ -27,7 +27,7 @@ const (
 	IconSearch   = "\uf002"
 
 	// 単位
-	IconTimes    = "\u00d7"     // 乗算記号 ×。個数の ×3 などに使う。閉じるアイコンの IconClose とは別
+	IconTimes    = "\uf00d"     // 個数の N を示す。FA に乗算専用グリフが無く今は閉じる X の IconClose と同じ字。個数向きの字が見つかればここだけ差し替える
 	IconDegree   = "\u2103"     // 摂氏記号 ℃
 	IconCurrency = "\U000f1aaf" // 通貨記号 nf-md-heating_coil
 	IconKg       = "\u338f"     // ㎏
