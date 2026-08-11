@@ -111,7 +111,7 @@ func NewTableRow(container *widget.Container, columnWidths []int, cells []Cell, 
 	row := newRowContainer(columnWidths, bgImage)
 	addRowCells(row, columnWidths, cells, aligns, textColor, res)
 	container.AddChild(row)
-	container.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))
+	container.AddChild(NewGradientLine(res.GradientLine, theme.RowDivider, 1))
 }
 
 // NewSpriteCell は img を一辺 size のアイコン widget にする。原寸が size より大きければ縮小する。

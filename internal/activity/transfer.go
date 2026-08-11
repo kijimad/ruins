@@ -118,14 +118,12 @@ func (tb *TransferBehavior) performTransfer(comp *gc.Activity, world w.World) er
 	}
 
 	// ログ名は転送前に確定させる。在庫全体でなく実際に移す個数で表示する。
-	// query.FormatItemName は在庫数を出すので分割転送には使えない。
+	// query.FormatItemName は在庫数を出すので分割転送には使えない。名前×個数の表記だけ共通化する
 	itemName := query.T(world, "Unknown Item")
 	if nameComp := world.Components.Name.Get(item); nameComp != nil {
 		itemName = query.T(world, nameComp.Name)
 	}
-	if moving > 1 {
-		itemName = query.T(world, "%s (x%d)", itemName, moving)
-	}
+	itemName = query.FormatNameCount(itemName, moving)
 
 	if err := lifecycle.TransferUnits(world, item, recipient, p.Count); err != nil {
 		return fmt.Errorf("failed to transfer item: %w", err)

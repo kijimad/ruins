@@ -9,8 +9,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -19,14 +20,14 @@ import (
 // ComponentDebugState はコンポーネント数を一覧表示するデバッグ用ステート
 type ComponentDebugState struct {
 	es.BaseState[w.World]
-	screen *menurt.Screen[ComponentDebugProps]
+	screen *menuloop.Screen[ComponentDebugProps]
 }
 
 var _ es.State[w.World] = &ComponentDebugState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ComponentDebugState) OnStart(_ w.World) error {
-	st.screen = menurt.NewScreen[ComponentDebugProps](st)
+	st.screen = menuloop.NewScreen[ComponentDebugProps](st)
 	return nil
 }
 
@@ -65,7 +66,7 @@ func NewComponentDebugState() (es.State[w.World], error) {
 // Props
 // ================
 
-// ComponentDebugProps は画面の表示 props。menurt.Screen の型引数として渡す
+// ComponentDebugProps は画面の表示 props。menuloop.Screen の型引数として渡す
 type ComponentDebugProps struct {
 	Items []componentDebugItem
 	Total int
@@ -76,7 +77,7 @@ type componentDebugItem struct {
 	Count int
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *ComponentDebugState) Fetch(world w.World) ComponentDebugProps {
 	// Ark に登録された全コンポーネントを走査し、種類ごとの保有エンティティ数を集計する
 	ids := ecs.ComponentIDs(world.ECS)
@@ -108,17 +109,17 @@ func (st *ComponentDebugState) Fetch(world w.World) ComponentDebugProps {
 	return ComponentDebugProps{Items: items, Total: total}
 }
 
-// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
-func (st *ComponentDebugState) Menu(props ComponentDebugProps) menurt.MenuConfig {
-	return menurt.MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuItemsPerPage}
+// Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
+func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConfig {
+	return menuloop.MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuItemsPerPage}
 }
 
 // ================
 // view
 // ================
 
-// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
+func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	columnWidths := []int{260, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(props.Items))
@@ -128,7 +129,7 @@ func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cu
 	container := renderMenuList(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
 
 	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
-	return newTabScreenUI(res, tabScreen{
+	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		Header:  fmt.Sprintf("Components total: %d", props.Total),
 		Content: container,
 		Footer:  menuNavHint(world, false),

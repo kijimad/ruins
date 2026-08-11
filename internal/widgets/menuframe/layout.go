@@ -1,4 +1,4 @@
-package menuscreen
+package menuframe
 
 import (
 	"image"
@@ -8,8 +8,8 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// LogTopY はゲームログ領域の上端Yを返す。モーダルやパネルをログに被らせないための基準にする
-func LogTopY(screenHeight int) int {
+// logTopY はゲームログ領域の上端Yを返す。モーダルやパネルをログに被らせないための基準にする
+func logTopY(screenHeight int) int {
 	cfg := hud.DefaultMessageAreaConfig
 	logHeight := cfg.LogAreaMargin*2 + cfg.MaxLogLines*cfg.LineHeight + cfg.YPadding*2
 	return screenHeight - logHeight - theme.Space3
@@ -25,7 +25,7 @@ func CenterWindowRect(world w.World) image.Rectangle {
 
 	// 横は画面中央。縦はゲームログの上端より上の領域に収めて、ログと重ならないようにする
 	x := screenWidth/2 - windowWidth/2
-	logTop := LogTopY(screenHeight)
+	logTop := logTopY(screenHeight)
 	y := max((logTop-windowHeight)/2, theme.Space3)
 
 	return image.Rect(x, y, x+windowWidth, y+windowHeight)

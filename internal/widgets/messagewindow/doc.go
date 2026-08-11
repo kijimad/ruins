@@ -61,5 +61,5 @@
 //   - Queue-Based: メッセージキューによる連続表示対応
 //   - Single Responsibility: メッセージ表示に特化
 //   - Separation of Concerns: UIとロジックの分離
-//   - Choice System: 選択肢による分岐対応
+//   - choiceOption System: 選択肢による分岐対応
 package messagewindow

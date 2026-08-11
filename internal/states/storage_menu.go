@@ -10,10 +10,11 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
-	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
+	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -35,19 +36,19 @@ const (
 type StorageMenuState struct {
 	es.BaseState[w.World]
 	storageEntity ecs.Entity
-	detail        menuscreen.Detail // 詳細モーダル。overlay として Screen に登録する
-	screen        *menurt.Screen[StorageProps]
+	detail        overlay.Detail // 詳細モーダル。overlay として Screen に登録する
+	screen        *menuloop.Screen[StorageProps]
 }
 
 // State interface ================
 
 var _ es.State[w.World] = &StorageMenuState{}
-var _ menurt.ExtraInput = &StorageMenuState{}
+var _ menuloop.ExtraInput = &StorageMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {
-	st.detail = menuscreen.NewEntityDetail(st.selectedEntity)
-	st.screen = menurt.NewScreen[StorageProps](st, &st.detail)
+	st.detail = overlay.NewEntityDetail(st.selectedEntity)
+	st.screen = menuloop.NewScreen[StorageProps](st, &st.detail)
 	return nil
 }
 
@@ -98,7 +99,7 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 // Props
 // ================
 
-// StorageProps は画面の表示 props。menurt.Screen の型引数として渡す
+// StorageProps は画面の表示 props。menuloop.Screen の型引数として渡す
 type StorageProps struct {
 	Tabs []storageTabData
 }
@@ -109,7 +110,7 @@ type storageTabData struct {
 	Items []itemRowData
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *StorageMenuState) Fetch(world w.World) StorageProps {
 	return StorageProps{
 		Tabs: []storageTabData{
@@ -119,13 +120,13 @@ func (st *StorageMenuState) Fetch(world w.World) StorageProps {
 	}
 }
 
-// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
-func (st *StorageMenuState) Menu(props StorageProps) menurt.MenuConfig {
+// Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
+func (st *StorageMenuState) Menu(props StorageProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menurt.MenuConfig{Key: "storage", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "storage", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
 func (st *StorageMenuState) createStorageItemData(world w.World) []itemRowData {
@@ -210,14 +211,14 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
+func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	// カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	return newTabScreenUI(res, tabScreen{
+	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),

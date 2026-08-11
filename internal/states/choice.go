@@ -7,9 +7,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -34,7 +35,7 @@ type ChoiceProps struct {
 type ChoiceMenuState struct {
 	es.BaseState[w.World]
 	provide func(world w.World) (title string, choices []Choice)
-	screen  *menurt.Screen[ChoiceProps]
+	screen  *menuloop.Screen[ChoiceProps]
 }
 
 var _ es.State[w.World] = &ChoiceMenuState{}
@@ -46,7 +47,7 @@ func NewChoiceMenu(provide func(world w.World) (string, []Choice)) *ChoiceMenuSt
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ChoiceMenuState) OnStart(_ w.World) error {
-	st.screen = menurt.NewScreen[ChoiceProps](st)
+	st.screen = menuloop.NewScreen[ChoiceProps](st)
 	return nil
 }
 
@@ -88,17 +89,17 @@ func (st *ChoiceMenuState) Fetch(world w.World) ChoiceProps {
 }
 
 // Menu は単一タブの選択リストとして構成を返す。見出し行はカーソルを飛ばし、多い画面はページ送りする
-func (st *ChoiceMenuState) Menu(props ChoiceProps) menurt.MenuConfig {
+func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 	skips := make([]bool, len(props.Choices))
 	for i, c := range props.Choices {
 		skips[i] = c.Header
 	}
-	return menurt.MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuItemsPerPage, Skips: [][]bool{skips}}
+	return menuloop.MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuItemsPerPage, Skips: [][]bool{skips}}
 }
 
 // View は選択肢の1カラム一覧を中央パネルに組む純粋描画。メインメニューやセーブロードと同じ簡易メニューの
 // 見た目に揃え、エントリ数相応の大きさに縮む。多いときはページ送りしてはみ出さない
-func (st *ChoiceMenuState) View(world w.World, props ChoiceProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+func (st *ChoiceMenuState) View(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	rows := make([]menuRow, len(props.Choices))
 	for i, c := range props.Choices {
 		rows[i] = menuRow{Cells: styled.TextCells(c.Label), Header: c.Header}
@@ -106,7 +107,7 @@ func (st *ChoiceMenuState) View(world w.World, props ChoiceProps, cursor menurt.
 	// 単一タブのコマンドメニューなので行間を空け、ページ表示は複数ページのときだけ出す。
 	// メインメニューと先頭位置・行間を揃える
 	list := renderMenuList(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
-	return newPanelScreenUI(res, props.Title, list, menuNavHint(world, false))
+	return menuframe.NewPanelScreen(res, props.Title, list, menuNavHint(world, false))
 }
 
 // pushChoice は指定ファクトリの state を push する Choice.Run を返す。選択メニューの共通部品

@@ -11,7 +11,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menurt"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -27,7 +27,7 @@ import (
 // CharacterJobState はキャラクター職業選択画面のステート
 type CharacterJobState struct {
 	es.BaseState[w.World]
-	screen     *menurt.Screen[JobMenuProps]
+	screen     *menuloop.Screen[JobMenuProps]
 	playerName string // TODO: どうにかする。キャラメイクは複数のstateで構成され、前の決定事項を保持する必要がある...
 }
 
@@ -46,7 +46,7 @@ var _ es.State[w.World] = &CharacterJobState{}
 
 // OnStart はステート開始時の処理を行う
 func (st *CharacterJobState) OnStart(_ w.World) error {
-	st.screen = menurt.NewScreen[JobMenuProps](st)
+	st.screen = menuloop.NewScreen[JobMenuProps](st)
 	return nil
 }
 
@@ -91,7 +91,7 @@ type jobMenuItem struct {
 	Profession oapi.Profession
 }
 
-// Fetch は世界から表示 props を構築する。menurt.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *CharacterJobState) Fetch(world w.World) JobMenuProps {
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	items := make([]jobMenuItem, len(professions))
@@ -101,9 +101,9 @@ func (st *CharacterJobState) Fetch(world w.World) JobMenuProps {
 	return JobMenuProps{Items: items}
 }
 
-// Menu は一覧の構成を返す。menurt.Model の Menu 部にあたる
-func (st *CharacterJobState) Menu(props JobMenuProps) menurt.MenuConfig {
-	return menurt.MenuConfig{Key: "job", TabCount: 1, ItemCounts: []int{len(props.Items)}}
+// Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
+func (st *CharacterJobState) Menu(props JobMenuProps) menuloop.MenuConfig {
+	return menuloop.MenuConfig{Key: "job", TabCount: 1, ItemCounts: []int{len(props.Items)}}
 }
 
 func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.World], error) {
@@ -153,8 +153,8 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menurt.Model の View 部にあたる
-func (st *CharacterJobState) View(world w.World, props JobMenuProps, cursor menurt.Selection, res resources.UIResources) *ebitenui.UI {
+// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
+func (st *CharacterJobState) View(world w.World, props JobMenuProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	itemIndex := cursor.ItemIndex
 
 	// 3行グリッド: タイトル(固定) / メインエリア(伸縮) / フッター(固定)

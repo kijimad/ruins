@@ -14,32 +14,31 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
 // Window はメッセージウィンドウを表す
 type Window struct {
-	config      Config
-	content     MessageContent
+	config      windowConfig
+	content     messageContent
 	world       w.World
 	onClose     func()
-	onChoice    func(choice Choice)
+	onChoice    func(choice choiceOption)
 	isOpen      bool
 	ui          *ebitenui.UI
 	initialized bool
 	window      *widget.Window
 
 	// 選択肢がある場合、メニューシステムでページング可能な選択肢一覧を表示
-	choiceMenuView  *tabmenu.View
+	choiceMenuView  *view
 	choiceStore     *hooks.Store
 	hasChoices      bool
 	currentMenuPage int
 	needsUIRebuild  bool // ページ変更時のUI再構築フラグ
 
 	// 複数メッセージを順番に表示
-	queueManager   *QueueManager
+	queueManager   *queueManager
 	currentMessage *messagedata.MessageData
 }
 
@@ -158,9 +157,9 @@ func (w *Window) updateContentFromMessage(msg *messagedata.MessageData) {
 	w.content.SpeakerName = msg.Speaker
 	w.content.TextSegmentLines = msg.TextSegmentLines
 
-	w.content.Choices = make([]Choice, len(msg.Choices))
+	w.content.Choices = make([]choiceOption, len(msg.Choices))
 	for i, choice := range msg.Choices {
-		w.content.Choices[i] = Choice{
+		w.content.Choices[i] = choiceOption{
 			Text: choice.Text,
 			Action: func() error {
 				if choice.Action != nil {
@@ -171,7 +170,7 @@ func (w *Window) updateContentFromMessage(msg *messagedata.MessageData) {
 				// 選択肢に関連メッセージがある場合はキュー先頭に追加して即座に表示
 				if choice.MessageData != nil {
 					if w.queueManager == nil {
-						w.queueManager = NewQueueManager()
+						w.queueManager = newQueueManager()
 					}
 					w.queueManager.EnqueueFront(choice.MessageData)
 				}
@@ -229,7 +228,7 @@ func (w *Window) createTitleContainer() *widget.Container {
 
 // calculateWindowPosition はウィンドウの表示位置を計算する。
 // 上端を画面高さの約1/4の位置に統一して配置する
-func (w *Window) calculateWindowPosition(windowSize WindowSize) (x, y int) {
+func (w *Window) calculateWindowPosition(windowSize windowSize) (x, y int) {
 	screenWidth := w.world.Resources.ScreenDimensions.Width
 	screenHeight := w.world.Resources.ScreenDimensions.Height
 
@@ -248,7 +247,7 @@ func (w *Window) calculateWindowPosition(windowSize WindowSize) (x, y int) {
 }
 
 // calculateWindowSize は選択肢に応じてウィンドウサイズを計算する
-func (w *Window) calculateWindowSize() WindowSize {
+func (w *Window) calculateWindowSize() windowSize {
 	baseHeight := w.config.Size.Height
 
 	// 選択肢がある場合は高さを再計算
@@ -282,7 +281,7 @@ func (w *Window) calculateWindowSize() WindowSize {
 		baseHeight = min(calculatedHeight, maxHeightWithChoices)
 	}
 
-	return WindowSize{
+	return windowSize{
 		Width:  w.config.Size.Width,
 		Height: baseHeight,
 	}
@@ -514,9 +513,9 @@ func (w *Window) initChoiceMenu() {
 		return
 	}
 
-	items := make([]tabmenu.Item, len(w.content.Choices))
+	items := make([]item, len(w.content.Choices))
 	for i, choice := range w.content.Choices {
-		items[i] = tabmenu.Item{
+		items[i] = item{
 			ID:       choice.Text,
 			Label:    choice.Text,
 			UserData: i,
@@ -525,8 +524,8 @@ func (w *Window) initChoiceMenu() {
 
 	itemsPerPage := w.calculateItemsPerPage(len(w.content.Choices))
 
-	config := tabmenu.Config{
-		Tabs: []tabmenu.TabItem{
+	config := tabMenuConfig{
+		Tabs: []tabItem{
 			{ID: "choices", Label: "", Items: items},
 		},
 		ItemsPerPage: itemsPerPage,
@@ -546,15 +545,15 @@ func (w *Window) initChoiceMenu() {
 		Skips:        [][]bool{skips},
 	})
 
-	w.choiceMenuView = tabmenu.NewView(config, w.world)
-	w.choiceMenuView.SetState(tabmenu.ViewState{
+	w.choiceMenuView = newView(config, w.world)
+	w.choiceMenuView.SetState(viewState{
 		TabIndex:  menuState.TabIndex,
 		ItemIndex: menuState.ItemIndex,
 	})
 	w.currentMenuPage = 1
 }
 
-// handleChoiceInput はキー入力を hooks Store にディスパッチし、View を同期する
+// handleChoiceInput はキー入力を hooks Store にディスパッチし、view を同期する
 func (w *Window) handleChoiceInput() error {
 	keyboardInput := input.GetSharedKeyboardInput()
 	action, ok := w.translateChoiceInput(keyboardInput)
@@ -572,7 +571,7 @@ func (w *Window) handleChoiceInput() error {
 	default:
 		w.choiceStore.Dispatch(action)
 		menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, "choices")
-		w.choiceMenuView.SetState(tabmenu.ViewState{
+		w.choiceMenuView.SetState(viewState{
 			TabIndex:  menuState.TabIndex,
 			ItemIndex: menuState.ItemIndex,
 		})
@@ -721,7 +720,7 @@ func (w *Window) createSegmentedTextLines() *widget.Container {
 		// 空行の場合は固定高さのスペーサーを追加
 		if isEmptyLine {
 			spacer := widget.NewText(
-				widget.TextOpts.Text(" ", &res.Text.BodyFace, w.config.TextStyle.Color),
+				widget.TextOpts.Text(" ", &res.Text.BodyFace, w.config.textStyle.Color),
 				widget.TextOpts.WidgetOpts(
 					widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 				),
@@ -747,7 +746,7 @@ func (w *Window) createSegmentedTextLines() *widget.Container {
 
 		// 行内の各セグメントを処理
 		for _, segment := range lineSegments {
-			segmentColor := w.config.TextStyle.Color
+			segmentColor := w.config.textStyle.Color
 			if segment.Color != nil {
 				segmentColor = *segment.Color
 			}
@@ -812,7 +811,7 @@ func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Co
 
 	// テキストウィジェット
 	textWidget := widget.NewText(
-		widget.TextOpts.Text(choiceText, &res.Text.BodyFace, w.config.TextStyle.Color),
+		widget.TextOpts.Text(choiceText, &res.Text.BodyFace, w.config.textStyle.Color),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,

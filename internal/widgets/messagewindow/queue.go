@@ -4,31 +4,31 @@ import (
 	"github.com/kijimaD/ruins/internal/messagedata"
 )
 
-// QueueManager はメッセージキューを管理する
-type QueueManager struct {
+// queueManager はメッセージキューを管理する
+type queueManager struct {
 	queue   []*messagedata.MessageData
 	current *messagedata.MessageData
 }
 
-// NewQueueManager は新しいQueueManagerを作成する
-func NewQueueManager() *QueueManager {
-	return &QueueManager{
+// newQueueManager は新しいQueueManagerを作成する
+func newQueueManager() *queueManager {
+	return &queueManager{
 		queue: make([]*messagedata.MessageData, 0),
 	}
 }
 
 // Enqueue はメッセージをキューに追加する
-func (q *QueueManager) Enqueue(messages ...*messagedata.MessageData) {
+func (q *queueManager) Enqueue(messages ...*messagedata.MessageData) {
 	q.queue = append(q.queue, messages...)
 }
 
 // EnqueueFront はメッセージをキューの先頭に追加する
-func (q *QueueManager) EnqueueFront(messages ...*messagedata.MessageData) {
+func (q *queueManager) EnqueueFront(messages ...*messagedata.MessageData) {
 	q.queue = append(messages, q.queue...)
 }
 
 // Dequeue は次のメッセージを取り出す
-func (q *QueueManager) Dequeue() *messagedata.MessageData {
+func (q *queueManager) Dequeue() *messagedata.MessageData {
 	if len(q.queue) == 0 {
 		return nil
 	}
@@ -46,22 +46,22 @@ func (q *QueueManager) Dequeue() *messagedata.MessageData {
 }
 
 // HasNext は次のメッセージがあるかを確認
-func (q *QueueManager) HasNext() bool {
+func (q *queueManager) HasNext() bool {
 	return len(q.queue) > 0
 }
 
 // Current は現在のメッセージを取得
-func (q *QueueManager) Current() *messagedata.MessageData {
+func (q *queueManager) Current() *messagedata.MessageData {
 	return q.current
 }
 
 // Clear はキューをクリアする
-func (q *QueueManager) Clear() {
+func (q *queueManager) Clear() {
 	q.queue = q.queue[:0]
 	q.current = nil
 }
 
 // Size はキューのサイズを返す
-func (q *QueueManager) Size() int {
+func (q *queueManager) Size() int {
 	return len(q.queue)
 }

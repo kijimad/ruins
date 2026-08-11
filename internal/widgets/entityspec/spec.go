@@ -1,4 +1,4 @@
-package views
+package entityspec
 
 import (
 	"fmt"
@@ -120,16 +120,6 @@ func RenderSpecRows(targetContainer *widget.Container, rows []SpecRow, res resou
 		styled.NewTableRow(table, columnWidths, styled.TextCells(r.Label, r.Value), specTableAligns, nil, res)
 	}
 	targetContainer.AddChild(table)
-}
-
-// UpdateSpec は性能表示コンテナを更新する。全行を描く
-func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Entity) {
-	RenderSpecRows(targetContainer, SpecRows(world, entity), world.Resources.UIResources)
-}
-
-// UpdateSpecFromSpec はEntitySpecから性能表示コンテナを更新する。エンティティを生成せずに性能を表示できる
-func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec gc.EntitySpec) {
-	RenderSpecRows(targetContainer, SpecRowsFromSpec(world, spec), world.Resources.UIResources)
 }
 
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し

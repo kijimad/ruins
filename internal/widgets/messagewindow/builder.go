@@ -5,15 +5,15 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// Choice は選択肢を表す
-type Choice struct {
+// choiceOption は選択肢を表す
+type choiceOption struct {
 	Text   string
 	Action func() error // 選択時の処理
 }
 
-// MessageContent はメッセージの内容
-type MessageContent struct {
-	Choices          []Choice                    // 選択肢システム
+// messageContent はメッセージの内容
+type messageContent struct {
+	Choices          []choiceOption              // 選択肢システム
 	SpeakerName      string                      // 話者名
 	TextSegmentLines [][]messagedata.TextSegment // 行ごとの色付きテキストセグメント
 }
@@ -21,10 +21,10 @@ type MessageContent struct {
 // NewWindow はMessageDataからメッセージウィンドウを構築する
 func NewWindow(world w.World, initialMessage *messagedata.MessageData) *Window {
 	window := &Window{
-		config:         DefaultConfig(),
+		config:         defaultWindowConfig(),
 		world:          world,
 		isOpen:         true,
-		queueManager:   NewQueueManager(),
+		queueManager:   newQueueManager(),
 		currentMessage: initialMessage,
 	}
 

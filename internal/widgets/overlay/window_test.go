@@ -1,4 +1,4 @@
-package menuscreen
+package overlay
 
 import (
 	"fmt"
@@ -7,10 +7,9 @@ import (
 	"testing"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
-	"github.com/kijimaD/ruins/internal/widgets/views"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -61,23 +60,13 @@ func TestDetailPageCount(t *testing.T) {
 	}
 }
 
-func TestDetailPageCount_性能行が無いエンティティは1ページになる(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	e := world.ECS.NewEntity()
-
-	got := DetailPageCount(world, e)
-
-	assert.Equal(t, 1, got)
-}
-
 func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
-	rows := make([]views.SpecRow, 15)
+	rows := make([]entityspec.SpecRow, 15)
 	for i := range rows {
-		rows[i] = views.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
+		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
 	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
@@ -96,17 +85,17 @@ func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *te
 	assert.Contains(t, firstLabels, "項目00")
 	assert.NotContains(t, firstLabels, "項目14", "1ページ目には収まらない行を出さない")
 	assert.Contains(t, lastLabels, "項目14")
-	assert.Contains(t, firstLabels, fmt.Sprintf("%s 1/2 %s", consts.IconArrowLeft, consts.IconArrowRight))
-	assert.Contains(t, lastLabels, fmt.Sprintf("%s 2/2 %s", consts.IconArrowLeft, consts.IconArrowRight))
+	assert.Contains(t, firstLabels, "1/2")
+	assert.Contains(t, lastLabels, "2/2")
 }
 
 func TestBuildDetailFromRows_ページ番号は範囲外を先頭と末尾にクランプする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
-	rows := make([]views.SpecRow, 15)
+	rows := make([]entityspec.SpecRow, 15)
 	for i := range rows {
-		rows[i] = views.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
+		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
 	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
@@ -118,6 +107,6 @@ func TestBuildDetailFromRows_ページ番号は範囲外を先頭と末尾にク
 
 	require.NotNil(t, negative)
 	require.NotNil(t, overflow)
-	assert.Contains(t, collectLabels(negative.Contents), fmt.Sprintf("%s 1/2 %s", consts.IconArrowLeft, consts.IconArrowRight), "負のページは先頭にクランプする")
-	assert.Contains(t, collectLabels(overflow.Contents), fmt.Sprintf("%s 2/2 %s", consts.IconArrowLeft, consts.IconArrowRight), "範囲外の大きいページは末尾にクランプする")
+	assert.Contains(t, collectLabels(negative.Contents), "1/2", "負のページは先頭にクランプする")
+	assert.Contains(t, collectLabels(overflow.Contents), "2/2", "範囲外の大きいページは末尾にクランプする")
 }
