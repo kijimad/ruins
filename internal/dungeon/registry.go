@@ -11,7 +11,6 @@ var (
 		enemyTable:  "forest",
 		itemTable:   "forest",
 		baseTemp:    10,
-		darkness:    0.85,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
 		},
@@ -25,7 +24,6 @@ var (
 		enemyTable:  "",
 		itemTable:   "",
 		baseTemp:    20,
-		darkness:    0.2, // 街は灯りがあり明るい
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeDebugTown, Weight: 1},
 		},
@@ -39,8 +37,7 @@ var (
 		totalFloors: 20,
 		enemyTable:  "forest",
 		itemTable:   "forest",
-		baseTemp:    0,    // 寒い
-		darkness:    0.55, // 枯れ森。屋外だが薄暗い
+		baseTemp:    0, // 寒い
 		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeForest, Weight: 5},
@@ -57,8 +54,7 @@ var (
 		totalFloors: 20,
 		enemyTable:  "cave",
 		itemTable:   "cave",
-		baseTemp:    5,   // 寒い
-		darkness:    0.9, // 洞窟。ほぼ光源なし
+		baseTemp:    5, // 寒い
 		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeCave, Weight: 6},
@@ -83,8 +79,7 @@ var (
 		totalFloors: 20,
 		enemyTable:  "ruins_area",
 		itemTable:   "ruins_area",
-		baseTemp:    15,   // やや快適
-		darkness:    0.75, // 廃墟。崩れた建物の陰
+		baseTemp:    15, // やや快適
 		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 4},
@@ -102,8 +97,7 @@ var (
 		name:        "Cube interior",
 		description: "Interior of the mobile base cube",
 		totalFloors: 1,
-		baseTemp:    15,  // 内部はシェルター。要調整
-		darkness:    0.4, // シェルター内部。ほどよく灯りがある
+		baseTemp:    15, // 内部はシェルター。要調整
 		// 内部のレイアウトはこの planner のテンプレート。実際の生成は enterCube の SwapTo が
 		// 同じテンプレートで行うので、この pool は spawnFloor 経由では引かれない。他の定義と形を
 		// そろえ、レイアウトの出所を示すために持つ

@@ -32,10 +32,7 @@ type DungeonState struct {
 	lightMap *ebiten.Image
 	// light はワールドレイヤに雰囲気ライティングをかけるフィルタ。Draw で遅延生成する
 	light *screeneffect.LightFilter
-	// dungeonDarkness はこのダンジョンの暗さ。OnStart で定義から取り込む。
-	// 地上は時間帯から求めるのでこの値は使わない
-	dungeonDarkness float64
-	Depth           int
+	Depth int
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
@@ -126,8 +123,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
-	// このダンジョンの暗さを取り込む。描画時のライティング強度に使う
-	st.dungeonDarkness = def.Darkness()
 	// 単一フロアを新規生成して現ステージに確定する。初回進入や golden の単発描画で使う。
 	// これは共存を作らない: 他ステージの suspend も上り階段の結線もしないので、ゲーム中の
 	// 階層移動(地上⇄遺跡・階の上り下り)には使わないこと。それらは enterDungeon/descend の
@@ -332,12 +327,16 @@ var blendMultiply = ebiten.Blend{
 	BlendOperationAlpha:         ebiten.BlendOperationAdd,
 }
 
-// fieldDarkness はこのフィールドの暗さを返す。地上は時間帯から、ダンジョンは定義から求める。
+// dungeonDarkness は全ダンジョン共通の暗さ。ダンジョンは屋内・地下で常に暗いという前提で
+// 一律に扱う。ステージごとの差を付けたくなったらここを定義側の値へ戻す。
+const dungeonDarkness = 0.85
+
+// fieldDarkness はこのフィールドの暗さを返す。地上は時間帯で変わり、ダンジョンは一律。
 func (st *DungeonState) fieldDarkness(world w.World) float64 {
 	if st.isSeamless() {
 		return darknessForTimeOfDay(query.GetGameTime(world).GetTimeOfDay())
 	}
-	return st.dungeonDarkness
+	return dungeonDarkness
 }
 
 // darknessForTimeOfDay は時間帯を地上の暗さへ写す。昼が最も明るく、深夜が最も暗い。
