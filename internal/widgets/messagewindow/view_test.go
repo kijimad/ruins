@@ -12,21 +12,21 @@ func TestView_GetCurrentPage(t *testing.T) {
 
 	t.Run("1ページ目は1を返す", func(t *testing.T) {
 		t.Parallel()
-		view := NewView(tabMenuConfig{
-			Tabs:         []TabItem{{ID: "t1", Items: make([]Item, 10)}},
+		view := newView(tabMenuConfig{
+			Tabs:         []tabItem{{ID: "t1", Items: make([]item, 10)}},
 			ItemsPerPage: 3,
 		}, w.World{})
-		view.SetState(ViewState{TabIndex: 0, ItemIndex: 0})
+		view.SetState(viewState{TabIndex: 0, ItemIndex: 0})
 		assert.Equal(t, 1, view.GetCurrentPage())
 	})
 
 	t.Run("2ページ目は2を返す", func(t *testing.T) {
 		t.Parallel()
-		view := NewView(tabMenuConfig{
-			Tabs:         []TabItem{{ID: "t1", Items: make([]Item, 10)}},
+		view := newView(tabMenuConfig{
+			Tabs:         []tabItem{{ID: "t1", Items: make([]item, 10)}},
 			ItemsPerPage: 3,
 		}, w.World{})
-		view.SetState(ViewState{TabIndex: 0, ItemIndex: 4})
+		view.SetState(viewState{TabIndex: 0, ItemIndex: 4})
 		assert.Equal(t, 2, view.GetCurrentPage())
 	})
 }

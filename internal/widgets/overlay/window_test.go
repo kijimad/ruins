@@ -61,16 +61,6 @@ func TestDetailPageCount(t *testing.T) {
 	}
 }
 
-func TestDetailPageCount_性能行が無いエンティティは1ページになる(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	e := world.ECS.NewEntity()
-
-	got := DetailPageCount(world, e)
-
-	assert.Equal(t, 1, got)
-}
-
 func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

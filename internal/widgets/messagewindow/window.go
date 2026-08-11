@@ -31,7 +31,7 @@ type Window struct {
 	window      *widget.Window
 
 	// 選択肢がある場合、メニューシステムでページング可能な選択肢一覧を表示
-	choiceMenuView  *View
+	choiceMenuView  *view
 	choiceStore     *hooks.Store
 	hasChoices      bool
 	currentMenuPage int
@@ -513,9 +513,9 @@ func (w *Window) initChoiceMenu() {
 		return
 	}
 
-	items := make([]Item, len(w.content.Choices))
+	items := make([]item, len(w.content.Choices))
 	for i, choice := range w.content.Choices {
-		items[i] = Item{
+		items[i] = item{
 			ID:       choice.Text,
 			Label:    choice.Text,
 			UserData: i,
@@ -525,7 +525,7 @@ func (w *Window) initChoiceMenu() {
 	itemsPerPage := w.calculateItemsPerPage(len(w.content.Choices))
 
 	config := tabMenuConfig{
-		Tabs: []TabItem{
+		Tabs: []tabItem{
 			{ID: "choices", Label: "", Items: items},
 		},
 		ItemsPerPage: itemsPerPage,
@@ -545,15 +545,15 @@ func (w *Window) initChoiceMenu() {
 		Skips:        [][]bool{skips},
 	})
 
-	w.choiceMenuView = NewView(config, w.world)
-	w.choiceMenuView.SetState(ViewState{
+	w.choiceMenuView = newView(config, w.world)
+	w.choiceMenuView.SetState(viewState{
 		TabIndex:  menuState.TabIndex,
 		ItemIndex: menuState.ItemIndex,
 	})
 	w.currentMenuPage = 1
 }
 
-// handleChoiceInput はキー入力を hooks Store にディスパッチし、View を同期する
+// handleChoiceInput はキー入力を hooks Store にディスパッチし、view を同期する
 func (w *Window) handleChoiceInput() error {
 	keyboardInput := input.GetSharedKeyboardInput()
 	action, ok := w.translateChoiceInput(keyboardInput)
@@ -571,7 +571,7 @@ func (w *Window) handleChoiceInput() error {
 	default:
 		w.choiceStore.Dispatch(action)
 		menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, "choices")
-		w.choiceMenuView.SetState(ViewState{
+		w.choiceMenuView.SetState(viewState{
 			TabIndex:  menuState.TabIndex,
 			ItemIndex: menuState.ItemIndex,
 		})

@@ -48,7 +48,7 @@ func NewPanelScreen(res resources.UIResources, title string, content *widget.Con
 	}
 	// 下部にログ領域ぶんの余白を確保し、その上の領域で中央寄せする。データ一覧のモーダルと
 	// 同じくログに被らないようにする
-	logReserve := consts.GameHeight - LogTopY(consts.GameHeight) + theme.Space3
+	logReserve := consts.GameHeight - logTopY(consts.GameHeight) + theme.Space3
 	root := widget.NewContainer(widget.ContainerOpts.Layout(
 		widget.NewAnchorLayout(widget.AnchorLayoutOpts.Padding(&widget.Insets{Bottom: logReserve})),
 	))
@@ -109,7 +109,7 @@ func centerRow(child widget.PreferredSizeLocateableWidget) *widget.Container {
 // 外周は背景を持たず透明にし、周囲に後ろのフィールドを覗かせる。動詞タブ画面と各メニューで共通に使う。
 // 下端はゲームログの上端より上で止め、ログと重ならないようにする。
 func wrapModalRoot(root *widget.Container) *widget.Container {
-	bottom := consts.GameHeight - LogTopY(consts.GameHeight) + theme.Space3
+	bottom := consts.GameHeight - logTopY(consts.GameHeight) + theme.Space3
 	outer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),

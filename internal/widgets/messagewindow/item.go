@@ -1,7 +1,7 @@
 package messagewindow
 
-// Item はメニュー項目を表す
-type Item struct {
+// item はメニュー項目を表す
+type item struct {
 	ID               string
 	Label            string
 	AdditionalLabels []string // 追加表示項目（個数、価格など）右側に表示される

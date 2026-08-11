@@ -5,37 +5,37 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// View はタブメニューの描画を担当する。状態管理は外部（hooks）が行う
-type View struct {
+// view はタブメニューの描画を担当する。状態管理は外部（hooks）が行う
+type view struct {
 	config    tabMenuConfig
-	state     ViewState
+	state     viewState
 	uiBuilder *uiBuilder
 }
 
-// NewView は View を作成する
-func NewView(config tabMenuConfig, world w.World) *View {
-	return &View{
+// newView は view を作成する
+func newView(config tabMenuConfig, world w.World) *view {
+	return &view{
 		config:    config,
 		uiBuilder: newUIBuilder(world),
 	}
 }
 
 // SetState は外部から描画状態を設定する
-func (v *View) SetState(state ViewState) {
+func (v *view) SetState(state viewState) {
 	v.state = state
 }
 
 // BuildUI はメニューのUIを構築する
-func (v *View) BuildUI() *widget.Container {
+func (v *view) BuildUI() *widget.Container {
 	return v.uiBuilder.BuildUI(v.config, v.state)
 }
 
 // UpdateFocus はフォーカス表示を更新する
-func (v *View) UpdateFocus() {
+func (v *view) UpdateFocus() {
 	v.uiBuilder.UpdateFocus(v.config, v.state)
 }
 
 // GetCurrentPage は現在のページ番号を返す（1ベース、表示用）
-func (v *View) GetCurrentPage() int {
+func (v *view) GetCurrentPage() int {
 	return currentPage(v.config, v.state) + 1
 }

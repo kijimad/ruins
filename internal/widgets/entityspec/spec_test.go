@@ -54,7 +54,7 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 		Element: gc.ElementTypeFire, AttackCategory: gc.AttackSword, Cost: 100,
 	})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, query.T(world, gc.AttackSword.Label), "武器種別ラベルが表示される")
@@ -75,7 +75,7 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackFist, Cost: 50,
 	})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.NotContains(t, labels, "Element", "無属性の場合は属性行が表示されない")
@@ -93,7 +93,7 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 		Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 	})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Optimal range", "適正射程ラベルが表示される")
@@ -115,7 +115,7 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 		MagazineSize: 0,
 	})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.NotContains(t, labels, "Magazine", "マガジンサイズが0の場合は弾数行が表示されない")
@@ -138,7 +138,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 		},
 	})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "+15", "防御力が符号付きで表示される")
@@ -163,7 +163,7 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 		EquipmentCategory: gc.EquipmentHead,
 	})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.NotContains(t, labels, "Cold resist", "耐寒0の場合は行が表示されない")
@@ -177,7 +177,7 @@ func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testi
 	e := world.ECS.NewEntity()
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 42})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Vitality", "回復量ラベルが表示される")
@@ -191,7 +191,7 @@ func TestUpdateSpec_回復量は割合指定ならパーセントで表示する
 	e := world.ECS.NewEntity()
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: gc.HealRatio, Amount: 0.3})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "30%", "割合が百分率表示される")
@@ -206,7 +206,7 @@ func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する
 	const unknownKind = gc.HealAmountKind(99)
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: unknownKind, Amount: 10})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "-", "未知の種別はハイフン表示にフォールバックする")
@@ -221,7 +221,7 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 	world.Components.Value.Add(e, &gc.Value{Value: 1200})
 	world.Components.Weight.Add(e, &gc.Weight{})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Nutrition", "栄養ラベルが表示される")
@@ -245,7 +245,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 		},
 	})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Book", "本ヘッダーが表示される")
@@ -265,7 +265,7 @@ func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T)
 		Effort: gc.IntPool{Current: 0, Max: 0},
 	})
 
-	entityspec.UpdateSpec(world, root, e)
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Book", "本ヘッダーは表示される")
@@ -284,7 +284,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 		},
 	}
 
-	entityspec.UpdateSpecFromSpec(world, root, spec)
+	entityspec.RenderSpecRows(root, entityspec.SpecRowsFromSpec(world, spec), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, query.T(world, gc.AttackSpear.Label), "武器種別ラベルが表示される")
@@ -316,7 +316,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 		Weight: &gc.Weight{},
 	}
 
-	entityspec.UpdateSpecFromSpec(world, root, spec)
+	entityspec.RenderSpecRows(root, entityspec.SpecRowsFromSpec(world, spec), world.Resources.UIResources)
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Magazine", "Fire由来の弾数行が表示される")

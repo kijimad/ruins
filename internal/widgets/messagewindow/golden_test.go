@@ -16,17 +16,17 @@ func TestGolden_SingleItem(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
-		view := NewView(
+		view := newView(
 			tabMenuConfig{
-				Tabs: []TabItem{
-					{ID: "tab", Label: "タブ", Items: []Item{
+				Tabs: []tabItem{
+					{ID: "tab", Label: "タブ", Items: []item{
 						{ID: "item1", Label: "アイテム1"},
 					}},
 				},
 			},
 			world,
 		)
-		view.SetState(ViewState{TabIndex: 0, ItemIndex: 0})
+		view.SetState(viewState{TabIndex: 0, ItemIndex: 0})
 		return view.BuildUI()
 	}, 300, 50)
 }
@@ -35,10 +35,10 @@ func TestGolden_MultipleItems_FirstSelected(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
-		view := NewView(
+		view := newView(
 			tabMenuConfig{
-				Tabs: []TabItem{
-					{ID: "tab", Label: "タブ", Items: []Item{
+				Tabs: []tabItem{
+					{ID: "tab", Label: "タブ", Items: []item{
 						{ID: "item1", Label: "回復薬"},
 						{ID: "item2", Label: "鉄鉱石"},
 						{ID: "item3", Label: "聖水"},
@@ -47,7 +47,7 @@ func TestGolden_MultipleItems_FirstSelected(t *testing.T) {
 			},
 			world,
 		)
-		view.SetState(ViewState{TabIndex: 0, ItemIndex: 0})
+		view.SetState(viewState{TabIndex: 0, ItemIndex: 0})
 		return view.BuildUI()
 	}, 300, 120)
 }
@@ -56,10 +56,10 @@ func TestGolden_MultipleItems_MiddleSelected(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
-		view := NewView(
+		view := newView(
 			tabMenuConfig{
-				Tabs: []TabItem{
-					{ID: "tab", Label: "タブ", Items: []Item{
+				Tabs: []tabItem{
+					{ID: "tab", Label: "タブ", Items: []item{
 						{ID: "item1", Label: "回復薬"},
 						{ID: "item2", Label: "鉄鉱石"},
 						{ID: "item3", Label: "聖水"},
@@ -70,7 +70,7 @@ func TestGolden_MultipleItems_MiddleSelected(t *testing.T) {
 			},
 			world,
 		)
-		view.SetState(ViewState{TabIndex: 0, ItemIndex: 2})
+		view.SetState(viewState{TabIndex: 0, ItemIndex: 2})
 		return view.BuildUI()
 	}, 300, 180)
 }
@@ -79,15 +79,15 @@ func TestGolden_EmptyItems(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
-		view := NewView(
+		view := newView(
 			tabMenuConfig{
-				Tabs: []TabItem{
-					{ID: "tab", Label: "タブ", Items: []Item{}},
+				Tabs: []tabItem{
+					{ID: "tab", Label: "タブ", Items: []item{}},
 				},
 			},
 			world,
 		)
-		// SetState を省くと ViewState のゼロ値 TabIndex:0 ItemIndex:0 になる。
+		// SetState を省くと viewState のゼロ値 TabIndex:0 ItemIndex:0 になる。
 		// 空タブでは BuildUI が空表示の1行を出すので、その見た目を検証する。
 		return view.BuildUI()
 	}, 300, 50)
@@ -97,23 +97,23 @@ func TestGolden_WithPagination(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
-		items := make([]Item, 10)
+		items := make([]item, 10)
 		for i := range items {
-			items[i] = Item{
+			items[i] = item{
 				ID:    "item",
 				Label: "アイテム" + string(rune('A'+i)),
 			}
 		}
-		view := NewView(
+		view := newView(
 			tabMenuConfig{
-				Tabs: []TabItem{
+				Tabs: []tabItem{
 					{ID: "tab", Label: "タブ", Items: items},
 				},
 				ItemsPerPage: 3,
 			},
 			world,
 		)
-		view.SetState(ViewState{TabIndex: 0, ItemIndex: 0})
+		view.SetState(viewState{TabIndex: 0, ItemIndex: 0})
 		return view.BuildUI()
 	}, 300, 150)
 }
@@ -122,10 +122,10 @@ func TestGolden_WithAdditionalLabels(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
-		view := NewView(
+		view := newView(
 			tabMenuConfig{
-				Tabs: []TabItem{
-					{ID: "tab", Label: "タブ", Items: []Item{
+				Tabs: []tabItem{
+					{ID: "tab", Label: "タブ", Items: []item{
 						{ID: "item1", Label: "回復薬", AdditionalLabels: []string{"x3", "1.5kg"}},
 						{ID: "item2", Label: "鉄鉱石", AdditionalLabels: []string{"x12", "6.0kg"}},
 						{ID: "item3", Label: "聖水", AdditionalLabels: []string{"x1", "0.5kg"}},
@@ -134,7 +134,7 @@ func TestGolden_WithAdditionalLabels(t *testing.T) {
 			},
 			world,
 		)
-		view.SetState(ViewState{TabIndex: 0, ItemIndex: 0})
+		view.SetState(viewState{TabIndex: 0, ItemIndex: 0})
 		return view.BuildUI()
 	}, 400, 120)
 }
@@ -143,23 +143,23 @@ func TestGolden_ManyItems_LastPage(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
 	vrt.AssertContainerGolden(t, func() *widget.Container {
-		items := make([]Item, 8)
+		items := make([]item, 8)
 		for i := range items {
-			items[i] = Item{
+			items[i] = item{
 				ID:    "item",
 				Label: "アイテム" + string(rune('A'+i)),
 			}
 		}
-		view := NewView(
+		view := newView(
 			tabMenuConfig{
-				Tabs: []TabItem{
+				Tabs: []tabItem{
 					{ID: "tab", Label: "タブ", Items: items},
 				},
 				ItemsPerPage: 3,
 			},
 			world,
 		)
-		view.SetState(ViewState{TabIndex: 0, ItemIndex: 7})
+		view.SetState(viewState{TabIndex: 0, ItemIndex: 7})
 		return view.BuildUI()
 	}, 300, 120)
 }

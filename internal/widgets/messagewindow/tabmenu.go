@@ -2,29 +2,29 @@ package messagewindow
 
 import "fmt"
 
-// TabItem はタブの項目を定義する
-type TabItem struct {
+// tabItem はタブの項目を定義する
+type tabItem struct {
 	ID    string
 	Label string
-	Items []Item
+	Items []item
 }
 
 // tabMenuConfig はタブメニューの描画設定
 type tabMenuConfig struct {
-	Tabs         []TabItem
+	Tabs         []tabItem
 	ItemsPerPage int // 1ページに表示する項目数（0=制限なし）
 }
 
-// ViewState は外部から設定される描画状態
-type ViewState struct {
+// viewState は外部から設定される描画状態
+type viewState struct {
 	TabIndex  int
 	ItemIndex int
 }
 
 // getVisibleItems は指定ページで表示される項目とその元のインデックスを返す
-func getVisibleItems(config tabMenuConfig, state ViewState) ([]Item, []int) {
+func getVisibleItems(config tabMenuConfig, state viewState) ([]item, []int) {
 	if len(config.Tabs) == 0 || state.TabIndex >= len(config.Tabs) {
-		return []Item{}, []int{}
+		return []item{}, []int{}
 	}
 
 	currentTab := config.Tabs[state.TabIndex]
@@ -42,7 +42,7 @@ func getVisibleItems(config tabMenuConfig, state ViewState) ([]Item, []int) {
 	end := min(start+config.ItemsPerPage, len(currentTab.Items))
 
 	if start >= len(currentTab.Items) {
-		return []Item{}, []int{}
+		return []item{}, []int{}
 	}
 
 	visibleItems := currentTab.Items[start:end]
@@ -55,7 +55,7 @@ func getVisibleItems(config tabMenuConfig, state ViewState) ([]Item, []int) {
 }
 
 // currentPage は現在のページ番号を返す（0ベース）
-func currentPage(config tabMenuConfig, state ViewState) int {
+func currentPage(config tabMenuConfig, state viewState) int {
 	if config.ItemsPerPage <= 0 || state.ItemIndex < 0 {
 		return 0
 	}
@@ -63,7 +63,7 @@ func currentPage(config tabMenuConfig, state ViewState) int {
 }
 
 // totalPages は総ページ数を返す
-func totalPages(config tabMenuConfig, state ViewState) int {
+func totalPages(config tabMenuConfig, state viewState) int {
 	if config.ItemsPerPage <= 0 {
 		return 1
 	}
@@ -77,7 +77,7 @@ func totalPages(config tabMenuConfig, state ViewState) int {
 }
 
 // pageIndicatorText はページインジケーターのテキストを返す
-func pageIndicatorText(config tabMenuConfig, state ViewState) string {
+func pageIndicatorText(config tabMenuConfig, state viewState) string {
 	total := totalPages(config, state)
 	if config.ItemsPerPage <= 0 || total <= 1 {
 		return ""

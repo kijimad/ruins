@@ -17,6 +17,12 @@ import (
 // 行数でページ分割することで、短い項目は1ページに収まり、行の多い項目だけがはみ出さないよう分割される
 const detailRowsPerPage = 12
 
+// DetailPageCount はエンティティの詳細ウィンドウのページ数を返す。
+// 呼び出し側が実体からページ数を確かめる公開の入口
+func DetailPageCount(world w.World, entity ecs.Entity) int {
+	return detailPageCount(len(entityspec.SpecRows(world, entity)))
+}
+
 // detailPageCount は行数からページ数を返す。ページ計算は pagination に委ねる。
 // pagination は負数の総数を想定しないため、行が無いか負数のときはここで1に丸める
 func detailPageCount(rowCount int) int {
@@ -24,11 +30,6 @@ func detailPageCount(rowCount int) int {
 		return 1
 	}
 	return pagination.New(0, rowCount, detailRowsPerPage).GetTotalPages()
-}
-
-// DetailPageCount はエンティティの詳細ウィンドウのページ数を返す
-func DetailPageCount(world w.World, entity ecs.Entity) int {
-	return detailPageCount(len(entityspec.SpecRows(world, entity)))
 }
 
 // buildDetailFromRows は性能行の並びから詳細ウィンドウを組み立てる。
