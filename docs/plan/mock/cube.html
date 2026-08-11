@@ -60,8 +60,8 @@
 <div class="screen">
   <div class="titlebar">
     <span class="b">◆ RUINS</span><span>キューブ &nbsp;―― 押して進める我が家</span>
-    <span class="s">|</span><span class="s">3x3・4方向に押す・障害は壊すか迂回</span>
-    <span class="right">ラン・ターン <span style="color:#dce7f0">42</span> · <span class="cold">❄ 寒波前線まで 6タイル</span> · 隊 8人</span>
+    <span class="s">|</span><span class="s">外観1x1・4方向に押す・障害は壊すか迂回</span>
+    <span class="right">ラン・ターン <span style="color:#dce7f0">42</span> · <span class="cold">❄ 寒波前線まで 6タイル</span> · 総重量 340</span>
   </div>
 
   <div class="wrap">
@@ -69,7 +69,7 @@
     <!-- 左：外のフィールドと、中の内部 -->
     <div class="col">
       <div class="card view">
-        <div class="vtitle">外 ── フィールドとキューブと寒波 &nbsp;<span class="em">3x3・4方向。回転しない</span></div>
+        <div class="vtitle">外 ── フィールドとキューブと寒波 &nbsp;<span class="em">外観1x1・4方向に押す</span></div>
         <svg id="field" viewBox="0 0 1000 330" preserveAspectRatio="none"></svg>
         <div class="note">1歩の押しは重い（歩行の10倍AP）。押し先に物があれば壊すか迂回する。どちらもAPを食い、ターンが進み寒波が迫る。戻れないのは寒波が担保する</div>
       </div>
@@ -77,7 +77,7 @@
       <div class="card view">
         <div class="vtitle">中 ── 異次元の内部 &nbsp;<span class="em">建てず、置いて表現する</span></div>
         <svg id="inner" viewBox="0 0 1000 300" preserveAspectRatio="none"></svg>
-        <div class="note">部屋は単なる空間。置いた prop が部屋を表す。効果は「置いてあること」から出る。配置は効かせない。空間は固定で寛容、重量が主制約</div>
+        <div class="note">部屋は単なる空間。置いた prop が部屋を表す。効果は「置いてあること」から出る。配置は効かせない。空間は拡張で広がり寛容、重量が主制約</div>
       </div>
     </div>
 
@@ -91,14 +91,14 @@
 
           <div class="gauge"><div class="l"><span class="k">総重量（置いた物の合計）</span><span class="v warn">340</span></div>
             <div class="bar"><i style="width:68%;background:var(--gold)"></i></div></div>
-          <div class="gauge"><div class="l"><span class="k">パーティAP / ターン（隊8人）</span><span class="v">120</span></div>
+          <div class="gauge"><div class="l"><span class="k">行動点 / ターン</span><span class="v">120</span></div>
             <div class="bar"><i style="width:60%;background:var(--crystal)"></i></div></div>
           <div class="gauge"><div class="l"><span class="k">→ 1ターンに進めるタイル</span><span class="v">約 2.5</span></div>
             <div class="bar"><i style="width:50%;background:var(--hp)"></i></div></div>
           <div class="gauge"><div class="l"><span class="k">寒波前線までの余裕</span><span class="v bad">6タイル ― 長居は危険</span></div>
             <div class="bar"><i style="width:30%;background:var(--enemy)"></i></div></div>
 
-          <div class="expl">重量は1タイルのコストを決める。仲間はコストを下げず、パーティAPを増やして同じコストを少ないターンで払わせる。速く進めるのはターンが減るからで、寒波への露出が減る。</div>
+          <div class="expl">重量が1タイルのコストを決める。重いほど1タイルの押しに要する行動点が増え、1ターンで進めるタイルが減る。積荷を絞るほど速く進め、寒波への露出が減る。何を残し何を捨てるかが速さを決める。</div>
         </div>
       </div>
 
@@ -113,7 +113,7 @@
 </div>
 
 <script>
-/* ============ 外：フィールド俯瞰・3x3キューブ・4方向（インライン SVG） ============ */
+/* ============ 外：フィールド俯瞰・1x1キューブ・4方向（インライン SVG） ============ */
 (function(){
   const W=1000,H=330;
   const CELL=42;
@@ -139,25 +139,18 @@
   s+='<text x="120" y="24" fill="#7fd6ff" font-size="12" font-family="monospace" text-anchor="middle">寒波前線 ▶ 迫る</text>';
   s+='<text x="105" y="'+(H-14)+'" fill="#3a4a58" font-size="10" font-family="monospace" text-anchor="middle">凍結済み ―― 戻れない</text>';
 
-  /* 3x3 キューブ。左上セルの原点 */
-  var cx=462, cy=72, C=56;   // 3x3、各セル 56px
-  var cubeW=C*3;
-  s+='<ellipse cx="'+(cx+cubeW/2)+'" cy="'+(cy+cubeW/2)+'" rx="150" ry="140" fill="url(#cubeglow)"/>';
-  /* 本体 */
+  /* 1x1 キューブ。外観は1タイル。内側は拡張で広がる異次元 */
+  var cx=470, cy=100, C=120;
+  var cubeW=C;
+  s+='<ellipse cx="'+(cx+cubeW/2)+'" cy="'+(cy+cubeW/2)+'" rx="118" ry="108" fill="url(#cubeglow)"/>';
+  /* 本体（1タイル） */
   s+='<rect x="'+cx+'" y="'+cy+'" width="'+cubeW+'" height="'+cubeW+'" rx="4" fill="#1a2330" stroke="#e5c675" stroke-width="2.5"/>';
-  /* 3x3 の内部グリッド */
-  for(var k=1;k<3;k++){
-    s+='<line x1="'+(cx+k*C)+'" y1="'+cy+'" x2="'+(cx+k*C)+'" y2="'+(cy+cubeW)+'" stroke="#e5c675" stroke-width="1" opacity="0.35"/>';
-    s+='<line x1="'+cx+'" y1="'+(cy+k*C)+'" x2="'+(cx+cubeW)+'" y2="'+(cy+k*C)+'" stroke="#e5c675" stroke-width="1" opacity="0.35"/>';
-  }
   /* 上面ハイライトで立体感 */
-  s+='<rect x="'+cx+'" y="'+cy+'" width="'+cubeW+'" height="14" fill="#e5c675" opacity="0.10"/>';
-  /* 下辺・中央セル＝異次元の扉 */
-  var doorX=cx+C, doorY=cy+2*C;
-  s+='<rect x="'+doorX+'" y="'+doorY+'" width="'+C+'" height="'+C+'" fill="#0c1a24" stroke="#5fd0ff" stroke-width="2"/>';
-  s+='<text x="'+(doorX+C/2)+'" y="'+(doorY+C/2+8)+'" text-anchor="middle" font-size="20" fill="#5fd0ff">⇩</text>';
-  s+='<text x="'+(cx+cubeW/2)+'" y="'+(cy-12)+'" fill="#e5c675" font-size="12" font-family="monospace" text-anchor="middle">キューブ 3x3 ＝我が家</text>';
-  s+='<text x="'+(doorX+C/2)+'" y="'+(doorY+C+16)+'" fill="#5fd0ff" font-size="10" font-family="monospace" text-anchor="middle">下辺の1マス＝異次元の扉</text>';
+  s+='<rect x="'+cx+'" y="'+cy+'" width="'+cubeW+'" height="16" fill="#e5c675" opacity="0.10"/>';
+  /* この1タイル自体が異次元への扉 */
+  s+='<text x="'+(cx+cubeW/2)+'" y="'+(cy+cubeW/2+11)+'" text-anchor="middle" font-size="30" fill="#5fd0ff">⇩</text>';
+  s+='<text x="'+(cx+cubeW/2)+'" y="'+(cy-12)+'" fill="#e5c675" font-size="12" font-family="monospace" text-anchor="middle">キューブ 1x1 ＝我が家</text>';
+  s+='<text x="'+(cx+cubeW/2)+'" y="'+(cy+cubeW+16)+'" fill="#5fd0ff" font-size="10" font-family="monospace" text-anchor="middle">この1タイルが異次元への扉。内側は拡張で広がる</text>';
 
   /* 4方向コンパス（キューブ左上） */
   var mx=cx-70, my=cy+40;
@@ -167,27 +160,27 @@
   s+='<text x="'+(mx+16)+'" y="'+(my+8)+'" fill="#ffb570" font-size="18" text-anchor="middle">→</text>';
   s+='<text x="'+mx+'" y="'+(my+52)+'" fill="#ffb570" font-size="10" font-family="monospace" text-anchor="middle">4方向に押す</text>';
 
-  /* 担ぎ手（AP供給・キューブの押し面側） */
-  [['A',cx-16,cy+20],['B',cx-16,cy+cubeW-30],['C',cx+14,cy+cubeW+14]].forEach(function(p){
-    s+='<rect x="'+(p[1]-8)+'" y="'+(p[2]-8)+'" width="16" height="16" rx="3" fill="#5fd0ff" stroke="#08111a"/>';
-    s+='<text x="'+p[1]+'" y="'+(p[2]+4)+'" fill="#062033" font-size="9" font-weight="bold" font-family="monospace" text-anchor="middle">'+p[0]+'</text>';
-  });
+  /* プレイヤー（押し手・キューブの押し面側） */
+  var px=cx-16, py=cy+cubeW/2;
+  s+='<rect x="'+(px-9)+'" y="'+(py-9)+'" width="18" height="18" rx="3" fill="#5fd0ff" stroke="#08111a"/>';
+  s+='<text x="'+px+'" y="'+(py+5)+'" fill="#062033" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle">@</text>';
+  s+='<text x="'+px+'" y="'+(py+26)+'" fill="#8f98a0" font-size="9" font-family="monospace" text-anchor="middle">押し手</text>';
 
   /* 押し先の障害（東） */
-  var obX=cx+cubeW+64, obY=cy+C;
-  s+='<rect x="'+obX+'" y="'+obY+'" width="'+C+'" height="'+C+'" rx="3" fill="#241a14" stroke="#6b5334" stroke-width="2"/>';
-  s+='<text x="'+(obX+C/2)+'" y="'+(obY+C/2+7)+'" text-anchor="middle" font-size="20" fill="#b08a4e">▲</text>';
-  s+='<text x="'+(obX+C/2)+'" y="'+(obY+C+16)+'" fill="#b08a4e" font-size="10" font-family="monospace" text-anchor="middle">岩・瓦礫（押し先）</text>';
+  var obSize=72, obX=cx+cubeW+70, obY=cy+(cubeW-obSize)/2;
+  s+='<rect x="'+obX+'" y="'+obY+'" width="'+obSize+'" height="'+obSize+'" rx="3" fill="#241a14" stroke="#6b5334" stroke-width="2"/>';
+  s+='<text x="'+(obX+obSize/2)+'" y="'+(obY+obSize/2+7)+'" text-anchor="middle" font-size="20" fill="#b08a4e">▲</text>';
+  s+='<text x="'+(obX+obSize/2)+'" y="'+(obY+obSize+16)+'" fill="#b08a4e" font-size="10" font-family="monospace" text-anchor="middle">岩・瓦礫（押し先）</text>';
 
   /* 選択肢1: 壊して進む */
-  s+='<line x1="'+(cx+cubeW+6)+'" y1="'+(obY+C/2)+'" x2="'+(obX-6)+'" y2="'+(obY+C/2)+'" stroke="#ff5b57" stroke-width="2" marker-end="url(#ar)"/>';
-  s+='<text x="'+(cx+cubeW+40)+'" y="'+(obY+C/2-10)+'" fill="#ff5b57" font-size="11" font-family="monospace" text-anchor="middle">壊す</text>';
-  s+='<text x="'+(obX+C/2)+'" y="'+(obY-14)+'" fill="#ff5b57" font-size="10" font-family="monospace" text-anchor="middle">壊して進む（+コスト）</text>';
+  s+='<line x1="'+(cx+cubeW+6)+'" y1="'+(obY+obSize/2)+'" x2="'+(obX-6)+'" y2="'+(obY+obSize/2)+'" stroke="#ff5b57" stroke-width="2" marker-end="url(#ar)"/>';
+  s+='<text x="'+((cx+cubeW+obX)/2)+'" y="'+(obY+obSize/2-10)+'" fill="#ff5b57" font-size="11" font-family="monospace" text-anchor="middle">壊す</text>';
+  s+='<text x="'+(obX+obSize/2)+'" y="'+(obY-14)+'" fill="#ff5b57" font-size="10" font-family="monospace" text-anchor="middle">壊して進む（+コスト）</text>';
 
   /* 選択肢2: 迂回（上→東） */
-  var dPath='M '+(cx+cubeW/2)+' '+(cy-2)+' L '+(cx+cubeW/2)+' '+(cy-42)+' L '+(obX+C+40)+' '+(cy-42)+' L '+(obX+C+40)+' '+(obY-4);
+  var dPath='M '+(cx+cubeW/2)+' '+(cy-2)+' L '+(cx+cubeW/2)+' '+(cy-46)+' L '+(obX+obSize+40)+' '+(cy-46)+' L '+(obX+obSize+40)+' '+(obY-4);
   s+='<path d="'+dPath+'" fill="none" stroke="#5fd0ff" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arb)"/>';
-  s+='<text x="'+(obX-10)+'" y="'+(cy-48)+'" fill="#5fd0ff" font-size="11" font-family="monospace" text-anchor="middle">迂回（+距離）</text>';
+  s+='<text x="'+(obX+10)+'" y="'+(cy-52)+'" fill="#5fd0ff" font-size="11" font-family="monospace" text-anchor="middle">迂回（+距離）</text>';
 
   /* 矢印マーカー */
   s+='<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#ff5b57"/></marker>'

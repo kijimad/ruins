@@ -141,7 +141,7 @@ func TestNewChunkGen_市街地の建物に見える扉が置かれる(t *testing
 	doors := 0
 	q := ecs.NewFilter2[gc.GridElement, gc.Name](world.ECS).Query()
 	for q.Next() {
-		if world.Components.Name.Get(q.Entity()).Name == "扉" {
+		if world.Components.Name.Get(q.Entity()).Name == "Door" {
 			doors++
 		}
 	}

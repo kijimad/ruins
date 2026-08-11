@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"os"
+
+	"github.com/kijimaD/ruins/internal/i18n"
 )
 
 // Profile は設定プロファイルを表す
@@ -86,7 +88,7 @@ func DefaultUserConfig() UserConfig {
 	return UserConfig{
 		WindowWidth:  960,
 		WindowHeight: 720,
-		Language:     "ja",
+		Language:     "en",
 	}
 }
 
@@ -230,6 +232,7 @@ var (
 	errWindowHeightTooSmall = errors.New("window height is too small")
 	errTargetFPSInvalid     = errors.New("invalid target FPS")
 	errPProfPortOutOfRange  = errors.New("pprof port out of range")
+	errUnsupportedLanguage  = errors.New("unsupported language")
 )
 
 // Validate は設定値が妥当な範囲にあるか検証する。
@@ -240,6 +243,9 @@ func (c *Config) Validate() error {
 	}
 	if c.User.WindowHeight < 240 {
 		return fmt.Errorf("%w: %d, minimum 240", errWindowHeightTooSmall, c.User.WindowHeight)
+	}
+	if !i18n.IsSupportedLang(c.User.Language) {
+		return fmt.Errorf("%w: %q", errUnsupportedLanguage, c.User.Language)
 	}
 	if c.TargetFPS < 1 {
 		return fmt.Errorf("%w: %d, at least 1", errTargetFPSInvalid, c.TargetFPS)

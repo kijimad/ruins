@@ -65,7 +65,7 @@ func TestCharacterState_情報タブは能力スキル効果健康基本の5つ(
 	for i, tab := range props.InfoTabs {
 		labels[i] = tab.Label
 	}
-	assert.Equal(t, []string{"能力", "スキル", "効果", "健康", "基本"}, labels)
+	assert.Equal(t, []string{"Abilities", "Skills", "Effects", "Health", "Basic"}, labels)
 }
 
 func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *testing.T) {

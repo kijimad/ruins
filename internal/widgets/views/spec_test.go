@@ -78,7 +78,7 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 	views.UpdateSpec(world, root, e)
 	labels := collectLabels(root)
 
-	assert.NotContains(t, labels, "属性", "無属性の場合は属性行が表示されない")
+	assert.NotContains(t, labels, "Element", "無属性の場合は属性行が表示されない")
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
@@ -96,11 +96,11 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 	views.UpdateSpec(world, root, e)
 	labels := collectLabels(root)
 
-	assert.Contains(t, labels, "適射程", "適正射程ラベルが表示される")
-	assert.Contains(t, labels, "射程長", "最大射程ラベルが表示される")
-	assert.Contains(t, labels, "弾数", "弾数ラベルが表示される")
+	assert.Contains(t, labels, "Optimal range", "適正射程ラベルが表示される")
+	assert.Contains(t, labels, "Max range", "最大射程ラベルが表示される")
+	assert.Contains(t, labels, "Magazine", "弾数ラベルが表示される")
 	assert.Contains(t, labels, "3/5", "現在弾数/最大弾数が表示される")
-	assert.Contains(t, labels, "装填", "装填ラベルが表示される")
+	assert.Contains(t, labels, "Reload", "装填ラベルが表示される")
 	assert.Contains(t, labels, "20", "リロード工数が表示される")
 }
 
@@ -118,8 +118,8 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 	views.UpdateSpec(world, root, e)
 	labels := collectLabels(root)
 
-	assert.NotContains(t, labels, "弾数", "マガジンサイズが0の場合は弾数行が表示されない")
-	assert.NotContains(t, labels, "装填", "マガジンサイズが0の場合は装填行が表示されない")
+	assert.NotContains(t, labels, "Magazine", "マガジンサイズが0の場合は弾数行が表示されない")
+	assert.NotContains(t, labels, "Reload", "マガジンサイズが0の場合は装填行が表示されない")
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
@@ -142,15 +142,15 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "+15", "防御力が符号付きで表示される")
-	assert.Contains(t, labels, "耐寒", "耐寒ラベルが表示される")
+	assert.Contains(t, labels, "Cold resist", "耐寒ラベルが表示される")
 	assert.Contains(t, labels, "+3", "耐寒値が表示される")
-	assert.Contains(t, labels, "耐熱", "耐熱ラベルが表示される")
+	assert.Contains(t, labels, "Heat resist", "耐熱ラベルが表示される")
 	assert.Contains(t, labels, "+2", "耐熱値が表示される")
 	assert.Contains(t, labels, "+6", "体力ボーナスが表示される")
 	assert.Contains(t, labels, "+1", "筋力ボーナスが表示される")
 	assert.Contains(t, labels, "+4", "器用ボーナスが表示される")
 	assert.Contains(t, labels, "-1", "敏捷ボーナスが負値でも表示される")
-	assert.NotContains(t, labels, "感覚", "ゼロの装備ボーナスは表示されない")
+	assert.NotContains(t, labels, "Sensation", "ゼロの装備ボーナスは表示されない")
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
@@ -166,8 +166,8 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 	views.UpdateSpec(world, root, e)
 	labels := collectLabels(root)
 
-	assert.NotContains(t, labels, "耐寒", "耐寒0の場合は行が表示されない")
-	assert.NotContains(t, labels, "耐熱", "耐熱0の場合は行が表示されない")
+	assert.NotContains(t, labels, "Cold resist", "耐寒0の場合は行が表示されない")
+	assert.NotContains(t, labels, "Heat resist", "耐熱0の場合は行が表示されない")
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
@@ -180,7 +180,7 @@ func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testi
 	views.UpdateSpec(world, root, e)
 	labels := collectLabels(root)
 
-	assert.Contains(t, labels, "体力", "回復量ラベルが表示される")
+	assert.Contains(t, labels, "Vitality", "回復量ラベルが表示される")
 	assert.Contains(t, labels, "42", "絶対量がそのまま表示される")
 }
 
@@ -224,11 +224,11 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 	views.UpdateSpec(world, root, e)
 	labels := collectLabels(root)
 
-	assert.Contains(t, labels, "栄養", "栄養ラベルが表示される")
+	assert.Contains(t, labels, "Nutrition", "栄養ラベルが表示される")
 	assert.Contains(t, labels, "25", "栄養量が表示される")
-	assert.Contains(t, labels, "価値", "価値ラベルが表示される")
+	assert.Contains(t, labels, "Value", "価値ラベルが表示される")
 	assert.Contains(t, labels, query.FormatCurrency(1200), "価値がカンマ区切りの通貨表記で表示される")
-	assert.Contains(t, labels, "重量", "重量ラベルが表示される")
+	assert.Contains(t, labels, "Weight", "重量ラベルが表示される")
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
@@ -248,11 +248,11 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	views.UpdateSpec(world, root, e)
 	labels := collectLabels(root)
 
-	assert.Contains(t, labels, "本", "本ヘッダーが表示される")
-	assert.Contains(t, labels, "スキル", "スキルラベルが表示される")
+	assert.Contains(t, labels, "Book", "本ヘッダーが表示される")
+	assert.Contains(t, labels, "Skill", "スキルラベルが表示される")
 	assert.Contains(t, labels, query.T(world, gc.SkillName(gc.SkillSword)), "対象スキル名が表示される")
 	assert.Contains(t, labels, "Lv", "レベルラベルが表示される")
-	assert.Contains(t, labels, "進捗", "進捗ラベルが表示される")
+	assert.Contains(t, labels, "Progress", "進捗ラベルが表示される")
 	assert.Contains(t, labels, "30%", "現在工数から進捗率が計算される")
 }
 
@@ -268,9 +268,9 @@ func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T)
 	views.UpdateSpec(world, root, e)
 	labels := collectLabels(root)
 
-	assert.Contains(t, labels, "本", "本ヘッダーは表示される")
-	assert.NotContains(t, labels, "進捗", "工数が未設定の場合は進捗行が表示されない")
-	assert.NotContains(t, labels, "スキル", "スキル効果未設定の場合はスキル行が表示されない")
+	assert.Contains(t, labels, "Book", "本ヘッダーは表示される")
+	assert.NotContains(t, labels, "Progress", "工数が未設定の場合は進捗行が表示されない")
+	assert.NotContains(t, labels, "Skill", "スキル効果未設定の場合はスキル行が表示されない")
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
@@ -319,12 +319,12 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 	views.UpdateSpecFromSpec(world, root, spec)
 	labels := collectLabels(root)
 
-	assert.Contains(t, labels, "弾数", "Fire由来の弾数行が表示される")
+	assert.Contains(t, labels, "Magazine", "Fire由来の弾数行が表示される")
 	assert.Contains(t, labels, "+15", "Wearable由来の防御力が表示される")
-	assert.Contains(t, labels, "耐寒", "Wearable由来の耐寒行が表示される")
+	assert.Contains(t, labels, "Cold resist", "Wearable由来の耐寒行が表示される")
 	assert.Contains(t, labels, "42", "ProvidesHealing由来の回復量が表示される")
-	assert.Contains(t, labels, "栄養", "ProvidesNutrition由来のラベルが表示される")
-	assert.Contains(t, labels, "進捗", "Book由来の進捗行が表示される")
+	assert.Contains(t, labels, "Nutrition", "ProvidesNutrition由来のラベルが表示される")
+	assert.Contains(t, labels, "Progress", "Book由来の進捗行が表示される")
 	assert.Contains(t, labels, query.FormatCurrency(1200), "Value由来の価値が表示される")
-	assert.Contains(t, labels, "重量", "Weight由来のラベルが表示される")
+	assert.Contains(t, labels, "Weight", "Weight由来のラベルが表示される")
 }

@@ -166,8 +166,8 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		// 主体はアクターの隊員でなく食料の所有者リーダー。自己転送の誤ログにならないこと
 		recent := query.GetGameLog(world).GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "アッシュ", "渡す主体はリーダー")
-		assert.Contains(t, recent[0], "隊員A に渡した", "受取人は隊員")
+		assert.Contains(t, recent[0], "Ash", "渡す主体はリーダー")
+		assert.Contains(t, recent[0], "handed over Bread to 隊員A", "受取人は隊員")
 	})
 
 	t.Run("Countは指定個数だけ分割して渡す", func(t *testing.T) {
@@ -200,7 +200,7 @@ func TestTransferBehavior_DoTurn(t *testing.T) {
 		// ログは在庫全体でなく渡した個数で表示する
 		recent := query.GetGameLog(world).GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "パン ×2", "ログは渡した個数を表示する")
+		assert.Contains(t, recent[0], "Bread ×2", "ログは渡した個数を表示する")
 	})
 }
 

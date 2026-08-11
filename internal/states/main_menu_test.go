@@ -30,15 +30,15 @@ func TestMainMenuState_項目と遷移の対応(t *testing.T) {
 	props := state.Fetch(world)
 
 	require.Len(t, props.Items, 5, "メニュー項目は5つ")
-	assert.Equal(t, "開始", props.Items[0].Label)
+	assert.Equal(t, "Start", props.Items[0].Label)
 	assert.Equal(t, es.TransReplace, props.Items[0].Transition.Type, "開始は Replace")
-	assert.Equal(t, "デモ", props.Items[1].Label)
+	assert.Equal(t, "Demo", props.Items[1].Label)
 	assert.Equal(t, es.TransReplace, props.Items[1].Transition.Type, "デモは Replace")
-	assert.Equal(t, "読込", props.Items[2].Label)
+	assert.Equal(t, "Load", props.Items[2].Label)
 	assert.Equal(t, es.TransPush, props.Items[2].Transition.Type, "読込は Push")
-	assert.Equal(t, "設定", props.Items[3].Label)
+	assert.Equal(t, "Settings", props.Items[3].Label)
 	assert.Equal(t, es.TransPush, props.Items[3].Transition.Type, "設定は Push")
-	assert.Equal(t, "終了", props.Items[4].Label)
+	assert.Equal(t, "Quit", props.Items[4].Label)
 	assert.Equal(t, es.TransQuit, props.Items[4].Transition.Type, "終了は Quit")
 }
 
@@ -49,14 +49,14 @@ func TestMainMenuState_言語切替でラベルが変わる(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// 既定 ja では日本語ラベルを返す
-	assert.Equal(t, "開始", state.Fetch(world).Items[0].Label, "既定 ja は日本語")
+	// 既定 en では原文の英語ラベルを返す
+	assert.Equal(t, "Start", state.Fetch(world).Items[0].Label, "既定 en は英語原文")
 
-	// UserSettings の言語を en へ書き換えると原文の英語ラベルになる。query.T が原文へフォールバックする経路
-	query.GetUserSettings(world).Language = "en"
-	en := state.Fetch(world)
-	assert.Equal(t, "Start", en.Items[0].Label, "en は英語原文")
-	assert.Equal(t, "Settings", en.Items[3].Label, "en は英語原文")
+	// UserSettings の言語を ja へ書き換えると日本語ラベルになる。query.T が ja.po を引く経路
+	query.GetUserSettings(world).Language = "ja"
+	ja := state.Fetch(world)
+	assert.Equal(t, "開始", ja.Items[0].Label, "ja は日本語")
+	assert.Equal(t, "設定", ja.Items[3].Label, "ja は日本語")
 }
 
 func TestMainMenuState_DoAction_Cancel(t *testing.T) {

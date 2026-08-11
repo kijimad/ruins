@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -63,7 +64,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 		// プレイヤーなしで実行
 		err := MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "no player entity with required components found")
+		assert.ErrorContains(t, err, "no player entity with required components found")
 	})
 
 	t.Run("必須コンポーネントが欠けている場合はエラー", func(t *testing.T) {
@@ -78,7 +79,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 
 		err := MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "no player entity with required components found")
+		assert.ErrorContains(t, err, "no player entity with required components found")
 	})
 }
 
@@ -204,6 +205,137 @@ func TestSpawnSquadMember_連続生成で重ならない(t *testing.T) {
 		seen[g] = true
 	}
 	assert.Len(t, seen, numMembers+1, "プレイヤーと全隊員が別タイルに配置される")
+}
+
+func TestTransferUnits(t *testing.T) {
+	t.Parallel()
+
+	t.Run("countが0以下ならitem全体をrecipientのバックパックへ移す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		owner := world.ECS.NewEntity()
+		recipient := world.ECS.NewEntity()
+
+		item := world.ECS.NewEntity()
+		world.Components.RawID.Add(item, &gc.RawID{ID: "scrap_iron"})
+		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
+		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
+
+		err := TransferUnits(world, item, recipient, 0)
+		require.NoError(t, err)
+
+		require.True(t, world.Components.LocationInBackpack.Has(item), "移動先はバックパック")
+		assert.Equal(t, recipient, world.Components.LocationInBackpack.Get(item).Owner)
+		assert.Equal(t, 5, world.Components.Stackable.Get(item).Count, "個数はそのまま")
+	})
+
+	t.Run("countが所持数以上ならitem全体をrecipientのバックパックへ移す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		owner := world.ECS.NewEntity()
+		recipient := world.ECS.NewEntity()
+
+		item := world.ECS.NewEntity()
+		world.Components.RawID.Add(item, &gc.RawID{ID: "scrap_iron"})
+		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
+		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
+
+		err := TransferUnits(world, item, recipient, 10)
+		require.NoError(t, err)
+
+		require.True(t, world.Components.LocationInBackpack.Has(item))
+		assert.Equal(t, recipient, world.Components.LocationInBackpack.Get(item).Owner)
+		assert.Equal(t, 5, world.Components.Stackable.Get(item).Count, "個数はそのまま")
+	})
+
+	t.Run("countが所持数未満なら指定数だけ切り出してrecipientへ移す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		owner := world.ECS.NewEntity()
+		recipient := world.ECS.NewEntity()
+
+		item := world.ECS.NewEntity()
+		world.Components.RawID.Add(item, &gc.RawID{ID: "scrap_iron"})
+		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
+		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
+
+		err := TransferUnits(world, item, recipient, 2)
+		require.NoError(t, err)
+
+		// 元アイテムはowner側に残り、指定数だけ減っている
+		require.True(t, world.Components.LocationInBackpack.Has(item))
+		assert.Equal(t, owner, world.Components.LocationInBackpack.Get(item).Owner)
+		assert.Equal(t, 3, world.Components.Stackable.Get(item).Count, "元スタックはcount分減る")
+
+		// recipient側に切り出した新規アイテムが1つ生成されている
+		var found ecs.Entity
+		var matched int
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
+		for q.Next() {
+			e := q.Entity()
+			if e == item {
+				continue
+			}
+			if world.Components.LocationInBackpack.Get(e).Owner == recipient {
+				found = e
+				matched++
+			}
+		}
+		require.Equal(t, 1, matched, "recipient宛てのアイテムが1つ生成される")
+		assert.Equal(t, 2, world.Components.Stackable.Get(found).Count, "切り出した個数はcountぶん")
+		assert.Equal(t, "scrap_iron", world.Components.RawID.Get(found).ID)
+	})
+}
+
+func TestMoveToEquip(t *testing.T) {
+	t.Parallel()
+
+	t.Run("フィールドから装備する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		owner := world.ECS.NewEntity()
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "テストの剣"})
+		// 移動前はフィールドに置かれ、座標を持っている
+		world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
+
+		MoveToEquip(world, item, owner, gc.SlotWeapon1)
+
+		require.True(t, world.Components.LocationEquipped.Has(item), "装備状態になる")
+		loc := world.Components.LocationEquipped.Get(item)
+		assert.Equal(t, owner, loc.Owner)
+		assert.Equal(t, gc.SlotWeapon1, loc.EquipmentSlot)
+
+		assert.False(t, world.Components.LocationOnField.Has(item), "フィールドの位置情報は排他的に外れる")
+		assert.False(t, world.Components.GridElement.Has(item), "装備するとGridElementは外れる")
+
+		assert.True(t, world.Components.StatsChanged.Has(owner), "所有者にStatsChangedが付与される")
+		assert.True(t, world.Components.WeightDirty.Has(owner), "所有者にWeightDirtyが付与される")
+	})
+
+	t.Run("バックパックから装備すると元オーナーと新オーナーの両方にWeightDirtyが付く", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		prevOwner := world.ECS.NewEntity()
+		newOwner := world.ECS.NewEntity()
+		item := world.ECS.NewEntity()
+		world.Components.Name.Add(item, &gc.Name{Name: "テストの剣"})
+		// 移動前は元オーナーのバックパックに入っている
+		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: prevOwner})
+
+		MoveToEquip(world, item, newOwner, gc.SlotWeapon1)
+
+		require.True(t, world.Components.LocationEquipped.Has(item), "装備状態になる")
+		loc := world.Components.LocationEquipped.Get(item)
+		assert.Equal(t, newOwner, loc.Owner)
+
+		assert.False(t, world.Components.LocationInBackpack.Has(item), "バックパックの位置情報は排他的に外れる")
+		assert.True(t, world.Components.WeightDirty.Has(prevOwner), "元オーナーにWeightDirtyが付与される")
+		assert.True(t, world.Components.WeightDirty.Has(newOwner), "新オーナーにWeightDirtyが付与される")
+	})
 }
 
 func TestUnequipAll(t *testing.T) {

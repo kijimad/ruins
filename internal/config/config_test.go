@@ -82,7 +82,7 @@ func TestValidate(t *testing.T) {
 	// 唯一のエラー要因になり、そのフィールドを正しく検証できる。
 	valid := func() *Config {
 		return &Config{
-			User:      UserConfig{WindowWidth: 1920, WindowHeight: 1080},
+			User:      UserConfig{WindowWidth: 1920, WindowHeight: 1080, Language: "en"},
 			TargetFPS: 144,
 			PProfPort: 8080,
 		}
@@ -108,6 +108,8 @@ func TestValidate(t *testing.T) {
 			{"目標FPSが1未満", func(c *Config) { c.TargetFPS = 0 }, errTargetFPSInvalid},
 			{"pprofポートが下限未満", func(c *Config) { c.PProfPort = 80 }, errPProfPortOutOfRange},
 			{"pprofポートが上限超過", func(c *Config) { c.PProfPort = 70000 }, errPProfPortOutOfRange},
+			{"未対応の言語", func(c *Config) { c.User.Language = "zh" }, errUnsupportedLanguage},
+			{"言語が空", func(c *Config) { c.User.Language = "" }, errUnsupportedLanguage},
 		}
 		for _, tc := range cases {
 			t.Run(tc.name, func(t *testing.T) {
