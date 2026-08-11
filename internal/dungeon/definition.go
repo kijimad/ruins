@@ -41,8 +41,8 @@ type DungeonDefinition struct {
 	itemTable   string
 	plannerPool []PlannerWeight
 	baseTemp    int
-	// darkness は雰囲気ライティングの暗さ。0 で明るい、1 で真っ暗なトーチ照らし。
-	// 洞窟は深く、街は明るく、といったダンジョンごとの空気を表す
+	// darkness は雰囲気ライティングの暗さ。0 で環境光そのままで明るく、1 で環境光を最も落とし
+	// 光源の周りだけが照らされる。洞窟は深く、街は明るく、といったダンジョンごとの空気を表す
 	darkness float64
 	// bossPlanner は最終階で使うボスフロアプランナー。nil ならボスフロアなし
 	bossPlanner *mapplanner.PlannerType
@@ -54,7 +54,7 @@ func (d *DungeonDefinition) Name() string { return d.name }
 // BaseTemperature は基本気温を返す
 func (d *DungeonDefinition) BaseTemperature() int { return d.baseTemp }
 
-// Darkness は雰囲気ライティングの暗さを返す。0 で明るい、1 で真っ暗なトーチ照らし。
+// Darkness は雰囲気ライティングの暗さを返す。0 で環境光そのままで明るく、1 で環境光を最も落とし光源の周りだけが照らされる。
 func (d *DungeonDefinition) Darkness() float64 { return d.darkness }
 
 // Description はダンジョン説明文を返す
