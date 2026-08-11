@@ -270,9 +270,9 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	return transition, nil
 }
 
-// Draw はゲームステートの描画処理を行う。
-// ワールドレイヤに雰囲気ライティングをかけ、HUD は等倍で重ねる。暗さは地上なら時間帯、
-// ダンジョンなら定義から決めるので、昼の地上は明るく、深い洞窟は真っ暗になる。
+// Draw はゲームステートの描画処理を行う。世界と HUD を screen へ描く。
+// フィールドのライティングは vision が壁遮蔽込みで計算した per-tile の暗さを
+// RenderSpriteSystem が描く。地上は時間帯の色フィルタを世界へ一様に掛ける。
 func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 	if st.baseImage != nil {
 		screen.DrawImage(st.baseImage, nil)
