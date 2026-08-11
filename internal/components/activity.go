@@ -54,7 +54,6 @@ const (
 	BehaviorRead      BehaviorName = "Read"
 	BehaviorShoot     BehaviorName = "Shoot"
 	BehaviorReload    BehaviorName = "Reload"
-	BehaviorTransfer  BehaviorName = "Transfer"
 	// BehaviorDisassemble は工具でpropやアイテムを分解して素材を得る
 	BehaviorDisassemble BehaviorName = "Disassemble"
 	// BehaviorPush は隣接する移動拠点キューブを押して動かす
@@ -164,15 +163,6 @@ type PickupParams struct {
 }
 
 func (*PickupParams) isActivityParams() {}
-
-// TransferParams はアイテム転送のパラメータ。Count が0以下なら在庫全量を渡す。
-type TransferParams struct {
-	Target    ecs.Entity // 渡すアイテム
-	Recipient ecs.Entity // 受取人エンティティ
-	Count     int        // 渡す個数。0以下は全量
-}
-
-func (*TransferParams) isActivityParams() {}
 
 // LastActivity は直近のアクティビティ実行結果を保持するコンポーネント
 type LastActivity struct {
