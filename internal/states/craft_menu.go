@@ -14,11 +14,11 @@ import (
 	"github.com/kijimaD/ruins/internal/menurt"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
 	"github.com/kijimaD/ruins/internal/widgets/screenui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
-	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -289,9 +289,9 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 
 	// 必要材料を先頭に置き、所持数が足りていれば成功色、足りなければ警告色で示す。
 	// その後ろに生成物の性能行を続ける
-	var rows []views.SpecRow
+	var rows []entityspec.SpecRow
 	if spec.Recipe != nil {
-		rows = append(rows, views.SpecRow{Label: query.T(world, "Materials"), Header: true})
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Materials"), Header: true})
 		for _, in := range spec.Recipe.Inputs {
 			owned := 0
 			if entity, found := query.FindStackableInInventory(world, in.ID); found {
@@ -302,10 +302,10 @@ func (st *CraftMenuState) detailContent(world w.World) (menuscreen.DetailContent
 				rowColor = theme.StatusSuccess
 			}
 			label := query.T(world, raw.ItemName(world.Resources.RawMaster, in.ID))
-			rows = append(rows, views.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
+			rows = append(rows, entityspec.SpecRow{Label: label, Value: fmt.Sprintf("%d / %d", in.Amount, owned), Color: &rowColor})
 		}
 	}
-	rows = append(rows, views.SpecRowsFromSpec(world, spec)...)
+	rows = append(rows, entityspec.SpecRowsFromSpec(world, spec)...)
 
 	desc := ""
 	if spec.Description != nil {

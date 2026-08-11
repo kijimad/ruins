@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
-	"github.com/kijimaD/ruins/internal/widgets/views"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -99,7 +99,7 @@ func TestDetailWindow_対象があれば名前とページ位置を表示する(
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
 	d := NewDetail(func(_ w.World) (DetailContent, bool) {
-		return DetailContent{Name: "回復薬", Rows: []views.SpecRow{{Label: "効果", Value: "10"}}}, true
+		return DetailContent{Name: "回復薬", Rows: []entityspec.SpecRow{{Label: "効果", Value: "10"}}}, true
 	})
 	d.Open(world)
 

@@ -1,4 +1,4 @@
-package views
+package entityspec
 
 import (
 	"fmt"

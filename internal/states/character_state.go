@@ -11,8 +11,8 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menurt"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/menuscreen"
-	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -544,12 +544,12 @@ func infoDetailContent(item statusItemData) menuscreen.DetailContent {
 	if item.Value != "" {
 		heading = fmt.Sprintf("%s  %s", item.Label, item.Value)
 	}
-	rows := []views.SpecRow{}
+	rows := []entityspec.SpecRow{}
 	for _, d := range item.Details {
 		if d.Value == "" {
 			continue
 		}
-		rows = append(rows, views.SpecRow{Label: d.Label, Value: d.Value})
+		rows = append(rows, entityspec.SpecRow{Label: d.Label, Value: d.Value})
 	}
 	return menuscreen.DetailContent{Name: heading, Desc: item.Description, Rows: rows}
 }

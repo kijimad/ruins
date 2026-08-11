@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
-	"github.com/kijimaD/ruins/internal/widgets/views"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -75,9 +75,9 @@ func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *te
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
-	rows := make([]views.SpecRow, 15)
+	rows := make([]entityspec.SpecRow, 15)
 	for i := range rows {
-		rows[i] = views.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
+		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
 	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
@@ -104,9 +104,9 @@ func TestBuildDetailFromRows_ページ番号は範囲外を先頭と末尾にク
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
-	rows := make([]views.SpecRow, 15)
+	rows := make([]entityspec.SpecRow, 15)
 	for i := range rows {
-		rows[i] = views.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
+		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
 	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する

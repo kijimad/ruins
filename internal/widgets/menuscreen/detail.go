@@ -6,7 +6,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/input"
-	"github.com/kijimaD/ruins/internal/widgets/views"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -14,11 +14,11 @@ import (
 
 // DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行をそのまま持つ。
 // 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える。
-// 行の型は views.SpecRow を正とし、menuscreen 側では再輸出しない
+// 行の型は entityspec.SpecRow を正とし、menuscreen 側では再輸出しない
 type DetailContent struct {
 	Name string
 	Desc string
-	Rows []views.SpecRow
+	Rows []entityspec.SpecRow
 }
 
 // EntityDetailContent は実体から名前・説明・性能行を組んだ詳細内容を返す。
@@ -35,7 +35,7 @@ func EntityDetailContent(world w.World, e ecs.Entity) DetailContent {
 	return DetailContent{
 		Name: query.GetEntityName(e, world),
 		Desc: desc,
-		Rows: views.SpecRows(world, e),
+		Rows: entityspec.SpecRows(world, e),
 	}
 }
 

@@ -1,4 +1,4 @@
-// Package views はエンティティを組み込んだ、具体的なUIの部品を提供する。
+// Package entityspec はエンティティを組み込んだ、具体的なUIの部品を提供する。
 // このパッケージはwidgets内のサブパッケージとして、
 // ゲームエンティティの表示に特化したウィジェット機能を提供する。
-package views
+package entityspec

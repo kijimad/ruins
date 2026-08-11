@@ -6,9 +6,9 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -28,14 +28,14 @@ func detailPageCount(rowCount int) int {
 
 // DetailPageCount はエンティティの詳細ウィンドウのページ数を返す
 func DetailPageCount(world w.World, entity ecs.Entity) int {
-	return detailPageCount(len(views.SpecRows(world, entity)))
+	return detailPageCount(len(entityspec.SpecRows(world, entity)))
 }
 
 // buildDetailFromRows は性能行の並びから詳細ウィンドウを組み立てる。
 // name が空なら名前行を省き、desc が空なら説明行を省く。タイトルバーは表示しない。
 // 行が多いときは page でページ分割する。位置表示は1ページでも常に出し、ページ有無で
 // 位置がずれないようにする。page は範囲外なら内部でクランプする
-func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string, rows []views.SpecRow, page int) *widget.Window {
+func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string, rows []entityspec.SpecRow, page int) *widget.Window {
 	res := world.Resources.UIResources
 	content := styled.NewWindowContainer(res)
 	if name != "" {
@@ -54,7 +54,7 @@ func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string,
 	start, end := pg.GetVisibleRange()
 
 	spec := styled.NewVerticalContainer()
-	views.RenderSpecRows(spec, rows[start:end], res)
+	entityspec.RenderSpecRows(spec, rows[start:end], res)
 	content.AddChild(spec)
 
 	// 説明は性能行のページ送りとは別物なので、最終ページのページャ直上にだけ出す。全ページへの重複を避ける
