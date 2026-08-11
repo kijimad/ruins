@@ -458,8 +458,9 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 			} else {
 				switch v := info.(type) {
 				case TileRenderVisible:
-					darkness = float64(v.Darkness)
-					lightColor = v.LightColor
+					// 可視タイルの明るさは平滑なライトマップに任せる。ここで per-tile の暗さを
+					// 重ねるとタイル境界で明るさが急変して不自然になるため、暗さを乗せない
+					darkness = 0
 				case TileRenderRemembered:
 					darkness = float64(v.Darkness)
 				}
