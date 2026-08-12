@@ -293,9 +293,10 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 }
 
 // blendMultiply は乗算合成。結果 = src.rgb × dst.rgb。時間帯の色を世界へ掛けるのに使う。
+// アルファは src をそのまま通す。screen は不透明なので実効には影響しない。
 var blendMultiply = ebiten.Blend{
 	BlendFactorSourceRGB:        ebiten.BlendFactorDestinationColor,
-	BlendFactorSourceAlpha:      ebiten.BlendFactorDestinationColor,
+	BlendFactorSourceAlpha:      ebiten.BlendFactorOne,
 	BlendFactorDestinationRGB:   ebiten.BlendFactorZero,
 	BlendFactorDestinationAlpha: ebiten.BlendFactorZero,
 	BlendOperationRGB:           ebiten.BlendOperationAdd,
@@ -354,10 +355,13 @@ func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) {
 // drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。
 func drawRenderers(world w.World, target *ebiten.Image, renderers ...w.Renderer) error {
 	for _, renderer := range renderers {
-		if sys, ok := world.Renderers[renderer.String()]; ok {
-			if err := sys.Draw(world, target); err != nil {
-				return err
-			}
+		sys, ok := world.Renderers[renderer.String()]
+		if !ok {
+			// 未登録は描画されず無音で消える。登録漏れをエラーで表面化させる
+			return fmt.Errorf("renderer not registered: %s", renderer.String())
+		}
+		if err := sys.Draw(world, target); err != nil {
+			return err
 		}
 	}
 
