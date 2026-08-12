@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 15:40:15</td>
+            <td class="headerValue">2026-08-12 16:42:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -168,59 +168,47 @@
 <span id="L106"><span class="lineNum">     106</span>              :         HUDWeightDanger = color.RGBA{R: 255, G: 50, B: 50, A: 255}</span>
 <span id="L107"><span class="lineNum">     107</span>              :         // HUDWeightWarning は重量警告時のテキスト色</span>
 <span id="L108"><span class="lineNum">     108</span>              :         HUDWeightWarning = color.RGBA{R: 255, G: 200, B: 0, A: 255}</span>
-<span id="L109"><span class="lineNum">     109</span>              :         // HUDSquadBarBg は隊員HPバーの背景色</span>
-<span id="L110"><span class="lineNum">     110</span>              :         HUDSquadBarBg = color.RGBA{R: 40, G: 40, B: 40, A: 200}</span>
-<span id="L111"><span class="lineNum">     111</span>              :         // HUDSquadHPHigh はHP十分な隊員のバー色</span>
-<span id="L112"><span class="lineNum">     112</span>              :         HUDSquadHPHigh = color.RGBA{R: 80, G: 200, B: 80, A: 255}</span>
-<span id="L113"><span class="lineNum">     113</span>              :         // HUDSquadHPLow はHP危険な隊員のバー色</span>
-<span id="L114"><span class="lineNum">     114</span>              :         HUDSquadHPLow = color.RGBA{R: 200, G: 50, B: 50, A: 255}</span>
-<span id="L115"><span class="lineNum">     115</span>              :         // HUDSquadHPMid はHP警告域の隊員のバー色</span>
-<span id="L116"><span class="lineNum">     116</span>              :         HUDSquadHPMid = color.RGBA{R: 200, G: 200, B: 50, A: 255}</span>
-<span id="L117"><span class="lineNum">     117</span>              :         // HUDSquadHunger は隊員の空腹表示テキスト色</span>
-<span id="L118"><span class="lineNum">     118</span>              :         HUDSquadHunger = color.RGBA{R: 230, G: 160, B: 60, A: 255}</span>
-<span id="L119"><span class="lineNum">     119</span>              :         // HUDSquadMarker はミニマップの隊員表示色</span>
-<span id="L120"><span class="lineNum">     120</span>              :         HUDSquadMarker = color.RGBA{R: 80, G: 140, B: 255, A: 255}</span>
-<span id="L121"><span class="lineNum">     121</span>              : )</span>
-<span id="L122"><span class="lineNum">     122</span>              : </span>
-<span id="L123"><span class="lineNum">     123</span>              : // ========== オーバーワールド俯瞰図色 ==========</span>
-<span id="L124"><span class="lineNum">     124</span>              : </span>
-<span id="L125"><span class="lineNum">     125</span>              : var (</span>
-<span id="L126"><span class="lineNum">     126</span>              :         // OverworldMapBackground は俯瞰図の全画面背景色。彩色したチャンクを際立たせる暗い地</span>
-<span id="L127"><span class="lineNum">     127</span>              :         OverworldMapBackground = color.RGBA{R: 12, G: 14, B: 18, A: 255}</span>
-<span id="L128"><span class="lineNum">     128</span>              :         // OverworldMapGlyphText はチャンクセルに重ねる種別記号の文字色</span>
-<span id="L129"><span class="lineNum">     129</span>              :         OverworldMapGlyphText = color.RGBA{R: 20, G: 20, B: 24, A: 255}</span>
-<span id="L130"><span class="lineNum">     130</span>              :         // OverworldMapPlayerMarker は現在地セルを囲む白枠の色</span>
-<span id="L131"><span class="lineNum">     131</span>              :         OverworldMapPlayerMarker = color.RGBA{R: 255, G: 255, B: 255, A: 255}</span>
-<span id="L132"><span class="lineNum">     132</span>              :         // OverworldMapCubeMarker は移動拠点キューブのチャンク位置を示すマーカー色。blue_cube に寄せた水色。</span>
-<span id="L133"><span class="lineNum">     133</span>              :         OverworldMapCubeMarker = color.RGBA{R: 90, G: 180, B: 255, A: 255}</span>
-<span id="L134"><span class="lineNum">     134</span>              :         // OverworldMapCubeOutline はキューブアイコンの縁取り色。地形を塗りつぶさず、アイコンだけに</span>
-<span id="L135"><span class="lineNum">     135</span>              :         // 暗い縁を付けてどの地形色の上でも読めるようにする</span>
-<span id="L136"><span class="lineNum">     136</span>              :         OverworldMapCubeOutline = color.RGBA{R: 10, G: 12, B: 16, A: 255}</span>
-<span id="L137"><span class="lineNum">     137</span>              :         // OverworldMapUnknownGlyph は色の割り当てが無い未知記号のフォールバック色</span>
-<span id="L138"><span class="lineNum">     138</span>              :         OverworldMapUnknownGlyph = color.RGBA{R: 90, G: 90, B: 90, A: 255}</span>
-<span id="L139"><span class="lineNum">     139</span>              : )</span>
-<span id="L140"><span class="lineNum">     140</span>              : </span>
-<span id="L141"><span class="lineNum">     141</span>              : // ========== ステータス色 ==========</span>
-<span id="L142"><span class="lineNum">     142</span>              : </span>
-<span id="L143"><span class="lineNum">     143</span>              : var (</span>
-<span id="L144"><span class="lineNum">     144</span>              :         // StatusSuccess は成功色</span>
-<span id="L145"><span class="lineNum">     145</span>              :         StatusSuccess = rgb(0x198754)</span>
-<span id="L146"><span class="lineNum">     146</span>              :         // StatusDanger は危険色</span>
-<span id="L147"><span class="lineNum">     147</span>              :         StatusDanger = rgb(0xdc3545)</span>
-<span id="L148"><span class="lineNum">     148</span>              : )</span>
-<span id="L149"><span class="lineNum">     149</span>              : </span>
-<span id="L150"><span class="lineNum">     150</span>              : // ========== 属性色 ==========</span>
-<span id="L151"><span class="lineNum">     151</span>              : </span>
-<span id="L152"><span class="lineNum">     152</span>              : var (</span>
-<span id="L153"><span class="lineNum">     153</span>              :         // ElementFire は炎属性色</span>
-<span id="L154"><span class="lineNum">     154</span>              :         ElementFire = rgb(0xc44303)</span>
-<span id="L155"><span class="lineNum">     155</span>              :         // ElementThunder は雷属性色</span>
-<span id="L156"><span class="lineNum">     156</span>              :         ElementThunder = rgb(0x4169e1)</span>
-<span id="L157"><span class="lineNum">     157</span>              :         // ElementChill は冷気属性色</span>
-<span id="L158"><span class="lineNum">     158</span>              :         ElementChill = rgb(0x00ffff)</span>
-<span id="L159"><span class="lineNum">     159</span>              :         // ElementPhoton は光子属性色</span>
-<span id="L160"><span class="lineNum">     160</span>              :         ElementPhoton = rgb(0xffff00)</span>
-<span id="L161"><span class="lineNum">     161</span>              : )</span>
+<span id="L109"><span class="lineNum">     109</span>              : )</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              : // ========== オーバーワールド俯瞰図色 ==========</span>
+<span id="L112"><span class="lineNum">     112</span>              : </span>
+<span id="L113"><span class="lineNum">     113</span>              : var (</span>
+<span id="L114"><span class="lineNum">     114</span>              :         // OverworldMapBackground は俯瞰図の全画面背景色。彩色したチャンクを際立たせる暗い地</span>
+<span id="L115"><span class="lineNum">     115</span>              :         OverworldMapBackground = color.RGBA{R: 12, G: 14, B: 18, A: 255}</span>
+<span id="L116"><span class="lineNum">     116</span>              :         // OverworldMapGlyphText はチャンクセルに重ねる種別記号の文字色</span>
+<span id="L117"><span class="lineNum">     117</span>              :         OverworldMapGlyphText = color.RGBA{R: 20, G: 20, B: 24, A: 255}</span>
+<span id="L118"><span class="lineNum">     118</span>              :         // OverworldMapPlayerMarker は現在地セルを囲む白枠の色</span>
+<span id="L119"><span class="lineNum">     119</span>              :         OverworldMapPlayerMarker = color.RGBA{R: 255, G: 255, B: 255, A: 255}</span>
+<span id="L120"><span class="lineNum">     120</span>              :         // OverworldMapCubeMarker は移動拠点キューブのチャンク位置を示すマーカー色。blue_cube に寄せた水色。</span>
+<span id="L121"><span class="lineNum">     121</span>              :         OverworldMapCubeMarker = color.RGBA{R: 90, G: 180, B: 255, A: 255}</span>
+<span id="L122"><span class="lineNum">     122</span>              :         // OverworldMapCubeOutline はキューブアイコンの縁取り色。地形を塗りつぶさず、アイコンだけに</span>
+<span id="L123"><span class="lineNum">     123</span>              :         // 暗い縁を付けてどの地形色の上でも読めるようにする</span>
+<span id="L124"><span class="lineNum">     124</span>              :         OverworldMapCubeOutline = color.RGBA{R: 10, G: 12, B: 16, A: 255}</span>
+<span id="L125"><span class="lineNum">     125</span>              :         // OverworldMapUnknownGlyph は色の割り当てが無い未知記号のフォールバック色</span>
+<span id="L126"><span class="lineNum">     126</span>              :         OverworldMapUnknownGlyph = color.RGBA{R: 90, G: 90, B: 90, A: 255}</span>
+<span id="L127"><span class="lineNum">     127</span>              : )</span>
+<span id="L128"><span class="lineNum">     128</span>              : </span>
+<span id="L129"><span class="lineNum">     129</span>              : // ========== ステータス色 ==========</span>
+<span id="L130"><span class="lineNum">     130</span>              : </span>
+<span id="L131"><span class="lineNum">     131</span>              : var (</span>
+<span id="L132"><span class="lineNum">     132</span>              :         // StatusSuccess は成功色</span>
+<span id="L133"><span class="lineNum">     133</span>              :         StatusSuccess = rgb(0x198754)</span>
+<span id="L134"><span class="lineNum">     134</span>              :         // StatusDanger は危険色</span>
+<span id="L135"><span class="lineNum">     135</span>              :         StatusDanger = rgb(0xdc3545)</span>
+<span id="L136"><span class="lineNum">     136</span>              : )</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              : // ========== 属性色 ==========</span>
+<span id="L139"><span class="lineNum">     139</span>              : </span>
+<span id="L140"><span class="lineNum">     140</span>              : var (</span>
+<span id="L141"><span class="lineNum">     141</span>              :         // ElementFire は炎属性色</span>
+<span id="L142"><span class="lineNum">     142</span>              :         ElementFire = rgb(0xc44303)</span>
+<span id="L143"><span class="lineNum">     143</span>              :         // ElementThunder は雷属性色</span>
+<span id="L144"><span class="lineNum">     144</span>              :         ElementThunder = rgb(0x4169e1)</span>
+<span id="L145"><span class="lineNum">     145</span>              :         // ElementChill は冷気属性色</span>
+<span id="L146"><span class="lineNum">     146</span>              :         ElementChill = rgb(0x00ffff)</span>
+<span id="L147"><span class="lineNum">     147</span>              :         // ElementPhoton は光子属性色</span>
+<span id="L148"><span class="lineNum">     148</span>              :         ElementPhoton = rgb(0xffff00)</span>
+<span id="L149"><span class="lineNum">     149</span>              : )</span>
         </pre>
               </td>
             </tr>

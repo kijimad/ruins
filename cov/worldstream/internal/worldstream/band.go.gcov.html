@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 15:40:15</td>
+            <td class="headerValue">2026-08-12 16:42:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -139,8 +139,8 @@
 <span id="L77"><span class="lineNum">      77</span>              : // ShiftEast は帯を東へ1チャンク進める。</span>
 <span id="L78"><span class="lineNum">      78</span>              : // 西端列の破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端列の生成。</span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         // 1. 西端の列を全行破棄する。前線が呑む。プレイヤーと隊員は残す</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayerAndSquad(world))</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         // 1. 西端の列を全行破棄する。前線が呑む。プレイヤーは残す</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayer(world))</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         // 2. リベース。全エンティティを西へ chunkW ずらしてプレイヤーを中央へ戻す</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         TranslateAllEntities(world, -b.chunkW, 0)</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         // 3. 座標キー Map を追従させる。</span></span>
@@ -166,7 +166,7 @@
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;ShiftWest can only be called when eastIndex &gt; 0: eastIndex=%d&quot;, b.eastIndex)</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L106"><span class="lineNum">     106</span>              :         // 東端の列を全行破棄する</span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         RemoveEntitiesInXRange(world, (b.cols - 1).Tiles(b.chunkW), b.Width(), KeepPlayerAndSquad(world))</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         RemoveEntitiesInXRange(world, (b.cols - 1).Tiles(b.chunkW), b.Width(), KeepPlayer(world))</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         // リベース：全エンティティを東へ chunkW</span></span>
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         TranslateAllEntities(world, b.chunkW, 0)</span></span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         b.rebaseCoordMaps(world, b.chunkW)</span></span>

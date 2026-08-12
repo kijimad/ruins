@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 15:40:15</td>
+            <td class="headerValue">2026-08-12 16:42:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -93,7 +93,7 @@
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         switch {</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         case world.Components.Player.Has(entity):</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 return gamelog.Tag(&quot;player&quot;, name)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         case world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity):</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         case world.Components.SoloAI.Has(entity):</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 return gamelog.Tag(&quot;npc&quot;, name)</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         default:</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 return name</span></span>

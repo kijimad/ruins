@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">52.4&nbsp;%</td>
-            <td class="headerCovTableEntry">42</td>
-            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryLo">55.6&nbsp;%</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">15</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 15:40:15</td>
+            <td class="headerValue">2026-08-12 16:42:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -112,29 +112,6 @@
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
 <span id="L52"><span class="lineNum">      52</span>              : }</span>
-<span id="L53"><span class="lineNum">      53</span>              : </span>
-<span id="L54"><span class="lineNum">      54</span>              : // HireRecruit はプレイヤーが商人の在庫の隊員候補を雇う。候補を隊員として活性化し、代金を支払う。</span>
-<span id="L55"><span class="lineNum">      55</span>              : // 通貨が足りなければ何もせずエラーを返す</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : func HireRecruit(world w.World, player ecs.Entity, recruit ecs.Entity) error {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         price := query.BuyPrice(world, player, recruit)</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         if !query.HasCurrency(world, player, price) {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;not enough currency: need %d, have %d&quot;, price, query.GetCurrency(world, player))</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           1 :         if !query.ConsumeCurrency(world, player, price) {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to consume currency&quot;)</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L65"><span class="lineNum">      65</span>              : </span>
-<span id="L66"><span class="lineNum">      66</span>              :         // 隊員を活性化する。失敗したら通貨を返して整合を保つ</span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           1 :         if _, err := lifecycle.ActivateRecruit(world, player, recruit); err != nil {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC tlaBgUNC">           0 :                 if refundErr := query.AddCurrency(world, player, price); refundErr != nil {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;hire failed and refund also failed: %w (refund error: %w)&quot;, err, refundErr)</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to hire recruit: %w&quot;, err)</span></span>
-<span id="L72"><span class="lineNum">      72</span>              :         }</span>
-<span id="L73"><span class="lineNum">      73</span>              : </span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L75"><span class="lineNum">      75</span>              : }</span>
         </pre>
               </td>
             </tr>

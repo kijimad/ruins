@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 15:40:15</td>
+            <td class="headerValue">2026-08-12 16:42:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -363,7 +363,7 @@
 <span id="L301"><span class="lineNum">     301</span>              : </span>
 <span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 : func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) *gc.Activity {</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           2 :         _, nearestGrid, nearestDist := query.FindNearestCharacter(world, aiEntity, aiGrid, func(entity ecs.Entity) bool {</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 return world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity)</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                 return world.Components.SoloAI.Has(entity)</span></span>
 <span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L306"><span class="lineNum">     306</span>              : </span>
 <span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           2 :         if nearestGrid == nil || nearestDist &lt;= 1 {</span></span>

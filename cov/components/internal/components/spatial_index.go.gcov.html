@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 15:40:15</td>
+            <td class="headerValue">2026-08-12 16:42:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,7 +75,7 @@
 <span id="L13"><span class="lineNum">      13</span>              :         MapWidth, MapHeight consts.Tile</span>
 <span id="L14"><span class="lineNum">      14</span>              :         // 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つ固定物が対象</span>
 <span id="L15"><span class="lineNum">      15</span>              :         BlockPass map[GridElement]bool</span>
-<span id="L16"><span class="lineNum">      16</span>              :         // キャラクター位置のインデックス。プレイヤー・敵・隊員・中立NPCの位置</span>
+<span id="L16"><span class="lineNum">      16</span>              :         // キャラクター位置のインデックス。プレイヤー・敵・中立NPCの位置</span>
 <span id="L17"><span class="lineNum">      17</span>              :         Characters map[GridElement]ecs.Entity</span>
 <span id="L18"><span class="lineNum">      18</span>              :         // プレイヤーエンティティのキャッシュ。プレイヤーが存在しない場合はnil</span>
 <span id="L19"><span class="lineNum">      19</span>              :         PlayerEntity *ecs.Entity</span>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span>              : // MoveCharacter はキャラクターの位置を増分更新する。</span>
 <span id="L48"><span class="lineNum">      48</span>              : // 無効化→全再構築のチャーンを避け、移動のたびに O(1) でインデックスを最新に保つ。</span>
 <span id="L49"><span class="lineNum">      49</span>              : // from タイルの登録が自分自身のときだけ削除し、位置入れ替えで別キャラが入った場合を壊さない</span>
-<span id="L50"><span class="lineNum">      50</span>              : // actor と隊員をどちらの順で更新しても最終状態が正しくなる。</span>
+<span id="L50"><span class="lineNum">      50</span>              : // 2体をどちらの順で更新しても最終状態が正しくなる。</span>
 <span id="L51"><span class="lineNum">      51</span>              : // 未構築の場合は何もしない。次回アクセス時に真から再構築される。</span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 : func (si *SpatialIndex) MoveCharacter(from, to consts.Coord[consts.Tile], e ecs.Entity) {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         if !si.Built {</span></span>

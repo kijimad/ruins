@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 15:40:15</td>
+            <td class="headerValue">2026-08-12 16:42:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -141,7 +141,7 @@
 <span id="L79"><span class="lineNum">      79</span>              : // これを持つエンティティは、ステージが退避されれば Suspended になり、完全離脱で一括除去される。</span>
 <span id="L80"><span class="lineNum">      80</span>              : // 地形・敵・アイテムなどステージ固有で作り直せるものが対象。</span>
 <span id="L81"><span class="lineNum">      81</span>              : //</span>
-<span id="L82"><span class="lineNum">      82</span>              : // Player・SquadMember・共有シングルトンには付けない。これらはステージを渡り歩く訪問者で、</span>
+<span id="L82"><span class="lineNum">      82</span>              : // Player・共有シングルトンには付けない。これらはステージを渡り歩く訪問者で、</span>
 <span id="L83"><span class="lineNum">      83</span>              : // どのステージとも運命を共にしない。束縛しないことで suspend/purge/resume のどの操作からも</span>
 <span id="L84"><span class="lineNum">      84</span>              : // 自動で外れる。プレイヤーの現在地は Dungeon.CurrentStage が持つ。</span>
 <span id="L85"><span class="lineNum">      85</span>              : type StageBound struct {</span>
@@ -169,7 +169,7 @@
 <span id="L107"><span class="lineNum">     107</span>              : // Suspended は現ステージ以外に属し、現在のフレームで稼働しないことを表すマーカー。</span>
 <span id="L108"><span class="lineNum">     108</span>              : // ステージ跨ぎのシステムは Without(Suspended) で現ステージだけを処理する。</span>
 <span id="L109"><span class="lineNum">     109</span>              : //</span>
-<span id="L110"><span class="lineNum">     110</span>              : // 稼働を既定にするための否定形マーカー。新しい湧きやプレイヤー・隊員は Suspended を</span>
+<span id="L110"><span class="lineNum">     110</span>              : // 稼働を既定にするための否定形マーカー。新しい湧きやプレイヤーは Suspended を</span>
 <span id="L111"><span class="lineNum">     111</span>              : // 持たず、何もせずとも既定で稼働する。肯定形 Active にすると、湧きや訪問者へ付け忘れた</span>
 <span id="L112"><span class="lineNum">     112</span>              : // ときに不可視という重い失敗になり、湧くたびに付与する責務も生じる。</span>
 <span id="L113"><span class="lineNum">     113</span>              : // 稼働を既定にするには非稼働側を印すのが正しい。</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 15:40:15</td>
+            <td class="headerValue">2026-08-12 16:42:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -133,13 +133,13 @@
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              : // Bind は StageBound を持たないフィールドエンティティに key を付ける。</span>
 <span id="L73"><span class="lineNum">      73</span>              : // ステージ生成の直後に呼び、生成物をそのステージへ束縛して識別できるようにする。</span>
-<span id="L74"><span class="lineNum">      74</span>              : // GridElement を持つが Player・SquadMember・既存 StageBound でないものが対象。</span>
-<span id="L75"><span class="lineNum">      75</span>              : // Player・SquadMember はステージをまたいで生きるので束縛しない。</span>
+<span id="L74"><span class="lineNum">      74</span>              : // GridElement を持つが Player・既存 StageBound でないものが対象。</span>
+<span id="L75"><span class="lineNum">      75</span>              : // Player はステージをまたいで生きるので束縛しない。</span>
 <span id="L76"><span class="lineNum">      76</span>              : // 退避中エンティティは既に StageBound を持つので自然に除外される</span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 : func Bind(world w.World, key gc.StageKey) {</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         var targets []ecs.Entity</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter1[gc.GridElement](world.ECS).</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 Without(ecs.C[gc.StageBound](), ecs.C[gc.Player](), ecs.C[gc.SquadMember]()).Query()</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 Without(ecs.C[gc.StageBound](), ecs.C[gc.Player]()).Query()</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 targets = append(targets, q.Entity())</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         }</span></span>
