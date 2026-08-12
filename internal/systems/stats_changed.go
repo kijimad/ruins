@@ -2,6 +2,7 @@ package systems
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -52,7 +53,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		}
 
 		// 装備効果を加算
-		equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.ECS).Query()
+		equipQuery := query.ActiveFilter2[gc.LocationEquipped, gc.Wearable](world).Query()
 		for equipQuery.Next() {
 			item := equipQuery.Entity()
 			equipped := world.Components.LocationEquipped.Get(item)
@@ -70,6 +71,31 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			abils.Sensation.Modifier += wearable.EquipBonus.Sensation
 			abils.Dexterity.Modifier += wearable.EquipBonus.Dexterity
 			abils.Agility.Modifier += wearable.EquipBonus.Agility
+		}
+
+		// 装備した光源をプレイヤー自身の LightSource へ写す。装備品は位置を持たず vision に
+		// 拾われないので、位置を持つプレイヤーが代わりに光源になる。複数あれば最も明るいもの。
+		// プレイヤー限定なのは、発光する member 等の内蔵光源を装備の有無で消さないため。
+		if world.Components.Player.Has(entity) && world.Components.LightSource.Has(entity) {
+			ls := world.Components.LightSource.Get(entity)
+			ls.Enabled = false
+			var bestRadius consts.Tile
+			lightQuery := query.ActiveFilter2[gc.LocationEquipped, gc.LightSource](world).Query()
+			for lightQuery.Next() {
+				litem := lightQuery.Entity()
+				if world.Components.LocationEquipped.Get(litem).Owner != entity {
+					continue
+				}
+				src := world.Components.LightSource.Get(litem)
+				if src.Enabled && src.Radius > bestRadius {
+					bestRadius = src.Radius
+					ls.Radius = src.Radius
+					ls.Color = src.Color
+					ls.Enabled = true
+				}
+			}
+			// 光源が変わったので視界を再計算させる
+			query.GetVisionState(world).RequestUpdate()
 		}
 
 		// 健康ペナルティを加算

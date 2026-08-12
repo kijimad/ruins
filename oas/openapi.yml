@@ -2398,6 +2398,10 @@ components:
           $ref: '#/components/schemas/Disassembly'
         disassemblyTool:
           $ref: '#/components/schemas/DisassemblyTool'
+        lightSource:
+          allOf:
+            - $ref: '#/components/schemas/LightSource'
+          description: 携行光源。装備すると owner を照らす
       description: アイテム
     ItemCount:
       type: integer

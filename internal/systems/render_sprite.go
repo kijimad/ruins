@@ -4,11 +4,12 @@ import (
 	"cmp"
 	"fmt"
 	"image/color"
-	"math"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -22,6 +23,13 @@ import (
 var (
 	wallShadowImage  *ebiten.Image // 壁が落とす影
 	moverShadowImage *ebiten.Image // 動く物体が落とす影
+	shadowImageOnce  sync.Once     // 影画像の初期化を1度だけにし、並列描画のデータレースを防ぐ
+)
+
+// 記憶タイルの退色パラメータ。彩度を大きく落として明度を少し下げ、記憶らしい見た目にする
+const (
+	memorySaturation = 0.18 // 記憶タイルの彩度。0で完全グレー
+	memoryValue      = 0.9  // 記憶タイルの明度。わずかに暗くする
 )
 
 // spriteImageCacheKey はスプライト画像キャッシュのキー
@@ -31,27 +39,20 @@ type spriteImageCacheKey struct {
 	SpriteKey       string
 }
 
-// coloredDarknessCacheKey は光源色ごとの暗闇画像のキャッシュキー
-type coloredDarknessCacheKey struct {
-	R             uint8
-	G             uint8
-	B             uint8
-	DarknessLevel int
-}
-
 // RenderSpriteSystem はスプライト描画システム
 // キャッシュを保持し、描画処理を行う
 type RenderSpriteSystem struct {
-	spriteImageCache     map[spriteImageCacheKey]*ebiten.Image
-	darknessCacheImages  []*ebiten.Image
-	coloredDarknessCache map[coloredDarknessCacheKey]*ebiten.Image
+	spriteImageCache map[spriteImageCacheKey]*ebiten.Image
+	// darknessMap は1タイル1テクセルの暗さマップ。FilterNearest でタイルサイズへ拡大し、タイル整列の暗闇を描く
+	darknessMap *ebiten.Image
+	// darknessPix は darknessMap へ書き込む画素バッファ。毎フレームの確保を避けて使い回す
+	darknessPix []byte
 }
 
 // NewRenderSpriteSystem はRenderSpriteSystemを初期化する
 func NewRenderSpriteSystem() *RenderSpriteSystem {
 	return &RenderSpriteSystem{
-		spriteImageCache:     make(map[spriteImageCacheKey]*ebiten.Image),
-		coloredDarknessCache: make(map[coloredDarknessCacheKey]*ebiten.Image),
+		spriteImageCache: make(map[spriteImageCacheKey]*ebiten.Image),
 	}
 }
 
@@ -114,7 +115,8 @@ func (sys RenderSpriteSystem) String() string {
 	return "RenderSpriteSystem"
 }
 
-// Draw は (下) タイル -> 暗闇 -> 影 -> スプライト (上) の順に表示する
+// Draw は (下) タイル -> 影 -> スプライト -> 暗闇 (上) の順に表示する。
+// 暗闇を最後に重ねることで、床だけでなく影もスプライトも同じ暗さで減光する。
 // w.Renderer interfaceを実装
 func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	// VisionSystemが計算した光源情報を取得する
@@ -129,33 +131,33 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	if err := sys.renderFloorLayer(world, screen, tileRenderMap, camera); err != nil {
 		return err
 	}
-	sys.renderDarkness(world, screen, tileRenderMap, camera)
 	sys.renderShadows(world, screen, tileRenderMap, camera)
 	if err := sys.renderObjectLayer(world, screen, tileRenderMap, camera); err != nil {
 		return err
 	}
+	// 暗闇は最後に重ねる。床だけでなく影・スプライトも同じ暗さで沈み、光源から離れた
+	// オブジェクトも暗くなる。per-tile の暗さを重ねるのでオブジェクトもタイル単位で減光する
+	sys.renderDarkness(world, screen, tileRenderMap, camera)
 
 	return nil
 }
 
 // initializeShadowImages は影画像を初期化する
 func initializeShadowImages() {
-	if wallShadowImage == nil {
+	shadowImageOnce.Do(func() {
 		wallWidth := int(consts.TileSize)
 		wallHeight := int(consts.TileSize / 2)
 		if wallWidth > 0 && wallHeight > 0 {
 			wallShadowImage = ebiten.NewImage(wallWidth, wallHeight)
 			wallShadowImage.Fill(color.RGBA{0, 0, 0, 80})
 		}
-	}
-	if moverShadowImage == nil {
 		moverWidth := int(consts.TileSize - 6 - 2)
 		moverHeight := int(consts.TileSize / 2)
 		if moverWidth > 0 && moverHeight > 0 {
 			moverShadowImage = ebiten.NewImage(moverWidth, moverHeight)
 			moverShadowImage.Fill(color.RGBA{0, 0, 0, 120})
 		}
-	}
+	})
 }
 
 // renderFloorLayer は床レイヤー（タイル）を描画する
@@ -185,14 +187,17 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 		entity := entities[i]
 		gridElement := world.Components.GridElement.Get(entity)
 
-		_, exists := tileRenderMap[*gridElement]
+		info, exists := tileRenderMap[*gridElement]
 		if !exists {
 			continue
 		}
+		// 記憶タイルの床は退色させて描く。今見えているタイルと区別して「記憶している」と
+		// 分かる見た目にする。フルカラーのまま暗くすると平坦な暗い部屋に見えるのを避ける
+		_, remembered := info.(TileRenderRemembered)
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
 		pos := &gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
-		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
+		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, remembered); err != nil {
 			// エンティティ情報を追加してエラーを詳細化
 			var entityInfo string
 			if world.Components.Name.Has(entity) {
@@ -235,7 +240,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
 		pos := &gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
-		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil {
+		if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, false); err != nil {
 			return err
 		}
 	}
@@ -365,7 +370,7 @@ func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRe
 	return img, nil
 }
 
-func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera) error {
+func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera, desaturate bool) error {
 	// Resourcesからスプライトシートを取得
 	if world.Resources.SpriteSheets == nil {
 		return fmt.Errorf("sprite sheets are nil")
@@ -391,7 +396,16 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	if err != nil {
 		return err
 	}
-	screen.DrawImage(img, op)
+	if desaturate {
+		// 記憶タイルは彩度を落として退色させる。色行列で彩度を下げ明度を少し落とし、
+		// 「今見ている」タイルと区別する。減光は後段の暗闇オーバーレイが担う
+		var cm colorm.ColorM
+		cm.ChangeHSV(0, memorySaturation, memoryValue)
+		dop := &colorm.DrawImageOptions{GeoM: op.GeoM, Blend: op.Blend, Filter: op.Filter}
+		colorm.DrawImage(screen, img, cm, dop)
+	} else {
+		screen.DrawImage(img, op)
+	}
 
 	if world.Config.ShowMapDebug {
 		// デバッグ用：スプライト番号表示(dirt, dwall)
@@ -422,10 +436,10 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	return nil
 }
 
-// DarknessLevels は暗闇の段階数を定義する。少ない段階数のほうが見た目が自然になる
-const DarknessLevels = 4
-
-// renderDarkness はタイルごとの暗闇オーバーレイを描画する
+// renderDarkness は per-tile の暗さをタイル整列でそのまま描く暗闇オーバーレイ。
+// vision が壁遮蔽込みで計算した per-tile の暗さを1タイル1テクセルの小画像へ詰め、
+// FilterNearest でタイルサイズへ拡大する。補間しないのでタイル単位の一様な明るさになり、
+// ドット絵と質感が揃う。暗さは連続値なので段差ジャンプ(チカチカ)は出ない。
 func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {
 	var cameraX, cameraY float64
 	cameraScale := 1.0
@@ -435,102 +449,60 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 		cameraScale = camera.Scale
 	}
 
-	if len(sys.darknessCacheImages) == 0 {
-		sys.initializeDarknessCache(int(consts.TileSize))
+	// 床レイヤのカリング余白に合わせてタイルを拾う。描き漏れを防ぐ
+	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
+	mw := maxX - minX + 1
+	mh := maxY - minY + 1
+	if mw <= 0 || mh <= 0 {
+		return
 	}
+	sys.ensureDarknessMap(mw, mh)
 
-	screenWidth := world.Resources.ScreenDimensions.Width
-	screenHeight := world.Resources.ScreenDimensions.Height
-	// 暗闇は可視範囲のタイルだけに描く。境界は viewportTileBounds に集約する
-	startTileX, endTileX, startTileY, endTileY := viewportTileBounds(world, 1, camera)
-
-	for tileX := startTileX; tileX <= endTileX; tileX++ {
-		for tileY := startTileY; tileY <= endTileY; tileY++ {
-			grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tileX), Y: consts.Tile(tileY)}}
-
+	// 1タイル1テクセル。黒 rgb=0、アルファに暗さを連続値で詰める。バッファは使い回す。
+	// rgb は常に0のままで、各テクセルのアルファは毎フレーム全て上書きするのでクリア不要。
+	// 3状態を tileRenderAt で網羅する。未探索は完全な闇、可視/記憶はそれぞれの暗さ
+	pix := sys.darknessPix
+	for j := range mh {
+		for i := range mw {
+			grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(minX + i), Y: consts.Tile(minY + j)}}
 			var darkness float64
-			var lightColor color.RGBA
-			info, exists := tileRenderMap[grid]
-			if !exists {
-				// tileRenderMapにないタイルは完全に黒くする。
-				// マップ外・未探索タイルの両方が該当する
+			switch v := tileRenderAt(tileRenderMap, grid).(type) {
+			case TileRenderVisible:
+				darkness = float64(v.Darkness)
+			case TileRenderRemembered:
+				darkness = float64(v.Darkness)
+			case TileRenderUnexplored:
 				darkness = 1.0
-			} else {
-				switch v := info.(type) {
-				case TileRenderVisible:
-					darkness = float64(v.Darkness)
-					lightColor = v.LightColor
-				case TileRenderRemembered:
-					darkness = float64(v.Darkness)
-				}
+			default:
+				panic(fmt.Sprintf("unknown TileRenderInfo: %T", v))
 			}
-
-			worldX := float64(tileX * int(consts.TileSize))
-			worldY := float64(tileY * int(consts.TileSize))
-			screenX := (worldX-cameraX)*cameraScale + float64(screenWidth)/2
-			screenY := (worldY-cameraY)*cameraScale + float64(screenHeight)/2
-			sys.drawDarknessAtLevelWithColor(screen, screenX, screenY, darkness, lightColor, cameraScale, int(consts.TileSize))
+			pix[(j*mw+i)*4+3] = byte(max(0.0, min(1.0, darkness)) * 255)
 		}
 	}
-}
+	sys.darknessMap.WritePixels(pix)
 
-// initializeDarknessCache は段階的暗闇用の画像キャッシュを初期化する
-func (sys *RenderSpriteSystem) initializeDarknessCache(tileSize int) {
-	if tileSize <= 0 {
-		return
-	}
-
-	sys.darknessCacheImages = make([]*ebiten.Image, DarknessLevels+1)
-	sys.darknessCacheImages[0] = nil // 0: 暗闇なし
-
-	for i := 1; i <= DarknessLevels; i++ {
-		darkness := float64(i) / float64(DarknessLevels)
-		alpha := uint8(darkness * 255)
-
-		sys.darknessCacheImages[i] = ebiten.NewImage(tileSize, tileSize)
-		sys.darknessCacheImages[i].Fill(color.RGBA{0, 0, 0, alpha})
-	}
-}
-
-// drawDarknessAtLevelWithColor は光源の色を考慮した暗闇を描画する
-func (sys *RenderSpriteSystem) drawDarknessAtLevelWithColor(screen *ebiten.Image, x, y, darkness float64, lightColor color.RGBA, scale float64, tileSize int) {
-	if darkness <= 0.0 {
-		return
-	}
-
-	darknessLevel := max(min(int(math.Ceil(darkness*float64(DarknessLevels))), DarknessLevels), 1)
-
-	quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)
-
-	cacheKey := coloredDarknessCacheKey{
-		R:             lightColor.R,
-		G:             lightColor.G,
-		B:             lightColor.B,
-		DarknessLevel: darknessLevel,
-	}
-
-	darknessImg, exists := sys.coloredDarknessCache[cacheKey]
-	if !exists {
-		alpha := uint8(quantizedDarkness * 255)
-
-		colorStrength := 0.1
-		darknessColor := color.RGBA{
-			R: uint8(float64(lightColor.R) * colorStrength),
-			G: uint8(float64(lightColor.G) * colorStrength),
-			B: uint8(float64(lightColor.B) * colorStrength),
-			A: alpha,
-		}
-
-		darknessImg = ebiten.NewImage(tileSize, tileSize)
-		darknessImg.Fill(darknessColor)
-
-		if len(sys.coloredDarknessCache) < 1000 {
-			sys.coloredDarknessCache[cacheKey] = darknessImg
-		}
-	}
+	// タイルグリッドへ合わせて拡大する。texel(0,0) の左上をタイル(minX,minY)の左上へ置く。
+	// FilterNearest なので各テクセルは1タイルの一様な四角として描かれる
+	ts := float64(consts.TileSize)
+	offsetX := (float64(minX)*ts-cameraX)*cameraScale + float64(world.Resources.ScreenDimensions.Width)/2
+	offsetY := (float64(minY)*ts-cameraY)*cameraScale + float64(world.Resources.ScreenDimensions.Height)/2
 
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(scale, scale)
-	op.GeoM.Translate(x, y)
-	screen.DrawImage(darknessImg, op)
+	op.GeoM.Scale(ts*cameraScale, ts*cameraScale)
+	op.GeoM.Translate(offsetX, offsetY)
+	op.Filter = ebiten.FilterNearest
+	screen.DrawImage(sys.darknessMap, op)
+}
+
+// ensureDarknessMap は per-tile 暗さマップの小画像を用意する。サイズが変わったら作り直す。
+func (sys *RenderSpriteSystem) ensureDarknessMap(width, height int) {
+	if sys.darknessMap != nil {
+		b := sys.darknessMap.Bounds()
+		if b.Dx() == width && b.Dy() == height {
+			return
+		}
+		sys.darknessMap.Deallocate()
+	}
+	sys.darknessMap = ebiten.NewImage(width, height)
+	sys.darknessPix = make([]byte, width*height*4)
 }

@@ -17,6 +17,16 @@ element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
 
+[items.lightSource]
+enabled = true
+radius = 6
+
+[items.lightSource.color]
+a = 255
+r = 255
+g = 210
+b = 130
+
 [[items]]
 description = "A long-handled cleaning tool. Its reach makes it a surprisingly usable bludgeon."
 name = "Broom"
@@ -8782,7 +8792,7 @@ vitality = 5
 
 [members.lightSource]
 enabled = false
-radius = 4
+radius = 8
 
 [members.lightSource.color]
 a = 255

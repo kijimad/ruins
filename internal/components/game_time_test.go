@@ -76,6 +76,46 @@ func TestGameTime_Advance(t *testing.T) {
 	assert.Equal(t, 2, int(gt.TotalTurns))
 }
 
+func TestGameTime_AdvanceToNextTimeOfDay(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		start     consts.Turn
+		wantTurns consts.Turn
+		wantTOD   TimeOfDay
+	}{
+		{"夜明けの途中から朝の開始へ", 100, 250, TimeMorning},
+		{"朝の開始からちょうど昼へ", 250, 500, TimeDay},
+		{"夕の途中から夜へ", 800, 1000, TimeNight},
+		{"深夜からは翌日の夜明けへ折り返す", 1300, 1500, TimeDawn},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gt := &GameTime{TotalTurns: tt.start}
+			gt.AdvanceToNextTimeOfDay()
+			assert.Equal(t, int(tt.wantTurns), int(gt.TotalTurns))
+			assert.Equal(t, tt.wantTOD, gt.GetTimeOfDay())
+		})
+	}
+}
+
+// TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む はどのターンから呼んでも
+// 時間帯がちょうど1つ進むことを保証する。
+func TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む(t *testing.T) {
+	t.Parallel()
+
+	for start := consts.Turn(0); start < turnsPerDay*2; start += 37 {
+		gt := &GameTime{TotalTurns: start}
+		before := gt.GetTimeOfDay()
+		gt.AdvanceToNextTimeOfDay()
+		after := gt.GetTimeOfDay()
+		want := TimeOfDay((int(before) + 1) % 6)
+		assert.Equal(t, want, after, "start=%d では1つ次の時間帯になるべき", start)
+	}
+}
+
 func TestGameTime_GetDayNumber(t *testing.T) {
 	t.Parallel()
 
