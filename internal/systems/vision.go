@@ -150,6 +150,22 @@ type TileRenderRemembered struct {
 
 func (TileRenderRemembered) tileRenderInfo() {}
 
+// TileRenderUnexplored はまだ一度も見ていない未探索の状態。
+// 未探索は viewport の大半を占め map へ格納するとコストが高いので、map には入れず
+// tileRenderAt が不在時に返す番兵として使う。
+type TileRenderUnexplored struct{}
+
+func (TileRenderUnexplored) tileRenderInfo() {}
+
+// tileRenderAt はタイルの描画情報を返す。map に無いタイルは未探索とみなし
+// TileRenderUnexplored を返す。不在を未探索へ明示的に写し、呼び出し側で3状態を網羅できるようにする。
+func tileRenderAt(m map[gc.GridElement]TileRenderInfo, grid gc.GridElement) TileRenderInfo {
+	if info, ok := m[grid]; ok {
+		return info
+	}
+	return TileRenderUnexplored{}
+}
+
 // computeTileRenderMap はタイルごとの描画情報を一括計算する。
 // VisibleTiles・ExploredTiles・光源情報を統合して、
 // 各描画関数が参照するだけで済む描画情報マップを返す

@@ -456,19 +456,22 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	}
 	sys.ensureDarknessMap(mw, mh)
 
-	// 1タイル1テクセル。黒 rgb=0、アルファに暗さを連続値で詰める。未探索/マップ外は完全な闇
+	// 1タイル1テクセル。黒 rgb=0、アルファに暗さを連続値で詰める。
+	// 3状態を tileRenderAt で網羅する。未探索は完全な闇、可視/記憶はそれぞれの暗さ
 	pix := make([]byte, mw*mh*4)
 	for j := range mh {
 		for i := range mw {
 			grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(minX + i), Y: consts.Tile(minY + j)}}
-			darkness := 1.0
-			if info, ok := tileRenderMap[grid]; ok {
-				switch v := info.(type) {
-				case TileRenderVisible:
-					darkness = float64(v.Darkness)
-				case TileRenderRemembered:
-					darkness = float64(v.Darkness)
-				}
+			var darkness float64
+			switch v := tileRenderAt(tileRenderMap, grid).(type) {
+			case TileRenderVisible:
+				darkness = float64(v.Darkness)
+			case TileRenderRemembered:
+				darkness = float64(v.Darkness)
+			case TileRenderUnexplored:
+				darkness = 1.0
+			default:
+				panic(fmt.Sprintf("unknown TileRenderInfo: %T", v))
 			}
 			pix[(j*mw+i)*4+3] = byte(max(0.0, min(1.0, darkness)) * 255)
 		}
