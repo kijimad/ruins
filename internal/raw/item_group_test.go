@@ -100,6 +100,95 @@ func TestSelectFromItemGroup_未存在グループはエラー(t *testing.T) {
 	rng := rand.New(rand.NewPCG(1, 2))
 
 	_, err := SelectFromItemGroup(raws, "missing", rng)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "missing")
+	require.ErrorIs(t, err, errItemGroupNotExist)
+}
+
+func TestSelectFromItemGroup_未知のSubtypeはエラー(t *testing.T) {
+	t.Parallel()
+
+	groups := []oapi.ItemGroup{
+		{Id: "g", Name: "g", Subtype: oapi.ItemGroupSubtype("mystery"), Entries: []oapi.ItemGroupEntry{
+			{Id: "sword", Weight: 1.0, Pack: "1d1"},
+		}},
+	}
+	raws := newTestRawsForItemGroup(testGroupItems(), groups)
+	rng := rand.New(rand.NewPCG(1, 2))
+
+	_, err := SelectFromItemGroup(raws, "g", rng)
+	require.ErrorIs(t, err, errUnknownItemGroupSubtype)
+}
+
+func TestDrawDistribution_エントリが空なら何も返さない(t *testing.T) {
+	t.Parallel()
+
+	raws := newTestRawsForItemGroup(testGroupItems(), nil)
+	rng := rand.New(rand.NewPCG(1, 2))
+
+	draws, err := drawDistribution(raws, nil, rng)
+	require.NoError(t, err)
+	assert.Nil(t, draws)
+}
+
+func TestDrawDistribution_選ばれたエントリのIdが空なら何も返さない(t *testing.T) {
+	t.Parallel()
+
+	raws := newTestRawsForItemGroup(testGroupItems(), nil)
+	rng := rand.New(rand.NewPCG(1, 2))
+
+	// Id 空は通常あり得ないが、drawDistribution の防御ガードが何も返さず nil で抜けることを確認する
+	draws, err := drawDistribution(raws, []oapi.ItemGroupEntry{{Id: "", Weight: 1.0, Pack: "1d1"}}, rng)
+	require.NoError(t, err)
+	assert.Nil(t, draws)
+}
+
+func TestRollPack(t *testing.T) {
+	t.Parallel()
+
+	// 空表記も不正表記も ParseDice が弾き、errInvalidPackDice になる
+	cases := []struct {
+		name string
+		pack oapi.Dice
+	}{
+		{"空表記はエラー", ""},
+		{"不正なダイス表記はエラー", "oops"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			rng := rand.New(rand.NewPCG(1, 2))
+			_, err := rollPack(tc.pack, rng)
+			require.ErrorIs(t, err, errInvalidPackDice)
+		})
+	}
+}
+
+func TestExpandDraw_個数が0以下ならnil(t *testing.T) {
+	t.Parallel()
+
+	raws := newTestRawsForItemGroup(testGroupItems(), nil)
+	for _, count := range []int{0, -1} {
+		assert.Nil(t, expandDraw(raws, "sword", count), "count=%d", count)
+	}
+}
+
+func TestIsStackableItem(t *testing.T) {
+	t.Parallel()
+
+	raws := newTestRawsForItemGroup(testGroupItems(), nil)
+
+	t.Run("未存在アイテムはfalse", func(t *testing.T) {
+		t.Parallel()
+		assert.False(t, isStackableItem(raws, "存在しないアイテム"))
+	})
+
+	t.Run("Stackable未設定はfalse", func(t *testing.T) {
+		t.Parallel()
+		assert.False(t, isStackableItem(raws, "sword"))
+	})
+
+	t.Run("Stackable=trueはtrue", func(t *testing.T) {
+		t.Parallel()
+		assert.True(t, isStackableItem(raws, "potion"))
+	})
 }

@@ -180,9 +180,7 @@ func TestValidateReferences(t *testing.T) {
 			}},
 		}
 		err := ValidateReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "disassembly yield")
-		require.ErrorContains(t, err, "存在しない素材")
+		require.ErrorIs(t, err, errDisassemblyYieldUndefined)
 	})
 
 	t.Run("武器参照エラーが最後のチェックで検出される", func(t *testing.T) {
@@ -195,8 +193,6 @@ func TestValidateReferences(t *testing.T) {
 			}},
 		}
 		err := ValidateReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "未定義武器")
-		require.ErrorContains(t, err, "剣術")
+		require.ErrorIs(t, err, errCommandTableRefUndefinedWeapon)
 	})
 }

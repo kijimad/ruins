@@ -96,6 +96,13 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			world.Config.NoEncounter = !world.Config.NoEncounter
 			return nil
 		})},
+		Choice{Label: "Advance time of day", Run: popAfter(func(world w.World) error {
+			// 次の時間帯へ進める。色フィルタは Draw で毎回 GameTime から計算するので即反映されるが、
+			// 環境光は vision が移動時しか再計算しないので、明るさを更新するため視界を要求する
+			query.GetGameTime(world).AdvanceToNextTimeOfDay()
+			query.GetVisionState(world).RequestUpdate()
+			return nil
+		})},
 		Choice{Label: "Opening", Run: pushChoice(NewOpeningState)},
 		Choice{Label: "All clear event", Run: pushChoice(NewAllClearEventState)},
 		Choice{Label: "Name input", Run: pushChoice(NewCharacterNamingState)},

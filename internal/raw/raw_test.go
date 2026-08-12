@@ -1030,6 +1030,30 @@ func TestGetEnemyTable(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestItemName_存在するIDは表示名を返す(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "回復薬"
+id = "item_heal"
+Description = "半分程度回復する"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	assert.Equal(t, "回復薬", ItemName(raws, "item_heal"))
+}
+
+func TestItemName_存在しないIDはIDをそのまま返す(t *testing.T) {
+	t.Parallel()
+
+	raws, err := DecodeRaws("")
+	require.NoError(t, err)
+
+	assert.Equal(t, "存在しないID", ItemName(raws, "存在しないID"))
+}
+
 func TestMemberMovementPatternUnset(t *testing.T) {
 	t.Parallel()
 

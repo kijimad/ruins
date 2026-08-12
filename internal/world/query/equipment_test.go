@@ -19,7 +19,10 @@ func TestGetWeapons_Empty(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	// 初期状態は全てnil
+	// SpawnPlayer は初期装備の松明を武器スロットに持つ。空の状態を検証するため一旦外す
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+
+	// 装備を外せば全てnil
 	weapons := query.GetWeapons(world, player)
 	assert.Len(t, weapons, 5)
 	for _, w := range weapons {

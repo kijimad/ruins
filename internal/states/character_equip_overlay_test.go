@@ -109,8 +109,9 @@ func TestCharacterEquipOverlay_候補が無ければ何もしない(t *testing.T
 	assert.False(t, ok, "装備候補が無ければ選択できない")
 	require.NoError(t, o.execute(world), "候補が無くても execute はエラーにせず何もしない")
 
+	// SpawnPlayer が武器スロットに松明を初期装備する。候補が無いので装備は変わらない
 	weapons := query.GetWeapons(world, player)
-	assert.Nil(t, weapons[0], "武器1スロットは空のまま")
+	assert.NotNil(t, weapons[0], "候補が無いので武器1スロットは初期装備のまま")
 }
 
 // TestGolden_EquipSelect は装備選択ポップアップの見た目を固定する。候補ごとにアイテムの

@@ -40,7 +40,8 @@ func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 		})
 
 		// StatsChangedフラグを立てる
-		world.Components.StatsChanged.Add(player, &gc.StatsChanged{})
+		// SpawnPlayer が初期装備でStatsChangedを立てるので、冪等に設定する
+		require.NoError(t, gc.Upsert(world.ECS, world.Components.StatsChanged, player, &gc.StatsChanged{}))
 
 		// システム実行
 		sys := &StatsChangedSystem{}
@@ -70,7 +71,8 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 		turnBased.AP.Max = 9999
 
 		// StatsChangedフラグを立てる
-		world.Components.StatsChanged.Add(player, &gc.StatsChanged{})
+		// SpawnPlayer が初期装備でStatsChangedを立てるので、冪等に設定する
+		require.NoError(t, gc.Upsert(world.ECS, world.Components.StatsChanged, player, &gc.StatsChanged{}))
 
 		// システム実行
 		sys := &StatsChangedSystem{}
@@ -82,6 +84,29 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 		assert.Equal(t, turnBased.AP.Max, turnBased.AP.Current, "現在APは最大APに切り詰められるべき")
 		assert.Less(t, turnBased.AP.Current, 9999, "APが正しく再計算されるべき")
 	})
+}
+
+// TestStatsChangedSystem_装備した光源をプレイヤーへ転写する は携行光源の中核を固定する。
+// トーチを装備するとプレイヤーの LightSource が点灯し半径が写り、外すと消灯する。
+func TestStatsChangedSystem_装備した光源をプレイヤーへ転写する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	sys := &StatsChangedSystem{}
+
+	// SpawnPlayer は松明を初期装備し StatsChanged を立てる。処理すると光源が点灯する
+	require.NoError(t, sys.Update(world))
+	require.True(t, world.Components.LightSource.Has(player))
+	ls := world.Components.LightSource.Get(player)
+	assert.True(t, ls.Enabled, "松明を装備しているので点灯する")
+	assert.Equal(t, 6, int(ls.Radius), "松明の半径がプレイヤーへ写る")
+
+	// 松明を外すと光源が消灯する
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+	require.NoError(t, sys.Update(world))
+	assert.False(t, world.Components.LightSource.Get(player).Enabled, "外すと消灯する")
 }
 
 func TestMaxHP(t *testing.T) {

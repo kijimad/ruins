@@ -1200,7 +1200,10 @@ type Item struct {
 
 	// InflictsDamage 基本ダメージ
 	InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
-	Material       *bool       `json:"material,omitempty"`
+
+	// LightSource 携行光源。装備すると owner を照らす
+	LightSource *LightSource `json:"lightSource,omitempty"`
+	Material    *bool        `json:"material,omitempty"`
 
 	// Melee 近接攻撃設定
 	Melee *Melee `json:"melee,omitempty"`

@@ -77,6 +77,14 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 	}
 	world.Components.WeightDirty.Add(playerEntity, &gc.WeightDirty{})
 
+	// 初期装備として松明を持たせて装備する。プレイヤーは内蔵光源を持たないので、
+	// これが明かりになる。外すと暗くなる。StatsChangedSystem が装備の光源を owner へ転写する
+	torch, err := SpawnBackpackItem(world, "torch", 1)
+	if err != nil {
+		return gc.InvalidEntity, fmt.Errorf("failed to spawn starting torch: %w", err)
+	}
+	MoveToEquip(world, torch, playerEntity, gc.SlotWeapon1)
+
 	query.InvalidateSpatialIndex(world)
 	return playerEntity, nil
 }

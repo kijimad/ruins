@@ -165,9 +165,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 			}},
 		}
 		err := validateDisassemblyReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "存在しない素材")
-		require.ErrorContains(t, err, "棚")
+		require.ErrorIs(t, err, errDisassemblyYieldUndefined)
 	})
 
 	t.Run("itemのボーナス名が存在しないとエラー", func(t *testing.T) {
@@ -183,8 +181,7 @@ func TestValidateDisassemblyReferences(t *testing.T) {
 		}
 		raws := oapi.Raws{Items: &items}
 		err := validateDisassemblyReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "存在しないボーナス")
+		require.ErrorIs(t, err, errDisassemblyBonusUndefined)
 	})
 }
 
@@ -218,9 +215,7 @@ func TestValidateDropTableReferences(t *testing.T) {
 			}},
 		}
 		err := validateDropTableReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "存在しない素材")
-		require.ErrorContains(t, err, "廃墟")
+		require.ErrorIs(t, err, errDropTableMaterialUndefined)
 	})
 
 	t.Run("メンバーのテーブル名が存在しないとエラー", func(t *testing.T) {
@@ -230,9 +225,7 @@ func TestValidateDropTableReferences(t *testing.T) {
 			Members: &[]oapi.Member{{Name: "スライム", DropTableId: new(oapi.EntityName("未定義テーブル"))}},
 		}
 		err := validateDropTableReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "未定義テーブル")
-		require.ErrorContains(t, err, "スライム")
+		require.ErrorIs(t, err, errMemberDropTableUndefined)
 	})
 }
 
@@ -255,8 +248,7 @@ func TestValidateSpawnDice(t *testing.T) {
 			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "スライム", Pack: "0d6"}}}},
 		}
 		err := validateSpawnDice(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "スライム")
+		require.ErrorIs(t, err, errInvalidPackNotation)
 		require.ErrorContains(t, err, "count must be at least 1")
 	})
 
@@ -266,8 +258,7 @@ func TestValidateSpawnDice(t *testing.T) {
 			ItemGroups: &[]oapi.ItemGroup{{Name: "回復", Entries: []oapi.ItemGroupEntry{{Id: "回復薬", Pack: "0d6"}}}},
 		}
 		err := validateSpawnDice(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "回復薬")
+		require.ErrorIs(t, err, errInvalidPackNotation)
 		require.ErrorContains(t, err, "count must be at least 1")
 	})
 
@@ -277,8 +268,7 @@ func TestValidateSpawnDice(t *testing.T) {
 			Props: &[]oapi.Prop{{Name: "木箱", Storage: &oapi.StorageRaw{LootCount: new(oapi.Dice("abc"))}}},
 		}
 		err := validateSpawnDice(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "木箱")
+		require.ErrorIs(t, err, errInvalidLootCountNotation)
 	})
 }
 
@@ -304,8 +294,7 @@ func TestValidateCommandTableReferences(t *testing.T) {
 			Members:       &[]oapi.Member{{Name: "空文字NPC", CommandTableId: new(oapi.EntityName(""))}},
 		}
 		err := validateCommandTableReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "空文字NPC")
+		require.ErrorIs(t, err, errMemberCommandTableUndefined)
 	})
 
 	t.Run("テーブル名が存在しないとエラー", func(t *testing.T) {
@@ -314,9 +303,7 @@ func TestValidateCommandTableReferences(t *testing.T) {
 			Members: &[]oapi.Member{{Name: "スライム", CommandTableId: new(oapi.EntityName("未定義テーブル"))}},
 		}
 		err := validateCommandTableReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "未定義テーブル")
-		require.ErrorContains(t, err, "スライム")
+		require.ErrorIs(t, err, errMemberCommandTableUndefined)
 	})
 }
 
@@ -341,9 +328,7 @@ func TestValidateItemTableReferences(t *testing.T) {
 			ItemTables: &[]oapi.ItemTable{{Name: "宝箱", Entries: []oapi.ItemTableEntry{{Id: "未定義グループ"}}}},
 		}
 		err := validateItemTableReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "未定義グループ")
-		require.ErrorContains(t, err, "宝箱")
+		require.ErrorIs(t, err, errItemTableRefUndefinedGroup)
 	})
 }
 
@@ -368,9 +353,7 @@ func TestValidateItemGroupReferences(t *testing.T) {
 			ItemGroups: &[]oapi.ItemGroup{{Name: "素材", Entries: []oapi.ItemGroupEntry{{Id: "未定義アイテム"}}}},
 		}
 		err := validateItemGroupReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "未定義アイテム")
-		require.ErrorContains(t, err, "素材")
+		require.ErrorIs(t, err, errItemGroupRefUndefinedItem)
 	})
 }
 
@@ -395,9 +378,7 @@ func TestValidateEnemyTableReferences(t *testing.T) {
 			EnemyTables: &[]oapi.EnemyTable{{Name: "通常", Entries: []oapi.EnemyTableEntry{{Id: "未定義敵"}}}},
 		}
 		err := validateEnemyTableReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "未定義敵")
-		require.ErrorContains(t, err, "通常")
+		require.ErrorIs(t, err, errEnemyTableRefUndefinedEnemy)
 	})
 }
 
@@ -422,8 +403,6 @@ func TestValidateCommandTableWeaponReferences(t *testing.T) {
 			CommandTables: &[]oapi.CommandTable{{Name: "剣術", Entries: []oapi.CommandTableEntry{{Weapon: "未定義武器"}}}},
 		}
 		err := validateCommandTableWeaponReferences(raws)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "未定義武器")
-		require.ErrorContains(t, err, "剣術")
+		require.ErrorIs(t, err, errCommandTableRefUndefinedWeapon)
 	})
 }

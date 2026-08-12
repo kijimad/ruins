@@ -1,6 +1,7 @@
 package raw
 
 import (
+	"errors"
 	"fmt"
 	"image/color"
 	"math/rand/v2"
@@ -337,6 +338,9 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Material = &gc.Material{}
 	}
 
+	// 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
+	entitySpec.LightSource = toGCLightSource(item.LightSource)
+
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
 
@@ -550,11 +554,14 @@ func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) {
 	return dt, nil
 }
 
+// errItemGroupNotExist は指定した ID の item group が存在しないときに返す。テストと呼び出し側が errors.Is で同定できる。
+var errItemGroupNotExist = errors.New("item group does not exist")
+
 // GetItemGroup は指定された名前のアイテムグループを取得する
 func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) {
 	ig, ok := findByKey(raws.ItemGroups, func(g oapi.ItemGroup) string { return g.Id }, name)
 	if !ok {
-		return oapi.ItemGroup{}, fmt.Errorf("item group does not exist: %s", name)
+		return oapi.ItemGroup{}, fmt.Errorf("%w: %s", errItemGroupNotExist, name)
 	}
 	return ig, nil
 }

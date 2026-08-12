@@ -1,6 +1,10 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"fmt"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // TimeOfDay は時間帯を表す
 type TimeOfDay int
@@ -52,7 +56,8 @@ func (gt *GameTime) GetTimeOfDay() TimeOfDay {
 	return TimeOfDay(turnInDay / turnsPerTimeOfDay)
 }
 
-// GetTemperatureModifier は時間帯による気温修正値を返す
+// GetTemperatureModifier は時間帯による気温修正値を返す。
+// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
 func (gt *GameTime) GetTemperatureModifier() int {
 	switch gt.GetTimeOfDay() {
 	case TimeDawn:
@@ -67,14 +72,20 @@ func (gt *GameTime) GetTemperatureModifier() int {
 		return -5 // 夜: -5°C
 	case TimeMidnight:
 		return -10 // 深夜: -10°C
-	default:
-		return 0
 	}
+	panic(fmt.Sprintf("unknown TimeOfDay: %d", gt.GetTimeOfDay()))
 }
 
 // Advance はターンを進める
 func (gt *GameTime) Advance() {
 	gt.TotalTurns++
+}
+
+// AdvanceToNextTimeOfDay は次の時間帯の開始ターンまで進める。
+// 現在のフェーズの残りターンを飛ばし、常にちょうど1つ次の時間帯にする。
+// 深夜からは翌日の夜明けへ折り返す。
+func (gt *GameTime) AdvanceToNextTimeOfDay() {
+	gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay
 }
 
 // GetDayNumber は経過日数を返す（1日目から始まる）
