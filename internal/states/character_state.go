@@ -175,10 +175,10 @@ func (st *CharacterState) unequipSlot(world w.World, slot equipItemData) error {
 		return nil
 	}
 	itemName := query.GetEntityName(*slot.Entity, world)
-	if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Member); err != nil {
+	if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Character); err != nil {
 		return err
 	}
-	logEquipChange(world, slot.Member, itemName, query.T(world, "%s unequipped %s."))
+	logEquipChange(world, slot.Character, itemName, query.T(world, "%s unequipped %s."))
 	return nil
 }
 
@@ -206,7 +206,7 @@ func (st *CharacterState) Fetch(world w.World) CharacterProps {
 	}
 	return CharacterProps{
 		TargetName: name,
-		EquipSlots: memberEquipSlots(world, player),
+		EquipSlots: characterEquipSlots(world, player),
 		InfoTabs:   st.fetchInfoTabs(world, player),
 	}
 }
@@ -282,7 +282,7 @@ type equipItemData struct {
 	ItemName   string
 	SlotNumber gc.EquipmentSlotNumber
 	Entity     *ecs.Entity // 装備中エンティティ。空きなら nil
-	Member     ecs.Entity
+	Character  ecs.Entity  // 装備スロットを持つキャラ本体
 }
 
 // charEquipProps は装備選択の Props
@@ -290,26 +290,26 @@ type charEquipProps struct {
 	Items             []ecs.Entity
 	SlotNumber        gc.EquipmentSlotNumber
 	PreviousEquipment *ecs.Entity
-	TargetMember      ecs.Entity
+	TargetCharacter   ecs.Entity
 }
 
-// memberEquipSlots はプレイヤーの全装備スロットを列挙する
-func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
+// characterEquipSlots は指定したキャラクターの全装備スロットを列挙する
+func characterEquipSlots(world w.World, character ecs.Entity) []equipItemData {
 	items := make([]equipItemData, 0, 12)
 
-	weapons := query.GetWeapons(world, player)
+	weapons := query.GetWeapons(world, character)
 	weaponSlots := []gc.EquipmentSlotNumber{gc.SlotWeapon1, gc.SlotWeapon2, gc.SlotWeapon3, gc.SlotWeapon4, gc.SlotWeapon5}
 	for i, weapon := range weapons {
 		name := ""
 		if weapon != nil {
 			name = query.GetEntityName(*weapon, world)
 		}
-		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})
+		items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Character: character})
 	}
 
 	// armor・armorLabels・armorSlots は防具7スロットに対応する並行配列。
 	// GetArmorEquipments はスロット数ぶんの固定長スライスを返し、3者の長さは常に一致する
-	armor := query.GetArmorEquipments(world, player)
+	armor := query.GetArmorEquipments(world, character)
 	armorLabels := []string{query.T(world, "Armor (head)"), query.T(world, "Armor (torso)"), query.T(world, "Armor (arms)"), query.T(world, "Armor (hands)"), query.T(world, "Armor (legs)"), query.T(world, "Armor (feet)"), query.T(world, "Armor (jewelry)")}
 	armorSlots := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry}
 	for i, slot := range armor {
@@ -317,7 +317,7 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData {
 		if slot != nil {
 			name = query.GetEntityName(*slot, world)
 		}
-		items = append(items, equipItemData{SlotLabel: armorLabels[i], ItemName: name, SlotNumber: armorSlots[i], Entity: slot, Member: player})
+		items = append(items, equipItemData{SlotLabel: armorLabels[i], ItemName: name, SlotNumber: armorSlots[i], Entity: slot, Character: character})
 	}
 
 	return items

@@ -37,7 +37,7 @@ func TestCharacterEquipOverlay_Openで候補を読み込み選択中になる(t 
 	o := newEquipOverlayForTest()
 	require.False(t, o.Active(), "開く前は非アクティブ")
 
-	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Member: player})
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Character: player})
 	require.True(t, o.Active(), "Open で装備選択中になる")
 
 	got, ok := o.selectedItem()
@@ -54,7 +54,7 @@ func TestCharacterEquipOverlay_executeで空きスロットに候補を装着す
 	require.NoError(t, err)
 
 	o := newEquipOverlayForTest()
-	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Member: player})
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Character: player})
 	require.NoError(t, o.execute(world))
 
 	// 鉄の剣が武器1スロットへ装備され、持ち物から外れる
@@ -80,7 +80,7 @@ func TestCharacterEquipOverlay_executeで既存装備を持ち物へ戻す(t *te
 	fresh, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 	o := newEquipOverlayForTest()
-	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Member: player, Entity: &old})
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Character: player, Entity: &old})
 
 	got, ok := o.selectedItem()
 	require.True(t, ok)
@@ -103,7 +103,7 @@ func TestCharacterEquipOverlay_候補が無ければ何もしない(t *testing.T
 	require.NoError(t, err)
 
 	o := newEquipOverlayForTest()
-	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Member: player})
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Character: player})
 
 	_, ok := o.selectedItem()
 	assert.False(t, ok, "装備候補が無ければ選択できない")

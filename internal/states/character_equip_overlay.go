@@ -44,7 +44,7 @@ func (o *characterEquipOverlay) Open(world w.World, slot equipItemData) {
 		Items:             equipableForSlot(world, slot.SlotNumber),
 		SlotNumber:        slot.SlotNumber,
 		PreviousEquipment: slot.Entity,
-		TargetMember:      slot.Member,
+		TargetCharacter:   slot.Character,
 	})
 	o.active = true
 }
@@ -103,12 +103,12 @@ func (o *characterEquipOverlay) execute(world w.World) error {
 	item := props.Items[ms.ItemIndex]
 	itemName := query.GetEntityName(item, world)
 	if props.PreviousEquipment != nil {
-		if err := lifecycle.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember); err != nil {
+		if err := lifecycle.MoveToBackpack(world, *props.PreviousEquipment, props.TargetCharacter); err != nil {
 			return err
 		}
 	}
-	lifecycle.MoveToEquip(world, item, props.TargetMember, props.SlotNumber)
-	logEquipChange(world, props.TargetMember, itemName, query.T(world, "%s equipped %s."))
+	lifecycle.MoveToEquip(world, item, props.TargetCharacter, props.SlotNumber)
+	logEquipChange(world, props.TargetCharacter, itemName, query.T(world, "%s equipped %s."))
 	return nil
 }
 
