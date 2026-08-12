@@ -53,7 +53,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		}
 
 		// 装備効果を加算
-		equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.ECS).Query()
+		equipQuery := query.ActiveFilter2[gc.LocationEquipped, gc.Wearable](world).Query()
 		for equipQuery.Next() {
 			item := equipQuery.Entity()
 			equipped := world.Components.LocationEquipped.Get(item)
@@ -80,7 +80,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			ls := world.Components.LightSource.Get(entity)
 			ls.Enabled = false
 			var bestRadius consts.Tile
-			lightQuery := ecs.NewFilter2[gc.LocationEquipped, gc.LightSource](world.ECS).Query()
+			lightQuery := query.ActiveFilter2[gc.LocationEquipped, gc.LightSource](world).Query()
 			for lightQuery.Next() {
 				litem := lightQuery.Entity()
 				if world.Components.LocationEquipped.Get(litem).Owner != entity {

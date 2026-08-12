@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"slices"
 	"strings"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/colorm"
@@ -22,6 +23,7 @@ import (
 var (
 	wallShadowImage  *ebiten.Image // 壁が落とす影
 	moverShadowImage *ebiten.Image // 動く物体が落とす影
+	shadowImageOnce  sync.Once     // 影画像の初期化を1度だけにし、並列描画のデータレースを防ぐ
 )
 
 // 記憶タイルの退色パラメータ。彩度を大きく落として明度を少し下げ、記憶らしい見た目にする
@@ -43,6 +45,8 @@ type RenderSpriteSystem struct {
 	spriteImageCache map[spriteImageCacheKey]*ebiten.Image
 	// darknessMap は1タイル1テクセルの暗さマップ。FilterNearest でタイルサイズへ拡大し、タイル整列の暗闇を描く
 	darknessMap *ebiten.Image
+	// darknessPix は darknessMap へ書き込む画素バッファ。毎フレームの確保を避けて使い回す
+	darknessPix []byte
 }
 
 // NewRenderSpriteSystem はRenderSpriteSystemを初期化する
@@ -140,22 +144,20 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 
 // initializeShadowImages は影画像を初期化する
 func initializeShadowImages() {
-	if wallShadowImage == nil {
+	shadowImageOnce.Do(func() {
 		wallWidth := int(consts.TileSize)
 		wallHeight := int(consts.TileSize / 2)
 		if wallWidth > 0 && wallHeight > 0 {
 			wallShadowImage = ebiten.NewImage(wallWidth, wallHeight)
 			wallShadowImage.Fill(color.RGBA{0, 0, 0, 80})
 		}
-	}
-	if moverShadowImage == nil {
 		moverWidth := int(consts.TileSize - 6 - 2)
 		moverHeight := int(consts.TileSize / 2)
 		if moverWidth > 0 && moverHeight > 0 {
 			moverShadowImage = ebiten.NewImage(moverWidth, moverHeight)
 			moverShadowImage.Fill(color.RGBA{0, 0, 0, 120})
 		}
-	}
+	})
 }
 
 // renderFloorLayer は床レイヤー（タイル）を描画する
@@ -456,9 +458,10 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	}
 	sys.ensureDarknessMap(mw, mh)
 
-	// 1タイル1テクセル。黒 rgb=0、アルファに暗さを連続値で詰める。
+	// 1タイル1テクセル。黒 rgb=0、アルファに暗さを連続値で詰める。バッファは使い回す。
+	// rgb は常に0のままで、各テクセルのアルファは毎フレーム全て上書きするのでクリア不要。
 	// 3状態を tileRenderAt で網羅する。未探索は完全な闇、可視/記憶はそれぞれの暗さ
-	pix := make([]byte, mw*mh*4)
+	pix := sys.darknessPix
 	for j := range mh {
 		for i := range mw {
 			grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(minX + i), Y: consts.Tile(minY + j)}}
@@ -501,4 +504,5 @@ func (sys *RenderSpriteSystem) ensureDarknessMap(width, height int) {
 		sys.darknessMap.Deallocate()
 	}
 	sys.darknessMap = ebiten.NewImage(width, height)
+	sys.darknessPix = make([]byte, width*height*4)
 }
