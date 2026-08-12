@@ -77,6 +77,13 @@ func (gt *GameTime) Advance() {
 	gt.TotalTurns++
 }
 
+// AdvanceToNextTimeOfDay は次の時間帯の開始ターンまで進める。
+// 現在のフェーズの残りターンを飛ばし、常にちょうど1つ次の時間帯にする。
+// 深夜からは翌日の夜明けへ折り返す。
+func (gt *GameTime) AdvanceToNextTimeOfDay() {
+	gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay
+}
+
 // GetDayNumber は経過日数を返す（1日目から始まる）
 func (gt *GameTime) GetDayNumber() int {
 	return int(gt.TotalTurns/turnsPerDay) + 1
