@@ -135,8 +135,6 @@ const (
 	CategoryConsumable = "Consumable"
 	CategoryMelee      = "Melee weapon"
 	CategoryFire       = "Ranged weapon"
-	// CategoryRecruit は在庫に並ぶ隊員候補で、買うと隊員になる。
-	CategoryRecruit = "Recruit"
 )
 
 // フィールド観察カテゴリ名の定数。値は query.T の msgid として使う
@@ -169,7 +167,6 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
 			{Name: CategoryArmor, Pred: c.has(c.Wearable)},
 		},
 		ItemTypeCategoryKey: {
-			{Name: CategoryRecruit, Pred: c.has(c.Abilities)},
 			{Name: CategoryMaterial, Pred: c.has(c.Material)},
 			{Name: CategoryAmmo, Pred: c.has(c.Ammo)},
 			{Name: CategoryBook, Pred: c.has(c.Book)},

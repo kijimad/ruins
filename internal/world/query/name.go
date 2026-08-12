@@ -31,7 +31,7 @@ func NameMarkup(entity ecs.Entity, name string, world w.World) string {
 	switch {
 	case world.Components.Player.Has(entity):
 		return gamelog.Tag("player", name)
-	case world.Components.SoloAI.Has(entity) || world.Components.SquadAI.Has(entity):
+	case world.Components.SoloAI.Has(entity):
 		return gamelog.Tag("npc", name)
 	default:
 		return name

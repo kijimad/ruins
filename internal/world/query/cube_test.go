@@ -82,7 +82,7 @@ func TestCubeWeight_床に無い物は数えない(t *testing.T) {
 	assert.Equal(t, consts.Milligram(2*consts.MilligramPerKg), query.CubeWeight(world, interior), "床にある物だけを数え、持ち去った物は除く")
 }
 
-func TestPartyPushPower_PlayerとSquadMemberのAPを合算し他を除く(t *testing.T) {
+func TestPushPower_プレイヤーのAPを用い他を除く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -90,14 +90,10 @@ func TestPartyPushPower_PlayerとSquadMemberのAPを合算し他を除く(t *tes
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.TurnBased.Add(player, &gc.TurnBased{AP: gc.IntPool{Max: 40, Current: 40}})
 
-	member := world.ECS.NewEntity()
-	world.Components.SquadMember.Add(member, &gc.SquadMember{})
-	world.Components.TurnBased.Add(member, &gc.TurnBased{AP: gc.IntPool{Max: 30, Current: 30}})
-
-	// 敵はパーティAPに数えない
+	// 敵は押しのAPに数えない
 	enemy := world.ECS.NewEntity()
 	world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
 	world.Components.TurnBased.Add(enemy, &gc.TurnBased{AP: gc.IntPool{Max: 100, Current: 100}})
 
-	assert.Equal(t, 70, query.PartyPushPower(world))
+	assert.Equal(t, 40, query.PushPower(world))
 }

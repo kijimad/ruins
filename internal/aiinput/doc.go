@@ -8,12 +8,11 @@
 //
 // # 仕様
 //   - Plannerインターフェースで行動決定を抽象化し、runAPLoopで統一的にAP消費ループを実行する
-//   - 敵・中立NPCはroamingPlannerが状態遷移とアクション計画をインラインで処理する
-//   - 隊員はsquadPlannerが優先度チェーンで行動を決定する
-//   - 処理順序は敵→隊員の2フェーズで、隊員は敵の移動結果を反映した判断ができる
+//   - 敵・中立NPCはsoloPlannerが状態遷移とアクション計画をインラインで処理する
+//   - 遠方の非交戦AIは距離カリングで処理対象から外す
 //
 // # 使い分け
 //   - Processor: AIシステム全体の処理制御。ProcessAllで全AIエンティティを処理する
-//   - Planner: 行動決定インターフェース。roamingPlannerとsquadPlannerが実装する
+//   - Planner: 行動決定インターフェース。soloPlannerが実装する
 //   - VisionSystem: 視界判定
 package aiinput

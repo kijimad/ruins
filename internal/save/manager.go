@@ -11,7 +11,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-const saveDataVersion = "1.0.0"
+const saveDataVersion = "2.0.0"
 
 const maxAutoSaves = 4
 

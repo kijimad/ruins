@@ -12,8 +12,8 @@ import (
 
 // PushBehavior は BehaviorPush の実装。プレイヤーが隣接する Pushable キューブを押し方向へ
 // 1タイル動かす。分解などと同じ多ターン行動で、専用の進捗コンポーネントを持たず
-// gc.Activity の Progress にパーティの押し力を累積して進捗を表す。重いキューブほど
-// 必要な総コストが増え、パーティAPが多いほど速く満ちる。
+// gc.Activity の Progress にプレイヤーの押し力を累積して進捗を表す。重いキューブほど
+// 必要な総コストが増え、プレイヤーのAPが多いほど速く満ちる。
 //
 // 着手時のパラメータである押す対象キューブと押し向きは NewPushActivity が受け取り、
 // 押し先を求めて gc.Activity の PlaceParams へ書き込む。継続処理は状態を持たない
@@ -97,8 +97,8 @@ func (pb *PushBehavior) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) e
 		return nil
 	}
 
-	// パーティの押し力を注ぐ。強いパーティほど速く動かす
-	comp.Progress.Current += query.PartyPushPower(world)
+	// プレイヤーの押し力を注ぐ。APが多いほど速く動かす
+	comp.Progress.Current += query.PushPower(world)
 	if comp.Progress.Current >= comp.Progress.Max {
 		Complete(comp)
 	}
@@ -133,7 +133,7 @@ func (pb *PushBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 }
 
 // cubePushCost はキューブを1タイル動かすのに要する総コストを返す。総重量が重いほど増える。
-// 押しと引きで共通。毎ターン注ぐAPは DoTurn でパーティの押し力から
+// 押しと引きで共通。毎ターン注ぐAPは DoTurn でプレイヤーの押し力から
 // 再計算するため、着手時に凍結するのは総コストだけにする。
 //
 // 総重量は内部ステージに置いた物の総和。内部はオーバーワールドと同じく単一の永続ステージなので、
@@ -241,8 +241,8 @@ func (pb *PullBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		return nil
 	}
 
-	// パーティの押し力を注ぐ。強いパーティほど速く動かす
-	comp.Progress.Current += query.PartyPushPower(world)
+	// プレイヤーの押し力を注ぐ。APが多いほど速く動かす
+	comp.Progress.Current += query.PushPower(world)
 	if comp.Progress.Current >= comp.Progress.Max {
 		Complete(comp)
 	}

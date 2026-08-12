@@ -144,7 +144,7 @@ func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency i
 	}
 }
 
-// createBuyItems は商人の在庫を買いタブへ並べる。アイテムと隊員候補が同列に並ぶ
+// createBuyItems は商人の在庫アイテムを買いタブへ並べる
 func (st *ShopMenuState) createBuyItems(world w.World, player ecs.Entity, currency int) []shopItemData {
 	stock := query.GetStorageItems(world, st.merchant)
 	items := make([]shopItemData, 0, len(stock))
@@ -200,15 +200,8 @@ func (st *ShopMenuState) buySellSelected(world w.World) error {
 		if !world.ECS.Alive(item.Entity) {
 			return nil
 		}
-		// 在庫の類型で分ける。多数のアイテム類型から隊員候補だけ雇用へ、残りは購入へ振る
 		var err error
-		cat, _ := world.Components.CategoryOf(gc.ItemTypeCategoryKey, item.Entity)
-		switch cat {
-		case gc.CategoryRecruit:
-			query.Player(world, func(p ecs.Entity) { err = gameaction.HireRecruit(world, p, item.Entity) })
-		default:
-			query.Player(world, func(p ecs.Entity) { err = gameaction.BuyStock(world, p, item.Entity) })
-		}
+		query.Player(world, func(p ecs.Entity) { err = gameaction.BuyStock(world, p, item.Entity) })
 		if err != nil {
 			return fmt.Errorf("failed to buy: %w", err)
 		}

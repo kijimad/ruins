@@ -79,7 +79,7 @@ const (
 	ActionMenuCancel  ActionID = "menu_cancel"
 	ActionMenuTabNext ActionID = "menu_tab_next"
 	ActionMenuTabPrev ActionID = "menu_tab_prev"
-	// 対象切替。キャラクター画面で主人公と仲間を巡回するなど、画面内の対象を前後に切り替える
+	// 対象切替。画面内で複数の対象を前後に切り替える汎用アクション
 	ActionMenuSubjectPrev ActionID = "menu_subject_prev"
 	ActionMenuSubjectNext ActionID = "menu_subject_next"
 )

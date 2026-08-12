@@ -36,17 +36,13 @@ func reactToHostileAction(world w.World, target ecs.Entity) {
 	if world.Components.SoloAI.Has(target) {
 		world.Components.SoloAI.Get(target).ReactToHostile()
 	}
-	if world.Components.SquadAI.Has(target) {
-		world.Components.SquadAI.Get(target).ReactToHostile()
-	}
 }
 
 // logDeath は死亡・破壊ログを出力する。
 // Fixed は「壊れた」、それ以外は「倒れた」と表示する。
-// プレイヤーまたは隊員が関与する場合のみログを出力する
+// プレイヤーが関与する場合のみログを出力する
 func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
-	isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world) ||
-		world.Components.SquadMember.Has(target) || world.Components.SquadMember.Has(source)
+	isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world)
 	if !isRelevant {
 		return
 	}

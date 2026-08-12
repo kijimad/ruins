@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -143,40 +142,4 @@ func TestSellStock(t *testing.T) {
 	assert.Equal(t, query.CalculateSellPrice(woodenSwordValue), query.GetCurrency(world, player))
 	require.True(t, world.Components.LocationInStorage.Has(item))
 	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
-}
-
-func TestHireRecruit(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 100000})
-	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-
-	merchant := world.ECS.NewEntity()
-	abilities := gc.Abilities{
-		Vitality:  gc.Ability{Base: 5},
-		Strength:  gc.Ability{Base: 5},
-		Sensation: gc.Ability{Base: 5},
-		Dexterity: gc.Ability{Base: 5},
-		Agility:   gc.Ability{Base: 5},
-		Defense:   gc.Ability{Base: 5},
-	}
-	recruit, err := lifecycle.SpawnStorageRecruit(world, merchant, "Test", abilities, "general")
-	require.NoError(t, err)
-	// 生成時に確定した基準価値。買値の期待値に使う
-	recruitValue := world.Components.Value.Get(recruit).Value
-
-	before := query.SquadMembers(world)
-	require.NoError(t, HireRecruit(world, player, recruit))
-
-	// 候補実体は消え、隊員が1人増えている
-	assert.False(t, world.ECS.Alive(recruit))
-	after := query.SquadMembers(world)
-	assert.Len(t, after, len(before)+1)
-
-	// 代金は生成時に確定した基準価値の買値
-	expected := 100000 - query.CalculateBuyPrice(recruitValue)
-	assert.Equal(t, expected, query.GetCurrency(world, player))
 }

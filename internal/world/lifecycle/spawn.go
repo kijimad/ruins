@@ -187,68 +187,6 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts 
 	return npcEntity, nil
 }
 
-// SpawnSquadMember は隊員エンティティを生成する。
-// リーダーの隣接空きタイルに配置され、ポリシーに基づいて自律行動する
-func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
-	if !world.Components.GridElement.Has(leader) {
-		return gc.InvalidEntity, fmt.Errorf("leader has no GridElement")
-	}
-	leaderGrid := world.Components.GridElement.Get(leader)
-
-	// リーダーの近くの空きタイルを探す。街や遺跡入口など密集地では隣接が埋まっていることが
-	// あるため、近い順に外側へ広げ、必要ならマップ全体まで探す。それでも無ければリーダーと同じ
-	// タイルへ退避させ、生成そのものは失敗させない。重なっても次の移動で追従処理が空きへ散らす。
-	spawnPos, ok := findPlacementTile(world, leaderGrid.Coord, nil)
-	if !ok {
-		spawnPos = leaderGrid.Coord
-	}
-
-	skills := gc.NewSkills()
-	charMods := gc.RecalculateCharModifiers(skills, &abilities, nil)
-
-	memberEntity := world.Components.AddEntity(world.ECS, &gc.EntitySpec{
-		Name:           &gc.Name{Name: name},
-		Abilities:      &abilities,
-		Weight:         &gc.Weight{Milligram: abilities.BodyWeight()},
-		HP:             &gc.HP{},
-		TurnBased:      &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}},
-		Skills:         skills,
-		CharModifiers:  charMods,
-		WeightCapacity: &gc.WeightCapacity{},
-		HealthStatus:   &gc.HealthStatus{},
-		Hunger:         gc.NewHunger(),
-		FactionAlly:    &gc.FactionAlly{},
-		SquadAI:        new(gc.DefaultSquadAI()),
-		GridElement:    &gc.GridElement{Coord: spawnPos},
-		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: fieldSpriteSheet,
-			SpriteKey:       spriteKey,
-			Depth:           gc.DepthNumPlayer,
-		},
-		CommandTable: &gc.CommandTable{Name: "bare_hands"},
-		SquadMember:  &gc.SquadMember{},
-	})
-	if err := FullRecover(world, memberEntity); err != nil {
-		return gc.InvalidEntity, fmt.Errorf("squad member recovery failed: %w", err)
-	}
-
-	query.InvalidateSpatialIndex(world)
-	return memberEntity, nil
-}
-
-// SpawnDefaultSquadMember はゲーム開始時のデフォルト隊員を生成する
-func SpawnDefaultSquadMember(world w.World, leader ecs.Entity) (ecs.Entity, error) {
-	abilities := gc.Abilities{
-		Vitality:  gc.Ability{Base: 8},
-		Strength:  gc.Ability{Base: 7},
-		Sensation: gc.Ability{Base: 6},
-		Dexterity: gc.Ability{Base: 6},
-		Agility:   gc.Ability{Base: 7},
-		Defense:   gc.Ability{Base: 5},
-	}
-	return SpawnSquadMember(world, leader, "Jim", abilities, "general")
-}
-
 // SpawnBackpackItem はバックパック内にアイテムを生成する
 func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {
 	item, err := spawnItemBase(world, name, count)

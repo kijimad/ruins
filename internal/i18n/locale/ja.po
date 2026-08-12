@@ -104,9 +104,6 @@ msgstr ", . 切替"
 msgid "No equipment slots"
 msgstr "装備スロットがありません"
 
-msgid "No formation orders"
-msgstr "この対象に隊列指示はない"
-
 msgid "Choose equipment"
 msgstr "装備を選ぶ"
 
@@ -545,8 +542,8 @@ msgstr "すべての遺跡を踏破した。\n\n大穴の底に眠っていた�
 msgid "Inventory"
 msgstr "所持"
 
-msgid "Party"
-msgstr "部隊"
+msgid "Character"
+msgstr "キャラクター"
 
 msgid "Save game"
 msgstr "書込"
@@ -577,12 +574,6 @@ msgstr "見る"
 
 msgid "No business"
 msgstr "用は無い"
-
-msgid "Skilled folk gather here.\n\nWant to hire a squad member?"
-msgstr "うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?"
-
-msgid "Hire"
-msgstr "雇う"
 
 msgid "I want to craft"
 msgstr "合成したい"
@@ -737,8 +728,6 @@ msgid "(No items)"
 msgstr "(アイテムなし)"
 
 # NPC 会話（dialogues）
-msgid "We've got some capable folks here.\n\nWant to hire a squad member?"
-msgstr "うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?"
 
 # systems 温度・死亡・扉
 msgid "death"
@@ -862,9 +851,6 @@ msgstr "縄張り"
 msgid "Solo"
 msgstr "単独"
 
-msgid "Squad member"
-msgstr "隊員"
-
 msgid "Attack"
 msgstr "攻撃"
 
@@ -882,33 +868,6 @@ msgstr "徘徊"
 
 msgid "Flock"
 msgstr "群れ"
-
-msgid "Escort"
-msgstr "護衛"
-
-msgid "Vanguard"
-msgstr "前衛"
-
-msgid "Retreat"
-msgstr "後退"
-
-msgid "Collect"
-msgstr "回収"
-
-msgid "Ignore"
-msgstr "無視"
-
-msgid "Hold"
-msgstr "保持"
-
-msgid "Distribute"
-msgstr "分配"
-
-msgid "Auto"
-msgstr "自動"
-
-msgid "Manual"
-msgstr "手動"
 
 msgid "Dawn"
 msgstr "夜明け"
@@ -5522,9 +5481,6 @@ msgstr "敵が近くにいるので読めない"
 msgid "this book is already read"
 msgstr "この本はもう読んだ"
 
-msgid "Recruit"
-msgstr "隊員候補"
-
 msgid "Jin"
 msgstr "ジン"
 
@@ -5557,13 +5513,11 @@ msgstr "ソラ"
 
 # activity.Behavior.Validate のユーザ向け失敗メッセージ
 
-
 msgid "cannot rest because enemies are nearby"
 msgstr "敵が近くにいるので休息できない"
 
 msgid "nothing to pick up"
 msgstr "拾えるものがない"
-
 
 msgid "cannot disassemble because enemies are nearby"
 msgstr "敵が近くにいるので分解できない"

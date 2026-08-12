@@ -35,7 +35,6 @@ var Registry = []Def{
 	// field ================
 	{Field: "Tile"},            // タイルエンティティであることを示す
 	{Field: "SoloAI"},          // 単独行動AIの設定を保持する
-	{Field: "SquadAI"},         // 隊員AIの設定を保持する
 	{Field: "Camera"},          // カメラの位置とズームを保持する
 	{Field: "Position"},        // フィールド上のピクセル座標を保持する
 	{Field: "GridElement"},     // フィールド上のグリッド座標を保持する
@@ -89,9 +88,6 @@ var Registry = []Def{
 	// battle ================
 	{Field: "CommandTable"}, // AI用の戦闘コマンドテーブル名を保持する
 	{Field: "DropTable"},    // ドロップテーブル名を保持する
-
-	// squad ================
-	{Field: "SquadMember"}, // 隊員であることを示す
 
 	// activity ================
 	{Field: "Activity"},     // 実行中のアクティビティを保持する
