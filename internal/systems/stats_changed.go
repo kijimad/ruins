@@ -75,8 +75,10 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 
 		// 装備した光源を owner の LightSource へ転写する。装備品は GridElement を持たず
 		// vision に拾われないので、位置を持つ owner へ写して照らす。トーチは武器スロットに
-		// 装備するので Wearable ではなく LightSource で拾う。最も明るい光源を採用する
-		if world.Components.LightSource.Has(entity) {
+		// 装備するので Wearable ではなく LightSource で拾う。最も明るい光源を採用する。
+		// プレイヤー限定にする。発光する member などの内蔵 LightSource を、装備が無いからと
+		// 消してしまわないため。NPC の携行光源が要るようになったらここを広げる
+		if world.Components.Player.Has(entity) && world.Components.LightSource.Has(entity) {
 			ls := world.Components.LightSource.Get(entity)
 			ls.Enabled = false
 			var bestRadius consts.Tile

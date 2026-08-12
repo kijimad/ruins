@@ -332,6 +332,7 @@ func applyTimeOfDayTint(screen *ebiten.Image, t gc.TimeOfDay) {
 
 // timeOfDayTint は時間帯を世界へ掛ける乗算色へ写す。昼は白で素通し、朝夕は暖色、夜は寒色。
 // 乗算なので各成分は 1 以下。小さいほど暗く色濃くなる。
+// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
 func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) {
 	switch t {
 	case gc.TimeDawn:
@@ -346,9 +347,8 @@ func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) {
 		return 0.55, 0.60, 0.85
 	case gc.TimeMidnight:
 		return 0.42, 0.48, 0.78
-	default:
-		return 1.0, 1.0, 1.0
 	}
+	panic(fmt.Sprintf("unknown TimeOfDay: %d", t))
 }
 
 // drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。

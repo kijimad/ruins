@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"fmt"
 	"image/color"
 	"math"
 
@@ -307,6 +308,7 @@ func ambientLight(world w.World) float64 {
 }
 
 // overworldDaylight は地上の時間帯ごとの日照の明るさを返す。昼が最も明るく深夜が最も暗い。
+// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
 func overworldDaylight(t gc.TimeOfDay) float64 {
 	switch t {
 	case gc.TimeDawn:
@@ -321,9 +323,8 @@ func overworldDaylight(t gc.TimeOfDay) float64 {
 		return 0.14
 	case gc.TimeMidnight:
 		return 0.06
-	default:
-		return 0.95
 	}
+	panic(fmt.Sprintf("unknown TimeOfDay: %d", t))
 }
 
 // calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
