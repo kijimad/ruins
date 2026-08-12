@@ -1,23 +1,5 @@
 package components
 
-// PlannerType は適用する行動計画の種別を表す
-type PlannerType string
-
-const (
-	// PlannerSolo は単独行動NPC用。状態遷移とMovementPolicyで行動を決定する
-	PlannerSolo PlannerType = "solo"
-)
-
-// String は日本語表示名を返す
-func (p PlannerType) String() string {
-	switch p {
-	case PlannerSolo:
-		return "Solo"
-	default:
-		return string(p)
-	}
-}
-
 // CombatPolicy は戦闘時の行動方針を表す
 type CombatPolicy string
 

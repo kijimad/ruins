@@ -23,32 +23,23 @@ const activationMargin = 2
 const activationRadius = int(consts.VisionRadiusTiles) + activationMargin
 
 // Processor はAIエンティティの行動処理を管理する。
-// AI.Plannerフィールドに基づいて Planner を使い分ける
+// SoloAI エンティティを soloPlanner で処理する
 type Processor struct {
-	logger   *logger.Logger
-	planners map[gc.PlannerType]Planner
+	logger  *logger.Logger
+	planner Planner
 }
 
 // NewProcessor は新しいProcessorを作成する。
 // rngはゲーム全体のseedから派生した乱数生成器を渡す
 func NewProcessor(rng *rand.Rand) *Processor {
 	return &Processor{
-		logger: logger.New(logger.CategoryTurn),
-		planners: map[gc.PlannerType]Planner{
-			gc.PlannerSolo: newSoloPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
-		},
+		logger:  logger.New(logger.CategoryTurn),
+		planner: newSoloPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
 	}
 }
 
-// ProcessAll は全AIエンティティを処理する。
+// ProcessAll は全 SoloAI エンティティを soloPlanner で処理する。
 func (p *Processor) ProcessAll(world w.World) error {
-	return p.processByPlanner(world, gc.PlannerSolo)
-}
-
-// processByPlanner は指定されたPlannerTypeを持つAIエンティティを処理する。
-func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) error {
-	planner := p.planners[plannerType]
-
 	// 退避中ステージのAIはターンを取らない
 	var targets []ecs.Entity
 	soloQuery := query.ActiveFilter2[gc.SoloAI, gc.GridElement](world).Query()
@@ -66,7 +57,7 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 		if world.Components.Dead.Has(entity) {
 			continue
 		}
-		runAPLoop(world, entity, planner, p.logger)
+		runAPLoop(world, entity, p.planner, p.logger)
 	}
 
 	return nil

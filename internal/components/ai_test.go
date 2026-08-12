@@ -37,23 +37,6 @@ func TestSoloAI_ReactToHostile(t *testing.T) {
 	}
 }
 
-func TestPlannerType_String(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		p    PlannerType
-		want string
-	}{
-		{PlannerSolo, "Solo"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.p.String())
-		})
-	}
-}
-
 func TestCombatPolicy_String(t *testing.T) {
 	t.Parallel()
 

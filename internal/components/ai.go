@@ -34,9 +34,6 @@ type SoloAI struct {
 	TargetEntity          *ecs.Entity
 }
 
-// Type はPlannerSoloを返す
-func (s *SoloAI) Type() PlannerType { return PlannerSolo }
-
 // ReactToHostile は被ダメージ時に戦闘方針を変化させる。
 // CombatIgnore は反撃のため CombatAttack に遷移する
 func (s *SoloAI) ReactToHostile() {
