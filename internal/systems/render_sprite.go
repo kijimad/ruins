@@ -41,7 +41,7 @@ type spriteImageCacheKey struct {
 // キャッシュを保持し、描画処理を行う
 type RenderSpriteSystem struct {
 	spriteImageCache map[spriteImageCacheKey]*ebiten.Image
-	// darknessMap は1タイル1テクセルの暗さマップ。bilinear 拡大で滑らかな暗闇を描く
+	// darknessMap は1タイル1テクセルの暗さマップ。FilterNearest でタイルサイズへ拡大し、タイル整列の暗闇を描く
 	darknessMap *ebiten.Image
 }
 
@@ -132,7 +132,7 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return err
 	}
 	// 暗闇は最後に重ねる。床だけでなく影・スプライトも同じ暗さで沈み、光源から離れた
-	// オブジェクトも暗くなる。per-tile の暗さを bilinear で拡大するのでオブジェクトも滑らかに減光する
+	// オブジェクトも暗くなる。per-tile の暗さを重ねるのでオブジェクトもタイル単位で減光する
 	sys.renderDarkness(world, screen, tileRenderMap, camera)
 
 	return nil
