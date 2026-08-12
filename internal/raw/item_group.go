@@ -1,11 +1,20 @@
 package raw
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
+)
+
+// item group 抽選のエラー。呼び出し側とテストが errors.Is で種類を同定できるようにする。
+var (
+	// errUnknownItemGroupSubtype は group.Subtype が既知の distribution/collection いずれでもないときに返す。
+	errUnknownItemGroupSubtype = errors.New("unknown item group subtype")
+	// errInvalidPackDice は pack のダイス表記が解釈できないときに返す。
+	errInvalidPackDice = errors.New("invalid pack dice")
 )
 
 // DrawnItem は item group から抽選した1件。名前と個数を持つ。
@@ -30,7 +39,7 @@ func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]Draw
 		return drawCollection(raws, group.Entries, rng)
 	default:
 		// group.Subtype は raw 由来で未知値が来うる。データ不整合として呼び出し側へ返す
-		return nil, fmt.Errorf("unknown item group subtype for %q: %s", groupID, group.Subtype)
+		return nil, fmt.Errorf("%w for %q: %s", errUnknownItemGroupSubtype, groupID, group.Subtype)
 	}
 }
 
@@ -84,7 +93,7 @@ func rollPack(pack oapi.Dice, rng *rand.Rand) (int, error) {
 	}
 	d, err := consts.ParseDice(pack)
 	if err != nil {
-		return 0, fmt.Errorf("invalid pack dice %q: %w", pack, err)
+		return 0, fmt.Errorf("%w %q: %w", errInvalidPackDice, pack, err)
 	}
 	return d.Roll(rng), nil
 }

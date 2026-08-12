@@ -100,8 +100,7 @@ func TestSelectFromItemGroup_未存在グループはエラー(t *testing.T) {
 	rng := rand.New(rand.NewPCG(1, 2))
 
 	_, err := SelectFromItemGroup(raws, "missing", rng)
-	require.Error(t, err)
-	assert.ErrorContains(t, err, "missing")
+	require.ErrorIs(t, err, errItemGroupNotExist)
 }
 
 func TestSelectFromItemGroup_未知のSubtypeはエラー(t *testing.T) {
@@ -116,8 +115,7 @@ func TestSelectFromItemGroup_未知のSubtypeはエラー(t *testing.T) {
 	rng := rand.New(rand.NewPCG(1, 2))
 
 	_, err := SelectFromItemGroup(raws, "g", rng)
-	require.ErrorContains(t, err, "unknown item group subtype")
-	assert.ErrorContains(t, err, "g")
+	require.ErrorIs(t, err, errUnknownItemGroupSubtype)
 }
 
 func TestDrawDistribution_エントリが空なら何も返さない(t *testing.T) {
@@ -156,8 +154,7 @@ func TestRollPack_不正なダイス表記はエラー(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(1, 2))
 	_, err := rollPack("oops", rng)
-	require.ErrorContains(t, err, "invalid pack dice")
-	assert.ErrorContains(t, err, "oops")
+	require.ErrorIs(t, err, errInvalidPackDice)
 }
 
 func TestExpandDraw_個数が0以下ならnil(t *testing.T) {
