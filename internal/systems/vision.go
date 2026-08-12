@@ -86,8 +86,13 @@ func (sys *VisionSystem) Update(world w.World) error {
 	vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 
 	// 視界内タイルの光源情報を計算し、探索済みマークを行う。
-	// マップ外座標はデータに含めない
-	ambient := ambientLight(world)
+	// マップ外座標はデータに含めない。
+	// 環境光は屋内なら微小、地上なら時間帯の日照。昼の屋外は全体が明るく松明が要らず、
+	// 地下や深夜は松明の届く範囲だけが見える
+	ambient := dungeonAmbient
+	if query.IsOnOverworld(world) {
+		ambient = overworldDaylight(query.GetGameTime(world).GetTimeOfDay())
+	}
 	visibleTiles := make(map[gc.GridElement]bool)
 	for _, tileData := range visibilityData {
 		if !tileData.Visible {
@@ -312,15 +317,6 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 			y += sy
 		}
 	}
-}
-
-// ambientLight はフィールドの環境光の明るさを返す。屋内は微小、地上は時間帯の日照で決まる。
-// 昼の屋外は全体が明るく松明が要らず、地下や深夜は松明の届く範囲だけが見える。
-func ambientLight(world w.World) float64 {
-	if query.IsOnOverworld(world) {
-		return overworldDaylight(query.GetGameTime(world).GetTimeOfDay())
-	}
-	return dungeonAmbient
 }
 
 // overworldDaylight は地上の時間帯ごとの日照の明るさを返す。昼が最も明るく深夜が最も暗い。
