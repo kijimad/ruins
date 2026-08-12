@@ -106,7 +106,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, ambient)
 		// 明るさが閾値未満なら見えない。視界を光の届く範囲へ寄せる。
 		// 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる
-		if 1.0-float64(info.Darkness) < visibilityThreshold {
+		if 1.0-info.Darkness < visibilityThreshold {
 			continue
 		}
 		vs.LightSourceCache[gridElement] = info

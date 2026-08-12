@@ -86,6 +86,29 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 	})
 }
 
+// TestStatsChangedSystem_装備した光源をプレイヤーへ転写する は携行光源の中核を固定する。
+// トーチを装備するとプレイヤーの LightSource が点灯し半径が写り、外すと消灯する。
+func TestStatsChangedSystem_装備した光源をプレイヤーへ転写する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	sys := &StatsChangedSystem{}
+
+	// SpawnPlayer は松明を初期装備し StatsChanged を立てる。処理すると光源が点灯する
+	require.NoError(t, sys.Update(world))
+	require.True(t, world.Components.LightSource.Has(player))
+	ls := world.Components.LightSource.Get(player)
+	assert.True(t, ls.Enabled, "松明を装備しているので点灯する")
+	assert.Equal(t, 6, int(ls.Radius), "松明の半径がプレイヤーへ写る")
+
+	// 松明を外すと光源が消灯する
+	require.NoError(t, lifecycle.UnequipAll(world, player))
+	require.NoError(t, sys.Update(world))
+	assert.False(t, world.Components.LightSource.Get(player).Enabled, "外すと消灯する")
+}
+
 func TestMaxHP(t *testing.T) {
 	t.Parallel()
 	t.Run("calculate max HP with base stats", func(t *testing.T) {
