@@ -27,26 +27,26 @@ func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *tes
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	leader, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	member := spawnCharacterAt(world, 11, 10)
+	other := spawnCharacterAt(world, 11, 10)
 
 	query.InvalidateSpatialIndex(world)
 	si := query.GetSpatialIndex(world)
 	require.NotNil(t, si)
 
-	memberGrid := world.Components.GridElement.Get(member)
-	leaderGrid := world.Components.GridElement.Get(leader)
+	otherGrid := world.Components.GridElement.Get(other)
+	playerGrid := world.Components.GridElement.Get(player)
 
-	assert.False(t, si.BlockPass[*leaderGrid], "プレイヤーはBlockPassに含まれない")
-	assert.False(t, si.BlockPass[*memberGrid], "他キャラはBlockPassに含まれない")
+	assert.False(t, si.BlockPass[*playerGrid], "プレイヤーはBlockPassに含まれない")
+	assert.False(t, si.BlockPass[*otherGrid], "他キャラはBlockPassに含まれない")
 
-	_, leaderInChars := si.Characters[*leaderGrid]
-	assert.True(t, leaderInChars, "プレイヤーはCharactersに含まれる")
+	_, playerInChars := si.Characters[*playerGrid]
+	assert.True(t, playerInChars, "プレイヤーはCharactersに含まれる")
 
-	_, memberInChars := si.Characters[*memberGrid]
-	assert.True(t, memberInChars, "他キャラはCharactersに含まれる")
+	_, otherInChars := si.Characters[*otherGrid]
+	assert.True(t, otherInChars, "他キャラはCharactersに含まれる")
 }
 
 func TestBuildSpatialIndex_退避中エンティティは索引に含まれない(t *testing.T) {
@@ -112,28 +112,28 @@ func TestUpdateCharacterPositionInIndex_入れ替えは順序非依存(t *testin
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	member := spawnCharacterAt(world, 12, 10)
+	other := spawnCharacterAt(world, 12, 10)
 
 	si := query.GetSpatialIndex(world)
 	require.NotNil(t, si)
 
 	pg := world.Components.GridElement.Get(player)
-	mg := world.Components.GridElement.Get(member)
+	mg := world.Components.GridElement.Get(other)
 	pPos := pg.Coord
 	mPos := mg.Coord
 	require.NotEqual(t, pPos, mPos, "2体目は別タイルにいる")
 
-	// 位置入れ替え：player を member タイルへ、member を player タイルへ（actor 先で更新）。
+	// 位置入れ替え：player を other タイルへ、other を player タイルへ（actor 先で更新）。
 	// MoveCharacter が「from が自分自身のときだけ削除」するため、順序に関わらず最終状態が正しくなる
 	query.UpdateCharacterPositionInIndex(world, player, pPos, mPos)
-	query.UpdateCharacterPositionInIndex(world, member, mPos, pPos)
+	query.UpdateCharacterPositionInIndex(world, other, mPos, pPos)
 
 	gotAtMemberTile, ok1 := si.CharacterAt(mPos)
-	assert.True(t, ok1, "元memberタイルは埋まっている")
-	assert.Equal(t, player, gotAtMemberTile, "元memberタイルにplayerが入る")
+	assert.True(t, ok1, "元otherタイルは埋まっている")
+	assert.Equal(t, player, gotAtMemberTile, "元otherタイルにplayerが入る")
 	gotAtPlayerTile, ok2 := si.CharacterAt(pPos)
 	assert.True(t, ok2, "元playerタイルは埋まっている")
-	assert.Equal(t, member, gotAtPlayerTile, "元playerタイルにmemberが入る")
+	assert.Equal(t, other, gotAtPlayerTile, "元playerタイルにotherが入る")
 }
 
 func TestSpatialIndex_移動で再構築チャーンが起きない(t *testing.T) {
