@@ -115,6 +115,10 @@ func TestCloseDoorBehavior(t *testing.T) {
 		door = world.ECS.NewEntity()
 		world.Components.Door.Add(door, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
 		world.Components.GridElement.Add(door, &gc.GridElement{Coord: doorCoord})
+		// 実スポーンに合わせて扉自身も LocationOnField と Fixed を持つ。
+		// 扉が自分を占有物と誤検知しないことを無人ケースで担保する
+		world.Components.LocationOnField.Add(door, &gc.LocationOnField{})
+		world.Components.Fixed.Add(door, &gc.Fixed{})
 		return player, door
 	}
 

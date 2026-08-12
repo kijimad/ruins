@@ -180,8 +180,8 @@ func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 	return nil
 }
 
-// doorTileOccupied は扉の座標にキャラクターかフィールドアイテムがいるかを返す。
-// キャラクターは空間インデックスの定義を再利用し、アイテムは LocationOnField で判定する
+// doorTileOccupied は扉の座標にキャラクターか拾えるアイテムがいるかを返す。
+// キャラクターは空間インデックスの定義を再利用し、アイテムは IsPickable で判定する
 func doorTileOccupied(world w.World, coord consts.Coord[consts.Tile]) bool {
 	// GetSpatialIndex は現ステージのフィールドが無いときだけ nil を返す。閉じる扉は必ず
 	// フィールド上にあるので実際に nil にはならないが、契約に従い nil を弾いてからキャラを見る
@@ -190,8 +190,11 @@ func doorTileOccupied(world w.World, coord consts.Coord[consts.Tile]) bool {
 			return true
 		}
 	}
-	// アイテムは空間インデックスに載らないため、座標のエンティティを直接見る
-	return slices.ContainsFunc(query.GetEntitiesAt(world, coord.X, coord.Y), world.Components.LocationOnField.Has)
+	// アイテムは空間インデックスに載らないため、座標のエンティティを直接見る。
+	// IsPickable は LocationOnField かつ非 Fixed。扉自身や固定プロップは Fixed で除外され、拾える物だけ残る
+	return slices.ContainsFunc(query.GetEntitiesAt(world, coord.X, coord.Y), func(e ecs.Entity) bool {
+		return query.IsPickable(e, world)
+	})
 }
 
 // Start は扉閉鎖開始時の処理を実行する
