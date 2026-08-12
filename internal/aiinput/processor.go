@@ -23,65 +23,41 @@ const activationMargin = 2
 const activationRadius = int(consts.VisionRadiusTiles) + activationMargin
 
 // Processor はAIエンティティの行動処理を管理する。
-// AI.Plannerフィールドに基づいてsoloPlannerとsquadPlannerを使い分ける
+// SoloAI エンティティを soloPlanner で処理する
 type Processor struct {
-	logger   *logger.Logger
-	planners map[gc.PlannerType]Planner
+	logger  *logger.Logger
+	planner Planner
 }
 
 // NewProcessor は新しいProcessorを作成する。
 // rngはゲーム全体のseedから派生した乱数生成器を渡す
 func NewProcessor(rng *rand.Rand) *Processor {
 	return &Processor{
-		logger: logger.New(logger.CategoryTurn),
-		planners: map[gc.PlannerType]Planner{
-			gc.PlannerSolo:  newSoloPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
-			gc.PlannerSquad: newSquadPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
-		},
+		logger:  logger.New(logger.CategoryTurn),
+		planner: newSoloPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
 	}
 }
 
-// ProcessAll は全AIエンティティを処理する。
-// Soloを先に処理し、敵の移動結果を反映したSquadの判断を可能にする
+// ProcessAll は全 SoloAI エンティティを soloPlanner で処理する。
 func (p *Processor) ProcessAll(world w.World) error {
-	if err := p.processByPlanner(world, gc.PlannerSolo); err != nil {
+	// 退避中ステージのAIはターンを取らない
+	var targets []ecs.Entity
+	soloQuery := query.ActiveFilter2[gc.SoloAI, gc.GridElement](world).Query()
+	for soloQuery.Next() {
+		targets = append(targets, soloQuery.Entity())
+	}
+	// クエリ反復を終えてからカリングする。反復中に GetPlayerEntity の別クエリを張らない
+	culled, err := cullDistantSolo(world, targets)
+	if err != nil {
 		return err
 	}
-	return p.processByPlanner(world, gc.PlannerSquad)
-}
-
-// processByPlanner は指定されたPlannerTypeを持つAIエンティティを処理する。
-// SoloAI/SquadAI は別コンポーネントのため、種別に対応するコンポーネントで絞り込む
-func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) error {
-	planner := p.planners[plannerType]
-
-	var targets []ecs.Entity
-	switch plannerType {
-	case gc.PlannerSquad:
-		// 退避中ステージのAIはターンを取らない
-		squadQuery := query.ActiveFilter2[gc.SquadAI, gc.GridElement](world).Query()
-		for squadQuery.Next() {
-			targets = append(targets, squadQuery.Entity())
-		}
-	case gc.PlannerSolo:
-		// 退避中ステージのAIはターンを取らない
-		soloQuery := query.ActiveFilter2[gc.SoloAI, gc.GridElement](world).Query()
-		for soloQuery.Next() {
-			targets = append(targets, soloQuery.Entity())
-		}
-		// クエリ反復を終えてからカリングする。反復中に GetPlayerEntity の別クエリを張らない
-		culled, err := cullDistantSolo(world, targets)
-		if err != nil {
-			return err
-		}
-		targets = culled
-	}
+	targets = culled
 
 	for _, entity := range targets {
 		if world.Components.Dead.Has(entity) {
 			continue
 		}
-		runAPLoop(world, entity, planner, p.logger)
+		runAPLoop(world, entity, p.planner, p.logger)
 	}
 
 	return nil

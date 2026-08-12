@@ -11,12 +11,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// squadPlacementMaxRadius は隊員配置の空きタイル探索で優先する近傍リングの半径。
-// 通常はこの範囲で隣接タイルへ収める。SpatialIndex が無くマップ寸法を引けない場面、
-// テストなどではこの半径を上限に使う。密集地でマップ寸法が引ける場面では
-// findPlacementTile がマップ全体まで探索を広げる。
-const squadPlacementMaxRadius = 6
-
 // MoveToBackpack はエンティティをバックパックに移動する。
 // Stackableアイテムの場合、バックパック内の同名アイテムと自動的に統合する
 func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
@@ -243,65 +237,6 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 	return nil
 }
 
-// tileAvailable はtileが配置可能かを返す。範囲外・進入不可・キャラ占有・除外指定なら不可。
-// SpatialIndex が未構築(nil)のときは範囲と衝突を判定できないため、除外指定だけで可否を決める。
-func tileAvailable(si *gc.SpatialIndex, tile consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) bool {
-	if tile.X < 0 || tile.Y < 0 {
-		return false
-	}
-	if si != nil {
-		if tile.X >= si.MapWidth || tile.Y >= si.MapHeight {
-			return false
-		}
-		if si.IsBlockPass(tile) {
-			return false
-		}
-		if _, occupied := si.CharacterAt(tile); occupied {
-			return false
-		}
-	}
-	return !exclude[gc.GridElement{Coord: tile}]
-}
-
-// findNearbyEmptyTile はcenterに近いリングから順に空きタイルを探す。隣接(半径1)から外側へ
-// チェビシェフ距離のリングを広げ、maxRadius まで探す。内側リングが先に埋まるが、同一リング内の
-// 走査順はラスタースキャンで、厳密なユークリッド最短ではない。密集地でも遠くの空きを拾える。
-// 見つからなければ ok=false を返す。呼び出し側が最終手段の退避先を決める。
-func findNearbyEmptyTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool, maxRadius int) (consts.Coord[consts.Tile], bool) {
-	si := query.GetSpatialIndex(world)
-	for r := 1; r <= maxRadius; r++ {
-		for dy := -r; dy <= r; dy++ {
-			for dx := -r; dx <= r; dx++ {
-				// リングの外周だけを見る。内側の半径は前の反復で探索済み
-				if dx > -r && dx < r && dy > -r && dy < r {
-					continue
-				}
-				tile := center.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
-				if tileAvailable(si, tile, exclude) {
-					return tile, true
-				}
-			}
-		}
-	}
-	return consts.Coord[consts.Tile]{}, false
-}
-
-// findPlacementTile は隊員の配置先を探す。center 近傍を優先しつつ、近傍が埋まっていれば
-// マップ全体へ探索を広げて空きを拾う。リング探索は内側のリングから走査するので、範囲を広げても
-// 近いリングから埋まり、近傍が空いていれば隣接タイルへ収まる。地図全体が埋まっている極限だけ
-// ok=false を返し、呼び出し側が最終手段の退避先を決める。
-func findPlacementTile(world w.World, center consts.Coord[consts.Tile], exclude map[gc.GridElement]bool) (consts.Coord[consts.Tile], bool) {
-	maxRadius := squadPlacementMaxRadius
-	// マップ寸法が引けるなら、地図全体を覆う半径まで探索を広げる。どのタイルを中心にしても
-	// 幅と高さの大きい方ぶんのリングでマップ全体を走査できる。近傍優先はリング探索の性質で保たれる。
-	if si := query.GetSpatialIndex(world); si != nil {
-		if mapRadius := max(int(si.MapWidth), int(si.MapHeight)); mapRadius > maxRadius {
-			maxRadius = mapRadius
-		}
-	}
-	return findNearbyEmptyTile(world, center, exclude, maxRadius)
-}
-
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
 func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	var playerEntity ecs.Entity
@@ -328,22 +263,6 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	camera := world.Components.Camera.Get(playerEntity)
 	camera.Pos = consts.TileCenterToWorld(pos)
 	camera.Target = camera.Pos
-
-	// Active隊員をプレイヤーの近くに配置する。街や遺跡入口など密集地へ戻ると隣接が
-	// 埋まっていることがあるため、近い順に外側へ広げて空きを探す。それでも見つからなければ
-	// プレイヤーと同じタイルへ退避させる。隊員配置の失敗で遷移全体を止めるとダンジョンから
-	// 戻れず詰むため、ここは絶対に失敗させない。重なっても次の移動で追従処理が空きへ散らす。
-	exclude := map[gc.GridElement]bool{}
-	for _, member := range query.SquadMembers(world) {
-		memberGrid := world.Components.GridElement.Get(member)
-		dest, ok := findPlacementTile(world, pos, exclude)
-		if !ok {
-			dest = pos
-		}
-		memberGrid.X = dest.X
-		memberGrid.Y = dest.Y
-		exclude[gc.GridElement{Coord: dest}] = true
-	}
 
 	return nil
 }

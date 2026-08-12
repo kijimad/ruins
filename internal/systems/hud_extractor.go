@@ -32,7 +32,6 @@ func ExtractHUDData(world w.World) hud.Data {
 		CurrencyData:     extractCurrencyData(world),
 		WeaponSlotsData:  extractWeaponSlotsData(world),
 		StatusBadgesData: extractStatusBadgesData(world),
-		SquadHUDData:     extractSquadHUDData(world),
 	}
 }
 
@@ -101,25 +100,10 @@ func extractMinimapData(world w.World) hud.MinimapData {
 	// タイル色情報を抽出
 	tileColors := buildTileColors(world)
 
-	// 隊員位置を抽出する
-	var squadPositions []hud.MinimapMarker
-	_, err := query.GetPlayerEntity(world)
-	if err == nil {
-		for _, member := range query.SquadMembers(world) {
-			if world.Components.GridElement.Has(member) {
-				grid := world.Components.GridElement.Get(member)
-				squadPositions = append(squadPositions, hud.MinimapMarker{
-					Tile: grid.Coord,
-				})
-			}
-		}
-	}
-
 	return hud.MinimapData{
-		PlayerTile:     consts.Coord[consts.Tile]{X: playerTileX, Y: playerTileY},
-		ExploredTiles:  exploredTiles(world),
-		TileColors:     tileColors,
-		SquadPositions: squadPositions,
+		PlayerTile:    consts.Coord[consts.Tile]{X: playerTileX, Y: playerTileY},
+		ExploredTiles: exploredTiles(world),
+		TileColors:    tileColors,
 		MinimapConfig: hud.MinimapConfig{
 			Width:  consts.MinimapWidth,
 			Height: consts.MinimapHeight,
@@ -397,44 +381,6 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 	return hud.StatusBadgesData{
 		Badges:            badges,
 		MessageAreaHeight: messageAreaHeight,
-		ScreenDimensions: hud.ScreenDimensions{
-			Width:  screenWidth,
-			Height: screenHeight,
-		},
-	}
-}
-
-// extractSquadHUDData は隊員HP一覧データを抽出する
-func extractSquadHUDData(world w.World) hud.SquadHUDData {
-	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
-
-	_, err := query.GetPlayerEntity(world)
-	if err != nil {
-		return hud.SquadHUDData{
-			ScreenDimensions: hud.ScreenDimensions{Width: screenWidth, Height: screenHeight},
-		}
-	}
-
-	var members []hud.SquadHUDMember
-	for _, member := range query.SquadMembers(world) {
-		name := query.GetEntityName(member, world)
-		hp := world.Components.HP.Get(member)
-		hungerLevel := ""
-		if world.Components.Hunger.Has(member) {
-			if level := world.Components.Hunger.Get(member).GetLevel(); level >= gc.HungerHungry {
-				hungerLevel = query.T(world, level.String())
-			}
-		}
-		members = append(members, hud.SquadHUDMember{
-			Name:        name,
-			CurrentHP:   hp.Current,
-			MaxHP:       hp.Max,
-			HungerLevel: hungerLevel,
-		})
-	}
-
-	return hud.SquadHUDData{
-		Members: members,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
 			Height: screenHeight,

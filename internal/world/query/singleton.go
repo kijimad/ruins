@@ -237,9 +237,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 			continue
 		}
 		isCharacter := world.Components.Player.Has(entity) ||
-			world.Components.SoloAI.Has(entity) ||
-			world.Components.SquadAI.Has(entity) ||
-			world.Components.SquadMember.Has(entity)
+			world.Components.SoloAI.Has(entity)
 		if !isCharacter {
 			continue
 		}

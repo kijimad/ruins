@@ -127,9 +127,9 @@ func TestOverworldState_オーバーレイ進入で帯タイルを消さない(t
 		"オーバーレイ進入で帯タイルを消さない（黒画面バグ回帰防止）")
 }
 
-// TestOverworldState_オーバーレイ往復で隊員位置が変わらない は、オーバーレイに入って戻っても
-// 隊員の位置が動かないことを固定する。
-func TestOverworldState_オーバーレイ往復で隊員位置が変わらない(t *testing.T) {
+// TestOverworldState_オーバーレイ往復でフィールドエンティティ位置が変わらない は、オーバーレイに
+// 入って戻ってもフィールド上のエンティティの位置が動かないことを固定する。
+func TestOverworldState_オーバーレイ往復でフィールドエンティティ位置が変わらない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -142,19 +142,19 @@ func TestOverworldState_オーバーレイ往復で隊員位置が変わらな�
 	require.True(t, ok)
 	require.NoError(t, st.OnStart(world))
 
-	// 隊員を1体作る（SquadMember + FactionAlly + GridElement）
-	const memberX, memberY consts.Tile = 20, 12
-	member := world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: memberX, Y: memberY}})
-	world.Components.SquadMember.Add(member, &gc.SquadMember{})
-	world.Components.FactionAlly.Add(member, &gc.FactionAlly{})
+	// フィールド上に敵を1体置く
+	const enemyX, enemyY consts.Tile = 20, 12
+	enemy := world.Components.GridElement.NewEntity(&gc.GridElement{Coord: consts.Coord[consts.Tile]{X: enemyX, Y: enemyY}})
+	world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
+	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
 
 	// オーバーレイ往復 = OnPause → OnResume
 	require.NoError(t, st.OnPause(world))
 	require.NoError(t, st.OnResume(world))
 
-	g := world.Components.GridElement.Get(member)
-	assert.Equal(t, memberX, g.X, "隊員Xは変わらない")
-	assert.Equal(t, memberY, g.Y, "隊員Yは変わらない")
+	g := world.Components.GridElement.Get(enemy)
+	assert.Equal(t, enemyX, g.X, "エンティティXは変わらない")
+	assert.Equal(t, enemyY, g.Y, "エンティティYは変わらない")
 }
 
 // countGridEntities は GridElement を持つエンティティ数を返す。

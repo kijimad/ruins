@@ -55,7 +55,7 @@ func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows
 		RecalcAutotileInXRange(world, offsetX, offsetX+chunkW)
 		// 生成したチャンクのフィールドエンティティをオーバーワールドステージへ束縛する。
 		// ステージをまたいで束縛するので、遺跡へ入るとき帯のエンティティをまとめて退避できる。
-		// シフトで生成される新チャンクもここで束縛される。Player・SquadMember・既束縛は
+		// シフトで生成される新チャンクもここで束縛される。Player・既束縛は
 		// Bind が自然に除外する
 		stage.Bind(world, gc.NewOverworldStage())
 		// このチャンクの4境界を接合後に再計算して継ぎ目を消す。片側が空の帯端は自己スキップ

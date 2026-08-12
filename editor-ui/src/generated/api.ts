@@ -1437,19 +1437,6 @@ export interface SaveDataCameraComponent {
     'TargetY': number;
 }
 /**
- * 戦闘ポリシー
- */
-
-export const SaveDataCombatPolicyType = {
-    Attack: 'attack',
-    Evade: 'evade',
-    Ignore: 'ignore',
-} as const;
-
-export type SaveDataCombatPolicyType = typeof SaveDataCombatPolicyType[keyof typeof SaveDataCombatPolicyType];
-
-
-/**
  * 戦闘コマンドテーブル名
  */
 export interface SaveDataCommandTableComponent {
@@ -1574,18 +1561,6 @@ export interface SaveDataComponentsMap {
      * 戦闘コマンドテーブル名
      */
     'CommandTable'?: SaveDataCommandTableComponent;
-    /**
-     * 隊員コンポーネント。リーダーへのエンティティ参照を含む
-     */
-    'SquadMember'?: SaveDataSquadMemberComponent;
-    /**
-     * 隊員の自律行動ポリシー
-     */
-    'SquadPolicy'?: SaveDataSquadPolicyComponent;
-    /**
-     * 隊員の外見情報
-     */
-    'MemberAppearance'?: SaveDataMemberAppearanceComponent;
     /**
      * 部位ごとの健康状態
      */
@@ -1850,30 +1825,6 @@ export interface SaveDataIntPool {
     'Current': number;
 }
 /**
- * アイテム処理ポリシー
- */
-
-export const SaveDataItemHandlingPolicyType = {
-    Keep: 'keep',
-    Distribute: 'distribute',
-} as const;
-
-export type SaveDataItemHandlingPolicyType = typeof SaveDataItemHandlingPolicyType[keyof typeof SaveDataItemHandlingPolicyType];
-
-
-/**
- * アイテム回収ポリシー
- */
-
-export const SaveDataItemPickupPolicyType = {
-    Pickup: 'pickup',
-    Ignore: 'ignore',
-} as const;
-
-export type SaveDataItemPickupPolicyType = typeof SaveDataItemPickupPolicyType[keyof typeof SaveDataItemPickupPolicyType];
-
-
-/**
  * 光源設定
  */
 export interface SaveDataLightSourceComponent {
@@ -1939,35 +1890,6 @@ export interface SaveDataMeleeComponent {
 
 
 /**
- * 隊員の外見情報
- */
-export interface SaveDataMemberAppearanceComponent {
-    /**
-     * スプライトキー。セーブデータではパターン制約を適用しない
-     */
-    'SpriteKey': string;
-}
-/**
- * 移動ポリシー
- */
-
-export const SaveDataMovementPolicyType = {
-    Random: 'random',
-    Patrol: 'patrol',
-    WallHug: 'wallHug',
-    Stationary: 'stationary',
-    Wander: 'wander',
-    Territorial: 'territorial',
-    Swarm: 'swarm',
-    Escort: 'escort',
-    Vanguard: 'vanguard',
-    Retreat: 'retreat',
-} as const;
-
-export type SaveDataMovementPolicyType = typeof SaveDataMovementPolicyType[keyof typeof SaveDataMovementPolicyType];
-
-
-/**
  * エンティティ名
  */
 export interface SaveDataNameComponent {
@@ -1976,18 +1898,6 @@ export interface SaveDataNameComponent {
      */
     'Name': string;
 }
-/**
- * 行動計画の種別
- */
-
-export const SaveDataPlannerType = {
-    Solo: 'solo',
-    Squad: 'squad',
-} as const;
-
-export type SaveDataPlannerType = typeof SaveDataPlannerType[keyof typeof SaveDataPlannerType];
-
-
 /**
  * 回復効果。Amounterインターフェースを具体型に分解してシリアライズする
  */
@@ -2119,32 +2029,6 @@ export interface SaveDataSpriteRenderComponent {
      */
     'Options'?: { [key: string]: any; };
 }
-/**
- * 隊員コンポーネント。 Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
- */
-export interface SaveDataSquadMemberComponent {
-    /**
-     * リーダーのStableID
-     */
-    'LeaderRef': SaveDataStableID;
-    /**
-     * 同行中かどうか
-     */
-    'Active': boolean;
-}
-/**
- * AIの行動ポリシー
- */
-export interface SaveDataSquadPolicyComponent {
-    'Planner': SaveDataPlannerType;
-    'Movement': SaveDataMovementPolicyType;
-    'CombatDefault': SaveDataCombatPolicyType;
-    'CombatCurrent': SaveDataCombatPolicyType;
-    'ItemPickup': SaveDataItemPickupPolicyType;
-    'ItemHandling': SaveDataItemHandlingPolicyType;
-}
-
-
 /**
  * エンティティの安定ID。セーブ/ロード間でエンティティを一意に識別する
  */

@@ -13,7 +13,7 @@ import (
 
 // CanMoveTo は指定位置に移動可能かチェックする。
 // fromは移動元の座標で、斜め移動時の壁すり抜け防止に使用する
-func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], movingEntity ecs.Entity) bool {
+func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], _ ecs.Entity) bool {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return false
@@ -41,9 +41,9 @@ func CanMoveTo(world w.World, to, from consts.Coord[consts.Tile], movingEntity e
 		return false
 	}
 
-	// キャラクターがいるタイルへは、位置交換できる相手の場合のみ移動可能
-	if target, ok := si.CharacterAt(to); ok {
-		return CanSwapPosition(world, movingEntity, target)
+	// キャラクターがいるタイルへは移動できない
+	if _, ok := si.CharacterAt(to); ok {
+		return false
 	}
 
 	return true
@@ -66,17 +66,6 @@ func frontAllowsMoveTo(world w.World, localX consts.Tile) bool {
 		return true
 	}
 	return !sb.Front.IsWestOfFront(sb.LocalToAbsX(localX))
-}
-
-// CanSwapPosition はmoverがtargetと位置交換できるかを判定する。
-// プレイヤーだけが隊員と位置交換できる
-func CanSwapPosition(world w.World, mover, target ecs.Entity) bool {
-	if world.Components.Player.Has(mover) {
-		return world.Components.SquadMember.Has(target)
-	}
-	// 隊員は他のキャラクターをブロックとして扱う。
-	// 隊員同士の位置交換を許可すると、互いに交換し続けて前進できなくなる
-	return false
 }
 
 // MoveBehavior はBehaviorの実装
@@ -208,19 +197,11 @@ func (mb *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w
 	old := grid.Coord
 	dest := p.Destination.Coord
 
-	// 味方キャラクターのいるタイルに移動する場合、位置を入れ替える
-	swapped, didSwap := swapAllyIfNeeded(world, actor, old, dest)
-
 	grid.Coord = dest
 
 	// 空間インデックスを増分更新する（無効化→全再構築のチャーンを避け、
 	// 同一ターン内で後続のAIが移動先を正しく判定できるようにする）。
-	// 入れ替えが起きた場合は相手キャラの位置(dest→old)も更新する。
-	// 更新順は問わない（MoveCharacter が自分自身のときだけ from を削除するため）。
 	query.UpdateCharacterPositionInIndex(world, actor, old, dest)
-	if didSwap {
-		query.UpdateCharacterPositionInIndex(world, swapped, dest, old)
-	}
 
 	log.Debug("move finished",
 		"actor", actor,
@@ -228,33 +209,4 @@ func (mb *MoveBehavior) performMove(comp *gc.Activity, actor ecs.Entity, world w
 		"to", dest.String())
 
 	return nil
-}
-
-// swapAllyIfNeeded はプレイヤーが隊員のいるタイルに移動する際に位置を入れ替える。
-// 入れ替えた相手と、入れ替えが発生したかを返す
-func swapAllyIfNeeded(world w.World, actor ecs.Entity, from, to consts.Coord[consts.Tile]) (ecs.Entity, bool) {
-	si := query.GetSpatialIndex(world)
-	if si == nil {
-		return ecs.Entity{}, false
-	}
-	target, ok := si.CharacterAt(to)
-	if !ok {
-		return ecs.Entity{}, false
-	}
-	if !CanSwapPosition(world, actor, target) {
-		return ecs.Entity{}, false
-	}
-	if !world.Components.GridElement.Has(target) {
-		return ecs.Entity{}, false
-	}
-	targetGrid := world.Components.GridElement.Get(target)
-	targetGrid.Coord = from
-
-	// 位置入れ替えなので味方は actor と逆向きに動く。味方視点では to から from へ移る
-	log.Debug("swapped position with ally",
-		"target", target,
-		"from", to.String(),
-		"to", from.String())
-
-	return target, true
 }

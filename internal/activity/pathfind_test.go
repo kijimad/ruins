@@ -99,7 +99,7 @@ func TestFindNextStep(t *testing.T) {
 		assert.False(t, ok)
 	})
 
-	t.Run("隊員はプレイヤーを迂回する", func(t *testing.T) {
+	t.Run("AIはプレイヤーを迂回する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		si := query.GetSpatialIndex(world)
@@ -116,14 +116,14 @@ func TestFindNextStep(t *testing.T) {
 		si.PlayerEntity = &player
 
 		mover := world.ECS.NewEntity()
-		world.Components.SquadMember.Add(mover, &gc.SquadMember{})
+		world.Components.SoloAI.Add(mover, &gc.SoloAI{})
 
 		next, ok := FindNextStep(world, mover, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 2, Y: 0})
 		require.True(t, ok, "プレイヤーを迂回する経路が見つかるべき")
 		assert.False(t, next.X == 1 && next.Y == 0, "プレイヤーのタイルは踏まない")
 	})
 
-	t.Run("隊員同士は迂回する", func(t *testing.T) {
+	t.Run("AI同士は迂回する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		si := query.GetSpatialIndex(world)
@@ -133,16 +133,16 @@ func TestFindNextStep(t *testing.T) {
 		si.BlockPass = make(map[gc.GridElement]bool)
 		si.Characters = make(map[gc.GridElement]ecs.Entity)
 
-		otherMember := world.ECS.NewEntity()
-		world.Components.SquadMember.Add(otherMember, &gc.SquadMember{})
-		si.Characters[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(1), Y: consts.Tile(0)}}] = otherMember
+		other := world.ECS.NewEntity()
+		world.Components.SoloAI.Add(other, &gc.SoloAI{})
+		si.Characters[gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(1), Y: consts.Tile(0)}}] = other
 
 		mover := world.ECS.NewEntity()
-		world.Components.SquadMember.Add(mover, &gc.SquadMember{})
+		world.Components.SoloAI.Add(mover, &gc.SoloAI{})
 
 		next, ok := FindNextStep(world, mover, consts.Coord[consts.Tile]{X: 0, Y: 0}, consts.Coord[consts.Tile]{X: 2, Y: 0})
-		require.True(t, ok, "隊員を迂回する経路が見つかるべき")
-		assert.False(t, next.X == 1 && next.Y == 0, "他の隊員のタイルは踏まない")
+		require.True(t, ok, "他キャラを迂回する経路が見つかるべき")
+		assert.False(t, next.X == 1 && next.Y == 0, "他キャラのタイルは踏まない")
 	})
 
 	t.Run("BlockPassなゴールにも経路を見つける", func(t *testing.T) {

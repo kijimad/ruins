@@ -40,7 +40,7 @@ func (h HungerLevel) String() string {
 	}
 }
 
-// Hunger は空腹度を表す。プレイヤーと隊員が保持する。
+// Hunger は空腹度を表す。プレイヤーなどのキャラクターが保持する。
 // 0が飢餓状態、値が大きいほど満腹
 type Hunger Pool[int]
 

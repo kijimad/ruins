@@ -13,7 +13,7 @@ type SpatialIndex struct {
 	MapWidth, MapHeight consts.Tile
 	// 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つ固定物が対象
 	BlockPass map[GridElement]bool
-	// キャラクター位置のインデックス。プレイヤー・敵・隊員・中立NPCの位置
+	// キャラクター位置のインデックス。プレイヤー・敵・中立NPCの位置
 	Characters map[GridElement]ecs.Entity
 	// プレイヤーエンティティのキャッシュ。プレイヤーが存在しない場合はnil
 	PlayerEntity *ecs.Entity
@@ -47,7 +47,7 @@ func (si *SpatialIndex) CharacterAt(pos consts.Coord[consts.Tile]) (ecs.Entity, 
 // MoveCharacter はキャラクターの位置を増分更新する。
 // 無効化→全再構築のチャーンを避け、移動のたびに O(1) でインデックスを最新に保つ。
 // from タイルの登録が自分自身のときだけ削除し、位置入れ替えで別キャラが入った場合を壊さない
-// actor と隊員をどちらの順で更新しても最終状態が正しくなる。
+// 2体をどちらの順で更新しても最終状態が正しくなる。
 // 未構築の場合は何もしない。次回アクセス時に真から再構築される。
 func (si *SpatialIndex) MoveCharacter(from, to consts.Coord[consts.Tile], e ecs.Entity) {
 	if !si.Built {

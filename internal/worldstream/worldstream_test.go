@@ -49,7 +49,7 @@ func TestRemoveEntitiesInXRange(t *testing.T) {
 	outside, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 15, Y: 5}, "fireball")
 	require.NoError(t, err)
 
-	removed := worldstream.RemoveEntitiesInXRange(world, 0, 10, worldstream.KeepPlayerAndSquad(world))
+	removed := worldstream.RemoveEntitiesInXRange(world, 0, 10, worldstream.KeepPlayer(world))
 
 	assert.Equal(t, 1, removed, "範囲内の非keepエンティティ1体だけ削除される")
 	assert.True(t, world.ECS.Alive(player), "プレイヤーは範囲内でも keep で残る")

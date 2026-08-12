@@ -27,7 +27,7 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 func dungeonMenuChoices(world w.World) (string, []Choice) {
 	return "", []Choice{
 		{Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
-		{Label: query.T(world, "Party"), Run: pushChoice(NewCharacterState)},
+		{Label: query.T(world, "Character"), Run: pushChoice(NewCharacterState)},
 		{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)},
 		{Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}}, nil
@@ -43,17 +43,9 @@ func NewCraftMenuState() (es.State[w.World], error) {
 	return &CraftMenuState{}, nil
 }
 
-// NewCharacterState は画面タブメニューのStateを作成するファクトリー関数。主人公から始まる
+// NewCharacterState は画面タブメニューのStateを作成するファクトリー関数。主人公を表示する
 func NewCharacterState() (es.State[w.World], error) {
 	return &CharacterState{}, nil
-}
-
-// NewCharacterStateForMember は指定メンバーを表示対象にした画面タブメニューを作成する。
-// 画面内で切り替えて主人公や他の仲間も見られる
-func NewCharacterStateForMember(member ecs.Entity) es.StateFactory[w.World] {
-	return func() (es.State[w.World], error) {
-		return &CharacterState{target: member}, nil
-	}
 }
 
 // DungeonStateOption はDungeonStateのオプション設定関数

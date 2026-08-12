@@ -158,8 +158,7 @@ func TestProcessor(t *testing.T) {
 
 	processor := NewProcessor(newTestRNG())
 	assert.NotNil(t, processor, "Processorが作成できること")
-	assert.NotNil(t, processor.planners[gc.PlannerSolo])
-	assert.NotNil(t, processor.planners[gc.PlannerSquad])
+	assert.NotNil(t, processor.planner)
 }
 
 // containsEntity はスライスにエンティティが含まれるかを返す（テスト用）

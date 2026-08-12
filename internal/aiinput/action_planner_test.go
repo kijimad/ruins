@@ -759,23 +759,12 @@ func TestFindNearestHostile_プレイヤーのみ(t *testing.T) {
 	assert.True(t, world.Components.Player.Has(*target))
 }
 
-func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
+func TestFindNearestHostile_プレイヤーが最寄り(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 20}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 6, Y: 5}, "ash")
 	require.NoError(t, err)
-
-	abilities := gc.Abilities{
-		Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
-		Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
-		Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
-	}
-	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
-	require.NoError(t, err)
-	memberGrid := world.Components.GridElement.Get(member)
-	memberGrid.X = consts.Tile(6)
-	memberGrid.Y = consts.Tile(5)
 
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
@@ -787,8 +776,8 @@ func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	target := rp.findNearestHostile(world, entity)
-	require.NotNil(t, target, "隊員が見つかるべき")
-	assert.True(t, world.Components.SquadMember.Has(*target), "最寄りの隊員が選ばれるべき")
+	require.NotNil(t, target, "プレイヤーが見つかるべき")
+	assert.Equal(t, player, *target, "最寄りのプレイヤーが選ばれるべき")
 }
 
 func TestFindNearestHostile_敵対対象がいない(t *testing.T) {
@@ -808,23 +797,12 @@ func TestFindNearestHostile_敵対対象がいない(t *testing.T) {
 	assert.Nil(t, target)
 }
 
-func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
+func TestPlanAction_ChasingState_プレイヤーに隣接で攻撃(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 20, Y: 20}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 6, Y: 5}, "ash")
 	require.NoError(t, err)
-
-	abilities := gc.Abilities{
-		Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
-		Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
-		Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
-	}
-	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
-	require.NoError(t, err)
-	memberGrid := world.Components.GridElement.Get(member)
-	memberGrid.X = consts.Tile(6)
-	memberGrid.Y = consts.Tile(5)
 
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
@@ -839,28 +817,17 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorMelee, behavior.BehaviorName, "隣接する隊員を攻撃すべき")
+	assert.Equal(t, gc.BehaviorMelee, behavior.BehaviorName, "隣接するプレイヤーを攻撃すべき")
 	attack := activityParams[*gc.MeleeParams](t, behavior)
 	assert.NotZero(t, attack.Target)
 }
 
-func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
+func TestPlanAction_ChasingState_プレイヤーに接近(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 30, Y: 30}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 8, Y: 5}, "ash")
 	require.NoError(t, err)
-
-	abilities := gc.Abilities{
-		Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
-		Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
-		Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
-	}
-	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
-	require.NoError(t, err)
-	memberGrid := world.Components.GridElement.Get(member)
-	memberGrid.X = consts.Tile(8)
-	memberGrid.Y = consts.Tile(5)
 
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
@@ -875,7 +842,7 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 
 	rp := newSoloPlanner(newTestRNG())
 	behavior := rp.Plan(world, entity)
-	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName, "離れた隊員に向かって移動すべき")
+	assert.Equal(t, gc.BehaviorMove, behavior.BehaviorName, "離れたプレイヤーに向かって移動すべき")
 	move := activityParams[*gc.MoveParams](t, behavior)
-	assert.Greater(t, int(move.Destination.X), 5, "隊員方向に移動すべき")
+	assert.Greater(t, int(move.Destination.X), 5, "プレイヤー方向に移動すべき")
 }

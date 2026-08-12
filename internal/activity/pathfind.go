@@ -23,8 +23,8 @@ func (g *bfsGrid) isPassable(pos consts.Coord[consts.Tile]) bool {
 	if g.si.BlockPass[key] {
 		return false
 	}
-	if target, ok := g.si.Characters[key]; ok {
-		return CanSwapPosition(g.world, g.mover, target)
+	if _, ok := g.si.Characters[key]; ok {
+		return false
 	}
 	return true
 }

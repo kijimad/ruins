@@ -64,11 +64,6 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 	}
 }
 
-// gridDistance は2つのGridElement間のチェビシェフ距離を返す
-func gridDistance(a, b *gc.GridElement) int {
-	return geometry.ChebyshevDistance(a.Coord, b.Coord)
-}
-
 // eightDirections は隣接8方向の座標差分を定義する
 var eightDirections = []consts.Coord[consts.Tile]{
 	{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
