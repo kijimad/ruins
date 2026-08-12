@@ -124,8 +124,6 @@ func TestCloseDoorBehavior(t *testing.T) {
 
 		result, err := Execute(NewCloseDoorActivity(door), player, world)
 
-		// 占有時は Validate が *UserError を返し、Execute が err=nil の no-op に変換する。
-		// err==nil がその経路を通った証拠。通常の error なら Execute は err を返す
 		require.NoError(t, err, "占有時は *UserError の no-op になる")
 		assert.False(t, result.Success, "占有中は閉じられない")
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
@@ -144,7 +142,6 @@ func TestCloseDoorBehavior(t *testing.T) {
 
 		result, err := Execute(NewCloseDoorActivity(door), player, world)
 
-		// キャラテストと同じく、占有時は *UserError が err=nil の no-op に変換される
 		require.NoError(t, err, "占有時は *UserError の no-op になる")
 		assert.False(t, result.Success, "アイテムがあると閉じられない")
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)

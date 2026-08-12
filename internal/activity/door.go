@@ -169,8 +169,7 @@ func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 	}
 
 	// 扉のマスにキャラクターか拾えるアイテムがいれば閉じられない。人や物の上に扉を閉じない。
-	// 扉相互作用は隣接マスから発動するため、閉じる本人がこの判定に当たることはない。
-	// 扉は必ず GridElement を持つので直接取得する。欠けていれば不変条件違反として Get が panic する
+	// 扉相互作用は隣接マスから発動するため、閉じる本人はこの判定に当たらない
 	coord := world.Components.GridElement.Get(targetEntity).Coord
 	if doorTileOccupied(world, coord) {
 		return &UserError{Msg: query.T(world, "Something is in the doorway.")}
@@ -179,18 +178,15 @@ func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 	return nil
 }
 
-// doorTileOccupied は扉の座標にキャラクターか拾えるアイテムがいるかを返す。
-// キャラクターは空間インデックスの定義を再利用し、アイテムは IsPickable で判定する
+// doorTileOccupied は扉の座標にキャラクターか拾えるアイテムがいるかを返す
 func doorTileOccupied(world w.World, coord consts.Coord[consts.Tile]) bool {
-	// GetSpatialIndex は現ステージのフィールドが無いときだけ nil を返す。閉じる扉は必ず
-	// フィールド上にあるので実際に nil にはならないが、契約に従い nil を弾いてからキャラを見る
+	// si は現ステージのフィールドが無いときだけ nil。扉閉鎖では実際には nil にならない
 	if si := query.GetSpatialIndex(world); si != nil {
 		if _, ok := si.CharacterAt(coord); ok {
 			return true
 		}
 	}
-	// アイテムは空間インデックスに載らないため、座標のエンティティを直接見る。
-	// IsPickable は LocationOnField かつ非 Fixed。扉自身や固定プロップは Fixed で除外され、拾える物だけ残る
+	// 扉自身も LocationOnField を持つため、Fixed を除く IsPickable で拾える物だけ見る
 	return slices.ContainsFunc(query.GetEntitiesAt(world, coord.X, coord.Y), func(e ecs.Entity) bool {
 		return query.IsPickable(e, world)
 	})
