@@ -183,11 +183,14 @@ func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 // doorTileOccupied は扉の座標にキャラクターかフィールドアイテムがいるかを返す。
 // キャラクターは空間インデックスの定義を再利用し、アイテムは LocationOnField で判定する
 func doorTileOccupied(world w.World, coord consts.Coord[consts.Tile]) bool {
+	// GetSpatialIndex は現ステージのフィールドが無いときだけ nil を返す。閉じる扉は必ず
+	// フィールド上にあるので実際に nil にはならないが、契約に従い nil を弾いてからキャラを見る
 	if si := query.GetSpatialIndex(world); si != nil {
 		if _, ok := si.CharacterAt(coord); ok {
 			return true
 		}
 	}
+	// アイテムは空間インデックスに載らないため、座標のエンティティを直接見る
 	return slices.ContainsFunc(query.GetEntitiesAt(world, coord.X, coord.Y), world.Components.LocationOnField.Has)
 }
 
