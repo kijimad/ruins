@@ -1333,6 +1333,9 @@ msgstr "扉を開いた。"
 msgid "Closed the door."
 msgstr "扉を閉じた。"
 
+msgid "Something is in the doorway."
+msgstr "扉のところに何かがある。"
+
 msgid "attack target is not set"
 msgstr "攻撃対象が設定されていません"
 

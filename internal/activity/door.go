@@ -2,6 +2,7 @@ package activity
 
 import (
 	"fmt"
+	"slices"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -167,7 +168,27 @@ func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 		return fmt.Errorf("target is not a door")
 	}
 
+	// 扉のマスにキャラクターかフィールドアイテムがいれば閉じられない。人や物の上に扉を閉じない。
+	// 扉相互作用は隣接マスから発動するため、閉じる本人がこの判定に当たることはない
+	if world.Components.GridElement.Has(targetEntity) {
+		coord := world.Components.GridElement.Get(targetEntity).Coord
+		if doorTileOccupied(world, coord) {
+			return &UserError{Msg: query.T(world, "Something is in the doorway.")}
+		}
+	}
+
 	return nil
+}
+
+// doorTileOccupied は扉の座標にキャラクターかフィールドアイテムがいるかを返す。
+// キャラクターは空間インデックスの定義を再利用し、アイテムは LocationOnField で判定する
+func doorTileOccupied(world w.World, coord consts.Coord[consts.Tile]) bool {
+	if si := query.GetSpatialIndex(world); si != nil {
+		if _, ok := si.CharacterAt(coord); ok {
+			return true
+		}
+	}
+	return slices.ContainsFunc(query.GetEntitiesAt(world, coord.X, coord.Y), world.Components.LocationOnField.Has)
 }
 
 // Start は扉閉鎖開始時の処理を実行する

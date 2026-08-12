@@ -6,6 +6,9 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -96,5 +99,74 @@ func TestOpenDoorBehavior(t *testing.T) {
 		assert.NotEmpty(t, result.Message)
 
 		world.ECS.RemoveEntity(player)
+	})
+}
+
+func TestCloseDoorBehavior(t *testing.T) {
+	t.Parallel()
+
+	// newOpenDoor はプレイヤーを扉の隣接マスに、開いた扉を doorCoord に置く
+	newOpenDoor := func(world w.World, doorCoord consts.Coord[consts.Tile]) (player, door ecs.Entity) {
+		player = world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: doorCoord.X - 1, Y: doorCoord.Y}})
+		world.Components.TurnBased.Add(player, &gc.TurnBased{})
+
+		door = world.ECS.NewEntity()
+		world.Components.Door.Add(door, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
+		world.Components.GridElement.Add(door, &gc.GridElement{Coord: doorCoord})
+		return player, door
+	}
+
+	t.Run("無人の扉は閉じられる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		doorCoord := consts.Coord[consts.Tile]{X: 11, Y: 10}
+		player, door := newOpenDoor(world, doorCoord)
+
+		result, err := Execute(NewCloseDoorActivity(door), player, world)
+
+		require.NoError(t, err)
+		assert.True(t, result.Success, "無人なら閉じられる")
+		assert.False(t, world.Components.Door.Get(door).IsOpen, "扉が閉じているべき")
+	})
+
+	t.Run("扉のマスにキャラがいると閉じられない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		doorCoord := consts.Coord[consts.Tile]{X: 11, Y: 10}
+		player, door := newOpenDoor(world, doorCoord)
+
+		// 扉のマスに敵を置く。空間インデックスに反映させるため無効化する
+		enemy := world.ECS.NewEntity()
+		world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
+		world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: doorCoord})
+		query.InvalidateSpatialIndex(world)
+
+		result, err := Execute(NewCloseDoorActivity(door), player, world)
+
+		require.NoError(t, err, "ユーザ起因の失敗は err=nil の no-op になる")
+		assert.False(t, result.Success, "占有中は閉じられない")
+		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.True(t, world.Components.Door.Get(door).IsOpen, "扉は開いたまま")
+	})
+
+	t.Run("扉のマスにアイテムがあると閉じられない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		doorCoord := consts.Coord[consts.Tile]{X: 11, Y: 10}
+		player, door := newOpenDoor(world, doorCoord)
+
+		// 扉のマスにフィールドアイテムを置く
+		item := world.ECS.NewEntity()
+		world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: doorCoord})
+
+		result, err := Execute(NewCloseDoorActivity(door), player, world)
+
+		require.NoError(t, err)
+		assert.False(t, result.Success, "アイテムがあると閉じられない")
+		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.True(t, world.Components.Door.Get(door).IsOpen, "扉は開いたまま")
 	})
 }
