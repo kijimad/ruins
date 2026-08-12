@@ -86,11 +86,9 @@ func drawCollection(raws oapi.Raws, entries []oapi.ItemGroupEntry, rng *rand.Ran
 	return out, nil
 }
 
-// rollPack は pack のダイス表記を振って個数を返す。空表記は1個とみなす。
+// rollPack は pack のダイス表記を振って個数を返す。pack は必須で、空表記や不正表記は ParseDice が弾く。
+// ロード時の validateSpawnDice が同じ ParseDice で全 pack を検証するので、正常データでは実行時にエラーにならない。
 func rollPack(pack oapi.Dice, rng *rand.Rand) (int, error) {
-	if pack == "" {
-		return 1, nil
-	}
 	d, err := consts.ParseDice(pack)
 	if err != nil {
 		return 0, fmt.Errorf("%w %q: %w", errInvalidPackDice, pack, err)

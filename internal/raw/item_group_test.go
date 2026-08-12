@@ -140,13 +140,12 @@ func TestDrawDistribution_選ばれたエントリのIdが空なら何も返さ�
 	assert.Nil(t, draws)
 }
 
-func TestRollPack_空表記は1個とみなす(t *testing.T) {
+func TestRollPack_空表記はエラー(t *testing.T) {
 	t.Parallel()
 
 	rng := rand.New(rand.NewPCG(1, 2))
-	count, err := rollPack("", rng)
-	require.NoError(t, err)
-	assert.Equal(t, 1, count)
+	_, err := rollPack("", rng)
+	require.ErrorIs(t, err, errInvalidPackDice)
 }
 
 func TestRollPack_不正なダイス表記はエラー(t *testing.T) {
