@@ -189,8 +189,8 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 		if !exists {
 			continue
 		}
-		// 記憶タイルの床は退色させて描く。CDDA と同様に「今見ている」ではなく
-		// 「記憶している」と一目で分かる見た目にし、平坦な暗い矩形に見えないようにする
+		// 記憶タイルの床は退色させて描く。今見えているタイルと区別して「記憶している」と
+		// 分かる見た目にする。フルカラーのまま暗くすると平坦な暗い部屋に見えるのを避ける
 		_, remembered := info.(TileRenderRemembered)
 
 		spriteRender := world.Components.SpriteRender.Get(entity)
@@ -436,8 +436,8 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 
 // renderDarkness は per-tile の暗さをタイル整列でそのまま描く暗闇オーバーレイ。
 // vision が壁遮蔽込みで計算した per-tile の暗さを1タイル1テクセルの小画像へ詰め、
-// FilterNearest でタイルサイズへ拡大する。補間しないので CDDA のようにタイル単位の
-// 一様な明るさになる。暗さは連続値なので段差ジャンプ(チカチカ)は出ない。
+// FilterNearest でタイルサイズへ拡大する。補間しないのでタイル単位の一様な明るさになり、
+// ドット絵と質感が揃う。暗さは連続値なので段差ジャンプ(チカチカ)は出ない。
 func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {
 	var cameraX, cameraY float64
 	cameraScale := 1.0
