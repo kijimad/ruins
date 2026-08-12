@@ -542,8 +542,8 @@ msgstr "すべての遺跡を踏破した。\n\n大穴の底に眠っていた�
 msgid "Inventory"
 msgstr "所持"
 
-msgid "Party"
-msgstr "部隊"
+msgid "Character"
+msgstr "キャラクター"
 
 msgid "Save game"
 msgstr "書込"

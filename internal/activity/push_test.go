@@ -96,7 +96,7 @@ func addWall(t *testing.T, world w.World, coord consts.Coord[consts.Tile]) {
 	world.Components.BlockPass.Add(e, &gc.BlockPass{})
 }
 
-func TestPushBehavior_総重量とパーティAPで決まる複数ターンをかけて押す(t *testing.T) {
+func TestPushBehavior_総重量とプレイヤーのAPで決まる複数ターンをかけて押す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	// 空のキューブの PushCost は基準 1000。AP 500 なので所要2ターン

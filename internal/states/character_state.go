@@ -184,13 +184,13 @@ func (st *CharacterState) unequipSlot(world w.World, slot equipItemData) error {
 
 // logEquipChange は装備の着脱をゲームログに出す。format は対象キャラ名とアイテム名を差し込む
 // "%s ... %s" 形式の翻訳済み書式。アイテム名はシアンを保つ
-func logEquipChange(world w.World, member ecs.Entity, itemName, format string) {
-	memberName := ""
-	if world.ECS.Alive(member) && world.Components.Name.Has(member) {
-		memberName = query.GetEntityName(member, world)
+func logEquipChange(world w.World, character ecs.Entity, itemName, format string) {
+	characterName := ""
+	if world.ECS.Alive(character) && world.Components.Name.Has(character) {
+		characterName = query.GetEntityName(character, world)
 	}
 	gamelog.New(query.GetGameLog(world)).
-		Markup(fmt.Sprintf(format, memberName, gamelog.Tag("item", itemName))).
+		Markup(fmt.Sprintf(format, characterName, gamelog.Tag("item", itemName))).
 		Log()
 }
 
