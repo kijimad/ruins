@@ -73,11 +73,9 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			abils.Agility.Modifier += wearable.EquipBonus.Agility
 		}
 
-		// 装備した光源を owner の LightSource へ転写する。装備品は GridElement を持たず
-		// vision に拾われないので、位置を持つ owner へ写して照らす。トーチは武器スロットに
-		// 装備するので Wearable ではなく LightSource で拾う。最も明るい光源を採用する。
-		// プレイヤー限定にする。発光する member などの内蔵 LightSource を、装備が無いからと
-		// 消してしまわないため。NPC の携行光源が要るようになったらここを広げる
+		// 装備した光源をプレイヤー自身の LightSource へ写す。装備品は位置を持たず vision に
+		// 拾われないので、位置を持つプレイヤーが代わりに光源になる。複数あれば最も明るいもの。
+		// プレイヤー限定なのは、発光する member 等の内蔵光源を装備の有無で消さないため。
 		if world.Components.Player.Has(entity) && world.Components.LightSource.Has(entity) {
 			ls := world.Components.LightSource.Get(entity)
 			ls.Enabled = false
