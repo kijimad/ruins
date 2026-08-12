@@ -393,3 +393,53 @@ func TestCalculateLightSourceDarkness_壁が光を遮る(t *testing.T) {
 		assert.Less(t, info.Darkness, 1.0, "壁が無ければ壁の裏と同じ位置でも照らされる")
 	})
 }
+
+// TestCalculateLightSourceDarkness_明るさの合成 は明るさが距離減衰・加算・環境光で
+// 決まることを固定する。遮蔽テストは「届くか」しか見ないので、減衰形状と合成を別に押さえる。
+func TestCalculateLightSourceDarkness_明るさの合成(t *testing.T) {
+	t.Parallel()
+
+	noWall := map[gc.GridElement]bool{}
+	addLight := func(world w.World, x, y int) {
+		grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}}
+		e := world.ECS.NewEntity()
+		world.Components.GridElement.Add(e, &grid)
+		world.Components.LightSource.Add(e, &gc.LightSource{
+			Radius:  10,
+			Color:   color.RGBA{R: 255, G: 255, B: 255, A: 255},
+			Enabled: true,
+		})
+	}
+
+	t.Run("光源に近いほど明るい", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		addLight(world, 5, 5)
+		near := calculateLightSourceDarkness(world, consts.Coord[int]{X: 6, Y: 5}, noWall, 0.0)
+		far := calculateLightSourceDarkness(world, consts.Coord[int]{X: 13, Y: 5}, noWall, 0.0)
+		assert.Less(t, near.Darkness, far.Darkness, "近いタイルの方が暗さが小さい")
+	})
+
+	t.Run("光源が重なると明るくなる", func(t *testing.T) {
+		t.Parallel()
+		// プラトー外の距離8で、1灯と2灯を比べる。加算されるので2灯の方が暗さが小さい
+		one := testutil.InitTestWorld(t)
+		addLight(one, 5, 5)
+		darknessOne := calculateLightSourceDarkness(one, consts.Coord[int]{X: 13, Y: 5}, noWall, 0.0).Darkness
+
+		two := testutil.InitTestWorld(t)
+		addLight(two, 5, 5)
+		addLight(two, 21, 5)
+		darknessTwo := calculateLightSourceDarkness(two, consts.Coord[int]{X: 13, Y: 5}, noWall, 0.0).Darkness
+
+		assert.Less(t, darknessTwo, darknessOne, "2灯に照らされると加算で明るくなる")
+	})
+
+	t.Run("光の届かないタイルは環境光で決まる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		// 光源を置かない。暗さ = 1 - 環境光
+		info := calculateLightSourceDarkness(world, consts.Coord[int]{X: 5, Y: 5}, noWall, 0.3)
+		assert.InDelta(t, 0.7, info.Darkness, 1e-9, "光が無ければ暗さは環境光で決まる")
+	})
+}
