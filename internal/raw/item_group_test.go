@@ -135,32 +135,41 @@ func TestDrawDistribution_選ばれたエントリのIdが空なら何も返さ�
 	raws := newTestRawsForItemGroup(testGroupItems(), nil)
 	rng := rand.New(rand.NewPCG(1, 2))
 
+	// Id 空は通常あり得ないが、drawDistribution の防御ガードが何も返さず nil で抜けることを確認する
 	draws, err := drawDistribution(raws, []oapi.ItemGroupEntry{{Id: "", Weight: 1.0, Pack: "1d1"}}, rng)
 	require.NoError(t, err)
 	assert.Nil(t, draws)
 }
 
-func TestRollPack_空表記はエラー(t *testing.T) {
+func TestRollPack(t *testing.T) {
 	t.Parallel()
 
-	rng := rand.New(rand.NewPCG(1, 2))
-	_, err := rollPack("", rng)
-	require.ErrorIs(t, err, errInvalidPackDice)
-}
+	// 空表記も不正表記も ParseDice が弾き、errInvalidPackDice になる
+	cases := []struct {
+		name string
+		pack oapi.Dice
+	}{
+		{"空表記はエラー", ""},
+		{"不正なダイス表記はエラー", "oops"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-func TestRollPack_不正なダイス表記はエラー(t *testing.T) {
-	t.Parallel()
-
-	rng := rand.New(rand.NewPCG(1, 2))
-	_, err := rollPack("oops", rng)
-	require.ErrorIs(t, err, errInvalidPackDice)
+			rng := rand.New(rand.NewPCG(1, 2))
+			_, err := rollPack(tc.pack, rng)
+			require.ErrorIs(t, err, errInvalidPackDice)
+		})
+	}
 }
 
 func TestExpandDraw_個数が0以下ならnil(t *testing.T) {
 	t.Parallel()
 
 	raws := newTestRawsForItemGroup(testGroupItems(), nil)
-	assert.Nil(t, expandDraw(raws, "sword", 0))
+	for _, count := range []int{0, -1} {
+		assert.Nil(t, expandDraw(raws, "sword", count), "count=%d", count)
+	}
 }
 
 func TestIsStackableItem(t *testing.T) {
