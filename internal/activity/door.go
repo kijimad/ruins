@@ -168,13 +168,12 @@ func (cdb *CloseDoorBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.
 		return fmt.Errorf("target is not a door")
 	}
 
-	// 扉のマスにキャラクターかフィールドアイテムがいれば閉じられない。人や物の上に扉を閉じない。
-	// 扉相互作用は隣接マスから発動するため、閉じる本人がこの判定に当たることはない
-	if world.Components.GridElement.Has(targetEntity) {
-		coord := world.Components.GridElement.Get(targetEntity).Coord
-		if doorTileOccupied(world, coord) {
-			return &UserError{Msg: query.T(world, "Something is in the doorway.")}
-		}
+	// 扉のマスにキャラクターか拾えるアイテムがいれば閉じられない。人や物の上に扉を閉じない。
+	// 扉相互作用は隣接マスから発動するため、閉じる本人がこの判定に当たることはない。
+	// 扉は必ず GridElement を持つので直接取得する。欠けていれば不変条件違反として Get が panic する
+	coord := world.Components.GridElement.Get(targetEntity).Coord
+	if doorTileOccupied(world, coord) {
+		return &UserError{Msg: query.T(world, "Something is in the doorway.")}
 	}
 
 	return nil
