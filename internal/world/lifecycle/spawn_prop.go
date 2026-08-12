@@ -37,17 +37,21 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 	doorComp.Orientation = orientation
 	doorComp.IsOpen = isOpen
 
-	// スプライトキーを更新
+	// スプライトキーと高さを更新する。
+	// 開いた扉は平らな低い物として扱い、高さを下げる。高さが無いのでドロップシャドウを落とさず、
+	// 背の高い物の後ろに沈む。閉じた扉は高さのある障壁に戻す。
 	if world.Components.SpriteRender.Has(doorEntity) {
 		spriteRender := world.Components.SpriteRender.Get(doorEntity)
 
 		if isOpen {
+			spriteRender.Depth = gc.DepthNumRug
 			if orientation == gc.DoorOrientationHorizontal {
 				spriteRender.SpriteKey = "door_horizontal_open"
 			} else {
 				spriteRender.SpriteKey = "door_vertical_open"
 			}
 		} else {
+			spriteRender.Depth = gc.DepthNumTaller
 			if orientation == gc.DoorOrientationHorizontal {
 				spriteRender.SpriteKey = "door_horizontal_closed"
 			} else {
