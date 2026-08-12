@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
@@ -87,7 +87,7 @@
 				
 				<option value="file15">github.com/kijimaD/ruins/internal/activity/rest.go (92.0%)</option>
 				
-				<option value="file16">github.com/kijimaD/ruins/internal/activity/shoot.go (89.8%)</option>
+				<option value="file16">github.com/kijimaD/ruins/internal/activity/shoot.go (88.8%)</option>
 				
 				<option value="file17">github.com/kijimaD/ruins/internal/activity/talk.go (81.6%)</option>
 				
@@ -155,7 +155,7 @@
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/components/game_progress.go (100.0%)</option>
 				
-				<option value="file50">github.com/kijimaD/ruins/internal/components/game_time.go (55.0%)</option>
+				<option value="file50">github.com/kijimaD/ruins/internal/components/game_time.go (57.1%)</option>
 				
 				<option value="file51">github.com/kijimaD/ruins/internal/components/health_status.go (84.8%)</option>
 				
@@ -353,7 +353,7 @@
 				
 				<option value="file148">github.com/kijimaD/ruins/internal/mapplanner/plan.go (82.9%)</option>
 				
-				<option value="file149">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (75.7%)</option>
+				<option value="file149">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (78.4%)</option>
 				
 				<option value="file150">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -467,7 +467,7 @@
 				
 				<option value="file205">github.com/kijimaD/ruins/internal/states/character_naming.go (82.5%)</option>
 				
-				<option value="file206">github.com/kijimaD/ruins/internal/states/character_state.go (49.3%)</option>
+				<option value="file206">github.com/kijimaD/ruins/internal/states/character_state.go (49.8%)</option>
 				
 				<option value="file207">github.com/kijimaD/ruins/internal/states/character_view.go (70.7%)</option>
 				
@@ -479,11 +479,11 @@
 				
 				<option value="file211">github.com/kijimaD/ruins/internal/states/cube_panel.go (85.2%)</option>
 				
-				<option value="file212">github.com/kijimaD/ruins/internal/states/debug_menu.go (10.0%)</option>
+				<option value="file212">github.com/kijimaD/ruins/internal/states/debug_menu.go (9.6%)</option>
 				
 				<option value="file213">github.com/kijimaD/ruins/internal/states/demo_start.go (52.9%)</option>
 				
-				<option value="file214">github.com/kijimaD/ruins/internal/states/dungeon.go (74.2%)</option>
+				<option value="file214">github.com/kijimaD/ruins/internal/states/dungeon.go (76.7%)</option>
 				
 				<option value="file215">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (78.5%)</option>
 				
@@ -509,7 +509,7 @@
 				
 				<option value="file226">github.com/kijimaD/ruins/internal/states/settings_menu.go (69.6%)</option>
 				
-				<option value="file227">github.com/kijimaD/ruins/internal/states/shooting.go (39.4%)</option>
+				<option value="file227">github.com/kijimaD/ruins/internal/states/shooting.go (42.4%)</option>
 				
 				<option value="file228">github.com/kijimaD/ruins/internal/states/shop_menu.go (59.8%)</option>
 				
@@ -537,15 +537,15 @@
 				
 				<option value="file240">github.com/kijimaD/ruins/internal/systems/hunger.go (100.0%)</option>
 				
-				<option value="file241">github.com/kijimaD/ruins/internal/systems/render_sprite.go (7.2%)</option>
+				<option value="file241">github.com/kijimaD/ruins/internal/systems/render_sprite.go (7.5%)</option>
 				
-				<option value="file242">github.com/kijimaD/ruins/internal/systems/stats_changed.go (92.0%)</option>
+				<option value="file242">github.com/kijimaD/ruins/internal/systems/stats_changed.go (92.3%)</option>
 				
 				<option value="file243">github.com/kijimaD/ruins/internal/systems/temperature.go (84.3%)</option>
 				
 				<option value="file244">github.com/kijimaD/ruins/internal/systems/turn_system.go (84.4%)</option>
 				
-				<option value="file245">github.com/kijimaD/ruins/internal/systems/vision.go (70.0%)</option>
+				<option value="file245">github.com/kijimaD/ruins/internal/systems/vision.go (67.3%)</option>
 				
 				<option value="file246">github.com/kijimaD/ruins/internal/systems/visual_effect.go (17.6%)</option>
 				
@@ -1507,10 +1507,10 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 
                 <span class="cov8" title="1">weapons := query.GetWeapons(world, attacker)
                 weapon := weapons[weaponIndex]
-                if weapon != nil </span><span class="cov0" title="0">{
+                if weapon != nil </span><span class="cov8" title="1">{
                         // 装備している武器から攻撃パラメータを取得
                         attack, weaponName, err := query.GetMeleeFromWeapon(world, *weapon)
-                        if err == nil &amp;&amp; attack != nil </span><span class="cov0" title="0">{
+                        if err == nil &amp;&amp; attack != nil </span><span class="cov8" title="1">{
                                 return attack, weaponName, nil
                         }</span>
                 }
@@ -4411,7 +4411,7 @@ func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, string, error) 
 
         <span class="cov8" title="1">weapons := query.GetWeapons(world, actor)
         weaponEntity := weapons[weaponIndex]
-        if weaponEntity == nil </span><span class="cov8" title="1">{
+        if weaponEntity == nil </span><span class="cov0" title="0">{
                 return nil, "", ErrShootNoFireWeapon
         }</span>
 
@@ -10006,7 +10006,11 @@ func (gp *GameProgress) IsEventUnseen(eventID string) bool <span class="cov8" ti
 		
 		<pre class="file" id="file50" style="display: none">package components
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+        "fmt"
+
+        "github.com/kijimaD/ruins/internal/consts"
+)
 
 // TimeOfDay は時間帯を表す
 type TimeOfDay int
@@ -10058,7 +10062,8 @@ func (gt *GameTime) GetTimeOfDay() TimeOfDay <span class="cov8" title="1">{
         return TimeOfDay(turnInDay / turnsPerTimeOfDay)
 }</span>
 
-// GetTemperatureModifier は時間帯による気温修正値を返す
+// GetTemperatureModifier は時間帯による気温修正値を返す。
+// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
 func (gt *GameTime) GetTemperatureModifier() int <span class="cov8" title="1">{
         switch gt.GetTimeOfDay() </span>{
         case TimeDawn:<span class="cov8" title="1">
@@ -10073,14 +10078,20 @@ func (gt *GameTime) GetTemperatureModifier() int <span class="cov8" title="1">{
                 return -5</span> // 夜: -5°C
         case TimeMidnight:<span class="cov8" title="1">
                 return -10</span> // 深夜: -10°C
-        default:<span class="cov0" title="0">
-                return 0</span>
         }
+        <span class="cov0" title="0">panic(fmt.Sprintf("unknown TimeOfDay: %d", gt.GetTimeOfDay()))</span>
 }
 
 // Advance はターンを進める
 func (gt *GameTime) Advance() <span class="cov8" title="1">{
         gt.TotalTurns++
+}</span>
+
+// AdvanceToNextTimeOfDay は次の時間帯の開始ターンまで進める。
+// 現在のフェーズの残りターンを飛ばし、常にちょうど1つ次の時間帯にする。
+// 深夜からは翌日の夜明けへ折り返す。
+func (gt *GameTime) AdvanceToNextTimeOfDay() <span class="cov8" title="1">{
+        gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay
 }</span>
 
 // GetDayNumber は経過日数を返す（1日目から始まる）
@@ -21952,7 +21963,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;
                                 planData.isInAnyRoom(x, y) &amp;&amp;
-                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov0" title="0">{
+                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov8" title="1">{
                                 return x, y, true
                         }</span>
                 }
@@ -25994,7 +26005,10 @@ type Item struct {
 
         // InflictsDamage 基本ダメージ
         InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
-        Material       *bool       `json:"material,omitempty"`
+
+        // LightSource 携行光源。装備すると owner を照らす
+        LightSource *LightSource `json:"lightSource,omitempty"`
+        Material    *bool        `json:"material,omitempty"`
 
         // Melee 近接攻撃設定
         Melee *Melee `json:"melee,omitempty"`
@@ -33078,241 +33092,242 @@ import (
 // const string: with thousands of chunks the chained `+` fold is several
 // times slower for the Go compiler than parsing a slice literal.
 var swaggerSpec = []string{
-        "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",
+        "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",
-        "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",
+        "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",
-        "FwPvCS+/wZX+R9vJtmNdf6KvQFUVlXG1nyMKf4lw9Qu8ehRSt6213BmmUBDMR9f/HlgE3f5LPfvvJVTt",
-        "5jiAF5Xhv32/un73KYqenDYr98hSInhwByhpqkSvgfK9TKvT4QUuIyUwohhN3Do0jZWgkUJlVLgD/V97",
+        "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",
-        "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",
+        "ELfZgRi4JC6xkeE4xHl5iAyRjH2SbOdhAKUBLFGvpZKVpT7AuJAzo7XbU5QL2STuaRb3fHeaIn+PAinb",
+        "kqMHWuKMNOzPsfPSksTzwKm7oMxhzkwkFpjlyQ2nFtipdSjzh44hN8cOeasHawt3q3c+WMtjBO/qbOs6",
+        "3NbR03IEPjNbDnWfOPZDD/yx44fjbV0tx6jM7KisdSqyXdYuIFTKN9Y+XMbphpid2aZ6fa726J31+Jrt",
+        "SbczCxP7G9ohSXZKtIomtdsfrcqYWZkwjWlEEciNjCQLXwcmfWzSnr+27Pk/TXsO/LTv1Kk9p785dWqv",
+        "97vT31A9be35YikrYf5EM2XWyzesV+PV8my9spLcZerNfhTQInnr5RvV+zcbnr14SClSfeeTSDr/iqWz",
+        "7S6KChprL3a6yQz8fATjJQq1eoZCWOPNrYEcP/48LDjtwm9REhCJr7yc+09wMb7lo7ugyhr2M4effb12",
+        "9BxXPNlBcGlf9Ak/NMb9ciDwSI9jfiCfjCjU1ucgjmkeD4x03BsxR6PPoTD2PYO4S/e+HBCFM7YaxRuB",
+        "VK3Edic5fyYrp7ViawOqRRY+MbuVkppO4KQ7RgyiuMZuLNWnR6zLQ9WlG5CV4veHw0pTyvk8UFOmMV67",
+        "PGsaQ6Z+Dyssnr04fIFyIAui9Rj0UQN2OHT3zskZUIxZ3Kgz8DkxQ0dJU+U4dO1+aIt0+AZ1r2WS+4tH",
+        "dfcD4JYqix7rfY7evlL6bJxL3O1+SCb88kYQ6b0ooUCNA+ak853PKBePNB3LXDirjOC261dHoZLEM8CS",
+        "g8M4Js+Kl2wMt89IjSHXUx0qV0f0QEHFWCqFBnKuss3JbjJeI5ViGYqyshFM47+6VBtbRW9RZB0IRepu",
+        "zMzurnGHrOyiUCz1araOGWuh3fb3PPpw5uSb6gN7j39Im2ey3xwzuvXmDWlG57mEk95Yn0E9BDkjQ2W1",
+        "twT/eTBVe7BovVp1jZxpJZsFaftPKPDhH8uDqKDnP5aHIqzzTDu8e2as+GH6kW2GPd67zttjjg9RfHwC",
+        "1RdM43ezcodmUyLPDL2snVOivsjgIqJRjdEbZXhLjO1tRDQzaYHA8Ga6N12Yu8u7GVh2bHwFomzYnHXc",
+        "GjOg6kmXbhgnsTmXjZ1wqBoBg3OHUnJmu92q2+Hl5J5rDLa6yW5O7/Zt321nVFByS9pUHy0Hlb1IKx16",
+        "drXl4U5oUWf4waWPVCeHrGsfIo0SaLYuKSNTI18vD0ExP/h6Xb9tjV6zVi/9Y3nQ4fXz1ujPayujUMYm",
+        "iy085n9s0tbP8COklawSmSfddeRQC8qWw6U6XDxFPmUdnMLTdhESOcrGXSj7Hv9atNfsrYRGKscDdvqg",
+        "5emhabwwjUWz8tZa+BAw7MZA+HH7Vc0yG9uRVyi2OPT8iJzceZQHjHqfblavP9l8r9AXH0/Ax/PZ+lqo",
+        "FwV5N2lXZBqJ/Rs4yypAZ2SvGu7xuR9uujk1TSTXxsgf9Cfi4vFuTmH75ignMQzadq2Y2sQT7PTAplMn",
+        "AYr/gkRfwe+dMMWdXfYZ7OHuiWEBCHvSk9tiXacEVyPBX4Xtr7GtrqKQU86hC9bpuIAirKP+z53dNWAr",
+        "jdXlwXWn7KBd85wMzrfKRS1OFP2P5Le8t4t9wCLBXPj2QTY3Y0UOexxtC169NiPdHk34uC/3kbJPLwQG",
+        "5cquOEmFC+h2L/v9n82R/s/T8D9New78dPp/Ut2dtEsQjmz55SFZxQBn/yJ/rJ13Rpg6VCmfUXI42VFV",
+        "UMi4lM0eLfWhkC7k+pSQyDsv5TOoSrkGVFXWFDvAvHheUnNUs0jQPxAOIXh0aX3m2trqdFJnf6eUBZpG",
+        "VTdvosQdO/4rWDZnYy67aDZqrwsXQs4XcMk/KZNBWJCynb7lxJgoaPfwyBLubOtmhycsyflG5/dz28Ds",
+        "NMbkd1U40J1d2qik3U7fTrjUsEF7tO9kNTm7YTsSmoOzJVo5cHI/7a1REbnhwIrTRIAFg73Y0Fl83YO/",
+        "GVYN5xpvDyfvlIpFej89p9iP3U/PuvbIrsNt9w2cGbJG7rh9A/c3oezxezajd0Z9s78pMRtTlTOgWKQH",
+        "kevvq09ebtJ7YKOcDwUMxH9NePtC8QONGW69SfClcyEnXALLRt6AE+6snM02sgSctRuVj8723ZJ6Ggbt",
+        "HgmV0APoZ9CWNfhLdXIKxzaE6KwB7Nih25HhJCjGm1GDDE3C3xONMeINJWaJUbpWgIi4eMQOcG5AVDqO",
+        "5cbzt2/cYWEjlZ2h6m2QzvDxBjeF1Xusbpu4feD2Mfbmpr/jU6R1/o1mVQgC5lKxQkrItHwaE2BHY0Ad",
+        "jGIDXVmoDT0Ly4rNDarLKumzUIZGGgV9lfWckU5dvOiR6MsBUUgHChtFmp4ohZB2NlBPiTb4OznisWq2",
+        "epG/iY06jRtpGjCvEIoWX/2zv3NNJV0APTFjkan9LQr+UtQYxupu/JmN7fOSWoAU03ZB1mIS2MnwEGKy",
+        "DnAhyUTE58QknSo4l2AS4nM0ScJoMBuF5N0mbyuLAdFlBWZCmyQrCtsnJYJRk9TcgWsfaHV4pVwciU4k",
+        "PSDvnJ2jEDUEJzM4IiWO7TeUkRBK1nP/IjprdxZEQ47njGTV7AxjJNo/QJQChbIh6YC+pAPUZAOCrlAB",
+        "goTrFAV6s7Au6Tw1gt9X38PuE1E2ek4cP+ZLktAXnGiKQbvnRETwIulNKW5aXUfX01HcnBoOgTYTm5DL",
+        "LTuRXsXNCUaTnZCK4uZEYSR7n7JepTlk2y5ugi284CrAxU3S0l2b44a4uArSciEB0rvQ97SZCJdFUh0X",
+        "DaLKGDkJQfTINFqgWVT9BZQpJQNeri1dMfV5p0ja89r7sfrzl9UHi/xcOGpYg40yavcK471Zub3BgFw5",
+        "XyhpSU+wHQ7aDEMMz7OFF0Zl08Qi2IjB0SQNCvpAqMom1Jay4bL3w7LT2tvZAucb+zpugXrWFcjjDW7z",
+        "uSNmh8irg4t2W9ceJAw16pbOgVZJk/a6ttPDzv4pN7ayYl17QLMXtMSrEhGAdtHNMWmN10ONMz5mzQnm",
+        "DN2x608wZ4hbi4I1wY8xC1MwJghQ249elYpur0pFN1GlopWoUtHitkZr5bRGC0I+JNGqFLtkgiuCVidf",
+        "YJKJpD5WQU9vQn+lkugJjysZ+YxMi0AiF+mUQflYu/b36uVhx/cxbxqDpjG89mnBLeQcDbEH3m4+uNrC",
+        "XVT1ccI0Rkx9qja2ak3OxZ2fFaE6+jNkfC6UsuFi3qx8dLdgVj5aNwbdNqyMIo/OscYsuEkjCkps9YOl",
+        "6uSQjySQa987oMbAuTOEQTo1VC5FnOuAKLjH1tgi8HBKKUbWUQdvK0IagQ5nRfxbmMspHHZtLa/W77xg",
+        "BHM6QZqxUmL9Hw+IQku8Yh++ldpVPwIF1LmvLeLTIMKcGf0TioF9RaKvh9bdESMOkurYY2v1Egqgfo2y",
+        "Ez46Ee72GxfHrq19/Fi9NIYLIFqDd01jvD73xlr4wC536K3BF2RJ71SOg3Ldvmv+czwm9YKGCBcB7rlY",
+        "AHgGyu2ZnqvNLNVu49o3qO47evrn+0DD8NBobKcJw0MRyPvcCjUQ/yNL1uAVdD9tW1DDu2zPMPvwuR3C",
+        "6y9/tgafWC9vhKjNNiDhzYs20vnEFdgvqwrj60u1uWGzbMCZinu1YgFqdXZNXkg9IF/KoTLFqC2gPmUa",
+        "ukuGDkudZfRoOd52rK0NLrul40hbKzVeiY4pRncjCqLiTekSKZuwUeOZEMHxpj+kZC52Sqp2FEhZWnWO",
+        "ZlOH0haXm4LEpD+xlt5jURC6RoeVPI75odm1UIloZ575tY8/ry1ed3j6U3gsxjCeFn52edQavBu3E6G7",
+        "GbwJdxXxHtju6MNSDqgSRxSgfgrTZuUZY/vdaSkbX/vG4PAYuAz4Q4/S6HAcrf6/Ew7vVIoupvAMf9rA",
+        "DBuB3jjcAJPBGPHwCZcFp/dQ5G31dDQ5uHDY1GAtzVbn7lFrAoVq/1CPjz213f/VeIP7q2D1NhGYfpA+",
+        "WyxRQhC6j7bs+Xb//zIrumnMOk0Jf8fRB2x20Ui7rAb7XZEwXQs053bagBktjnAhSv99ZRWx5M3AL1WH",
+        "ZuRTlUvZx6VCvGKdI/iB4bTbwU1kR+2YRH0BLbaCqxucylsvf7Ym55zkS8YI/RMUhijKGHV+vWvqT60b",
+        "86gV5Qhu0HAqv/bpFzjZq9X6m+mDqWACQllHUdqIbCo38Q/Wlcu+VMayjt8Oa4svueEtLWRoWkNPB5/F",
+        "haIUuSYXW+tuBJDvmUB5mZHvhAFRwBe8AUBBMUQr5+GXQ5TmcElhUq8YRdWLvGOhtlyJV+IM5q6D0d3L",
+        "Q3+gzm7CVRCjuXTl1uv1SlG2ZLPuCyQh1OOSehaoXCK7+bZ654Nd0RIewTKihWWyVGVCoHAYDyS91uWA",
+        "KBxR5QxRHT0hWGI0n9RfI2NtxawMocYiC2sro7WVBVTOrrMBuEc7eeBqt6esm5BXOHX6cMfbUiOciRzO",
+        "RbCtEttNuH0KNqojFyxwlXAd/gm4yCY6odmBC+HE5YTQidFcwiYToCFQJY0MrCjuswAyjUAOTMG9yFhO",
+        "IdKidve0axoY41BMGmVyie35Q1L6bLJSM6FFepPwD4gmcp07YZaN6lC5OjlUL1+OtQM3iTkpn4LjuOgM",
+        "p0G7iV8thQKQVCctLTFk/xTce3X/mnVrGt6omTv1p8N29+UB0VX7EsKGw/isilb8fEAUvNqKmy4PglpZ",
+        "QCRQgpQSLiEwA/cKkwFPBHBfVbgGwbtzcJUClBRWfzxZ+/2ptwzPpZ0QNh7Ix77tLfVovNuN9E8IDQ/k",
+        "05fTb8upVoYABsIfk4IlhkcBh7T2DNHaYHVsrHb7I7Htv5SkjJemnnQR3ugYF5r6qCkbSE1YRiJs2dQX",
+        "0cs5Bg9EsL0M9UZWjkfHYkX1q8+t1WHsZvY9kZHnk6hEuPmcwi4Gi4QG1psDzAJqKsXD/VK+ryFxG28J",
+        "+LVgfDKND9bMUPXBO7MygajqNTJBldT8IanYEHx3LH8JvyI7x3uzMmtTEaRn/C6eWy9PWUtPkRPZ8Q8m",
+        "XAQax2WSZA2cAVE4KWWzoBH9GQ/kskOUV7J+9SaCQ5SfTArJHsolcNRSweMHuHrSYakgpW1XfGKg5ARx",
+        "tulWteTZXsJvy9iNoxkeQGxKjBNk61GqOwS9EwdE4YfNaQX9g68VNLEyvkWqpKogn6b1UnIpKCof0Xs4",
+        "o0cGK22bfGDY0Wkxp6W9x7ntc/yn1Bo/lcOFScnpCOCb/BsXxUla/3A8pF5/uAS+UQz7CMgDVWIZsoNy",
+        "cm3xztrHx7WJ59bYe9LgXJLz2nffxj82O0YtnwEXYpk6bV581TFHf9g48ASNirYG884/WdEm1PZM4XXQ",
+        "orlt0m3M3kdYoWlyMtrW7NiPX1E/th4OQ5Tqs2ZZRwE7r6yHw46RY7428druI4BLMPdmwU9yI1K/G42l",
+        "l8yhIdZaGLIW7lOiJr1FiCRq+dfarXFOP+AYjaEaDPlzQ0gaDtlzZ2g4ZM+bocGQPXeCRkP26DEtjYXs",
+        "RR90DuS17qyidZTo1bjCvaZcBhqXY52DIDSJWp8E8sZ77kVkeKCltCafixw9YqvB9tW4E1kusQhAPnJS",
+        "HHhQXRxE7iXujKF6amjVNhzuSfit1Q02ZmppoAQfEebUgOMIRW2FONTayqfabdtXR42WQoAT1f7jhUR5",
+        "kzVQCPBw4kKAjXRkaEtcCPCYImVAJhSHF++MAhF5VLPw9Pza4kt4LvYB2XGP1s2VtcWXvuhHvJRAZF7M",
+        "0uNkjF6SZZAatW8xTnHNhl7y9lCKfwSFXtrBvsur1YnXtEKe8eD5W2+F33WTZWtm1gcnGNQfD46/TRfF",
+        "iOflAlgLI+FkGuv9Exv+Jrz1gvGXXiXJVqeSZIuvkmSbW0myJVhJ8jCuJEmsijj2wKkEkCcSkZ9hsqXf",
+        "Kj5fziqS1kntmV/9fcEanrBej1UnXtdsM+KyWZk3ywY+Y6QezrlRveyIavxS1WIjH64HLcwZiGj1QvLx",
+        "cFDw6ODvRHdJXOQckXKgU1X6VEBt2WT8hhDyaL38W316hCHZ01kgqSDzU6aU7wN2gB2rwlZYgAchvkKW",
+        "x19tYQ15yFtUhg4ZxVhqvv8zXziMt2lwzn2SNFD/i6YKUZbv6R1uxCDjZeJ9SV1v4ExDSHb3wz9fmi+b",
+        "cs50V3bqK6+2NIok+zp0+PED63rkLDisKGomWUwdMSyAEhw8x90+6VKndHezPerbc903cNM3eMmPAinb",
+        "UcoBlZa4gpsTum394j8JbL8bNqgxzAhus0DXZoEDoVG2+GOb2VaGTH2W7CVoGuPW4AyKGaZmi+e9vTQQ",
+        "+OBggprBQqLCWas+csoBeUqAes6jd9aNQVOfJ5VkXxmEeKsiCiIwVIyjnThY3NbDiZaPqa+a9jbtad7b",
+        "9DW5SrQA/hq1xuLsfYfNiO9ntoYMkq4WafgNg4vdiNIfar8QrB+BjDyv0EUfcU09CcPu8TmLLh1yQ0SD",
+        "gd/hhyE17twYtsPbGUK37cwZkNaYweyO8HF0cb9/CzshrZU361OfEkeyQ9GHodMSZrvBOdfoE9jn1dHa",
+        "3avW0lNqGlyPnKNZLrDiYS09dQTRQxy1GyPQmE42rlSuzS2sTz+MDJu1lVd3W85KI8k3HF/FPHlaeFXw",
+        "vDsllXba1ClwPEnjuQqBxIuoGn94aVyEsAK9uG4YRoGallh563S3TzjJjJmmTayd9XqYeFedeL3Nj4ad",
+        "0yLaNZA7KuUzkJ3youxJz6R19WntxhVGxP1ZAAqC6LWlioi1h/A75fTZUiE29AcPrbHrDOgFNFXMOP+o",
+        "piyow4uvLwupOqO2LFBQ1y5NQ6K+Z5j6q6awvyam4kWNW0zWt8WtgJQ08Mhr5RIS/075pAFRIJrhJOhc",
+        "6rZ7oWhDQ9a1D/sw+nCSonMUjcR8Oh1iaKGekccYukJdTmOZw3ZjmTZOY5kYIaAM670dSMkIMTqVP3E+",
+        "D9SQXv2KGWmkL9haT1l3PFVQ2ZwZqo49wGkX6MrAt7gdW2UsMfRxnw+igUOh+TDYyd4hJ8aAKKDNd0FQ",
+        "m+mmwxDr5cumvuB9Fjh+F7QYwEOs46cF11KEYjC29p+YGLbmKLzo4ThHwUU9aX6ONCHHZsrBGDNq0ygn",
+        "po0dKOg8k22dYcrU75tl3cmcWqhODtUuTZv6I1O/aeoj1Utj1s23pILB2zYu5MOIOvAXC6ImlJGT+cOs",
+        "G2k21ZCn64vDiedw+qd3AvDvJTOAPvzqocbPh3KeY/e38Ycco1rBwdRdbt8Ybw9OIxOOhuo0LqFqpZvT",
+        "uEQUQDGNnSnnpHxfSVIzAtyPpgJJ42u6/lSCeNFJzOzVBMFs1DJo0TmrnVkpn7ebQoW5EApmrs8N1m5/",
+        "xC9+XGDDQXZRySoQZ38pSRk+VsiXF4V32i9A98mX+gq/Db/mV/wJOYHiTe13Wn2dMO3a5zliA3SfspsC",
+        "MD6sWHhjZX5wK92aZQM/94FqR/PZjYMmUJY57nsxbl1+v7ZyCwWEzVuDV+qzjxPqP1Iy80TYih4KQYlh",
+        "o+AkozAaFPlyURozsQRbITViXIkux2uWDevGJbOio65yo2ZlvmnPt/v3h9ectIbuoaQDjiQd0LWhKr1d",
+        "AgQJ1ykKLRFYDOQDsdU7hjLWnqz4ZQAwGu2oVVxTYTu7liVzzsSFLVsaLGyZSGr51Gmq3BJjXQB2DC4t",
+        "4HehOlleW7y2tjJq11WGbway8PI8Lo3gOhH+o/tEh12n2RivT8+ZergtSpooxJE0WNcZSgtesVddvf3B",
+        "1O+Yxq3qzGRt6knt9pxb32MMvWbfm5UndmiQJudAUZNylPITeGPVu0+q94zUV13fH/7uu+8OWCu/Wstj",
+        "fokkaWAPnIf2gDkH1CIj0JyCbNzsz4s+KBvOC/FV6pTQvLdpb9MpIYWrVhBqBfoDVZ84r6jZRkKJT8Jx",
+        "LqXQcP3Ke+a7YdmhSun25kk0O2sSPSrgk+tZOZtldCazysPW4BMvF5Dtu7pQYGo89VuXas9Ga7+PrM/d",
+        "YpVMbLtQoCoU7ih8UbBOQZ2BUWTRa5xCHReM5kWTuMsRyX1FI7HI1bJD+ZShtBGnjsNGQlmI0xxg5nS2",
+        "t5rGuL8iy5S3QN91seNcIoNZ0OL5KCoAWjP1lk54tK+uuz0fG4hbwE85t0V/jGTS6vs3LLcl5ekYNaeN",
+        "SnZGB9nT0hr8e+3dJdMYX9efIT/+XVwojmudoWfOxtsry1qTuO0O5U0tCvlSNotz/TS1BMLeY/dUEkyN",
+        "xwyIwomCW9+NcStCRN7WK2sg3yfnQapVlc6356Q+YE+DROsL9Ngtm5Vn1pXL65U5l6GFKXcjxgZnePyu",
+        "uv5JiPa6VLsF2QHXA+ugO+IihhYWQd3vceMHftbSxmmclpjNMhQx7eTHgJTZKUN5CyMhwroxUp8eQSHV",
+        "EbkPePWbbmv3p6uzze0eeNHZDJ+UaBnpYRbfjipFjoRtZEEXZq7XZzmJm10WauWOf9cKzkil7MZmIl3k",
+        "sSdi+NXt6bDHO9FkISc50WE5/vsmbMnE9ULy+RjNrGjmuVDYiD0XsbjgWYiBU/ahJIBuPuk5NByrqp2b",
+        "ikcysH1uKP76nVuQiVFyRMfXFsvVS2OmPo8LqDJufp8v4zWpszSYNEtJ3iFyZJH5ZAQlcwYzWOFGr4xa",
+        "g4jpGuOoFu8TL1JQdnJjG1ogzqyNlfoYTq0N9Y1Ak4kk4qKO2wlRo8srZihcwIOgSTSjIvoYYmzsrqnf",
+        "pIXXMaPLmE8PXhH6oEyHq3Im4uIh4N0J7wRVUKyOXGWXD8CthqJaxhCfun6oDmxRiB4HPwyF3REzkhPy",
+        "t+uGilNO3RfHztflKfU66HFGUeU6QiK/s6EiaTj+LFHJEKxTgobKleBxYXCcx1fI9NspOPC5JxYoShIm",
+        "ULImSRCbP8ZpSwplBKN/RvT9CVYy4ZahoMX2peM/B9wBwXW6f+AvNVQKJawMk5VQwmUo3AYtMRMU1Zyi",
+        "OqPoZVdWp+1yhV42eqPRQV4qOzMwiMxlHyCCcchwgXigw0NZQHH4La6FWCxlJex6SWLjC4yjACrfsF6N",
+        "V8uz9cqKH9BRIGmNAELjqICq9286gEL1RPBB0/DqO98QJkIrjiBjenEd5s0bxYkan3Xkrd/8S/GHeNZf",
+        "29ZPK9OBDBr+mnz6HEajdUu3ay8b444Dgaq5AqjbOR22ovVoHH9ulg3vrTxrGivYQOD6KBLHpweql1Cy",
+        "EPqkHPipQOQ1Ji0BS6ZF0gQvLS8yeMIusqiHS9a2CJD2pan60/tQcUeJ3LXrV019znrwcF3/hH6etxVQ",
+        "N2yY3g5sD/onRc3pB1mNFTKxri/Ub6842tJdz6vRJO4Xm5tO0xz9Z+Vs9pCinOXYsauTrDY1qLX9Odw8",
+        "Im57cQ/NDQzVkC7p9k+P1QI9mL9ETBFci+jtiHrs9pRsVG16w39i+xxHQ+WF25GDQU90YmrcmO4SVrP4",
+        "rfgdlbIS2tT9iHNWvwHMBQpY8pfgGYuXGbSeiWXd9hu1i7HtyqQ5uZjQnBxhRS6GrMhFwoqcYVuRib6k",
+        "sQ3H4XTPBpq1R+MZ2fo74YfB3dp9N9EkEbtitKpk7Gwz+ohHtXrd/H6VG/EAbDYrI+uQRhYRjTKfE73z",
+        "ww/Pseu1d6OBhtehk8sqiuYiO2Y5FTlNzZ0d/KU6OUUmL1UnXiOfKjLcGR/q03P1uZ/NslGb1GsTT3AO",
+        "UTPcBlwE6o7QnuDZ4bVojbEU+Oy/trKuL+J8YlO/4jaNtutI56QLWHOPvwL7ewp8jHrHhV99tFx7N0oU",
+        "0SQp2INLpVyi+lcgUuDlMM77rw09QwlqXtbhhvWrgN0sbIeCYH7Dbn1UeAF3Sid0LaGto+34nwRRaDl2",
+        "DP7vZFtL54kOQRQ6TnS0UQNLfBY3LkSc1OAA6m7vOHKsDUOiTyzTL5ttTQvdiN6skj7bKRUj+dgh+GER",
+        "fmmHu6ORP8rgfLyR6MugPzcOzfuqZorCGSUrxwjN/x5/5vhBkrWWTi7AilhHjxQGhCrvSn1PX4mWI/a3",
+        "A6JwXooB76SkMZw5ZMNq8khEgiLIMw4s1tuxsxLvZGg3G5IlS/bapLkZwpbeCn1LpGyPomRJS1WQJ1+p",
+        "zz623j+xLr9HGYpXsHfBTWZVL8ILCzcL0rId5ZUuaZrfM0bca0XJHlGlDIiEhVjUC7shddlYn/8Z9Sn8",
+        "aOrP1stTpj5mzdyH/129G+CW30W1pg6UFqYVoHNqHWON4i2x40MtPT2Ic33f3nYMPplaOv5E3Skkt1a5",
+        "qDltHYLe5vrTO7WJEVya7x/Lg4F0z38sDyVsuE1WjAxu6RYWOrisx4aEzElJLRwu9YK2C7LWo8p9fUCl",
+        "6jE42aQ6/Khmv/Se2FYhfQFHtEAtyRgy9YX1ctl69A49ZJ6bxgv8nAqRKYTbAS5wYVZfTK/fv269mXEM",
+        "U3fjzNqpgnO8Wa2h0cSzMs0c1dfvqDaOPfvFPXQrB1mlnGYJxpTKfPjF6n7uN6mLAqCZsBMarkVBDlmm",
+        "k9ijyfGOwTmJmTnIDF07MqDYkeWg6ViONh17emeo3Ag2DeOLvPbxZ1Mf9Vr46rPY7Wm3oysba6vDB1On",
+        "hP1NTam+U0LqlPBt6iz+oTmV6zslCP7XStOeA6e/+erUqb34p6//PfVVru+/+/77bN/XlKfLAMLjGVQc",
+        "SJM1SEZCV0nOF1NtGVlT1FRLZ7tAhCcLTSiGeEAUlALISwVZOCh8h36F36WIqvZJBXnfuWZ4Cjkpn9mD",
+        "bKx2gIEWv3kgFpTW2B1rFd4FSLc4NTkjHPQ1bysiiQvPs1hQ8kUM6tumJlzyOa853bYKhayMs5v3/VcR",
+        "q2WYOqLTITxgCBbCm38XPf0gBQkKFLVUv1RMFUvpNAAZkNmLtUE3iGdTVtSmqopKW0ZLPlXKgwsFkNZA",
+        "JgXgZykHL3txrX+pr4jcdyQGhdMDolBQikmOZ2WyOniDfzCHVSBpwLZFgqJ2SMlc3JJTwajwLrSmlsBA",
+        "iCKatxB2TGpISflMSkrlwXl4LKhWBvqgF4B8Ko3QlUlJxZQE/1zKaruFegZExrXf9zcUJDOACSsLtCTt",
+        "Q4eurd+b4ZNYK54Tsh9VygENqEX0xJfhxMhU5rxz3GgdP5mIBNJCGvPpEA39a3j5Pf1ABSm5mMorKft8",
+        "UpqSKoJ8JnVGUVNav1x0qEFM9Za0lNYPUv0oSrGYykkXU70gVSqCM6Xs3tTu4RalBMyi+uBd9c5r/kn+",
+        "UMhIW3yS/wxMqGnnmdAuZCoZVSlEKhKQ5l7aJU3jKhKtqlLYHi3ChfTZqBAe7nj6A+tU6PqDN+eWKg8u",
+        "mO3WHAKA/2Bqg49i6Nc7lsLAoCmGwuBB/aIt7AhjKCXgCwxVwZtyV+oJCflN0w7zm93GP0Ae5C5G6QfV",
+        "id9jqwVtcMLt0Qs8UJ+NYkBgj6MZBM+DrhAQc22pRuDB2W6VIAj5D6YT+ImFcanjaAUBemIoAwS4L9rA",
+        "znCDUjQzYGgBxFS7Ug1IymSadprJ7DqmIWsgt6dPVUoFnseBiCEiIl24GkG7BnIoeGbLFQIX0mejD3i4",
+        "4zoaGKdC1wu8ObdULXDBbLdWEAD8B1MKfBRDv97xPAt0mmLoBh7UL6rBjjCGUgK+wFARvCl3pYaQkN80",
+        "7TC/2ZX8IzIggSC4uAYDN/J4W9SDz8tc4OEurnoQbTbw5txy9WBHjAYBwH9A9YCp/ScJPKDTFEc9+GI5",
+        "2EHGUErAFzjqwS42ICTkN007zG92I/+IpxhEKgPbogd8VipAXOnPkfhbL+x3Qs7/YUU87XYmlescWf5F",
+        "jG/35Y5kq/Vnb2vvXvPY6hGgbd+BNe3cPd4FnDpKHeOoYLtX+9oJxeuzIhyCoedQnVxeROc0iiW+YVaW",
+        "uQoXLri75SoXBvPZKF021rjBm8QB0NUue5ItVbwwjO1WvUiofzDly6OM8G2NF6Dp0Q1DAbNBfFHBtv2q",
+        "R7JarhJmz7RL1bAG7vSu4N6liCNlqGL2HLtSGUsiFL4QUFwmX5CyQNO4WTY3Ud2Fils4isEoOu2Ztlop",
+        "s+F8NlqZgzeuWkacAV0tc2bZUr3MBrLdipkP7B9MMyOog3Jr9/1NzkQoZh7lMBQzB0ISzSwTRyK4RQe+",
+        "aGW0qx7JbblqmTNVbL1so0fWtKPXeXcw71LEiTK0MmeSJGpZA8e5w/LgCwEl4O+qcgYUi04bMSqrqOvv",
+        "q09e8lUyb5ot18pcUJ+PYkYcAls3s4+BoZV5U2ytYubC2XbdLAD5j6ae+WiEfoPjGNAwFbE0NG+uL+az",
+        "nbn6JebNZ8l0b4ZdaW1JylGadpqj7EYOwclZqq0s1IaeRUn3wnbI9cLnJNG5KUk20pmyvLDlUrywA/K7",
+        "8EeV3AXajYwjrTGdsKX1l3yibb/QHCbKt6PAGXapcyvx3d0FfLnEPEa2olXYtSpWYQeUq8+LZAj2rYK0",
+        "XOB6sl6gCt63uVpVF55lq/UqDOaz0axsrHF9WA726eqVPcOWKlgYxnarWCTUP5iS5ZFF+J7GiyuyiYah",
+        "a9nzf9G2tv2S8zksV+Wyp9mlSlcDt3lXMO0S7zwZupc9wa7UvpLIgi/UE5e34246e4r9AGi8xDpeYzoG",
+        "2yD6v225dhZsrfc5nBeJP27mHeNs6GobOeuW6m6+hoPbq8CFQP/BtLgA5bCue7xMPUaPRrp+R0L+ouTt",
+        "EJsoJeASDEWBnHRXaguJuU/TjnOf3cdNNJlfpsfXUY+hJfTI21CSx2379zmcB8IYVyFw8E7XAND4LRX9",
+        "uP3h9sp8D+YfTNg75BC8l/Gku9O0kC7O0dxf5Pg2X2s+N+WaatAku9RQk/gG7wIGXeKdJEP3QsN3pdIV",
+        "n+9/oRo2Hx8QhSJQzzkn7p+vFZwDWQX1v0zhrwRRKKlZ4aDQr2mFg/v2ZZW0lO1XitrBf2v6tybUJ90G",
+        "8TeHYnCm/4Do/sLJNCN+5ViLiF/52z8RfyC6PhC/JUo8Bn4b/pYsF038GuOE+AX2Ivp/4UZrEb/26azk",
+        "50709sDpgf8fAAD//w==",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
@@ -36025,8 +36040,11 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
                 entitySpec.Material = &amp;gc.Material{}
         }</span>
 
+        // 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
+        <span class="cov8" title="1">entitySpec.LightSource = toGCLightSource(item.LightSource)
+
         // すべてのアイテムにInteractableを追加（所持状態に関わらず）
-        <span class="cov8" title="1">entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
+        entitySpec.Interactable = &amp;gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
 
         return entitySpec, nil</span>
 }
@@ -40437,7 +40455,7 @@ func memberEquipSlots(world w.World, player ecs.Entity) []equipItemData <span cl
         weaponSlots := []gc.EquipmentSlotNumber{gc.SlotWeapon1, gc.SlotWeapon2, gc.SlotWeapon3, gc.SlotWeapon4, gc.SlotWeapon5}
         for i, weapon := range weapons </span><span class="cov8" title="1">{
                 name := ""
-                if weapon != nil </span><span class="cov0" title="0">{
+                if weapon != nil </span><span class="cov8" title="1">{
                         name = query.GetEntityName(*weapon, world)
                 }</span>
                 <span class="cov8" title="1">items = append(items, equipItemData{SlotLabel: query.T(world, "Weapon %d", i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})</span>
@@ -41399,6 +41417,13 @@ func debugMenuChoices(_ w.World) (string, []Choice) <span class="cov8" title="1"
                         world.Config.NoEncounter = !world.Config.NoEncounter
                         return nil
                 }</span>)},
+                Choice{Label: "Advance time of day", Run: popAfter(func(world w.World) error <span class="cov0" title="0">{
+                        // 次の時間帯へ進める。色フィルタは Draw で毎回 GameTime から計算するので即反映されるが、
+                        // 環境光は vision が移動時しか再計算しないので、明るさを更新するため視界を要求する
+                        query.GetGameTime(world).AdvanceToNextTimeOfDay()
+                        query.GetVisionState(world).RequestUpdate()
+                        return nil
+                }</span>)},
                 Choice{Label: "Opening", Run: pushChoice(NewOpeningState)},
                 Choice{Label: "All clear event", Run: pushChoice(NewAllClearEventState)},
                 Choice{Label: "Name input", Run: pushChoice(NewCharacterNamingState)},
@@ -41575,6 +41600,8 @@ func (st *DemoStartState) Draw(_ w.World, screen *ebiten.Image) error <span clas
 
 import (
         "fmt"
+        "image/color"
+        "sync"
 
         "github.com/hajimehoshi/ebiten/v2"
         gc "github.com/kijimaD/ruins/internal/components"
@@ -41841,23 +41868,99 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) <s
         <span class="cov8" title="1">return transition, nil</span>
 }
 
-// Draw はゲームステートの描画処理を行う
+// Draw はゲームステートの描画処理を行う。世界と HUD を screen へ描く。
+// フィールドのライティングは vision が壁遮蔽込みで計算した per-tile の暗さを
+// RenderSpriteSystem が描く。地上は時間帯の色フィルタを世界へ一様に掛ける。
 func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error <span class="cov8" title="1">{
         if st.baseImage != nil </span><span class="cov8" title="1">{
                 screen.DrawImage(st.baseImage, nil)
         }</span>
+        // まず世界レイヤを screen へ描く。フォグと壁遮蔽は vision の per-tile 暗さで表現する
+        <span class="cov8" title="1">if err := drawRenderers(world, screen,
+                &amp;gs.RenderSpriteSystem{}, &amp;gs.FrostRenderSystem{}); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        // 地上は時間帯の色フィルタを世界レイヤへ一様に掛ける。朝夕は暖色、夜は寒色へ寄せる。
+        // ダンジョンは地下で昼夜がないので掛けない
+        <span class="cov8" title="1">if query.IsOnOverworld(world) </span><span class="cov8" title="1">{
+                applyTimeOfDayTint(screen, query.GetGameTime(world).GetTimeOfDay())
+        }</span>
+        // HUD レイヤは screen へ等倍で描く。色フィルタを避けて文字やバーの読みやすさを保つ
+        <span class="cov8" title="1">return drawRenderers(world, screen,
+                &amp;gs.HUDRenderingSystem{}, &amp;gs.VisualEffectSystem{})</span>
+}
 
-        <span class="cov8" title="1">for _, renderer := range []w.Renderer{
-                &amp;gs.RenderSpriteSystem{},
-                &amp;gs.FrostRenderSystem{},
-                &amp;gs.HUDRenderingSystem{},
-                &amp;gs.VisualEffectSystem{},
-        } </span><span class="cov8" title="1">{
-                if sys, ok := world.Renderers[renderer.String()]; ok </span><span class="cov8" title="1">{
-                        if err := sys.Draw(world, screen); err != nil </span><span class="cov0" title="0">{
-                                return err
-                        }</span>
-                }
+// blendMultiply は乗算合成。結果 = src.rgb × dst.rgb。時間帯の色を世界へ掛けるのに使う。
+// アルファは src をそのまま通す。screen は不透明なので実効には影響しない。
+var blendMultiply = ebiten.Blend{
+        BlendFactorSourceRGB:        ebiten.BlendFactorDestinationColor,
+        BlendFactorSourceAlpha:      ebiten.BlendFactorOne,
+        BlendFactorDestinationRGB:   ebiten.BlendFactorZero,
+        BlendFactorDestinationAlpha: ebiten.BlendFactorZero,
+        BlendOperationRGB:           ebiten.BlendOperationAdd,
+        BlendOperationAlpha:         ebiten.BlendOperationAdd,
+}
+
+var (
+        tintPixel     *ebiten.Image
+        tintPixelOnce sync.Once
+)
+
+// whiteTintPixel は色フィルタ用の白1px。全画面へ拡大し ColorScale で時間帯の色を掛ける。
+// 生成は初回だけ行い、並列描画やテストでのデータレースを防ぐ。
+func whiteTintPixel() *ebiten.Image <span class="cov8" title="1">{
+        tintPixelOnce.Do(func() </span><span class="cov8" title="1">{
+                tintPixel = ebiten.NewImage(1, 1)
+                tintPixel.Fill(color.White)
+        }</span>)
+        <span class="cov8" title="1">return tintPixel</span>
+}
+
+// applyTimeOfDayTint は時間帯の色を screen 全体へ乗算する。昼は白で素通しなので何もしない。
+func applyTimeOfDayTint(screen *ebiten.Image, t gc.TimeOfDay) <span class="cov8" title="1">{
+        r, g, b := timeOfDayTint(t)
+        if r == 1 &amp;&amp; g == 1 &amp;&amp; b == 1 </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">bounds := screen.Bounds()
+        op := &amp;ebiten.DrawImageOptions{Blend: blendMultiply}
+        op.GeoM.Scale(float64(bounds.Dx()), float64(bounds.Dy()))
+        op.ColorScale.Scale(r, g, b, 1)
+        screen.DrawImage(whiteTintPixel(), op)</span>
+}
+
+// timeOfDayTint は時間帯を世界へ掛ける乗算色へ写す。昼は白で素通し、朝夕は暖色、夜は寒色。
+// 乗算なので各成分は 1 以下。小さいほど暗く色濃くなる。
+// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
+func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) <span class="cov8" title="1">{
+        switch t </span>{
+        case gc.TimeDawn:<span class="cov8" title="1">
+                return 1.0, 0.80, 0.72</span>
+        case gc.TimeMorning:<span class="cov8" title="1">
+                return 1.0, 0.96, 0.90</span>
+        case gc.TimeDay:<span class="cov8" title="1">
+                return 1.0, 1.0, 1.0</span>
+        case gc.TimeEvening:<span class="cov8" title="1">
+                return 1.0, 0.72, 0.52</span>
+        case gc.TimeNight:<span class="cov8" title="1">
+                return 0.55, 0.60, 0.85</span>
+        case gc.TimeMidnight:<span class="cov8" title="1">
+                return 0.42, 0.48, 0.78</span>
+        }
+        <span class="cov0" title="0">panic(fmt.Sprintf("unknown TimeOfDay: %d", t))</span>
+}
+
+// drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。
+func drawRenderers(world w.World, target *ebiten.Image, renderers ...w.Renderer) error <span class="cov8" title="1">{
+        for _, renderer := range renderers </span><span class="cov8" title="1">{
+                sys, ok := world.Renderers[renderer.String()]
+                if !ok </span><span class="cov0" title="0">{
+                        // 未登録は描画されず無音で消える。登録漏れをエラーで表面化させる
+                        return fmt.Errorf("renderer not registered: %s", renderer.String())
+                }</span>
+                <span class="cov8" title="1">if err := sys.Draw(world, target); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
         }
 
         <span class="cov8" title="1">return nil</span>
@@ -45293,11 +45396,11 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string <span class
         <span class="cov8" title="1">selectedSlot := query.GetWeaponSelection(world).Slot
         weapons := query.GetWeapons(world, playerEntity)
         weaponIndex := selectedSlot - 1
-        if weaponIndex &lt; 0 || weaponIndex &gt;= len(weapons) || weapons[weaponIndex] == nil </span><span class="cov8" title="1">{
+        if weaponIndex &lt; 0 || weaponIndex &gt;= len(weapons) || weapons[weaponIndex] == nil </span><span class="cov0" title="0">{
                 return query.T(world, "No ranged weapon equipped")
         }</span>
-        <span class="cov0" title="0">fire := world.Components.Fire.Get(*weapons[weaponIndex])
-        if fire == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">fire := world.Components.Fire.Get(*weapons[weaponIndex])
+        if fire == nil </span><span class="cov8" title="1">{
                 return query.T(world, "No ranged weapon equipped")
         }</span>
         <span class="cov0" title="0">if fire.Magazine &lt;= 0 </span><span class="cov0" title="0">{
@@ -45476,20 +45579,20 @@ func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, 
         }</span>
 
         <span class="cov8" title="1">weaponEntity := weapons[weaponIndex]
-        if weaponEntity == nil </span><span class="cov8" title="1">{
+        if weaponEntity == nil </span><span class="cov0" title="0">{
                 drawText(query.T(world, "Weapon: none"))
                 return
         }</span>
 
         // 武器名
-        <span class="cov0" title="0">weaponName := query.GetEntityName(*weaponEntity, world)
+        <span class="cov8" title="1">weaponName := query.GetEntityName(*weaponEntity, world)
         drawText(fmt.Sprintf("%s: %s", query.T(world, "Weapon"), weaponName))
 
         // 残弾表示
         fireComp := world.Components.Fire.Get(*weaponEntity)
         if fireComp != nil </span><span class="cov0" title="0">{
                 drawText(fmt.Sprintf("%s: %d/%d", query.T(world, "Ammo"), fireComp.Magazine, fireComp.MagazineSize))
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 drawText(query.T(world, "Melee weapon"))
         }</span>
 }
@@ -47297,11 +47400,12 @@ import (
         "cmp"
         "fmt"
         "image/color"
-        "math"
         "slices"
         "strings"
+        "sync"
 
         "github.com/hajimehoshi/ebiten/v2"
+        "github.com/hajimehoshi/ebiten/v2/colorm"
         "github.com/hajimehoshi/ebiten/v2/ebitenutil"
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/resources"
@@ -47315,6 +47419,13 @@ import (
 var (
         wallShadowImage  *ebiten.Image // 壁が落とす影
         moverShadowImage *ebiten.Image // 動く物体が落とす影
+        shadowImageOnce  sync.Once     // 影画像の初期化を1度だけにし、並列描画のデータレースを防ぐ
+)
+
+// 記憶タイルの退色パラメータ。彩度を大きく落として明度を少し下げ、記憶らしい見た目にする
+const (
+        memorySaturation = 0.18 // 記憶タイルの彩度。0で完全グレー
+        memoryValue      = 0.9  // 記憶タイルの明度。わずかに暗くする
 )
 
 // spriteImageCacheKey はスプライト画像キャッシュのキー
@@ -47324,27 +47435,20 @@ type spriteImageCacheKey struct {
         SpriteKey       string
 }
 
-// coloredDarknessCacheKey は光源色ごとの暗闇画像のキャッシュキー
-type coloredDarknessCacheKey struct {
-        R             uint8
-        G             uint8
-        B             uint8
-        DarknessLevel int
-}
-
 // RenderSpriteSystem はスプライト描画システム
 // キャッシュを保持し、描画処理を行う
 type RenderSpriteSystem struct {
-        spriteImageCache     map[spriteImageCacheKey]*ebiten.Image
-        darknessCacheImages  []*ebiten.Image
-        coloredDarknessCache map[coloredDarknessCacheKey]*ebiten.Image
+        spriteImageCache map[spriteImageCacheKey]*ebiten.Image
+        // darknessMap は1タイル1テクセルの暗さマップ。FilterNearest でタイルサイズへ拡大し、タイル整列の暗闇を描く
+        darknessMap *ebiten.Image
+        // darknessPix は darknessMap へ書き込む画素バッファ。毎フレームの確保を避けて使い回す
+        darknessPix []byte
 }
 
 // NewRenderSpriteSystem はRenderSpriteSystemを初期化する
 func NewRenderSpriteSystem() *RenderSpriteSystem <span class="cov8" title="1">{
         return &amp;RenderSpriteSystem{
-                spriteImageCache:     make(map[spriteImageCacheKey]*ebiten.Image),
-                coloredDarknessCache: make(map[coloredDarknessCacheKey]*ebiten.Image),
+                spriteImageCache: make(map[spriteImageCacheKey]*ebiten.Image),
         }
 }</span>
 
@@ -47407,7 +47511,8 @@ func (sys RenderSpriteSystem) String() string <span class="cov0" title="0">{
         return "RenderSpriteSystem"
 }</span>
 
-// Draw は (下) タイル -&gt; 暗闇 -&gt; 影 -&gt; スプライト (上) の順に表示する
+// Draw は (下) タイル -&gt; 影 -&gt; スプライト -&gt; 暗闇 (上) の順に表示する。
+// 暗闇を最後に重ねることで、床だけでなく影もスプライトも同じ暗さで減光する。
 // w.Renderer interfaceを実装
 func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error <span class="cov0" title="0">{
         // VisionSystemが計算した光源情報を取得する
@@ -47422,33 +47527,33 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error <
         if err := sys.renderFloorLayer(world, screen, tileRenderMap, camera); err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov0" title="0">sys.renderDarkness(world, screen, tileRenderMap, camera)
-        sys.renderShadows(world, screen, tileRenderMap, camera)
+        <span class="cov0" title="0">sys.renderShadows(world, screen, tileRenderMap, camera)
         if err := sys.renderObjectLayer(world, screen, tileRenderMap, camera); err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
+        // 暗闇は最後に重ねる。床だけでなく影・スプライトも同じ暗さで沈み、光源から離れた
+        // オブジェクトも暗くなる。per-tile の暗さを重ねるのでオブジェクトもタイル単位で減光する
+        <span class="cov0" title="0">sys.renderDarkness(world, screen, tileRenderMap, camera)
 
-        <span class="cov0" title="0">return nil</span>
+        return nil</span>
 }
 
 // initializeShadowImages は影画像を初期化する
 func initializeShadowImages() <span class="cov0" title="0">{
-        if wallShadowImage == nil </span><span class="cov0" title="0">{
+        shadowImageOnce.Do(func() </span><span class="cov0" title="0">{
                 wallWidth := int(consts.TileSize)
                 wallHeight := int(consts.TileSize / 2)
                 if wallWidth &gt; 0 &amp;&amp; wallHeight &gt; 0 </span><span class="cov0" title="0">{
                         wallShadowImage = ebiten.NewImage(wallWidth, wallHeight)
                         wallShadowImage.Fill(color.RGBA{0, 0, 0, 80})
                 }</span>
-        }
-        <span class="cov0" title="0">if moverShadowImage == nil </span><span class="cov0" title="0">{
-                moverWidth := int(consts.TileSize - 6 - 2)
+                <span class="cov0" title="0">moverWidth := int(consts.TileSize - 6 - 2)
                 moverHeight := int(consts.TileSize / 2)
                 if moverWidth &gt; 0 &amp;&amp; moverHeight &gt; 0 </span><span class="cov0" title="0">{
                         moverShadowImage = ebiten.NewImage(moverWidth, moverHeight)
                         moverShadowImage.Fill(color.RGBA{0, 0, 0, 120})
                 }</span>
-        }
+        })
 }
 
 // renderFloorLayer は床レイヤー（タイル）を描画する
@@ -47478,14 +47583,17 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
                 entity := entities[i]
                 gridElement := world.Components.GridElement.Get(entity)
 
-                _, exists := tileRenderMap[*gridElement]
+                info, exists := tileRenderMap[*gridElement]
                 if !exists </span><span class="cov0" title="0">{
                         continue</span>
                 }
+                // 記憶タイルの床は退色させて描く。今見えているタイルと区別して「記憶している」と
+                // 分かる見た目にする。フルカラーのまま暗くすると平坦な暗い部屋に見えるのを避ける
+                <span class="cov0" title="0">_, remembered := info.(TileRenderRemembered)
 
-                <span class="cov0" title="0">spriteRender := world.Components.SpriteRender.Get(entity)
+                spriteRender := world.Components.SpriteRender.Get(entity)
                 pos := &amp;gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
-                if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil </span><span class="cov0" title="0">{
+                if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, remembered); err != nil </span><span class="cov0" title="0">{
                         // エンティティ情報を追加してエラーを詳細化
                         var entityInfo string
                         if world.Components.Name.Has(entity) </span><span class="cov0" title="0">{
@@ -47528,7 +47636,7 @@ func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.I
 
                 <span class="cov0" title="0">spriteRender := world.Components.SpriteRender.Get(entity)
                 pos := &amp;gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
-                if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera); err != nil </span><span class="cov0" title="0">{
+                if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, false); err != nil </span><span class="cov0" title="0">{
                         return err
                 }</span>
         }
@@ -47658,7 +47766,7 @@ func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRe
         return img, nil</span>
 }
 
-func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera) error <span class="cov0" title="0">{
+func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera, desaturate bool) error <span class="cov0" title="0">{
         // Resourcesからスプライトシートを取得
         if world.Resources.SpriteSheets == nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("sprite sheets are nil")
@@ -47684,9 +47792,18 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
         if err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
-        <span class="cov0" title="0">screen.DrawImage(img, op)
+        <span class="cov0" title="0">if desaturate </span><span class="cov0" title="0">{
+                // 記憶タイルは彩度を落として退色させる。色行列で彩度を下げ明度を少し落とし、
+                // 「今見ている」タイルと区別する。減光は後段の暗闇オーバーレイが担う
+                var cm colorm.ColorM
+                cm.ChangeHSV(0, memorySaturation, memoryValue)
+                dop := &amp;colorm.DrawImageOptions{GeoM: op.GeoM, Blend: op.Blend, Filter: op.Filter}
+                colorm.DrawImage(screen, img, cm, dop)
+        }</span> else<span class="cov0" title="0"> {
+                screen.DrawImage(img, op)
+        }</span>
 
-        if world.Config.ShowMapDebug </span><span class="cov0" title="0">{
+        <span class="cov0" title="0">if world.Config.ShowMapDebug </span><span class="cov0" title="0">{
                 // デバッグ用：スプライト番号表示(dirt, dwall)
                 if spriteRender.SpriteSheetName == "tile" </span><span class="cov0" title="0">{
                         var number string
@@ -47715,10 +47832,10 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
         <span class="cov0" title="0">return nil</span>
 }
 
-// DarknessLevels は暗闇の段階数を定義する。少ない段階数のほうが見た目が自然になる
-const DarknessLevels = 4
-
-// renderDarkness はタイルごとの暗闇オーバーレイを描画する
+// renderDarkness は per-tile の暗さをタイル整列でそのまま描く暗闇オーバーレイ。
+// vision が壁遮蔽込みで計算した per-tile の暗さを1タイル1テクセルの小画像へ詰め、
+// FilterNearest でタイルサイズへ拡大する。補間しないのでタイル単位の一様な明るさになり、
+// ドット絵と質感が揃う。暗さは連続値なので段差ジャンプ(チカチカ)は出ない。
 func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) <span class="cov0" title="0">{
         var cameraX, cameraY float64
         cameraScale := 1.0
@@ -47728,104 +47845,62 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
                 cameraScale = camera.Scale
         }</span>
 
-        <span class="cov0" title="0">if len(sys.darknessCacheImages) == 0 </span><span class="cov0" title="0">{
-                sys.initializeDarknessCache(int(consts.TileSize))
+        // 床レイヤのカリング余白に合わせてタイルを拾う。描き漏れを防ぐ
+        <span class="cov0" title="0">minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
+        mw := maxX - minX + 1
+        mh := maxY - minY + 1
+        if mw &lt;= 0 || mh &lt;= 0 </span><span class="cov0" title="0">{
+                return
         }</span>
+        <span class="cov0" title="0">sys.ensureDarknessMap(mw, mh)
 
-        <span class="cov0" title="0">screenWidth := world.Resources.ScreenDimensions.Width
-        screenHeight := world.Resources.ScreenDimensions.Height
-        // 暗闇は可視範囲のタイルだけに描く。境界は viewportTileBounds に集約する
-        startTileX, endTileX, startTileY, endTileY := viewportTileBounds(world, 1, camera)
-
-        for tileX := startTileX; tileX &lt;= endTileX; tileX++ </span><span class="cov0" title="0">{
-                for tileY := startTileY; tileY &lt;= endTileY; tileY++ </span><span class="cov0" title="0">{
-                        grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(tileX), Y: consts.Tile(tileY)}}
-
+        // 1タイル1テクセル。黒 rgb=0、アルファに暗さを連続値で詰める。バッファは使い回す。
+        // rgb は常に0のままで、各テクセルのアルファは毎フレーム全て上書きするのでクリア不要。
+        // 3状態を tileRenderAt で網羅する。未探索は完全な闇、可視/記憶はそれぞれの暗さ
+        pix := sys.darknessPix
+        for j := range mh </span><span class="cov0" title="0">{
+                for i := range mw </span><span class="cov0" title="0">{
+                        grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(minX + i), Y: consts.Tile(minY + j)}}
                         var darkness float64
-                        var lightColor color.RGBA
-                        info, exists := tileRenderMap[grid]
-                        if !exists </span><span class="cov0" title="0">{
-                                // tileRenderMapにないタイルは完全に黒くする。
-                                // マップ外・未探索タイルの両方が該当する
-                                darkness = 1.0
-                        }</span> else<span class="cov0" title="0"> {
-                                switch v := info.(type) </span>{
-                                case TileRenderVisible:<span class="cov0" title="0">
-                                        darkness = float64(v.Darkness)
-                                        lightColor = v.LightColor</span>
-                                case TileRenderRemembered:<span class="cov0" title="0">
-                                        darkness = float64(v.Darkness)</span>
-                                }
+                        switch v := tileRenderAt(tileRenderMap, grid).(type) </span>{
+                        case TileRenderVisible:<span class="cov0" title="0">
+                                darkness = float64(v.Darkness)</span>
+                        case TileRenderRemembered:<span class="cov0" title="0">
+                                darkness = float64(v.Darkness)</span>
+                        case TileRenderUnexplored:<span class="cov0" title="0">
+                                darkness = 1.0</span>
+                        default:<span class="cov0" title="0">
+                                panic(fmt.Sprintf("unknown TileRenderInfo: %T", v))</span>
                         }
-
-                        <span class="cov0" title="0">worldX := float64(tileX * int(consts.TileSize))
-                        worldY := float64(tileY * int(consts.TileSize))
-                        screenX := (worldX-cameraX)*cameraScale + float64(screenWidth)/2
-                        screenY := (worldY-cameraY)*cameraScale + float64(screenHeight)/2
-                        sys.drawDarknessAtLevelWithColor(screen, screenX, screenY, darkness, lightColor, cameraScale, int(consts.TileSize))</span>
+                        <span class="cov0" title="0">pix[(j*mw+i)*4+3] = byte(max(0.0, min(1.0, darkness)) * 255)</span>
                 }
         }
+        <span class="cov0" title="0">sys.darknessMap.WritePixels(pix)
+
+        // タイルグリッドへ合わせて拡大する。texel(0,0) の左上をタイル(minX,minY)の左上へ置く。
+        // FilterNearest なので各テクセルは1タイルの一様な四角として描かれる
+        ts := float64(consts.TileSize)
+        offsetX := (float64(minX)*ts-cameraX)*cameraScale + float64(world.Resources.ScreenDimensions.Width)/2
+        offsetY := (float64(minY)*ts-cameraY)*cameraScale + float64(world.Resources.ScreenDimensions.Height)/2
+
+        op := &amp;ebiten.DrawImageOptions{}
+        op.GeoM.Scale(ts*cameraScale, ts*cameraScale)
+        op.GeoM.Translate(offsetX, offsetY)
+        op.Filter = ebiten.FilterNearest
+        screen.DrawImage(sys.darknessMap, op)</span>
 }
 
-// initializeDarknessCache は段階的暗闇用の画像キャッシュを初期化する
-func (sys *RenderSpriteSystem) initializeDarknessCache(tileSize int) <span class="cov0" title="0">{
-        if tileSize &lt;= 0 </span><span class="cov0" title="0">{
-                return
-        }</span>
-
-        <span class="cov0" title="0">sys.darknessCacheImages = make([]*ebiten.Image, DarknessLevels+1)
-        sys.darknessCacheImages[0] = nil // 0: 暗闇なし
-
-        for i := 1; i &lt;= DarknessLevels; i++ </span><span class="cov0" title="0">{
-                darkness := float64(i) / float64(DarknessLevels)
-                alpha := uint8(darkness * 255)
-
-                sys.darknessCacheImages[i] = ebiten.NewImage(tileSize, tileSize)
-                sys.darknessCacheImages[i].Fill(color.RGBA{0, 0, 0, alpha})
-        }</span>
-}
-
-// drawDarknessAtLevelWithColor は光源の色を考慮した暗闇を描画する
-func (sys *RenderSpriteSystem) drawDarknessAtLevelWithColor(screen *ebiten.Image, x, y, darkness float64, lightColor color.RGBA, scale float64, tileSize int) <span class="cov0" title="0">{
-        if darkness &lt;= 0.0 </span><span class="cov0" title="0">{
-                return
-        }</span>
-
-        <span class="cov0" title="0">darknessLevel := max(min(int(math.Ceil(darkness*float64(DarknessLevels))), DarknessLevels), 1)
-
-        quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)
-
-        cacheKey := coloredDarknessCacheKey{
-                R:             lightColor.R,
-                G:             lightColor.G,
-                B:             lightColor.B,
-                DarknessLevel: darknessLevel,
-        }
-
-        darknessImg, exists := sys.coloredDarknessCache[cacheKey]
-        if !exists </span><span class="cov0" title="0">{
-                alpha := uint8(quantizedDarkness * 255)
-
-                colorStrength := 0.1
-                darknessColor := color.RGBA{
-                        R: uint8(float64(lightColor.R) * colorStrength),
-                        G: uint8(float64(lightColor.G) * colorStrength),
-                        B: uint8(float64(lightColor.B) * colorStrength),
-                        A: alpha,
-                }
-
-                darknessImg = ebiten.NewImage(tileSize, tileSize)
-                darknessImg.Fill(darknessColor)
-
-                if len(sys.coloredDarknessCache) &lt; 1000 </span><span class="cov0" title="0">{
-                        sys.coloredDarknessCache[cacheKey] = darknessImg
+// ensureDarknessMap は per-tile 暗さマップの小画像を用意する。サイズが変わったら作り直す。
+func (sys *RenderSpriteSystem) ensureDarknessMap(width, height int) <span class="cov0" title="0">{
+        if sys.darknessMap != nil </span><span class="cov0" title="0">{
+                b := sys.darknessMap.Bounds()
+                if b.Dx() == width &amp;&amp; b.Dy() == height </span><span class="cov0" title="0">{
+                        return
                 }</span>
+                <span class="cov0" title="0">sys.darknessMap.Deallocate()</span>
         }
-
-        <span class="cov0" title="0">op := &amp;ebiten.DrawImageOptions{}
-        op.GeoM.Scale(scale, scale)
-        op.GeoM.Translate(x, y)
-        screen.DrawImage(darknessImg, op)</span>
+        <span class="cov0" title="0">sys.darknessMap = ebiten.NewImage(width, height)
+        sys.darknessPix = make([]byte, width*height*4)</span>
 }
 </pre>
 		
@@ -47833,6 +47908,7 @@ func (sys *RenderSpriteSystem) drawDarknessAtLevelWithColor(screen *ebiten.Image
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
         w "github.com/kijimaD/ruins/internal/world"
 
         "github.com/kijimaD/ruins/internal/world/query"
@@ -47883,7 +47959,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error <span class="cov8" ti
                 }</span>
 
                 // 装備効果を加算
-                <span class="cov8" title="1">equipQuery := ecs.NewFilter2[gc.LocationEquipped, gc.Wearable](world.ECS).Query()
+                <span class="cov8" title="1">equipQuery := query.ActiveFilter2[gc.LocationEquipped, gc.Wearable](world).Query()
                 for equipQuery.Next() </span><span class="cov8" title="1">{
                         item := equipQuery.Entity()
                         equipped := world.Components.LocationEquipped.Get(item)
@@ -47901,6 +47977,31 @@ func (sys *StatsChangedSystem) Update(world w.World) error <span class="cov8" ti
                         abils.Sensation.Modifier += wearable.EquipBonus.Sensation
                         abils.Dexterity.Modifier += wearable.EquipBonus.Dexterity
                         abils.Agility.Modifier += wearable.EquipBonus.Agility</span>
+                }
+
+                // 装備した光源をプレイヤー自身の LightSource へ写す。装備品は位置を持たず vision に
+                // 拾われないので、位置を持つプレイヤーが代わりに光源になる。複数あれば最も明るいもの。
+                // プレイヤー限定なのは、発光する member 等の内蔵光源を装備の有無で消さないため。
+                <span class="cov8" title="1">if world.Components.Player.Has(entity) &amp;&amp; world.Components.LightSource.Has(entity) </span><span class="cov8" title="1">{
+                        ls := world.Components.LightSource.Get(entity)
+                        ls.Enabled = false
+                        var bestRadius consts.Tile
+                        lightQuery := query.ActiveFilter2[gc.LocationEquipped, gc.LightSource](world).Query()
+                        for lightQuery.Next() </span><span class="cov8" title="1">{
+                                litem := lightQuery.Entity()
+                                if world.Components.LocationEquipped.Get(litem).Owner != entity </span><span class="cov0" title="0">{
+                                        continue</span>
+                                }
+                                <span class="cov8" title="1">src := world.Components.LightSource.Get(litem)
+                                if src.Enabled &amp;&amp; src.Radius &gt; bestRadius </span><span class="cov8" title="1">{
+                                        bestRadius = src.Radius
+                                        ls.Radius = src.Radius
+                                        ls.Color = src.Color
+                                        ls.Enabled = true
+                                }</span>
+                        }
+                        // 光源が変わったので視界を再計算させる
+                        <span class="cov8" title="1">query.GetVisionState(world).RequestUpdate()</span>
                 }
 
                 // 健康ペナルティを加算
@@ -48575,6 +48676,7 @@ func processPlayerContinuousActivity(world w.World) bool <span class="cov8" titl
 		<pre class="file" id="file245" style="display: none">package systems
 
 import (
+        "fmt"
         "image/color"
         "math"
 
@@ -48659,8 +48761,14 @@ func (sys *VisionSystem) Update(world w.World) error <span class="cov0" title="0
         vs.LightSourceCache = make(map[gc.GridElement]gc.LightInfo)
 
         // 視界内タイルの光源情報を計算し、探索済みマークを行う。
-        // マップ外座標はデータに含めない
-        visibleTiles := make(map[gc.GridElement]bool)
+        // マップ外座標はデータに含めない。
+        // 環境光は屋内なら微小、地上なら時間帯の日照。昼の屋外は全体が明るく松明が要らず、
+        // 地下や深夜は松明の届く範囲だけが見える
+        ambient := dungeonAmbient
+        if query.IsOnOverworld(world) </span><span class="cov0" title="0">{
+                ambient = overworldDaylight(query.GetGameTime(world).GetTimeOfDay())
+        }</span>
+        <span class="cov0" title="0">visibleTiles := make(map[gc.GridElement]bool)
         for _, tileData := range visibilityData </span><span class="cov0" title="0">{
                 if !tileData.Visible </span><span class="cov0" title="0">{
                         continue</span>
@@ -48670,7 +48778,13 @@ func (sys *VisionSystem) Update(world w.World) error <span class="cov0" title="0
                         continue</span>
                 }
 
-                <span class="cov0" title="0">vs.LightSourceCache[gridElement] = calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex)
+                <span class="cov0" title="0">info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, ambient)
+                // 明るさが閾値未満なら見えない。視界を光の届く範囲へ寄せる。
+                // 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる
+                if 1.0-info.Darkness &lt; visibilityThreshold </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">vs.LightSourceCache[gridElement] = info
                 field.ExploredTiles[gridElement] = true
                 visibleTiles[gridElement] = true</span>
         }
@@ -48716,6 +48830,22 @@ type TileRenderRemembered struct {
 
 func (TileRenderRemembered) tileRenderInfo() {<span class="cov0" title="0">}</span>
 
+// TileRenderUnexplored はまだ一度も見ていない未探索の状態。
+// 未探索は viewport の大半を占め map へ格納するとコストが高いので、map には入れず
+// tileRenderAt が不在時に返す番兵として使う。
+type TileRenderUnexplored struct{}
+
+func (TileRenderUnexplored) tileRenderInfo() {<span class="cov0" title="0">}</span>
+
+// tileRenderAt はタイルの描画情報を返す。map に無いタイルは未探索とみなし
+// TileRenderUnexplored を返す。不在を未探索へ明示的に写し、呼び出し側で3状態を網羅できるようにする。
+func tileRenderAt(m map[gc.GridElement]TileRenderInfo, grid gc.GridElement) TileRenderInfo <span class="cov0" title="0">{
+        if info, ok := m[grid]; ok </span><span class="cov0" title="0">{
+                return info
+        }</span>
+        <span class="cov0" title="0">return TileRenderUnexplored{}</span>
+}
+
 // computeTileRenderMap はタイルごとの描画情報を一括計算する。
 // VisibleTiles・ExploredTiles・光源情報を統合して、
 // 各描画関数が参照するだけで済む描画情報マップを返す
@@ -48724,12 +48854,18 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]gc.LightInfo)
         field := query.GetCurrentStageField(world)
         vs := query.GetVisionState(world)
 
-        // 現在見えているタイルを設定する
+        // 現在見えているタイルを設定する。明るさは光源の加算結果 li.Darkness を使う。
+        // ただし記憶タイルより暗くはしない。今見えているタイルが、ただ記憶しているだけの
+        // タイルより暗く見えると、光の輪の縁だけが黒いリングになって不自然になるのを防ぐ
         for grid := range vs.VisibleTiles </span><span class="cov8" title="1">{
                 visible := TileRenderVisible{Darkness: DarknessVisible}
-                if li, ok := lights[grid]; ok &amp;&amp; li.Darkness &lt; 1.0 </span><span class="cov8" title="1">{
-                        visible.LightColor = li.Color
-                }</span>
+                if li, ok := lights[grid]; ok </span><span class="cov8" title="1">{
+                        visible.Darkness = VisibleDarkness(math.Min(li.Darkness, float64(DarknessRemembered)))
+                        // 完全な暗黒には色を乗せない。描画側も無視するが、意図を明示する
+                        if li.Darkness &lt; 1.0 </span><span class="cov8" title="1">{
+                                visible.LightColor = li.Color
+                        }</span>
+                }
                 <span class="cov8" title="1">result[grid] = visible</span>
         }
 
@@ -48858,12 +48994,34 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
         }
 }
 
-// calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する。
-// 光源からタイルへの視線が壁で遮られている光源は寄与しない。壁の裏へ光が漏れるのを防ぐ。
-func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool) gc.LightInfo <span class="cov8" title="1">{
-        minDarkness := 1.0 // 完全に暗い状態からスタート
+// overworldDaylight は地上の時間帯ごとの日照の明るさを返す。昼が最も明るく深夜が最も暗い。
+// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
+func overworldDaylight(t gc.TimeOfDay) float64 <span class="cov8" title="1">{
+        switch t </span>{
+        case gc.TimeDawn:<span class="cov8" title="1">
+                return 0.40</span>
+        case gc.TimeMorning:<span class="cov8" title="1">
+                return 0.72</span>
+        case gc.TimeDay:<span class="cov8" title="1">
+                return 0.95</span>
+        case gc.TimeEvening:<span class="cov8" title="1">
+                return 0.38</span>
+        case gc.TimeNight:<span class="cov8" title="1">
+                return 0.14</span>
+        case gc.TimeMidnight:<span class="cov8" title="1">
+                return 0.06</span>
+        }
+        <span class="cov0" title="0">panic(fmt.Sprintf("unknown TimeOfDay: %d", t))</span>
+}
 
-        // 加重平均用の累積値
+// calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
+// 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、
+// 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。
+// 色は各光源の寄与で加重平均する。
+func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64) gc.LightInfo <span class="cov8" title="1">{
+        brightness := ambient
+
+        // 色は光源の寄与で加重平均する
         var totalR, totalG, totalB float64
         var totalWeight float64
 
@@ -48873,63 +49031,53 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
                 lightEntity := lightQuery.Entity()
                 lightSource := world.Components.LightSource.Get(lightEntity)
 
-                // 無効な光源はスキップ
                 if !lightSource.Enabled </span><span class="cov0" title="0">{
                         continue</span>
                 }
 
                 <span class="cov8" title="1">lightGrid := world.Components.GridElement.Get(lightEntity)
-
-                // 距離計算（タイル単位）
                 distance := geometry.Distance(float64(tile.X), float64(tile.Y), float64(lightGrid.X), float64(lightGrid.Y))
-
-                // 光源範囲内かチェック
-                if distance &lt;= float64(lightSource.Radius) </span><span class="cov8" title="1">{
-                        // 光源からタイルまでの視線が壁で遮られているなら、この光は届かない。
-                        // プレイヤー視界と同じ遮蔽判定を光源起点で行い、壁の裏へ光が漏れるのを防ぐ。
-                        if !bresenhamLineOfSight(int(lightGrid.X), int(lightGrid.Y), tile.X, tile.Y, blockIndex) </span><span class="cov8" title="1">{
-                                continue</span>
-                        }
-
-                        // 光源中心（距離0-1タイル）も周囲と同じ明るさにする
-                        <span class="cov8" title="1">if distance &lt; 1.0 </span><span class="cov0" title="0">{
-                                distance = 1.0
-                        }</span>
-
-                        // 距離の正規化
-                        <span class="cov8" title="1">normalizedDistance := distance / float64(lightSource.Radius)
-
-                        // 光源中心から滑らかに暗くなる
-                        // 中心付近も少し暗くする（最小暗闇レベル0.3）
-                        darkness := math.Pow(normalizedDistance, 1.5)*0.6 + 0.3
-
-                        // 暗闇レベルは最も明るい光源を採用
-                        if darkness &lt; minDarkness </span><span class="cov8" title="1">{
-                                minDarkness = darkness
-                        }</span>
-
-                        // 光の強さを重みとして使用する。近いほど強い
-                        <span class="cov8" title="1">weight := 1.0 - normalizedDistance
-
-                        // 加重平均のための累積
-                        totalR += float64(lightSource.Color.R) * weight
-                        totalG += float64(lightSource.Color.G) * weight
-                        totalB += float64(lightSource.Color.B) * weight
-                        totalWeight += weight</span>
+                if distance &gt; float64(lightSource.Radius) </span><span class="cov0" title="0">{
+                        continue</span>
                 }
+                // 光源からタイルへの視線が壁で遮られているなら光は届かない。壁の裏へ漏らさない。
+                <span class="cov8" title="1">if !bresenhamLineOfSight(int(lightGrid.X), int(lightGrid.Y), tile.X, tile.Y, blockIndex) </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+
+                // 中心1タイルまでは最大の明るさにする
+                <span class="cov8" title="1">if distance &lt; 1.0 </span><span class="cov0" title="0">{
+                        distance = 1.0
+                }</span>
+                <span class="cov8" title="1">nd := distance / float64(lightSource.Radius)
+
+                // 平坦な床を照らす見た目にする。半径の内側 lightPlateau までは一様に明るく、
+                // 外縁だけ滑らかに0へ落とす。中心だけ極端に明るい逆二乗だと、トップダウンでは
+                // 光った球のように見えてしまうのを避ける
+                atten := 1.0 - smoothstep(lightPlateau, 1.0, nd)
+
+                // 加算合成。重なるほど明るい
+                brightness += atten
+
+                // 色は寄与 atten で加重する
+                totalR += float64(lightSource.Color.R) * atten
+                totalG += float64(lightSource.Color.G) * atten
+                totalB += float64(lightSource.Color.B) * atten
+                totalWeight += atten</span>
         }
 
-        // 加重平均を計算
-        <span class="cov8" title="1">var finalR, finalG, finalB uint8
+        <span class="cov8" title="1">brightness = math.Max(0, math.Min(1, brightness))
+
+        col := color.RGBA{A: 255}
         if totalWeight &gt; 0 </span><span class="cov8" title="1">{
-                finalR = uint8(math.Min(255, totalR/totalWeight))
-                finalG = uint8(math.Min(255, totalG/totalWeight))
-                finalB = uint8(math.Min(255, totalB/totalWeight))
+                col.R = uint8(math.Min(255, totalR/totalWeight))
+                col.G = uint8(math.Min(255, totalG/totalWeight))
+                col.B = uint8(math.Min(255, totalB/totalWeight))
         }</span>
 
         <span class="cov8" title="1">return gc.LightInfo{
-                Darkness: minDarkness,
-                Color:    color.RGBA{R: finalR, G: finalG, B: finalB, A: 255},
+                Darkness: 1.0 - brightness,
+                Color:    col,
         }</span>
 }
 
@@ -48938,6 +49086,23 @@ const (
         DarknessVisible    VisibleDarkness    = 0.15
         DarknessRemembered RememberedDarkness = 0.75
 )
+
+// ライティングの調整値
+const (
+        // dungeonAmbient は屋内の環境光。松明が無いと見えないくらい暗い
+        dungeonAmbient = 0.06
+        // visibilityThreshold はこの明るさ未満のタイルを見えないとみなす境界。視界を光の届く範囲へ寄せる
+        visibilityThreshold = 0.10
+        // lightPlateau は光源の平坦域。正規化距離がこの値までは一様に明るく、外縁で滑らかに落とす
+        lightPlateau = 0.45
+)
+
+// smoothstep は edge0..edge1 を 0..1 へ滑らかに写す。両端の傾きが0のS字。
+func smoothstep(edge0, edge1, x float64) float64 <span class="cov8" title="1">{
+        t := (x - edge0) / (edge1 - edge0)
+        t = math.Max(0, math.Min(1, t))
+        return t * t * (3 - 2*t)
+}</span>
 
 // buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
 func buildBlockViewIndex(world w.World) map[gc.GridElement]bool <span class="cov8" title="1">{
@@ -55002,6 +55167,14 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
                 return gc.InvalidEntity, fmt.Errorf("player recovery failed: %w", err)
         }</span>
         <span class="cov8" title="1">world.Components.WeightDirty.Add(playerEntity, &amp;gc.WeightDirty{})
+
+        // 初期装備として松明を持たせて装備する。プレイヤーは内蔵光源を持たないので、
+        // これが明かりになる。外すと暗くなる。StatsChangedSystem が装備の光源を owner へ転写する
+        torch, err := SpawnBackpackItem(world, "torch", 1)
+        if err != nil </span><span class="cov0" title="0">{
+                return gc.InvalidEntity, fmt.Errorf("failed to spawn starting torch: %w", err)
+        }</span>
+        <span class="cov8" title="1">MoveToEquip(world, torch, playerEntity, gc.SlotWeapon1)
 
         query.InvalidateSpatialIndex(world)
         return playerEntity, nil</span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">48.0&nbsp;%</td>
+            <td class="headerCovTableEntryLo">48.6&nbsp;%</td>
             <td class="headerCovTableEntry">331</td>
-            <td class="headerCovTableEntry">159</td>
+            <td class="headerCovTableEntry">161</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 14:01:30</td>
+            <td class="headerValue">2026-08-12 15:40:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -531,10 +531,10 @@
 <span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :         weaponSlots := []gc.EquipmentSlotNumber{gc.SlotWeapon1, gc.SlotWeapon2, gc.SlotWeapon3, gc.SlotWeapon4, gc.SlotWeapon5}</span></span>
 <span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           2 :         for i, weapon := range weapons {</span></span>
 <span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                 name := &quot;&quot;</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :                 if weapon != nil {</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC tlaBgUNC">           0 :                         name = query.GetEntityName(*weapon, world)</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC tlaBgGNC">           1 :                 items = append(items, equipItemData{SlotLabel: query.T(world, &quot;Weapon %d&quot;, i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           2 :                 if weapon != nil {</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :                         name = query.GetEntityName(*weapon, world)</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :                 items = append(items, equipItemData{SlotLabel: query.T(world, &quot;Weapon %d&quot;, i+1), ItemName: name, SlotNumber: weaponSlots[i], Entity: weapon, Member: player})</span></span>
 <span id="L476"><span class="lineNum">     476</span>              :         }</span>
 <span id="L477"><span class="lineNum">     477</span>              : </span>
 <span id="L478"><span class="lineNum">     478</span>              :         // armor・armorLabels・armorSlots は防具7スロットに対応する並行配列。</span>

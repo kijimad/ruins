@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">72.3&nbsp;%</td>
-            <td class="headerCovTableEntry">159</td>
-            <td class="headerCovTableEntry">115</td>
+            <td class="headerCovTableEntryLo">73.9&nbsp;%</td>
+            <td class="headerCovTableEntry">199</td>
+            <td class="headerCovTableEntry">147</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 14:01:30</td>
+            <td class="headerValue">2026-08-12 15:40:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,293 +64,371 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/dungeon&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         mapplanner &quot;github.com/kijimaD/ruins/internal/mapplanner&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/overworld&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              : </span>
-<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
-<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/world/stage&quot;</span>
-<span id="L20"><span class="lineNum">      20</span>              : )</span>
-<span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span>              : // DungeonState はダンジョン探索中のゲームステート</span>
-<span id="L23"><span class="lineNum">      23</span>              : type DungeonState struct {</span>
-<span id="L24"><span class="lineNum">      24</span>              :         es.BaseState[w.World]</span>
-<span id="L25"><span class="lineNum">      25</span>              :         // baseImage は下に敷く背景</span>
-<span id="L26"><span class="lineNum">      26</span>              :         baseImage *ebiten.Image</span>
-<span id="L27"><span class="lineNum">      27</span>              :         Depth     int</span>
-<span id="L28"><span class="lineNum">      28</span>              :         // BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）</span>
-<span id="L29"><span class="lineNum">      29</span>              :         BuilderType mapplanner.PlannerType</span>
-<span id="L30"><span class="lineNum">      30</span>              :         // DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する</span>
-<span id="L31"><span class="lineNum">      31</span>              :         DefinitionName string</span>
-<span id="L32"><span class="lineNum">      32</span>              :         // Resume はセーブからの復帰モード。trueならマップ再生成とプレイヤー再配置を行わず、</span>
-<span id="L33"><span class="lineNum">      33</span>              :         // 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う</span>
-<span id="L34"><span class="lineNum">      34</span>              :         Resume bool</span>
-<span id="L35"><span class="lineNum">      35</span>              : </span>
-<span id="L36"><span class="lineNum">      36</span>              :         // planner・newGame・driver・overworldDefinition はオーバーワールドモードのときだけ使う。</span>
-<span id="L37"><span class="lineNum">      37</span>              :         // 帯固有のロジックは overworld.Driver に閉じ込め、DungeonState は保持と委譲だけ行う</span>
-<span id="L38"><span class="lineNum">      38</span>              :         planner mapplanner.PlannerType</span>
-<span id="L39"><span class="lineNum">      39</span>              :         newGame *overworld.NewGameParams // 新規開始の帯パラメータ。ロード復元では nil</span>
-<span id="L40"><span class="lineNum">      40</span>              :         driver  *overworld.Driver        // OnStart で構成する帯ドライバ。通常ダンジョンでは nil</span>
-<span id="L41"><span class="lineNum">      41</span>              :         // overworldDefinition はオーバーワールドの種別。非 nil ならこの State は帯モード。</span>
-<span id="L42"><span class="lineNum">      42</span>              :         // 種別を State が直接持つことで、登録表に無いテスト用の種別も注入できる</span>
-<span id="L43"><span class="lineNum">      43</span>              :         overworldDefinition *dungeon.OverworldDefinition</span>
-<span id="L44"><span class="lineNum">      44</span>              : }</span>
-<span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span>              : // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの</span>
-<span id="L47"><span class="lineNum">      47</span>              : // 本質的な違いは帯の有無で、それは OverworldDefinition 種別を持つかで表す。フラグでなく型で判定する。</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">           1 : func (st DungeonState) isSeamless() bool {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return st.overworldDefinition != nil</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L51"><span class="lineNum">      51</span>              : </span>
-<span id="L52"><span class="lineNum">      52</span>              : // NewOverworldState はオーバーワールド探索ステートのファクトリを返す。</span>
-<span id="L53"><span class="lineNum">      53</span>              : //</span>
-<span id="L54"><span class="lineNum">      54</span>              : // オーバーワールドは帯を持つステージ種別 OverworldDefinition で、専用の State 型は持たず DungeonState</span>
-<span id="L55"><span class="lineNum">      55</span>              : // として動く。帯固有のロジックは overworld.Driver に閉じ込めてあり、DungeonState は OnStart で</span>
-<span id="L56"><span class="lineNum">      56</span>              : // ドライバを構成して開始を委譲し、Update でシフトを委譲するだけ。</span>
-<span id="L57"><span class="lineNum">      57</span>              : //</span>
-<span id="L58"><span class="lineNum">      58</span>              : // definition は帯形状の供給元。本番は登録済みの dungeon.DungeonOverworld を渡す。</span>
-<span id="L59"><span class="lineNum">      59</span>              : // params が非 nil なら新規開始として初期帯を生成する。nil ならセーブからの復元とみなし、</span>
-<span id="L60"><span class="lineNum">      60</span>              : // 帯形状は Driver の Start がオーバーワールドの StageField の SeamlessBand から読み取って再構築する。</span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 : func NewOverworldState(planner mapplanner.PlannerType, definition *dungeon.OverworldDefinition, params *overworld.NewGameParams) es.StateFactory[w.World] {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :         return func() (es.State[w.World], error) {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 return &amp;DungeonState{</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                         // overworldDefinition を持たせることで OnStart が帯モードへ分岐する</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         DefinitionName:      definition.Name(),</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                         planner:             planner,</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                         newGame:             params,</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                         overworldDefinition: definition,</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 }, nil</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L71"><span class="lineNum">      71</span>              : }</span>
-<span id="L72"><span class="lineNum">      72</span>              : </span>
-<span id="L73"><span class="lineNum">      73</span>              : // State interface ================</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;image/color&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;sync&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/dungeon&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         mapplanner &quot;github.com/kijimaD/ruins/internal/mapplanner&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/overworld&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/world/stage&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              : )</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // DungeonState はダンジョン探索中のゲームステート</span>
+<span id="L25"><span class="lineNum">      25</span>              : type DungeonState struct {</span>
+<span id="L26"><span class="lineNum">      26</span>              :         es.BaseState[w.World]</span>
+<span id="L27"><span class="lineNum">      27</span>              :         // baseImage は下に敷く背景</span>
+<span id="L28"><span class="lineNum">      28</span>              :         baseImage *ebiten.Image</span>
+<span id="L29"><span class="lineNum">      29</span>              :         Depth     int</span>
+<span id="L30"><span class="lineNum">      30</span>              :         // BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）</span>
+<span id="L31"><span class="lineNum">      31</span>              :         BuilderType mapplanner.PlannerType</span>
+<span id="L32"><span class="lineNum">      32</span>              :         // DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する</span>
+<span id="L33"><span class="lineNum">      33</span>              :         DefinitionName string</span>
+<span id="L34"><span class="lineNum">      34</span>              :         // Resume はセーブからの復帰モード。trueならマップ再生成とプレイヤー再配置を行わず、</span>
+<span id="L35"><span class="lineNum">      35</span>              :         // 復元済みのワールド（地形・エンティティ・プレイヤー位置）をそのまま使う</span>
+<span id="L36"><span class="lineNum">      36</span>              :         Resume bool</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              :         // planner・newGame・driver・overworldDefinition はオーバーワールドモードのときだけ使う。</span>
+<span id="L39"><span class="lineNum">      39</span>              :         // 帯固有のロジックは overworld.Driver に閉じ込め、DungeonState は保持と委譲だけ行う</span>
+<span id="L40"><span class="lineNum">      40</span>              :         planner mapplanner.PlannerType</span>
+<span id="L41"><span class="lineNum">      41</span>              :         newGame *overworld.NewGameParams // 新規開始の帯パラメータ。ロード復元では nil</span>
+<span id="L42"><span class="lineNum">      42</span>              :         driver  *overworld.Driver        // OnStart で構成する帯ドライバ。通常ダンジョンでは nil</span>
+<span id="L43"><span class="lineNum">      43</span>              :         // overworldDefinition はオーバーワールドの種別。非 nil ならこの State は帯モード。</span>
+<span id="L44"><span class="lineNum">      44</span>              :         // 種別を State が直接持つことで、登録表に無いテスト用の種別も注入できる</span>
+<span id="L45"><span class="lineNum">      45</span>              :         overworldDefinition *dungeon.OverworldDefinition</span>
+<span id="L46"><span class="lineNum">      46</span>              : }</span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの</span>
+<span id="L49"><span class="lineNum">      49</span>              : // 本質的な違いは帯の有無で、それは OverworldDefinition 種別を持つかで表す。フラグでなく型で判定する。</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 : func (st DungeonState) isSeamless() bool {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return st.overworldDefinition != nil</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              : // NewOverworldState はオーバーワールド探索ステートのファクトリを返す。</span>
+<span id="L55"><span class="lineNum">      55</span>              : //</span>
+<span id="L56"><span class="lineNum">      56</span>              : // オーバーワールドは帯を持つステージ種別 OverworldDefinition で、専用の State 型は持たず DungeonState</span>
+<span id="L57"><span class="lineNum">      57</span>              : // として動く。帯固有のロジックは overworld.Driver に閉じ込めてあり、DungeonState は OnStart で</span>
+<span id="L58"><span class="lineNum">      58</span>              : // ドライバを構成して開始を委譲し、Update でシフトを委譲するだけ。</span>
+<span id="L59"><span class="lineNum">      59</span>              : //</span>
+<span id="L60"><span class="lineNum">      60</span>              : // definition は帯形状の供給元。本番は登録済みの dungeon.DungeonOverworld を渡す。</span>
+<span id="L61"><span class="lineNum">      61</span>              : // params が非 nil なら新規開始として初期帯を生成する。nil ならセーブからの復元とみなし、</span>
+<span id="L62"><span class="lineNum">      62</span>              : // 帯形状は Driver の Start がオーバーワールドの StageField の SeamlessBand から読み取って再構築する。</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 : func NewOverworldState(planner mapplanner.PlannerType, definition *dungeon.OverworldDefinition, params *overworld.NewGameParams) es.StateFactory[w.World] {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           2 :         return func() (es.State[w.World], error) {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 return &amp;DungeonState{</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                         // overworldDefinition を持たせることで OnStart が帯モードへ分岐する</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                         DefinitionName:      definition.Name(),</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                         planner:             planner,</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                         newGame:             params,</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                         overworldDefinition: definition,</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 }, nil</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L73"><span class="lineNum">      73</span>              : }</span>
 <span id="L74"><span class="lineNum">      74</span>              : </span>
-<span id="L75"><span class="lineNum">      75</span>              : var _ es.State[w.World] = &amp;DungeonState{}</span>
-<span id="L76"><span class="lineNum">      76</span>              : var _ es.ActionHandler[w.World] = &amp;DungeonState{}</span>
-<span id="L77"><span class="lineNum">      77</span>              : </span>
-<span id="L78"><span class="lineNum">      78</span>              : // OnPause はステートが一時停止される際に呼ばれる</span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : func (st *DungeonState) OnPause(_ w.World) error { return nil }</span></span>
-<span id="L80"><span class="lineNum">      80</span>              : </span>
-<span id="L81"><span class="lineNum">      81</span>              : // OnResume はステートが再開される際に呼ばれる</span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : func (st *DungeonState) OnResume(_ w.World) error { return nil }</span></span>
-<span id="L83"><span class="lineNum">      83</span>              : </span>
-<span id="L84"><span class="lineNum">      84</span>              : // OnStart はステートが開始される際に呼ばれる</span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 : func (st *DungeonState) OnStart(world w.World) error {</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         screenWidth := world.Resources.ScreenDimensions.Width</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         screenHeight := world.Resources.ScreenDimensions.Height</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           2 :         if screenWidth &gt; 0 &amp;&amp; screenHeight &gt; 0 {</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 st.baseImage = ebiten.NewImage(screenWidth, screenHeight)</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 st.baseImage.Fill(theme.ScreenBackground)</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L92"><span class="lineNum">      92</span>              : </span>
-<span id="L93"><span class="lineNum">      93</span>              :         // 開始時に視界を一度だけ強制再計算させる。VisionSystem は現ステージが変わらないと</span>
-<span id="L94"><span class="lineNum">      94</span>              :         // キャッシュを無効化しないが、オーバーワールドは常に同一ステージ、通常ダンジョンの</span>
-<span id="L95"><span class="lineNum">      95</span>              :         // ロード復帰も保存前と同じ現ステージで、いずれも自動再計算が働かない。加えて serde は</span>
-<span id="L96"><span class="lineNum">      96</span>              :         // VisionState を空で復元するため、放置すると空の VisibleTiles のまま真っ暗になる。</span>
-<span id="L97"><span class="lineNum">      97</span>              :         // オーバーワールドと通常ダンジョンで同じ扱いにするため、分岐前のここで立てる。</span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         query.GetVisionState(world).RequestUpdate()</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         // Seamless なオーバーワールドは帯ドライバを構成して委譲する。帯固有のロジックは</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         // overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           2 :         if st.isSeamless() {</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 st.driver = overworld.NewDriver(st.planner, st.overworldDefinition, st.newGame)</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 return st.driver.Start(world)</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L106"><span class="lineNum">     106</span>              : </span>
-<span id="L107"><span class="lineNum">     107</span>              :         // 進入先の遺跡定義名を決める。State に明示指定があればそれを使い、無ければ現ステージ、</span>
-<span id="L108"><span class="lineNum">     108</span>              :         // すなわち今いる遺跡の名前を引き継ぐ。ダンジョン定義名は CurrentStage.Name から導出する。</span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         defName := st.DefinitionName</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         if defName == &quot;&quot; {</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC tlaBgUNC">           0 :                 defName = query.GetDungeon(world).CurrentStage.Name</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L113"><span class="lineNum">     113</span>              :         // ダンジョン種別を取得する。ここは Seamless 判定を抜けた通常ダンジョンなので DungeonDefinition のはず</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC tlaBgGNC">           1 :         def, err := resolveDungeonDefinition(defName)</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L118"><span class="lineNum">     118</span>              :         // 単一フロアを新規生成して現ステージに確定する。初回進入や golden の単発描画で使う。</span>
-<span id="L119"><span class="lineNum">     119</span>              :         // これは共存を作らない: 他ステージの suspend も上り階段の結線もしないので、ゲーム中の</span>
-<span id="L120"><span class="lineNum">     120</span>              :         // 階層移動(地上⇄遺跡・階の上り下り)には使わないこと。それらは enterDungeon/descend の</span>
-<span id="L121"><span class="lineNum">     121</span>              :         // SwapTo を通し、退避と結線を伴って往復する。</span>
-<span id="L122"><span class="lineNum">     122</span>              :         // 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う</span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC tlaBgGNC">           2 :         if !st.Resume {</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 key := dungeonStageKey(defName, st.Depth)</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 playerPos, _, err := st.spawnFloor(world, st.Depth, def, key)</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L129"><span class="lineNum">     129</span>              :                 // プレイヤーを配置する</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC tlaBgGNC">           1 :                 if err := lifecycle.MovePlayerToPosition(world, playerPos); err != nil {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L133"><span class="lineNum">     133</span>              :                 // フロア移動時に探索済みマップをリセットし、現ステージを確定する</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC tlaBgGNC">           1 :                 stage.ResetExploredTiles(world)</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 query.GetDungeon(world).CurrentStage = key</span></span>
-<span id="L136"><span class="lineNum">     136</span>              :         }</span>
-<span id="L137"><span class="lineNum">     137</span>              : </span>
-<span id="L138"><span class="lineNum">     138</span>              :         // 前フロア・復元前のSpatialIndexが残っている可能性があるため無効化して作り直す。</span>
-<span id="L139"><span class="lineNum">     139</span>              :         // SpatialIndexはTurnPhaseEndでのみ無効化されるが、フロア遷移はTurnPhasePlayer中に</span>
-<span id="L140"><span class="lineNum">     140</span>              :         // 発生するため、古いデータが残り移動不能になることがある</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         // ダンジョンタイトルエフェクト用エンティティを作成する</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         screenW, screenH := world.Resources.GetScreenDimensions()</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         titleText := query.T(world, def.Name())</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           2 :         if st.Depth &gt; 0 {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 titleText = fmt.Sprintf(&quot;%s %dF&quot;, query.T(world, def.Name()), st.Depth)</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         splashFace := world.Resources.UIResources.Text.SplashFontFace</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         titleEntity := world.ECS.NewEntity()</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         world.Components.VisualEffects.Add(titleEntity, &amp;gc.VisualEffects{</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 Effects: []gc.VisualEffect{titleEffect},</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L157"><span class="lineNum">     157</span>              : }</span>
-<span id="L158"><span class="lineNum">     158</span>              : </span>
-<span id="L159"><span class="lineNum">     159</span>              : // completeSwap はステージ入れ替え直後に視界とカメラを再計算し、遷移なしを返す。</span>
-<span id="L160"><span class="lineNum">     160</span>              : // swap は Update の後段の handleStateChangeRequest で起きるため、このフレームの</span>
-<span id="L161"><span class="lineNum">     161</span>              : // VisionSystem/CameraSystem は既に旧ステージで走った後になる。ここで再計算しないと、</span>
-<span id="L162"><span class="lineNum">     162</span>              : // 入れ替え直後の1フレームが旧ステージの視点・視界のまま描かれてチラつく</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 : func (st *DungeonState) completeSwap(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         query.GetVisionState(world).RequestUpdate()</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         if err := (&amp;gs.VisionSystem{}).Update(world); err != nil {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := (&amp;gs.CameraSystem{}).Update(world); err != nil {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC tlaBgGNC">           1 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L172"><span class="lineNum">     172</span>              : }</span>
-<span id="L173"><span class="lineNum">     173</span>              : </span>
-<span id="L174"><span class="lineNum">     174</span>              : // OnStop はステートが停止される際に呼ばれる。</span>
-<span id="L175"><span class="lineNum">     175</span>              : //</span>
-<span id="L176"><span class="lineNum">     176</span>              : // 共存方式ではオーバーワールドと遺跡が同一 world に共存し、退避中ステージも保持するため、</span>
-<span id="L177"><span class="lineNum">     177</span>              : // ここでは何もしない。world を捨てるのはタイトルへ戻る・ロードのときで、MainMenuState.OnStart</span>
-<span id="L178"><span class="lineNum">     178</span>              : // の全 entity 削除と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。</span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *DungeonState) OnStop(_ w.World) error { return nil }</span></span>
-<span id="L180"><span class="lineNum">     180</span>              : </span>
-<span id="L181"><span class="lineNum">     181</span>              : // checkPlayerDeath はプレイヤーの死亡状態をチェックする。Update フローの述語</span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *DungeonState) checkPlayerDeath(world w.World) bool {</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         playerDead := false</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         for playerDeadQuery.Next() {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC tlaBgUNC">           0 :                 playerDead = true</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           1 :         return playerDead</span></span>
-<span id="L189"><span class="lineNum">     189</span>              : }</span>
-<span id="L190"><span class="lineNum">     190</span>              : </span>
-<span id="L191"><span class="lineNum">     191</span>              : // Update はゲームステートの更新処理を行う</span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 : func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         // 全ダンジョン踏破をオーバーワールド滞在時に判定する。判定条件は帯シフトと同じ</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         // 「driver保持かつ現ステージ深度0」。SetEventActive は冪等で視聴後は再発火しないので、</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         // 毎フレーム呼んでも一度だけ発火する</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           2 :         if st.driver != nil &amp;&amp; query.IsOnOverworld(world) {</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 gp := query.GetGameProgress(world)</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 if gp.IsAllCleared(dungeon.GetAllDungeonNames()) {</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC tlaBgUNC">           0 :                         gp.SetEventActive(gc.EventAllCleared)</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L201"><span class="lineNum">     201</span>              :         }</span>
-<span id="L202"><span class="lineNum">     202</span>              : </span>
-<span id="L203"><span class="lineNum">     203</span>              :         // 全クリアイベントの表示</span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC tlaBgGNC">           1 :         if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC tlaBgUNC">           0 :                 query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                         NewAllClearEventState,</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                 }}, nil</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L210"><span class="lineNum">     210</span>              : </span>
-<span id="L211"><span class="lineNum">     211</span>              :         // キー入力をActionに変換</span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC tlaBgGNC">           1 :         if action, ok := st.HandleInput(world.Config); ok {</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC tlaBgUNC">           0 :                 if transition, err := st.DoAction(world, action); err != nil {</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                 } else if transition.Type != es.TransNone {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                         return transition, nil</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L218"><span class="lineNum">     218</span>              :         }</span>
-<span id="L219"><span class="lineNum">     219</span>              : </span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := runUpdaters(world,</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 &amp;gs.AnimationSystem{},</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 &amp;gs.DeadCleanupSystem{},</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 &amp;gs.TurnSystem{},</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 &amp;gs.VisionSystem{},</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 &amp;gs.CameraSystem{},</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 &amp;gs.HUDRenderingSystem{},</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 &amp;gs.StatsChangedSystem{},</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 &amp;gs.WeightDirtySystem{},</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 &amp;gs.VisualEffectSystem{},</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         ); err != nil {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L233"><span class="lineNum">     233</span>              : </span>
-<span id="L234"><span class="lineNum">     234</span>              :         // プレイヤー死亡チェック</span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           1 :         if st.checkPlayerDeath(world) {</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewGameOverMessageState}}, nil</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L238"><span class="lineNum">     238</span>              : </span>
-<span id="L239"><span class="lineNum">     239</span>              :         // ステート遷移リクエストを処理</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC tlaBgGNC">           1 :         transition, err := st.handleStateChangeRequest(world)</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC tlaBgGNC">           1 :         if transition.Type != es.TransNone {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC tlaBgUNC">           0 :                 return transition, nil</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L247"><span class="lineNum">     247</span>              : </span>
-<span id="L248"><span class="lineNum">     248</span>              :         // BaseStateの共通処理を使用</span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC tlaBgGNC">           1 :         transition = st.ConsumeTransition()</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         // 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。帯ドライバは</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         // オーバーワールド State だけが持ち、現ステージ深度0がオーバーワールドを表す。遺跡へ入ると</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         // 同一 State 内で現ステージ深度が1以上へ変わり、そのあいだ帯を触らない。通常ダンジョンは</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         // driver が nil で除外される。死亡やリクエスト遷移で早期 return したフレームも触らない</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           2 :         if st.driver != nil &amp;&amp; query.IsOnOverworld(world) &amp;&amp; transition.Type == es.TransNone {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 st.driver.UpdateFront(world)</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 shifted, serr := st.driver.MaybeShift(world)</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                 if serr != nil {</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC tlaBgUNC">           0 :                         return es.Transition[w.World]{}, serr</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC tlaBgGNC">           1 :                 if shifted {</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC tlaBgUNC">           0 :                         // リベースでプレイヤーが中央へ動くが、カメラは Update 内で既に旧位置に合わせた後。</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                         // カメラを再センタリングしないと、シフトしたフレームで視点がジャンプしてチラつく</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                         if err := (&amp;gs.CameraSystem{}).Update(world); err != nil {</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L266"><span class="lineNum">     266</span>              :                 }</span>
-<span id="L267"><span class="lineNum">     267</span>              :         }</span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC tlaBgGNC">           1 :         return transition, nil</span></span>
-<span id="L269"><span class="lineNum">     269</span>              : }</span>
-<span id="L270"><span class="lineNum">     270</span>              : </span>
-<span id="L271"><span class="lineNum">     271</span>              : // Draw はゲームステートの描画処理を行う</span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 : func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           2 :         if st.baseImage != nil {</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 screen.DrawImage(st.baseImage, nil)</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L276"><span class="lineNum">     276</span>              : </span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         for _, renderer := range []w.Renderer{</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 &amp;gs.RenderSpriteSystem{},</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 &amp;gs.FrostRenderSystem{},</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 &amp;gs.HUDRenderingSystem{},</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                 &amp;gs.VisualEffectSystem{},</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           2 :         } {</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           2 :                 if sys, ok := world.Renderers[renderer.String()]; ok {</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                         if err := sys.Draw(world, screen); err != nil {</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return err</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L287"><span class="lineNum">     287</span>              :                 }</span>
-<span id="L288"><span class="lineNum">     288</span>              :         }</span>
-<span id="L289"><span class="lineNum">     289</span>              : </span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L291"><span class="lineNum">     291</span>              : }</span>
+<span id="L75"><span class="lineNum">      75</span>              : // State interface ================</span>
+<span id="L76"><span class="lineNum">      76</span>              : </span>
+<span id="L77"><span class="lineNum">      77</span>              : var _ es.State[w.World] = &amp;DungeonState{}</span>
+<span id="L78"><span class="lineNum">      78</span>              : var _ es.ActionHandler[w.World] = &amp;DungeonState{}</span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span>              : // OnPause はステートが一時停止される際に呼ばれる</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : func (st *DungeonState) OnPause(_ w.World) error { return nil }</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : </span>
+<span id="L83"><span class="lineNum">      83</span>              : // OnResume はステートが再開される際に呼ばれる</span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : func (st *DungeonState) OnResume(_ w.World) error { return nil }</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span>              : // OnStart はステートが開始される際に呼ばれる</span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 : func (st *DungeonState) OnStart(world w.World) error {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         screenWidth := world.Resources.ScreenDimensions.Width</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         screenHeight := world.Resources.ScreenDimensions.Height</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           2 :         if screenWidth &gt; 0 &amp;&amp; screenHeight &gt; 0 {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 st.baseImage = ebiten.NewImage(screenWidth, screenHeight)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 st.baseImage.Fill(theme.ScreenBackground)</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L95"><span class="lineNum">      95</span>              :         // 開始時に視界を一度だけ強制再計算させる。VisionSystem は現ステージが変わらないと</span>
+<span id="L96"><span class="lineNum">      96</span>              :         // キャッシュを無効化しないが、オーバーワールドは常に同一ステージ、通常ダンジョンの</span>
+<span id="L97"><span class="lineNum">      97</span>              :         // ロード復帰も保存前と同じ現ステージで、いずれも自動再計算が働かない。加えて serde は</span>
+<span id="L98"><span class="lineNum">      98</span>              :         // VisionState を空で復元するため、放置すると空の VisibleTiles のまま真っ暗になる。</span>
+<span id="L99"><span class="lineNum">      99</span>              :         // オーバーワールドと通常ダンジョンで同じ扱いにするため、分岐前のここで立てる。</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         query.GetVisionState(world).RequestUpdate()</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         // Seamless なオーバーワールドは帯ドライバを構成して委譲する。帯固有のロジックは</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         // overworld.Driver に閉じ込め、DungeonState はここで開始を委譲するだけにする</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           2 :         if st.isSeamless() {</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 st.driver = overworld.NewDriver(st.planner, st.overworldDefinition, st.newGame)</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 return st.driver.Start(world)</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L108"><span class="lineNum">     108</span>              : </span>
+<span id="L109"><span class="lineNum">     109</span>              :         // 進入先の遺跡定義名を決める。State に明示指定があればそれを使い、無ければ現ステージ、</span>
+<span id="L110"><span class="lineNum">     110</span>              :         // すなわち今いる遺跡の名前を引き継ぐ。ダンジョン定義名は CurrentStage.Name から導出する。</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         defName := st.DefinitionName</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         if defName == &quot;&quot; {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC tlaBgUNC">           0 :                 defName = query.GetDungeon(world).CurrentStage.Name</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :         // ダンジョン種別を取得する。ここは Seamless 判定を抜けた通常ダンジョンなので DungeonDefinition のはず</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC tlaBgGNC">           1 :         def, err := resolveDungeonDefinition(defName)</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L120"><span class="lineNum">     120</span>              :         // 単一フロアを新規生成して現ステージに確定する。初回進入や golden の単発描画で使う。</span>
+<span id="L121"><span class="lineNum">     121</span>              :         // これは共存を作らない: 他ステージの suspend も上り階段の結線もしないので、ゲーム中の</span>
+<span id="L122"><span class="lineNum">     122</span>              :         // 階層移動(地上⇄遺跡・階の上り下り)には使わないこと。それらは enterDungeon/descend の</span>
+<span id="L123"><span class="lineNum">     123</span>              :         // SwapTo を通し、退避と結線を伴って往復する。</span>
+<span id="L124"><span class="lineNum">     124</span>              :         // 復帰モードでは再生成せず、復元済みの地形・エンティティ・プレイヤー位置をそのまま使う</span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC tlaBgGNC">           2 :         if !st.Resume {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 key := dungeonStageKey(defName, st.Depth)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 playerPos, _, err := st.spawnFloor(world, st.Depth, def, key)</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L131"><span class="lineNum">     131</span>              :                 // プレイヤーを配置する</span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC tlaBgGNC">           1 :                 if err := lifecycle.MovePlayerToPosition(world, playerPos); err != nil {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L135"><span class="lineNum">     135</span>              :                 // フロア移動時に探索済みマップをリセットし、現ステージを確定する</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC tlaBgGNC">           1 :                 stage.ResetExploredTiles(world)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 query.GetDungeon(world).CurrentStage = key</span></span>
+<span id="L138"><span class="lineNum">     138</span>              :         }</span>
+<span id="L139"><span class="lineNum">     139</span>              : </span>
+<span id="L140"><span class="lineNum">     140</span>              :         // 前フロア・復元前のSpatialIndexが残っている可能性があるため無効化して作り直す。</span>
+<span id="L141"><span class="lineNum">     141</span>              :         // SpatialIndexはTurnPhaseEndでのみ無効化されるが、フロア遷移はTurnPhasePlayer中に</span>
+<span id="L142"><span class="lineNum">     142</span>              :         // 発生するため、古いデータが残り移動不能になることがある</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         // ダンジョンタイトルエフェクト用エンティティを作成する</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         screenW, screenH := world.Resources.GetScreenDimensions()</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         titleText := query.T(world, def.Name())</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           2 :         if st.Depth &gt; 0 {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 titleText = fmt.Sprintf(&quot;%s %dF&quot;, query.T(world, def.Name()), st.Depth)</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         splashFace := world.Resources.UIResources.Text.SplashFontFace</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         titleEntity := world.ECS.NewEntity()</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         world.Components.VisualEffects.Add(titleEntity, &amp;gc.VisualEffects{</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 Effects: []gc.VisualEffect{titleEffect},</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L159"><span class="lineNum">     159</span>              : }</span>
+<span id="L160"><span class="lineNum">     160</span>              : </span>
+<span id="L161"><span class="lineNum">     161</span>              : // completeSwap はステージ入れ替え直後に視界とカメラを再計算し、遷移なしを返す。</span>
+<span id="L162"><span class="lineNum">     162</span>              : // swap は Update の後段の handleStateChangeRequest で起きるため、このフレームの</span>
+<span id="L163"><span class="lineNum">     163</span>              : // VisionSystem/CameraSystem は既に旧ステージで走った後になる。ここで再計算しないと、</span>
+<span id="L164"><span class="lineNum">     164</span>              : // 入れ替え直後の1フレームが旧ステージの視点・視界のまま描かれてチラつく</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 : func (st *DungeonState) completeSwap(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         query.GetVisionState(world).RequestUpdate()</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         if err := (&amp;gs.VisionSystem{}).Update(world); err != nil {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := (&amp;gs.CameraSystem{}).Update(world); err != nil {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC tlaBgGNC">           1 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : }</span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span>              : // OnStop はステートが停止される際に呼ばれる。</span>
+<span id="L177"><span class="lineNum">     177</span>              : //</span>
+<span id="L178"><span class="lineNum">     178</span>              : // 共存方式ではオーバーワールドと遺跡が同一 world に共存し、退避中ステージも保持するため、</span>
+<span id="L179"><span class="lineNum">     179</span>              : // ここでは何もしない。world を捨てるのはタイトルへ戻る・ロードのときで、MainMenuState.OnStart</span>
+<span id="L180"><span class="lineNum">     180</span>              : // の全 entity 削除と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *DungeonState) OnStop(_ w.World) error { return nil }</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : </span>
+<span id="L183"><span class="lineNum">     183</span>              : // checkPlayerDeath はプレイヤーの死亡状態をチェックする。Update フローの述語</span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *DungeonState) checkPlayerDeath(world w.World) bool {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         playerDead := false</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         for playerDeadQuery.Next() {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC tlaBgUNC">           0 :                 playerDead = true</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC tlaBgGNC">           1 :         return playerDead</span></span>
+<span id="L191"><span class="lineNum">     191</span>              : }</span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span>              : // Update はゲームステートの更新処理を行う</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 : func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         // 全ダンジョン踏破をオーバーワールド滞在時に判定する。判定条件は帯シフトと同じ</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         // 「driver保持かつ現ステージ深度0」。SetEventActive は冪等で視聴後は再発火しないので、</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         // 毎フレーム呼んでも一度だけ発火する</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           2 :         if st.driver != nil &amp;&amp; query.IsOnOverworld(world) {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 gp := query.GetGameProgress(world)</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 if gp.IsAllCleared(dungeon.GetAllDungeonNames()) {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC tlaBgUNC">           0 :                         gp.SetEventActive(gc.EventAllCleared)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L203"><span class="lineNum">     203</span>              :         }</span>
+<span id="L204"><span class="lineNum">     204</span>              : </span>
+<span id="L205"><span class="lineNum">     205</span>              :         // 全クリアイベントの表示</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC tlaBgGNC">           1 :         if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC tlaBgUNC">           0 :                 query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                         NewAllClearEventState,</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 }}, nil</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L212"><span class="lineNum">     212</span>              : </span>
+<span id="L213"><span class="lineNum">     213</span>              :         // キー入力をActionに変換</span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC tlaBgGNC">           1 :         if action, ok := st.HandleInput(world.Config); ok {</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC tlaBgUNC">           0 :                 if transition, err := st.DoAction(world, action); err != nil {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 } else if transition.Type != es.TransNone {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                         return transition, nil</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L220"><span class="lineNum">     220</span>              :         }</span>
+<span id="L221"><span class="lineNum">     221</span>              : </span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := runUpdaters(world,</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 &amp;gs.AnimationSystem{},</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 &amp;gs.DeadCleanupSystem{},</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 &amp;gs.TurnSystem{},</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 &amp;gs.VisionSystem{},</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 &amp;gs.CameraSystem{},</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 &amp;gs.HUDRenderingSystem{},</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 &amp;gs.StatsChangedSystem{},</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 &amp;gs.WeightDirtySystem{},</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 &amp;gs.VisualEffectSystem{},</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         ); err != nil {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L235"><span class="lineNum">     235</span>              : </span>
+<span id="L236"><span class="lineNum">     236</span>              :         // プレイヤー死亡チェック</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC tlaBgGNC">           1 :         if st.checkPlayerDeath(world) {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewGameOverMessageState}}, nil</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L240"><span class="lineNum">     240</span>              : </span>
+<span id="L241"><span class="lineNum">     241</span>              :         // ステート遷移リクエストを処理</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC tlaBgGNC">           1 :         transition, err := st.handleStateChangeRequest(world)</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC tlaBgGNC">           1 :         if transition.Type != es.TransNone {</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC tlaBgUNC">           0 :                 return transition, nil</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L249"><span class="lineNum">     249</span>              : </span>
+<span id="L250"><span class="lineNum">     250</span>              :         // BaseStateの共通処理を使用</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC tlaBgGNC">           1 :         transition = st.ConsumeTransition()</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         // 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。帯ドライバは</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         // オーバーワールド State だけが持ち、現ステージ深度0がオーバーワールドを表す。遺跡へ入ると</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         // 同一 State 内で現ステージ深度が1以上へ変わり、そのあいだ帯を触らない。通常ダンジョンは</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         // driver が nil で除外される。死亡やリクエスト遷移で早期 return したフレームも触らない</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           2 :         if st.driver != nil &amp;&amp; query.IsOnOverworld(world) &amp;&amp; transition.Type == es.TransNone {</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :                 st.driver.UpdateFront(world)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 shifted, serr := st.driver.MaybeShift(world)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 if serr != nil {</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC tlaBgUNC">           0 :                         return es.Transition[w.World]{}, serr</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC tlaBgGNC">           1 :                 if shifted {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC tlaBgUNC">           0 :                         // リベースでプレイヤーが中央へ動くが、カメラは Update 内で既に旧位置に合わせた後。</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                         // カメラを再センタリングしないと、シフトしたフレームで視点がジャンプしてチラつく</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                         if err := (&amp;gs.CameraSystem{}).Update(world); err != nil {</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                                 return es.Transition[w.World]{}, err</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L268"><span class="lineNum">     268</span>              :                 }</span>
+<span id="L269"><span class="lineNum">     269</span>              :         }</span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC tlaBgGNC">           1 :         return transition, nil</span></span>
+<span id="L271"><span class="lineNum">     271</span>              : }</span>
+<span id="L272"><span class="lineNum">     272</span>              : </span>
+<span id="L273"><span class="lineNum">     273</span>              : // Draw はゲームステートの描画処理を行う。世界と HUD を screen へ描く。</span>
+<span id="L274"><span class="lineNum">     274</span>              : // フィールドのライティングは vision が壁遮蔽込みで計算した per-tile の暗さを</span>
+<span id="L275"><span class="lineNum">     275</span>              : // RenderSpriteSystem が描く。地上は時間帯の色フィルタを世界へ一様に掛ける。</span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 : func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           2 :         if st.baseImage != nil {</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 screen.DrawImage(st.baseImage, nil)</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L280"><span class="lineNum">     280</span>              :         // まず世界レイヤを screen へ描く。フォグと壁遮蔽は vision の per-tile 暗さで表現する</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         if err := drawRenderers(world, screen,</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                 &amp;gs.RenderSpriteSystem{}, &amp;gs.FrostRenderSystem{}); err != nil {</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :         // 地上は時間帯の色フィルタを世界レイヤへ一様に掛ける。朝夕は暖色、夜は寒色へ寄せる。</span>
+<span id="L286"><span class="lineNum">     286</span>              :         // ダンジョンは地下で昼夜がないので掛けない</span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC tlaBgGNC">           2 :         if query.IsOnOverworld(world) {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 applyTimeOfDayTint(screen, query.GetGameTime(world).GetTimeOfDay())</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L290"><span class="lineNum">     290</span>              :         // HUD レイヤは screen へ等倍で描く。色フィルタを避けて文字やバーの読みやすさを保つ</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         return drawRenderers(world, screen,</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 &amp;gs.HUDRenderingSystem{}, &amp;gs.VisualEffectSystem{})</span></span>
+<span id="L293"><span class="lineNum">     293</span>              : }</span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span>              : // blendMultiply は乗算合成。結果 = src.rgb × dst.rgb。時間帯の色を世界へ掛けるのに使う。</span>
+<span id="L296"><span class="lineNum">     296</span>              : // アルファは src をそのまま通す。screen は不透明なので実効には影響しない。</span>
+<span id="L297"><span class="lineNum">     297</span>              : var blendMultiply = ebiten.Blend{</span>
+<span id="L298"><span class="lineNum">     298</span>              :         BlendFactorSourceRGB:        ebiten.BlendFactorDestinationColor,</span>
+<span id="L299"><span class="lineNum">     299</span>              :         BlendFactorSourceAlpha:      ebiten.BlendFactorOne,</span>
+<span id="L300"><span class="lineNum">     300</span>              :         BlendFactorDestinationRGB:   ebiten.BlendFactorZero,</span>
+<span id="L301"><span class="lineNum">     301</span>              :         BlendFactorDestinationAlpha: ebiten.BlendFactorZero,</span>
+<span id="L302"><span class="lineNum">     302</span>              :         BlendOperationRGB:           ebiten.BlendOperationAdd,</span>
+<span id="L303"><span class="lineNum">     303</span>              :         BlendOperationAlpha:         ebiten.BlendOperationAdd,</span>
+<span id="L304"><span class="lineNum">     304</span>              : }</span>
+<span id="L305"><span class="lineNum">     305</span>              : </span>
+<span id="L306"><span class="lineNum">     306</span>              : var (</span>
+<span id="L307"><span class="lineNum">     307</span>              :         tintPixel     *ebiten.Image</span>
+<span id="L308"><span class="lineNum">     308</span>              :         tintPixelOnce sync.Once</span>
+<span id="L309"><span class="lineNum">     309</span>              : )</span>
+<span id="L310"><span class="lineNum">     310</span>              : </span>
+<span id="L311"><span class="lineNum">     311</span>              : // whiteTintPixel は色フィルタ用の白1px。全画面へ拡大し ColorScale で時間帯の色を掛ける。</span>
+<span id="L312"><span class="lineNum">     312</span>              : // 生成は初回だけ行い、並列描画やテストでのデータレースを防ぐ。</span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 : func whiteTintPixel() *ebiten.Image {</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           2 :         tintPixelOnce.Do(func() {</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 tintPixel = ebiten.NewImage(1, 1)</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 tintPixel.Fill(color.White)</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         return tintPixel</span></span>
+<span id="L319"><span class="lineNum">     319</span>              : }</span>
+<span id="L320"><span class="lineNum">     320</span>              : </span>
+<span id="L321"><span class="lineNum">     321</span>              : // applyTimeOfDayTint は時間帯の色を screen 全体へ乗算する。昼は白で素通しなので何もしない。</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 : func applyTimeOfDayTint(screen *ebiten.Image, t gc.TimeOfDay) {</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :         r, g, b := timeOfDayTint(t)</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         if r == 1 &amp;&amp; g == 1 &amp;&amp; b == 1 {</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC tlaBgGNC">           1 :         bounds := screen.Bounds()</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         op := &amp;ebiten.DrawImageOptions{Blend: blendMultiply}</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         op.GeoM.Scale(float64(bounds.Dx()), float64(bounds.Dy()))</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :         op.ColorScale.Scale(r, g, b, 1)</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :         screen.DrawImage(whiteTintPixel(), op)</span></span>
+<span id="L332"><span class="lineNum">     332</span>              : }</span>
+<span id="L333"><span class="lineNum">     333</span>              : </span>
+<span id="L334"><span class="lineNum">     334</span>              : // timeOfDayTint は時間帯を世界へ掛ける乗算色へ写す。昼は白で素通し、朝夕は暖色、夜は寒色。</span>
+<span id="L335"><span class="lineNum">     335</span>              : // 乗算なので各成分は 1 以下。小さいほど暗く色濃くなる。</span>
+<span id="L336"><span class="lineNum">     336</span>              : // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。</span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 : func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) {</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         switch t {</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :         case gc.TimeDawn:</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :                 return 1.0, 0.80, 0.72</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :         case gc.TimeMorning:</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                 return 1.0, 0.96, 0.90</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         case gc.TimeDay:</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :                 return 1.0, 1.0, 1.0</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         case gc.TimeEvening:</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :                 return 1.0, 0.72, 0.52</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         case gc.TimeNight:</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :                 return 0.55, 0.60, 0.85</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :         case gc.TimeMidnight:</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 return 0.42, 0.48, 0.78</span></span>
+<span id="L351"><span class="lineNum">     351</span>              :         }</span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(fmt.Sprintf(&quot;unknown TimeOfDay: %d&quot;, t))</span></span>
+<span id="L353"><span class="lineNum">     353</span>              : }</span>
+<span id="L354"><span class="lineNum">     354</span>              : </span>
+<span id="L355"><span class="lineNum">     355</span>              : // drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。</span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC tlaBgGNC">           1 : func drawRenderers(world w.World, target *ebiten.Image, renderers ...w.Renderer) error {</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           2 :         for _, renderer := range renderers {</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :                 sys, ok := world.Renderers[renderer.String()]</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC tlaBgUNC">           0 :                         // 未登録は描画されず無音で消える。登録漏れをエラーで表面化させる</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;renderer not registered: %s&quot;, renderer.String())</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC tlaBgGNC">           1 :                 if err := sys.Draw(world, target); err != nil {</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L366"><span class="lineNum">     366</span>              :         }</span>
+<span id="L367"><span class="lineNum">     367</span>              : </span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L369"><span class="lineNum">     369</span>              : }</span>
         </pre>
               </td>
             </tr>

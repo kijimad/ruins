@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">87.9&nbsp;%</td>
+            <td class="headerCovTableEntryMed">86.6&nbsp;%</td>
             <td class="headerCovTableEntry">157</td>
-            <td class="headerCovTableEntry">138</td>
+            <td class="headerCovTableEntry">136</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 14:01:30</td>
+            <td class="headerValue">2026-08-12 15:40:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -217,11 +217,11 @@
 <span id="L155"><span class="lineNum">     155</span>              : </span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC tlaBgGNC">           1 :         weapons := query.GetWeapons(world, actor)</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         weaponEntity := weapons[weaponIndex]</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           2 :         if weaponEntity == nil {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, ErrShootNoFireWeapon</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         if weaponEntity == nil {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, ErrShootNoFireWeapon</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L161"><span class="lineNum">     161</span>              : </span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         fire, name, err := query.GetFireFromWeapon(world, *weaponEntity)</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC tlaBgGNC">           1 :         fire, name, err := query.GetFireFromWeapon(world, *weaponEntity)</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, ErrShootNoFireWeapon</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         }</span></span>

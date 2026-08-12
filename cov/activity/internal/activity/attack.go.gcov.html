@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">74.9&nbsp;%</td>
+            <td class="headerCovTableEntryMed">76.3&nbsp;%</td>
             <td class="headerCovTableEntry">342</td>
-            <td class="headerCovTableEntry">256</td>
+            <td class="headerCovTableEntry">261</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-12 14:01:30</td>
+            <td class="headerValue">2026-08-12 15:40:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -281,16 +281,16 @@
 <span id="L219"><span class="lineNum">     219</span>              : </span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC tlaBgGNC">           1 :                 weapons := query.GetWeapons(world, attacker)</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 weapon := weapons[weaponIndex]</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 if weapon != nil {</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :                         // 装備している武器から攻撃パラメータを取得</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                         attack, weaponName, err := query.GetMeleeFromWeapon(world, *weapon)</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                         if err == nil &amp;&amp; attack != nil {</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                                 return attack, weaponName, nil</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           2 :                 if weapon != nil {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                         // 装備している武器から攻撃パラメータを取得</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                         attack, weaponName, err := query.GetMeleeFromWeapon(world, *weapon)</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           2 :                         if err == nil &amp;&amp; attack != nil {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                                 return attack, weaponName, nil</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L228"><span class="lineNum">     228</span>              :                 }</span>
 <span id="L229"><span class="lineNum">     229</span>              : </span>
 <span id="L230"><span class="lineNum">     230</span>              :                 // 武器が装備されていない場合は素手武器を使用</span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC tlaBgGNC">           1 :                 return getBareHandsAttack(world)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 return getBareHandsAttack(world)</span></span>
 <span id="L232"><span class="lineNum">     232</span>              :         }</span>
 <span id="L233"><span class="lineNum">     233</span>              : </span>
 <span id="L234"><span class="lineNum">     234</span>              :         // 敵の場合: CommandTableから攻撃パラメータを取得</span>
