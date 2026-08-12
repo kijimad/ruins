@@ -425,9 +425,9 @@
 				
 				<option value="file184">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
-				<option value="file185">github.com/kijimaD/ruins/internal/raw/item_group.go (79.2%)</option>
+				<option value="file185">github.com/kijimaD/ruins/internal/raw/item_group.go (93.5%)</option>
 				
-				<option value="file186">github.com/kijimaD/ruins/internal/raw/raw.go (89.1%)</option>
+				<option value="file186">github.com/kijimaD/ruins/internal/raw/raw.go (90.2%)</option>
 				
 				<option value="file187">github.com/kijimaD/ruins/internal/raw/validate.go (90.4%)</option>
 				
@@ -35565,11 +35565,20 @@ func NewKeyNotFoundError(key, collection string) error <span class="cov8" title=
 		<pre class="file" id="file185" style="display: none">package raw
 
 import (
+        "errors"
         "fmt"
         "math/rand/v2"
 
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/oapi"
+)
+
+// item group 抽選のエラー。呼び出し側とテストが errors.Is で種類を同定できるようにする。
+var (
+        // errUnknownItemGroupSubtype は group.Subtype が既知の distribution/collection いずれでもないときに返す。
+        errUnknownItemGroupSubtype = errors.New("unknown item group subtype")
+        // errInvalidPackDice は pack のダイス表記が解釈できないときに返す。
+        errInvalidPackDice = errors.New("invalid pack dice")
 )
 
 // DrawnItem は item group から抽選した1件。名前と個数を持つ。
@@ -35592,15 +35601,15 @@ func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]Draw
                 return drawDistribution(raws, group.Entries, rng)</span>
         case oapi.Collection:<span class="cov8" title="1">
                 return drawCollection(raws, group.Entries, rng)</span>
-        default:<span class="cov0" title="0">
+        default:<span class="cov8" title="1">
                 // group.Subtype は raw 由来で未知値が来うる。データ不整合として呼び出し側へ返す
-                return nil, fmt.Errorf("unknown item group subtype for %q: %s", groupID, group.Subtype)</span>
+                return nil, fmt.Errorf("%w for %q: %s", errUnknownItemGroupSubtype, groupID, group.Subtype)</span>
         }
 }
 
 // drawDistribution は重み比で1エントリを選び、その pack ぶんを返す。
 func drawDistribution(raws oapi.Raws, entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) <span class="cov8" title="1">{
-        if len(entries) == 0 </span><span class="cov0" title="0">{
+        if len(entries) == 0 </span><span class="cov8" title="1">{
                 return nil, nil
         }</span>
         <span class="cov8" title="1">entry, err := SelectByWeightFunc(
@@ -35612,7 +35621,7 @@ func drawDistribution(raws oapi.Raws, entries []oapi.ItemGroupEntry, rng *rand.R
         <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov8" title="1">if entry.Id == "" </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if entry.Id == "" </span><span class="cov8" title="1">{
                 return nil, nil
         }</span>
         <span class="cov8" title="1">count, err := rollPack(entry.Pack, rng)
@@ -35641,21 +35650,19 @@ func drawCollection(raws oapi.Raws, entries []oapi.ItemGroupEntry, rng *rand.Ran
         <span class="cov8" title="1">return out, nil</span>
 }
 
-// rollPack は pack のダイス表記を振って個数を返す。空表記は1個とみなす。
+// rollPack は pack のダイス表記を振って個数を返す。pack は必須で、空表記や不正表記は ParseDice が弾く。
+// ロード時の validateSpawnDice が同じ ParseDice で全 pack を検証するので、正常データでは実行時にエラーにならない。
 func rollPack(pack oapi.Dice, rng *rand.Rand) (int, error) <span class="cov8" title="1">{
-        if pack == "" </span><span class="cov0" title="0">{
-                return 1, nil
-        }</span>
-        <span class="cov8" title="1">d, err := consts.ParseDice(pack)
-        if err != nil </span><span class="cov0" title="0">{
-                return 0, fmt.Errorf("invalid pack dice %q: %w", pack, err)
+        d, err := consts.ParseDice(pack)
+        if err != nil </span><span class="cov8" title="1">{
+                return 0, fmt.Errorf("%w %q: %w", errInvalidPackDice, pack, err)
         }</span>
         <span class="cov8" title="1">return d.Roll(rng), nil</span>
 }
 
 // expandDraw は stackable なら個数を1エントリにまとめ、非 stackable なら1個ずつのエントリに展開する。
 func expandDraw(raws oapi.Raws, name string, count int) []DrawnItem <span class="cov8" title="1">{
-        if count &lt;= 0 </span><span class="cov0" title="0">{
+        if count &lt;= 0 </span><span class="cov8" title="1">{
                 return nil
         }</span>
         <span class="cov8" title="1">if isStackableItem(raws, name) </span><span class="cov8" title="1">{
@@ -35671,7 +35678,7 @@ func expandDraw(raws oapi.Raws, name string, count int) []DrawnItem <span class=
 // isStackableItem はアイテムが stackable かを raw で判定する。未知アイテムは false。
 func isStackableItem(raws oapi.Raws, name string) bool <span class="cov8" title="1">{
         item, err := FindItem(raws, name)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return false
         }</span>
         <span class="cov8" title="1">return item.Stackable != nil &amp;&amp; *item.Stackable</span>
@@ -35681,6 +35688,7 @@ func isStackableItem(raws oapi.Raws, name string) bool <span class="cov8" title=
 		<pre class="file" id="file186" style="display: none">package raw
 
 import (
+        "errors"
         "fmt"
         "image/color"
         "math/rand/v2"
@@ -35755,12 +35763,12 @@ func FindItem(raws oapi.Raws, name string) (oapi.Item, error) <span class="cov8"
 }
 
 // ItemName は id からアイテムの表示名を返す。定義が見つからなければ id をそのまま返す
-func ItemName(raws oapi.Raws, id string) string <span class="cov0" title="0">{
+func ItemName(raws oapi.Raws, id string) string <span class="cov8" title="1">{
         item, err := FindItem(raws, id)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return id
         }</span>
-        <span class="cov0" title="0">return item.Name</span>
+        <span class="cov8" title="1">return item.Name</span>
 }
 
 // FindMember は指定された名前のメンバー定義を検索する
@@ -36230,11 +36238,14 @@ func GetDropTable(raws oapi.Raws, name string) (oapi.DropTable, error) <span cla
         <span class="cov8" title="1">return dt, nil</span>
 }
 
+// errItemGroupNotExist は指定した ID の item group が存在しないときに返す。テストと呼び出し側が errors.Is で同定できる。
+var errItemGroupNotExist = errors.New("item group does not exist")
+
 // GetItemGroup は指定された名前のアイテムグループを取得する
 func GetItemGroup(raws oapi.Raws, name string) (oapi.ItemGroup, error) <span class="cov8" title="1">{
         ig, ok := findByKey(raws.ItemGroups, func(g oapi.ItemGroup) string </span><span class="cov8" title="1">{ return g.Id }</span>, name)
         <span class="cov8" title="1">if !ok </span><span class="cov8" title="1">{
-                return oapi.ItemGroup{}, fmt.Errorf("item group does not exist: %s", name)
+                return oapi.ItemGroup{}, fmt.Errorf("%w: %s", errItemGroupNotExist, name)
         }</span>
         <span class="cov8" title="1">return ig, nil</span>
 }
@@ -36511,10 +36522,26 @@ func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string,
 
 import (
         "encoding/json"
+        "errors"
         "fmt"
 
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/oapi"
+)
+
+// 参照整合の検証エラー。呼び出し側とテストが errors.Is で種類を同定できるよう sentinel にする。
+var (
+        errItemTableRefUndefinedGroup     = errors.New("item table references undefined item group")
+        errItemGroupRefUndefinedItem      = errors.New("item group references undefined item")
+        errEnemyTableRefUndefinedEnemy    = errors.New("enemy table references undefined enemy")
+        errCommandTableRefUndefinedWeapon = errors.New("command table references undefined weapon")
+        errDropTableMaterialUndefined     = errors.New("drop table references undefined material")
+        errMemberDropTableUndefined       = errors.New("member references undefined drop table")
+        errMemberCommandTableUndefined    = errors.New("member references undefined command table")
+        errDisassemblyYieldUndefined      = errors.New("disassembly yield references undefined item")
+        errDisassemblyBonusUndefined      = errors.New("disassembly bonus references undefined item")
+        errInvalidPackNotation            = errors.New("invalid pack notation")
+        errInvalidLootCountNotation       = errors.New("invalid lootCount notation")
 )
 
 // ValidateRaws はoapi.RawsをOpenAPIスキーマの VisitJSON で一括検証する
@@ -36594,7 +36621,7 @@ func validateItemTableReferences(raws oapi.Raws) error <span class="cov8" title=
                                 continue</span>
                         }
                         <span class="cov8" title="1">if _, ok := groupNames[entry.Id]; !ok </span><span class="cov8" title="1">{
-                                return fmt.Errorf("item table '%s' references group '%s' that does not exist in item group definitions", itemTables[i].Name, entry.Id)
+                                return fmt.Errorf("item table %q references group %q: %w", itemTables[i].Name, entry.Id, errItemTableRefUndefinedGroup)
                         }</span>
                 }
         }
@@ -36616,7 +36643,7 @@ func validateItemGroupReferences(raws oapi.Raws) error <span class="cov8" title=
                                 continue</span>
                         }
                         <span class="cov8" title="1">if _, ok := itemNames[entry.Id]; !ok </span><span class="cov8" title="1">{
-                                return fmt.Errorf("item group '%s' references item '%s' that does not exist in item definitions", groups[i].Name, entry.Id)
+                                return fmt.Errorf("item group %q references item %q: %w", groups[i].Name, entry.Id, errItemGroupRefUndefinedItem)
                         }</span>
                 }
         }
@@ -36638,7 +36665,7 @@ func validateEnemyTableReferences(raws oapi.Raws) error <span class="cov8" title
                                 continue</span>
                         }
                         <span class="cov8" title="1">if _, ok := memberNames[entry.Id]; !ok </span><span class="cov8" title="1">{
-                                return fmt.Errorf("enemy table '%s' references enemy '%s' that does not exist in member definitions", enemyTables[i].Name, entry.Id)
+                                return fmt.Errorf("enemy table %q references enemy %q: %w", enemyTables[i].Name, entry.Id, errEnemyTableRefUndefinedEnemy)
                         }</span>
                 }
         }
@@ -36661,7 +36688,7 @@ func validateCommandTableWeaponReferences(raws oapi.Raws) error <span class="cov
                                 continue</span>
                         }
                         <span class="cov8" title="1">if _, ok := itemNames[entry.Weapon]; !ok </span><span class="cov8" title="1">{
-                                return fmt.Errorf("command table '%s' references weapon '%s' that does not exist in item definitions", commandTables[i].Name, entry.Weapon)
+                                return fmt.Errorf("command table %q references weapon %q: %w", commandTables[i].Name, entry.Weapon, errCommandTableRefUndefinedWeapon)
                         }</span>
                 }
         }
@@ -36676,7 +36703,7 @@ func validateSpawnDice(raws oapi.Raws) error <span class="cov8" title="1">{
         for i := range enemyTables </span><span class="cov8" title="1">{
                 for _, e := range enemyTables[i].Entries </span><span class="cov8" title="1">{
                         if _, err := consts.ParseDice(e.Pack); err != nil </span><span class="cov8" title="1">{
-                                return fmt.Errorf("enemy table '%s' entry '%s' has invalid pack notation: %w", enemyTables[i].Name, e.Id, err)
+                                return fmt.Errorf("enemy table %q entry %q has %w: %w", enemyTables[i].Name, e.Id, errInvalidPackNotation, err)
                         }</span>
                 }
         }
@@ -36684,7 +36711,7 @@ func validateSpawnDice(raws oapi.Raws) error <span class="cov8" title="1">{
         for i := range itemGroups </span><span class="cov8" title="1">{
                 for _, e := range itemGroups[i].Entries </span><span class="cov8" title="1">{
                         if _, err := consts.ParseDice(e.Pack); err != nil </span><span class="cov8" title="1">{
-                                return fmt.Errorf("item group '%s' entry '%s' has invalid pack notation: %w", itemGroups[i].Name, e.Id, err)
+                                return fmt.Errorf("item group %q entry %q has %w: %w", itemGroups[i].Name, e.Id, errInvalidPackNotation, err)
                         }</span>
                 }
         }
@@ -36694,7 +36721,7 @@ func validateSpawnDice(raws oapi.Raws) error <span class="cov8" title="1">{
                         continue</span>
                 }
                 <span class="cov8" title="1">if _, err := consts.ParseDice(*props[i].Storage.LootCount); err != nil </span><span class="cov8" title="1">{
-                        return fmt.Errorf("container '%s' has invalid lootCount notation: %w", props[i].Name, err)
+                        return fmt.Errorf("container %q has %w: %w", props[i].Name, errInvalidLootCountNotation, err)
                 }</span>
         }
         <span class="cov8" title="1">return nil</span>
@@ -36714,7 +36741,7 @@ func validateDisassemblyReferences(raws oapi.Raws) error <span class="cov8" titl
                 }</span>
                 <span class="cov8" title="1">for _, y := range def.Yields </span><span class="cov8" title="1">{
                         if _, ok := itemNames[y.Id]; !ok </span><span class="cov8" title="1">{
-                                return fmt.Errorf("%s '%s' disassembly yield '%s' does not exist in item definitions", ownerKind, ownerName, y.Id)
+                                return fmt.Errorf("%s %q disassembly yield %q: %w", ownerKind, ownerName, y.Id, errDisassemblyYieldUndefined)
                         }</span>
                         <span class="cov8" title="1">if _, err := consts.ParseDice(y.Count); err != nil </span><span class="cov0" title="0">{
                                 return fmt.Errorf("%s '%s' disassembly yield '%s' has invalid count notation: %w", ownerKind, ownerName, y.Id, err)
@@ -36725,7 +36752,7 @@ func validateDisassemblyReferences(raws oapi.Raws) error <span class="cov8" titl
                 }</span>
                 <span class="cov8" title="1">for _, b := range *def.Bonus </span><span class="cov8" title="1">{
                         if _, ok := itemNames[b.Id]; !ok </span><span class="cov8" title="1">{
-                                return fmt.Errorf("%s '%s' disassembly bonus '%s' does not exist in item definitions", ownerKind, ownerName, b.Id)
+                                return fmt.Errorf("%s %q disassembly bonus %q: %w", ownerKind, ownerName, b.Id, errDisassemblyBonusUndefined)
                         }</span>
                         <span class="cov8" title="1">if _, err := consts.ParseDice(b.Count); err != nil </span><span class="cov0" title="0">{
                                 return fmt.Errorf("%s '%s' disassembly bonus '%s' has invalid count notation: %w", ownerKind, ownerName, b.Id, err)
@@ -36767,7 +36794,7 @@ func validateDropTableReferences(raws oapi.Raws) error <span class="cov8" title=
                                 continue</span>
                         }
                         <span class="cov8" title="1">if _, ok := itemNames[entry.Material]; !ok </span><span class="cov8" title="1">{
-                                return fmt.Errorf("drop table '%s' material '%s' does not exist in item definitions", dropTables[i].Name, entry.Material)
+                                return fmt.Errorf("drop table %q material %q: %w", dropTables[i].Name, entry.Material, errDropTableMaterialUndefined)
                         }</span>
                 }
         }
@@ -36779,7 +36806,7 @@ func validateDropTableReferences(raws oapi.Raws) error <span class="cov8" title=
                         continue</span>
                 }
                 <span class="cov8" title="1">if _, ok := tableNames[*members[i].DropTableId]; !ok </span><span class="cov8" title="1">{
-                        return fmt.Errorf("member '%s' drop table '%s' does not exist in definitions", members[i].Name, *members[i].DropTableId)
+                        return fmt.Errorf("member %q drop table %q: %w", members[i].Name, *members[i].DropTableId, errMemberDropTableUndefined)
                 }</span>
         }
         <span class="cov8" title="1">return nil</span>
@@ -36800,7 +36827,7 @@ func validateCommandTableReferences(raws oapi.Raws) error <span class="cov8" tit
                         continue</span>
                 }
                 <span class="cov8" title="1">if _, ok := tableNames[*members[i].CommandTableId]; !ok </span><span class="cov8" title="1">{
-                        return fmt.Errorf("member '%s' command table '%s' does not exist in definitions", members[i].Name, *members[i].CommandTableId)
+                        return fmt.Errorf("member %q command table %q: %w", members[i].Name, *members[i].CommandTableId, errMemberCommandTableUndefined)
                 }</span>
         }
         <span class="cov8" title="1">return nil</span>
