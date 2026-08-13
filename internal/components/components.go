@@ -321,10 +321,6 @@ type LocationInStorage struct {
 	Owner ecs.Entity // 収納コンテナのエンティティ
 }
 
-// Material は素材を表すマーカーコンポーネント。
-// 合成や売却の材料となるアイテムに付与される
-type Material struct{}
-
 // Fixed は世界に固定され拾えない固定物であることを示すマーカーコンポーネント
 type Fixed struct{}
 

@@ -26,7 +26,6 @@ var Registry = []Def{
 	{Field: "Abilities"},          // エンティティの能力値を保持する
 	{Field: "Ammo"},               // 弾薬アイテムの性能を保持する
 	{Field: "Stackable"},          // スタック可能で所持数を持つことを表す
-	{Field: "Material"},           // 合成・売却の素材であることを示す
 	{Field: "LocationInBackpack"}, // バックパック内にあることを表す
 	{Field: "LocationEquipped"},   // 装備中であることを表す
 	{Field: "LocationOnField"},    // フィールド上にあることを表す

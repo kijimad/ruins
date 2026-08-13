@@ -36,8 +36,8 @@
 // カテゴリシステム (invariant.go):
 //   - Pred DSL (Has, And, Or, Not) でコンポーネントの組み合わせ条件を宣言的に定義する
 //   - Categories() に CategoryGroupKey ごとのカテゴリ定義を集約する
-//   - CategoryOf はエンティティ、CategoryOfSpec は EntitySpec に対してカテゴリを判定する
+//   - CategoryOf はエンティティが属するカテゴリを判定する
 //   - カテゴリ定義はゴールデンテスト (testdata/categories.golden.json) で保護される
 //   - カテゴリを追加する場合は Categories() に定義を追加し、go test -update でゴールデンファイルを更新する
-//   - 順序依存がある場合はコメントとテストで明示する（例: Fire は Melee より先に判定する）
+//   - 順序依存がある場合はコメントとテストで明示する（例: Player は FactionAlly も持つため先に判定する）
 package components

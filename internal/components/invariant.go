@@ -111,30 +111,8 @@ func (cat Category) String() string {
 type CategoryGroupKey string
 
 const (
-	// InventoryCategoryKey はインベントリのタブに対応する分類
-	InventoryCategoryKey CategoryGroupKey = "inventory"
-	// ItemTypeCategoryKey はアイテム欄に表示する細分類
-	ItemTypeCategoryKey CategoryGroupKey = "item_type"
 	// FieldLookCategoryKey はフィールド上の観察で表示する分類
 	FieldLookCategoryKey CategoryGroupKey = "field_look"
-)
-
-// インベントリカテゴリ名の定数
-const (
-	CategoryGoods  = "Goods"
-	CategoryWeapon = "Weapon"
-	CategoryArmor  = "Armor"
-)
-
-// アイテム種別カテゴリ名の定数。値は query.T の msgid として使う。
-const (
-	CategoryMaterial   = "Material"
-	CategoryAmmo       = "Ammunition"
-	CategoryBook       = "Book"
-	CategoryFixed      = "Fixed object"
-	CategoryConsumable = "Consumable"
-	CategoryMelee      = "Melee weapon"
-	CategoryFire       = "Ranged weapon"
 )
 
 // フィールド観察カテゴリ名の定数。値は query.T の msgid として使う
@@ -142,6 +120,7 @@ const (
 	CategoryPlayer = "Self"
 	CategoryEnemy  = "Enemy"
 	CategoryNPC    = "NPC"
+	CategoryFixed  = "Fixed object"
 	CategoryTile   = "Tile"
 )
 
@@ -161,22 +140,6 @@ func (c *Components) has(comp hasser) Has {
 // Categories は観点ごとにグループ化されたカテゴリ定義を返す
 func (c *Components) Categories() map[CategoryGroupKey][]Category {
 	return map[CategoryGroupKey][]Category{
-		InventoryCategoryKey: {
-			{Name: CategoryGoods, Pred: Or{c.has(c.Material), c.has(c.Ammo), c.has(c.Book), c.has(c.Consumable)}},
-			{Name: CategoryWeapon, Pred: Or{c.has(c.Melee), c.has(c.Fire)}},
-			{Name: CategoryArmor, Pred: c.has(c.Wearable)},
-		},
-		ItemTypeCategoryKey: {
-			{Name: CategoryMaterial, Pred: c.has(c.Material)},
-			{Name: CategoryAmmo, Pred: c.has(c.Ammo)},
-			{Name: CategoryBook, Pred: c.has(c.Book)},
-			{Name: CategoryFixed, Pred: c.has(c.Fixed)},
-			{Name: CategoryConsumable, Pred: c.has(c.Consumable)},
-			// Fire は Melee より先に判定する。射撃武器は殴打性能として Melee も持つため
-			{Name: CategoryFire, Pred: c.has(c.Fire)},
-			{Name: CategoryMelee, Pred: c.has(c.Melee)},
-			{Name: CategoryArmor, Pred: c.has(c.Wearable)},
-		},
 		FieldLookCategoryKey: {
 			// Player を先に判定する。Player は FactionAlly も持つため
 			{Name: CategoryPlayer, Pred: c.has(c.Player)},
@@ -197,53 +160,4 @@ func (c *Components) CategoryOf(key CategoryGroupKey, entity ecs.Entity) (string
 		}
 	}
 	return "", false
-}
-
-// CategoryOfSpec は EntitySpec に対して CategoryOf と同等の判定を行う。
-// Has.Label が EntitySpec のフィールド名と一致する規約を利用し、
-// リフレクションでフィールドの nil 判定を行う
-func (c *Components) CategoryOfSpec(key CategoryGroupKey, spec *EntitySpec) (string, bool) {
-	specVal := reflect.ValueOf(spec).Elem()
-	for _, cat := range c.Categories()[key] {
-		if evalPredSpec(cat.Pred, specVal) {
-			return cat.Name, true
-		}
-	}
-	return "", false
-}
-
-// evalPredSpec は Pred を EntitySpec のリフレクション値に対して評価する
-func evalPredSpec(pred Pred, specVal reflect.Value) bool {
-	switch p := pred.(type) {
-	case Has:
-		field := specVal.FieldByName(p.Label)
-		if !field.IsValid() {
-			return false
-		}
-		// ポインタ型のフィールドのみ nil 判定する。値型フィールドは常に「存在する」とみなす
-		if field.Kind() == reflect.Pointer || field.Kind() == reflect.Interface {
-			return !field.IsNil()
-		}
-		return true
-	case And:
-		for _, sub := range p {
-			if !evalPredSpec(sub, specVal) {
-				return false
-			}
-		}
-		return true
-	case Or:
-		for _, sub := range p {
-			if evalPredSpec(sub, specVal) {
-				return true
-			}
-		}
-		return false
-	case Not:
-		return !evalPredSpec(p.Pred, specVal)
-	case Category:
-		return evalPredSpec(p.Pred, specVal)
-	default:
-		return false
-	}
 }

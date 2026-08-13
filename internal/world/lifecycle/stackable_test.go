@@ -42,7 +42,6 @@ func TestPlusMinusAmount(t *testing.T) {
 
 	// テスト用素材エンティティを作成
 	materialEntity := world.ECS.NewEntity()
-	world.Components.Material.Add(materialEntity, &gc.Material{})
 	world.Components.Stackable.Add(materialEntity, &gc.Stackable{Count: 10})
 	world.Components.LocationInBackpack.Add(materialEntity, &gc.LocationInBackpack{})
 	world.Components.Name.Add(materialEntity, &gc.Name{Name: "鉄"})
@@ -117,7 +116,6 @@ func TestMergeStackableItems(t *testing.T) {
 
 		// バックパック内にパンを3個追加
 		item1 := world.ECS.NewEntity()
-		world.Components.Material.Add(item1, &gc.Material{})
 		world.Components.Name.Add(item1, &gc.Name{Name: "パン"})
 		world.Components.RawID.Add(item1, &gc.RawID{ID: "パン"})
 		world.Components.Stackable.Add(item1, &gc.Stackable{Count: 3})
@@ -125,7 +123,6 @@ func TestMergeStackableItems(t *testing.T) {
 
 		// バックパック内にパンを2個追加
 		item2 := world.ECS.NewEntity()
-		world.Components.Material.Add(item2, &gc.Material{})
 		world.Components.Name.Add(item2, &gc.Name{Name: "パン"})
 		world.Components.RawID.Add(item2, &gc.RawID{ID: "パン"})
 		world.Components.Stackable.Add(item2, &gc.Stackable{Count: 2})
@@ -161,7 +158,6 @@ func TestMergeStackableItems(t *testing.T) {
 
 		// バックパック内にパンを1個だけ追加
 		item := world.ECS.NewEntity()
-		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
 		world.Components.RawID.Add(item, &gc.RawID{ID: "パン"})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 2})

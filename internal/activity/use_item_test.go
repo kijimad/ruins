@@ -265,7 +265,6 @@ func TestUseItemBehavior_Validate(t *testing.T) {
 		world.Components.HP.Add(actor, &gc.HP{})
 
 		item := world.ECS.NewEntity()
-		world.Components.Material.Add(item, &gc.Material{})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
