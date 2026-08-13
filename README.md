@@ -98,15 +98,12 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [activity パッケージのわかりやすさ改善](docs/design/260809163430.md) | 8/8（見送り2） | refactor |
-| in-progress | [一覧のセルをアイコンを持てる型にし、アイテム・装備にアイコンを表示する](docs/design/260810093849.md) | 7/7 | ui, item |
-| in-progress | [隊員（NPC 仲間）を削除する](docs/design/260810222240.md) | 3/4（見送り1） | gamedesign, member |
 | draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
 | draft | [OSS 調査 2026-08](docs/design/260801002222.md) | 0/5 | meta, worldgen, combat, ui |
-| draft | [コード監査: ダンジョン生成・リロード・セーブ 2026-08-03](docs/design/260803144226.md) | 5/5 | worldgen, combat, save, ecs |
 | draft | [天気システムを設計する](docs/design/260805144630.md) | 0/7 | gamedesign, worldgen, ecs |
 | draft | [コード監査: ダンジョン生成・戦闘継続・UI描画 2026-08-10](docs/design/260810001803.md) | 0/5 | worldgen, combat, item, ui, ecs |
+| draft | [使う・送る・捨てる: 通信販売による第二の需要をコアに足す](docs/design/260813235334.md) | 0/0 | gamedesign, narrative |
 
 
 ## Reference
