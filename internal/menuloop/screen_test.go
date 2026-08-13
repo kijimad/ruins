@@ -9,7 +9,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/vrt"
@@ -132,17 +131,19 @@ func TestScreen_SetTab(t *testing.T) {
 			screen := NewScreen[int](model)
 			world := w.World{Resources: &resources.Resources{}}
 
-			// UseTabMenu で初期状態を登録してから SetTab で動かす
+			// UseTabMenu で初期状態を登録してから SetTab で動かし、
+			// 次の Update で選択位置に反映されたことを Selection 経由で確認する
 			vrt.WithUILock(func() {
 				_, err := screen.Update(world)
 				require.NoError(t, err)
+
+				screen.SetTab(tt.tab)
+
+				_, err = screen.Update(world)
+				require.NoError(t, err)
 			})
 
-			screen.SetTab(tt.tab)
-
-			got, ok := hooks.GetState[hooks.TabMenuState](screen.mount, "settab")
-			require.True(t, ok)
-			assert.Equal(t, tt.wantTab, got.TabIndex)
+			assert.Equal(t, tt.wantTab, screen.Selection().TabIndex)
 		})
 	}
 }
@@ -289,6 +290,24 @@ func TestScreen_Update_overlay(t *testing.T) {
 	})
 }
 
+// TestScreen_Update_ActiveなoverlayのWindowをUIへ追加する は Window が非 nil を返す overlay の
+// 窓が widget.UI に実際に追加されることを固定する
+func TestScreen_Update_ActiveなoverlayのWindowをUIへ追加する(t *testing.T) {
+	t.Parallel()
+	win := widget.NewWindow(widget.WindowOpts.Contents(widget.NewContainer()))
+	model := &flexModel{menu: MenuConfig{Key: "ovwindow"}}
+	ov := &testOverlay{active: true, window: win}
+	screen := NewScreen[int](model, ov)
+	world := w.World{Resources: &resources.Resources{}}
+
+	vrt.WithUILock(func() {
+		_, err := screen.Update(world)
+		require.NoError(t, err)
+	})
+
+	assert.True(t, screen.widget.IsWindowOpen(win))
+}
+
 // TestScreen_Update_DoAction は DoAction の遷移・エラーがそのまま返ることを固定する
 func TestScreen_Update_DoAction(t *testing.T) {
 	t.Parallel()
@@ -335,7 +354,8 @@ func TestScreen_Update_DoAction(t *testing.T) {
 			_, err = screen.Update(world)
 		})
 
-		assert.ErrorIs(t, err, wantErr)
+		require.ErrorIs(t, err, wantErr)
+		assert.Equal(t, 1, model.doActionCalls)
 	})
 }
 
