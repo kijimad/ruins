@@ -629,7 +629,7 @@
 				
 				<option value="file286">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (72.7%)</option>
 				
-				<option value="file287">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (40.7%)</option>
+				<option value="file287">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (89.3%)</option>
 				
 				<option value="file288">github.com/kijimaD/ruins/internal/world/lifecycle/state_event.go (100.0%)</option>
 				
@@ -53801,43 +53801,47 @@ import (
 )
 
 // OpenDoor は扉を開く
-func OpenDoor(world w.World, doorEntity ecs.Entity) error <span class="cov0" title="0">{
+func OpenDoor(world w.World, doorEntity ecs.Entity) error <span class="cov8" title="1">{
         if !world.Components.Door.Has(doorEntity) </span><span class="cov0" title="0">{
                 return fmt.Errorf("entity is not a door")
         }</span>
 
-        <span class="cov0" title="0">doorComp := world.Components.Door.Get(doorEntity)
+        <span class="cov8" title="1">doorComp := world.Components.Door.Get(doorEntity)
         return updateDoorState(world, doorEntity, doorComp.Orientation, true)</span>
 }
 
 // CloseDoor は扉を閉じる
-func CloseDoor(world w.World, doorEntity ecs.Entity) error <span class="cov0" title="0">{
+func CloseDoor(world w.World, doorEntity ecs.Entity) error <span class="cov8" title="1">{
         if !world.Components.Door.Has(doorEntity) </span><span class="cov0" title="0">{
                 return fmt.Errorf("entity is not a door")
         }</span>
 
-        <span class="cov0" title="0">doorComp := world.Components.Door.Get(doorEntity)
+        <span class="cov8" title="1">doorComp := world.Components.Door.Get(doorEntity)
         return updateDoorState(world, doorEntity, doorComp.Orientation, false)</span>
 }
 
 // updateDoorState は扉の向きと開閉状態に応じて、状態を更新する
-func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOrientation, isOpen bool) error <span class="cov0" title="0">{
+func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOrientation, isOpen bool) error <span class="cov8" title="1">{
         doorComp := world.Components.Door.Get(doorEntity)
         doorComp.Orientation = orientation
         doorComp.IsOpen = isOpen
 
-        // スプライトキーを更新
-        if world.Components.SpriteRender.Has(doorEntity) </span><span class="cov0" title="0">{
+        // スプライトキーと高さを更新する。
+        // 開いた扉は平らな低い物として扱い、高さを下げる。高さが無いのでドロップシャドウを落とさず、
+        // 背の高い物の後ろに沈む。閉じた扉は高さのある障壁に戻す。
+        if world.Components.SpriteRender.Has(doorEntity) </span><span class="cov8" title="1">{
                 spriteRender := world.Components.SpriteRender.Get(doorEntity)
 
-                if isOpen </span><span class="cov0" title="0">{
-                        if orientation == gc.DoorOrientationHorizontal </span><span class="cov0" title="0">{
+                if isOpen </span><span class="cov8" title="1">{
+                        spriteRender.Depth = gc.DepthNumRug
+                        if orientation == gc.DoorOrientationHorizontal </span><span class="cov8" title="1">{
                                 spriteRender.SpriteKey = "door_horizontal_open"
                         }</span> else<span class="cov0" title="0"> {
                                 spriteRender.SpriteKey = "door_vertical_open"
                         }</span>
-                } else<span class="cov0" title="0"> {
-                        if orientation == gc.DoorOrientationHorizontal </span><span class="cov0" title="0">{
+                } else<span class="cov8" title="1"> {
+                        spriteRender.Depth = gc.DepthNumTaller
+                        if orientation == gc.DoorOrientationHorizontal </span><span class="cov8" title="1">{
                                 spriteRender.SpriteKey = "door_horizontal_closed"
                         }</span> else<span class="cov0" title="0"> {
                                 spriteRender.SpriteKey = "door_vertical_closed"
@@ -53846,23 +53850,23 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
         }
 
         // BlockPass / BlockView を更新
-        <span class="cov0" title="0">if isOpen </span><span class="cov0" title="0">{
-                if world.Components.BlockPass.Has(doorEntity) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if isOpen </span><span class="cov8" title="1">{
+                if world.Components.BlockPass.Has(doorEntity) </span><span class="cov8" title="1">{
                         world.Components.BlockPass.Remove(doorEntity)
                 }</span>
-                <span class="cov0" title="0">if world.Components.BlockView.Has(doorEntity) </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if world.Components.BlockView.Has(doorEntity) </span><span class="cov8" title="1">{
                         world.Components.BlockView.Remove(doorEntity)
                 }</span>
-        } else<span class="cov0" title="0"> {
-                if !world.Components.BlockPass.Has(doorEntity) </span><span class="cov0" title="0">{
+        } else<span class="cov8" title="1"> {
+                if !world.Components.BlockPass.Has(doorEntity) </span><span class="cov8" title="1">{
                         world.Components.BlockPass.Add(doorEntity, &amp;gc.BlockPass{})
                 }</span>
-                <span class="cov0" title="0">if !world.Components.BlockView.Has(doorEntity) </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if !world.Components.BlockView.Has(doorEntity) </span><span class="cov8" title="1">{
                         world.Components.BlockView.Add(doorEntity, &amp;gc.BlockView{})
                 }</span>
         }
 
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 
 // SpawnProp は置物を生成する
