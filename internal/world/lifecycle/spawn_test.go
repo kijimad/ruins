@@ -360,6 +360,25 @@ func TestSpawnDoor(t *testing.T) {
 	})
 }
 
+func TestDoor_開閉で高さが切り替わる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	door, err := SpawnDoor(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	// 閉じた扉は高さのある障壁で、ドロップシャドウを落とす高さ
+	assert.Equal(t, gc.DepthNumTaller, world.Components.SpriteRender.Get(door).Depth)
+
+	// 開くと平らな低い物になり、影を落とさない高さへ下がる
+	require.NoError(t, OpenDoor(world, door))
+	assert.Equal(t, gc.DepthNumRug, world.Components.SpriteRender.Get(door).Depth)
+
+	// 閉じると高さが戻る
+	require.NoError(t, CloseDoor(world, door))
+	assert.Equal(t, gc.DepthNumTaller, world.Components.SpriteRender.Get(door).Depth)
+}
+
 func TestSpawnVisualEffect(t *testing.T) {
 	t.Parallel()
 
@@ -419,4 +438,68 @@ func TestAllItemsBelongToInventoryCategory(t *testing.T) {
 		}
 	}
 	assert.Empty(t, uncategorized, "InventoryCategoryに属していないアイテム: %v", uncategorized)
+}
+
+func TestSpawnNeutralNPC_商人を生成すると在庫と会話データを持つ(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	npc, err := SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 3, Y: 4}, "merchant")
+	require.NoError(t, err)
+
+	require.True(t, world.Components.FactionNeutral.Has(npc), "中立派閥を持つ")
+	require.True(t, world.Components.Dialog.Has(npc), "会話データを持つ")
+	assert.Equal(t, "merchant_greeting", world.Components.Dialog.Get(npc).MessageKey)
+
+	require.True(t, world.Components.GridElement.Has(npc))
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 4}, world.Components.GridElement.Get(npc).Coord)
+
+	require.True(t, world.Components.HP.Has(npc))
+	hp := world.Components.HP.Get(npc)
+	assert.Equal(t, hp.Max, hp.Current, "全回復した状態で生成される")
+
+	require.True(t, world.Components.SoloAI.Has(npc), "移動パターンを持つのでAIを持つ")
+	solo := world.Components.SoloAI.Get(npc)
+	assert.Equal(t, gc.AIStateWaiting, solo.SubState)
+	assert.Equal(t, consts.Coord[consts.Tile]{X: 3, Y: 4}, solo.Origin, "生成位置がパトロール原点になる")
+	assert.Equal(t, consts.AIVisionDistance, solo.ViewDistance)
+
+	stock := query.GetStorageItems(world, npc)
+	assert.Len(t, stock, len(merchantStockItems), "商人は定義数の在庫を積む")
+}
+
+func TestSpawnNeutralNPC_商人以外は在庫を積まない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	npc, err := SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "suspicious_scientist")
+	require.NoError(t, err)
+
+	require.True(t, world.Components.FactionNeutral.Has(npc))
+	stock := query.GetStorageItems(world, npc)
+	assert.Empty(t, stock, "商人でないNPCは在庫を積まない")
+}
+
+func TestSpawnNeutralNPC_中立でないメンバーはエラーになる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	_, err := SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
+
+	require.Error(t, err)
+	assert.EqualError(t, err, "'ash' is not a neutral NPC")
+}
+
+func TestSpawnNeutralNPC_存在しない名前はエラーになる(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	_, err := SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "no_such_member")
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to generate neutral NPC")
 }

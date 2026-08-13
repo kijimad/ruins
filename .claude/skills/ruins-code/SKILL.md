@@ -31,6 +31,7 @@ Go のベテランとして、シンプルさとテストしやすさを最優�
 - enum は基本的に `type X string` にし、`iota` は使わない。値をそのままログや `%v` に出せて、デバッグで種別名が読める。iota の連番は保存値の互換や表示のたびに `String()` を要して割に合わない。既存の `PlannerType` / `CombatPolicy`（`internal/components/ai_policy.go`）が定石。序列だけが要る箇所は別途 order スライスを持ち、`slices.Sort` の暗黙序列に頼らない。
 - linter ルールは無視設定しない。
 - 生成ファイル（`*_gen.go`）は手編集しない。生成元を直して再生成する。
+- import 文は手編集しない。本体コードだけ書いて `make fmt`（goimports）に増減を任せる。慣例エイリアス（`gc`/`w`/`ecs` 等）も既存ファイルから学習して付く。手で足し引きすると書き間違い・消し忘れ・エイリアス不一致の入り口を増やすだけ。生の `go tool goimports` も叩かず make ターゲットを使う。
 
 ## メニュー画面
 
@@ -47,6 +48,7 @@ Go のベテランとして、シンプルさとテストしやすさを最優�
 
 - 極力 `github.com/stretchr/testify` のアサート（`assert.Error` / `require.Error` 等）を使う。`t.Error()` / `t.Fatal()` は使わない。
 - テストしやすく設計し、テストを追加する。
+- エンティティを使う挙動テストは本番の spawn 関数（`SpawnPlayer`/`SpawnDoor`/`SpawnEnemy`/`SpawnFieldItem` 等）で組む。`world.ECS.NewEntity()` + 個別 `Components.X.Add` で手作りすると、本番の spawn が付ける他コンポーネントを取りこぼしてテストと本番が乖離し、バグを見逃す。扉が `LocationOnField` を持つ事実を手動テストが欠き、占有判定の不具合をマージ後まで見逃した例がある。「あるコンポーネントの有無」を述語にするときは、その属性を持つ別実体が無いか確認し、正準述語（`IsPickable` 等）があれば借りる。
 - 実行は `make test`（Ebiten のウィンドウが出るのを防ぐため）。
 - テスト名は `Test<対象関数名>_<日本語で検証内容>` にし、名前だけで何を検証するか分かるようにする。例 `func TestNewItemSpec_本のスキル未指定はエラー(t *testing.T)`。table-driven の場合は関数名を `Test<対象関数名>` とし、各ケースを `t.Run("<日本語で検証内容>", ...)` で表す。
 - アサートは検証対象の種類で選び、過不足のない厳密さにする。`require.Error` だけの、内容を見ない自明なエラーテストにはしない。
