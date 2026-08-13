@@ -127,6 +127,7 @@ func TestCloseDoorBehavior(t *testing.T) {
 		require.NoError(t, err, "占有時は *UserError の no-op になる")
 		assert.False(t, result.Success, "占有中は閉じられない")
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.Equal(t, query.T(world, "Something is in the doorway."), result.Message, "占有理由のメッセージが出る")
 		assert.True(t, world.Components.Door.Get(door).IsOpen, "扉は開いたまま")
 	})
 
@@ -145,6 +146,7 @@ func TestCloseDoorBehavior(t *testing.T) {
 		require.NoError(t, err, "占有時は *UserError の no-op になる")
 		assert.False(t, result.Success, "アイテムがあると閉じられない")
 		assert.Equal(t, gc.ActivityStateCanceled, result.State)
+		assert.Equal(t, query.T(world, "Something is in the doorway."), result.Message, "占有理由のメッセージが出る")
 		assert.True(t, world.Components.Door.Get(door).IsOpen, "扉は開いたまま")
 	})
 }
