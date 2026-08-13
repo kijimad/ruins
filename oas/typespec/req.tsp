@@ -93,6 +93,7 @@ model Item {
   weight?: Weight;
   inflictsDamage?: BaseDamage;
   providesNutrition?: NutritionAmount;
+  shelfLife?: ShelfLifeTurns;
   stackable?: Stackable;
   consumable?: Consumable;
   providesHealing?: ProvidesHealing;

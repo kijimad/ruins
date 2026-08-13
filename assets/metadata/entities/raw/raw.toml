@@ -5372,6 +5372,7 @@ description = "Freshly baked bread that fills an empty stomach."
 name = "Bread"
 id = "bread"
 providesNutrition = 30
+shelfLife = 1500
 spriteKey = "food_item"
 spriteSheetName = "field"
 stackable = true

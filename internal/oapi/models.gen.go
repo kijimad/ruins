@@ -1217,6 +1217,9 @@ type Item struct {
 	// ProvidesNutrition 栄養価
 	ProvidesNutrition *NutritionAmount `json:"providesNutrition,omitempty"`
 
+	// ShelfLife 保存期間。この経過ターン数まで新鮮でいられる。省略すると腐敗しない
+	ShelfLife *ShelfLifeTurns `json:"shelfLife,omitempty"`
+
 	// SpriteKey スプライトキー
 	SpriteKey SpriteKey `json:"spriteKey"`
 
@@ -2350,6 +2353,9 @@ type SaveDataWorldSaveData struct {
 
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
+
+// ShelfLifeTurns 保存期間。この経過ターン数まで新鮮でいられる。省略すると腐敗しない
+type ShelfLifeTurns = int
 
 // ShelterType 遮蔽タイプ
 type ShelterType float32

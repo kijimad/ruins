@@ -175,6 +175,11 @@ scalar MessageKey extends string;
 @maxValue(9999)
 scalar NutritionAmount extends integer;
 
+/** 保存期間。この経過ターン数まで新鮮でいられる。省略すると腐敗しない */
+@minValue(1)
+@maxValue(100000)
+scalar ShelfLifeTurns extends integer;
+
 /** パレットID */
 @minLength(1)
 @maxLength(50)

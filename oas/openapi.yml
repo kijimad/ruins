@@ -2374,6 +2374,8 @@ components:
           $ref: '#/components/schemas/BaseDamage'
         providesNutrition:
           $ref: '#/components/schemas/NutritionAmount'
+        shelfLife:
+          $ref: '#/components/schemas/ShelfLifeTurns'
         stackable:
           $ref: '#/components/schemas/Stackable'
         consumable:
@@ -3966,6 +3968,11 @@ components:
       minimum: -100
       maximum: 100
       description: 感覚。命中率と回避率に影響する
+    ShelfLifeTurns:
+      type: integer
+      minimum: 1
+      maximum: 100000
+      description: 保存期間。この経過ターン数まで新鮮でいられる。省略すると腐敗しない
     ShelterType:
       type: number
       enum:

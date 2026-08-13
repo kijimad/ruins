@@ -822,6 +822,10 @@ export interface Item {
      */
     'providesNutrition'?: number;
     /**
+     * 保存期間。この経過ターン数まで新鮮でいられる。省略すると腐敗しない
+     */
+    'shelfLife'?: number;
+    /**
      * スタック可能かどうか
      */
     'stackable'?: boolean;

@@ -503,3 +503,26 @@ func TestSpawnNeutralNPC_存在しない名前はエラーになる(t *testing.T
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "failed to generate neutral NPC")
 }
+
+func TestSpawnFieldItem_腐敗食は生成時刻と保存期間を持つ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetGameTime(world).TotalTurns = 700
+
+	bread, err := SpawnFieldItem(world, "bread", 5, 5, 1)
+	require.NoError(t, err)
+	require.True(t, world.Components.Perishable.Has(bread), "bread は腐敗する")
+
+	p := world.Components.Perishable.Get(bread)
+	assert.Equal(t, consts.Turn(700), p.SpawnedAtTurn, "生成時の総ターンを刻む")
+	assert.Equal(t, consts.Turn(1500), p.ShelfLife, "raw の shelfLife を持つ")
+}
+
+func TestSpawnFieldItem_保存期間なしは腐敗しない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	sword, err := SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
+	require.NoError(t, err)
+	assert.False(t, world.Components.Perishable.Has(sword), "shelfLife 無しは Perishable を持たない")
+}
