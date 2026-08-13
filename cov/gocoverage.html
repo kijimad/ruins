@@ -627,9 +627,9 @@
 				
 				<option value="file285">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (75.0%)</option>
 				
-				<option value="file286">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (72.7%)</option>
+				<option value="file286">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (85.5%)</option>
 				
-				<option value="file287">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (89.3%)</option>
+				<option value="file287">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (94.6%)</option>
 				
 				<option value="file288">github.com/kijimaD/ruins/internal/world/lifecycle/state_event.go (100.0%)</option>
 				
@@ -53533,22 +53533,22 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 }
 
 // SpawnNeutralNPC はフィールド上に中立NPCを生成する（会話可能なNPC用）
-func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.Entity, error) <span class="cov0" title="0">{
+func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.Entity, error) <span class="cov8" title="1">{
         entitySpec, err := raw.NewMemberSpec(world.Resources.RawMaster, name)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return gc.InvalidEntity, fmt.Errorf("failed to generate neutral NPC: %w", err)
         }</span>
 
-        <span class="cov0" title="0">if entitySpec.FactionNeutral == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if entitySpec.FactionNeutral == nil </span><span class="cov8" title="1">{
                 return gc.InvalidEntity, fmt.Errorf("'%s' is not a neutral NPC", name)
         }</span>
-        <span class="cov0" title="0">if entitySpec.Dialog == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if entitySpec.Dialog == nil </span><span class="cov0" title="0">{
                 return gc.InvalidEntity, fmt.Errorf("'%s' has no dialog data", name)
         }</span>
 
-        <span class="cov0" title="0">entitySpec.GridElement = &amp;gc.GridElement{Coord: pos}
+        <span class="cov8" title="1">entitySpec.GridElement = &amp;gc.GridElement{Coord: pos}
 
-        if entitySpec.SoloAI != nil </span><span class="cov0" title="0">{
+        if entitySpec.SoloAI != nil </span><span class="cov8" title="1">{
                 solo := entitySpec.SoloAI
                 solo.SubState = gc.AIStateWaiting
                 solo.StartSubStateTurn = 1
@@ -53558,20 +53558,20 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
                 solo.ViewDistance = consts.AIVisionDistance
         }</span>
 
-        <span class="cov0" title="0">npcEntity := world.Components.AddEntity(world.ECS, &amp;entitySpec)
+        <span class="cov8" title="1">npcEntity := world.Components.AddEntity(world.ECS, &amp;entitySpec)
         if err := FullRecover(world, npcEntity); err != nil </span><span class="cov0" title="0">{
                 return gc.InvalidEntity, fmt.Errorf("NPC recovery failed: %w", err)
         }</span>
 
         // 商人は品揃えを在庫として持つ。生成経路に依らずここで積むことで、集落でも街マップの
         // マッププランナ経由でも同じ在庫を持たせる。売買と雇用はこの在庫を出し入れする
-        <span class="cov0" title="0">if name == "merchant" </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if name == "merchant" </span><span class="cov8" title="1">{
                 if err := PopulateMerchantStock(world, npcEntity, world.Config.RNG); err != nil </span><span class="cov0" title="0">{
                         return gc.InvalidEntity, fmt.Errorf("failed to stock merchant: %w", err)
                 }</span>
         }
 
-        <span class="cov0" title="0">query.InvalidateSpatialIndex(world)
+        <span class="cov8" title="1">query.InvalidateSpatialIndex(world)
         return npcEntity, nil</span>
 }
 
@@ -53802,7 +53802,7 @@ import (
 
 // OpenDoor は扉を開く
 func OpenDoor(world w.World, doorEntity ecs.Entity) error <span class="cov8" title="1">{
-        if !world.Components.Door.Has(doorEntity) </span><span class="cov0" title="0">{
+        if !world.Components.Door.Has(doorEntity) </span><span class="cov8" title="1">{
                 return fmt.Errorf("entity is not a door")
         }</span>
 
@@ -53812,7 +53812,7 @@ func OpenDoor(world w.World, doorEntity ecs.Entity) error <span class="cov8" tit
 
 // CloseDoor は扉を閉じる
 func CloseDoor(world w.World, doorEntity ecs.Entity) error <span class="cov8" title="1">{
-        if !world.Components.Door.Has(doorEntity) </span><span class="cov0" title="0">{
+        if !world.Components.Door.Has(doorEntity) </span><span class="cov8" title="1">{
                 return fmt.Errorf("entity is not a door")
         }</span>
 
@@ -53836,7 +53836,7 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
                         spriteRender.Depth = gc.DepthNumRug
                         if orientation == gc.DoorOrientationHorizontal </span><span class="cov8" title="1">{
                                 spriteRender.SpriteKey = "door_horizontal_open"
-                        }</span> else<span class="cov0" title="0"> {
+                        }</span> else<span class="cov8" title="1"> {
                                 spriteRender.SpriteKey = "door_vertical_open"
                         }</span>
                 } else<span class="cov8" title="1"> {
