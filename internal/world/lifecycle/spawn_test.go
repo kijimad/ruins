@@ -360,6 +360,25 @@ func TestSpawnDoor(t *testing.T) {
 	})
 }
 
+func TestDoor_開閉で高さが切り替わる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	door, err := SpawnDoor(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
+
+	// 閉じた扉は高さのある障壁で、ドロップシャドウを落とす高さ
+	assert.Equal(t, gc.DepthNumTaller, world.Components.SpriteRender.Get(door).Depth)
+
+	// 開くと平らな低い物になり、影を落とさない高さへ下がる
+	require.NoError(t, OpenDoor(world, door))
+	assert.Equal(t, gc.DepthNumRug, world.Components.SpriteRender.Get(door).Depth)
+
+	// 閉じると高さが戻る
+	require.NoError(t, CloseDoor(world, door))
+	assert.Equal(t, gc.DepthNumTaller, world.Components.SpriteRender.Get(door).Depth)
+}
+
 func TestSpawnVisualEffect(t *testing.T) {
 	t.Parallel()
 
