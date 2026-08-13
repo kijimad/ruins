@@ -190,10 +190,10 @@ func TestScreen_Draw(t *testing.T) {
 		vrt.WithUILock(func() {
 			_, err := screen.Update(world)
 			require.NoError(t, err)
-		})
 
-		assert.NotPanics(t, func() {
-			screen.Draw(ebiten.NewImage(10, 10))
+			assert.NotPanics(t, func() {
+				screen.Draw(ebiten.NewImage(10, 10))
+			})
 		})
 	})
 }
@@ -294,13 +294,16 @@ func TestScreen_Update_overlay(t *testing.T) {
 // 窓が widget.UI に実際に追加されることを固定する
 func TestScreen_Update_ActiveなoverlayのWindowをUIへ追加する(t *testing.T) {
 	t.Parallel()
-	win := widget.NewWindow(widget.WindowOpts.Contents(widget.NewContainer()))
 	model := &flexModel{menu: MenuConfig{Key: "ovwindow"}}
-	ov := &testOverlay{active: true, window: win}
-	screen := NewScreen[int](model, ov)
+	var win *widget.Window
+	var screen *Screen[int]
 	world := w.World{Resources: &resources.Resources{}}
 
 	vrt.WithUILock(func() {
+		win = widget.NewWindow(widget.WindowOpts.Contents(widget.NewContainer()))
+		ov := &testOverlay{active: true, window: win}
+		screen = NewScreen[int](model, ov)
+
 		_, err := screen.Update(world)
 		require.NoError(t, err)
 	})
