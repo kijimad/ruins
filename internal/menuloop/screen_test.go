@@ -286,7 +286,8 @@ func TestScreen_Update_overlay(t *testing.T) {
 			_, err = screen.Update(world)
 		})
 
-		assert.ErrorIs(t, err, wantErr)
+		require.ErrorIs(t, err, wantErr)
+		assert.Equal(t, 1, ov.handleInputCalls, "HandleInput は呼ばれてからエラーが伝播する")
 	})
 }
 
