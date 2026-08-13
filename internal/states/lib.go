@@ -165,7 +165,12 @@ func itemMenuRow(world w.World, e ecs.Entity, trailing ...string) menuRow {
 	name := query.GetEntityName(e, world)
 	count := query.GetEntityCount(world, e)
 	icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))
-	cells := append([]styled.Cell{styled.IconCell(icon), styled.TextCell(query.FormatNameCount(name, count))}, styled.TextCells(trailing...)...)
+	label := query.FormatNameCount(name, count)
+	// 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする
+	if marker := query.FreshnessMarker(world, e); marker != "" {
+		label += " (" + marker + ")"
+	}
+	cells := append([]styled.Cell{styled.IconCell(icon), styled.TextCell(label)}, styled.TextCells(trailing...)...)
 	return menuRow{Cells: cells}
 }
 

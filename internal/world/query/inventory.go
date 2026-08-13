@@ -20,6 +20,11 @@ func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
 		if found {
 			continue
 		}
+		// 腐敗食は鮮度ごとに別スタックにするため、この count 統合経路では拾わない。
+		// 生成経路を通せば SpawnedAtTurn が刻まれ、鮮度別に合流する
+		if world.Components.Perishable.Has(entity) {
+			continue
+		}
 		if world.Components.RawID.Get(entity).ID == id {
 			foundEntity = entity
 			found = true

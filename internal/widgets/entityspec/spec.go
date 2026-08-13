@@ -56,6 +56,10 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	if world.Components.ProvidesNutrition.Has(entity) {
 		rows = append(rows, nutritionRows(world, world.Components.ProvidesNutrition.Get(entity))...)
 	}
+	// 鮮度は刻印済みの生存エンティティだけに出す。raw 由来の SpecRowsFromSpec は未刻印なので出さない
+	if world.Components.Perishable.Has(entity) {
+		rows = append(rows, freshnessRow(world, world.Components.Perishable.Get(entity)))
+	}
 	if world.Components.Book.Has(entity) {
 		rows = append(rows, bookRows(world, world.Components.Book.Get(entity))...)
 	}
@@ -216,6 +220,12 @@ func healingRows(world w.World, healing *gc.ProvidesHealing) []SpecRow {
 // nutritionRows は栄養の行を返す
 func nutritionRows(world w.World, nutrition *gc.ProvidesNutrition) []SpecRow {
 	return []SpecRow{{Label: query.T(world, "Nutrition"), Value: strconv.Itoa(nutrition.Amount)}}
+}
+
+// freshnessRow は鮮度の1行を返す。now は GameTime.TotalTurns から取る
+func freshnessRow(world w.World, p *gc.Perishable) SpecRow {
+	now := query.GetGameTime(world).TotalTurns
+	return SpecRow{Label: query.T(world, "Freshness"), Value: query.T(world, query.FreshnessLabel(p.Stage(now)))}
 }
 
 // valueRows は価値の行を返す

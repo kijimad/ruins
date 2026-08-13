@@ -158,14 +158,6 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 // rottenHungerPenalty は腐敗した食料を食べたときに下がる満腹度。栄養は得られず不調になる
 const rottenHungerPenalty = 20
 
-// freshnessStage は item の鮮度段階を返す。Perishable を持たない食料は新鮮扱い
-func freshnessStage(world w.World, item ecs.Entity) gc.FreshnessStage {
-	if !world.Components.Perishable.Has(item) {
-		return gc.FreshnessFresh
-	}
-	return world.Components.Perishable.Get(item).Stage(query.GetGameTime(world).TotalTurns)
-}
-
 // applyNutrition は空腹度回復処理を適用する。鮮度に応じて栄養を調整する。
 // 新鮮は満額、劣化は半減、腐敗は満腹を下げる不調にする
 func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
@@ -174,8 +166,14 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 	}
 	hunger := world.Components.Hunger.Get(actor)
 
+	// Perishable を持たない食料は新鮮扱いで満額
+	stage, ok := query.FreshnessStageOf(world, item)
+	if !ok {
+		stage = gc.FreshnessFresh
+	}
+
 	spoiled := false
-	switch freshnessStage(world, item) {
+	switch stage {
 	case gc.FreshnessFresh:
 		hunger.Increase(amount)
 	case gc.FreshnessStale:

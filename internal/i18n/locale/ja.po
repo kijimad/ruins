@@ -1485,6 +1485,18 @@ msgstr "%s は %s を食べた。"
 msgid "%s ate spoiled %s and felt sick."
 msgstr "%s は傷んだ %s を食べて気分が悪くなった。"
 
+msgid "Freshness"
+msgstr "鮮度"
+
+msgid "Fresh"
+msgstr "新鮮"
+
+msgid "Stale"
+msgstr "劣化"
+
+msgid "Rotten"
+msgstr "腐敗"
+
 msgid "Item"
 msgstr "アイテム"
 
