@@ -222,19 +222,48 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 		return nil
 	}
 
-	targetEntity := stackableItems[0]
-	for i := 1; i < len(stackableItems); i++ {
-		itemToMerge := stackableItems[i]
-		mergeCount := query.GetEntityCount(world, itemToMerge)
-
-		if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {
-			return fmt.Errorf("failed to merge counts: %w", err)
+	// 同じ RawID でも鮮度が違えば別スタック。SpawnedAtTurn ごとに束ねてから合流する。
+	// order で出現順に処理し、どのエンティティが残るかを決定的にする
+	groups := map[perishStackKey][]ecs.Entity{}
+	order := []perishStackKey{}
+	for _, e := range stackableItems {
+		k := perishStackKeyOf(world, e)
+		if _, ok := groups[k]; !ok {
+			order = append(order, k)
 		}
+		groups[k] = append(groups[k], e)
+	}
 
-		world.ECS.RemoveEntity(itemToMerge)
+	for _, k := range order {
+		group := groups[k]
+		targetEntity := group[0]
+		for i := 1; i < len(group); i++ {
+			itemToMerge := group[i]
+			mergeCount := query.GetEntityCount(world, itemToMerge)
+
+			if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {
+				return fmt.Errorf("failed to merge counts: %w", err)
+			}
+
+			world.ECS.RemoveEntity(itemToMerge)
+		}
 	}
 
 	return nil
+}
+
+// perishStackKey は鮮度を含むスタック同定キー。腐敗しないアイテムは spawnedAt を見ない
+type perishStackKey struct {
+	perishable bool
+	spawnedAt  consts.Turn
+}
+
+// perishStackKeyOf は entity のスタック同定キーを返す。Perishable を持つ食料は生成時刻で分ける
+func perishStackKeyOf(world w.World, entity ecs.Entity) perishStackKey {
+	if world.Components.Perishable.Has(entity) {
+		return perishStackKey{perishable: true, spawnedAt: world.Components.Perishable.Get(entity).SpawnedAtTurn}
+	}
+	return perishStackKey{}
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる

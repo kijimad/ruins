@@ -526,3 +526,42 @@ func TestSpawnFieldItem_保存期間なしは腐敗しない(t *testing.T) {
 	require.NoError(t, err)
 	assert.False(t, world.Components.Perishable.Has(sword), "shelfLife 無しは Perishable を持たない")
 }
+
+func TestMoveToBackpack_腐敗食は同鮮度のみ合流する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	owner, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	gt := query.GetGameTime(world)
+
+	moveBread := func(atTurn consts.Turn) {
+		gt.TotalTurns = atTurn
+		b, e := SpawnFieldItem(world, "bread", 1, 1, 1)
+		require.NoError(t, e)
+		require.NoError(t, MoveToBackpack(world, b, owner))
+	}
+
+	// バックパックの bread を SpawnedAtTurn ごとに合計個数で数える
+	countByTurn := func() map[consts.Turn]int {
+		m := map[consts.Turn]int{}
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
+		for q.Next() {
+			e := q.Entity()
+			if world.Components.RawID.Get(e).ID != "bread" || world.Components.LocationInBackpack.Get(e).Owner != owner {
+				continue
+			}
+			at := world.Components.Perishable.Get(e).SpawnedAtTurn
+			m[at] += world.Components.Stackable.Get(e).Count
+		}
+		return m
+	}
+
+	moveBread(100)  // 同じターンの2つは
+	moveBread(100)  // 1スタックに合流する
+	moveBread(2000) // 違うターンは別スタック
+
+	got := countByTurn()
+	assert.Len(t, got, 2, "鮮度が違うので2スタック")
+	assert.Equal(t, 2, got[100], "同じ生成ターンの2つは合流し個数2")
+	assert.Equal(t, 1, got[2000], "違う生成ターンは別スタックで個数1")
+}
