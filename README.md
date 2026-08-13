@@ -107,6 +107,7 @@ $ make help
 | draft | [コード監査: ダンジョン生成・リロード・セーブ 2026-08-03](docs/design/260803144226.md) | 5/5 | worldgen, combat, save, ecs |
 | draft | [天気システムを設計する](docs/design/260805144630.md) | 0/7 | gamedesign, worldgen, ecs |
 | draft | [コード監査: ダンジョン生成・戦闘継続・UI描画 2026-08-10](docs/design/260810001803.md) | 0/5 | worldgen, combat, item, ui, ecs |
+| draft | [コアの方向整理と、検証を設計判断より先に置く方針](docs/design/260813212953.md) | 0/0 | gamedesign, narrative |
 
 
 ## Reference
