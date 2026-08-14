@@ -310,3 +310,87 @@ func TestUseItemBehavior_Info(t *testing.T) {
 	assert.False(t, info.Interruptible)
 	assert.False(t, info.Resumable)
 }
+
+func TestUseItemBehavior_Name(t *testing.T) {
+	t.Parallel()
+
+	ua := &UseItemBehavior{}
+	assert.Equal(t, gc.BehaviorUseItem, ua.Name())
+}
+
+func TestNewUseItemActivity(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	item := world.ECS.NewEntity()
+
+	comp := NewUseItemActivity(item)
+
+	assert.Equal(t, gc.BehaviorUseItem, comp.BehaviorName)
+	params, ok := comp.Params.(*gc.UseItemParams)
+	require.True(t, ok, "UseItemParamsが設定されるべき")
+	assert.Equal(t, item, params.Target)
+}
+
+func TestUseItemBehavior_applyHealing(t *testing.T) {
+	t.Parallel()
+
+	t.Run("絶対量指定の回復がHPに反映される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.HP.Add(actor, &gc.HP{Current: 50, Max: 100})
+
+		item := world.ECS.NewEntity()
+		comp := NewActivity(gc.BehaviorUseItem, 1)
+		healing := &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 30}
+
+		ua := &UseItemBehavior{}
+		err := ua.applyHealing(comp, actor, world, healing, item)
+		require.NoError(t, err)
+
+		hp := world.Components.HP.Get(actor)
+		assert.Equal(t, 80, hp.Current, "指定量ぶんHPが回復するべき")
+	})
+
+	t.Run("CharModifiersの回復効果倍率が適用される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.HP.Add(actor, &gc.HP{Current: 10, Max: 100})
+		world.Components.CharModifiers.Add(actor, &gc.CharModifiers{HealingEffect: 200})
+
+		item := world.ECS.NewEntity()
+		comp := NewActivity(gc.BehaviorUseItem, 1)
+		healing := &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 20}
+
+		ua := &UseItemBehavior{}
+		err := ua.applyHealing(comp, actor, world, healing, item)
+		require.NoError(t, err)
+
+		hp := world.Components.HP.Get(actor)
+		assert.Equal(t, 50, hp.Current, "倍率2倍で40回復し、10+40=50になるべき")
+	})
+
+	t.Run("回復量が1未満になる場合は最低1にクランプされる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.ECS.NewEntity()
+		world.Components.HP.Add(actor, &gc.HP{Current: 10, Max: 100})
+		world.Components.CharModifiers.Add(actor, &gc.CharModifiers{HealingEffect: 0})
+
+		item := world.ECS.NewEntity()
+		comp := NewActivity(gc.BehaviorUseItem, 1)
+		healing := &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 30}
+
+		ua := &UseItemBehavior{}
+		err := ua.applyHealing(comp, actor, world, healing, item)
+		require.NoError(t, err)
+
+		hp := world.Components.HP.Get(actor)
+		assert.Equal(t, 11, hp.Current, "倍率0でも最低1は回復するべき")
+	})
+}

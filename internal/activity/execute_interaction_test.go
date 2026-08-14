@@ -291,6 +291,93 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	assert.Contains(t, err.Error(), "no Dialog component")
 }
 
+// TestExecuteInteraction_ItemAll_座標がないとエラー はactorにGridElementがない場合、
+// 全アイテム拾得が座標未設定のエラーになることを確認する
+func TestExecuteInteraction_ItemAll_座標がないとエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	// GridElementを持たないactor
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	triggerEntity := world.ECS.NewEntity()
+
+	_, err := ExecuteInteraction(player, triggerEntity, gc.InteractionItemAll, world)
+
+	require.ErrorIs(t, err, ErrPositionNotFound)
+}
+
+// TestExecuteInteraction_ItemAll_同じタイルのアイテムを拾う は同一タイル上のアイテムが
+// まとめて拾得されることを確認する
+func TestExecuteInteraction_ItemAll_同じタイルのアイテムを拾う(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+
+	item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
+	require.NoError(t, err)
+
+	triggerEntity := world.ECS.NewEntity()
+	result, err := ExecuteInteraction(player, triggerEntity, gc.InteractionItemAll, world)
+
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.True(t, result.Success, "足元のアイテム拾得が成功するべき")
+	assert.True(t, world.Components.LocationInBackpack.Has(item), "アイテムがバックパックへ移るべき")
+}
+
+// TestExecuteInteraction_Storage は収納相互作用がストレージメニューの状態変更要求を積むことを確認する
+func TestExecuteInteraction_Storage(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+
+	storageEntity := world.ECS.NewEntity()
+	world.Components.Interactable.Add(storageEntity, &gc.Interactable{
+		Interactions: []gc.InteractionKind{gc.InteractionStorage},
+	})
+
+	result, err := ExecuteInteraction(player, storageEntity, gc.InteractionStorage, world)
+
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.True(t, result.Success, "収納相互作用が成功するべき")
+	assert.Equal(t, gc.BehaviorStorage, result.ActivityName)
+
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req, "状態変更要求が積まれる")
+	payload, ok := req.Payload.(gc.OpenStorage)
+	require.True(t, ok, "OpenStorageが要求される")
+	assert.Equal(t, storageEntity, payload.StorageEntity, "対象の収納エンティティが要求に載る")
+}
+
+// TestExecuteInteraction_Disassemble_工具がなければ何もしない は分解相互作用の起動をラップする
+// executeDisassemble が実際にDisassembleBehaviorへ委譲することを確認する。工具がないので
+// Validate がUserErrorを返し、Executeがそれをgamelogへ出してSuccess=falseで閉じる
+func TestExecuteInteraction_Disassemble_工具がなければ何もしない(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player := newDisassembleTestPlayer(world)
+
+	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
+	require.NoError(t, err)
+
+	result, err := ExecuteInteraction(player, crate, gc.InteractionDisassemble, world)
+
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.False(t, result.Success, "工具がないので分解は開始できないべき")
+	assert.Equal(t, gc.BehaviorDisassemble, result.ActivityName)
+}
+
 // TestExecuteInteraction_Fixed は固定物へのMeleeInteractionの動作を確認する
 func TestExecuteInteraction_Fixed(t *testing.T) {
 	t.Parallel()
