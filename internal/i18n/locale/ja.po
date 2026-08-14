@@ -1482,6 +1482,12 @@ msgstr "%s は %s を %s に渡した。"
 msgid "%s ate %s"
 msgstr "%s は %s を食べた。"
 
+msgid "%s ate fresh %s."
+msgstr "%s は新鮮な %s を食べた。"
+
+msgid "%s ate old %s."
+msgstr "%s は古い %s を食べた。"
+
 msgid "%s ate spoiled %s."
 msgstr "%s は傷んだ %s を食べた。"
 
@@ -1602,8 +1608,8 @@ msgstr "%s は %s を使った。 HPが %d 回復した。"
 msgid "%s used %s and took %d damage."
 msgstr "%s は %s を使った。 %d のダメージを受けた。"
 
-msgid "%s ate %s and became full."
-msgstr "%s は %s を食べた。満腹だ。"
+msgid "%s is now full."
+msgstr "%s は満腹になった。"
 
 msgid "Disassembled %s and obtained %s."
 msgstr "%sを分解し、%sを得た。"

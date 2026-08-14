@@ -173,7 +173,6 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 		stage = gc.FreshnessFresh
 	}
 
-	spoiled := false
 	switch stage {
 	case gc.FreshnessFresh:
 		hunger.Increase(amount)
@@ -181,11 +180,10 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 		hunger.Increase(amount / 2)
 	case gc.FreshnessRotten:
 		hunger.Increase(amount * rottenNutritionPercent / 100)
-		spoiled = true
 	}
 
 	isSatiated := hunger.GetLevel() == gc.HungerSatiated
-	u.logNutritionUse(actor, world, item, isSatiated, spoiled)
+	u.logNutritionUse(actor, world, item, isSatiated)
 
 	return nil
 }
@@ -211,8 +209,8 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	logger.Log()
 }
 
-// logNutritionUse は空腹度回復のログを出力する。腐敗食は不調のログにする
-func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated, spoiled bool) {
+// logNutritionUse は空腹度回復のログを出力する。腐敗する食料は鮮度を添える
+func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {
 	// プレイヤーが関わる場合のみログ出力
 	if !world.Components.Player.Has(actor) {
 		return
@@ -224,15 +222,26 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 	actorMarkup := query.NameMarkup(actor, actorName, world)
 	itemMarkup := gamelog.Tag("item", itemName)
 	logger := gamelog.New(query.GetGameLog(world))
-	switch {
-	case spoiled:
-		logger.Markup(query.T(world, "%s ate spoiled %s.", actorMarkup, itemMarkup))
-	case isSatiated:
-		logger.Markup(query.T(world, "%s ate %s and became full.", actorMarkup, itemMarkup))
-	default:
+
+	// 腐敗する食料は鮮度を名前に添える。腐敗しない食料はそのまま
+	if stage, ok := query.FreshnessStageOf(world, item); !ok {
 		logger.Markup(query.T(world, "%s ate %s", actorMarkup, itemMarkup))
+	} else {
+		switch stage {
+		case gc.FreshnessFresh:
+			logger.Markup(query.T(world, "%s ate fresh %s.", actorMarkup, itemMarkup))
+		case gc.FreshnessStale:
+			logger.Markup(query.T(world, "%s ate old %s.", actorMarkup, itemMarkup))
+		case gc.FreshnessRotten:
+			logger.Markup(query.T(world, "%s ate spoiled %s.", actorMarkup, itemMarkup))
+		}
 	}
 	logger.Log()
+
+	// 満腹になったら別行で知らせる
+	if isSatiated {
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "%s is now full.", actorMarkup)).Log()
+	}
 }
 
 // getItemName はアイテムの名前を取得する

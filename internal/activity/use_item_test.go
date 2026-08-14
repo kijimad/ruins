@@ -348,3 +348,39 @@ func TestUseItemBehavior_applyNutrition_鮮度で栄養が変わる(t *testing.T
 		})
 	}
 }
+
+func TestUseItemBehavior_食べたログに鮮度が出る(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		now  consts.Turn // 生成は TotalTurns=0。bread の ShelfLife は 1500
+		want string
+	}{
+		{"新鮮", 0, "fresh"},
+		{"劣化", 1500, "old"},
+		{"腐敗", 3000, "spoiled"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			bread, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 1)
+			require.NoError(t, err)
+			query.GetGameTime(world).TotalTurns = tt.now
+
+			actor := world.ECS.NewEntity()
+			world.Components.Player.Add(actor, &gc.Player{})
+			hunger := gc.NewHunger()
+			hunger.Current = 100
+			world.Components.Hunger.Add(actor, hunger)
+
+			u := &UseItemBehavior{}
+			require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorUseItem, 1), actor, world, 30, bread))
+
+			recent := query.GetGameLog(world).GetRecent(1)
+			require.Len(t, recent, 1)
+			assert.Contains(t, recent[0], tt.want, "食べたログに鮮度が出る")
+		})
+	}
+}
