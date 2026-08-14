@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-14 00:00:47</td>
+            <td class="headerValue">2026-08-14 00:30:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -383,35 +383,31 @@
 <span id="L321"><span class="lineNum">     321</span>              :         Owner ecs.Entity // 収納コンテナのエンティティ</span>
 <span id="L322"><span class="lineNum">     322</span>              : }</span>
 <span id="L323"><span class="lineNum">     323</span>              : </span>
-<span id="L324"><span class="lineNum">     324</span>              : // Material は素材を表すマーカーコンポーネント。</span>
-<span id="L325"><span class="lineNum">     325</span>              : // 合成や売却の材料となるアイテムに付与される</span>
-<span id="L326"><span class="lineNum">     326</span>              : type Material struct{}</span>
-<span id="L327"><span class="lineNum">     327</span>              : </span>
-<span id="L328"><span class="lineNum">     328</span>              : // Fixed は世界に固定され拾えない固定物であることを示すマーカーコンポーネント</span>
-<span id="L329"><span class="lineNum">     329</span>              : type Fixed struct{}</span>
-<span id="L330"><span class="lineNum">     330</span>              : </span>
-<span id="L331"><span class="lineNum">     331</span>              : // LightSource は光源コンポーネント</span>
-<span id="L332"><span class="lineNum">     332</span>              : type LightSource struct {</span>
-<span id="L333"><span class="lineNum">     333</span>              :         Radius  consts.Tile // 照明範囲</span>
-<span id="L334"><span class="lineNum">     334</span>              :         Color   color.RGBA  // 光の色</span>
-<span id="L335"><span class="lineNum">     335</span>              :         Enabled bool        // 有効/無効</span>
-<span id="L336"><span class="lineNum">     336</span>              : }</span>
-<span id="L337"><span class="lineNum">     337</span>              : </span>
-<span id="L338"><span class="lineNum">     338</span>              : // Door は開閉可能な扉コンポーネント</span>
-<span id="L339"><span class="lineNum">     339</span>              : type Door struct {</span>
-<span id="L340"><span class="lineNum">     340</span>              :         IsOpen      bool            // 開いているかどうか</span>
-<span id="L341"><span class="lineNum">     341</span>              :         Orientation DoorOrientation // 扉の向き</span>
-<span id="L342"><span class="lineNum">     342</span>              : }</span>
-<span id="L343"><span class="lineNum">     343</span>              : </span>
-<span id="L344"><span class="lineNum">     344</span>              : // DoorOrientation は扉の向き</span>
-<span id="L345"><span class="lineNum">     345</span>              : type DoorOrientation int</span>
-<span id="L346"><span class="lineNum">     346</span>              : </span>
-<span id="L347"><span class="lineNum">     347</span>              : const (</span>
-<span id="L348"><span class="lineNum">     348</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
-<span id="L349"><span class="lineNum">     349</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
-<span id="L350"><span class="lineNum">     350</span>              :         // DoorOrientationVertical は縦向きの扉</span>
-<span id="L351"><span class="lineNum">     351</span>              :         DoorOrientationVertical</span>
-<span id="L352"><span class="lineNum">     352</span>              : )</span>
+<span id="L324"><span class="lineNum">     324</span>              : // Fixed は世界に固定され拾えない固定物であることを示すマーカーコンポーネント</span>
+<span id="L325"><span class="lineNum">     325</span>              : type Fixed struct{}</span>
+<span id="L326"><span class="lineNum">     326</span>              : </span>
+<span id="L327"><span class="lineNum">     327</span>              : // LightSource は光源コンポーネント</span>
+<span id="L328"><span class="lineNum">     328</span>              : type LightSource struct {</span>
+<span id="L329"><span class="lineNum">     329</span>              :         Radius  consts.Tile // 照明範囲</span>
+<span id="L330"><span class="lineNum">     330</span>              :         Color   color.RGBA  // 光の色</span>
+<span id="L331"><span class="lineNum">     331</span>              :         Enabled bool        // 有効/無効</span>
+<span id="L332"><span class="lineNum">     332</span>              : }</span>
+<span id="L333"><span class="lineNum">     333</span>              : </span>
+<span id="L334"><span class="lineNum">     334</span>              : // Door は開閉可能な扉コンポーネント</span>
+<span id="L335"><span class="lineNum">     335</span>              : type Door struct {</span>
+<span id="L336"><span class="lineNum">     336</span>              :         IsOpen      bool            // 開いているかどうか</span>
+<span id="L337"><span class="lineNum">     337</span>              :         Orientation DoorOrientation // 扉の向き</span>
+<span id="L338"><span class="lineNum">     338</span>              : }</span>
+<span id="L339"><span class="lineNum">     339</span>              : </span>
+<span id="L340"><span class="lineNum">     340</span>              : // DoorOrientation は扉の向き</span>
+<span id="L341"><span class="lineNum">     341</span>              : type DoorOrientation int</span>
+<span id="L342"><span class="lineNum">     342</span>              : </span>
+<span id="L343"><span class="lineNum">     343</span>              : const (</span>
+<span id="L344"><span class="lineNum">     344</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
+<span id="L345"><span class="lineNum">     345</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
+<span id="L346"><span class="lineNum">     346</span>              :         // DoorOrientationVertical は縦向きの扉</span>
+<span id="L347"><span class="lineNum">     347</span>              :         DoorOrientationVertical</span>
+<span id="L348"><span class="lineNum">     348</span>              : )</span>
         </pre>
               </td>
             </tr>

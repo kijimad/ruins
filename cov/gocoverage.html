@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
@@ -159,7 +159,7 @@
 				
 				<option value="file51">github.com/kijimaD/ruins/internal/components/interactable.go (100.0%)</option>
 				
-				<option value="file52">github.com/kijimaD/ruins/internal/components/invariant.go (75.0%)</option>
+				<option value="file52">github.com/kijimaD/ruins/internal/components/invariant.go (93.9%)</option>
 				
 				<option value="file53">github.com/kijimaD/ruins/internal/components/modifiers.go (100.0%)</option>
 				
@@ -349,7 +349,7 @@
 				
 				<option value="file146">github.com/kijimaD/ruins/internal/mapplanner/plan.go (82.9%)</option>
 				
-				<option value="file147">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (78.4%)</option>
+				<option value="file147">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (75.7%)</option>
 				
 				<option value="file148">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -423,7 +423,7 @@
 				
 				<option value="file183">github.com/kijimaD/ruins/internal/raw/item_group.go (93.5%)</option>
 				
-				<option value="file184">github.com/kijimaD/ruins/internal/raw/raw.go (90.2%)</option>
+				<option value="file184">github.com/kijimaD/ruins/internal/raw/raw.go (90.1%)</option>
 				
 				<option value="file185">github.com/kijimaD/ruins/internal/raw/validate.go (90.4%)</option>
 				
@@ -463,7 +463,7 @@
 				
 				<option value="file203">github.com/kijimaD/ruins/internal/states/character_naming.go (82.5%)</option>
 				
-				<option value="file204">github.com/kijimaD/ruins/internal/states/character_state.go (53.4%)</option>
+				<option value="file204">github.com/kijimaD/ruins/internal/states/character_state.go (53.1%)</option>
 				
 				<option value="file205">github.com/kijimaD/ruins/internal/states/character_view.go (86.2%)</option>
 				
@@ -557,7 +557,7 @@
 				
 				<option value="file250">github.com/kijimaD/ruins/internal/vrt/testmain.go (0.0%)</option>
 				
-				<option value="file251">github.com/kijimaD/ruins/internal/widgets/entityspec/spec.go (96.0%)</option>
+				<option value="file251">github.com/kijimaD/ruins/internal/widgets/entityspec/spec.go (95.9%)</option>
 				
 				<option value="file252">github.com/kijimaD/ruins/internal/widgets/hud/currency.go (0.0%)</option>
 				
@@ -1660,7 +1660,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1733,8 +1733,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
-        case critical:<span class="cov8" title="1">
-                if withMethod </span><span class="cov8" title="1">{
+        case critical:<span class="cov0" title="0">
+                if withMethod </span><span class="cov0" title="0">{
                         logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
@@ -8055,10 +8055,6 @@ type LocationInStorage struct {
         Owner ecs.Entity // 収納コンテナのエンティティ
 }
 
-// Material は素材を表すマーカーコンポーネント。
-// 合成や売却の材料となるアイテムに付与される
-type Material struct{}
-
 // Fixed は世界に固定され拾えない固定物であることを示すマーカーコンポーネント
 type Fixed struct{}
 
@@ -8110,7 +8106,6 @@ type EntitySpec struct {
         Abilities          *Abilities
         Ammo               *Ammo
         Stackable          *Stackable
-        Material           *Material
         LocationInBackpack *LocationInBackpack
         LocationEquipped   *LocationEquipped
         LocationOnField    *LocationOnField
@@ -8191,7 +8186,6 @@ type Components struct {
         Abilities          *ecs.Map[Abilities]
         Ammo               *ecs.Map[Ammo]
         Stackable          *ecs.Map[Stackable]
-        Material           *ecs.Map[Material]
         LocationInBackpack *ecs.Map[LocationInBackpack]
         LocationEquipped   *ecs.Map[LocationEquipped]
         LocationOnField    *ecs.Map[LocationOnField]
@@ -8272,7 +8266,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error <span class="c
         c.Abilities = ecs.NewMap[Abilities](world)
         c.Ammo = ecs.NewMap[Ammo](world)
         c.Stackable = ecs.NewMap[Stackable](world)
-        c.Material = ecs.NewMap[Material](world)
         c.LocationInBackpack = ecs.NewMap[LocationInBackpack](world)
         c.LocationEquipped = ecs.NewMap[LocationEquipped](world)
         c.LocationOnField = ecs.NewMap[LocationOnField](world)
@@ -8355,7 +8348,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity <s
         addComp(c.Abilities, entity, spec.Abilities)
         addComp(c.Ammo, entity, spec.Ammo)
         addComp(c.Stackable, entity, spec.Stackable)
-        addComp(c.Material, entity, spec.Material)
         addComp(c.LocationInBackpack, entity, spec.LocationInBackpack)
         addComp(c.LocationEquipped, entity, spec.LocationEquipped)
         addComp(c.LocationOnField, entity, spec.LocationOnField)
@@ -9815,30 +9807,8 @@ func (cat Category) String() string <span class="cov8" title="1">{
 type CategoryGroupKey string
 
 const (
-        // InventoryCategoryKey はインベントリのタブに対応する分類
-        InventoryCategoryKey CategoryGroupKey = "inventory"
-        // ItemTypeCategoryKey はアイテム欄に表示する細分類
-        ItemTypeCategoryKey CategoryGroupKey = "item_type"
         // FieldLookCategoryKey はフィールド上の観察で表示する分類
         FieldLookCategoryKey CategoryGroupKey = "field_look"
-)
-
-// インベントリカテゴリ名の定数
-const (
-        CategoryGoods  = "Goods"
-        CategoryWeapon = "Weapon"
-        CategoryArmor  = "Armor"
-)
-
-// アイテム種別カテゴリ名の定数。値は query.T の msgid として使う。
-const (
-        CategoryMaterial   = "Material"
-        CategoryAmmo       = "Ammunition"
-        CategoryBook       = "Book"
-        CategoryFixed      = "Fixed object"
-        CategoryConsumable = "Consumable"
-        CategoryMelee      = "Melee weapon"
-        CategoryFire       = "Ranged weapon"
 )
 
 // フィールド観察カテゴリ名の定数。値は query.T の msgid として使う
@@ -9846,6 +9816,7 @@ const (
         CategoryPlayer = "Self"
         CategoryEnemy  = "Enemy"
         CategoryNPC    = "NPC"
+        CategoryFixed  = "Fixed object"
         CategoryTile   = "Tile"
 )
 
@@ -9865,22 +9836,6 @@ func (c *Components) has(comp hasser) Has <span class="cov8" title="1">{
 // Categories は観点ごとにグループ化されたカテゴリ定義を返す
 func (c *Components) Categories() map[CategoryGroupKey][]Category <span class="cov8" title="1">{
         return map[CategoryGroupKey][]Category{
-                InventoryCategoryKey: {
-                        {Name: CategoryGoods, Pred: Or{c.has(c.Material), c.has(c.Ammo), c.has(c.Book), c.has(c.Consumable)}},
-                        {Name: CategoryWeapon, Pred: Or{c.has(c.Melee), c.has(c.Fire)}},
-                        {Name: CategoryArmor, Pred: c.has(c.Wearable)},
-                },
-                ItemTypeCategoryKey: {
-                        {Name: CategoryMaterial, Pred: c.has(c.Material)},
-                        {Name: CategoryAmmo, Pred: c.has(c.Ammo)},
-                        {Name: CategoryBook, Pred: c.has(c.Book)},
-                        {Name: CategoryFixed, Pred: c.has(c.Fixed)},
-                        {Name: CategoryConsumable, Pred: c.has(c.Consumable)},
-                        // Fire は Melee より先に判定する。射撃武器は殴打性能として Melee も持つため
-                        {Name: CategoryFire, Pred: c.has(c.Fire)},
-                        {Name: CategoryMelee, Pred: c.has(c.Melee)},
-                        {Name: CategoryArmor, Pred: c.has(c.Wearable)},
-                },
                 FieldLookCategoryKey: {
                         // Player を先に判定する。Player は FactionAlly も持つため
                         {Name: CategoryPlayer, Pred: c.has(c.Player)},
@@ -9900,56 +9855,7 @@ func (c *Components) CategoryOf(key CategoryGroupKey, entity ecs.Entity) (string
                         return cat.Name, true
                 }</span>
         }
-        <span class="cov8" title="1">return "", false</span>
-}
-
-// CategoryOfSpec は EntitySpec に対して CategoryOf と同等の判定を行う。
-// Has.Label が EntitySpec のフィールド名と一致する規約を利用し、
-// リフレクションでフィールドの nil 判定を行う
-func (c *Components) CategoryOfSpec(key CategoryGroupKey, spec *EntitySpec) (string, bool) <span class="cov8" title="1">{
-        specVal := reflect.ValueOf(spec).Elem()
-        for _, cat := range c.Categories()[key] </span><span class="cov8" title="1">{
-                if evalPredSpec(cat.Pred, specVal) </span><span class="cov8" title="1">{
-                        return cat.Name, true
-                }</span>
-        }
-        <span class="cov8" title="1">return "", false</span>
-}
-
-// evalPredSpec は Pred を EntitySpec のリフレクション値に対して評価する
-func evalPredSpec(pred Pred, specVal reflect.Value) bool <span class="cov8" title="1">{
-        switch p := pred.(type) </span>{
-        case Has:<span class="cov8" title="1">
-                field := specVal.FieldByName(p.Label)
-                if !field.IsValid() </span><span class="cov0" title="0">{
-                        return false
-                }</span>
-                // ポインタ型のフィールドのみ nil 判定する。値型フィールドは常に「存在する」とみなす
-                <span class="cov8" title="1">if field.Kind() == reflect.Pointer || field.Kind() == reflect.Interface </span><span class="cov8" title="1">{
-                        return !field.IsNil()
-                }</span>
-                <span class="cov0" title="0">return true</span>
-        case And:<span class="cov0" title="0">
-                for _, sub := range p </span><span class="cov0" title="0">{
-                        if !evalPredSpec(sub, specVal) </span><span class="cov0" title="0">{
-                                return false
-                        }</span>
-                }
-                <span class="cov0" title="0">return true</span>
-        case Or:<span class="cov0" title="0">
-                for _, sub := range p </span><span class="cov0" title="0">{
-                        if evalPredSpec(sub, specVal) </span><span class="cov0" title="0">{
-                                return true
-                        }</span>
-                }
-                <span class="cov0" title="0">return false</span>
-        case Not:<span class="cov0" title="0">
-                return !evalPredSpec(p.Pred, specVal)</span>
-        case Category:<span class="cov0" title="0">
-                return evalPredSpec(p.Pred, specVal)</span>
-        default:<span class="cov0" title="0">
-                return false</span>
-        }
+        <span class="cov0" title="0">return "", false</span>
 }
 </pre>
 		
@@ -21092,7 +20998,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;
                                 planData.isInAnyRoom(x, y) &amp;&amp;
-                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov8" title="1">{
+                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov0" title="0">{
                                 return x, y, true
                         }</span>
                 }
@@ -25020,7 +24926,6 @@ type Item struct {
 
         // LightSource 携行光源。装備すると owner を照らす
         LightSource *LightSource `json:"lightSource,omitempty"`
-        Material    *bool        `json:"material,omitempty"`
 
         // Melee 近接攻撃設定
         Melee *Melee `json:"melee,omitempty"`
@@ -32124,153 +32029,153 @@ var swaggerSpec = []string{
         "Cgsaay902skMwfkI+hsUavUShbBGm1sF2eD4c7/gJIXfwiQgEl85Kfvv4HJ0y0d3XpFU7Gf2P/vOkui5",
         "QPFEguBSruiT4NAY+8t+zyM9ivmBfjKiUFuXgziiedwz0nJvRByNPofC2PUMCly682V/UjhH1KigEUjV",
         "im13knLnMlJKLbQ2oFpk4BOzWy4qqRhOuhPUIIZr7NZyfWrYvDpYXb4FWSl+f1isNCFfzAElYehjtasz",
-        "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",
-        "L6L7F3a0FvVrl85Kf25Fb/ef6f//AQAA//8=",
+        "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",
+        "i/q1S2elP7eit/vP9P//AAAA//8=",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
@@ -34978,10 +34883,6 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
                 }</span>
                 <span class="cov8" title="1">entitySpec.Book = book</span>
         }
-
-        <span class="cov8" title="1">if item.Material != nil &amp;&amp; *item.Material </span><span class="cov8" title="1">{
-                entitySpec.Material = &amp;gc.Material{}
-        }</span>
 
         // 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
         <span class="cov8" title="1">entitySpec.LightSource = toGCLightSource(item.LightSource)
@@ -39255,8 +39156,7 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
                 q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
                 for q.Next() </span><span class="cov8" title="1">{
                         entity := q.Entity()
-                        cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
-                        if cat != gc.CategoryWeapon </span><span class="cov8" title="1">{
+                        if !query.IsWeapon(world, entity) </span><span class="cov8" title="1">{
                                 continue</span>
                         }
                         <span class="cov8" title="1">items = append(items, entity)</span>
@@ -48714,10 +48614,7 @@ var specTableAligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 // 種別・攻撃・防具などコンポーネントごとに数行で、存在するものだけを含む
 func SpecRows(world w.World, entity ecs.Entity) []SpecRow <span class="cov8" title="1">{
         var rows []SpecRow
-        if cat, ok := world.Components.CategoryOf(gc.ItemTypeCategoryKey, entity); ok </span><span class="cov8" title="1">{
-                rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: query.T(world, cat)})
-        }</span>
-        <span class="cov8" title="1">if world.Components.Abilities.Has(entity) </span><span class="cov0" title="0">{
+        if world.Components.Abilities.Has(entity) </span><span class="cov0" title="0">{
                 rows = append(rows, abilityRows(world, world.Components.Abilities.Get(entity))...)
         }</span>
         <span class="cov8" title="1">if world.Components.Melee.Has(entity) </span><span class="cov8" title="1">{
@@ -48753,10 +48650,7 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow <span class="cov8" tit
 // エンティティを生成せず raw 定義から詳細を出す商店などで使う
 func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow <span class="cov8" title="1">{
         var rows []SpecRow
-        if cat, ok := world.Components.CategoryOfSpec(gc.ItemTypeCategoryKey, &amp;spec); ok </span><span class="cov8" title="1">{
-                rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: query.T(world, cat)})
-        }</span>
-        <span class="cov8" title="1">if spec.Melee != nil </span><span class="cov8" title="1">{
+        if spec.Melee != nil </span><span class="cov8" title="1">{
                 rows = append(rows, attackerRows(world, spec.Melee)...)
         }</span>
         <span class="cov8" title="1">if spec.Fire != nil </span><span class="cov8" title="1">{
@@ -54398,6 +54292,11 @@ import (
         "github.com/mlange-42/ark/ecs"
 )
 
+// IsWeapon はエンティティが武器かを返す。近接または射撃のいずれかを持てば武器とみなす。
+func IsWeapon(world w.World, entity ecs.Entity) bool <span class="cov0" title="0">{
+        return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
+}</span>
+
 // GetWeapons は武器一覧を取得する（スロット1〜5）
 // 必ず長さ5のスライスを返す
 func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity <span class="cov8" title="1">{
@@ -54406,8 +54305,7 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity <span class="cov8
         weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
         for weaponsQuery.Next() </span><span class="cov0" title="0">{
                 entity := weaponsQuery.Entity()
-                cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
-                if cat != gc.CategoryWeapon </span><span class="cov0" title="0">{
+                if !IsWeapon(world, entity) </span><span class="cov0" title="0">{
                         continue</span>
                 }
                 <span class="cov0" title="0">equipped := world.Components.LocationEquipped.Get(entity)
