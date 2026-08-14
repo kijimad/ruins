@@ -165,8 +165,8 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// 敵を作成してDeadコンポーネントを付与（射撃で倒された状態を模擬）
-		enemy := world.ECS.NewEntity()
-		world.Components.Name.Add(enemy, &gc.Name{Name: "スライム"})
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "moss_turtle")
+		require.NoError(t, err)
 		world.Components.Dead.Add(enemy, &gc.Dead{})
 
 		err = runFrame(world)
@@ -193,8 +193,8 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// 1回目の行動: 敵1を倒す
-		enemy1 := world.ECS.NewEntity()
-		world.Components.Name.Add(enemy1, &gc.Name{Name: "スライム1"})
+		enemy1, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "moss_turtle")
+		require.NoError(t, err)
 		world.Components.Dead.Add(enemy1, &gc.Dead{})
 
 		query.ConsumeActionPoints(world, player, 100) // AP: 300 -> 200
@@ -208,8 +208,8 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 			"APが残っているのでPlayerPhaseのまま")
 
 		// 2回目の行動: 敵2を倒す
-		enemy2 := world.ECS.NewEntity()
-		world.Components.Name.Add(enemy2, &gc.Name{Name: "スライム2"})
+		enemy2, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 9, Y: 9}, "moss_turtle")
+		require.NoError(t, err)
 		world.Components.Dead.Add(enemy2, &gc.Dead{})
 
 		query.ConsumeActionPoints(world, player, 100) // AP: 200 -> 100

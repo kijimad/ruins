@@ -8,6 +8,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -22,26 +23,24 @@ func TestDeadCleanupSystem(t *testing.T) {
 	// テスト用エンティティを作成
 
 	// 1. 通常の敵（AI）エンティティ - 削除されるべき
-	enemy := world.ECS.NewEntity()
-	world.Components.Name.Add(enemy, &gc.Name{Name: "テスト敵"})
-	world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 3, Y: 3}, "moss_turtle")
+	require.NoError(t, err)
 	world.Components.Dead.Add(enemy, &gc.Dead{})
 
 	// 2. プレイヤーエンティティ - 削除されないべき
-	player := world.ECS.NewEntity()
-	world.Components.Name.Add(player, &gc.Name{Name: "プレイヤー"})
-	world.Components.Player.Add(player, &gc.Player{})
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
 	world.Components.Dead.Add(player, &gc.Dead{})
 
 	// 3. その他のDeadエンティティ - 削除されるべき
+	// 対応するスポーンの無い最小の Dead 保持エンティティ。Player を持たない Dead が消えることを見る
 	otherDead := world.ECS.NewEntity()
 	world.Components.Name.Add(otherDead, &gc.Name{Name: "その他"})
 	world.Components.Dead.Add(otherDead, &gc.Dead{})
 
 	// 4. 生きているエンティティ - 削除されないべき
-	alive := world.ECS.NewEntity()
-	world.Components.Name.Add(alive, &gc.Name{Name: "生きている敵"})
-	world.Components.SoloAI.Add(alive, &gc.SoloAI{})
+	alive, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 7, Y: 7}, "moss_turtle")
+	require.NoError(t, err)
 
 	// DeadCleanupSystemを実行
 	sys := &DeadCleanupSystem{}
@@ -310,9 +309,8 @@ func TestDeadCleanupSystem_ボス撃破でクリアフラグを立てる(t *test
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
 
-		boss := world.ECS.NewEntity()
-		world.Components.Name.Add(boss, &gc.Name{Name: "ボス"})
-		world.Components.Boss.Add(boss, &gc.Boss{})
+		boss, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "moss_turtle", lifecycle.WithBoss())
+		require.NoError(t, err)
 		world.Components.Dead.Add(boss, &gc.Dead{})
 
 		require.False(t, query.GetGameProgress(world).IsDungeonCleared("テスト遺跡"),
@@ -331,9 +329,8 @@ func TestDeadCleanupSystem_ボス撃破でクリアフラグを立てる(t *test
 		world := testutil.InitTestWorld(t)
 		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("テスト遺跡", 1)
 
-		enemy := world.ECS.NewEntity()
-		world.Components.Name.Add(enemy, &gc.Name{Name: "雑魚"})
-		world.Components.SoloAI.Add(enemy, &gc.SoloAI{})
+		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "moss_turtle")
+		require.NoError(t, err)
 		world.Components.Dead.Add(enemy, &gc.Dead{})
 
 		require.NoError(t, (&DeadCleanupSystem{}).Update(world))

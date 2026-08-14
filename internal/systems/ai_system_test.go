@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,25 +18,17 @@ func TestAISystem(t *testing.T) {
 	// テスト用のワールド作成
 	world := testutil.InitTestWorld(t)
 
-	// プレイヤーエンティティを作成
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(10), Y: consts.Tile(10)}})
+	// プレイヤーを実スポーンで配置する
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
 
-	// AIエンティティを作成
-	aiEntity := world.ECS.NewEntity()
-	world.Components.FactionEnemy.Add(aiEntity, &gc.FactionEnemy{})
-	world.Components.GridElement.Add(aiEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(5), Y: consts.Tile(5)}})
-	world.Components.SoloAI.Add(aiEntity, &gc.SoloAI{
-		CombatDefault:         gc.CombatAttack,
-		CombatCurrent:         gc.CombatAttack,
-		Movement:              gc.SoloRandom,
-		SubState:              gc.AIStateWaiting,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 2,
-		ViewDistance:          3,
-		TargetEntity:          &player,
-	})
+	// AI敵を実スポーンで配置し、プレイヤーを標的にした状態でAI処理を通す
+	aiEntity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "moss_turtle")
+	require.NoError(t, err)
+	solo := world.Components.SoloAI.Get(aiEntity)
+	solo.SubState = gc.AIStateWaiting
+	solo.ViewDistance = 3
+	solo.TargetEntity = &player
 
 	// システム実行前の位置を記録
 	initialGrid := world.Components.GridElement.Get(aiEntity)

@@ -3,7 +3,7 @@ package lifecycle
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,13 +16,12 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=1のアイテムを作成
-		item := world.ECS.NewEntity()
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
-		world.Components.Name.Add(item, &gc.Name{Name: "テストアイテム"})
+		// 非Stackableな実アイテムをスポーンする
+		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
+		require.NoError(t, err)
 
 		// 1個消費（負の値で減少）
-		err := ChangeItemCount(world, item, -1)
+		err = ChangeItemCount(world, item, -1)
 		require.NoError(t, err)
 
 		// エンティティが削除されていることを確認
@@ -33,14 +32,12 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=5のStackableアイテムを作成
-		item := world.ECS.NewEntity()
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
-		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
+		// Count=5のStackableな実アイテムをスポーンする
+		item, err := SpawnBackpackItem(world, "healing_potion", 5)
+		require.NoError(t, err)
 
 		// 2個消費
-		err := ChangeItemCount(world, item, -2)
+		err = ChangeItemCount(world, item, -2)
 		require.NoError(t, err)
 
 		// 残り3個であることを確認
@@ -53,14 +50,12 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=3のStackableアイテムを作成
-		item := world.ECS.NewEntity()
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
-		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
+		// Count=3のStackableな実アイテムをスポーンする
+		item, err := SpawnBackpackItem(world, "healing_potion", 3)
+		require.NoError(t, err)
 
 		// 3個全て消費
-		err := ChangeItemCount(world, item, -3)
+		err = ChangeItemCount(world, item, -3)
 		require.NoError(t, err)
 
 		// エンティティが削除されていることを確認
@@ -71,14 +66,12 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=2のStackableアイテムを作成
-		item := world.ECS.NewEntity()
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 2})
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
-		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
+		// Count=2のStackableな実アイテムをスポーンする
+		item, err := SpawnBackpackItem(world, "healing_potion", 2)
+		require.NoError(t, err)
 
 		// 5個消費（所持数を超える）
-		err := ChangeItemCount(world, item, -5)
+		err = ChangeItemCount(world, item, -5)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "insufficient item count")
 
@@ -92,13 +85,12 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=3のStackableアイテムを作成
-		item := world.ECS.NewEntity()
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
+		// Count=3のStackableな実アイテムをスポーンする
+		item, err := SpawnBackpackItem(world, "healing_potion", 3)
+		require.NoError(t, err)
 
 		// 2個追加
-		err := ChangeItemCount(world, item, 2)
+		err = ChangeItemCount(world, item, 2)
 		require.NoError(t, err)
 
 		// 5個になっていることを確認
@@ -110,8 +102,10 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item := world.ECS.NewEntity()
-		err := ChangeItemCount(world, item, 0)
+		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
+		require.NoError(t, err)
+
+		err = ChangeItemCount(world, item, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "must not be zero")
 	})
@@ -120,20 +114,19 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーを作成
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.WeightCapacity.Add(player, &gc.WeightCapacity{})
-		world.Components.Abilities.Add(player, &gc.Abilities{
-			Strength: gc.Ability{Base: 10},
-		})
+		// 実プレイヤーをスポーンする
+		player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
+		require.NoError(t, err)
 
-		// アイテムを作成
-		item := world.ECS.NewEntity()
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
+		// 実アイテムをスポーンする
+		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
+		require.NoError(t, err)
+
+		// スポーンや配置で立った WeightDirty を一旦落とし、消費操作だけで再び立つことを検証する
+		ensureRemoved(world.Components.WeightDirty, player)
 
 		// 1個消費
-		err := ChangeItemCount(world, item, -1)
+		err = ChangeItemCount(world, item, -1)
 		require.NoError(t, err)
 
 		// WeightDirtyフラグが立っていることを確認

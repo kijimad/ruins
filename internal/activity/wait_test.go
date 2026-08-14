@@ -168,7 +168,7 @@ func TestWaitBehavior_長い待機は敵接近で中断する(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := newDisassembleTestPlayer(world)
-	spawnHostileAt(world, 11, 10)
+	spawnHostileAt(t, world, 11, 10)
 
 	wa := &WaitBehavior{}
 	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, Progress: gc.IntPool{Max: 5}}
@@ -183,7 +183,7 @@ func TestWaitBehavior_1ターンの待機は敵が隣接していても完結す
 
 	world := testutil.InitTestWorld(t)
 	actor := newDisassembleTestPlayer(world)
-	spawnHostileAt(world, 11, 10)
+	spawnHostileAt(t, world, 11, 10)
 
 	wa := &WaitBehavior{}
 	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, Progress: gc.IntPool{Max: 1}}

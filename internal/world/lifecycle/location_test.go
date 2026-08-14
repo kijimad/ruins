@@ -22,15 +22,17 @@ func TestMoveToField_所有者からの移送で現ステージへ束縛する(t
 	query.SetDungeon(world, &gc.Dungeon{CurrentStage: interior})
 
 	owner := world.ECS.NewEntity()
-	item := world.ECS.NewEntity()
-	world.Components.Weight.Add(item, &gc.Weight{Milligram: 8 * consts.MilligramPerKg})
-	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
+
+	// 実アイテムをスポーンしてバックパックへ入れた状態から移送する
+	item, err := SpawnBackpackItem(world, "iron", 1)
+	require.NoError(t, err)
+	itemWeight := world.Components.Weight.Get(item).Milligram
 
 	MoveToField(world, item, &owner)
 
 	require.True(t, world.Components.StageBound.Has(item), "床へ移すと現ステージへ束縛される")
 	assert.Equal(t, interior, world.Components.StageBound.Get(item).Key, "束縛先は現ステージ")
-	assert.Equal(t, consts.Milligram(8*consts.MilligramPerKg), query.CubeWeight(world, interior), "置いた物が即座に総重量へ乗る")
+	assert.Equal(t, itemWeight, query.CubeWeight(world, interior), "置いた物が即座に総重量へ乗る")
 }
 
 func TestMovePlayerToPosition(t *testing.T) {
@@ -40,15 +42,12 @@ func TestMovePlayerToPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーを作成
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-		world.Components.SpriteRender.Add(player, &gc.SpriteRender{})
-		world.Components.Camera.Add(player, &gc.Camera{})
+		// 実プレイヤーをスポーンする
+		player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
 
 		// プレイヤーを移動
-		err := MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
+		err = MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
 		require.NoError(t, err)
 
 		// 位置が更新されていることを確認
@@ -71,13 +70,12 @@ func TestMovePlayerToPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// GridElementなしのプレイヤーを作成
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.SpriteRender.Add(player, &gc.SpriteRender{})
-		world.Components.Camera.Add(player, &gc.Camera{})
+		// 実プレイヤーをスポーンし、必須コンポーネントの欠落を作るため GridElement を外す
+		player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		ensureRemoved(world.Components.GridElement, player)
 
-		err := MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
+		err = MovePlayerToPosition(world, consts.Coord[consts.Tile]{X: 10, Y: 15})
 		require.Error(t, err)
 		assert.ErrorContains(t, err, "no player entity with required components found")
 	})
@@ -92,12 +90,12 @@ func TestTransferUnits(t *testing.T) {
 		owner := world.ECS.NewEntity()
 		recipient := world.ECS.NewEntity()
 
-		item := world.ECS.NewEntity()
-		world.Components.RawID.Add(item, &gc.RawID{ID: "scrap_iron"})
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
+		// 実アイテムをスポーンし、特定の所有者のバックパックへ配置する
+		item, err := spawnItemBase(world, "scrap_iron", 5)
+		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 
-		err := TransferUnits(world, item, recipient, 0)
+		err = TransferUnits(world, item, recipient, 0)
 		require.NoError(t, err)
 
 		require.True(t, world.Components.LocationInBackpack.Has(item), "移動先はバックパック")
@@ -111,12 +109,12 @@ func TestTransferUnits(t *testing.T) {
 		owner := world.ECS.NewEntity()
 		recipient := world.ECS.NewEntity()
 
-		item := world.ECS.NewEntity()
-		world.Components.RawID.Add(item, &gc.RawID{ID: "scrap_iron"})
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
+		// 実アイテムをスポーンし、特定の所有者のバックパックへ配置する
+		item, err := spawnItemBase(world, "scrap_iron", 5)
+		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 
-		err := TransferUnits(world, item, recipient, 10)
+		err = TransferUnits(world, item, recipient, 10)
 		require.NoError(t, err)
 
 		require.True(t, world.Components.LocationInBackpack.Has(item))
@@ -130,12 +128,12 @@ func TestTransferUnits(t *testing.T) {
 		owner := world.ECS.NewEntity()
 		recipient := world.ECS.NewEntity()
 
-		item := world.ECS.NewEntity()
-		world.Components.RawID.Add(item, &gc.RawID{ID: "scrap_iron"})
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
+		// 実アイテムをスポーンし、特定の所有者のバックパックへ配置する
+		item, err := spawnItemBase(world, "scrap_iron", 5)
+		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 
-		err := TransferUnits(world, item, recipient, 2)
+		err = TransferUnits(world, item, recipient, 2)
 		require.NoError(t, err)
 
 		// 元アイテムはowner側に残り、指定数だけ減っている
@@ -171,11 +169,10 @@ func TestMoveToEquip(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		owner := world.ECS.NewEntity()
-		item := world.ECS.NewEntity()
-		world.Components.Name.Add(item, &gc.Name{Name: "テストの剣"})
-		// 移動前はフィールドに置かれ、座標を持っている
-		world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
-		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}})
+
+		// 移動前はフィールドに置かれ、座標を持つ状態を実スポーンで作る
+		item, err := SpawnFieldItem(world, "wooden_sword", 3, 4, 1)
+		require.NoError(t, err)
 
 		MoveToEquip(world, item, owner, gc.SlotWeapon1)
 
@@ -197,9 +194,10 @@ func TestMoveToEquip(t *testing.T) {
 
 		prevOwner := world.ECS.NewEntity()
 		newOwner := world.ECS.NewEntity()
-		item := world.ECS.NewEntity()
-		world.Components.Name.Add(item, &gc.Name{Name: "テストの剣"})
-		// 移動前は元オーナーのバックパックに入っている
+
+		// 移動前は元オーナーのバックパックに入っている状態を実スポーンで作る
+		item, err := spawnItemBase(world, "wooden_sword", 1)
+		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: prevOwner})
 
 		MoveToEquip(world, item, newOwner, gc.SlotWeapon1)
@@ -221,25 +219,20 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
+		// 実プレイヤーをスポーンする
+		player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
+		require.NoError(t, err)
 
-		// 装備アイテムを2つ作成
-		item1 := world.ECS.NewEntity()
-		world.Components.Name.Add(item1, &gc.Name{Name: "武器A"})
-		world.Components.LocationEquipped.Add(item1, &gc.LocationEquipped{
-			Owner:         player,
-			EquipmentSlot: gc.SlotWeapon1,
-		})
+		// 実アイテムをスポーンし、実経路で装備する
+		item1, err := SpawnBackpackItem(world, "claymore", 1)
+		require.NoError(t, err)
+		MoveToEquip(world, item1, player, gc.SlotWeapon1)
 
-		item2 := world.ECS.NewEntity()
-		world.Components.Name.Add(item2, &gc.Name{Name: "防具A"})
-		world.Components.LocationEquipped.Add(item2, &gc.LocationEquipped{
-			Owner:         player,
-			EquipmentSlot: gc.SlotTorso,
-		})
+		item2, err := SpawnBackpackItem(world, "western_armor", 1)
+		require.NoError(t, err)
+		MoveToEquip(world, item2, player, gc.SlotTorso)
 
-		err := UnequipAll(world, player)
+		err = UnequipAll(world, player)
 		require.NoError(t, err)
 
 		// 装備が外れている
@@ -255,6 +248,9 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		// UnequipAll は装備ゼロのプレイヤーでも安全に動くべきだが、SpawnPlayer は初期装備の
+		// 松明を必ず装備するため装備ゼロの状態を作れない。ここは装備が一切ないという作為的状態を
+		// 検証する目的なので、素のオーナーエンティティを使う
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})
 
@@ -266,21 +262,19 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player1 := world.ECS.NewEntity()
-		world.Components.Player.Add(player1, &gc.Player{})
+		// 2人の実プレイヤーをスポーンする
+		player1, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
+		require.NoError(t, err)
+		player2, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
-		player2 := world.ECS.NewEntity()
-
-		// player2の装備
-		item := world.ECS.NewEntity()
-		world.Components.Name.Add(item, &gc.Name{Name: "他人の武器"})
-		world.Components.LocationEquipped.Add(item, &gc.LocationEquipped{
-			Owner:         player2,
-			EquipmentSlot: gc.SlotWeapon1,
-		})
+		// player2の装備を実経路で用意する
+		item, err := SpawnBackpackItem(world, "claymore", 1)
+		require.NoError(t, err)
+		MoveToEquip(world, item, player2, gc.SlotWeapon1)
 
 		// player1の装備解除
-		err := UnequipAll(world, player1)
+		err = UnequipAll(world, player1)
 		require.NoError(t, err)
 
 		// player2の装備は残っている

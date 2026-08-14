@@ -31,10 +31,10 @@ func newDisassembleTestPlayer(world w.World) ecs.Entity {
 }
 
 // spawnHostileAt は敵対エンティティを指定タイルに置く
-func spawnHostileAt(world w.World, x consts.Tile, y consts.Tile) {
-	hostile := world.ECS.NewEntity()
-	world.Components.FactionEnemy.Add(hostile, &gc.FactionEnemy{})
-	world.Components.GridElement.Add(hostile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+func spawnHostileAt(t *testing.T, world w.World, x consts.Tile, y consts.Tile) {
+	t.Helper()
+	_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: x, Y: y}, "fireball")
+	require.NoError(t, err)
 }
 
 func TestRequiredDisassemblyAP(t *testing.T) {
@@ -334,7 +334,7 @@ func TestDisassembleBehavior_Validate_敵が隣接していると開始できな
 	require.NoError(t, err)
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
-	spawnHostileAt(world, 9, 10)
+	spawnHostileAt(t, world, 9, 10)
 
 	da := &DisassembleBehavior{}
 	comp := &gc.Activity{Params: &gc.DisassembleParams{Target: crate}}
@@ -363,7 +363,7 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 	require.Equal(t, gc.ActivityStateRunning, comp.State, "敵がいなければ継続するべき")
 
 	// 分解の途中で敵が隣接タイルまで近づいてきた
-	spawnHostileAt(world, 10, 11)
+	spawnHostileAt(t, world, 10, 11)
 
 	require.NoError(t, da.DoTurn(comp, player, world))
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State)

@@ -22,10 +22,11 @@ func TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せ
 	world := testutil.InitTestWorld(t)
 
 	actor := world.ECS.NewEntity()
-	entrance := world.ECS.NewEntity()
-	world.Components.DungeonEntrance.Add(entrance, &gc.DungeonEntrance{DefinitionName: "森"})
+	// 遺跡入口プロップを実スポーンで用意する
+	entrance, err := lifecycle.SpawnDungeonEntrance(world, 5, 5, "森")
+	require.NoError(t, err)
 
-	_, err := ExecuteInteraction(actor, entrance, gc.InteractionDungeonEnter, world)
+	_, err = ExecuteInteraction(actor, entrance, gc.InteractionDungeonEnter, world)
 	require.NoError(t, err)
 
 	req := lifecycle.ConsumeStateChange(world)
@@ -62,21 +63,13 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーを作成
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.TurnBased.Add(player, &gc.TurnBased{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		// プレイヤーを実スポーンで用意する
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
 
-		// 扉を作成（閉じている）
-		doorEntity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(doorEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.Door.Add(doorEntity, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
-		world.Components.Interactable.Add(doorEntity, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionDoor},
-		})
-		world.Components.BlockPass.Add(doorEntity, &gc.BlockPass{})
-		world.Components.BlockView.Add(doorEntity, &gc.BlockView{})
+		// 閉じた扉を実スポーンで用意する
+		doorEntity, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
 
 		// ExecuteInteractionを実行
 		result, err := ExecuteInteraction(player, doorEntity, gc.InteractionDoor, world)
@@ -94,19 +87,14 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーを作成
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.TurnBased.Add(player, &gc.TurnBased{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		// プレイヤーを実スポーンで用意する
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
 
-		// 扉を作成（開いている）
-		doorEntity := world.ECS.NewEntity()
-		world.Components.GridElement.Add(doorEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-		world.Components.Door.Add(doorEntity, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
-		world.Components.Interactable.Add(doorEntity, &gc.Interactable{
-			Interactions: []gc.InteractionKind{gc.InteractionDoor},
-		})
+		// 扉を実スポーンで用意し、開状態にする
+		doorEntity, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+		world.Components.Door.Get(doorEntity).IsOpen = true
 
 		// ExecuteInteractionを実行
 		result, err := ExecuteInteraction(player, doorEntity, gc.InteractionDoor, world)
@@ -127,23 +115,13 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	// プレイヤーを作成
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.TurnBased.Add(player, &gc.TurnBased{})
-	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+	// プレイヤーを実スポーンで用意する
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
 
-	// NPCを作成
-	npcEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(npcEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-	world.Components.Interactable.Add(npcEntity, &gc.Interactable{
-		Interactions: []gc.InteractionKind{gc.InteractionTalk},
-	})
-	world.Components.Dialog.Add(npcEntity, &gc.Dialog{
-		MessageKey: "test_npc_greeting",
-	})
-	world.Components.Name.Add(npcEntity, &gc.Name{Name: "テストNPC"})
-	world.Components.FactionNeutral.Add(npcEntity, &gc.FactionNeutral{})
+	// 会話NPCを実スポーンで用意する。商人は Dialog と FactionNeutral を持つ
+	npcEntity, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "merchant")
+	require.NoError(t, err)
 
 	// ExecuteInteractionを実行
 	result, err := ExecuteInteraction(player, npcEntity, gc.InteractionTalk, world)
@@ -191,16 +169,12 @@ func TestExecuteInteraction_Melee(t *testing.T) {
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
-	// 敵を作成
-	enemyEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(enemyEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-	world.Components.Interactable.Add(enemyEntity, &gc.Interactable{
-		Interactions: []gc.InteractionKind{gc.InteractionMelee},
-	})
-	world.Components.Name.Add(enemyEntity, &gc.Name{Name: "テスト敵"})
+	// 敵を実スポーンで用意する
+	enemyEntity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+	require.NoError(t, err)
 
 	// 攻撃能力を欠くのは不変条件違反なのでシステムエラーとして伝播する
-	_, err := ExecuteInteraction(player, enemyEntity, gc.InteractionMelee, world)
+	_, err = ExecuteInteraction(player, enemyEntity, gc.InteractionMelee, world)
 
 	require.Error(t, err)
 }
