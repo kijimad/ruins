@@ -370,6 +370,24 @@ func TestDisassembleBehavior_DoTurn_敵が接近すると中断する(t *testing
 	assert.Equal(t, "disassembly interrupted because enemies are nearby", comp.CancelReason)
 }
 
+func TestDisassembleBehavior_Info(t *testing.T) {
+	t.Parallel()
+
+	db := &DisassembleBehavior{}
+	info := db.Info()
+
+	assert.Equal(t, "Disassemble", info.Name)
+	assert.True(t, info.Interruptible)
+	assert.True(t, info.Resumable)
+}
+
+func TestDisassembleBehavior_Name(t *testing.T) {
+	t.Parallel()
+
+	db := &DisassembleBehavior{}
+	assert.Equal(t, gc.BehaviorDisassemble, db.Name())
+}
+
 func TestYieldsMarkup(t *testing.T) {
 	t.Parallel()
 
