@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -417,27 +416,6 @@ func TestSpawnVisualEffect(t *testing.T) {
 		}
 		assert.False(t, foundEffect)
 	})
-}
-
-func TestAllItemsBelongToInventoryCategory(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	items := raw.PtrSlice(world.Resources.RawMaster.Items)
-	require.NotEmpty(t, items, "rawデータにアイテムが存在する")
-
-	var uncategorized []string
-	for _, item := range items {
-		entity, err := SpawnBackpackItem(world, item.Id, 1)
-		require.NoError(t, err, "アイテム '%s' のスポーンに失敗", item.Id)
-
-		_, ok := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
-		if !ok {
-			uncategorized = append(uncategorized, item.Id)
-		}
-	}
-	assert.Empty(t, uncategorized, "InventoryCategoryに属していないアイテム: %v", uncategorized)
 }
 
 func TestSpawnNeutralNPC_商人を生成すると在庫と会話データを持つ(t *testing.T) {

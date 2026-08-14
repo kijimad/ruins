@@ -22,7 +22,6 @@ type EntitySpec struct {
 	Abilities          *Abilities
 	Ammo               *Ammo
 	Stackable          *Stackable
-	Material           *Material
 	LocationInBackpack *LocationInBackpack
 	LocationEquipped   *LocationEquipped
 	LocationOnField    *LocationOnField
@@ -103,7 +102,6 @@ type Components struct {
 	Abilities          *ecs.Map[Abilities]
 	Ammo               *ecs.Map[Ammo]
 	Stackable          *ecs.Map[Stackable]
-	Material           *ecs.Map[Material]
 	LocationInBackpack *ecs.Map[LocationInBackpack]
 	LocationEquipped   *ecs.Map[LocationEquipped]
 	LocationOnField    *ecs.Map[LocationOnField]
@@ -184,7 +182,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Abilities = ecs.NewMap[Abilities](world)
 	c.Ammo = ecs.NewMap[Ammo](world)
 	c.Stackable = ecs.NewMap[Stackable](world)
-	c.Material = ecs.NewMap[Material](world)
 	c.LocationInBackpack = ecs.NewMap[LocationInBackpack](world)
 	c.LocationEquipped = ecs.NewMap[LocationEquipped](world)
 	c.LocationOnField = ecs.NewMap[LocationOnField](world)
@@ -267,7 +264,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Abilities, entity, spec.Abilities)
 	addComp(c.Ammo, entity, spec.Ammo)
 	addComp(c.Stackable, entity, spec.Stackable)
-	addComp(c.Material, entity, spec.Material)
 	addComp(c.LocationInBackpack, entity, spec.LocationInBackpack)
 	addComp(c.LocationEquipped, entity, spec.LocationEquipped)
 	addComp(c.LocationOnField, entity, spec.LocationOnField)

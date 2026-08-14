@@ -18,7 +18,6 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=1のアイテムを作成
 		item := world.ECS.NewEntity()
-		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 		world.Components.Name.Add(item, &gc.Name{Name: "テストアイテム"})
 
@@ -36,7 +35,6 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=5のStackableアイテムを作成
 		item := world.ECS.NewEntity()
-		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
@@ -57,7 +55,6 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=3のStackableアイテムを作成
 		item := world.ECS.NewEntity()
-		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
@@ -76,7 +73,6 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=2のStackableアイテムを作成
 		item := world.ECS.NewEntity()
-		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 2})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 		world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
@@ -98,7 +94,6 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=3のStackableアイテムを作成
 		item := world.ECS.NewEntity()
-		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 
@@ -135,7 +130,6 @@ func TestChangeItemCount(t *testing.T) {
 
 		// アイテムを作成
 		item := world.ECS.NewEntity()
-		world.Components.Material.Add(item, &gc.Material{})
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
 
 		// 1個消費

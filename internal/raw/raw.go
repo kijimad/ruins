@@ -334,10 +334,6 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Book = book
 	}
 
-	if item.Material != nil && *item.Material {
-		entitySpec.Material = &gc.Material{}
-	}
-
 	// 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
 	entitySpec.LightSource = toGCLightSource(item.LightSource)
 

@@ -330,8 +330,7 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 		q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 		for q.Next() {
 			entity := q.Entity()
-			cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
-			if cat != gc.CategoryWeapon {
+			if !query.IsWeapon(world, entity) {
 				continue
 			}
 			items = append(items, entity)
