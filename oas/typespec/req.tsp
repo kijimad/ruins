@@ -103,7 +103,6 @@ model Item {
   melee?: Melee;
   fire?: Fire;
   book?: Book;
-  material?: boolean;
   disassembly?: Disassembly;
   disassemblyTool?: DisassemblyTool;
   /** 携行光源。装備すると owner を照らす */

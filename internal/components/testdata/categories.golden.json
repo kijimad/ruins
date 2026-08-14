@@ -20,53 +20,5 @@
       "name": "Tile",
       "pred": "Tile"
     }
-  ],
-  "inventory": [
-    {
-      "name": "Goods",
-      "pred": "(Material OR Ammo OR Book OR Consumable)"
-    },
-    {
-      "name": "Weapon",
-      "pred": "(Melee OR Fire)"
-    },
-    {
-      "name": "Armor",
-      "pred": "Wearable"
-    }
-  ],
-  "item_type": [
-    {
-      "name": "Material",
-      "pred": "Material"
-    },
-    {
-      "name": "Ammunition",
-      "pred": "Ammo"
-    },
-    {
-      "name": "Book",
-      "pred": "Book"
-    },
-    {
-      "name": "Fixed object",
-      "pred": "Fixed"
-    },
-    {
-      "name": "Consumable",
-      "pred": "Consumable"
-    },
-    {
-      "name": "Ranged weapon",
-      "pred": "Fire"
-    },
-    {
-      "name": "Melee weapon",
-      "pred": "Melee"
-    },
-    {
-      "name": "Armor",
-      "pred": "Wearable"
-    }
   ]
 }

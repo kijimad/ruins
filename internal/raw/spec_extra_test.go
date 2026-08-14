@@ -217,24 +217,6 @@ TargetSkill = "unknown_skill"
 	assert.Contains(t, err.Error(), "undefined skill ID")
 }
 
-func TestNewItemSpec_素材が設定される(t *testing.T) {
-	t.Parallel()
-
-	str := `
-[[Items]]
-Name = "鉄"
-id = "鉄"
-Description = "頑丈な金属"
-Material = true
-`
-	raws, err := DecodeRaws(str)
-	require.NoError(t, err)
-
-	spec, err := NewItemSpec(raws, "鉄")
-	require.NoError(t, err)
-	assert.NotNil(t, spec.Material)
-}
-
 func TestNewItemSpec_不正な重量はエラー(t *testing.T) {
 	t.Parallel()
 

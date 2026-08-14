@@ -2394,8 +2394,6 @@ components:
           $ref: '#/components/schemas/Fire'
         book:
           $ref: '#/components/schemas/Book'
-        material:
-          type: boolean
         disassembly:
           $ref: '#/components/schemas/Disassembly'
         disassemblyTool:

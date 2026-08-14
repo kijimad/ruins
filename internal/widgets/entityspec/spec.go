@@ -33,9 +33,6 @@ var specTableAligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 // 種別・攻撃・防具などコンポーネントごとに数行で、存在するものだけを含む
 func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	var rows []SpecRow
-	if cat, ok := world.Components.CategoryOf(gc.ItemTypeCategoryKey, entity); ok {
-		rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: query.T(world, cat)})
-	}
 	if world.Components.Abilities.Has(entity) {
 		rows = append(rows, abilityRows(world, world.Components.Abilities.Get(entity))...)
 	}
@@ -76,9 +73,6 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 // エンティティを生成せず raw 定義から詳細を出す商店などで使う
 func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	var rows []SpecRow
-	if cat, ok := world.Components.CategoryOfSpec(gc.ItemTypeCategoryKey, &spec); ok {
-		rows = append(rows, SpecRow{Label: query.T(world, "Type"), Value: query.T(world, cat)})
-	}
 	if spec.Melee != nil {
 		rows = append(rows, attackerRows(world, spec.Melee)...)
 	}

@@ -837,7 +837,6 @@ export interface Item {
     'melee'?: Melee;
     'fire'?: Fire;
     'book'?: Book;
-    'material'?: boolean;
     'disassembly'?: Disassembly;
     'disassemblyTool'?: DisassemblyTool;
     /**

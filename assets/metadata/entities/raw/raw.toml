@@ -7249,7 +7249,6 @@ spriteKey = "weight_measure"
 spriteSheetName = "field"
 value = 50
 weight = "1 kg"
-material = true
 
 [[items]]
 description = "Sweet honey. Spread on a wound, it speeds healing."
@@ -7260,7 +7259,6 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A metal vessel for boiling water."
@@ -7270,7 +7268,6 @@ spriteKey = "kettle"
 spriteSheetName = "field"
 value = 20
 weight = "500 g"
-material = true
 
 [[items]]
 description = "A fossil shaped like seaweed, a rare specimen."
@@ -7281,7 +7278,6 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = "150 g"
-material = true
 
 [[items]]
 description = "A power core containing a trace of radioactive material."
@@ -7292,7 +7288,6 @@ spriteSheetName = "field"
 stackable = true
 value = 400
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A light metal material that is easy to work."
@@ -7303,7 +7298,6 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A rare gem shining deep green."
@@ -7314,7 +7308,6 @@ spriteSheetName = "field"
 stackable = true
 value = 2000
 weight = "30 g"
-material = true
 
 [[items]]
 description = "An omega-shaped metal part of unknown use."
@@ -7325,7 +7318,6 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = "100 g"
-material = true
 
 [[items]]
 description = "A vial holding liquid extracted from mushrooms."
@@ -7336,7 +7328,6 @@ spriteSheetName = "field"
 stackable = true
 value = 50
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A bundle of cables, useful for electrical work."
@@ -7347,7 +7338,6 @@ spriteSheetName = "field"
 stackable = true
 value = 15
 weight = "2 kg"
-material = true
 
 [[items]]
 description = "A handheld device that points the way, an aid to exploration."
@@ -7357,7 +7347,6 @@ spriteKey = "compass"
 spriteSheetName = "field"
 value = 80
 weight = "100 g"
-material = true
 
 [[items]]
 description = "A tangled bundle of cables usable as material."
@@ -7368,7 +7357,6 @@ spriteSheetName = "field"
 stackable = true
 value = 15
 weight = "200 g"
-material = true
 
 [[items]]
 description = "Fragrant coffee beans. Roasted, they become a drink."
@@ -7379,7 +7367,6 @@ spriteSheetName = "field"
 stackable = true
 value = 30
 weight = "100 g"
-material = true
 
 [[items]]
 description = "A clean towel usable as material."
@@ -7390,7 +7377,6 @@ spriteSheetName = "field"
 stackable = true
 value = 8
 weight = "150 g"
-material = true
 
 [[items]]
 description = "A small device that charges batteries."
@@ -7401,7 +7387,6 @@ spriteSheetName = "field"
 stackable = true
 value = 120
 weight = "150 g"
-material = true
 
 [[items]]
 description = "A pot for brewing tea."
@@ -7411,7 +7396,6 @@ spriteKey = "teapot"
 spriteSheetName = "field"
 value = 25
 weight = "400 g"
-material = true
 
 [[items]]
 description = "A battered stuffed bear that someone seems to have cherished."
@@ -7421,7 +7405,6 @@ spriteKey = "teddy_bear"
 spriteSheetName = "field"
 value = 15
 weight = "200 g"
-material = true
 
 [[items]]
 description = "Often found in the ruins, useful for trade."
@@ -7432,7 +7415,6 @@ spriteSheetName = "field"
 stackable = true
 value = 5
 weight = "100 g"
-material = true
 
 [[items]]
 description = "A clear, golden gem."
@@ -7443,7 +7425,6 @@ spriteSheetName = "field"
 stackable = true
 value = 1500
 weight = "30 g"
-material = true
 
 [[items]]
 description = "A small electric appliance for toasting bread."
@@ -7453,7 +7434,6 @@ spriteKey = "toaster"
 spriteSheetName = "field"
 value = 30
 weight = "1 kg"
-material = true
 
 [[items]]
 description = "A small charm shaped like a red heart."
@@ -7464,7 +7444,6 @@ spriteSheetName = "field"
 stackable = true
 value = 50
 weight = "50 g"
-material = true
 
 [[items]]
 description = "A portable umbrella for shade from the sun."
@@ -7474,7 +7453,6 @@ spriteKey = "parasol"
 spriteSheetName = "field"
 value = 40
 weight = "800 g"
-material = true
 
 [[items]]
 description = "A magnetic body made of ferrite."
@@ -7485,7 +7463,6 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = "500 g"
-material = true
 
 [[items]]
 description = "A stone that glows faintly with magnetism, used for lighting and power."
@@ -7496,7 +7473,6 @@ spriteSheetName = "field"
 stackable = true
 value = 120
 weight = "150 g"
-material = true
 
 [[items]]
 description = "A treadle-powered machine used for sewing."
@@ -7506,7 +7482,6 @@ spriteKey = "sewing_machine"
 spriteSheetName = "field"
 value = 80
 weight = "10 kg"
-material = true
 
 [[items]]
 description = "A ring-shaped energy cell."
@@ -7517,7 +7492,6 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = "50 g"
-material = true
 
 [[items]]
 description = "A red-glowing mineral, worked into costly ornaments."
@@ -7528,7 +7502,6 @@ spriteSheetName = "field"
 stackable = true
 value = 500
 weight = "50 g"
-material = true
 
 [[items]]
 description = "An old phonograph record with music on it."
@@ -7538,7 +7511,6 @@ spriteKey = "record"
 spriteSheetName = "field"
 value = 30
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A tool for cutting red-insulated wire."
@@ -7548,7 +7520,6 @@ spriteKey = "red_wire_cutter"
 spriteSheetName = "field"
 value = 25
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A mysterious staff that shines in three colors and wields several elements."
@@ -7559,7 +7530,6 @@ spriteSheetName = "field"
 stackable = true
 value = 800
 weight = "800 g"
-material = true
 
 [[items]]
 description = "A small, swappable energy cell."
@@ -7570,7 +7540,6 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = "50 g"
-material = true
 
 [[items]]
 description = "A faded photograph, a keepsake of someone's memories."
@@ -7581,7 +7550,6 @@ spriteSheetName = "field"
 stackable = true
 value = 10
 weight = "10 g"
-material = true
 
 [[items]]
 description = "A heat-resistant glass vessel for experiments, used for chemical reactions."
@@ -7592,7 +7560,6 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = "300 g"
-material = true
 
 [[items]]
 description = "An aged globe that depicts the world as it once was."
@@ -7602,7 +7569,6 @@ spriteKey = "old_earth"
 spriteSheetName = "field"
 value = 80
 weight = "2 kg"
-material = true
 
 [[items]]
 description = "A rusted brass gear crafted with exquisite skill."
@@ -7613,7 +7579,6 @@ spriteSheetName = "field"
 stackable = true
 value = 30
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A finely decorated ceramic pot, prized as an antique."
@@ -7624,7 +7589,6 @@ spriteSheetName = "field"
 stackable = true
 value = 1800
 weight = "2.5 kg"
-material = true
 
 [[items]]
 description = "An animal bone aged over long years, oddly hard yet light."
@@ -7635,7 +7599,6 @@ spriteSheetName = "field"
 stackable = true
 value = 4
 weight = "200 g"
-material = true
 
 [[items]]
 description = "Currency of a lost civilization."
@@ -7646,7 +7609,6 @@ spriteSheetName = "field"
 stackable = true
 value = 1500
 weight = "10 g"
-material = true
 
 [[items]]
 description = "A precision instrument that measures the orbits of celestial bodies."
@@ -7657,7 +7619,6 @@ spriteSheetName = "field"
 stackable = true
 value = 250
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A large rainbow-hued crystal radiating powerful magic."
@@ -7668,7 +7629,6 @@ spriteSheetName = "field"
 stackable = true
 value = 2500
 weight = "500 g"
-material = true
 
 [[items]]
 description = "A beautiful feather shining pure white."
@@ -7679,7 +7639,6 @@ spriteSheetName = "field"
 stackable = true
 value = 3200
 weight = "5 g"
-material = true
 
 [[items]]
 description = "An angular ore of cosmic origin."
@@ -7690,7 +7649,6 @@ spriteSheetName = "field"
 stackable = true
 value = 500
 weight = "100 g"
-material = true
 
 [[items]]
 description = "A sturdy glass vessel used for various experiments."
@@ -7701,7 +7659,6 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A pointed stone that can serve as a weapon when thrown."
@@ -7712,7 +7669,6 @@ spriteSheetName = "field"
 stackable = true
 value = 2
 weight = "300 g"
-material = true
 
 [[items]]
 description = "Dried grass, usable as fuel or livestock feed."
@@ -7723,7 +7679,6 @@ spriteSheetName = "field"
 stackable = true
 value = 2
 weight = "500 g"
-material = true
 
 [[items]]
 description = "A strange heart that still beats."
@@ -7734,7 +7689,6 @@ spriteSheetName = "field"
 stackable = true
 value = 500
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A small model tank, exquisitely crafted."
@@ -7744,7 +7698,6 @@ spriteKey = "light_tank"
 spriteSheetName = "field"
 value = 200
 weight = "1 kg"
-material = true
 
 [[items]]
 description = "A folding fan that stirs a cool breeze when waved."
@@ -7754,7 +7707,6 @@ spriteKey = "folding_fan"
 spriteSheetName = "field"
 value = 15
 weight = "100 g"
-material = true
 
 [[items]]
 description = "An artwork made by folding paper, small yet finely crafted."
@@ -7765,7 +7717,6 @@ spriteSheetName = "field"
 stackable = true
 value = 5
 weight = "10 g"
-material = true
 
 [[items]]
 description = "A rare crystal that grew at an angle."
@@ -7776,7 +7727,6 @@ spriteSheetName = "field"
 stackable = true
 value = 350
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A stone that glows a vivid green."
@@ -7787,7 +7737,6 @@ spriteSheetName = "field"
 stackable = true
 value = 180
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A mysterious ore fallen from the night sky."
@@ -7798,7 +7747,6 @@ spriteSheetName = "field"
 stackable = true
 value = 2000
 weight = "20 g"
-material = true
 
 [[items]]
 description = "A crystal holding the glimmer of the stars, prized as an ornament."
@@ -7809,7 +7757,6 @@ spriteSheetName = "field"
 stackable = true
 value = 2500
 weight = "50 g"
-material = true
 
 [[items]]
 description = "A special metal taken from meteorites, far harder than ordinary iron."
@@ -7820,7 +7767,6 @@ spriteSheetName = "field"
 stackable = true
 value = 400
 weight = "1.5 kg"
-material = true
 
 [[items]]
 description = "A stack of lumber that can be used as building material."
@@ -7831,7 +7777,6 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = "10 kg"
-material = true
 
 [[items]]
 description = "A soft pillow, essential for a comfortable sleep."
@@ -7841,7 +7786,6 @@ spriteKey = "pillow"
 spriteSheetName = "field"
 value = 10
 weight = "500 g"
-material = true
 
 [[items]]
 description = "A pigment for coloring cloth and leather, available in many hues."
@@ -7852,7 +7796,6 @@ spriteSheetName = "field"
 stackable = true
 value = 50
 weight = "100 g"
-material = true
 
 [[items]]
 description = "Hardened resin with a texture much like amber."
@@ -7863,7 +7806,6 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A finely made craftwork shaped from resin."
@@ -7874,7 +7816,6 @@ spriteSheetName = "field"
 stackable = true
 value = 180
 weight = "100 g"
-material = true
 
 [[items]]
 description = "A rare ore that glows orange."
@@ -7885,7 +7826,6 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = "500 g"
-material = true
 
 [[items]]
 description = "The central part at the heart of a machine."
@@ -7896,7 +7836,6 @@ spriteSheetName = "field"
 stackable = true
 value = 180
 weight = "200 g"
-material = true
 
 [[items]]
 description = "Powder ground from clear crystal, faintly giving off light."
@@ -7907,7 +7846,6 @@ spriteSheetName = "field"
 stackable = true
 value = 6
 weight = "100 g"
-material = true
 
 [[items]]
 description = "A tool for measuring level, needed for precise construction."
@@ -7917,7 +7855,6 @@ spriteKey = "spirit_level"
 spriteSheetName = "field"
 value = 35
 weight = "500 g"
-material = true
 
 [[items]]
 description = "A cold blue stone that nearly freezes your hand at a touch."
@@ -7928,7 +7865,6 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = "500 g"
-material = true
 
 [[items]]
 description = "A strange stone with a faint buoyancy."
@@ -7939,7 +7875,6 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = "50 g"
-material = true
 
 [[items]]
 description = "A cubic crystal raised from the seabed."
@@ -7950,7 +7885,6 @@ spriteSheetName = "field"
 stackable = true
 value = 600
 weight = "300 g"
-material = true
 
 [[items]]
 description = "An ore marked with a spiral pattern."
@@ -7961,7 +7895,6 @@ spriteSheetName = "field"
 stackable = true
 value = 70
 weight = "200 g"
-material = true
 
 [[items]]
 description = "The ash left after something burned away."
@@ -7972,7 +7905,6 @@ spriteSheetName = "field"
 stackable = true
 value = 1
 weight = "50 g"
-material = true
 
 [[items]]
 description = "Fur skinned from a beast, tough and water-resistant."
@@ -7983,7 +7915,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "1 kg"
-material = true
 
 [[items]]
 description = "A gem of fossilized ancient sap, with a tiny insect trapped inside."
@@ -7994,7 +7925,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "100 g"
-material = true
 
 [[items]]
 description = "A stack of plates, fragile so handle with care."
@@ -8004,7 +7934,6 @@ spriteKey = "stacked_dishs"
 spriteSheetName = "field"
 value = 10
 weight = "3 kg"
-material = true
 
 [[items]]
 description = "A common stone, of little worth but a weapon when thrown."
@@ -8015,7 +7944,6 @@ spriteSheetName = "field"
 stackable = true
 value = 1
 weight = "1 kg"
-material = true
 
 [[items]]
 description = "A stone fixture used to hold something in place."
@@ -8026,7 +7954,6 @@ spriteSheetName = "field"
 stackable = true
 value = 15
 weight = "2 kg"
-material = true
 
 [[items]]
 description = "A stone slab carved with ancient script."
@@ -8037,7 +7964,6 @@ spriteSheetName = "field"
 stackable = true
 value = 40
 weight = "800 g"
-material = true
 
 [[items]]
 description = "Black glossy coal, usable as fuel."
@@ -8048,7 +7974,6 @@ spriteSheetName = "field"
 stackable = true
 value = 10
 weight = "1 kg"
-material = true
 
 [[items]]
 description = "A jar packed with fine sand, a material for clocks."
@@ -8059,7 +7984,6 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = "300 g"
-material = true
 
 [[items]]
 description = "Heavy, sturdy lumber, excellent as a building material."
@@ -8070,7 +7994,6 @@ spriteSheetName = "field"
 stackable = true
 value = 30
 weight = "3 kg"
-material = true
 
 [[items]]
 description = "An energy core of plant origin."
@@ -8081,7 +8004,6 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = "100 g"
-material = true
 
 [[items]]
 description = "The skull of a huge dragon, highly prized as a decoration."
@@ -8092,7 +8014,6 @@ spriteSheetName = "field"
 stackable = true
 value = 5000
 weight = "2 kg"
-material = true
 
 [[items]]
 description = "An unpolished raw stone of brown crystal."
@@ -8103,7 +8024,6 @@ spriteSheetName = "field"
 stackable = true
 value = 120
 weight = "500 g"
-material = true
 
 [[items]]
 description = "Moist clay, used as raw material for pottery."
@@ -8114,7 +8034,6 @@ spriteSheetName = "field"
 stackable = true
 value = 3
 weight = "1 kg"
-material = true
 
 [[items]]
 description = "A clear, beautiful crystal that amplifies magic."
@@ -8125,7 +8044,6 @@ spriteSheetName = "field"
 stackable = true
 value = 600
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A gem shining in a noble purple hue."
@@ -8136,7 +8054,6 @@ spriteSheetName = "field"
 stackable = true
 value = 1200
 weight = "30 g"
-material = true
 
 [[items]]
 description = "An energy core glowing purple."
@@ -8147,7 +8064,6 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = "150 g"
-material = true
 
 [[items]]
 description = "A star-shaped ore shining purple."
@@ -8158,7 +8074,6 @@ spriteSheetName = "field"
 stackable = true
 value = 350
 weight = "50 g"
-material = true
 
 [[items]]
 description = "A beautiful purple crystal."
@@ -8169,7 +8084,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "400 g"
-material = true
 
 [[items]]
 description = "A deep purple ore said to be a source of magic."
@@ -8180,7 +8094,6 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A small stone of pale green color."
@@ -8191,7 +8104,6 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A green crystal formed in a lattice shape."
@@ -8202,7 +8114,6 @@ spriteSheetName = "field"
 stackable = true
 value = 50
 weight = "150 g"
-material = true
 
 [[items]]
 description = "A crystal green like a forest."
@@ -8213,7 +8124,6 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A raw stone containing green crystal."
@@ -8224,7 +8134,6 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = "400 g"
-material = true
 
 [[items]]
 description = "A soft bird feather, used as a crafting material."
@@ -8235,7 +8144,6 @@ spriteSheetName = "field"
 stackable = true
 value = 5
 weight = "10 g"
-material = true
 
 [[items]]
 description = "A sealed jar filled with mushroom spores."
@@ -8246,7 +8154,6 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = "200 g"
-material = true
 
 [[items]]
 description = "Clear and beautiful amber, well suited for ornaments."
@@ -8257,7 +8164,6 @@ spriteSheetName = "field"
 stackable = true
 value = 800
 weight = "50 g"
-material = true
 
 [[items]]
 description = "An old stone covered in moss, imbued with magic."
@@ -8268,7 +8174,6 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = "400 g"
-material = true
 
 [[items]]
 description = "A smoky brown crystal, also known as smoky quartz."
@@ -8279,7 +8184,6 @@ spriteSheetName = "field"
 stackable = true
 value = 250
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A rusted brown gear. It still looks usable."
@@ -8290,7 +8194,6 @@ spriteSheetName = "field"
 stackable = true
 value = 40
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A medicine bottle filled with a brown liquid."
@@ -8301,7 +8204,6 @@ spriteSheetName = "field"
 stackable = true
 value = 30
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A bottle of purified, perfectly clean water."
@@ -8312,7 +8214,6 @@ spriteSheetName = "field"
 stackable = true
 value = 15
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A mysterious stone of deep indigo."
@@ -8323,7 +8224,6 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A jet-black stone that harbors the energy of nothingness."
@@ -8334,7 +8234,6 @@ spriteSheetName = "field"
 stackable = true
 value = 500
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A beautiful crystal that shines in seven colors."
@@ -8345,7 +8244,6 @@ spriteSheetName = "field"
 stackable = true
 value = 800
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A mysterious stone that shifts to rainbow hues with the angle of light."
@@ -8356,7 +8254,6 @@ spriteSheetName = "field"
 stackable = true
 value = 400
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A dangerous jar of snake venom. It can be applied to a weapon."
@@ -8367,7 +8264,6 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A stone marked with snakelike patterns, believed to have an antidote effect."
@@ -8378,7 +8274,6 @@ spriteSheetName = "field"
 stackable = true
 value = 120
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A vial sealing someone's blood. It feels ominous."
@@ -8389,7 +8284,6 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A gem of especially beautiful brilliance, traded at high prices."
@@ -8400,7 +8294,6 @@ spriteSheetName = "field"
 stackable = true
 value = 3000
 weight = "30 g"
-material = true
 
 [[items]]
 description = "A crimson-stained liquid. It seems to be someone's blood."
@@ -8411,7 +8304,6 @@ spriteSheetName = "field"
 stackable = true
 value = 5
 weight = "200 g"
-material = true
 
 [[items]]
 description = "An ore dyed deep crimson. It is warm to the touch."
@@ -8422,7 +8314,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "800 g"
-material = true
 
 [[items]]
 description = "A withering houseplant. A little green still remains."
@@ -8432,7 +8323,6 @@ spriteKey = "houseplants"
 spriteSheetName = "field"
 value = 15
 weight = "2 kg"
-material = true
 
 [[items]]
 description = "A glass tube for experiments, handy for handling small amounts of liquid."
@@ -8443,7 +8333,6 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = "50 g"
-material = true
 
 [[items]]
 description = "A small bottle holding extract drawn from beans."
@@ -8454,7 +8343,6 @@ spriteSheetName = "field"
 stackable = true
 value = 40
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A stone of a blood-like red hue, warm to the touch."
@@ -8465,7 +8353,6 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A gear set with a red stone, driven by magic."
@@ -8476,7 +8363,6 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A mineral found in volcanic rock, dark green in color."
@@ -8487,7 +8373,6 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A precise gear made of pure gold, exceedingly valuable."
@@ -8498,7 +8383,6 @@ spriteSheetName = "field"
 stackable = true
 value = 1000
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A metal easy to work, forming the core of industry."
@@ -8509,7 +8393,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "2 kg"
-material = true
 
 [[items]]
 description = "A lump of metal rich in iron."
@@ -8520,7 +8403,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "1 kg"
-material = true
 
 [[items]]
 description = "Raw iron ore that becomes iron once smelted."
@@ -8531,7 +8413,6 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = "3 kg"
-material = true
 
 [[items]]
 description = "A faintly glowing sliver of silver, said to ward off the unclean."
@@ -8542,7 +8423,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A piece of old chain that once held something bound."
@@ -8553,7 +8433,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "1.2 kg"
-material = true
 
 [[items]]
 description = "A rare ore mined from a fallen meteorite."
@@ -8564,7 +8443,6 @@ spriteSheetName = "field"
 stackable = true
 value = 800
 weight = "2 kg"
-material = true
 
 [[items]]
 description = "A stone born of a lightning strike, faintly charged with electricity."
@@ -8575,7 +8453,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "600 g"
-material = true
 
 [[items]]
 description = "A copper-colored wire with excellent conductivity."
@@ -8586,7 +8463,6 @@ spriteSheetName = "field"
 stackable = true
 value = 8
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A strange substance like crystallized mist, cold to the touch."
@@ -8597,7 +8473,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A clear blue crystal that radiates a chill."
@@ -8608,7 +8483,6 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A raw stone embedded with blue crystal."
@@ -8619,7 +8493,6 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = "400 g"
-material = true
 
 [[items]]
 description = "An eerie gear fashioned from bone."
@@ -8630,7 +8503,6 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A springy yellow sphere. Its use is unknown."
@@ -8641,7 +8513,6 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = "100 g"
-material = true
 
 [[items]]
 description = "An electrical wire with yellow insulation."
@@ -8652,7 +8523,6 @@ spriteSheetName = "field"
 stackable = true
 value = 8
 weight = "300 g"
-material = true
 
 [[items]]
 description = "A blackly glowing power core with high output."
@@ -8663,7 +8533,6 @@ spriteSheetName = "field"
 stackable = true
 value = 450
 weight = "200 g"
-material = true
 
 [[items]]
 description = "Volcanic glass with a jet-black sheen, well suited to making sharp blades."
@@ -8674,7 +8543,6 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = "500 g"
-material = true
 
 [[items]]
 description = "A jet-black pearl from the deep sea, exceedingly rare."
@@ -8685,7 +8553,6 @@ spriteSheetName = "field"
 stackable = true
 value = 3500
 weight = "20 g"
-material = true
 
 [[items]]
 description = "A dangerous powder used as the raw material for explosives."
@@ -8696,7 +8563,6 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = "200 g"
-material = true
 
 [[recipes]]
 name = "レイガン"
@@ -12270,7 +12136,6 @@ spriteKey = "old_book"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
-material = true
 
 [[items]]
 description = "Graffiti peeled from a wall. \"Water at the southern supply point. Don't move at night.\" Written in a child's hand."
@@ -12280,7 +12145,6 @@ spriteKey = "photo"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
-material = true
 
 [[items]]
 description = "A faded receipt. Two cup noodles, four bottles of water, packing tape. Dated three days before the disaster."
@@ -12290,7 +12154,6 @@ spriteKey = "old_book"
 spriteSheetName = "field"
 value = 0
 weight = "5 g"
-material = true
 
 [[items]]
 description = "\"No one came again today. Five days of supplies left.\" The rest is torn away and unreadable."
@@ -12300,7 +12163,6 @@ spriteKey = "diary"
 spriteSheetName = "field"
 value = 3
 weight = "10 g"
-material = true
 
 [[items]]
 description = "\"Heading north ahead of you. If you survive, meet at Grandma's house. —Dad.\" Four pushpin marks remain."
@@ -12310,7 +12172,6 @@ spriteKey = "photo"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
-material = true
 
 [[items]]
 description = "\"Demolition workers urgently wanted, daily pay negotiable.\" The phone number is blacked out."
@@ -12320,7 +12181,6 @@ spriteKey = "old_book"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
-material = true
 
 [[items]]
 description = "\"Road closed ahead due to collapse. —City.\" It was tied to a rusted barricade."
@@ -12330,7 +12190,6 @@ spriteKey = "old_book"
 spriteSheetName = "field"
 value = 0
 weight = "20 g"
-material = true
 
 [[items]]
 description = "A note in the corner. \"Don't trust him. Hide your supplies yourself.\" Pressed hard into the page."
@@ -12340,7 +12199,6 @@ spriteKey = "diary"
 spriteSheetName = "field"
 value = 0
 weight = "10 g"
-material = true
 
 [[itemGroups]]
 name = "紙片"
@@ -16269,7 +16127,6 @@ spriteSheetName = "field"
 stackable = true
 value = 50
 weight = "300 g"
-material = true
 
 [items.disassembly]
 toolCategory = "precision"
@@ -16298,7 +16155,6 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = "150 g"
-material = true
 
 [[items]]
 description = "A glowing blue octahedral crystal whose sharp faces reflect the light."
@@ -16309,7 +16165,6 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A sphere that glows with rainbow light across its surface."
@@ -16320,7 +16175,6 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = "200 g"
-material = true
 
 [[items]]
 description = "A statue shaped as an angel with its white wings spread wide."
@@ -16331,7 +16185,6 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = "500 g"
-material = true
 
 [[props]]
 blockPass = true

@@ -8,6 +8,11 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// IsWeapon はエンティティが武器かを返す。近接または射撃のいずれかを持てば武器とみなす。
+func IsWeapon(world w.World, entity ecs.Entity) bool {
+	return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
+}
+
 // GetWeapons は武器一覧を取得する（スロット1〜5）
 // 必ず長さ5のスライスを返す
 func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
@@ -16,8 +21,7 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 	weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()
 	for weaponsQuery.Next() {
 		entity := weaponsQuery.Entity()
-		cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
-		if cat != gc.CategoryWeapon {
+		if !IsWeapon(world, entity) {
 			continue
 		}
 		equipped := world.Components.LocationEquipped.Get(entity)
