@@ -119,7 +119,7 @@ func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRes
 
 func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 	if !world.Components.GridElement.Has(actor) {
-		return nil, fmt.Errorf("position not found")
+		return nil, ErrPositionNotFound
 	}
 	gridElement := world.Components.GridElement.Get(actor)
 	return Execute(NewPickupTileActivity(world, gridElement.Coord), actor, world)
