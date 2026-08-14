@@ -4,7 +4,7 @@ import "github.com/kijimaD/ruins/internal/consts"
 
 // Perishable は腐敗する食料が持つ。生成時刻と保存期間から鮮度を遅延評価する。
 // 気温非依存の固定速度で、保存する値は consts.Turn だけなので serde 安全。
-// SpawnedAtTurn は生成時に必ず刻印される前提。撤去は行わないため Expired 相当の判定は持たない
+// SpawnedAtTurn は生成時に必ず刻印される前提
 type Perishable struct {
 	SpawnedAtTurn consts.Turn // 生成時の GameTime.TotalTurns
 	ShelfLife     consts.Turn // 新鮮でいられるターン数。これを基準に段階が決まる
