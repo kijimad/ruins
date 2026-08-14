@@ -1482,8 +1482,8 @@ msgstr "%s は %s を %s に渡した。"
 msgid "%s ate %s"
 msgstr "%s は %s を食べた。"
 
-msgid "%s ate spoiled %s and felt sick."
-msgstr "%s は傷んだ %s を食べて気分が悪くなった。"
+msgid "%s ate spoiled %s."
+msgstr "%s は傷んだ %s を食べた。"
 
 msgid "Freshness"
 msgstr "鮮度"

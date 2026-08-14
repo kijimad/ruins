@@ -324,9 +324,9 @@ func TestUseItemBehavior_applyNutrition_鮮度で栄養が変わる(t *testing.T
 		startHunger int
 		wantHunger  int
 	}{
-		{"新鮮は満額", 0, 250, 280},          // +30
-		{"劣化は半減", 1500, 250, 265},       // +15
-		{"腐敗は満腹が下がる不調", 3000, 250, 230}, // -20
+		{"新鮮は満額", 0, 250, 280},       // +30
+		{"劣化は半減", 1500, 250, 265},    // +15
+		{"腐敗は3割の栄養", 3000, 250, 259}, // +9
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
