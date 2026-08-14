@@ -209,6 +209,27 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
+		case gc.InteractionApplyListingTag:
+			// 未出品で、かつ出品タグを持っているときだけ貼れる
+			if !world.Components.AuctionListing.Has(interactableEntity) && query.PlayerHoldsListingTag(world) {
+				result = append(result, InteractionAction{
+					Label:       query.T(world, "Apply listing tag (%s)", query.FormatItemName(world, interactableEntity)),
+					Target:      interactableEntity,
+					Interaction: interaction,
+				})
+			}
+		case gc.InteractionDispenseListingTag:
+			result = append(result, InteractionAction{
+				Label:       query.T(world, "Issue listing tag"),
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
+		case gc.InteractionShip:
+			result = append(result, InteractionAction{
+				Label:       query.T(world, "Place item in portal to ship"),
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
 		case gc.InteractionItemAll:
 			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
 			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する

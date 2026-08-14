@@ -5536,3 +5536,54 @@ msgstr "リロードは必要ない"
 
 msgid "no ammo"
 msgstr "弾薬がない"
+
+msgid "Mail-order demo. The tag dispenser and the shipping portal stand to the east. Issue a listing tag, apply it to an item, walk to run its auction, then ship at the portal."
+msgstr "通信販売デモ。東に発券機と発送ポータルが並ぶ。出品タグを発行して品に貼り、歩いて入札を進め、ポータルで発送する"
+
+msgid "L-%d %s: %d steps until it is won."
+msgstr "L-%d %s 落札まで残り %d 歩"
+
+msgid "L-%d %s was won at bid %d. Pick it up and place it in the portal to ship."
+msgstr "L-%d %s が落札額 %d で落札。拾ってポータルに置くと発送する"
+
+msgid "L-%d %s did not sell. It stays as stock. Apply a new tag to re-list it."
+msgstr "L-%d %s は落札されなかった。在庫として残る。再出品するには新しいタグを貼る"
+
+msgid "Issued a listing tag. Apply it to an item to start its auction."
+msgstr "出品タグを発行した。品に貼ると入札が始まる"
+
+msgid "%s is already listed."
+msgstr "%s はすでに出品中"
+
+msgid "No listing tag in hand. Issue one at the dispenser."
+msgstr "出品タグを持っていない。発券機で発行する"
+
+msgid "Applied a listing tag to %s. Its auction started as %s."
+msgstr "%s に出品タグを貼った。%s として入札が始まった"
+
+msgid "No won item to place. Carry a won item here."
+msgstr "置ける落札品がない。落札した品を持ってくる"
+
+msgid "Shipped %s %s. net %d, bid %d, ship %d, fee %d"
+msgstr "%s %s を発送した。手取り %d、落札 %d、送料 %d、手数料 %d"
+
+msgid "Shipped %s %s at a LOSS. net %d, bid %d, ship %d, fee %d"
+msgstr "%s %s を発送したが赤字。手取り %d、落札 %d、送料 %d、手数料 %d"
+
+msgid "Apply listing tag (%s)"
+msgstr "出品タグを貼る: %s"
+
+msgid "Issue listing tag"
+msgstr "出品タグを発行する"
+
+msgid "Place item in portal to ship"
+msgstr "品をポータルに置いて発送する"
+
+msgid "There is a shipping portal. Carry a won item here and press Enter to ship."
+msgstr "発送ポータルがある。落札品を持ってきて Enter で発送する"
+
+msgid "There is a tag dispenser. Press Enter to issue a listing tag."
+msgstr "発券機がある。Enter で出品タグを発行する"
+
+msgid "%s can be tagged. Press Enter to apply a listing tag."
+msgstr "%s に出品タグを貼れる。Enter で貼る"

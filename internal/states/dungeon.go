@@ -229,6 +229,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.StatsChangedSystem{},
 		&gs.WeightDirtySystem{},
 		&gs.VisualEffectSystem{},
+		&gs.AuctionDemoSystem{},
 	); err != nil {
 		return es.Transition[w.World]{}, err
 	}

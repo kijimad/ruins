@@ -102,4 +102,9 @@ var Registry = []Def{
 	{Field: "GameTime"},        // ゲーム内時間を保持するシングルトン
 	{Field: "VisionState"},     // 視界計算の一時状態を保持するシングルトン
 	{Field: "UserSettings"},    // 設定画面で変更するグローバル設定を保持するシングルトン
+
+	// demo ================
+	{Field: "AuctionListing"}, // 通信販売デモで出品中の品の落札状態を保持する
+	{Field: "AuctionTag"},     // 通信販売デモの持ち物タグ。出品タグと発送タグを表す
+	{Field: "AuctionClock"},   // 通信販売デモの進行状態のシングルトン
 }
