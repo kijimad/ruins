@@ -337,8 +337,7 @@ func TestExecuteInteraction_ItemAll_座標がないとエラー(t *testing.T) {
 
 	_, err := ExecuteInteraction(player, triggerEntity, gc.InteractionItemAll, world)
 
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "position not found")
+	require.ErrorIs(t, err, ErrPositionNotFound)
 }
 
 // TestExecuteInteraction_ItemAll_同じタイルのアイテムを拾う は同一タイル上のアイテムが
