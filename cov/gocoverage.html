@@ -349,7 +349,7 @@
 				
 				<option value="file146">github.com/kijimaD/ruins/internal/mapplanner/plan.go (82.9%)</option>
 				
-				<option value="file147">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (78.4%)</option>
+				<option value="file147">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (75.7%)</option>
 				
 				<option value="file148">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -20998,7 +20998,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;
                                 planData.isInAnyRoom(x, y) &amp;&amp;
-                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov8" title="1">{
+                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov0" title="0">{
                                 return x, y, true
                         }</span>
                 }
