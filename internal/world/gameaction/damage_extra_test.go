@@ -3,9 +3,11 @@ package gameaction
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestApplyDamage_プレイヤーが関与しない場合でもpanicせず死亡処理は行われる は
@@ -14,18 +16,22 @@ func TestApplyDamage_プレイヤーが関与しない場合でもpanicせず死
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	source := world.ECS.NewEntity()
-	world.Components.Name.Add(source, &gc.Name{Name: "コウモリA"})
+	// 攻撃側と被弾側をどちらも実スポーンの敵にする。プレイヤーは一切関与しない
+	source, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 3, Y: 3}, "bat")
+	require.NoError(t, err)
 
-	target := world.ECS.NewEntity()
-	world.Components.Name.Add(target, &gc.Name{Name: "コウモリB"})
-	world.Components.HP.Add(target, &gc.HP{Max: 10, Current: 5})
+	target, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 4, Y: 4}, "bat")
+	require.NoError(t, err)
+
+	// 一撃で倒せるよう被弾側のHPを低く設定する
+	hp := world.Components.HP.Get(target)
+	hp.Max = 10
+	hp.Current = 5
 
 	assert.NotPanics(t, func() {
 		ApplyDamage(world, target, 10, source)
 	})
 
-	hp := world.Components.HP.Get(target)
-	assert.Equal(t, 0, hp.Current)
+	assert.Equal(t, 0, world.Components.HP.Get(target).Current)
 	assert.True(t, world.Components.Dead.Has(target), "プレイヤーが関与しなくても死亡処理自体は行われる")
 }
