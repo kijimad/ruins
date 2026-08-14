@@ -55,27 +55,27 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (86.8%)</option>
+				<option value="file0">github.com/kijimaD/ruins/internal/activity/activity.go (88.2%)</option>
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
 				
-				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
+				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (83.6%)</option>
 				
 				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (77.3%)</option>
 				
-				<option value="file5">github.com/kijimaD/ruins/internal/activity/drop.go (68.4%)</option>
+				<option value="file5">github.com/kijimaD/ruins/internal/activity/drop.go (76.3%)</option>
 				
-				<option value="file6">github.com/kijimaD/ruins/internal/activity/errors.go (0.0%)</option>
+				<option value="file6">github.com/kijimaD/ruins/internal/activity/errors.go (100.0%)</option>
 				
-				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (58.5%)</option>
+				<option value="file7">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (77.4%)</option>
 				
 				<option value="file8">github.com/kijimaD/ruins/internal/activity/move.go (84.3%)</option>
 				
 				<option value="file9">github.com/kijimaD/ruins/internal/activity/pathfind.go (93.3%)</option>
 				
-				<option value="file10">github.com/kijimaD/ruins/internal/activity/pickup.go (75.9%)</option>
+				<option value="file10">github.com/kijimaD/ruins/internal/activity/pickup.go (83.3%)</option>
 				
 				<option value="file11">github.com/kijimaD/ruins/internal/activity/player_actions.go (81.9%)</option>
 				
@@ -91,7 +91,7 @@
 				
 				<option value="file17">github.com/kijimaD/ruins/internal/activity/talk.go (81.6%)</option>
 				
-				<option value="file18">github.com/kijimaD/ruins/internal/activity/use_item.go (51.7%)</option>
+				<option value="file18">github.com/kijimaD/ruins/internal/activity/use_item.go (70.1%)</option>
 				
 				<option value="file19">github.com/kijimaD/ruins/internal/activity/wait.go (96.0%)</option>
 				
@@ -748,7 +748,7 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) <span class="cov8" titl
                 return &amp;ShootBehavior{}, nil</span>
         case gc.BehaviorReload:<span class="cov8" title="1">
                 return &amp;ReloadBehavior{}, nil</span>
-        case gc.BehaviorDisassemble:<span class="cov0" title="0">
+        case gc.BehaviorDisassemble:<span class="cov8" title="1">
                 return &amp;DisassembleBehavior{}, nil</span>
         case gc.BehaviorPush:<span class="cov8" title="1">
                 return &amp;PushBehavior{}, nil</span>
@@ -1570,7 +1570,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1778,7 +1778,7 @@ import (
 type DisassembleBehavior struct{}
 
 // Info はBehaviorの実装
-func (db *DisassembleBehavior) Info() Info <span class="cov0" title="0">{
+func (db *DisassembleBehavior) Info() Info <span class="cov8" title="1">{
         return Info{
                 Name:            "Disassemble",
                 Description:     "Disassemble a target with a tool to obtain materials",
@@ -1789,7 +1789,7 @@ func (db *DisassembleBehavior) Info() Info <span class="cov0" title="0">{
 }</span>
 
 // Name はBehaviorの実装
-func (db *DisassembleBehavior) Name() gc.BehaviorName <span class="cov0" title="0">{
+func (db *DisassembleBehavior) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorDisassemble
 }</span>
 
@@ -2343,7 +2343,7 @@ func (db *DropBehavior) Name() gc.BehaviorName <span class="cov8" title="1">{
 }</span>
 
 // NewDropActivity は対象アイテムと落とす先を指定してドロップアクティビティを組む。
-func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity <span class="cov0" title="0">{
+func NewDropActivity(target ecs.Entity, destination gc.GridElement) *gc.Activity <span class="cov8" title="1">{
         comp := NewActivity(gc.BehaviorDrop, 0)
         comp.Params = &amp;gc.PlaceParams{Target: target, Destination: destination}
         return comp
@@ -2438,7 +2438,7 @@ import "errors"
 type UserError struct{ Msg string }
 
 // Error は error インターフェースを満たす
-func (e *UserError) Error() string <span class="cov0" title="0">{ return e.Msg }</span>
+func (e *UserError) Error() string <span class="cov8" title="1">{ return e.Msg }</span>
 
 // アクティビティ関連のエラー定数
 var (
@@ -2536,13 +2536,13 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
                 return executeTalk(actor, target, world)</span>
         case gc.InteractionItem:<span class="cov8" title="1">
                 return executeItem(actor, target, world)</span>
-        case gc.InteractionItemAll:<span class="cov0" title="0">
+        case gc.InteractionItemAll:<span class="cov8" title="1">
                 return executeItemAll(actor, world)</span>
-        case gc.InteractionStorage:<span class="cov0" title="0">
+        case gc.InteractionStorage:<span class="cov8" title="1">
                 return executeStorage(target, world)</span>
         case gc.InteractionMelee:<span class="cov8" title="1">
                 return executeMelee(actor, target, world)</span>
-        case gc.InteractionDisassemble:<span class="cov0" title="0">
+        case gc.InteractionDisassemble:<span class="cov8" title="1">
                 return executeDisassemble(actor, target, world)</span>
         case gc.InteractionEnterCube:<span class="cov0" title="0">
                 // 入る対象のキューブ本体を載せて運ぶ。退場時の戻り先解決に使う
@@ -2618,19 +2618,19 @@ func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRes
         return Execute(NewPickupActivity(target), actor, world)
 }</span>
 
-func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) <span class="cov0" title="0">{
-        if !world.Components.GridElement.Has(actor) </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("position not found")
+func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
+        if !world.Components.GridElement.Has(actor) </span><span class="cov8" title="1">{
+                return nil, ErrPositionNotFound
         }</span>
-        <span class="cov0" title="0">gridElement := world.Components.GridElement.Get(actor)
+        <span class="cov8" title="1">gridElement := world.Components.GridElement.Get(actor)
         return Execute(NewPickupTileActivity(world, gridElement.Coord), actor, world)</span>
 }
 
-func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) <span class="cov0" title="0">{
+func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
         if err := lifecycle.RequestStateChange(world, gc.OpenStorageEvent(storageEntity)); err != nil </span><span class="cov0" title="0">{
                 return nil, fmt.Errorf("storage menu state change request error: %w", err)
         }</span>
-        <span class="cov0" title="0">return &amp;ActionResult{Success: true, ActivityName: gc.BehaviorStorage, Message: "opened storage"}, nil</span>
+        <span class="cov8" title="1">return &amp;ActionResult{Success: true, ActivityName: gc.BehaviorStorage, Message: "opened storage"}, nil</span>
 }
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
@@ -2639,7 +2639,7 @@ func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRe
 
 // executeDisassemble は分解アクティビティを組んで実行する。工具不足や定義なしなどの
 // 可否判定は Validate が担い、理由を gamelog へ出して no-op にする。
-func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) <span class="cov0" title="0">{
+func executeDisassemble(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
         return Execute(NewDisassembleActivity(target, actor, world), actor, world)
 }</span>
 </pre>
@@ -3037,7 +3037,7 @@ func (pb *PickupBehavior) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 }
 
 // Start はアイテム拾得開始時の処理を実行する
-func (pb *PickupBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov0" title="0">{
+func (pb *PickupBehavior) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov8" title="1">{
         log.Debug("item pickup started", "actor", actor)
         return nil
 }</span>
@@ -3057,7 +3057,7 @@ func (pb *PickupBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 }
 
 // Finish はアイテム拾得完了時の処理を実行する
-func (pb *PickupBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov0" title="0">{
+func (pb *PickupBehavior) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error <span class="cov8" title="1">{
         log.Debug("item pickup activity finished", "actor", actor)
         return nil
 }</span>
@@ -4629,12 +4629,12 @@ func (u *UseItemBehavior) Info() Info <span class="cov8" title="1">{
 }</span>
 
 // Name はBehaviorの実装
-func (u *UseItemBehavior) Name() gc.BehaviorName <span class="cov0" title="0">{
+func (u *UseItemBehavior) Name() gc.BehaviorName <span class="cov8" title="1">{
         return gc.BehaviorUseItem
 }</span>
 
 // NewUseItemActivity は使用アイテムを指定してアイテム使用アクティビティを組む。
-func NewUseItemActivity(target ecs.Entity) *gc.Activity <span class="cov0" title="0">{
+func NewUseItemActivity(target ecs.Entity) *gc.Activity <span class="cov8" title="1">{
         comp := NewActivity(gc.BehaviorUseItem, 0)
         comp.Params = &amp;gc.UseItemParams{Target: target}
         return comp
@@ -4733,21 +4733,21 @@ func (u *UseItemBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 }</span>
 
 // applyHealing は回復処理を適用する
-func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error <span class="cov0" title="0">{
+func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, healing *gc.ProvidesHealing, item ecs.Entity) error <span class="cov8" title="1">{
         // 最大HPを基準に実際の回復量を計算する（絶対量指定の場合は基準値は無視される）
         hp := world.Components.HP.Get(actor)
         amount := healing.Calc(hp.Max)
 
         // 回復効果倍率を適用する
-        if world.Components.CharModifiers.Has(actor) </span><span class="cov0" title="0">{
+        if world.Components.CharModifiers.Has(actor) </span><span class="cov8" title="1">{
                 mods := world.Components.CharModifiers.Get(actor)
                 amount = mods.HealingEffect.ApplyInt(amount)
         }</span>
-        <span class="cov0" title="0">if amount &lt; 1 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if amount &lt; 1 </span><span class="cov8" title="1">{
                 amount = 1
         }</span>
 
-        <span class="cov0" title="0">actualHealing := gameaction.ApplyHealing(world, actor, amount)
+        <span class="cov8" title="1">actualHealing := gameaction.ApplyHealing(world, actor, amount)
 
         u.logItemUse(actor, world, item, actualHealing, true)
 
@@ -4773,9 +4773,9 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 }
 
 // logItemUse はアイテム使用のログを出力する
-func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) <span class="cov0" title="0">{
+func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) <span class="cov8" title="1">{
         // プレイヤーが関わる場合のみログ出力
-        if !world.Components.Player.Has(actor) </span><span class="cov0" title="0">{
+        if !world.Components.Player.Has(actor) </span><span class="cov8" title="1">{
                 return
         }</span>
 
