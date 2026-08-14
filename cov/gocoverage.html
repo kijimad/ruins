@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (82.1%)</option>
 				
@@ -349,7 +349,7 @@
 				
 				<option value="file146">github.com/kijimaD/ruins/internal/mapplanner/plan.go (82.9%)</option>
 				
-				<option value="file147">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (75.7%)</option>
+				<option value="file147">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (78.4%)</option>
 				
 				<option value="file148">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -379,7 +379,7 @@
 				
 				<option value="file161">github.com/kijimaD/ruins/internal/menuloop/input.go (50.0%)</option>
 				
-				<option value="file162">github.com/kijimaD/ruins/internal/menuloop/screen.go (45.5%)</option>
+				<option value="file162">github.com/kijimaD/ruins/internal/menuloop/screen.go (96.4%)</option>
 				
 				<option value="file163">github.com/kijimaD/ruins/internal/messagedata/dialogues.go (100.0%)</option>
 				
@@ -1660,7 +1660,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1733,8 +1733,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
-        case critical:<span class="cov0" title="0">
-                if withMethod </span><span class="cov0" title="0">{
+        case critical:<span class="cov8" title="1">
+                if withMethod </span><span class="cov8" title="1">{
                         logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
@@ -21092,7 +21092,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;
                                 planData.isInAnyRoom(x, y) &amp;&amp;
-                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov0" title="0">{
+                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov8" title="1">{
                                 return x, y, true
                         }</span>
                 }
@@ -23400,12 +23400,12 @@ func NewScreen[P any](model Model[P], overlays ...overlay.Layer) *Screen[P] <spa
 }</span>
 
 // Props は現在の props を返す。View 以外から現在値を参照する必要があるとき使う
-func (s *Screen[P]) Props() P <span class="cov0" title="0">{ return s.mount.GetProps() }</span>
+func (s *Screen[P]) Props() P <span class="cov8" title="1">{ return s.mount.GetProps() }</span>
 
 // activeOverlay は登録順で最初の Active な overlay を返す。無ければ nil
 func (s *Screen[P]) activeOverlay() overlay.Layer <span class="cov8" title="1">{
-        for _, ov := range s.overlays </span><span class="cov0" title="0">{
-                if ov.Active() </span><span class="cov0" title="0">{
+        for _, ov := range s.overlays </span><span class="cov8" title="1">{
+                if ov.Active() </span><span class="cov8" title="1">{
                         return ov
                 }</span>
         }
@@ -23415,8 +23415,8 @@ func (s *Screen[P]) activeOverlay() overlay.Layer <span class="cov8" title="1">{
 // readAction は1フレームの入力を Action に変換する。ExtraInput を持つ state はそれを先に試し、
 // 拾わなければ共通の HandleMenuInput にフォールバックする。1フレーム1アクションで ExtraInput が優先する
 func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) <span class="cov8" title="1">{
-        if h, ok := s.model.(ExtraInput); ok </span><span class="cov0" title="0">{
-                if action, ok := h.ExtraInput(); ok </span><span class="cov0" title="0">{
+        if h, ok := s.model.(ExtraInput); ok </span><span class="cov8" title="1">{
+                if action, ok := h.ExtraInput(); ok </span><span class="cov8" title="1">{
                         return action, true
                 }</span>
         }
@@ -23431,14 +23431,14 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) <span 
         // 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を DoAction へ流す。
         // overlay が絡んだフレームは内容が入力で変わりうるので後段で必ず dirty にする
         ovBefore := s.activeOverlay()
-        if ovBefore != nil </span><span class="cov0" title="0">{
-                if err := ovBefore.HandleInput(world); err != nil </span><span class="cov0" title="0">{
+        if ovBefore != nil </span><span class="cov8" title="1">{
+                if err := ovBefore.HandleInput(world); err != nil </span><span class="cov8" title="1">{
                         return es.Transition[w.World]{}, err
                 }</span>
-        } else<span class="cov8" title="1"> if action, ok := s.readAction(); ok </span><span class="cov0" title="0">{
-                if tr, err := m.DoAction(world, action); err != nil </span><span class="cov0" title="0">{
+        } else<span class="cov8" title="1"> if action, ok := s.readAction(); ok </span><span class="cov8" title="1">{
+                if tr, err := m.DoAction(world, action); err != nil </span><span class="cov8" title="1">{
                         return es.Transition[w.World]{}, err
-                }</span> else<span class="cov0" title="0"> if tr.Type != es.TransNone </span><span class="cov0" title="0">{
+                }</span> else<span class="cov8" title="1"> if tr.Type != es.TransNone </span><span class="cov8" title="1">{
                         return tr, nil
                 }</span>
                 <span class="cov0" title="0">s.mount.Dispatch(action)</span>
@@ -23447,18 +23447,18 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) <span 
         <span class="cov8" title="1">props := m.Fetch(world)
         s.mount.SetProps(props)
         cfg := m.Menu(props)
-        if cfg.TabCount &gt; 0 </span><span class="cov0" title="0">{
+        if cfg.TabCount &gt; 0 </span><span class="cov8" title="1">{
                 hooks.UseTabMenu(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{
                         TabCount:     cfg.TabCount,
                         ItemCounts:   cfg.ItemCounts,
                         ItemsPerPage: cfg.ItemsPerPage,
                         Skips:        cfg.Skips,
                 })
-                if !s.seeded </span><span class="cov0" title="0">{
+                if !s.seeded </span><span class="cov8" title="1">{
                         if cfg.InitialTab &gt; 0 </span><span class="cov0" title="0">{
                                 s.setTab(cfg, cfg.InitialTab)
                         }</span>
-                        <span class="cov0" title="0">s.seeded = true</span>
+                        <span class="cov8" title="1">s.seeded = true</span>
                 }
         }
 
@@ -23476,10 +23476,10 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) <span 
                 // overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、
                 // 描画は逆順に重ね、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に
                 // 隠れて操作不能になるのを防ぐ
-                for i := len(s.overlays) - 1; i &gt;= 0; i-- </span><span class="cov0" title="0">{
+                for i := len(s.overlays) - 1; i &gt;= 0; i-- </span><span class="cov8" title="1">{
                         ov := s.overlays[i]
-                        if ov.Active() </span><span class="cov0" title="0">{
-                                if win := ov.Window(world, menuframe.CenterWindowRect(world)); win != nil </span><span class="cov0" title="0">{
+                        if ov.Active() </span><span class="cov8" title="1">{
+                                if win := ov.Window(world, menuframe.CenterWindowRect(world)); win != nil </span><span class="cov8" title="1">{
                                         s.widget.AddWindow(win)
                                 }</span>
                         }
@@ -23495,16 +23495,16 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) <span 
 // DoAction など入力処理の最中に呼ぶ。同じフレームの再構築で移動が反映される。
 // UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する。
 // 構成は model から導出するので呼び出し側は tab 番号だけを渡す
-func (s *Screen[P]) SetTab(tab int) <span class="cov0" title="0">{
+func (s *Screen[P]) SetTab(tab int) <span class="cov8" title="1">{
         s.setTab(s.model.Menu(s.Props()), tab)
 }</span>
 
 // setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する
-func (s *Screen[P]) setTab(cfg MenuConfig, tab int) <span class="cov0" title="0">{
-        if cfg.TabCount == 0 || tab &lt; 0 || tab &gt;= cfg.TabCount </span><span class="cov0" title="0">{
+func (s *Screen[P]) setTab(cfg MenuConfig, tab int) <span class="cov8" title="1">{
+        if cfg.TabCount == 0 || tab &lt; 0 || tab &gt;= cfg.TabCount </span><span class="cov8" title="1">{
                 return
         }</span>
-        <span class="cov0" title="0">hooks.SetTab(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{
+        <span class="cov8" title="1">hooks.SetTab(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{
                 TabCount:     cfg.TabCount,
                 ItemCounts:   cfg.ItemCounts,
                 ItemsPerPage: cfg.ItemsPerPage,
@@ -23514,20 +23514,20 @@ func (s *Screen[P]) setTab(cfg MenuConfig, tab int) <span class="cov0" title="0"
 
 // Selection は前フレームで確定したカーソル位置を返す。カーソルは DoAction のあとの
 // Dispatch で更新されるため、DoAction 内で読むと更新前、つまり画面に見えている確定位置になる
-func (s *Screen[P]) Selection() Selection <span class="cov0" title="0">{ return s.lastSelection }</span>
+func (s *Screen[P]) Selection() Selection <span class="cov8" title="1">{ return s.lastSelection }</span>
 
 // selection は現在のカーソル位置を mount から読む。一覧を持たない画面はゼロ値
 func (s *Screen[P]) selection(cfg MenuConfig) Selection <span class="cov8" title="1">{
         if cfg.TabCount == 0 </span><span class="cov8" title="1">{
                 return Selection{}
         }</span>
-        <span class="cov0" title="0">ms, _ := hooks.GetState[hooks.TabMenuState](s.mount, cfg.Key)
+        <span class="cov8" title="1">ms, _ := hooks.GetState[hooks.TabMenuState](s.mount, cfg.Key)
         return Selection{TabIndex: ms.TabIndex, ItemIndex: ms.ItemIndex}</span>
 }
 
 // Draw は保持中の UI を描く。各 state の Draw はこれへ委譲する
-func (s *Screen[P]) Draw(screen *ebiten.Image) <span class="cov0" title="0">{
-        if s.widget != nil </span><span class="cov0" title="0">{
+func (s *Screen[P]) Draw(screen *ebiten.Image) <span class="cov8" title="1">{
+        if s.widget != nil </span><span class="cov8" title="1">{
                 s.widget.Draw(screen)
         }</span>
 }
