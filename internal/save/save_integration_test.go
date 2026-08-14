@@ -6,8 +6,9 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -22,13 +23,11 @@ func TestSaveLoadIntegration(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// テスト用エンティティを作成
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
+	_, pErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, pErr)
 
-	npc := world.ECS.NewEntity()
-	world.Components.Name.Add(npc, &gc.Name{Name: "テストNPC"})
-	world.Components.FactionEnemy.Add(npc, &gc.FactionEnemy{})
+	_, npcErr := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 8, Y: 8}, "bat")
+	require.NoError(t, npcErr)
 
 	// セーブマネージャーを作成
 	saveManager, err := NewSerializationManager(WithSaveDir(testDir))
@@ -121,9 +120,8 @@ func TestSaveLoadInPlace(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
+	_, pErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, pErr)
 
 	// GameProgressにデータを設定
 	query.GetGameProgress(world).MarkDungeonCleared("遺跡")
@@ -156,9 +154,8 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成（セーブ対象のエンティティが必要）
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
+		_, pErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, pErr)
 
 		// ダンジョンクリアフラグを設定
 		query.GetGameProgress(world).MarkDungeonCleared("遺跡")
@@ -183,9 +180,8 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
+		_, pErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, pErr)
 
 		// イベント状態を設定
 		query.GetGameProgress(world).SetEventActive("all_cleared")
@@ -210,9 +206,8 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.Name.Add(player, &gc.Name{Name: "テストプレイヤー"})
+		_, pErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, pErr)
 
 		sm := createTestSerializationManager(t)
 		jsonStr, err := sm.GenerateWorldJSON(world)
