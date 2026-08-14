@@ -18,7 +18,6 @@ func TestApplyHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 回復対象を実スポーンの敵にする。HPとGridElementは生成時に備わる
 		entity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "bat")
 		require.NoError(t, err)
 		hp := world.Components.HP.Get(entity)
@@ -128,7 +127,7 @@ func TestApplyDamage_Prop(t *testing.T) {
 		source, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 		require.NoError(t, err)
 
-		// crate は HP30 の破壊可能プロップ。実スポーンで Fixed と HP を備える
+		// crate は HP30 の破壊可能プロップ
 		prop, err := lifecycle.SpawnProp(world, "crate", 5, 5)
 		require.NoError(t, err)
 

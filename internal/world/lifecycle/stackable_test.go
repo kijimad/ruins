@@ -15,7 +15,6 @@ func TestGetAmount(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// 実アイテムをスポーンして準備する
 	_, err := SpawnBackpackItem(world, "iron", 10)
 	require.NoError(t, err)
 
@@ -34,7 +33,6 @@ func TestPlusMinusAmount(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// 実アイテムをスポーンして準備する
 	_, err := SpawnBackpackItem(world, "iron", 10)
 	require.NoError(t, err)
 

@@ -261,7 +261,7 @@ func TestReadBehavior_DoTurn_CanceledByEnemy(t *testing.T) {
 	world.Components.FactionAlly.Add(actor, &gc.FactionAlly{})
 	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
-	// 隣に敵を実スポーンで配置する
+	// 隣に敵を配置する
 	_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 6, Y: 5}, "fireball")
 	require.NoError(t, err)
 

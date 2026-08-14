@@ -16,7 +16,7 @@ func TestApplyDamage_プレイヤーが関与しない場合でもpanicせず死
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// 攻撃側と被弾側をどちらも実スポーンの敵にする。プレイヤーは一切関与しない
+	// 攻撃側と被弾側をどちらも敵にする。プレイヤーは一切関与しない
 	source, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 3, Y: 3}, "bat")
 	require.NoError(t, err)
 

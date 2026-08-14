@@ -22,7 +22,6 @@ func TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せ
 	world := testutil.InitTestWorld(t)
 
 	actor := world.ECS.NewEntity()
-	// 遺跡入口プロップを実スポーンで用意する
 	entrance, err := lifecycle.SpawnDungeonEntrance(world, 5, 5, "森")
 	require.NoError(t, err)
 
@@ -63,11 +62,9 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーを実スポーンで用意する
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		// 閉じた扉を実スポーンで用意する
 		doorEntity, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
 
@@ -87,11 +84,9 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーを実スポーンで用意する
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
 
-		// 扉を実スポーンで用意し、開状態にする
 		doorEntity, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
 		world.Components.Door.Get(doorEntity).IsOpen = true
@@ -115,11 +110,10 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	// プレイヤーを実スポーンで用意する
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	// 会話NPCを実スポーンで用意する。商人は Dialog と FactionNeutral を持つ
+	// 商人は Dialog と FactionNeutral を持つ
 	npcEntity, err := lifecycle.SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "merchant")
 	require.NoError(t, err)
 
@@ -169,7 +163,6 @@ func TestExecuteInteraction_Melee(t *testing.T) {
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
-	// 敵を実スポーンで用意する
 	enemyEntity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
 	require.NoError(t, err)
 

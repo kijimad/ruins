@@ -23,7 +23,6 @@ func TestMoveToField_所有者からの移送で現ステージへ束縛する(t
 
 	owner := world.ECS.NewEntity()
 
-	// 実アイテムをスポーンしてバックパックへ入れた状態から移送する
 	item, err := SpawnBackpackItem(world, "iron", 1)
 	require.NoError(t, err)
 	itemWeight := world.Components.Weight.Get(item).Milligram
@@ -42,7 +41,6 @@ func TestMovePlayerToPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 実プレイヤーをスポーンする
 		player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 
@@ -70,7 +68,7 @@ func TestMovePlayerToPosition(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 実プレイヤーをスポーンし、必須コンポーネントの欠落を作るため GridElement を外す
+		// 必須コンポーネントの欠落を作るため GridElement を外す
 		player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 		require.NoError(t, err)
 		ensureRemoved(world.Components.GridElement, player)
@@ -90,7 +88,6 @@ func TestTransferUnits(t *testing.T) {
 		owner := world.ECS.NewEntity()
 		recipient := world.ECS.NewEntity()
 
-		// 実アイテムをスポーンし、特定の所有者のバックパックへ配置する
 		item, err := spawnItemBase(world, "scrap_iron", 5)
 		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
@@ -109,7 +106,6 @@ func TestTransferUnits(t *testing.T) {
 		owner := world.ECS.NewEntity()
 		recipient := world.ECS.NewEntity()
 
-		// 実アイテムをスポーンし、特定の所有者のバックパックへ配置する
 		item, err := spawnItemBase(world, "scrap_iron", 5)
 		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
@@ -128,7 +124,6 @@ func TestTransferUnits(t *testing.T) {
 		owner := world.ECS.NewEntity()
 		recipient := world.ECS.NewEntity()
 
-		// 実アイテムをスポーンし、特定の所有者のバックパックへ配置する
 		item, err := spawnItemBase(world, "scrap_iron", 5)
 		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
@@ -170,7 +165,7 @@ func TestMoveToEquip(t *testing.T) {
 
 		owner := world.ECS.NewEntity()
 
-		// 移動前はフィールドに置かれ、座標を持つ状態を実スポーンで作る
+		// 移動前はフィールドに置かれ、座標を持つ状態にする
 		item, err := SpawnFieldItem(world, "wooden_sword", 3, 4, 1)
 		require.NoError(t, err)
 
@@ -195,7 +190,7 @@ func TestMoveToEquip(t *testing.T) {
 		prevOwner := world.ECS.NewEntity()
 		newOwner := world.ECS.NewEntity()
 
-		// 移動前は元オーナーのバックパックに入っている状態を実スポーンで作る
+		// 移動前は元オーナーのバックパックに入っている状態にする
 		item, err := spawnItemBase(world, "wooden_sword", 1)
 		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: prevOwner})
@@ -219,7 +214,6 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 実プレイヤーをスポーンする
 		player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
@@ -262,7 +256,6 @@ func TestUnequipAll(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 2人の実プレイヤーをスポーンする
 		player1, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 		player2, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")

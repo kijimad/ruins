@@ -36,7 +36,7 @@ func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	// 範囲外にフィールドアイテムを実スポーンする（プレイヤーから距離が2以上）
+	// 範囲外にフィールドアイテムを置く。プレイヤーから距離が2以上
 	item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 15, 15, 1)
 	require.NoError(t, err)
 
@@ -59,7 +59,7 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	// フィールドアイテムはInteractionItem=Manual方式。プレイヤーと同じタイルに実スポーンする
+	// フィールドアイテムはInteractionItem=Manual方式。プレイヤーと同じタイルに置く
 	item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
 	require.NoError(t, err)
 
@@ -84,7 +84,7 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	// OnCollision方式の扉を実スポーンする（プレイヤーと隣接）
+	// OnCollision方式の扉をプレイヤーと隣接して置く
 	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
 	require.NoError(t, err)
 

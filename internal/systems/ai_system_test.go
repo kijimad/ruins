@@ -18,11 +18,10 @@ func TestAISystem(t *testing.T) {
 	// テスト用のワールド作成
 	world := testutil.InitTestWorld(t)
 
-	// プレイヤーを実スポーンで配置する
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	// AI敵を実スポーンで配置し、プレイヤーを標的にした状態でAI処理を通す
+	// AI敵を配置し、プレイヤーを標的にした状態でAI処理を通す
 	aiEntity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "moss_turtle")
 	require.NoError(t, err)
 	solo := world.Components.SoloAI.Get(aiEntity)

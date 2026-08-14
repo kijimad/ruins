@@ -16,7 +16,6 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 非Stackableな実アイテムをスポーンする
 		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
@@ -32,7 +31,6 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=5のStackableな実アイテムをスポーンする
 		item, err := SpawnBackpackItem(world, "healing_potion", 5)
 		require.NoError(t, err)
 
@@ -50,7 +48,6 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=3のStackableな実アイテムをスポーンする
 		item, err := SpawnBackpackItem(world, "healing_potion", 3)
 		require.NoError(t, err)
 
@@ -66,7 +63,6 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=2のStackableな実アイテムをスポーンする
 		item, err := SpawnBackpackItem(world, "healing_potion", 2)
 		require.NoError(t, err)
 
@@ -85,7 +81,6 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=3のStackableな実アイテムをスポーンする
 		item, err := SpawnBackpackItem(world, "healing_potion", 3)
 		require.NoError(t, err)
 
@@ -114,11 +109,9 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 実プレイヤーをスポーンする
 		player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
 
-		// 実アイテムをスポーンする
 		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
