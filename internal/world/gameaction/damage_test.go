@@ -51,11 +51,9 @@ func TestApplyHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		// SpawnEnemy が FullRecover で満タンにするため、満タン状態は手で作らない
 		entity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "bat")
 		require.NoError(t, err)
-		hp := world.Components.HP.Get(entity)
-		hp.Max = 100
-		hp.Current = 100
 
 		actual := ApplyHealing(world, entity, 10)
 		assert.Equal(t, 0, actual)
