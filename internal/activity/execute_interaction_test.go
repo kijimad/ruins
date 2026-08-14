@@ -365,7 +365,7 @@ func TestExecuteInteraction_Disassemble_工具がなければ何もしない(t *
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	player := newDisassembleTestPlayer(world)
+	player := newDisassembleTestPlayer(t, world)
 
 	crate, err := lifecycle.SpawnProp(world, "crate", 11, 10)
 	require.NoError(t, err)
