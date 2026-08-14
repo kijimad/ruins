@@ -168,7 +168,8 @@ func TestWaitBehavior_長い待機は敵接近で中断する(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := newDisassembleTestPlayer(world)
-	spawnHostileAt(t, world, 11, 10)
+	_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+	require.NoError(t, err)
 
 	wa := &WaitBehavior{}
 	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, Progress: gc.IntPool{Max: 5}}
@@ -183,7 +184,8 @@ func TestWaitBehavior_1ターンの待機は敵が隣接していても完結す
 
 	world := testutil.InitTestWorld(t)
 	actor := newDisassembleTestPlayer(world)
-	spawnHostileAt(t, world, 11, 10)
+	_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+	require.NoError(t, err)
 
 	wa := &WaitBehavior{}
 	comp := &gc.Activity{BehaviorName: gc.BehaviorWait, State: gc.ActivityStateRunning, Progress: gc.IntPool{Max: 1}}
