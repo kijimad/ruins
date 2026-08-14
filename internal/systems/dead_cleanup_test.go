@@ -20,8 +20,6 @@ func TestDeadCleanupSystem(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	// テスト用エンティティを作成
-
 	// 1. 通常の敵（AI）エンティティ - 削除されるべき
 	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 3, Y: 3}, "moss_turtle")
 	require.NoError(t, err)
@@ -61,10 +59,6 @@ func TestDeadCleanupSystem(t *testing.T) {
 	// 生きているエンティティは削除されていないべき
 	assert.True(t, world.Components.Name.Has(alive), "生きているエンティティは削除されないべき")
 	assert.False(t, world.Components.Dead.Has(alive), "生きているエンティティにDeadコンポーネントはないべき")
-
-	// クリーンアップ
-	world.ECS.RemoveEntity(player)
-	world.ECS.RemoveEntity(alive)
 }
 
 func TestDeadCleanupSystem_NoDeadEntities(t *testing.T) {
@@ -87,10 +81,6 @@ func TestDeadCleanupSystem_NoDeadEntities(t *testing.T) {
 	// すべてのエンティティが残っているべき
 	assert.True(t, world.Components.Name.Has(alive1), "生きているエンティティ1は残るべき")
 	assert.True(t, world.Components.Name.Has(alive2), "生きているエンティティ2は残るべき")
-
-	// クリーンアップ
-	world.ECS.RemoveEntity(alive1)
-	world.ECS.RemoveEntity(alive2)
 }
 
 func TestDeadCleanupSystem_EmptyWorld(t *testing.T) {

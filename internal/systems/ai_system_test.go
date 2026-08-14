@@ -15,7 +15,6 @@ import (
 func TestAISystem(t *testing.T) {
 	t.Parallel()
 
-	// テスト用のワールド作成
 	world := testutil.InitTestWorld(t)
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")

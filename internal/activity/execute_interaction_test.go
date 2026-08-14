@@ -131,7 +131,8 @@ func TestExecuteInteraction_Item(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	// プレイヤーを作成（インベントリなし）
+	// SpawnPlayer は初期装備とバックパックを備えるため、インベントリを持たない状態を作るには
+	// 素のエンティティを使う
 	player := world.ECS.NewEntity()
 	world.Components.Player.Add(player, &gc.Player{})
 	world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
