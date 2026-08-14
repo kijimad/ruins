@@ -2,6 +2,7 @@ package resources
 
 import (
 	"image/color"
+	"sync"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -9,12 +10,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// ebitenui のグローバル状態、NineSlice キャッシュ等は並行アクセス安全でない。
+// 並列テストが同時に触れると競合するため、その生成をこのロックで直列化する。
+var ebitenuiMu sync.Mutex
+
+func withUILock(fn func()) {
+	ebitenuiMu.Lock()
+	defer ebitenuiMu.Unlock()
+	fn()
+}
+
 func TestNewUIResources_正常系で全リソースが構築される(t *testing.T) {
 	t.Parallel()
 
 	src := newTestFaceSource(t)
 
-	ui, err := NewUIResources([]*text.GoTextFaceSource{src})
+	var ui UIResources
+	var err error
+	withUILock(func() {
+		ui, err = NewUIResources([]*text.GoTextFaceSource{src})
+	})
 
 	require.NoError(t, err)
 	assert.NotNil(t, ui.Fonts)
@@ -65,7 +80,11 @@ func TestNewUIResources_正常系で全リソースが構築される(t *testing
 func TestNewUIResources_フォントソースが空だとエラー(t *testing.T) {
 	t.Parallel()
 
-	ui, err := NewUIResources(nil)
+	var ui UIResources
+	var err error
+	withUILock(func() {
+		ui, err = NewUIResources(nil)
+	})
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, errNoFontSource)
