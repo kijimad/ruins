@@ -92,6 +92,23 @@ func TestDropBehavior_Validate(t *testing.T) {
 	})
 }
 
+func TestNewDropActivity(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
+	require.NoError(t, err)
+
+	dest := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 3, Y: 4}}
+	comp := NewDropActivity(item, dest)
+
+	assert.Equal(t, gc.BehaviorDrop, comp.BehaviorName)
+	params, ok := comp.Params.(*gc.PlaceParams)
+	require.True(t, ok, "PlaceParamsが設定されるべき")
+	assert.Equal(t, item, params.Target)
+	assert.Equal(t, dest, params.Destination)
+}
+
 func TestDropBehavior_Info(t *testing.T) {
 	t.Parallel()
 
