@@ -29,9 +29,8 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Resources.SpriteSheets = spriteSheets
 
 		// プレイヤーを配置
-		playerEntity := world.ECS.NewEntity()
-		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		_, playerErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, playerErr)
 
 		// 視界内に敵を配置
 		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 12, Y: 12}, "fireball")
@@ -63,9 +62,8 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.ECS.NewEntity()
-		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		_, playerErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, playerErr)
 
 		// 視界外に敵を配置（探索済みでない）
 		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 50}, "fireball")
@@ -100,9 +98,8 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.ECS.NewEntity()
-		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		_, playerErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, playerErr)
 
 		// 敵を配置
 		_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
@@ -131,9 +128,8 @@ func TestGetVisibleItems(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.ECS.NewEntity()
-		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		_, playerErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, playerErr)
 
 		// 視界内にアイテムを配置
 		_, err := lifecycle.SpawnFieldItem(world, "healing_potion", consts.Tile(12), consts.Tile(12), 1)
@@ -169,9 +165,8 @@ func TestGetVisibleItems(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.ECS.NewEntity()
-		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		_, playerErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, playerErr)
 
 		// 視界外にアイテムを配置
 		_, err := lifecycle.SpawnFieldItem(world, "healing_potion", consts.Tile(50), consts.Tile(50), 1)
@@ -190,9 +185,8 @@ func TestGetVisibleItems(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを配置
-		playerEntity := world.ECS.NewEntity()
-		world.Components.Player.Add(playerEntity, &gc.Player{})
-		world.Components.GridElement.Add(playerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+		_, playerErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, playerErr)
 
 		// アイテムを配置
 		_, err := lifecycle.SpawnFieldItem(world, "healing_potion", consts.Tile(11), consts.Tile(10), 1)
