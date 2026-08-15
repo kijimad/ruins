@@ -60,28 +60,20 @@ func buildImageTable() (string, error) {
 	return buildImageTableFrom(imageDir)
 }
 
-// render3DImageSubdir はローポリ3D表示の参照画像を置くサブディレクトリ。
-const render3DImageSubdir = "TestRender3DImages"
-
 // imageEntry はテーブルに載せる画像1枚。README からの相対パスと見出しを持つ。
 type imageEntry struct {
 	path  string
 	label string
 }
 
-// buildImageTableFrom は指定ディレクトリのPNG画像から4列のMarkdownテーブルを生成する。
-// 3Dの参照画像を先頭に置き、続けて直下の TestGolden_*.png を並べる。3D表示はローポリ化の要なので目立たせる。
+// buildImageTableFrom は指定ディレクトリ直下の TestGolden_*.png から4列のMarkdownテーブルを生成する。
+// 3D の参照画像は TestGolden_3D_*.png として同じ直下に並び、数字 3 が英字より先にソートされるため
+// 自動で先頭に来る。
 func buildImageTableFrom(dir string) (string, error) {
-	entries, err := collectSubdirImages(dir, render3DImageSubdir, "3D ")
+	entries, err := collectTopImages(dir)
 	if err != nil {
 		return "", err
 	}
-	top, err := collectTopImages(dir)
-	if err != nil {
-		return "", err
-	}
-	entries = append(entries, top...)
-
 	if len(entries) == 0 {
 		return "*no images*", nil
 	}
@@ -102,27 +94,6 @@ func pngNames(dir string) ([]string, error) {
 	}
 	slices.Sort(names)
 	return names, nil
-}
-
-// collectSubdirImages はサブディレクトリ内のPNGを集める。見出しは labelPrefix + 拡張子なしのファイル名。
-// サブディレクトリが無ければ空を返す。
-func collectSubdirImages(dir, sub, labelPrefix string) ([]imageEntry, error) {
-	subPath := filepath.Join(dir, sub)
-	names, err := pngNames(subPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("failed to read %s: %w", subPath, err)
-	}
-	entries := make([]imageEntry, 0, len(names))
-	for _, name := range names {
-		entries = append(entries, imageEntry{
-			path:  filepath.Join(subPath, name),
-			label: labelPrefix + strings.TrimSuffix(name, ".png"),
-		})
-	}
-	return entries, nil
 }
 
 // collectTopImages はディレクトリ直下の TestGolden_*.png を集める。見出しは TestGolden_ 接頭辞を外した名前。

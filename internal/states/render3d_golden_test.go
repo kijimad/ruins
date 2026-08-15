@@ -6,7 +6,6 @@ import (
 	"math/rand/v2"
 	"path/filepath"
 	"slices"
-	"strings"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -148,7 +147,7 @@ func TestGolden_Render3DSnapshot(t *testing.T) {
 			require.NoError(t, err)
 
 			g := goldie.New(t, goldie.WithNameSuffix(".json"))
-			g.Assert(t, t.Name(), data)
+			g.Assert(t, "TestGolden_3D_"+sc.name, data)
 		})
 	}
 }
@@ -169,11 +168,11 @@ func TestRender3DImages(t *testing.T) {
 			currentJSON, err := json.MarshalIndent(cmds, "", "  ")
 			require.NoError(t, err)
 
+			name := "TestGolden_3D_" + sc.name
 			g := goldie.New(t, goldie.WithNameSuffix(".png"))
-			imgPath := g.GoldenFileName(t, t.Name())
+			imgPath := g.GoldenFileName(t, name)
 			// pass/fail の真実源である命令列JSONと突き合わせる。JSONが変わった時だけ画像を作り直す
-			subName := strings.TrimPrefix(t.Name(), "TestRender3DImages/")
-			jsonPath := filepath.Join("testdata", "TestGolden_Render3DSnapshot", subName+".json")
+			jsonPath := filepath.Join("testdata", name+".json")
 			if !imgNeedsUpdate(imgPath, jsonPath, currentJSON) {
 				return
 			}
@@ -187,7 +186,7 @@ func TestRender3DImages(t *testing.T) {
 				sys := sysrender.NewRender3DSystem()
 				_ = sys.Draw(world, screen)
 			})
-			require.NoError(t, g.Update(t, t.Name(), pngData))
+			require.NoError(t, g.Update(t, name, pngData))
 			t.Logf("画像を更新: %s", imgPath)
 		})
 	}
