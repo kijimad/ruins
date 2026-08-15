@@ -112,7 +112,7 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 	return "", false
 }
 
-// moveDir は移動方向をカメラの向きへ合わせる。常に3Dカメラの向きへ dungeon3D で回す。
+// moveDir は移動方向を3Dカメラの向きへ回して合わせる。
 func (st *DungeonState) moveDir(base gc.Direction) gc.Direction {
 	return st.three.moveDir(base)
 }

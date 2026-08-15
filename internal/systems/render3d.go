@@ -14,7 +14,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// Render3DSystem は壁と床をローポリの3Dで描く実験的レンダラである。
+// Render3DSystem は壁と床をローポリの3Dで描くレンダラである。
 // 既存の RenderSpriteSystem と同じ ECS ワールドを読み、床タイルを水平クアッド、
 // 壁タイルを箱、それ以外のエンティティをビルボードとして透視投影する。
 // テクスチャは既存スプライトシートをそのまま流用する。Ebiten は深度バッファを持たないため、
@@ -190,7 +190,6 @@ func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *e
 
 // addFlatQuad は面をスプライトの平均色でフラットに塗る。壁の側面に使う。真上視点用テクスチャを
 // 垂直面へ引き伸ばす違和感を避け、新規アートなしでローポリらしい平板シェードにする。
-// 白1pxテクスチャに平均色×shade を頂点色で乗せる。
 func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64, meta r3meta) {
 	c := avgSpriteColor(atlas, x, y, ww, hh)
 	*out = append(*out, r3quad{
@@ -208,8 +207,6 @@ func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atla
 // frostColorNorm は氷オーバーレイの色を 0..1 で表す。2Dの FrostRenderSystem と同じ寒色。
 var frostColorNorm = [3]float64{130.0 / 255, 205.0 / 255, 240.0 / 255}
 
-// addFrostQuad は床や壁の上へ半透明の氷クアッドを重ねる。頂点色は氷色×alpha にプリマルチプライし、
-// ColorA を alpha にすることで、ソースオーバー合成が 2D の氷オーバーレイと同じ「氷色×α + 背景×(1-α)」になる。
 // addFrostQuad は床や壁天面へ氷を重ねる。タイルは一様な四角なので白1pxで塗りつぶす。
 func (sys *Render3DSystem) addFrostQuad(out *[]r3quad, fx, fz, topY, alpha float64, meta r3meta) {
 	p := [4]r3vec{{fx, topY, fz}, {fx + 1, topY, fz}, {fx + 1, topY, fz + 1}, {fx, topY, fz + 1}}
@@ -290,8 +287,8 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// buildScene はカメラ行列とクアッド列を組み立てる。Draw と DrawList が共有し、
-// 幾何を1箇所に集約する。カメラ・収集ロジックを別々に持つと描画とVRTでズレるため。
+// buildScene はカメラ行列とクアッド列を組み立てる。Draw と DrawList で共有して幾何を1箇所に集約する。
+// 別々に持つと描画とVRTの命令列がズレるため。
 func (sys *Render3DSystem) buildScene(world w.World, sw, sh int) (quads []r3quad, vp, view r3mat) {
 	pcx, pcz := sys.playerCenter(world)
 
@@ -316,9 +313,8 @@ func (sys *Render3DSystem) buildScene(world w.World, sw, sh int) (quads []r3quad
 	return quads, vp, view
 }
 
-// DrawList はこのフレームで描くクアッドの命令列を返す。VRTで命令列を安定に差分比較する。
-// Draw と同じ buildScene・ソート・投影を通すので、画像とズレない。画面外へ落ちるクアッドは
-// Draw と同じく除外する。座標と色は整数へ丸めて float ノイズを排除する。
+// DrawList はこのフレームで描くクアッドの命令列を返す。Draw と同じ buildScene・ソート・投影を通すので
+// 画像とズレない。画面外のクアッドは除外し、座標と色は整数へ丸めて float ノイズを排除する。
 func (sys *Render3DSystem) DrawList(world w.World, sw, sh int) []R3DrawCommand {
 	quads, vp, view := sys.buildScene(world, sw, sh)
 	sortQuadsByDepth(quads, view)
@@ -383,8 +379,7 @@ func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {
 }
 
 // tileVisFactor はタイルの描画情報から明るさ・描画可否・可視・光源色を導く純関数。
-// 可視は Darkness を 1-d の明るさへ、LightColor を色味へ反映する。松明の淡い照らしと暖色が2Dと同じく出る。
-// 記憶は明るさは同様だが visible=false。未探索など該当なしは描かない。Draw を通さず単体テストできるよう切り出す。
+// 可視は Darkness を 1-d の明るさへ、LightColor を色味へ反映する。記憶は visible=false、未探索は描かない。
 func tileVisFactor(info TileRenderInfo) (bright float64, drawable, visible bool, light [3]float64) {
 	white := [3]float64{1, 1, 1}
 	switch v := info.(type) {
@@ -463,9 +458,8 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 
 // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。
 func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64, meta r3meta) {
-	// 天面は真上から見るので既存テクスチャをそのまま貼る。側面はフラット単色にする。
-	// tint に面ごとのシェードを掛けて立体感を出す。天面0.95、南北の側面0.6、東西の側面0.78 と
-	// 向きで明るさを変えるのは疑似的な方向光源で、平板な側面に陰影を付けて立体に見せるため
+	// 天面は真上視点なので既存テクスチャをそのまま貼り、側面はフラット単色にする。
+	// 面ごとのシェード 天面0.95・南北0.6・東西0.78 は疑似方向光源で、平板な側面に陰影を付けて立体に見せる
 	top := meta
 	top.kind = "wallTop"
 	sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.95), top)
@@ -503,8 +497,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		if !ok {
 			continue
 		}
-		// 動体は今見えているタイルにだけ描く。記憶エリアや隠れエリアには描かない。
-		// 2Dの renderObjectLayer と同じで、フォグ内の敵やアイテムは位置を見せない
+		// 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない
 		b, vok, vis, light := visFactor(g)
 		if !vok || !vis {
 			continue
@@ -571,9 +564,8 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, vp, view r
 	}
 	for i := range quads {
 		q := &quads[i]
-		// アトラス切り替え、または uint16 インデックスの上限を超える前にバッチを吐き出す。
-		// 頂点インデックスは uint16 なので、同一スプライトシートのタイルが大量に積まれても
-		// 65535 を跨がないよう 4頂点ぶんの余地を残して flush する。跨ぐと黙って描画化けする
+		// アトラス切り替え、または uint16 の頂点インデックス上限を跨ぐ前に flush する。
+		// 同一スプライトシートのタイルが大量に積まれても 65535 を超えると黙って描画化けするため
 		if q.atlas != curAtlas || len(verts)+4 > maxVertsPerBatch {
 			flush()
 			curAtlas = q.atlas

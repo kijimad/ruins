@@ -10,8 +10,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// dungeon3D は実験的なローポリ3D表示の状態と操作をまとめる。DungeonState から3D固有の
-// フィールドとロジックを切り出し、2Dの本流を汚さず、将来まるごと採否を判断しやすくする。
+// dungeon3D はローポリ3D表示の状態と操作をまとめる。DungeonState から3D固有のものを切り出す。
 type dungeon3D struct {
 	// sys は描画とカメラの状態。初回利用時に構築する
 	sys *gs.Render3DSystem
@@ -29,12 +28,10 @@ func (d *dungeon3D) ensure() {
 	}
 }
 
-// update はカメラ操作の入力を処理する。3D有効時のみ呼ぶ。
-// Z/C で45度ずつ回し、右ドラッグで見回し、ホイールでズームする。
+// update はカメラ操作の入力を処理する。Z/C で45度ずつ回し、右ドラッグで見回し、ホイールでズームする。
 func (d *dungeon3D) update(kb input.KeyboardInput) {
 	d.ensure()
-	// 回転は英字キー Z/C。日本語キーボードでも位置が同じで安全。記号 [ ] は JIS でズレる。
-	// 左の Z を反時計回り、右の C を時計回りにしてキーの左右と回る向きをそろえる
+	// 左の Z を反時計回り、右の C を時計回りにしてキーの左右と回る向きをそろえる。JIS でズレる記号は避ける
 	if kb.IsKeyJustPressed(ebiten.KeyZ) {
 		d.rotate(1)
 	}
@@ -64,14 +61,12 @@ func (d *dungeon3D) rotate(delta int) {
 	}
 }
 
-// moveDir は移動方向をカメラの向きへ合わせる。押されたキーの画面意図を、カメラの向きで
-// world ベクトルへ回し、最寄りの8方向へスナップする。画面奥は forward、画面右は right の
-// 実カメラ値 forward=(-sin y, cos y) / right=(-cos y, -sin y) に一致させる。
+// moveDir は押されたキーの画面意図を、カメラの向きで world ベクトルへ回し最寄りの8方向へスナップする。
 func (d *dungeon3D) moveDir(base gc.Direction) gc.Direction {
 	su, sr := base.ScreenIntent()
 	y := float64(d.orient) * (math.Pi / 4)
-	// 南から北を見下ろすカメラに一致させる。画面奥(forward)は (-sin y, -cos y)、
-	// 画面右(right)は (cos y, -sin y)。world = su*forward + sr*right
+	// 南から北を見下ろすカメラに合わせる。画面奥 forward=(-sin y, -cos y)、画面右 right=(cos y, -sin y)、
+	// world = su*forward + sr*right
 	wx := -su*math.Sin(y) + sr*math.Cos(y)
 	wy := -su*math.Cos(y) - sr*math.Sin(y)
 	return gc.SnapWorldVec(wx, wy)

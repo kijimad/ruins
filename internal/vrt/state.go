@@ -25,19 +25,15 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 }
 
 // AssertStateGolden はステートの描画結果をゴールデン画像と比較する。
-// buildStatesはworld初期化後に呼ばれ、セットアップとステート構築を行う。
-// セットアップが不要な場合はStatesアダプタを使う。
-// GOLDIE_UPDATE=1 で実行するとゴールデン画像を更新する。
-// ただし既存ゴールデンとのピクセル差分がトレランス内なら更新をスキップして、
-// ebitenui の時間依存ノイズによる不要な差分を防ぐ
+// GOLDIE_UPDATE=1 で更新する。ピクセル差分がトレランス内なら更新をスキップし、ebitenui の
+// 時間依存ノイズによる不要な差分を防ぐ。
 func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
 	assertPNGGolden(t, RenderPNG(t, buildStates, nil))
 }
 
-// AssertTopStateGolden は最上段ステートだけを黒背景へ描いてゴールデン比較する。下段はワールドの
-// データ準備のためだけに積み、ワールドは描画しない。ワールドデータを要るがワールドを映したくない
-// UIのVRTで使う。LookAround のカーソルや Shooting の照準、OverworldMap の記号地図が該当する。
+// AssertTopStateGolden は最上段ステートだけを描いてゴールデン比較する。下段はワールドデータの
+// 供給に積むだけで描かない。LookAround のカーソルなどワールドを映したくないUIに使う。
 func AssertTopStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
 	img := renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
@@ -50,9 +46,8 @@ func AssertTopStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.W
 	assertPNGGolden(t, encodePNG(t, img))
 }
 
-// RenderPNG はステートを構築し screen へ描いてPNGバイト列を返す。アサーションはしない、画像保存用。
-// draw が nil ならステートスタック全段を描く。非 nil なら任意のレンダラで描き、2Dステートの描画に
-// 依らず Render3DSystem のようなレンダラを画像化できる。
+// RenderPNG はステートを構築し screen へ描いてPNGを返す。比較はしない、画像保存用。
+// draw が nil なら全段描画、非 nil なら Render3DSystem など任意のレンダラで描く。
 func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World], draw func(world w.World, screen *ebiten.Image)) []byte {
 	t.Helper()
 	img := renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
@@ -68,12 +63,9 @@ func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World], draw
 }
 
 // renderStates は world を作りステートを構築し、drawStates で screen へ描いて NRGBA を返す。
-// 全段描画・最上段のみ描画・任意レンダラで足場を共有する。RunTestMain 内で呼ぶ必要がある。
 //
-// World初期化・状態構築・描画はいずれも ebitenui のグローバル描画状態に触れて並行アクセス安全でない。
-// InitVRTWorld が内部で WithUILock を取るので、構築から描画まではもう1つの WithUILock 区間にする。
-// WithUILock は非再入なのでネストさせず2区間に分ける。両区間とも同じロックなので ebitenui グローバルへの
-// 同時アクセスは起きない。mutex待機中に ebitenui の時間ベースアニメーション（Caretブリンク等）が進むのも防ぐ
+// 構築も描画も ebitenui のグローバル状態に触れるため WithUILock で直列化する。InitVRTWorld も内部で
+// ロックを取り WithUILock は非再入なので、区間を2つに分ける。
 func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World], drawStates func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image)) *image.NRGBA {
 	t.Helper()
 	world := InitVRTWorld(t)
@@ -124,12 +116,10 @@ func BuildWorld(t *testing.T, buildStates func(w.World) []es.State[w.World]) w.W
 	return world
 }
 
-// InitVRTWorld はVRT用のワールドを初期化する。固定シードで再現性を保証する。
-// テスト・ベンチ双方から使えるよう testing.TB を受ける。
+// InitVRTWorld はVRT用のワールドを固定シードで初期化する。テスト・ベンチ双方で使えるよう testing.TB を受ける。
 //
-// maingame.InitWorld 経由で ebitenui のグローバルな NineSlice キャッシュを触るため WithUILock で
-// 直列化する。触らないと並列ゴールデンテストの初期化と描画が同時にこのキャッシュへアクセスして
-// data race になる。WithUILock は非再入なので、renderStates はこの関数を描画の WithUILock 区間の外側で呼ぶ。
+// maingame.InitWorld が ebitenui のグローバルな NineSlice キャッシュを触るため WithUILock で直列化する。
+// 触らないと並列テストの初期化と描画が競合して data race になる。
 func InitVRTWorld(tb testing.TB) w.World {
 	tb.Helper()
 

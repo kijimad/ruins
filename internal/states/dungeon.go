@@ -45,7 +45,7 @@ type DungeonState struct {
 	// 種別を State が直接持つことで、登録表に無いテスト用の種別も注入できる
 	overworldDefinition *dungeon.OverworldDefinition
 
-	// three は実験的なローポリ3D表示の状態と操作。3D固有のものは dungeon3D に隔離する
+	// three は3D表示の状態と操作。3D固有のものは dungeon3D に隔離する
 	three dungeon3D
 }
 
