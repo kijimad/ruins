@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -106,6 +107,7 @@ type r3quad struct {
 	uv    [4][2]float64
 	atlas *ebiten.Image
 	col   [3]float64 // 頂点色の乗算。テクスチャ面は灰色の減光、フラット面は平均色
+	alpha float64    // 頂点アルファ。既定は不透明の1。霜など半透明の重ねだけ1未満にする
 	key   float64
 	// 以下は VRT の命令列に出すメタ情報。描画そのものには使わない
 	kind      string // floor / wallTop / wallSide / billboard
@@ -179,6 +181,7 @@ func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *e
 		uv:        [4][2]float64{{x, y}, {x + ww, y}, {x + ww, y + hh}, {x, y + hh}},
 		atlas:     atlas,
 		col:       col,
+		alpha:     1,
 		kind:      meta.kind,
 		tile:      meta.tile,
 		atlasName: meta.atlas,
@@ -195,6 +198,25 @@ func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atla
 		uv:        [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
 		atlas:     whitePixel(),
 		col:       [3]float64{c[0] * col[0], c[1] * col[1], c[2] * col[2]},
+		alpha:     1,
+		kind:      meta.kind,
+		tile:      meta.tile,
+		atlasName: meta.atlas,
+	})
+}
+
+// frostColorNorm は氷オーバーレイの色を 0..1 で表す。2Dの FrostRenderSystem と同じ寒色。
+var frostColorNorm = [3]float64{130.0 / 255, 205.0 / 255, 240.0 / 255}
+
+// addFrostQuad は床や壁の上へ半透明の氷クアッドを重ねる。頂点色は氷色×alpha にプリマルチプライし、
+// ColorA を alpha にすることで、ソースオーバー合成が 2D の氷オーバーレイと同じ「氷色×α + 背景×(1-α)」になる。
+func (sys *Render3DSystem) addFrostQuad(out *[]r3quad, fx, fz, topY, alpha float64, meta r3meta) {
+	*out = append(*out, r3quad{
+		p:         [4]r3vec{{fx, topY, fz}, {fx + 1, topY, fz}, {fx + 1, topY, fz + 1}, {fx, topY, fz + 1}},
+		uv:        [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
+		atlas:     whitePixel(),
+		col:       [3]float64{frostColorNorm[0] * alpha, frostColorNorm[1] * alpha, frostColorNorm[2] * alpha},
+		alpha:     alpha,
 		kind:      meta.kind,
 		tile:      meta.tile,
 		atlasName: meta.atlas,
@@ -276,7 +298,8 @@ func (sys *Render3DSystem) buildScene(world w.World, sw, sh int) (quads []r3quad
 	vp = r3mul(r3perspective(52, float64(sw)/float64(sh), 0.1, 200), view)
 
 	visFactor := sys.visFactorFunc(world)
-	quads = sys.collectTiles(world, pcx, pcz, visFactor)
+	frost := sys.frostFunc(world)
+	quads = sys.collectTiles(world, pcx, pcz, visFactor, frost)
 	right := r3norm(r3cross(r3norm(r3sub(target, eye)), up))
 	quads = sys.collectBillboards(world, quads, pcx, pcz, right, visFactor)
 	return quads, vp, view
@@ -357,8 +380,23 @@ func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {
 	}
 }
 
-// collectTiles は床と壁のクアッドを集める。
-func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFactor visFunc) []r3quad {
+// frostFunc は寒波前線の氷を載せる判定を作る。オーバーワールドでなければ常に載せない。
+// タイル列の絶対Xから frostAlpha でアルファと可否を返す。frostAlpha は2Dの霜と共有する純関数。
+func (sys *Render3DSystem) frostFunc(world w.World) func(tileX int) (alpha float64, draw bool) {
+	if !query.IsOnOverworld(world) {
+		return func(int) (float64, bool) { return 0, false }
+	}
+	sb := *query.GetSeamlessBand(world)
+	frontEast := int(sb.Front.EastAbsX)
+	coldZoneWest := int(sb.Front.ColdZoneWest())
+	return func(tileX int) (float64, bool) {
+		a, d := frostAlpha(frontEast, coldZoneWest, int(sb.LocalToAbsX(consts.Tile(tileX))))
+		return float64(a), d
+	}
+}
+
+// collectTiles は床と壁のクアッドを集める。可視タイルには寒波前線の氷を重ねる。
+func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFactor visFunc, frost func(int) (float64, bool)) []r3quad {
 	var quads []r3quad
 	walls := map[[2]int]bool{}
 	wallQ := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).With(ecs.C[gc.Tile]()).Query()
@@ -379,18 +417,29 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 		if !ok {
 			continue
 		}
-		vf, vok, _, light := visFactor(g)
+		vf, vok, vis, light := visFactor(g)
 		if !vok {
 			continue
 		}
 		tint := scaleCol(light, vf) // 明るさと光源色を合わせた乗算色
 		meta := r3meta{tile: [2]int{int(g.X), int(g.Y)}, atlas: sr.SpriteSheetName}
-		if world.Components.BlockPass.Has(e) {
+		isWall := world.Components.BlockPass.Has(e)
+		if isWall {
 			sys.addWall(&quads, walls, int(g.X), int(g.Y), fx, fz, atlas, ux, uy, uw, uh, tint, meta)
-			continue
+		} else {
+			meta.kind = "floor"
+			sys.addQuad(&quads, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, atlas, ux, uy, uw, uh, tint, meta)
 		}
-		meta.kind = "floor"
-		sys.addQuad(&quads, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, atlas, ux, uy, uw, uh, tint, meta)
+		// 霜は今見えているタイルにだけ載せる。床は地面、壁は天面の高さへ、z-fight を避け少し上へ重ねる
+		if vis {
+			if a, d := frost(int(g.X)); d {
+				topY := 0.02
+				if isWall {
+					topY = r3wallHeight + 0.02
+				}
+				sys.addFrostQuad(&quads, fx, fz, topY, a, r3meta{kind: "frost", tile: [2]int{int(g.X), int(g.Y)}, atlas: "frost"})
+			}
+		}
 	}
 	return quads
 }
@@ -515,12 +564,12 @@ func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r
 		sp[k] = [2]float64{sx, sy}
 	}
 	b := uint16(len(*verts))
-	cr, cg, cb := float32(q.col[0]), float32(q.col[1]), float32(q.col[2])
+	cr, cg, cb, ca := float32(q.col[0]), float32(q.col[1]), float32(q.col[2]), float32(q.alpha)
 	for k := range 4 {
 		*verts = append(*verts, ebiten.Vertex{
 			DstX: float32(sp[k][0]), DstY: float32(sp[k][1]),
 			SrcX: float32(q.uv[k][0]), SrcY: float32(q.uv[k][1]),
-			ColorR: cr, ColorG: cg, ColorB: cb, ColorA: 1,
+			ColorR: cr, ColorG: cg, ColorB: cb, ColorA: ca,
 		})
 	}
 	*inds = append(*inds, b, b+1, b+2, b, b+2, b+3)
