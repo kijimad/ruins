@@ -33,3 +33,14 @@ func TestGolden_Overworld(t *testing.T) {
 		return []es.State[w.World]{s}
 	})
 }
+
+// TestGolden_Dungeon は遺跡へ入った直後のダンジョン実画面を丸ごと固定する。
+// プレイヤーは上り階段の上に湧く実スポーンのまま、3D世界の上にHUDを合成して撮る。
+func TestGolden_Dungeon(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
+		Depth:          1,
+		DefinitionName: dungeon.DungeonDebug.Name(),
+		BuilderType:    mapplanner.PlannerTypeSmallRoom,
+	}))
+}
