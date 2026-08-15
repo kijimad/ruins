@@ -61,7 +61,7 @@
 				
 				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
 				
-				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (83.6%)</option>
+				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.3%)</option>
 				
 				<option value="file4">github.com/kijimaD/ruins/internal/activity/door.go (77.3%)</option>
 				
@@ -521,7 +521,7 @@
 				
 				<option value="file232">github.com/kijimaD/ruins/internal/systems/camera_system.go (75.8%)</option>
 				
-				<option value="file233">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (74.3%)</option>
+				<option value="file233">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (75.7%)</option>
 				
 				<option value="file234">github.com/kijimaD/ruins/internal/systems/frost_render.go (16.3%)</option>
 				
@@ -623,7 +623,7 @@
 				
 				<option value="file283">github.com/kijimaD/ruins/internal/world/lifecycle/inventory.go (96.2%)</option>
 				
-				<option value="file284">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (92.7%)</option>
+				<option value="file284">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (93.5%)</option>
 				
 				<option value="file285">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (75.0%)</option>
 				
@@ -1974,7 +1974,7 @@ func (db *DisassembleBehavior) gainMechanicExp(actor ecs.Entity, world w.World) 
         <span class="cov8" title="1">s := world.Components.Skills.Get(actor).Get(gc.SkillMechanic)
 
         abilityValue := 0
-        if world.Components.Abilities.Has(actor) </span><span class="cov0" title="0">{
+        if world.Components.Abilities.Has(actor) </span><span class="cov8" title="1">{
                 abilityValue = world.Components.Abilities.Get(actor).ValueOf(gc.SkillAbilityID(gc.SkillMechanic))
         }</span>
 
@@ -45118,7 +45118,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error <span class="cov8" tit
                         return err
                 }</span>
                 // ドロップしない
-                <span class="cov8" title="1">if materialName == "" </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if materialName == "" </span><span class="cov8" title="1">{
                         continue</span>
                 }
 
@@ -53174,7 +53174,7 @@ func UnequipAll(world w.World, playerEntity ecs.Entity) error <span class="cov8"
 // エンティティが死亡している場合や既に付与済みの場合は何もしない。
 // Arkは死亡エンティティへの付与と二重付与でパニックするため、ここで吸収する
 func ensureMarker[T any](world w.World, comp *ecs.Map[T], entity ecs.Entity, data *T) <span class="cov8" title="1">{
-        if !world.ECS.Alive(entity) </span><span class="cov0" title="0">{
+        if !world.ECS.Alive(entity) </span><span class="cov8" title="1">{
                 return
         }</span>
         <span class="cov8" title="1">if !comp.Has(entity) </span><span class="cov8" title="1">{

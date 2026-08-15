@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.5&nbsp;%</td>
+            <td class="headerCovTableEntryMed">81.4&nbsp;%</td>
             <td class="headerCovTableEntry">210</td>
-            <td class="headerCovTableEntry">169</td>
+            <td class="headerCovTableEntry">171</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-14 16:29:20</td>
+            <td class="headerValue">2026-08-15 00:48:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -284,11 +284,11 @@
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 :         s := world.Components.Skills.Get(actor).Get(gc.SkillMechanic)</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         abilityValue := 0</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         if world.Components.Abilities.Has(actor) {</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC tlaBgUNC">           0 :                 abilityValue = world.Components.Abilities.Get(actor).ValueOf(gc.SkillAbilityID(gc.SkillMechanic))</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           2 :         if world.Components.Abilities.Has(actor) {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 abilityValue = world.Components.Abilities.Get(actor).ValueOf(gc.SkillAbilityID(gc.SkillMechanic))</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L228"><span class="lineNum">     228</span>              : </span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">           2 :         if skill.GainExp(s, abilityValue) {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           2 :         if skill.GainExp(s, abilityValue) {</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 // 同一ターン内の別処理が既にマーカーを付けていることがあるため、二重付与を避ける</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 if !world.Components.StatsChanged.Has(actor) {</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC tlaBgUNC">           0 :                         world.Components.StatsChanged.Add(actor, &amp;gc.StatsChanged{})</span></span>
