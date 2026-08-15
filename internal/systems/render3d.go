@@ -107,6 +107,28 @@ type r3quad struct {
 	atlas *ebiten.Image
 	col   [3]float64 // 頂点色の乗算。テクスチャ面は灰色の減光、フラット面は平均色
 	key   float64
+	// 以下は VRT の命令列に出すメタ情報。描画そのものには使わない
+	kind      string // floor / wallTop / wallSide / billboard
+	tile      [2]int // 由来タイルのグリッド座標
+	atlasName string // アトラス識別子。壁側面のフラット塗りは flat
+}
+
+// r3meta はクアッドへ添える命令列メタ情報をまとめる。addQuad 系の引数肥大を避ける。
+type r3meta struct {
+	kind  string
+	tile  [2]int
+	atlas string
+}
+
+// R3DrawCommand は3Dシーンを描く1クアッドの命令。VRTで命令列を安定に差分比較するため、
+// 投影後スクリーン座標と色を整数へ丸めて float ノイズを排除して記録する。
+// 配列の並びが描画順、すなわち画家アルゴリズムでソートした後の奥から手前の順である。
+type R3DrawCommand struct {
+	Kind   string    // floor / wallTop / wallSide / billboard
+	Tile   [2]int    // 由来タイルのグリッド座標
+	Atlas  string    // アトラス識別子。壁側面のフラット塗りは flat
+	Screen [4][2]int // 投影後スクリーン座標。整数へ丸める
+	Color  [3]int    // 頂点色 0..255
 }
 
 const (
@@ -151,25 +173,31 @@ func scaleCol(c [3]float64, s float64) [3]float64 {
 	return [3]float64{c[0] * s, c[1] * s, c[2] * s}
 }
 
-func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64) {
+func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64, meta r3meta) {
 	*out = append(*out, r3quad{
-		p:     [4]r3vec{p0, p1, p2, p3},
-		uv:    [4][2]float64{{x, y}, {x + ww, y}, {x + ww, y + hh}, {x, y + hh}},
-		atlas: atlas,
-		col:   col,
+		p:         [4]r3vec{p0, p1, p2, p3},
+		uv:        [4][2]float64{{x, y}, {x + ww, y}, {x + ww, y + hh}, {x, y + hh}},
+		atlas:     atlas,
+		col:       col,
+		kind:      meta.kind,
+		tile:      meta.tile,
+		atlasName: meta.atlas,
 	})
 }
 
 // addFlatQuad は面をスプライトの平均色でフラットに塗る。壁の側面に使う。真上視点用テクスチャを
 // 垂直面へ引き伸ばす違和感を避け、新規アートなしでローポリらしい平板シェードにする。
 // 白1pxテクスチャに平均色×shade を頂点色で乗せる。
-func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64) {
+func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64, meta r3meta) {
 	c := avgSpriteColor(atlas, x, y, ww, hh)
 	*out = append(*out, r3quad{
-		p:     [4]r3vec{p0, p1, p2, p3},
-		uv:    [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
-		atlas: whitePixel(),
-		col:   [3]float64{c[0] * col[0], c[1] * col[1], c[2] * col[2]},
+		p:         [4]r3vec{p0, p1, p2, p3},
+		uv:        [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
+		atlas:     whitePixel(),
+		col:       [3]float64{c[0] * col[0], c[1] * col[1], c[2] * col[2]},
+		kind:      meta.kind,
+		tile:      meta.tile,
+		atlasName: meta.atlas,
 	})
 }
 
@@ -224,6 +252,15 @@ func avgSpriteColor(atlas *ebiten.Image, x, y, w, h float64) [3]float64 {
 
 // Draw は w.Renderer を満たす。3Dシーンを screen へ描く。
 func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
+	sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()
+	quads, vp, view := sys.buildScene(world, sw, sh)
+	sys.emit(screen, quads, vp, view, sw, sh)
+	return nil
+}
+
+// buildScene はカメラ行列とクアッド列を組み立てる。Draw と DrawList が共有し、
+// 幾何を1箇所に集約する。カメラ・収集ロジックを別々に持つと描画とVRTでズレるため。
+func (sys *Render3DSystem) buildScene(world w.World, sw, sh int) (quads []r3quad, vp, view r3mat) {
 	pcx, pcz := sys.playerCenter(world)
 
 	target := r3vec{pcx + 0.5, 0.4, pcz + 0.5}
@@ -235,16 +272,60 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 	dir := r3vec{math.Cos(pitch) * math.Sin(yaw), math.Sin(pitch), math.Cos(pitch) * math.Cos(yaw)}
 	eye := r3add(target, r3scale(dir, dist))
 	up := r3vec{0, 1, 0}
-	sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()
-	view := r3lookAt(eye, target, up)
-	vp := r3mul(r3perspective(52, float64(sw)/float64(sh), 0.1, 200), view)
+	view = r3lookAt(eye, target, up)
+	vp = r3mul(r3perspective(52, float64(sw)/float64(sh), 0.1, 200), view)
 
 	visFactor := sys.visFactorFunc(world)
-	quads := sys.collectTiles(world, pcx, pcz, visFactor)
+	quads = sys.collectTiles(world, pcx, pcz, visFactor)
 	right := r3norm(r3cross(r3norm(r3sub(target, eye)), up))
 	quads = sys.collectBillboards(world, quads, pcx, pcz, right, visFactor)
-	sys.emit(screen, quads, vp, view, sw, sh)
-	return nil
+	return quads, vp, view
+}
+
+// DrawList はこのフレームで描くクアッドの命令列を返す。VRTで命令列を安定に差分比較する。
+// Draw と同じ buildScene・ソート・投影を通すので、画像とズレない。画面外へ落ちるクアッドは
+// Draw と同じく除外する。座標と色は整数へ丸めて float ノイズを排除する。
+func (sys *Render3DSystem) DrawList(world w.World, sw, sh int) []R3DrawCommand {
+	quads, vp, view := sys.buildScene(world, sw, sh)
+	sortQuadsByDepth(quads, view)
+
+	cmds := make([]R3DrawCommand, 0, len(quads))
+	for i := range quads {
+		q := &quads[i]
+		var scr [4][2]int
+		ok := true
+		for k, p := range q.p {
+			x, y, vis := projectToScreen(vp, p, sw, sh)
+			if !vis {
+				ok = false
+				break
+			}
+			scr[k] = [2]int{int(math.Round(x)), int(math.Round(y))}
+		}
+		if !ok {
+			continue
+		}
+		cmds = append(cmds, R3DrawCommand{
+			Kind:   q.kind,
+			Tile:   q.tile,
+			Atlas:  q.atlasName,
+			Screen: scr,
+			Color:  [3]int{clamp255(q.col[0]), clamp255(q.col[1]), clamp255(q.col[2])},
+		})
+	}
+	return cmds
+}
+
+// clamp255 は 0..1 の色成分を 0..255 の整数へ丸めて収める。
+func clamp255(v float64) int {
+	n := int(math.Round(v * 255))
+	if n < 0 {
+		return 0
+	}
+	if n > 255 {
+		return 255
+	}
+	return n
 }
 
 // playerCenter はプレイヤーのタイル座標を返す。いなければ既定値。
@@ -293,7 +374,8 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 		if math.Abs(fx-pcx) > r3cullRadius || math.Abs(fz-pcz) > r3cullRadius {
 			continue
 		}
-		atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, world.Components.SpriteRender.Get(e))
+		sr := world.Components.SpriteRender.Get(e)
+		atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)
 		if !ok {
 			continue
 		}
@@ -302,31 +384,39 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 			continue
 		}
 		tint := scaleCol(light, vf) // 明るさと光源色を合わせた乗算色
+		meta := r3meta{tile: [2]int{int(g.X), int(g.Y)}, atlas: sr.SpriteSheetName}
 		if world.Components.BlockPass.Has(e) {
-			sys.addWall(&quads, walls, int(g.X), int(g.Y), fx, fz, atlas, ux, uy, uw, uh, tint)
+			sys.addWall(&quads, walls, int(g.X), int(g.Y), fx, fz, atlas, ux, uy, uw, uh, tint, meta)
 			continue
 		}
-		sys.addQuad(&quads, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, atlas, ux, uy, uw, uh, tint)
+		meta.kind = "floor"
+		sys.addQuad(&quads, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, atlas, ux, uy, uw, uh, tint, meta)
 	}
 	return quads
 }
 
 // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。
-func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64, meta r3meta) {
 	// 天面は真上から見るので既存テクスチャをそのまま貼る。側面はフラット単色にする。
 	// tint に面ごとのシェードを掛けて立体感を出す
-	sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.95))
+	top := meta
+	top.kind = "wallTop"
+	sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.95), top)
+	// 側面はフラット塗りなのでアトラス識別子を flat にする
+	side := meta
+	side.kind = "wallSide"
+	side.atlas = "flat"
 	if !walls[[2]int{ix, iy - 1}] {
-		sys.addFlatQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))
+		sys.addFlatQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6), side)
 	}
 	if !walls[[2]int{ix, iy + 1}] {
-		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))
+		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6), side)
 	}
 	if !walls[[2]int{ix - 1, iy}] {
-		sys.addFlatQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))
+		sys.addFlatQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78), side)
 	}
 	if !walls[[2]int{ix + 1, iy}] {
-		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))
+		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78), side)
 	}
 }
 
@@ -340,7 +430,8 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		if math.Abs(fx-pcx) > r3cullRadius || math.Abs(fz-pcz) > r3cullRadius {
 			continue
 		}
-		atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, world.Components.SpriteRender.Get(e))
+		sr := world.Components.SpriteRender.Get(e)
+		atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)
 		if !ok {
 			continue
 		}
@@ -354,13 +445,15 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		const bw, bh = 0.45, 1.0
 		b0 := r3add(base, r3scale(right, -bw))
 		b1 := r3add(base, r3scale(right, bw))
-		sys.addQuad(&quads, r3add(b0, r3vec{0, bh, 0}), r3add(b1, r3vec{0, bh, 0}), b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b))
+		meta := r3meta{kind: "billboard", tile: [2]int{int(g.X), int(g.Y)}, atlas: sr.SpriteSheetName}
+		sys.addQuad(&quads, r3add(b0, r3vec{0, bh, 0}), r3add(b1, r3vec{0, bh, 0}), b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b), meta)
 	}
 	return quads
 }
 
-// emit はクアッドを奥行きでソートし、アトラスが変わる境目でバッチに分けて描く。
-func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, vp, view r3mat, sw, sh int) {
+// sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。
+// Draw の emit と DrawList が同じ並びを得るため共有する。
+func sortQuadsByDepth(quads []r3quad, view r3mat) {
 	for i := range quads {
 		c := r3vec{}
 		for _, p := range quads[i].p {
@@ -371,6 +464,20 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, vp, view r
 		quads[i].key = vz
 	}
 	sort.SliceStable(quads, func(i, j int) bool { return quads[i].key < quads[j].key })
+}
+
+// projectToScreen は点をスクリーン座標へ投影する。カメラ後方や w<=0 の点は ok=false。
+func projectToScreen(vp r3mat, p r3vec, sw, sh int) (float64, float64, bool) {
+	cx, cy, _, cw := r3apply(vp, p)
+	if cw <= 0.001 {
+		return 0, 0, false
+	}
+	return (cx/cw*0.5 + 0.5) * float64(sw), (1 - (cy/cw*0.5 + 0.5)) * float64(sh), true
+}
+
+// emit はクアッドを奥行きでソートし、アトラスが変わる境目でバッチに分けて描く。
+func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, vp, view r3mat, sw, sh int) {
+	sortQuadsByDepth(quads, view)
 
 	var verts []ebiten.Vertex
 	var inds []uint16
@@ -384,11 +491,7 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, vp, view r
 		inds = inds[:0]
 	}
 	project := func(p r3vec) (float64, float64, bool) {
-		cx, cy, _, cw := r3apply(vp, p)
-		if cw <= 0.001 {
-			return 0, 0, false
-		}
-		return (cx/cw*0.5 + 0.5) * float64(sw), (1 - (cy/cw*0.5 + 0.5)) * float64(sh), true
+		return projectToScreen(vp, p, sw, sh)
 	}
 	for i := range quads {
 		q := &quads[i]
