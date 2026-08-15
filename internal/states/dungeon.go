@@ -9,6 +9,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/input"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -43,6 +44,9 @@ type DungeonState struct {
 	// overworldDefinition はオーバーワールドの種別。非 nil ならこの State は帯モード。
 	// 種別を State が直接持つことで、登録表に無いテスト用の種別も注入できる
 	overworldDefinition *dungeon.OverworldDefinition
+
+	// three は3D表示の状態と操作。3D固有のものは dungeon3D に隔離する
+	three dungeon3D
 }
 
 // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの
@@ -210,6 +214,10 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		}}, nil
 	}
 
+	// 入力はゲーム本体と同じ共有キーボードを通す。カメラ操作は3Dへ委譲する
+	kb := input.GetSharedKeyboardInput()
+	st.three.update(kb)
+
 	// キー入力をActionに変換
 	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -278,9 +286,8 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 	if st.baseImage != nil {
 		screen.DrawImage(st.baseImage, nil)
 	}
-	// まず世界レイヤを screen へ描く。フォグと壁遮蔽は vision の per-tile 暗さで表現する
-	if err := drawRenderers(world, screen,
-		&gs.RenderSpriteSystem{}, &gs.FrostRenderSystem{}); err != nil {
+	// まず世界レイヤを screen へローポリ3Dで描く。フォグと壁遮蔽は vision の per-tile 暗さで表現する
+	if err := st.three.draw(world, screen); err != nil {
 		return err
 	}
 	// 地上は時間帯の色フィルタを世界レイヤへ一様に掛ける。朝夕は暖色、夜は寒色へ寄せる。

@@ -53,6 +53,9 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	if world.Components.ProvidesNutrition.Has(entity) {
 		rows = append(rows, nutritionRows(world, world.Components.ProvidesNutrition.Get(entity))...)
 	}
+	if world.Components.Perishable.Has(entity) {
+		rows = append(rows, freshnessRow(world, entity))
+	}
 	if world.Components.Book.Has(entity) {
 		rows = append(rows, bookRows(world, world.Components.Book.Get(entity))...)
 	}
@@ -85,6 +88,7 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	if spec.ProvidesNutrition != nil {
 		rows = append(rows, nutritionRows(world, spec.ProvidesNutrition)...)
 	}
+	// 鮮度は生成時の刻印 RotUpdatedTurn が要る。spec 段階では未刻印なので出さない
 	if spec.Book != nil {
 		rows = append(rows, bookRows(world, spec.Book)...)
 	}
@@ -210,6 +214,12 @@ func healingRows(world w.World, healing *gc.ProvidesHealing) []SpecRow {
 // nutritionRows は栄養の行を返す
 func nutritionRows(world w.World, nutrition *gc.ProvidesNutrition) []SpecRow {
 	return []SpecRow{{Label: query.T(world, "Nutrition"), Value: strconv.Itoa(nutrition.Amount)}}
+}
+
+// freshnessRow は鮮度の1行を返す。鮮度の算出は query.FreshnessStageOf に委ねる
+func freshnessRow(world w.World, entity ecs.Entity) SpecRow {
+	stage, _ := query.FreshnessStageOf(world, entity)
+	return SpecRow{Label: query.T(world, "Freshness"), Value: query.T(world, query.FreshnessLabel(stage))}
 }
 
 // valueRows は価値の行を返す

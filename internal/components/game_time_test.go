@@ -7,6 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestStartOfTimeOfDayTurns(t *testing.T) {
+	t.Parallel()
+
+	for _, tod := range []TimeOfDay{TimeDawn, TimeMorning, TimeDay, TimeEvening, TimeNight, TimeMidnight} {
+		gt := &GameTime{TotalTurns: StartOfTimeOfDayTurns(tod)}
+		assert.Equal(t, tod, gt.GetTimeOfDay(), "開始ターンはその時間帯を指すべき")
+	}
+	// 昼は500ターンから始まる
+	assert.Equal(t, consts.Turn(500), StartOfTimeOfDayTurns(TimeDay))
+}
+
 func TestGameTime_GetTimeOfDay(t *testing.T) {
 	t.Parallel()
 

@@ -155,19 +155,39 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
-// applyNutrition は空腹度回復処理を適用する
+// rottenNutritionPercent は腐敗した食料から得られる栄養の割合。満額の3割。
+const rottenNutritionPercent = 30
+
+// applyNutrition は空腹度回復処理を適用する。鮮度に応じて栄養を調整する。
 func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
 	if !world.Components.Hunger.Has(actor) {
 		return nil
 	}
 	hunger := world.Components.Hunger.Get(actor)
 
-	// 満腹度を増加させる（値が大きいほど満腹）
-	hunger.Increase(amount)
+	// Perishable を持たない食料は新鮮扱いで満額
+	stage, ok := query.FreshnessStageOf(world, item)
+	if !ok {
+		stage = gc.FreshnessFresh
+	}
 
-	// 満腹状態になったかチェック
+	var nutrition int
+	switch stage {
+	case gc.FreshnessFresh:
+		nutrition = amount
+	case gc.FreshnessStale:
+		nutrition = amount / 2
+	case gc.FreshnessRotten:
+		nutrition = amount * rottenNutritionPercent / 100
+	}
+	// 鮮度で減った栄養が整数除算で0に落ちても、腐敗食は非常食として最低1は与える。
+	// balance で小さい栄養値を設定したとき、劣化・腐敗が完全にゼロ効果になる罠を防ぐ
+	if amount > 0 && nutrition < 1 {
+		nutrition = 1
+	}
+	hunger.Increase(nutrition)
+
 	isSatiated := hunger.GetLevel() == gc.HungerSatiated
-
 	u.logNutritionUse(actor, world, item, isSatiated)
 
 	return nil
@@ -194,7 +214,7 @@ func (u *UseItemBehavior) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	logger.Log()
 }
 
-// logNutritionUse は空腹度回復のログを出力する
+// logNutritionUse は空腹度回復のログを出力する。腐敗する食料は鮮度を添える
 func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {
 	// プレイヤーが関わる場合のみログ出力
 	if !world.Components.Player.Has(actor) {
@@ -207,12 +227,26 @@ func (u *UseItemBehavior) logNutritionUse(actor ecs.Entity, world w.World, item 
 	actorMarkup := query.NameMarkup(actor, actorName, world)
 	itemMarkup := gamelog.Tag("item", itemName)
 	logger := gamelog.New(query.GetGameLog(world))
-	if isSatiated {
-		logger.Markup(query.T(world, "%s ate %s and became full.", actorMarkup, itemMarkup))
-	} else {
+
+	// 腐敗する食料は鮮度を名前に添える。腐敗しない食料はそのまま
+	if stage, ok := query.FreshnessStageOf(world, item); !ok {
 		logger.Markup(query.T(world, "%s ate %s", actorMarkup, itemMarkup))
+	} else {
+		switch stage {
+		case gc.FreshnessFresh:
+			logger.Markup(query.T(world, "%s ate fresh %s.", actorMarkup, itemMarkup))
+		case gc.FreshnessStale:
+			logger.Markup(query.T(world, "%s ate old %s.", actorMarkup, itemMarkup))
+		case gc.FreshnessRotten:
+			logger.Markup(query.T(world, "%s ate spoiled %s.", actorMarkup, itemMarkup))
+		}
 	}
 	logger.Log()
+
+	// 満腹になったら別行で知らせる
+	if isSatiated {
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "%s is now full.", actorMarkup)).Log()
+	}
 }
 
 // getItemName はアイテムの名前を取得する

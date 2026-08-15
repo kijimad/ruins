@@ -222,16 +222,33 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 		return nil
 	}
 
-	targetEntity := stackableItems[0]
-	for i := 1; i < len(stackableItems); i++ {
-		itemToMerge := stackableItems[i]
-		mergeCount := query.GetEntityCount(world, itemToMerge)
-
-		if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {
-			return fmt.Errorf("failed to merge counts: %w", err)
+	// 合流の同一判定は query.CanStackWith に集約する。出現順に survivor へ畳み、
+	// どのエンティティが残るかを決定的にする。腐敗食は鮮度段階が同じ束にだけ合流し、
+	// 合流時に劣化量を個数で加重平均する。段階違いは別の survivor として残す。
+	now := query.GetGameTime(world).TotalTurns
+	var survivors []ecs.Entity
+	for _, e := range stackableItems {
+		merged := false
+		for _, s := range survivors {
+			if !query.CanStackWith(world, s, e) {
+				continue
+			}
+			if world.Components.Perishable.Has(s) {
+				query.AdvanceRot(world, s, now)
+				query.AdvanceRot(world, e, now)
+				sp := world.Components.Perishable.Get(s)
+				sp.MergeRot(query.GetEntityCount(world, s), *world.Components.Perishable.Get(e), query.GetEntityCount(world, e))
+			}
+			if err := ChangeItemCount(world, s, query.GetEntityCount(world, e)); err != nil {
+				return fmt.Errorf("failed to merge counts: %w", err)
+			}
+			world.ECS.RemoveEntity(e)
+			merged = true
+			break
 		}
-
-		world.ECS.RemoveEntity(itemToMerge)
+		if !merged {
+			survivors = append(survivors, e)
+		}
 	}
 
 	return nil

@@ -1,0 +1,58 @@
+package states
+
+import (
+	"math"
+	"testing"
+
+	gc "github.com/kijimaD/ruins/internal/components"
+	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestDungeon3D_rotate(t *testing.T) {
+	t.Parallel()
+
+	d := &dungeon3D{sys: gs.NewRender3DSystem()}
+
+	d.rotate(1)
+	assert.Equal(t, 1, d.orient)
+	assert.InDelta(t, math.Pi/4, d.sys.Yaw, 1e-9)
+
+	d.rotate(-1)
+	assert.Equal(t, 0, d.orient)
+
+	// 反時計回りは環で7へ回り込む
+	d.rotate(-1)
+	assert.Equal(t, 7, d.orient)
+	assert.InDelta(t, 7*math.Pi/4, d.sys.Yaw, 1e-9)
+
+	// 8回転で一巡して元へ戻る
+	for range 8 {
+		d.rotate(1)
+	}
+	assert.Equal(t, 7, d.orient)
+}
+
+func TestDungeon3D_moveDir(t *testing.T) {
+	t.Parallel()
+
+	// orient0: 既定カメラは南から北を見下ろす。画面の上=北で、北上のミニマップと向きが一致する。
+	// Up=北・Right=東・Left=西と、キーと地図の向きがそろうことを固定する
+	d := &dungeon3D{orient: 0}
+	assert.Equal(t, gc.DirectionUp, d.moveDir(gc.DirectionUp))
+	assert.Equal(t, gc.DirectionRight, d.moveDir(gc.DirectionRight))
+	assert.Equal(t, gc.DirectionLeft, d.moveDir(gc.DirectionLeft))
+
+	// orient2 は90度。カメラが回ると Up は西へ回る
+	d.orient = 2
+	assert.Equal(t, gc.DirectionLeft, d.moveDir(gc.DirectionUp))
+}
+
+func TestDungeonState_moveDir_delegation(t *testing.T) {
+	t.Parallel()
+
+	// 常に3Dカメラの向きへ dungeon3D で委譲する。北上カメラの既定 orient0 では Up=北・Right=東のまま
+	st := &DungeonState{}
+	assert.Equal(t, gc.DirectionUp, st.moveDir(gc.DirectionUp))
+	assert.Equal(t, gc.DirectionRight, st.moveDir(gc.DirectionRight))
+}

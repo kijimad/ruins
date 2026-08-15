@@ -9,7 +9,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// FindStackableInInventory は同定キーでバックパック内のStackableアイテムを検索する
+// FindStackableInInventory は RawID でバックパック内の Stackable アイテムを1つ返す。
+// 個数照会や消費の起点に使う。鮮度による束の分割は合流側の query.CanStackWith が担うため、
+// ここは鮮度を見ず RawID だけで引く。腐敗食は鮮度違いの別束が複数ありうる点に注意する。
 func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool

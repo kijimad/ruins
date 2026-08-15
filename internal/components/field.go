@@ -1,6 +1,10 @@
 package components
 
-import "github.com/kijimaD/ruins/internal/consts"
+import (
+	"math"
+
+	"github.com/kijimaD/ruins/internal/consts"
+)
 
 // Position はフィールド上に座標をもって存在する
 // 値はカメラ変換前のワールド座標。描画時にはスクリーン座標へ変換する必要がある
@@ -114,4 +118,57 @@ func (d Direction) GetDelta() consts.Coord[consts.Tile] {
 	default:
 		return consts.Coord[consts.Tile]{X: 0, Y: 0}
 	}
+}
+
+// direction8 は8方向の一覧。スナップの走査に使う。
+var direction8 = [8]Direction{
+	DirectionUp, DirectionUpRight, DirectionRight, DirectionDownRight,
+	DirectionDown, DirectionDownLeft, DirectionLeft, DirectionUpLeft,
+}
+
+// ScreenIntent は方向を画面基準の意図ベクトルへ写す。su は上向き、sr は右向きの成分で
+// どちらも -1/0/1。カメラ相対移動で、押されたキーが指す画面上の向きを表す。
+func (d Direction) ScreenIntent() (su, sr float64) {
+	switch d {
+	case DirectionUp:
+		return 1, 0
+	case DirectionDown:
+		return -1, 0
+	case DirectionRight:
+		return 0, 1
+	case DirectionLeft:
+		return 0, -1
+	case DirectionUpRight:
+		return 1, 1
+	case DirectionUpLeft:
+		return 1, -1
+	case DirectionDownRight:
+		return -1, 1
+	case DirectionDownLeft:
+		return -1, -1
+	default:
+		return 0, 0
+	}
+}
+
+// SnapWorldVec は world 平面のベクトルを最寄りの8方向へスナップする。
+// カメラ相対移動で、回した向きの world ベクトルから実際の移動方向を決めるのに使う。
+// ゼロベクトルは DirectionNone を返す。
+func SnapWorldVec(wx, wy float64) Direction {
+	best := DirectionNone
+	bestDot := 0.0
+	for _, d := range direction8 {
+		delta := d.GetDelta()
+		dx, dy := float64(delta.X), float64(delta.Y)
+		norm := math.Hypot(dx, dy)
+		if norm == 0 {
+			continue
+		}
+		dot := (wx*dx + wy*dy) / norm
+		if dot > bestDot {
+			bestDot = dot
+			best = d
+		}
+	}
+	return best
 }
