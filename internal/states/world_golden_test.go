@@ -1,8 +1,7 @@
 package states_test
 
 // 自然フレーム golden。ゲームとして自然な状態を、内部に手を入れず state の実 Draw で丸ごと撮る。
-// 3D世界レイヤの上に HUD が実際どおり合成される。ピクセルは同一環境で決定的なので、
-// assertPNGGolden のトレランスは環境差だけを吸う。prep も分離もしない。
+// 3D世界の上に HUD が実プレイどおり合成される。prep も分離もしない。
 
 import (
 	"testing"
@@ -18,9 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestGolden_Overworld は新規ゲーム開始直後のオーバーワールド実画面を丸ごと固定する。
-// プレイヤーが実際に見るフレーム、すなわち3D世界の上にHUDが合成された状態を、
-// DungeonState の実 Draw をフルスタックで通して撮る。
+// TestGolden_Overworld は新規ゲーム開始直後のオーバーワールド実画面を固定する。
 func TestGolden_Overworld(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, func(_ w.World) []es.State[w.World] {
@@ -34,8 +31,8 @@ func TestGolden_Overworld(t *testing.T) {
 	})
 }
 
-// TestGolden_Dungeon は遺跡へ入った直後のダンジョン実画面を丸ごと固定する。
-// プレイヤーは上り階段の上に湧く実スポーンのまま、3D世界の上にHUDを合成して撮る。
+// TestGolden_Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
+// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
 func TestGolden_Dungeon(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{

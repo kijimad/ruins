@@ -33,7 +33,7 @@ func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.Worl
 }
 
 // RenderPNG はステートを構築し screen へ描いてPNGを返す。比較はしない、画像保存用。
-// draw が nil なら全段描画、非 nil なら Render3DSystem など任意のレンダラで描く。
+// draw が nil なら全段描画、非 nil なら任意のレンダラで描く。
 func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World], draw func(world w.World, screen *ebiten.Image)) []byte {
 	t.Helper()
 	img := renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
