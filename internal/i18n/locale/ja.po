@@ -5584,3 +5584,18 @@ msgstr "履歴"
 
 msgid "No shipments yet."
 msgstr "まだ出荷実績がない"
+
+msgid "Bid"
+msgstr "落札額"
+
+msgid "Shipping"
+msgstr "送料"
+
+msgid "Fee"
+msgstr "手数料"
+
+msgid "Net"
+msgstr "手取り"
+
+msgid "Turn"
+msgstr "ターン"

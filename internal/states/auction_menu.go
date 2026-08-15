@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -13,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -39,7 +41,7 @@ var _ menuloop.ExtraInput = &AuctionMenuState{}
 
 // OnStart はステート開始時に画面を組む
 func (st *AuctionMenuState) OnStart(_ w.World) error {
-	st.detail = overlay.NewEntityDetail(st.selectedEntity)
+	st.detail = overlay.NewDetail(st.detailContent)
 	st.screen = menuloop.NewScreen[AuctionProps](st, &st.detail)
 	return nil
 }
@@ -93,10 +95,10 @@ type AuctionProps struct {
 }
 
 type auctionTabData struct {
-	ID    tabID
-	Label string
-	Items []itemRowData // 出品・取り出しタブの品
-	Lines []string      // 履歴タブの実績行
+	ID      tabID
+	Label   string
+	Items   []itemRowData      // 出品・取り出しタブの品
+	Records []gc.AuctionRecord // 履歴タブの出荷実績。新しい順
 }
 
 // Fetch は世界から表示 props を構築する
@@ -105,7 +107,7 @@ func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 		Tabs: []auctionTabData{
 			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.backpackItems(world)},
 			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.boxItems(world)},
-			{ID: tabIDHistory, Label: query.T(world, "History"), Lines: st.historyLines(world)},
+			{ID: tabIDHistory, Label: query.T(world, "History"), Records: st.historyRecords(world)},
 		},
 	}
 }
@@ -115,7 +117,7 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		if tab.ID == tabIDHistory {
-			itemCounts[i] = len(tab.Lines)
+			itemCounts[i] = len(tab.Records)
 		} else {
 			itemCounts[i] = len(tab.Items)
 		}
@@ -149,15 +151,14 @@ func toAuctionItemData(world w.World, entities []ecs.Entity) []itemRowData {
 	return items
 }
 
-func (st *AuctionMenuState) historyLines(world w.World) []string {
+// historyRecords は出荷実績を新しい順に返す。
+func (st *AuctionMenuState) historyRecords(world w.World) []gc.AuctionRecord {
 	h := query.GetAuctionHistory(world)
-	lines := make([]string, 0, len(h.Records))
-	// 新しい順に見せる
+	records := make([]gc.AuctionRecord, 0, len(h.Records))
 	for i := len(h.Records) - 1; i >= 0; i-- {
-		r := h.Records[i]
-		lines = append(lines, fmt.Sprintf("%s  net %d  bid %d  ship %d  fee %d  turn %d", r.Name, r.Net, r.Bid, r.Ship, r.Fee, r.Turn))
+		records = append(records, h.Records[i])
 	}
-	return lines
+	return records
 }
 
 // executeTransfer は選択中のタブに応じて品を箱へ入れる、または取り出す。履歴タブは閲覧のみ。
@@ -215,22 +216,39 @@ func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menul
 	})
 }
 
-// selectedEntity は現在カーソルが当たっている品のエンティティを返す。履歴タブは対象外。
-func (st *AuctionMenuState) selectedEntity() (ecs.Entity, bool) {
+// detailContent は x で開く詳細の内容を返す。出品・取り出しタブは品の詳細、履歴タブは出荷実績の内訳。
+func (st *AuctionMenuState) detailContent(world w.World) (overlay.DetailContent, bool) {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
 	if cursor.TabIndex >= len(props.Tabs) {
-		return ecs.Entity{}, false
+		return overlay.DetailContent{}, false
 	}
 	tab := props.Tabs[cursor.TabIndex]
 	if tab.ID == tabIDHistory {
-		return ecs.Entity{}, false
+		if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(tab.Records) {
+			return overlay.DetailContent{}, false
+		}
+		return auctionRecordDetail(world, tab.Records[cursor.ItemIndex]), true
 	}
 	item, ok := tabItemAt(tab, cursor.ItemIndex)
-	if !ok {
-		return ecs.Entity{}, false
+	if !ok || !world.ECS.Alive(item.Entity) {
+		return overlay.DetailContent{}, false
 	}
-	return item.Entity, true
+	return overlay.EntityDetailContent(world, item.Entity), true
+}
+
+// auctionRecordDetail は出荷実績1件の内訳を詳細内容にする。
+func auctionRecordDetail(world w.World, r gc.AuctionRecord) overlay.DetailContent {
+	return overlay.DetailContent{
+		Name: r.Name,
+		Rows: []entityspec.SpecRow{
+			{Label: query.T(world, "Bid"), Value: strconv.Itoa(r.Bid)},
+			{Label: query.T(world, "Shipping"), Value: strconv.Itoa(r.Ship)},
+			{Label: query.T(world, "Fee"), Value: strconv.Itoa(r.Fee)},
+			{Label: query.T(world, "Net"), Value: strconv.Itoa(r.Net)},
+			{Label: query.T(world, "Turn"), Value: strconv.Itoa(r.Turn)},
+		},
+	}
 }
 
 func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
@@ -239,11 +257,12 @@ func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionPro
 	}
 	tab := props.Tabs[tabIndex]
 	if tab.ID == tabIDHistory {
-		rows := make([]menuRow, len(tab.Lines))
-		for i, line := range tab.Lines {
-			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(line)}}
+		// 各行は品名と落札額だけ。内訳は x の詳細で見る
+		rows := make([]menuRow, len(tab.Records))
+		for i, r := range tab.Records {
+			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(r.Name), styled.TextCell(strconv.Itoa(r.Bid))}}
 		}
-		return renderMenuList(itemIndex, rows, []int{380}, []styled.TextAlign{styled.AlignLeft},
+		return renderMenuList(itemIndex, rows, []int{280, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight},
 			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No shipments yet.")}, res)
 	}
 	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
