@@ -32,7 +32,7 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 // ebitenui の時間依存ノイズによる不要な差分を防ぐ
 func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
-	assertPNGGolden(t, RenderStatePNG(t, buildStates))
+	assertPNGGolden(t, RenderPNG(t, buildStates, nil))
 }
 
 // AssertTopStateGolden は最上段ステートだけを黒背景へ描いてゴールデン比較する。下段はワールドの
@@ -40,37 +40,31 @@ func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.Worl
 // UIのVRTで使う。LookAround のカーソルや Shooting の照準、OverworldMap の記号地図が該当する。
 func AssertTopStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
-	assertPNGGolden(t, encodePNG(t, renderTopState(t, buildStates)))
-}
-
-// RenderStatePNG はステートを全段描画してPNGバイト列として返す。
-// アサーションは行わず、画像の保存用途で使用する
-func RenderStatePNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []byte {
-	t.Helper()
-	return encodePNG(t, renderState(t, buildStates))
-}
-
-// renderState はステートスタック全段を描画して image.NRGBA として返す。
-func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
-	t.Helper()
-	return renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
-		for _, state := range sm.GetStates() {
-			require.NoError(t, state.Draw(world, screen), "failed to draw")
-		}
-	})
-}
-
-// renderTopState は最上段ステートだけを描画して返す。下段はワールドのデータ準備のためだけに積み、
-// ワールドは映さない。
-func renderTopState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
-	t.Helper()
-	return renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
+	img := renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
 		states := sm.GetStates()
 		if len(states) == 0 {
 			return
 		}
 		require.NoError(t, states[len(states)-1].Draw(world, screen), "failed to draw")
 	})
+	assertPNGGolden(t, encodePNG(t, img))
+}
+
+// RenderPNG はステートを構築し screen へ描いてPNGバイト列を返す。アサーションはしない、画像保存用。
+// draw が nil ならステートスタック全段を描く。非 nil なら任意のレンダラで描き、2Dステートの描画に
+// 依らず Render3DSystem のようなレンダラを画像化できる。
+func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World], draw func(world w.World, screen *ebiten.Image)) []byte {
+	t.Helper()
+	img := renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
+		if draw != nil {
+			draw(world, screen)
+			return
+		}
+		for _, state := range sm.GetStates() {
+			require.NoError(t, state.Draw(world, screen), "failed to draw")
+		}
+	})
+	return encodePNG(t, img)
 }
 
 // renderStates は world を作りステートを構築し、drawStates で screen へ描いて NRGBA を返す。
@@ -128,15 +122,6 @@ func BuildWorld(t *testing.T, buildStates func(w.World) []es.State[w.World]) w.W
 		setupStateMachine(t, world, buildStates)
 	})
 	return world
-}
-
-// RenderWorldPNG はステートで world を構築し、任意の描画関数でオフスクリーンへ描いてPNGを返す。
-// 2Dステートの描画に依らず Render3DSystem のようなレンダラを画像化するVRTで使う。アサーションはしない。
-func RenderWorldPNG(t *testing.T, buildStates func(w.World) []es.State[w.World], draw func(world w.World, screen *ebiten.Image)) []byte {
-	t.Helper()
-	return encodePNG(t, renderStates(t, buildStates, func(_ es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
-		draw(world, screen)
-	}))
 }
 
 // InitVRTWorld はVRT用のワールドを初期化する。固定シードで再現性を保証する。

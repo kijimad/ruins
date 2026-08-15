@@ -178,7 +178,7 @@ func TestRender3DImages(t *testing.T) {
 				return
 			}
 
-			pngData := vrt.RenderWorldPNG(t, sc.build, func(world w.World, screen *ebiten.Image) {
+			pngData := vrt.RenderPNG(t, sc.build, func(world w.World, screen *ebiten.Image) {
 				if sc.prep != nil {
 					sc.prep(world)
 				}

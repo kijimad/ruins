@@ -357,11 +357,11 @@ func TestMapGenImages(t *testing.T) {
 					return
 				}
 
-				pngData := vrt.RenderStatePNG(t, vrt.States(&gs.MapGenVisualizerState{
+				pngData := vrt.RenderPNG(t, vrt.States(&gs.MapGenVisualizerState{
 					PlannerType:   pt,
 					Seed:          result.seed,
 					SnapshotIndex: i,
-				}))
+				}), nil)
 				require.NoError(t, g.Update(t, t.Name(), pngData))
 				t.Logf("画像を更新: %s", imgPath)
 			})
