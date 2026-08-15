@@ -349,6 +349,25 @@ func TestUseItemBehavior_applyNutrition_鮮度で栄養が変わる(t *testing.T
 	}
 }
 
+func TestUseItemBehavior_applyNutrition_鮮度で減っても最低1は与える(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	bread, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 1)
+	require.NoError(t, err)
+	query.GetGameTime(world).TotalTurns = 3000 // 腐敗
+
+	actor := world.ECS.NewEntity()
+	hunger := gc.NewHunger()
+	hunger.Current = 100
+	world.Components.Hunger.Add(actor, hunger)
+
+	u := &UseItemBehavior{}
+	// amount=1 は腐敗3割で整数除算すると0。最低1にクランプされ、栄養効果がゼロにならない
+	require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorUseItem, 1), actor, world, 1, bread))
+
+	assert.Equal(t, 101, world.Components.Hunger.Get(actor).Current, "腐敗でも最低1は回復する")
+}
+
 func TestUseItemBehavior_食べたログに鮮度が出る(t *testing.T) {
 	t.Parallel()
 

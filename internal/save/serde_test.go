@@ -263,6 +263,9 @@ func TestSerde_Perishableが往復する(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MoveToBackpack(world, bread, player))
 
+	// 往復の検証は保存前の実値を基準にする。raw の shelfLife を直に埋めると値変更で壊れる
+	original := *world.Components.Perishable.Get(bread)
+
 	require.NoError(t, manager.SaveWorld(world, "perishable"))
 
 	newWorld := testutil.InitTestWorld(t)
@@ -278,7 +281,6 @@ func TestSerde_Perishableが往復する(t *testing.T) {
 	}
 
 	require.NotNil(t, restored, "bread の Perishable が復元される")
-	assert.Equal(t, consts.Turn(700), restored.LastCheck, "劣化の起点時刻が復元される")
-	assert.Equal(t, consts.Turn(0), restored.Rot, "累積劣化量が復元される")
-	assert.Equal(t, consts.Turn(1500), restored.ShelfLife, "保存期間が復元される")
+	assert.Equal(t, original, *restored, "保存前と同じ Rot・ShelfLife・LastCheck が復元される")
+	assert.Equal(t, consts.Turn(700), restored.LastCheck, "劣化の起点時刻は生成ターンで刻まれる")
 }

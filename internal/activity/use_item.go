@@ -171,14 +171,21 @@ func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world
 		stage = gc.FreshnessFresh
 	}
 
+	var nutrition int
 	switch stage {
 	case gc.FreshnessFresh:
-		hunger.Increase(amount)
+		nutrition = amount
 	case gc.FreshnessStale:
-		hunger.Increase(amount / 2)
+		nutrition = amount / 2
 	case gc.FreshnessRotten:
-		hunger.Increase(amount * rottenNutritionPercent / 100)
+		nutrition = amount * rottenNutritionPercent / 100
 	}
+	// 鮮度で減った栄養が整数除算で0に落ちても、腐敗食は非常食として最低1は与える。
+	// balance で小さい栄養値を設定したとき、劣化・腐敗が完全にゼロ効果になる罠を防ぐ
+	if amount > 0 && nutrition < 1 {
+		nutrition = 1
+	}
+	hunger.Increase(nutrition)
 
 	isSatiated := hunger.GetLevel() == gc.HungerSatiated
 	u.logNutritionUse(actor, world, item, isSatiated)

@@ -80,3 +80,10 @@ func TestFreshnessLabel(t *testing.T) {
 	assert.Equal(t, "Stale", query.FreshnessLabel(gc.FreshnessStale))
 	assert.Equal(t, "Rotten", query.FreshnessLabel(gc.FreshnessRotten))
 }
+
+func TestFreshnessLabel_未知の段階はpanicする(t *testing.T) {
+	t.Parallel()
+	// 段階は算出値で保存されないため、未知の段階は enum 追加漏れのプログラムミスに限る。
+	// 黙って握りつぶさず即座に気付けるよう fail-fast で panic する
+	assert.Panics(t, func() { query.FreshnessLabel(gc.FreshnessStage("bogus")) })
+}
