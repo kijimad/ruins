@@ -17,8 +17,7 @@
 //
 //   - AssertContainerGolden: ウィジェットのコンテナを固定する
 //   - AssertScreenGolden: 任意の画面描画を固定する
-//   - AssertStateGolden: ステートスタックを全段描画して固定する。メニューを別メニューへ重ねる絵に使う
-//   - AssertTopStateGolden: 最上段だけ描いて固定する。下段はデータ供給に積むだけで映さない。ワールドを見せたくないUIに使う
+//   - AssertStateGolden: ステートスタックを全段描画して固定する。世界の上にUIを重ねた自然な実画面に使う
 //
 // # 画像生成。比較はせず保存用のPNGを返す
 //

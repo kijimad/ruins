@@ -32,20 +32,6 @@ func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.Worl
 	assertPNGGolden(t, RenderPNG(t, buildStates, nil))
 }
 
-// AssertTopStateGolden は最上段ステートだけを描いてゴールデン比較する。下段はワールドデータの
-// 供給に積むだけで描かない。LookAround のカーソルなどワールドを映したくないUIに使う。
-func AssertTopStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
-	t.Helper()
-	img := renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
-		states := sm.GetStates()
-		if len(states) == 0 {
-			return
-		}
-		require.NoError(t, states[len(states)-1].Draw(world, screen), "failed to draw")
-	})
-	assertPNGGolden(t, encodePNG(t, img))
-}
-
 // RenderPNG はステートを構築し screen へ描いてPNGを返す。比較はしない、画像保存用。
 // draw が nil なら全段描画、非 nil なら Render3DSystem など任意のレンダラで描く。
 func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World], draw func(world w.World, screen *ebiten.Image)) []byte {

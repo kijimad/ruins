@@ -75,9 +75,9 @@ func newGoldenBackdrop(t *testing.T) es.State[w.World] {
 // 退行を捕らえる。俯瞰図は帯から純関数で算出するので、決定的 RunSeed で golden が安定する。
 func TestGolden_OverworldMap(t *testing.T) {
 	t.Parallel()
-	// 下段の帯を映さず記号地図UIだけを撮る。backdrop は band データの供給元として積む
+	// 実際のプレイどおり、下段の世界の上に記号地図UIを重ねて撮る
 	backdrop := newGoldenBackdrop(t)
-	vrt.AssertTopStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
+	vrt.AssertStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
 }
 
 // TestGolden_ItemAction は動詞タブ画面を固定する。調べるタブでバックパックの
@@ -166,8 +166,8 @@ func TestGolden_CubePanel(t *testing.T) {
 
 func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
-	// ワールドは映さずカーソルと情報パネルだけを撮る。DungeonState はタイルデータの供給元として積む
-	vrt.AssertTopStateGolden(t, vrt.States(&gs.DungeonState{
+	// 実際のプレイどおり、3D世界とHUDの上にカーソルと情報パネルを重ねて撮る
+	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:          1,
 		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
@@ -198,8 +198,8 @@ func TestGolden_Message(t *testing.T) {
 
 func TestGolden_Shooting(t *testing.T) {
 	t.Parallel()
-	// ワールドは映さず照準と射撃パネルだけを撮る。DungeonState は敵データの供給元として積む
-	vrt.AssertTopStateGolden(t, vrt.States(&gs.DungeonState{
+	// 実際のプレイどおり、3D世界とHUDの上に照準と射撃パネルを重ねて撮る
+	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:          1,
 		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
