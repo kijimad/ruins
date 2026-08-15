@@ -408,7 +408,7 @@ func TestGolden_ChoiceMenuHeaders(t *testing.T) {
 			{Label: "革の鎧"},
 			{Label: "戻る"},
 		}
-		menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "ロード", choices })
+		menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "装備選択", choices })
 		return []es.State[w.World]{menu}
 	})
 }
