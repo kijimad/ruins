@@ -109,7 +109,7 @@ type r3quad struct {
 
 const (
 	r3wallHeight = 1.0  // 壁の高さ。タイル1個分
-	r3cullRadius = 18.0 // プレイヤーからこのタイル数だけ描く
+	r3cullRadius = 30.0 // プレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る
 )
 
 type visFunc func(*gc.GridElement) (float64, bool)
