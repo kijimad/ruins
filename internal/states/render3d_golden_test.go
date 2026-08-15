@@ -3,7 +3,9 @@ package states_test
 import (
 	"encoding/json"
 	"image/color"
+	"math/rand/v2"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -20,22 +22,50 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// render3DSceneSeed は撮影シーンの生成シード。キャラとポータルが重ならない見栄えの良い配置を選ぶ。
-const render3DSceneSeed = 3
+// 撮影シーンの生成シード。いずれもキャラとポータルが重ならない見栄えの良い配置を選ぶ。
+const (
+	// render3DSceneSeed はオーバーワールドの RunSeed
+	render3DSceneSeed = 3
+	// render3DDungeonSeed はダンジョン層生成の RNG シード。層生成は world.Config.RNG から
+	// シードを引くので、VRT共有の 12345 では重なる。この撮影用に RNG を差し替える
+	render3DDungeonSeed = 7
+)
 
-// render3DScene は3D VRTで固定するシーンを組む。TestGolden_Overworld と同じ昼間のオーバーワールドを
-// 流用する。ダンジョンは暗闇が多く3Dの見た目が沈むため、明るく開けた本流ステージを撮影対象にする。
-// 固定シードで決定的に生成する。
-func render3DScene(t *testing.T) func(w.World) []es.State[w.World] {
+// r3Scene は3D VRTで固定するワールドシーン。ワールドを映すVRTはすべて3D命令列で撮る。
+type r3Scene struct {
+	name  string
+	build func(w.World) []es.State[w.World]
+}
+
+// r3Scenes は撮影シーン一覧を返す。明るい昼間のオーバーワールドと、壁を含むダンジョンを覆う。
+func r3Scenes(t *testing.T) []r3Scene {
 	t.Helper()
-	return func(_ w.World) []es.State[w.World] {
-		s, err := gs.NewOverworldState(
-			mapplanner.PlannerTypeOverworldField,
-			dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
-			&overworld.NewGameParams{RunSeed: render3DSceneSeed},
-		)()
-		require.NoError(t, err)
-		return []es.State[w.World]{s}
+	return []r3Scene{
+		{
+			name: "Overworld",
+			build: func(_ w.World) []es.State[w.World] {
+				s, err := gs.NewOverworldState(
+					mapplanner.PlannerTypeOverworldField,
+					dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
+					&overworld.NewGameParams{RunSeed: render3DSceneSeed},
+				)()
+				require.NoError(t, err)
+				return []es.State[w.World]{s}
+			},
+		},
+		{
+			name: "Dungeon",
+			build: func(world w.World) []es.State[w.World] {
+				// 層生成のRNGを撮影用に差し替える。VRT共有シードだとキャラとポータルが重なる。
+				// テストごとに固有の world なので他テストへ波及しない
+				world.Config.RNG = rand.New(rand.NewPCG(render3DDungeonSeed, 0))
+				return []es.State[w.World]{&gs.DungeonState{
+					Depth:          1,
+					DefinitionName: dungeon.DungeonDebug.Name(),
+					BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				}}
+			},
+		},
 	}
 }
 
@@ -55,15 +85,19 @@ func draw3DList(world w.World) []sysrender.R3DrawCommand {
 // 丸めて float ノイズを排除する。命令列が変わったら差分を読み、意図した変更か確認する。
 func TestGolden_Render3DSnapshot(t *testing.T) {
 	t.Parallel()
+	for _, sc := range r3Scenes(t) {
+		t.Run(sc.name, func(t *testing.T) {
+			t.Parallel()
+			world := vrt.BuildWorld(t, sc.build)
+			cmds := draw3DList(world)
 
-	world := vrt.BuildWorld(t, render3DScene(t))
-	cmds := draw3DList(world)
+			data, err := json.MarshalIndent(cmds, "", "  ")
+			require.NoError(t, err)
 
-	data, err := json.MarshalIndent(cmds, "", "  ")
-	require.NoError(t, err)
-
-	g := goldie.New(t, goldie.WithNameSuffix(".json"))
-	g.Assert(t, t.Name(), data)
+			g := goldie.New(t, goldie.WithNameSuffix(".json"))
+			g.Assert(t, t.Name(), data)
+		})
+	}
 }
 
 // TestRender3DImages は命令列JSONが変わったときだけ3Dシーンのスクショを保存する。
@@ -71,26 +105,31 @@ func TestGolden_Render3DSnapshot(t *testing.T) {
 // pass/fail は TestGolden_Render3DSnapshot のJSONに委ね、画像は成果物として更新する。
 func TestRender3DImages(t *testing.T) {
 	t.Parallel()
+	for _, sc := range r3Scenes(t) {
+		t.Run(sc.name, func(t *testing.T) {
+			t.Parallel()
+			world := vrt.BuildWorld(t, sc.build)
+			cmds := draw3DList(world)
+			currentJSON, err := json.MarshalIndent(cmds, "", "  ")
+			require.NoError(t, err)
 
-	world := vrt.BuildWorld(t, render3DScene(t))
-	cmds := draw3DList(world)
-	currentJSON, err := json.MarshalIndent(cmds, "", "  ")
-	require.NoError(t, err)
+			g := goldie.New(t, goldie.WithNameSuffix(".png"))
+			imgPath := g.GoldenFileName(t, t.Name())
+			// pass/fail の真実源である命令列JSONと突き合わせる。JSONが変わった時だけ画像を作り直す
+			subName := strings.TrimPrefix(t.Name(), "TestRender3DImages/")
+			jsonPath := filepath.Join("testdata", "TestGolden_Render3DSnapshot", subName+".json")
+			if !imgNeedsUpdate(imgPath, jsonPath, currentJSON) {
+				return
+			}
 
-	g := goldie.New(t, goldie.WithNameSuffix(".png"))
-	imgPath := g.GoldenFileName(t, t.Name())
-	// pass/fail の真実源である命令列JSONと突き合わせる。JSONが変わった時だけ画像を作り直す
-	jsonPath := filepath.Join("testdata", "TestGolden_Render3DSnapshot.json")
-	if !imgNeedsUpdate(imgPath, jsonPath, currentJSON) {
-		return
+			pngData := vrt.RenderWorldPNG(t, sc.build, func(world w.World, screen *ebiten.Image) {
+				// ゲームと同じく黒背景の上に3Dシーンを描く
+				screen.Fill(color.Black)
+				sys := sysrender.NewRender3DSystem()
+				_ = sys.Draw(world, screen)
+			})
+			require.NoError(t, g.Update(t, t.Name(), pngData))
+			t.Logf("画像を更新: %s", imgPath)
+		})
 	}
-
-	pngData := vrt.RenderWorldPNG(t, render3DScene(t), func(world w.World, screen *ebiten.Image) {
-		// ゲームと同じく黒背景の上に3Dシーンを描く
-		screen.Fill(color.Black)
-		sys := sysrender.NewRender3DSystem()
-		_ = sys.Draw(world, screen)
-	})
-	require.NoError(t, g.Update(t, t.Name(), pngData))
-	t.Logf("画像を更新: %s", imgPath)
 }

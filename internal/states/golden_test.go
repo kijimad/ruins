@@ -75,8 +75,9 @@ func newGoldenBackdrop(t *testing.T) es.State[w.World] {
 // 退行を捕らえる。俯瞰図は帯から純関数で算出するので、決定的 RunSeed で golden が安定する。
 func TestGolden_OverworldMap(t *testing.T) {
 	t.Parallel()
+	// 下段の帯を映さず記号地図UIだけを撮る。backdrop は band データの供給元として積む
 	backdrop := newGoldenBackdrop(t)
-	vrt.AssertStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
+	vrt.AssertTopStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
 }
 
 // TestGolden_ItemAction は動詞タブ画面を固定する。調べるタブでバックパックの
@@ -86,8 +87,7 @@ func TestGolden_ItemAction(t *testing.T) {
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
 		_, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3)
 		require.NoError(t, err)
-		town := newGoldenBackdrop(t)
-		return []es.State[w.World]{town, &gs.ItemActionState{}}
+		return []es.State[w.World]{&gs.ItemActionState{}}
 	})
 }
 
@@ -95,8 +95,7 @@ func TestGolden_ItemAction(t *testing.T) {
 // スロット一覧を1カラムで並べる経路を覆う。
 func TestGolden_Character(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
-	vrt.AssertStateGolden(t, vrt.States(town, &gs.CharacterState{}))
+	vrt.AssertStateGolden(t, vrt.States(&gs.CharacterState{}))
 }
 
 func TestGolden_CraftMenu(t *testing.T) {
@@ -107,57 +106,45 @@ func TestGolden_CraftMenu(t *testing.T) {
 		require.NoError(t, err)
 		_, err = lifecycle.SpawnBackpackItem(world, "yellow_herb", 1)
 		require.NoError(t, err)
-		town := newGoldenBackdrop(t)
-		return []es.State[w.World]{town, &gs.CraftMenuState{}}
+		return []es.State[w.World]{&gs.CraftMenuState{}}
 	})
 }
 
 func TestGolden_ShopMenu(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
-	vrt.AssertStateGolden(t, vrt.States(town, &gs.ShopMenuState{}))
+	vrt.AssertStateGolden(t, vrt.States(&gs.ShopMenuState{}))
 }
 
 func TestGolden_SaveMenu(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
 	s, err := gs.NewSaveMenuState()
 	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, s))
+	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
 func TestGolden_LoadMenu(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
 	s, err := gs.NewLoadMenuState()
 	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, s))
+	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
 func TestGolden_DebugMenu(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
 	s, err := gs.NewDebugMenuState()
 	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, s))
+	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
 func TestGolden_ComponentDebug(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
 	s, err := gs.NewComponentDebugState()
 	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, s))
+	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
-func TestGolden_Dungeon(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name(),
-		BuilderType:    mapplanner.PlannerTypeSmallRoom,
-	}))
-}
+// ダンジョンとオーバーワールドのワールド描画は3D命令列VRTへ移した。
+// render3d_golden_test.go の TestGolden_Render3DSnapshot / TestRender3DImages を参照する。
 
 // TestGolden_CubePanel はキューブ内部のコントロールパネルの描画を固定する。
 // 現ステージを内部にし重量物を1つ置いて、総重量が出る状態でパネルを描く。
@@ -175,15 +162,10 @@ func TestGolden_CubePanel(t *testing.T) {
 	})
 }
 
-func TestGolden_Overworld(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(s))
-}
-
 // TestGolden_OverworldFrost は寒波前線の氷オーバーレイの描画を固定する。
 // 総ターン数を進めて前線を可視帯へ入れ、西側が凍結壁として濃く覆われる様子を見る。
+// 氷オーバーレイは2D専用で3Dレンダラに未移植のため、ワールド描画を伴うが例外的に2Dピクセルで固定する。
+// 3Dへ氷を移植したら3D命令列VRTへ移す。
 func TestGolden_OverworldFrost(t *testing.T) {
 	t.Parallel()
 	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
@@ -197,7 +179,8 @@ func TestGolden_OverworldFrost(t *testing.T) {
 
 func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
+	// ワールドは映さずカーソルと情報パネルだけを撮る。DungeonState はタイルデータの供給元として積む
+	vrt.AssertTopStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:          1,
 		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
@@ -206,10 +189,9 @@ func TestGolden_LookAround(t *testing.T) {
 
 func TestGolden_GameOver(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
 	s, err := gs.NewGameOverMessageState()
 	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, s))
+	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
 func TestGolden_Message(t *testing.T) {
@@ -222,15 +204,15 @@ func TestGolden_Message(t *testing.T) {
 	).WithChoice(
 		"選択肢2", func(_ w.World) error { return nil },
 	)
-	town := newGoldenBackdrop(t)
 	msgState, err := gs.NewMessageState(messageData)
 	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(town, msgState))
+	vrt.AssertStateGolden(t, vrt.States(msgState))
 }
 
 func TestGolden_Shooting(t *testing.T) {
 	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
+	// ワールドは映さず照準と射撃パネルだけを撮る。DungeonState は敵データの供給元として積む
+	vrt.AssertTopStateGolden(t, vrt.States(&gs.DungeonState{
 		Depth:          1,
 		DefinitionName: dungeon.DungeonDebug.Name(),
 		BuilderType:    mapplanner.PlannerTypeSmallRoom,
@@ -239,12 +221,11 @@ func TestGolden_Shooting(t *testing.T) {
 
 func TestGolden_PersistentMessage(t *testing.T) {
 	t.Parallel()
-	town := newGoldenBackdrop(t)
 	messageData := messagedata.NewDialogMessage(
 		"永続メッセージのVRTテストです。",
 		"テスト",
 	)
-	vrt.AssertStateGolden(t, vrt.States(town, gs.NewPersistentMessageState(messageData)))
+	vrt.AssertStateGolden(t, vrt.States(gs.NewPersistentMessageState(messageData)))
 }
 
 func TestGolden_StorageMenu(t *testing.T) {
@@ -256,12 +237,10 @@ func TestGolden_StorageMenu(t *testing.T) {
 		_, err = lifecycle.SpawnStorageItem(world, "healing_potion", 1, storageEntity)
 		require.NoError(t, err)
 
-		town := newGoldenBackdrop(t)
 		storageState, stateErr := gs.NewStorageMenuState(storageEntity)
 		require.NoError(t, stateErr)
 
 		return []es.State[w.World]{
-			town,
 			storageState,
 		}
 	})
@@ -426,8 +405,7 @@ func TestGolden_ChoiceMenuMany(t *testing.T) {
 			choices = append(choices, gs.Choice{Label: fmt.Sprintf("項目 %d", i+1)})
 		}
 		menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "選択", choices })
-		town := newGoldenBackdrop(t)
-		return []es.State[w.World]{town, menu}
+		return []es.State[w.World]{menu}
 	})
 }
 
@@ -444,7 +422,6 @@ func TestGolden_ChoiceMenuHeaders(t *testing.T) {
 			{Label: "戻る"},
 		}
 		menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "ロード", choices })
-		town := newGoldenBackdrop(t)
-		return []es.State[w.World]{town, menu}
+		return []es.State[w.World]{menu}
 	})
 }
