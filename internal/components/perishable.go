@@ -39,6 +39,8 @@ func (p Perishable) Stage(rot consts.Turn) FreshnessStage {
 
 // MergeRot は個数で加重平均した劣化量に自身を更新する。合流の survivor 側で呼ぶ。
 // 呼ぶ前に双方を同じ基準時刻まで前進させ、RotAccrued を実効値にしておく前提。
+// 呼び出し側は両者の StageLength が同値であることも保証する。段階の長さが違うと
+// 平均した RotAccrued が別の段階境界で解釈され無意味になる。CanStackWith の RawID 一致がこれを担保する。
 func (p *Perishable) MergeRot(selfCount int, other Perishable, otherCount int) {
 	total := selfCount + otherCount
 	if total <= 0 {
