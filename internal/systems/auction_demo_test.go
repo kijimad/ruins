@@ -63,7 +63,7 @@ func TestAuctionDemoSystem_収納した品は競売にかかる(t *testing.T) {
 
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	house := newTestAuctionHouse(t, world, 11, 10)
+	house := newTestAuctionBox(t, world, 11, 10)
 	item, err := lifecycle.SpawnStorageItem(world, "angel_sword", 1, house)
 	require.NoError(t, err)
 
@@ -80,7 +80,7 @@ func TestAuctionDemoSystem_ターン経過で決着し実績が履歴に残る(t
 
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	house := newTestAuctionHouse(t, world, 11, 10)
+	house := newTestAuctionBox(t, world, 11, 10)
 	// shovel は安く落札されやすいので、再入札を繰り返せば必ず売れる
 	item, err := lifecycle.SpawnStorageItem(world, "shovel", 1, house)
 	require.NoError(t, err)
@@ -97,13 +97,13 @@ func TestAuctionDemoSystem_ターン経過で決着し実績が履歴に残る(t
 	assert.NotEmpty(t, query.GetAuctionHistory(world).Records, "出荷実績が履歴に残る")
 }
 
-func TestAuctionDemoSystem_ハウスから取り出すと競売を解く(t *testing.T) {
+func TestAuctionDemoSystem_箱から取り出すと競売を解く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	house := newTestAuctionHouse(t, world, 11, 10)
+	house := newTestAuctionBox(t, world, 11, 10)
 	item, err := lifecycle.SpawnStorageItem(world, "angel_sword", 1, house)
 	require.NoError(t, err)
 
@@ -118,46 +118,46 @@ func TestAuctionDemoSystem_ハウスから取り出すと競売を解く(t *test
 	assert.False(t, world.Components.AuctionListing.Has(item), "取り出した品は競売が解かれる")
 }
 
-func TestMarkAuctionHouses_専用propをオークションハウスにする(t *testing.T) {
+func TestMarkAuctionBoxes_専用propをオークション箱にする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	house, err := lifecycle.SpawnProp(world, "auction_house", 5, 5)
+	house, err := lifecycle.SpawnProp(world, "auction_box", 5, 5)
 	require.NoError(t, err)
 
-	markAuctionHouses(world)
+	markAuctionBoxes(world)
 
-	require.True(t, world.Components.AuctionHouse.Has(house), "auction_house prop はオークションハウスになる")
+	require.True(t, world.Components.AuctionBox.Has(house), "auction_box prop はオークション箱になる")
 	it := world.Components.Interactable.Get(house)
 	require.Len(t, it.Interactions, 1, "相互作用はオークションだけになる")
 	assert.Equal(t, gc.InteractionAuction, it.Interactions[0], "専用のオークション相互作用が付く")
 }
 
-func TestMarkAuctionHouses_他のpropには触れない(t *testing.T) {
+func TestMarkAuctionBoxes_他のpropには触れない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 5, 5)
 	require.NoError(t, err)
 
-	markAuctionHouses(world)
+	markAuctionBoxes(world)
 
-	assert.False(t, world.Components.AuctionHouse.Has(crate), "auction_house 以外の prop には触れない")
+	assert.False(t, world.Components.AuctionBox.Has(crate), "auction_box 以外の prop には触れない")
 }
 
-func TestAuctionDemoSystem_ハウスが無ければ何もしない(t *testing.T) {
+func TestAuctionDemoSystem_箱が無ければ何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	sys := &AuctionDemoSystem{}
-	assert.NoError(t, sys.Update(world), "オークションハウスが無ければ即座に終わる")
+	assert.NoError(t, sys.Update(world), "オークション箱が無ければ即座に終わる")
 }
 
-// newTestAuctionHouse はテスト用にオークションハウスを1つ作る。
-func newTestAuctionHouse(t *testing.T, world w.World, x, y consts.Tile) ecs.Entity {
+// newTestAuctionBox はテスト用にオークション箱を1つ作る。
+func newTestAuctionBox(t *testing.T, world w.World, x, y consts.Tile) ecs.Entity {
 	t.Helper()
 	house, err := lifecycle.SpawnProp(world, "wooden_crate", x, y)
 	require.NoError(t, err)
-	world.Components.AuctionHouse.Add(house, &gc.AuctionHouse{})
+	world.Components.AuctionBox.Add(house, &gc.AuctionBox{})
 	return house
 }

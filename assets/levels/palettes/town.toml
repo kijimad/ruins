@@ -12,7 +12,7 @@ id = 'wooden_crate'
 tile = 'floor'
 
 [palette.props.A]
-id = 'auction_house'
+id = 'auction_box'
 tile = 'floor'
 
 [palette.npcs]

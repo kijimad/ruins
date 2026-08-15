@@ -1,15 +1,15 @@
 package components
 
-// AuctionListing はオークションハウスに収納され競売中の品に付く実行時状態。
+// AuctionListing はオークション箱に収納され競売中の品に付く実行時状態。
 // ResolveTurn の総ターン数に達すると今回の入札が決着する。売れれば品ごと消え、
 // 売れなければ ResolveTurn を更新して再入札する。デモ専用の一時状態であり保存しない。
 type AuctionListing struct {
 	ResolveTurn int // この総ターン数で今回の入札が決着する
 }
 
-// AuctionHouse はオークションハウスを示すマーカー。この収納へ入れた品が競売にかかる。
+// AuctionBox はオークション箱を示すマーカー。この収納へ入れた品が競売にかかる。
 // デモ専用の一時状態であり保存しない。
-type AuctionHouse struct{}
+type AuctionBox struct{}
 
 // AuctionRecord は1件の出荷実績。落札額から送料と手数料を引いた手取りまでを残す。
 type AuctionRecord struct {

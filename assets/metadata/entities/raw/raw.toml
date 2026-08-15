@@ -14638,8 +14638,8 @@ minSkill = 10
 blockPass = true
 blockView = false
 description = "通信販売デモの出品箱。品を入れると競売にかかる"
-name = "Auction house"
-id = "auction_house"
+name = "Auction box"
+id = "auction_box"
 
 [props.spriteRender]
 depth = 2

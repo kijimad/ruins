@@ -8,14 +8,14 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// auctionHouseRawID はオークションハウスの raw prop の id。テンプレートで配置されたこの prop を
-// システムが見つけてオークションハウスに仕立てる。
-const auctionHouseRawID = "auction_house"
+// auctionBoxRawID はオークション箱の raw prop の id。テンプレートで配置されたこの prop を
+// システムが見つけてオークション箱に仕立てる。
+const auctionBoxRawID = "auction_box"
 
-// AuctionDemoSystem はオークションハウスに収納された品を競売にかける。品を入れると入札が始まり、
+// AuctionDemoSystem はオークション箱に収納された品を競売にかける。品を入れると入札が始まり、
 // ターン経過で決着する。落札されれば手取りを財布へ入れ、実績を履歴に残して品を消す。
-// 落札されなければ再入札する。ハウスから取り出された品は競売を解く。
-// オークションハウスが無い通常プレイでは即座に何もしない。
+// 落札されなければ再入札する。箱から取り出された品は競売を解く。
+// オークション箱が無い通常プレイでは即座に何もしない。
 type AuctionDemoSystem struct{}
 
 // String はシステム名を返す
@@ -23,13 +23,13 @@ func (sys AuctionDemoSystem) String() string {
 	return "AuctionDemoSystem"
 }
 
-// Update はオークションハウスの中身をターン経過で競売する
+// Update はオークション箱の中身をターン経過で競売する
 func (sys *AuctionDemoSystem) Update(world w.World) error {
-	// テンプレートで配置された auction_house prop をオークションハウスに仕立てる
-	markAuctionHouses(world)
+	// テンプレートで配置された auction_box prop をオークション箱に仕立てる
+	markAuctionBoxes(world)
 
-	houses := auctionHouses(world)
-	if len(houses) == 0 {
+	boxes := auctionBoxes(world)
+	if len(boxes) == 0 {
 		return nil
 	}
 	player, err := query.GetPlayerEntity(world)
@@ -38,20 +38,20 @@ func (sys *AuctionDemoSystem) Update(world w.World) error {
 	}
 	now := int(query.GetGameTime(world).TotalTurns)
 
-	// ハウスの外へ出た品は競売を解く。プレイヤーが取り出した品は競売を止める
-	releaseRetrievedListings(world, houses)
+	// 箱の外へ出た品は競売を解く。プレイヤーが取り出した品は競売を止める
+	releaseRetrievedListings(world, boxes)
 
-	// 各ハウスの品を競売する。GetStorageItems はスライスを返すので反復中に削除してよい
-	for _, house := range houses {
-		for _, item := range query.GetStorageItems(world, house) {
-			processAuctionItem(world, player, house, item, now)
+	// 各箱の品を競売する。GetStorageItems はスライスを返すので反復中に削除してよい
+	for _, box := range boxes {
+		for _, item := range query.GetStorageItems(world, box) {
+			processAuctionItem(world, player, box, item, now)
 		}
 	}
 	return nil
 }
 
 // processAuctionItem は1品の競売を進める。未出品なら入札を始め、決着ターンに達したら落札判定する。
-func processAuctionItem(world w.World, player, house, item ecs.Entity, now int) {
+func processAuctionItem(world w.World, player, box, item ecs.Entity, now int) {
 	if !world.Components.AuctionListing.Has(item) {
 		world.Components.AuctionListing.Add(item, &gc.AuctionListing{ResolveTurn: now + query.AuctionTurns})
 		logAuctionListed(world, query.GetEntityName(item, world), query.AuctionTurns)
@@ -79,32 +79,32 @@ func processAuctionItem(world w.World, player, house, item ecs.Entity, now int) 
 	}
 	appendAuctionRecord(world, name, bid, ship, fee, net, now)
 	world.ECS.RemoveEntity(item)
-	markStorageWeightDirty(world, house)
+	markStorageWeightDirty(world, box)
 	logAuctionSold(world, name, bid, ship, fee, net)
 }
 
-// auctionHouses はオークションハウスのエンティティを集めて返す。
-func auctionHouses(world w.World) []ecs.Entity {
-	var houses []ecs.Entity
-	q := ecs.NewFilter1[gc.AuctionHouse](world.ECS).Query()
+// auctionBoxes はオークション箱のエンティティを集めて返す。
+func auctionBoxes(world w.World) []ecs.Entity {
+	var boxes []ecs.Entity
+	q := ecs.NewFilter1[gc.AuctionBox](world.ECS).Query()
 	for q.Next() {
-		houses = append(houses, q.Entity())
+		boxes = append(boxes, q.Entity())
 	}
-	return houses
+	return boxes
 }
 
-// releaseRetrievedListings はオークションハウスの中に無い出品を解く。取り出された品の競売を止める。
-func releaseRetrievedListings(world w.World, houses []ecs.Entity) {
-	houseSet := make(map[ecs.Entity]bool, len(houses))
-	for _, h := range houses {
-		houseSet[h] = true
+// releaseRetrievedListings はオークション箱の中に無い出品を解く。取り出された品の競売を止める。
+func releaseRetrievedListings(world w.World, boxes []ecs.Entity) {
+	boxSet := make(map[ecs.Entity]bool, len(boxes))
+	for _, h := range boxes {
+		boxSet[h] = true
 	}
 	var toRelease []ecs.Entity
 	q := ecs.NewFilter1[gc.AuctionListing](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		inHouse := world.Components.LocationInStorage.Has(e) && houseSet[world.Components.LocationInStorage.Get(e).Owner]
-		if !inHouse {
+		inBox := world.Components.LocationInStorage.Has(e) && boxSet[world.Components.LocationInStorage.Get(e).Owner]
+		if !inBox {
 			toRelease = append(toRelease, e)
 		}
 	}
@@ -128,21 +128,21 @@ func markStorageWeightDirty(world w.World, storage ecs.Entity) {
 	}
 }
 
-// markAuctionHouses はテンプレートで配置された auction_house prop をオークションハウスに仕立てる。
+// markAuctionBoxes はテンプレートで配置された auction_box prop をオークション箱に仕立てる。
 // 収納由来の相互作用を発送でなく専用のオークションに差し替え、識別マーカーを付ける。
-// auction_house 以外の prop には触れないので通常プレイに影響しない。
-func markAuctionHouses(world w.World) {
+// auction_box 以外の prop には触れないので通常プレイに影響しない。
+func markAuctionBoxes(world w.World) {
 	var toMark []ecs.Entity
 	q := ecs.NewFilter1[gc.RawID](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.RawID.Get(e).ID != auctionHouseRawID || world.Components.AuctionHouse.Has(e) {
+		if world.Components.RawID.Get(e).ID != auctionBoxRawID || world.Components.AuctionBox.Has(e) {
 			continue
 		}
 		toMark = append(toMark, e)
 	}
 	for _, e := range toMark {
-		world.Components.AuctionHouse.Add(e, &gc.AuctionHouse{})
+		world.Components.AuctionBox.Add(e, &gc.AuctionBox{})
 		if world.Components.Interactable.Has(e) {
 			world.Components.Interactable.Get(e).Interactions = []gc.InteractionKind{gc.InteractionAuction}
 		} else {

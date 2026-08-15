@@ -209,7 +209,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 					Log()
 			case gc.InteractionAuction:
 				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "There is an auction house. Press Enter to open it.")).
+					Markup(query.T(world, "There is an auction box. Press Enter to open it.")).
 					Log()
 			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を

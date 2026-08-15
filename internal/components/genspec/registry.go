@@ -105,6 +105,6 @@ var Registry = []Def{
 
 	// demo ================
 	{Field: "AuctionListing"}, // 通信販売デモで競売中の品の決着ターンを保持する
-	{Field: "AuctionHouse"},   // 通信販売デモのオークションハウスを示すマーカー
+	{Field: "AuctionBox"},     // 通信販売デモのオークション箱を示すマーカー
 	{Field: "AuctionHistory"}, // 通信販売デモの出荷実績履歴を保持するシングルトン
 }

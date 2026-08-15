@@ -53,7 +53,7 @@ type OpenStorage struct {
 
 // OpenAuction はオークションメニューを開く
 type OpenAuction struct {
-	HouseEntity ecs.Entity // オークションハウスのエンティティ
+	BoxEntity ecs.Entity // オークション箱のエンティティ
 }
 
 func (WarpDescend) isStatePayload()      {}
@@ -116,6 +116,6 @@ func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {
 }
 
 // OpenAuctionEvent はオークションメニューを開くリクエストを生成する
-func OpenAuctionEvent(house ecs.Entity) StateChangeRequest {
-	return StateChangeRequest{Payload: OpenAuction{HouseEntity: house}}
+func OpenAuctionEvent(box ecs.Entity) StateChangeRequest {
+	return StateChangeRequest{Payload: OpenAuction{BoxEntity: box}}
 }

@@ -276,8 +276,8 @@ func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
 }
 
 // NewAuctionMenuState はオークションメニューStateを作成する
-func NewAuctionMenuState(houseEntity ecs.Entity) (es.State[w.World], error) {
-	return &AuctionMenuState{houseEntity: houseEntity}, nil
+func NewAuctionMenuState(boxEntity ecs.Entity) (es.State[w.World], error) {
+	return &AuctionMenuState{boxEntity: boxEntity}, nil
 }
 
 // NewInteractionMenuState はインタラクションメニューStateを作成する

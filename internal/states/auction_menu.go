@@ -25,13 +25,13 @@ import (
 // tabIDHistory は出荷実績を閲覧する履歴タブの識別子
 const tabIDHistory tabID = "history"
 
-// AuctionMenuState はオークションハウス専用のメニュー。出品(Store)・取り出し(Retrieve)・
-// 出荷履歴(History)の3タブを持つ。品をハウスへ収納すると競売が始まる。競売はシステムが進める。
+// AuctionMenuState はオークション箱専用のメニュー。出品(Store)・取り出し(Retrieve)・
+// 出荷履歴(History)の3タブを持つ。品を箱へ収納すると競売が始まる。競売はシステムが進める。
 type AuctionMenuState struct {
 	es.BaseState[w.World]
-	houseEntity ecs.Entity
-	detail      overlay.Detail
-	screen      *menuloop.Screen[AuctionProps]
+	boxEntity ecs.Entity
+	detail    overlay.Detail
+	screen    *menuloop.Screen[AuctionProps]
 }
 
 var _ es.State[w.World] = &AuctionMenuState{}
@@ -104,7 +104,7 @@ func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 	return AuctionProps{
 		Tabs: []auctionTabData{
 			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.backpackItems(world)},
-			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.houseItems(world)},
+			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.boxItems(world)},
 			{ID: tabIDHistory, Label: query.T(world, "History"), Lines: st.historyLines(world)},
 		},
 	}
@@ -123,8 +123,8 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: "auction", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-func (st *AuctionMenuState) houseItems(world w.World) []itemRowData {
-	items := query.GetStorageItems(world, st.houseEntity)
+func (st *AuctionMenuState) boxItems(world w.World) []itemRowData {
+	items := query.GetStorageItems(world, st.boxEntity)
 	return toAuctionItemData(world, query.SortEntities(world, items))
 }
 
@@ -160,7 +160,7 @@ func (st *AuctionMenuState) historyLines(world w.World) []string {
 	return lines
 }
 
-// executeTransfer は選択中のタブに応じて品をハウスへ入れる、または取り出す。履歴タブは閲覧のみ。
+// executeTransfer は選択中のタブに応じて品を箱へ入れる、または取り出す。履歴タブは閲覧のみ。
 func (st *AuctionMenuState) executeTransfer(world w.World) error {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
@@ -174,10 +174,10 @@ func (st *AuctionMenuState) executeTransfer(world w.World) error {
 		if !ok {
 			return nil
 		}
-		if !query.CanAddToStorage(world, st.houseEntity, item.Entity) {
+		if !query.CanAddToStorage(world, st.boxEntity, item.Entity) {
 			return nil
 		}
-		return lifecycle.MoveToStorage(world, item.Entity, st.houseEntity)
+		return lifecycle.MoveToStorage(world, item.Entity, st.boxEntity)
 	case tabIDRetrieve:
 		item, ok := tabItemAt(tab, cursor.ItemIndex)
 		if !ok {
