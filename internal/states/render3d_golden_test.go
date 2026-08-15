@@ -3,7 +3,6 @@ package states_test
 import (
 	"encoding/json"
 	"image/color"
-	"math/rand/v2"
 	"path/filepath"
 	"slices"
 	"testing"
@@ -23,14 +22,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// 撮影シーンの生成シード。いずれもキャラとポータルが重ならない見栄えの良い配置を選ぶ。
-const (
-	// render3DSceneSeed はオーバーワールドの RunSeed
-	render3DSceneSeed = 3
-	// render3DDungeonSeed はダンジョン層生成の RNG シード。層生成は world.Config.RNG から
-	// シードを引くので、VRT共有の 12345 では重なる。この撮影用に RNG を差し替える
-	render3DDungeonSeed = 7
-)
+// render3DSceneSeed はオーバーワールドの RunSeed。キャラとポータルが重ならない見栄えの良い配置を選ぶ。
+const render3DSceneSeed = 3
 
 // r3Scene は3D VRTで固定するワールドシーン。ワールドを映すVRTはすべて3D命令列で撮る。
 // prep は描画直前に world を追加調整する。nil可。前線を可視域へ入れるなどに使う。
@@ -64,9 +57,7 @@ func r3Scenes(t *testing.T) []r3Scene {
 		},
 		{
 			name: "Dungeon",
-			build: func(world w.World) []es.State[w.World] {
-				// 層生成のRNGを撮影用に差し替える。テストごとに固有の world なので他テストへ波及しない
-				world.Config.RNG = rand.New(rand.NewPCG(render3DDungeonSeed, 0))
+			build: func(_ w.World) []es.State[w.World] {
 				return []es.State[w.World]{&gs.DungeonState{
 					Depth:          1,
 					DefinitionName: dungeon.DungeonDebug.Name(),
