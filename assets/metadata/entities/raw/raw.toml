@@ -8981,8 +8981,8 @@ radius = 3
 
 [members.lightSource.color]
 a = 255
-b = 50
-g = 100
+b = 100
+g = 175
 r = 255
 
 [members.dialog]
@@ -9113,8 +9113,8 @@ radius = 3
 
 [members.lightSource.color]
 a = 255
-b = 50
-g = 100
+b = 100
+g = 175
 r = 255
 
 [members.dialog]
@@ -13458,8 +13458,8 @@ radius = 3
 
 [props.lightSource.color]
 a = 200
-b = 40
-g = 40
+b = 70
+g = 150
 r = 255
 
 [[props]]

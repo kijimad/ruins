@@ -19,8 +19,8 @@
 | <img src="internal/states/testdata/TestGolden_DebugMenu.png" width="200" /><br>DebugMenu | <img src="internal/states/testdata/TestGolden_Dungeon.png" width="200" /><br>Dungeon | <img src="internal/states/testdata/TestGolden_EquipSelect.png" width="200" /><br>EquipSelect | <img src="internal/states/testdata/TestGolden_GameOver.png" width="200" /><br>GameOver |
 | <img src="internal/states/testdata/TestGolden_ItemAction.png" width="200" /><br>ItemAction | <img src="internal/states/testdata/TestGolden_ItemActionDetail.png" width="200" /><br>ItemActionDetail | <img src="internal/states/testdata/TestGolden_LanguageMenu.png" width="200" /><br>LanguageMenu | <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu |
 | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround | <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu | <img src="internal/states/testdata/TestGolden_Message.png" width="200" /><br>Message | <img src="internal/states/testdata/TestGolden_Overworld.png" width="200" /><br>Overworld |
-| <img src="internal/states/testdata/TestGolden_OverworldFrost.png" width="200" /><br>OverworldFrost | <img src="internal/states/testdata/TestGolden_OverworldMap.png" width="200" /><br>OverworldMap | <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu |
-| <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu.png" width="200" /><br>ShopMenu | <img src="internal/states/testdata/TestGolden_StorageMenu.png" width="200" /><br>StorageMenu |
+| <img src="internal/states/testdata/TestGolden_OverworldMap.png" width="200" /><br>OverworldMap | <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu |
+| <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu.png" width="200" /><br>ShopMenu | <img src="internal/states/testdata/TestGolden_StorageMenu.png" width="200" /><br>StorageMenu | |
 
 
 各画像はゴールデンテストで自動生成される。
@@ -65,13 +65,13 @@
 | L | フィールド情報 |
 | N | オーバーワールド地図（オーバーワールドにいるときのみ） |
 
-**ズーム**
+**カメラ操作**
 
 | キー | 動作 |
 | --- | --- |
+| Z / C | カメラを45度ずつ左回り / 右回りに回転 |
 | PageDown | ズームアウト |
 | PageUp | ズームイン |
-| マウスホイール | ズーム操作 |
 
 ### メニューナビゲーション
 

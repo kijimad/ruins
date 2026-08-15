@@ -169,8 +169,9 @@ func containsEntity(list []ecs.Entity, e ecs.Entity) bool {
 func TestCullDistantSolo(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}))
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(80), TileHeight: consts.Tile(80)}))
+	const px, py = 5, 5
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: px, Y: py}, "ash")
 	require.NoError(t, err)
 
 	// 敵を生成し、状態を設定するヘルパ
@@ -181,13 +182,15 @@ func TestCullDistantSolo(t *testing.T) {
 		return e
 	}
 
-	// activationRadius = VisionRadiusTiles(24) + margin(2) = 26。プレイヤーは(10,10)
-	withinWaiting := spawn(15, 10, gc.AIStateWaiting)   // チェビシェフ距離5 → 処理
-	boundaryWaiting := spawn(36, 10, gc.AIStateWaiting) // 距離26（境界）→ 処理
-	beyondWaiting := spawn(37, 10, gc.AIStateWaiting)   // 距離27 → スキップ
-	beyondDriving := spawn(50, 10, gc.AIStateDriving)   // 距離40 → スキップ
-	beyondChasing := spawn(10, 60, gc.AIStateChasing)   // 距離50だが追跡中 → 処理
-	beyondFleeing := spawn(60, 60, gc.AIStateFleeing)   // 距離50だが逃亡中 → 処理
+	// 距離は activationRadius から導く。視界半径 VisionRadiusTiles に連動するので、
+	// 値を変えてもテストが壊れないよう定数を基準にする。プレイヤーは (px, py)
+	r := activationRadius
+	withinWaiting := spawn(px+5, py, gc.AIStateWaiting)         // 圏内 → 処理
+	boundaryWaiting := spawn(px+r, py, gc.AIStateWaiting)       // 境界ちょうど → 処理
+	beyondWaiting := spawn(px+r+1, py, gc.AIStateWaiting)       // 圏外 → スキップ
+	beyondDriving := spawn(px+r+10, py, gc.AIStateDriving)      // 圏外 → スキップ
+	beyondChasing := spawn(px, py+r+20, gc.AIStateChasing)      // 圏外でも追跡中 → 処理
+	beyondFleeing := spawn(px+r+20, py+r+20, gc.AIStateFleeing) // 圏外でも逃亡中 → 処理
 
 	targets := []ecs.Entity{withinWaiting, boundaryWaiting, beyondWaiting, beyondDriving, beyondChasing, beyondFleeing}
 	kept, err := cullDistantSolo(world, targets)
@@ -204,11 +207,14 @@ func TestCullDistantSolo(t *testing.T) {
 func TestCullDistantSolo_PlayerApproachActivates(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(50), TileHeight: consts.Tile(50)}))
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: consts.Tile(80), TileHeight: consts.Tile(80)}))
+	const px, py = 5, 5
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: px, Y: py}, "ash")
 	require.NoError(t, err)
 
-	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 40, Y: 10}, "fireball") // 距離30 → 圏外
+	r := activationRadius
+	enemyX := px + r + 5
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(enemyX), Y: py}, "fireball") // 圏外
 	require.NoError(t, err)
 	world.Components.SoloAI.Get(enemy).SubState = gc.AIStateWaiting
 
@@ -218,9 +224,9 @@ func TestCullDistantSolo_PlayerApproachActivates(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, got, "圏外の待機敵はスキップされる")
 
-	// プレイヤーが近づくと（距離20 → 圏内）同じ敵が処理対象になる
+	// プレイヤーが敵まで距離5へ近づくと圏内入りして処理対象になる
 	playerGrid := world.Components.GridElement.Get(player)
-	playerGrid.X = 20
+	playerGrid.X = consts.Tile(enemyX - 5)
 	got, err = cullDistantSolo(world, targets)
 	require.NoError(t, err)
 	assert.Len(t, got, 1, "接近後は圏内入りして処理対象になる")

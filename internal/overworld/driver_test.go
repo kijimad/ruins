@@ -38,6 +38,7 @@ func TestDriver_Start_プレイヤー先在でもキューブをスポーンす�
 	require.NoError(t, s.Start(world))
 
 	assert.Equal(t, 1, countCubes(world), "プレイヤーが先在してもキューブが1体スポーンする")
+	assert.Equal(t, gc.TimeDay, query.GetGameTime(world).GetTimeOfDay(), "新規開始は昼から始まる")
 }
 
 // TestDriver_Start_復帰経路ではキューブを生成しない は、帯が active な世界で Start を起動すると
