@@ -35,6 +35,14 @@ func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.Worl
 	assertPNGGolden(t, RenderStatePNG(t, buildStates))
 }
 
+// AssertTopStateGolden は最上段ステートだけを黒背景へ描いてゴールデン比較する。下段はワールドの
+// データ準備のためだけに積み、ワールドは描画しない。ワールドデータを要るがワールドを映したくない
+// UIのVRTで使う。LookAround のカーソルや Shooting の照準、OverworldMap の記号地図が該当する。
+func AssertTopStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
+	t.Helper()
+	assertPNGGolden(t, encodePNG(t, renderTopState(t, buildStates)))
+}
+
 // RenderStatePNG はステートを描画してPNGバイト列として返す。
 // アサーションは行わず、画像の保存用途で使用する
 func RenderStatePNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []byte {
@@ -43,9 +51,22 @@ func RenderStatePNG(t *testing.T, buildStates func(w.World) []es.State[w.World])
 	return encodePNG(t, rendered)
 }
 
-// renderState はステートを描画してimage.NRGBAとして返す。
+// renderState はステートスタック全段を描画して image.NRGBA として返す。
 // RunTestMain 内で呼ぶ必要がある（ebitenコンテキストが必要）
 func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
+	t.Helper()
+	return renderStateStack(t, buildStates, false)
+}
+
+// renderTopState は最上段ステートだけを描画して返す。下段はデータ準備のためだけに積む。
+func renderTopState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
+	t.Helper()
+	return renderStateStack(t, buildStates, true)
+}
+
+// renderStateStack はステートを構築し、全段または最上段のみを描いて返す。
+// topOnly のときは最上段だけ描き、下段のワールドは映さない。
+func renderStateStack(t *testing.T, buildStates func(w.World) []es.State[w.World], topOnly bool) *image.NRGBA {
 	t.Helper()
 
 	// World初期化・状態構築・描画はいずれも ebitenui のグローバル描画状態に触れて並行アクセス安全でない。
@@ -61,7 +82,11 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 		width, height := consts.GameWidth, consts.GameHeight
 		screen := ebiten.NewImage(width, height)
 
-		for _, state := range stateMachine.GetStates() {
+		states := stateMachine.GetStates()
+		if topOnly && len(states) > 0 {
+			states = states[len(states)-1:]
+		}
+		for _, state := range states {
 			require.NoError(t, state.Draw(world, screen), "failed to draw")
 		}
 
