@@ -167,7 +167,7 @@ func spawnAuctionHouse(world w.World, x, y consts.Tile) error {
 	if err != nil {
 		return err
 	}
-	world.Components.Interactable.Get(house).Interactions = []gc.InteractionKind{gc.InteractionStorage}
+	world.Components.Interactable.Get(house).Interactions = []gc.InteractionKind{gc.InteractionAuction}
 	world.Components.Name.Get(house).Name = "Auction house"
 	world.Components.AuctionHouse.Add(house, &gc.AuctionHouse{})
 	return nil

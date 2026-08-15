@@ -51,6 +51,11 @@ type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納コンテナのエンティティ
 }
 
+// OpenAuction はオークションメニューを開く
+type OpenAuction struct {
+	HouseEntity ecs.Entity // オークションハウスのエンティティ
+}
+
 func (WarpDescend) isStatePayload()      {}
 func (WarpAscend) isStatePayload()       {}
 func (WarpDungeonEnter) isStatePayload() {}
@@ -60,6 +65,7 @@ func (OpenCubePanel) isStatePayload()    {}
 func (GameClear) isStatePayload()        {}
 func (ShowDialog) isStatePayload()       {}
 func (OpenStorage) isStatePayload()      {}
+func (OpenAuction) isStatePayload()      {}
 
 // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。
 // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。
@@ -107,4 +113,9 @@ func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {
 // OpenStorageEvent は収納メニューを開くリクエストを生成する
 func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: OpenStorage{StorageEntity: storage}}
+}
+
+// OpenAuctionEvent はオークションメニューを開くリクエストを生成する
+func OpenAuctionEvent(house ecs.Entity) StateChangeRequest {
+	return StateChangeRequest{Payload: OpenAuction{HouseEntity: house}}
 }
