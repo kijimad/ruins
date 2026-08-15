@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - components/internal/components/perishable.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">components/internal/components</a> - perishable.go<span style="font-size: 80%;"> (source / <a href="perishable.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">14</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-08-15 04:50:00</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package components</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // Perishable は腐敗する食料が持つ。累積した劣化量から鮮度段階を求める。</span>
+<span id="L6"><span class="lineNum">       6</span>              : // 劣化は時間経過で進み、速度は置き場所で変わりうる。速度の適用と実効量の算出は</span>
+<span id="L7"><span class="lineNum">       7</span>              : // query 層が担い、ここは劣化量から段階を求める段階付けだけを持つ。</span>
+<span id="L8"><span class="lineNum">       8</span>              : type Perishable struct {</span>
+<span id="L9"><span class="lineNum">       9</span>              :         RotAccrued     consts.Turn // 累積した劣化量。0 が生成直後</span>
+<span id="L10"><span class="lineNum">      10</span>              :         StageLength    consts.Turn // 1段階の長さ。新鮮 [0,SL) 劣化 [SL,2SL) 腐敗 [2SL,)</span>
+<span id="L11"><span class="lineNum">      11</span>              :         RotUpdatedTurn consts.Turn // RotAccrued を最後に前進させた GameTime.TotalTurns</span>
+<span id="L12"><span class="lineNum">      12</span>              : }</span>
+<span id="L13"><span class="lineNum">      13</span>              : </span>
+<span id="L14"><span class="lineNum">      14</span>              : // FreshnessStage は鮮度の段階</span>
+<span id="L15"><span class="lineNum">      15</span>              : type FreshnessStage string</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : const (</span>
+<span id="L18"><span class="lineNum">      18</span>              :         // FreshnessFresh は新鮮</span>
+<span id="L19"><span class="lineNum">      19</span>              :         FreshnessFresh FreshnessStage = &quot;fresh&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              :         // FreshnessStale は劣化</span>
+<span id="L21"><span class="lineNum">      21</span>              :         FreshnessStale FreshnessStage = &quot;stale&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              :         // FreshnessRotten は腐敗</span>
+<span id="L23"><span class="lineNum">      23</span>              :         FreshnessRotten FreshnessStage = &quot;rotten&quot;</span>
+<span id="L24"><span class="lineNum">      24</span>              : )</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // Stage は累積劣化量 rot から鮮度段階を返す。now でなく実効の rot を渡す。</span>
+<span id="L27"><span class="lineNum">      27</span>              : // 劣化速度は置き場所で変わるため rot の算出は query 層が担い、段階付けだけをここに置く。</span>
+<span id="L28"><span class="lineNum">      28</span>              : // 新鮮 [0, StageLength) → 劣化 [StageLength, 2*StageLength) → 腐敗 [2*StageLength, )。</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 : func (p Perishable) Stage(rot consts.Turn) FreshnessStage {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         switch {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         case rot &lt; p.StageLength:</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return FreshnessFresh</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         case rot &lt; 2*p.StageLength:</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 return FreshnessStale</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return FreshnessRotten</span></span>
+<span id="L37"><span class="lineNum">      37</span>              :         }</span>
+<span id="L38"><span class="lineNum">      38</span>              : }</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : // MergeRot は個数で加重平均した劣化量に自身を更新する。合流の survivor 側で呼ぶ。</span>
+<span id="L41"><span class="lineNum">      41</span>              : // 呼ぶ前に双方を同じ基準時刻まで前進させ、RotAccrued を実効値にしておく前提。</span>
+<span id="L42"><span class="lineNum">      42</span>              : // 呼び出し側は両者の StageLength が同値であることも保証する。段階の長さが違うと</span>
+<span id="L43"><span class="lineNum">      43</span>              : // 平均した RotAccrued が別の段階境界で解釈され無意味になる。CanStackWith の RawID 一致がこれを担保する。</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : func (p *Perishable) MergeRot(selfCount int, other Perishable, otherCount int) {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         total := selfCount + otherCount</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           2 :         if total &lt;= 0 {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         p.RotAccrued = (p.RotAccrued*consts.Turn(selfCount) + other.RotAccrued*consts.Turn(otherCount)) / consts.Turn(total)</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

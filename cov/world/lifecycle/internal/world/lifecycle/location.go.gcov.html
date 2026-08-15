@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">91.7&nbsp;%</td>
-            <td class="headerCovTableEntry">180</td>
-            <td class="headerCovTableEntry">165</td>
+            <td class="headerCovTableEntryHi">92.2&nbsp;%</td>
+            <td class="headerCovTableEntry">193</td>
+            <td class="headerCovTableEntry">178</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-15 00:48:34</td>
+            <td class="headerValue">2026-08-15 04:50:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -284,50 +284,67 @@
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L224"><span class="lineNum">     224</span>              : </span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         targetEntity := stackableItems[0]</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           2 :         for i := 1; i &lt; len(stackableItems); i++ {</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 itemToMerge := stackableItems[i]</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 mergeCount := query.GetEntityCount(world, itemToMerge)</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to merge counts: %w&quot;, err)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L233"><span class="lineNum">     233</span>              : </span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC tlaBgGNC">           1 :                 world.ECS.RemoveEntity(itemToMerge)</span></span>
-<span id="L235"><span class="lineNum">     235</span>              :         }</span>
-<span id="L236"><span class="lineNum">     236</span>              : </span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L238"><span class="lineNum">     238</span>              : }</span>
-<span id="L239"><span class="lineNum">     239</span>              : </span>
-<span id="L240"><span class="lineNum">     240</span>              : // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる</span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 : func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         var playerEntity ecs.Entity</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         var found bool</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.ECS).Query()</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           2 :         for playerQuery.Next() {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 entity := playerQuery.Entity()</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           2 :                 if !found {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                         playerEntity = entity</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         found = true</span></span>
+<span id="L225"><span class="lineNum">     225</span>              :         // 合流の同一判定は query.CanStackWith に集約する。出現順に survivor へ畳み、</span>
+<span id="L226"><span class="lineNum">     226</span>              :         // どのエンティティが残るかを決定的にする。腐敗食は鮮度段階が同じ束にだけ合流し、</span>
+<span id="L227"><span class="lineNum">     227</span>              :         // 合流時に劣化量を個数で加重平均する。段階違いは別の survivor として残す。</span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         now := query.GetGameTime(world).TotalTurns</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         var survivors []ecs.Entity</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           2 :         for _, e := range stackableItems {</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 merged := false</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           2 :                 for _, s := range survivors {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           2 :                         if !query.CanStackWith(world, s, e) {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L235"><span class="lineNum">     235</span>              :                         }</span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           2 :                         if world.Components.Perishable.Has(s) {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                                 query.AdvanceRot(world, s, now)</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                                 query.AdvanceRot(world, e, now)</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                                 sp := world.Components.Perishable.Get(s)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                                 sp.MergeRot(query.GetEntityCount(world, s), *world.Components.Perishable.Get(e), query.GetEntityCount(world, e))</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                         if err := ChangeItemCount(world, s, query.GetEntityCount(world, e)); err != nil {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;failed to merge counts: %w&quot;, err)</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC tlaBgGNC">           1 :                         world.ECS.RemoveEntity(e)</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                         merged = true</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                         break</span></span>
+<span id="L248"><span class="lineNum">     248</span>              :                 }</span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           2 :                 if !merged {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         survivors = append(survivors, e)</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L252"><span class="lineNum">     252</span>              :         }</span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           2 :         if !found {</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;no player entity with required components found&quot;)</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L253"><span class="lineNum">     253</span>              : </span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L255"><span class="lineNum">     255</span>              : }</span>
 <span id="L256"><span class="lineNum">     256</span>              : </span>
-<span id="L257"><span class="lineNum">     257</span>              :         // プレイヤーの位置を更新する</span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(playerEntity)</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         gridElement.X = pos.X</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         gridElement.Y = pos.Y</span></span>
+<span id="L257"><span class="lineNum">     257</span>              : // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる</span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 : func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         var playerEntity ecs.Entity</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         var found bool</span></span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         // カメラ位置も同期する</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         camera := world.Components.Camera.Get(playerEntity)</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         camera.Pos = consts.TileCenterToWorld(pos)</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         camera.Target = camera.Pos</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L268"><span class="lineNum">     268</span>              : }</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.ECS).Query()</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           2 :         for playerQuery.Next() {</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 entity := playerQuery.Entity()</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           2 :                 if !found {</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                         playerEntity = entity</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                         found = true</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L269"><span class="lineNum">     269</span>              :         }</span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           2 :         if !found {</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;no player entity with required components found&quot;)</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L273"><span class="lineNum">     273</span>              : </span>
+<span id="L274"><span class="lineNum">     274</span>              :         // プレイヤーの位置を更新する</span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(playerEntity)</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         gridElement.X = pos.X</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         gridElement.Y = pos.Y</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :         // カメラ位置も同期する</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         camera := world.Components.Camera.Get(playerEntity)</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         camera.Pos = consts.TileCenterToWorld(pos)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :         camera.Target = camera.Pos</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L285"><span class="lineNum">     285</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">92.3&nbsp;%</td>
-            <td class="headerCovTableEntry">91</td>
-            <td class="headerCovTableEntry">84</td>
+            <td class="headerCovTableEntryHi">90.5&nbsp;%</td>
+            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntry">86</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-15 00:48:34</td>
+            <td class="headerValue">2026-08-15 04:50:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -227,37 +227,42 @@
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(e, world)</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         count := query.GetEntityCount(world, e)</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         cells := append([]styled.Cell{styled.IconCell(icon), styled.TextCell(query.FormatNameCount(name, count))}, styled.TextCells(trailing...)...)</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         return menuRow{Cells: cells}</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L171"><span class="lineNum">     171</span>              : </span>
-<span id="L172"><span class="lineNum">     172</span>              : // newPageIndicator はページ位置を示す行を組み立てる。1ページに収まり表示が空になるときも</span>
-<span id="L173"><span class="lineNum">     173</span>              : // 高さを一定に保つため半角空白を置く。ページングを持つ一覧で共通に使う</span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 : func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widget.Container {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         pageText := pg.GetPageText()</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           2 :         if pageText == &quot;&quot; {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 pageText = &quot; &quot;</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         return styled.NewPageIndicator(pageText, res)</span></span>
-<span id="L180"><span class="lineNum">     180</span>              : }</span>
-<span id="L181"><span class="lineNum">     181</span>              : </span>
-<span id="L182"><span class="lineNum">     182</span>              : // menuNavHint はメニュー共通のキー操作案内を組み立てる。全メニューのフッターに常設し、</span>
-<span id="L183"><span class="lineNum">     183</span>              : // どの画面でも同じキーで同じ操作ができることを示す。矢印や Enter/Esc は素の記号がフォントに</span>
-<span id="L184"><span class="lineNum">     184</span>              : // 無く文字化けするため FontAwesome のアイコンを使う。hasTabs が true のときタブ切替を含め、</span>
-<span id="L185"><span class="lineNum">     185</span>              : // extras に画面固有の案内を後ろへ足す</span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 : func menuNavHint(world w.World, hasTabs bool, extras ...string) string {</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, 4+len(extras))</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           2 :         if hasTabs {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 parts = append(parts, consts.IconArrowLeft+consts.IconArrowRight+&quot; &quot;+query.T(world, &quot;Tab&quot;))</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconArrowUp+consts.IconArrowDown+&quot; &quot;+query.T(world, &quot;Select&quot;))</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconKeyEnter+&quot; &quot;+query.T(world, &quot;Confirm&quot;))</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         parts = append(parts, extras...)</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconKeyEsc+&quot; &quot;+query.T(world, &quot;Back&quot;))</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         return strings.Join(parts, &quot;   &quot;)</span></span>
-<span id="L196"><span class="lineNum">     196</span>              : }</span>
-<span id="L197"><span class="lineNum">     197</span>              : </span>
-<span id="L198"><span class="lineNum">     198</span>              : // ================</span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         label := query.FormatNameCount(name, count)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         // 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         if marker := query.FreshnessMarker(world, e); marker != &quot;&quot; {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC tlaBgUNC">           0 :                 label += &quot; (&quot; + marker + &quot;)&quot;</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC tlaBgGNC">           1 :         cells := append([]styled.Cell{styled.IconCell(icon), styled.TextCell(label)}, styled.TextCells(trailing...)...)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         return menuRow{Cells: cells}</span></span>
+<span id="L175"><span class="lineNum">     175</span>              : }</span>
+<span id="L176"><span class="lineNum">     176</span>              : </span>
+<span id="L177"><span class="lineNum">     177</span>              : // newPageIndicator はページ位置を示す行を組み立てる。1ページに収まり表示が空になるときも</span>
+<span id="L178"><span class="lineNum">     178</span>              : // 高さを一定に保つため半角空白を置く。ページングを持つ一覧で共通に使う</span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 : func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widget.Container {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         pageText := pg.GetPageText()</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :         if pageText == &quot;&quot; {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 pageText = &quot; &quot;</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         return styled.NewPageIndicator(pageText, res)</span></span>
+<span id="L185"><span class="lineNum">     185</span>              : }</span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span>              : // menuNavHint はメニュー共通のキー操作案内を組み立てる。全メニューのフッターに常設し、</span>
+<span id="L188"><span class="lineNum">     188</span>              : // どの画面でも同じキーで同じ操作ができることを示す。矢印や Enter/Esc は素の記号がフォントに</span>
+<span id="L189"><span class="lineNum">     189</span>              : // 無く文字化けするため FontAwesome のアイコンを使う。hasTabs が true のときタブ切替を含め、</span>
+<span id="L190"><span class="lineNum">     190</span>              : // extras に画面固有の案内を後ろへ足す</span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 : func menuNavHint(world w.World, hasTabs bool, extras ...string) string {</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, 4+len(extras))</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           2 :         if hasTabs {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 parts = append(parts, consts.IconArrowLeft+consts.IconArrowRight+&quot; &quot;+query.T(world, &quot;Tab&quot;))</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconArrowUp+consts.IconArrowDown+&quot; &quot;+query.T(world, &quot;Select&quot;))</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconKeyEnter+&quot; &quot;+query.T(world, &quot;Confirm&quot;))</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         parts = append(parts, extras...)</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         parts = append(parts, consts.IconKeyEsc+&quot; &quot;+query.T(world, &quot;Back&quot;))</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         return strings.Join(parts, &quot;   &quot;)</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : }</span>
+<span id="L202"><span class="lineNum">     202</span>              : </span>
+<span id="L203"><span class="lineNum">     203</span>              : // ================</span>
         </pre>
               </td>
             </tr>
