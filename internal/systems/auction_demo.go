@@ -12,16 +12,17 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// auctionDemoItems は種まきで床に撒く品の raw id。軽くて高い品と重くて安い品を混ぜ、
-// 価値がそのまま利益にならないこと、すなわち重い安物は発送料で赤字になることを体感させる。
+// auctionDemoItems は種まきでプレイヤーの持ち物に入れる品の raw id。軽くて高い品と重くて安い品を
+// 混ぜ、価値がそのまま利益にならないこと、すなわち重い安物は発送料で赤字になることを体感させる。
 var auctionDemoItems = []string{
 	"angel_sword", "green_sword", "slender_rapier", "nunchaku",
 	"fire_extinguisher", "shovel", "block_hammer", "hammer",
 }
 
-// AuctionDemoSystem は通信販売デモで出品中の品の落札を毎ターン進める。
-// ターンが ResolveTurn に達した出品を落札済みにし、落札額を確定してログへ出す。
-// 出品が1つも無い通常プレイでは実質何もしない。
+// AuctionDemoSystem はオークションハウスに収納された品を競売にかける。品を入れると入札が始まり、
+// ターン経過で決着する。落札されれば手取りを財布へ入れ、実績を履歴に残して品を消す。
+// 落札されなければ再入札する。ハウスから取り出された品は競売を解く。
+// オークションハウスが無い通常プレイでは即座に何もしない。
 type AuctionDemoSystem struct{}
 
 // String はシステム名を返す
@@ -29,77 +30,110 @@ func (sys AuctionDemoSystem) String() string {
 	return "AuctionDemoSystem"
 }
 
-// Update はプレイヤーが1歩動くたびに出品の残り歩数を減らし、0 になった品を落札済みにする。
-// ターン制の進行に依存せず移動そのものを進行の単位にするので、どの場面でも歩けば必ず進む。
-// 落札前は残り歩数をカウントダウンで告知し、進んでいることを見えるようにする。
-// 出品が1つも無い通常プレイでは即座に何もしない。
+// Update はオークションハウスの中身をターン経過で競売する
 func (sys *AuctionDemoSystem) Update(world w.World) error {
-	if !anyAuctionListing(world) {
+	houses := auctionHouses(world)
+	if len(houses) == 0 {
 		return nil
 	}
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
-	if !world.Components.GridElement.Has(player) {
-		return nil
-	}
-	pos := world.Components.GridElement.Get(player).Coord
+	now := int(query.GetGameTime(world).TotalTurns)
 
-	// プレイヤーの前回位置と比べて、1歩動いたかを判定する
-	clock := query.GetAuctionClock(world)
-	moved := clock.HasLast && (int(pos.X) != clock.LastX || int(pos.Y) != clock.LastY)
-	clock.LastX, clock.LastY, clock.HasLast = int(pos.X), int(pos.Y), true
+	// ハウスの外へ出た品は競売を解く。プレイヤーが取り出した品は競売を止める
+	releaseRetrievedListings(world, houses)
 
-	// StepsLeft・Won・Bid・Announced の書き換えは構造変更しないのでクエリ反復中に行う。
-	// 落札されなかった出品の出品解除は構造変更なので、後でまとめて行う
-	var unsold []ecs.Entity
-	listings := ecs.NewFilter1[gc.AuctionListing](world.ECS).Query()
-	for listings.Next() {
-		item := listings.Entity()
-		l := world.Components.AuctionListing.Get(item)
-		if l.Won {
-			continue
+	// 各ハウスの品を競売する。GetStorageItems はスライスを返すので反復中に削除してよい
+	for _, house := range houses {
+		for _, item := range query.GetStorageItems(world, house) {
+			processAuctionItem(world, player, house, item, now)
 		}
-		if moved && l.StepsLeft > 0 {
-			l.StepsLeft--
-		}
-		if l.StepsLeft <= 0 {
-			// 落札されるかはパラメータ次第。落札されなければ在庫として残る
-			if world.Config.RNG.Float64() < query.AuctionSaleChance(world, item) {
-				l.Won = true
-				l.Bid = query.AuctionBid(world, item, l.Slow)
-				logAuctionWon(world, l.ID, query.GetEntityName(item, world), l.Bid)
-			} else {
-				logAuctionUnsold(world, l.ID, query.GetEntityName(item, world))
-				unsold = append(unsold, item)
-			}
-			continue
-		}
-		if l.StepsLeft != l.Announced {
-			l.Announced = l.StepsLeft
-			logAuctionCountdown(world, l.ID, query.GetEntityName(item, world), l.StepsLeft)
-		}
-	}
-	// 落札されなかった品は出品を解いて在庫に戻す。再出品すると識別子は採番し直しになる
-	for _, item := range unsold {
-		world.Components.AuctionListing.Remove(item)
 	}
 	return nil
 }
 
-// anyAuctionListing は出品中の品が1つでもあるかを返す。
-func anyAuctionListing(world w.World) bool {
-	q := ecs.NewFilter1[gc.AuctionListing](world.ECS).Query()
-	if q.Next() {
-		q.Close()
-		return true
+// processAuctionItem は1品の競売を進める。未出品なら入札を始め、決着ターンに達したら落札判定する。
+func processAuctionItem(world w.World, player, house, item ecs.Entity, now int) {
+	if !world.Components.AuctionListing.Has(item) {
+		world.Components.AuctionListing.Add(item, &gc.AuctionListing{ResolveTurn: now + query.AuctionTurns})
+		logAuctionListed(world, query.GetEntityName(item, world), query.AuctionTurns)
+		return
 	}
-	return false
+	l := world.Components.AuctionListing.Get(item)
+	if now < l.ResolveTurn {
+		return
+	}
+
+	// 落札されるかはパラメータ次第
+	if world.Config.RNG.Float64() >= query.AuctionSaleChance(world, item) {
+		l.ResolveTurn = now + query.AuctionTurns
+		logAuctionReauction(world, query.GetEntityName(item, world))
+		return
+	}
+
+	name := query.GetEntityName(item, world)
+	bid := query.AuctionBid(world, item)
+	ship := query.AuctionShippingCost(world, item)
+	fee := query.AuctionFee(bid)
+	net := bid - ship - fee
+	if cerr := query.AddCurrency(world, player, net); cerr != nil {
+		return
+	}
+	appendAuctionRecord(world, name, bid, ship, fee, net, now)
+	world.ECS.RemoveEntity(item)
+	markStorageWeightDirty(world, house)
+	logAuctionSold(world, name, bid, ship, fee, net)
 }
 
-// SeedAuctionDemo はプレイヤーのいる床に通信販売デモを仕込む。品を床に散らして出品できるようにし、
-// 発送台を隣に置く。品は出品してターン経過で落札し、落札品を発送台へ運ぶと精算される。
+// auctionHouses はオークションハウスのエンティティを集めて返す。
+func auctionHouses(world w.World) []ecs.Entity {
+	var houses []ecs.Entity
+	q := ecs.NewFilter1[gc.AuctionHouse](world.ECS).Query()
+	for q.Next() {
+		houses = append(houses, q.Entity())
+	}
+	return houses
+}
+
+// releaseRetrievedListings はオークションハウスの中に無い出品を解く。取り出された品の競売を止める。
+func releaseRetrievedListings(world w.World, houses []ecs.Entity) {
+	houseSet := make(map[ecs.Entity]bool, len(houses))
+	for _, h := range houses {
+		houseSet[h] = true
+	}
+	var toRelease []ecs.Entity
+	q := ecs.NewFilter1[gc.AuctionListing](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		inHouse := world.Components.LocationInStorage.Has(e) && houseSet[world.Components.LocationInStorage.Get(e).Owner]
+		if !inHouse {
+			toRelease = append(toRelease, e)
+		}
+	}
+	for _, e := range toRelease {
+		world.Components.AuctionListing.Remove(e)
+	}
+}
+
+// appendAuctionRecord は出荷実績を履歴に1件足す。
+func appendAuctionRecord(world w.World, name string, bid, ship, fee, net, turn int) {
+	history := query.GetAuctionHistory(world)
+	history.Records = append(history.Records, gc.AuctionRecord{
+		Name: name, Bid: bid, Ship: ship, Fee: fee, Net: net, Turn: turn,
+	})
+}
+
+// markStorageWeightDirty は収納の重量再計算を要求する。中身が減ったので次フレームで引き直す。
+func markStorageWeightDirty(world w.World, storage ecs.Entity) {
+	if !world.Components.WeightDirty.Has(storage) {
+		world.Components.WeightDirty.Add(storage, &gc.WeightDirty{})
+	}
+}
+
+// SeedAuctionDemo はプレイヤーの持ち物に競売用の品を入れ、隣にオークションハウスを置く。
+// 品をハウスへ収納すると競売が始まる。
 func SeedAuctionDemo(world w.World) error {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
@@ -110,28 +144,15 @@ func SeedAuctionDemo(world w.World) error {
 	}
 	base := world.Components.GridElement.Get(player).Coord
 
-	// プレイヤーの周囲の開けたタイルに散らす。既存の木箱と NPC、東隣に並べる発券機とポータルを避ける。
-	// 近い品と遠い品を混ぜ、置き場所と動線が取り出し速度に効くようにする
-	offsets := []consts.Coord[consts.Tile]{
-		{X: 3, Y: 0}, {X: -3, Y: 0}, {X: 0, Y: 2}, {X: 0, Y: -2},
-		{X: 3, Y: 2}, {X: -3, Y: 2}, {X: 2, Y: -3}, {X: -2, Y: -3},
-	}
-	for i, id := range auctionDemoItems {
-		p := base.Add(offsets[i%len(offsets)])
-		item, serr := lifecycle.SpawnFieldItem(world, id, p.X, p.Y, 1)
-		if serr != nil {
+	// 競売用の品を持ち物に入れる。軽い高額品と重い安物を混ぜる
+	for _, id := range auctionDemoItems {
+		if _, serr := lifecycle.SpawnBackpackItem(world, id, 1); serr != nil {
 			return serr
 		}
-		// 既定の拾得に加えて出品タグを貼れるようにする
-		addInteraction(world, item, gc.InteractionApplyListingTag)
 	}
 
-	// 発券機とポータルをプレイヤーの東隣に並べて置く。木箱と紛れない専用プロップにする。
-	// 東へ歩けば発券機、その先にポータル、と順に見つかるようにする
-	if serr := spawnAuctionProp(world, "control_panel", base.X+1, base.Y, gc.InteractionDispenseListingTag); serr != nil {
-		return serr
-	}
-	if serr := spawnAuctionProp(world, "warp_next", base.X+2, base.Y, gc.InteractionShip); serr != nil {
+	// オークションハウスを隣に置く。木箱の収納を流用し、専用マーカーで識別する
+	if serr := spawnAuctionHouse(world, base.X+1, base.Y); serr != nil {
 		return serr
 	}
 
@@ -139,52 +160,44 @@ func SeedAuctionDemo(world w.World) error {
 	return nil
 }
 
-// addInteraction は既存の Interactable に相互作用を1つ足す。無ければ作る。
-func addInteraction(world w.World, e ecs.Entity, kind gc.InteractionKind) {
-	if !world.Components.Interactable.Has(e) {
-		world.Components.Interactable.Add(e, &gc.Interactable{Interactions: []gc.InteractionKind{kind}})
-		return
-	}
-	it := world.Components.Interactable.Get(e)
-	it.Interactions = append(it.Interactions, kind)
-}
-
-// spawnAuctionProp はデモ用のプロップを1つ置く。既存プロップを流用し、相互作用を指定のものだけに差し替える。
-func spawnAuctionProp(world w.World, propName string, x, y consts.Tile, kinds ...gc.InteractionKind) error {
-	prop, err := lifecycle.SpawnProp(world, propName, x, y)
+// spawnAuctionHouse はオークションハウスを1つ置く。木箱の収納を流用し、収納の相互作用だけにして
+// オークションハウスのマーカーを付ける。
+func spawnAuctionHouse(world w.World, x, y consts.Tile) error {
+	house, err := lifecycle.SpawnProp(world, "wooden_crate", x, y)
 	if err != nil {
 		return err
 	}
-	if world.Components.Interactable.Has(prop) {
-		world.Components.Interactable.Get(prop).Interactions = kinds
-	} else {
-		world.Components.Interactable.Add(prop, &gc.Interactable{Interactions: kinds})
-	}
+	world.Components.Interactable.Get(house).Interactions = []gc.InteractionKind{gc.InteractionStorage}
+	world.Components.Name.Get(house).Name = "Auction house"
+	world.Components.AuctionHouse.Add(house, &gc.AuctionHouse{})
 	return nil
 }
 
 func logAuctionIntro(world w.World) {
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "Mail-order demo. The tag dispenser and the shipping portal stand to the east. Issue a listing tag, apply it to an item, walk to run its auction, then ship at the portal.")).
+		Markup(query.T(world, "Auction demo. Store items into the auction house next to you to sell them over turns. Check results from the debug menu auction history.")).
 		Log()
 }
 
-func logAuctionCountdown(world w.World, id int, name string, remaining int) {
+func logAuctionListed(world w.World, name string, turns int) {
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "L-%d %s: %d steps until it is won.", id, gamelog.Tag("item", name), remaining)).
+		Markup(query.T(world, "%s went up for auction. It resolves in %d turns.", gamelog.Tag("item", name), turns)).
 		Log()
 }
 
-func logAuctionUnsold(world w.World, id int, name string) {
+func logAuctionReauction(world w.World, name string) {
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "L-%d %s did not sell. It stays as stock. Apply a new tag to re-list it.",
-			id, gamelog.Tag("item", name))).
+		Markup(query.T(world, "%s did not sell. Re-auction started.", gamelog.Tag("item", name))).
 		Log()
 }
 
-func logAuctionWon(world w.World, id int, name string, bid int) {
-	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "L-%d %s was won at bid %d. Pick it up and place it in the portal to ship.",
-			id, gamelog.Tag("item", name), bid)).
-		Log()
+func logAuctionSold(world w.World, name string, bid, ship, fee, net int) {
+	store := query.GetGameLog(world)
+	if net < 0 {
+		gamelog.New(store).Markup(query.T(world, "Sold %s at a LOSS. net %d, bid %d, ship %d, fee %d",
+			gamelog.Tag("item", name), net, bid, ship, fee)).Log()
+		return
+	}
+	gamelog.New(store).Markup(query.T(world, "Sold %s. net %d, bid %d, ship %d, fee %d",
+		gamelog.Tag("item", name), net, bid, ship, fee)).Log()
 }

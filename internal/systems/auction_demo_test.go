@@ -3,10 +3,10 @@ package systems
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -22,7 +22,7 @@ func TestAuctionPrice_重い安物は発送料で赤字になる(t *testing.T) {
 	item, err := lifecycle.SpawnFieldItem(world, "fire_extinguisher", 5, 5, 1)
 	require.NoError(t, err)
 
-	bid := query.AuctionBid(world, item, true)
+	bid := query.AuctionBid(world, item)
 	ship := query.AuctionShippingCost(world, item)
 	fee := query.AuctionFee(bid)
 	assert.Positive(t, ship, "重量に応じた発送料がかかる")
@@ -37,7 +37,7 @@ func TestAuctionPrice_軽い高額品は黒字になる(t *testing.T) {
 	item, err := lifecycle.SpawnFieldItem(world, "angel_sword", 5, 5, 1)
 	require.NoError(t, err)
 
-	bid := query.AuctionBid(world, item, true)
+	bid := query.AuctionBid(world, item)
 	ship := query.AuctionShippingCost(world, item)
 	fee := query.AuctionFee(bid)
 	assert.Positive(t, bid-ship-fee, "軽く価値が高い品は手取りが出る")
@@ -52,52 +52,73 @@ func TestAuctionSaleChance_高価な品ほど落札されにくい(t *testing.T)
 	expensive, err := lifecycle.SpawnFieldItem(world, "angel_sword", 6, 5, 1)
 	require.NoError(t, err)
 
-	cheapChance := query.AuctionSaleChance(world, cheap)
-	expensiveChance := query.AuctionSaleChance(world, expensive)
-	assert.Greater(t, cheapChance, expensiveChance, "安い品ほど落札されやすい")
-	assert.Greater(t, cheapChance, 0.0)
-	assert.LessOrEqual(t, cheapChance, 1.0)
-	assert.Greater(t, expensiveChance, 0.0)
+	assert.Greater(t, query.AuctionSaleChance(world, cheap), query.AuctionSaleChance(world, expensive), "安い品ほど落札されやすい")
+	assert.Greater(t, query.AuctionSaleChance(world, expensive), 0.0)
+	assert.LessOrEqual(t, query.AuctionSaleChance(world, cheap), 1.0)
 }
 
-func TestAuctionDemoSystem_残り歩数0で落札か在庫戻りに解決する(t *testing.T) {
+func TestAuctionDemoSystem_収納した品は競売にかかる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	item, err := lifecycle.SpawnFieldItem(world, "angel_sword", 5, 6, 1)
+	house := newTestAuctionHouse(t, world, 11, 10)
+	item, err := lifecycle.SpawnStorageItem(world, "angel_sword", 1, house)
 	require.NoError(t, err)
-	world.Components.AuctionListing.Add(item, &gc.AuctionListing{ID: 1, StepsLeft: 0, Slow: true, Announced: -1})
 
 	sys := &AuctionDemoSystem{}
 	require.NoError(t, sys.Update(world))
 
-	// 落札されれば Won、落札されなければ出品が解かれて在庫に戻る。どちらでも解決済みとみなす
-	resolved := !world.Components.AuctionListing.Has(item) || world.Components.AuctionListing.Get(item).Won
-	assert.True(t, resolved, "残り歩数0で落札か在庫戻りに解決する")
+	require.True(t, world.Components.AuctionListing.Has(item), "収納した品は競売にかかる")
+	assert.Positive(t, world.Components.AuctionListing.Get(item).ResolveTurn, "決着ターンが設定される")
 }
 
-func TestAuctionDemoSystem_動かなければ落札しない(t *testing.T) {
+func TestAuctionDemoSystem_ターン経過で決着し実績が履歴に残る(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	item, err := lifecycle.SpawnFieldItem(world, "angel_sword", 5, 6, 1)
+	house := newTestAuctionHouse(t, world, 11, 10)
+	// shovel は安く落札されやすいので、再入札を繰り返せば必ず売れる
+	item, err := lifecycle.SpawnStorageItem(world, "shovel", 1, house)
 	require.NoError(t, err)
-	world.Components.AuctionListing.Add(item, &gc.AuctionListing{StepsLeft: 3, Slow: true, Announced: -1})
+
+	sys := &AuctionDemoSystem{}
+	sold := false
+	for i := 0; i < 80 && !sold; i++ {
+		require.NoError(t, sys.Update(world))
+		query.GetGameTime(world).Advance()
+		sold = !world.ECS.Alive(item)
+	}
+
+	assert.True(t, sold, "ターン経過で競売が決着し品が売れる")
+	assert.NotEmpty(t, query.GetAuctionHistory(world).Records, "出荷実績が履歴に残る")
+}
+
+func TestAuctionDemoSystem_ハウスから取り出すと競売を解く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	house := newTestAuctionHouse(t, world, 11, 10)
+	item, err := lifecycle.SpawnStorageItem(world, "angel_sword", 1, house)
+	require.NoError(t, err)
 
 	sys := &AuctionDemoSystem{}
 	require.NoError(t, sys.Update(world))
+	require.True(t, world.Components.AuctionListing.Has(item), "収納中は競売中")
+
+	// 取り出す。持ち物へ移すと競売が解かれる
+	require.NoError(t, lifecycle.MoveToBackpack(world, item, player))
 	require.NoError(t, sys.Update(world))
 
-	l := world.Components.AuctionListing.Get(item)
-	assert.False(t, l.Won, "歩いていなければ落札しない")
-	assert.Equal(t, 3, l.StepsLeft, "動かなければ残り歩数は減らない")
+	assert.False(t, world.Components.AuctionListing.Has(item), "取り出した品は競売が解かれる")
 }
 
-func TestSeedAuctionDemo_品に出品相互作用と発送台を用意する(t *testing.T) {
+func TestSeedAuctionDemo_持ち物に品を入れオークションハウスを置く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -106,73 +127,40 @@ func TestSeedAuctionDemo_品に出品相互作用と発送台を用意する(t *
 
 	require.NoError(t, SeedAuctionDemo(world))
 
-	taggable := 0
-	dispenser := 0
-	portal := 0
-	q := ecs.NewFilter1[gc.Interactable](world.ECS).Query()
-	for q.Next() {
-		for _, kind := range world.Components.Interactable.Get(q.Entity()).Interactions {
-			switch kind {
-			case gc.InteractionApplyListingTag:
-				taggable++
-			case gc.InteractionDispenseListingTag:
-				dispenser++
-			case gc.InteractionShip:
-				portal++
-			default:
-				// 数える対象以外は無視する
-			}
+	houses := 0
+	hq := ecs.NewFilter1[gc.AuctionHouse](world.ECS).Query()
+	for hq.Next() {
+		houses++
+	}
+	assert.Equal(t, 1, houses, "オークションハウスが1つ置かれる")
+
+	demo := 0
+	iq := ecs.NewFilter1[gc.RawID](world.ECS).Query()
+	set := map[string]bool{}
+	for _, id := range auctionDemoItems {
+		set[id] = true
+	}
+	for iq.Next() {
+		if set[world.Components.RawID.Get(iq.Entity()).ID] {
+			demo++
 		}
 	}
-	assert.Equal(t, len(auctionDemoItems), taggable, "撒いた品は全て出品タグを貼れる")
-	assert.Equal(t, 1, dispenser, "発券機が1つ置かれる")
-	assert.Equal(t, 1, portal, "発送ポータルが1つ置かれる")
+	assert.Equal(t, len(auctionDemoItems), demo, "競売用の品が持ち物に入る")
 }
 
-func TestAuctionDemoSystem_出品が無ければ何もしない(t *testing.T) {
+func TestAuctionDemoSystem_ハウスが無ければ何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	sys := &AuctionDemoSystem{}
-	assert.NoError(t, sys.Update(world), "出品が無ければ即座に終わる")
+	assert.NoError(t, sys.Update(world), "オークションハウスが無ければ即座に終わる")
 }
 
-// プレイヤーが実際に歩くと、出品の残り歩数が減って落札または在庫戻りに解決することを確かめる。
-// ゲーム内でターンが進まず解決しないという不具合の回帰を防ぐ。ターン制でなく移動そのもので
-// 進むので、どの場面でも歩けば必ず解決へ近づく。落札されるかはパラメータ次第なので、
-// 解決とは落札または在庫戻りのいずれかを指す。
-func TestAuctionDemoSystem_実移動で歩数が減り解決する(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, "ash")
+// newTestAuctionHouse はテスト用にオークションハウスを1つ作る。
+func newTestAuctionHouse(t *testing.T, world w.World, x, y consts.Tile) ecs.Entity {
+	t.Helper()
+	house, err := lifecycle.SpawnProp(world, "wooden_crate", x, y)
 	require.NoError(t, err)
-	item, err := lifecycle.SpawnFieldItem(world, "angel_sword", 26, 25, 1)
-	require.NoError(t, err)
-	world.Components.AuctionListing.Add(item, &gc.AuctionListing{ID: 1, StepsLeft: query.AuctionSlowSteps, Slow: true, Announced: -1})
-
-	resolved := func() bool {
-		return !world.Components.AuctionListing.Has(item) || world.Components.AuctionListing.Get(item).Won
-	}
-
-	turnSys := &TurnSystem{}
-	auctionSys := &AuctionDemoSystem{}
-	moves := 0
-	for i := 0; i < 60 && !resolved(); i++ {
-		if query.CanPlayerAct(world) && !query.HasActivity(world, player) {
-			dir := gc.DirectionRight
-			if i%2 == 1 {
-				dir = gc.DirectionLeft
-			}
-			require.NoError(t, activity.ExecuteMoveAction(world, dir))
-			moves++
-		}
-		for range 3 {
-			require.NoError(t, turnSys.Update(world))
-			require.NoError(t, auctionSys.Update(world))
-		}
-	}
-
-	assert.True(t, resolved(), "実際に歩けば残り歩数が減って解決する")
-	assert.LessOrEqual(t, moves, query.AuctionSlowSteps+3, "移動数ぶんで解決する")
+	world.Components.AuctionHouse.Add(house, &gc.AuctionHouse{})
+	return house
 }

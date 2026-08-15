@@ -59,12 +59,6 @@ const (
 	InteractionPullCube InteractionKind = "PULL_CUBE"
 	// InteractionCubePanel はキューブ内部のコントロールパネル。全体情報の閲覧と将来の拡張UIの入口
 	InteractionCubePanel InteractionKind = "CUBE_PANEL"
-	// InteractionDispenseListingTag は通信販売デモの発券機。出品タグを1枚持ち物に発行する相互作用
-	InteractionDispenseListingTag InteractionKind = "DISPENSE_LISTING_TAG"
-	// InteractionApplyListingTag は通信販売デモで品に出品タグを貼る相互作用。貼ると入札が始まる
-	InteractionApplyListingTag InteractionKind = "APPLY_LISTING_TAG"
-	// InteractionShip は通信販売デモのポータル。落札品を置くと発送して換金する相互作用
-	InteractionShip InteractionKind = "SHIP"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -72,11 +66,11 @@ const (
 // 未知入力は raw/save 由来でありうるので panic せず末尾のゼロ値へ graceful に落とす
 func (k InteractionKind) Config() InteractionConfig {
 	switch k {
-	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItem, InteractionItemAll, InteractionApplyListingTag:
+	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItem, InteractionItemAll:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
-	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionShip, InteractionDispenseListingTag:
+	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
 	case InteractionExitCube:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}

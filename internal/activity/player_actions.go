@@ -207,21 +207,6 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "%s is here. You can enter it from the Space action menu.", gamelog.Tag("item", query.GetEntityName(entity, world)))).
 					Log()
-			case gc.InteractionShip:
-				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "There is a shipping portal. Carry a won item here and press Enter to ship.")).
-					Log()
-			case gc.InteractionDispenseListingTag:
-				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "There is a tag dispenser. Press Enter to issue a listing tag.")).
-					Log()
-			case gc.InteractionApplyListingTag:
-				// 未出品の品の上に立ち、出品タグを持っていれば貼れることを教える
-				if !world.Components.AuctionListing.Has(entity) && query.PlayerHoldsListingTag(world) {
-					gamelog.New(query.GetGameLog(world)).
-						Markup(query.T(world, "%s can be tagged. Press Enter to apply a listing tag.", gamelog.Tag("item", query.FormatItemName(world, entity)))).
-						Log()
-				}
 			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する

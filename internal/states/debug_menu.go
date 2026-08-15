@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"strings"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -109,6 +110,12 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		Choice{Label: "Name input", Run: pushChoice(NewCharacterNamingState)},
 		Choice{Label: "Job selection", Run: pushChoice(NewCharacterJobState("Ash"))},
 		Choice{Label: "Auction demo: seed here (enter a stage first)", Run: popAfter(gs.SeedAuctionDemo)},
+		Choice{Label: "Auction history", Run: func(world w.World) (es.Transition[w.World], error) {
+			md := auctionHistoryMessage(world)
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+				func() (es.State[w.World], error) { return NewMessageState(md) },
+			}}, nil
+		}},
 		Choice{Label: "Spawn enemy: fireball (hostile)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "fireball") })},
 		Choice{Label: "Spawn enemy: moss turtle (neutral)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "moss_turtle") })},
 		Choice{Label: "Spawn enemy: rat (cowardly)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "rat") })},
@@ -128,6 +135,20 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		}},
 	)
 	return "", choices
+}
+
+// auctionHistoryMessage は出荷実績の履歴をメッセージにして返す。デバッグメニューから閲覧する。
+func auctionHistoryMessage(world w.World) *messagedata.MessageData {
+	history := query.GetAuctionHistory(world)
+	if len(history.Records) == 0 {
+		return messagedata.NewSystemMessage("Auction history\n\nNo shipments yet.")
+	}
+	var b strings.Builder
+	b.WriteString("Auction history\n\n")
+	for _, r := range history.Records {
+		fmt.Fprintf(&b, "%s: net %d  bid %d  ship %d  fee %d  turn %d\n", r.Name, r.Net, r.Bid, r.Ship, r.Fee, r.Turn)
+	}
+	return messagedata.NewSystemMessage(b.String())
 }
 
 // playerGridElement はプレイヤーの GridElement を返す。位置を持たない文脈ではエラーにする。
