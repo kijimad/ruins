@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -18,12 +19,12 @@ func TestBuyStock_スタッカブルはバックパックのスタックに統�
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.ECS.NewEntity()
-	world.Components.Player.Add(player, &gc.Player{})
-	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	world.Components.Wallet.Get(player).Currency = 1000
 
 	// 先にプレイヤーが1個持っている
-	_, err := lifecycle.SpawnBackpackItem(world, "wooden_stick", 1)
+	_, err = lifecycle.SpawnBackpackItem(world, "wooden_stick", 1)
 	require.NoError(t, err)
 
 	merchant := world.ECS.NewEntity()
@@ -51,9 +52,12 @@ func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.ECS.NewEntity()
-	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
-	world.Components.CharModifiers.Add(player, &gc.CharModifiers{BuyPrice: 50})
+	// SpawnPlayer は CharModifiers を備えるので、買値倍率は Get して上書きする
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	world.Components.Wallet.Get(player).Currency = 1000
+	// 交渉スキルによる買値倍率を50%に固定する
+	world.Components.CharModifiers.Get(player).BuyPrice = 50
 
 	merchant := world.ECS.NewEntity()
 	item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
@@ -68,12 +72,15 @@ func TestBuyStock_交渉スキルで買値が変わる(t *testing.T) {
 }
 
 // TestSellStock_価値0のアイテムは対価0で売れる は無価値な品でも売却は成功し、対価が0になることを確認する。
+// 価値0の品は実スポーンで自然に作れないため、売却対象は手組みの fixture のまま残す。
 func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.ECS.NewEntity()
-	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	world.Components.Wallet.Get(player).Currency = 0
+
 	merchant := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()
 	world.Components.Value.Add(item, &gc.Value{Value: 0})
@@ -92,13 +99,16 @@ func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 }
 
 // TestSellStock_交渉スキルで売値が変わる はCharModifiers.SellPriceが売却価格に反映されることを確認する。
+// 期待値を明示するため、売却対象は価値100の手組み fixture のまま残す。
 func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.ECS.NewEntity()
-	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
-	world.Components.CharModifiers.Add(player, &gc.CharModifiers{SellPrice: 200})
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	world.Components.Wallet.Get(player).Currency = 0
+	// 交渉スキルによる売値倍率を200%に固定する
+	world.Components.CharModifiers.Get(player).SellPrice = 200
 
 	merchant := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()

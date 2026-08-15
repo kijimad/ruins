@@ -15,15 +15,11 @@ func TestGetAmount(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// テスト用素材エンティティを作成
-	materialEntity := world.ECS.NewEntity()
-	world.Components.Stackable.Add(materialEntity, &gc.Stackable{Count: 10})
-	world.Components.LocationInBackpack.Add(materialEntity, &gc.LocationInBackpack{})
-	world.Components.Name.Add(materialEntity, &gc.Name{Name: "鉄"})
-	world.Components.RawID.Add(materialEntity, &gc.RawID{ID: "鉄"})
+	_, err := SpawnBackpackItem(world, "iron", 10)
+	require.NoError(t, err)
 
 	// 素材の数量を取得
-	entity, found := query.FindStackableInInventory(world, "鉄")
+	entity, found := query.FindStackableInInventory(world, "iron")
 	require.True(t, found, "素材が見つからない")
 	stackable := world.Components.Stackable.Get(entity)
 	assert.Equal(t, 10, stackable.Count, "素材の数量が正しく取得できない")
@@ -31,51 +27,44 @@ func TestGetAmount(t *testing.T) {
 	// 存在しない素材の数量を取得
 	_, found = query.FindStackableInInventory(world, "存在しない素材")
 	assert.False(t, found, "存在しない素材が見つかってはいけない")
-
-	// クリーンアップ
-	world.ECS.RemoveEntity(materialEntity)
 }
 
 func TestPlusMinusAmount(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// テスト用素材エンティティを作成
-	materialEntity := world.ECS.NewEntity()
-	world.Components.Stackable.Add(materialEntity, &gc.Stackable{Count: 10})
-	world.Components.LocationInBackpack.Add(materialEntity, &gc.LocationInBackpack{})
-	world.Components.Name.Add(materialEntity, &gc.Name{Name: "鉄"})
-	world.Components.RawID.Add(materialEntity, &gc.RawID{ID: "鉄"})
+	_, err := SpawnBackpackItem(world, "iron", 10)
+	require.NoError(t, err)
 
 	// 数量を増加
-	err := ChangeStackableCount(world, "鉄", 5)
+	err = ChangeStackableCount(world, "iron", 5)
 	require.NoError(t, err)
-	entity, found := query.FindStackableInInventory(world, "鉄")
+	entity, found := query.FindStackableInInventory(world, "iron")
 	require.True(t, found)
 	stackable := world.Components.Stackable.Get(entity)
 	assert.Equal(t, 15, stackable.Count, "数量増加が正しく動作しない")
 
 	// 数量を減少
-	err = ChangeStackableCount(world, "鉄", -3)
+	err = ChangeStackableCount(world, "iron", -3)
 	require.NoError(t, err)
-	entity, found = query.FindStackableInInventory(world, "鉄")
+	entity, found = query.FindStackableInInventory(world, "iron")
 	require.True(t, found)
 	stackable = world.Components.Stackable.Get(entity)
 	assert.Equal(t, 12, stackable.Count, "数量減少が正しく動作しない")
 
 	// 大量追加テスト（制限なし）
-	err = ChangeStackableCount(world, "鉄", 1000)
+	err = ChangeStackableCount(world, "iron", 1000)
 	require.NoError(t, err)
-	entity, found = query.FindStackableInInventory(world, "鉄")
+	entity, found = query.FindStackableInInventory(world, "iron")
 	require.True(t, found)
 	stackable = world.Components.Stackable.Get(entity)
 	assert.Equal(t, 1012, stackable.Count, "数量が正しく加算されない")
 
 	// 所持数を超えて減らそうとするとエラー
-	err = ChangeStackableCount(world, "鉄", -1500)
+	err = ChangeStackableCount(world, "iron", -1500)
 	require.ErrorContains(t, err, "insufficient item count")
 	// エンティティは残っている
-	entity, found = query.FindStackableInInventory(world, "鉄")
+	entity, found = query.FindStackableInInventory(world, "iron")
 	require.True(t, found)
 	stackable = world.Components.Stackable.Get(entity)
 	assert.Equal(t, 1012, stackable.Count, "個数は変更されていないべき")
@@ -114,35 +103,30 @@ func TestMergeStackableItems(t *testing.T) {
 
 		owner := world.ECS.NewEntity()
 
-		// バックパック内にパンを3個追加
-		item1 := world.ECS.NewEntity()
-		world.Components.Name.Add(item1, &gc.Name{Name: "パン"})
-		world.Components.RawID.Add(item1, &gc.RawID{ID: "パン"})
-		world.Components.Stackable.Add(item1, &gc.Stackable{Count: 3})
+		// 未統合の2スタックを作る。SpawnBackpackItem はプレイヤーのバックパックへ入れる際に
+		// 自動統合するため、統合前の状態を作るには spawnItemBase で実アイテムを生成し、
+		// 所有者への配置だけをテスト用に手で行う
+		item1, err := spawnItemBase(world, "bread", 3)
+		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item1, &gc.LocationInBackpack{Owner: owner})
 
-		// バックパック内にパンを2個追加
-		item2 := world.ECS.NewEntity()
-		world.Components.Name.Add(item2, &gc.Name{Name: "パン"})
-		world.Components.RawID.Add(item2, &gc.RawID{ID: "パン"})
-		world.Components.Stackable.Add(item2, &gc.Stackable{Count: 2})
+		item2, err := spawnItemBase(world, "bread", 2)
+		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item2, &gc.LocationInBackpack{Owner: owner})
 
 		// マージ実行
-		err := mergeStackableItems(world, "パン", mergeInBackpack, owner)
+		err = mergeStackableItems(world, "bread", mergeInBackpack, owner)
 		require.NoError(t, err)
 
 		// バックパック内のパンは1つだけになっている
 		var breadCount int
 		var totalCount int
-		breadQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
+		breadQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 		for breadQuery.Next() {
 			entity := breadQuery.Entity()
-			name := world.Components.Name.Get(entity)
-			if name.Name == "パン" {
+			if world.Components.RawID.Get(entity).ID == "bread" {
 				breadCount++
-				stackable := world.Components.Stackable.Get(entity)
-				totalCount += stackable.Count
+				totalCount += world.Components.Stackable.Get(entity).Count
 			}
 		}
 
@@ -156,21 +140,17 @@ func TestMergeStackableItems(t *testing.T) {
 
 		owner := world.ECS.NewEntity()
 
-		// バックパック内にパンを1個だけ追加
-		item := world.ECS.NewEntity()
-		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
-		world.Components.RawID.Add(item, &gc.RawID{ID: "パン"})
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 2})
+		item, err := spawnItemBase(world, "bread", 2)
+		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 
 		// マージ実行
-		err := mergeStackableItems(world, "パン", mergeInBackpack, owner)
+		err = mergeStackableItems(world, "bread", mergeInBackpack, owner)
 		require.NoError(t, err)
 
 		// アイテムがそのまま残っている
-		assert.True(t, world.Components.Name.Has(item), "アイテムがそのまま残る")
-		stackableComp := world.Components.Stackable.Get(item)
-		assert.Equal(t, 2, stackableComp.Count, "個数は変わらない")
+		assert.True(t, world.ECS.Alive(item), "アイテムがそのまま残る")
+		assert.Equal(t, 2, world.Components.Stackable.Get(item).Count, "個数は変わらない")
 	})
 
 	t.Run("非Stackableアイテムは統合しない", func(t *testing.T) {
@@ -179,23 +159,21 @@ func TestMergeStackableItems(t *testing.T) {
 
 		owner := world.ECS.NewEntity()
 
-		// バックパック内に剣を2つ追加（Stackableなし）
-		item1 := world.ECS.NewEntity()
-		world.Components.Melee.Add(item1, &gc.Melee{})
-		world.Components.Name.Add(item1, &gc.Name{Name: "剣"})
+		// 非Stackableな近接武器を2つ配置する
+		item1, err := spawnItemBase(world, "claymore", 1)
+		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item1, &gc.LocationInBackpack{Owner: owner})
 
-		item2 := world.ECS.NewEntity()
-		world.Components.Melee.Add(item2, &gc.Melee{})
-		world.Components.Name.Add(item2, &gc.Name{Name: "剣"})
+		item2, err := spawnItemBase(world, "claymore", 1)
+		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item2, &gc.LocationInBackpack{Owner: owner})
 
 		// マージ実行
-		err := mergeStackableItems(world, "剣", mergeInBackpack, owner)
+		err = mergeStackableItems(world, "claymore", mergeInBackpack, owner)
 		require.NoError(t, err)
 
 		// 両方のアイテムがそのまま残っている
-		assert.True(t, world.Components.Name.Has(item1), "item1がそのまま残る")
-		assert.True(t, world.Components.Name.Has(item2), "item2がそのまま残る")
+		assert.True(t, world.ECS.Alive(item1), "item1がそのまま残る")
+		assert.True(t, world.ECS.Alive(item2), "item2がそのまま残る")
 	})
 }

@@ -20,10 +20,8 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.TurnBased.Add(player, &gc.TurnBased{})
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
 
 		// 移動を実行
 		require.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
@@ -98,10 +96,8 @@ func TestExecuteMoveAction(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
 
-				player := world.ECS.NewEntity()
-				world.Components.Player.Add(player, &gc.Player{})
-				world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-				world.Components.TurnBased.Add(player, &gc.TurnBased{})
+				player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+				require.NoError(t, err)
 
 				require.NoError(t, ExecuteMoveAction(world, tt.direction))
 
@@ -147,10 +143,8 @@ func TestExecuteWaitAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-		world.Components.TurnBased.Add(player, &gc.TurnBased{})
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
 
 		require.NoError(t, ExecuteWaitAction(world))
 

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -260,10 +261,9 @@ func TestReadBehavior_DoTurn_CanceledByEnemy(t *testing.T) {
 	world.Components.FactionAlly.Add(actor, &gc.FactionAlly{})
 	world.Components.GridElement.Add(actor, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
 
-	// 隣に敵を配置
-	enemy := world.ECS.NewEntity()
-	world.Components.FactionEnemy.Add(enemy, &gc.FactionEnemy{})
-	world.Components.GridElement.Add(enemy, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
+	// 隣に敵を配置する
+	_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 6, Y: 5}, "fireball")
+	require.NoError(t, err)
 
 	bookEntity := world.ECS.NewEntity()
 	book := &gc.Book{
@@ -281,7 +281,7 @@ func TestReadBehavior_DoTurn_CanceledByEnemy(t *testing.T) {
 		Params:       &gc.ReadParams{Target: bookEntity},
 	}
 
-	err := ra.DoTurn(comp, actor, world)
+	err = ra.DoTurn(comp, actor, world)
 	require.NoError(t, err)
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State, "敵がいるのでキャンセルされる")
 	assert.Equal(t, 0, book.Effort.Current, "章は進んでいない")
