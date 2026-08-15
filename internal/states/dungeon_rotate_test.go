@@ -51,11 +51,8 @@ func TestDungeon3D_moveDir(t *testing.T) {
 func TestDungeonState_moveDir_delegation(t *testing.T) {
 	t.Parallel()
 
-	// 3D無効なら world 固定のまま
+	// 常に3Dカメラの向きへ dungeon3D で委譲する。北上カメラの既定 orient0 では Up=北・Right=東のまま
 	st := &DungeonState{}
 	assert.Equal(t, gc.DirectionUp, st.moveDir(gc.DirectionUp))
-
-	// 3D有効なら dungeon3D へ委譲する。北上カメラの既定 orient0 では Up=北のまま
-	st.three.enabled = true
-	assert.Equal(t, gc.DirectionUp, st.moveDir(gc.DirectionUp))
+	assert.Equal(t, gc.DirectionRight, st.moveDir(gc.DirectionRight))
 }

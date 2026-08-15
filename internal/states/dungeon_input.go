@@ -112,12 +112,8 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 	return "", false
 }
 
-// moveDir は移動方向をカメラの向きへ合わせる。3D有効時は dungeon3D へ委譲し、
-// 2Dモードでは world 固定のまま返す。
+// moveDir は移動方向をカメラの向きへ合わせる。常に3Dカメラの向きへ dungeon3D で回す。
 func (st *DungeonState) moveDir(base gc.Direction) gc.Direction {
-	if !st.three.enabled {
-		return base
-	}
 	return st.three.moveDir(base)
 }
 

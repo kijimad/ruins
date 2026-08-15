@@ -13,8 +13,6 @@ import (
 // dungeon3D は実験的なローポリ3D表示の状態と操作をまとめる。DungeonState から3D固有の
 // フィールドとロジックを切り出し、2Dの本流を汚さず、将来まるごと採否を判断しやすくする。
 type dungeon3D struct {
-	// enabled は3D描画への切り替え。F3 でトグルする
-	enabled bool
 	// sys は描画とカメラの状態。初回利用時に構築する
 	sys *gs.Render3DSystem
 	// orient はカメラと移動キーの向き。0-7 が45度刻み。Z/C で回す
@@ -23,9 +21,6 @@ type dungeon3D struct {
 	dragging bool
 	lastCurY int
 }
-
-// toggle は3D描画の有効・無効を切り替える。
-func (d *dungeon3D) toggle() { d.enabled = !d.enabled }
 
 // ensure は描画システムを遅延構築する。
 func (d *dungeon3D) ensure() {
