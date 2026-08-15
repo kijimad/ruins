@@ -112,6 +112,15 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 	return "", false
 }
 
+// moveDir は移動方向をカメラの向きへ合わせる。3D有効時は dungeon3D へ委譲し、
+// 2Dモードでは world 固定のまま返す。
+func (st *DungeonState) moveDir(base gc.Direction) gc.Direction {
+	if !st.three.enabled {
+		return base
+	}
+	return st.three.moveDir(base)
+}
+
 // DoAction はActionを実行する
 //
 //nolint:gocyclo // 多くのアクションを処理するためswitch文が大きくなる
@@ -182,42 +191,42 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 
 	// 移動系アクション
 	case inputmapper.ActionMoveNorth:
-		if err := activity.ExecuteMoveAction(world, gc.DirectionUp); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUp)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouth:
-		if err := activity.ExecuteMoveAction(world, gc.DirectionDown); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDown)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveEast:
-		if err := activity.ExecuteMoveAction(world, gc.DirectionRight); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionRight)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveWest:
-		if err := activity.ExecuteMoveAction(world, gc.DirectionLeft); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionLeft)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveNorthEast:
-		if err := activity.ExecuteMoveAction(world, gc.DirectionUpRight); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUpRight)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveNorthWest:
-		if err := activity.ExecuteMoveAction(world, gc.DirectionUpLeft); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUpLeft)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouthEast:
-		if err := activity.ExecuteMoveAction(world, gc.DirectionDownRight); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDownRight)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouthWest:
-		if err := activity.ExecuteMoveAction(world, gc.DirectionDownLeft); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDownLeft)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil

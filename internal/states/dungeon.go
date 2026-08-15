@@ -9,6 +9,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/input"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -43,6 +44,9 @@ type DungeonState struct {
 	// overworldDefinition はオーバーワールドの種別。非 nil ならこの State は帯モード。
 	// 種別を State が直接持つことで、登録表に無いテスト用の種別も注入できる
 	overworldDefinition *dungeon.OverworldDefinition
+
+	// three は実験的なローポリ3D表示の状態と操作。3D固有のものは dungeon3D に隔離する
+	three dungeon3D
 }
 
 // isSeamless はこの State がオーバーワールド帯モードかを返す。オーバーワールドとダンジョンの
@@ -85,6 +89,10 @@ func (st *DungeonState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *DungeonState) OnStart(world w.World) error {
+	// 実験的な3D描画の既定はプロファイル依存。本番プレイは3D、開発・VRT・テストは2D。
+	// 実行中は F3 で切り替えられる
+	st.three.enabled = world.Config.Render3D
+
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
 	if screenWidth > 0 && screenHeight > 0 {
@@ -210,6 +218,15 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		}}, nil
 	}
 
+	// 入力はゲーム本体と同じ共有キーボードを通す。F3 で3Dをトグルし、有効時は3D操作を委譲する
+	kb := input.GetSharedKeyboardInput()
+	if kb.IsKeyJustPressed(ebiten.KeyF3) {
+		st.three.toggle()
+	}
+	if st.three.enabled {
+		st.three.update(kb)
+	}
+
 	// キー入力をActionに変換
 	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -277,8 +294,13 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 	if st.baseImage != nil {
 		screen.DrawImage(st.baseImage, nil)
 	}
-	// まず世界レイヤを screen へ描く。フォグと壁遮蔽は vision の per-tile 暗さで表現する
-	if err := drawRenderers(world, screen,
+	// まず世界レイヤを screen へ描く。フォグと壁遮蔽は vision の per-tile 暗さで表現する。
+	// F3 トグル時は実験的なローポリ3D描画に切り替える
+	if st.three.enabled {
+		if err := st.three.draw(world, screen); err != nil {
+			return err
+		}
+	} else if err := drawRenderers(world, screen,
 		&gs.RenderSpriteSystem{}, &gs.FrostRenderSystem{}); err != nil {
 		return err
 	}

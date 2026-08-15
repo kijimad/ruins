@@ -43,6 +43,9 @@ type Config struct {
 	ShowAIDebug bool `env:"RUINS_SHOW_AI_DEBUG"`
 	// マップのデバッグ表示を有効にするかどうか
 	ShowMapDebug bool `env:"RUINS_SHOW_MAP_DEBUG"`
+	// Render3D は実験的なローポリ3D描画を既定にするかどうか。本番プレイは3D、
+	// 開発・VRT・テストは2Dが扱いやすいので false。実行中は F3 で切り替えられる
+	Render3D bool `env:"RUINS_RENDER_3D"`
 	// エンカウントを無効化するかどうか
 	NoEncounter bool `env:"RUINS_NO_ENCOUNTER"`
 
@@ -132,6 +135,9 @@ func (c *Config) applyProductionDefaults() {
 	if os.Getenv("RUINS_SHOW_MAP_DEBUG") == "" {
 		c.ShowMapDebug = false
 	}
+	if os.Getenv("RUINS_RENDER_3D") == "" {
+		c.Render3D = true
+	}
 	if os.Getenv("RUINS_NO_ENCOUNTER") == "" {
 		c.NoEncounter = false
 	}
@@ -190,6 +196,9 @@ func (c *Config) applyDevelopmentDefaults() {
 	}
 	if os.Getenv("RUINS_SHOW_MAP_DEBUG") == "" {
 		c.ShowMapDebug = false
+	}
+	if os.Getenv("RUINS_RENDER_3D") == "" {
+		c.Render3D = false
 	}
 	if os.Getenv("RUINS_NO_ENCOUNTER") == "" {
 		c.NoEncounter = false
