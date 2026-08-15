@@ -29,7 +29,7 @@ type Render3DSystem struct {
 
 // NewRender3DSystem は既定のオービットカメラで初期化する。
 func NewRender3DSystem() *Render3DSystem {
-	return &Render3DSystem{Yaw: 0, Pitch: 0.62, Dist: 13, UseFOV: true}
+	return &Render3DSystem{Yaw: 0, Pitch: 0.62, Dist: 16, UseFOV: true}
 }
 
 // String は w.Renderer を満たす。
