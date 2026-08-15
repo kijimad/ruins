@@ -114,7 +114,9 @@ const (
 	r3cullRadius = 60.0 // プレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る
 )
 
-type visFunc func(*gc.GridElement) (float64, bool)
+// visFunc はタイルの明るさと状態を返す。bright は 0..1 の明るさで Darkness を反映する。
+// drawable はタイルを描くか、visible は今まさに見えているか。動体は visible のときだけ描く。
+type visFunc func(*gc.GridElement) (bright float64, drawable, visible bool)
 
 // spriteRect は SpriteRender からアトラス画像と切り出し矩形を解決する。見つからなければ ok=false。
 func (sys *Render3DSystem) spriteRect(world w.World, sr *gc.SpriteRender) (atlas *ebiten.Image, x, y, ww, hh float64, ok bool) {
@@ -240,17 +242,18 @@ func (sys *Render3DSystem) playerCenter(world w.World) (float64, float64) {
 // visFactorFunc は視界に応じた減光係数を返す関数を作る。隠れタイルは ok=false。
 func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {
 	if !sys.UseFOV {
-		return func(*gc.GridElement) (float64, bool) { return 1, true }
+		return func(*gc.GridElement) (float64, bool, bool) { return 1, true, true }
 	}
 	renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)
-	return func(g *gc.GridElement) (float64, bool) {
-		switch renderMap[*g].(type) {
+	return func(g *gc.GridElement) (float64, bool, bool) {
+		switch info := renderMap[*g].(type) {
 		case TileRenderVisible:
-			return 1, true
+			// Darkness を明るさへ反映する。松明の淡い照らしのグラデーションが2Dと同じく出る
+			return 1 - float64(info.Darkness), true, true
 		case TileRenderRemembered:
-			return 0.35, true
+			return 1 - float64(info.Darkness), true, false
 		default:
-			return 0, false
+			return 0, false, false
 		}
 	}
 }
@@ -276,7 +279,7 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 		if !ok {
 			continue
 		}
-		vf, vok := visFactor(g)
+		vf, vok, _ := visFactor(g)
 		if !vok {
 			continue
 		}
@@ -321,16 +324,17 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		if !ok {
 			continue
 		}
-		// 動体は今見えているタイルにだけ描く。記憶エリア(vf<1)や隠れエリアには描かない。
+		// 動体は今見えているタイルにだけ描く。記憶エリアや隠れエリアには描かない。
 		// 2Dの renderObjectLayer と同じで、フォグ内の敵やアイテムは位置を見せない
-		if vf, vok := visFactor(g); !vok || vf < 1 {
+		b, vok, vis := visFactor(g)
+		if !vok || !vis {
 			continue
 		}
 		base := r3vec{fx + 0.5, 0, fz + 0.5}
 		const bw, bh = 0.45, 1.0
 		b0 := r3add(base, r3scale(right, -bw))
 		b1 := r3add(base, r3scale(right, bw))
-		sys.addQuad(&quads, r3add(b0, r3vec{0, bh, 0}), r3add(b1, r3vec{0, bh, 0}), b1, b0, atlas, ux, uy, uw, uh, 1)
+		sys.addQuad(&quads, r3add(b0, r3vec{0, bh, 0}), r3add(b1, r3vec{0, bh, 0}), b1, b0, atlas, ux, uy, uw, uh, b)
 	}
 	return quads
 }
