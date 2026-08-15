@@ -11,6 +11,10 @@ r = 'floor'
 id = 'wooden_crate'
 tile = 'floor'
 
+[palette.props.A]
+id = 'auction_house'
+tile = 'floor'
+
 [palette.npcs]
 [palette.npcs.'$']
 id = 'merchant'

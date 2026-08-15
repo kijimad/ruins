@@ -1,23 +1,16 @@
 package systems
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// auctionDemoItems は種まきでプレイヤーの持ち物に入れる品の raw id。軽くて高い品と重くて安い品を
-// 混ぜ、価値がそのまま利益にならないこと、すなわち重い安物は発送料で赤字になることを体感させる。
-var auctionDemoItems = []string{
-	"angel_sword", "green_sword", "slender_rapier", "nunchaku",
-	"fire_extinguisher", "shovel", "block_hammer", "hammer",
-}
+// auctionHouseRawID はオークションハウスの raw prop の id。テンプレートで配置されたこの prop を
+// システムが見つけてオークションハウスに仕立てる。
+const auctionHouseRawID = "auction_house"
 
 // AuctionDemoSystem はオークションハウスに収納された品を競売にかける。品を入れると入札が始まり、
 // ターン経過で決着する。落札されれば手取りを財布へ入れ、実績を履歴に残して品を消す。
@@ -32,6 +25,9 @@ func (sys AuctionDemoSystem) String() string {
 
 // Update はオークションハウスの中身をターン経過で競売する
 func (sys *AuctionDemoSystem) Update(world w.World) error {
+	// テンプレートで配置された auction_house prop をオークションハウスに仕立てる
+	markAuctionHouses(world)
+
 	houses := auctionHouses(world)
 	if len(houses) == 0 {
 		return nil
@@ -132,51 +128,27 @@ func markStorageWeightDirty(world w.World, storage ecs.Entity) {
 	}
 }
 
-// SeedAuctionDemo はプレイヤーの持ち物に競売用の品を入れ、隣にオークションハウスを置く。
-// 品をハウスへ収納すると競売が始まる。
-func SeedAuctionDemo(world w.World) error {
-	player, err := query.GetPlayerEntity(world)
-	if err != nil {
-		return err
+// markAuctionHouses はテンプレートで配置された auction_house prop をオークションハウスに仕立てる。
+// 収納由来の相互作用を発送でなく専用のオークションに差し替え、識別マーカーを付ける。
+// auction_house 以外の prop には触れないので通常プレイに影響しない。
+func markAuctionHouses(world w.World) {
+	var toMark []ecs.Entity
+	q := ecs.NewFilter1[gc.RawID](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.RawID.Get(e).ID != auctionHouseRawID || world.Components.AuctionHouse.Has(e) {
+			continue
+		}
+		toMark = append(toMark, e)
 	}
-	if !world.Components.GridElement.Has(player) {
-		return fmt.Errorf("cannot seed auction demo because the player has no position")
-	}
-	base := world.Components.GridElement.Get(player).Coord
-
-	// 競売用の品を持ち物に入れる。軽い高額品と重い安物を混ぜる
-	for _, id := range auctionDemoItems {
-		if _, serr := lifecycle.SpawnBackpackItem(world, id, 1); serr != nil {
-			return serr
+	for _, e := range toMark {
+		world.Components.AuctionHouse.Add(e, &gc.AuctionHouse{})
+		if world.Components.Interactable.Has(e) {
+			world.Components.Interactable.Get(e).Interactions = []gc.InteractionKind{gc.InteractionAuction}
+		} else {
+			world.Components.Interactable.Add(e, &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionAuction}})
 		}
 	}
-
-	// オークションハウスを隣に置く。木箱の収納を流用し、専用マーカーで識別する
-	if serr := spawnAuctionHouse(world, base.X+1, base.Y); serr != nil {
-		return serr
-	}
-
-	logAuctionIntro(world)
-	return nil
-}
-
-// spawnAuctionHouse はオークションハウスを1つ置く。木箱の収納を流用し、収納の相互作用だけにして
-// オークションハウスのマーカーを付ける。
-func spawnAuctionHouse(world w.World, x, y consts.Tile) error {
-	house, err := lifecycle.SpawnProp(world, "wooden_crate", x, y)
-	if err != nil {
-		return err
-	}
-	world.Components.Interactable.Get(house).Interactions = []gc.InteractionKind{gc.InteractionAuction}
-	world.Components.Name.Get(house).Name = "Auction house"
-	world.Components.AuctionHouse.Add(house, &gc.AuctionHouse{})
-	return nil
-}
-
-func logAuctionIntro(world w.World) {
-	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "Auction demo. Store items into the auction house next to you to sell them over turns. Check results from the debug menu auction history.")).
-		Log()
 }
 
 func logAuctionListed(world w.World, name string, turns int) {

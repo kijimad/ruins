@@ -9,7 +9,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -108,7 +107,6 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		Choice{Label: "All clear event", Run: pushChoice(NewAllClearEventState)},
 		Choice{Label: "Name input", Run: pushChoice(NewCharacterNamingState)},
 		Choice{Label: "Job selection", Run: pushChoice(NewCharacterJobState("Ash"))},
-		Choice{Label: "Auction demo: seed here (enter a stage first)", Run: popAfter(gs.SeedAuctionDemo)},
 		Choice{Label: "Spawn enemy: fireball (hostile)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "fireball") })},
 		Choice{Label: "Spawn enemy: moss turtle (neutral)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "moss_turtle") })},
 		Choice{Label: "Spawn enemy: rat (cowardly)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "rat") })},

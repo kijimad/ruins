@@ -118,34 +118,31 @@ func TestAuctionDemoSystem_ハウスから取り出すと競売を解く(t *test
 	assert.False(t, world.Components.AuctionListing.Has(item), "取り出した品は競売が解かれる")
 }
 
-func TestSeedAuctionDemo_持ち物に品を入れオークションハウスを置く(t *testing.T) {
+func TestMarkAuctionHouses_専用propをオークションハウスにする(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	house, err := lifecycle.SpawnProp(world, "auction_house", 5, 5)
 	require.NoError(t, err)
 
-	require.NoError(t, SeedAuctionDemo(world))
+	markAuctionHouses(world)
 
-	houses := 0
-	hq := ecs.NewFilter1[gc.AuctionHouse](world.ECS).Query()
-	for hq.Next() {
-		houses++
-	}
-	assert.Equal(t, 1, houses, "オークションハウスが1つ置かれる")
+	require.True(t, world.Components.AuctionHouse.Has(house), "auction_house prop はオークションハウスになる")
+	it := world.Components.Interactable.Get(house)
+	require.Len(t, it.Interactions, 1, "相互作用はオークションだけになる")
+	assert.Equal(t, gc.InteractionAuction, it.Interactions[0], "専用のオークション相互作用が付く")
+}
 
-	demo := 0
-	iq := ecs.NewFilter1[gc.RawID](world.ECS).Query()
-	set := map[string]bool{}
-	for _, id := range auctionDemoItems {
-		set[id] = true
-	}
-	for iq.Next() {
-		if set[world.Components.RawID.Get(iq.Entity()).ID] {
-			demo++
-		}
-	}
-	assert.Equal(t, len(auctionDemoItems), demo, "競売用の品が持ち物に入る")
+func TestMarkAuctionHouses_他のpropには触れない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 5, 5)
+	require.NoError(t, err)
+
+	markAuctionHouses(world)
+
+	assert.False(t, world.Components.AuctionHouse.Has(crate), "auction_house 以外の prop には触れない")
 }
 
 func TestAuctionDemoSystem_ハウスが無ければ何もしない(t *testing.T) {

@@ -14637,6 +14637,21 @@ minSkill = 10
 [[props]]
 blockPass = true
 blockView = false
+description = "通信販売デモの出品箱。品を入れると競売にかかる"
+name = "Auction house"
+id = "auction_house"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "wooden_crate"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "50 kg"
+
+[[props]]
+blockPass = true
+blockView = false
 description = "灰色の金属ロッカー2連。更衣室や職場の収納"
 hp = 40
 name = "Locker"

@@ -5537,9 +5537,6 @@ msgstr "リロードは必要ない"
 msgid "no ammo"
 msgstr "弾薬がない"
 
-msgid "Auction demo. Store items into the auction house next to you to sell them over turns. Check results from the debug menu auction history."
-msgstr "オークションデモ。隣のオークションハウスに品を収納すると、ターン経過で売れる。結果はデバッグメニューの出荷履歴で確認する"
-
 msgid "%s went up for auction. It resolves in %d turns."
 msgstr "%s を競売に出した。%d ターンで決着する"
 
@@ -5551,6 +5548,9 @@ msgstr "%s が売れた。手取り %d、落札 %d、送料 %d、手数料 %d"
 
 msgid "Sold %s at a LOSS. net %d, bid %d, ship %d, fee %d"
 msgstr "%s が売れたが赤字。手取り %d、落札 %d、送料 %d、手数料 %d"
+
+msgid "Auction house"
+msgstr "オークションハウス"
 
 msgid "Open auction house"
 msgstr "オークションハウスを開く"
