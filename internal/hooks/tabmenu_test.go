@@ -828,7 +828,7 @@ func TestSkipNext_全項目がスキップ対象なら開始位置を一周し�
 		Skips:      [][]bool{{true, true, true}},
 	}}
 
-	assert.Equal(t, 1, nav.skipNext(0, 1, 1), "全てスキップ対象なら1周して開始位置に戻る")
+	assert.Equal(t, 0, nav.skipNext(0, 0, 1), "全てスキップ対象なら1周して開始位置に戻る")
 }
 
 func TestReduce_タブ数0でPrevは状態を変えない(t *testing.T) {

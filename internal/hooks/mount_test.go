@@ -11,7 +11,6 @@ type testMenuProps struct {
 	Items []string
 }
 
-// setupMenuState はメニュー用のUseStateを登録する
 func setupMenuState(store *Store, p testMenuProps) {
 	UseState(store, "selected", 0, func(v int, action inputmapper.ActionID) int {
 		switch action {

@@ -49,12 +49,16 @@ func TestDispatch_更新関数が呼ばれて状態が変わる(t *testing.T) {
 	})
 
 	// dispatch前
-	assert.Equal(t, 0, store.states["count"])
+	got, ok := GetStoreState[int](store, "count")
+	assert.True(t, ok)
+	assert.Equal(t, 0, got)
 
 	// dispatchするとupdate関数が呼ばれる
 	store.Dispatch(inputmapper.ActionMenuUp)
 
-	assert.Equal(t, 1, store.states["count"], "dispatchで更新関数が実行される")
+	got, ok = GetStoreState[int](store, "count")
+	assert.True(t, ok)
+	assert.Equal(t, 1, got, "dispatchで更新関数が実行される")
 }
 
 func TestDispatch_アクションに応じて異なる処理ができる(t *testing.T) {
@@ -74,13 +78,19 @@ func TestDispatch_アクションに応じて異なる処理ができる(t *test
 	})
 
 	store.Dispatch(inputmapper.ActionMenuDown)
-	assert.Equal(t, 6, store.states["index"], "Downで+1")
+	got, ok := GetStoreState[int](store, "index")
+	assert.True(t, ok)
+	assert.Equal(t, 6, got, "Downで+1")
 
 	store.Dispatch(inputmapper.ActionMenuUp)
-	assert.Equal(t, 5, store.states["index"], "Upで-1")
+	got, ok = GetStoreState[int](store, "index")
+	assert.True(t, ok)
+	assert.Equal(t, 5, got, "Upで-1")
 
 	store.Dispatch(inputmapper.ActionMenuLeft)
-	assert.Equal(t, 5, store.states["index"], "関係ないアクションでは変化なし")
+	got, ok = GetStoreState[int](store, "index")
+	assert.True(t, ok)
+	assert.Equal(t, 5, got, "関係ないアクションでは変化なし")
 }
 
 func TestDispatch_複数の状態が同時に更新される(t *testing.T) {
@@ -104,8 +114,13 @@ func TestDispatch_複数の状態が同時に更新される(t *testing.T) {
 	// 1回のdispatchで全ての状態の更新関数が呼ばれる
 	store.Dispatch(inputmapper.ActionMenuRight)
 
-	assert.Equal(t, 1, store.states["tabIndex"], "tabIndexはRightで更新")
-	assert.Equal(t, 0, store.states["itemIndex"], "itemIndexはRightでは変化なし")
+	tabIndex, ok := GetStoreState[int](store, "tabIndex")
+	assert.True(t, ok)
+	assert.Equal(t, 1, tabIndex, "tabIndexはRightで更新")
+
+	itemIndex, ok := GetStoreState[int](store, "itemIndex")
+	assert.True(t, ok)
+	assert.Equal(t, 0, itemIndex, "itemIndexはRightでは変化なし")
 }
 
 func TestUseState_更新関数は毎回再登録される(t *testing.T) {
@@ -125,7 +140,9 @@ func TestUseState_更新関数は毎回再登録される(t *testing.T) {
 	store.Dispatch(inputmapper.ActionMenuDown)
 	store.Dispatch(inputmapper.ActionMenuDown)
 	store.Dispatch(inputmapper.ActionMenuDown)
-	assert.Equal(t, 3, store.states["index"], "上限が3なので3で止まる")
+	got, ok := GetStoreState[int](store, "index")
+	assert.True(t, ok)
+	assert.Equal(t, 3, got, "上限が3なので3で止まる")
 
 	// 2回目: 上限を5に変更して再登録
 	limit = 5
@@ -138,7 +155,9 @@ func TestUseState_更新関数は毎回再登録される(t *testing.T) {
 
 	store.Dispatch(inputmapper.ActionMenuDown)
 	store.Dispatch(inputmapper.ActionMenuDown)
-	assert.Equal(t, 5, store.states["index"], "再登録後は新しい上限が適用される")
+	got, ok = GetStoreState[int](store, "index")
+	assert.True(t, ok)
+	assert.Equal(t, 5, got, "再登録後は新しい上限が適用される")
 }
 
 func TestUseState_登録済みキーに異なる型で呼ぶとpanicする(t *testing.T) {
