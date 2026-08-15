@@ -114,9 +114,21 @@ const (
 	r3cullRadius = 60.0 // プレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る
 )
 
-// visFunc はタイルの明るさと状態を返す。bright は 0..1 の明るさで Darkness を反映する。
-// drawable はタイルを描くか、visible は今まさに見えているか。動体は visible のときだけ描く。
-type visFunc func(*gc.GridElement) (bright float64, drawable, visible bool)
+// visFunc はタイルの明るさ・状態・光源色を返す。bright は 0..1 の明るさで Darkness を反映する。
+// drawable はタイルを描くか、visible は今まさに見えているか。light は光源色の乗算で、
+// 無色なら {1,1,1}。動体は visible のときだけ描く。
+type visFunc func(*gc.GridElement) (bright float64, drawable, visible bool, light [3]float64)
+
+// normalizeLight は光源色を最大成分で正規化した乗算色にする。明るさは bright が持つので、
+// ここでは色味だけを表す。無色や未設定は {1,1,1} を返す。
+func normalizeLight(c color.RGBA) [3]float64 {
+	m := max(c.R, max(c.G, c.B))
+	if c.A == 0 || m == 0 {
+		return [3]float64{1, 1, 1}
+	}
+	f := 1.0 / float64(m)
+	return [3]float64{float64(c.R) * f, float64(c.G) * f, float64(c.B) * f}
+}
 
 // spriteRect は SpriteRender からアトラス画像と切り出し矩形を解決する。見つからなければ ok=false。
 func (sys *Render3DSystem) spriteRect(world w.World, sr *gc.SpriteRender) (atlas *ebiten.Image, x, y, ww, hh float64, ok bool) {
@@ -134,25 +146,30 @@ func (sys *Render3DSystem) spriteRect(world w.World, sr *gc.SpriteRender) (atlas
 	return sheet.Texture.Image, float64(sp.X), float64(sp.Y), float64(sp.Width), float64(sp.Height), true
 }
 
-func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh, shade float64) {
+// scaleCol は色に係数を掛ける。面ごとのシェードを乗算色へ乗せるのに使う。
+func scaleCol(c [3]float64, s float64) [3]float64 {
+	return [3]float64{c[0] * s, c[1] * s, c[2] * s}
+}
+
+func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64) {
 	*out = append(*out, r3quad{
 		p:     [4]r3vec{p0, p1, p2, p3},
 		uv:    [4][2]float64{{x, y}, {x + ww, y}, {x + ww, y + hh}, {x, y + hh}},
 		atlas: atlas,
-		col:   [3]float64{shade, shade, shade},
+		col:   col,
 	})
 }
 
 // addFlatQuad は面をスプライトの平均色でフラットに塗る。壁の側面に使う。真上視点用テクスチャを
 // 垂直面へ引き伸ばす違和感を避け、新規アートなしでローポリらしい平板シェードにする。
 // 白1pxテクスチャに平均色×shade を頂点色で乗せる。
-func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh, shade float64) {
+func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64) {
 	c := avgSpriteColor(atlas, x, y, ww, hh)
 	*out = append(*out, r3quad{
 		p:     [4]r3vec{p0, p1, p2, p3},
 		uv:    [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
 		atlas: whitePixel(),
-		col:   [3]float64{c[0] * shade, c[1] * shade, c[2] * shade},
+		col:   [3]float64{c[0] * col[0], c[1] * col[1], c[2] * col[2]},
 	})
 }
 
@@ -241,19 +258,20 @@ func (sys *Render3DSystem) playerCenter(world w.World) (float64, float64) {
 
 // visFactorFunc は視界に応じた減光係数を返す関数を作る。隠れタイルは ok=false。
 func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {
+	white := [3]float64{1, 1, 1}
 	if !sys.UseFOV {
-		return func(*gc.GridElement) (float64, bool, bool) { return 1, true, true }
+		return func(*gc.GridElement) (float64, bool, bool, [3]float64) { return 1, true, true, white }
 	}
 	renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)
-	return func(g *gc.GridElement) (float64, bool, bool) {
+	return func(g *gc.GridElement) (float64, bool, bool, [3]float64) {
 		switch info := renderMap[*g].(type) {
 		case TileRenderVisible:
-			// Darkness を明るさへ反映する。松明の淡い照らしのグラデーションが2Dと同じく出る
-			return 1 - float64(info.Darkness), true, true
+			// Darkness を明るさへ、LightColor を色味へ反映する。松明の淡い照らしと暖色が2Dと同じく出る
+			return 1 - float64(info.Darkness), true, true, normalizeLight(info.LightColor)
 		case TileRenderRemembered:
-			return 1 - float64(info.Darkness), true, false
+			return 1 - float64(info.Darkness), true, false, white
 		default:
-			return 0, false, false
+			return 0, false, false, white
 		}
 	}
 }
@@ -279,34 +297,36 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 		if !ok {
 			continue
 		}
-		vf, vok, _ := visFactor(g)
+		vf, vok, _, light := visFactor(g)
 		if !vok {
 			continue
 		}
+		tint := scaleCol(light, vf) // 明るさと光源色を合わせた乗算色
 		if world.Components.BlockPass.Has(e) {
-			sys.addWall(&quads, walls, int(g.X), int(g.Y), fx, fz, atlas, ux, uy, uw, uh, vf)
+			sys.addWall(&quads, walls, int(g.X), int(g.Y), fx, fz, atlas, ux, uy, uw, uh, tint)
 			continue
 		}
-		sys.addQuad(&quads, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, atlas, ux, uy, uw, uh, vf)
+		sys.addQuad(&quads, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, atlas, ux, uy, uw, uh, tint)
 	}
 	return quads
 }
 
 // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。
-func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh, vf float64) {
-	// 天面は真上から見るので既存テクスチャをそのまま貼る。側面はフラット単色にする
-	sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, 0.95*vf)
+func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
+	// 天面は真上から見るので既存テクスチャをそのまま貼る。側面はフラット単色にする。
+	// tint に面ごとのシェードを掛けて立体感を出す
+	sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.95))
 	if !walls[[2]int{ix, iy - 1}] {
-		sys.addFlatQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz}, atlas, ux, uy, uw, uh, 0.6*vf)
+		sys.addFlatQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))
 	}
 	if !walls[[2]int{ix, iy + 1}] {
-		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, 0.6*vf)
+		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))
 	}
 	if !walls[[2]int{ix - 1, iy}] {
-		sys.addFlatQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, 0.78*vf)
+		sys.addFlatQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))
 	}
 	if !walls[[2]int{ix + 1, iy}] {
-		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz}, atlas, ux, uy, uw, uh, 0.78*vf)
+		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))
 	}
 }
 
@@ -326,7 +346,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		}
 		// 動体は今見えているタイルにだけ描く。記憶エリアや隠れエリアには描かない。
 		// 2Dの renderObjectLayer と同じで、フォグ内の敵やアイテムは位置を見せない
-		b, vok, vis := visFactor(g)
+		b, vok, vis, light := visFactor(g)
 		if !vok || !vis {
 			continue
 		}
@@ -334,7 +354,7 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		const bw, bh = 0.45, 1.0
 		b0 := r3add(base, r3scale(right, -bw))
 		b1 := r3add(base, r3scale(right, bw))
-		sys.addQuad(&quads, r3add(b0, r3vec{0, bh, 0}), r3add(b1, r3vec{0, bh, 0}), b1, b0, atlas, ux, uy, uw, uh, b)
+		sys.addQuad(&quads, r3add(b0, r3vec{0, bh, 0}), r3add(b1, r3vec{0, bh, 0}), b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b))
 	}
 	return quads
 }
