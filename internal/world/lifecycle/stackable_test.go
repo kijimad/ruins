@@ -106,16 +106,16 @@ func TestMergeStackableItems(t *testing.T) {
 		// 未統合の2スタックを作る。SpawnBackpackItem はプレイヤーのバックパックへ入れる際に
 		// 自動統合するため、統合前の状態を作るには spawnItemBase で実アイテムを生成し、
 		// 所有者への配置だけをテスト用に手で行う
-		item1, err := spawnItemBase(world, "bread", 3)
+		item1, err := spawnItemBase(world, breadID, 3)
 		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item1, &gc.LocationInBackpack{Owner: owner})
 
-		item2, err := spawnItemBase(world, "bread", 2)
+		item2, err := spawnItemBase(world, breadID, 2)
 		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item2, &gc.LocationInBackpack{Owner: owner})
 
 		// マージ実行
-		err = mergeStackableItems(world, "bread", mergeInBackpack, owner)
+		err = mergeStackableItems(world, breadID, mergeInBackpack, owner)
 		require.NoError(t, err)
 
 		// バックパック内のパンは1つだけになっている
@@ -124,7 +124,7 @@ func TestMergeStackableItems(t *testing.T) {
 		breadQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 		for breadQuery.Next() {
 			entity := breadQuery.Entity()
-			if world.Components.RawID.Get(entity).ID == "bread" {
+			if world.Components.RawID.Get(entity).ID == breadID {
 				breadCount++
 				totalCount += world.Components.Stackable.Get(entity).Count
 			}
@@ -140,12 +140,12 @@ func TestMergeStackableItems(t *testing.T) {
 
 		owner := world.ECS.NewEntity()
 
-		item, err := spawnItemBase(world, "bread", 2)
+		item, err := spawnItemBase(world, breadID, 2)
 		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 
 		// マージ実行
-		err = mergeStackableItems(world, "bread", mergeInBackpack, owner)
+		err = mergeStackableItems(world, breadID, mergeInBackpack, owner)
 		require.NoError(t, err)
 
 		// アイテムがそのまま残っている

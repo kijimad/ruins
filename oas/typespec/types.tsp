@@ -175,6 +175,11 @@ scalar MessageKey extends string;
 @maxValue(9999)
 scalar NutritionAmount extends integer;
 
+/** 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない */
+@minValue(1)
+@maxValue(100000)
+scalar StageLengthTurns extends integer;
+
 /** パレットID */
 @minLength(1)
 @maxLength(50)

@@ -16,6 +16,7 @@ var Registry = []Def{
 	// item ================
 	{Field: "HP"},                 // 生命力を表す。尽きると死亡する
 	{Field: "Consumable"},         // 一度使うと消費される消耗品を表す
+	{Field: "Perishable"},         // 腐敗する食料の生成時刻と保存期間を保持する
 	{Field: "WeightCapacity"},     // 所持・格納の重量容量を表す
 	{Field: "Melee"},              // 近接攻撃の性能を保持する
 	{Field: "Fire"},               // 遠距離攻撃の性能と弾薬を保持する

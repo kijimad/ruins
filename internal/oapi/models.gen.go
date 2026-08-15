@@ -1225,6 +1225,9 @@ type Item struct {
 	// Stackable スタック可能かどうか
 	Stackable *Stackable `json:"stackable,omitempty"`
 
+	// StageLength 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
+	StageLength *StageLengthTurns `json:"stageLength,omitempty"`
+
 	// Value 売買価格
 	Value ItemValue `json:"value"`
 
@@ -2409,6 +2412,9 @@ type SpriteSheetName = string
 
 // Stackable スタック可能かどうか
 type Stackable = bool
+
+// StageLengthTurns 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
+type StageLengthTurns = int
 
 // StorageRaw 収納ローデータ
 type StorageRaw struct {

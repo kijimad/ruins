@@ -13,6 +13,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// breadID はテストで多用する腐敗食の同定キー
+const breadID = "bread"
+
 func TestSetMaxStats(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -480,4 +483,146 @@ func TestSpawnNeutralNPC_存在しない名前はエラーになる(t *testing.T
 
 	require.Error(t, err)
 	assert.ErrorContains(t, err, "failed to generate neutral NPC")
+}
+
+func TestSpawnFieldItem_腐敗食は生成時刻と保存期間を持つ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetGameTime(world).TotalTurns = 700
+
+	bread, err := SpawnFieldItem(world, breadID, 5, 5, 1)
+	require.NoError(t, err)
+	require.True(t, world.Components.Perishable.Has(bread), "bread は腐敗する")
+
+	p := world.Components.Perishable.Get(bread)
+	assert.Equal(t, consts.Turn(700), p.RotUpdatedTurn, "生成時の総ターンを劣化の起点に刻む")
+	assert.Equal(t, consts.Turn(0), p.RotAccrued, "生成直後の累積劣化量はゼロ")
+	assert.Equal(t, consts.Turn(1500), p.StageLength, "raw の stageLength を持つ")
+}
+
+func TestSpawnFieldItem_保存期間なしは腐敗しない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	sword, err := SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
+	require.NoError(t, err)
+	assert.False(t, world.Components.Perishable.Has(sword), "stageLength 無しは Perishable を持たない")
+}
+
+func TestMoveToBackpack_腐敗食は同鮮度のみ合流する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	owner, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	gt := query.GetGameTime(world)
+
+	moveBread := func(atTurn consts.Turn) {
+		gt.TotalTurns = atTurn
+		b, e := SpawnFieldItem(world, breadID, 1, 1, 1)
+		require.NoError(t, e)
+		require.NoError(t, MoveToBackpack(world, b, owner))
+	}
+
+	// バックパックの bread を刻印時刻 RotUpdatedTurn ごとに合計個数で数える
+	countByTurn := func() map[consts.Turn]int {
+		m := map[consts.Turn]int{}
+		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
+		for q.Next() {
+			e := q.Entity()
+			if world.Components.RawID.Get(e).ID != breadID || world.Components.LocationInBackpack.Get(e).Owner != owner {
+				continue
+			}
+			at := world.Components.Perishable.Get(e).RotUpdatedTurn
+			m[at] += world.Components.Stackable.Get(e).Count
+		}
+		return m
+	}
+
+	moveBread(100)  // 同じターンの2つは
+	moveBread(100)  // 1スタックに合流する
+	moveBread(2000) // 違うターンは別スタック
+
+	got := countByTurn()
+	assert.Len(t, got, 2, "鮮度が違うので2スタック")
+	assert.Equal(t, 2, got[100], "同じ生成ターンの2つは合流し個数2")
+	assert.Equal(t, 1, got[2000], "違う生成ターンは別スタックで個数1")
+}
+
+func TestMoveToBackpack_同鮮度の合流は劣化量を加重平均する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	owner, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	gt := query.GetGameTime(world)
+
+	// bread の StageLength は 1500。ターン0とターン1000の bread は now=1000 で
+	// どちらも新鮮なので合流する。劣化量は個数で加重平均される
+	gt.TotalTurns = 0
+	b1, err := SpawnFieldItem(world, breadID, 1, 1, 1)
+	require.NoError(t, err)
+	require.NoError(t, MoveToBackpack(world, b1, owner))
+
+	gt.TotalTurns = 1000
+	b2, err := SpawnFieldItem(world, breadID, 1, 1, 1)
+	require.NoError(t, err)
+	require.NoError(t, MoveToBackpack(world, b2, owner))
+
+	var survivor ecs.Entity
+	var count int
+	q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.RawID.Get(e).ID == breadID && world.Components.LocationInBackpack.Get(e).Owner == owner {
+			survivor = e
+			count++
+		}
+	}
+	require.Equal(t, 1, count, "同鮮度なので1スタックに合流する")
+	assert.Equal(t, 2, world.Components.Stackable.Get(survivor).Count, "個数は合算される")
+
+	// b1 は now=1000 で RotAccrued=1000、b2 は RotAccrued=0。加重平均は (1000+0)/2 = 500
+	p := world.Components.Perishable.Get(survivor)
+	assert.Equal(t, consts.Turn(500), p.RotAccrued, "劣化量は個数で加重平均される")
+	assert.Equal(t, consts.Turn(1000), p.RotUpdatedTurn, "合流時に基準時刻を揃える")
+	stage, _ := query.FreshnessStageOf(world, survivor)
+	assert.Equal(t, gc.FreshnessFresh, stage, "平均後もまだ新鮮")
+}
+
+func TestMoveToBackpack_三つの同鮮度が連鎖合流し個数で加重平均される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	owner, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	gt := query.GetGameTime(world)
+
+	// bread の StageLength は 1500。ターン 0/300/600 に拾う。いずれも拾った時点で新鮮なので
+	// 1スタックへ連鎖合流する。3件目は survivor 個数2に対する加重平均なので、重み付けの配線を検証できる
+	moveAt := func(turn consts.Turn) {
+		gt.TotalTurns = turn
+		b, e := SpawnFieldItem(world, breadID, 1, 1, 1)
+		require.NoError(t, e)
+		require.NoError(t, MoveToBackpack(world, b, owner))
+	}
+	moveAt(0)
+	moveAt(300)
+	moveAt(600)
+
+	var survivor ecs.Entity
+	var count int
+	q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.RawID.Get(e).ID == breadID && world.Components.LocationInBackpack.Get(e).Owner == owner {
+			survivor = e
+			count++
+		}
+	}
+	require.Equal(t, 1, count, "3つとも同鮮度なので1スタックに合流する")
+	assert.Equal(t, 3, world.Components.Stackable.Get(survivor).Count, "個数は3に合算される")
+
+	// now=600 での各実効劣化量は 600/300/0。個数1ずつの加重平均は (600+300+0)/3 = 300。
+	// 3件目を survivor 個数2で重み付けするので、素朴な 1:1 平均だと 225 になり区別できる
+	p := world.Components.Perishable.Get(survivor)
+	assert.Equal(t, consts.Turn(300), p.RotAccrued, "3-way の加重平均になる")
+	assert.Equal(t, consts.Turn(600), p.RotUpdatedTurn, "最後の合流時刻に揃う")
 }

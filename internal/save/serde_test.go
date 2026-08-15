@@ -246,3 +246,41 @@ func TestSerde_GameTimePersists(t *testing.T) {
 
 	assert.Equal(t, consts.Turn(1234), query.GetGameTime(newWorld).TotalTurns, "総ターン数が復元される")
 }
+
+// TestSerde_Perishableが往復する は腐敗食の鮮度がセーブ・ロードで保たれることを検証する。
+// RotAccrued と RotUpdatedTurn が失われると復元後に鮮度が狂うため、往復で保たれる必要がある。
+func TestSerde_Perishableが往復する(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	query.GetGameTime(world).TotalTurns = 700
+	bread, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 1)
+	require.NoError(t, err)
+	require.NoError(t, lifecycle.MoveToBackpack(world, bread, player))
+
+	// 往復の検証は保存前の実値を基準にする。raw の stageLength を直に埋めると値変更で壊れる
+	original := *world.Components.Perishable.Get(bread)
+
+	require.NoError(t, manager.SaveWorld(world, "perishable"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "perishable"))
+
+	var restored *gc.Perishable
+	q := ecs.NewFilter2[gc.Perishable, gc.RawID](newWorld.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if newWorld.Components.RawID.Get(e).ID == "bread" {
+			restored = newWorld.Components.Perishable.Get(e)
+		}
+	}
+
+	require.NotNil(t, restored, "bread の Perishable が復元される")
+	assert.Equal(t, original, *restored, "保存前と同じ RotAccrued・StageLength・RotUpdatedTurn が復元される")
+	assert.Equal(t, consts.Turn(700), restored.RotUpdatedTurn, "劣化の起点時刻は生成ターンで刻まれる")
+}

@@ -822,6 +822,10 @@ export interface Item {
      */
     'providesNutrition'?: number;
     /**
+     * 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
+     */
+    'stageLength'?: number;
+    /**
      * スタック可能かどうか
      */
     'stackable'?: boolean;

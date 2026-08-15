@@ -4,7 +4,10 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -309,6 +312,96 @@ func TestUseItemBehavior_Info(t *testing.T) {
 	assert.Equal(t, "Use Item", info.Name)
 	assert.False(t, info.Interruptible)
 	assert.False(t, info.Resumable)
+}
+
+func TestUseItemBehavior_applyNutrition_鮮度で栄養が変わる(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		now         consts.Turn // 生成は TotalTurns=0。bread の StageLength は 1500
+		startHunger int
+		wantHunger  int
+	}{
+		{"新鮮は満額", 0, 250, 280},       // +30
+		{"劣化は半減", 1500, 250, 265},    // +15
+		{"腐敗は3割の栄養", 3000, 250, 259}, // +9
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			bread, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 1)
+			require.NoError(t, err)
+			query.GetGameTime(world).TotalTurns = tt.now
+
+			actor := world.ECS.NewEntity()
+			hunger := gc.NewHunger()
+			hunger.Current = tt.startHunger
+			world.Components.Hunger.Add(actor, hunger)
+
+			u := &UseItemBehavior{}
+			comp := NewActivity(gc.BehaviorUseItem, 1)
+			require.NoError(t, u.applyNutrition(comp, actor, world, 30, bread))
+
+			assert.Equal(t, tt.wantHunger, world.Components.Hunger.Get(actor).Current)
+		})
+	}
+}
+
+func TestUseItemBehavior_applyNutrition_鮮度で減っても最低1は与える(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	bread, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 1)
+	require.NoError(t, err)
+	query.GetGameTime(world).TotalTurns = 3000 // 腐敗
+
+	actor := world.ECS.NewEntity()
+	hunger := gc.NewHunger()
+	hunger.Current = 100
+	world.Components.Hunger.Add(actor, hunger)
+
+	u := &UseItemBehavior{}
+	// amount=1 は腐敗3割で整数除算すると0。最低1にクランプされ、栄養効果がゼロにならない
+	require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorUseItem, 1), actor, world, 1, bread))
+
+	assert.Equal(t, 101, world.Components.Hunger.Get(actor).Current, "腐敗でも最低1は回復する")
+}
+
+func TestUseItemBehavior_食べたログに鮮度が出る(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		now  consts.Turn // 生成は TotalTurns=0。bread の StageLength は 1500
+		want string
+	}{
+		{"新鮮", 0, "fresh"},
+		{"劣化", 1500, "old"},
+		{"腐敗", 3000, "spoiled"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			bread, err := lifecycle.SpawnFieldItem(world, "bread", 5, 5, 1)
+			require.NoError(t, err)
+			query.GetGameTime(world).TotalTurns = tt.now
+
+			actor := world.ECS.NewEntity()
+			world.Components.Player.Add(actor, &gc.Player{})
+			hunger := gc.NewHunger()
+			hunger.Current = 100
+			world.Components.Hunger.Add(actor, hunger)
+
+			u := &UseItemBehavior{}
+			require.NoError(t, u.applyNutrition(NewActivity(gc.BehaviorUseItem, 1), actor, world, 30, bread))
+
+			recent := query.GetGameLog(world).GetRecent(1)
+			require.Len(t, recent, 1)
+			assert.Contains(t, recent[0], tt.want, "食べたログに鮮度が出る")
+		})
+	}
 }
 
 func TestUseItemBehavior_Name(t *testing.T) {
