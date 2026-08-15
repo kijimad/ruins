@@ -22,9 +22,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// render3DSceneSeed はオーバーワールドの RunSeed。キャラとポータルが重ならない見栄えの良い配置を選ぶ。
-const render3DSceneSeed = 3
-
 // r3Scene は3D VRTで固定するワールドシーン。ワールドを映すVRTはすべて3D命令列で撮る。
 // prep は描画直前に world を追加調整する。nil可。前線を可視域へ入れるなどに使う。
 type r3Scene struct {
@@ -40,7 +37,7 @@ func overworldBuild(t *testing.T) func(w.World) []es.State[w.World] {
 		s, err := gs.NewOverworldState(
 			mapplanner.PlannerTypeOverworldField,
 			dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
-			&overworld.NewGameParams{RunSeed: render3DSceneSeed},
+			&overworld.NewGameParams{},
 		)()
 		require.NoError(t, err)
 		return []es.State[w.World]{s}
