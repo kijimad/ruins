@@ -53,7 +53,6 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	if world.Components.ProvidesNutrition.Has(entity) {
 		rows = append(rows, nutritionRows(world, world.Components.ProvidesNutrition.Get(entity))...)
 	}
-	// 鮮度は刻印済みの生存エンティティだけに出す。raw 由来の SpecRowsFromSpec は未刻印なので出さない
 	if world.Components.Perishable.Has(entity) {
 		rows = append(rows, freshnessRow(world, world.Components.Perishable.Get(entity)))
 	}
@@ -89,6 +88,7 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	if spec.ProvidesNutrition != nil {
 		rows = append(rows, nutritionRows(world, spec.ProvidesNutrition)...)
 	}
+	// 鮮度は SpawnedAtTurn の刻印が要る。spec 段階では未刻印なので出さない
 	if spec.Book != nil {
 		rows = append(rows, bookRows(world, spec.Book)...)
 	}
