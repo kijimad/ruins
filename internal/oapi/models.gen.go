@@ -1216,9 +1216,6 @@ type Item struct {
 	// ProvidesNutrition 栄養価
 	ProvidesNutrition *NutritionAmount `json:"providesNutrition,omitempty"`
 
-	// ShelfLife 保存期間。この経過ターン数まで新鮮でいられる。省略すると腐敗しない
-	ShelfLife *ShelfLifeTurns `json:"shelfLife,omitempty"`
-
 	// SpriteKey スプライトキー
 	SpriteKey SpriteKey `json:"spriteKey"`
 
@@ -1227,6 +1224,9 @@ type Item struct {
 
 	// Stackable スタック可能かどうか
 	Stackable *Stackable `json:"stackable,omitempty"`
+
+	// StageLength 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
+	StageLength *StageLengthTurns `json:"stageLength,omitempty"`
 
 	// Value 売買価格
 	Value ItemValue `json:"value"`
@@ -2353,9 +2353,6 @@ type SaveDataWorldSaveData struct {
 // Sensation 感覚。命中率と回避率に影響する
 type Sensation = int
 
-// ShelfLifeTurns 保存期間。この経過ターン数まで新鮮でいられる。省略すると腐敗しない
-type ShelfLifeTurns = int
-
 // ShelterType 遮蔽タイプ
 type ShelterType float32
 
@@ -2415,6 +2412,9 @@ type SpriteSheetName = string
 
 // Stackable スタック可能かどうか
 type Stackable = bool
+
+// StageLengthTurns 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
+type StageLengthTurns = int
 
 // StorageRaw 収納ローデータ
 type StorageRaw struct {

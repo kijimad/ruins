@@ -263,7 +263,7 @@ func TestSerde_Perishableが往復する(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, lifecycle.MoveToBackpack(world, bread, player))
 
-	// 往復の検証は保存前の実値を基準にする。raw の shelfLife を直に埋めると値変更で壊れる
+	// 往復の検証は保存前の実値を基準にする。raw の stageLength を直に埋めると値変更で壊れる
 	original := *world.Components.Perishable.Get(bread)
 
 	require.NoError(t, manager.SaveWorld(world, "perishable"))

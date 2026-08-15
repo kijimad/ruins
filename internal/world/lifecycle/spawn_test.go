@@ -497,7 +497,7 @@ func TestSpawnFieldItem_腐敗食は生成時刻と保存期間を持つ(t *test
 	p := world.Components.Perishable.Get(bread)
 	assert.Equal(t, consts.Turn(700), p.RotUpdatedTurn, "生成時の総ターンを劣化の起点に刻む")
 	assert.Equal(t, consts.Turn(0), p.RotAccrued, "生成直後の累積劣化量はゼロ")
-	assert.Equal(t, consts.Turn(1500), p.StageLength, "raw の shelfLife を持つ")
+	assert.Equal(t, consts.Turn(1500), p.StageLength, "raw の stageLength を持つ")
 }
 
 func TestSpawnFieldItem_保存期間なしは腐敗しない(t *testing.T) {
@@ -506,7 +506,7 @@ func TestSpawnFieldItem_保存期間なしは腐敗しない(t *testing.T) {
 
 	sword, err := SpawnFieldItem(world, "wooden_sword", 5, 5, 1)
 	require.NoError(t, err)
-	assert.False(t, world.Components.Perishable.Has(sword), "shelfLife 無しは Perishable を持たない")
+	assert.False(t, world.Components.Perishable.Has(sword), "stageLength 無しは Perishable を持たない")
 }
 
 func TestMoveToBackpack_腐敗食は同鮮度のみ合流する(t *testing.T) {

@@ -822,9 +822,9 @@ export interface Item {
      */
     'providesNutrition'?: number;
     /**
-     * 保存期間。この経過ターン数まで新鮮でいられる。省略すると腐敗しない
+     * 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
      */
-    'shelfLife'?: number;
+    'stageLength'?: number;
     /**
      * スタック可能かどうか
      */

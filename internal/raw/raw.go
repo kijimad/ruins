@@ -259,9 +259,9 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if item.ProvidesNutrition != nil {
 		entitySpec.ProvidesNutrition = &gc.ProvidesNutrition{Amount: *item.ProvidesNutrition}
 	}
-	// shelfLife を持つ食料は腐敗する。生成時刻は spawn 時に刻印するためここでは 0 のまま
-	if item.ShelfLife != nil {
-		entitySpec.Perishable = &gc.Perishable{StageLength: consts.Turn(*item.ShelfLife)}
+	// stageLength を持つ食料は腐敗する。RotUpdatedTurn は spawn 時に刻印するためここでは 0 のまま
+	if item.StageLength != nil {
+		entitySpec.Perishable = &gc.Perishable{StageLength: consts.Turn(*item.StageLength)}
 	}
 	if item.InflictsDamage != nil {
 		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: *item.InflictsDamage}
