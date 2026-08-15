@@ -212,7 +212,8 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 	if dist <= 0 {
 		dist, pitch, yaw = 9, 0.62, 0 // ゼロ値の保険
 	}
-	dir := r3vec{math.Cos(pitch) * math.Sin(yaw), math.Sin(pitch), -math.Cos(pitch) * math.Cos(yaw)}
+	// カメラはプレイヤーの南側から北を見下ろす。画面の上を北に合わせ、北上のミニマップと向きをそろえる
+	dir := r3vec{math.Cos(pitch) * math.Sin(yaw), math.Sin(pitch), math.Cos(pitch) * math.Cos(yaw)}
 	eye := r3add(target, r3scale(dir, dist))
 	up := r3vec{0, 1, 0}
 	sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()

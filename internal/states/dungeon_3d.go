@@ -74,8 +74,10 @@ func (d *dungeon3D) rotate(delta int) {
 func (d *dungeon3D) moveDir(base gc.Direction) gc.Direction {
 	su, sr := base.ScreenIntent()
 	y := float64(d.orient) * (math.Pi / 4)
-	wx := -su*math.Sin(y) - sr*math.Cos(y)
-	wy := su*math.Cos(y) - sr*math.Sin(y)
+	// 南から北を見下ろすカメラに一致させる。画面奥(forward)は (-sin y, -cos y)、
+	// 画面右(right)は (cos y, -sin y)。world = su*forward + sr*right
+	wx := -su*math.Sin(y) + sr*math.Cos(y)
+	wy := -su*math.Cos(y) - sr*math.Sin(y)
 	return gc.SnapWorldVec(wx, wy)
 }
 

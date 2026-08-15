@@ -36,14 +36,14 @@ func TestDungeon3D_rotate(t *testing.T) {
 func TestDungeon3D_moveDir(t *testing.T) {
 	t.Parallel()
 
-	// orient0: 既定カメラは北から見下ろす。画面奥は南、画面右は西へ対応する。
-	// Right キーは画面の右すなわち世界の西へ動かす。左右が逆にならないことを固定する
+	// orient0: 既定カメラは南から北を見下ろす。画面の上=北で、北上のミニマップと向きが一致する。
+	// Up=北・Right=東・Left=西と、キーと地図の向きがそろうことを固定する
 	d := &dungeon3D{orient: 0}
-	assert.Equal(t, gc.DirectionDown, d.moveDir(gc.DirectionUp))
-	assert.Equal(t, gc.DirectionLeft, d.moveDir(gc.DirectionRight))
-	assert.Equal(t, gc.DirectionRight, d.moveDir(gc.DirectionLeft))
+	assert.Equal(t, gc.DirectionUp, d.moveDir(gc.DirectionUp))
+	assert.Equal(t, gc.DirectionRight, d.moveDir(gc.DirectionRight))
+	assert.Equal(t, gc.DirectionLeft, d.moveDir(gc.DirectionLeft))
 
-	// orient2 は90度。Up は西へ回る
+	// orient2 は90度。カメラが回ると Up は西へ回る
 	d.orient = 2
 	assert.Equal(t, gc.DirectionLeft, d.moveDir(gc.DirectionUp))
 }
