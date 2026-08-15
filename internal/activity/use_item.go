@@ -156,11 +156,9 @@ func (u *UseItemBehavior) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 }
 
 // rottenNutritionPercent は腐敗した食料から得られる栄養の割合。満額の3割。
-// 加えて体調悪化のリスクを伴う想定だが、体調システムは将来実装のため今は栄養だけを与える
 const rottenNutritionPercent = 30
 
 // applyNutrition は空腹度回復処理を適用する。鮮度に応じて栄養を調整する。
-// 新鮮は満額、劣化は半減、腐敗は3割で飢餓時の非常食として使える
 func (u *UseItemBehavior) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
 	if !world.Components.Hunger.Has(actor) {
 		return nil
