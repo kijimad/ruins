@@ -143,9 +143,6 @@ func TestGolden_ComponentDebug(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(s))
 }
 
-// ダンジョンとオーバーワールドのワールド描画は3D命令列VRTへ移した。
-// render3d_golden_test.go の TestGolden_Render3DSnapshot / TestRender3DImages を参照する。
-
 // TestGolden_CubePanel はキューブ内部のコントロールパネルの描画を固定する。
 // 現ステージを内部にし重量物を1つ置いて、総重量が出る状態でパネルを描く。
 func TestGolden_CubePanel(t *testing.T) {
@@ -161,8 +158,6 @@ func TestGolden_CubePanel(t *testing.T) {
 		return []es.State[w.World]{&gs.CubePanelState{}}
 	})
 }
-
-// 寒波前線の氷オーバーレイも3D命令列VRTへ移した。render3d_golden_test.go の OverworldFrost シーンを参照する。
 
 func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
