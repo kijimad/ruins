@@ -60,25 +60,89 @@ func buildImageTable() (string, error) {
 	return buildImageTableFrom(imageDir)
 }
 
-// buildImageTableFrom は指定ディレクトリ内のPNG画像から4列のMarkdownテーブルを生成する
+// render3DImageSubdir はローポリ3D表示の参照画像を置くサブディレクトリ。
+const render3DImageSubdir = "TestRender3DImages"
+
+// imageEntry はテーブルに載せる画像1枚。README からの相対パスと見出しを持つ。
+type imageEntry struct {
+	path  string
+	label string
+}
+
+// buildImageTableFrom は指定ディレクトリのPNG画像から4列のMarkdownテーブルを生成する。
+// 3Dの参照画像を先頭に置き、続けて直下の TestGolden_*.png を並べる。3D表示はローポリ化の要なので目立たせる。
 func buildImageTableFrom(dir string) (string, error) {
-	entries, err := os.ReadDir(dir)
+	entries, err := collectSubdirImages(dir, render3DImageSubdir, "3D ")
 	if err != nil {
-		return "", fmt.Errorf("failed to read %s: %w", dir, err)
+		return "", err
 	}
-
-	var images []string
-	for _, e := range entries {
-		if !e.IsDir() && strings.HasSuffix(e.Name(), ".png") {
-			images = append(images, e.Name())
-		}
+	top, err := collectTopImages(dir)
+	if err != nil {
+		return "", err
 	}
-	slices.Sort(images)
+	entries = append(entries, top...)
 
-	if len(images) == 0 {
+	if len(entries) == 0 {
 		return "*no images*", nil
 	}
+	return renderImageTable(entries), nil
+}
 
+// pngNames はディレクトリ直下のPNGファイル名をソートして返す。
+func pngNames(dir string) ([]string, error) {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for _, e := range files {
+		if !e.IsDir() && strings.HasSuffix(e.Name(), ".png") {
+			names = append(names, e.Name())
+		}
+	}
+	slices.Sort(names)
+	return names, nil
+}
+
+// collectSubdirImages はサブディレクトリ内のPNGを集める。見出しは labelPrefix + 拡張子なしのファイル名。
+// サブディレクトリが無ければ空を返す。
+func collectSubdirImages(dir, sub, labelPrefix string) ([]imageEntry, error) {
+	subPath := filepath.Join(dir, sub)
+	names, err := pngNames(subPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to read %s: %w", subPath, err)
+	}
+	entries := make([]imageEntry, 0, len(names))
+	for _, name := range names {
+		entries = append(entries, imageEntry{
+			path:  filepath.Join(subPath, name),
+			label: labelPrefix + strings.TrimSuffix(name, ".png"),
+		})
+	}
+	return entries, nil
+}
+
+// collectTopImages はディレクトリ直下の TestGolden_*.png を集める。見出しは TestGolden_ 接頭辞を外した名前。
+func collectTopImages(dir string) ([]imageEntry, error) {
+	names, err := pngNames(dir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read %s: %w", dir, err)
+	}
+	entries := make([]imageEntry, 0, len(names))
+	for _, name := range names {
+		entries = append(entries, imageEntry{
+			path:  filepath.Join(dir, name),
+			label: strings.TrimSuffix(strings.TrimPrefix(name, "TestGolden_"), ".png"),
+		})
+	}
+	return entries, nil
+}
+
+// renderImageTable は画像エントリを4列のMarkdownテーブルにする。
+func renderImageTable(entries []imageEntry) string {
 	var sb strings.Builder
 
 	// Markdownテーブルのヘッダー
@@ -92,24 +156,22 @@ func buildImageTableFrom(dir string) (string, error) {
 	}
 	sb.WriteString("\n")
 
-	for i, name := range images {
+	for i, e := range entries {
 		if i%columns == 0 {
 			if i > 0 {
 				sb.WriteString("\n")
 			}
 			sb.WriteString("|")
 		}
-		label := strings.TrimSuffix(strings.TrimPrefix(name, "TestGolden_"), ".png")
-		imgPath := filepath.Join(dir, name)
-		fmt.Fprintf(&sb, " <img src=\"%s\" width=\"200\" /><br>%s |", imgPath, label)
+		fmt.Fprintf(&sb, " <img src=\"%s\" width=\"200\" /><br>%s |", e.path, e.label)
 	}
 	// 最終行の残りセルを埋める
-	if rem := len(images) % columns; rem != 0 {
+	if rem := len(entries) % columns; rem != 0 {
 		for range columns - rem {
 			sb.WriteString(" |")
 		}
 	}
 	sb.WriteString("\n")
 
-	return sb.String(), nil
+	return sb.String()
 }
