@@ -10,33 +10,43 @@ import (
 func TestPerishable_Stage(t *testing.T) {
 	t.Parallel()
 	const shelf consts.Turn = 100
-	p := Perishable{SpawnedAtTurn: 0, ShelfLife: shelf}
+	p := Perishable{ShelfLife: shelf}
 
 	tests := []struct {
 		name string
-		now  consts.Turn
+		rot  consts.Turn
 		want FreshnessStage
 	}{
-		{"生成直後は新鮮", 0, FreshnessFresh},
+		{"劣化ゼロは新鮮", 0, FreshnessFresh},
 		{"保存期間直前は新鮮", shelf - 1, FreshnessFresh},
 		{"保存期間ちょうどで劣化", shelf, FreshnessStale},
 		{"2倍直前は劣化", 2*shelf - 1, FreshnessStale},
 		{"2倍で腐敗", 2 * shelf, FreshnessRotten},
-		{"十分経過は腐敗のまま", 10 * shelf, FreshnessRotten},
+		{"十分な劣化は腐敗のまま", 10 * shelf, FreshnessRotten},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, p.Stage(tt.now))
+			assert.Equal(t, tt.want, p.Stage(tt.rot))
 		})
 	}
 }
 
-func TestPerishable_Stage_生成時刻からの経過で判定する(t *testing.T) {
+func TestPerishable_MergeRot(t *testing.T) {
 	t.Parallel()
-	const shelf consts.Turn = 100
-	p := Perishable{SpawnedAtTurn: 500, ShelfLife: shelf}
 
-	assert.Equal(t, FreshnessFresh, p.Stage(599), "生成+99は新鮮")
-	assert.Equal(t, FreshnessStale, p.Stage(600), "生成+100で劣化")
+	t.Run("個数で加重平均する", func(t *testing.T) {
+		t.Parallel()
+		target := Perishable{Rot: 100, ShelfLife: 1000}
+		target.MergeRot(3, Perishable{Rot: 500, ShelfLife: 1000}, 1)
+		// (100*3 + 500*1) / 4 = 200
+		assert.Equal(t, consts.Turn(200), target.Rot)
+	})
+
+	t.Run("総数ゼロなら変えない", func(t *testing.T) {
+		t.Parallel()
+		target := Perishable{Rot: 42, ShelfLife: 1000}
+		target.MergeRot(0, Perishable{Rot: 500, ShelfLife: 1000}, 0)
+		assert.Equal(t, consts.Turn(42), target.Rot)
+	})
 }

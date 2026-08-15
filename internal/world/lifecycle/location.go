@@ -222,48 +222,36 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 		return nil
 	}
 
-	// 同じ RawID でも鮮度が違えば別スタック。SpawnedAtTurn ごとに束ねてから合流する。
-	// order で出現順に処理し、どのエンティティが残るかを決定的にする
-	groups := map[perishStackKey][]ecs.Entity{}
-	order := []perishStackKey{}
+	// 合流の同一判定は query.StacksWith に集約する。出現順に survivor へ畳み、
+	// どのエンティティが残るかを決定的にする。腐敗食は鮮度段階が同じ束にだけ合流し、
+	// 合流時に劣化量を個数で加重平均する。段階違いは別の survivor として残す。
+	now := query.GetGameTime(world).TotalTurns
+	var survivors []ecs.Entity
 	for _, e := range stackableItems {
-		k := perishStackKeyOf(world, e)
-		if _, ok := groups[k]; !ok {
-			order = append(order, k)
-		}
-		groups[k] = append(groups[k], e)
-	}
-
-	for _, k := range order {
-		group := groups[k]
-		targetEntity := group[0]
-		for i := 1; i < len(group); i++ {
-			itemToMerge := group[i]
-			mergeCount := query.GetEntityCount(world, itemToMerge)
-
-			if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {
+		merged := false
+		for _, s := range survivors {
+			if !query.StacksWith(world, s, e) {
+				continue
+			}
+			if world.Components.Perishable.Has(s) {
+				query.AdvanceRot(world, s, now)
+				query.AdvanceRot(world, e, now)
+				sp := world.Components.Perishable.Get(s)
+				sp.MergeRot(query.GetEntityCount(world, s), *world.Components.Perishable.Get(e), query.GetEntityCount(world, e))
+			}
+			if err := ChangeItemCount(world, s, query.GetEntityCount(world, e)); err != nil {
 				return fmt.Errorf("failed to merge counts: %w", err)
 			}
-
-			world.ECS.RemoveEntity(itemToMerge)
+			world.ECS.RemoveEntity(e)
+			merged = true
+			break
+		}
+		if !merged {
+			survivors = append(survivors, e)
 		}
 	}
 
 	return nil
-}
-
-// perishStackKey は鮮度を含むスタック同定キー。腐敗しないアイテムは spawnedAt を見ない
-type perishStackKey struct {
-	perishable bool
-	spawnedAt  consts.Turn
-}
-
-// perishStackKeyOf は entity のスタック同定キーを返す。Perishable を持つ食料は生成時刻で分ける
-func perishStackKeyOf(world w.World, entity ecs.Entity) perishStackKey {
-	if world.Components.Perishable.Has(entity) {
-		return perishStackKey{perishable: true, spawnedAt: world.Components.Perishable.Get(entity).SpawnedAtTurn}
-	}
-	return perishStackKey{}
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
