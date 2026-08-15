@@ -297,8 +297,9 @@ func (sys *Render3DSystem) buildScene(world w.World, sw, sh int) (quads []r3quad
 
 	target := r3vec{pcx + 0.5, 0.4, pcz + 0.5}
 	dist, pitch, yaw := sys.Dist, sys.Pitch, sys.Yaw
-	if dist <= 0 {
-		dist, pitch, yaw = 9, 0.62, 0 // ゼロ値の保険
+	// ゼロ値の Render3DSystem をそのまま描いたときの保険。負値は設定ミスなので隠さずそのまま出す
+	if dist == 0 {
+		dist, pitch, yaw = 9, 0.62, 0
 	}
 	// カメラはプレイヤーの南側から北を見下ろす。画面の上を北に合わせ、北上のミニマップと向きをそろえる
 	dir := r3vec{math.Cos(pitch) * math.Sin(yaw), math.Sin(pitch), math.Cos(pitch) * math.Cos(yaw)}
@@ -372,21 +373,27 @@ func (sys *Render3DSystem) playerCenter(world w.World) (float64, float64) {
 
 // visFactorFunc は視界に応じた減光係数を返す関数を作る。隠れタイルは ok=false。
 func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {
-	white := [3]float64{1, 1, 1}
 	if !sys.UseFOV {
-		return func(*gc.GridElement) (float64, bool, bool, [3]float64) { return 1, true, true, white }
+		return func(*gc.GridElement) (float64, bool, bool, [3]float64) { return 1, true, true, [3]float64{1, 1, 1} }
 	}
 	renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)
 	return func(g *gc.GridElement) (float64, bool, bool, [3]float64) {
-		switch info := renderMap[*g].(type) {
-		case TileRenderVisible:
-			// Darkness を明るさへ、LightColor を色味へ反映する。松明の淡い照らしと暖色が2Dと同じく出る
-			return 1 - float64(info.Darkness), true, true, normalizeLight(info.LightColor)
-		case TileRenderRemembered:
-			return 1 - float64(info.Darkness), true, false, white
-		default:
-			return 0, false, false, white
-		}
+		return tileVisFactor(renderMap[*g])
+	}
+}
+
+// tileVisFactor はタイルの描画情報から明るさ・描画可否・可視・光源色を導く純関数。
+// 可視は Darkness を 1-d の明るさへ、LightColor を色味へ反映する。松明の淡い照らしと暖色が2Dと同じく出る。
+// 記憶は明るさは同様だが visible=false。未探索など該当なしは描かない。Draw を通さず単体テストできるよう切り出す。
+func tileVisFactor(info TileRenderInfo) (bright float64, drawable, visible bool, light [3]float64) {
+	white := [3]float64{1, 1, 1}
+	switch v := info.(type) {
+	case TileRenderVisible:
+		return 1 - float64(v.Darkness), true, true, normalizeLight(v.LightColor)
+	case TileRenderRemembered:
+		return 1 - float64(v.Darkness), true, false, white
+	default:
+		return 0, false, false, white
 	}
 }
 
@@ -457,7 +464,8 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。
 func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64, meta r3meta) {
 	// 天面は真上から見るので既存テクスチャをそのまま貼る。側面はフラット単色にする。
-	// tint に面ごとのシェードを掛けて立体感を出す
+	// tint に面ごとのシェードを掛けて立体感を出す。天面0.95、南北の側面0.6、東西の側面0.78 と
+	// 向きで明るさを変えるのは疑似的な方向光源で、平板な側面に陰影を付けて立体に見せるため
 	top := meta
 	top.kind = "wallTop"
 	sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.95), top)
@@ -563,7 +571,10 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, vp, view r
 	}
 	for i := range quads {
 		q := &quads[i]
-		if q.atlas != curAtlas {
+		// アトラス切り替え、または uint16 インデックスの上限を超える前にバッチを吐き出す。
+		// 頂点インデックスは uint16 なので、同一スプライトシートのタイルが大量に積まれても
+		// 65535 を跨がないよう 4頂点ぶんの余地を残して flush する。跨ぐと黙って描画化けする
+		if q.atlas != curAtlas || len(verts)+4 > maxVertsPerBatch {
 			flush()
 			curAtlas = q.atlas
 		}
@@ -571,6 +582,9 @@ func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, vp, view r
 	}
 	flush()
 }
+
+// maxVertsPerBatch は1回の DrawTriangles へ積む頂点数の上限。インデックスが uint16 なので 65535 まで。
+const maxVertsPerBatch = 65535
 
 // emitQuad は1クアッドを三角形2枚として頂点バッファへ積む。画面外の頂点があれば捨てる。
 func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r3quad, project func(r3vec) (float64, float64, bool)) {
