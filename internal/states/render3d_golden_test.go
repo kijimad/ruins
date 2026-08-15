@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"math/rand/v2"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -65,14 +66,25 @@ func r3Scenes(t *testing.T) []r3Scene {
 		{
 			name: "Dungeon",
 			build: func(world w.World) []es.State[w.World] {
-				// 層生成のRNGを撮影用に差し替える。VRT共有シードだとキャラとポータルが重なる。
-				// テストごとに固有の world なので他テストへ波及しない
+				// 層生成のRNGを撮影用に差し替える。テストごとに固有の world なので他テストへ波及しない
 				world.Config.RNG = rand.New(rand.NewPCG(render3DDungeonSeed, 0))
 				return []es.State[w.World]{&gs.DungeonState{
 					Depth:          1,
 					DefinitionName: dungeon.DungeonDebug.Name(),
 					BuilderType:    mapplanner.PlannerTypeSmallRoom,
 				}}
+			},
+			// プレイヤーは上り階段の上に湧くため、そのままだと階段のポータルと重なる。
+			// 通行可能な隣接床へ1マスずらして重なりを避ける
+			prep: func(world w.World) {
+				pe, err := query.GetPlayerEntity(world)
+				if err != nil {
+					return
+				}
+				g := world.Components.GridElement.Get(pe)
+				if p, ok := passableNeighbor(world, g.Coord); ok {
+					g.Coord = p
+				}
 			},
 		},
 		{
@@ -89,6 +101,22 @@ func r3Scenes(t *testing.T) []r3Scene {
 			},
 		},
 	}
+}
+
+// passableNeighbor は通行可能で床タイルのある隣接マスを返す。右左下上の順で最初に見つかったもの。
+// void へ動かさないよう床タイルの存在も確かめる。
+func passableNeighbor(world w.World, from consts.Coord[consts.Tile]) (consts.Coord[consts.Tile], bool) {
+	si := query.GetSpatialIndex(world)
+	for _, d := range []consts.Coord[consts.Tile]{{X: 1}, {X: -1}, {Y: 1}, {Y: -1}} {
+		p := consts.Coord[consts.Tile]{X: from.X + d.X, Y: from.Y + d.Y}
+		if si.IsBlockPass(p) {
+			continue
+		}
+		if slices.ContainsFunc(query.GetEntitiesAt(world, p.X, p.Y), world.Components.Tile.Has) {
+			return p, true
+		}
+	}
+	return from, false
 }
 
 // draw3DList は既定カメラの Render3DSystem で命令列を取り出す。DrawList は whitePixel の
