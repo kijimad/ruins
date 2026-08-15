@@ -320,7 +320,9 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		if !ok {
 			continue
 		}
-		if _, vok := visFactor(g); !vok {
+		// 動体は今見えているタイルにだけ描く。記憶エリア(vf<1)や隠れエリアには描かない。
+		// 2Dの renderObjectLayer と同じで、フォグ内の敵やアイテムは位置を見せない
+		if vf, vok := visFactor(g); !vok || vf < 1 {
 			continue
 		}
 		base := r3vec{fx + 0.5, 0, fz + 0.5}
