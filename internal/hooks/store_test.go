@@ -140,3 +140,56 @@ func TestUseState_更新関数は毎回再登録される(t *testing.T) {
 	store.Dispatch(inputmapper.ActionMenuDown)
 	assert.Equal(t, 5, store.states["index"], "再登録後は新しい上限が適用される")
 }
+
+func TestUseState_登録済みキーに異なる型で呼ぶとpanicする(t *testing.T) {
+	t.Parallel()
+	store := NewStore()
+	store.states["key"] = "already a string"
+
+	assert.PanicsWithValue(t,
+		"hooks: state type does not match registration: key=key",
+		func() {
+			UseState(store, "key", 0, func(v int, _ inputmapper.ActionID) int { return v })
+		})
+}
+
+func TestDispatch_登録済み状態と異なる型のreducerを呼ぶとpanicする(t *testing.T) {
+	t.Parallel()
+	store := NewStore()
+	UseState(store, "key", 0, func(v int, _ inputmapper.ActionID) int { return v + 1 })
+	// reducer登録後にstateの実体を別の型へ差し替え、Dispatch時の型不一致を再現する
+	store.states["key"] = "corrupted"
+
+	assert.PanicsWithValue(t,
+		"hooks: state type does not match reducer type argument: key=key",
+		func() {
+			store.Dispatch(inputmapper.ActionMenuUp)
+		})
+}
+
+func TestGetStoreState_存在しないキーはfalseを返す(t *testing.T) {
+	t.Parallel()
+	store := NewStore()
+
+	_, ok := GetStoreState[int](store, "notfound")
+	assert.False(t, ok)
+}
+
+func TestGetStoreState_型が違うとfalseを返す(t *testing.T) {
+	t.Parallel()
+	store := NewStore()
+	UseState(store, "count", 0, func(v int, _ inputmapper.ActionID) int { return v })
+
+	_, ok := GetStoreState[string](store, "count")
+	assert.False(t, ok, "intをstringで取得しようとするとfalse")
+}
+
+func TestGetStoreState_登録済みの値を取得できる(t *testing.T) {
+	t.Parallel()
+	store := NewStore()
+	UseState(store, "count", 5, func(v int, _ inputmapper.ActionID) int { return v })
+
+	got, ok := GetStoreState[int](store, "count")
+	assert.True(t, ok)
+	assert.Equal(t, 5, got)
+}

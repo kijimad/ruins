@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -123,4 +124,43 @@ func TestUseTimerAt_ExactDuration(t *testing.T) {
 	expired, _, _ := UseTimerAt(store, "test", 100*time.Millisecond, exactTime)
 
 	assert.True(t, expired, "ちょうど duration 経過時点で expired は true")
+}
+
+func TestUseTimerAt_Dispatchしても状態は変化しない(t *testing.T) {
+	t.Parallel()
+
+	store := NewStore()
+	startTime := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	_, start, _ := UseTimerAt(store, "test", 100*time.Millisecond, startTime)
+	start()
+
+	// タイマー状態はどのアクションでも変更しないreducerを登録している
+	store.Dispatch(inputmapper.ActionMenuDown)
+
+	expired, _, _ := UseTimerAt(store, "test", 100*time.Millisecond, startTime)
+	assert.False(t, expired, "Dispatchされてもタイマーの状態はアクションで変化しない")
+}
+
+func TestUseTimer_実時刻を基準に開始前はexpiredがfalse(t *testing.T) {
+	t.Parallel()
+
+	store := NewStore()
+
+	expired, _, _ := UseTimer(store, "test", time.Hour)
+
+	assert.False(t, expired, "開始前は expired は false")
+}
+
+func TestUseTimer_開始直後はexpiredがfalse(t *testing.T) {
+	t.Parallel()
+
+	store := NewStore()
+
+	_, start, _ := UseTimer(store, "test", time.Hour)
+	start()
+
+	expired, _, _ := UseTimer(store, "test", time.Hour)
+
+	assert.False(t, expired, "1時間のタイマーを開始した直後はまだ期限内")
 }
