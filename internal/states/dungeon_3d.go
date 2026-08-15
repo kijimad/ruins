@@ -38,11 +38,12 @@ func (d *dungeon3D) ensure() {
 // Z/C で45度ずつ回し、右ドラッグで見回し、ホイールでズームする。
 func (d *dungeon3D) update(kb input.KeyboardInput) {
 	d.ensure()
-	// 回転は英字キー Z/C。日本語キーボードでも位置が同じで安全。記号 [ ] は JIS でズレる
-	if kb.IsKeyJustPressed(ebiten.KeyC) {
+	// 回転は英字キー Z/C。日本語キーボードでも位置が同じで安全。記号 [ ] は JIS でズレる。
+	// 左の Z を反時計回り、右の C を時計回りにしてキーの左右と回る向きをそろえる
+	if kb.IsKeyJustPressed(ebiten.KeyZ) {
 		d.rotate(1)
 	}
-	if kb.IsKeyJustPressed(ebiten.KeyZ) {
+	if kb.IsKeyJustPressed(ebiten.KeyC) {
 		d.rotate(-1)
 	}
 	_, cy := ebiten.CursorPosition()
