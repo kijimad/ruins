@@ -56,23 +56,7 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 
 	var out *image.NRGBA
 	WithUILock(func() {
-		states := buildStates(world)
-		require.NotEmpty(t, states, "at least one state is required")
-
-		stateMachine, err := es.Init(states[0], world)
-		require.NoError(t, err)
-		require.NoError(t, stateMachine.Update(world))
-
-		if len(states) > 1 {
-			require.NoError(t, stateMachine.PushState(world, states[1:]...))
-		}
-
-		// レイアウト確定のためフレームを回す
-		for range 10 {
-			if err := stateMachine.Update(world); err != nil {
-				break
-			}
-		}
+		stateMachine := setupStateMachine(t, world, buildStates)
 
 		width, height := consts.GameWidth, consts.GameHeight
 		screen := ebiten.NewImage(width, height)
@@ -84,6 +68,57 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 		out = captureScreen(screen)
 	})
 	return out
+}
+
+// setupStateMachine はステートを構築しレイアウト確定までフレームを回す。
+// ebitenui グローバルに触れるため WithUILock 区間から呼ぶ。
+func setupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []es.State[w.World]) es.StateMachine[w.World] {
+	t.Helper()
+	states := buildStates(world)
+	require.NotEmpty(t, states, "at least one state is required")
+
+	stateMachine, err := es.Init(states[0], world)
+	require.NoError(t, err)
+	require.NoError(t, stateMachine.Update(world))
+
+	if len(states) > 1 {
+		require.NoError(t, stateMachine.PushState(world, states[1:]...))
+	}
+
+	// レイアウト確定のためフレームを回す
+	for range 10 {
+		if err := stateMachine.Update(world); err != nil {
+			break
+		}
+	}
+	return stateMachine
+}
+
+// BuildWorld はステートを構築し、レイアウト確定までフレームを回した world を返す。
+// 描画はしない。Render3DSystem などステート外のレンダラで描いたり world を検査するのに使う。
+// ステート構築は ebitenui グローバルに触れるため WithUILock 内で行う。
+func BuildWorld(t *testing.T, buildStates func(w.World) []es.State[w.World]) w.World {
+	t.Helper()
+	world := InitVRTWorld(t)
+	WithUILock(func() {
+		setupStateMachine(t, world, buildStates)
+	})
+	return world
+}
+
+// RenderWorldPNG はステートで world を構築し、任意の描画関数でオフスクリーンへ描いてPNGを返す。
+// 2Dステートの描画に依らず Render3DSystem のようなレンダラを画像化するVRTで使う。アサーションはしない。
+func RenderWorldPNG(t *testing.T, buildStates func(w.World) []es.State[w.World], draw func(world w.World, screen *ebiten.Image)) []byte {
+	t.Helper()
+	world := InitVRTWorld(t)
+	var out *image.NRGBA
+	WithUILock(func() {
+		setupStateMachine(t, world, buildStates)
+		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+		draw(world, screen)
+		out = captureScreen(screen)
+	})
+	return encodePNG(t, out)
 }
 
 // InitVRTWorld はVRT用のワールドを初期化する。固定シードで再現性を保証する。
