@@ -319,7 +319,7 @@ func TestUseItemBehavior_applyNutrition_鮮度で栄養が変わる(t *testing.T
 
 	tests := []struct {
 		name        string
-		now         consts.Turn // 生成は TotalTurns=0。bread の ShelfLife は 1500
+		now         consts.Turn // 生成は TotalTurns=0。bread の StageLength は 1500
 		startHunger int
 		wantHunger  int
 	}{
@@ -373,7 +373,7 @@ func TestUseItemBehavior_食べたログに鮮度が出る(t *testing.T) {
 
 	tests := []struct {
 		name string
-		now  consts.Turn // 生成は TotalTurns=0。bread の ShelfLife は 1500
+		now  consts.Turn // 生成は TotalTurns=0。bread の StageLength は 1500
 		want string
 	}{
 		{"新鮮", 0, "fresh"},

@@ -13,20 +13,20 @@ func perishRate(_ w.World, _ ecs.Entity) float64 {
 	return 1.0
 }
 
-// EffectiveRot は now 時点の累積劣化量を返す。Perishable の Rot に、LastCheck からの
+// EffectiveRot は now 時点の累積劣化量を返す。Perishable の RotAccrued に、RotAsOfTurn からの
 // 経過ぶんを現在の速度で加える。読み取り専用で副作用はない。段階算出と合流判定が通る。
 func EffectiveRot(world w.World, entity ecs.Entity, now consts.Turn) consts.Turn {
 	p := world.Components.Perishable.Get(entity)
-	elapsed := now - p.LastCheck
-	return p.Rot + consts.Turn(float64(elapsed)*perishRate(world, entity))
+	elapsed := now - p.RotAsOfTurn
+	return p.RotAccrued + consts.Turn(float64(elapsed)*perishRate(world, entity))
 }
 
-// AdvanceRot は entity の Rot を now まで前進させ、LastCheck を揃える。
+// AdvanceRot は entity の RotAccrued を now まで前進させ、RotAsOfTurn を揃える。
 // 速度が変わる直前や合流の前に呼び、以後の実効値計算を正しく保つ。
 func AdvanceRot(world w.World, entity ecs.Entity, now consts.Turn) {
 	p := world.Components.Perishable.Get(entity)
-	p.Rot = EffectiveRot(world, entity, now)
-	p.LastCheck = now
+	p.RotAccrued = EffectiveRot(world, entity, now)
+	p.RotAsOfTurn = now
 }
 
 // FreshnessStageOf は entity の鮮度段階を返す。Perishable を持たなければ ok=false。

@@ -248,7 +248,7 @@ func TestSerde_GameTimePersists(t *testing.T) {
 }
 
 // TestSerde_Perishableが往復する は腐敗食の鮮度がセーブ・ロードで保たれることを検証する。
-// Rot と LastCheck が失われると復元後に鮮度が狂うため、往復で保たれる必要がある。
+// RotAccrued と RotAsOfTurn が失われると復元後に鮮度が狂うため、往復で保たれる必要がある。
 func TestSerde_Perishableが往復する(t *testing.T) {
 	t.Parallel()
 	testDir := t.TempDir()
@@ -281,6 +281,6 @@ func TestSerde_Perishableが往復する(t *testing.T) {
 	}
 
 	require.NotNil(t, restored, "bread の Perishable が復元される")
-	assert.Equal(t, original, *restored, "保存前と同じ Rot・ShelfLife・LastCheck が復元される")
-	assert.Equal(t, consts.Turn(700), restored.LastCheck, "劣化の起点時刻は生成ターンで刻まれる")
+	assert.Equal(t, original, *restored, "保存前と同じ RotAccrued・StageLength・RotAsOfTurn が復元される")
+	assert.Equal(t, consts.Turn(700), restored.RotAsOfTurn, "劣化の起点時刻は生成ターンで刻まれる")
 }

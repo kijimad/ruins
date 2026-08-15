@@ -10,7 +10,7 @@ import (
 func TestPerishable_Stage(t *testing.T) {
 	t.Parallel()
 	const shelf consts.Turn = 100
-	p := Perishable{ShelfLife: shelf}
+	p := Perishable{StageLength: shelf}
 
 	tests := []struct {
 		name string
@@ -37,16 +37,16 @@ func TestPerishable_MergeRot(t *testing.T) {
 
 	t.Run("個数で加重平均する", func(t *testing.T) {
 		t.Parallel()
-		target := Perishable{Rot: 100, ShelfLife: 1000}
-		target.MergeRot(3, Perishable{Rot: 500, ShelfLife: 1000}, 1)
+		target := Perishable{RotAccrued: 100, StageLength: 1000}
+		target.MergeRot(3, Perishable{RotAccrued: 500, StageLength: 1000}, 1)
 		// (100*3 + 500*1) / 4 = 200
-		assert.Equal(t, consts.Turn(200), target.Rot)
+		assert.Equal(t, consts.Turn(200), target.RotAccrued)
 	})
 
 	t.Run("総数ゼロなら変えない", func(t *testing.T) {
 		t.Parallel()
-		target := Perishable{Rot: 42, ShelfLife: 1000}
-		target.MergeRot(0, Perishable{Rot: 500, ShelfLife: 1000}, 0)
-		assert.Equal(t, consts.Turn(42), target.Rot)
+		target := Perishable{RotAccrued: 42, StageLength: 1000}
+		target.MergeRot(0, Perishable{RotAccrued: 500, StageLength: 1000}, 0)
+		assert.Equal(t, consts.Turn(42), target.RotAccrued)
 	})
 }

@@ -261,7 +261,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	// shelfLife を持つ食料は腐敗する。生成時刻は spawn 時に刻印するためここでは 0 のまま
 	if item.ShelfLife != nil {
-		entitySpec.Perishable = &gc.Perishable{ShelfLife: consts.Turn(*item.ShelfLife)}
+		entitySpec.Perishable = &gc.Perishable{StageLength: consts.Turn(*item.ShelfLife)}
 	}
 	if item.InflictsDamage != nil {
 		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: *item.InflictsDamage}

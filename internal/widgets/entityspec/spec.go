@@ -88,7 +88,7 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	if spec.ProvidesNutrition != nil {
 		rows = append(rows, nutritionRows(world, spec.ProvidesNutrition)...)
 	}
-	// 鮮度は生成時の刻印 LastCheck が要る。spec 段階では未刻印なので出さない
+	// 鮮度は生成時の刻印 RotAsOfTurn が要る。spec 段階では未刻印なので出さない
 	if spec.Book != nil {
 		rows = append(rows, bookRows(world, spec.Book)...)
 	}

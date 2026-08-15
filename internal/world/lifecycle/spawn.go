@@ -242,7 +242,7 @@ func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {
 	entity := world.Components.AddEntity(world.ECS, &entitySpec)
 	// 腐敗の起点を今の総ターン数で刻む。GameTime は world 生成時から常在する
 	if world.Components.Perishable.Has(entity) {
-		world.Components.Perishable.Get(entity).LastCheck = query.GetGameTime(world).TotalTurns
+		world.Components.Perishable.Get(entity).RotAsOfTurn = query.GetGameTime(world).TotalTurns
 	}
 	return entity, nil
 }

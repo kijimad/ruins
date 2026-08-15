@@ -17,7 +17,7 @@ func TestFreshnessStageOf(t *testing.T) {
 
 	tests := []struct {
 		name string
-		now  consts.Turn // 生成は TotalTurns=0。bread の ShelfLife は 1500
+		now  consts.Turn // 生成は TotalTurns=0。bread の StageLength は 1500
 		want gc.FreshnessStage
 	}{
 		{"新鮮", 0, gc.FreshnessFresh},
