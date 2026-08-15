@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">92.6&nbsp;%</td>
-            <td class="headerCovTableEntry">27</td>
-            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryMed">75.8&nbsp;%</td>
+            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntry">47</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-15 04:50:00</td>
+            <td class="headerValue">2026-08-15 16:43:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,121 +62,178 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package components</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L4"><span class="lineNum">       4</span>              : </span>
-<span id="L5"><span class="lineNum">       5</span>              : // Position はフィールド上に座標をもって存在する</span>
-<span id="L6"><span class="lineNum">       6</span>              : // 値はカメラ変換前のワールド座標。描画時にはスクリーン座標へ変換する必要がある</span>
-<span id="L7"><span class="lineNum">       7</span>              : // スプライトはこの位置に中心を合わせて配置する</span>
-<span id="L8"><span class="lineNum">       8</span>              : // -----</span>
-<span id="L9"><span class="lineNum">       9</span>              : // |   |</span>
-<span id="L10"><span class="lineNum">      10</span>              : // | * |</span>
-<span id="L11"><span class="lineNum">      11</span>              : // |   |</span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;math&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // Position はフィールド上に座標をもって存在する</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 値はカメラ変換前のワールド座標。描画時にはスクリーン座標へ変換する必要がある</span>
+<span id="L11"><span class="lineNum">      11</span>              : // スプライトはこの位置に中心を合わせて配置する</span>
 <span id="L12"><span class="lineNum">      12</span>              : // -----</span>
-<span id="L13"><span class="lineNum">      13</span>              : type Position struct {</span>
-<span id="L14"><span class="lineNum">      14</span>              :         consts.Coord[consts.WorldPixel]</span>
-<span id="L15"><span class="lineNum">      15</span>              : }</span>
-<span id="L16"><span class="lineNum">      16</span>              : </span>
-<span id="L17"><span class="lineNum">      17</span>              : // GridElement はフィールド上にグリッドに沿って存在する</span>
-<span id="L18"><span class="lineNum">      18</span>              : // スプライトはグリッドに沿って配置する</span>
-<span id="L19"><span class="lineNum">      19</span>              : // *----</span>
-<span id="L20"><span class="lineNum">      20</span>              : // |   |</span>
-<span id="L21"><span class="lineNum">      21</span>              : // |   |</span>
-<span id="L22"><span class="lineNum">      22</span>              : // |   |</span>
-<span id="L23"><span class="lineNum">      23</span>              : // -----</span>
-<span id="L24"><span class="lineNum">      24</span>              : type GridElement struct {</span>
-<span id="L25"><span class="lineNum">      25</span>              :         consts.Coord[consts.Tile]</span>
-<span id="L26"><span class="lineNum">      26</span>              : }</span>
-<span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              : // Rect は矩形を表す構造体。Min が左上、Max が右下の隅</span>
-<span id="L29"><span class="lineNum">      29</span>              : type Rect struct {</span>
-<span id="L30"><span class="lineNum">      30</span>              :         Min consts.Coord[consts.Tile]</span>
-<span id="L31"><span class="lineNum">      31</span>              :         Max consts.Coord[consts.Tile]</span>
-<span id="L32"><span class="lineNum">      32</span>              : }</span>
-<span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span>              : // Center は矩形の中心座標を返す</span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           1 : func (r *Rect) Center() (consts.Tile, consts.Tile) {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         x := (r.Min.X + r.Max.X) / 2</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         y := (r.Min.Y + r.Max.Y) / 2</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         return x, y</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L40"><span class="lineNum">      40</span>              : </span>
-<span id="L41"><span class="lineNum">      41</span>              : // Width は矩形の幅を返す。Max と Min の X 差。</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 : func (r *Rect) Width() consts.Tile { return r.Max.X - r.Min.X }</span></span>
-<span id="L43"><span class="lineNum">      43</span>              : </span>
-<span id="L44"><span class="lineNum">      44</span>              : // Height は矩形の高さを返す。Max と Min の Y 差。</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 : func (r *Rect) Height() consts.Tile { return r.Max.Y - r.Min.Y }</span></span>
-<span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span>              : // Tile はタイルエンティティであることを示すタグコンポーネント</span>
-<span id="L48"><span class="lineNum">      48</span>              : type Tile struct{}</span>
-<span id="L49"><span class="lineNum">      49</span>              : </span>
-<span id="L50"><span class="lineNum">      50</span>              : // BlockPass は壁やドアなどの静的障害物に付与する。このコンポーネントを持つタイルは常に通行不可になる。</span>
-<span id="L51"><span class="lineNum">      51</span>              : // キャラクター（プレイヤー・敵）には付与しない。キャラクターの通行可否は関係性で判定する</span>
-<span id="L52"><span class="lineNum">      52</span>              : type BlockPass struct{}</span>
+<span id="L13"><span class="lineNum">      13</span>              : // |   |</span>
+<span id="L14"><span class="lineNum">      14</span>              : // | * |</span>
+<span id="L15"><span class="lineNum">      15</span>              : // |   |</span>
+<span id="L16"><span class="lineNum">      16</span>              : // -----</span>
+<span id="L17"><span class="lineNum">      17</span>              : type Position struct {</span>
+<span id="L18"><span class="lineNum">      18</span>              :         consts.Coord[consts.WorldPixel]</span>
+<span id="L19"><span class="lineNum">      19</span>              : }</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              : // GridElement はフィールド上にグリッドに沿って存在する</span>
+<span id="L22"><span class="lineNum">      22</span>              : // スプライトはグリッドに沿って配置する</span>
+<span id="L23"><span class="lineNum">      23</span>              : // *----</span>
+<span id="L24"><span class="lineNum">      24</span>              : // |   |</span>
+<span id="L25"><span class="lineNum">      25</span>              : // |   |</span>
+<span id="L26"><span class="lineNum">      26</span>              : // |   |</span>
+<span id="L27"><span class="lineNum">      27</span>              : // -----</span>
+<span id="L28"><span class="lineNum">      28</span>              : type GridElement struct {</span>
+<span id="L29"><span class="lineNum">      29</span>              :         consts.Coord[consts.Tile]</span>
+<span id="L30"><span class="lineNum">      30</span>              : }</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // Rect は矩形を表す構造体。Min が左上、Max が右下の隅</span>
+<span id="L33"><span class="lineNum">      33</span>              : type Rect struct {</span>
+<span id="L34"><span class="lineNum">      34</span>              :         Min consts.Coord[consts.Tile]</span>
+<span id="L35"><span class="lineNum">      35</span>              :         Max consts.Coord[consts.Tile]</span>
+<span id="L36"><span class="lineNum">      36</span>              : }</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : // Center は矩形の中心座標を返す</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC tlaBgGNC">           1 : func (r *Rect) Center() (consts.Tile, consts.Tile) {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         x := (r.Min.X + r.Max.X) / 2</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         y := (r.Min.Y + r.Max.Y) / 2</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return x, y</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : // Width は矩形の幅を返す。Max と Min の X 差。</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 : func (r *Rect) Width() consts.Tile { return r.Max.X - r.Min.X }</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : // Height は矩形の高さを返す。Max と Min の Y 差。</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 : func (r *Rect) Height() consts.Tile { return r.Max.Y - r.Min.Y }</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : // Tile はタイルエンティティであることを示すタグコンポーネント</span>
+<span id="L52"><span class="lineNum">      52</span>              : type Tile struct{}</span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
-<span id="L54"><span class="lineNum">      54</span>              : // BlockView はフィールド上で視界を遮る</span>
-<span id="L55"><span class="lineNum">      55</span>              : // TODO: 能動態のほうがわかりやすそう</span>
-<span id="L56"><span class="lineNum">      56</span>              : type BlockView struct{}</span>
+<span id="L54"><span class="lineNum">      54</span>              : // BlockPass は壁やドアなどの静的障害物に付与する。このコンポーネントを持つタイルは常に通行不可になる。</span>
+<span id="L55"><span class="lineNum">      55</span>              : // キャラクター（プレイヤー・敵）には付与しない。キャラクターの通行可否は関係性で判定する</span>
+<span id="L56"><span class="lineNum">      56</span>              : type BlockPass struct{}</span>
 <span id="L57"><span class="lineNum">      57</span>              : </span>
-<span id="L58"><span class="lineNum">      58</span>              : // PassCost はフィールド上のタイルの移動コストを修正する。</span>
-<span id="L59"><span class="lineNum">      59</span>              : // ベースコストへの加算値で表現する</span>
-<span id="L60"><span class="lineNum">      60</span>              : type PassCost struct {</span>
-<span id="L61"><span class="lineNum">      61</span>              :         Value int // 移動コスト加算値。0で変化なし、50でコスト+50</span>
-<span id="L62"><span class="lineNum">      62</span>              : }</span>
-<span id="L63"><span class="lineNum">      63</span>              : </span>
-<span id="L64"><span class="lineNum">      64</span>              : // Renderable はフィールド上で描画できる</span>
-<span id="L65"><span class="lineNum">      65</span>              : type Renderable struct{}</span>
-<span id="L66"><span class="lineNum">      66</span>              : </span>
-<span id="L67"><span class="lineNum">      67</span>              : // Pushable は押して動かせることを示すマーカー。移動拠点キューブが最初の利用者だが、印は汎用で</span>
-<span id="L68"><span class="lineNum">      68</span>              : // キューブに限らない。BlockPass を持つ物でも、この印があると移動解決は通行不可でなく押しへ分岐する。</span>
-<span id="L69"><span class="lineNum">      69</span>              : type Pushable struct{}</span>
+<span id="L58"><span class="lineNum">      58</span>              : // BlockView はフィールド上で視界を遮る</span>
+<span id="L59"><span class="lineNum">      59</span>              : // TODO: 能動態のほうがわかりやすそう</span>
+<span id="L60"><span class="lineNum">      60</span>              : type BlockView struct{}</span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span>              : // PassCost はフィールド上のタイルの移動コストを修正する。</span>
+<span id="L63"><span class="lineNum">      63</span>              : // ベースコストへの加算値で表現する</span>
+<span id="L64"><span class="lineNum">      64</span>              : type PassCost struct {</span>
+<span id="L65"><span class="lineNum">      65</span>              :         Value int // 移動コスト加算値。0で変化なし、50でコスト+50</span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span>              : // Renderable はフィールド上で描画できる</span>
+<span id="L69"><span class="lineNum">      69</span>              : type Renderable struct{}</span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
-<span id="L71"><span class="lineNum">      71</span>              : // Direction はタイルベース移動の方向</span>
-<span id="L72"><span class="lineNum">      72</span>              : type Direction int</span>
-<span id="L73"><span class="lineNum">      73</span>              : </span>
-<span id="L74"><span class="lineNum">      74</span>              : const (</span>
-<span id="L75"><span class="lineNum">      75</span>              :         // DirectionNone は移動なし（待機）</span>
-<span id="L76"><span class="lineNum">      76</span>              :         DirectionNone Direction = iota</span>
-<span id="L77"><span class="lineNum">      77</span>              :         // DirectionUp は上方向</span>
-<span id="L78"><span class="lineNum">      78</span>              :         DirectionUp</span>
-<span id="L79"><span class="lineNum">      79</span>              :         // DirectionDown は下方向</span>
-<span id="L80"><span class="lineNum">      80</span>              :         DirectionDown</span>
-<span id="L81"><span class="lineNum">      81</span>              :         // DirectionLeft は左方向</span>
-<span id="L82"><span class="lineNum">      82</span>              :         DirectionLeft</span>
-<span id="L83"><span class="lineNum">      83</span>              :         // DirectionRight は右方向</span>
-<span id="L84"><span class="lineNum">      84</span>              :         DirectionRight</span>
-<span id="L85"><span class="lineNum">      85</span>              :         // DirectionUpLeft は左上方向</span>
-<span id="L86"><span class="lineNum">      86</span>              :         DirectionUpLeft</span>
-<span id="L87"><span class="lineNum">      87</span>              :         // DirectionUpRight は右上方向</span>
-<span id="L88"><span class="lineNum">      88</span>              :         DirectionUpRight</span>
-<span id="L89"><span class="lineNum">      89</span>              :         // DirectionDownLeft は左下方向</span>
-<span id="L90"><span class="lineNum">      90</span>              :         DirectionDownLeft</span>
-<span id="L91"><span class="lineNum">      91</span>              :         // DirectionDownRight は右下方向</span>
-<span id="L92"><span class="lineNum">      92</span>              :         DirectionDownRight</span>
-<span id="L93"><span class="lineNum">      93</span>              : )</span>
-<span id="L94"><span class="lineNum">      94</span>              : </span>
-<span id="L95"><span class="lineNum">      95</span>              : // GetDelta は方向から移動量をタイル座標の差分として取得する。各成分は -1/0/1</span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC tlaBgGNC">           1 : func (d Direction) GetDelta() consts.Coord[consts.Tile] {</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         switch d {</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         case DirectionUp:</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 0, Y: -1}</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         case DirectionDown:</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 0, Y: 1}</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         case DirectionLeft:</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: -1, Y: 0}</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         case DirectionRight:</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 1, Y: 0}</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         case DirectionUpLeft:</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: -1, Y: -1}</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         case DirectionUpRight:</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 1, Y: -1}</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         case DirectionDownLeft:</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: -1, Y: 1}</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         case DirectionDownRight:</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 1, Y: 1}</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 0, Y: 0}</span></span>
-<span id="L116"><span class="lineNum">     116</span>              :         }</span>
-<span id="L117"><span class="lineNum">     117</span>              : }</span>
+<span id="L71"><span class="lineNum">      71</span>              : // Pushable は押して動かせることを示すマーカー。移動拠点キューブが最初の利用者だが、印は汎用で</span>
+<span id="L72"><span class="lineNum">      72</span>              : // キューブに限らない。BlockPass を持つ物でも、この印があると移動解決は通行不可でなく押しへ分岐する。</span>
+<span id="L73"><span class="lineNum">      73</span>              : type Pushable struct{}</span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span>              : // Direction はタイルベース移動の方向</span>
+<span id="L76"><span class="lineNum">      76</span>              : type Direction int</span>
+<span id="L77"><span class="lineNum">      77</span>              : </span>
+<span id="L78"><span class="lineNum">      78</span>              : const (</span>
+<span id="L79"><span class="lineNum">      79</span>              :         // DirectionNone は移動なし（待機）</span>
+<span id="L80"><span class="lineNum">      80</span>              :         DirectionNone Direction = iota</span>
+<span id="L81"><span class="lineNum">      81</span>              :         // DirectionUp は上方向</span>
+<span id="L82"><span class="lineNum">      82</span>              :         DirectionUp</span>
+<span id="L83"><span class="lineNum">      83</span>              :         // DirectionDown は下方向</span>
+<span id="L84"><span class="lineNum">      84</span>              :         DirectionDown</span>
+<span id="L85"><span class="lineNum">      85</span>              :         // DirectionLeft は左方向</span>
+<span id="L86"><span class="lineNum">      86</span>              :         DirectionLeft</span>
+<span id="L87"><span class="lineNum">      87</span>              :         // DirectionRight は右方向</span>
+<span id="L88"><span class="lineNum">      88</span>              :         DirectionRight</span>
+<span id="L89"><span class="lineNum">      89</span>              :         // DirectionUpLeft は左上方向</span>
+<span id="L90"><span class="lineNum">      90</span>              :         DirectionUpLeft</span>
+<span id="L91"><span class="lineNum">      91</span>              :         // DirectionUpRight は右上方向</span>
+<span id="L92"><span class="lineNum">      92</span>              :         DirectionUpRight</span>
+<span id="L93"><span class="lineNum">      93</span>              :         // DirectionDownLeft は左下方向</span>
+<span id="L94"><span class="lineNum">      94</span>              :         DirectionDownLeft</span>
+<span id="L95"><span class="lineNum">      95</span>              :         // DirectionDownRight は右下方向</span>
+<span id="L96"><span class="lineNum">      96</span>              :         DirectionDownRight</span>
+<span id="L97"><span class="lineNum">      97</span>              : )</span>
+<span id="L98"><span class="lineNum">      98</span>              : </span>
+<span id="L99"><span class="lineNum">      99</span>              : // GetDelta は方向から移動量をタイル座標の差分として取得する。各成分は -1/0/1</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC tlaBgGNC">           1 : func (d Direction) GetDelta() consts.Coord[consts.Tile] {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         switch d {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         case DirectionUp:</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 0, Y: -1}</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         case DirectionDown:</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 0, Y: 1}</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         case DirectionLeft:</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: -1, Y: 0}</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         case DirectionRight:</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 1, Y: 0}</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         case DirectionUpLeft:</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: -1, Y: -1}</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         case DirectionUpRight:</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 1, Y: -1}</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         case DirectionDownLeft:</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: -1, Y: 1}</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         case DirectionDownRight:</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 1, Y: 1}</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 return consts.Coord[consts.Tile]{X: 0, Y: 0}</span></span>
+<span id="L120"><span class="lineNum">     120</span>              :         }</span>
+<span id="L121"><span class="lineNum">     121</span>              : }</span>
+<span id="L122"><span class="lineNum">     122</span>              : </span>
+<span id="L123"><span class="lineNum">     123</span>              : // direction8 は8方向の一覧。スナップの走査に使う。</span>
+<span id="L124"><span class="lineNum">     124</span>              : var direction8 = [8]Direction{</span>
+<span id="L125"><span class="lineNum">     125</span>              :         DirectionUp, DirectionUpRight, DirectionRight, DirectionDownRight,</span>
+<span id="L126"><span class="lineNum">     126</span>              :         DirectionDown, DirectionDownLeft, DirectionLeft, DirectionUpLeft,</span>
+<span id="L127"><span class="lineNum">     127</span>              : }</span>
+<span id="L128"><span class="lineNum">     128</span>              : </span>
+<span id="L129"><span class="lineNum">     129</span>              : // ScreenIntent は方向を画面基準の意図ベクトルへ写す。su は上向き、sr は右向きの成分で</span>
+<span id="L130"><span class="lineNum">     130</span>              : // どちらも -1/0/1。カメラ相対移動で、押されたキーが指す画面上の向きを表す。</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 : func (d Direction) ScreenIntent() (su, sr float64) {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         switch d {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         case DirectionUp:</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 return 1, 0</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC tlaBgUNC">           0 :         case DirectionDown:</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 return -1, 0</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         case DirectionRight:</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 return 0, 1</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         case DirectionLeft:</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 return 0, -1</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         case DirectionUpRight:</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 return 1, 1</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         case DirectionUpLeft:</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 return 1, -1</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         case DirectionDownRight:</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 return -1, 1</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC tlaBgGNC">           1 :         case DirectionDownLeft:</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 return -1, -1</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 return 0, 0</span></span>
+<span id="L151"><span class="lineNum">     151</span>              :         }</span>
+<span id="L152"><span class="lineNum">     152</span>              : }</span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span>              : // SnapWorldVec は world 平面のベクトルを最寄りの8方向へスナップする。</span>
+<span id="L155"><span class="lineNum">     155</span>              : // カメラ相対移動で、回した向きの world ベクトルから実際の移動方向を決めるのに使う。</span>
+<span id="L156"><span class="lineNum">     156</span>              : // ゼロベクトルは DirectionNone を返す。</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 : func SnapWorldVec(wx, wy float64) Direction {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         best := DirectionNone</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         bestDot := 0.0</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           2 :         for _, d := range direction8 {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 delta := d.GetDelta()</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 dx, dy := float64(delta.X), float64(delta.Y)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 norm := math.Hypot(dx, dy)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 if norm == 0 {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L166"><span class="lineNum">     166</span>              :                 }</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC tlaBgGNC">           1 :                 dot := (wx*dx + wy*dy) / norm</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           2 :                 if dot &gt; bestDot {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                         bestDot = dot</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         best = d</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L172"><span class="lineNum">     172</span>              :         }</span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         return best</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : }</span>
         </pre>
               </td>
             </tr>
