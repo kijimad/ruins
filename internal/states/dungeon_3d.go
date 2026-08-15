@@ -1,11 +1,9 @@
 package states
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/input"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -81,12 +79,8 @@ func (d *dungeon3D) moveDir(base gc.Direction) gc.Direction {
 	return gc.SnapWorldVec(wx, wy)
 }
 
-// draw は3Dシーンと操作ヒントを screen へ描く。
+// draw は3Dシーンを screen へ描く。
 func (d *dungeon3D) draw(world w.World, screen *ebiten.Image) error {
 	d.ensure()
-	if err := d.sys.Draw(world, screen); err != nil {
-		return err
-	}
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("3D orient=%d   Z/C rotate  wheel zoom  right-drag look  F3 back to 2D", d.orient), 8, 8)
-	return nil
+	return d.sys.Draw(world, screen)
 }
