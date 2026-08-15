@@ -64,8 +64,8 @@ const (
 	// MapTileHeight はマップの縦タイル数
 	MapTileHeight Tile = 50
 	// VisionRadiusTiles は視界半径（タイル単位）
-	// 視界の境界が画面内に見えないようにする
-	VisionRadiusTiles Tile = 24
+	// 視界の境界が画面内に見えないようにする。3Dの斜め視点は遠方まで映すので広めに取る
+	VisionRadiusTiles Tile = 40
 )
 
 const (
