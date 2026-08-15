@@ -4,7 +4,6 @@ package states_test
 // ピクセルが安定した2D描画なので、UIステートと同じピクセル golden で単体固定する。
 
 import (
-	"image/color"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -18,7 +17,8 @@ import (
 )
 
 // TestGolden_HUD はダンジョン上の標準 HUD を固定する。HP・武器スロット・通貨・ミニマップ・
-// メッセージ枠の配置とフォントを覆う。世界レイヤは描かず HUD レイヤだけを黒背景へ描く。
+// メッセージ枠の配置とフォントを覆う。世界レイヤは描かず、透明背景へ HUD レイヤだけを描いて
+// HUD が塗るピクセルだけを固定する。
 func TestGolden_HUD(t *testing.T) {
 	t.Parallel()
 
@@ -42,7 +42,6 @@ func TestGolden_HUD(t *testing.T) {
 		require.NoError(t, updater.Update(world))
 
 		return func(screen *ebiten.Image) {
-			screen.Fill(color.Black)
 			require.NoError(t, renderer.Draw(world, screen))
 		}
 	}, consts.GameWidth, consts.GameHeight)
