@@ -587,3 +587,42 @@ func TestMoveToBackpack_同鮮度の合流は劣化量を加重平均する(t *t
 	stage, _ := query.FreshnessStageOf(world, survivor)
 	assert.Equal(t, gc.FreshnessFresh, stage, "平均後もまだ新鮮")
 }
+
+func TestMoveToBackpack_三つの同鮮度が連鎖合流し個数で加重平均される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	owner, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	gt := query.GetGameTime(world)
+
+	// bread の StageLength は 1500。ターン 0/300/600 に拾う。いずれも拾った時点で新鮮なので
+	// 1スタックへ連鎖合流する。3件目は survivor 個数2に対する加重平均なので、重み付けの配線を検証できる
+	moveAt := func(turn consts.Turn) {
+		gt.TotalTurns = turn
+		b, e := SpawnFieldItem(world, breadID, 1, 1, 1)
+		require.NoError(t, e)
+		require.NoError(t, MoveToBackpack(world, b, owner))
+	}
+	moveAt(0)
+	moveAt(300)
+	moveAt(600)
+
+	var survivor ecs.Entity
+	var count int
+	q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.RawID.Get(e).ID == breadID && world.Components.LocationInBackpack.Get(e).Owner == owner {
+			survivor = e
+			count++
+		}
+	}
+	require.Equal(t, 1, count, "3つとも同鮮度なので1スタックに合流する")
+	assert.Equal(t, 3, world.Components.Stackable.Get(survivor).Count, "個数は3に合算される")
+
+	// now=600 での各実効劣化量は 600/300/0。個数1ずつの加重平均は (600+300+0)/3 = 300。
+	// 3件目を survivor 個数2で重み付けするので、素朴な 1:1 平均だと 225 になり区別できる
+	p := world.Components.Perishable.Get(survivor)
+	assert.Equal(t, consts.Turn(300), p.RotAccrued, "3-way の加重平均になる")
+	assert.Equal(t, consts.Turn(600), p.RotUpdatedTurn, "最後の合流時刻に揃う")
+}
