@@ -210,17 +210,21 @@ var frostColorNorm = [3]float64{130.0 / 255, 205.0 / 255, 240.0 / 255}
 
 // addFrostQuad は床や壁の上へ半透明の氷クアッドを重ねる。頂点色は氷色×alpha にプリマルチプライし、
 // ColorA を alpha にすることで、ソースオーバー合成が 2D の氷オーバーレイと同じ「氷色×α + 背景×(1-α)」になる。
+// addFrostQuad は床や壁天面へ氷を重ねる。タイルは一様な四角なので白1pxで塗りつぶす。
 func (sys *Render3DSystem) addFrostQuad(out *[]r3quad, fx, fz, topY, alpha float64, meta r3meta) {
-	appendFrostQuad(out, [4]r3vec{{fx, topY, fz}, {fx + 1, topY, fz}, {fx + 1, topY, fz + 1}, {fx, topY, fz + 1}}, alpha, meta)
+	p := [4]r3vec{{fx, topY, fz}, {fx + 1, topY, fz}, {fx + 1, topY, fz + 1}, {fx, topY, fz + 1}}
+	zeroUV := [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}}
+	appendFrostQuad(out, p, zeroUV, whitePixel(), alpha, meta)
 }
 
 // appendFrostQuad は氷クアッドを1枚積む。頂点色を氷色×alpha にプリマルチプライしアルファを渡すことで、
-// ソースオーバー合成が 2D の氷オーバーレイと同じになる。床・壁天面・ビルボードで共有する。
-func appendFrostQuad(out *[]r3quad, p [4]r3vec, alpha float64, meta r3meta) {
+// ソースオーバー合成が 2D の氷オーバーレイと同じになる。atlas と uv を受け、床・壁は白1px、ビルボードは
+// スプライトのテクスチャで貼る。スプライトで貼るとアルファでマスクされ透明な余白に氷が乗らない。
+func appendFrostQuad(out *[]r3quad, p [4]r3vec, uv [4][2]float64, atlas *ebiten.Image, alpha float64, meta r3meta) {
 	*out = append(*out, r3quad{
 		p:         p,
-		uv:        [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
-		atlas:     whitePixel(),
+		uv:        uv,
+		atlas:     atlas,
 		col:       [3]float64{frostColorNorm[0] * alpha, frostColorNorm[1] * alpha, frostColorNorm[2] * alpha},
 		alpha:     alpha,
 		kind:      meta.kind,
@@ -505,9 +509,11 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		top := r3vec{0, bh, 0}
 		tl, tr := r3add(b0, top), r3add(b1, top)
 		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b), meta)
-		// エンティティの立て板へ氷を重ねる。同じ4隅なので画家ソートの安定性で氷が手前に描かれる
+		// エンティティの立て板へ氷を重ねる。スプライトのテクスチャとUVで貼り、透明な余白は氷が乗らない。
+		// 同じ4隅と同じアトラスなので、画家ソートの安定性で氷がエンティティの手前に描かれる
 		if a, d := frost(int(g.X)); d {
-			appendFrostQuad(&quads, [4]r3vec{tl, tr, b1, b0}, a, r3meta{kind: "frostBillboard", tile: [2]int{int(g.X), int(g.Y)}, atlas: "frost"})
+			uv := [4][2]float64{{ux, uy}, {ux + uw, uy}, {ux + uw, uy + uh}, {ux, uy + uh}}
+			appendFrostQuad(&quads, [4]r3vec{tl, tr, b1, b0}, uv, atlas, a, r3meta{kind: "frostBillboard", tile: [2]int{int(g.X), int(g.Y)}, atlas: sr.SpriteSheetName})
 		}
 	}
 	return quads
