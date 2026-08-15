@@ -18,6 +18,7 @@ import (
 	sysrender "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/vrt"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/require"
 )
@@ -32,26 +33,34 @@ const (
 )
 
 // r3Scene は3D VRTで固定するワールドシーン。ワールドを映すVRTはすべて3D命令列で撮る。
+// prep は描画直前に world を追加調整する。nil可。前線を可視域へ入れるなどに使う。
 type r3Scene struct {
 	name  string
 	build func(w.World) []es.State[w.World]
+	prep  func(w.World)
 }
 
-// r3Scenes は撮影シーン一覧を返す。明るい昼間のオーバーワールドと、壁を含むダンジョンを覆う。
+// overworldBuild は昼間のオーバーワールドを固定シードで組む。通常と霜シーンで共有する。
+func overworldBuild(t *testing.T) func(w.World) []es.State[w.World] {
+	t.Helper()
+	return func(_ w.World) []es.State[w.World] {
+		s, err := gs.NewOverworldState(
+			mapplanner.PlannerTypeOverworldField,
+			dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
+			&overworld.NewGameParams{RunSeed: render3DSceneSeed},
+		)()
+		require.NoError(t, err)
+		return []es.State[w.World]{s}
+	}
+}
+
+// r3Scenes は撮影シーン一覧を返す。昼間オーバーワールド、壁を含むダンジョン、寒波前線の氷を覆う。
 func r3Scenes(t *testing.T) []r3Scene {
 	t.Helper()
 	return []r3Scene{
 		{
-			name: "Overworld",
-			build: func(_ w.World) []es.State[w.World] {
-				s, err := gs.NewOverworldState(
-					mapplanner.PlannerTypeOverworldField,
-					dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
-					&overworld.NewGameParams{RunSeed: render3DSceneSeed},
-				)()
-				require.NoError(t, err)
-				return []es.State[w.World]{s}
-			},
+			name:  "Overworld",
+			build: overworldBuild(t),
 		},
 		{
 			name: "Dungeon",
@@ -64,6 +73,19 @@ func r3Scenes(t *testing.T) []r3Scene {
 					DefinitionName: dungeon.DungeonDebug.Name(),
 					BuilderType:    mapplanner.PlannerTypeSmallRoom,
 				}}
+			},
+		},
+		{
+			name:  "OverworldFrost",
+			build: overworldBuild(t),
+			// 前線をプレイヤーより十分東へ置き、可視域を凍結ゾーンにする。前線位置は本来ターンから
+			// 導出するが、VRTは霜の描画経路を撮るのが目的なので位置を直接指定して確実に凍らせる
+			prep: func(world w.World) {
+				sb := query.GetSeamlessBand(world)
+				if pe, err := query.GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(pe) {
+					px := world.Components.GridElement.Get(pe).X
+					sb.Front.EastAbsX = sb.LocalToAbsX(px) + 1000
+				}
 			},
 		},
 	}
@@ -89,6 +111,9 @@ func TestGolden_Render3DSnapshot(t *testing.T) {
 		t.Run(sc.name, func(t *testing.T) {
 			t.Parallel()
 			world := vrt.BuildWorld(t, sc.build)
+			if sc.prep != nil {
+				sc.prep(world)
+			}
 			cmds := draw3DList(world)
 
 			data, err := json.MarshalIndent(cmds, "", "  ")
@@ -109,6 +134,9 @@ func TestRender3DImages(t *testing.T) {
 		t.Run(sc.name, func(t *testing.T) {
 			t.Parallel()
 			world := vrt.BuildWorld(t, sc.build)
+			if sc.prep != nil {
+				sc.prep(world)
+			}
 			cmds := draw3DList(world)
 			currentJSON, err := json.MarshalIndent(cmds, "", "  ")
 			require.NoError(t, err)
@@ -123,6 +151,9 @@ func TestRender3DImages(t *testing.T) {
 			}
 
 			pngData := vrt.RenderWorldPNG(t, sc.build, func(world w.World, screen *ebiten.Image) {
+				if sc.prep != nil {
+					sc.prep(world)
+				}
 				// ゲームと同じく黒背景の上に3Dシーンを描く
 				screen.Fill(color.Black)
 				sys := sysrender.NewRender3DSystem()

@@ -162,20 +162,7 @@ func TestGolden_CubePanel(t *testing.T) {
 	})
 }
 
-// TestGolden_OverworldFrost は寒波前線の氷オーバーレイの描画を固定する。
-// 総ターン数を進めて前線を可視帯へ入れ、西側が凍結壁として濃く覆われる様子を見る。
-// 氷オーバーレイは2D専用で3Dレンダラに未移植のため、ワールド描画を伴うが例外的に2Dピクセルで固定する。
-// 3Dへ氷を移植したら3D命令列VRTへ移す。
-func TestGolden_OverworldFrost(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		// 前線が帯へ食い込むところまでターンを進める。updateFront が FrontEastAbsX を導出する
-		query.GetGameTime(world).TotalTurns = 300
-		return []es.State[w.World]{s}
-	})
-}
+// 寒波前線の氷オーバーレイも3D命令列VRTへ移した。render3d_golden_test.go の OverworldFrost シーンを参照する。
 
 func TestGolden_LookAround(t *testing.T) {
 	t.Parallel()
