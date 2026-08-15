@@ -2,7 +2,6 @@ package states_test
 
 // HUD は 3D の世界レイヤの上へ重なる2Dオーバーレイで、3D VRT の命令列には出ない。
 // ピクセルが安定した2D描画なので、UIステートと同じピクセル golden で単体固定する。
-// world.Renderers に登録された enabled な実体を引き、実ゲームと同じ Update→Draw で描く。
 
 import (
 	"image/color"
@@ -34,14 +33,17 @@ func TestGolden_HUD(t *testing.T) {
 		// OnStart がプレイヤーを湧かせ、HUD システムを world.Renderers へ登録する
 		require.NoError(t, st.OnStart(world))
 
-		hud, ok := world.Renderers[sysrender.HUDRenderingSystem{}.String()].(*sysrender.HUDRenderingSystem)
-		require.True(t, ok, "HUDRenderingSystem が world.Renderers に登録されていない")
-		// 実ゲームと同じく Update で各ウィジェットのデータを反映してから描く
-		require.NoError(t, hud.Update(world))
+		key := sysrender.HUDRenderingSystem{}.String()
+		updater, uok := world.Updaters[key]
+		renderer, rok := world.Renderers[key]
+		require.True(t, uok && rok, "HUDRenderingSystem が world に登録されていない")
+		// メッセージログは Update で UI を初期化しないと Draw が early-return して描かれない。
+		// 他ウィジェットは Draw が毎回データを再抽出するため Update は不要
+		require.NoError(t, updater.Update(world))
 
 		return func(screen *ebiten.Image) {
 			screen.Fill(color.Black)
-			require.NoError(t, hud.Draw(world, screen))
+			require.NoError(t, renderer.Draw(world, screen))
 		}
 	}, consts.GameWidth, consts.GameHeight)
 }
