@@ -50,6 +50,12 @@ type GameTime struct {
 	TotalTurns consts.Turn // 経過した総ターン数
 }
 
+// StartOfTimeOfDayTurns は指定した時間帯が始まる総ターン数を返す。
+// 新規ゲームの開始時刻を特定の時間帯へ合わせるのに使う。
+func StartOfTimeOfDayTurns(t TimeOfDay) consts.Turn {
+	return turnsPerTimeOfDay * consts.Turn(t)
+}
+
 // GetTimeOfDay は現在の時間帯を返す
 func (gt *GameTime) GetTimeOfDay() TimeOfDay {
 	turnInDay := gt.TotalTurns % turnsPerDay
