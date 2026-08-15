@@ -4,6 +4,8 @@ import (
 	"image/color"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -166,6 +168,23 @@ func TestNormalizeLight(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, [3]float64{1, 1, 1}, normalizeLight(color.RGBA{A: 255}))
 	})
+}
+
+// TestRender3DSystem_String は w.Renderer の識別名を固定する。
+func TestRender3DSystem_String(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, "Render3DSystem", NewRender3DSystem().String())
+}
+
+// TestVisFactorFunc_FOV無効は全タイルを等倍で描く は視界無効時の分岐を固定する。
+func TestVisFactorFunc_FOV無効は全タイルを等倍で描く(t *testing.T) {
+	t.Parallel()
+	sys := &Render3DSystem{UseFOV: false}
+	bright, drawable, visible, light := sys.visFactorFunc(w.World{})(&gc.GridElement{})
+	assert.InDelta(t, 1.0, bright, 1e-9)
+	assert.True(t, drawable)
+	assert.True(t, visible)
+	assert.Equal(t, [3]float64{1, 1, 1}, light)
 }
 
 // TestSortQuadsByDepth_奥から手前へ並べる は画家アルゴリズムの前段ソートを固定する。
