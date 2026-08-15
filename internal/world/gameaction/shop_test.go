@@ -3,7 +3,7 @@ package gameaction
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -64,8 +64,10 @@ func TestBuyStock(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.ECS.NewEntity()
-		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
+		// SpawnPlayer は Wallet を備えるので、所持金は Get して上書きする
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+		world.Components.Wallet.Get(player).Currency = 1000
 
 		merchant := world.ECS.NewEntity()
 		item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
@@ -86,8 +88,9 @@ func TestBuyStock(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.ECS.NewEntity()
-		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 10})
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+		world.Components.Wallet.Get(player).Currency = 10
 
 		merchant := world.ECS.NewEntity()
 		item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
@@ -104,10 +107,10 @@ func TestBuyStock(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player := world.ECS.NewEntity()
-		world.Components.Player.Add(player, &gc.Player{})
-		world.Components.FactionAlly.Add(player, &gc.FactionAlly{})
-		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 1000})
+		// query.Player は Player と FactionAlly を要求する。SpawnPlayer が両方備える
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+		world.Components.Wallet.Get(player).Currency = 1000
 
 		merchant := world.ECS.NewEntity()
 		item, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 1, merchant)
@@ -128,8 +131,9 @@ func TestSellStock(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player := world.ECS.NewEntity()
-	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+	world.Components.Wallet.Get(player).Currency = 0
 
 	merchant := world.ECS.NewEntity()
 

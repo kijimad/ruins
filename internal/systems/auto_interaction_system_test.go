@@ -36,20 +36,16 @@ func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	// 範囲外にあるトリガーを作成（距離が2以上）
-	triggerEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 15, Y: 15}})
-	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
-		Interactions: []gc.InteractionKind{gc.InteractionItem},
-	})
-	world.Components.Consumable.Add(triggerEntity, &gc.Consumable{})
+	// 範囲外にフィールドアイテムを置く。プレイヤーから距離が2以上
+	item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 15, 15, 1)
+	require.NoError(t, err)
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
 	// 範囲外のトリガーは処理されない
-	assert.True(t, world.Components.Interactable.Has(triggerEntity),
+	assert.True(t, world.Components.Interactable.Has(item),
 		"範囲外のトリガーは処理されないべき")
 }
 
@@ -63,22 +59,18 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	// Manual方式のトリガーを作成（プレイヤーと同じタイル）
-	triggerEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
-	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
-		Interactions: []gc.InteractionKind{gc.InteractionItem}, // Manual 方式
-	})
-	world.Components.Consumable.Add(triggerEntity, &gc.Consumable{})
+	// フィールドアイテムはInteractionItem=Manual方式。プレイヤーと同じタイルに置く
+	item, err := lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
+	require.NoError(t, err)
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
 	// Manualトリガーは実行されず、残っているべき
-	assert.True(t, world.Components.Interactable.Has(triggerEntity),
+	assert.True(t, world.Components.Interactable.Has(item),
 		"Manualトリガーは自動実行されないべき")
-	assert.True(t, world.Components.Consumable.Has(triggerEntity),
+	assert.True(t, world.Components.Consumable.Has(item),
 		"Manualトリガーは自動実行されないので削除されないべき")
 }
 
@@ -92,20 +84,16 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
-	// OnCollision方式のトリガーを作成（プレイヤーと隣接）
-	triggerEntity := world.ECS.NewEntity()
-	world.Components.GridElement.Add(triggerEntity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 11, Y: 10}})
-	world.Components.Interactable.Add(triggerEntity, &gc.Interactable{
-		Interactions: []gc.InteractionKind{gc.InteractionDoor}, // OnCollision 方式
-	})
-	world.Components.Door.Add(triggerEntity, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
+	// OnCollision方式の扉をプレイヤーと隣接して置く
+	door, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, gc.DoorOrientationHorizontal)
+	require.NoError(t, err)
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
 	// OnCollisionトリガーは実行されず、扉は閉じたままのはず
-	doorComp := world.Components.Door.Get(triggerEntity)
+	doorComp := world.Components.Door.Get(door)
 	assert.False(t, doorComp.IsOpen, "OnCollisionトリガーは自動実行されないべき")
 }
 

@@ -6,7 +6,9 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestApplyHealing(t *testing.T) {
@@ -16,39 +18,41 @@ func TestApplyHealing(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.ECS.NewEntity()
-		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 50})
-		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		entity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "bat")
+		require.NoError(t, err)
+		hp := world.Components.HP.Get(entity)
+		hp.Max = 100
+		hp.Current = 50
 
 		actual := ApplyHealing(world, entity, 30)
 		assert.Equal(t, 30, actual)
 
-		hp := world.Components.HP.Get(entity)
-		assert.Equal(t, 80, hp.Current)
+		assert.Equal(t, 80, world.Components.HP.Get(entity).Current)
 	})
 
 	t.Run("最大HPを超えない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.ECS.NewEntity()
-		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 90})
-		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		entity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "bat")
+		require.NoError(t, err)
+		hp := world.Components.HP.Get(entity)
+		hp.Max = 100
+		hp.Current = 90
 
 		actual := ApplyHealing(world, entity, 50)
 		assert.Equal(t, 10, actual, "実際の回復量は10のみ")
 
-		hp := world.Components.HP.Get(entity)
-		assert.Equal(t, 100, hp.Current)
+		assert.Equal(t, 100, world.Components.HP.Get(entity).Current)
 	})
 
 	t.Run("HP満タンなら回復量は0", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.ECS.NewEntity()
-		world.Components.HP.Add(entity, &gc.HP{Max: 100, Current: 100})
-		world.Components.GridElement.Add(entity, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		// SpawnEnemy が FullRecover で満タンにするため、満タン状態は手で作らない
+		entity, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "bat")
+		require.NoError(t, err)
 
 		actual := ApplyHealing(world, entity, 10)
 		assert.Equal(t, 0, actual)
@@ -58,6 +62,8 @@ func TestApplyHealing(t *testing.T) {
 func TestReactToHostileAction(t *testing.T) {
 	t.Parallel()
 
+	// AIの状態遷移のみを検証する純ロジックのため、対応するスポーンを介さず
+	// SoloAI だけを手付与したエンティティで確認する。
 	t.Run("CombatIgnoreはCombatAttackに変化する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -118,13 +124,12 @@ func TestApplyDamage_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		source := world.ECS.NewEntity()
-		world.Components.Player.Add(source, &gc.Player{})
+		source, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
-		prop := world.ECS.NewEntity()
-		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 30})
+		// crate は HP30 の破壊可能プロップ
+		prop, err := lifecycle.SpawnProp(world, "crate", 5, 5)
+		require.NoError(t, err)
 
 		ApplyDamage(world, prop, 10, source)
 
@@ -137,13 +142,13 @@ func TestApplyDamage_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		source := world.ECS.NewEntity()
-		world.Components.Player.Add(source, &gc.Player{})
+		source, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
-		prop := world.ECS.NewEntity()
-		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 10})
+		prop, err := lifecycle.SpawnProp(world, "crate", 5, 5)
+		require.NoError(t, err)
+		// 一撃で倒せるよう残HPを下げる
+		world.Components.HP.Get(prop).Current = 10
 
 		ApplyDamage(world, prop, 10, source)
 
@@ -156,13 +161,12 @@ func TestApplyDamage_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		source := world.ECS.NewEntity()
-		world.Components.Player.Add(source, &gc.Player{})
+		source, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
-		prop := world.ECS.NewEntity()
-		world.Components.Name.Add(prop, &gc.Name{Name: "木箱"})
-		world.Components.Fixed.Add(prop, &gc.Fixed{})
-		world.Components.HP.Add(prop, &gc.HP{Max: 30, Current: 5})
+		prop, err := lifecycle.SpawnProp(world, "crate", 5, 5)
+		require.NoError(t, err)
+		world.Components.HP.Get(prop).Current = 5
 
 		ApplyDamage(world, prop, 100, source)
 
