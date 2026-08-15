@@ -1,8 +1,10 @@
 package systems
 
 import (
+	"image/color"
 	"math"
 	"sort"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -103,7 +105,7 @@ type r3quad struct {
 	p     [4]r3vec
 	uv    [4][2]float64
 	atlas *ebiten.Image
-	shade float64
+	col   [3]float64 // 頂点色の乗算。テクスチャ面は灰色の減光、フラット面は平均色
 	key   float64
 }
 
@@ -135,8 +137,70 @@ func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *e
 		p:     [4]r3vec{p0, p1, p2, p3},
 		uv:    [4][2]float64{{x, y}, {x + ww, y}, {x + ww, y + hh}, {x, y + hh}},
 		atlas: atlas,
-		shade: shade,
+		col:   [3]float64{shade, shade, shade},
 	})
+}
+
+// addFlatQuad は面をスプライトの平均色でフラットに塗る。壁の側面に使う。真上視点用テクスチャを
+// 垂直面へ引き伸ばす違和感を避け、新規アートなしでローポリらしい平板シェードにする。
+// 白1pxテクスチャに平均色×shade を頂点色で乗せる。
+func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh, shade float64) {
+	c := avgSpriteColor(atlas, x, y, ww, hh)
+	*out = append(*out, r3quad{
+		p:     [4]r3vec{p0, p1, p2, p3},
+		uv:    [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
+		atlas: whitePixel(),
+		col:   [3]float64{c[0] * shade, c[1] * shade, c[2] * shade},
+	})
+}
+
+type flatColorKey struct {
+	atlas      *ebiten.Image
+	x, y, w, h int
+}
+
+var (
+	r3whiteImg  *ebiten.Image
+	r3whiteOnce sync.Once
+	r3flatColor sync.Map // flatColorKey -> [3]float64
+)
+
+// whitePixel はフラット塗り用の白1pxを返す。頂点色をそのまま出すために使う。
+func whitePixel() *ebiten.Image {
+	r3whiteOnce.Do(func() {
+		r3whiteImg = ebiten.NewImage(1, 1)
+		r3whiteImg.Fill(color.White)
+	})
+	return r3whiteImg
+}
+
+// avgSpriteColor はアトラス上の矩形の平均色を 0..1 で返す。透明画素は除く。結果はキャッシュする。
+func avgSpriteColor(atlas *ebiten.Image, x, y, w, h float64) [3]float64 {
+	key := flatColorKey{atlas, int(x), int(y), int(w), int(h)}
+	if v, ok := r3flatColor.Load(key); ok {
+		if c, ok2 := v.([3]float64); ok2 {
+			return c
+		}
+	}
+	var sr, sg, sb, n float64
+	for py := int(y); py < int(y+h); py++ {
+		for px := int(x); px < int(x+w); px++ {
+			cr, cg, cb, ca := atlas.At(px, py).RGBA()
+			if ca == 0 {
+				continue
+			}
+			sr += float64(cr >> 8)
+			sg += float64(cg >> 8)
+			sb += float64(cb >> 8)
+			n++
+		}
+	}
+	res := [3]float64{0.5, 0.5, 0.5}
+	if n > 0 {
+		res = [3]float64{sr / n / 255, sg / n / 255, sb / n / 255}
+	}
+	r3flatColor.Store(key, res)
+	return res
 }
 
 // Draw は w.Renderer を満たす。3Dシーンを screen へ描く。
@@ -226,18 +290,19 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 
 // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。
 func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh, vf float64) {
-	sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, 0.9*vf)
+	// 天面は真上から見るので既存テクスチャをそのまま貼る。側面はフラット単色にする
+	sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, 0.95*vf)
 	if !walls[[2]int{ix, iy - 1}] {
-		sys.addQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz}, atlas, ux, uy, uw, uh, 0.62*vf)
+		sys.addFlatQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz}, atlas, ux, uy, uw, uh, 0.6*vf)
 	}
 	if !walls[[2]int{ix, iy + 1}] {
-		sys.addQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, 0.62*vf)
+		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, 0.6*vf)
 	}
 	if !walls[[2]int{ix - 1, iy}] {
-		sys.addQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, 0.78*vf)
+		sys.addFlatQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, 0.78*vf)
 	}
 	if !walls[[2]int{ix + 1, iy}] {
-		sys.addQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz}, atlas, ux, uy, uw, uh, 0.78*vf)
+		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz}, atlas, ux, uy, uw, uh, 0.78*vf)
 	}
 }
 
@@ -320,12 +385,12 @@ func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r
 		sp[k] = [2]float64{sx, sy}
 	}
 	b := uint16(len(*verts))
-	sc := float32(q.shade)
+	cr, cg, cb := float32(q.col[0]), float32(q.col[1]), float32(q.col[2])
 	for k := range 4 {
 		*verts = append(*verts, ebiten.Vertex{
 			DstX: float32(sp[k][0]), DstY: float32(sp[k][1]),
 			SrcX: float32(q.uv[k][0]), SrcY: float32(q.uv[k][1]),
-			ColorR: sc, ColorG: sc, ColorB: sc, ColorA: 1,
+			ColorR: cr, ColorG: cg, ColorB: cb, ColorA: 1,
 		})
 	}
 	*inds = append(*inds, b, b+1, b+2, b, b+2, b+3)
