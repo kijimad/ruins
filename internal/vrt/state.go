@@ -90,18 +90,6 @@ func setupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []
 	return stateMachine
 }
 
-// BuildWorld はステートを構築し、レイアウト確定までフレームを回した world を返す。
-// 描画はしない。Render3DSystem などステート外のレンダラで描いたり world を検査するのに使う。
-// ステート構築は ebitenui グローバルに触れるため WithUILock 内で行う。
-func BuildWorld(t *testing.T, buildStates func(w.World) []es.State[w.World]) w.World {
-	t.Helper()
-	world := InitVRTWorld(t)
-	WithUILock(func() {
-		setupStateMachine(t, world, buildStates)
-	})
-	return world
-}
-
 // InitVRTWorld はVRT用のワールドを固定シードで初期化する。テスト・ベンチ双方で使えるよう testing.TB を受ける。
 //
 // maingame.InitWorld が ebitenui のグローバルな NineSlice キャッシュを触るため WithUILock で直列化する。
