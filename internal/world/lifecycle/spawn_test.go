@@ -495,7 +495,7 @@ func TestSpawnFieldItem_腐敗食は生成時刻と保存期間を持つ(t *test
 	require.True(t, world.Components.Perishable.Has(bread), "bread は腐敗する")
 
 	p := world.Components.Perishable.Get(bread)
-	assert.Equal(t, consts.Turn(700), p.RotAsOfTurn, "生成時の総ターンを劣化の起点に刻む")
+	assert.Equal(t, consts.Turn(700), p.RotUpdatedTurn, "生成時の総ターンを劣化の起点に刻む")
 	assert.Equal(t, consts.Turn(0), p.RotAccrued, "生成直後の累積劣化量はゼロ")
 	assert.Equal(t, consts.Turn(1500), p.StageLength, "raw の shelfLife を持つ")
 }
@@ -523,7 +523,7 @@ func TestMoveToBackpack_腐敗食は同鮮度のみ合流する(t *testing.T) {
 		require.NoError(t, MoveToBackpack(world, b, owner))
 	}
 
-	// バックパックの bread を刻印時刻 RotAsOfTurn ごとに合計個数で数える
+	// バックパックの bread を刻印時刻 RotUpdatedTurn ごとに合計個数で数える
 	countByTurn := func() map[consts.Turn]int {
 		m := map[consts.Turn]int{}
 		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
@@ -532,7 +532,7 @@ func TestMoveToBackpack_腐敗食は同鮮度のみ合流する(t *testing.T) {
 			if world.Components.RawID.Get(e).ID != breadID || world.Components.LocationInBackpack.Get(e).Owner != owner {
 				continue
 			}
-			at := world.Components.Perishable.Get(e).RotAsOfTurn
+			at := world.Components.Perishable.Get(e).RotUpdatedTurn
 			m[at] += world.Components.Stackable.Get(e).Count
 		}
 		return m
@@ -583,7 +583,7 @@ func TestMoveToBackpack_同鮮度の合流は劣化量を加重平均する(t *t
 	// b1 は now=1000 で RotAccrued=1000、b2 は RotAccrued=0。加重平均は (1000+0)/2 = 500
 	p := world.Components.Perishable.Get(survivor)
 	assert.Equal(t, consts.Turn(500), p.RotAccrued, "劣化量は個数で加重平均される")
-	assert.Equal(t, consts.Turn(1000), p.RotAsOfTurn, "合流時に基準時刻を揃える")
+	assert.Equal(t, consts.Turn(1000), p.RotUpdatedTurn, "合流時に基準時刻を揃える")
 	stage, _ := query.FreshnessStageOf(world, survivor)
 	assert.Equal(t, gc.FreshnessFresh, stage, "平均後もまだ新鮮")
 }

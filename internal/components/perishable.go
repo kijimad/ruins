@@ -6,9 +6,9 @@ import "github.com/kijimaD/ruins/internal/consts"
 // 劣化は時間経過で進み、速度は置き場所で変わりうる。速度の適用と実効量の算出は
 // query 層が担い、ここは劣化量から段階を求める段階付けだけを持つ。
 type Perishable struct {
-	RotAccrued  consts.Turn // 累積した劣化量。0 が生成直後
-	StageLength consts.Turn // 1段階の長さ。新鮮 [0,SL) 劣化 [SL,2SL) 腐敗 [2SL,)
-	RotAsOfTurn consts.Turn // RotAccrued を最後に前進させた GameTime.TotalTurns
+	RotAccrued     consts.Turn // 累積した劣化量。0 が生成直後
+	StageLength    consts.Turn // 1段階の長さ。新鮮 [0,SL) 劣化 [SL,2SL) 腐敗 [2SL,)
+	RotUpdatedTurn consts.Turn // RotAccrued を最後に前進させた GameTime.TotalTurns
 }
 
 // FreshnessStage は鮮度の段階
