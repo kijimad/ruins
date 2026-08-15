@@ -211,8 +211,14 @@ var frostColorNorm = [3]float64{130.0 / 255, 205.0 / 255, 240.0 / 255}
 // addFrostQuad は床や壁の上へ半透明の氷クアッドを重ねる。頂点色は氷色×alpha にプリマルチプライし、
 // ColorA を alpha にすることで、ソースオーバー合成が 2D の氷オーバーレイと同じ「氷色×α + 背景×(1-α)」になる。
 func (sys *Render3DSystem) addFrostQuad(out *[]r3quad, fx, fz, topY, alpha float64, meta r3meta) {
+	appendFrostQuad(out, [4]r3vec{{fx, topY, fz}, {fx + 1, topY, fz}, {fx + 1, topY, fz + 1}, {fx, topY, fz + 1}}, alpha, meta)
+}
+
+// appendFrostQuad は氷クアッドを1枚積む。頂点色を氷色×alpha にプリマルチプライしアルファを渡すことで、
+// ソースオーバー合成が 2D の氷オーバーレイと同じになる。床・壁天面・ビルボードで共有する。
+func appendFrostQuad(out *[]r3quad, p [4]r3vec, alpha float64, meta r3meta) {
 	*out = append(*out, r3quad{
-		p:         [4]r3vec{{fx, topY, fz}, {fx + 1, topY, fz}, {fx + 1, topY, fz + 1}, {fx, topY, fz + 1}},
+		p:         p,
 		uv:        [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
 		atlas:     whitePixel(),
 		col:       [3]float64{frostColorNorm[0] * alpha, frostColorNorm[1] * alpha, frostColorNorm[2] * alpha},
@@ -301,7 +307,7 @@ func (sys *Render3DSystem) buildScene(world w.World, sw, sh int) (quads []r3quad
 	frost := sys.frostFunc(world)
 	quads = sys.collectTiles(world, pcx, pcz, visFactor, frost)
 	right := r3norm(r3cross(r3norm(r3sub(target, eye)), up))
-	quads = sys.collectBillboards(world, quads, pcx, pcz, right, visFactor)
+	quads = sys.collectBillboards(world, quads, pcx, pcz, right, visFactor, frost)
 	return quads, vp, view
 }
 
@@ -469,8 +475,9 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy 
 	}
 }
 
-// collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right r3vec, visFactor visFunc) []r3quad {
+// collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。可視かつ凍結タイルの
+// エンティティには、同じ立て板の位置へ氷を重ねる。2Dが霜をスプライトの上に載せるのと同じにする。
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right r3vec, visFactor visFunc, frost func(int) (float64, bool)) []r3quad {
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
 		e := objQ.Entity()
@@ -495,7 +502,13 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		b0 := r3add(base, r3scale(right, -bw))
 		b1 := r3add(base, r3scale(right, bw))
 		meta := r3meta{kind: "billboard", tile: [2]int{int(g.X), int(g.Y)}, atlas: sr.SpriteSheetName}
-		sys.addQuad(&quads, r3add(b0, r3vec{0, bh, 0}), r3add(b1, r3vec{0, bh, 0}), b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b), meta)
+		top := r3vec{0, bh, 0}
+		tl, tr := r3add(b0, top), r3add(b1, top)
+		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b), meta)
+		// エンティティの立て板へ氷を重ねる。同じ4隅なので画家ソートの安定性で氷が手前に描かれる
+		if a, d := frost(int(g.X)); d {
+			appendFrostQuad(&quads, [4]r3vec{tl, tr, b1, b0}, a, r3meta{kind: "frostBillboard", tile: [2]int{int(g.X), int(g.Y)}, atlas: "frost"})
+		}
 	}
 	return quads
 }
