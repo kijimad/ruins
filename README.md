@@ -105,7 +105,7 @@ $ make help
 | draft | [コード監査: ダンジョン生成・戦闘継続・UI描画 2026-08-10](docs/design/260810001803.md) | 0/5 | worldgen, combat, item, ui, ecs |
 | draft | [食料の腐敗](docs/design/260813080544.md) | 0/11（見送り2） | item, gamedesign |
 | draft | [使う・送る・捨てる: 通信販売による第二の需要をコアに足す](docs/design/260813235334.md) | 0/0 | gamedesign, narrative |
-| draft | [通信販売: オークション形式の販売機構](docs/design/260814170822.md) | 0/2（見送り1） | gamedesign, item, ui |
+| draft | [通信販売: オークション形式の販売機構](docs/design/260814170822.md) | 0/2（見送り2） | gamedesign, item, ui |
 
 
 ## Reference
