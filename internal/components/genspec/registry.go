@@ -108,6 +108,5 @@ var Registry = []Def{
 	// 通信販売オークション ================
 	{Field: "AuctionListing"}, // 通信販売で出品中の品の現在値と採番を保持する
 	{Field: "AuctionSold"},    // 通信販売で落札済みで未出荷の品を示す
-	{Field: "AuctionStaged"},  // 通信販売で集荷を待つ積荷であることを示すマーカー
 	{Field: "AuctionStation"}, // 通信販売の出荷場所を示すマーカー
 }

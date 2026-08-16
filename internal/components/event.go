@@ -51,9 +51,11 @@ type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納コンテナのエンティティ
 }
 
-// OpenAuction は出荷場所のメニューを開く。メニューの状態はどの出荷場所から開いても共通なので、
-// 対象エンティティを持たない
-type OpenAuction struct{}
+// OpenAuction は出荷場所のメニューを開く。積荷はステーションごとなので、対象の StationEntity を運ぶ。
+// 出品や金銭などの情報はシングルトンで共通に見せる
+type OpenAuction struct {
+	StationEntity ecs.Entity // 積荷の収納を持つ出荷場所
+}
 
 func (WarpDescend) isStatePayload()      {}
 func (WarpAscend) isStatePayload()       {}
@@ -115,6 +117,6 @@ func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {
 }
 
 // OpenAuctionEvent は出荷場所のメニューを開くリクエストを生成する
-func OpenAuctionEvent() StateChangeRequest {
-	return StateChangeRequest{Payload: OpenAuction{}}
+func OpenAuctionEvent(station ecs.Entity) StateChangeRequest {
+	return StateChangeRequest{Payload: OpenAuction{StationEntity: station}}
 }

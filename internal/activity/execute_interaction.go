@@ -53,7 +53,7 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 	case gc.InteractionCubePanel:
 		return executePortal(world, gc.OpenCubePanelEvent(), "control panel state change request error", "opened control panel")
 	case gc.InteractionAuction:
-		return executePortal(world, gc.OpenAuctionEvent(), "auction menu state change request error", "opened shipping station")
+		return executePortal(world, gc.OpenAuctionEvent(target), "auction menu state change request error", "opened shipping station")
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす

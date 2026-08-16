@@ -143,6 +143,8 @@ func TestCollectStagedItems_集荷は明細を発生させ所持金は動かさ�
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
+	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
+	require.NoError(t, err)
 	won, err := lifecycle.SpawnBackpackItem(world, "angel_sword", 1)
 	require.NoError(t, err)
 	junk, err := lifecycle.SpawnBackpackItem(world, "shovel", 1)
@@ -157,15 +159,15 @@ func TestCollectStagedItems_集荷は明細を発生させ所持金は動かさ�
 	}
 	require.True(t, world.Components.AuctionSold.Has(won), "won は落札済みになる")
 
-	// 両方を積荷に回す。集荷は落札済みだけ受取金を立て、それ以外は精算されず消える
-	world.Components.AuctionStaged.Add(won, &gc.AuctionStaged{})
-	world.Components.AuctionStaged.Add(junk, &gc.AuctionStaged{})
+	// 両方をステーションの積荷へ入れる。集荷は落札済みだけ受取金を立て、それ以外は精算されず消える
+	require.NoError(t, lifecycle.MoveToStorage(world, won, station))
+	require.NoError(t, lifecycle.MoveToStorage(world, junk, station))
 
 	bid := world.Components.AuctionSold.Get(won).Bid
 	expectedNet := bid - query.AuctionShippingCost(world, won) - query.AuctionFee(bid)
 	before := query.GetCurrency(world, player)
 
-	collected, receipts := query.CollectStagedItems(world)
+	collected, receipts := query.CollectStagedItems(world, station)
 
 	assert.Equal(t, 2, collected, "積んだ品はすべて集荷される")
 	assert.Equal(t, 1, receipts, "受取金の明細は落札済みの分だけ")
@@ -217,6 +219,8 @@ func TestAuctionSystem_積荷はタイマーで集荷され明細が届く(t *te
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
+	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
+	require.NoError(t, err)
 	item, err := lifecycle.SpawnBackpackItem(world, "angel_sword", 1)
 	require.NoError(t, err)
 	query.StartAuctionListing(world, item, int(query.GetGameTime(world).TotalTurns))
@@ -228,8 +232,8 @@ func TestAuctionSystem_積荷はタイマーで集荷され明細が届く(t *te
 	}
 	require.True(t, world.Components.AuctionSold.Has(item), "落札済みになる")
 
-	// 落札済みを積荷へ回す。以後はプレイヤーの操作なしに集荷タイマーで集荷される
-	world.Components.AuctionStaged.Add(item, &gc.AuctionStaged{})
+	// 落札済みをステーションの積荷へ入れる。以後はプレイヤーの操作なしに集荷タイマーで集荷される
+	require.NoError(t, lifecycle.MoveToStorage(world, item, station))
 	before := query.GetCurrency(world, player)
 
 	for i := 0; i < auctionShipDelay+2 && world.ECS.Alive(item); i++ {
@@ -248,8 +252,10 @@ func TestCollectStagedItems_積荷が無ければ何もしない(t *testing.T) {
 
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
+	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
+	require.NoError(t, err)
 
-	collected, receipts := query.CollectStagedItems(world)
+	collected, receipts := query.CollectStagedItems(world, station)
 
 	assert.Zero(t, collected, "積荷が無ければ0件")
 	assert.Zero(t, receipts, "受取金の明細も0件")

@@ -14697,6 +14697,9 @@ depth = 2
 spriteKey = "wooden_crate"
 spriteSheetName = "field"
 
+[props.storage]
+maxWeight = "500 kg"
+
 [[props]]
 blockPass = true
 blockView = false

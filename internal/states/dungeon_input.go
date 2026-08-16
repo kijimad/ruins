@@ -374,7 +374,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	case gc.OpenAuction:
 		// 出荷場所のメニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			NewAuctionMenuState,
+			func() (es.State[w.World], error) { return NewAuctionMenuState(p.StationEntity) },
 		}}, nil
 	default:
 		// この switch で扱わない種別。未実装の scaffold もここに落ちる

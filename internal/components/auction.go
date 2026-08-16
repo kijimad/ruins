@@ -18,13 +18,11 @@ type AuctionSold struct {
 	Penalized bool // 期限超過のペナルティを既に課したか。二重に課さないための印
 }
 
-// AuctionStation はオークションの出荷場所を示すマーカー。ここで出荷メニューを開く。
-// メニューの状態はどの出荷場所から開いても共通なので、この prop 自体は状態を持たない。
-type AuctionStation struct{}
-
-// AuctionStaged は集荷を待つ積荷であることを示すマーカー。落札済みの品に貼ると次の集荷で出荷される。
-// 積荷は特定の出荷場所でなく品側に持つので、どの出荷場所から積んでも同じ集荷にまとまる。
-type AuctionStaged struct{}
+// AuctionStation はオークションの出荷場所。積荷はこの prop の収納に置き、集荷タイマーもここが持つ。
+// 荷物は物理的にその場所にあるのでステーションごとに持つ。出品や金銭などの情報はシングルトンで共通。
+type AuctionStation struct {
+	ShipAtTurn int // 集荷するターン。0 は積荷が無くタイマー停止中を表す
+}
 
 // AuctionRecord は1件の出荷実績。落札額から送料と手数料を引いた手取りまでを残す。
 type AuctionRecord struct {
@@ -60,11 +58,10 @@ type AuctionEntry struct {
 }
 
 // AuctionHistory は金銭明細と出荷実績の履歴、採番カウンタ、店の評判を持つシングルトン。
-// あとで閲覧するための専用の保存領域。
+// 出品や落札、金銭はどの出荷場所から見ても共通なのでここに集約する。
 type AuctionHistory struct {
 	NextNumber int            // 次に貼るタグへ振る連番
 	Reputation int            // 店の評判。出荷期限を破ると下がる
-	ShipAtTurn int            // 集荷するターン。0 は積荷が無くタイマー停止中を表す
 	Entries    []AuctionEntry // 金銭タブに並ぶ未精算の受取金と請求
 	Records    []AuctionRecord
 }
