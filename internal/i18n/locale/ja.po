@@ -5579,9 +5579,6 @@ msgstr "出荷場所を開く"
 msgid "Ship"
 msgstr "出荷"
 
-msgid "Not listed"
-msgstr "未出品"
-
 msgid "No items to stage."
 msgstr "積む品がない"
 

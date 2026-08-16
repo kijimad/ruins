@@ -159,13 +159,20 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: "auction", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-// stageItems は持ち物の品を積むタブへ並べる。各行に落札状況を添えて選別を促す
+// stageItems はタグを貼った持ち物の品だけを積むタブへ並べる。未出品の品は積めない。
+// 各行に落札状況を添えて、何を出荷するかの選別を促す
 func (st *AuctionMenuState) stageItems(world w.World) []auctionItemRow {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return nil
 	}
-	return st.toItemRows(world, playerBackpackItems(world, player))
+	var tagged []ecs.Entity
+	for _, e := range playerBackpackItems(world, player) {
+		if world.Components.AuctionListing.Has(e) || world.Components.AuctionSold.Has(e) {
+			tagged = append(tagged, e)
+		}
+	}
+	return st.toItemRows(world, tagged)
 }
 
 // shipItems は積荷コンテナの品を出荷タブへ並べる
@@ -178,6 +185,7 @@ func (st *AuctionMenuState) toItemRows(world w.World, entities []ecs.Entity) []a
 	rows := make([]auctionItemRow, len(entities))
 	for i, e := range entities {
 		row := auctionItemRow{Entity: e, Name: query.GetEntityName(e, world)}
+		// 積む・出荷タブにはタグを貼った品しか来ないので、出品中か落札済みのいずれかになる
 		switch {
 		case world.Components.AuctionSold.Has(e):
 			s := world.Components.AuctionSold.Get(e)
@@ -189,8 +197,6 @@ func (st *AuctionMenuState) toItemRows(world w.World, entities []ecs.Entity) []a
 			row.Status = query.T(world, "Bidding")
 			row.Value = l.CurrentBid
 			row.HasValue = true
-		default:
-			row.Status = query.T(world, "Not listed")
 		}
 		rows[i] = row
 	}
