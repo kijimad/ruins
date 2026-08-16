@@ -1,10 +1,11 @@
 package components
 
 // AuctionListing はオークション箱に収納され競売中の品に付く実行時状態。
-// ResolveTurn の総ターン数に達すると今回の入札が決着する。売れれば品ごと消え、
-// 売れなければ ResolveTurn を更新して再入札する。デモ専用の一時状態であり保存しない。
+// 入札が来るたび CurrentBid が上がり競売が延長する。入札が止まったターンに落札が確定し、
+// そのときの CurrentBid で売れる。デモ専用の一時状態であり保存しない。
 type AuctionListing struct {
-	ResolveTurn int // この総ターン数で今回の入札が決着する
+	CurrentBid int // 現在の入札額。入札が来るたびに上がる
+	LastTurn   int // 直近に入札判定した総ターン数。1ターンに1回だけ判定する
 }
 
 // AuctionBox はオークション箱を示すマーカー。この収納へ入れた品が競売にかかる。

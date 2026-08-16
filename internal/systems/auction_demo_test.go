@@ -22,11 +22,11 @@ func TestAuctionPrice_重い安物は発送料で赤字になる(t *testing.T) {
 	item, err := lifecycle.SpawnFieldItem(world, "fire_extinguisher", 5, 5, 1)
 	require.NoError(t, err)
 
-	bid := query.AuctionBid(world, item)
+	bid := query.AuctionOpeningBid(world, item)
 	ship := query.AuctionShippingCost(world, item)
 	fee := query.AuctionFee(bid)
 	assert.Positive(t, ship, "重量に応じた発送料がかかる")
-	assert.Negative(t, bid-ship-fee, "基準価値が低く重い品は発送料で赤字になる")
+	assert.Negative(t, bid-ship-fee, "基準価値が低く重い品は開始入札の時点で発送料に負ける")
 }
 
 func TestAuctionPrice_軽い高額品は黒字になる(t *testing.T) {
@@ -37,24 +37,21 @@ func TestAuctionPrice_軽い高額品は黒字になる(t *testing.T) {
 	item, err := lifecycle.SpawnFieldItem(world, "angel_sword", 5, 5, 1)
 	require.NoError(t, err)
 
-	bid := query.AuctionBid(world, item)
+	bid := query.AuctionOpeningBid(world, item)
 	ship := query.AuctionShippingCost(world, item)
 	fee := query.AuctionFee(bid)
-	assert.Positive(t, bid-ship-fee, "軽く価値が高い品は手取りが出る")
+	assert.Positive(t, bid-ship-fee, "軽く価値が高い品は開始入札の時点で手取りが出る")
 }
 
-func TestAuctionSaleChance_高価な品ほど落札されにくい(t *testing.T) {
+func TestAuctionRaise_入札の上げ幅は必ず1以上になる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	cheap, err := lifecycle.SpawnFieldItem(world, "fire_extinguisher", 5, 5, 1)
-	require.NoError(t, err)
-	expensive, err := lifecycle.SpawnFieldItem(world, "angel_sword", 6, 5, 1)
+	// 入札が来たのに現在値が動かない事態を防ぐため、上げ幅は最低1を保証する
+	item, err := lifecycle.SpawnFieldItem(world, "fire_extinguisher", 5, 5, 1)
 	require.NoError(t, err)
 
-	assert.Greater(t, query.AuctionSaleChance(world, cheap), query.AuctionSaleChance(world, expensive), "安い品ほど落札されやすい")
-	assert.Greater(t, query.AuctionSaleChance(world, expensive), 0.0)
-	assert.LessOrEqual(t, query.AuctionSaleChance(world, cheap), 1.0)
+	assert.GreaterOrEqual(t, query.AuctionRaise(world, item), 1, "上げ幅は必ず1以上")
 }
 
 func TestAuctionDemoSystem_収納した品は競売にかかる(t *testing.T) {
@@ -71,7 +68,7 @@ func TestAuctionDemoSystem_収納した品は競売にかかる(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 
 	require.True(t, world.Components.AuctionListing.Has(item), "収納した品は競売にかかる")
-	assert.Positive(t, world.Components.AuctionListing.Get(item).ResolveTurn, "決着ターンが設定される")
+	assert.Positive(t, world.Components.AuctionListing.Get(item).CurrentBid, "開始入札で現在値が付く")
 }
 
 func TestAuctionDemoSystem_ターン経過で決着し実績が履歴に残る(t *testing.T) {

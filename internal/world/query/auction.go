@@ -11,17 +11,27 @@ import (
 const (
 	auctionShipRatePerKg = 25.0 // 発送料は重量に比例する
 	auctionFeeRate       = 0.12 // 手数料は落札額に比例する
-	auctionValueMult     = 1.0  // 基準価値から落札額への基準倍率
+	auctionOpeningMult   = 0.4  // 開始入札は基準価値のこの割合
+	auctionRaiseMult     = 0.15 // 1回の入札の上げ幅は基準価値のこの割合
 
-	// AuctionTurns は1回の入札が決着するまでのターン数。ターン経過で落札判定する。
-	AuctionTurns = 3
+	// AuctionBidChance は毎ターン新たな入札が来る確率。入札が来る限り競売は延長し、
+	// 来なかったターンに落札が確定する。
+	AuctionBidChance = 0.6
 )
 
-// AuctionBid は落札額を計算する。基準価値に、売るまで分からない分散を掛ける。
-func AuctionBid(world w.World, item ecs.Entity) int {
+// AuctionOpeningBid は開始入札額を返す。基準価値に分散を掛けた控えめな額から競売が始まる。
+func AuctionOpeningBid(world w.World, item ecs.Entity) int {
 	base := GetItemValue(world, item)
-	variance := 0.6 + world.Config.RNG.Float64()*0.8
-	return int(float64(base) * auctionValueMult * variance)
+	variance := 0.8 + world.Config.RNG.Float64()*0.4
+	return int(float64(base) * auctionOpeningMult * variance)
+}
+
+// AuctionRaise は1回の入札での上げ幅を返す。入札が来るたびこの額だけ現在値が上がる。
+func AuctionRaise(world w.World, item ecs.Entity) int {
+	base := GetItemValue(world, item)
+	variance := 0.8 + world.Config.RNG.Float64()*0.4
+	raise := max(int(float64(base)*auctionRaiseMult*variance), 1)
+	return raise
 }
 
 // AuctionShippingCost は発送料を返す。重量に比例するので、重い安物は手取りを食う。
@@ -33,20 +43,6 @@ func AuctionShippingCost(world w.World, item ecs.Entity) int {
 // AuctionFee は手数料を返す。落札額に比例する。
 func AuctionFee(bid int) int {
 	return int(float64(bid) * auctionFeeRate)
-}
-
-// AuctionSaleChance は入札決着時に落札される確率を返す。落札されるかはパラメータ次第で、
-// 高価な品ほど買い手が付きにくく落札されずに在庫として残りやすい。数値は検証用の暫定。
-func AuctionSaleChance(world w.World, item ecs.Entity) float64 {
-	base := GetItemValue(world, item)
-	chance := 0.9 - float64(base)/1200.0
-	if chance < 0.25 {
-		chance = 0.25
-	}
-	if chance > 0.9 {
-		chance = 0.9
-	}
-	return chance
 }
 
 // GetAuctionHistory は出荷実績の履歴シングルトンを取得する。無ければ作る。

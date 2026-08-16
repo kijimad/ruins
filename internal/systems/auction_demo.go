@@ -50,27 +50,30 @@ func (sys *AuctionDemoSystem) Update(world w.World) error {
 	return nil
 }
 
-// processAuctionItem は1品の競売を進める。未出品なら入札を始め、決着ターンに達したら落札判定する。
+// processAuctionItem は1品の競売を進める。未出品なら開始入札で競売を始める。以後は1ターンに1回、
+// 入札が来れば現在値を上げて延長し、来なければ落札を確定してその現在値で売る。
 func processAuctionItem(world w.World, player, box, item ecs.Entity, now int) {
 	if !world.Components.AuctionListing.Has(item) {
-		world.Components.AuctionListing.Add(item, &gc.AuctionListing{ResolveTurn: now + query.AuctionTurns})
-		logAuctionListed(world, query.GetEntityName(item, world), query.AuctionTurns)
+		bid := query.AuctionOpeningBid(world, item)
+		world.Components.AuctionListing.Add(item, &gc.AuctionListing{CurrentBid: bid, LastTurn: now})
+		logAuctionListed(world, query.GetEntityName(item, world), bid)
 		return
 	}
 	l := world.Components.AuctionListing.Get(item)
-	if now < l.ResolveTurn {
+	if now == l.LastTurn {
+		return // 同じターンでは1回だけ判定する
+	}
+	l.LastTurn = now
+
+	// 入札が来る限り延長する。来たら現在値を上げる
+	if world.Config.RNG.Float64() < query.AuctionBidChance {
+		l.CurrentBid += query.AuctionRaise(world, item)
 		return
 	}
 
-	// 落札されるかはパラメータ次第
-	if world.Config.RNG.Float64() >= query.AuctionSaleChance(world, item) {
-		l.ResolveTurn = now + query.AuctionTurns
-		logAuctionReauction(world, query.GetEntityName(item, world))
-		return
-	}
-
+	// 入札が止まった。落札を確定してその現在値で売る
 	name := query.GetEntityName(item, world)
-	bid := query.AuctionBid(world, item)
+	bid := l.CurrentBid
 	ship := query.AuctionShippingCost(world, item)
 	fee := query.AuctionFee(bid)
 	net := bid - ship - fee
@@ -80,7 +83,7 @@ func processAuctionItem(world w.World, player, box, item ecs.Entity, now int) {
 	appendAuctionRecord(world, name, bid, ship, fee, net, now)
 	world.ECS.RemoveEntity(item)
 	markStorageWeightDirty(world, box)
-	logAuctionSold(world, name, bid, ship, fee, net)
+	logAuctionSold(world, name, net)
 }
 
 // auctionBoxes はオークション箱のエンティティを集めて返す。
@@ -151,25 +154,14 @@ func markAuctionBoxes(world w.World) {
 	}
 }
 
-func logAuctionListed(world w.World, name string, turns int) {
+func logAuctionListed(world w.World, name string, opening int) {
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "%s went up for auction. It resolves in %d turns.", gamelog.Tag("item", name), turns)).
+		Markup(query.T(world, "%s went up for auction. Opening bid %s.", gamelog.Tag("item", name), query.FormatCurrency(opening))).
 		Log()
 }
 
-func logAuctionReauction(world w.World, name string) {
+func logAuctionSold(world w.World, name string, net int) {
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "%s did not sell. Re-auction started.", gamelog.Tag("item", name))).
+		Markup(query.T(world, "%s was won. You got %s.", gamelog.Tag("item", name), query.FormatCurrency(net))).
 		Log()
-}
-
-func logAuctionSold(world w.World, name string, bid, ship, fee, net int) {
-	store := query.GetGameLog(world)
-	if net < 0 {
-		gamelog.New(store).Markup(query.T(world, "Sold %s at a LOSS. net %d, bid %d, ship %d, fee %d",
-			gamelog.Tag("item", name), net, bid, ship, fee)).Log()
-		return
-	}
-	gamelog.New(store).Markup(query.T(world, "Sold %s. net %d, bid %d, ship %d, fee %d",
-		gamelog.Tag("item", name), net, bid, ship, fee)).Log()
 }

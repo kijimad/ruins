@@ -5558,17 +5558,20 @@ msgstr "リロードは必要ない"
 msgid "no ammo"
 msgstr "弾薬がない"
 
-msgid "%s went up for auction. It resolves in %d turns."
-msgstr "%s を競売に出した。%d ターンで決着する"
+msgid "%s went up for auction. Opening bid %s."
+msgstr "%s を競売に出した。開始入札は %s"
 
-msgid "%s did not sell. Re-auction started."
-msgstr "%s は売れなかった。再入札を始めた"
+msgid "%s was won. You got %s."
+msgstr "%s が落札された。%s を得た"
 
-msgid "Sold %s. net %d, bid %d, ship %d, fee %d"
-msgstr "%s が売れた。手取り %d、落札 %d、送料 %d、手数料 %d"
+msgid "Bidding"
+msgstr "入札中"
 
-msgid "Sold %s at a LOSS. net %d, bid %d, ship %d, fee %d"
-msgstr "%s が売れたが赤字。手取り %d、落札 %d、送料 %d、手数料 %d"
+msgid "Sold"
+msgstr "落札済み"
+
+msgid "Current bid"
+msgstr "現在値"
 
 msgid "Auction box"
 msgstr "オークション箱"

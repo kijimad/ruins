@@ -95,10 +95,21 @@ type AuctionProps struct {
 }
 
 type auctionTabData struct {
-	ID      tabID
-	Label   string
-	Items   []itemRowData      // 出品・取り出しタブの品
-	Records []gc.AuctionRecord // 履歴タブの出荷実績。新しい順
+	ID     tabID
+	Label  string
+	Items  []itemRowData      // 出品・取り出しタブの品
+	Ledger []auctionLedgerRow // 履歴タブの台帳。進行中の現在値と確定した出荷実績を並べる
+}
+
+// auctionLedgerRow は履歴タブの1行。進行中の出品は現在値を、確定した実績は落札額を持つ。
+type auctionLedgerRow struct {
+	Name    string
+	Bid     int  // 進行中は現在値、確定後は落札額
+	Ship    int  // 発送料
+	Fee     int  // 手数料
+	Net     int  // 手取り
+	Turn    int  // 確定したターン。進行中は未確定
+	Ongoing bool // 入札継続中か
 }
 
 // Fetch は世界から表示 props を構築する
@@ -107,7 +118,7 @@ func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 		Tabs: []auctionTabData{
 			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.backpackItems(world)},
 			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.boxItems(world)},
-			{ID: tabIDHistory, Label: query.T(world, "History"), Records: st.historyRecords(world)},
+			{ID: tabIDHistory, Label: query.T(world, "History"), Ledger: st.ledgerRows(world)},
 		},
 	}
 }
@@ -117,7 +128,7 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		if tab.ID == tabIDHistory {
-			itemCounts[i] = len(tab.Records)
+			itemCounts[i] = len(tab.Ledger)
 		} else {
 			itemCounts[i] = len(tab.Items)
 		}
@@ -151,14 +162,29 @@ func toAuctionItemData(world w.World, entities []ecs.Entity) []itemRowData {
 	return items
 }
 
-// historyRecords は出荷実績を新しい順に返す。
-func (st *AuctionMenuState) historyRecords(world w.World) []gc.AuctionRecord {
-	h := query.GetAuctionHistory(world)
-	records := make([]gc.AuctionRecord, 0, len(h.Records))
-	for i := len(h.Records) - 1; i >= 0; i-- {
-		records = append(records, h.Records[i])
+// ledgerRows は履歴タブの台帳を返す。進行中の出品を現在値付きで先に、確定した出荷実績を
+// 新しい順に後ろへ並べる。
+func (st *AuctionMenuState) ledgerRows(world w.World) []auctionLedgerRow {
+	var rows []auctionLedgerRow
+	// 進行中: 箱の中で競売中の品。現在値と、その値で確定した場合の内訳を出す
+	for _, item := range query.GetStorageItems(world, st.boxEntity) {
+		if !world.Components.AuctionListing.Has(item) {
+			continue
+		}
+		bid := world.Components.AuctionListing.Get(item).CurrentBid
+		ship := query.AuctionShippingCost(world, item)
+		fee := query.AuctionFee(bid)
+		rows = append(rows, auctionLedgerRow{
+			Name: query.GetEntityName(item, world), Bid: bid, Ship: ship, Fee: fee, Net: bid - ship - fee, Ongoing: true,
+		})
 	}
-	return records
+	// 確定: 出荷実績を新しい順に
+	h := query.GetAuctionHistory(world)
+	for i := len(h.Records) - 1; i >= 0; i-- {
+		r := h.Records[i]
+		rows = append(rows, auctionLedgerRow{Name: r.Name, Bid: r.Bid, Ship: r.Ship, Fee: r.Fee, Net: r.Net, Turn: r.Turn})
+	}
+	return rows
 }
 
 // executeTransfer は選択中のタブに応じて品を箱へ入れる、または取り出す。履歴タブは閲覧のみ。
@@ -225,10 +251,10 @@ func (st *AuctionMenuState) detailContent(world w.World) (overlay.DetailContent,
 	}
 	tab := props.Tabs[cursor.TabIndex]
 	if tab.ID == tabIDHistory {
-		if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(tab.Records) {
+		if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(tab.Ledger) {
 			return overlay.DetailContent{}, false
 		}
-		return auctionRecordDetail(world, tab.Records[cursor.ItemIndex]), true
+		return auctionLedgerDetail(world, tab.Ledger[cursor.ItemIndex]), true
 	}
 	item, ok := tabItemAt(tab, cursor.ItemIndex)
 	if !ok || !world.ECS.Alive(item.Entity) {
@@ -237,18 +263,23 @@ func (st *AuctionMenuState) detailContent(world w.World) (overlay.DetailContent,
 	return overlay.EntityDetailContent(world, item.Entity), true
 }
 
-// auctionRecordDetail は出荷実績1件の内訳を詳細内容にする。
-func auctionRecordDetail(world w.World, r gc.AuctionRecord) overlay.DetailContent {
-	return overlay.DetailContent{
-		Name: r.Name,
-		Rows: []entityspec.SpecRow{
-			{Label: query.T(world, "Bid"), Value: strconv.Itoa(r.Bid)},
-			{Label: query.T(world, "Shipping"), Value: strconv.Itoa(r.Ship)},
-			{Label: query.T(world, "Fee"), Value: strconv.Itoa(r.Fee)},
-			{Label: query.T(world, "Net"), Value: strconv.Itoa(r.Net)},
-			{Label: query.T(world, "Turn"), Value: strconv.Itoa(r.Turn)},
-		},
+// auctionLedgerDetail は台帳1行の内訳を詳細内容にする。価格は価格記号を付けて出す。
+// 進行中は現在値と、その値で確定したときの内訳を見せる。確定後は落札額と確定ターンを添える。
+func auctionLedgerDetail(world w.World, r auctionLedgerRow) overlay.DetailContent {
+	bidLabel := query.T(world, "Bid")
+	if r.Ongoing {
+		bidLabel = query.T(world, "Current bid")
 	}
+	rows := []entityspec.SpecRow{
+		{Label: bidLabel, Value: query.FormatCurrency(r.Bid)},
+		{Label: query.T(world, "Shipping"), Value: query.FormatCurrency(r.Ship)},
+		{Label: query.T(world, "Fee"), Value: query.FormatCurrency(r.Fee)},
+		{Label: query.T(world, "Net"), Value: query.FormatCurrency(r.Net)},
+	}
+	if !r.Ongoing {
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Turn"), Value: strconv.Itoa(r.Turn)})
+	}
+	return overlay.DetailContent{Name: r.Name, Rows: rows}
 }
 
 func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
@@ -257,12 +288,19 @@ func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionPro
 	}
 	tab := props.Tabs[tabIndex]
 	if tab.ID == tabIDHistory {
-		// 各行は品名と落札額だけ。内訳は x の詳細で見る
-		rows := make([]menuRow, len(tab.Records))
-		for i, r := range tab.Records {
-			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(r.Name), styled.TextCell(strconv.Itoa(r.Bid))}}
+		// 各行は品名と現在値または落札額、そして状態だけ。内訳は x の詳細で見る
+		rows := make([]menuRow, len(tab.Ledger))
+		for i, r := range tab.Ledger {
+			status := query.T(world, "Sold")
+			if r.Ongoing {
+				status = query.T(world, "Bidding")
+			}
+			rows[i] = menuRow{Cells: []styled.Cell{
+				styled.TextCell(r.Name), styled.TextCell(query.FormatCurrency(r.Bid)), styled.TextCell(status),
+			}}
 		}
-		return renderMenuList(itemIndex, rows, []int{280, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight},
+		return renderMenuList(itemIndex, rows, []int{220, 120, 80},
+			[]styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight},
 			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No shipments yet.")}, res)
 	}
 	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
