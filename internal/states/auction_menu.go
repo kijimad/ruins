@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuloop"
@@ -24,8 +25,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 出荷場所メニューのタブ識別子。積む・出荷・出品中・履歴で構成する
+// 出荷場所メニューのタブ識別子。金銭・積む・積荷・出品中・履歴で構成する
 const (
+	tabIDFinance tabID = "finance"
 	tabIDStage   tabID = "stage"
 	tabIDShip    tabID = "ship"
 	tabIDListing tabID = "listing"
@@ -98,10 +100,11 @@ type AuctionProps struct {
 }
 
 type auctionTabData struct {
-	ID     tabID
-	Label  string
-	Items  []auctionItemRow   // 積む・出荷タブの品
-	Ledger []auctionLedgerRow // 出品中・履歴タブの台帳
+	ID      tabID
+	Label   string
+	Items   []auctionItemRow   // 積む・出荷タブの品
+	Ledger  []auctionLedgerRow // 出品中・履歴タブの台帳
+	Entries []gc.AuctionEntry  // 金銭タブの明細
 }
 
 // auctionItemRow は積む・出荷タブの1行。実体と、出品状況を表す表示を持つ
@@ -130,6 +133,7 @@ type auctionLedgerRow struct {
 func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 	return AuctionProps{
 		Tabs: []auctionTabData{
+			{ID: tabIDFinance, Label: query.T(world, "Finance"), Entries: query.GetAuctionHistory(world).Entries},
 			{ID: tabIDStage, Label: query.T(world, "Load"), Items: st.stageItems(world)},
 			{ID: tabIDShip, Label: query.T(world, "Staged"), Items: st.shipItems(world)},
 			{ID: tabIDListing, Label: query.T(world, "Listing"), Ledger: st.listingRows(world)},
@@ -142,9 +146,12 @@ func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
-		if tab.ID == tabIDStage || tab.ID == tabIDShip {
+		switch tab.ID {
+		case tabIDStage, tabIDShip:
 			itemCounts[i] = len(tab.Items)
-		} else {
+		case tabIDFinance:
+			itemCounts[i] = len(tab.Entries)
+		case tabIDListing, tabIDHistory, tabIDStore, tabIDRetrieve:
 			itemCounts[i] = len(tab.Ledger)
 		}
 	}
@@ -254,9 +261,36 @@ func (st *AuctionMenuState) selectRow(world w.World) error {
 			return err
 		}
 		return lifecycle.MoveToBackpack(world, item, player)
+	case tabIDFinance:
+		return st.settleEntry(world, cursor.ItemIndex)
 	case tabIDListing, tabIDHistory:
 		st.detail.Open(world)
 	case tabIDStore, tabIDRetrieve:
+	}
+	return nil
+}
+
+// settleEntry は金銭タブの選択中の明細を精算する。受取金は所持金へ加え、請求は引く。
+// 精算した明細をログに出す。集金の一撃がここで起こる
+func (st *AuctionMenuState) settleEntry(world w.World, index int) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	now := int(query.GetGameTime(world).TotalTurns)
+	e, ok := query.SettleAuctionEntry(world, player, index, now)
+	if !ok {
+		return nil
+	}
+	switch e.Kind {
+	case gc.AuctionEntryReceipt:
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "Collected %s. Received %s.", gamelog.Tag("item", e.Name), query.FormatCurrency(e.Amount))).
+			Log()
+	case gc.AuctionEntryInvoice:
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "Paid %s: %s.", query.T(world, e.Name), query.FormatCurrency(e.Amount))).
+			Log()
 	}
 	return nil
 }
@@ -298,10 +332,43 @@ func (st *AuctionMenuState) detailContent(world w.World) (overlay.DetailContent,
 		}
 		return overlay.EntityDetailContent(world, item), true
 	}
+	if tab.ID == tabIDFinance {
+		if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(tab.Entries) {
+			return overlay.DetailContent{}, false
+		}
+		return auctionEntryDetail(world, tab.Entries[cursor.ItemIndex]), true
+	}
 	if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(tab.Ledger) {
 		return overlay.DetailContent{}, false
 	}
 	return auctionLedgerDetail(world, tab.Ledger[cursor.ItemIndex]), true
+}
+
+// auctionEntryDetail は金銭明細1件の内訳を詳細内容にする。受取金は落札額から配送料と手数料を引いた
+// 手取りの内訳を、請求は請求額を見せる
+func auctionEntryDetail(world w.World, e gc.AuctionEntry) overlay.DetailContent {
+	switch e.Kind {
+	case gc.AuctionEntryReceipt:
+		return overlay.DetailContent{
+			Name: e.Name,
+			Rows: []entityspec.SpecRow{
+				{Label: query.T(world, "Kind"), Value: query.T(world, "Receipt")},
+				{Label: query.T(world, "Bid"), Value: query.FormatCurrency(e.Bid)},
+				{Label: query.T(world, "Shipping"), Value: query.FormatCurrency(e.Ship)},
+				{Label: query.T(world, "Fee"), Value: query.FormatCurrency(e.Fee)},
+				{Label: query.T(world, "Net"), Value: query.FormatCurrency(e.Amount)},
+			},
+		}
+	case gc.AuctionEntryInvoice:
+		return overlay.DetailContent{
+			Name: query.T(world, e.Name),
+			Rows: []entityspec.SpecRow{
+				{Label: query.T(world, "Kind"), Value: query.T(world, "Invoice")},
+				{Label: query.T(world, "Amount"), Value: query.FormatCurrency(e.Amount)},
+			},
+		}
+	}
+	return overlay.DetailContent{Name: e.Name}
 }
 
 // auctionLedgerDetail は台帳1行の内訳を詳細内容にする。価格は価格記号を付けて出す
@@ -331,7 +398,32 @@ func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionPro
 	if tab.ID == tabIDStage || tab.ID == tabIDShip {
 		return st.buildItemContainer(world, tab, itemIndex, res)
 	}
+	if tab.ID == tabIDFinance {
+		return st.buildFinanceContainer(world, tab, itemIndex, res)
+	}
 	return st.buildLedgerContainer(world, tab, itemIndex, res)
+}
+
+// buildFinanceContainer は金銭タブの一覧を組む。各行は名前と種別と符号付きの金額。
+// 受取金はそのまま、請求はマイナスで出し、足し引きが読めるようにする
+func (st *AuctionMenuState) buildFinanceContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {
+	rows := make([]menuRow, len(tab.Entries))
+	for i, e := range tab.Entries {
+		kind := query.T(world, "Receipt")
+		name := e.Name
+		amount := query.FormatCurrency(e.Amount)
+		if e.Kind == gc.AuctionEntryInvoice {
+			kind = query.T(world, "Invoice")
+			name = query.T(world, e.Name)
+			amount = query.FormatCurrency(-e.Amount)
+		}
+		rows[i] = menuRow{Cells: []styled.Cell{
+			styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount),
+		}}
+	}
+	return renderMenuList(itemIndex, rows, []int{200, 80, 120},
+		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+		menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No bills or receipts.")}, res)
 }
 
 // buildItemContainer は積む・出荷タブの一覧を組む。各行は品名と落札状況と金額

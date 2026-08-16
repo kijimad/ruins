@@ -79,16 +79,17 @@ func StartAuctionListing(world w.World, item ecs.Entity, now int) int {
 	return number
 }
 
-// ShipStagedItems は出荷場所の積荷をまとめて集荷する。落札済みの品だけ売上を計上し履歴へ残す。
-// 落札されていない品は集荷しても金にならず、ただ手放される。
-// 費用は現実同様に別立てにする。品ごとに配送料と手数料がかかり、集荷1回につき定額の集荷手数料がかかる。
-// だから小分けに集荷するほど集荷手数料がかさみ、1回にまとめるほど得になる。
-// 出荷した総件数、入金した件数、売上合計、この集荷の集荷手数料を返す。受取は売上合計から集荷手数料を引いた額。
-func ShipStagedItems(world w.World, station, player ecs.Entity, now int) (shipped, paid, gross, pickup int) {
+// CollectStagedItems は出荷場所の積荷をまとめて集荷する。集荷は所持金を動かさず、金銭タブへ明細を積む。
+// 落札済みの品ごとに受取金の明細を、集荷1回につき集荷料金の請求の明細を発生させる。
+// 落札されていない品は明細を生まず、ただ手放される。
+// 受取金の額面は落札額から配送料と手数料を引いた手取り。集荷料金は集荷1回につき定額で別立て。
+// だから小分けに集荷するほど集荷料金の請求がかさみ、1回にまとめるほど得になる。
+// 集荷した総件数と、受取金の明細を発生させた件数を返す。
+func CollectStagedItems(world w.World, station ecs.Entity) (collected, receipts int) {
 	// GetStorageItems は確定したスライスを返すので、反復中に削除してよい
 	items := GetStorageItems(world, station)
 	if len(items) == 0 {
-		return 0, 0, 0, 0
+		return 0, 0
 	}
 	history := GetAuctionHistory(world)
 	for _, item := range items {
@@ -97,21 +98,47 @@ func ShipStagedItems(world w.World, station, player ecs.Entity, now int) (shippe
 			bid := sold.Bid
 			ship := AuctionShippingCost(world, item)
 			fee := AuctionFee(bid)
-			net := bid - ship - fee
-			history.Records = append(history.Records, gc.AuctionRecord{
-				Number: sold.Number, Name: GetEntityName(item, world), Bid: bid, Ship: ship, Fee: fee, Net: net, Turn: now,
+			history.Entries = append(history.Entries, gc.AuctionEntry{
+				Kind: gc.AuctionEntryReceipt, Number: sold.Number, Name: GetEntityName(item, world),
+				Amount: bid - ship - fee, Bid: bid, Ship: ship, Fee: fee,
 			})
-			gross += net
-			paid++
+			receipts++
 		}
-		// 落札済みでない品は精算されず、ただ手放される
+		// 落札済みでない品は明細を生まず、ただ手放される
 		world.ECS.RemoveEntity(item)
-		shipped++
+		collected++
 	}
-	// 集荷手数料は集荷1回につき定額でかかる。品ごとの配送料や手数料とは別立て
-	pickup = AuctionPickupFee
-	if err := AddCurrency(world, player, gross-pickup); err != nil {
-		return shipped, paid, gross, pickup
+	// 集荷料金の請求を1件立てる。品ごとの配送料や手数料とは別立て
+	history.Entries = append(history.Entries, gc.AuctionEntry{
+		Kind: gc.AuctionEntryInvoice, Name: pickupInvoiceName, Amount: AuctionPickupFee,
+	})
+	return collected, receipts
+}
+
+// pickupInvoiceName は集荷料金の請求の表示名。query.T の msgid でなく英語リテラルを保持し、表示側で訳す。
+const pickupInvoiceName = "Pickup fee"
+
+// SettleAuctionEntry は金銭タブの明細1件を精算する。受取金は所持金へ加え、請求は所持金から引く。
+// 精算した受取金は出荷実績として履歴へ移す。精算した明細と、精算できたかを返す。
+func SettleAuctionEntry(world w.World, player ecs.Entity, index, now int) (gc.AuctionEntry, bool) {
+	history := GetAuctionHistory(world)
+	if index < 0 || index >= len(history.Entries) {
+		return gc.AuctionEntry{}, false
 	}
-	return shipped, paid, gross, pickup
+	e := history.Entries[index]
+	switch e.Kind {
+	case gc.AuctionEntryReceipt:
+		if err := AddCurrency(world, player, e.Amount); err != nil {
+			return gc.AuctionEntry{}, false
+		}
+		history.Records = append(history.Records, gc.AuctionRecord{
+			Number: e.Number, Name: e.Name, Bid: e.Bid, Ship: e.Ship, Fee: e.Fee, Net: e.Amount, Turn: now,
+		})
+	case gc.AuctionEntryInvoice:
+		if err := AddCurrency(world, player, -e.Amount); err != nil {
+			return gc.AuctionEntry{}, false
+		}
+	}
+	history.Entries = append(history.Entries[:index], history.Entries[index+1:]...)
+	return e, true
 }

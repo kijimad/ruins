@@ -137,7 +137,7 @@ func TestAuctionDemoSystem_期限内に出荷しないと評判が下がる(t *t
 	assert.Equal(t, penalized, query.GetAuctionHistory(world).Reputation, "同じ品で二重に評判を下げない")
 }
 
-func TestShipStagedItems_落札済みは入金し未落札は消えるだけ(t *testing.T) {
+func TestCollectStagedItems_集荷は明細を発生させ所持金は動かさない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -159,30 +159,60 @@ func TestShipStagedItems_落札済みは入金し未落札は消えるだけ(t *
 	}
 	require.True(t, world.Components.AuctionSold.Has(won), "won は落札済みになる")
 
-	// 落札済みと未落札の両方を積荷へ積む
 	require.NoError(t, lifecycle.MoveToStorage(world, won, station))
 	require.NoError(t, lifecycle.MoveToStorage(world, junk, station))
 
 	bid := world.Components.AuctionSold.Get(won).Bid
-	expectedGross := bid - query.AuctionShippingCost(world, won) - query.AuctionFee(bid)
+	expectedNet := bid - query.AuctionShippingCost(world, won) - query.AuctionFee(bid)
 	before := query.GetCurrency(world, player)
 
-	shipped, paid, gross, pickup := query.ShipStagedItems(world, station, player, 42)
+	collected, receipts := query.CollectStagedItems(world, station)
 
-	assert.Equal(t, 2, shipped, "積んだ品はすべて出荷される")
-	assert.Equal(t, 1, paid, "入金されるのは落札済みだけ")
-	assert.Equal(t, expectedGross, gross, "売上は落札済みの分だけ")
-	assert.Equal(t, query.AuctionPickupFee, pickup, "集荷1回につき定額の集荷手数料がかかる")
-	assert.Equal(t, before+expectedGross-query.AuctionPickupFee, query.GetCurrency(world, player), "受取は売上から集荷手数料を引いた額")
-	assert.False(t, world.ECS.Alive(won), "落札済みは出荷で手放す")
-	assert.False(t, world.ECS.Alive(junk), "未落札も出荷され金にならず消える")
-	records := query.GetAuctionHistory(world).Records
-	require.Len(t, records, 1, "履歴に残るのは落札済みだけ")
-	assert.Equal(t, 42, records[0].Turn, "出荷したターンを記録する")
-	assert.Equal(t, expectedGross, records[0].Net, "品ごとの手取りを記録する。集荷手数料は含めない")
+	assert.Equal(t, 2, collected, "積んだ品はすべて集荷される")
+	assert.Equal(t, 1, receipts, "受取金の明細は落札済みの分だけ")
+	assert.Equal(t, before, query.GetCurrency(world, player), "集荷では所持金は動かない")
+	assert.False(t, world.ECS.Alive(won), "落札済みは集荷で手放す")
+	assert.False(t, world.ECS.Alive(junk), "未落札も集荷され金にならず消える")
+
+	entries := query.GetAuctionHistory(world).Entries
+	require.Len(t, entries, 2, "受取金1件と集荷料金の請求1件が金銭タブへ届く")
+	assert.Equal(t, gc.AuctionEntryReceipt, entries[0].Kind, "先頭は受取金")
+	assert.Equal(t, expectedNet, entries[0].Amount, "受取金は落札額から配送料と手数料を引いた手取り")
+	assert.Equal(t, gc.AuctionEntryInvoice, entries[1].Kind, "末尾は集荷料金の請求")
+	assert.Equal(t, query.AuctionPickupFee, entries[1].Amount, "請求額は集荷手数料")
 }
 
-func TestAuctionDemoSystem_積荷はターン経過で自動出荷される(t *testing.T) {
+func TestSettleAuctionEntry_受取金は加算し請求は減算する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	h := query.GetAuctionHistory(world)
+	h.Entries = []gc.AuctionEntry{
+		{Kind: gc.AuctionEntryReceipt, Number: 1, Name: "Angel Sword", Amount: 300, Bid: 400, Ship: 50, Fee: 50},
+		{Kind: gc.AuctionEntryInvoice, Name: "Pickup fee", Amount: query.AuctionPickupFee},
+	}
+	before := query.GetCurrency(world, player)
+
+	// 受取金を精算すると所持金が増え、履歴へ移る
+	got, ok := query.SettleAuctionEntry(world, player, 0, 7)
+	require.True(t, ok)
+	assert.Equal(t, gc.AuctionEntryReceipt, got.Kind)
+	assert.Equal(t, before+300, query.GetCurrency(world, player), "受取金は所持金へ加える")
+	require.Len(t, query.GetAuctionHistory(world).Entries, 1, "精算した明細は消える")
+	records := query.GetAuctionHistory(world).Records
+	require.Len(t, records, 1, "精算した受取金は履歴へ移る")
+	assert.Equal(t, 7, records[0].Turn)
+
+	// 請求を精算すると所持金が減る
+	_, ok = query.SettleAuctionEntry(world, player, 0, 8)
+	require.True(t, ok)
+	assert.Equal(t, before+300-query.AuctionPickupFee, query.GetCurrency(world, player), "請求は所持金から引く")
+	assert.Empty(t, query.GetAuctionHistory(world).Entries, "明細をすべて精算した")
+}
+
+func TestAuctionDemoSystem_積荷はタイマーで集荷され明細が届く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -201,41 +231,34 @@ func TestAuctionDemoSystem_積荷はターン経過で自動出荷される(t *t
 	}
 	require.True(t, world.Components.AuctionSold.Has(item), "落札済みになる")
 
-	// 落札済みを積荷へ積む。以後はプレイヤーの操作なしに集荷タイマーで出荷される
+	// 落札済みを積荷へ積む。以後はプレイヤーの操作なしに集荷タイマーで集荷される
 	require.NoError(t, lifecycle.MoveToStorage(world, item, station))
-	bid := world.Components.AuctionSold.Get(item).Bid
-	gross := bid - query.AuctionShippingCost(world, item) - query.AuctionFee(bid)
-	expectedReceived := gross - query.AuctionPickupFee
 	before := query.GetCurrency(world, player)
 
-	// 積荷が入ってから10ターン後に集荷する。タイマー開始の1ターンぶんを含め余裕を持って回す
 	for i := 0; i < auctionShipDelay+2 && world.ECS.Alive(item); i++ {
 		query.GetGameTime(world).Advance()
 		require.NoError(t, sys.Update(world))
 	}
 
 	assert.False(t, world.ECS.Alive(item), "積荷はタイマー満了で集荷され手放す")
-	assert.Equal(t, before+expectedReceived, query.GetCurrency(world, player), "受取は売上から集荷手数料を引いた額")
-	require.Len(t, query.GetAuctionHistory(world).Records, 1, "出荷実績が履歴に残る")
+	assert.Equal(t, before, query.GetCurrency(world, player), "集荷だけでは所持金は動かない。精算で入る")
+	assert.NotEmpty(t, query.GetAuctionHistory(world).Entries, "受取金と請求の明細が金銭タブへ届く")
 }
 
-func TestShipStagedItems_積荷が無ければ何もしない(t *testing.T) {
+func TestCollectStagedItems_積荷が無ければ何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
 	require.NoError(t, err)
-	before := query.GetCurrency(world, player)
 
-	shipped, paid, gross, pickup := query.ShipStagedItems(world, station, player, 0)
+	collected, receipts := query.CollectStagedItems(world, station)
 
-	assert.Zero(t, shipped, "積荷が無ければ0件")
-	assert.Zero(t, paid, "入金も0件")
-	assert.Zero(t, gross, "売上も0")
-	assert.Zero(t, pickup, "集荷手数料もかからない")
-	assert.Equal(t, before, query.GetCurrency(world, player), "所持金は変わらない")
+	assert.Zero(t, collected, "積荷が無ければ0件")
+	assert.Zero(t, receipts, "受取金の明細も0件")
+	assert.Empty(t, query.GetAuctionHistory(world).Entries, "明細は発生しない")
 }
 
 func TestMarkShippingStations_専用propを出荷場所にする(t *testing.T) {

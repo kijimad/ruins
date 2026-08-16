@@ -92,10 +92,6 @@ func logDeadlineMissed(world w.World, name string, reputation int) {
 // 積荷が入った出荷場所はタイマーを開始し、満了したターンに積荷をまとめて集荷する。
 // 積荷が空になったらタイマーを止める。まとめて集荷するほど集荷手数料が1回で済む。
 func updateShippingTimers(world w.World, now int) {
-	player, err := query.GetPlayerEntity(world)
-	if err != nil {
-		return
-	}
 	var stations []ecs.Entity
 	q := ecs.NewFilter1[gc.AuctionStation](world.ECS).Query()
 	for q.Next() {
@@ -111,11 +107,11 @@ func updateShippingTimers(world w.World, now int) {
 			s.ShipAtTurn = now + auctionShipDelay // 積荷が入ったのでタイマー開始
 			logShipScheduled(world, auctionShipDelay)
 		case now >= s.ShipAtTurn:
-			// 満了。集荷する。ShipStagedItems が構造変更する前にタイマーを止める
+			// 満了。集荷する。CollectStagedItems が構造変更する前にタイマーを止める
 			s.ShipAtTurn = 0
-			shipped, _, gross, pickup := query.ShipStagedItems(world, station, player, now)
-			if shipped > 0 {
-				logCollected(world, shipped, gross, pickup)
+			collected, receipts := query.CollectStagedItems(world, station)
+			if collected > 0 {
+				logCollected(world, collected, receipts)
 			}
 		}
 	}
@@ -127,10 +123,9 @@ func logShipScheduled(world w.World, turns int) {
 		Log()
 }
 
-func logCollected(world w.World, count, gross, pickup int) {
+func logCollected(world w.World, collected, receipts int) {
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "Collected %d items. Sales %s, pickup fee %s, received %s.",
-			count, query.FormatCurrency(gross), query.FormatCurrency(pickup), query.FormatCurrency(gross-pickup))).
+		Markup(query.T(world, "Collected %d items. %d receipts and a pickup bill arrived in the finance tab.", collected, receipts)).
 		Log()
 }
 

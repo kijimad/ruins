@@ -5567,8 +5567,35 @@ msgstr "%s が落札された。落札額 %s。出荷できる"
 msgid "Shipment scheduled. Pickup in %d turns."
 msgstr "出荷の準備を始めた。%d ターン後に集荷する"
 
-msgid "Collected %d items. Sales %s, pickup fee %s, received %s."
-msgstr "%d 件を集荷した。売上 %s、集荷手数料 %s、受取 %s"
+msgid "Collected %d items. %d receipts and a pickup bill arrived in the finance tab."
+msgstr "%d 件を集荷した。受取金 %d 件と集荷料金の請求が金銭タブに届いた"
+
+msgid "Collected %s. Received %s."
+msgstr "%s を集金した。%s を受け取った"
+
+msgid "Paid %s: %s."
+msgstr "%s を支払った: %s"
+
+msgid "Finance"
+msgstr "金銭"
+
+msgid "Receipt"
+msgstr "受取金"
+
+msgid "Invoice"
+msgstr "請求"
+
+msgid "Kind"
+msgstr "種別"
+
+msgid "Amount"
+msgstr "金額"
+
+msgid "Pickup fee"
+msgstr "集荷料金"
+
+msgid "No bills or receipts."
+msgstr "請求も受取金もない"
 
 msgid "%s missed the shipping deadline. Reputation is now %d."
 msgstr "%s の出荷期限を過ぎた。評判が %d に下がった"

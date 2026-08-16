@@ -202,8 +202,8 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 		if err := lifecycle.MoveToStorage(world, item.Entity, st.storageEntity); err != nil {
 			return err
 		}
-	case tabIDStage, tabIDShip, tabIDListing, tabIDHistory:
-		// 収納メニューには積む・出荷・出品中・履歴タブは無い。tabID を共有するため exhaustive 用に置く
+	case tabIDFinance, tabIDStage, tabIDShip, tabIDListing, tabIDHistory:
+		// 収納メニューには金銭・積む・出荷・出品中・履歴タブは無い。tabID を共有するため exhaustive 用に置く
 	}
 
 	return nil

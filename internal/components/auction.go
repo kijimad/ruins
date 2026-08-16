@@ -37,10 +37,33 @@ type AuctionRecord struct {
 	Turn   int    // 売れた総ターン数
 }
 
-// AuctionHistory は出荷実績の履歴と採番カウンタ、店の評判を持つシングルトン。
+// AuctionEntryKind は金銭明細の種別。受取金か請求か。
+type AuctionEntryKind string
+
+const (
+	// AuctionEntryReceipt は受取金。精算すると所持金へ加える
+	AuctionEntryReceipt AuctionEntryKind = "RECEIPT"
+	// AuctionEntryInvoice は請求。精算すると所持金から引く
+	AuctionEntryInvoice AuctionEntryKind = "INVOICE"
+)
+
+// AuctionEntry は金銭タブに並ぶ明細1件。受取金か請求のどちらかで、精算すると所持金へ足し引きする。
+// 金額はいずれも正の額で持ち、足すか引くかは Kind で決める。
+type AuctionEntry struct {
+	Kind   AuctionEntryKind // 受取金か請求か
+	Number int              // 受取金のとき出品の連番。請求は0
+	Name   string           // 表示名。品名または請求名
+	Amount int              // 受取金は手取り、請求は請求額
+	Bid    int              // 明細の内訳。受取金のとき意味を持つ落札額
+	Ship   int              // 明細の内訳。配送料
+	Fee    int              // 明細の内訳。手数料
+}
+
+// AuctionHistory は金銭明細と出荷実績の履歴、採番カウンタ、店の評判を持つシングルトン。
 // あとで閲覧するための専用の保存領域。デモ専用の一時状態であり保存しない。
 type AuctionHistory struct {
-	NextNumber int // 次に貼るタグへ振る連番
-	Reputation int // 店の評判。出荷期限を破ると下がる
+	NextNumber int            // 次に貼るタグへ振る連番
+	Reputation int            // 店の評判。出荷期限を破ると下がる
+	Entries    []AuctionEntry // 金銭タブに並ぶ未精算の受取金と請求
 	Records    []AuctionRecord
 }
