@@ -25,13 +25,17 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 出荷場所メニューのタブ識別子。進行中・積む・積荷・金銭・履歴で構成する
+// auctionTabID は出荷場所メニューのタブ識別子。収納メニューの tabID とは別型にして、
+// 各メニューの switch が自分のタブだけを網羅すればよいようにする。
+type auctionTabID string
+
+// 出荷場所メニューのタブ。進行中・出荷・集荷待ち・金銭・履歴で構成する
 const (
-	tabIDFinance tabID = "finance"
-	tabIDStage   tabID = "stage"
-	tabIDShip    tabID = "ship"
-	tabIDStatus  tabID = "status"
-	tabIDHistory tabID = "history"
+	auctionTabStatus  auctionTabID = "status"
+	auctionTabShip    auctionTabID = "ship"
+	auctionTabPending auctionTabID = "pending"
+	auctionTabFinance auctionTabID = "finance"
+	auctionTabHistory auctionTabID = "history"
 )
 
 // AuctionMenuState は出荷場所のメニュー。金銭・積む・積荷・出品中・履歴のタブを持つ。
@@ -99,7 +103,7 @@ type AuctionProps struct {
 }
 
 type auctionTabData struct {
-	ID      tabID
+	ID      auctionTabID
 	Label   string
 	Items   []auctionItemRow   // 積む・出荷タブの品
 	Ledger  []auctionLedgerRow // 出品中・履歴タブの台帳
@@ -132,11 +136,11 @@ type auctionLedgerRow struct {
 func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 	return AuctionProps{
 		Tabs: []auctionTabData{
-			{ID: tabIDStatus, Label: query.T(world, "In progress"), Ledger: st.statusRows(world)},
-			{ID: tabIDStage, Label: query.T(world, "Ship"), Items: st.stageItems(world)},
-			{ID: tabIDShip, Label: query.T(world, "Pending"), Items: st.shipItems(world)},
-			{ID: tabIDFinance, Label: query.T(world, "Finance"), Entries: query.GetAuctionHistory(world).Entries},
-			{ID: tabIDHistory, Label: query.T(world, "History"), Ledger: st.historyRows(world)},
+			{ID: auctionTabStatus, Label: query.T(world, "In progress"), Ledger: st.statusRows(world)},
+			{ID: auctionTabShip, Label: query.T(world, "Ship"), Items: st.stageItems(world)},
+			{ID: auctionTabPending, Label: query.T(world, "Pending"), Items: st.shipItems(world)},
+			{ID: auctionTabFinance, Label: query.T(world, "Finance"), Entries: query.GetAuctionHistory(world).Entries},
+			{ID: auctionTabHistory, Label: query.T(world, "History"), Ledger: st.historyRows(world)},
 		},
 	}
 }
@@ -146,11 +150,11 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		switch tab.ID {
-		case tabIDStage, tabIDShip:
+		case auctionTabShip, auctionTabPending:
 			itemCounts[i] = len(tab.Items)
-		case tabIDFinance:
+		case auctionTabFinance:
 			itemCounts[i] = len(tab.Entries)
-		case tabIDStatus, tabIDHistory, tabIDStore, tabIDRetrieve:
+		case auctionTabStatus, auctionTabHistory:
 			itemCounts[i] = len(tab.Ledger)
 		}
 	}
@@ -253,7 +257,7 @@ func (st *AuctionMenuState) selectRow(world w.World) error {
 	}
 	tab := props.Tabs[cursor.TabIndex]
 	switch tab.ID {
-	case tabIDStage:
+	case auctionTabShip:
 		// 落札済みの品をステーションの積荷へ入れる。次の集荷で出荷される
 		item, ok := st.selectedItem(tab, cursor.ItemIndex)
 		if !ok {
@@ -263,7 +267,7 @@ func (st *AuctionMenuState) selectRow(world w.World) error {
 			return nil
 		}
 		return lifecycle.MoveToStorage(world, item, st.stationEntity)
-	case tabIDShip:
+	case auctionTabPending:
 		// 積荷から降ろして持ち物へ戻す。集荷前なら取り消せる
 		item, ok := st.selectedItem(tab, cursor.ItemIndex)
 		if !ok {
@@ -274,11 +278,10 @@ func (st *AuctionMenuState) selectRow(world w.World) error {
 			return err
 		}
 		return lifecycle.MoveToBackpack(world, item, player)
-	case tabIDFinance:
+	case auctionTabFinance:
 		return st.settleEntry(world, cursor.ItemIndex)
-	case tabIDStatus, tabIDHistory:
+	case auctionTabStatus, auctionTabHistory:
 		st.detail.Open(world)
-	case tabIDStore, tabIDRetrieve:
 	}
 	return nil
 }
@@ -337,14 +340,14 @@ func (st *AuctionMenuState) detailContent(world w.World) (overlay.DetailContent,
 		return overlay.DetailContent{}, false
 	}
 	tab := props.Tabs[cursor.TabIndex]
-	if tab.ID == tabIDStage || tab.ID == tabIDShip {
+	if tab.ID == auctionTabShip || tab.ID == auctionTabPending {
 		item, ok := st.selectedItem(tab, cursor.ItemIndex)
 		if !ok || !world.ECS.Alive(item) {
 			return overlay.DetailContent{}, false
 		}
 		return overlay.EntityDetailContent(world, item), true
 	}
-	if tab.ID == tabIDFinance {
+	if tab.ID == auctionTabFinance {
 		if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(tab.Entries) {
 			return overlay.DetailContent{}, false
 		}
@@ -407,10 +410,10 @@ func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionPro
 		return styled.NewVerticalContainer()
 	}
 	tab := props.Tabs[tabIndex]
-	if tab.ID == tabIDStage || tab.ID == tabIDShip {
+	if tab.ID == auctionTabShip || tab.ID == auctionTabPending {
 		return st.buildItemContainer(world, tab, itemIndex, res)
 	}
-	if tab.ID == tabIDFinance {
+	if tab.ID == auctionTabFinance {
 		return st.buildFinanceContainer(world, tab, itemIndex, res)
 	}
 	return st.buildLedgerContainer(world, tab, itemIndex, res)
@@ -451,7 +454,7 @@ func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData
 		}}
 	}
 	empty := query.T(world, "No items to ship.")
-	if tab.ID == tabIDShip {
+	if tab.ID == auctionTabPending {
 		empty = query.T(world, "Nothing awaiting pickup.")
 	}
 	return renderMenuList(itemIndex, rows, []int{200, 90, 110},
@@ -462,7 +465,7 @@ func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData
 // buildLedgerContainer は進行中・履歴タブの一覧を組む。進行中は番号・品名・状態・金額の4列、
 // 履歴は状態が発送済みで固定なので番号・品名・金額の3列にする。金額はどの行も入札額を出す
 func (st *AuctionMenuState) buildLedgerContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {
-	if tab.ID == tabIDHistory {
+	if tab.ID == auctionTabHistory {
 		rows := make([]menuRow, len(tab.Ledger))
 		for i, r := range tab.Ledger {
 			rows[i] = menuRow{Cells: []styled.Cell{
