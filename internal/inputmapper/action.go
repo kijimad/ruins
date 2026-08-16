@@ -47,6 +47,7 @@ const (
 	ActionVerbRead    ActionID = "verb_read"    // 読む
 	ActionVerbUse     ActionID = "verb_use"     // 使う
 	ActionVerbThrow   ActionID = "verb_throw"   // 投げる
+	ActionVerbList    ActionID = "verb_list"    // 出品する。タグを貼って競売にかける
 )
 
 // ActionOpenItemDetail は動詞タブ画面で選択中アイテムの詳細モーダルを開く

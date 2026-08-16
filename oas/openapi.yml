@@ -2863,6 +2863,8 @@ components:
           $ref: '#/components/schemas/CubePanelTriggerRaw'
         storage:
           $ref: '#/components/schemas/StorageRaw'
+        shippingStation:
+          $ref: '#/components/schemas/ShippingStationRaw'
         disassembly:
           $ref: '#/components/schemas/Disassembly'
       description: 置物
@@ -3973,6 +3975,9 @@ components:
         - 5
         - 10
       description: 遮蔽タイプ
+    ShippingStationRaw:
+      type: object
+      description: 通信販売の出荷場所ローデータ。収納の中身を集荷対象にし、出荷場所メニューを開く相互作用が付く。積載量は storage で持つ
     SkillBook:
       type: object
       required:

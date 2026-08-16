@@ -14688,6 +14688,23 @@ minSkill = 10
 [[props]]
 blockPass = true
 blockView = false
+description = "通信販売の出荷場所。落札した品を積んで集荷を待つ"
+name = "Shipping station"
+id = "shipping_station"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "wooden_crate"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = "500 kg"
+
+[props.shippingStation]
+
+[[props]]
+blockPass = true
+blockView = false
 description = "灰色の金属ロッカー2連。更衣室や職場の収納"
 hp = 40
 name = "Locker"

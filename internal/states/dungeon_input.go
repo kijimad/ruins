@@ -76,6 +76,9 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyT) {
 		return inputmapper.ActionVerbUse, true
 	}
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyS) {
+		return inputmapper.ActionVerbList, true
+	}
 
 	// 移動入力
 	if action, ok := handleMoveInput(keyboardInput); ok {
@@ -124,7 +127,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	// UI系アクションは常に実行可能
 	switch action {
 	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionShoot, inputmapper.ActionPickup,
-		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow:
+		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
@@ -178,7 +181,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow:
+	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
 		verb, ok := verbByAction(action)
 		if !ok {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
@@ -367,6 +370,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		// 収納メニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },
+		}}, nil
+	case gc.OpenAuction:
+		// 出荷場所のメニューを開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() (es.State[w.World], error) { return NewAuctionMenuState(p.StationEntity) },
 		}}, nil
 	default:
 		// この switch で扱わない種別。未実装の scaffold もここに落ちる

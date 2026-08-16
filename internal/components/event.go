@@ -51,6 +51,12 @@ type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納コンテナのエンティティ
 }
 
+// OpenAuction は出荷場所のメニューを開く。積荷はステーションごとなので、対象の StationEntity を運ぶ。
+// 出品や金銭などの情報はシングルトンで共通に見せる
+type OpenAuction struct {
+	StationEntity ecs.Entity // 積荷の収納を持つ出荷場所
+}
+
 func (WarpDescend) isStatePayload()      {}
 func (WarpAscend) isStatePayload()       {}
 func (WarpDungeonEnter) isStatePayload() {}
@@ -60,6 +66,7 @@ func (OpenCubePanel) isStatePayload()    {}
 func (GameClear) isStatePayload()        {}
 func (ShowDialog) isStatePayload()       {}
 func (OpenStorage) isStatePayload()      {}
+func (OpenAuction) isStatePayload()      {}
 
 // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。
 // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。
@@ -107,4 +114,9 @@ func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {
 // OpenStorageEvent は収納メニューを開くリクエストを生成する
 func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: OpenStorage{StorageEntity: storage}}
+}
+
+// OpenAuctionEvent は出荷場所のメニューを開くリクエストを生成する
+func OpenAuctionEvent(station ecs.Entity) StateChangeRequest {
+	return StateChangeRequest{Payload: OpenAuction{StationEntity: station}}
 }

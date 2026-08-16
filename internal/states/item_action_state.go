@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuloop"
@@ -31,6 +32,7 @@ const (
 	verbConsume verbID = "consume" // 食べる。飲み物も含む
 	verbRead    verbID = "read"    // 読む
 	verbUse     verbID = "use"     // 使う
+	verbTag     verbID = "tag"     // 出品する。タグを貼って競売にかける
 )
 
 // itemVerb は動詞タブ1つ分の定義。Accept で対象アイテムを絞り、Exec で選択アイテムへ動詞を適用する。
@@ -101,6 +103,15 @@ var verbList = []itemVerb{
 		Accept:  acceptUseTool,
 		Exec:    execUseItem,
 	},
+	{
+		ID:      verbTag,
+		Label:   "List",
+		KeyHint: "s",
+		Key:     ebiten.KeyS,
+		Action:  inputmapper.ActionVerbList,
+		Accept:  acceptListable,
+		Exec:    execTagItem,
+	},
 }
 
 // acceptConsumeFood は栄養か回復を持つ消費物を食べるの対象とする。飲み物も含む
@@ -117,6 +128,11 @@ func acceptUseTool(world w.World, entity ecs.Entity) bool {
 		return false
 	}
 	return !world.Components.ProvidesNutrition.Has(entity) && !world.Components.ProvidesHealing.Has(entity)
+}
+
+// acceptListable はまだ出品も落札もしていない品を出品の対象とする。二重出品を防ぐ
+func acceptListable(world w.World, entity ecs.Entity) bool {
+	return !world.Components.AuctionListing.Has(entity) && !world.Components.AuctionSold.Has(entity)
 }
 
 // execPlace は選択アイテムをプレイヤーの足元に置いてダンジョンへ戻る。置く位置は指定しない
@@ -158,6 +174,18 @@ func execRead(world w.World, entity ecs.Entity) (es.Transition[w.World], error) 
 		// err=nil を返すため、ここには来ず通常どおり閉じる
 		return es.Transition[w.World]{}, err
 	}
+	return es.Transition[w.World]{Type: es.TransPop}, nil
+}
+
+// execTagItem は選択アイテムにタグを貼って出品しダンジョンへ戻る。連番を採番し開始入札で競売が始まる。
+// タグはアイテムでなく品に付く実行時状態で、以後この番号でその出品を指す。
+func execTagItem(world w.World, entity ecs.Entity) (es.Transition[w.World], error) {
+	now := int(query.GetGameTime(world).TotalTurns)
+	number := query.StartAuctionListing(world, entity, now)
+	bid := world.Components.AuctionListing.Get(entity).CurrentBid
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "Tagged %s as #%d. Opening bid %s.", gamelog.Tag("item", query.GetEntityName(entity, world)), number, query.FormatCurrency(bid))).
+		Log()
 	return es.Transition[w.World]{Type: es.TransPop}, nil
 }
 

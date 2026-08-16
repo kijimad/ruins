@@ -65,7 +65,34 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	if world.Components.Weight.Has(entity) {
 		rows = append(rows, weightRows(world, world.Components.Weight.Get(entity))...)
 	}
+	if world.Components.AuctionListing.Has(entity) {
+		rows = append(rows, auctionListingRows(world, world.Components.AuctionListing.Get(entity))...)
+	}
+	if world.Components.AuctionSold.Has(entity) {
+		rows = append(rows, auctionSoldRows(world, world.Components.AuctionSold.Get(entity))...)
+	}
 	return rows
+}
+
+// auctionListingRows は出品中の品の番号と現在値を返す。先頭は見出し
+func auctionListingRows(world w.World, l *gc.AuctionListing) []SpecRow {
+	return []SpecRow{
+		{Label: query.T(world, "Auction"), Header: true},
+		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(l.Number)},
+		{Label: query.T(world, "Status"), Value: query.T(world, "Bidding")},
+		{Label: query.T(world, "Current bid"), Value: query.FormatCurrency(l.CurrentBid)},
+	}
+}
+
+// auctionSoldRows は落札済みの品の番号と落札額、出荷期限を返す。先頭は見出し
+func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {
+	return []SpecRow{
+		{Label: query.T(world, "Auction"), Header: true},
+		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(s.Number)},
+		{Label: query.T(world, "Status"), Value: query.T(world, "Won")},
+		{Label: query.T(world, "Bid"), Value: query.FormatCurrency(s.Bid)},
+		{Label: query.T(world, "Ship by turn"), Value: strconv.Itoa(s.DueTurn)},
+	}
 }
 
 // SpecRowsFromSpec は EntitySpec の性能表示を行の並びとして返す。

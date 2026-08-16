@@ -46,6 +46,7 @@ func TestVerbByAction_直達アクションを動詞へ対応づける(t *testin
 		{"食べる", inputmapper.ActionVerbConsume, verbConsume, true},
 		{"読む", inputmapper.ActionVerbRead, verbRead, true},
 		{"使う", inputmapper.ActionVerbUse, verbUse, true},
+		{"出品", inputmapper.ActionVerbList, verbTag, true},
 		{"投げるは未実装なので対応なし", inputmapper.ActionVerbThrow, verbID(""), false},
 		{"動詞でないアクションは対応なし", inputmapper.ActionMenuSelect, verbID(""), false},
 	}
@@ -95,6 +96,7 @@ func TestVerbTabIndex_動詞の表示順を返す(t *testing.T) {
 	assert.Equal(t, 2, verbTabIndex(verbConsume))
 	assert.Equal(t, 3, verbTabIndex(verbRead))
 	assert.Equal(t, 4, verbTabIndex(verbUse))
+	assert.Equal(t, 5, verbTabIndex(verbTag))
 	// 未知の動詞は先頭タブへ寄せる
 	assert.Equal(t, 0, verbTabIndex(verbID("unknown")))
 }

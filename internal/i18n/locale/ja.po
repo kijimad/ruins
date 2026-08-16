@@ -77,6 +77,9 @@ msgstr "読む"
 msgid "Use"
 msgstr "使う"
 
+msgid "List"
+msgstr "出品"
+
 msgid "No matching items"
 msgstr "該当するアイテムがありません"
 
@@ -5557,3 +5560,115 @@ msgstr "リロードは必要ない"
 
 msgid "no ammo"
 msgstr "弾薬がない"
+
+msgid "Tagged %s as #%d. Opening bid %s."
+msgstr "%s に #%d のタグを貼った。開始入札は %s"
+
+msgid "%s was won. Bid %s. Ready to ship."
+msgstr "%s が落札された。落札額 %s。出荷できる"
+
+msgid "Shipment scheduled. Pickup in %d turns."
+msgstr "出荷の準備を始めた。%d ターン後に集荷する"
+
+msgid "Collected %d items. %d receipts and a pickup bill arrived in the finance tab."
+msgstr "%d 件を集荷した。受取金 %d 件と集荷料金の請求が金銭タブに届いた"
+
+msgid "Collected %s. Received %s."
+msgstr "%s を集金した。%s を受け取った"
+
+msgid "Paid %s: %s."
+msgstr "%s を支払った: %s"
+
+msgid "Finance"
+msgstr "金銭"
+
+msgid "Receipt"
+msgstr "受取金"
+
+msgid "Invoice"
+msgstr "請求"
+
+msgid "Kind"
+msgstr "種別"
+
+msgid "Amount"
+msgstr "金額"
+
+msgid "Pickup fee"
+msgstr "集荷料金"
+
+msgid "No bills or receipts."
+msgstr "請求も受取金もない"
+
+msgid "%s missed the shipping deadline. Reputation is now %d."
+msgstr "%s の出荷期限を過ぎた。評判が %d に下がった"
+
+
+msgid "Ship by turn"
+msgstr "出荷期限ターン"
+
+msgid "There is a shipping station. Press Enter to open it."
+msgstr "出荷場所がある。Enter で開く"
+
+msgid "Open shipping station"
+msgstr "出荷場所を開く"
+
+msgid "Ship"
+msgstr "出荷"
+
+msgid "Pending"
+msgstr "集荷待ち"
+
+msgid "No items to ship."
+msgstr "出荷できる品がない"
+
+msgid "Nothing awaiting pickup."
+msgstr "集荷待ちの品がない"
+
+msgid "Shipping station"
+msgstr "出荷場所"
+
+msgid "Auction"
+msgstr "オークション"
+
+msgid "In progress"
+msgstr "進行中"
+
+msgid "No deals in progress."
+msgstr "進行中の取引がない"
+
+msgid "Won"
+msgstr "落札済み"
+
+msgid "Number"
+msgstr "番号"
+
+msgid "Status"
+msgstr "状況"
+
+msgid "Bidding"
+msgstr "入札中"
+
+msgid "Current bid"
+msgstr "現在値"
+
+msgid "History"
+msgstr "履歴"
+
+msgid "No shipments yet."
+msgstr "まだ出荷実績がない"
+
+msgid "Bid"
+msgstr "落札額"
+
+msgid "Shipping"
+msgstr "送料"
+
+msgid "Fee"
+msgstr "手数料"
+
+msgid "Net"
+msgstr "手取り"
+
+msgid "Turn"
+msgstr "ターン"

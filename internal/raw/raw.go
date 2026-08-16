@@ -720,6 +720,11 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		interactions = append(interactions, gc.InteractionStorage)
 	}
 
+	if propRaw.ShippingStation != nil {
+		entitySpec.AuctionStation = &gc.AuctionStation{}
+		interactions = append(interactions, gc.InteractionAuction)
+	}
+
 	if propRaw.Disassembly != nil {
 		interactions = append(interactions, gc.InteractionDisassemble)
 	}
