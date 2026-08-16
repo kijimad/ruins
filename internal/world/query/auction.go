@@ -57,3 +57,50 @@ func GetAuctionHistory(world w.World) *gc.AuctionHistory {
 	world.Components.AuctionHistory.Add(e, &gc.AuctionHistory{})
 	return world.Components.AuctionHistory.Get(e)
 }
+
+// StartAuctionListing はタグを貼って出品を始める。連番を採番し開始入札で AuctionListing を付ける。
+// 採番した番号を返す。以後この番号でその出品を指す。
+func StartAuctionListing(world w.World, item ecs.Entity, now int) int {
+	history := GetAuctionHistory(world)
+	history.NextNumber++
+	number := history.NextNumber
+	world.Components.AuctionListing.Add(item, &gc.AuctionListing{
+		Number:     number,
+		CurrentBid: AuctionOpeningBid(world, item),
+		LastTurn:   now,
+	})
+	return number
+}
+
+// ShipSoldItems は持ち物内の落札済みの品をまとめて出荷する。手取りを入金し履歴へ記録して品を消す。
+// 出荷した件数と手取り合計を返す。
+func ShipSoldItems(world w.World, player ecs.Entity, now int) (int, int) {
+	// 反復中はワールドがロックされ削除できない。一旦集めてからループ外で処理する
+	var items []ecs.Entity
+	q := ecs.NewFilter2[gc.AuctionSold, gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		if world.Components.LocationInBackpack.Get(q.Entity()).Owner == player {
+			items = append(items, q.Entity())
+		}
+	}
+
+	history := GetAuctionHistory(world)
+	count, total := 0, 0
+	for _, item := range items {
+		sold := world.Components.AuctionSold.Get(item)
+		bid := sold.Bid
+		ship := AuctionShippingCost(world, item)
+		fee := AuctionFee(bid)
+		net := bid - ship - fee
+		if err := AddCurrency(world, player, net); err != nil {
+			continue
+		}
+		history.Records = append(history.Records, gc.AuctionRecord{
+			Number: sold.Number, Name: GetEntityName(item, world), Bid: bid, Ship: ship, Fee: fee, Net: net, Turn: now,
+		})
+		world.ECS.RemoveEntity(item)
+		count++
+		total += net
+	}
+	return count, total
+}

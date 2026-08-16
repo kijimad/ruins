@@ -51,10 +51,9 @@ type OpenStorage struct {
 	StorageEntity ecs.Entity // 収納コンテナのエンティティ
 }
 
-// OpenAuction はオークションメニューを開く
-type OpenAuction struct {
-	BoxEntity ecs.Entity // オークション箱のエンティティ
-}
+// OpenAuction は出荷場所の状況確認メニューを開く。出品中と落札済みの状況は
+// 持ち物と履歴シングルトンから読むため、対象エンティティは要らない
+type OpenAuction struct{}
 
 func (WarpDescend) isStatePayload()      {}
 func (WarpAscend) isStatePayload()       {}
@@ -115,7 +114,7 @@ func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: OpenStorage{StorageEntity: storage}}
 }
 
-// OpenAuctionEvent はオークションメニューを開くリクエストを生成する
-func OpenAuctionEvent(box ecs.Entity) StateChangeRequest {
-	return StateChangeRequest{Payload: OpenAuction{BoxEntity: box}}
+// OpenAuctionEvent は出荷場所の状況確認メニューを開くリクエストを生成する
+func OpenAuctionEvent() StateChangeRequest {
+	return StateChangeRequest{Payload: OpenAuction{}}
 }

@@ -84,7 +84,8 @@ type EntitySpec struct {
 	VisionState        *VisionState
 	UserSettings       *UserSettings
 	AuctionListing     *AuctionListing
-	AuctionBox         *AuctionBox
+	AuctionSold        *AuctionSold
+	AuctionStation     *AuctionStation
 	AuctionHistory     *AuctionHistory
 }
 
@@ -168,7 +169,8 @@ type Components struct {
 	VisionState        *ecs.Map[VisionState]
 	UserSettings       *ecs.Map[UserSettings]
 	AuctionListing     *ecs.Map[AuctionListing]
-	AuctionBox         *ecs.Map[AuctionBox]
+	AuctionSold        *ecs.Map[AuctionSold]
+	AuctionStation     *ecs.Map[AuctionStation]
 	AuctionHistory     *ecs.Map[AuctionHistory]
 }
 
@@ -252,7 +254,8 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.VisionState = ecs.NewMap[VisionState](world)
 	c.UserSettings = ecs.NewMap[UserSettings](world)
 	c.AuctionListing = ecs.NewMap[AuctionListing](world)
-	c.AuctionBox = ecs.NewMap[AuctionBox](world)
+	c.AuctionSold = ecs.NewMap[AuctionSold](world)
+	c.AuctionStation = ecs.NewMap[AuctionStation](world)
 	c.AuctionHistory = ecs.NewMap[AuctionHistory](world)
 	return nil
 }
@@ -338,7 +341,8 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.VisionState, entity, spec.VisionState)
 	addComp(c.UserSettings, entity, spec.UserSettings)
 	addComp(c.AuctionListing, entity, spec.AuctionListing)
-	addComp(c.AuctionBox, entity, spec.AuctionBox)
+	addComp(c.AuctionSold, entity, spec.AuctionSold)
+	addComp(c.AuctionStation, entity, spec.AuctionStation)
 	addComp(c.AuctionHistory, entity, spec.AuctionHistory)
 	return entity
 }

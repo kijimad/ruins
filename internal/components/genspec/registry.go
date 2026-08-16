@@ -105,7 +105,8 @@ var Registry = []Def{
 	{Field: "UserSettings"},    // 設定画面で変更するグローバル設定を保持するシングルトン
 
 	// demo ================
-	{Field: "AuctionListing"}, // 通信販売デモで競売中の品の決着ターンを保持する
-	{Field: "AuctionBox"},     // 通信販売デモのオークション箱を示すマーカー
-	{Field: "AuctionHistory"}, // 通信販売デモの出荷実績履歴を保持するシングルトン
+	{Field: "AuctionListing"}, // 通信販売デモで出品中の品の現在値と採番を保持する
+	{Field: "AuctionSold"},    // 通信販売デモで落札済みで未出荷の品を示す
+	{Field: "AuctionStation"}, // 通信販売デモの出荷場所を示すマーカー
+	{Field: "AuctionHistory"}, // 通信販売デモの出荷実績履歴と採番カウンタを保持するシングルトン
 }

@@ -14688,17 +14688,14 @@ minSkill = 10
 [[props]]
 blockPass = true
 blockView = false
-description = "通信販売デモの出品箱。品を入れると競売にかかる"
-name = "Auction box"
-id = "auction_box"
+description = "通信販売デモの出荷場所。落札された品をここで出荷して入金する"
+name = "Shipping station"
+id = "shipping_station"
 
 [props.spriteRender]
 depth = 2
 spriteKey = "wooden_crate"
 spriteSheetName = "field"
-
-[props.storage]
-maxWeight = "50 kg"
 
 [[props]]
 blockPass = true

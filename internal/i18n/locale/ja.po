@@ -5558,11 +5558,50 @@ msgstr "リロードは必要ない"
 msgid "no ammo"
 msgstr "弾薬がない"
 
-msgid "%s went up for auction. Opening bid %s."
-msgstr "%s を競売に出した。開始入札は %s"
+msgid "Tagged %s as #%d. Opening bid %s."
+msgstr "%s に #%d のタグを貼った。開始入札は %s"
 
-msgid "%s was won. You got %s."
-msgstr "%s が落札された。%s を得た"
+msgid "%s was won. Bid %s. Ready to ship."
+msgstr "%s が落札された。落札額 %s。出荷できる"
+
+msgid "Shipped %d items. You got %s."
+msgstr "%d 件を出荷した。%s を得た"
+
+msgid "No won items to ship."
+msgstr "出荷する落札済みの品がない"
+
+msgid "There is a shipping station. Press Enter to ship or check status."
+msgstr "出荷場所がある。Enter で出荷または状況確認できる"
+
+msgid "Check auction status"
+msgstr "状況を見る"
+
+msgid "Ship won items"
+msgstr "落札品を出荷する"
+
+msgid "Shipping station"
+msgstr "出荷場所"
+
+msgid "Auction"
+msgstr "オークション"
+
+msgid "Listing"
+msgstr "出品中"
+
+msgid "Won"
+msgstr "落札済み"
+
+msgid "Nothing listed."
+msgstr "出品中の品がない"
+
+msgid "No won items."
+msgstr "落札済みの品がない"
+
+msgid "Number"
+msgstr "番号"
+
+msgid "Status"
+msgstr "状況"
 
 msgid "Bidding"
 msgstr "入札中"
@@ -5572,15 +5611,6 @@ msgstr "落札済み"
 
 msgid "Current bid"
 msgstr "現在値"
-
-msgid "Auction box"
-msgstr "オークション箱"
-
-msgid "Open auction box"
-msgstr "オークション箱を開く"
-
-msgid "There is an auction box. Press Enter to open it."
-msgstr "オークション箱がある。Enter で開く"
 
 msgid "History"
 msgstr "履歴"

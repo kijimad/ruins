@@ -60,6 +60,8 @@ const (
 	BehaviorPush BehaviorName = "Push"
 	// BehaviorPull は隣接する移動拠点キューブを自分の側へ引いて動かす
 	BehaviorPull BehaviorName = "Pull"
+	// BehaviorShip は出荷場所で落札済みの品を出荷する結果ラベル。対応する Behavior 実装は持たない
+	BehaviorShip BehaviorName = "Ship"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント

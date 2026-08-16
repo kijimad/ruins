@@ -59,8 +59,10 @@ const (
 	InteractionPullCube InteractionKind = "PULL_CUBE"
 	// InteractionCubePanel はキューブ内部のコントロールパネル。全体情報の閲覧と将来の拡張UIの入口
 	InteractionCubePanel InteractionKind = "CUBE_PANEL"
-	// InteractionAuction は通信販売デモのオークション箱。専用メニューを開いて出品と履歴閲覧をする
+	// InteractionAuction は通信販売デモの出荷場所。専用メニューを開いて出品と落札の状況を確認する
 	InteractionAuction InteractionKind = "AUCTION"
+	// InteractionShip は通信販売デモの出荷場所。持ち物の落札済みの品をまとめて出荷する
+	InteractionShip InteractionKind = "SHIP"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -72,7 +74,7 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
-	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionAuction:
+	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionAuction, InteractionShip:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
 	case InteractionExitCube:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}

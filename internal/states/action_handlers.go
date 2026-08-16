@@ -211,7 +211,13 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			})
 		case gc.InteractionAuction:
 			result = append(result, InteractionAction{
-				Label:       query.T(world, "Open auction box"),
+				Label:       query.T(world, "Check auction status"),
+				Target:      interactableEntity,
+				Interaction: interaction,
+			})
+		case gc.InteractionShip:
+			result = append(result, InteractionAction{
+				Label:       query.T(world, "Ship won items"),
 				Target:      interactableEntity,
 				Interaction: interaction,
 			})
