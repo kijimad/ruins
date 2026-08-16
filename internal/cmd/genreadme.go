@@ -67,8 +67,6 @@ type imageEntry struct {
 }
 
 // buildImageTableFrom は指定ディレクトリ直下の TestGolden_*.png から4列のMarkdownテーブルを生成する。
-// 3D の参照画像は TestGolden_3D_*.png として同じ直下に並び、数字 3 が英字より先にソートされるため
-// 自動で先頭に来る。
 func buildImageTableFrom(dir string) (string, error) {
 	entries, err := collectTopImages(dir)
 	if err != nil {
