@@ -125,21 +125,22 @@ func TestShipStagedItems_落札済みは入金し未落札は消えるだけ(t *
 	require.NoError(t, lifecycle.MoveToStorage(world, junk, station))
 
 	bid := world.Components.AuctionSold.Get(won).Bid
-	expectedNet := bid - query.AuctionShippingCost(world, won) - query.AuctionFee(bid)
+	expectedGross := bid - query.AuctionShippingCost(world, won) - query.AuctionFee(bid)
 	before := query.GetCurrency(world, player)
 
-	shipped, paid, total := query.ShipStagedItems(world, station, player, 42)
+	shipped, paid, gross, pickup := query.ShipStagedItems(world, station, player, 42)
 
 	assert.Equal(t, 2, shipped, "積んだ品はすべて出荷される")
 	assert.Equal(t, 1, paid, "入金されるのは落札済みだけ")
-	assert.Equal(t, expectedNet, total, "手取りは落札済みの分だけ")
-	assert.Equal(t, before+expectedNet, query.GetCurrency(world, player), "落札済みの手取りが入金される")
+	assert.Equal(t, expectedGross, gross, "売上は落札済みの分だけ")
+	assert.Equal(t, query.AuctionPickupFee, pickup, "集荷1回につき定額の集荷手数料がかかる")
+	assert.Equal(t, before+expectedGross-query.AuctionPickupFee, query.GetCurrency(world, player), "受取は売上から集荷手数料を引いた額")
 	assert.False(t, world.ECS.Alive(won), "落札済みは出荷で手放す")
 	assert.False(t, world.ECS.Alive(junk), "未落札も出荷され金にならず消える")
 	records := query.GetAuctionHistory(world).Records
 	require.Len(t, records, 1, "履歴に残るのは落札済みだけ")
 	assert.Equal(t, 42, records[0].Turn, "出荷したターンを記録する")
-	assert.Equal(t, expectedNet, records[0].Net, "手取りを記録する")
+	assert.Equal(t, expectedGross, records[0].Net, "品ごとの手取りを記録する。集荷手数料は含めない")
 }
 
 func TestAuctionDemoSystem_積荷はターン経過で自動出荷される(t *testing.T) {
@@ -161,20 +162,21 @@ func TestAuctionDemoSystem_積荷はターン経過で自動出荷される(t *t
 	}
 	require.True(t, world.Components.AuctionSold.Has(item), "落札済みになる")
 
-	// 落札済みを積荷へ積む。以後はプレイヤーの操作なしにターン経過で出荷される
+	// 落札済みを積荷へ積む。以後はプレイヤーの操作なしに集荷タイマーで出荷される
 	require.NoError(t, lifecycle.MoveToStorage(world, item, station))
 	bid := world.Components.AuctionSold.Get(item).Bid
-	expectedNet := bid - query.AuctionShippingCost(world, item) - query.AuctionFee(bid)
+	gross := bid - query.AuctionShippingCost(world, item) - query.AuctionFee(bid)
+	expectedReceived := gross - query.AuctionPickupFee
 	before := query.GetCurrency(world, player)
 
-	// 出荷は10ターンに1回の集荷なので、次の集荷まで数ターンかかる
-	for i := 0; i < auctionShipInterval+1 && world.ECS.Alive(item); i++ {
+	// 積荷が入ってから10ターン後に集荷する。タイマー開始の1ターンぶんを含め余裕を持って回す
+	for i := 0; i < auctionShipDelay+2 && world.ECS.Alive(item); i++ {
 		query.GetGameTime(world).Advance()
 		require.NoError(t, sys.Update(world))
 	}
 
-	assert.False(t, world.ECS.Alive(item), "積荷は集荷のターンに自動出荷され手放す")
-	assert.Equal(t, before+expectedNet, query.GetCurrency(world, player), "自動出荷で手取りが入金される")
+	assert.False(t, world.ECS.Alive(item), "積荷はタイマー満了で集荷され手放す")
+	assert.Equal(t, before+expectedReceived, query.GetCurrency(world, player), "受取は売上から集荷手数料を引いた額")
 	require.Len(t, query.GetAuctionHistory(world).Records, 1, "出荷実績が履歴に残る")
 }
 
@@ -188,11 +190,12 @@ func TestShipStagedItems_積荷が無ければ何もしない(t *testing.T) {
 	require.NoError(t, err)
 	before := query.GetCurrency(world, player)
 
-	shipped, paid, total := query.ShipStagedItems(world, station, player, 0)
+	shipped, paid, gross, pickup := query.ShipStagedItems(world, station, player, 0)
 
 	assert.Zero(t, shipped, "積荷が無ければ0件")
 	assert.Zero(t, paid, "入金も0件")
-	assert.Zero(t, total, "手取りも0")
+	assert.Zero(t, gross, "売上も0")
+	assert.Zero(t, pickup, "集荷手数料もかからない")
 	assert.Equal(t, before, query.GetCurrency(world, player), "所持金は変わらない")
 }
 

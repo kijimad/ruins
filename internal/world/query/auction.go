@@ -9,14 +9,18 @@ import (
 
 // 通信販売デモの価格モデル。数値は検証用の暫定で、設計 doc の確定値ではない。
 const (
-	auctionShipRatePerKg = 25.0 // 発送料は重量に比例する
-	auctionFeeRate       = 0.12 // 手数料は落札額に比例する
+	auctionShipRatePerKg = 25.0 // 配送料は重量に比例する。品ごとにかかる
+	auctionFeeRate       = 0.12 // 手数料は落札額に比例する。品ごとにかかる
 	auctionOpeningMult   = 0.4  // 開始入札は基準価値のこの割合
 	auctionRaiseMult     = 0.15 // 1回の入札の上げ幅は基準価値のこの割合
 
 	// AuctionBidChance は毎ターン新たな入札が来る確率。入札が来る限り競売は延長し、
 	// 来なかったターンに落札が確定する。
 	AuctionBidChance = 0.6
+
+	// AuctionPickupFee は集荷手数料。集荷1回につき定額でかかり、品ごとの配送料や手数料とは別立て。
+	// 小分けに集荷するほどかさむので、1回にまとめるほど得になる。
+	AuctionPickupFee = 100
 )
 
 // AuctionOpeningBid は開始入札額を返す。基準価値に分散を掛けた控えめな額から競売が始まる。
@@ -72,12 +76,17 @@ func StartAuctionListing(world w.World, item ecs.Entity, now int) int {
 	return number
 }
 
-// ShipStagedItems は出荷場所の積荷をすべて出荷する。落札済みの品だけ手取りを入金し履歴へ残す。
-// 落札されていない品は出荷しても金にならず、ただ手放す。だから積めるだけ積む戦略は成立しない。
-// 出荷した総件数と入金した件数と手取り合計を返す。
-func ShipStagedItems(world w.World, station, player ecs.Entity, now int) (shipped, paid, total int) {
+// ShipStagedItems は出荷場所の積荷をまとめて集荷する。落札済みの品だけ売上を計上し履歴へ残す。
+// 落札されていない品は集荷しても金にならず、ただ手放される。
+// 費用は現実同様に別立てにする。品ごとに配送料と手数料がかかり、集荷1回につき定額の集荷手数料がかかる。
+// だから小分けに集荷するほど集荷手数料がかさみ、1回にまとめるほど得になる。
+// 出荷した総件数、入金した件数、売上合計、この集荷の集荷手数料を返す。受取は売上合計から集荷手数料を引いた額。
+func ShipStagedItems(world w.World, station, player ecs.Entity, now int) (shipped, paid, gross, pickup int) {
 	// GetStorageItems は確定したスライスを返すので、反復中に削除してよい
 	items := GetStorageItems(world, station)
+	if len(items) == 0 {
+		return 0, 0, 0, 0
+	}
 	history := GetAuctionHistory(world)
 	for _, item := range items {
 		if world.Components.AuctionSold.Has(item) {
@@ -86,17 +95,20 @@ func ShipStagedItems(world w.World, station, player ecs.Entity, now int) (shippe
 			ship := AuctionShippingCost(world, item)
 			fee := AuctionFee(bid)
 			net := bid - ship - fee
-			if err := AddCurrency(world, player, net); err == nil {
-				history.Records = append(history.Records, gc.AuctionRecord{
-					Number: sold.Number, Name: GetEntityName(item, world), Bid: bid, Ship: ship, Fee: fee, Net: net, Turn: now,
-				})
-				paid++
-				total += net
-			}
+			history.Records = append(history.Records, gc.AuctionRecord{
+				Number: sold.Number, Name: GetEntityName(item, world), Bid: bid, Ship: ship, Fee: fee, Net: net, Turn: now,
+			})
+			gross += net
+			paid++
 		}
 		// 落札済みでない品は精算されず、ただ手放される
 		world.ECS.RemoveEntity(item)
 		shipped++
 	}
-	return shipped, paid, total
+	// 集荷手数料は集荷1回につき定額でかかる。品ごとの配送料や手数料とは別立て
+	pickup = AuctionPickupFee
+	if err := AddCurrency(world, player, gross-pickup); err != nil {
+		return shipped, paid, gross, pickup
+	}
+	return shipped, paid, gross, pickup
 }

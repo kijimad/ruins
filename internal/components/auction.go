@@ -16,9 +16,12 @@ type AuctionSold struct {
 	Bid    int // 確定した落札額。手取りは出荷時に発送料と手数料を引いて求める
 }
 
-// AuctionStation はオークションの出荷場所を示すマーカー。ここで落札済みの品を出荷し、状況を確認する。
+// AuctionStation はオークションの出荷場所を示す。積荷が入ると集荷タイマーが動き出し、
+// 満了すると積荷をまとめて集荷する。ここで落札済みの品を出荷し、状況を確認する。
 // デモ専用の一時状態であり保存しない。
-type AuctionStation struct{}
+type AuctionStation struct {
+	ShipAtTurn int // 集荷するターン。0 は積荷が無くタイマー停止中を表す
+}
 
 // AuctionRecord は1件の出荷実績。落札額から送料と手数料を引いた手取りまでを残す。
 type AuctionRecord struct {

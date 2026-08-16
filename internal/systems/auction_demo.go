@@ -12,8 +12,8 @@ import (
 // システムが見つけて出荷場所に仕立てる。
 const shippingStationRawID = "shipping_station"
 
-// auctionShipInterval は自動出荷の周期。集荷は毎ターンでなくこのターン数に1回だけ走る。
-const auctionShipInterval = 10
+// auctionShipDelay は集荷タイマーの長さ。積荷が入るとこのターン数だけ待ってから集荷する。
+const auctionShipDelay = 10
 
 // AuctionDemoSystem はタグを貼って出品された品の競売をターン経過で進める。
 // 入札が来る限り現在値を上げて延長し、入札が止まったターンに現在値で落札を確定する。
@@ -43,16 +43,16 @@ func (sys *AuctionDemoSystem) Update(world w.World) error {
 		processAuctionItem(world, item, now)
 	}
 
-	// 積荷は10ターンに1回の集荷で自動出荷する。プレイヤーは落札済みを積むだけでよい
-	if now > 0 && now%auctionShipInterval == 0 {
-		autoShipStations(world, now)
-	}
+	// 積荷が入ると集荷タイマーが動き出し、満了したら積荷をまとめて集荷する。
+	// プレイヤーは落札済みを積むだけでよい
+	updateShippingTimers(world, now)
 	return nil
 }
 
-// autoShipStations は各出荷場所の積荷を自動で出荷する。落札済みだけ入金し履歴へ残す。
-// 積める品は落札済みに限るので、積荷はそのまま精算される。
-func autoShipStations(world w.World, now int) {
+// updateShippingTimers は各出荷場所の集荷タイマーを進める。
+// 積荷が入った出荷場所はタイマーを開始し、満了したターンに積荷をまとめて集荷する。
+// 積荷が空になったらタイマーを止める。まとめて集荷するほど集荷手数料が1回で済む。
+func updateShippingTimers(world w.World, now int) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return
@@ -63,16 +63,28 @@ func autoShipStations(world w.World, now int) {
 		stations = append(stations, q.Entity())
 	}
 	for _, station := range stations {
-		shipped, _, total := query.ShipStagedItems(world, station, player, now)
-		if shipped > 0 {
-			logAutoShipped(world, shipped, total)
+		staged := len(query.GetStorageItems(world, station)) > 0
+		s := world.Components.AuctionStation.Get(station)
+		switch {
+		case !staged:
+			s.ShipAtTurn = 0 // 積荷が無いのでタイマー停止
+		case s.ShipAtTurn == 0:
+			s.ShipAtTurn = now + auctionShipDelay // 積荷が入ったのでタイマー開始
+		case now >= s.ShipAtTurn:
+			// 満了。集荷する。ShipStagedItems が構造変更する前にタイマーを止める
+			s.ShipAtTurn = 0
+			shipped, _, gross, pickup := query.ShipStagedItems(world, station, player, now)
+			if shipped > 0 {
+				logCollected(world, shipped, gross, pickup)
+			}
 		}
 	}
 }
 
-func logAutoShipped(world w.World, count, total int) {
+func logCollected(world w.World, count, gross, pickup int) {
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "Shipped %d items. You got %s.", count, query.FormatCurrency(total))).
+		Markup(query.T(world, "Collected %d items. Sales %s, pickup fee %s, received %s.",
+			count, query.FormatCurrency(gross), query.FormatCurrency(pickup), query.FormatCurrency(gross-pickup))).
 		Log()
 }
 
