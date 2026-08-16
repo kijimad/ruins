@@ -39,7 +39,7 @@ func newGoldenBackdrop() (es.State[w.World], error) {
 
 // TestGolden はステートの実描画をフルスタックで固定する VRT をまとめて回す。
 // 各ケースは build が返すステート列を実際のプレイどおり描いて golden と比較する。
-// 各サブテストの golden は t.Name() をパスとして testdata/TestGolden/<name>.png に保存される。
+// golden 名は "TestGolden_"+ケース名を明示的に渡すため testdata/TestGolden_<name>.png に平置きされる。
 func TestGolden(t *testing.T) {
 	t.Parallel()
 
@@ -201,7 +201,7 @@ func TestGolden(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+			vrt.AssertStateGolden(t, "TestGolden_"+tc.name, func(world w.World) []es.State[w.World] {
 				states, err := tc.build(world)
 				require.NoError(t, err)
 				return states

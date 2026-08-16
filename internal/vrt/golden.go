@@ -63,7 +63,7 @@ func AssertContainerGolden(t *testing.T, buildFn func() *widget.Container, width
 	})
 
 	pngData := encodePNG(t, img)
-	assertPNGGolden(t, pngData)
+	assertPNGGolden(t, t.Name(), pngData)
 }
 
 // AssertScreenGolden は setupFn が返す描画関数で自前で ebiten.Image に描き、ゴールデン画像と比較する。
@@ -81,7 +81,7 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 	})
 
 	pngData := encodePNG(t, img)
-	assertPNGGolden(t, pngData)
+	assertPNGGolden(t, t.Name(), pngData)
 }
 
 // encodePNG はimage.Imageをpngバイト列にエンコードする
@@ -114,10 +114,11 @@ func toleranceForSize(width, height int) float64 {
 	return noiseScale / math.Sqrt(float64(total))
 }
 
-// assertPNGGolden はPNGバイト列をゴールデン画像と比較する。
+// assertPNGGolden はPNGバイト列を name のゴールデン画像と比較する。golden は testdata/name.png。
+// name はサブテスト名でなく明示的に渡す。t.Run のスラッシュがパスに混ざらず、保存先が平置きになる。
 // 画像サイズからトレランスを自動算出し、小さい画像は寛容に、大きい画像は厳密に判定する。
 // GOLDIE_UPDATE=1 のときはトレランス内なら更新をスキップする
-func assertPNGGolden(t *testing.T, pngData []byte) {
+func assertPNGGolden(t *testing.T, name string, pngData []byte) {
 	t.Helper()
 
 	cfg, err := png.DecodeConfig(bytes.NewReader(pngData))
@@ -126,7 +127,7 @@ func assertPNGGolden(t *testing.T, pngData []byte) {
 
 	if isGoldieUpdate() {
 		g := newGoldie(t)
-		goldenPath := g.GoldenFileName(t, t.Name())
+		goldenPath := g.GoldenFileName(t, name)
 		if existingData, err := os.ReadFile(goldenPath); err == nil {
 			equalFn := pngPixelEqualFn(toleranceRatio)
 			if equalFn(pngData, existingData) {
@@ -134,7 +135,7 @@ func assertPNGGolden(t *testing.T, pngData []byte) {
 				return
 			}
 		}
-		require.NoError(t, g.Update(t, t.Name(), pngData))
+		require.NoError(t, g.Update(t, name, pngData))
 		t.Logf("updated golden image: %s", goldenPath)
 		return
 	}
@@ -148,7 +149,7 @@ func assertPNGGolden(t *testing.T, pngData []byte) {
 			)
 		}),
 	)
-	g.Assert(t, t.Name(), pngData)
+	g.Assert(t, name, pngData)
 }
 
 // isGoldieUpdate は GOLDIE_UPDATE が有効かどうかを返す
