@@ -5627,14 +5627,14 @@ msgstr "出荷場所"
 msgid "Auction"
 msgstr "オークション"
 
-msgid "Listing"
-msgstr "出品中"
+msgid "In progress"
+msgstr "進行中"
+
+msgid "No deals in progress."
+msgstr "進行中の取引がない"
 
 msgid "Won"
 msgstr "落札済み"
-
-msgid "Nothing listed."
-msgstr "出品中の品がない"
 
 msgid "Number"
 msgstr "番号"

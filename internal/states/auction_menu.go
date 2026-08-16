@@ -24,12 +24,12 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 出荷場所メニューのタブ識別子。金銭・積む・積荷・出品中・履歴で構成する
+// 出荷場所メニューのタブ識別子。進行中・積む・積荷・金銭・履歴で構成する
 const (
 	tabIDFinance tabID = "finance"
 	tabIDStage   tabID = "stage"
 	tabIDShip    tabID = "ship"
-	tabIDListing tabID = "listing"
+	tabIDStatus  tabID = "status"
 	tabIDHistory tabID = "history"
 )
 
@@ -113,7 +113,7 @@ type auctionItemRow struct {
 	HasValue bool   // 金額を出すか
 }
 
-// auctionLedgerRow は出品中・履歴タブの1行
+// auctionLedgerRow は進行中・履歴タブの1行
 type auctionLedgerRow struct {
 	Number  int
 	Name    string
@@ -130,7 +130,7 @@ type auctionLedgerRow struct {
 func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 	return AuctionProps{
 		Tabs: []auctionTabData{
-			{ID: tabIDListing, Label: query.T(world, "Listing"), Ledger: st.listingRows(world)},
+			{ID: tabIDStatus, Label: query.T(world, "In progress"), Ledger: st.statusRows(world)},
 			{ID: tabIDStage, Label: query.T(world, "Load"), Items: st.stageItems(world)},
 			{ID: tabIDShip, Label: query.T(world, "Staged"), Items: st.shipItems(world)},
 			{ID: tabIDFinance, Label: query.T(world, "Finance"), Entries: query.GetAuctionHistory(world).Entries},
@@ -148,7 +148,7 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 			itemCounts[i] = len(tab.Items)
 		case tabIDFinance:
 			itemCounts[i] = len(tab.Entries)
-		case tabIDListing, tabIDHistory, tabIDStore, tabIDRetrieve:
+		case tabIDStatus, tabIDHistory, tabIDStore, tabIDRetrieve:
 			itemCounts[i] = len(tab.Ledger)
 		}
 	}
@@ -207,18 +207,30 @@ func (st *AuctionMenuState) toItemRows(world w.World, entities []ecs.Entity) []a
 	return rows
 }
 
-// listingRows は出品中の品を番号順に返す
-func (st *AuctionMenuState) listingRows(world w.World) []auctionLedgerRow {
+// statusRows は進行中の取引を番号順に返す。出品中の品と、落札済みでまだ出荷していない品を並べる。
+// 出荷が済むまで取引は完了しないので、どちらも一覧に残す
+func (st *AuctionMenuState) statusRows(world w.World) []auctionLedgerRow {
 	var rows []auctionLedgerRow
-	q := ecs.NewFilter1[gc.AuctionListing](world.ECS).Query()
-	for q.Next() {
-		item := q.Entity()
+	lq := ecs.NewFilter1[gc.AuctionListing](world.ECS).Query()
+	for lq.Next() {
+		item := lq.Entity()
 		l := world.Components.AuctionListing.Get(item)
 		ship := query.AuctionShippingCost(world, item)
 		fee := query.AuctionFee(l.CurrentBid)
 		rows = append(rows, auctionLedgerRow{
 			Number: l.Number, Name: query.GetEntityName(item, world),
 			Bid: l.CurrentBid, Ship: ship, Fee: fee, Net: l.CurrentBid - ship - fee, Ongoing: true,
+		})
+	}
+	sq := ecs.NewFilter1[gc.AuctionSold](world.ECS).Query()
+	for sq.Next() {
+		item := sq.Entity()
+		s := world.Components.AuctionSold.Get(item)
+		ship := query.AuctionShippingCost(world, item)
+		fee := query.AuctionFee(s.Bid)
+		rows = append(rows, auctionLedgerRow{
+			Number: s.Number, Name: query.GetEntityName(item, world),
+			Bid: s.Bid, Ship: ship, Fee: fee, Net: s.Bid - ship - fee,
 		})
 	}
 	sort.Slice(rows, func(i, j int) bool { return rows[i].Number < rows[j].Number })
@@ -264,7 +276,7 @@ func (st *AuctionMenuState) selectRow(world w.World) error {
 		world.Components.AuctionStaged.Remove(item)
 	case tabIDFinance:
 		return st.settleEntry(world, cursor.ItemIndex)
-	case tabIDListing, tabIDHistory:
+	case tabIDStatus, tabIDHistory:
 		st.detail.Open(world)
 	case tabIDStore, tabIDRetrieve:
 	}
@@ -448,22 +460,38 @@ func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData
 		menuListOpts{AlwaysIndicator: true, EmptyText: empty}, res)
 }
 
-// buildLedgerContainer は出品中・履歴タブの一覧を組む。各行は番号と品名と金額
+// buildLedgerContainer は進行中・履歴タブの一覧を組む。進行中は番号・品名・状態・金額の4列、
+// 履歴は状態が発送済みで固定なので番号・品名・金額の3列にする。金額はどの行も入札額を出す
 func (st *AuctionMenuState) buildLedgerContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {
+	if tab.ID == tabIDHistory {
+		rows := make([]menuRow, len(tab.Ledger))
+		for i, r := range tab.Ledger {
+			rows[i] = menuRow{Cells: []styled.Cell{
+				styled.TextCell("#" + strconv.Itoa(r.Number)),
+				styled.TextCell(r.Name),
+				styled.TextCell(query.FormatCurrency(r.Bid)),
+			}}
+		}
+		return renderMenuList(itemIndex, rows, []int{50, 200, 120},
+			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No shipments yet.")}, res)
+	}
+
+	// 進行中タブは出品中と落札済みが混ざるので、状態を1列足して取引の段階を見せる
 	rows := make([]menuRow, len(tab.Ledger))
 	for i, r := range tab.Ledger {
-		// 金額はどの行も入札額を出す。出品中は現在値、履歴は落札額
+		status := query.T(world, "Won")
+		if r.Ongoing {
+			status = query.T(world, "Bidding")
+		}
 		rows[i] = menuRow{Cells: []styled.Cell{
 			styled.TextCell("#" + strconv.Itoa(r.Number)),
 			styled.TextCell(r.Name),
+			styled.TextCell(status),
 			styled.TextCell(query.FormatCurrency(r.Bid)),
 		}}
 	}
-	empty := query.T(world, "Nothing listed.")
-	if tab.ID == tabIDHistory {
-		empty = query.T(world, "No shipments yet.")
-	}
-	return renderMenuList(itemIndex, rows, []int{50, 200, 120},
-		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-		menuListOpts{AlwaysIndicator: true, EmptyText: empty}, res)
+	return renderMenuList(itemIndex, rows, []int{50, 170, 70, 110},
+		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+		menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No deals in progress.")}, res)
 }
