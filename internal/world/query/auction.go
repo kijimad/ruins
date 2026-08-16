@@ -21,9 +21,6 @@ const (
 	// AuctionPickupFee は集荷手数料。集荷1回につき定額でかかり、品ごとの配送料や手数料とは別立て。
 	// 小分けに集荷するほどかさむので、1回にまとめるほど得になる。
 	AuctionPickupFee = 100
-
-	// AuctionStartingReputation は店の初期評判。出荷期限を破ると下がる。
-	AuctionStartingReputation = 100
 )
 
 // AuctionOpeningBid は開始入札額を返す。基準価値に分散を掛けた控えめな額から競売が始まる。
@@ -52,17 +49,9 @@ func AuctionFee(bid int) int {
 	return int(float64(bid) * auctionFeeRate)
 }
 
-// GetAuctionHistory は出荷実績の履歴シングルトンを取得する。無ければ作る。
+// GetAuctionHistory は出荷実績の履歴シングルトンを取得する。
 func GetAuctionHistory(world w.World) *gc.AuctionHistory {
-	q := ecs.NewFilter1[gc.AuctionHistory](world.ECS).Query()
-	if q.Next() {
-		h := world.Components.AuctionHistory.Get(q.Entity())
-		q.Close()
-		return h
-	}
-	e := world.ECS.NewEntity()
-	world.Components.AuctionHistory.Add(e, &gc.AuctionHistory{Reputation: AuctionStartingReputation})
-	return world.Components.AuctionHistory.Get(e)
+	return GetSingleton[gc.AuctionHistory](world, world.Components.AuctionHistory)
 }
 
 // StartAuctionListing はタグを貼って出品を始める。連番を採番し開始入札で AuctionListing を付ける。

@@ -82,3 +82,11 @@ type AuctionHistory struct {
 	Entries    []AuctionEntry // 金銭タブに並ぶ未精算の受取金と請求
 	Records    []AuctionRecord
 }
+
+// auctionStartingReputation は店の初期評判。出荷期限を破ると下がる。
+const auctionStartingReputation = 100
+
+// NewAuctionHistory は初期状態の履歴シングルトンを返す。評判を初期値にし、明細と実績は空で始める。
+func NewAuctionHistory() *AuctionHistory {
+	return &AuctionHistory{Reputation: auctionStartingReputation}
+}
