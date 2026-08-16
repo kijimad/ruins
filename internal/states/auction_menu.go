@@ -10,7 +10,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuloop"
@@ -65,29 +64,22 @@ func (st *AuctionMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// ExtraInput は s で積荷を出荷し、x で選択中の詳細モーダルを開く
+// ExtraInput は x で選択中の詳細モーダルを開く
 func (st *AuctionMenuState) ExtraInput() (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyS) {
-		return inputmapper.ActionAuctionShip, true
-	}
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		return inputmapper.ActionOpenItemDetail, true
 	}
 	return "", false
 }
 
-// DoAction はActionを実行する。Enter は積む・出す、s は出荷、x は詳細を開く
+// DoAction はActionを実行する。Enter は積む・出す、x は詳細を開く。出荷はターン経過で自動実行する
 func (st *AuctionMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionOpenItemDetail:
 		st.detail.Open(world)
-	case inputmapper.ActionAuctionShip:
-		if err := st.shipStaged(world); err != nil {
-			return es.Transition[w.World]{}, err
-		}
 	case inputmapper.ActionMenuSelect:
 		if err := st.selectRow(world); err != nil {
 			return es.Transition[w.World]{}, err
@@ -139,7 +131,7 @@ func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 	return AuctionProps{
 		Tabs: []auctionTabData{
 			{ID: tabIDStage, Label: query.T(world, "Load"), Items: st.stageItems(world)},
-			{ID: tabIDShip, Label: query.T(world, "Ship"), Items: st.shipItems(world)},
+			{ID: tabIDShip, Label: query.T(world, "Staged"), Items: st.shipItems(world)},
 			{ID: tabIDListing, Label: query.T(world, "Listing"), Ledger: st.listingRows(world)},
 			{ID: tabIDHistory, Label: query.T(world, "History"), Ledger: st.historyRows(world)},
 		},
@@ -270,24 +262,6 @@ func (st *AuctionMenuState) selectRow(world w.World) error {
 	return nil
 }
 
-// shipStaged は積荷をまとめて出荷する。落札済みだけ入金し、落札されていない品は消える
-func (st *AuctionMenuState) shipStaged(world w.World) error {
-	player, err := query.GetPlayerEntity(world)
-	if err != nil {
-		return err
-	}
-	now := int(query.GetGameTime(world).TotalTurns)
-	shipped, paid, total := query.ShipStagedItems(world, st.stationEntity, player, now)
-	if shipped == 0 {
-		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "Nothing staged to ship.")).Log()
-		return nil
-	}
-	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "Shipped %d items. Paid for %d. You got %s.", shipped, paid, query.FormatCurrency(total))).
-		Log()
-	return nil
-}
-
 func (st *AuctionMenuState) selectedItem(tab auctionTabData, index int) (ecs.Entity, bool) {
 	if index < 0 || index >= len(tab.Items) {
 		return gc.InvalidEntity, false
@@ -305,7 +279,7 @@ func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menul
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildActiveContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(world, true, query.T(world, "s Ship  x Details")),
+		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
 	})
 }
 

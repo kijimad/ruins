@@ -53,9 +53,6 @@ const (
 // ActionOpenItemDetail は動詞タブ画面で選択中アイテムの詳細モーダルを開く
 const ActionOpenItemDetail ActionID = "open_item_detail"
 
-// ActionAuctionShip は出荷場所メニューで積荷をまとめて出荷する
-const ActionAuctionShip ActionID = "auction_ship"
-
 // 世界との相互作用アクション
 const (
 	ActionInteract ActionID = "interact" // 汎用的な相互作用（ワープ、アイテム拾得など）

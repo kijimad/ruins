@@ -39,7 +39,36 @@ func (sys *AuctionDemoSystem) Update(world w.World) error {
 	for _, item := range items {
 		processAuctionItem(world, item, now)
 	}
+
+	// 積荷はターン経過で自動出荷する。プレイヤーは落札済みを積むだけでよい
+	autoShipStations(world, now)
 	return nil
+}
+
+// autoShipStations は各出荷場所の積荷を自動で出荷する。落札済みだけ入金し履歴へ残す。
+// 積める品は落札済みに限るので、積荷はそのまま精算される。
+func autoShipStations(world w.World, now int) {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return
+	}
+	var stations []ecs.Entity
+	q := ecs.NewFilter1[gc.AuctionStation](world.ECS).Query()
+	for q.Next() {
+		stations = append(stations, q.Entity())
+	}
+	for _, station := range stations {
+		shipped, _, total := query.ShipStagedItems(world, station, player, now)
+		if shipped > 0 {
+			logAutoShipped(world, shipped, total)
+		}
+	}
+}
+
+func logAutoShipped(world w.World, count, total int) {
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "Shipped %d items. You got %s.", count, query.FormatCurrency(total))).
+		Log()
 }
 
 // processAuctionItem は1品の競売を進める。1ターンに1回、入札が来れば現在値を上げて延長し、

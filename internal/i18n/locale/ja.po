@@ -5564,11 +5564,8 @@ msgstr "%s に #%d のタグを貼った。開始入札は %s"
 msgid "%s was won. Bid %s. Ready to ship."
 msgstr "%s が落札された。落札額 %s。出荷できる"
 
-msgid "Shipped %d items. Paid for %d. You got %s."
-msgstr "%d 件を出荷した。うち %d 件が入金され、%s を得た"
-
-msgid "Nothing staged to ship."
-msgstr "出荷する積荷がない"
+msgid "Shipped %d items. You got %s."
+msgstr "%d 件を出荷した。%s を得た"
 
 msgid "There is a shipping station. Press Enter to open it."
 msgstr "出荷場所がある。Enter で開く"
@@ -5576,17 +5573,14 @@ msgstr "出荷場所がある。Enter で開く"
 msgid "Open shipping station"
 msgstr "出荷場所を開く"
 
-msgid "Ship"
-msgstr "出荷"
+msgid "Staged"
+msgstr "積荷"
 
 msgid "No items to stage."
 msgstr "積む品がない"
 
 msgid "Nothing staged."
 msgstr "積荷がない"
-
-msgid "s Ship  x Details"
-msgstr "s 出荷  x 詳細"
 
 msgid "Shipping station"
 msgstr "出荷場所"

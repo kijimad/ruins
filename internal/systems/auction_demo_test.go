@@ -142,6 +142,39 @@ func TestShipStagedItems_落札済みは入金し未落札は消えるだけ(t *
 	assert.Equal(t, expectedNet, records[0].Net, "手取りを記録する")
 }
 
+func TestAuctionDemoSystem_積荷はターン経過で自動出荷される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
+	require.NoError(t, err)
+	item, err := lifecycle.SpawnBackpackItem(world, "angel_sword", 1)
+	require.NoError(t, err)
+	query.StartAuctionListing(world, item, int(query.GetGameTime(world).TotalTurns))
+
+	sys := &AuctionDemoSystem{}
+	for i := 0; i < 200 && !world.Components.AuctionSold.Has(item); i++ {
+		query.GetGameTime(world).Advance()
+		require.NoError(t, sys.Update(world))
+	}
+	require.True(t, world.Components.AuctionSold.Has(item), "落札済みになる")
+
+	// 落札済みを積荷へ積む。以後はプレイヤーの操作なしにターン経過で出荷される
+	require.NoError(t, lifecycle.MoveToStorage(world, item, station))
+	bid := world.Components.AuctionSold.Get(item).Bid
+	expectedNet := bid - query.AuctionShippingCost(world, item) - query.AuctionFee(bid)
+	before := query.GetCurrency(world, player)
+
+	query.GetGameTime(world).Advance()
+	require.NoError(t, sys.Update(world))
+
+	assert.False(t, world.ECS.Alive(item), "積荷はターン経過で自動出荷され手放す")
+	assert.Equal(t, before+expectedNet, query.GetCurrency(world, player), "自動出荷で手取りが入金される")
+	require.Len(t, query.GetAuctionHistory(world).Records, 1, "出荷実績が履歴に残る")
+}
+
 func TestShipStagedItems_積荷が無ければ何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
