@@ -66,14 +66,19 @@ type imageEntry struct {
 	label string
 }
 
-// buildImageTableFrom は指定ディレクトリ直下の TestGolden_*.png から4列のMarkdownテーブルを生成する。
-// 3D の参照画像は TestGolden_3D_*.png として同じ直下に並び、数字 3 が英字より先にソートされるため
-// 自動で先頭に来る。
+// buildImageTableFrom は指定ディレクトリの golden から4列のMarkdownテーブルを生成する。
+// 直下の TestGolden_*.png に加え、テーブル駆動 VRT が t.Run でサブディレクトリへ落とす
+// TestGolden/*.png も集める。
 func buildImageTableFrom(dir string) (string, error) {
 	entries, err := collectTopImages(dir)
 	if err != nil {
 		return "", err
 	}
+	sub, err := collectSubdirImages(dir, "TestGolden")
+	if err != nil {
+		return "", err
+	}
+	entries = append(entries, sub...)
 	if len(entries) == 0 {
 		return "*no images*", nil
 	}
@@ -107,6 +112,28 @@ func collectTopImages(dir string) ([]imageEntry, error) {
 		entries = append(entries, imageEntry{
 			path:  filepath.Join(dir, name),
 			label: strings.TrimSuffix(strings.TrimPrefix(name, "TestGolden_"), ".png"),
+		})
+	}
+	return entries, nil
+}
+
+// collectSubdirImages は dir/sub 直下の *.png を集める。テーブル駆動 VRT が t.Run で
+// サブディレクトリに落とす golden をギャラリーへ載せる。見出しは拡張子なしのファイル名。
+// サブディレクトリが無ければ空を返す。
+func collectSubdirImages(dir, sub string) ([]imageEntry, error) {
+	subPath := filepath.Join(dir, sub)
+	names, err := pngNames(subPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to read %s: %w", subPath, err)
+	}
+	entries := make([]imageEntry, 0, len(names))
+	for _, name := range names {
+		entries = append(entries, imageEntry{
+			path:  filepath.Join(subPath, name),
+			label: strings.TrimSuffix(name, ".png"),
 		})
 	}
 	return entries, nil

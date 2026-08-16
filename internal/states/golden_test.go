@@ -31,201 +31,184 @@ func TestMain(m *testing.M) {
 	os.Exit(vrt.RunTestMain(m))
 }
 
-func TestGolden_MainMenu(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.MainMenuState{}))
-}
-
-func TestGolden_SettingsMenu(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.MainMenuState{}, &gs.SettingsMenuState{}))
-}
-
-func TestGolden_LanguageMenu(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewLanguageMenuState()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(&gs.MainMenuState{}, s))
-}
-
-func TestGolden_CharacterNaming(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.CharacterNamingState{}))
-}
-
-func TestGolden_CharacterJob(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewCharacterJobState("Ash")()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(s))
-}
-
 // newGoldenBackdrop はメニュー系 golden の背景に使うオーバーワールド状態を作る。
 // 街がオーバーワールドの地物になり専用の街ステートが無くなったため、旧 NewTownState の
 // 代わりに開始チャンクを背景として使う。決定的な RunSeed で golden を安定させる。
-func newGoldenBackdrop(t *testing.T) es.State[w.World] {
-	t.Helper()
-	s, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
-	require.NoError(t, err)
-	return s
+func newGoldenBackdrop() (es.State[w.World], error) {
+	return gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
 }
 
-// TestGolden_OverworldMap は N キーで開く種別俯瞰図の描画を固定する。記号の色表・凡例・
-// 現在地マーカー・荒れ地の文字非重畳を含む描画経路を覆い、配色や記号の集約を変えたときの
-// 退行を捕らえる。俯瞰図は帯から純関数で算出するので、決定的 RunSeed で golden が安定する。
-func TestGolden_OverworldMap(t *testing.T) {
+// TestGolden はステートの実描画をフルスタックで固定する VRT をまとめて回す。
+// 各ケースは build が返すステート列を実際のプレイどおり描いて golden と比較する。
+// ゴールデン名は t.Name() のスラッシュを均すため testdata/TestGolden_<name>.png になる。
+func TestGolden(t *testing.T) {
 	t.Parallel()
-	// 実際のプレイどおり、下段の世界の上に記号地図UIを重ねて撮る
-	backdrop := newGoldenBackdrop(t)
-	vrt.AssertStateGolden(t, vrt.States(backdrop, &gs.OverworldMapState{}))
-}
 
-// TestGolden_ItemAction は動詞タブ画面を固定する。調べるタブでバックパックの
-// アイテムを名前のみで一覧する経路を覆う。
-func TestGolden_ItemAction(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		_, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3)
-		require.NoError(t, err)
-		return []es.State[w.World]{&gs.ItemActionState{}}
-	})
-}
+	// build は描画するステート列を組む。fixture の error はそのまま返し、ループで require する。
+	// *testing.T を取らないことで thelper の誤検知を避ける。
+	cases := []struct {
+		name  string
+		build func(world w.World) ([]es.State[w.World], error)
+	}{
+		{"MainMenu", func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.MainMenuState{}}, nil
+		}},
+		{"SettingsMenu", func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
+		}},
+		{"LanguageMenu", func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewLanguageMenuState()
+			return []es.State[w.World]{&gs.MainMenuState{}, s}, err
+		}},
+		{"CharacterNaming", func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.CharacterNamingState{}}, nil
+		}},
+		{"CharacterJob", func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewCharacterJobState("Ash")()
+			return []es.State[w.World]{s}, err
+		}},
+		// OverworldMap は N キーで開く種別俯瞰図の描画を固定する。記号の色表・凡例・現在地マーカー・
+		// 荒れ地の文字非重畳を含む描画経路を覆う。実際のプレイどおり下段の世界の上に地図UIを重ねて撮る。
+		{"OverworldMap", func(w.World) ([]es.State[w.World], error) {
+			backdrop, err := newGoldenBackdrop()
+			if err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{backdrop, &gs.OverworldMapState{}}, nil
+		}},
+		// ItemAction は動詞タブ画面を固定する。調べるタブでバックパックのアイテムを名前のみで一覧する経路を覆う。
+		{"ItemAction", func(world w.World) ([]es.State[w.World], error) {
+			if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{&gs.ItemActionState{}}, nil
+		}},
+		// Character は画面タブメニューを固定する。装備タブでプレイヤーのスロット一覧を1カラムで並べる経路を覆う。
+		{"Character", func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.CharacterState{}}, nil
+		}},
+		{"CraftMenu", func(world w.World) ([]es.State[w.World], error) {
+			// 回復薬の材料を持たせ、合成可能な行にチェックが付く様子を確認する
+			if _, err := lifecycle.SpawnBackpackItem(world, "green_herb", 1); err != nil {
+				return nil, err
+			}
+			if _, err := lifecycle.SpawnBackpackItem(world, "yellow_herb", 1); err != nil {
+				return nil, err
+			}
+			return []es.State[w.World]{&gs.CraftMenuState{}}, nil
+		}},
+		{"ShopMenu", func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.ShopMenuState{}}, nil
+		}},
+		{"SaveMenu", func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewSaveMenuState()
+			return []es.State[w.World]{s}, err
+		}},
+		{"LoadMenu", func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewLoadMenuState()
+			return []es.State[w.World]{s}, err
+		}},
+		{"DebugMenu", func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewDebugMenuState()
+			return []es.State[w.World]{s}, err
+		}},
+		{"ComponentDebug", func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewComponentDebugState()
+			return []es.State[w.World]{s}, err
+		}},
+		// CubePanel はキューブ内部のコントロールパネルの描画を固定する。
+		// 現ステージを内部にし重量物を1つ置いて、総重量が出る状態でパネルを描く。
+		{"CubePanel", func(world w.World) ([]es.State[w.World], error) {
+			// 内部を現ステージにする。パネルの OnStart はここから総重量を算出する
+			query.GetDungeon(world).CurrentStage = gc.NewCubeInteriorStage()
+			// 内部の床へ重量物を1つ置き、総重量が非ゼロで出るようにする
+			item := world.ECS.NewEntity()
+			world.Components.Weight.Add(item, &gc.Weight{Milligram: 5 * consts.MilligramPerKg})
+			world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
+			world.Components.StageBound.Add(item, &gc.StageBound{Key: gc.NewCubeInteriorStage()})
+			return []es.State[w.World]{&gs.CubePanelState{}}, nil
+		}},
+		// LookAround は実際のプレイどおり、3D世界とHUDの上にカーソルと情報パネルを重ねて撮る。
+		{"LookAround", func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.DungeonState{
+				Depth:          1,
+				DefinitionName: dungeon.DungeonDebug.Name(),
+				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+			}, &gs.LookAroundState{}}, nil
+		}},
+		{"GameOver", func(w.World) ([]es.State[w.World], error) {
+			s, err := gs.NewGameOverMessageState()
+			return []es.State[w.World]{s}, err
+		}},
+		{"Message", func(w.World) ([]es.State[w.World], error) {
+			messageData := messagedata.NewDialogMessage(
+				"これはメッセージウィンドウのVRTテストです。\n\n表示状態の確認用メッセージです。",
+				"VRTテスト",
+			).WithChoice(
+				"選択肢1", func(_ w.World) error { return nil },
+			).WithChoice(
+				"選択肢2", func(_ w.World) error { return nil },
+			)
+			s, err := gs.NewMessageState(messageData)
+			return []es.State[w.World]{s}, err
+		}},
+		// Shooting は実際のプレイどおり、3D世界とHUDの上に照準と射撃パネルを重ねて撮る。
+		{"Shooting", func(w.World) ([]es.State[w.World], error) {
+			return []es.State[w.World]{&gs.DungeonState{
+				Depth:          1,
+				DefinitionName: dungeon.DungeonDebug.Name(),
+				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+			}, &gs.ShootingState{}}, nil
+		}},
+		{"PersistentMessage", func(w.World) ([]es.State[w.World], error) {
+			messageData := messagedata.NewDialogMessage("永続メッセージのVRTテストです。", "テスト")
+			return []es.State[w.World]{gs.NewPersistentMessageState(messageData)}, nil
+		}},
+		{"StorageMenu", func(world w.World) ([]es.State[w.World], error) {
+			storageEntity, err := lifecycle.SpawnProp(world, "wooden_crate", 3, 3)
+			if err != nil {
+				return nil, err
+			}
+			if _, err := lifecycle.SpawnStorageItem(world, "healing_potion", 1, storageEntity); err != nil {
+				return nil, err
+			}
+			s, err := gs.NewStorageMenuState(storageEntity)
+			return []es.State[w.World]{s}, err
+		}},
+		// ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
+		{"ChoiceMenuMany", func(w.World) ([]es.State[w.World], error) {
+			choices := make([]gs.Choice, 0, 30)
+			for i := range 30 {
+				choices = append(choices, gs.Choice{Label: fmt.Sprintf("項目 %d", i+1)})
+			}
+			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "選択", choices })
+			return []es.State[w.World]{menu}, nil
+		}},
+		// ChoiceMenuHeaders は共通の選択メニューの見出し行とページ表示なしの短い一覧を覆う。
+		{"ChoiceMenuHeaders", func(w.World) ([]es.State[w.World], error) {
+			choices := []gs.Choice{
+				{Label: "武器", Header: true},
+				{Label: "木刀"},
+				{Label: "レイガン"},
+				{Label: "防具", Header: true},
+				{Label: "革の鎧"},
+				{Label: "戻る"},
+			}
+			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "装備選択", choices })
+			return []es.State[w.World]{menu}, nil
+		}},
+	}
 
-// TestGolden_Character は画面タブメニューを固定する。装備タブでプレイヤーの
-// スロット一覧を1カラムで並べる経路を覆う。
-func TestGolden_Character(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.CharacterState{}))
-}
-
-func TestGolden_CraftMenu(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		// 回復薬の材料を持たせ、合成可能な行にチェックが付く様子を確認する
-		_, err := lifecycle.SpawnBackpackItem(world, "green_herb", 1)
-		require.NoError(t, err)
-		_, err = lifecycle.SpawnBackpackItem(world, "yellow_herb", 1)
-		require.NoError(t, err)
-		return []es.State[w.World]{&gs.CraftMenuState{}}
-	})
-}
-
-func TestGolden_ShopMenu(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, vrt.States(&gs.ShopMenuState{}))
-}
-
-func TestGolden_SaveMenu(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewSaveMenuState()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(s))
-}
-
-func TestGolden_LoadMenu(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewLoadMenuState()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(s))
-}
-
-func TestGolden_DebugMenu(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewDebugMenuState()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(s))
-}
-
-func TestGolden_ComponentDebug(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewComponentDebugState()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(s))
-}
-
-// TestGolden_CubePanel はキューブ内部のコントロールパネルの描画を固定する。
-// 現ステージを内部にし重量物を1つ置いて、総重量が出る状態でパネルを描く。
-func TestGolden_CubePanel(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		// 内部を現ステージにする。パネルの OnStart はここから総重量を算出する
-		query.GetDungeon(world).CurrentStage = gc.NewCubeInteriorStage()
-		// 内部の床へ重量物を1つ置き、総重量が非ゼロで出るようにする
-		item := world.ECS.NewEntity()
-		world.Components.Weight.Add(item, &gc.Weight{Milligram: 5 * consts.MilligramPerKg})
-		world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
-		world.Components.StageBound.Add(item, &gc.StageBound{Key: gc.NewCubeInteriorStage()})
-		return []es.State[w.World]{&gs.CubePanelState{}}
-	})
-}
-
-func TestGolden_LookAround(t *testing.T) {
-	t.Parallel()
-	// 実際のプレイどおり、3D世界とHUDの上にカーソルと情報パネルを重ねて撮る
-	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name(),
-		BuilderType:    mapplanner.PlannerTypeSmallRoom,
-	}, &gs.LookAroundState{}))
-}
-
-func TestGolden_GameOver(t *testing.T) {
-	t.Parallel()
-	s, err := gs.NewGameOverMessageState()
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(s))
-}
-
-func TestGolden_Message(t *testing.T) {
-	t.Parallel()
-	messageData := messagedata.NewDialogMessage(
-		"これはメッセージウィンドウのVRTテストです。\n\n表示状態の確認用メッセージです。",
-		"VRTテスト",
-	).WithChoice(
-		"選択肢1", func(_ w.World) error { return nil },
-	).WithChoice(
-		"選択肢2", func(_ w.World) error { return nil },
-	)
-	msgState, err := gs.NewMessageState(messageData)
-	require.NoError(t, err)
-	vrt.AssertStateGolden(t, vrt.States(msgState))
-}
-
-func TestGolden_Shooting(t *testing.T) {
-	t.Parallel()
-	// 実際のプレイどおり、3D世界とHUDの上に照準と射撃パネルを重ねて撮る
-	vrt.AssertStateGolden(t, vrt.States(&gs.DungeonState{
-		Depth:          1,
-		DefinitionName: dungeon.DungeonDebug.Name(),
-		BuilderType:    mapplanner.PlannerTypeSmallRoom,
-	}, &gs.ShootingState{}))
-}
-
-func TestGolden_PersistentMessage(t *testing.T) {
-	t.Parallel()
-	messageData := messagedata.NewDialogMessage(
-		"永続メッセージのVRTテストです。",
-		"テスト",
-	)
-	vrt.AssertStateGolden(t, vrt.States(gs.NewPersistentMessageState(messageData)))
-}
-
-func TestGolden_StorageMenu(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		storageEntity, err := lifecycle.SpawnProp(world, "wooden_crate", 3, 3)
-		require.NoError(t, err)
-
-		_, err = lifecycle.SpawnStorageItem(world, "healing_potion", 1, storageEntity)
-		require.NoError(t, err)
-
-		storageState, stateErr := gs.NewStorageMenuState(storageEntity)
-		require.NoError(t, stateErr)
-
-		return []es.State[w.World]{
-			storageState,
-		}
-	})
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+				states, err := tc.build(world)
+				require.NoError(t, err)
+				return states
+			})
+		})
+	}
 }
 
 const mapGenSeed = uint64(12345)
@@ -375,35 +358,4 @@ func imgNeedsUpdate(imgPath, jsonPath string, currentJSON []byte) bool {
 		return true
 	}
 	return !bytes.Equal(bytes.TrimSpace(currentJSON), bytes.TrimSpace(goldenJSON))
-}
-
-// TestGolden_ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
-// 各メニュー個別でなく共通実装 ChoiceMenu を一度だけ検証する
-func TestGolden_ChoiceMenuMany(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(_ w.World) []es.State[w.World] {
-		choices := make([]gs.Choice, 0, 30)
-		for i := range 30 {
-			choices = append(choices, gs.Choice{Label: fmt.Sprintf("項目 %d", i+1)})
-		}
-		menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "選択", choices })
-		return []es.State[w.World]{menu}
-	})
-}
-
-// TestGolden_ChoiceMenuHeaders は共通の選択メニューの見出し行とページ表示なしの短い一覧を覆う
-func TestGolden_ChoiceMenuHeaders(t *testing.T) {
-	t.Parallel()
-	vrt.AssertStateGolden(t, func(_ w.World) []es.State[w.World] {
-		choices := []gs.Choice{
-			{Label: "武器", Header: true},
-			{Label: "木刀"},
-			{Label: "レイガン"},
-			{Label: "防具", Header: true},
-			{Label: "革の鎧"},
-			{Label: "戻る"},
-		}
-		menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "装備選択", choices })
-		return []es.State[w.World]{menu}
-	})
 }
