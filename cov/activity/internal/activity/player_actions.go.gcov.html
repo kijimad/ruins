@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">75.2&nbsp;%</td>
-            <td class="headerCovTableEntry">149</td>
+            <td class="headerCovTableEntryLo">73.2&nbsp;%</td>
+            <td class="headerCovTableEntry">153</td>
             <td class="headerCovTableEntry">112</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-16 09:46:46</td>
+            <td class="headerValue">2026-08-16 16:49:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -269,13 +269,17 @@
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;%s is here. You can enter it from the Space action menu.&quot;, gamelog.Tag(&quot;item&quot;, query.GetEntityName(entity, world)))).</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                         case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:</span></span>
-<span id="L211"><span class="lineNum">     211</span>              :                                 // 足元ログを出さない種類。default を置かず exhaustive に全種別を</span>
-<span id="L212"><span class="lineNum">     212</span>              :                                 // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
-<span id="L213"><span class="lineNum">     213</span>              :                         }</span>
-<span id="L214"><span class="lineNum">     214</span>              :                 }</span>
-<span id="L215"><span class="lineNum">     215</span>              :         }</span>
-<span id="L216"><span class="lineNum">     216</span>              : }</span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                         case gc.InteractionAuction:</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;There is a shipping station. Press Enter to open it.&quot;)).</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                         case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:</span></span>
+<span id="L215"><span class="lineNum">     215</span>              :                                 // 足元ログを出さない種類。default を置かず exhaustive に全種別を</span>
+<span id="L216"><span class="lineNum">     216</span>              :                                 // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
+<span id="L217"><span class="lineNum">     217</span>              :                         }</span>
+<span id="L218"><span class="lineNum">     218</span>              :                 }</span>
+<span id="L219"><span class="lineNum">     219</span>              :         }</span>
+<span id="L220"><span class="lineNum">     220</span>              : }</span>
         </pre>
               </td>
             </tr>

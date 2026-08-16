@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">54.7&nbsp;%</td>
-            <td class="headerCovTableEntry">172</td>
+            <td class="headerCovTableEntryLo">52.8&nbsp;%</td>
+            <td class="headerCovTableEntry">178</td>
             <td class="headerCovTableEntry">94</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-16 09:46:46</td>
+            <td class="headerValue">2026-08-16 16:49:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -271,14 +271,20 @@
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                                 Target:      interactableEntity,</span></span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                                 Interaction: interaction,</span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                         })</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                 case gc.InteractionItemAll:</span></span>
-<span id="L213"><span class="lineNum">     213</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
-<span id="L214"><span class="lineNum">     214</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
-<span id="L215"><span class="lineNum">     215</span>              :                 }</span>
-<span id="L216"><span class="lineNum">     216</span>              :         }</span>
-<span id="L217"><span class="lineNum">     217</span>              : </span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">           1 :         return result</span></span>
-<span id="L219"><span class="lineNum">     219</span>              : }</span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                 case gc.InteractionAuction:</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                         result = append(result, InteractionAction{</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                                 Label:       query.T(world, &quot;Open shipping station&quot;),</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                                 Target:      interactableEntity,</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                                 Interaction: interaction,</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                         })</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                 case gc.InteractionItemAll:</span></span>
+<span id="L219"><span class="lineNum">     219</span>              :                         // アクションメニューに出さない種類。default を置かず exhaustive に全種別を</span>
+<span id="L220"><span class="lineNum">     220</span>              :                         // 明示させ、新しい InteractionKind の対応漏れを lint で検知する</span>
+<span id="L221"><span class="lineNum">     221</span>              :                 }</span>
+<span id="L222"><span class="lineNum">     222</span>              :         }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC tlaBgGNC">           1 :         return result</span></span>
+<span id="L225"><span class="lineNum">     225</span>              : }</span>
         </pre>
               </td>
             </tr>

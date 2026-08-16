@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.4&nbsp;%</td>
-            <td class="headerCovTableEntry">36</td>
-            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryHi">94.6&nbsp;%</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">35</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-16 09:46:46</td>
+            <td class="headerValue">2026-08-16 16:49:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -137,13 +137,14 @@
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         world.Components.VisionState.Add(singleton, gc.NewVisionState())</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         // config は構築時に渡されているので、設定言語をそのまま種にする。</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Config.User.Language))</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         world.Resources.SingletonEntity = singleton</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L80"><span class="lineNum">      80</span>              : </span>
-<span id="L81"><span class="lineNum">      81</span>              : // GetWorld は entities.World インターフェースを満たすためのメソッド</span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : func (world World) GetWorld() *ecs.World {</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return world.ECS</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         world.Components.AuctionHistory.Add(singleton, gc.NewAuctionHistory())</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         world.Resources.SingletonEntity = singleton</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              : // GetWorld は entities.World インターフェースを満たすためのメソッド</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 : func (world World) GetWorld() *ecs.World {</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         return world.ECS</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
