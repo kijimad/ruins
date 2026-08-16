@@ -1556,6 +1556,9 @@ type Prop struct {
 	// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
 	PassCost *PassCost `json:"passCost,omitempty"`
 
+	// ShippingStation 通信販売の出荷場所ローデータ。収納の中身を集荷対象にし、出荷場所メニューを開く相互作用が付く。積載量は storage で持つ
+	ShippingStation *ShippingStationRaw `json:"shippingStation,omitempty"`
+
 	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`
 
@@ -2355,6 +2358,9 @@ type Sensation = int
 
 // ShelterType 遮蔽タイプ
 type ShelterType float32
+
+// ShippingStationRaw 通信販売の出荷場所ローデータ。収納の中身を集荷対象にし、出荷場所メニューを開く相互作用が付く。積載量は storage で持つ
+type ShippingStationRaw = map[string]interface{}
 
 // SkillBook スキル本設定
 type SkillBook struct {

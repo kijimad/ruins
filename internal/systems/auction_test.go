@@ -262,30 +262,27 @@ func TestCollectStagedItems_積荷が無ければ何もしない(t *testing.T) {
 	assert.Empty(t, query.GetAuctionHistory(world).Entries, "明細は発生しない")
 }
 
-func TestMarkShippingStations_専用propを出荷場所にする(t *testing.T) {
+func TestSpawnProp_shipping_stationは出荷場所になる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	station, err := lifecycle.SpawnProp(world, "shipping_station", 5, 5)
 	require.NoError(t, err)
 
-	markShippingStations(world)
-
 	require.True(t, world.Components.AuctionStation.Has(station), "shipping_station prop は出荷場所になる")
+	assert.Positive(t, world.Components.WeightCapacity.Get(station).Max, "積荷の収納容量を持つ")
 	it := world.Components.Interactable.Get(station)
-	assert.Equal(t, []gc.InteractionKind{gc.InteractionAuction}, it.Interactions, "出荷場所メニューを開く相互作用が付く")
+	assert.Contains(t, it.Interactions, gc.InteractionAuction, "出荷場所メニューを開く相互作用が付く")
 }
 
-func TestMarkShippingStations_他のpropには触れない(t *testing.T) {
+func TestSpawnProp_他のpropは出荷場所にならない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	crate, err := lifecycle.SpawnProp(world, "wooden_crate", 5, 5)
 	require.NoError(t, err)
 
-	markShippingStations(world)
-
-	assert.False(t, world.Components.AuctionStation.Has(crate), "shipping_station 以外の prop には触れない")
+	assert.False(t, world.Components.AuctionStation.Has(crate), "shipping_station 以外の prop は出荷場所にならない")
 }
 
 func TestAuctionSystem_出品が無ければ何もしない(t *testing.T) {

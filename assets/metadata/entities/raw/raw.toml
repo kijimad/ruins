@@ -14700,6 +14700,8 @@ spriteSheetName = "field"
 [props.storage]
 maxWeight = "500 kg"
 
+[props.shippingStation]
+
 [[props]]
 blockPass = true
 blockView = false

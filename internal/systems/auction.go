@@ -8,10 +8,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// shippingStationRawID は出荷場所の raw prop の id。テンプレートで配置されたこの prop を
-// システムが見つけて出荷場所に仕立てる。
-const shippingStationRawID = "shipping_station"
-
 // auctionShipDelay は集荷タイマーの長さ。積荷が入るとこのターン数だけ待ってから集荷する。
 const auctionShipDelay = 10
 
@@ -35,8 +31,6 @@ func (sys AuctionSystem) String() string {
 
 // Update は出品中の品をターン経過で競売する
 func (sys *AuctionSystem) Update(world w.World) error {
-	markShippingStations(world)
-
 	now := int(query.GetGameTime(world).TotalTurns)
 
 	// 反復中はワールドがロックされ構造変更できない。出品中の品を一旦集めてからループ外で処理する
@@ -150,30 +144,6 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 	world.Components.AuctionListing.Remove(item)
 	world.Components.AuctionSold.Add(item, &gc.AuctionSold{Number: number, Bid: bid, DueTurn: now + auctionShipDeadline})
 	logAuctionWon(world, name, bid)
-}
-
-// markShippingStations はテンプレートで配置された shipping_station prop を出荷場所に仕立てる。
-// 出荷と状況確認の相互作用を付け、識別マーカーを付ける。
-// shipping_station 以外の prop には触れないので通常プレイに影響しない。
-func markShippingStations(world w.World) {
-	var toMark []ecs.Entity
-	q := ecs.NewFilter1[gc.RawID](world.ECS).Query()
-	for q.Next() {
-		e := q.Entity()
-		if world.Components.RawID.Get(e).ID != shippingStationRawID || world.Components.AuctionStation.Has(e) {
-			continue
-		}
-		toMark = append(toMark, e)
-	}
-	for _, e := range toMark {
-		world.Components.AuctionStation.Add(e, &gc.AuctionStation{})
-		interactions := []gc.InteractionKind{gc.InteractionAuction}
-		if world.Components.Interactable.Has(e) {
-			world.Components.Interactable.Get(e).Interactions = interactions
-		} else {
-			world.Components.Interactable.Add(e, &gc.Interactable{Interactions: interactions})
-		}
-	}
 }
 
 func logAuctionWon(world w.World, name string, bid int) {
