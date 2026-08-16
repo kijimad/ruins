@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (80.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.3%)</option>
 				
@@ -243,15 +243,15 @@
 				
 				<option value="file93">github.com/kijimaD/ruins/internal/geometry/geometry.go (97.5%)</option>
 				
-				<option value="file94">github.com/kijimaD/ruins/internal/hooks/mount.go (95.0%)</option>
+				<option value="file94">github.com/kijimaD/ruins/internal/hooks/mount.go (100.0%)</option>
 				
-				<option value="file95">github.com/kijimaD/ruins/internal/hooks/ref.go (90.9%)</option>
+				<option value="file95">github.com/kijimaD/ruins/internal/hooks/ref.go (100.0%)</option>
 				
-				<option value="file96">github.com/kijimaD/ruins/internal/hooks/store.go (52.2%)</option>
+				<option value="file96">github.com/kijimaD/ruins/internal/hooks/store.go (100.0%)</option>
 				
-				<option value="file97">github.com/kijimaD/ruins/internal/hooks/tabmenu.go (87.1%)</option>
+				<option value="file97">github.com/kijimaD/ruins/internal/hooks/tabmenu.go (100.0%)</option>
 				
-				<option value="file98">github.com/kijimaD/ruins/internal/hooks/timer.go (77.8%)</option>
+				<option value="file98">github.com/kijimaD/ruins/internal/hooks/timer.go (100.0%)</option>
 				
 				<option value="file99">github.com/kijimaD/ruins/internal/i18n/i18n.go (95.2%)</option>
 				
@@ -1735,8 +1735,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 methodName = query.T(world, attackMethodName)
         }</span>
         <span class="cov8" title="1">switch </span>{
-        case !hit:<span class="cov0" title="0">
-                if withMethod </span><span class="cov0" title="0">{
+        case !hit:<span class="cov8" title="1">
+                if withMethod </span><span class="cov8" title="1">{
                         logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
@@ -13915,7 +13915,7 @@ func (m *Mount[Props]) SetProps(props Props) <span class="cov8" title="1">{
 }
 
 // GetProps は現在のPropsを返す
-func (m *Mount[Props]) GetProps() Props <span class="cov0" title="0">{
+func (m *Mount[Props]) GetProps() Props <span class="cov8" title="1">{
         return m.props
 }</span>
 
@@ -13965,7 +13965,7 @@ func UseRef[T any](store *Store, key string, init func() T) T <span class="cov8"
                 store.refs[key] = init()
         }</span>
         <span class="cov8" title="1">v, ok := store.refs[key].(T)
-        if !ok </span><span class="cov0" title="0">{
+        if !ok </span><span class="cov8" title="1">{
                 panic("hooks: reference type does not match registration: key=" + key)</span>
         }
         <span class="cov8" title="1">return v</span>
@@ -14018,13 +14018,13 @@ func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapp
         // 毎回reducerを再登録して最新のクロージャを反映する
         <span class="cov8" title="1">store.reducers[key] = func(s any, a inputmapper.ActionID) any </span><span class="cov8" title="1">{
                 typed, ok := s.(T)
-                if !ok </span><span class="cov0" title="0">{
+                if !ok </span><span class="cov8" title="1">{
                         panic("hooks: state type does not match reducer type argument: key=" + key)</span>
                 }
                 <span class="cov8" title="1">return reducer(typed, a)</span>
         }
         <span class="cov8" title="1">v, ok := store.states[key].(T)
-        if !ok </span><span class="cov0" title="0">{
+        if !ok </span><span class="cov8" title="1">{
                 panic("hooks: state type does not match registration: key=" + key)</span>
         }
         <span class="cov8" title="1">return v</span>
@@ -14038,18 +14038,18 @@ func (store *Store) Dispatch(action inputmapper.ActionID) <span class="cov8" tit
 }
 
 // GetStoreState は指定キーの状態を取得する。Mount を経由せずに直接取得できる
-func GetStoreState[T any](store *Store, key string) (T, bool) <span class="cov0" title="0">{
+func GetStoreState[T any](store *Store, key string) (T, bool) <span class="cov8" title="1">{
         v, ok := store.states[key]
-        if !ok </span><span class="cov0" title="0">{
+        if !ok </span><span class="cov8" title="1">{
                 var zero T
                 return zero, false
         }</span>
-        <span class="cov0" title="0">typed, ok := v.(T)
-        if !ok </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">typed, ok := v.(T)
+        if !ok </span><span class="cov8" title="1">{
                 var zero T
                 return zero, false
         }</span>
-        <span class="cov0" title="0">return typed, true</span>
+        <span class="cov8" title="1">return typed, true</span>
 }
 </pre>
 		
@@ -14085,11 +14085,11 @@ func (n *tabMenuNav) itemCountForTab(tabIdx int) int <span class="cov8" title="1
 }
 
 func (n *tabMenuNav) isSkip(tabIdx, itemIdx int) bool <span class="cov8" title="1">{
-        if tabIdx &lt; 0 || tabIdx &gt;= len(n.config.Skips) </span><span class="cov0" title="0">{
+        if tabIdx &lt; 0 || tabIdx &gt;= len(n.config.Skips) </span><span class="cov8" title="1">{
                 return false
         }</span>
         <span class="cov8" title="1">skips := n.config.Skips[tabIdx]
-        if itemIdx &lt; 0 || itemIdx &gt;= len(skips) </span><span class="cov0" title="0">{
+        if itemIdx &lt; 0 || itemIdx &gt;= len(skips) </span><span class="cov8" title="1">{
                 return false
         }</span>
         <span class="cov8" title="1">return skips[itemIdx]</span>
@@ -14107,7 +14107,7 @@ func (n *tabMenuNav) skipNext(tabIdx, idx, dir int) int <span class="cov8" title
                 }</span>
                 <span class="cov8" title="1">idx = (idx + dir + count) % count</span>
         }
-        <span class="cov0" title="0">return idx</span>
+        <span class="cov8" title="1">return idx</span>
 }
 
 func (n *tabMenuNav) firstSelectable(tabIdx int) int <span class="cov8" title="1">{
@@ -14134,7 +14134,7 @@ func (n *tabMenuNav) reduce(s TabMenuState, a inputmapper.ActionID) TabMenuState
 
         switch a </span>{
         case inputmapper.ActionMenuTabPrev:<span class="cov8" title="1">
-                if n.config.TabCount == 0 </span><span class="cov0" title="0">{
+                if n.config.TabCount == 0 </span><span class="cov8" title="1">{
                         return s
                 }</span>
                 <span class="cov8" title="1">newTab := (tabIdx - 1 + n.config.TabCount) % n.config.TabCount
@@ -14146,7 +14146,7 @@ func (n *tabMenuNav) reduce(s TabMenuState, a inputmapper.ActionID) TabMenuState
                 <span class="cov8" title="1">newTab := (tabIdx + 1) % n.config.TabCount
                 return TabMenuState{TabIndex: newTab, ItemIndex: n.firstSelectable(newTab)}</span>
         case inputmapper.ActionMenuUp:<span class="cov8" title="1">
-                if count == 0 </span><span class="cov0" title="0">{
+                if count == 0 </span><span class="cov8" title="1">{
                         return s
                 }</span>
                 <span class="cov8" title="1">next := (itemIdx - 1 + count) % count
@@ -14167,14 +14167,14 @@ func (n *tabMenuNav) reduce(s TabMenuState, a inputmapper.ActionID) TabMenuState
                         return TabMenuState{TabIndex: tabIdx, ItemIndex: n.skipNext(tabIdx, itemIdx+n.config.ItemsPerPage, 1)}
                 }</span>
                 <span class="cov8" title="1">return s</span>
-        default:<span class="cov0" title="0">
+        default:<span class="cov8" title="1">
                 return s</span>
         }
 }
 
 // SetTab は指定タブへ直接カーソルを移す。新タブの先頭選択可能行へカーソルを置き、範囲外はクランプする。
 // キー再生を避けてタブを設定する用途に使う。UseTabMenu と同じ nav ロジックを通す
-func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) <span class="cov0" title="0">{
+func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) <span class="cov8" title="1">{
         nav := &amp;tabMenuNav{config: config}
         store.states[keyPrefix] = nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)})
 }</span>
@@ -14226,14 +14226,14 @@ type timerState struct {
 //   - expired: タイマーが期限切れかどうか
 //   - start: タイマーを開始する関数
 //   - reset: タイマーをリセットする関数
-func UseTimer(store *Store, key string, duration time.Duration) (expired bool, start func(), reset func()) <span class="cov0" title="0">{
+func UseTimer(store *Store, key string, duration time.Duration) (expired bool, start func(), reset func()) <span class="cov8" title="1">{
         return UseTimerAt(store, key, duration, time.Now())
 }</span>
 
 // UseTimerAt は指定した時刻を基準にタイマー状態を管理する
 // テスト用に時刻を注入可能にするためのバージョン
 func UseTimerAt(store *Store, key string, duration time.Duration, now time.Time) (expired bool, start func(), reset func()) <span class="cov8" title="1">{
-        state := UseState(store, key, timerState{}, func(v timerState, _ inputmapper.ActionID) timerState </span><span class="cov0" title="0">{
+        state := UseState(store, key, timerState{}, func(v timerState, _ inputmapper.ActionID) timerState </span><span class="cov8" title="1">{
                 return v // アクションでは変更しない
         }</span>)
 
