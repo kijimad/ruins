@@ -5613,6 +5613,9 @@ msgstr "出荷場所を開く"
 msgid "Staged"
 msgstr "積荷"
 
+msgid "Stow"
+msgstr "積む"
+
 msgid "No items to stage."
 msgstr "積む品がない"
 

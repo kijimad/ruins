@@ -133,7 +133,7 @@ func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 	return AuctionProps{
 		Tabs: []auctionTabData{
 			{ID: tabIDStatus, Label: query.T(world, "In progress"), Ledger: st.statusRows(world)},
-			{ID: tabIDStage, Label: query.T(world, "Load"), Items: st.stageItems(world)},
+			{ID: tabIDStage, Label: query.T(world, "Stow"), Items: st.stageItems(world)},
 			{ID: tabIDShip, Label: query.T(world, "Staged"), Items: st.shipItems(world)},
 			{ID: tabIDFinance, Label: query.T(world, "Finance"), Entries: query.GetAuctionHistory(world).Entries},
 			{ID: tabIDHistory, Label: query.T(world, "History"), Ledger: st.historyRows(world)},
