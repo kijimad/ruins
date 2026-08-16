@@ -159,20 +159,20 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: "auction", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-// stageItems はタグを貼った持ち物の品だけを積むタブへ並べる。未出品の品は積めない。
-// 各行に落札状況を添えて、何を出荷するかの選別を促す
+// stageItems は落札済みの持ち物の品だけを積むタブへ並べる。出品中や未出品の品は積めない。
+// 出荷できるのは落札を勝ち取った品に限る
 func (st *AuctionMenuState) stageItems(world w.World) []auctionItemRow {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return nil
 	}
-	var tagged []ecs.Entity
+	var sold []ecs.Entity
 	for _, e := range playerBackpackItems(world, player) {
-		if world.Components.AuctionListing.Has(e) || world.Components.AuctionSold.Has(e) {
-			tagged = append(tagged, e)
+		if world.Components.AuctionSold.Has(e) {
+			sold = append(sold, e)
 		}
 	}
-	return st.toItemRows(world, tagged)
+	return st.toItemRows(world, sold)
 }
 
 // shipItems は積荷コンテナの品を出荷タブへ並べる
