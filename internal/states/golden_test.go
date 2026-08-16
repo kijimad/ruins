@@ -32,15 +32,14 @@ func TestMain(m *testing.M) {
 }
 
 // newGoldenBackdrop はメニュー系 golden の背景に使うオーバーワールド状態を作る。
-// 街がオーバーワールドの地物になり専用の街ステートが無くなったため、旧 NewTownState の
-// 代わりに開始チャンクを背景として使う。決定的な RunSeed で golden を安定させる。
+// 開始チャンクを背景とし、決定的な RunSeed で golden を安定させる。
 func newGoldenBackdrop() (es.State[w.World], error) {
 	return gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
 }
 
 // TestGolden はステートの実描画をフルスタックで固定する VRT をまとめて回す。
 // 各ケースは build が返すステート列を実際のプレイどおり描いて golden と比較する。
-// ゴールデン名は t.Name() のスラッシュを均すため testdata/TestGolden_<name>.png になる。
+// 各サブテストの golden は t.Name() をパスとして testdata/TestGolden/<name>.png に保存される。
 func TestGolden(t *testing.T) {
 	t.Parallel()
 
