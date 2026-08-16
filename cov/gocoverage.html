@@ -7076,8 +7076,6 @@ type imageEntry struct {
 }
 
 // buildImageTableFrom は指定ディレクトリ直下の TestGolden_*.png から4列のMarkdownテーブルを生成する。
-// 3D の参照画像は TestGolden_3D_*.png として同じ直下に並び、数字 3 が英字より先にソートされるため
-// 自動で先頭に来る。
 func buildImageTableFrom(dir string) (string, error) <span class="cov8" title="1">{
         entries, err := collectTopImages(dir)
         if err != nil </span><span class="cov8" title="1">{
@@ -49013,7 +49011,7 @@ func AssertContainerGolden(t *testing.T, buildFn func() *widget.Container, width
         })
 
         <span class="cov0" title="0">pngData := encodePNG(t, img)
-        assertPNGGolden(t, pngData)</span>
+        assertPNGGolden(t, t.Name(), pngData)</span>
 }
 
 // AssertScreenGolden は setupFn が返す描画関数で自前で ebiten.Image に描き、ゴールデン画像と比較する。
@@ -49031,7 +49029,7 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
         }</span>)
 
         <span class="cov0" title="0">pngData := encodePNG(t, img)
-        assertPNGGolden(t, pngData)</span>
+        assertPNGGolden(t, t.Name(), pngData)</span>
 }
 
 // encodePNG はimage.Imageをpngバイト列にエンコードする
@@ -49064,10 +49062,11 @@ func toleranceForSize(width, height int) float64 <span class="cov8" title="1">{
         <span class="cov8" title="1">return noiseScale / math.Sqrt(float64(total))</span>
 }
 
-// assertPNGGolden はPNGバイト列をゴールデン画像と比較する。
+// assertPNGGolden はPNGバイト列を name のゴールデン画像と比較する。golden は testdata/name.png。
+// name はサブテスト名でなく明示的に渡す。t.Run のスラッシュがパスに混ざらず、保存先が平置きになる。
 // 画像サイズからトレランスを自動算出し、小さい画像は寛容に、大きい画像は厳密に判定する。
 // GOLDIE_UPDATE=1 のときはトレランス内なら更新をスキップする
-func assertPNGGolden(t *testing.T, pngData []byte) <span class="cov0" title="0">{
+func assertPNGGolden(t *testing.T, name string, pngData []byte) <span class="cov0" title="0">{
         t.Helper()
 
         cfg, err := png.DecodeConfig(bytes.NewReader(pngData))
@@ -49076,7 +49075,7 @@ func assertPNGGolden(t *testing.T, pngData []byte) <span class="cov0" title="0">
 
         if isGoldieUpdate() </span><span class="cov0" title="0">{
                 g := newGoldie(t)
-                goldenPath := g.GoldenFileName(t, t.Name())
+                goldenPath := g.GoldenFileName(t, name)
                 if existingData, err := os.ReadFile(goldenPath); err == nil </span><span class="cov0" title="0">{
                         equalFn := pngPixelEqualFn(toleranceRatio)
                         if equalFn(pngData, existingData) </span><span class="cov0" title="0">{
@@ -49084,7 +49083,7 @@ func assertPNGGolden(t *testing.T, pngData []byte) <span class="cov0" title="0">
                                 return
                         }</span>
                 }
-                <span class="cov0" title="0">require.NoError(t, g.Update(t, t.Name(), pngData))
+                <span class="cov0" title="0">require.NoError(t, g.Update(t, name, pngData))
                 t.Logf("updated golden image: %s", goldenPath)
                 return</span>
         }
@@ -49098,7 +49097,7 @@ func assertPNGGolden(t *testing.T, pngData []byte) <span class="cov0" title="0">
                         )
                 }</span>),
         )
-        <span class="cov0" title="0">g.Assert(t, t.Name(), pngData)</span>
+        <span class="cov0" title="0">g.Assert(t, name, pngData)</span>
 }
 
 // isGoldieUpdate は GOLDIE_UPDATE が有効かどうかを返す
@@ -49246,12 +49245,13 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] <span
         return func(_ w.World) []es.State[w.World] </span><span class="cov0" title="0">{ return states }</span>
 }
 
-// AssertStateGolden はステートの描画結果をゴールデン画像と比較する。
+// AssertStateGolden はステートの描画結果を name のゴールデン画像 testdata/name.png と比較する。
+// golden 名はサブテスト名でなく呼び出し側が明示する。t.Run のスラッシュが保存先に混ざらない。
 // GOLDIE_UPDATE=1 で更新する。ピクセル差分がトレランス内なら更新をスキップし、ebitenui の
 // 時間依存ノイズによる不要な差分を防ぐ。
-func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) <span class="cov0" title="0">{
+func AssertStateGolden(t *testing.T, name string, buildStates func(w.World) []es.State[w.World]) <span class="cov0" title="0">{
         t.Helper()
-        assertPNGGolden(t, RenderPNG(t, buildStates, nil))
+        assertPNGGolden(t, name, RenderPNG(t, buildStates, nil))
 }</span>
 
 // RenderPNG はステートを構築し screen へ描いてPNGを返す。比較はしない、画像保存用。

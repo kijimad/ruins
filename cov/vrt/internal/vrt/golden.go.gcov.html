@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-16 02:05:06</td>
+            <td class="headerValue">2026-08-16 09:46:46</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -125,7 +125,7 @@
 <span id="L63"><span class="lineNum">      63</span>              :         })</span>
 <span id="L64"><span class="lineNum">      64</span>              : </span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         pngData := encodePNG(t, img)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         assertPNGGolden(t, pngData)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         assertPNGGolden(t, t.Name(), pngData)</span></span>
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              : // AssertScreenGolden は setupFn が返す描画関数で自前で ebiten.Image に描き、ゴールデン画像と比較する。</span>
@@ -143,7 +143,7 @@
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         })</span></span>
 <span id="L82"><span class="lineNum">      82</span>              : </span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         pngData := encodePNG(t, img)</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         assertPNGGolden(t, pngData)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         assertPNGGolden(t, t.Name(), pngData)</span></span>
 <span id="L85"><span class="lineNum">      85</span>              : }</span>
 <span id="L86"><span class="lineNum">      86</span>              : </span>
 <span id="L87"><span class="lineNum">      87</span>              : // encodePNG はimage.Imageをpngバイト列にエンコードする</span>
@@ -176,121 +176,122 @@
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         return noiseScale / math.Sqrt(float64(total))</span></span>
 <span id="L115"><span class="lineNum">     115</span>              : }</span>
 <span id="L116"><span class="lineNum">     116</span>              : </span>
-<span id="L117"><span class="lineNum">     117</span>              : // assertPNGGolden はPNGバイト列をゴールデン画像と比較する。</span>
-<span id="L118"><span class="lineNum">     118</span>              : // 画像サイズからトレランスを自動算出し、小さい画像は寛容に、大きい画像は厳密に判定する。</span>
-<span id="L119"><span class="lineNum">     119</span>              : // GOLDIE_UPDATE=1 のときはトレランス内なら更新をスキップする</span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC tlaBgUNC">           0 : func assertPNGGolden(t *testing.T, pngData []byte) {</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :         cfg, err := png.DecodeConfig(bytes.NewReader(pngData))</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         require.NoError(t, err, &quot;failed to decode PNG header&quot;)</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         toleranceRatio := toleranceForSize(cfg.Width, cfg.Height)</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         if isGoldieUpdate() {</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                 g := newGoldie(t)</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                 goldenPath := g.GoldenFileName(t, t.Name())</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 if existingData, err := os.ReadFile(goldenPath); err == nil {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                         equalFn := pngPixelEqualFn(toleranceRatio)</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                         if equalFn(pngData, existingData) {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                                 t.Logf(&quot;skipped update within tolerance: %s&quot;, goldenPath)</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                                 return</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L136"><span class="lineNum">     136</span>              :                 }</span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 require.NoError(t, g.Update(t, t.Name(), pngData))</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 t.Logf(&quot;updated golden image: %s&quot;, goldenPath)</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L140"><span class="lineNum">     140</span>              :         }</span>
-<span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         g := newGoldie(t,</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 goldie.WithEqualFn(pngPixelEqualFn(toleranceRatio)),</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 goldie.WithDiffFn(func(_, _ string) string {</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                         return fmt.Sprintf(</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                                 &quot;pixel diff exceeds tolerance: image %dx%d, tolerance %.2f%%&quot;,</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                                 cfg.Width, cfg.Height, toleranceRatio*100,</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                         )</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 }),</span></span>
-<span id="L150"><span class="lineNum">     150</span>              :         )</span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         g.Assert(t, t.Name(), pngData)</span></span>
-<span id="L152"><span class="lineNum">     152</span>              : }</span>
-<span id="L153"><span class="lineNum">     153</span>              : </span>
-<span id="L154"><span class="lineNum">     154</span>              : // isGoldieUpdate は GOLDIE_UPDATE が有効かどうかを返す</span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 : func isGoldieUpdate() bool {</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         switch os.Getenv(&quot;GOLDIE_UPDATE&quot;) {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         case &quot;1&quot;, &quot;true&quot;, &quot;t&quot;:</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L161"><span class="lineNum">     161</span>              :         }</span>
-<span id="L162"><span class="lineNum">     162</span>              : }</span>
-<span id="L163"><span class="lineNum">     163</span>              : </span>
-<span id="L164"><span class="lineNum">     164</span>              : // newGoldie はgoldieインスタンスを生成する。サフィックスを.pngにして画像ファイルとして扱う</span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 : func newGoldie(t *testing.T, opts ...goldie.Option) *goldie.Goldie {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         all := make([]goldie.Option, 0, 1+len(opts))</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         all = append(all, goldie.WithNameSuffix(&quot;.png&quot;))</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         all = append(all, opts...)</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         return goldie.New(t, all...)</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L172"><span class="lineNum">     172</span>              : </span>
-<span id="L173"><span class="lineNum">     173</span>              : // channelTolerance16 は1チャンネルあたり許容する差分。RGBA() が返す16bit値(0..65535)で表す。</span>
-<span id="L174"><span class="lineNum">     174</span>              : // 0x101 は color の RGBA() が8bit階調を16bit空間へ拡張する係数(v*0x101)。8bitで16階調ぶん許容する。</span>
-<span id="L175"><span class="lineNum">     175</span>              : // フォントのアンチエイリアスはグリフ境界で数階調ゆれるが、これを差分として数えない。文字や色の</span>
-<span id="L176"><span class="lineNum">     176</span>              : // 実変化はアルファが 0↔全開など全階調規模で動くので取りこぼさない。差分の「数」だけでなく</span>
-<span id="L177"><span class="lineNum">     177</span>              : // 「大きさ」も見る二段トレランスになり、AAノイズ由来のフレークを防ぐ。</span>
-<span id="L178"><span class="lineNum">     178</span>              : //</span>
-<span id="L179"><span class="lineNum">     179</span>              : // 限界: 広域に及ぶ中振幅の変化、たとえば背景色の微変更は、各画素が許容振幅内に収まると見逃す。</span>
-<span id="L180"><span class="lineNum">     180</span>              : // メニュー系の現状の用途では実害ないが、複雑な画面へ転用するときはこの盲点に注意する。</span>
-<span id="L181"><span class="lineNum">     181</span>              : const channelTolerance16 = 16 * 0x101</span>
-<span id="L182"><span class="lineNum">     182</span>              : </span>
-<span id="L183"><span class="lineNum">     183</span>              : // absDiffU32 は2値の差の絶対値を返す</span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 : func absDiffU32(a, b uint32) uint32 {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         if a &gt; b {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                 return a - b</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         return b - a</span></span>
-<span id="L189"><span class="lineNum">     189</span>              : }</span>
-<span id="L190"><span class="lineNum">     190</span>              : </span>
-<span id="L191"><span class="lineNum">     191</span>              : // pngPixelEqualFn は2つのPNGバイト列をピクセル単位で比較する。</span>
-<span id="L192"><span class="lineNum">     192</span>              : // toleranceRatio で許容する差分ピクセル比率を、channelTolerance16 で1画素内の許容振幅を指定する。</span>
-<span id="L193"><span class="lineNum">     193</span>              : // どのチャンネルも許容振幅以内なら同一画素とみなし、振幅を超えた画素数が比率を超えたら不一致とする</span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 : func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         return func(actual, expected []byte) bool {</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                 actualImg, err := png.Decode(bytes.NewReader(actual))</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                         return false</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 expectedImg, err := png.Decode(bytes.NewReader(expected))</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                         return false</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L204"><span class="lineNum">     204</span>              : </span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :                 eb := expectedImg.Bounds()</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 ab := actualImg.Bounds()</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 if eb.Dx() != ab.Dx() || eb.Dy() != ab.Dy() {</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                         return false</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L210"><span class="lineNum">     210</span>              : </span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                 totalPixels := eb.Dx() * eb.Dy()</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                 maxAllowed := int(float64(totalPixels) * toleranceRatio)</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                 diffCount := 0</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                 for y := eb.Min.Y; y &lt; eb.Max.Y; y++ {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                         for x := eb.Min.X; x &lt; eb.Max.X; x++ {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                                 er, eg, ebl, ea := expectedImg.At(x, y).RGBA()</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                                 ar, ag, abl, aa := actualImg.At(x, y).RGBA()</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                                 if absDiffU32(er, ar) &gt; channelTolerance16 ||</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                                         absDiffU32(eg, ag) &gt; channelTolerance16 ||</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                                         absDiffU32(ebl, abl) &gt; channelTolerance16 ||</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                                         absDiffU32(ea, aa) &gt; channelTolerance16 {</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                                         diffCount++</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                                         if diffCount &gt; maxAllowed {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                                                 return false</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                                         }</span></span>
-<span id="L226"><span class="lineNum">     226</span>              :                                 }</span>
-<span id="L227"><span class="lineNum">     227</span>              :                         }</span>
-<span id="L228"><span class="lineNum">     228</span>              :                 }</span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L230"><span class="lineNum">     230</span>              :         }</span>
-<span id="L231"><span class="lineNum">     231</span>              : }</span>
+<span id="L117"><span class="lineNum">     117</span>              : // assertPNGGolden はPNGバイト列を name のゴールデン画像と比較する。golden は testdata/name.png。</span>
+<span id="L118"><span class="lineNum">     118</span>              : // name はサブテスト名でなく明示的に渡す。t.Run のスラッシュがパスに混ざらず、保存先が平置きになる。</span>
+<span id="L119"><span class="lineNum">     119</span>              : // 画像サイズからトレランスを自動算出し、小さい画像は寛容に、大きい画像は厳密に判定する。</span>
+<span id="L120"><span class="lineNum">     120</span>              : // GOLDIE_UPDATE=1 のときはトレランス内なら更新をスキップする</span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC tlaBgUNC">           0 : func assertPNGGolden(t *testing.T, name string, pngData []byte) {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         cfg, err := png.DecodeConfig(bytes.NewReader(pngData))</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         require.NoError(t, err, &quot;failed to decode PNG header&quot;)</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         toleranceRatio := toleranceForSize(cfg.Width, cfg.Height)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         if isGoldieUpdate() {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                 g := newGoldie(t)</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 goldenPath := g.GoldenFileName(t, name)</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                 if existingData, err := os.ReadFile(goldenPath); err == nil {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                         equalFn := pngPixelEqualFn(toleranceRatio)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                         if equalFn(pngData, existingData) {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                                 t.Logf(&quot;skipped update within tolerance: %s&quot;, goldenPath)</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                                 return</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :                 }</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 require.NoError(t, g.Update(t, name, pngData))</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 t.Logf(&quot;updated golden image: %s&quot;, goldenPath)</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L141"><span class="lineNum">     141</span>              :         }</span>
+<span id="L142"><span class="lineNum">     142</span>              : </span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         g := newGoldie(t,</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 goldie.WithEqualFn(pngPixelEqualFn(toleranceRatio)),</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 goldie.WithDiffFn(func(_, _ string) string {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                         return fmt.Sprintf(</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                                 &quot;pixel diff exceeds tolerance: image %dx%d, tolerance %.2f%%&quot;,</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                                 cfg.Width, cfg.Height, toleranceRatio*100,</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                         )</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 }),</span></span>
+<span id="L151"><span class="lineNum">     151</span>              :         )</span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         g.Assert(t, name, pngData)</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : }</span>
+<span id="L154"><span class="lineNum">     154</span>              : </span>
+<span id="L155"><span class="lineNum">     155</span>              : // isGoldieUpdate は GOLDIE_UPDATE が有効かどうかを返す</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 : func isGoldieUpdate() bool {</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         switch os.Getenv(&quot;GOLDIE_UPDATE&quot;) {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         case &quot;1&quot;, &quot;true&quot;, &quot;t&quot;:</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L162"><span class="lineNum">     162</span>              :         }</span>
+<span id="L163"><span class="lineNum">     163</span>              : }</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : // newGoldie はgoldieインスタンスを生成する。サフィックスを.pngにして画像ファイルとして扱う</span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 : func newGoldie(t *testing.T, opts ...goldie.Option) *goldie.Goldie {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         all := make([]goldie.Option, 0, 1+len(opts))</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         all = append(all, goldie.WithNameSuffix(&quot;.png&quot;))</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         all = append(all, opts...)</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         return goldie.New(t, all...)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L173"><span class="lineNum">     173</span>              : </span>
+<span id="L174"><span class="lineNum">     174</span>              : // channelTolerance16 は1チャンネルあたり許容する差分。RGBA() が返す16bit値(0..65535)で表す。</span>
+<span id="L175"><span class="lineNum">     175</span>              : // 0x101 は color の RGBA() が8bit階調を16bit空間へ拡張する係数(v*0x101)。8bitで16階調ぶん許容する。</span>
+<span id="L176"><span class="lineNum">     176</span>              : // フォントのアンチエイリアスはグリフ境界で数階調ゆれるが、これを差分として数えない。文字や色の</span>
+<span id="L177"><span class="lineNum">     177</span>              : // 実変化はアルファが 0↔全開など全階調規模で動くので取りこぼさない。差分の「数」だけでなく</span>
+<span id="L178"><span class="lineNum">     178</span>              : // 「大きさ」も見る二段トレランスになり、AAノイズ由来のフレークを防ぐ。</span>
+<span id="L179"><span class="lineNum">     179</span>              : //</span>
+<span id="L180"><span class="lineNum">     180</span>              : // 限界: 広域に及ぶ中振幅の変化、たとえば背景色の微変更は、各画素が許容振幅内に収まると見逃す。</span>
+<span id="L181"><span class="lineNum">     181</span>              : // メニュー系の現状の用途では実害ないが、複雑な画面へ転用するときはこの盲点に注意する。</span>
+<span id="L182"><span class="lineNum">     182</span>              : const channelTolerance16 = 16 * 0x101</span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span>              : // absDiffU32 は2値の差の絶対値を返す</span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 : func absDiffU32(a, b uint32) uint32 {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         if a &gt; b {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                 return a - b</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         return b - a</span></span>
+<span id="L190"><span class="lineNum">     190</span>              : }</span>
+<span id="L191"><span class="lineNum">     191</span>              : </span>
+<span id="L192"><span class="lineNum">     192</span>              : // pngPixelEqualFn は2つのPNGバイト列をピクセル単位で比較する。</span>
+<span id="L193"><span class="lineNum">     193</span>              : // toleranceRatio で許容する差分ピクセル比率を、channelTolerance16 で1画素内の許容振幅を指定する。</span>
+<span id="L194"><span class="lineNum">     194</span>              : // どのチャンネルも許容振幅以内なら同一画素とみなし、振幅を超えた画素数が比率を超えたら不一致とする</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 : func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         return func(actual, expected []byte) bool {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 actualImg, err := png.Decode(bytes.NewReader(actual))</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                         return false</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                 expectedImg, err := png.Decode(bytes.NewReader(expected))</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                         return false</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L205"><span class="lineNum">     205</span>              : </span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 eb := expectedImg.Bounds()</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 ab := actualImg.Bounds()</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                 if eb.Dx() != ab.Dx() || eb.Dy() != ab.Dy() {</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                         return false</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L211"><span class="lineNum">     211</span>              : </span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                 totalPixels := eb.Dx() * eb.Dy()</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                 maxAllowed := int(float64(totalPixels) * toleranceRatio)</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                 diffCount := 0</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                 for y := eb.Min.Y; y &lt; eb.Max.Y; y++ {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                         for x := eb.Min.X; x &lt; eb.Max.X; x++ {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                                 er, eg, ebl, ea := expectedImg.At(x, y).RGBA()</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                                 ar, ag, abl, aa := actualImg.At(x, y).RGBA()</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                                 if absDiffU32(er, ar) &gt; channelTolerance16 ||</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                                         absDiffU32(eg, ag) &gt; channelTolerance16 ||</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                                         absDiffU32(ebl, abl) &gt; channelTolerance16 ||</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                                         absDiffU32(ea, aa) &gt; channelTolerance16 {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                                         diffCount++</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                                         if diffCount &gt; maxAllowed {</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                                                 return false</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                                         }</span></span>
+<span id="L227"><span class="lineNum">     227</span>              :                                 }</span>
+<span id="L228"><span class="lineNum">     228</span>              :                         }</span>
+<span id="L229"><span class="lineNum">     229</span>              :                 }</span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L231"><span class="lineNum">     231</span>              :         }</span>
+<span id="L232"><span class="lineNum">     232</span>              : }</span>
         </pre>
               </td>
             </tr>
