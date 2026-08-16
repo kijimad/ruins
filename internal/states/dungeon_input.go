@@ -76,6 +76,9 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyT) {
 		return inputmapper.ActionVerbUse, true
 	}
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyS) {
+		return inputmapper.ActionVerbList, true
+	}
 
 	// 移動入力
 	if action, ok := handleMoveInput(keyboardInput); ok {
@@ -124,7 +127,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	// UI系アクションは常に実行可能
 	switch action {
 	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionShoot, inputmapper.ActionPickup,
-		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow:
+		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
@@ -178,7 +181,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow:
+	case inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
 		verb, ok := verbByAction(action)
 		if !ok {
 			return es.Transition[w.World]{Type: es.TransNone}, nil

@@ -106,8 +106,8 @@ var verbList = []itemVerb{
 	{
 		ID:      verbTag,
 		Label:   "List",
-		KeyHint: "l",
-		Key:     ebiten.KeyL,
+		KeyHint: "s",
+		Key:     ebiten.KeyS,
 		Action:  inputmapper.ActionVerbList,
 		Accept:  acceptListable,
 		Exec:    execTagItem,
