@@ -84,13 +84,14 @@ func auctionListingRows(world w.World, l *gc.AuctionListing) []SpecRow {
 	}
 }
 
-// auctionSoldRows は落札済みの品の番号と落札額を返す。先頭は見出し
+// auctionSoldRows は落札済みの品の番号と落札額、出荷期限を返す。先頭は見出し
 func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {
 	return []SpecRow{
 		{Label: query.T(world, "Auction"), Header: true},
 		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(s.Number)},
 		{Label: query.T(world, "Status"), Value: query.T(world, "Won")},
 		{Label: query.T(world, "Bid"), Value: query.FormatCurrency(s.Bid)},
+		{Label: query.T(world, "Ship by turn"), Value: strconv.Itoa(s.DueTurn)},
 	}
 }
 

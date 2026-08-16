@@ -274,11 +274,12 @@ func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menul
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
+	reputation := query.GetAuctionHistory(world).Reputation
 	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildActiveContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
+		Footer:    menuNavHint(world, true, query.T(world, "Reputation %d", reputation), query.T(world, "x Details")),
 	})
 }
 

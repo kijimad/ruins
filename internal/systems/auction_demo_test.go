@@ -98,6 +98,45 @@ func TestAuctionDemoSystem_出品中の品はターン経過で落札される�
 	assert.Empty(t, query.GetAuctionHistory(world).Records, "出荷するまで履歴には残らない")
 }
 
+func TestAuctionDemoSystem_期限内に出荷しないと評判が下がる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	item, err := lifecycle.SpawnBackpackItem(world, "angel_sword", 1)
+	require.NoError(t, err)
+	query.StartAuctionListing(world, item, int(query.GetGameTime(world).TotalTurns))
+
+	sys := &AuctionDemoSystem{}
+	for i := 0; i < 200 && !world.Components.AuctionSold.Has(item); i++ {
+		query.GetGameTime(world).Advance()
+		require.NoError(t, sys.Update(world))
+	}
+	require.True(t, world.Components.AuctionSold.Has(item), "落札済みになる")
+
+	before := query.GetAuctionHistory(world).Reputation
+	due := world.Components.AuctionSold.Get(item).DueTurn
+
+	// 積荷へ渡さないまま出荷期限を過ぎる
+	for int(query.GetGameTime(world).TotalTurns) <= due+1 {
+		query.GetGameTime(world).Advance()
+		require.NoError(t, sys.Update(world))
+	}
+
+	assert.Equal(t, before-auctionReputationPenalty, query.GetAuctionHistory(world).Reputation, "期限を破ると評判が下がる")
+	assert.True(t, world.Components.AuctionSold.Get(item).Penalized, "ペナルティ済みの印が付く")
+	assert.True(t, world.ECS.Alive(item), "期限を破っても品は消えない")
+
+	// さらにターンが過ぎても二重には罰しない
+	penalized := query.GetAuctionHistory(world).Reputation
+	for range 5 {
+		query.GetGameTime(world).Advance()
+		require.NoError(t, sys.Update(world))
+	}
+	assert.Equal(t, penalized, query.GetAuctionHistory(world).Reputation, "同じ品で二重に評判を下げない")
+}
+
 func TestShipStagedItems_落札済みは入金し未落札は消えるだけ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

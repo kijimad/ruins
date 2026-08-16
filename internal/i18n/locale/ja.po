@@ -5567,6 +5567,15 @@ msgstr "%s が落札された。落札額 %s。出荷できる"
 msgid "Collected %d items. Sales %s, pickup fee %s, received %s."
 msgstr "%d 件を集荷した。売上 %s、集荷手数料 %s、受取 %s"
 
+msgid "%s missed the shipping deadline. Reputation is now %d."
+msgstr "%s の出荷期限を過ぎた。評判が %d に下がった"
+
+msgid "Reputation %d"
+msgstr "評判 %d"
+
+msgid "Ship by turn"
+msgstr "出荷期限ターン"
+
 msgid "There is a shipping station. Press Enter to open it."
 msgstr "出荷場所がある。Enter で開く"
 

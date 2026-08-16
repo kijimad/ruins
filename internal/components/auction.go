@@ -10,10 +10,13 @@ type AuctionListing struct {
 }
 
 // AuctionSold は落札済みで未出荷の品に付く実行時状態。出荷場所での出荷を待つ。
+// 落札から出荷には期限があり、期限までに積荷へ渡さないと店の評判が下がる。
 // 出荷すると手取りを入金し履歴へ記録して品を手放す。デモ専用の一時状態であり保存しない。
 type AuctionSold struct {
-	Number int // 出品時の連番を引き継ぐ
-	Bid    int // 確定した落札額。手取りは出荷時に発送料と手数料を引いて求める
+	Number    int  // 出品時の連番を引き継ぐ
+	Bid       int  // 確定した落札額。手取りは出荷時に発送料と手数料を引いて求める
+	DueTurn   int  // 出荷期限のターン。このターンまでに積荷へ渡さないと評判ペナルティを負う
+	Penalized bool // 期限超過のペナルティを既に課したか。二重に課さないための印
 }
 
 // AuctionStation はオークションの出荷場所を示す。積荷が入ると集荷タイマーが動き出し、
@@ -34,9 +37,10 @@ type AuctionRecord struct {
 	Turn   int    // 売れた総ターン数
 }
 
-// AuctionHistory は出荷実績の履歴と採番カウンタを持つシングルトン。あとで閲覧するための専用の保存領域。
-// デモ専用の一時状態であり保存しない。
+// AuctionHistory は出荷実績の履歴と採番カウンタ、店の評判を持つシングルトン。
+// あとで閲覧するための専用の保存領域。デモ専用の一時状態であり保存しない。
 type AuctionHistory struct {
 	NextNumber int // 次に貼るタグへ振る連番
+	Reputation int // 店の評判。出荷期限を破ると下がる
 	Records    []AuctionRecord
 }

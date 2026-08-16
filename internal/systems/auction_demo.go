@@ -15,6 +15,13 @@ const shippingStationRawID = "shipping_station"
 // auctionShipDelay は集荷タイマーの長さ。積荷が入るとこのターン数だけ待ってから集荷する。
 const auctionShipDelay = 10
 
+// auctionShipDeadline は落札から出荷までの猶予ターン数。この間に積荷へ渡さないと評判が下がる。
+// 出先で乱出品すると帰ってくる前に期限が切れるので、遠出しての出品を抑える。
+const auctionShipDeadline = 20
+
+// auctionReputationPenalty は出荷期限を1件破るごとに下がる評判。
+const auctionReputationPenalty = 10
+
 // AuctionDemoSystem はタグを貼って出品された品の競売をターン経過で進める。
 // 入札が来る限り現在値を上げて延長し、入札が止まったターンに現在値で落札を確定する。
 // 落札しても入金はせず、品を落札済みへ移して出荷場所での出荷を待たせる。
@@ -46,7 +53,39 @@ func (sys *AuctionDemoSystem) Update(world w.World) error {
 	// 積荷が入ると集荷タイマーが動き出し、満了したら積荷をまとめて集荷する。
 	// プレイヤーは落札済みを積むだけでよい
 	updateShippingTimers(world, now)
+
+	// 落札から出荷期限を過ぎても積荷へ渡していない品は、店の評判を下げる
+	penalizeOverdueSold(world, now)
 	return nil
+}
+
+// penalizeOverdueSold は出荷期限を過ぎても持ち物に残る落札済みの品を罰する。
+// 期限までに積荷へ渡さなかった品ごとに店の評判を下げ、二重に罰さないよう印を付ける。
+// 積荷へ渡した品は運送に託したとみなし罰しない。だから出先で乱出品すると帰りが間に合わず評判を失う。
+func penalizeOverdueSold(world w.World, now int) {
+	var overdue []ecs.Entity
+	q := ecs.NewFilter2[gc.AuctionSold, gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		s := world.Components.AuctionSold.Get(q.Entity())
+		if !s.Penalized && now > s.DueTurn {
+			overdue = append(overdue, q.Entity())
+		}
+	}
+	if len(overdue) == 0 {
+		return
+	}
+	history := query.GetAuctionHistory(world)
+	for _, item := range overdue {
+		world.Components.AuctionSold.Get(item).Penalized = true
+		history.Reputation -= auctionReputationPenalty
+		logDeadlineMissed(world, query.GetEntityName(item, world), history.Reputation)
+	}
+}
+
+func logDeadlineMissed(world w.World, name string, reputation int) {
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "%s missed the shipping deadline. Reputation is now %d.", gamelog.Tag("item", name), reputation)).
+		Log()
 }
 
 // updateShippingTimers は各出荷場所の集荷タイマーを進める。
@@ -103,12 +142,13 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 		return
 	}
 
-	// 入札が止まった。落札を確定して落札済みへ移す。入金はまだしない
+	// 入札が止まった。落札を確定して落札済みへ移す。入金はまだしない。
+	// 落札の時点から出荷期限が始まる。期限までに積荷へ渡さないと評判が下がる
 	number := l.Number
 	bid := l.CurrentBid
 	name := query.GetEntityName(item, world)
 	world.Components.AuctionListing.Remove(item)
-	world.Components.AuctionSold.Add(item, &gc.AuctionSold{Number: number, Bid: bid})
+	world.Components.AuctionSold.Add(item, &gc.AuctionSold{Number: number, Bid: bid, DueTurn: now + auctionShipDeadline})
 	logAuctionWon(world, name, bid)
 }
 
