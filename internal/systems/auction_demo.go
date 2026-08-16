@@ -12,6 +12,9 @@ import (
 // システムが見つけて出荷場所に仕立てる。
 const shippingStationRawID = "shipping_station"
 
+// auctionShipInterval は自動出荷の周期。集荷は毎ターンでなくこのターン数に1回だけ走る。
+const auctionShipInterval = 10
+
 // AuctionDemoSystem はタグを貼って出品された品の競売をターン経過で進める。
 // 入札が来る限り現在値を上げて延長し、入札が止まったターンに現在値で落札を確定する。
 // 落札しても入金はせず、品を落札済みへ移して出荷場所での出荷を待たせる。
@@ -40,8 +43,10 @@ func (sys *AuctionDemoSystem) Update(world w.World) error {
 		processAuctionItem(world, item, now)
 	}
 
-	// 積荷はターン経過で自動出荷する。プレイヤーは落札済みを積むだけでよい
-	autoShipStations(world, now)
+	// 積荷は10ターンに1回の集荷で自動出荷する。プレイヤーは落札済みを積むだけでよい
+	if now > 0 && now%auctionShipInterval == 0 {
+		autoShipStations(world, now)
+	}
 	return nil
 }
 

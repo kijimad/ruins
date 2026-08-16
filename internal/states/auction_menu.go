@@ -177,17 +177,16 @@ func (st *AuctionMenuState) toItemRows(world w.World, entities []ecs.Entity) []a
 	rows := make([]auctionItemRow, len(entities))
 	for i, e := range entities {
 		row := auctionItemRow{Entity: e, Name: query.GetEntityName(e, world)}
-		// 積む・出荷タブにはタグを貼った品しか来ないので、出品中か落札済みのいずれかになる
+		// 積む・出荷タブにはタグを貼った品しか来ないので、出品中か落札済みのいずれかになる。
+		// 金額はどの状態でも入札額を出す。出品中は現在値、落札済みは落札額
 		switch {
 		case world.Components.AuctionSold.Has(e):
-			s := world.Components.AuctionSold.Get(e)
 			row.Status = query.T(world, "Won")
-			row.Value = s.Bid - query.AuctionShippingCost(world, e) - query.AuctionFee(s.Bid)
+			row.Value = world.Components.AuctionSold.Get(e).Bid
 			row.HasValue = true
 		case world.Components.AuctionListing.Has(e):
-			l := world.Components.AuctionListing.Get(e)
 			row.Status = query.T(world, "Bidding")
-			row.Value = l.CurrentBid
+			row.Value = world.Components.AuctionListing.Get(e).CurrentBid
 			row.HasValue = true
 		}
 		rows[i] = row
@@ -359,14 +358,11 @@ func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData
 func (st *AuctionMenuState) buildLedgerContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {
 	rows := make([]menuRow, len(tab.Ledger))
 	for i, r := range tab.Ledger {
-		value := r.Net
-		if r.Ongoing {
-			value = r.Bid
-		}
+		// 金額はどの行も入札額を出す。出品中は現在値、履歴は落札額
 		rows[i] = menuRow{Cells: []styled.Cell{
 			styled.TextCell("#" + strconv.Itoa(r.Number)),
 			styled.TextCell(r.Name),
-			styled.TextCell(query.FormatCurrency(value)),
+			styled.TextCell(query.FormatCurrency(r.Bid)),
 		}}
 	}
 	empty := query.T(world, "Nothing listed.")

@@ -167,10 +167,13 @@ func TestAuctionDemoSystem_積荷はターン経過で自動出荷される(t *t
 	expectedNet := bid - query.AuctionShippingCost(world, item) - query.AuctionFee(bid)
 	before := query.GetCurrency(world, player)
 
-	query.GetGameTime(world).Advance()
-	require.NoError(t, sys.Update(world))
+	// 出荷は10ターンに1回の集荷なので、次の集荷まで数ターンかかる
+	for i := 0; i < auctionShipInterval+1 && world.ECS.Alive(item); i++ {
+		query.GetGameTime(world).Advance()
+		require.NoError(t, sys.Update(world))
+	}
 
-	assert.False(t, world.ECS.Alive(item), "積荷はターン経過で自動出荷され手放す")
+	assert.False(t, world.ECS.Alive(item), "積荷は集荷のターンに自動出荷され手放す")
 	assert.Equal(t, before+expectedNet, query.GetCurrency(world, player), "自動出荷で手取りが入金される")
 	require.Len(t, query.GetAuctionHistory(world).Records, 1, "出荷実績が履歴に残る")
 }
