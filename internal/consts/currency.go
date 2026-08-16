@@ -10,14 +10,13 @@ import (
 type Currency int
 
 // String はカンマ区切りと通貨記号で整形する。3桁ごとにカンマを入れ、負値は先頭に符号を付ける。
-// float 変換や整形はこの内部だけに閉じ、演算は Currency の int で行う
 func (c Currency) String() string {
 	str := fmt.Sprintf("%d", int(c))
 
 	negative := false
 	if c < 0 {
 		negative = true
-		str = str[1:] // マイナス記号を除去してから桁区切りする
+		str = str[1:]
 	}
 
 	var result string
