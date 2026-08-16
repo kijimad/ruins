@@ -1,5 +1,22 @@
 package components
 
+// 通信販売オークションの状態モデル。
+// 1つの品はオークションを一方向に進む。状態は専用の enum でなく、どのコンポーネントを持つかと、
+// 持ち物か出荷場所の収納かの位置で表す。
+//
+//	未出品            AuctionListing も AuctionSold も無い持ち物
+//	出品中            AuctionListing。入札のたび CurrentBid が上がり延長する
+//	落札済み・手元      AuctionSold で持ち物にある。出荷期限の対象
+//	落札済み・集荷待ち  AuctionSold でステーションの収納にある。集荷タイマーで自動集荷される
+//
+// 集荷すると品エンティティは消え、以後は AuctionHistory の台帳へ移る。
+//
+//	受取金・未精算  AuctionHistory.Entries の受取金明細。精算で所持金へ入る
+//	出荷実績        AuctionHistory.Records。精算済みの記録
+//
+// 手元と集荷待ちは位置で区別する。集荷待ちは持ち物クエリに掛からないので出荷期限で罰しない。
+// AuctionSold.Penalized は手元で期限超過した記録であり、状態遷移ではない。
+
 // AuctionListing は出品中の品に付く実行時状態。タグを貼った時点で採番し、以後その出品を Number で指す。
 // 入札が来るたび CurrentBid が上がり競売が延長する。入札が止まったターンに落札が確定し AuctionSold へ移る。
 type AuctionListing struct {
