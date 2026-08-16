@@ -109,6 +109,7 @@ func updateShippingTimers(world w.World, now int) {
 			s.ShipAtTurn = 0 // 積荷が無いのでタイマー停止
 		case s.ShipAtTurn == 0:
 			s.ShipAtTurn = now + auctionShipDelay // 積荷が入ったのでタイマー開始
+			logShipScheduled(world, auctionShipDelay)
 		case now >= s.ShipAtTurn:
 			// 満了。集荷する。ShipStagedItems が構造変更する前にタイマーを止める
 			s.ShipAtTurn = 0
@@ -118,6 +119,12 @@ func updateShippingTimers(world w.World, now int) {
 			}
 		}
 	}
+}
+
+func logShipScheduled(world w.World, turns int) {
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "Shipment scheduled. Pickup in %d turns.", turns)).
+		Log()
 }
 
 func logCollected(world w.World, count, gross, pickup int) {
