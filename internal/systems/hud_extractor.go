@@ -246,7 +246,7 @@ func extractCurrencyData(world w.World) hud.CurrencyData {
 	config := hud.DefaultMessageAreaConfig
 
 	// プレイヤーの地髄を取得
-	currency := 0
+	var currency consts.Currency
 	query.Player(world, func(entity ecs.Entity) {
 		currency = query.GetCurrency(world, entity)
 	})

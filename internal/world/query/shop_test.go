@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +14,7 @@ func TestCalculateBuyPrice(t *testing.T) {
 	tests := []struct {
 		name      string
 		baseValue int
-		want      int
+		want      consts.Currency
 	}{
 		{"価値100", 100, 200},
 		{"価値50", 50, 100},
@@ -34,7 +35,7 @@ func TestCalculateSellPrice(t *testing.T) {
 	tests := []struct {
 		name      string
 		baseValue int
-		want      int
+		want      consts.Currency
 	}{
 		{"価値100", 100, 50},
 		{"価値50", 50, 25},
@@ -61,7 +62,7 @@ func TestSellPrice(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 0})
 
-		assert.Equal(t, 0, SellPrice(world, player, item), "無価値な品の対価は0")
+		assert.Equal(t, consts.Currency(0), SellPrice(world, player, item), "無価値な品の対価は0")
 	})
 
 	t.Run("倍率なしは価値の半分", func(t *testing.T) {
@@ -71,7 +72,7 @@ func TestSellPrice(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 100})
 
-		assert.Equal(t, 50, SellPrice(world, player, item), "CalculateSellPrice(100)=50")
+		assert.Equal(t, consts.Currency(50), SellPrice(world, player, item), "CalculateSellPrice(100)=50")
 	})
 
 	t.Run("交渉スキルの売値倍率が乗る", func(t *testing.T) {
@@ -82,7 +83,7 @@ func TestSellPrice(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 100})
 
-		assert.Equal(t, 100, SellPrice(world, player, item), "売値倍率200%で50が倍額100")
+		assert.Equal(t, consts.Currency(100), SellPrice(world, player, item), "売値倍率200%で50が倍額100")
 	})
 
 	t.Run("個数分だけ価値が乗る", func(t *testing.T) {
@@ -93,7 +94,7 @@ func TestSellPrice(t *testing.T) {
 		world.Components.Value.Add(item, &gc.Value{Value: 100})
 		world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
 
-		assert.Equal(t, 150, SellPrice(world, player, item), "価値100×3個の半分")
+		assert.Equal(t, consts.Currency(150), SellPrice(world, player, item), "価値100×3個の半分")
 	})
 }
 
@@ -108,7 +109,7 @@ func TestBuyPrice(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 100})
 
-		assert.Equal(t, 200, BuyPrice(world, player, item), "CalculateBuyPrice(100)=200")
+		assert.Equal(t, consts.Currency(200), BuyPrice(world, player, item), "CalculateBuyPrice(100)=200")
 	})
 
 	t.Run("交渉スキルの買値倍率が乗る", func(t *testing.T) {
@@ -119,7 +120,7 @@ func TestBuyPrice(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 100})
 
-		assert.Equal(t, 100, BuyPrice(world, player, item), "買値倍率50%で200が半額100")
+		assert.Equal(t, consts.Currency(100), BuyPrice(world, player, item), "買値倍率50%で200が半額100")
 	})
 }
 

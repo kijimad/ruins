@@ -6,6 +6,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -227,7 +228,7 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 	assert.Contains(t, labels, "Nutrition", "栄養ラベルが表示される")
 	assert.Contains(t, labels, "25", "栄養量が表示される")
 	assert.Contains(t, labels, "Value", "価値ラベルが表示される")
-	assert.Contains(t, labels, query.FormatCurrency(1200), "価値がカンマ区切りの通貨表記で表示される")
+	assert.Contains(t, labels, consts.Currency(1200).String(), "価値がカンマ区切りの通貨表記で表示される")
 	assert.Contains(t, labels, "Weight", "重量ラベルが表示される")
 }
 
@@ -325,6 +326,6 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 	assert.Contains(t, labels, "42", "ProvidesHealing由来の回復量が表示される")
 	assert.Contains(t, labels, "Nutrition", "ProvidesNutrition由来のラベルが表示される")
 	assert.Contains(t, labels, "Progress", "Book由来の進捗行が表示される")
-	assert.Contains(t, labels, query.FormatCurrency(1200), "Value由来の価値が表示される")
+	assert.Contains(t, labels, consts.Currency(1200).String(), "Value由来の価値が表示される")
 	assert.Contains(t, labels, "Weight", "Weight由来のラベルが表示される")
 }

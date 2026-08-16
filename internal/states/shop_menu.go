@@ -7,6 +7,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -108,10 +109,10 @@ type shopTabData struct {
 // shopItemData は一覧1行分。名前・重量・個数は実体から都度出せるので持たず、
 // プレイヤーの所持金や倍率が要る値だけを持つ
 type shopItemData struct {
-	Entity   ecs.Entity // 在庫・持ち物の実体。表示も操作もこれから解決する
-	Price    int        // 価値と交渉スキルの倍率から出す。実体だけでは決まらない
-	IsBuy    bool       // 買いタブの行なら真
-	Disabled bool       // 所持金が足りず選べない
+	Entity   ecs.Entity      // 在庫・持ち物の実体。表示も操作もこれから解決する
+	Price    consts.Currency // 価値と交渉スキルの倍率から出す。実体だけでは決まらない
+	IsBuy    bool            // 買いタブの行なら真
+	Disabled bool            // 所持金が足りず選べない
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。
@@ -137,7 +138,7 @@ func (st *ShopMenuState) Menu(props ShopProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency int) []shopTabData {
+func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency consts.Currency) []shopTabData {
 	return []shopTabData{
 		{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, player, currency)},
 		{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
@@ -145,7 +146,7 @@ func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency i
 }
 
 // createBuyItems は商人の在庫アイテムを買いタブへ並べる
-func (st *ShopMenuState) createBuyItems(world w.World, player ecs.Entity, currency int) []shopItemData {
+func (st *ShopMenuState) createBuyItems(world w.World, player ecs.Entity, currency consts.Currency) []shopItemData {
 	stock := query.GetStorageItems(world, st.merchant)
 	items := make([]shopItemData, 0, len(stock))
 
@@ -266,7 +267,7 @@ func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, t
 	for i, it := range currentTab.Items {
 		// 名前・個数・重量・アイコンは実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している
 		weight := query.GetEntityWeight(world, it.Entity).KgString()
-		rows[i] = itemMenuRow(world, it.Entity, query.FormatCurrency(it.Price), weight)
+		rows[i] = itemMenuRow(world, it.Entity, it.Price.String(), weight)
 	}
 	emptyText := query.T(world, "No goods")
 	if currentTab.ID == "sell" {

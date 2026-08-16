@@ -331,12 +331,12 @@ func TestSerdeAuctionRoundtrip(t *testing.T) {
 		gotSold = newWorld.Components.AuctionSold.Get(sq.Entity())
 	}
 	require.NotNil(t, gotSold, "落札済みの品が復元される")
-	assert.Equal(t, 250, gotSold.Bid, "落札額が復元される")
+	assert.Equal(t, consts.Currency(250), gotSold.Bid, "落札額が復元される")
 	assert.Equal(t, 40, gotSold.DueTurn, "出荷期限が復元される")
 
 	nh := query.GetAuctionHistory(newWorld)
 	assert.Equal(t, 80, nh.Reputation, "店の評判が復元される")
 	require.Len(t, nh.Entries, 1, "未精算の金銭明細が復元される")
 	assert.Equal(t, gc.AuctionEntryReceipt, nh.Entries[0].Kind, "明細の種別が復元される")
-	assert.Equal(t, 120, nh.Entries[0].Amount, "明細の金額が復元される")
+	assert.Equal(t, consts.Currency(120), nh.Entries[0].Amount, "明細の金額が復元される")
 }

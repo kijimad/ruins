@@ -17,7 +17,7 @@ func TestCalculateBuyPrice(t *testing.T) {
 	tests := []struct {
 		name      string
 		baseValue int
-		want      int
+		want      consts.Currency
 	}{
 		{"価値100のアイテム", 100, 200},
 		{"価値50のアイテム", 50, 100},
@@ -38,7 +38,7 @@ func TestCalculateSellPrice(t *testing.T) {
 	tests := []struct {
 		name      string
 		baseValue int
-		want      int
+		want      consts.Currency
 	}{
 		{"価値100のアイテム", 100, 50},
 		{"価値50のアイテム", 50, 25},
