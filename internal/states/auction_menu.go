@@ -133,8 +133,8 @@ func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 	return AuctionProps{
 		Tabs: []auctionTabData{
 			{ID: tabIDStatus, Label: query.T(world, "In progress"), Ledger: st.statusRows(world)},
-			{ID: tabIDStage, Label: query.T(world, "Stow"), Items: st.stageItems(world)},
-			{ID: tabIDShip, Label: query.T(world, "Staged"), Items: st.shipItems(world)},
+			{ID: tabIDStage, Label: query.T(world, "Ship"), Items: st.stageItems(world)},
+			{ID: tabIDShip, Label: query.T(world, "Pending"), Items: st.shipItems(world)},
 			{ID: tabIDFinance, Label: query.T(world, "Finance"), Entries: query.GetAuctionHistory(world).Entries},
 			{ID: tabIDHistory, Label: query.T(world, "History"), Ledger: st.historyRows(world)},
 		},
@@ -450,9 +450,9 @@ func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData
 			styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value),
 		}}
 	}
-	empty := query.T(world, "No items to stage.")
+	empty := query.T(world, "No items to ship.")
 	if tab.ID == tabIDShip {
-		empty = query.T(world, "Nothing staged.")
+		empty = query.T(world, "Nothing awaiting pickup.")
 	}
 	return renderMenuList(itemIndex, rows, []int{200, 90, 110},
 		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},

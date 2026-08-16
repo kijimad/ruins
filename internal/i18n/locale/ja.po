@@ -5610,17 +5610,17 @@ msgstr "出荷場所がある。Enter で開く"
 msgid "Open shipping station"
 msgstr "出荷場所を開く"
 
-msgid "Staged"
-msgstr "積荷"
+msgid "Ship"
+msgstr "出荷"
 
-msgid "Stow"
-msgstr "積む"
+msgid "Pending"
+msgstr "集荷待ち"
 
-msgid "No items to stage."
-msgstr "積む品がない"
+msgid "No items to ship."
+msgstr "出荷できる品がない"
 
-msgid "Nothing staged."
-msgstr "積荷がない"
+msgid "Nothing awaiting pickup."
+msgstr "集荷待ちの品がない"
 
 msgid "Shipping station"
 msgstr "出荷場所"
