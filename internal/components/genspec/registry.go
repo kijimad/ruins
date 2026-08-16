@@ -103,10 +103,10 @@ var Registry = []Def{
 	{Field: "GameTime"},        // ゲーム内時間を保持するシングルトン
 	{Field: "VisionState"},     // 視界計算の一時状態を保持するシングルトン
 	{Field: "UserSettings"},    // 設定画面で変更するグローバル設定を保持するシングルトン
+	{Field: "AuctionHistory"},  // 通信販売の金銭明細と出荷実績履歴、採番カウンタ、評判を保持するシングルトン
 
 	// 通信販売オークション ================
 	{Field: "AuctionListing"}, // 通信販売で出品中の品の現在値と採番を保持する
 	{Field: "AuctionSold"},    // 通信販売で落札済みで未出荷の品を示す
 	{Field: "AuctionStation"}, // 通信販売の出荷場所を示すマーカー
-	{Field: "AuctionHistory"}, // 通信販売の出荷実績履歴と採番カウンタを保持するシングルトン
 }

@@ -83,10 +83,10 @@ type EntitySpec struct {
 	GameTime           *GameTime
 	VisionState        *VisionState
 	UserSettings       *UserSettings
+	AuctionHistory     *AuctionHistory
 	AuctionListing     *AuctionListing
 	AuctionSold        *AuctionSold
 	AuctionStation     *AuctionStation
-	AuctionHistory     *AuctionHistory
 }
 
 // Components is the bundle of ECS component handles.
@@ -168,10 +168,10 @@ type Components struct {
 	GameTime           *ecs.Map[GameTime]
 	VisionState        *ecs.Map[VisionState]
 	UserSettings       *ecs.Map[UserSettings]
+	AuctionHistory     *ecs.Map[AuctionHistory]
 	AuctionListing     *ecs.Map[AuctionListing]
 	AuctionSold        *ecs.Map[AuctionSold]
 	AuctionStation     *ecs.Map[AuctionStation]
-	AuctionHistory     *ecs.Map[AuctionHistory]
 }
 
 // InitializeComponents registers every component type with the Ark world
@@ -253,10 +253,10 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.GameTime = ecs.NewMap[GameTime](world)
 	c.VisionState = ecs.NewMap[VisionState](world)
 	c.UserSettings = ecs.NewMap[UserSettings](world)
+	c.AuctionHistory = ecs.NewMap[AuctionHistory](world)
 	c.AuctionListing = ecs.NewMap[AuctionListing](world)
 	c.AuctionSold = ecs.NewMap[AuctionSold](world)
 	c.AuctionStation = ecs.NewMap[AuctionStation](world)
-	c.AuctionHistory = ecs.NewMap[AuctionHistory](world)
 	return nil
 }
 
@@ -340,9 +340,9 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.GameTime, entity, spec.GameTime)
 	addComp(c.VisionState, entity, spec.VisionState)
 	addComp(c.UserSettings, entity, spec.UserSettings)
+	addComp(c.AuctionHistory, entity, spec.AuctionHistory)
 	addComp(c.AuctionListing, entity, spec.AuctionListing)
 	addComp(c.AuctionSold, entity, spec.AuctionSold)
 	addComp(c.AuctionStation, entity, spec.AuctionStation)
-	addComp(c.AuctionHistory, entity, spec.AuctionHistory)
 	return entity
 }
