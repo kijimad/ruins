@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.9%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.3%)</option>
 				
@@ -427,7 +427,7 @@
 				
 				<option value="file185">github.com/kijimaD/ruins/internal/raw/item_group.go (93.5%)</option>
 				
-				<option value="file186">github.com/kijimaD/ruins/internal/raw/raw.go (89.5%)</option>
+				<option value="file186">github.com/kijimaD/ruins/internal/raw/raw.go (92.6%)</option>
 				
 				<option value="file187">github.com/kijimaD/ruins/internal/raw/validate.go (90.4%)</option>
 				
@@ -1676,7 +1676,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -35546,7 +35546,7 @@ func GetProp(raws oapi.Raws, name string) (oapi.Prop, error) <span class="cov8" 
 // NewPropSpec は指定された名前の置物のEntitySpecを生成する
 func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class="cov8" title="1">{
         propRaw, err := GetProp(raws, name)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return gc.EntitySpec{}, err
         }</span>
 
@@ -35569,10 +35569,10 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
         <span class="cov8" title="1">if propRaw.BlockPass </span><span class="cov8" title="1">{
                 entitySpec.BlockPass = &amp;gc.BlockPass{}
         }</span>
-        <span class="cov8" title="1">if propRaw.BlockView </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if propRaw.BlockView </span><span class="cov8" title="1">{
                 entitySpec.BlockView = &amp;gc.BlockView{}
         }</span>
-        <span class="cov8" title="1">if propRaw.PassCost != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if propRaw.PassCost != nil </span><span class="cov8" title="1">{
                 entitySpec.PassCost = &amp;gc.PassCost{Value: *propRaw.PassCost}
         }</span>
         // 各条件に対応するインタラクションを蓄積する。
@@ -35587,7 +35587,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
 
         <span class="cov8" title="1">entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 
-        if propRaw.Door != nil </span><span class="cov0" title="0">{
+        if propRaw.Door != nil </span><span class="cov8" title="1">{
                 entitySpec.Door = &amp;gc.Door{
                         IsOpen:      false,
                         Orientation: gc.DoorOrientationHorizontal,
@@ -35595,7 +35595,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
                 interactions = append(interactions, gc.InteractionDoor)
         }</span>
 
-        <span class="cov8" title="1">if propRaw.WarpNextTrigger != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if propRaw.WarpNextTrigger != nil </span><span class="cov8" title="1">{
                 interactions = append(interactions, gc.InteractionPortalNext)
         }</span>
 
@@ -35603,29 +35603,29 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
                 interactions = append(interactions, gc.InteractionPortalPrev)
         }</span>
 
-        <span class="cov8" title="1">if propRaw.WarpCubeExitTrigger != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if propRaw.WarpCubeExitTrigger != nil </span><span class="cov8" title="1">{
                 interactions = append(interactions, gc.InteractionExitCube)
         }</span>
 
-        <span class="cov8" title="1">if propRaw.CubePanelTrigger != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if propRaw.CubePanelTrigger != nil </span><span class="cov8" title="1">{
                 interactions = append(interactions, gc.InteractionCubePanel)
         }</span>
 
         <span class="cov8" title="1">if propRaw.Storage != nil </span><span class="cov8" title="1">{
                 mg, err := consts.ParseWeight(propRaw.Storage.MaxWeight)
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         return gc.EntitySpec{}, fmt.Errorf("container '%s' max weight: %w", name, err)
                 }</span>
                 <span class="cov8" title="1">entitySpec.WeightCapacity = &amp;gc.WeightCapacity{Max: mg}
                 interactions = append(interactions, gc.InteractionStorage)</span>
         }
 
-        <span class="cov8" title="1">if propRaw.ShippingStation != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if propRaw.ShippingStation != nil </span><span class="cov8" title="1">{
                 entitySpec.AuctionStation = &amp;gc.AuctionStation{}
                 interactions = append(interactions, gc.InteractionAuction)
         }</span>
 
-        <span class="cov8" title="1">if propRaw.Disassembly != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if propRaw.Disassembly != nil </span><span class="cov8" title="1">{
                 interactions = append(interactions, gc.InteractionDisassemble)
         }</span>
 
