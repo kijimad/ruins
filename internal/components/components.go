@@ -101,7 +101,7 @@ type Dead struct{}
 
 // Wallet はプレイヤーの資金を管理する
 type Wallet struct {
-	Currency int
+	Currency consts.Currency
 }
 
 // HP は生命力・耐久を表すコンポーネント

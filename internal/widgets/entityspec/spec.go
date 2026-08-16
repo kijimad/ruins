@@ -80,7 +80,7 @@ func auctionListingRows(world w.World, l *gc.AuctionListing) []SpecRow {
 		{Label: query.T(world, "Auction"), Header: true},
 		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(l.Number)},
 		{Label: query.T(world, "Status"), Value: query.T(world, "Bidding")},
-		{Label: query.T(world, "Current bid"), Value: query.FormatCurrency(l.CurrentBid)},
+		{Label: query.T(world, "Current bid"), Value: l.CurrentBid.String()},
 	}
 }
 
@@ -90,7 +90,7 @@ func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {
 		{Label: query.T(world, "Auction"), Header: true},
 		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(s.Number)},
 		{Label: query.T(world, "Status"), Value: query.T(world, "Won")},
-		{Label: query.T(world, "Bid"), Value: query.FormatCurrency(s.Bid)},
+		{Label: query.T(world, "Bid"), Value: s.Bid.String()},
 		{Label: query.T(world, "Ship by turn"), Value: strconv.Itoa(s.DueTurn)},
 	}
 }
@@ -251,7 +251,7 @@ func freshnessRow(world w.World, entity ecs.Entity) SpecRow {
 
 // valueRows は価値の行を返す
 func valueRows(world w.World, value *gc.Value) []SpecRow {
-	return []SpecRow{{Label: query.T(world, "Value"), Value: query.FormatCurrency(value.Value)}}
+	return []SpecRow{{Label: query.T(world, "Value"), Value: consts.Currency(value.Value).String()}}
 }
 
 // weightRows は重量の行を返す

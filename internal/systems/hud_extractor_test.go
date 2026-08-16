@@ -487,7 +487,7 @@ func TestExtractCurrencyData(t *testing.T) {
 
 		data := extractCurrencyData(world)
 
-		assert.Equal(t, 12345, data.Currency)
+		assert.Equal(t, consts.Currency(12345), data.Currency)
 		assert.Equal(t, 320, data.ScreenDimensions.Width)
 		assert.Equal(t, 240, data.ScreenDimensions.Height)
 	})
@@ -498,7 +498,7 @@ func TestExtractCurrencyData(t *testing.T) {
 
 		data := extractCurrencyData(world)
 
-		assert.Equal(t, 0, data.Currency)
+		assert.Equal(t, consts.Currency(0), data.Currency)
 	})
 }
 
@@ -695,7 +695,7 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 	data := ExtractHUDData(world)
 
 	assert.Equal(t, 10, data.GameInfo.PlayerHP)
-	assert.Equal(t, 500, data.CurrencyData.Currency)
+	assert.Equal(t, consts.Currency(500), data.CurrencyData.Currency)
 	require.Len(t, data.WeaponSlotsData.Slots, 5)
 	assert.Equal(t, 800, data.MinimapData.ScreenDimensions.Width)
 }

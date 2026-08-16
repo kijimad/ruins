@@ -91,7 +91,7 @@ func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 	require.NoError(t, SellStock(world, player, merchant, item), "価値0でも売却は成功する")
 
 	currency := query.GetCurrency(world, player)
-	assert.Equal(t, 0, currency, "無価値な品の対価は0で通貨は増えない")
+	assert.Equal(t, consts.Currency(0), currency, "無価値な品の対価は0で通貨は増えない")
 
 	// 売った品は商人の在庫へ並ぶ
 	require.True(t, world.Components.LocationInStorage.Has(item), "実体は商人の収納へ移る")

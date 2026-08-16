@@ -184,7 +184,7 @@ func execTagItem(world w.World, entity ecs.Entity) (es.Transition[w.World], erro
 	number := query.StartAuctionListing(world, entity, now)
 	bid := world.Components.AuctionListing.Get(entity).CurrentBid
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "Tagged %s as #%d. Opening bid %s.", gamelog.Tag("item", query.GetEntityName(entity, world)), number, query.FormatCurrency(bid))).
+		Markup(query.T(world, "Tagged %s as #%d. Opening bid %s.", gamelog.Tag("item", query.GetEntityName(entity, world)), number, bid.String())).
 		Log()
 	return es.Transition[w.World]{Type: es.TransPop}, nil
 }

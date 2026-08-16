@@ -2,6 +2,7 @@ package systems
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -146,8 +147,8 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 	logAuctionWon(world, name, bid)
 }
 
-func logAuctionWon(world w.World, name string, bid int) {
+func logAuctionWon(world w.World, name string, bid consts.Currency) {
 	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "%s was won. Bid %s. Ready to ship.", gamelog.Tag("item", name), query.FormatCurrency(bid))).
+		Markup(query.T(world, "%s was won. Bid %s. Ready to ship.", gamelog.Tag("item", name), bid.String())).
 		Log()
 }

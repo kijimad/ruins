@@ -9,6 +9,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
@@ -114,19 +115,19 @@ type auctionTabData struct {
 type auctionItemRow struct {
 	Entity   ecs.Entity
 	Name     string
-	Status   string // 落札済みか出品中
-	Value    int    // 入札額。落札済みは落札額、出品中は現在値
-	HasValue bool   // 金額を出すか
+	Status   string          // 落札済みか出品中
+	Value    consts.Currency // 入札額。落札済みは落札額、出品中は現在値
+	HasValue bool            // 金額を出すか
 }
 
 // auctionLedgerRow は進行中・履歴タブの1行
 type auctionLedgerRow struct {
 	Number  int
 	Name    string
-	Bid     int
-	Ship    int
-	Fee     int
-	Net     int
+	Bid     consts.Currency
+	Ship    consts.Currency
+	Fee     consts.Currency
+	Net     consts.Currency
 	Turn    int
 	Ongoing bool
 	Shipped bool
@@ -301,11 +302,11 @@ func (st *AuctionMenuState) settleEntry(world w.World, index int) error {
 	switch e.Kind {
 	case gc.AuctionEntryReceipt:
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "Collected %s. Received %s.", gamelog.Tag("item", e.Name), query.FormatCurrency(e.Amount))).
+			Markup(query.T(world, "Collected %s. Received %s.", gamelog.Tag("item", e.Name), e.Amount.String())).
 			Log()
 	case gc.AuctionEntryInvoice:
 		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "Paid %s: %s.", query.T(world, e.Name), query.FormatCurrency(e.Amount))).
+			Markup(query.T(world, "Paid %s: %s.", query.T(world, e.Name), e.Amount.String())).
 			Log()
 	}
 	return nil
@@ -368,10 +369,10 @@ func auctionEntryDetail(world w.World, e gc.AuctionEntry) overlay.DetailContent 
 			Name: e.Name,
 			Rows: []entityspec.SpecRow{
 				{Label: query.T(world, "Kind"), Value: query.T(world, "Receipt")},
-				{Label: query.T(world, "Bid"), Value: query.FormatCurrency(e.Bid)},
-				{Label: query.T(world, "Shipping"), Value: query.FormatCurrency(e.Ship)},
-				{Label: query.T(world, "Fee"), Value: query.FormatCurrency(e.Fee)},
-				{Label: query.T(world, "Net"), Value: query.FormatCurrency(e.Amount)},
+				{Label: query.T(world, "Bid"), Value: e.Bid.String()},
+				{Label: query.T(world, "Shipping"), Value: e.Ship.String()},
+				{Label: query.T(world, "Fee"), Value: e.Fee.String()},
+				{Label: query.T(world, "Net"), Value: e.Amount.String()},
 			},
 		}
 	case gc.AuctionEntryInvoice:
@@ -379,7 +380,7 @@ func auctionEntryDetail(world w.World, e gc.AuctionEntry) overlay.DetailContent 
 			Name: query.T(world, e.Name),
 			Rows: []entityspec.SpecRow{
 				{Label: query.T(world, "Kind"), Value: query.T(world, "Invoice")},
-				{Label: query.T(world, "Amount"), Value: query.FormatCurrency(e.Amount)},
+				{Label: query.T(world, "Amount"), Value: e.Amount.String()},
 			},
 		}
 	}
@@ -394,10 +395,10 @@ func auctionLedgerDetail(world w.World, r auctionLedgerRow) overlay.DetailConten
 	}
 	rows := []entityspec.SpecRow{
 		{Label: query.T(world, "Number"), Value: "#" + strconv.Itoa(r.Number)},
-		{Label: bidLabel, Value: query.FormatCurrency(r.Bid)},
-		{Label: query.T(world, "Shipping"), Value: query.FormatCurrency(r.Ship)},
-		{Label: query.T(world, "Fee"), Value: query.FormatCurrency(r.Fee)},
-		{Label: query.T(world, "Net"), Value: query.FormatCurrency(r.Net)},
+		{Label: bidLabel, Value: r.Bid.String()},
+		{Label: query.T(world, "Shipping"), Value: r.Ship.String()},
+		{Label: query.T(world, "Fee"), Value: r.Fee.String()},
+		{Label: query.T(world, "Net"), Value: r.Net.String()},
 	}
 	if r.Shipped {
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Turn"), Value: strconv.Itoa(r.Turn)})
@@ -426,11 +427,11 @@ func (st *AuctionMenuState) buildFinanceContainer(world w.World, tab auctionTabD
 	for i, e := range tab.Entries {
 		kind := query.T(world, "Receipt")
 		name := e.Name
-		amount := query.FormatCurrency(e.Amount)
+		amount := e.Amount.String()
 		if e.Kind == gc.AuctionEntryInvoice {
 			kind = query.T(world, "Invoice")
 			name = query.T(world, e.Name)
-			amount = query.FormatCurrency(-e.Amount)
+			amount = (-e.Amount).String()
 		}
 		rows[i] = menuRow{Cells: []styled.Cell{
 			styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount),
@@ -447,7 +448,7 @@ func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData
 	for i, it := range tab.Items {
 		value := ""
 		if it.HasValue {
-			value = query.FormatCurrency(it.Value)
+			value = it.Value.String()
 		}
 		rows[i] = menuRow{Cells: []styled.Cell{
 			styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value),
@@ -471,7 +472,7 @@ func (st *AuctionMenuState) buildLedgerContainer(world w.World, tab auctionTabDa
 			rows[i] = menuRow{Cells: []styled.Cell{
 				styled.TextCell("#" + strconv.Itoa(r.Number)),
 				styled.TextCell(r.Name),
-				styled.TextCell(query.FormatCurrency(r.Bid)),
+				styled.TextCell(r.Bid.String()),
 			}}
 		}
 		return renderMenuList(itemIndex, rows, []int{50, 200, 120},
@@ -490,7 +491,7 @@ func (st *AuctionMenuState) buildLedgerContainer(world w.World, tab auctionTabDa
 			styled.TextCell("#" + strconv.Itoa(r.Number)),
 			styled.TextCell(r.Name),
 			styled.TextCell(status),
-			styled.TextCell(query.FormatCurrency(r.Bid)),
+			styled.TextCell(r.Bid.String()),
 		}}
 	}
 	return renderMenuList(itemIndex, rows, []int{50, 170, 70, 110},

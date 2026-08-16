@@ -92,7 +92,7 @@ type MessageData struct {
 
 // CurrencyData は通貨表示に必要なデータ
 type CurrencyData struct {
-	Currency         int               // プレイヤーの所持地髄
+	Currency         consts.Currency   // プレイヤーの所持地髄
 	ScreenDimensions ScreenDimensions  // 画面サイズ
 	Config           MessageAreaConfig // 位置計算にメッセージエリアの情報が必要
 }

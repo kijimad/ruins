@@ -20,33 +20,33 @@ const (
 
 	// AuctionPickupFee は集荷手数料。集荷1回につき定額でかかり、品ごとの配送料や手数料とは別立て。
 	// 小分けに集荷するほどかさむので、1回にまとめるほど得になる。
-	AuctionPickupFee = 100
+	AuctionPickupFee consts.Currency = 100
 )
 
 // AuctionOpeningBid は開始入札額を返す。基準価値に分散を掛けた控えめな額から競売が始まる。
-func AuctionOpeningBid(world w.World, item ecs.Entity) int {
+func AuctionOpeningBid(world w.World, item ecs.Entity) consts.Currency {
 	base := GetItemValue(world, item)
 	variance := 0.8 + world.Config.RNG.Float64()*0.4
-	return int(float64(base) * auctionOpeningMult * variance)
+	return consts.Currency(float64(base) * auctionOpeningMult * variance)
 }
 
 // AuctionRaise は1回の入札での上げ幅を返す。入札が来るたびこの額だけ現在値が上がる。
-func AuctionRaise(world w.World, item ecs.Entity) int {
+func AuctionRaise(world w.World, item ecs.Entity) consts.Currency {
 	base := GetItemValue(world, item)
 	variance := 0.8 + world.Config.RNG.Float64()*0.4
-	raise := max(int(float64(base)*auctionRaiseMult*variance), 1)
+	raise := max(consts.Currency(float64(base)*auctionRaiseMult*variance), 1)
 	return raise
 }
 
 // AuctionShippingCost は発送料を返す。重量に比例するので、重い安物は手取りを食う。
-func AuctionShippingCost(world w.World, item ecs.Entity) int {
+func AuctionShippingCost(world w.World, item ecs.Entity) consts.Currency {
 	weightKg := float64(GetEntityWeight(world, item)) / float64(consts.MilligramPerKg)
-	return int(weightKg * auctionShipRatePerKg)
+	return consts.Currency(weightKg * auctionShipRatePerKg)
 }
 
 // AuctionFee は手数料を返す。落札額に比例する。
-func AuctionFee(bid int) int {
-	return int(float64(bid) * auctionFeeRate)
+func AuctionFee(bid consts.Currency) consts.Currency {
+	return consts.Currency(float64(bid) * auctionFeeRate)
 }
 
 // GetAuctionHistory は出荷実績の履歴シングルトンを取得する。
