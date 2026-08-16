@@ -11,7 +11,6 @@ type testMenuProps struct {
 	Items []string
 }
 
-// setupMenuState はメニュー用のUseStateを登録する
 func setupMenuState(store *Store, p testMenuProps) {
 	UseState(store, "selected", 0, func(v int, action inputmapper.ActionID) int {
 		switch action {
@@ -171,4 +170,21 @@ func TestGetState_型が違うとfalseを返す(t *testing.T) {
 
 	_, ok := GetState[string](mount, "selected")
 	assert.False(t, ok, "intをstringで取得しようとするとfalse")
+}
+
+func TestGetProps_設定したPropsを返す(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[testMenuProps]()
+	props := testMenuProps{Items: []string{"a", "b"}}
+
+	mount.SetProps(props)
+
+	assert.Equal(t, props, mount.GetProps())
+}
+
+func TestGetProps_未設定なら型のゼロ値を返す(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[testMenuProps]()
+
+	assert.Equal(t, testMenuProps{}, mount.GetProps())
 }

@@ -134,3 +134,16 @@ func TestGetRef_PointerType(t *testing.T) {
 	assert.True(t, ok, "存在するキーは true を返す")
 	assert.Equal(t, "button", widget.Name, "登録した値が返される")
 }
+
+func TestUseRef_登録済みキーに異なる型で呼ぶとpanicする(t *testing.T) {
+	t.Parallel()
+
+	store := NewStore()
+	UseRef(store, "key", func() int { return 42 })
+
+	assert.PanicsWithValue(t,
+		"hooks: reference type does not match registration: key=key",
+		func() {
+			UseRef(store, "key", func() string { return "x" })
+		})
+}

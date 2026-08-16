@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type tabMenuTestProps struct {
@@ -798,4 +799,95 @@ func TestUseTabMenu_Pagination_PageNavigationWithLeftRight(t *testing.T) {
 	mount.Update()
 	assert.Equal(t, 0, result.ItemIndex, "最初のページでは移動しない")
 	assert.Equal(t, 0, result.Page)
+}
+
+func TestIsSkip_タブ範囲外はfalseを返す(t *testing.T) {
+	t.Parallel()
+	nav := &tabMenuNav{config: TabMenuConfig{
+		Skips: [][]bool{{true}},
+	}}
+
+	assert.False(t, nav.isSkip(-1, 0), "負のタブ番号")
+	assert.False(t, nav.isSkip(5, 0), "タブ数を超える番号")
+}
+
+func TestIsSkip_アイテム範囲外はfalseを返す(t *testing.T) {
+	t.Parallel()
+	nav := &tabMenuNav{config: TabMenuConfig{
+		Skips: [][]bool{{true, false}},
+	}}
+
+	assert.False(t, nav.isSkip(0, -1), "負のアイテム番号")
+	assert.False(t, nav.isSkip(0, 5), "アイテム数を超える番号")
+}
+
+func TestSkipNext_全項目がスキップ対象なら開始位置を一周して返す(t *testing.T) {
+	t.Parallel()
+	nav := &tabMenuNav{config: TabMenuConfig{
+		ItemCounts: []int{3},
+		Skips:      [][]bool{{true, true, true}},
+	}}
+
+	assert.Equal(t, 0, nav.skipNext(0, 0, 1), "全てスキップ対象なら1周して開始位置に戻る")
+}
+
+func TestReduce_タブ数0でPrevは状態を変えない(t *testing.T) {
+	t.Parallel()
+	nav := &tabMenuNav{config: TabMenuConfig{TabCount: 0}}
+	s := TabMenuState{TabIndex: 0, ItemIndex: 0}
+
+	got := nav.reduce(s, inputmapper.ActionMenuTabPrev)
+
+	assert.Equal(t, s, got)
+}
+
+func TestReduce_アイテム数0でUpは状態を変えない(t *testing.T) {
+	t.Parallel()
+	nav := &tabMenuNav{config: TabMenuConfig{TabCount: 1, ItemCounts: []int{0}}}
+	s := TabMenuState{TabIndex: 0, ItemIndex: 0}
+
+	got := nav.reduce(s, inputmapper.ActionMenuUp)
+
+	assert.Equal(t, s, got)
+}
+
+func TestReduce_未対応のアクションは状態を変えない(t *testing.T) {
+	t.Parallel()
+	nav := &tabMenuNav{config: TabMenuConfig{TabCount: 1, ItemCounts: []int{3}}}
+	s := TabMenuState{TabIndex: 0, ItemIndex: 1}
+
+	got := nav.reduce(s, inputmapper.ActionConfirm)
+
+	assert.Equal(t, s, got)
+}
+
+func TestSetTab_指定タブのスキップ対象でない先頭に移動する(t *testing.T) {
+	t.Parallel()
+	store := NewStore()
+	config := TabMenuConfig{
+		TabCount:   2,
+		ItemCounts: []int{2, 3},
+		Skips:      [][]bool{nil, {true, false, false}},
+	}
+
+	SetTab(store, "menu", config, 1)
+
+	got, ok := GetStoreState[TabMenuState](store, "menu")
+	require.True(t, ok)
+	assert.Equal(t, TabMenuState{TabIndex: 1, ItemIndex: 1}, got, "スキップ対象でない先頭アイテムに置かれる")
+}
+
+func TestSetTab_範囲外タブはアイテムインデックスが0にクランプされる(t *testing.T) {
+	t.Parallel()
+	store := NewStore()
+	config := TabMenuConfig{
+		TabCount:   2,
+		ItemCounts: []int{2, 3},
+	}
+
+	SetTab(store, "menu", config, 5)
+
+	got, ok := GetStoreState[TabMenuState](store, "menu")
+	require.True(t, ok)
+	assert.Equal(t, TabMenuState{TabIndex: 5, ItemIndex: 0}, got, "範囲外タブはアイテム数0扱いでItemIndexが0にクランプされる")
 }
