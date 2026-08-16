@@ -5600,8 +5600,6 @@ msgstr "請求も受取金もない"
 msgid "%s missed the shipping deadline. Reputation is now %d."
 msgstr "%s の出荷期限を過ぎた。評判が %d に下がった"
 
-msgid "Reputation %d"
-msgstr "評判 %d"
 
 msgid "Ship by turn"
 msgstr "出荷期限ターン"
