@@ -130,9 +130,9 @@ type auctionLedgerRow struct {
 func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 	return AuctionProps{
 		Tabs: []auctionTabData{
+			{ID: tabIDListing, Label: query.T(world, "Listing"), Ledger: st.listingRows(world)},
 			{ID: tabIDStage, Label: query.T(world, "Load"), Items: st.stageItems(world)},
 			{ID: tabIDShip, Label: query.T(world, "Staged"), Items: st.shipItems(world)},
-			{ID: tabIDListing, Label: query.T(world, "Listing"), Ledger: st.listingRows(world)},
 			{ID: tabIDFinance, Label: query.T(world, "Finance"), Entries: query.GetAuctionHistory(world).Entries},
 			{ID: tabIDHistory, Label: query.T(world, "History"), Ledger: st.historyRows(world)},
 		},
