@@ -79,14 +79,16 @@ func CollectStagedItems(world w.World, station ecs.Entity) (collected, receipts 
 	if len(items) == 0 {
 		return 0, 0
 	}
-	history := GetAuctionHistory(world)
+	// 明細を一旦ためる。履歴シングルトンへの追記は品の削除が終わってから行う。
+	// エンティティ削除で Get のポインタが無効化されうるので、構造変更を跨いで history を保持しない
+	var entries []gc.AuctionEntry
 	for _, item := range items {
 		if world.Components.AuctionSold.Has(item) {
 			sold := world.Components.AuctionSold.Get(item)
 			bid := sold.Bid
 			ship := AuctionShippingCost(world, item)
 			fee := AuctionFee(bid)
-			history.Entries = append(history.Entries, gc.AuctionEntry{
+			entries = append(entries, gc.AuctionEntry{
 				Kind: gc.AuctionEntryReceipt, Number: sold.Number, Name: GetEntityName(item, world),
 				Amount: bid - ship - fee, Bid: bid, Ship: ship, Fee: fee,
 			})
@@ -97,9 +99,11 @@ func CollectStagedItems(world w.World, station ecs.Entity) (collected, receipts 
 		collected++
 	}
 	// 集荷料金の請求を1件立てる。品ごとの配送料や手数料とは別立て
-	history.Entries = append(history.Entries, gc.AuctionEntry{
+	entries = append(entries, gc.AuctionEntry{
 		Kind: gc.AuctionEntryInvoice, Name: pickupInvoiceName, Amount: AuctionPickupFee,
 	})
+	history := GetAuctionHistory(world)
+	history.Entries = append(history.Entries, entries...)
 	return collected, receipts
 }
 

@@ -57,9 +57,9 @@ type AuctionEntryKind string
 
 const (
 	// AuctionEntryReceipt は受取金。精算すると所持金へ加える
-	AuctionEntryReceipt AuctionEntryKind = "RECEIPT"
+	AuctionEntryReceipt AuctionEntryKind = "receipt"
 	// AuctionEntryInvoice は請求。精算すると所持金から引く
-	AuctionEntryInvoice AuctionEntryKind = "INVOICE"
+	AuctionEntryInvoice AuctionEntryKind = "invoice"
 )
 
 // AuctionEntry は金銭タブに並ぶ明細1件。受取金か請求のどちらかで、精算すると所持金へ足し引きする。

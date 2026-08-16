@@ -77,6 +77,9 @@ msgstr "読む"
 msgid "Use"
 msgstr "使う"
 
+msgid "List"
+msgstr "出品"
+
 msgid "No matching items"
 msgstr "該当するアイテムがありません"
 
@@ -5645,9 +5648,6 @@ msgstr "状況"
 
 msgid "Bidding"
 msgstr "入札中"
-
-msgid "Sold"
-msgstr "落札済み"
 
 msgid "Current bid"
 msgstr "現在値"
