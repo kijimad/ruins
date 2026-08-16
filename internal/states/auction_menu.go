@@ -34,10 +34,9 @@ const (
 	tabIDHistory tabID = "history"
 )
 
-// AuctionMenuState は出荷場所のメニュー。持ち物の品を積荷へ積み、出荷ボタンでまとめて出荷する。
-// 落札済みの品だけ手取りが入り、落札されていない品は積んで出荷しても金にならず消える。
-// だから積めるだけ積む戦略は成立せず、何を積むかの選別が意思決定になる。
-// 出品中と履歴は読み取り専用で状況を確認する。
+// AuctionMenuState は出荷場所のメニュー。金銭・積む・積荷・出品中・履歴のタブを持つ。
+// 積むタブで落札済みの品を積荷へ入れると、集荷はターン経過で自動に行われる。
+// 金銭タブで受取金と請求の明細を精算して所持金が動く。他のタブは読み取り専用の状況確認。
 type AuctionMenuState struct {
 	es.BaseState[w.World]
 	stationEntity ecs.Entity // 積荷コンテナを持つ出荷場所
@@ -111,9 +110,9 @@ type auctionTabData struct {
 type auctionItemRow struct {
 	Entity   ecs.Entity
 	Name     string
-	Status   string // 落札・出品中・未出品のいずれか
-	Value    int    // 落札なら手取り、出品中なら現在値
-	HasValue bool   // 金額を出すか。未出品は出さない
+	Status   string // 落札済みか出品中
+	Value    int    // 入札額。落札済みは落札額、出品中は現在値
+	HasValue bool   // 金額を出すか
 }
 
 // auctionLedgerRow は出品中・履歴タブの1行
@@ -232,8 +231,8 @@ func (st *AuctionMenuState) historyRows(world w.World) []auctionLedgerRow {
 	return rows
 }
 
-// selectRow は Enter の対象を処理する。積むタブは積荷へ入れ、出荷タブは持ち物へ戻す。
-// 状況タブは詳細を開くだけで状態は変えない
+// selectRow は Enter の対象を処理する。積むタブは積荷へ入れ、出荷タブは持ち物へ戻し、
+// 金銭タブは明細を精算する。出品中と履歴タブは詳細を開くだけで状態は変えない
 func (st *AuctionMenuState) selectRow(world w.World) error {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()

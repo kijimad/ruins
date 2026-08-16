@@ -35,7 +35,6 @@ func (sys AuctionSystem) String() string {
 
 // Update は出品中の品をターン経過で競売する
 func (sys *AuctionSystem) Update(world w.World) error {
-	// テンプレートで配置された shipping_station prop を出荷場所に仕立てる
 	markShippingStations(world)
 
 	now := int(query.GetGameTime(world).TotalTurns)
@@ -50,11 +49,7 @@ func (sys *AuctionSystem) Update(world w.World) error {
 		processAuctionItem(world, item, now)
 	}
 
-	// 積荷が入ると集荷タイマーが動き出し、満了したら積荷をまとめて集荷する。
-	// プレイヤーは落札済みを積むだけでよい
 	updateShippingTimers(world, now)
-
-	// 落札から出荷期限を過ぎても積荷へ渡していない品は、店の評判を下げる
 	penalizeOverdueSold(world, now)
 	return nil
 }
