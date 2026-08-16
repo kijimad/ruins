@@ -98,50 +98,64 @@ func TestAuctionDemoSystem_出品中の品はターン経過で落札される�
 	assert.Empty(t, query.GetAuctionHistory(world).Records, "出荷するまで履歴には残らない")
 }
 
-func TestShipSoldItems_出荷で入金し履歴に残り品が消える(t *testing.T) {
+func TestShipStagedItems_落札済みは入金し未落札は消えるだけ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	item, err := lifecycle.SpawnBackpackItem(world, "angel_sword", 1)
+	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
 	require.NoError(t, err)
-	query.StartAuctionListing(world, item, int(query.GetGameTime(world).TotalTurns))
+	won, err := lifecycle.SpawnBackpackItem(world, "angel_sword", 1)
+	require.NoError(t, err)
+	junk, err := lifecycle.SpawnBackpackItem(world, "shovel", 1)
+	require.NoError(t, err)
+	query.StartAuctionListing(world, won, int(query.GetGameTime(world).TotalTurns))
 
+	// won だけ落札まで進める。junk はタグを貼らないので未出品のまま
 	sys := &AuctionDemoSystem{}
-	for i := 0; i < 200 && !world.Components.AuctionSold.Has(item); i++ {
+	for i := 0; i < 200 && !world.Components.AuctionSold.Has(won); i++ {
 		query.GetGameTime(world).Advance()
 		require.NoError(t, sys.Update(world))
 	}
-	require.True(t, world.Components.AuctionSold.Has(item), "落札済みになる")
+	require.True(t, world.Components.AuctionSold.Has(won), "won は落札済みになる")
 
-	bid := world.Components.AuctionSold.Get(item).Bid
-	expectedNet := bid - query.AuctionShippingCost(world, item) - query.AuctionFee(bid)
+	// 落札済みと未落札の両方を積荷へ積む
+	require.NoError(t, lifecycle.MoveToStorage(world, won, station))
+	require.NoError(t, lifecycle.MoveToStorage(world, junk, station))
+
+	bid := world.Components.AuctionSold.Get(won).Bid
+	expectedNet := bid - query.AuctionShippingCost(world, won) - query.AuctionFee(bid)
 	before := query.GetCurrency(world, player)
 
-	count, total := query.ShipSoldItems(world, player, 42)
+	shipped, paid, total := query.ShipStagedItems(world, station, player, 42)
 
-	assert.Equal(t, 1, count, "落札済みの品を1件出荷する")
-	assert.Equal(t, expectedNet, total, "手取り合計は落札額から発送料と手数料を引いた額")
-	assert.Equal(t, before+expectedNet, query.GetCurrency(world, player), "出荷して初めて入金する")
-	assert.False(t, world.ECS.Alive(item), "出荷した品は手放す")
+	assert.Equal(t, 2, shipped, "積んだ品はすべて出荷される")
+	assert.Equal(t, 1, paid, "入金されるのは落札済みだけ")
+	assert.Equal(t, expectedNet, total, "手取りは落札済みの分だけ")
+	assert.Equal(t, before+expectedNet, query.GetCurrency(world, player), "落札済みの手取りが入金される")
+	assert.False(t, world.ECS.Alive(won), "落札済みは出荷で手放す")
+	assert.False(t, world.ECS.Alive(junk), "未落札も出荷され金にならず消える")
 	records := query.GetAuctionHistory(world).Records
-	require.Len(t, records, 1, "出荷実績が履歴に残る")
+	require.Len(t, records, 1, "履歴に残るのは落札済みだけ")
 	assert.Equal(t, 42, records[0].Turn, "出荷したターンを記録する")
 	assert.Equal(t, expectedNet, records[0].Net, "手取りを記録する")
 }
 
-func TestShipSoldItems_落札済みが無ければ何もしない(t *testing.T) {
+func TestShipStagedItems_積荷が無ければ何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
+	station, err := lifecycle.SpawnProp(world, "shipping_station", 6, 6)
+	require.NoError(t, err)
 	before := query.GetCurrency(world, player)
 
-	count, total := query.ShipSoldItems(world, player, 0)
+	shipped, paid, total := query.ShipStagedItems(world, station, player, 0)
 
-	assert.Zero(t, count, "出荷する品が無ければ0件")
+	assert.Zero(t, shipped, "積荷が無ければ0件")
+	assert.Zero(t, paid, "入金も0件")
 	assert.Zero(t, total, "手取りも0")
 	assert.Equal(t, before, query.GetCurrency(world, player), "所持金は変わらない")
 }
@@ -157,7 +171,7 @@ func TestMarkShippingStations_専用propを出荷場所にする(t *testing.T) {
 
 	require.True(t, world.Components.AuctionStation.Has(station), "shipping_station prop は出荷場所になる")
 	it := world.Components.Interactable.Get(station)
-	assert.Equal(t, []gc.InteractionKind{gc.InteractionShip, gc.InteractionAuction}, it.Interactions, "出荷と状況確認の相互作用が付く")
+	assert.Equal(t, []gc.InteractionKind{gc.InteractionAuction}, it.Interactions, "出荷場所メニューを開く相互作用が付く")
 }
 
 func TestMarkShippingStations_他のpropには触れない(t *testing.T) {

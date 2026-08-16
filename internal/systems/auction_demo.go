@@ -81,7 +81,7 @@ func markShippingStations(world w.World) {
 	}
 	for _, e := range toMark {
 		world.Components.AuctionStation.Add(e, &gc.AuctionStation{})
-		interactions := []gc.InteractionKind{gc.InteractionShip, gc.InteractionAuction}
+		interactions := []gc.InteractionKind{gc.InteractionAuction}
 		if world.Components.Interactable.Has(e) {
 			world.Components.Interactable.Get(e).Interactions = interactions
 		} else {

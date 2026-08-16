@@ -4,11 +4,9 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -55,9 +53,7 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 	case gc.InteractionCubePanel:
 		return executePortal(world, gc.OpenCubePanelEvent(), "control panel state change request error", "opened control panel")
 	case gc.InteractionAuction:
-		return executePortal(world, gc.OpenAuctionEvent(), "auction status state change request error", "opened auction status")
-	case gc.InteractionShip:
-		return executeShip(actor, world)
+		return executePortal(world, gc.OpenAuctionEvent(target), "auction menu state change request error", "opened shipping station")
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす
@@ -129,23 +125,6 @@ func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 	}
 	gridElement := world.Components.GridElement.Get(actor)
 	return Execute(NewPickupTileActivity(world, gridElement.Coord), actor, world)
-}
-
-// executeShip は出荷場所での出荷を行う。持ち物内の落札済みの品をまとめて出荷し、手取りを入金し、
-// 履歴へ記録して品を手放す。出荷する品が無ければ何もせず、その旨をログに出す。
-func executeShip(actor ecs.Entity, world w.World) (*ActionResult, error) {
-	now := int(query.GetGameTime(world).TotalTurns)
-	count, total := query.ShipSoldItems(world, actor, now)
-	if count == 0 {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "No won items to ship.")).
-			Log()
-		return &ActionResult{Success: true, ActivityName: gc.BehaviorShip, Message: "nothing to ship"}, nil
-	}
-	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "Shipped %d items. You got %s.", count, query.FormatCurrency(total))).
-		Log()
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorShip, Message: "shipped sold items"}, nil
 }
 
 func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {

@@ -72,35 +72,31 @@ func StartAuctionListing(world w.World, item ecs.Entity, now int) int {
 	return number
 }
 
-// ShipSoldItems は持ち物内の落札済みの品をまとめて出荷する。手取りを入金し履歴へ記録して品を消す。
-// 出荷した件数と手取り合計を返す。
-func ShipSoldItems(world w.World, player ecs.Entity, now int) (int, int) {
-	// 反復中はワールドがロックされ削除できない。一旦集めてからループ外で処理する
-	var items []ecs.Entity
-	q := ecs.NewFilter2[gc.AuctionSold, gc.LocationInBackpack](world.ECS).Query()
-	for q.Next() {
-		if world.Components.LocationInBackpack.Get(q.Entity()).Owner == player {
-			items = append(items, q.Entity())
-		}
-	}
-
+// ShipStagedItems は出荷場所の積荷をすべて出荷する。落札済みの品だけ手取りを入金し履歴へ残す。
+// 落札されていない品は出荷しても金にならず、ただ手放す。だから積めるだけ積む戦略は成立しない。
+// 出荷した総件数と入金した件数と手取り合計を返す。
+func ShipStagedItems(world w.World, station, player ecs.Entity, now int) (shipped, paid, total int) {
+	// GetStorageItems は確定したスライスを返すので、反復中に削除してよい
+	items := GetStorageItems(world, station)
 	history := GetAuctionHistory(world)
-	count, total := 0, 0
 	for _, item := range items {
-		sold := world.Components.AuctionSold.Get(item)
-		bid := sold.Bid
-		ship := AuctionShippingCost(world, item)
-		fee := AuctionFee(bid)
-		net := bid - ship - fee
-		if err := AddCurrency(world, player, net); err != nil {
-			continue
+		if world.Components.AuctionSold.Has(item) {
+			sold := world.Components.AuctionSold.Get(item)
+			bid := sold.Bid
+			ship := AuctionShippingCost(world, item)
+			fee := AuctionFee(bid)
+			net := bid - ship - fee
+			if err := AddCurrency(world, player, net); err == nil {
+				history.Records = append(history.Records, gc.AuctionRecord{
+					Number: sold.Number, Name: GetEntityName(item, world), Bid: bid, Ship: ship, Fee: fee, Net: net, Turn: now,
+				})
+				paid++
+				total += net
+			}
 		}
-		history.Records = append(history.Records, gc.AuctionRecord{
-			Number: sold.Number, Name: GetEntityName(item, world), Bid: bid, Ship: ship, Fee: fee, Net: net, Turn: now,
-		})
+		// 落札済みでない品は精算されず、ただ手放される
 		world.ECS.RemoveEntity(item)
-		count++
-		total += net
+		shipped++
 	}
-	return count, total
+	return shipped, paid, total
 }

@@ -275,9 +275,9 @@ func NewStorageMenuState(storageEntity ecs.Entity) (es.State[w.World], error) {
 	return &StorageMenuState{storageEntity: storageEntity}, nil
 }
 
-// NewAuctionMenuState は出荷場所の状況確認メニューStateを作成する
-func NewAuctionMenuState() (es.State[w.World], error) {
-	return &AuctionMenuState{}, nil
+// NewAuctionMenuState は出荷場所のメニューStateを作成する
+func NewAuctionMenuState(stationEntity ecs.Entity) (es.State[w.World], error) {
+	return &AuctionMenuState{stationEntity: stationEntity}, nil
 }
 
 // NewInteractionMenuState はインタラクションメニューStateを作成する

@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuloop"
@@ -19,24 +20,28 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 状況確認メニューのタブ識別子。出品中・落札済み・履歴を読み取り専用で見る
+// 出荷場所メニューのタブ識別子。積む・出荷・出品中・履歴で構成する
 const (
+	tabIDStage   tabID = "stage"
+	tabIDShip    tabID = "ship"
 	tabIDListing tabID = "listing"
-	tabIDSold    tabID = "sold"
 	tabIDHistory tabID = "history"
 )
 
-// AuctionMenuState は出荷場所の状況確認メニュー。出品中の現在値、落札済みの手取り、
-// 発送済みの履歴を読み取り専用で確認する。出品はアイテムの出品動詞、出荷は出荷場所の
-// 相互作用が担い、このメニューからは金銭のやり取りをしない。
+// AuctionMenuState は出荷場所のメニュー。持ち物の品を積荷へ積み、出荷ボタンでまとめて出荷する。
+// 落札済みの品だけ手取りが入り、落札されていない品は積んで出荷しても金にならず消える。
+// だから積めるだけ積む戦略は成立せず、何を積むかの選別が意思決定になる。
+// 出品中と履歴は読み取り専用で状況を確認する。
 type AuctionMenuState struct {
 	es.BaseState[w.World]
-	detail overlay.Detail
-	screen *menuloop.Screen[AuctionProps]
+	stationEntity ecs.Entity // 積荷コンテナを持つ出荷場所
+	detail        overlay.Detail
+	screen        *menuloop.Screen[AuctionProps]
 }
 
 var _ es.State[w.World] = &AuctionMenuState{}
@@ -60,22 +65,33 @@ func (st *AuctionMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// ExtraInput は x で選択中の詳細モーダルを開く
+// ExtraInput は s で積荷を出荷し、x で選択中の詳細モーダルを開く
 func (st *AuctionMenuState) ExtraInput() (inputmapper.ActionID, bool) {
 	ki := input.GetSharedKeyboardInput()
+	if ki.IsKeyJustPressed(ebiten.KeyS) {
+		return inputmapper.ActionAuctionShip, true
+	}
 	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
 		return inputmapper.ActionOpenItemDetail, true
 	}
 	return "", false
 }
 
-// DoAction はActionを実行する。状況確認専用なので決定は詳細を開くだけで、状態は変えない
+// DoAction はActionを実行する。Enter は積む・出す、s は出荷、x は詳細を開く
 func (st *AuctionMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
-	case inputmapper.ActionMenuSelect, inputmapper.ActionOpenItemDetail:
+	case inputmapper.ActionOpenItemDetail:
 		st.detail.Open(world)
+	case inputmapper.ActionAuctionShip:
+		if err := st.shipStaged(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
+	case inputmapper.ActionMenuSelect:
+		if err := st.selectRow(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
@@ -90,31 +106,42 @@ type AuctionProps struct {
 }
 
 type auctionTabData struct {
-	ID    tabID
-	Label string
-	Rows  []auctionLedgerRow
+	ID     tabID
+	Label  string
+	Items  []auctionItemRow   // 積む・出荷タブの品
+	Ledger []auctionLedgerRow // 出品中・履歴タブの台帳
 }
 
-// auctionLedgerRow は状況の1行。出品中は現在値を、落札済みと履歴は落札額と手取りを持つ。
+// auctionItemRow は積む・出荷タブの1行。実体と、出品状況を表す表示を持つ
+type auctionItemRow struct {
+	Entity   ecs.Entity
+	Name     string
+	Status   string // 落札・出品中・未出品のいずれか
+	Value    int    // 落札なら手取り、出品中なら現在値
+	HasValue bool   // 金額を出すか。未出品は出さない
+}
+
+// auctionLedgerRow は出品中・履歴タブの1行
 type auctionLedgerRow struct {
 	Number  int
 	Name    string
-	Bid     int  // 出品中は現在値、落札済みと履歴は落札額
-	Ship    int  // 発送料
-	Fee     int  // 手数料
-	Net     int  // 手取り
-	Turn    int  // 発送したターン。履歴のみ意味を持つ
-	Ongoing bool // 出品中で入札継続中か
-	Shipped bool // 発送済みで履歴に載ったか
+	Bid     int
+	Ship    int
+	Fee     int
+	Net     int
+	Turn    int
+	Ongoing bool
+	Shipped bool
 }
 
 // Fetch は世界から表示 props を構築する
 func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 	return AuctionProps{
 		Tabs: []auctionTabData{
-			{ID: tabIDListing, Label: query.T(world, "Listing"), Rows: st.listingRows(world)},
-			{ID: tabIDSold, Label: query.T(world, "Won"), Rows: st.soldRows(world)},
-			{ID: tabIDHistory, Label: query.T(world, "History"), Rows: st.historyRows(world)},
+			{ID: tabIDStage, Label: query.T(world, "Load"), Items: st.stageItems(world)},
+			{ID: tabIDShip, Label: query.T(world, "Ship"), Items: st.shipItems(world)},
+			{ID: tabIDListing, Label: query.T(world, "Listing"), Ledger: st.listingRows(world)},
+			{ID: tabIDHistory, Label: query.T(world, "History"), Ledger: st.historyRows(world)},
 		},
 	}
 }
@@ -123,12 +150,54 @@ func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
 	for i, tab := range props.Tabs {
-		itemCounts[i] = len(tab.Rows)
+		if tab.ID == tabIDStage || tab.ID == tabIDShip {
+			itemCounts[i] = len(tab.Items)
+		} else {
+			itemCounts[i] = len(tab.Ledger)
+		}
 	}
 	return menuloop.MenuConfig{Key: "auction", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-// listingRows は出品中の品を番号順に返す。各行は現在値と、その値で確定したときの内訳を持つ
+// stageItems は持ち物の品を積むタブへ並べる。各行に落札状況を添えて選別を促す
+func (st *AuctionMenuState) stageItems(world w.World) []auctionItemRow {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return nil
+	}
+	return st.toItemRows(world, playerBackpackItems(world, player))
+}
+
+// shipItems は積荷コンテナの品を出荷タブへ並べる
+func (st *AuctionMenuState) shipItems(world w.World) []auctionItemRow {
+	items := query.GetStorageItems(world, st.stationEntity)
+	return st.toItemRows(world, query.SortEntities(world, items))
+}
+
+func (st *AuctionMenuState) toItemRows(world w.World, entities []ecs.Entity) []auctionItemRow {
+	rows := make([]auctionItemRow, len(entities))
+	for i, e := range entities {
+		row := auctionItemRow{Entity: e, Name: query.GetEntityName(e, world)}
+		switch {
+		case world.Components.AuctionSold.Has(e):
+			s := world.Components.AuctionSold.Get(e)
+			row.Status = query.T(world, "Won")
+			row.Value = s.Bid - query.AuctionShippingCost(world, e) - query.AuctionFee(s.Bid)
+			row.HasValue = true
+		case world.Components.AuctionListing.Has(e):
+			l := world.Components.AuctionListing.Get(e)
+			row.Status = query.T(world, "Bidding")
+			row.Value = l.CurrentBid
+			row.HasValue = true
+		default:
+			row.Status = query.T(world, "Not listed")
+		}
+		rows[i] = row
+	}
+	return rows
+}
+
+// listingRows は出品中の品を番号順に返す
 func (st *AuctionMenuState) listingRows(world w.World) []auctionLedgerRow {
 	var rows []auctionLedgerRow
 	q := ecs.NewFilter1[gc.AuctionListing](world.ECS).Query()
@@ -140,24 +209,6 @@ func (st *AuctionMenuState) listingRows(world w.World) []auctionLedgerRow {
 		rows = append(rows, auctionLedgerRow{
 			Number: l.Number, Name: query.GetEntityName(item, world),
 			Bid: l.CurrentBid, Ship: ship, Fee: fee, Net: l.CurrentBid - ship - fee, Ongoing: true,
-		})
-	}
-	sort.Slice(rows, func(i, j int) bool { return rows[i].Number < rows[j].Number })
-	return rows
-}
-
-// soldRows は落札済みで未出荷の品を番号順に返す。各行は落札額と出荷したときの手取りを持つ
-func (st *AuctionMenuState) soldRows(world w.World) []auctionLedgerRow {
-	var rows []auctionLedgerRow
-	q := ecs.NewFilter1[gc.AuctionSold](world.ECS).Query()
-	for q.Next() {
-		item := q.Entity()
-		s := world.Components.AuctionSold.Get(item)
-		ship := query.AuctionShippingCost(world, item)
-		fee := query.AuctionFee(s.Bid)
-		rows = append(rows, auctionLedgerRow{
-			Number: s.Number, Name: query.GetEntityName(item, world),
-			Bid: s.Bid, Ship: ship, Fee: fee, Net: s.Bid - ship - fee,
 		})
 	}
 	sort.Slice(rows, func(i, j int) bool { return rows[i].Number < rows[j].Number })
@@ -177,6 +228,67 @@ func (st *AuctionMenuState) historyRows(world w.World) []auctionLedgerRow {
 	return rows
 }
 
+// selectRow は Enter の対象を処理する。積むタブは積荷へ入れ、出荷タブは持ち物へ戻す。
+// 状況タブは詳細を開くだけで状態は変えない
+func (st *AuctionMenuState) selectRow(world w.World) error {
+	props := st.screen.Props()
+	cursor := st.screen.Selection()
+	if cursor.TabIndex >= len(props.Tabs) {
+		return nil
+	}
+	tab := props.Tabs[cursor.TabIndex]
+	switch tab.ID {
+	case tabIDStage:
+		item, ok := st.selectedItem(tab, cursor.ItemIndex)
+		if !ok {
+			return nil
+		}
+		if !query.CanAddToStorage(world, st.stationEntity, item) {
+			return nil
+		}
+		return lifecycle.MoveToStorage(world, item, st.stationEntity)
+	case tabIDShip:
+		item, ok := st.selectedItem(tab, cursor.ItemIndex)
+		if !ok {
+			return nil
+		}
+		player, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return err
+		}
+		return lifecycle.MoveToBackpack(world, item, player)
+	case tabIDListing, tabIDHistory:
+		st.detail.Open(world)
+	case tabIDStore, tabIDRetrieve:
+	}
+	return nil
+}
+
+// shipStaged は積荷をまとめて出荷する。落札済みだけ入金し、落札されていない品は消える
+func (st *AuctionMenuState) shipStaged(world w.World) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	now := int(query.GetGameTime(world).TotalTurns)
+	shipped, paid, total := query.ShipStagedItems(world, st.stationEntity, player, now)
+	if shipped == 0 {
+		gamelog.New(query.GetGameLog(world)).Markup(query.T(world, "Nothing staged to ship.")).Log()
+		return nil
+	}
+	gamelog.New(query.GetGameLog(world)).
+		Markup(query.T(world, "Shipped %d items. Paid for %d. You got %s.", shipped, paid, query.FormatCurrency(total))).
+		Log()
+	return nil
+}
+
+func (st *AuctionMenuState) selectedItem(tab auctionTabData, index int) (ecs.Entity, bool) {
+	if index < 0 || index >= len(tab.Items) {
+		return gc.InvalidEntity, false
+	}
+	return tab.Items[index].Entity, true
+}
+
 // View は props を UI へ組む
 func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	labels := make([]string, len(props.Tabs))
@@ -187,11 +299,11 @@ func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menul
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildActiveContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
+		Footer:    menuNavHint(world, true, query.T(world, "s Ship  x Details")),
 	})
 }
 
-// detailContent は x で開く詳細の内容を返す。選択中の行の内訳を価格記号付きで見せる
+// detailContent は x で開く詳細の内容を返す。積む・出荷タブは品の詳細、状況タブは台帳の内訳
 func (st *AuctionMenuState) detailContent(world w.World) (overlay.DetailContent, bool) {
 	props := st.screen.Props()
 	cursor := st.screen.Selection()
@@ -199,14 +311,20 @@ func (st *AuctionMenuState) detailContent(world w.World) (overlay.DetailContent,
 		return overlay.DetailContent{}, false
 	}
 	tab := props.Tabs[cursor.TabIndex]
-	if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(tab.Rows) {
+	if tab.ID == tabIDStage || tab.ID == tabIDShip {
+		item, ok := st.selectedItem(tab, cursor.ItemIndex)
+		if !ok || !world.ECS.Alive(item) {
+			return overlay.DetailContent{}, false
+		}
+		return overlay.EntityDetailContent(world, item), true
+	}
+	if cursor.ItemIndex < 0 || cursor.ItemIndex >= len(tab.Ledger) {
 		return overlay.DetailContent{}, false
 	}
-	return auctionLedgerDetail(world, tab.Rows[cursor.ItemIndex]), true
+	return auctionLedgerDetail(world, tab.Ledger[cursor.ItemIndex]), true
 }
 
-// auctionLedgerDetail は台帳1行の内訳を詳細内容にする。価格は価格記号を付けて出す。
-// 出品中は現在値、それ以外は落札額を見せる。発送済みは確定ターンを添える。
+// auctionLedgerDetail は台帳1行の内訳を詳細内容にする。価格は価格記号を付けて出す
 func auctionLedgerDetail(world w.World, r auctionLedgerRow) overlay.DetailContent {
 	bidLabel := query.T(world, "Bid")
 	if r.Ongoing {
@@ -230,9 +348,37 @@ func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionPro
 		return styled.NewVerticalContainer()
 	}
 	tab := props.Tabs[tabIndex]
-	// 各行は番号・品名・値。値は出品中なら現在値、それ以外は手取り。内訳は x の詳細で見る
-	rows := make([]menuRow, len(tab.Rows))
-	for i, r := range tab.Rows {
+	if tab.ID == tabIDStage || tab.ID == tabIDShip {
+		return st.buildItemContainer(world, tab, itemIndex, res)
+	}
+	return st.buildLedgerContainer(world, tab, itemIndex, res)
+}
+
+// buildItemContainer は積む・出荷タブの一覧を組む。各行は品名と落札状況と金額
+func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {
+	rows := make([]menuRow, len(tab.Items))
+	for i, it := range tab.Items {
+		value := ""
+		if it.HasValue {
+			value = query.FormatCurrency(it.Value)
+		}
+		rows[i] = menuRow{Cells: []styled.Cell{
+			styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value),
+		}}
+	}
+	empty := query.T(world, "No items to stage.")
+	if tab.ID == tabIDShip {
+		empty = query.T(world, "Nothing staged.")
+	}
+	return renderMenuList(itemIndex, rows, []int{200, 90, 110},
+		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+		menuListOpts{AlwaysIndicator: true, EmptyText: empty}, res)
+}
+
+// buildLedgerContainer は出品中・履歴タブの一覧を組む。各行は番号と品名と金額
+func (st *AuctionMenuState) buildLedgerContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {
+	rows := make([]menuRow, len(tab.Ledger))
+	for i, r := range tab.Ledger {
 		value := r.Net
 		if r.Ongoing {
 			value = r.Bid
@@ -243,21 +389,11 @@ func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionPro
 			styled.TextCell(query.FormatCurrency(value)),
 		}}
 	}
+	empty := query.T(world, "Nothing listed.")
+	if tab.ID == tabIDHistory {
+		empty = query.T(world, "No shipments yet.")
+	}
 	return renderMenuList(itemIndex, rows, []int{50, 200, 120},
 		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-		menuListOpts{AlwaysIndicator: true, EmptyText: auctionEmptyText(world, tab.ID)}, res)
-}
-
-// auctionEmptyText はタブごとの空表示を返す
-func auctionEmptyText(world w.World, id tabID) string {
-	switch id {
-	case tabIDListing:
-		return query.T(world, "Nothing listed.")
-	case tabIDSold:
-		return query.T(world, "No won items.")
-	case tabIDHistory:
-		return query.T(world, "No shipments yet.")
-	case tabIDStore, tabIDRetrieve:
-	}
-	return query.T(world, "No items")
+		menuListOpts{AlwaysIndicator: true, EmptyText: empty}, res)
 }

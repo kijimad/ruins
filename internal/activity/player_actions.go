@@ -209,9 +209,9 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 					Log()
 			case gc.InteractionAuction:
 				gamelog.New(query.GetGameLog(world)).
-					Markup(query.T(world, "There is a shipping station. Press Enter to ship or check status.")).
+					Markup(query.T(world, "There is a shipping station. Press Enter to open it.")).
 					Log()
-			case gc.InteractionShip, gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
+			case gc.InteractionDoor, gc.InteractionTalk, gc.InteractionItemAll, gc.InteractionStorage, gc.InteractionMelee, gc.InteractionDisassemble, gc.InteractionExitCube, gc.InteractionPullCube, gc.InteractionCubePanel:
 				// 足元ログを出さない種類。default を置かず exhaustive に全種別を
 				// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
 			}
