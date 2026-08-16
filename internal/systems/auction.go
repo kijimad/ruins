@@ -22,19 +22,19 @@ const auctionShipDeadline = 20
 // auctionReputationPenalty は出荷期限を1件破るごとに下がる評判。
 const auctionReputationPenalty = 10
 
-// AuctionDemoSystem はタグを貼って出品された品の競売をターン経過で進める。
+// AuctionSystem はタグを貼って出品された品の競売をターン経過で進める。
 // 入札が来る限り現在値を上げて延長し、入札が止まったターンに現在値で落札を確定する。
 // 落札しても入金はせず、品を落札済みへ移して出荷場所での出荷を待たせる。
 // 出品中の品が無い通常プレイでは即座に何もしない。
-type AuctionDemoSystem struct{}
+type AuctionSystem struct{}
 
 // String はシステム名を返す
-func (sys AuctionDemoSystem) String() string {
-	return "AuctionDemoSystem"
+func (sys AuctionSystem) String() string {
+	return "AuctionSystem"
 }
 
 // Update は出品中の品をターン経過で競売する
-func (sys *AuctionDemoSystem) Update(world w.World) error {
+func (sys *AuctionSystem) Update(world w.World) error {
 	// テンプレートで配置された shipping_station prop を出荷場所に仕立てる
 	markShippingStations(world)
 

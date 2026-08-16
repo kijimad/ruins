@@ -7,7 +7,7 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// 通信販売デモの価格モデル。数値は検証用の暫定で、設計 doc の確定値ではない。
+// 通信販売の価格モデル。数値は検証用の暫定で、設計 doc の確定値ではない。
 const (
 	auctionShipRatePerKg = 25.0 // 配送料は重量に比例する。品ごとにかかる
 	auctionFeeRate       = 0.12 // 手数料は落札額に比例する。品ごとにかかる

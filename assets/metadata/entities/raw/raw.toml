@@ -14688,7 +14688,7 @@ minSkill = 10
 [[props]]
 blockPass = true
 blockView = false
-description = "通信販売デモの出荷場所。品を積んで出荷する。落札済み以外を積むと金にならず消える"
+description = "通信販売の出荷場所。品を積んで出荷する。落札済み以外を積むと金にならず消える"
 name = "Shipping station"
 id = "shipping_station"
 

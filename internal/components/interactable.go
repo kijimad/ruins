@@ -59,7 +59,7 @@ const (
 	InteractionPullCube InteractionKind = "PULL_CUBE"
 	// InteractionCubePanel はキューブ内部のコントロールパネル。全体情報の閲覧と将来の拡張UIの入口
 	InteractionCubePanel InteractionKind = "CUBE_PANEL"
-	// InteractionAuction は通信販売デモの出荷場所。専用メニューを開いて積荷の出荷と状況確認をする
+	// InteractionAuction は通信販売の出荷場所。専用メニューを開いて積荷の出荷と状況確認をする
 	InteractionAuction InteractionKind = "AUCTION"
 )
 

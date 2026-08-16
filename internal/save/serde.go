@@ -42,10 +42,6 @@ func skipComponents() []ecs.Comp {
 		ecs.C[gc.Activity](),           // 実行中アクティビティ・毎ターン変動
 		ecs.C[gc.LastActivity](),       // ターン進行で消費
 		ecs.C[gc.UserSettings](),       // config 由来のランタイムミラー。ロード時に config から再構築
-		ecs.C[gc.AuctionListing](),     // 通信販売デモの一時状態。保存しない
-		ecs.C[gc.AuctionSold](),        // 通信販売デモの一時状態。保存しない
-		ecs.C[gc.AuctionStation](),     // 通信販売デモの一時状態。保存しない
-		ecs.C[gc.AuctionHistory](),     // 通信販売デモの一時状態。保存しない
 	}
 }
 

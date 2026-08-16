@@ -72,7 +72,7 @@ func TestStartAuctionListing_連番を採番して出品する(t *testing.T) {
 	assert.Positive(t, world.Components.AuctionListing.Get(first).CurrentBid, "開始入札で現在値が付く")
 }
 
-func TestAuctionDemoSystem_出品中の品はターン経過で落札されるが入金はしない(t *testing.T) {
+func TestAuctionSystem_出品中の品はターン経過で落札されるが入金はしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -83,7 +83,7 @@ func TestAuctionDemoSystem_出品中の品はターン経過で落札される�
 	before := query.GetCurrency(world, player)
 	query.StartAuctionListing(world, item, int(query.GetGameTime(world).TotalTurns))
 
-	sys := &AuctionDemoSystem{}
+	sys := &AuctionSystem{}
 	sold := false
 	for i := 0; i < 200 && !sold; i++ {
 		query.GetGameTime(world).Advance()
@@ -98,7 +98,7 @@ func TestAuctionDemoSystem_出品中の品はターン経過で落札される�
 	assert.Empty(t, query.GetAuctionHistory(world).Records, "出荷するまで履歴には残らない")
 }
 
-func TestAuctionDemoSystem_期限内に出荷しないと評判が下がる(t *testing.T) {
+func TestAuctionSystem_期限内に出荷しないと評判が下がる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -108,7 +108,7 @@ func TestAuctionDemoSystem_期限内に出荷しないと評判が下がる(t *t
 	require.NoError(t, err)
 	query.StartAuctionListing(world, item, int(query.GetGameTime(world).TotalTurns))
 
-	sys := &AuctionDemoSystem{}
+	sys := &AuctionSystem{}
 	for i := 0; i < 200 && !world.Components.AuctionSold.Has(item); i++ {
 		query.GetGameTime(world).Advance()
 		require.NoError(t, sys.Update(world))
@@ -152,7 +152,7 @@ func TestCollectStagedItems_集荷は明細を発生させ所持金は動かさ�
 	query.StartAuctionListing(world, won, int(query.GetGameTime(world).TotalTurns))
 
 	// won だけ落札まで進める。junk はタグを貼らないので未出品のまま
-	sys := &AuctionDemoSystem{}
+	sys := &AuctionSystem{}
 	for i := 0; i < 200 && !world.Components.AuctionSold.Has(won); i++ {
 		query.GetGameTime(world).Advance()
 		require.NoError(t, sys.Update(world))
@@ -212,7 +212,7 @@ func TestSettleAuctionEntry_受取金は加算し請求は減算する(t *testin
 	assert.Empty(t, query.GetAuctionHistory(world).Entries, "明細をすべて精算した")
 }
 
-func TestAuctionDemoSystem_積荷はタイマーで集荷され明細が届く(t *testing.T) {
+func TestAuctionSystem_積荷はタイマーで集荷され明細が届く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -224,7 +224,7 @@ func TestAuctionDemoSystem_積荷はタイマーで集荷され明細が届く(t
 	require.NoError(t, err)
 	query.StartAuctionListing(world, item, int(query.GetGameTime(world).TotalTurns))
 
-	sys := &AuctionDemoSystem{}
+	sys := &AuctionSystem{}
 	for i := 0; i < 200 && !world.Components.AuctionSold.Has(item); i++ {
 		query.GetGameTime(world).Advance()
 		require.NoError(t, sys.Update(world))
@@ -287,10 +287,10 @@ func TestMarkShippingStations_他のpropには触れない(t *testing.T) {
 	assert.False(t, world.Components.AuctionStation.Has(crate), "shipping_station 以外の prop には触れない")
 }
 
-func TestAuctionDemoSystem_出品が無ければ何もしない(t *testing.T) {
+func TestAuctionSystem_出品が無ければ何もしない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	sys := &AuctionDemoSystem{}
+	sys := &AuctionSystem{}
 	assert.NoError(t, sys.Update(world), "出品中の品が無ければ即座に終わる")
 }

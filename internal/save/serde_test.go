@@ -284,3 +284,59 @@ func TestSerde_Perishableが往復する(t *testing.T) {
 	assert.Equal(t, original, *restored, "保存前と同じ RotAccrued・StageLength・RotUpdatedTurn が復元される")
 	assert.Equal(t, consts.Turn(700), restored.RotUpdatedTurn, "劣化の起点時刻は生成ターンで刻まれる")
 }
+
+// TestSerdeAuctionRoundtrip は通信販売オークションの状態が丸ごと保存・復元されることを検証する。
+// 出品中の品・落札済みの品・金銭明細と評判を配置し、SaveWorld/LoadWorld を往復させる。
+func TestSerdeAuctionRoundtrip(t *testing.T) {
+	t.Parallel()
+	testDir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(testDir))
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+	_, err = lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	// 出品中の品。タグを貼って採番する
+	listed, err := lifecycle.SpawnBackpackItem(world, "angel_sword", 1)
+	require.NoError(t, err)
+	number := query.StartAuctionListing(world, listed, 3)
+
+	// 落札済みで未出荷の品
+	won, err := lifecycle.SpawnBackpackItem(world, "shovel", 1)
+	require.NoError(t, err)
+	world.Components.AuctionSold.Add(won, &gc.AuctionSold{Number: 2, Bid: 250, DueTurn: 40})
+
+	// 金銭明細と評判
+	h := query.GetAuctionHistory(world)
+	h.Reputation = 80
+	h.Entries = append(h.Entries, gc.AuctionEntry{Kind: gc.AuctionEntryReceipt, Number: 9, Name: "receipt", Amount: 120, Bid: 200, Ship: 40, Fee: 40})
+
+	require.NoError(t, manager.SaveWorld(world, "auction"))
+
+	newWorld := testutil.InitTestWorld(t)
+	require.NoError(t, manager.LoadWorld(newWorld, "auction"))
+
+	var gotListing *gc.AuctionListing
+	lq := ecs.NewFilter1[gc.AuctionListing](newWorld.ECS).Query()
+	for lq.Next() {
+		gotListing = newWorld.Components.AuctionListing.Get(lq.Entity())
+	}
+	require.NotNil(t, gotListing, "出品中の品が復元される")
+	assert.Equal(t, number, gotListing.Number, "採番した連番が復元される")
+
+	var gotSold *gc.AuctionSold
+	sq := ecs.NewFilter1[gc.AuctionSold](newWorld.ECS).Query()
+	for sq.Next() {
+		gotSold = newWorld.Components.AuctionSold.Get(sq.Entity())
+	}
+	require.NotNil(t, gotSold, "落札済みの品が復元される")
+	assert.Equal(t, 250, gotSold.Bid, "落札額が復元される")
+	assert.Equal(t, 40, gotSold.DueTurn, "出荷期限が復元される")
+
+	nh := query.GetAuctionHistory(newWorld)
+	assert.Equal(t, 80, nh.Reputation, "店の評判が復元される")
+	require.Len(t, nh.Entries, 1, "未精算の金銭明細が復元される")
+	assert.Equal(t, gc.AuctionEntryReceipt, nh.Entries[0].Kind, "明細の種別が復元される")
+	assert.Equal(t, 120, nh.Entries[0].Amount, "明細の金額が復元される")
+}
