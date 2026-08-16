@@ -79,15 +79,25 @@ func StartAuctionListing(world w.World, item ecs.Entity, now int) int {
 	return number
 }
 
-// CollectStagedItems は出荷場所の積荷をまとめて集荷する。集荷は所持金を動かさず、金銭タブへ明細を積む。
+// HasStagedItems は集荷を待つ積荷が1つでもあるかを返す。集荷タイマーの開始判定に使う。
+func HasStagedItems(world w.World) bool {
+	q := ecs.NewFilter1[gc.AuctionStaged](world.ECS).Query()
+	defer q.Close()
+	return q.Next()
+}
+
+// CollectStagedItems は積荷をまとめて集荷する。集荷は所持金を動かさず、金銭タブへ明細を積む。
 // 落札済みの品ごとに受取金の明細を、集荷1回につき集荷料金の請求の明細を発生させる。
-// 落札されていない品は明細を生まず、ただ手放される。
 // 受取金の額面は落札額から配送料と手数料を引いた手取り。集荷料金は集荷1回につき定額で別立て。
 // だから小分けに集荷するほど集荷料金の請求がかさみ、1回にまとめるほど得になる。
 // 集荷した総件数と、受取金の明細を発生させた件数を返す。
-func CollectStagedItems(world w.World, station ecs.Entity) (collected, receipts int) {
-	// GetStorageItems は確定したスライスを返すので、反復中に削除してよい
-	items := GetStorageItems(world, station)
+func CollectStagedItems(world w.World) (collected, receipts int) {
+	// 反復中はワールドがロックされ削除できない。積荷を一旦集めてからループ外で処理する
+	var items []ecs.Entity
+	q := ecs.NewFilter1[gc.AuctionStaged](world.ECS).Query()
+	for q.Next() {
+		items = append(items, q.Entity())
+	}
 	if len(items) == 0 {
 		return 0, 0
 	}

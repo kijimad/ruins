@@ -18,11 +18,13 @@ type AuctionSold struct {
 	Penalized bool // 期限超過のペナルティを既に課したか。二重に課さないための印
 }
 
-// AuctionStation はオークションの出荷場所を示す。積荷が入ると集荷タイマーが動き出し、
-// 満了すると積荷をまとめて集荷する。ここで落札済みの品を出荷し、状況を確認する。
-type AuctionStation struct {
-	ShipAtTurn int // 集荷するターン。0 は積荷が無くタイマー停止中を表す
-}
+// AuctionStation はオークションの出荷場所を示すマーカー。ここで出荷メニューを開く。
+// メニューの状態はどの出荷場所から開いても共通なので、この prop 自体は状態を持たない。
+type AuctionStation struct{}
+
+// AuctionStaged は集荷を待つ積荷であることを示すマーカー。落札済みの品に貼ると次の集荷で出荷される。
+// 積荷は特定の出荷場所でなく品側に持つので、どの出荷場所から積んでも同じ集荷にまとまる。
+type AuctionStaged struct{}
 
 // AuctionRecord は1件の出荷実績。落札額から送料と手数料を引いた手取りまでを残す。
 type AuctionRecord struct {
@@ -62,6 +64,7 @@ type AuctionEntry struct {
 type AuctionHistory struct {
 	NextNumber int            // 次に貼るタグへ振る連番
 	Reputation int            // 店の評判。出荷期限を破ると下がる
+	ShipAtTurn int            // 集荷するターン。0 は積荷が無くタイマー停止中を表す
 	Entries    []AuctionEntry // 金銭タブに並ぶ未精算の受取金と請求
 	Records    []AuctionRecord
 }

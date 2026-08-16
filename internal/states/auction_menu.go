@@ -20,7 +20,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -39,9 +38,8 @@ const (
 // 金銭タブで受取金と請求の明細を精算して所持金が動く。他のタブは読み取り専用の状況確認。
 type AuctionMenuState struct {
 	es.BaseState[w.World]
-	stationEntity ecs.Entity // 積荷コンテナを持つ出荷場所
-	detail        overlay.Detail
-	screen        *menuloop.Screen[AuctionProps]
+	detail overlay.Detail
+	screen *menuloop.Screen[AuctionProps]
 }
 
 var _ es.State[w.World] = &AuctionMenuState{}
@@ -157,26 +155,35 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: "auction", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-// stageItems は落札済みの持ち物の品だけを積むタブへ並べる。出品中や未出品の品は積めない。
+// stageItems は落札済みでまだ積んでいない持ち物の品を積むタブへ並べる。
 // 出荷できるのは落札を勝ち取った品に限る
 func (st *AuctionMenuState) stageItems(world w.World) []auctionItemRow {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return nil
 	}
-	var sold []ecs.Entity
+	var candidates []ecs.Entity
 	for _, e := range playerBackpackItems(world, player) {
-		if world.Components.AuctionSold.Has(e) {
-			sold = append(sold, e)
+		if world.Components.AuctionSold.Has(e) && !world.Components.AuctionStaged.Has(e) {
+			candidates = append(candidates, e)
 		}
 	}
-	return st.toItemRows(world, sold)
+	return st.toItemRows(world, candidates)
 }
 
-// shipItems は積荷コンテナの品を出荷タブへ並べる
+// shipItems は積荷に回した品を出荷タブへ並べる。次の集荷で出荷される
 func (st *AuctionMenuState) shipItems(world w.World) []auctionItemRow {
-	items := query.GetStorageItems(world, st.stationEntity)
-	return st.toItemRows(world, query.SortEntities(world, items))
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return nil
+	}
+	var staged []ecs.Entity
+	for _, e := range playerBackpackItems(world, player) {
+		if world.Components.AuctionStaged.Has(e) {
+			staged = append(staged, e)
+		}
+	}
+	return st.toItemRows(world, staged)
 }
 
 func (st *AuctionMenuState) toItemRows(world w.World, entities []ecs.Entity) []auctionItemRow {
@@ -242,24 +249,19 @@ func (st *AuctionMenuState) selectRow(world w.World) error {
 	tab := props.Tabs[cursor.TabIndex]
 	switch tab.ID {
 	case tabIDStage:
+		// 落札済みの品を積荷に回す。マーカーを付けると次の集荷で出荷される
 		item, ok := st.selectedItem(tab, cursor.ItemIndex)
 		if !ok {
 			return nil
 		}
-		if !query.CanAddToStorage(world, st.stationEntity, item) {
-			return nil
-		}
-		return lifecycle.MoveToStorage(world, item, st.stationEntity)
+		world.Components.AuctionStaged.Add(item, &gc.AuctionStaged{})
 	case tabIDShip:
+		// 積荷から降ろす。集荷前なら取り消せる
 		item, ok := st.selectedItem(tab, cursor.ItemIndex)
 		if !ok {
 			return nil
 		}
-		player, err := query.GetPlayerEntity(world)
-		if err != nil {
-			return err
-		}
-		return lifecycle.MoveToBackpack(world, item, player)
+		world.Components.AuctionStaged.Remove(item)
 	case tabIDFinance:
 		return st.settleEntry(world, cursor.ItemIndex)
 	case tabIDListing, tabIDHistory:

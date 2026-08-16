@@ -61,9 +61,11 @@ func penalizeOverdueSold(world w.World, now int) {
 	var overdue []ecs.Entity
 	q := ecs.NewFilter2[gc.AuctionSold, gc.LocationInBackpack](world.ECS).Query()
 	for q.Next() {
-		s := world.Components.AuctionSold.Get(q.Entity())
-		if !s.Penalized && now > s.DueTurn {
-			overdue = append(overdue, q.Entity())
+		e := q.Entity()
+		s := world.Components.AuctionSold.Get(e)
+		// 積荷へ回した品は集荷待ちなので罰しない。持ち物に抱えたまま期限を過ぎた品だけを罰する
+		if !s.Penalized && now > s.DueTurn && !world.Components.AuctionStaged.Has(e) {
+			overdue = append(overdue, e)
 		}
 	}
 	if len(overdue) == 0 {
@@ -83,31 +85,23 @@ func logDeadlineMissed(world w.World, name string, reputation int) {
 		Log()
 }
 
-// updateShippingTimers は各出荷場所の集荷タイマーを進める。
-// 積荷が入った出荷場所はタイマーを開始し、満了したターンに積荷をまとめて集荷する。
+// updateShippingTimers は集荷タイマーを進める。タイマーはシングルトンで、どの出荷場所から
+// 積んでも1本の集荷にまとまる。積荷が入るとタイマーを開始し、満了したターンに積荷をまとめて集荷する。
 // 積荷が空になったらタイマーを止める。まとめて集荷するほど集荷手数料が1回で済む。
 func updateShippingTimers(world w.World, now int) {
-	var stations []ecs.Entity
-	q := ecs.NewFilter1[gc.AuctionStation](world.ECS).Query()
-	for q.Next() {
-		stations = append(stations, q.Entity())
-	}
-	for _, station := range stations {
-		staged := len(query.GetStorageItems(world, station)) > 0
-		s := world.Components.AuctionStation.Get(station)
-		switch {
-		case !staged:
-			s.ShipAtTurn = 0 // 積荷が無いのでタイマー停止
-		case s.ShipAtTurn == 0:
-			s.ShipAtTurn = now + auctionShipDelay // 積荷が入ったのでタイマー開始
-			logShipScheduled(world, auctionShipDelay)
-		case now >= s.ShipAtTurn:
-			// 満了。集荷する。CollectStagedItems が構造変更する前にタイマーを止める
-			s.ShipAtTurn = 0
-			collected, receipts := query.CollectStagedItems(world, station)
-			if collected > 0 {
-				logCollected(world, collected, receipts)
-			}
+	h := query.GetAuctionHistory(world)
+	switch {
+	case !query.HasStagedItems(world):
+		h.ShipAtTurn = 0 // 積荷が無いのでタイマー停止
+	case h.ShipAtTurn == 0:
+		h.ShipAtTurn = now + auctionShipDelay // 積荷が入ったのでタイマー開始
+		logShipScheduled(world, auctionShipDelay)
+	case now >= h.ShipAtTurn:
+		// 満了。集荷する。CollectStagedItems が構造変更する前にタイマーを止める
+		h.ShipAtTurn = 0
+		collected, receipts := query.CollectStagedItems(world)
+		if collected > 0 {
+			logCollected(world, collected, receipts)
 		}
 	}
 }

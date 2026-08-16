@@ -14688,7 +14688,7 @@ minSkill = 10
 [[props]]
 blockPass = true
 blockView = false
-description = "通信販売の出荷場所。品を積んで出荷する。落札済み以外を積むと金にならず消える"
+description = "通信販売の出荷場所。落札した品を積んで集荷を待つ"
 name = "Shipping station"
 id = "shipping_station"
 
@@ -14696,9 +14696,6 @@ id = "shipping_station"
 depth = 2
 spriteKey = "wooden_crate"
 spriteSheetName = "field"
-
-[props.storage]
-maxWeight = "500 kg"
 
 [[props]]
 blockPass = true
