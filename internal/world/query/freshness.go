@@ -39,25 +39,6 @@ func FreshnessStageOf(world w.World, entity ecs.Entity) (gc.FreshnessStage, bool
 	return world.Components.Perishable.Get(entity).Stage(EffectiveRot(world, entity, now)), true
 }
 
-// CanStackWith は a と b が同じ束に合流できるかを返す。スタック合流の同一判定はここに集約する。
-// 非腐敗は RawID 一致で合流する。腐敗食は RawID 一致かつ現在の鮮度段階が同じときだけ合流し、
-// 合流時に劣化量を加重平均する。段階違いの合流を禁じ、新鮮で腐敗を薄める抜け穴を防ぐ。
-func CanStackWith(world w.World, a ecs.Entity, b ecs.Entity) bool {
-	if world.Components.RawID.Get(a).ID != world.Components.RawID.Get(b).ID {
-		return false
-	}
-	aPerish := world.Components.Perishable.Has(a)
-	if aPerish != world.Components.Perishable.Has(b) {
-		return false
-	}
-	if !aPerish {
-		return true
-	}
-	sa, _ := FreshnessStageOf(world, a)
-	sb, _ := FreshnessStageOf(world, b)
-	return sa == sb
-}
-
 // FreshnessMarker はメニュー行に添える鮮度の訳語を返す。新鮮や非腐敗は空文字。
 // 呼び出し側は空なら何も足さない
 func FreshnessMarker(world w.World, entity ecs.Entity) string {

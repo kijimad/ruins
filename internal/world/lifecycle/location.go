@@ -222,7 +222,7 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 		return nil
 	}
 
-	// 合流の同一判定は query.CanStackWith に集約する。出現順に survivor へ畳み、
+	// 合流の同一判定は query.SameStack に集約する。出現順に survivor へ畳み、
 	// どのエンティティが残るかを決定的にする。腐敗食は鮮度段階が同じ束にだけ合流し、
 	// 合流時に劣化量を個数で加重平均する。段階違いは別の survivor として残す。
 	now := query.GetGameTime(world).TotalTurns
@@ -230,7 +230,7 @@ func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner 
 	for _, e := range stackableItems {
 		merged := false
 		for _, s := range survivors {
-			if !query.CanStackWith(world, s, e) {
+			if !query.SameStack(world, s, e) {
 				continue
 			}
 			if world.Components.Perishable.Has(s) {
