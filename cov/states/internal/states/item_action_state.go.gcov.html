@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-16 23:28:19</td>
+            <td class="headerValue">2026-08-17 00:04:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -246,7 +246,7 @@
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         number := query.StartAuctionListing(world, entity, now)</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         bid := world.Components.AuctionListing.Get(entity).CurrentBid</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                 Markup(query.T(world, &quot;Tagged %s as #%d. Opening bid %s.&quot;, gamelog.Tag(&quot;item&quot;, query.GetEntityName(entity, world)), number, query.FormatCurrency(bid))).</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                 Markup(query.T(world, &quot;Tagged %s as #%d. Opening bid %s.&quot;, gamelog.Tag(&quot;item&quot;, query.GetEntityName(entity, world)), number, bid.String())).</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                 Log()</span></span>
 <span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 : }</span></span>

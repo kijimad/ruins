@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-16 23:28:19</td>
+            <td class="headerValue">2026-08-17 00:04:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,96 +62,98 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package components</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : // 通信販売オークションの状態モデル。</span>
-<span id="L4"><span class="lineNum">       4</span>              : // 1つの品はオークションを一方向に進む。状態は専用の enum でなく、どのコンポーネントを持つかと、</span>
-<span id="L5"><span class="lineNum">       5</span>              : // 持ち物か出荷場所の収納かの位置で表す。</span>
-<span id="L6"><span class="lineNum">       6</span>              : //</span>
-<span id="L7"><span class="lineNum">       7</span>              : //      未出品            AuctionListing も AuctionSold も無い持ち物</span>
-<span id="L8"><span class="lineNum">       8</span>              : //      出品中            AuctionListing。入札のたび CurrentBid が上がり延長する</span>
-<span id="L9"><span class="lineNum">       9</span>              : //      落札済み・手元      AuctionSold で持ち物にある。出荷期限の対象</span>
-<span id="L10"><span class="lineNum">      10</span>              : //      落札済み・集荷待ち  AuctionSold でステーションの収納にある。集荷タイマーで自動集荷される</span>
-<span id="L11"><span class="lineNum">      11</span>              : //</span>
-<span id="L12"><span class="lineNum">      12</span>              : // 集荷すると品エンティティは消え、以後は AuctionHistory の台帳へ移る。</span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // 通信販売オークションの状態モデル。</span>
+<span id="L6"><span class="lineNum">       6</span>              : // 1つの品はオークションを一方向に進む。状態は専用の enum でなく、どのコンポーネントを持つかと、</span>
+<span id="L7"><span class="lineNum">       7</span>              : // 持ち物か出荷場所の収納かの位置で表す。</span>
+<span id="L8"><span class="lineNum">       8</span>              : //</span>
+<span id="L9"><span class="lineNum">       9</span>              : //      未出品            AuctionListing も AuctionSold も無い持ち物</span>
+<span id="L10"><span class="lineNum">      10</span>              : //      出品中            AuctionListing。入札のたび CurrentBid が上がり延長する</span>
+<span id="L11"><span class="lineNum">      11</span>              : //      落札済み・手元      AuctionSold で持ち物にある。出荷期限の対象</span>
+<span id="L12"><span class="lineNum">      12</span>              : //      落札済み・集荷待ち  AuctionSold でステーションの収納にある。集荷タイマーで自動集荷される</span>
 <span id="L13"><span class="lineNum">      13</span>              : //</span>
-<span id="L14"><span class="lineNum">      14</span>              : //      受取金・未精算  AuctionHistory.Entries の受取金明細。精算で所持金へ入る</span>
-<span id="L15"><span class="lineNum">      15</span>              : //      出荷実績        AuctionHistory.Records。精算済みの記録</span>
-<span id="L16"><span class="lineNum">      16</span>              : //</span>
-<span id="L17"><span class="lineNum">      17</span>              : // 手元と集荷待ちは位置で区別する。集荷待ちは持ち物クエリに掛からないので出荷期限で罰しない。</span>
-<span id="L18"><span class="lineNum">      18</span>              : // AuctionSold.Penalized は手元で期限超過した記録であり、状態遷移ではない。</span>
-<span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span>              : // AuctionListing は出品中の品に付く実行時状態。タグを貼った時点で採番し、以後その出品を Number で指す。</span>
-<span id="L21"><span class="lineNum">      21</span>              : // 入札が来るたび CurrentBid が上がり競売が延長する。入札が止まったターンに落札が確定し AuctionSold へ移る。</span>
-<span id="L22"><span class="lineNum">      22</span>              : type AuctionListing struct {</span>
-<span id="L23"><span class="lineNum">      23</span>              :         Number     int // 出品の連番。アイテム詳細で確認できる一意の識別子</span>
-<span id="L24"><span class="lineNum">      24</span>              :         CurrentBid int // 現在の入札額。入札が来るたびに上がる</span>
-<span id="L25"><span class="lineNum">      25</span>              :         LastTurn   int // 直近に入札判定した総ターン数。1ターンに1回だけ判定する</span>
-<span id="L26"><span class="lineNum">      26</span>              : }</span>
-<span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              : // AuctionSold は落札済みで未出荷の品に付く実行時状態。出荷場所での出荷を待つ。</span>
-<span id="L29"><span class="lineNum">      29</span>              : // 落札から出荷には期限があり、期限までに積荷へ渡さないと店の評判が下がる。</span>
-<span id="L30"><span class="lineNum">      30</span>              : // 出荷すると手取りを入金し履歴へ記録して品を手放す。</span>
-<span id="L31"><span class="lineNum">      31</span>              : type AuctionSold struct {</span>
-<span id="L32"><span class="lineNum">      32</span>              :         Number    int  // 出品時の連番を引き継ぐ</span>
-<span id="L33"><span class="lineNum">      33</span>              :         Bid       int  // 確定した落札額。手取りは出荷時に発送料と手数料を引いて求める</span>
-<span id="L34"><span class="lineNum">      34</span>              :         DueTurn   int  // 出荷期限のターン。このターンまでに積荷へ渡さないと評判ペナルティを負う</span>
-<span id="L35"><span class="lineNum">      35</span>              :         Penalized bool // 期限超過のペナルティを既に課したか。二重に課さないための印</span>
-<span id="L36"><span class="lineNum">      36</span>              : }</span>
-<span id="L37"><span class="lineNum">      37</span>              : </span>
-<span id="L38"><span class="lineNum">      38</span>              : // AuctionStation はオークションの出荷場所。積荷はこの prop の収納に置き、集荷タイマーもここが持つ。</span>
-<span id="L39"><span class="lineNum">      39</span>              : // 荷物は物理的にその場所にあるのでステーションごとに持つ。出品や金銭などの情報はシングルトンで共通。</span>
-<span id="L40"><span class="lineNum">      40</span>              : type AuctionStation struct {</span>
-<span id="L41"><span class="lineNum">      41</span>              :         ShipAtTurn int // 集荷するターン。0 は積荷が無くタイマー停止中を表す</span>
-<span id="L42"><span class="lineNum">      42</span>              : }</span>
-<span id="L43"><span class="lineNum">      43</span>              : </span>
-<span id="L44"><span class="lineNum">      44</span>              : // AuctionRecord は1件の出荷実績。落札額から送料と手数料を引いた手取りまでを残す。</span>
-<span id="L45"><span class="lineNum">      45</span>              : type AuctionRecord struct {</span>
-<span id="L46"><span class="lineNum">      46</span>              :         Number int    // 出品の連番</span>
-<span id="L47"><span class="lineNum">      47</span>              :         Name   string // 売れた品の表示名</span>
-<span id="L48"><span class="lineNum">      48</span>              :         Bid    int    // 落札額</span>
-<span id="L49"><span class="lineNum">      49</span>              :         Ship   int    // 送料。重量に比例する</span>
-<span id="L50"><span class="lineNum">      50</span>              :         Fee    int    // 手数料。落札額に比例する</span>
-<span id="L51"><span class="lineNum">      51</span>              :         Net    int    // 手取り。落札額から送料と手数料を引いた額</span>
-<span id="L52"><span class="lineNum">      52</span>              :         Turn   int    // 売れた総ターン数</span>
-<span id="L53"><span class="lineNum">      53</span>              : }</span>
-<span id="L54"><span class="lineNum">      54</span>              : </span>
-<span id="L55"><span class="lineNum">      55</span>              : // AuctionEntryKind は金銭明細の種別。受取金か請求か。</span>
-<span id="L56"><span class="lineNum">      56</span>              : type AuctionEntryKind string</span>
-<span id="L57"><span class="lineNum">      57</span>              : </span>
-<span id="L58"><span class="lineNum">      58</span>              : const (</span>
-<span id="L59"><span class="lineNum">      59</span>              :         // AuctionEntryReceipt は受取金。精算すると所持金へ加える</span>
-<span id="L60"><span class="lineNum">      60</span>              :         AuctionEntryReceipt AuctionEntryKind = &quot;receipt&quot;</span>
-<span id="L61"><span class="lineNum">      61</span>              :         // AuctionEntryInvoice は請求。精算すると所持金から引く</span>
-<span id="L62"><span class="lineNum">      62</span>              :         AuctionEntryInvoice AuctionEntryKind = &quot;invoice&quot;</span>
-<span id="L63"><span class="lineNum">      63</span>              : )</span>
-<span id="L64"><span class="lineNum">      64</span>              : </span>
-<span id="L65"><span class="lineNum">      65</span>              : // AuctionEntry は金銭タブに並ぶ明細1件。受取金か請求のどちらかで、精算すると所持金へ足し引きする。</span>
-<span id="L66"><span class="lineNum">      66</span>              : // 金額はいずれも正の額で持ち、足すか引くかは Kind で決める。</span>
-<span id="L67"><span class="lineNum">      67</span>              : type AuctionEntry struct {</span>
-<span id="L68"><span class="lineNum">      68</span>              :         Kind   AuctionEntryKind // 受取金か請求か</span>
-<span id="L69"><span class="lineNum">      69</span>              :         Number int              // 受取金のとき出品の連番。請求は0</span>
-<span id="L70"><span class="lineNum">      70</span>              :         Name   string           // 表示名。品名または請求名</span>
-<span id="L71"><span class="lineNum">      71</span>              :         Amount int              // 受取金は手取り、請求は請求額</span>
-<span id="L72"><span class="lineNum">      72</span>              :         Bid    int              // 明細の内訳。受取金のとき意味を持つ落札額</span>
-<span id="L73"><span class="lineNum">      73</span>              :         Ship   int              // 明細の内訳。配送料</span>
-<span id="L74"><span class="lineNum">      74</span>              :         Fee    int              // 明細の内訳。手数料</span>
-<span id="L75"><span class="lineNum">      75</span>              : }</span>
-<span id="L76"><span class="lineNum">      76</span>              : </span>
-<span id="L77"><span class="lineNum">      77</span>              : // AuctionHistory は金銭明細と出荷実績の履歴、採番カウンタ、店の評判を持つシングルトン。</span>
-<span id="L78"><span class="lineNum">      78</span>              : // 出品や落札、金銭はどの出荷場所から見ても共通なのでここに集約する。</span>
-<span id="L79"><span class="lineNum">      79</span>              : type AuctionHistory struct {</span>
-<span id="L80"><span class="lineNum">      80</span>              :         NextNumber int            // 次に貼るタグへ振る連番</span>
-<span id="L81"><span class="lineNum">      81</span>              :         Reputation int            // 店の評判。出荷期限を破ると下がる</span>
-<span id="L82"><span class="lineNum">      82</span>              :         Entries    []AuctionEntry // 金銭タブに並ぶ未精算の受取金と請求</span>
-<span id="L83"><span class="lineNum">      83</span>              :         Records    []AuctionRecord</span>
-<span id="L84"><span class="lineNum">      84</span>              : }</span>
-<span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span>              : // auctionStartingReputation は店の初期評判。出荷期限を破ると下がる。</span>
-<span id="L87"><span class="lineNum">      87</span>              : const auctionStartingReputation = 100</span>
-<span id="L88"><span class="lineNum">      88</span>              : </span>
-<span id="L89"><span class="lineNum">      89</span>              : // NewAuctionHistory は初期状態の履歴シングルトンを返す。評判を初期値にし、明細と実績は空で始める。</span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC tlaBgUNC">           0 : func NewAuctionHistory() *AuctionHistory {</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         return &amp;AuctionHistory{Reputation: auctionStartingReputation}</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L14"><span class="lineNum">      14</span>              : // 集荷すると品エンティティは消え、以後は AuctionHistory の台帳へ移る。</span>
+<span id="L15"><span class="lineNum">      15</span>              : //</span>
+<span id="L16"><span class="lineNum">      16</span>              : //      受取金・未精算  AuctionHistory.Entries の受取金明細。精算で所持金へ入る</span>
+<span id="L17"><span class="lineNum">      17</span>              : //      出荷実績        AuctionHistory.Records。精算済みの記録</span>
+<span id="L18"><span class="lineNum">      18</span>              : //</span>
+<span id="L19"><span class="lineNum">      19</span>              : // 手元と集荷待ちは位置で区別する。集荷待ちは持ち物クエリに掛からないので出荷期限で罰しない。</span>
+<span id="L20"><span class="lineNum">      20</span>              : // AuctionSold.Penalized は手元で期限超過した記録であり、状態遷移ではない。</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // AuctionListing は出品中の品に付く実行時状態。タグを貼った時点で採番し、以後その出品を Number で指す。</span>
+<span id="L23"><span class="lineNum">      23</span>              : // 入札が来るたび CurrentBid が上がり競売が延長する。入札が止まったターンに落札が確定し AuctionSold へ移る。</span>
+<span id="L24"><span class="lineNum">      24</span>              : type AuctionListing struct {</span>
+<span id="L25"><span class="lineNum">      25</span>              :         Number     int             // 出品の連番。アイテム詳細で確認できる一意の識別子</span>
+<span id="L26"><span class="lineNum">      26</span>              :         CurrentBid consts.Currency // 現在の入札額。入札が来るたびに上がる</span>
+<span id="L27"><span class="lineNum">      27</span>              :         LastTurn   int             // 直近に入札判定した総ターン数。1ターンに1回だけ判定する</span>
+<span id="L28"><span class="lineNum">      28</span>              : }</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // AuctionSold は落札済みで未出荷の品に付く実行時状態。出荷場所での出荷を待つ。</span>
+<span id="L31"><span class="lineNum">      31</span>              : // 落札から出荷には期限があり、期限までに積荷へ渡さないと店の評判が下がる。</span>
+<span id="L32"><span class="lineNum">      32</span>              : // 出荷すると手取りを入金し履歴へ記録して品を手放す。</span>
+<span id="L33"><span class="lineNum">      33</span>              : type AuctionSold struct {</span>
+<span id="L34"><span class="lineNum">      34</span>              :         Number    int             // 出品時の連番を引き継ぐ</span>
+<span id="L35"><span class="lineNum">      35</span>              :         Bid       consts.Currency // 確定した落札額。手取りは出荷時に発送料と手数料を引いて求める</span>
+<span id="L36"><span class="lineNum">      36</span>              :         DueTurn   int             // 出荷期限のターン。このターンまでに積荷へ渡さないと評判ペナルティを負う</span>
+<span id="L37"><span class="lineNum">      37</span>              :         Penalized bool            // 期限超過のペナルティを既に課したか。二重に課さないための印</span>
+<span id="L38"><span class="lineNum">      38</span>              : }</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              : // AuctionStation はオークションの出荷場所。積荷はこの prop の収納に置き、集荷タイマーもここが持つ。</span>
+<span id="L41"><span class="lineNum">      41</span>              : // 荷物は物理的にその場所にあるのでステーションごとに持つ。出品や金銭などの情報はシングルトンで共通。</span>
+<span id="L42"><span class="lineNum">      42</span>              : type AuctionStation struct {</span>
+<span id="L43"><span class="lineNum">      43</span>              :         ShipAtTurn int // 集荷するターン。0 は積荷が無くタイマー停止中を表す</span>
+<span id="L44"><span class="lineNum">      44</span>              : }</span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              : // AuctionRecord は1件の出荷実績。落札額から送料と手数料を引いた手取りまでを残す。</span>
+<span id="L47"><span class="lineNum">      47</span>              : type AuctionRecord struct {</span>
+<span id="L48"><span class="lineNum">      48</span>              :         Number int             // 出品の連番</span>
+<span id="L49"><span class="lineNum">      49</span>              :         Name   string          // 売れた品の表示名</span>
+<span id="L50"><span class="lineNum">      50</span>              :         Bid    consts.Currency // 落札額</span>
+<span id="L51"><span class="lineNum">      51</span>              :         Ship   consts.Currency // 送料。重量に比例する</span>
+<span id="L52"><span class="lineNum">      52</span>              :         Fee    consts.Currency // 手数料。落札額に比例する</span>
+<span id="L53"><span class="lineNum">      53</span>              :         Net    consts.Currency // 手取り。落札額から送料と手数料を引いた額</span>
+<span id="L54"><span class="lineNum">      54</span>              :         Turn   int             // 売れた総ターン数</span>
+<span id="L55"><span class="lineNum">      55</span>              : }</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : // AuctionEntryKind は金銭明細の種別。受取金か請求か。</span>
+<span id="L58"><span class="lineNum">      58</span>              : type AuctionEntryKind string</span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : const (</span>
+<span id="L61"><span class="lineNum">      61</span>              :         // AuctionEntryReceipt は受取金。精算すると所持金へ加える</span>
+<span id="L62"><span class="lineNum">      62</span>              :         AuctionEntryReceipt AuctionEntryKind = &quot;receipt&quot;</span>
+<span id="L63"><span class="lineNum">      63</span>              :         // AuctionEntryInvoice は請求。精算すると所持金から引く</span>
+<span id="L64"><span class="lineNum">      64</span>              :         AuctionEntryInvoice AuctionEntryKind = &quot;invoice&quot;</span>
+<span id="L65"><span class="lineNum">      65</span>              : )</span>
+<span id="L66"><span class="lineNum">      66</span>              : </span>
+<span id="L67"><span class="lineNum">      67</span>              : // AuctionEntry は金銭タブに並ぶ明細1件。受取金か請求のどちらかで、精算すると所持金へ足し引きする。</span>
+<span id="L68"><span class="lineNum">      68</span>              : // 金額はいずれも正の額で持ち、足すか引くかは Kind で決める。</span>
+<span id="L69"><span class="lineNum">      69</span>              : type AuctionEntry struct {</span>
+<span id="L70"><span class="lineNum">      70</span>              :         Kind   AuctionEntryKind // 受取金か請求か</span>
+<span id="L71"><span class="lineNum">      71</span>              :         Number int              // 受取金のとき出品の連番。請求は0</span>
+<span id="L72"><span class="lineNum">      72</span>              :         Name   string           // 表示名。品名または請求名</span>
+<span id="L73"><span class="lineNum">      73</span>              :         Amount consts.Currency  // 受取金は手取り、請求は請求額</span>
+<span id="L74"><span class="lineNum">      74</span>              :         Bid    consts.Currency  // 明細の内訳。受取金のとき意味を持つ落札額</span>
+<span id="L75"><span class="lineNum">      75</span>              :         Ship   consts.Currency  // 明細の内訳。配送料</span>
+<span id="L76"><span class="lineNum">      76</span>              :         Fee    consts.Currency  // 明細の内訳。手数料</span>
+<span id="L77"><span class="lineNum">      77</span>              : }</span>
+<span id="L78"><span class="lineNum">      78</span>              : </span>
+<span id="L79"><span class="lineNum">      79</span>              : // AuctionHistory は金銭明細と出荷実績の履歴、採番カウンタ、店の評判を持つシングルトン。</span>
+<span id="L80"><span class="lineNum">      80</span>              : // 出品や落札、金銭はどの出荷場所から見ても共通なのでここに集約する。</span>
+<span id="L81"><span class="lineNum">      81</span>              : type AuctionHistory struct {</span>
+<span id="L82"><span class="lineNum">      82</span>              :         NextNumber int            // 次に貼るタグへ振る連番</span>
+<span id="L83"><span class="lineNum">      83</span>              :         Reputation int            // 店の評判。出荷期限を破ると下がる</span>
+<span id="L84"><span class="lineNum">      84</span>              :         Entries    []AuctionEntry // 金銭タブに並ぶ未精算の受取金と請求</span>
+<span id="L85"><span class="lineNum">      85</span>              :         Records    []AuctionRecord</span>
+<span id="L86"><span class="lineNum">      86</span>              : }</span>
+<span id="L87"><span class="lineNum">      87</span>              : </span>
+<span id="L88"><span class="lineNum">      88</span>              : // auctionStartingReputation は店の初期評判。出荷期限を破ると下がる。</span>
+<span id="L89"><span class="lineNum">      89</span>              : const auctionStartingReputation = 100</span>
+<span id="L90"><span class="lineNum">      90</span>              : </span>
+<span id="L91"><span class="lineNum">      91</span>              : // NewAuctionHistory は初期状態の履歴シングルトンを返す。評判を初期値にし、明細と実績は空で始める。</span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC tlaBgUNC">           0 : func NewAuctionHistory() *AuctionHistory {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :         return &amp;AuctionHistory{Reputation: auctionStartingReputation}</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>
