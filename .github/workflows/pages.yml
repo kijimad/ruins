@@ -52,7 +52,7 @@ jobs:
           ls -al ./wasm/raw-spec
 
       - name: Publish generated content to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.8.0
+        uses: JamesIves/github-pages-deploy-action@v4.9.0
         with:
           branch: gh-pages
           folder: wasm
