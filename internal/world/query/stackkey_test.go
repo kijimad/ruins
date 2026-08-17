@@ -69,6 +69,24 @@ func TestSameStack_同一判定(t *testing.T) {
 	})
 }
 
+func TestStackMembers_装備品や未配置は単独スタックになる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// 装備スロットのアイテムは束ねず単独を返す。個数は常に1になる
+	equipped := world.ECS.NewEntity()
+	world.Components.RawID.Add(equipped, &gc.RawID{ID: "sword"})
+	world.Components.LocationEquipped.Add(equipped, &gc.LocationEquipped{Owner: world.ECS.NewEntity(), EquipmentSlot: gc.SlotWeapon1})
+	assert.Equal(t, []ecs.Entity{equipped}, StackMembers(world, equipped))
+	assert.Equal(t, 1, GetEntityCount(world, equipped))
+
+	// 位置未設定のアイテムも単独スタック
+	bare := world.ECS.NewEntity()
+	world.Components.RawID.Add(bare, &gc.RawID{ID: "gem"})
+	assert.Equal(t, []ecs.Entity{bare}, StackMembers(world, bare))
+	assert.Equal(t, 1, GetEntityCount(world, bare))
+}
+
 func TestGroupStacks_同一性キーで束ね初出順を保つ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

@@ -46,3 +46,17 @@ func CanAddToStorage(world w.World, storage ecs.Entity, item ecs.Entity) bool {
 	wc := world.Components.WeightCapacity.Get(storage)
 	return wc.Current+GetEntityWeight(world, item) <= wc.Max
 }
+
+// CanAddStackToStorage は items をまとめて収納に追加できるか、合計重量で判定する。
+// スタック丸ごとの移動可否を1回で判定するために使う。
+func CanAddStackToStorage(world w.World, storage ecs.Entity, items []ecs.Entity) bool {
+	if !world.Components.WeightCapacity.Has(storage) {
+		return false
+	}
+	var total consts.Milligram
+	for _, it := range items {
+		total += GetEntityWeight(world, it)
+	}
+	wc := world.Components.WeightCapacity.Get(storage)
+	return wc.Current+total <= wc.Max
+}

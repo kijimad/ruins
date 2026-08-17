@@ -13,43 +13,28 @@ import (
 // 個数照会や消費の起点に使う。鮮度による束の分割は合流側の query.SameStack が担うため、
 // ここは鮮度を見ず RawID だけで引く。腐敗食は鮮度違いの別束が複数ありうる点に注意する。
 func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
-	var foundEntity ecs.Entity
-	var found bool
-
-	stackableQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()
-	for stackableQuery.Next() {
-		entity := stackableQuery.Entity()
-		if found {
-			continue
-		}
+	q := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()
+	for q.Next() {
+		entity := q.Entity()
 		if world.Components.RawID.Get(entity).ID == id {
-			foundEntity = entity
-			found = true
+			q.Close()
+			return entity, true
 		}
 	}
-
-	return foundEntity, found
+	return gc.InvalidEntity, false
 }
 
 // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
 func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) {
-	var foundEntity ecs.Entity
-	var found bool
-
-	ammoQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
-	for ammoQuery.Next() {
-		entity := ammoQuery.Entity()
-		if found {
-			continue
-		}
-		ammo := world.Components.Ammo.Get(entity)
-		if ammo.AmmoTag == ammoTag {
-			foundEntity = entity
-			found = true
+	q := ecs.NewFilter2[gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
+	for q.Next() {
+		entity := q.Entity()
+		if world.Components.Ammo.Get(entity).AmmoTag == ammoTag {
+			q.Close()
+			return entity, true
 		}
 	}
-
-	return foundEntity, found
+	return gc.InvalidEntity, false
 }
 
 // GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ

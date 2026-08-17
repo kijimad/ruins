@@ -185,23 +185,31 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 
 	item := tab.Items[itemIndex]
 
+	// 一覧の1行はスタック代表なので、同一スタックのエンティティをまとめて動かす。
+	// スナップショットを先に取り、移動による位置変更の影響を受けないようにする
+	members := query.StackMembers(world, item.Entity)
+
 	switch tab.ID {
 	case tabIDRetrieve:
-		// 収納からバックパックへ移動
+		// 収納からバックパックへスタック丸ごと移動
 		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			return err
 		}
-		if err := lifecycle.MoveToBackpack(world, item.Entity, playerEntity); err != nil {
-			return err
+		for _, member := range members {
+			if err := lifecycle.MoveToBackpack(world, member, playerEntity); err != nil {
+				return err
+			}
 		}
 	case tabIDStore:
-		// バックパックから収納へ移動
-		if !query.CanAddToStorage(world, st.storageEntity, item.Entity) {
-			return nil // 重量超過の場合は何もしない
+		// バックパックから収納へスタック丸ごと移動。合計重量が容量を超えるなら何もしない
+		if !query.CanAddStackToStorage(world, st.storageEntity, members) {
+			return nil
 		}
-		if err := lifecycle.MoveToStorage(world, item.Entity, st.storageEntity); err != nil {
-			return err
+		for _, member := range members {
+			if err := lifecycle.MoveToStorage(world, member, st.storageEntity); err != nil {
+				return err
+			}
 		}
 	}
 
