@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -37,37 +36,26 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	assert.Equal(t, wantJa, state.Fetch(world).Items[0].Value, "表示は config でなく UserSettings を引く")
 }
 
-func TestNewLanguageMenuState_選択メニューで言語プリセット分の選択肢を持つ(t *testing.T) {
-	t.Parallel()
-
-	state, err := NewLanguageMenuState()
-	require.NoError(t, err)
-	_, ok := state.(*ChoiceMenuState)
-	assert.True(t, ok, "言語選択は ChoiceMenu で構成される")
-
-	world := testutil.InitTestWorld(t)
-	_, choices := languageChoices(world)
-	assert.Len(t, choices, len(i18n.SupportedLangs()))
-}
-
-func TestLanguageChoices_選択で実行中シングルトンと設定を更新する(t *testing.T) {
+func TestCycleLanguage_左右で循環しシングルトンと設定を更新する(t *testing.T) {
 	// SaveUserConfig の書き込み先を一時ディレクトリへ隔離する。t.Setenv があるので Parallel にしない
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 
 	world := testutil.InitTestWorld(t)
 	require.Equal(t, "en", query.GetUserSettings(world).Language, "既定は en")
 
-	_, choices := languageChoices(world)
-	// i18n.SupportedLangs() の並びは ja, en。ja を選んで切り替えを確かめる
-	require.Len(t, choices, 2)
-	transition, err := choices[0].Run(world)
-	require.NoError(t, err)
-
-	// 実行中のシングルトンが即時に切り替わる。これが再起動なしで表示が変わる経路
+	// SupportedLangs の並びは ja, en。en から右へ送ると ja へ回る。
+	// 実行中のシングルトンが即時に切り替わり、これが再起動なしで表示が変わる経路になる
+	cycleLanguage(world, 1)
 	assert.Equal(t, "ja", query.GetUserSettings(world).Language, "シングルトンが ja へ切り替わる")
-	// 永続層の設定値も更新される
 	assert.Equal(t, "ja", world.Config.User.Language, "config も ja へ更新される")
-	assert.Equal(t, es.TransPop, transition.Type, "選択後は設定画面へ戻る")
+
+	// さらに右へ送ると en へ巻き戻る
+	cycleLanguage(world, 1)
+	assert.Equal(t, "en", query.GetUserSettings(world).Language, "循環して en へ戻る")
+
+	// 左へ送ると逆方向にも循環する
+	cycleLanguage(world, -1)
+	assert.Equal(t, "ja", query.GetUserSettings(world).Language, "左は逆方向に循環する")
 }
 
 func TestCurrentLanguageLabel(t *testing.T) {

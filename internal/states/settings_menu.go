@@ -6,6 +6,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -53,18 +54,35 @@ func (st *SettingsMenuState) Draw(world w.World, screen *ebiten.Image) error {
 }
 
 // DoAction はActionを実行する
-func (st *SettingsMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *SettingsMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.handleSelection(), nil
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+	case inputmapper.ActionMenuTabPrev, inputmapper.ActionMenuLeft:
+		// 左キーは値を持つ項目の値を前へ送る。単一タブなので Dispatch のタブ切替は無害
+		st.cycleFocused(world, -1)
+	case inputmapper.ActionMenuTabNext, inputmapper.ActionMenuRight:
+		// 右キーは値を次へ送る
+		st.cycleFocused(world, 1)
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown:
 		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("settingsMenu: unsupported action: %s", action)
 	}
 	return es.Transition[w.World]{Type: es.TransNone}, nil
+}
+
+// cycleFocused はカーソル上の項目の値を delta 方向へ循環させる。値を持たない項目では何もしない
+func (st *SettingsMenuState) cycleFocused(world w.World, delta int) {
+	item, ok := st.focusedItem()
+	if !ok {
+		return
+	}
+	if item.Kind == settingsItemLanguage {
+		cycleLanguage(world, delta)
+	}
 }
 
 // ================
@@ -123,13 +141,10 @@ func (st *SettingsMenuState) handleSelection() es.Transition[w.World] {
 	if !ok {
 		return es.Transition[w.World]{Type: es.TransNone}
 	}
-	switch item.Kind {
-	case settingsItemLanguage:
-		// Enter で言語選択のモーダルを開く
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLanguageMenuState}}
-	case settingsItemBack:
+	if item.Kind == settingsItemBack {
 		return es.Transition[w.World]{Type: es.TransPop}
 	}
+	// 値を持つ項目は左右で変えるため Enter では何もしない
 	return es.Transition[w.World]{Type: es.TransNone}
 }
 
@@ -147,30 +162,35 @@ func currentLanguageLabel(code string) string {
 	return code
 }
 
-// NewLanguageMenuState は言語選択のモーダルを作成する。
-// 選択した言語をシングルトンへ即時反映し、ユーザー設定へ保存して設定画面へ戻る。
-func NewLanguageMenuState() (es.State[w.World], error) {
-	return NewChoiceMenu(languageChoices), nil
+// cycleLanguage は表示言語を delta 方向へ循環させ、シングルトンへ即時反映してユーザー設定へ保存する。
+func cycleLanguage(world w.World, delta int) {
+	langs := i18n.SupportedLangs()
+	if len(langs) == 0 {
+		return
+	}
+	current := query.GetUserSettings(world).Language
+	idx := 0
+	for i, l := range langs {
+		if l.Code == current {
+			idx = i
+			break
+		}
+	}
+	// 負の delta でも正しく巻き戻すため二重の剰余で非負に正規化する
+	next := langs[((idx+delta)%len(langs)+len(langs))%len(langs)].Code
+	applyLanguage(world, next)
 }
 
-// languageChoices は選択できる表示言語を選択肢にする。選ぶとシングルトンへ反映し設定を保存して閉じる
-func languageChoices(world w.World) (string, []Choice) {
-	langs := i18n.SupportedLangs()
-	choices := make([]Choice, 0, len(langs))
-	for _, l := range langs {
-		choices = append(choices, Choice{Label: query.T(world, l.Label), Run: func(world w.World) (es.Transition[w.World], error) {
-			// シングルトンの設定言語を書き換える。Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
-			if s := query.GetUserSettings(world); s != nil {
-				s.Language = l.Code
-			}
-			world.Config.User.Language = l.Code
-			if err := world.Config.SaveUserConfig(); err != nil {
-				logger.New(logger.CategorySave).Warn("failed to save language setting", "error", err)
-			}
-			return es.Transition[w.World]{Type: es.TransPop}, nil
-		}})
+// applyLanguage は表示言語を code に切り替える。
+// Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
+func applyLanguage(world w.World, code string) {
+	if s := query.GetUserSettings(world); s != nil {
+		s.Language = code
 	}
-	return "", choices
+	world.Config.User.Language = code
+	if err := world.Config.SaveUserConfig(); err != nil {
+		logger.New(logger.CategorySave).Warn("failed to save language setting", "error", err)
+	}
 }
 
 // ================
@@ -179,10 +199,15 @@ func languageChoices(world w.World) (string, []Choice) {
 
 // View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
 func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
+	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、左右キーで変えられる項目は
+	// < value > と囲って左右で切り替えられることを示す
 	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(item.Label, item.Value)}
+		value := item.Value
+		if item.Kind == settingsItemLanguage && value != "" {
+			value = "< " + value + " >"
+		}
+		rows[i] = menuRow{Cells: styled.TextCells(item.Label, value)}
 	}
 	table := renderMenuList(cursor.ItemIndex, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
 
@@ -202,7 +227,8 @@ func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor
 	)
 	menuContainer.AddChild(titleText)
 	menuContainer.AddChild(table)
-	menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(world, false), res))
+	langHint := consts.IconArrowLeft + consts.IconArrowRight + " " + query.T(world, "Language")
+	menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(world, false, langHint), res))
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
