@@ -200,12 +200,12 @@ func applyLanguage(world w.World, code string) {
 // View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
 func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
 	// 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、左右キーで変えられる項目は
-	// < value > と囲って左右で切り替えられることを示す
+	// 山括弧アイコンで囲って左右で切り替えられることを示す
 	rows := make([]menuRow, len(props.Items))
 	for i, item := range props.Items {
 		value := item.Value
 		if item.Kind == settingsItemLanguage && value != "" {
-			value = "< " + value + " >"
+			value = consts.IconChevronLeft + " " + value + " " + consts.IconChevronRight
 		}
 		rows[i] = menuRow{Cells: styled.TextCells(item.Label, value)}
 	}

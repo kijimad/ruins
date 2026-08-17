@@ -9,6 +9,10 @@ const (
 	IconArrowUp    = "\uf062"
 	IconArrowDown  = "\uf063"
 
+	// 山括弧。値を左右で切り替える項目の < value > 表示に使う
+	IconChevronLeft  = "\uf053" // fa-chevron-left
+	IconChevronRight = "\uf054" // fa-chevron-right
+
 	// カーソル
 	IconCursor = "\uf054" // fa-chevron-right
 
