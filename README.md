@@ -108,6 +108,7 @@ $ make help
 | draft | [背の低い家具を通行可能にして移動コストで体系化する](docs/design/260814140548.md) | 0/7（見送り1） | movement, combat, gamedesign |
 | draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
 | draft | [メニュー選択カーソルをゆるやかに点滅させる](docs/design/260817012437.md) | 0/6 | ui |
+| draft | [メニュー操作をコマンド列で再生し本番フローで動作確認する](docs/design/260817032634.md) | 0/5（見送り1） | ui |
 
 
 ## Reference
