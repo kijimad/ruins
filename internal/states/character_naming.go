@@ -2,12 +2,15 @@ package states
 
 import (
 	"fmt"
+	"image"
 	"time"
 	"unicode/utf8"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/exp/textinput"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -86,14 +89,31 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 		resetTimer()
 	}
 
-	// TextInput から現在の値を同期
-	if textInput, ok := hooks.GetRef[*widget.TextInput](st.mount.Store(), "textInput"); ok && textInput != nil {
-		currentText := textInput.GetText()
-		if currentText != props.CurrentName {
-			st.mount.SetProps(namingProps{
-				CurrentName:  currentText,
-				ErrorMessage: props.ErrorMessage,
-			})
+	// エラークリアが走った可能性があるので props を取り直す
+	props = st.mount.GetProps()
+
+	// IME 入力を進め、確定テキストを props へ同期する
+	if field, ok := hooks.GetRef[*textinput.Field](st.mount.Store(), "imeField"); ok && field != nil {
+		// 合成窓の位置。表示ウィジェットの矩形が取れれば使う
+		bounds := image.Rect(0, 0, consts.GameWidth, consts.GameHeight)
+		if ti, ok := hooks.GetRef[*widget.TextInput](st.mount.Store(), "textInput"); ok && ti != nil {
+			if r := ti.GetWidget().Rect; !r.Empty() {
+				bounds = r
+			}
+		}
+		if _, err := field.HandleInputWithBounds(bounds); err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		// backspace は noime が拾わないので自前で消す。合成中は OS に委ねる
+		if _, _, composing := field.CompositionSelection(); !composing && inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+			if t := field.Text(); t != "" {
+				_, size := utf8.DecodeLastRuneInString(t)
+				trimmed := t[:len(t)-size]
+				field.SetTextAndSelection(trimmed, len(trimmed), len(trimmed))
+			}
+		}
+		if committed := field.Text(); committed != props.CurrentName {
+			st.mount.SetProps(namingProps{CurrentName: committed, ErrorMessage: props.ErrorMessage})
 		}
 	}
 
@@ -236,9 +256,17 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 		),
 	)
 
-	// テキスト入力を作成
+	// IME 対応の入力フィールド。Windows/WASM/macOS は OS の IME、Linux は AppendInputChars で英数のみ。
+	field := hooks.UseRef(st.mount.Store(), "imeField", func() *textinput.Field {
+		f := &textinput.Field{}
+		f.SetTextAndSelection(props.CurrentName, len(props.CurrentName), len(props.CurrentName))
+		f.Focus()
+		return f
+	})
+
+	// テキスト入力ウィジェットは表示専用にする。入力は field が担うのでフォーカスは取らない。
 	textInput := hooks.UseRef(st.mount.Store(), "textInput", func() *widget.TextInput {
-		ti := widget.NewTextInput(
+		return widget.NewTextInput(
 			widget.TextInputOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 					Position: widget.RowLayoutPositionCenter,
@@ -252,10 +280,9 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 			widget.TextInputOpts.Padding(&res.TextInput.Padding),
 			widget.TextInputOpts.Placeholder(query.T(world, "Name")),
 		)
-		ti.SetText(props.CurrentName)
-		ti.Focus(true)
-		return ti
 	})
+	// 変換中を含む表示テキストを反映する
+	textInput.SetText(field.TextForRendering())
 
 	// エラーメッセージ
 	errorText := widget.NewText(
