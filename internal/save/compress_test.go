@@ -1,6 +1,7 @@
 package save
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,5 +24,18 @@ func TestGzipBytes_往復で元のJSONに戻る(t *testing.T) {
 func TestGunzipBytes_gzipでないデータはエラー(t *testing.T) {
 	t.Parallel()
 	_, err := gunzipBytes([]byte("not gzip data"))
+	require.Error(t, err)
+}
+
+func TestGunzipBytes_壊れたgzipはエラー(t *testing.T) {
+	t.Parallel()
+	compressed, err := gzipBytes([]byte(strings.Repeat(`{"k":"v"},`, 50)))
+	require.NoError(t, err)
+
+	// ヘッダは保ったまま本文の1バイトを壊す。NewReader は通り ReadAll の展開で失敗する
+	corrupted := append([]byte(nil), compressed...)
+	corrupted[len(corrupted)/2] ^= 0xff
+
+	_, err = gunzipBytes(corrupted)
 	require.Error(t, err)
 }
