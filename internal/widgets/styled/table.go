@@ -101,16 +101,31 @@ func NewTableRow(container *widget.Container, columnWidths []int, cells []Cell, 
 		NewTableRowColored(container, columnWidths, cells, aligns, theme.TextPrimary, res)
 		return
 	}
-	// 選択行は選択バーの背景と選択色にし、行の下に区切り線を引く
-	bgImage := image.NewNineSliceColor(theme.Transparent)
+	// 選択行は選択色にし、行の下に区切り線を引く
 	textColor := theme.TextSecondary
 	if *isSelected {
-		bgImage = res.Panel.SelectionBar
 		textColor = theme.TextSelected
 	}
-	row := newRowContainer(columnWidths, bgImage)
+	row := newRowContainer(columnWidths, image.NewNineSliceColor(theme.Transparent))
 	addRowCells(row, columnWidths, cells, aligns, textColor, res)
-	container.AddChild(row)
+
+	if *isSelected {
+		// 選択行は選択バーを背面に重ねて毎フレームアルファを揺らす。背景画像は ebitenui が内部で
+		// 描くのでアルファを掛ける隙間が無い。自前で描くバーに置き換えて明滅させる。
+		// バーは行を参照して高さを合わせ、AnchorLayout の大きさ決定を行へ委ねる
+		row.GetWidget().LayoutData = widget.AnchorLayoutData{StretchHorizontal: true, StretchVertical: true}
+		cell := widget.NewContainer(
+			widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+			widget.ContainerOpts.WidgetOpts(
+				widget.WidgetOpts.LayoutData(widget.RowLayoutData{Stretch: true}),
+			),
+		)
+		cell.AddChild(newSelectionBar(res.Panel.SelectionBar, row, true))
+		cell.AddChild(row)
+		container.AddChild(cell)
+	} else {
+		container.AddChild(row)
+	}
 	container.AddChild(NewGradientLine(res.GradientLine, theme.RowDivider, 1))
 }
 
