@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.3%)</option>
 				
@@ -513,7 +513,7 @@
 				
 				<option value="file228">github.com/kijimaD/ruins/internal/states/persistent_message_state.go (43.8%)</option>
 				
-				<option value="file229">github.com/kijimaD/ruins/internal/states/settings_menu.go (69.6%)</option>
+				<option value="file229">github.com/kijimaD/ruins/internal/states/settings_menu.go (65.2%)</option>
 				
 				<option value="file230">github.com/kijimaD/ruins/internal/states/shooting.go (42.4%)</option>
 				
@@ -1678,7 +1678,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1751,8 +1751,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
-        case critical:<span class="cov8" title="1">
-                if withMethod </span><span class="cov8" title="1">{
+        case critical:<span class="cov0" title="0">
+                if withMethod </span><span class="cov0" title="0">{
                         logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
@@ -44709,6 +44709,7 @@ import (
         "github.com/ebitenui/ebitenui"
         "github.com/ebitenui/ebitenui/widget"
         "github.com/hajimehoshi/ebiten/v2"
+        "github.com/kijimaD/ruins/internal/consts"
         es "github.com/kijimaD/ruins/internal/engine/states"
         "github.com/kijimaD/ruins/internal/i18n"
         "github.com/kijimaD/ruins/internal/inputmapper"
@@ -44756,18 +44757,34 @@ func (st *SettingsMenuState) Draw(world w.World, screen *ebiten.Image) error <sp
 }
 
 // DoAction はActionを実行する
-func (st *SettingsMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) <span class="cov8" title="1">{
+func (st *SettingsMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) <span class="cov8" title="1">{
         switch action </span>{
         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:<span class="cov8" title="1">
                 return es.Transition[w.World]{Type: es.TransPop}, nil</span>
         case inputmapper.ActionMenuSelect:<span class="cov0" title="0">
                 return st.handleSelection(), nil</span>
-        case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:<span class="cov0" title="0"></span>
+        case inputmapper.ActionMenuTabPrev, inputmapper.ActionMenuLeft:<span class="cov0" title="0">
+                // 左右キーで値を切り替える。単一タブなので Dispatch のタブ切替は無害
+                st.cycleFocused(world, -1)</span>
+        case inputmapper.ActionMenuTabNext, inputmapper.ActionMenuRight:<span class="cov0" title="0">
+                st.cycleFocused(world, 1)</span>
+        case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown:<span class="cov0" title="0"></span>
                 // Dispatchで処理される
         default:<span class="cov0" title="0">
                 return es.Transition[w.World]{}, fmt.Errorf("settingsMenu: unsupported action: %s", action)</span>
         }
         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, nil</span>
+}
+
+// cycleFocused はカーソル上の項目の値を delta 方向へ循環させる。値を持たない項目では何もしない
+func (st *SettingsMenuState) cycleFocused(world w.World, delta int) <span class="cov0" title="0">{
+        item, ok := st.focusedItem()
+        if !ok </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov0" title="0">if item.Kind == settingsItemLanguage </span><span class="cov0" title="0">{
+                cycleLanguage(world, delta)
+        }</span>
 }
 
 // ================
@@ -44826,13 +44843,10 @@ func (st *SettingsMenuState) handleSelection() es.Transition[w.World] <span clas
         if !ok </span><span class="cov0" title="0">{
                 return es.Transition[w.World]{Type: es.TransNone}
         }</span>
-        <span class="cov0" title="0">switch item.Kind </span>{
-        case settingsItemLanguage:<span class="cov0" title="0">
-                // Enter で言語選択のモーダルを開く
-                return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLanguageMenuState}}</span>
-        case settingsItemBack:<span class="cov0" title="0">
-                return es.Transition[w.World]{Type: es.TransPop}</span>
-        }
+        <span class="cov0" title="0">if item.Kind == settingsItemBack </span><span class="cov0" title="0">{
+                return es.Transition[w.World]{Type: es.TransPop}
+        }</span>
+        // 値を持つ項目は左右で変えるため Enter では何もしない
         <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}</span>
 }
 
@@ -44850,30 +44864,34 @@ func currentLanguageLabel(code string) string <span class="cov8" title="1">{
         <span class="cov8" title="1">return code</span>
 }
 
-// NewLanguageMenuState は言語選択のモーダルを作成する。
-// 選択した言語をシングルトンへ即時反映し、ユーザー設定へ保存して設定画面へ戻る。
-func NewLanguageMenuState() (es.State[w.World], error) <span class="cov8" title="1">{
-        return NewChoiceMenu(languageChoices), nil
-}</span>
-
-// languageChoices は選択できる表示言語を選択肢にする。選ぶとシングルトンへ反映し設定を保存して閉じる
-func languageChoices(world w.World) (string, []Choice) <span class="cov8" title="1">{
+// cycleLanguage は表示言語を delta 方向へ循環させ、シングルトンへ即時反映してユーザー設定へ保存する。
+func cycleLanguage(world w.World, delta int) <span class="cov8" title="1">{
         langs := i18n.SupportedLangs()
-        choices := make([]Choice, 0, len(langs))
-        for _, l := range langs </span><span class="cov8" title="1">{
-                choices = append(choices, Choice{Label: query.T(world, l.Label), Run: func(world w.World) (es.Transition[w.World], error) </span><span class="cov8" title="1">{
-                        // シングルトンの設定言語を書き換える。Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
-                        if s := query.GetUserSettings(world); s != nil </span><span class="cov8" title="1">{
-                                s.Language = l.Code
-                        }</span>
-                        <span class="cov8" title="1">world.Config.User.Language = l.Code
-                        if err := world.Config.SaveUserConfig(); err != nil </span><span class="cov0" title="0">{
-                                logger.New(logger.CategorySave).Warn("failed to save language setting", "error", err)
-                        }</span>
-                        <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransPop}, nil</span>
-                }})
+        if len(langs) == 0 </span><span class="cov0" title="0">{
+                return
+        }</span>
+        <span class="cov8" title="1">current := query.GetUserSettings(world).Language
+        idx := 0
+        for i, l := range langs </span><span class="cov8" title="1">{
+                if l.Code == current </span><span class="cov8" title="1">{
+                        idx = i
+                        break</span>
+                }
         }
-        <span class="cov8" title="1">return "", choices</span>
+        // 負の delta でも正しく巻き戻すため二重の剰余で非負に正規化する
+        <span class="cov8" title="1">next := langs[((idx+delta)%len(langs)+len(langs))%len(langs)].Code
+        applyLanguage(world, next)</span>
+}
+
+// applyLanguage は表示言語を code に切り替える。
+// Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
+// UserSettings は world 初期化で常に登録されるため nil を想定しない。Fetch も同じ前提で読む。
+func applyLanguage(world w.World, code string) <span class="cov8" title="1">{
+        query.GetUserSettings(world).Language = code
+        world.Config.User.Language = code
+        if err := world.Config.SaveUserConfig(); err != nil </span><span class="cov0" title="0">{
+                logger.New(logger.CategorySave).Warn("failed to save language setting", "error", err)
+        }</span>
 }
 
 // ================
@@ -44882,11 +44900,16 @@ func languageChoices(world w.World) (string, []Choice) <span class="cov8" title=
 
 // View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
 func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI <span class="cov8" title="1">{
-        // 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、変更は Enter で開くモーダルから行う
+        // 項目リストは他メニューと同じテーブル描画に揃える。現在値は右列に表示し、左右キーで変えられる項目は
+        // 左右矢印アイコンで囲って左右で切り替えられることを示す
         rows := make([]menuRow, len(props.Items))
         for i, item := range props.Items </span><span class="cov8" title="1">{
-                rows[i] = menuRow{Cells: styled.TextCells(item.Label, item.Value)}
-        }</span>
+                value := item.Value
+                if item.Kind == settingsItemLanguage &amp;&amp; value != "" </span><span class="cov8" title="1">{
+                        value = consts.IconArrowLeft + " " + value + " " + consts.IconArrowRight
+                }</span>
+                <span class="cov8" title="1">rows[i] = menuRow{Cells: styled.TextCells(item.Label, value)}</span>
+        }
         <span class="cov8" title="1">table := renderMenuList(cursor.ItemIndex, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res)
 
         menuContainer := styled.NewVerticalContainer(
@@ -44905,7 +44928,8 @@ func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor
         )
         menuContainer.AddChild(titleText)
         menuContainer.AddChild(table)
-        menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(world, false), res))
+        langHint := consts.IconArrowLeft + consts.IconArrowRight + " " + query.T(world, "Language")
+        menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(world, false, langHint), res))
 
         rootContainer := widget.NewContainer(
                 widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
