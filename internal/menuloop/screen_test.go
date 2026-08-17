@@ -251,6 +251,52 @@ func TestScreen_readAction(t *testing.T) {
 		assert.False(t, ok)
 		assert.Equal(t, inputmapper.ActionID(""), action)
 	})
+
+	t.Run("コマンド供給源はExtraInputより優先する", func(t *testing.T) {
+		t.Parallel()
+		model := &flexModel{
+			menu:       MenuConfig{Key: "cmd1"},
+			extraInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
+		}
+		screen := NewScreen[int](model)
+		screen.SetCommandSource(NewScenarioReplay(Scenario{Commands: []Command{inputmapper.ActionMenuDown}}))
+
+		action, ok := screen.readAction()
+
+		assert.True(t, ok)
+		assert.Equal(t, inputmapper.ActionMenuDown, action, "ExtraInput が真でも commands を先に返す")
+	})
+
+	t.Run("コマンドが尽きたらExtraInputへ戻る", func(t *testing.T) {
+		t.Parallel()
+		model := &flexModel{
+			menu:       MenuConfig{Key: "cmd2"},
+			extraInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
+		}
+		screen := NewScreen[int](model)
+		// 1件だけの供給源。2回目以降は尽きて ExtraInput へフォールバックする
+		screen.SetCommandSource(NewScenarioReplay(Scenario{Commands: []Command{inputmapper.ActionMenuDown}}))
+
+		first, ok := screen.readAction()
+		require.True(t, ok)
+		require.Equal(t, inputmapper.ActionMenuDown, first)
+
+		second, ok := screen.readAction()
+		assert.True(t, ok)
+		assert.Equal(t, inputmapper.ActionMenuSelect, second, "供給源が尽きたら ExtraInput が返る")
+	})
+
+	t.Run("供給源未設定なら従来どおりExtraInputとキーボード経路", func(t *testing.T) {
+		t.Parallel()
+		model := &flexModel{menu: MenuConfig{Key: "cmd3"}}
+		screen := NewScreen[int](model)
+		// SetCommandSource を呼ばない。commands は nil のまま
+
+		action, ok := screen.readAction()
+
+		assert.False(t, ok, "本番同様 ExtraInput 偽なら HandleMenuInput へ落ちる")
+		assert.Equal(t, inputmapper.ActionID(""), action)
+	})
 }
 
 // TestScreen_Update_overlay は Active な overlay が入力を専有し、DoAction を呼ばないことを固定する

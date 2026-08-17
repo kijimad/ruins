@@ -109,7 +109,6 @@ $ make help
 | draft | [背の低い家具を通行可能にして移動コストで体系化する](docs/design/260814140548.md) | 0/7（見送り1） | movement, combat, gamedesign |
 | draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
 | draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/6 | item, combat, ecs |
-| draft | [メニュー操作をコマンド列で再生し本番フローで動作確認する](docs/design/260817032634.md) | 0/5（見送り2） | ui |
 
 
 ## Reference

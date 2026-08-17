@@ -64,6 +64,15 @@ type Screen[P any] struct {
 	overlays      []overlay.Layer
 	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
 	seeded        bool      // 初期タブへ寄せたか
+	// commands は任意のコマンド供給源。nil なら本番のキーボード経路。
+	// 設定時はキーボードより優先し、決めた順にコマンドを1フレーム1件で返す。再生ドライバが差す
+	commands func() (inputmapper.ActionID, bool)
+}
+
+// SetCommandSource は再生用のコマンド供給源を差す。本番は呼ばず nil のままで、テストや再生ドライバから使う。
+// 供給源は1フレーム1件でコマンドを返し、尽きたら (_, false) を返してキーボード経路へ戻す
+func (s *Screen[P]) SetCommandSource(src func() (inputmapper.ActionID, bool)) {
+	s.commands = src
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
@@ -88,6 +97,11 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 // readAction は1フレームの入力を Action に変換する。ExtraInput を持つ state はそれを先に試し、
 // 拾わなければ共通の HandleMenuInput にフォールバックする。1フレーム1アクションで ExtraInput が優先する
 func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) {
+	if s.commands != nil {
+		if action, ok := s.commands(); ok {
+			return action, true
+		}
+	}
 	if h, ok := s.model.(ExtraInput); ok {
 		if action, ok := h.ExtraInput(); ok {
 			return action, true
