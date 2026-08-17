@@ -141,12 +141,12 @@ func TestGolden(t *testing.T) {
 		}},
 		{"Message", func(w.World) ([]es.State[w.World], error) {
 			messageData := messagedata.NewDialogMessage(
-				"これはメッセージウィンドウのVRTテストです。\n\n表示状態の確認用メッセージです。",
-				"VRTテスト",
+				"This is a VRT test of the message window.\n\nA message to check the display state.",
+				"VRT Test",
 			).WithChoice(
-				"選択肢1", func(_ w.World) error { return nil },
+				"Choice 1", func(_ w.World) error { return nil },
 			).WithChoice(
-				"選択肢2", func(_ w.World) error { return nil },
+				"Choice 2", func(_ w.World) error { return nil },
 			)
 			s, err := gs.NewMessageState(messageData)
 			return []es.State[w.World]{s}, err
@@ -160,7 +160,7 @@ func TestGolden(t *testing.T) {
 			}, &gs.ShootingState{}}, nil
 		}},
 		{"PersistentMessage", func(w.World) ([]es.State[w.World], error) {
-			messageData := messagedata.NewDialogMessage("永続メッセージのVRTテストです。", "テスト")
+			messageData := messagedata.NewDialogMessage("This is a VRT test of the persistent message.", "Test")
 			return []es.State[w.World]{gs.NewPersistentMessageState(messageData)}, nil
 		}},
 		{"StorageMenu", func(world w.World) ([]es.State[w.World], error) {
@@ -178,22 +178,22 @@ func TestGolden(t *testing.T) {
 		{"ChoiceMenuMany", func(w.World) ([]es.State[w.World], error) {
 			choices := make([]gs.Choice, 0, 30)
 			for i := range 30 {
-				choices = append(choices, gs.Choice{Label: fmt.Sprintf("項目 %d", i+1)})
+				choices = append(choices, gs.Choice{Label: fmt.Sprintf("Item %d", i+1)})
 			}
-			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "選択", choices })
+			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "Select", choices })
 			return []es.State[w.World]{menu}, nil
 		}},
 		// ChoiceMenuHeaders は共通の選択メニューの見出し行とページ表示なしの短い一覧を覆う。
 		{"ChoiceMenuHeaders", func(w.World) ([]es.State[w.World], error) {
 			choices := []gs.Choice{
-				{Label: "武器", Header: true},
-				{Label: "木刀"},
-				{Label: "レイガン"},
-				{Label: "防具", Header: true},
-				{Label: "革の鎧"},
-				{Label: "戻る"},
+				{Label: "Weapon", Header: true},
+				{Label: "Wooden Sword"},
+				{Label: "Ray Gun"},
+				{Label: "Armor", Header: true},
+				{Label: "Leather Armor"},
+				{Label: "Back"},
 			}
-			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "装備選択", choices })
+			menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "Equipment", choices })
 			return []es.State[w.World]{menu}, nil
 		}},
 	}
