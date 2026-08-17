@@ -69,7 +69,7 @@ func TestApplyProfession(t *testing.T) {
 
 		item, ok := query.FindStackableInInventory(world, "wooden_stick")
 		require.True(t, ok, "初期アイテムがバックパックに生成されるべき")
-		assert.Equal(t, 3, world.Components.Stackable.Get(item).Count, "指定した個数の初期アイテムが生成されるべき")
+		assert.Equal(t, 3, query.GetEntityCount(world, item), "指定した個数の初期アイテムが生成されるべき")
 
 		// GetWeaponsは常に長さ5のスライスを返す
 		weapons := query.GetWeapons(world, player)

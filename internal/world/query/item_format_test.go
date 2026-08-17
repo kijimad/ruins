@@ -5,8 +5,26 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 )
+
+// putStack は player のバックパックへ id/name の同種アイテムを count 個置き、代表を返す。
+// 個数は1個1エンティティで表すので count 個のエンティティを作る。name が空なら Name を付けない。
+func putStack(world w.World, player ecs.Entity, id string, name string, count int) ecs.Entity {
+	var rep ecs.Entity
+	for range count {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: id})
+		if name != "" {
+			world.Components.Name.Add(e, &gc.Name{Name: name})
+		}
+		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: player})
+		rep = e
+	}
+	return rep
+}
 
 func TestFormatItemName(t *testing.T) {
 	t.Parallel()
@@ -42,17 +60,11 @@ func TestFormatItemName(t *testing.T) {
 			t.Parallel()
 
 			world := testutil.InitTestWorld(t)
+			player := world.ECS.NewEntity()
+			// 同種を itemCount 個バックパックへ置く。個数は位置スタックから導出される
+			rep := putStack(world, player, tt.itemName, tt.itemName, tt.itemCount)
 
-			// アイテムエンティティを作成
-			itemEntity := world.ECS.NewEntity()
-			world.Components.Name.Add(itemEntity, &gc.Name{
-				Name: tt.itemName,
-			})
-			if tt.itemCount > 1 {
-				world.Components.Stackable.Add(itemEntity, &gc.Stackable{Count: tt.itemCount})
-			}
-
-			got := FormatItemName(world, itemEntity)
+			got := FormatItemName(world, rep)
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -61,12 +73,11 @@ func TestFormatItemName(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		// Name を付けずに5個置く。名前は Unknown Item にフォールバックし個数だけ付く
+		rep := putStack(world, player, "unknown", "", 5)
 
-		// Nameコンポーネントなしのエンティティ
-		itemEntity := world.ECS.NewEntity()
-		world.Components.Stackable.Add(itemEntity, &gc.Stackable{Count: 5})
-
-		got := FormatItemName(world, itemEntity)
+		got := FormatItemName(world, rep)
 		assert.Equal(t, "5 Unknown Item", got)
 	})
 

@@ -139,11 +139,9 @@ type InflictsDamage struct {
 	Amount int
 }
 
-// Stackable はスタック可能なエンティティを示すコンポーネント
-// 所持数を管理する。非Stackableエンティティの個数は常に1として扱う
-type Stackable struct {
-	Count int // 所持数
-}
+// Stackable はスタック可能なアイテムを示すマーカー。個数は保持しない。
+// スタック数は同一性キーが等しいエンティティを数えた導出値であり、状態として持たない。
+type Stackable struct{}
 
 // Value はアイテムの基本価値
 // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される

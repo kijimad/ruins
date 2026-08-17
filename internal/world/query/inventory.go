@@ -16,7 +16,7 @@ func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
 	var found bool
 
-	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
+	stackableQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 	for stackableQuery.Next() {
 		entity := stackableQuery.Entity()
 		if found {
@@ -36,7 +36,7 @@ func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool)
 	var foundEntity ecs.Entity
 	var found bool
 
-	ammoQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
+	ammoQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
 	for ammoQuery.Next() {
 		entity := ammoQuery.Entity()
 		if found {
@@ -52,13 +52,10 @@ func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool)
 	return foundEntity, found
 }
 
-// GetEntityCount はエンティティの個数を返す。
-// Stackableであれば Stackable.Count を返し、そうでなければ1を返す。
+// GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ
+// 同じ位置にある同一スタックのエンティティを数えて導出する。位置が無ければ1になる。
 func GetEntityCount(world w.World, entity ecs.Entity) int {
-	if world.Components.Stackable.Has(entity) {
-		return world.Components.Stackable.Get(entity).Count
-	}
-	return 1
+	return len(StackMembers(world, entity))
 }
 
 // FormatNameCount は個数が2以上のとき名前の前に個数を置く。1個や非スタックは名前だけを返す。

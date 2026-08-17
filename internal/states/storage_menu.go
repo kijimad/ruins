@@ -7,6 +7,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -148,18 +149,18 @@ func (st *StorageMenuState) createBackpackItemData(world w.World) []itemRowData 
 }
 
 func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Entity) []itemRowData {
-	items := make([]itemRowData, len(entities))
-	for i, entity := range entities {
-		name := query.GetEntityName(entity, world)
-		item := itemRowData{
-			Entity: entity,
-			Name:   name,
-			Weight: query.GetEntityWeight(world, entity).KgString(),
+	// 同一スタックを1行に束ねる。重量は束の総量、個数は束の大きさを出す
+	stacks := query.GroupStacks(world, entities)
+	items := make([]itemRowData, len(stacks))
+	for i, stack := range stacks {
+		rep := stack.Rep
+		total := query.GetEntityWeight(world, rep) * consts.Milligram(stack.Count)
+		items[i] = itemRowData{
+			Entity: rep,
+			Name:   query.GetEntityName(rep, world),
+			Weight: total.KgString(),
+			Count:  stack.Count,
 		}
-		if world.Components.Stackable.Has(entity) {
-			item.Count = world.Components.Stackable.Get(entity).Count
-		}
-		items[i] = item
 	}
 	return items
 }

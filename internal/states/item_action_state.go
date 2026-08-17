@@ -333,7 +333,8 @@ func (st *ItemActionState) Fetch(world w.World) ItemActionProps {
 	player, err := query.GetPlayerEntity(world)
 	var backpack []ecs.Entity
 	if err == nil {
-		backpack = playerBackpackItems(world, player)
+		// 同一スタックは代表1つに畳む。個数は代表から導出する
+		backpack = query.CollapseToStacks(world, playerBackpackItems(world, player))
 	}
 
 	vs := verbList
@@ -370,9 +371,7 @@ func newItemActionEntry(world w.World, entity ecs.Entity) itemRowData {
 		Entity: entity,
 		Name:   query.GetEntityName(entity, world),
 		Weight: query.GetEntityWeight(world, entity).KgString(),
-	}
-	if world.Components.Stackable.Has(entity) {
-		entry.Count = world.Components.Stackable.Get(entity).Count
+		Count:  query.GetEntityCount(world, entity),
 	}
 	if world.Components.Description.Has(entity) {
 		entry.Desc = query.T(world, world.Components.Description.Get(entity).Description)

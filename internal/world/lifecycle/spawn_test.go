@@ -258,18 +258,18 @@ func TestSpawnEnemy_AI(t *testing.T) {
 func TestSpawnItem(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Stackableなアイテムに複数個指定できる", func(t *testing.T) {
+	t.Run("複数個指定すると複数エンティティが生成される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		item, err := SpawnBackpackItem(world, "healing_potion", 5)
 		require.NoError(t, err)
 
-		stackableComp := world.Components.Stackable.Get(item)
-		assert.Equal(t, 5, stackableComp.Count)
+		// 個数は同一スタックのエンティティ数から導出する
+		assert.Equal(t, 5, query.GetEntityCount(world, item))
 	})
 
-	t.Run("Stackableでないアイテムにcount=1を指定できる", func(t *testing.T) {
+	t.Run("count=1を指定できる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -279,14 +279,13 @@ func TestSpawnItem(t *testing.T) {
 		assert.Equal(t, 1, query.GetEntityCount(world, item))
 	})
 
-	t.Run("Stackableでないアイテムにcount>1を指定するとエラー", func(t *testing.T) {
+	t.Run("非スタック品も複数個生成できる。1個1エンティティなので個体が並ぶ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnBackpackItem(world, "wooden_sword", 2)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "is not stackable")
-		assert.Contains(t, err.Error(), "count must be 1")
+		item, err := SpawnBackpackItem(world, "wooden_sword", 2)
+		require.NoError(t, err)
+		assert.Equal(t, 2, query.GetEntityCount(world, item))
 	})
 
 	t.Run("count=0を指定するとエラー", func(t *testing.T) {
@@ -313,7 +312,7 @@ func TestSpawnItem(t *testing.T) {
 
 		_, err := SpawnBackpackItem(world, "存在しないアイテム", 1)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "item not found")
+		assert.Contains(t, err.Error(), "key not found")
 	})
 }
 
@@ -509,120 +508,22 @@ func TestSpawnFieldItem_保存期間なしは腐敗しない(t *testing.T) {
 	assert.False(t, world.Components.Perishable.Has(sword), "stageLength 無しは Perishable を持たない")
 }
 
-func TestMoveToBackpack_腐敗食は同鮮度のみ合流する(t *testing.T) {
+func TestMoveToBackpack_1個1エンティティなので合流しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	owner, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
-	gt := query.GetGameTime(world)
 
-	moveBread := func(atTurn consts.Turn) {
-		gt.TotalTurns = atTurn
-		b, e := SpawnFieldItem(world, breadID, 1, 1, 1)
-		require.NoError(t, e)
-		require.NoError(t, MoveToBackpack(world, b, owner))
-	}
-
-	// バックパックの bread を刻印時刻 RotUpdatedTurn ごとに合計個数で数える
-	countByTurn := func() map[consts.Turn]int {
-		m := map[consts.Turn]int{}
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
-		for q.Next() {
-			e := q.Entity()
-			if world.Components.RawID.Get(e).ID != breadID || world.Components.LocationInBackpack.Get(e).Owner != owner {
-				continue
-			}
-			at := world.Components.Perishable.Get(e).RotUpdatedTurn
-			m[at] += world.Components.Stackable.Get(e).Count
-		}
-		return m
-	}
-
-	moveBread(100)  // 同じターンの2つは
-	moveBread(100)  // 1スタックに合流する
-	moveBread(2000) // 違うターンは別スタック
-
-	got := countByTurn()
-	assert.Len(t, got, 2, "鮮度が違うので2スタック")
-	assert.Equal(t, 2, got[100], "同じ生成ターンの2つは合流し個数2")
-	assert.Equal(t, 1, got[2000], "違う生成ターンは別スタックで個数1")
-}
-
-func TestMoveToBackpack_同鮮度の合流は劣化量を加重平均する(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	owner, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-	gt := query.GetGameTime(world)
-
-	// bread の StageLength は 1500。ターン0とターン1000の bread は now=1000 で
-	// どちらも新鮮なので合流する。劣化量は個数で加重平均される
-	gt.TotalTurns = 0
+	// 同じ品を2つ拾ってバックパックへ移す。統合はせず2エンティティのまま残る。
+	// 同一スタックとしての束ねは表示側が stackKey で行う
 	b1, err := SpawnFieldItem(world, breadID, 1, 1, 1)
 	require.NoError(t, err)
 	require.NoError(t, MoveToBackpack(world, b1, owner))
-
-	gt.TotalTurns = 1000
 	b2, err := SpawnFieldItem(world, breadID, 1, 1, 1)
 	require.NoError(t, err)
 	require.NoError(t, MoveToBackpack(world, b2, owner))
 
-	var survivor ecs.Entity
-	var count int
-	q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
-	for q.Next() {
-		e := q.Entity()
-		if world.Components.RawID.Get(e).ID == breadID && world.Components.LocationInBackpack.Get(e).Owner == owner {
-			survivor = e
-			count++
-		}
-	}
-	require.Equal(t, 1, count, "同鮮度なので1スタックに合流する")
-	assert.Equal(t, 2, world.Components.Stackable.Get(survivor).Count, "個数は合算される")
-
-	// b1 は now=1000 で RotAccrued=1000、b2 は RotAccrued=0。加重平均は (1000+0)/2 = 500
-	p := world.Components.Perishable.Get(survivor)
-	assert.Equal(t, consts.Turn(500), p.RotAccrued, "劣化量は個数で加重平均される")
-	assert.Equal(t, consts.Turn(1000), p.RotUpdatedTurn, "合流時に基準時刻を揃える")
-	stage, _ := query.FreshnessStageOf(world, survivor)
-	assert.Equal(t, gc.FreshnessFresh, stage, "平均後もまだ新鮮")
-}
-
-func TestMoveToBackpack_三つの同鮮度が連鎖合流し個数で加重平均される(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	owner, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
-	require.NoError(t, err)
-	gt := query.GetGameTime(world)
-
-	// bread の StageLength は 1500。ターン 0/300/600 に拾う。いずれも拾った時点で新鮮なので
-	// 1スタックへ連鎖合流する。3件目は survivor 個数2に対する加重平均なので、重み付けの配線を検証できる
-	moveAt := func(turn consts.Turn) {
-		gt.TotalTurns = turn
-		b, e := SpawnFieldItem(world, breadID, 1, 1, 1)
-		require.NoError(t, e)
-		require.NoError(t, MoveToBackpack(world, b, owner))
-	}
-	moveAt(0)
-	moveAt(300)
-	moveAt(600)
-
-	var survivor ecs.Entity
-	var count int
-	q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
-	for q.Next() {
-		e := q.Entity()
-		if world.Components.RawID.Get(e).ID == breadID && world.Components.LocationInBackpack.Get(e).Owner == owner {
-			survivor = e
-			count++
-		}
-	}
-	require.Equal(t, 1, count, "3つとも同鮮度なので1スタックに合流する")
-	assert.Equal(t, 3, world.Components.Stackable.Get(survivor).Count, "個数は3に合算される")
-
-	// now=600 での各実効劣化量は 600/300/0。個数1ずつの加重平均は (600+300+0)/3 = 300。
-	// 3件目を survivor 個数2で重み付けするので、素朴な 1:1 平均だと 225 になり区別できる
-	p := world.Components.Perishable.Get(survivor)
-	assert.Equal(t, consts.Turn(300), p.RotAccrued, "3-way の加重平均になる")
-	assert.Equal(t, consts.Turn(600), p.RotUpdatedTurn, "最後の合流時刻に揃う")
+	assert.True(t, world.ECS.Alive(b1), "b1 は残る")
+	assert.True(t, world.ECS.Alive(b2), "b2 も残る。合流で消えない")
+	assert.Equal(t, 2, query.GetEntityCount(world, b1), "同一スタックとして個数2に数えられる")
 }

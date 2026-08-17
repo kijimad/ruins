@@ -6,11 +6,39 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// putOwnerBackpackStack は owner のバックパックへ id を count 個置き、代表を返す。
+func putOwnerBackpackStack(world w.World, owner ecs.Entity, id string, count int) ecs.Entity {
+	var rep ecs.Entity
+	for range count {
+		e, err := spawnItemBase(world, id)
+		if err != nil {
+			panic(err)
+		}
+		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: owner})
+		rep = e
+	}
+	return rep
+}
+
+// ownerBackpackCount は owner のバックパックにある scrap_iron の個数を数える。
+func ownerBackpackCount(world w.World, owner ecs.Entity) int {
+	n := 0
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.LocationInBackpack.Get(e).Owner == owner && world.Components.RawID.Get(e).ID == "scrap_iron" {
+			n++
+		}
+	}
+	return n
+}
 
 // TestMoveToField_所有者からの移送で現ステージへ束縛する は、背包などからフィールドへ置いた物が
 // 即座に現ステージへ束縛され、総重量へ乗ることを検証する。次の swap を待つ遅延束縛では、内部で
@@ -82,77 +110,47 @@ func TestMovePlayerToPosition(t *testing.T) {
 func TestTransferUnits(t *testing.T) {
 	t.Parallel()
 
-	t.Run("countが0以下ならitem全体をrecipientのバックパックへ移す", func(t *testing.T) {
+	t.Run("countが0以下ならスタック全体をrecipientのバックパックへ移す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		owner := world.ECS.NewEntity()
 		recipient := world.ECS.NewEntity()
+		item := putOwnerBackpackStack(world, owner, "scrap_iron", 5)
 
-		item, err := spawnItemBase(world, "scrap_iron", 5)
-		require.NoError(t, err)
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
-
-		err = TransferUnits(world, item, recipient, 0)
+		err := TransferUnits(world, item, recipient, 0)
 		require.NoError(t, err)
 
-		require.True(t, world.Components.LocationInBackpack.Has(item), "移動先はバックパック")
-		assert.Equal(t, recipient, world.Components.LocationInBackpack.Get(item).Owner)
-		assert.Equal(t, 5, world.Components.Stackable.Get(item).Count, "個数はそのまま")
+		assert.Equal(t, 0, ownerBackpackCount(world, owner), "owner 側は空になる")
+		assert.Equal(t, 5, ownerBackpackCount(world, recipient), "recipient 側へ全部移る")
 	})
 
-	t.Run("countが所持数以上ならitem全体をrecipientのバックパックへ移す", func(t *testing.T) {
+	t.Run("countが所持数以上ならスタック全体をrecipientのバックパックへ移す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		owner := world.ECS.NewEntity()
 		recipient := world.ECS.NewEntity()
+		item := putOwnerBackpackStack(world, owner, "scrap_iron", 5)
 
-		item, err := spawnItemBase(world, "scrap_iron", 5)
-		require.NoError(t, err)
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
-
-		err = TransferUnits(world, item, recipient, 10)
+		err := TransferUnits(world, item, recipient, 10)
 		require.NoError(t, err)
 
-		require.True(t, world.Components.LocationInBackpack.Has(item))
-		assert.Equal(t, recipient, world.Components.LocationInBackpack.Get(item).Owner)
-		assert.Equal(t, 5, world.Components.Stackable.Get(item).Count, "個数はそのまま")
+		assert.Equal(t, 0, ownerBackpackCount(world, owner))
+		assert.Equal(t, 5, ownerBackpackCount(world, recipient))
 	})
 
-	t.Run("countが所持数未満なら指定数だけ切り出してrecipientへ移す", func(t *testing.T) {
+	t.Run("countが所持数未満なら指定数だけrecipientへ移す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		owner := world.ECS.NewEntity()
 		recipient := world.ECS.NewEntity()
+		item := putOwnerBackpackStack(world, owner, "scrap_iron", 5)
 
-		item, err := spawnItemBase(world, "scrap_iron", 5)
-		require.NoError(t, err)
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
-
-		err = TransferUnits(world, item, recipient, 2)
+		err := TransferUnits(world, item, recipient, 2)
 		require.NoError(t, err)
 
-		// 元アイテムはowner側に残り、指定数だけ減っている
-		require.True(t, world.Components.LocationInBackpack.Has(item))
-		assert.Equal(t, owner, world.Components.LocationInBackpack.Get(item).Owner)
-		assert.Equal(t, 3, world.Components.Stackable.Get(item).Count, "元スタックはcount分減る")
-
-		// recipient側に切り出した新規アイテムが1つ生成されている
-		var found ecs.Entity
-		var matched int
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
-		for q.Next() {
-			e := q.Entity()
-			if e == item {
-				continue
-			}
-			if world.Components.LocationInBackpack.Get(e).Owner == recipient {
-				found = e
-				matched++
-			}
-		}
-		require.Equal(t, 1, matched, "recipient宛てのアイテムが1つ生成される")
-		assert.Equal(t, 2, world.Components.Stackable.Get(found).Count, "切り出した個数はcountぶん")
-		assert.Equal(t, "scrap_iron", world.Components.RawID.Get(found).ID)
+		// 1個1エンティティなので、同一スタックのうち2個だけ recipient へ移り、残り3個は owner に残る
+		assert.Equal(t, 3, ownerBackpackCount(world, owner), "owner に残る")
+		assert.Equal(t, 2, ownerBackpackCount(world, recipient), "recipient へ移る")
 	})
 }
 
@@ -191,7 +189,7 @@ func TestMoveToEquip(t *testing.T) {
 		newOwner := world.ECS.NewEntity()
 
 		// 移動前は元オーナーのバックパックに入っている状態にする
-		item, err := spawnItemBase(world, "wooden_sword", 1)
+		item, err := spawnItemBase(world, "wooden_sword")
 		require.NoError(t, err)
 		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: prevOwner})
 

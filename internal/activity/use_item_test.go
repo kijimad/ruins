@@ -6,11 +6,26 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// countBackpackByRawID は player のバックパックにある id のアイテム数を数える
+func countBackpackByRawID(world w.World, player ecs.Entity, id string) int {
+	n := 0
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.LocationInBackpack.Get(e).Owner == player && world.Components.RawID.Get(e).ID == id {
+			n++
+		}
+	}
+	return n
+}
 
 func TestUseItemBehavior_applyNutrition(t *testing.T) {
 	t.Parallel()
@@ -152,16 +167,22 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		hunger.Current = 250
 		world.Components.Hunger.Add(actor, hunger)
 
-		item := world.ECS.NewEntity()
-		world.Components.Name.Add(item, &gc.Name{Name: "パン"})
-		world.Components.ProvidesNutrition.Add(item, &gc.ProvidesNutrition{Amount: 100})
-		world.Components.Consumable.Add(item, &gc.Consumable{})
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
+		// パンを3個 actor のバックパックへ置く。1個1エンティティなので3エンティティ作る
+		var bread ecs.Entity
+		for range 3 {
+			e := world.ECS.NewEntity()
+			world.Components.Name.Add(e, &gc.Name{Name: "パン"})
+			world.Components.RawID.Add(e, &gc.RawID{ID: "bread"})
+			world.Components.ProvidesNutrition.Add(e, &gc.ProvidesNutrition{Amount: 100})
+			world.Components.Consumable.Add(e, &gc.Consumable{})
+			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: actor})
+			bread = e
+		}
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
 			State:        gc.ActivityStateRunning,
-			Params:       &gc.UseItemParams{Target: item},
+			Params:       &gc.UseItemParams{Target: bread},
 		}
 
 		ua := &UseItemBehavior{}
@@ -174,9 +195,8 @@ func TestUseItemBehavior_DoTurn(t *testing.T) {
 		hungerComp := world.Components.Hunger.Get(actor)
 		assert.Equal(t, 350, hungerComp.Current)
 
-		// アイテムが1つ消費されていることを確認
-		stackableComp := world.Components.Stackable.Get(item)
-		assert.Equal(t, 2, stackableComp.Count)
+		// パンが1個消費され、バックパックに2個残る。反復中の構造変更で panic しないことも兼ねる
+		assert.Equal(t, 2, countBackpackByRawID(world, actor, "bread"))
 	})
 
 	t.Run("Targetがnilの場合はキャンセルされる", func(t *testing.T) {

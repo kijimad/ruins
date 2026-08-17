@@ -18,7 +18,10 @@ type StackKey struct {
 // StackKeyOf は entity のスタック同一性キーを返す。スタック同一判定の唯一の権威。
 // RawID に加え、腐敗品なら現在の鮮度段階を含める。非腐敗品の段階は空文字になる。
 func StackKeyOf(world w.World, entity ecs.Entity) StackKey {
-	key := StackKey{RawID: world.Components.RawID.Get(entity).ID}
+	var key StackKey
+	if world.Components.RawID.Has(entity) {
+		key.RawID = world.Components.RawID.Get(entity).ID
+	}
 	if stage, ok := FreshnessStageOf(world, entity); ok {
 		key.FreshnessStage = stage
 	}
@@ -49,6 +52,58 @@ type Stack struct {
 	Rep     ecs.Entity   // 束の代表。入力での初出エンティティ
 	Count   int          // 束に属する個数
 	Members []ecs.Entity // 束に属する全エンティティ。初出順
+}
+
+// CollapseToStacks は entities を stackKey で束ね、各束の代表だけを初出順で返す。
+// 一覧を1スタック1行にするための前処理に使う。個数は代表から GetEntityCount で導出する。
+func CollapseToStacks(world w.World, entities []ecs.Entity) []ecs.Entity {
+	stacks := GroupStacks(world, entities)
+	reps := make([]ecs.Entity, len(stacks))
+	for i, s := range stacks {
+		reps[i] = s.Rep
+	}
+	return reps
+}
+
+// StackMembers は entity と同じ所有者かつ同じ位置種別にある、同一スタックのエンティティを返す。
+// 個数の数え上げ、一括消費、表示の束ねの範囲をこの1関数に集約する。バックパックと収納は
+// 所有者一致で絞る。装備やフィールド、位置未設定は束ねず entity 単独を返す。
+func StackMembers(world w.World, entity ecs.Entity) []ecs.Entity {
+	key := StackKeyOf(world, entity)
+	switch {
+	case world.Components.LocationInBackpack.Has(entity):
+		owner := world.Components.LocationInBackpack.Get(entity).Owner
+		return sameStackInBackpack(world, owner, key)
+	case world.Components.LocationInStorage.Has(entity):
+		owner := world.Components.LocationInStorage.Get(entity).Owner
+		return sameStackInStorage(world, owner, key)
+	default:
+		return []ecs.Entity{entity}
+	}
+}
+
+func sameStackInBackpack(world w.World, owner ecs.Entity, key StackKey) []ecs.Entity {
+	var out []ecs.Entity
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.LocationInBackpack.Get(e).Owner == owner && StackKeyOf(world, e) == key {
+			out = append(out, e)
+		}
+	}
+	return out
+}
+
+func sameStackInStorage(world w.World, owner ecs.Entity, key StackKey) []ecs.Entity {
+	var out []ecs.Entity
+	q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if world.Components.LocationInStorage.Get(e).Owner == owner && StackKeyOf(world, e) == key {
+			out = append(out, e)
+		}
+	}
+	return out
 }
 
 // GroupStacks は entities を StackKey で束ね、各束の代表と個数を返す。

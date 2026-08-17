@@ -12,41 +12,31 @@ import (
 )
 
 // MoveToBackpack はエンティティをバックパックに移動する。
-// Stackableアイテムの場合、バックパック内の同名アイテムと自動的に統合する
+// 1個1エンティティなので統合はしない。同一スタックの束ねは表示側が stackKey で行う。
 func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	clearLocation(world, entity)
 	world.Components.LocationInBackpack.Add(entity, &gc.LocationInBackpack{Owner: owner})
 	ensureRemoved(world.Components.GridElement, entity)
 	ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
-
-	if world.Components.Stackable.Has(entity) {
-		id := world.Components.RawID.Get(entity).ID
-		if err := mergeStackableItems(world, id, mergeInBackpack, owner); err != nil {
-			return fmt.Errorf("failed to merge items in backpack: %w", err)
-		}
-	}
 	return nil
 }
 
-// TransferUnits は item のうち count 個だけ recipient のバックパックへ移す。
-// count が0以下、または在庫数以上なら item を丸ごと移す。在庫数より少なければ、
-// 元スタックを count 個減らし、同名の count 個を生成して recipient のバックパックへ統合する。
+// TransferUnits は item が属するスタックのうち count 個を recipient のバックパックへ移す。
+// count が0以下、または在庫数以上ならスタックを丸ごと移す。1個1エンティティなので、
+// 同一スタックのエンティティを count 個選んで移すだけでよい。生成や分割は不要。
 func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count int) error {
-	available := query.GetEntityCount(world, item)
-	if count <= 0 || count >= available {
-		return MoveToBackpack(world, item, recipient)
+	members := query.StackMembers(world, item)
+	move := count
+	if count <= 0 || count >= len(members) {
+		move = len(members)
 	}
-
-	id := world.Components.RawID.Get(item).ID
-	if err := ChangeItemCount(world, item, -count); err != nil {
-		return fmt.Errorf("failed to decrement source stack: %w", err)
+	for i := range move {
+		if err := MoveToBackpack(world, members[i], recipient); err != nil {
+			return fmt.Errorf("failed to transfer unit: %w", err)
+		}
 	}
-	moved, err := spawnItemBase(world, id, count)
-	if err != nil {
-		return fmt.Errorf("failed to generate %d units to transfer: %w", count, err)
-	}
-	return MoveToBackpack(world, moved, recipient)
+	return nil
 }
 
 // MoveToEquip はエンティティを指定スロットに装備する
@@ -101,19 +91,12 @@ func SpillStorageItems(world w.World, storage ecs.Entity, x consts.Tile, y const
 }
 
 // MoveToStorage はエンティティを収納に移動する。
-// Stackableアイテムの場合、収納内の同名アイテムと自動的に統合する
+// 1個1エンティティなので統合はしない。同一スタックの束ねは表示側が stackKey で行う。
 func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	clearLocation(world, entity)
 	world.Components.LocationInStorage.Add(entity, &gc.LocationInStorage{Owner: storage})
 	ensureRemoved(world.Components.GridElement, entity)
 	ensureMarker(world, world.Components.WeightDirty, storage, &gc.WeightDirty{})
-
-	if world.Components.Stackable.Has(entity) {
-		id := world.Components.RawID.Get(entity).ID
-		if err := mergeStackableItems(world, id, mergeInStorage, storage); err != nil {
-			return fmt.Errorf("failed to merge items in storage: %w", err)
-		}
-	}
 	return nil
 }
 
@@ -178,80 +161,6 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	ensureRemoved(world.Components.LocationEquipped, entity)
 	ensureRemoved(world.Components.LocationOnField, entity)
 	ensureRemoved(world.Components.LocationInStorage, entity)
-}
-
-type mergeLocation int
-
-const (
-	mergeInBackpack mergeLocation = iota
-	mergeInStorage
-)
-
-// mergeStackableItems は指定ロケーション内の同一Owner配下にある同一idのStackableアイテムを1つに統合する
-func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner ecs.Entity) error {
-	// Ark のフィルタは静的な型引数を要求するため、ロケーション種別ごとに分岐する
-	var stackableItems []ecs.Entity
-	switch loc {
-	case mergeInBackpack:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
-		for q.Next() {
-			entity := q.Entity()
-			if world.Components.RawID.Get(entity).ID != itemID {
-				continue
-			}
-			if world.Components.LocationInBackpack.Get(entity).Owner == owner {
-				stackableItems = append(stackableItems, entity)
-			}
-		}
-	case mergeInStorage:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.RawID](world.ECS).Query()
-		for q.Next() {
-			entity := q.Entity()
-			if world.Components.RawID.Get(entity).ID != itemID {
-				continue
-			}
-			if world.Components.LocationInStorage.Get(entity).Owner == owner {
-				stackableItems = append(stackableItems, entity)
-			}
-		}
-	default:
-		return fmt.Errorf("unsupported mergeLocation: %d", loc)
-	}
-
-	if len(stackableItems) <= 1 {
-		return nil
-	}
-
-	// 合流の同一判定は query.SameStack に集約する。出現順に survivor へ畳み、
-	// どのエンティティが残るかを決定的にする。腐敗食は鮮度段階が同じ束にだけ合流し、
-	// 合流時に劣化量を個数で加重平均する。段階違いは別の survivor として残す。
-	now := query.GetGameTime(world).TotalTurns
-	var survivors []ecs.Entity
-	for _, e := range stackableItems {
-		merged := false
-		for _, s := range survivors {
-			if !query.SameStack(world, s, e) {
-				continue
-			}
-			if world.Components.Perishable.Has(s) {
-				query.AdvanceRot(world, s, now)
-				query.AdvanceRot(world, e, now)
-				sp := world.Components.Perishable.Get(s)
-				sp.MergeRot(query.GetEntityCount(world, s), *world.Components.Perishable.Get(e), query.GetEntityCount(world, e))
-			}
-			if err := ChangeItemCount(world, s, query.GetEntityCount(world, e)); err != nil {
-				return fmt.Errorf("failed to merge counts: %w", err)
-			}
-			world.ECS.RemoveEntity(e)
-			merged = true
-			break
-		}
-		if !merged {
-			survivors = append(survivors, e)
-		}
-	}
-
-	return nil
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる

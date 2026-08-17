@@ -253,22 +253,17 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 	// 収納からバックパックへ移動（統合されるべき）
 	require.NoError(t, MoveToBackpack(world, storageItem, playerEntity))
 
-	// バックパック内の回復薬エンティティは1つだけになっている
+	// 統合はしないので、回復薬は5個のエンティティとしてバックパックに並ぶ
 	var entityCount int
-	var totalCount int
-	potionQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Name](world.ECS).Query()
+	potionQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.ECS).Query()
 	for potionQuery.Next() {
-		entity := potionQuery.Entity()
-		name := world.Components.Name.Get(entity)
-		if name.Name == "Healing Potion" {
+		if world.Components.Name.Get(potionQuery.Entity()).Name == "Healing Potion" {
 			entityCount++
-			stackable := world.Components.Stackable.Get(entity)
-			totalCount += stackable.Count
 		}
 	}
 
-	assert.Equal(t, 1, entityCount, "回復薬は1つのエンティティに統合されるべき")
-	assert.Equal(t, 5, totalCount, "合計個数は5個")
+	// 移すのは storageItem 1個だけ。バックパックの3個に1個足されて4個並ぶ
+	assert.Equal(t, 4, entityCount, "統合せず、移した1個が加わって4個並ぶ")
 }
 
 func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
@@ -317,20 +312,15 @@ func TestMoveToStorage_MergesStackable(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, MoveToStorage(world, backpackItem, storageEntity))
 
-	// 収納内の回復薬エンティティは1つに統合されている
+	// 統合はしないので、収納の回復薬は4個のエンティティとして並ぶ
 	var entityCount int
-	var totalCount int
 	for _, entity := range query.GetStorageItems(world, storageEntity) {
-		name := world.Components.Name.Get(entity)
-		if name.Name == "Healing Potion" {
+		if world.Components.Name.Get(entity).Name == "Healing Potion" {
 			entityCount++
-			stackable := world.Components.Stackable.Get(entity)
-			totalCount += stackable.Count
 		}
 	}
 
-	assert.Equal(t, 1, entityCount, "回復薬は1つのエンティティに統合されるべき")
-	assert.Equal(t, 4, totalCount, "合計個数は4個")
+	assert.Equal(t, 4, entityCount, "統合せず4個のエンティティが並ぶ")
 }
 
 func TestSpillStorageItems(t *testing.T) {
@@ -418,13 +408,11 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, MoveToStorage(world, backpackItem, storageA))
 
-	// 木箱Aの回復薬は統合されて4個
+	// 木箱Aの回復薬は3個 + 移した1個で4個のエンティティ
 	var countA int
 	for _, entity := range query.GetStorageItems(world, storageA) {
-		name := world.Components.Name.Get(entity)
-		if name.Name == potion {
-			stackable := world.Components.Stackable.Get(entity)
-			countA += stackable.Count
+		if world.Components.Name.Get(entity).Name == potion {
+			countA++
 		}
 	}
 	assert.Equal(t, 4, countA, "木箱Aの回復薬は4個")
@@ -432,10 +420,8 @@ func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
 	// 木箱Bの回復薬は影響を受けず2個のまま
 	var countB int
 	for _, entity := range query.GetStorageItems(world, storageB) {
-		name := world.Components.Name.Get(entity)
-		if name.Name == potion {
-			stackable := world.Components.Stackable.Get(entity)
-			countB += stackable.Count
+		if world.Components.Name.Get(entity).Name == potion {
+			countB++
 		}
 	}
 	assert.Equal(t, 2, countB, "木箱Bの回復薬は影響を受けない")

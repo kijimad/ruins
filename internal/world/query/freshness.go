@@ -21,14 +21,6 @@ func EffectiveRot(world w.World, entity ecs.Entity, now consts.Turn) consts.Turn
 	return p.RotAccrued + consts.Turn(float64(elapsed)*perishRate(world, entity))
 }
 
-// AdvanceRot は entity の RotAccrued を now まで前進させ、RotUpdatedTurn を揃える。
-// 速度が変わる直前や合流の前に呼び、以後の実効値計算を正しく保つ。
-func AdvanceRot(world w.World, entity ecs.Entity, now consts.Turn) {
-	p := world.Components.Perishable.Get(entity)
-	p.RotAccrued = EffectiveRot(world, entity, now)
-	p.RotUpdatedTurn = now
-}
-
 // FreshnessStageOf は entity の鮮度段階を返す。Perishable を持たなければ ok=false。
 // 鮮度の算出をここへ集約し、食べる処理と表示が同じ判定を通す
 func FreshnessStageOf(world w.World, entity ecs.Entity) (gc.FreshnessStage, bool) {

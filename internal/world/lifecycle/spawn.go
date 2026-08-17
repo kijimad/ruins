@@ -187,56 +187,43 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts 
 	return npcEntity, nil
 }
 
-// SpawnBackpackItem はバックパック内にアイテムを生成する
+// SpawnBackpackItem はバックパック内にアイテムを count 個生成する。
+// 1個1エンティティなので count 回生成する。戻り値は最後に生成したエンティティ。
 func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {
-	item, err := spawnItemBase(world, name, count)
-	if err != nil {
-		return gc.InvalidEntity, err
+	if count <= 0 {
+		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
 	}
 
 	var playerEntity ecs.Entity
 	var found bool
 	playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()
 	for playerQuery.Next() {
-		e := playerQuery.Entity()
-		playerEntity = e
+		playerEntity = playerQuery.Entity()
 		found = true
 	}
-	if !found {
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
-		return item, nil
-	}
-	if err := MoveToBackpack(world, item, playerEntity); err != nil {
-		return item, fmt.Errorf("failed to move to backpack: %w", err)
-	}
 
-	return item, nil
+	last := gc.InvalidEntity
+	for range count {
+		item, err := spawnItemBase(world, name)
+		if err != nil {
+			return gc.InvalidEntity, err
+		}
+		if !found {
+			world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
+		} else if err := MoveToBackpack(world, item, playerEntity); err != nil {
+			return item, fmt.Errorf("failed to move to backpack: %w", err)
+		}
+		last = item
+	}
+	return last, nil
 }
 
-// spawnItemBase はLocationなしでアイテムエンティティを生成する内部関数
-func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {
-	if count <= 0 {
-		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
-	}
-
-	{
-		itemDef, err := raw.FindItem(world.Resources.RawMaster, name)
-		if err != nil {
-			return gc.InvalidEntity, fmt.Errorf("item not found: %s", name)
-		}
-		isStackable := itemDef.Stackable != nil && *itemDef.Stackable
-
-		if !isStackable && count > 1 {
-			return gc.InvalidEntity, fmt.Errorf("item %s is not stackable, count must be 1 (got %d)", name, count)
-		}
-	}
-
+// spawnItemBase はLocationなしでアイテムエンティティを1個生成する内部関数。
+// 1個1エンティティなので個数は扱わない。N個はラッパがN回呼んで作る。
+func spawnItemBase(world w.World, name string) (ecs.Entity, error) {
 	entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return gc.InvalidEntity, fmt.Errorf("%w: %w", ErrItemGeneration, err)
-	}
-	if entitySpec.Stackable != nil {
-		entitySpec.Stackable.Count = count
 	}
 
 	entity := world.Components.AddEntity(world.ECS, &entitySpec)
@@ -306,31 +293,41 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 	return nil
 }
 
-// SpawnStorageItem は収納内にアイテムを生成する
+// SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値は最後に生成したエンティティ。
 func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {
-	item, err := spawnItemBase(world, itemName, count)
-	if err != nil {
-		return gc.InvalidEntity, err
+	if count <= 0 {
+		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
 	}
-
-	if err := MoveToStorage(world, item, storage); err != nil {
-		return item, fmt.Errorf("failed to move to storage: %w", err)
+	last := gc.InvalidEntity
+	for range count {
+		item, err := spawnItemBase(world, itemName)
+		if err != nil {
+			return gc.InvalidEntity, err
+		}
+		if err := MoveToStorage(world, item, storage); err != nil {
+			return item, fmt.Errorf("failed to move to storage: %w", err)
+		}
+		last = item
 	}
-
-	return item, nil
+	return last, nil
 }
 
-// SpawnFieldItem はフィールド上にアイテムを生成する。countで個数を指定する
+// SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値は最後のエンティティ。
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
-	item, err := spawnItemBase(world, itemName, count)
-	if err != nil {
-		return gc.InvalidEntity, err
+	if count <= 0 {
+		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
 	}
-
-	MoveToField(world, item, nil)
-	world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
-
-	return item, nil
+	last := gc.InvalidEntity
+	for range count {
+		item, err := spawnItemBase(world, itemName)
+		if err != nil {
+			return gc.InvalidEntity, err
+		}
+		MoveToField(world, item, nil)
+		world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		last = item
+	}
+	return last, nil
 }
 
 // SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する
