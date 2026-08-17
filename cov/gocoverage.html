@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.3%)</option>
 				
@@ -609,9 +609,9 @@
 				
 				<option value="file276">github.com/kijimaD/ruins/internal/widgets/messagewindow/window.go (46.5%)</option>
 				
-				<option value="file277">github.com/kijimaD/ruins/internal/widgets/overlay/detail.go (67.6%)</option>
+				<option value="file277">github.com/kijimaD/ruins/internal/widgets/overlay/detail.go (41.2%)</option>
 				
-				<option value="file278">github.com/kijimaD/ruins/internal/widgets/overlay/window.go (100.0%)</option>
+				<option value="file278">github.com/kijimaD/ruins/internal/widgets/overlay/window.go (95.5%)</option>
 				
 				<option value="file279">github.com/kijimaD/ruins/internal/widgets/pagination/pagination.go (100.0%)</option>
 				
@@ -1678,7 +1678,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1751,8 +1751,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
                 }</span>
-        case critical:<span class="cov8" title="1">
-                if withMethod </span><span class="cov8" title="1">{
+        case critical:<span class="cov0" title="0">
+                if withMethod </span><span class="cov0" title="0">{
                         logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
                 }</span> else<span class="cov0" title="0"> {
                         logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
@@ -53159,11 +53159,11 @@ func EntityDetailContent(world w.World, e ecs.Entity) DetailContent <span class=
         if !world.ECS.Alive(e) </span><span class="cov8" title="1">{
                 return DetailContent{}
         }</span>
-        <span class="cov8" title="1">desc := ""
-        if world.Components.Description.Has(e) </span><span class="cov8" title="1">{
+        <span class="cov0" title="0">desc := ""
+        if world.Components.Description.Has(e) </span><span class="cov0" title="0">{
                 desc = query.T(world, world.Components.Description.Get(e).Description)
         }</span>
-        <span class="cov8" title="1">return DetailContent{
+        <span class="cov0" title="0">return DetailContent{
                 Name: query.GetEntityName(e, world),
                 Desc: desc,
                 Rows: entityspec.SpecRows(world, e),
@@ -53187,13 +53187,13 @@ func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail <span c
 
 // NewEntityDetail は選択中の実体をそのまま詳細に出す Detail を作る。
 // 対象の解決だけ渡せば、名前・説明・性能は実体から組む。対象が無いか死んでいれば開かない
-func NewEntityDetail(provide func() (ecs.Entity, bool)) Detail <span class="cov8" title="1">{
-        return NewDetail(func(world w.World) (DetailContent, bool) </span><span class="cov8" title="1">{
+func NewEntityDetail(provide func() (ecs.Entity, bool)) Detail <span class="cov0" title="0">{
+        return NewDetail(func(world w.World) (DetailContent, bool) </span><span class="cov0" title="0">{
                 e, ok := provide()
-                if !ok || !world.ECS.Alive(e) </span><span class="cov8" title="1">{
+                if !ok || !world.ECS.Alive(e) </span><span class="cov0" title="0">{
                         return DetailContent{}, false
                 }</span>
-                <span class="cov8" title="1">return EntityDetailContent(world, e), true</span>
+                <span class="cov0" title="0">return EntityDetailContent(world, e), true</span>
         })
 }
 
@@ -53265,7 +53265,7 @@ const detailRowsPerPage = 12
 
 // DetailPageCount はエンティティの詳細ウィンドウのページ数を返す。
 // 呼び出し側が実体からページ数を確かめる公開の入口
-func DetailPageCount(world w.World, entity ecs.Entity) int <span class="cov8" title="1">{
+func DetailPageCount(world w.World, entity ecs.Entity) int <span class="cov0" title="0">{
         return detailPageCount(len(entityspec.SpecRows(world, entity)))
 }</span>
 
