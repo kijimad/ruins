@@ -99,6 +99,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [通信販売: オークション形式の販売機構](docs/design/260814170822.md) | 5/6（見送り2） | gamedesign, item, ui |
+| accepted | [アイテムのスタックを1つの同一性キーで統一する](docs/design/260817210533.md) | 0/9 | item, ecs, refactor |
 | draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
 | draft | [OSS 調査 2026-08](docs/design/260801002222.md) | 0/5 | meta, worldgen, combat, ui |
