@@ -43,17 +43,14 @@ func TestCycleLanguage_左右で循環しシングルトンと設定を更新す
 	world := testutil.InitTestWorld(t)
 	require.Equal(t, "en", query.GetUserSettings(world).Language, "既定は en")
 
-	// SupportedLangs の並びは ja, en。en から右へ送ると ja へ回る。
-	// 実行中のシングルトンが即時に切り替わり、これが再起動なしで表示が変わる経路になる
+	// SupportedLangs の並びは ja, en。en から右へ送ると ja へ回る
 	cycleLanguage(world, 1)
 	assert.Equal(t, "ja", query.GetUserSettings(world).Language, "シングルトンが ja へ切り替わる")
 	assert.Equal(t, "ja", world.Config.User.Language, "config も ja へ更新される")
 
-	// さらに右へ送ると en へ巻き戻る
 	cycleLanguage(world, 1)
 	assert.Equal(t, "en", query.GetUserSettings(world).Language, "循環して en へ戻る")
 
-	// 左へ送ると逆方向にも循環する
 	cycleLanguage(world, -1)
 	assert.Equal(t, "ja", query.GetUserSettings(world).Language, "左は逆方向に循環する")
 }

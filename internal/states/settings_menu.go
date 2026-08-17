@@ -61,10 +61,9 @@ func (st *SettingsMenuState) DoAction(world w.World, action inputmapper.ActionID
 	case inputmapper.ActionMenuSelect:
 		return st.handleSelection(), nil
 	case inputmapper.ActionMenuTabPrev, inputmapper.ActionMenuLeft:
-		// 左キーは値を持つ項目の値を前へ送る。単一タブなので Dispatch のタブ切替は無害
+		// 左右キーで値を切り替える。単一タブなので Dispatch のタブ切替は無害
 		st.cycleFocused(world, -1)
 	case inputmapper.ActionMenuTabNext, inputmapper.ActionMenuRight:
-		// 右キーは値を次へ送る
 		st.cycleFocused(world, 1)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown:
 		// Dispatchで処理される
