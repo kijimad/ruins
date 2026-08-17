@@ -93,10 +93,10 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 	props = st.mount.GetProps()
 
 	// IME 入力を進め、確定テキストを props へ同期する
-	if field, ok := hooks.GetRef[*textinput.Field](st.mount.Store(), "imeField"); ok && field != nil {
+	if field, ok := hooks.GetRef[*textinput.Field](st.mount.Store(), "imeField"); ok {
 		// 合成窓の位置。表示ウィジェットの矩形が取れれば使う
 		bounds := image.Rect(0, 0, consts.GameWidth, consts.GameHeight)
-		if ti, ok := hooks.GetRef[*widget.TextInput](st.mount.Store(), "textInput"); ok && ti != nil {
+		if ti, ok := hooks.GetRef[*widget.TextInput](st.mount.Store(), "textInput"); ok {
 			if r := ti.GetWidget().Rect; !r.Empty() {
 				bounds = r
 			}
@@ -264,7 +264,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 		return f
 	})
 
-	// テキスト入力ウィジェットは表示専用にする。入力は field が担うのでフォーカスは取らない。
+	// テキスト入力ウィジェットは表示専用。入力は field が担うのでフォーカスを持たない。
 	textInput := hooks.UseRef(st.mount.Store(), "textInput", func() *widget.TextInput {
 		return widget.NewTextInput(
 			widget.TextInputOpts.WidgetOpts(
