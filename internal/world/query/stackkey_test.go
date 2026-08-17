@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStackKeyOf_鮮度と品種でキーが決まる(t *testing.T) {
@@ -66,4 +67,29 @@ func TestSameStack_同一判定(t *testing.T) {
 		t.Parallel()
 		assert.False(t, SameStack(world, newNonPerish("apple"), newPerish("apple", 0)))
 	})
+}
+
+func TestGroupStacks_同一性キーで束ね初出順を保つ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	mk := func(id string) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: id})
+		return e
+	}
+	bolt1, nut, bolt2, bolt3 := mk("bolt"), mk("nut"), mk("bolt"), mk("bolt")
+	entities := []ecs.Entity{bolt1, nut, bolt2, bolt3}
+
+	stacks := GroupStacks(world, entities)
+
+	require.Len(t, stacks, 2, "bolt と nut の2束")
+	assert.Equal(t, bolt1, stacks[0].Rep, "初出の bolt が代表")
+	assert.Equal(t, 3, stacks[0].Count, "bolt は3個")
+	assert.Equal(t, []ecs.Entity{bolt1, bolt2, bolt3}, stacks[0].Members)
+	assert.Equal(t, nut, stacks[1].Rep, "2束目は nut")
+	assert.Equal(t, 1, stacks[1].Count)
+
+	assert.Equal(t, 3, StackCountOf(world, bolt2, entities), "候補の中で bolt と同一スタックは3個")
+	assert.Equal(t, 1, StackCountOf(world, nut, entities))
 }

@@ -29,3 +29,42 @@ func StackKeyOf(world w.World, entity ecs.Entity) StackKey {
 func SameStack(world w.World, a ecs.Entity, b ecs.Entity) bool {
 	return StackKeyOf(world, a) == StackKeyOf(world, b)
 }
+
+// StackCountOf は candidates のうち entity と同一スタックのものを数える。スタック数は保存せず
+// この数え上げで導出する。数える範囲は呼び出し側が候補集合として渡す。リロードやクラフトは
+// バックパックの中を、総重量は装備や収納も含む所有全体を候補にする、というように範囲を選ぶ。
+func StackCountOf(world w.World, entity ecs.Entity, candidates []ecs.Entity) int {
+	key := StackKeyOf(world, entity)
+	n := 0
+	for _, c := range candidates {
+		if StackKeyOf(world, c) == key {
+			n++
+		}
+	}
+	return n
+}
+
+// Stack は同一スタックに束ねたアイテム群。表示や一括操作の単位に使う。
+type Stack struct {
+	Rep     ecs.Entity   // 束の代表。入力での初出エンティティ
+	Count   int          // 束に属する個数
+	Members []ecs.Entity // 束に属する全エンティティ。初出順
+}
+
+// GroupStacks は entities を StackKey で束ね、各束の代表と個数を返す。
+// 束の並びは入力での初出順にして決定的にする。表示の一覧はこの束1つを1行にする。
+func GroupStacks(world w.World, entities []ecs.Entity) []Stack {
+	index := make(map[StackKey]int, len(entities))
+	stacks := make([]Stack, 0, len(entities))
+	for _, e := range entities {
+		key := StackKeyOf(world, e)
+		if i, ok := index[key]; ok {
+			stacks[i].Count++
+			stacks[i].Members = append(stacks[i].Members, e)
+			continue
+		}
+		index[key] = len(stacks)
+		stacks = append(stacks, Stack{Rep: e, Count: 1, Members: []ecs.Entity{e}})
+	}
+	return stacks
+}
