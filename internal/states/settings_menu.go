@@ -182,10 +182,9 @@ func cycleLanguage(world w.World, delta int) {
 
 // applyLanguage は表示言語を code に切り替える。
 // Fetch が毎フレーム query.T 経由で引き直すので、再起動なしで表示が変わる。
+// UserSettings は world 初期化で常に登録されるため nil を想定しない。Fetch も同じ前提で読む。
 func applyLanguage(world w.World, code string) {
-	if s := query.GetUserSettings(world); s != nil {
-		s.Language = code
-	}
+	query.GetUserSettings(world).Language = code
 	world.Config.User.Language = code
 	if err := world.Config.SaveUserConfig(); err != nil {
 		logger.New(logger.CategorySave).Warn("failed to save language setting", "error", err)
