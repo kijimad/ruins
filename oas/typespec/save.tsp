@@ -187,7 +187,6 @@ model ComponentsMap {
   StatsChanged?: MarkerComponent;
 
   /** スタック可能マーカー */
-  Stackable?: MarkerComponent;
 
   /** 装備位置。エンティティ参照を含む */
   LocationEquipped?: LocationEquippedComponent;

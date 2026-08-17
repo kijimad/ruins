@@ -32,7 +32,7 @@ export interface Abilities {
      */
     'vitality': number;
     /**
-     * 筋力。物理ダメージに影響する
+     * スタック可能かどうか筋力。物理ダメージに影響する
      */
     'strength': number;
     /**
@@ -653,7 +653,7 @@ export interface EquipBonus {
      */
     'vitality': number;
     /**
-     * 筋力。物理ダメージに影響する
+     * スタック可能かどうか筋力。物理ダメージに影響する
      */
     'strength': number;
     /**
@@ -825,10 +825,6 @@ export interface Item {
      * 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
      */
     'stageLength'?: number;
-    /**
-     * スタック可能かどうか
-     */
-    'stackable'?: boolean;
     'consumable'?: Consumable;
     'providesHealing'?: ProvidesHealing;
     'wearable'?: Wearable;
@@ -1473,11 +1469,7 @@ export interface SaveDataComponentsMap {
      */
     'StatsChanged'?: object;
     /**
-     * スタック可能マーカー
-     */
-    'Stackable'?: object;
-    /**
-     * 装備位置。エンティティ参照を含む
+     * スタック可能マーカー装備位置。エンティティ参照を含む
      */
     'LocationEquipped'?: SaveDataLocationEquippedComponent;
     /**

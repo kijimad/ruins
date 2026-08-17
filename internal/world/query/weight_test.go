@@ -32,7 +32,6 @@ func TestGetEntityWeight(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.MustParseWeight("0.5 kg")})
-		world.Components.Stackable.Add(e, &gc.Stackable{})
 		assert.Equal(t, consts.MustParseWeight("0.5 kg"), GetEntityWeight(world, e))
 	})
 }
@@ -77,7 +76,6 @@ func TestCalculateOwnedWeight(t *testing.T) {
 		for range 5 {
 			item := world.ECS.NewEntity()
 			world.Components.Weight.Add(item, &gc.Weight{Milligram: consts.MustParseWeight("0.5 kg")})
-			world.Components.Stackable.Add(item, &gc.Stackable{})
 			world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: player})
 		}
 

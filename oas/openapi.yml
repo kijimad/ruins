@@ -2376,8 +2376,6 @@ components:
           $ref: '#/components/schemas/NutritionAmount'
         stageLength:
           $ref: '#/components/schemas/StageLengthTurns'
-        stackable:
-          $ref: '#/components/schemas/Stackable'
         consumable:
           $ref: '#/components/schemas/Consumable'
         providesHealing:
@@ -3189,14 +3187,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.MarkerComponent'
           description: ステータス変更フラグ
-        Stackable:
-          allOf:
-            - $ref: '#/components/schemas/SaveData.MarkerComponent'
-          description: スタック可能マーカー
         LocationEquipped:
           allOf:
             - $ref: '#/components/schemas/SaveData.LocationEquippedComponent'
-          description: 装備位置。エンティティ参照を含む
+          description: スタック可能マーカー装備位置。エンティティ参照を含む
         Name:
           allOf:
             - $ref: '#/components/schemas/SaveData.NameComponent'
@@ -4061,9 +4055,6 @@ components:
       maxLength: 50
       pattern: ^[a-z][a-z0-9_]*$
       description: スプライトシート名
-    Stackable:
-      type: boolean
-      description: スタック可能かどうか
     StageLengthTurns:
       type: integer
       minimum: 1
@@ -4091,7 +4082,7 @@ components:
       type: integer
       minimum: -100
       maximum: 100
-      description: 筋力。物理ダメージに影響する
+      description: スタック可能かどうか筋力。物理ダメージに影響する
     TargetGroup:
       type: string
       enum:

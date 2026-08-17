@@ -21,7 +21,6 @@ SpriteSheetName = "field"
 SpriteKey = "potion"
 Value = 100
 Weight = "200 g"
-Stackable = true
 ProvidesNutrition = 10
 InflictsDamage = 5
 

@@ -34,9 +34,9 @@ func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]Draw
 	}
 	switch group.Subtype {
 	case oapi.Distribution:
-		return drawDistribution(raws, group.Entries, rng)
+		return drawDistribution(group.Entries, rng)
 	case oapi.Collection:
-		return drawCollection(raws, group.Entries, rng)
+		return drawCollection(group.Entries, rng)
 	default:
 		// group.Subtype は raw 由来で未知値が来うる。データ不整合として呼び出し側へ返す
 		return nil, fmt.Errorf("%w for %q: %s", errUnknownItemGroupSubtype, groupID, group.Subtype)
@@ -44,7 +44,7 @@ func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]Draw
 }
 
 // drawDistribution は重み比で1エントリを選び、その pack ぶんを返す。
-func drawDistribution(raws oapi.Raws, entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
+func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
 	if len(entries) == 0 {
 		return nil, nil
 	}
@@ -64,12 +64,12 @@ func drawDistribution(raws oapi.Raws, entries []oapi.ItemGroupEntry, rng *rand.R
 	if err != nil {
 		return nil, err
 	}
-	return expandDraw(raws, entry.Id, count), nil
+	return expandDraw(entry.Id, count), nil
 }
 
 // drawCollection は各エントリを 0-100 の確率で独立に判定し、当選ぶんを返す。両方出ることも、どちらも出ない
 // こともある。
-func drawCollection(raws oapi.Raws, entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
+func drawCollection(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {
 	var out []DrawnItem
 	for _, e := range entries {
 		if e.Weight <= 0 {
@@ -80,7 +80,7 @@ func drawCollection(raws oapi.Raws, entries []oapi.ItemGroupEntry, rng *rand.Ran
 			if err != nil {
 				return nil, err
 			}
-			out = append(out, expandDraw(raws, e.Id, count)...)
+			out = append(out, expandDraw(e.Id, count)...)
 		}
 	}
 	return out, nil
@@ -96,26 +96,11 @@ func rollPack(pack oapi.Dice, rng *rand.Rand) (int, error) {
 	return d.Roll(rng), nil
 }
 
-// expandDraw は stackable なら個数を1エントリにまとめ、非 stackable なら1個ずつのエントリに展開する。
-func expandDraw(raws oapi.Raws, name string, count int) []DrawnItem {
+// expandDraw は抽選結果を DrawnItem に落とす。個数は spawn 側が1個1エンティティに展開するので、
+// ここでは個数を1エントリにまとめて返す。
+func expandDraw(name string, count int) []DrawnItem {
 	if count <= 0 {
 		return nil
 	}
-	if isStackableItem(raws, name) {
-		return []DrawnItem{{Name: name, Count: count}}
-	}
-	out := make([]DrawnItem, count)
-	for i := range out {
-		out[i] = DrawnItem{Name: name, Count: 1}
-	}
-	return out
-}
-
-// isStackableItem はアイテムが stackable かを raw で判定する。未知アイテムは false。
-func isStackableItem(raws oapi.Raws, name string) bool {
-	item, err := FindItem(raws, name)
-	if err != nil {
-		return false
-	}
-	return item.Stackable != nil && *item.Stackable
+	return []DrawnItem{{Name: name, Count: count}}
 }

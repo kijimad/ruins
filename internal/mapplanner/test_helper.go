@@ -117,16 +117,15 @@ func CreateTestRawMaster() *oapi.Raws {
 	}
 
 	// テスト用のアイテム定義（Stackable判定に必要）
-	stackableTrue := true
 
 	return &oapi.Raws{
 		Tiles: &testTiles,
 		Items: &[]oapi.Item{
-			{Id: "healing_potion", Name: "healing_potion", Description: "restores HP", Stackable: &stackableTrue},
-			{Id: "antidote", Name: "antidote", Description: "cures poison", Stackable: &stackableTrue},
-			{Id: "obsidian", Name: "obsidian", Description: "a black stone", Stackable: &stackableTrue},
-			{Id: "silver_shard", Name: "silver_shard", Description: "silver_shard", Stackable: &stackableTrue},
-			{Id: "herb", Name: "herb", Description: "herb", Stackable: &stackableTrue},
+			{Id: "healing_potion", Name: "healing_potion", Description: "restores HP"},
+			{Id: "antidote", Name: "antidote", Description: "cures poison"},
+			{Id: "obsidian", Name: "obsidian", Description: "a black stone"},
+			{Id: "silver_shard", Name: "silver_shard", Description: "silver_shard"},
+			{Id: "herb", Name: "herb", Description: "herb"},
 			{Id: "wooden_sword", Name: "wooden_sword", Description: "a wooden sword"},
 		},
 		ItemGroups:  &testItemGroups,

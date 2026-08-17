@@ -231,7 +231,6 @@ scalar SpriteKey extends string;
 scalar SpriteSheetName extends string;
 
 /** スタック可能かどうか */
-scalar Stackable extends boolean;
 
 /** 筋力。物理ダメージに影響する */
 @minValue(-100)

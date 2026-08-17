@@ -83,7 +83,6 @@ func TestSellStock_価値0のアイテムは対価0で売れる(t *testing.T) {
 	world.Components.Value.Add(item, &gc.Value{Value: 0})
 	world.Components.Name.Add(item, &gc.Name{Name: "Scrap"})
 	world.Components.RawID.Add(item, &gc.RawID{ID: "scrap"})
-	world.Components.Stackable.Add(item, &gc.Stackable{})
 
 	require.NoError(t, SellStock(world, player, merchant, item), "価値0でも売却は成功する")
 
@@ -113,7 +112,6 @@ func TestSellStock_交渉スキルで売値が変わる(t *testing.T) {
 	world.Components.Name.Add(item, &gc.Name{Name: "Test Item"})
 	// 実アイテムは必ず RawID を持つ。収納内スタック統合はこれで同名を引く
 	world.Components.RawID.Add(item, &gc.RawID{ID: "test_item"})
-	world.Components.Stackable.Add(item, &gc.Stackable{})
 
 	require.NoError(t, SellStock(world, player, merchant, item))
 

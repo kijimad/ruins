@@ -513,7 +513,7 @@ type Abilities struct {
 	// Sensation 感覚。命中率と回避率に影響する
 	Sensation Sensation `json:"sensation"`
 
-	// Strength 筋力。物理ダメージに影響する
+	// Strength スタック可能かどうか筋力。物理ダメージに影響する
 	Strength Strength `json:"strength"`
 
 	// Vitality 体力。HPに影響する
@@ -1080,7 +1080,7 @@ type EquipBonus struct {
 	// Sensation 感覚。命中率と回避率に影響する
 	Sensation Sensation `json:"sensation"`
 
-	// Strength 筋力。物理ダメージに影響する
+	// Strength スタック可能かどうか筋力。物理ダメージに影響する
 	Strength Strength `json:"strength"`
 
 	// Vitality 体力。HPに影響する
@@ -1221,9 +1221,6 @@ type Item struct {
 
 	// SpriteSheetName スプライトシート名
 	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
-
-	// Stackable スタック可能かどうか
-	Stackable *Stackable `json:"stackable,omitempty"`
 
 	// StageLength 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
 	StageLength *StageLengthTurns `json:"stageLength,omitempty"`
@@ -1821,7 +1818,7 @@ type SaveDataComponentsMap struct {
 	// LightSource 光源設定
 	LightSource *SaveDataLightSourceComponent `json:"LightSource,omitempty"`
 
-	// LocationEquipped 装備位置。エンティティ参照を含む
+	// LocationEquipped スタック可能マーカー装備位置。エンティティ参照を含む
 	LocationEquipped *SaveDataLocationEquippedComponent `json:"LocationEquipped,omitempty"`
 
 	// LocationInBackpack バックパック内の位置。所有者エンティティ参照を含む
@@ -1850,9 +1847,6 @@ type SaveDataComponentsMap struct {
 
 	// SpriteRender スプライト描画設定
 	SpriteRender *SaveDataSpriteRenderComponent `json:"SpriteRender,omitempty"`
-
-	// Stackable スタック可能マーカー
-	Stackable *SaveDataMarkerComponent `json:"Stackable,omitempty"`
 
 	// StatsChanged ステータス変更フラグ
 	StatsChanged *SaveDataMarkerComponent `json:"StatsChanged,omitempty"`
@@ -2416,9 +2410,6 @@ type SpriteSheetList struct {
 // SpriteSheetName スプライトシート名
 type SpriteSheetName = string
 
-// Stackable スタック可能かどうか
-type Stackable = bool
-
 // StageLengthTurns 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
 type StageLengthTurns = int
 
@@ -2434,7 +2425,7 @@ type StorageRaw struct {
 	MaxWeight Weight `json:"maxWeight"`
 }
 
-// Strength 筋力。物理ダメージに影響する
+// Strength スタック可能かどうか筋力。物理ダメージに影響する
 type Strength = int
 
 // TargetGroup ターゲットグループ
