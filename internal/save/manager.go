@@ -71,18 +71,38 @@ func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error)
 	return string(data), nil
 }
 
+// storeSaveJSON はJSONを gzip 圧縮してスロットへ書き込む。保存先はプラットフォームごとに違うが、
+// WASM の localStorage が容量に厳しいので全プラットフォーム共通で圧縮する。
+func (sm *SerializationManager) storeSaveJSON(slotName string, jsonData []byte) error {
+	compressed, err := gzipBytes(jsonData)
+	if err != nil {
+		return err
+	}
+	return sm.saveDataImpl(slotName, compressed)
+}
+
+// loadSaveJSON はスロットから読み込み圧縮を解いてJSONバイト列を返す。メタ情報だけを読む
+// 抽出処理もこれを通し、圧縮の有無を呼び出し側が気にせず済むようにする。
+func (sm *SerializationManager) loadSaveJSON(slotName string) ([]byte, error) {
+	data, err := sm.loadDataImpl(slotName)
+	if err != nil {
+		return nil, err
+	}
+	return gunzipBytes(data)
+}
+
 // SaveWorld はワールド全体をファイルに保存する
 func (sm *SerializationManager) SaveWorld(world w.World, slotName string) error {
 	jsonData, err := sm.GenerateWorldJSON(world)
 	if err != nil {
 		return err
 	}
-	return sm.saveDataImpl(slotName, []byte(jsonData))
+	return sm.storeSaveJSON(slotName, []byte(jsonData))
 }
 
 // LoadWorldJSON はJSON文字列をファイルから読み込む
 func (sm *SerializationManager) LoadWorldJSON(slotName string) (string, error) {
-	data, err := sm.loadDataImpl(slotName)
+	data, err := sm.loadSaveJSON(slotName)
 	if err != nil {
 		return "", fmt.Errorf("failed to load save data: %w", err)
 	}
@@ -159,7 +179,7 @@ func (sm *SerializationManager) SaveFileExists(slotName string) bool {
 // GetSaveFileTimestamp はセーブファイルのタイムスタンプを取得する。
 // セーブデータ全体をデシリアライズせず、タイムスタンプだけを抽出する。
 func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time, error) {
-	data, err := sm.loadDataImpl(slotName)
+	data, err := sm.loadSaveJSON(slotName)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -248,7 +268,7 @@ func (sm *SerializationManager) rotateAutoSaves() error {
 // GetSavePlayerName はセーブデータからプレイヤー名を取得する。
 // セーブデータ全体をデシリアライズせず、封筒のメタ情報だけを読む。
 func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, error) {
-	data, err := sm.loadDataImpl(slotName)
+	data, err := sm.loadSaveJSON(slotName)
 	if err != nil {
 		return "", err
 	}

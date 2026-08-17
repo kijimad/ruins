@@ -3,6 +3,7 @@
 package save
 
 import (
+	"encoding/base64"
 	"fmt"
 	"strings"
 	"syscall/js"
@@ -13,41 +14,39 @@ func (sm *SerializationManager) initImpl() error {
 	return nil
 }
 
-// saveDataImpl はWASM環境でローカルストレージにデータを保存する
+// saveDataImpl はWASM環境でローカルストレージにデータを保存する。
+// localStorage は文字列しか持てないので、gzip バイト列を base64 で包んで書き込む。
 func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error {
-	// ローカルストレージにアクセス
 	localStorage := js.Global().Get("localStorage")
 	if localStorage.IsUndefined() {
 		return fmt.Errorf("localStorage is not available")
 	}
 
-	// キー名を作成（ruins-savedata-{slotName}の形式）
 	key := fmt.Sprintf("ruins-savedata-%s", slotName)
-
-	// データを文字列として保存
-	localStorage.Call("setItem", key, string(data))
+	localStorage.Call("setItem", key, base64.StdEncoding.EncodeToString(data))
 
 	return nil
 }
 
 // loadDataImpl はWASM環境でローカルストレージからデータを読み込む
 func (sm *SerializationManager) loadDataImpl(slotName string) ([]byte, error) {
-	// ローカルストレージにアクセス
 	localStorage := js.Global().Get("localStorage")
 	if localStorage.IsUndefined() {
 		return nil, fmt.Errorf("localStorage is not available")
 	}
 
-	// キー名を作成
 	key := fmt.Sprintf("ruins-savedata-%s", slotName)
-
-	// データを取得
 	item := localStorage.Call("getItem", key)
 	if item.IsNull() {
 		return nil, fmt.Errorf("save data not found for slot: %s", slotName)
 	}
 
-	return []byte(item.String()), nil
+	// base64 を解いて gzip バイト列へ戻す。圧縮解除は共通層が行う
+	raw, err := base64.StdEncoding.DecodeString(item.String())
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode save data: %w", err)
+	}
+	return raw, nil
 }
 
 // saveFileExistsImpl はWASM環境でセーブファイルが存在するかチェックする
