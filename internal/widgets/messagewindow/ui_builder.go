@@ -1,7 +1,6 @@
 package messagewindow
 
 import (
-	eui_image "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -68,39 +67,8 @@ func (b *uiBuilder) UpdateFocus(config tabMenuConfig, state viewState) {
 		if i >= len(indices) {
 			continue
 		}
-
-		originalIndex := indices[i]
-		isFocused := originalIndex == state.ItemIndex
-
-		wrapper, ok := w.(*widget.Container)
-		if !ok {
-			continue
-		}
-		wrapperChildren := wrapper.Children()
-		if len(wrapperChildren) == 0 {
-			continue
-		}
-		contentContainer, ok := wrapperChildren[0].(*widget.Container)
-		if !ok {
-			continue
-		}
-
-		if isFocused {
-			contentContainer.SetBackgroundImage(b.world.Resources.UIResources.Panel.SelectionBar)
-		} else {
-			contentContainer.SetBackgroundImage(eui_image.NewNineSliceColor(theme.Transparent))
-		}
-
-		textColor := theme.TextSecondary
-		if isFocused {
-			textColor = theme.TextSelected
-		}
-
-		for _, child := range contentContainer.Children() {
-			if textWidget, ok := child.(*widget.Text); ok {
-				textWidget.SetColor(textColor)
-			}
-		}
+		isFocused := indices[i] == state.ItemIndex
+		styled.SetListItemSelected(w, isFocused)
 	}
 }
 

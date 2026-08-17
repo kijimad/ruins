@@ -203,15 +203,14 @@ func NewBodyText(title string, _ color.RGBA, res resources.UIResources) *widget.
 	return text
 }
 
-// NewListItem はリスト項目を作る。背景バーとカーソルで選択状態を表現する。
+// NewListItem はリスト項目を作る。選択バーとカーソルで選択状態を表現する。
+// 選択中の行は選択バーがゆるやかに明滅し、アクティブな位置を示す。
 // icon が nil ならアイコン列は空、非 nil なら名前の左に置く。
 // additionalLabels を渡すと右側に追加ラベルを並べる
 func NewListItem(icon *ebiten.Image, text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {
-	// 選択時: グラデーション背景バー + 明るいテキスト、非選択時: 透明背景 + 通常テキスト
-	bgImage := image.NewNineSliceColor(theme.Transparent)
+	// 選択時のみテキストを明るくする。背景の強調は選択バーが受け持つ
 	displayTextColor := textColor
 	if isSelected {
-		bgImage = res.Panel.SelectionBar
 		displayTextColor = theme.TextSelected
 	}
 
@@ -228,8 +227,18 @@ func NewListItem(icon *ebiten.Image, text string, textColor color.RGBA, isSelect
 		),
 	)
 
+	// セル: 選択バーを背面、コンテンツ行を前面に重ねる。ebitenui は追加順に描くので
+	// バーを先に足して背面へ回す
+	cell := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
+		),
+	)
+
 	container := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(bgImage),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
 			widget.RowLayoutOpts.Spacing(theme.Space2),
@@ -241,8 +250,9 @@ func NewListItem(icon *ebiten.Image, text string, textColor color.RGBA, isSelect
 			}),
 		)),
 		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Stretch: true,
+			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+				StretchHorizontal: true,
+				StretchVertical:   true,
 			}),
 		),
 	)
@@ -284,11 +294,49 @@ func NewListItem(icon *ebiten.Image, text string, textColor color.RGBA, isSelect
 		container.AddChild(labelText)
 	}
 
-	wrapper.AddChild(container)
+	// バーを先に足して背面へ回す。バーは container を参照して行の高さを合わせる
+	cell.AddChild(newSelectionBar(res.Panel.SelectionBar, container, isSelected))
+	cell.AddChild(container)
+	wrapper.AddChild(cell)
 
 	wrapper.AddChild(NewGradientLine(res.GradientLine, theme.RowDivider, 1))
 
 	return wrapper
+}
+
+// SetListItemSelected は NewListItem が作った wrapper の選択状態を切り替える。
+// 選択バーの明滅の on/off と、内容テキストの色を更新する。
+// retained なツリーを保持したまま選択を移す messagewindow のフォーカス更新から使う
+func SetListItemSelected(wrapper widget.PreferredSizeLocateableWidget, selected bool) {
+	root, ok := wrapper.(*widget.Container)
+	if !ok {
+		return
+	}
+	rootChildren := root.Children()
+	if len(rootChildren) == 0 {
+		return
+	}
+	cell, ok := rootChildren[0].(*widget.Container)
+	if !ok {
+		return
+	}
+
+	textColor := theme.TextSecondary
+	if selected {
+		textColor = theme.TextSelected
+	}
+	for _, child := range cell.Children() {
+		switch c := child.(type) {
+		case *selectionBar:
+			c.setSelected(selected)
+		case *widget.Container:
+			for _, inner := range c.Children() {
+				if textWidget, ok := inner.(*widget.Text); ok {
+					textWidget.SetColor(textColor)
+				}
+			}
+		}
+	}
 }
 
 // NewFragmentText は色付きログフラグメント専用のテキストを作成する（文字数分だけの幅）

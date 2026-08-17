@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 )
 
 // testHostGame はテスト実行中にebitenグラフィックスコンテキストを維持するゲーム
@@ -38,6 +39,9 @@ func (g *testHostGame) Layout(_, _ int) (int, int) {
 // これにより各テスト関数で ebiten.NewImage + ReadPixels が使える。
 // gamepad初期化のEINTR回避のため、bwrapで/dev/inputを隠した環境で実行すること
 func RunTestMain(m *testing.M) int {
+	// ゴールデン描画を静止させ、選択カーソルの点滅による時間依存の差分を防ぐ
+	styled.SetAnimationEnabled(false)
+
 	g := &testHostGame{testFunc: m.Run}
 	// ebiten.RunGame()はメインスレッドをブロックする。
 	if err := ebiten.RunGame(g); err != nil {

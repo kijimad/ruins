@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -163,6 +164,9 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 		return w.World{}, err
 	}
 	world.Resources.UIResources = uir
+
+	// 選択カーソルの点滅可否を設定から反映する。styled はプロセス全体でこの値を読む
+	styled.SetAnimationEnabled(!cfg.DisableAnimation)
 
 	world.Updaters, world.Renderers = gs.InitializeSystems(world)
 
