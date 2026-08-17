@@ -86,6 +86,8 @@ func TestEntityDetailContent_死んだ実体は空を返しpanicしない(t *tes
 
 // TestEntityDetailContent_生存している実体は名前と説明と性能行を返す は、Name・Description・
 // Abilities を持つ実体から詳細内容を正しく組み立てることを固定する。
+// EntityDetailContent は Name・Description・Abilities の3コンポーネントだけを参照し、spawn
+// 関数が付与する他コンポーネントの有無は結果に影響しないため、手作り実体で検証する。
 func TestEntityDetailContent_生存している実体は名前と説明と性能行を返す(t *testing.T) {
 	t.Parallel()
 
@@ -106,7 +108,8 @@ func TestEntityDetailContent_生存している実体は名前と説明と性能
 }
 
 // TestEntityDetailContent_説明コンポーネントが無ければ空文字 は、Description を持たない実体でも
-// panicせず空文字を返すことを固定する。
+// panicせず空文字を返すことを固定する。EntityDetailContent が参照するのは Name・Description・
+// Abilities のみなので、手作り実体で検証する。
 func TestEntityDetailContent_説明コンポーネントが無ければ空文字(t *testing.T) {
 	t.Parallel()
 
