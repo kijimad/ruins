@@ -30,38 +30,32 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 // 時間依存ノイズによる不要な差分を防ぐ。
 func AssertStateGolden(t *testing.T, name string, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
-	assertPNGGolden(t, name, RenderPNG(t, buildStates, nil))
+	assertPNGGolden(t, name, RenderPNG(t, buildStates))
 }
 
-// RenderPNG はステートを構築し screen へ描いてPNGを返す。比較はしない、画像保存用。
-// draw が nil なら全段描画、非 nil なら任意のレンダラで描く。
-func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World], draw func(world w.World, screen *ebiten.Image)) []byte {
+// RenderPNG はステートを構築し本番の renderer で描いてPNGを返す。比較はしない、画像保存用。
+// screeneffect のポスト処理まで含めて実画面と同じ絵になる。
+func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []byte {
 	t.Helper()
-	img := renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
-		if draw != nil {
-			draw(world, screen)
-			return
-		}
-		for _, state := range sm.GetStates() {
-			require.NoError(t, state.Draw(world, screen), "failed to draw")
-		}
-	})
-	return encodePNG(t, img)
+	return encodePNG(t, renderStates(t, buildStates))
 }
 
-// renderStates は world を作りステートを構築し、drawStates で screen へ描いて NRGBA を返す。
+// renderStates は world を作りステートを構築し、本番の MainGame.Draw で screen へ描いて NRGBA を返す。
+// 素の state.Draw でなく renderer 経由にすることで、ポスト処理まで含め実画面と一致させる。
 //
 // 構築も描画も ebitenui のグローバル状態に触れるため WithUILock で直列化する。InitVRTWorld も内部で
 // ロックを取り WithUILock は非再入なので、区間を2つに分ける。
-func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World], drawStates func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image)) *image.NRGBA {
+func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
 	t.Helper()
 	world := InitVRTWorld(t)
 
 	var out *image.NRGBA
 	WithUILock(func() {
 		sm := SetupStateMachine(t, world, buildStates)
+		game, err := maingame.NewMainGame(world, sm)
+		require.NoError(t, err)
 		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-		drawStates(sm, world, screen)
+		game.Draw(screen)
 		out = captureScreen(screen)
 	})
 	return out

@@ -338,7 +338,7 @@ func TestMapGenImages(t *testing.T) {
 					PlannerType:   pt,
 					Seed:          result.seed,
 					SnapshotIndex: i,
-				}), nil)
+				}))
 				require.NoError(t, g.Update(t, t.Name(), pngData))
 				t.Logf("画像を更新: %s", imgPath)
 			})

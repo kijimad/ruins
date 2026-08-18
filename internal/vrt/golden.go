@@ -93,15 +93,17 @@ func encodePNG(t *testing.T, img image.Image) []byte {
 }
 
 // noiseScale はトレランス算出の係数。
-// ebitenuiのノイズはUI要素のエッジで発生し、エッジ量は画像面積の平方根に比例する。
+// ノイズはUI要素のエッジで発生し、エッジ量は画像面積の平方根に比例する。
 // tolerance = noiseScale / √totalPixels で算出する。
 //
-// 960×720 の全画面ステートで約2%になる値にしている。フォントのアンチエイリアスと
-// アルファ合成の丸めは GL 実装に依存し、ゴールデンの生成環境と実行環境が違うと
-// 系統的な差分が残る。実測ではこの系統差が厳密比較で約1.3%に達し、実行順による
-// 揺れがそこへ乗る。2%はこの実測値に余裕を持たせた値で、代わりに全画面では
-// メニュー1行規模までの変化を検出できない
-const noiseScale = 17.0
+// 960×720 の全画面ステートで約5.4%になる値にしている。state ゴールデンは本番の
+// renderer を通し、最後に screeneffect のレトロフィルタをかける。スキャンラインは
+// 全画面の高周波パターンで、フォントのアンチエイリアスやアルファ合成の GL 実装差を
+// ピクセル比較上で増幅する。並列実行では描画順に依存する系統差がそこへ乗り、実測で
+// 最大約3.8%に達する。5.4%はこの実測値に余裕を持たせた値。代わりに全画面ではメニュー
+// 数行規模までの変化を検出できない。ウィジェット系ゴールデンはフィルタを通さないが、
+// 面積が小さくトレランス比率が高いのでこの係数で問題ない
+const noiseScale = 45.0
 
 // toleranceForSize は画像のピクセル数からトレランス比率を算出する。
 // ノイズ量はUIエッジに比例するため √面積 でスケーリングし、
@@ -117,7 +119,8 @@ func toleranceForSize(width, height int) float64 {
 // assertPNGGolden はPNGバイト列を name のゴールデン画像と比較する。golden は testdata/name.png。
 // name はサブテスト名でなく明示的に渡す。t.Run のスラッシュがパスに混ざらず、保存先が平置きになる。
 // 画像サイズからトレランスを自動算出し、小さい画像は寛容に、大きい画像は厳密に判定する。
-// GOLDIE_UPDATE=1 のときはトレランス内なら更新をスキップする
+// GOLDIE_UPDATE=1 のときはトレランスを見ず無条件に上書きする。トレランス内スキップは
+// 実変化を隠すので、更新は手動で走らせたときに必ず反映させる
 func assertPNGGolden(t *testing.T, name string, pngData []byte) {
 	t.Helper()
 
@@ -127,16 +130,8 @@ func assertPNGGolden(t *testing.T, name string, pngData []byte) {
 
 	if isGoldieUpdate() {
 		g := newGoldie(t)
-		goldenPath := g.GoldenFileName(t, name)
-		if existingData, err := os.ReadFile(goldenPath); err == nil {
-			equalFn := pngPixelEqualFn(toleranceRatio)
-			if equalFn(pngData, existingData) {
-				t.Logf("skipped update within tolerance: %s", goldenPath)
-				return
-			}
-		}
 		require.NoError(t, g.Update(t, name, pngData))
-		t.Logf("updated golden image: %s", goldenPath)
+		t.Logf("updated golden image: %s", g.GoldenFileName(t, name))
 		return
 	}
 
