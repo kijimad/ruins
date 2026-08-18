@@ -126,7 +126,7 @@ func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, wor
 	total := 0
 	var errs []error
 	for _, stack := range query.GroupStacks(world, pickable) {
-		// 表示名と個数は移動前に確定する。移動後はスタックが割れて個数が変わるため先に数え込む
+		// 表示名と個数は移動前に確定する。移動後はスタックが割れて個数が変わるため先に数えておく
 		formattedName := query.FormatItemName(world, stack.Rep)
 		moved, err := lifecycle.MoveMembersToBackpack(world, stack.Members, actor)
 		if err != nil {

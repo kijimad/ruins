@@ -107,7 +107,7 @@ func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w
 	}
 
 	target := p.Target
-	// 名前は移動前に確定する。移動後はスタックが割れて個数が変わるため、先に N を数え込む
+	// 名前は移動前に確定する。移動後はスタックが割れて個数が変わるため、先に数えておく
 	formattedName := query.FormatItemName(world, target)
 
 	// 一覧の1行はスタック代表なので、同一スタックのエンティティをまとめて足元へ落とす
