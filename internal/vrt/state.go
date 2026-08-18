@@ -75,11 +75,9 @@ func SetupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []
 		require.NoError(t, stateMachine.PushState(world, states[1:]...))
 	}
 
-	// レイアウト確定のためフレームを回す
+	// レイアウト確定のためフレームを回す。警告なく失敗を握り潰すと不可解なテスト失敗になるので報告する
 	for range 10 {
-		if err := stateMachine.Update(world); err != nil {
-			break
-		}
+		require.NoError(t, stateMachine.Update(world), "layout warm-up failed")
 	}
 	return stateMachine
 }

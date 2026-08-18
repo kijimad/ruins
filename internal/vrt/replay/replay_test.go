@@ -7,7 +7,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuloop"
-	states "github.com/kijimaD/ruins/internal/states"
+	"github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt/replay"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
