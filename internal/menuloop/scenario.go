@@ -15,7 +15,7 @@ type CommandDriven interface {
 	SetCommandSource(src func() (inputmapper.ActionID, bool))
 }
 
-// scenarioSource は Scenario を先頭から1フレーム1件で供給する。Screen.SetCommandSource に next を渡す
+// scenarioSource は残りのコマンドを保持し、next で先頭から1フレーム1件ずつ供給する
 type scenarioSource struct {
 	rest []inputmapper.ActionID
 }
