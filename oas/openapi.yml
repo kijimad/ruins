@@ -3190,7 +3190,7 @@ components:
         LocationEquipped:
           allOf:
             - $ref: '#/components/schemas/SaveData.LocationEquippedComponent'
-          description: スタック可能マーカー装備位置。エンティティ参照を含む
+          description: 装備位置。エンティティ参照を含む
         Name:
           allOf:
             - $ref: '#/components/schemas/SaveData.NameComponent'
@@ -4082,7 +4082,7 @@ components:
       type: integer
       minimum: -100
       maximum: 100
-      description: スタック可能かどうか筋力。物理ダメージに影響する
+      description: 筋力。物理ダメージに影響する
     TargetGroup:
       type: string
       enum:

@@ -32,7 +32,7 @@ export interface Abilities {
      */
     'vitality': number;
     /**
-     * スタック可能かどうか筋力。物理ダメージに影響する
+     * 筋力。物理ダメージに影響する
      */
     'strength': number;
     /**
@@ -653,7 +653,7 @@ export interface EquipBonus {
      */
     'vitality': number;
     /**
-     * スタック可能かどうか筋力。物理ダメージに影響する
+     * 筋力。物理ダメージに影響する
      */
     'strength': number;
     /**
@@ -1469,7 +1469,7 @@ export interface SaveDataComponentsMap {
      */
     'StatsChanged'?: object;
     /**
-     * スタック可能マーカー装備位置。エンティティ参照を含む
+     * 装備位置。エンティティ参照を含む
      */
     'LocationEquipped'?: SaveDataLocationEquippedComponent;
     /**

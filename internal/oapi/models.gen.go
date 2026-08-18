@@ -513,7 +513,7 @@ type Abilities struct {
 	// Sensation 感覚。命中率と回避率に影響する
 	Sensation Sensation `json:"sensation"`
 
-	// Strength スタック可能かどうか筋力。物理ダメージに影響する
+	// Strength 筋力。物理ダメージに影響する
 	Strength Strength `json:"strength"`
 
 	// Vitality 体力。HPに影響する
@@ -1080,7 +1080,7 @@ type EquipBonus struct {
 	// Sensation 感覚。命中率と回避率に影響する
 	Sensation Sensation `json:"sensation"`
 
-	// Strength スタック可能かどうか筋力。物理ダメージに影響する
+	// Strength 筋力。物理ダメージに影響する
 	Strength Strength `json:"strength"`
 
 	// Vitality 体力。HPに影響する
@@ -1818,7 +1818,7 @@ type SaveDataComponentsMap struct {
 	// LightSource 光源設定
 	LightSource *SaveDataLightSourceComponent `json:"LightSource,omitempty"`
 
-	// LocationEquipped スタック可能マーカー装備位置。エンティティ参照を含む
+	// LocationEquipped 装備位置。エンティティ参照を含む
 	LocationEquipped *SaveDataLocationEquippedComponent `json:"LocationEquipped,omitempty"`
 
 	// LocationInBackpack バックパック内の位置。所有者エンティティ参照を含む
@@ -2425,7 +2425,7 @@ type StorageRaw struct {
 	MaxWeight Weight `json:"maxWeight"`
 }
 
-// Strength スタック可能かどうか筋力。物理ダメージに影響する
+// Strength 筋力。物理ダメージに影響する
 type Strength = int
 
 // TargetGroup ターゲットグループ
