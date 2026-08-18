@@ -2,13 +2,10 @@ package menuloop
 
 import "github.com/kijimaD/ruins/internal/inputmapper"
 
-// Command はメニュー1操作。本番の ActionID をそのまま再生単位にする
-type Command = inputmapper.ActionID
-
-// Scenario は再生するコマンド列。1要素を1フレームで供給する。
-// 尽きたフレーム以降はキーボード経路に戻る
+// Scenario は再生するコマンド列。本番の ActionID をそのまま再生単位にし、1要素を1フレームで
+// 供給する。尽きたフレーム以降はキーボード経路に戻る
 type Scenario struct {
-	Commands []Command
+	Commands []inputmapper.ActionID
 }
 
 // CommandDriven は再生ドライバがコマンド供給源を差せる state。Screen を持つ state が
@@ -20,7 +17,7 @@ type CommandDriven interface {
 
 // scenarioSource は Scenario を先頭から1フレーム1件で供給する。Screen.SetCommandSource に next を渡す
 type scenarioSource struct {
-	rest []Command
+	rest []inputmapper.ActionID
 }
 
 // newScenarioSource は Scenario から供給源を作る

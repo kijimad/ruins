@@ -259,7 +259,7 @@ func TestScreen_readAction(t *testing.T) {
 			extraInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
 		}
 		screen := NewScreen[int](model)
-		screen.SetCommandSource(NewScenarioReplay(Scenario{Commands: []Command{inputmapper.ActionMenuDown}}))
+		screen.SetCommandSource(NewScenarioReplay(Scenario{Commands: []inputmapper.ActionID{inputmapper.ActionMenuDown}}))
 
 		action, ok := screen.readAction()
 
@@ -275,7 +275,7 @@ func TestScreen_readAction(t *testing.T) {
 		}
 		screen := NewScreen[int](model)
 		// 1件だけの供給源。2回目以降は尽きて ExtraInput へフォールバックする
-		screen.SetCommandSource(NewScenarioReplay(Scenario{Commands: []Command{inputmapper.ActionMenuDown}}))
+		screen.SetCommandSource(NewScenarioReplay(Scenario{Commands: []inputmapper.ActionID{inputmapper.ActionMenuDown}}))
 
 		first, ok := screen.readAction()
 		require.True(t, ok)

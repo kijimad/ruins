@@ -24,7 +24,7 @@ func TestPlayScenario_実在メニューをコマンド列で駆動し遷移す�
 		func(_ w.World) []es.State[w.World] {
 			return []es.State[w.World]{&states.MainMenuState{}, &states.SettingsMenuState{}}
 		},
-		menuloop.Scenario{Commands: []menuloop.Command{
+		menuloop.Scenario{Commands: []inputmapper.ActionID{
 			inputmapper.ActionMenuDown,   // カーソルを Language から Back へ移す
 			inputmapper.ActionMenuSelect, // Back を決定して設定メニューを閉じる
 		}},
@@ -46,7 +46,7 @@ func TestPlayScenario_captureが各ステップで呼ばれる(t *testing.T) {
 		func(_ w.World) []es.State[w.World] {
 			return []es.State[w.World]{&states.MainMenuState{}, &states.SettingsMenuState{}}
 		},
-		menuloop.Scenario{Commands: []menuloop.Command{
+		menuloop.Scenario{Commands: []inputmapper.ActionID{
 			inputmapper.ActionMenuDown,
 			inputmapper.ActionMenuUp,
 		}},
