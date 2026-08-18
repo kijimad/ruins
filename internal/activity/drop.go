@@ -107,10 +107,11 @@ func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w
 	}
 
 	target := p.Target
+	// 名前は移動前に確定する。移動後はスタックが割れて個数が変わるため、先に N を数え込む
 	formattedName := query.FormatItemName(world, target)
 
-	lifecycle.MoveToField(world, target, &actor)
-	world.Components.GridElement.Add(target, &gc.GridElement{Coord: targetTile})
+	// 一覧の1行はスタック代表なので、同一スタックのエンティティをまとめて足元へ落とす
+	lifecycle.MoveMembersToField(world, query.StackMembers(world, target), targetTile, actor)
 
 	gamelog.New(query.GetGameLog(world)).
 		Markup(query.T(world, "Dropped %s.", gamelog.Tag("item", formattedName))).

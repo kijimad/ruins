@@ -31,12 +31,50 @@ func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count i
 	if count <= 0 || count >= len(members) {
 		move = len(members)
 	}
-	for i := range move {
-		if err := MoveToBackpack(world, members[i], recipient); err != nil {
-			return fmt.Errorf("failed to transfer unit: %w", err)
-		}
+	if _, err := MoveMembersToBackpack(world, members[:move], recipient); err != nil {
+		return fmt.Errorf("failed to transfer unit: %w", err)
 	}
 	return nil
+}
+
+// MoveMembersToBackpack は members を全てバックパックへ移す。移せた個数を返す。
+// スタックを丸ごと動かす操作はこの1関数を通し、一部だけ動かす取りこぼしを防ぐ。
+// 対象は呼び出し側が query.StackMembers 等で束ねて渡す。移動先の詳細だけをここに集約する。
+func MoveMembersToBackpack(world w.World, members []ecs.Entity, owner ecs.Entity) (int, error) {
+	moved := 0
+	var errs []error
+	for _, member := range members {
+		if err := MoveToBackpack(world, member, owner); err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		moved++
+	}
+	return moved, errors.Join(errs...)
+}
+
+// MoveMembersToStorage は members を全て収納へ移す。移せた個数を返す。容量判定は呼び出し側が事前に行う。
+func MoveMembersToStorage(world w.World, members []ecs.Entity, storage ecs.Entity) (int, error) {
+	moved := 0
+	var errs []error
+	for _, member := range members {
+		if err := MoveToStorage(world, member, storage); err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		moved++
+	}
+	return moved, errors.Join(errs...)
+}
+
+// MoveMembersToField は members を全て指定タイルへ落とす。各個体に GridElement を付け、床の同一スタックへ束ねる。
+// GridElement 付与を移動と対にしてここへ集約し、片方だけ忘れて床に出ないバグを防ぐ。移した個数を返す。
+func MoveMembersToField(world w.World, members []ecs.Entity, coord consts.Coord[consts.Tile], previousOwner ecs.Entity) int {
+	for _, member := range members {
+		MoveToField(world, member, &previousOwner)
+		world.Components.GridElement.Add(member, &gc.GridElement{Coord: coord})
+	}
+	return len(members)
 }
 
 // MoveToEquip はエンティティを指定スロットに装備する

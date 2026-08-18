@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -189,6 +190,29 @@ func TestPickupBehavior_DoTurn_Target(t *testing.T) {
 		assert.False(t, world.Components.LocationInBackpack.Has(item2))
 		assert.True(t, world.Components.GridElement.Has(item2))
 	})
+}
+
+func TestNewPickupStackActivity_同一スタックをまとめて拾う(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+
+	// 同一品種3個を同じタイルへ。代表1個を対象にスタック丸ごと拾う
+	rep, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 3)
+	require.NoError(t, err)
+	require.Equal(t, 3, query.GetEntityCount(world, rep), "拾う前は床に3個")
+
+	comp := NewPickupStackActivity(world, rep)
+	pa := &PickupBehavior{}
+	require.NoError(t, pa.DoTurn(comp, player, world))
+	assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+
+	// 代表を含むスタック全部がバックパックへ移る。表示の個数と拾う個数が揃う
+	assert.Equal(t, 3, query.GetEntityCount(world, rep), "3個ともバックパックのスタックになる")
+	assert.True(t, world.Components.LocationInBackpack.Has(rep))
+	assert.Empty(t, query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 10}), "床に拾える物は残らない")
 }
 
 func TestPickupBehavior_Validate_Target(t *testing.T) {

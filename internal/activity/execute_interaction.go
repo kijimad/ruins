@@ -116,7 +116,8 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 }
 
 func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	return Execute(NewPickupActivity(target), actor, world)
+	// 一覧の1行はスタック代表なので、代表と同一スタックをまとめて拾う。表示の個数と拾う個数を揃える
+	return Execute(NewPickupStackActivity(world, target), actor, world)
 }
 
 func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {

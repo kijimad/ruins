@@ -196,20 +196,16 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 		if err != nil {
 			return err
 		}
-		for _, member := range members {
-			if err := lifecycle.MoveToBackpack(world, member, playerEntity); err != nil {
-				return err
-			}
+		if _, err := lifecycle.MoveMembersToBackpack(world, members, playerEntity); err != nil {
+			return err
 		}
 	case tabIDStore:
 		// バックパックから収納へスタック丸ごと移動。合計重量が容量を超えるなら何もしない
 		if !query.CanAddStackToStorage(world, st.storageEntity, members) {
 			return nil
 		}
-		for _, member := range members {
-			if err := lifecycle.MoveToStorage(world, member, st.storageEntity); err != nil {
-				return err
-			}
+		if _, err := lifecycle.MoveMembersToStorage(world, members, st.storageEntity); err != nil {
+			return err
 		}
 	}
 
