@@ -13,7 +13,7 @@ editor-ui/dist/
 wasm/game.wasm
 
 # save
-saves/*.json
+saves/*.json.gz
 
 # AI
 .claude-task-state

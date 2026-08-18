@@ -38,7 +38,7 @@ func TestSaveLoadIntegration(t *testing.T) {
 	require.NoError(t, err)
 
 	// セーブファイルの存在確認
-	saveFile := filepath.Join(testDir, "test_slot.json")
+	saveFile := filepath.Join(testDir, "test_slot"+saveFileExt)
 	_, err = os.Stat(saveFile)
 	require.NoError(t, err, "Save file should exist")
 
@@ -79,7 +79,7 @@ func TestSaveSlotInfo(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 初期状態（セーブファイルなし）でセーブファイルの存在を確認
-	slotFile := filepath.Join(testDir, "slot1.json")
+	slotFile := filepath.Join(testDir, "slot1"+saveFileExt)
 	_, err = os.Stat(slotFile)
 	require.Error(t, err, "Save file should not exist initially")
 
@@ -98,8 +98,8 @@ func TestSaveSlotInfo(t *testing.T) {
 	require.NoError(t, err)
 
 	// 全てのスロットファイルが存在することを確認
-	slot2File := filepath.Join(testDir, "slot2.json")
-	slot3File := filepath.Join(testDir, "slot3.json")
+	slot2File := filepath.Join(testDir, "slot2"+saveFileExt)
+	slot3File := filepath.Join(testDir, "slot3"+saveFileExt)
 
 	_, err = os.Stat(slot2File)
 	require.NoError(t, err, "Slot 2 save file should exist")

@@ -9,6 +9,9 @@ import (
 	"strings"
 )
 
+// saveFileExt はセーブファイルの拡張子。中身は gzip 圧縮した JSON なので、gunzip や zcat でそのまま解凍できる。
+const saveFileExt = ".json.gz"
+
 // initImpl はデスクトップ環境での初期化処理
 func (sm *SerializationManager) initImpl() error {
 	if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil {
@@ -20,7 +23,7 @@ func (sm *SerializationManager) initImpl() error {
 // saveDataImpl はデスクトップ環境でファイルシステムにデータを保存する
 func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error {
 	// ファイルに書き込み
-	fileName := filepath.Join(sm.saveDirectory, slotName+".json")
+	fileName := filepath.Join(sm.saveDirectory, slotName+saveFileExt)
 	err := os.WriteFile(fileName, data, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to write save file: %w", err)
@@ -31,7 +34,7 @@ func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error
 
 // loadDataImpl はデスクトップ環境でファイルシステムからデータを読み込む
 func (sm *SerializationManager) loadDataImpl(slotName string) ([]byte, error) {
-	fileName := filepath.Join(sm.saveDirectory, slotName+".json")
+	fileName := filepath.Join(sm.saveDirectory, slotName+saveFileExt)
 	data, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read save file: %w", err)
@@ -41,7 +44,7 @@ func (sm *SerializationManager) loadDataImpl(slotName string) ([]byte, error) {
 
 // saveFileExistsImpl はデスクトップ環境でセーブファイルが存在するかチェックする
 func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool {
-	fileName := filepath.Join(sm.saveDirectory, slotName+".json")
+	fileName := filepath.Join(sm.saveDirectory, slotName+saveFileExt)
 	_, err := os.Stat(fileName)
 	return err == nil
 }
@@ -59,7 +62,7 @@ func (sm *SerializationManager) listSavesImpl() ([]string, error) {
 			continue
 		}
 		name := entry.Name()
-		if before, ok := strings.CutSuffix(name, ".json"); ok {
+		if before, ok := strings.CutSuffix(name, saveFileExt); ok {
 			names = append(names, before)
 		}
 	}
@@ -68,7 +71,7 @@ func (sm *SerializationManager) listSavesImpl() ([]string, error) {
 
 // deleteSaveImpl はデスクトップ環境でセーブファイルを削除する
 func (sm *SerializationManager) deleteSaveImpl(slotName string) error {
-	fileName := filepath.Join(sm.saveDirectory, slotName+".json")
+	fileName := filepath.Join(sm.saveDirectory, slotName+saveFileExt)
 	if err := os.Remove(fileName); err != nil {
 		return fmt.Errorf("failed to delete save file: %w", err)
 	}
