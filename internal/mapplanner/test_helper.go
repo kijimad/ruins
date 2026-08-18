@@ -116,7 +116,7 @@ func CreateTestRawMaster() *oapi.Raws {
 		},
 	}
 
-	// テスト用のアイテム定義（Stackable判定に必要）
+	// テスト用のアイテム定義（スタック判定に必要）
 
 	return &oapi.Raws{
 		Tiles: &testTiles,

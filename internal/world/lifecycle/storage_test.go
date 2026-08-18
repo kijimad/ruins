@@ -232,7 +232,7 @@ func TestMoveToStorage_ThenBackToBackpack(t *testing.T) {
 	assert.False(t, world.Components.LocationInStorage.Has(item))
 }
 
-func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
+func TestMoveToBackpack_MergesStackFromStorage(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -266,20 +266,20 @@ func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
 	assert.Equal(t, 4, entityCount, "統合せず、移した1個が加わって4個並ぶ")
 }
 
-func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
+func TestMoveToBackpack_NoMergeForNonStack(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	// 非Stackableアイテムを2つバックパックに配置
+	// 非スタックアイテムを2つバックパックに配置
 	_, err = SpawnBackpackItem(world, "western_armor", 1)
 	require.NoError(t, err)
 	_, err = SpawnBackpackItem(world, "western_armor", 1)
 	require.NoError(t, err)
 
-	// 非Stackableアイテムは統合されず2つ存在する
+	// 非スタックアイテムは統合されず2つ存在する
 	var entityCount int
 	armorQuery := ecs.NewFilter2[gc.LocationInBackpack, gc.Name](world.ECS).Query()
 	for armorQuery.Next() {
@@ -290,10 +290,10 @@ func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
 		}
 	}
 
-	assert.Equal(t, 2, entityCount, "非Stackableアイテムは統合されない")
+	assert.Equal(t, 2, entityCount, "非スタックアイテムは統合されない")
 }
 
-func TestMoveToStorage_MergesStackable(t *testing.T) {
+func TestMoveToStorage_MergesStack(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 

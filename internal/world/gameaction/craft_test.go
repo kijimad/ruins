@@ -62,10 +62,10 @@ func TestCraft(t *testing.T) {
 	assert.NoError(t, err, "素材が十分ならばエラーは発生しないべき")
 }
 
-// TestCraft_StackableTwice はStackableアイテムを連続で合成しても
+// TestCraft_StackTwice はスタックアイテムを連続で合成しても
 // パニックせず、統合先の生存エンティティが返ることを検証する。
 // 2回目の合成で新エンティティが既存スタックへ統合されて削除される回帰ケース。
-func TestCraft_StackableTwice(t *testing.T) {
+func TestCraft_StackTwice(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -73,7 +73,7 @@ func TestCraft_StackableTwice(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 	require.NoError(t, err)
 
-	// 回復薬は緑ハーブ×1・黄ハーブ×1で合成できるStackableアイテム
+	// 回復薬は緑ハーブ×1・黄ハーブ×1で合成できるスタックアイテム
 	_, _ = lifecycle.SpawnBackpackItem(world, "green_herb", 2)
 	_, _ = lifecycle.SpawnBackpackItem(world, "yellow_herb", 2)
 

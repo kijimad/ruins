@@ -9,10 +9,10 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// FindStackableInInventory は RawID でバックパック内の Stackable アイテムを1つ返す。
+// FindStackInInventory は RawID でバックパック内のスタックアイテムを1つ返す。
 // 個数照会や消費の起点に使う。鮮度による束の分割は合流側の query.SameStack が担うため、
 // ここは鮮度を見ず RawID だけで引く。腐敗食は鮮度違いの別束が複数ありうる点に注意する。
-func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
+func FindStackInInventory(world w.World, id string) (ecs.Entity, bool) {
 	q := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()
 	for q.Next() {
 		entity := q.Entity()

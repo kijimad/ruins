@@ -35,11 +35,11 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 	if err != nil {
 		return gc.InvalidEntity, fmt.Errorf("failed to generate item: %w", err)
 	}
-	// Stackableアイテムの合成では、SpawnBackpackItem内の統合処理で
+	// スタックアイテムの合成では、SpawnBackpackItem内の統合処理で
 	// resultEntityが既存スタックへ統合されて削除されることがある。
 	// その場合は統合先の生存エンティティを結果として扱う
 	if !world.ECS.Alive(resultEntity) {
-		if survivor, found := query.FindStackableInInventory(world, name); found {
+		if survivor, found := query.FindStackInInventory(world, name); found {
 			resultEntity = survivor
 		}
 	}
@@ -59,7 +59,7 @@ func CanCraft(world w.World, name string) (bool, error) {
 	}
 
 	for _, recipeInput := range required {
-		entity, found := query.FindStackableInInventory(world, recipeInput.ID)
+		entity, found := query.FindStackInInventory(world, recipeInput.ID)
 		if !found {
 			return false, nil
 		}
@@ -77,7 +77,7 @@ func CanCraft(world w.World, name string) (bool, error) {
 func consumeMaterials(world w.World, goal string, craftCostPct consts.Percent) error {
 	for _, recipeInput := range requiredMaterials(world, goal) {
 		consumed := max(craftCostPct.ApplyInt(recipeInput.Amount), 1)
-		err := lifecycle.ChangeStackableCount(world, recipeInput.ID, -consumed)
+		err := lifecycle.ChangeStackCount(world, recipeInput.ID, -consumed)
 		if err != nil {
 			return err
 		}
@@ -104,9 +104,9 @@ func requiredMaterials(world w.World, need string) []gc.RecipeInput {
 // randomize はアイテムにランダム値を設定する。
 // smithQualityPctは品質倍率%で、100が基準。高いほどボーナスが大きくなる。
 func randomize(world w.World, entity ecs.Entity, smithQualityPct consts.Percent) {
-	// Stackableなアイテムを合成した場合、SpawnBackpackItem内の統合処理で
+	// スタックなアイテムを合成した場合、SpawnBackpackItem内の統合処理で
 	// このエンティティが既存スタックに統合されて削除されていることがある。
-	// 統合済みStackableに武器/防具の乱数化は不要なので、死亡していれば何もしない
+	// 統合済みスタックに武器/防具の乱数化は不要なので、死亡していれば何もしない
 	if !world.ECS.Alive(entity) {
 		return
 	}

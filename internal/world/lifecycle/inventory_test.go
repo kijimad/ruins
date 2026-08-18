@@ -43,7 +43,7 @@ func TestChangeItemCount(t *testing.T) {
 		assert.False(t, world.ECS.Alive(item), "アイテムが削除されているべき")
 	})
 
-	t.Run("Stackableアイテムの一部を消費", func(t *testing.T) {
+	t.Run("スタックアイテムの一部を消費", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -58,7 +58,7 @@ func TestChangeItemCount(t *testing.T) {
 		assert.Equal(t, 3, backpackCount(world, "healing_potion"))
 	})
 
-	t.Run("Stackableアイテムを全て消費すると削除される", func(t *testing.T) {
+	t.Run("スタックアイテムを全て消費すると削除される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 

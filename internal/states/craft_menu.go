@@ -294,7 +294,7 @@ func (st *CraftMenuState) detailContent(world w.World) (overlay.DetailContent, b
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Materials"), Header: true})
 		for _, in := range spec.Recipe.Inputs {
 			owned := 0
-			if entity, found := query.FindStackableInInventory(world, in.ID); found {
+			if entity, found := query.FindStackInInventory(world, in.ID); found {
 				owned = query.GetEntityCount(world, entity)
 			}
 			rowColor := theme.StatusDanger
