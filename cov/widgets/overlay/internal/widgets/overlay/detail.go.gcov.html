@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">43.6&nbsp;%</td>
+            <td class="headerCovTableEntryLo">72.7&nbsp;%</td>
             <td class="headerCovTableEntry">55</td>
-            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">40</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-17 23:20:12</td>
+            <td class="headerValue">2026-08-18 00:21:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,15 +90,15 @@
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         if !world.ECS.Alive(e) {</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return DetailContent{}</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 :         desc := &quot;&quot;</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         if world.Components.Description.Has(e) {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 desc = query.T(world, world.Components.Description.Get(e).Description)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         return DetailContent{</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 Name: query.GetEntityName(e, world),</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 Desc: desc,</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 Rows: entityspec.SpecRows(world, e),</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         desc := &quot;&quot;</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :         if world.Components.Description.Has(e) {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 desc = query.T(world, world.Components.Description.Get(e).Description)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         return DetailContent{</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 Name: query.GetEntityName(e, world),</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 Desc: desc,</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 Rows: entityspec.SpecRows(world, e),</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : }</span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span>              : // Detail は詳細モーダルの表示状態・ページ送り入力・ウィンドウ組み立てをまとめて担う。</span>
@@ -112,24 +112,24 @@
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span>              : // NewDetail は現在カーソルが指す対象の詳細内容を返す provide を受け取り Detail を作る。</span>
 <span id="L52"><span class="lineNum">      52</span>              : // provide は対象が無ければ ok=false を返す</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 : func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         return Detail{provide: provide}</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : </span>
 <span id="L57"><span class="lineNum">      57</span>              : // NewEntityDetail は選択中の実体をそのまま詳細に出す Detail を作る。</span>
 <span id="L58"><span class="lineNum">      58</span>              : // 対象の解決だけ渡せば、名前・説明・性能は実体から組む。対象が無いか死んでいれば開かない</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC tlaBgUNC">           0 : func NewEntityDetail(provide func() (ecs.Entity, bool)) Detail {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         return NewDetail(func(world w.World) (DetailContent, bool) {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                 e, ok := provide()</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                 if !ok || !world.ECS.Alive(e) {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                         return DetailContent{}, false</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                 return EntityDetailContent(world, e), true</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : func NewEntityDetail(provide func() (ecs.Entity, bool)) Detail {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :         return NewDetail(func(world w.World) (DetailContent, bool) {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 e, ok := provide()</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :                 if !ok || !world.ECS.Alive(e) {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                         return DetailContent{}, false</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 return EntityDetailContent(world, e), true</span></span>
 <span id="L66"><span class="lineNum">      66</span>              :         })</span>
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              : // Active は詳細モーダルを表示中かを返す</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC tlaBgGNC">           1 : func (d *Detail) Active() bool { return d.active }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 : func (d *Detail) Active() bool { return d.active }</span></span>
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              : // Open は詳細モーダルを先頭ページで開く。出す内容が無ければ開かない。</span>
 <span id="L73"><span class="lineNum">      73</span>              : // アイテムが無いメニューで開くと、中身の無いモーダルが入力を奪って抜けられなくなるのを防ぐ。</span>
