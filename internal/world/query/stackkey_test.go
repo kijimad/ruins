@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,14 +34,15 @@ func TestStackKeyOf_鮮度と品種でキーが決まる(t *testing.T) {
 
 func TestSameStack_同一判定(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
 
-	newNonPerish := func(id string) ecs.Entity {
+	// 並列サブテストは world を共有しない。Ark の world は NewEntity/Add が構造変更なので、
+	// 共有すると並行生成でデータ競合になる。各サブテストが自分の world を持つ
+	newNonPerish := func(world w.World, id string) ecs.Entity {
 		e := world.ECS.NewEntity()
 		world.Components.RawID.Add(e, &gc.RawID{ID: id})
 		return e
 	}
-	newPerish := func(id string, rot consts.Turn) ecs.Entity {
+	newPerish := func(world w.World, id string, rot consts.Turn) ecs.Entity {
 		e := world.ECS.NewEntity()
 		world.Components.RawID.Add(e, &gc.RawID{ID: id})
 		world.Components.Perishable.Add(e, &gc.Perishable{StageLength: consts.Turn(100), RotAccrued: rot})
@@ -49,23 +51,28 @@ func TestSameStack_同一判定(t *testing.T) {
 
 	t.Run("非腐敗で同じ品種は束ねる", func(t *testing.T) {
 		t.Parallel()
-		assert.True(t, SameStack(world, newNonPerish("bolt"), newNonPerish("bolt")))
+		world := testutil.InitTestWorld(t)
+		assert.True(t, SameStack(world, newNonPerish(world, "bolt"), newNonPerish(world, "bolt")))
 	})
 	t.Run("品種が違えば束ねない", func(t *testing.T) {
 		t.Parallel()
-		assert.False(t, SameStack(world, newNonPerish("bolt"), newNonPerish("nut")))
+		world := testutil.InitTestWorld(t)
+		assert.False(t, SameStack(world, newNonPerish(world, "bolt"), newNonPerish(world, "nut")))
 	})
 	t.Run("腐敗で同じ段階なら束ねる", func(t *testing.T) {
 		t.Parallel()
-		assert.True(t, SameStack(world, newPerish("apple", 0), newPerish("apple", 50)), "どちらも fresh 段階")
+		world := testutil.InitTestWorld(t)
+		assert.True(t, SameStack(world, newPerish(world, "apple", 0), newPerish(world, "apple", 50)), "どちらも fresh 段階")
 	})
 	t.Run("腐敗で段階が違えば束ねない", func(t *testing.T) {
 		t.Parallel()
-		assert.False(t, SameStack(world, newPerish("apple", 0), newPerish("apple", 150)), "fresh と stale")
+		world := testutil.InitTestWorld(t)
+		assert.False(t, SameStack(world, newPerish(world, "apple", 0), newPerish(world, "apple", 150)), "fresh と stale")
 	})
 	t.Run("腐敗と非腐敗は同じ品種でも束ねない", func(t *testing.T) {
 		t.Parallel()
-		assert.False(t, SameStack(world, newNonPerish("apple"), newPerish("apple", 0)))
+		world := testutil.InitTestWorld(t)
+		assert.False(t, SameStack(world, newNonPerish(world, "apple"), newPerish(world, "apple", 0)))
 	})
 }
 
