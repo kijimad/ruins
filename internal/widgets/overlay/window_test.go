@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ebitenui/ebitenui/widget"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -58,6 +59,23 @@ func TestDetailPageCount(t *testing.T) {
 			assert.Equal(t, tt.want, detailPageCount(tt.rowCount))
 		})
 	}
+}
+
+// TestDetailPageCount_実体の性能行数からページ数を算出する は、公開の DetailPageCount が
+// entityspec.SpecRows の行数を detailPageCount に正しく渡していることを固定する。
+func TestDetailPageCount_実体の性能行数からページ数を算出する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	noComponent := world.ECS.NewEntity()
+	assert.Equal(t, 1, DetailPageCount(world, noComponent), "性能行が無い実体は1ページに丸める")
+
+	withAbilities := world.ECS.NewEntity()
+	world.Components.Abilities.Add(withAbilities, &gc.Abilities{
+		Vitality: gc.Ability{Base: 10},
+	})
+	assert.Equal(t, 1, DetailPageCount(world, withAbilities), "Abilitiesの6行は1ページに収まる")
 }
 
 func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *testing.T) {

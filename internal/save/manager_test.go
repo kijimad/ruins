@@ -2,7 +2,6 @@ package save
 
 import (
 	"encoding/json"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -100,11 +99,11 @@ func TestValidJSONButNoChecksum(t *testing.T) {
 		"timestamp": "2024-01-01T00:00:00Z",
 		"world": {}
 	}`
-	err := os.WriteFile(testDir+"/valid_no_checksum.json", []byte(validJSONNoChecksum), 0644)
-	require.NoError(t, err)
 
 	manager, err := NewSerializationManager(WithSaveDir(testDir))
 	require.NoError(t, err)
+	require.NoError(t, manager.storeSaveJSON("valid_no_checksum", []byte(validJSONNoChecksum)))
+
 	world := testutil.InitTestWorld(t)
 
 	err = manager.LoadWorld(world, "valid_no_checksum")
@@ -126,7 +125,7 @@ func TestChecksumValidation(t *testing.T) {
 	err = manager.SaveWorld(world, "test_checksum")
 	require.NoError(t, err)
 
-	data, err := manager.loadDataImpl("test_checksum")
+	data, err := manager.loadSaveJSON("test_checksum")
 	require.NoError(t, err)
 
 	var env saveEnvelope
@@ -166,7 +165,7 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	err = manager.SaveWorld(world, "test_tampered")
 	require.NoError(t, err)
 
-	data, err := manager.loadDataImpl("test_tampered")
+	data, err := manager.loadSaveJSON("test_tampered")
 	require.NoError(t, err)
 
 	var env saveEnvelope
@@ -179,7 +178,7 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	tamperedData, err := json.MarshalIndent(env, "", "  ")
 	require.NoError(t, err)
 
-	err = manager.saveDataImpl("test_tampered", tamperedData)
+	err = manager.storeSaveJSON("test_tampered", tamperedData)
 	require.NoError(t, err)
 
 	err = manager.LoadWorld(world, "test_tampered")
@@ -243,7 +242,7 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	oldFormatJSON, err := json.MarshalIndent(oldFormatData, "", "  ")
 	require.NoError(t, err)
 
-	err = manager.saveDataImpl("old_format_test", oldFormatJSON)
+	err = manager.storeSaveJSON("old_format_test", oldFormatJSON)
 	require.NoError(t, err)
 
 	err = manager.LoadWorld(world, "old_format_test")

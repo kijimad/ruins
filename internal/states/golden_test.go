@@ -55,10 +55,6 @@ func TestGolden(t *testing.T) {
 		{"SettingsMenu", func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
 		}},
-		{"LanguageMenu", func(w.World) ([]es.State[w.World], error) {
-			s, err := gs.NewLanguageMenuState()
-			return []es.State[w.World]{&gs.MainMenuState{}, s}, err
-		}},
 		{"CharacterNaming", func(w.World) ([]es.State[w.World], error) {
 			return []es.State[w.World]{&gs.CharacterNamingState{}}, nil
 		}},
