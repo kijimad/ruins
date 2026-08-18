@@ -64,21 +64,38 @@ type Screen[P any] struct {
 	overlays      []overlay.Layer
 	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
 	seeded        bool      // 初期タブへ寄せたか
-	// commands は任意のコマンド供給源。nil なら本番のキーボード経路。
-	// 設定時はキーボードより優先し、決めた順にコマンドを1フレーム1件で返す。再生ドライバが差す
-	commands func() (inputmapper.ActionID, bool)
+	// input は1フレームの入力ソース。既定は state の ExtraInput を先に見て、無ければキーボード経路へ落ちる。
+	// 再生ドライバは SetCommandSource でコマンド供給源をこの前段に差し込む
+	input func() (inputmapper.ActionID, bool)
 }
 
-// SetCommandSource は再生用のコマンド供給源を差す。本番は呼ばず nil のままで、テストや再生ドライバから使う。
-// 供給源は1フレーム1件でコマンドを返し、尽きたら (_, false) を返してキーボード経路へ戻す
+// SetCommandSource はコマンド供給源を入力ソースの前段に差し込む。本番は呼ばず既定のキーボード経路の
+// ままで、テストや再生ドライバから使う。供給源は1フレーム1件で返し、尽きたら (_, false) を返して
+// 既定の入力ソースへ落ちる
 func (s *Screen[P]) SetCommandSource(src func() (inputmapper.ActionID, bool)) {
-	s.commands = src
+	base := s.input
+	s.input = func() (inputmapper.ActionID, bool) {
+		if action, ok := src(); ok {
+			return action, true
+		}
+		return base()
+	}
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
 // 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す
 func NewScreen[P any](model Model[P], overlays ...overlay.Layer) *Screen[P] {
-	return &Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
+	s := &Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
+	// 既定の入力ソース。独自キーが要る state は ExtraInput を先に見て、無ければ共通のキーボード経路へ落ちる
+	s.input = func() (inputmapper.ActionID, bool) {
+		if h, ok := model.(ExtraInput); ok {
+			if action, ok := h.ExtraInput(); ok {
+				return action, true
+			}
+		}
+		return HandleMenuInput()
+	}
+	return s
 }
 
 // Props は現在の props を返す。View 以外から現在値を参照する必要があるとき使う
@@ -94,20 +111,10 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 	return nil
 }
 
-// readAction は1フレームの入力を Action に変換する。ExtraInput を持つ state はそれを先に試し、
-// 拾わなければ共通の HandleMenuInput にフォールバックする。1フレーム1アクションで ExtraInput が優先する
+// readAction は1フレームの入力ソースから Action を1件読む。ソースの組み立ては NewScreen の
+// 既定と SetCommandSource の前段差し込みが決める
 func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) {
-	if s.commands != nil {
-		if action, ok := s.commands(); ok {
-			return action, true
-		}
-	}
-	if h, ok := s.model.(ExtraInput); ok {
-		if action, ok := h.ExtraInput(); ok {
-			return action, true
-		}
-	}
-	return HandleMenuInput()
+	return s.input()
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、
