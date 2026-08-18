@@ -15,28 +15,17 @@ type CommandDriven interface {
 	SetCommandSource(src func() (inputmapper.ActionID, bool))
 }
 
-// scenarioSource は残りのコマンドを保持し、next で先頭から1フレーム1件ずつ供給する
-type scenarioSource struct {
-	rest []inputmapper.ActionID
-}
-
-// newScenarioSource は Scenario から供給源を作る
-func newScenarioSource(sc Scenario) *scenarioSource {
-	return &scenarioSource{rest: sc.Commands}
-}
-
-// next は次のコマンドを1件返す。尽きたら (_, false) を返し、Screen はキーボード経路へ戻る
-func (s *scenarioSource) next() (inputmapper.ActionID, bool) {
-	if len(s.rest) == 0 {
-		return "", false
-	}
-	a := s.rest[0]
-	s.rest = s.rest[1:]
-	return a, true
-}
-
-// NewScenarioReplay は Scenario を1フレーム1件で吐く供給源関数を返す。
-// 再生ドライバが CommandDriven.SetCommandSource へ渡す。テスト専用の生成口。
+// NewScenarioReplay は Scenario を1フレーム1件で吐く供給源関数を返す。返す関数は残りの
+// コマンドをクロージャに閉じ込め、呼ぶたび先頭から消費する。尽きたら (_, false) を返し、
+// Screen はキーボード経路へ戻る。再生ドライバが CommandDriven.SetCommandSource へ渡す。
 func NewScenarioReplay(sc Scenario) func() (inputmapper.ActionID, bool) {
-	return newScenarioSource(sc).next
+	rest := sc.Commands
+	return func() (inputmapper.ActionID, bool) {
+		if len(rest) == 0 {
+			return "", false
+		}
+		a := rest[0]
+		rest = rest[1:]
+		return a, true
+	}
 }
