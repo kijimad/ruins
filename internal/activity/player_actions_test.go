@@ -149,13 +149,14 @@ func TestShowTileInteractionMessage_床の同種スタックは1行にまとめ�
 	playerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
 	showTileInteractionMessage(world, playerGrid)
 
-	hits := 0
+	var hits []string
 	for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
 		if strings.Contains(e.Text(), "is here") {
-			hits++
+			hits = append(hits, e.Text())
 		}
 	}
-	assert.Equal(t, 1, hits, "同種3個でもログは1行にまとまる")
+	require.Len(t, hits, 1, "同種3個でもログは1行にまとまる")
+	assert.Contains(t, hits[0], "3", "1行に個数がまとめて出る")
 }
 
 func TestExecuteWaitAction(t *testing.T) {
