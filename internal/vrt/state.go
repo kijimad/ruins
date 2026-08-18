@@ -59,7 +59,7 @@ func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World], d
 
 	var out *image.NRGBA
 	WithUILock(func() {
-		sm := setupStateMachine(t, world, buildStates)
+		sm := SetupStateMachine(t, world, buildStates)
 		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
 		drawStates(sm, world, screen)
 		out = captureScreen(screen)
@@ -67,9 +67,9 @@ func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World], d
 	return out
 }
 
-// setupStateMachine はステートを構築しレイアウト確定までフレームを回す。
+// SetupStateMachine はステートを構築しレイアウト確定までフレームを回す。
 // ebitenui グローバルに触れるため WithUILock 区間から呼ぶ。
-func setupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []es.State[w.World]) es.StateMachine[w.World] {
+func SetupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []es.State[w.World]) es.StateMachine[w.World] {
 	t.Helper()
 	states := buildStates(world)
 	require.NotEmpty(t, states, "at least one state is required")

@@ -35,7 +35,7 @@ func PlayScenario(
 
 	var sm es.StateMachine[w.World]
 	vrt.WithUILock(func() {
-		sm = setupStates(t, world, buildStates)
+		sm = vrt.SetupStateMachine(t, world, buildStates)
 
 		// 最上段の state へ供給源を差す。レイアウト確定フレームは供給源なしで回るのでコマンドを消費しない
 		states := sm.GetStates()
@@ -60,29 +60,5 @@ func PlayScenario(
 		// Push/Pop を反映させるため、供給源が尽きた状態でもう1フレーム回して遷移を確定させる
 		require.NoError(t, sm.Update(world), "final transition flush failed")
 	})
-	return sm
-}
-
-// setupStates は state 列を構築しレイアウト確定までフレームを回す。vrt.WithUILock 区間から呼ぶ。
-// vrt の非公開 setupStateMachine と同等の最小手順。依存を増やさないためここへ持つ。
-func setupStates(t *testing.T, world w.World, buildStates func(w.World) []es.State[w.World]) es.StateMachine[w.World] {
-	t.Helper()
-	states := buildStates(world)
-	require.NotEmpty(t, states, "at least one state is required")
-
-	sm, err := es.Init(states[0], world)
-	require.NoError(t, err)
-	require.NoError(t, sm.Update(world))
-
-	if len(states) > 1 {
-		require.NoError(t, sm.PushState(world, states[1:]...))
-	}
-
-	// レイアウト確定のためフレームを回す
-	for range 10 {
-		if err := sm.Update(world); err != nil {
-			break
-		}
-	}
 	return sm
 }
