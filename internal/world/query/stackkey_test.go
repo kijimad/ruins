@@ -87,6 +87,30 @@ func TestStackMembers_装備品や未配置は単独スタックになる(t *tes
 	assert.Equal(t, 1, GetEntityCount(world, bare))
 }
 
+func TestStackMembers_床は同じタイルの同種だけ束ねる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	onField := func(id string, x, y consts.Tile) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: id})
+		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
+		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		return e
+	}
+
+	// タイル(2,3)に apple 3個
+	apple := onField("apple", 2, 3)
+	onField("apple", 2, 3)
+	onField("apple", 2, 3)
+	// 別タイルの同種、同タイルの別品種は束ねない
+	onField("apple", 4, 3)
+	onField("bolt", 2, 3)
+
+	assert.Len(t, StackMembers(world, apple), 3, "同タイルの apple だけ束ねる")
+	assert.Equal(t, 3, GetEntityCount(world, apple), "床でも同種の個数を導出する")
+}
+
 func TestGroupStacks_同一性キーで束ね初出順を保つ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

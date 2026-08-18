@@ -179,6 +179,8 @@ func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
 // showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する
 func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	entities := GetAllInteractiveInteractablesInRange(world, playerGrid)
+	// 同一スタックは1行にまとめる。床の同種エンティティごとに重複ログを出さない
+	loggedItemStacks := map[query.StackKey]bool{}
 	for _, entity := range entities {
 		interactable := world.Components.Interactable.Get(entity)
 		for _, interaction := range interactable.Interactions {
@@ -187,6 +189,11 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			}
 			switch interaction {
 			case gc.InteractionItem:
+				key := query.StackKeyOf(world, entity)
+				if loggedItemStacks[key] {
+					continue
+				}
+				loggedItemStacks[key] = true
 				formattedName := query.FormatItemName(world, entity)
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "%s is here.", gamelog.Tag("item", formattedName))).

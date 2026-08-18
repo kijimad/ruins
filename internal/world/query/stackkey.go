@@ -77,9 +77,29 @@ func StackMembers(world w.World, entity ecs.Entity) []ecs.Entity {
 	case world.Components.LocationInStorage.Has(entity):
 		owner := world.Components.LocationInStorage.Get(entity).Owner
 		return sameStackInStorage(world, owner, key)
+	case world.Components.LocationOnField.Has(entity):
+		if ge := world.Components.GridElement.Get(entity); ge != nil {
+			return sameStackOnField(world, ge, key)
+		}
+		return []ecs.Entity{entity}
 	default:
 		return []ecs.Entity{entity}
 	}
+}
+
+// sameStackOnField は床の同じタイルにある同一スタックのエンティティを返す。床アイテムは
+// 所有者を持たず位置で束ねるため、同座標かつ同キーのものを数える。
+func sameStackOnField(world w.World, grid *gc.GridElement, key StackKey) []ecs.Entity {
+	var out []ecs.Entity
+	q := ecs.NewFilter2[gc.LocationOnField, gc.GridElement](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		ge := world.Components.GridElement.Get(e)
+		if ge.X == grid.X && ge.Y == grid.Y && StackKeyOf(world, e) == key {
+			out = append(out, e)
+		}
+	}
+	return out
 }
 
 func sameStackInBackpack(world w.World, owner ecs.Entity, key StackKey) []ecs.Entity {
