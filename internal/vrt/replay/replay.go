@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/maingame"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/vrt"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -36,6 +37,8 @@ func PlayScenario(
 	var sm es.StateMachine[w.World]
 	vrt.WithUILock(func() {
 		sm = vrt.SetupStateMachine(t, world, buildStates)
+		game, err := maingame.NewMainGame(world, sm)
+		require.NoError(t, err)
 
 		// 最上段の state へ供給源を差す。レイアウト確定フレームは供給源なしで回るのでコマンドを消費しない
 		states := sm.GetStates()
@@ -44,20 +47,20 @@ func PlayScenario(
 		driven.SetCommandSource(src)
 
 		for step := range scenario.Commands {
+			// 駆動は本番と同じ StateMachine.Update。MainGame.Update はこれに開発用のデバッグ
+			// トグルを重ねるだけで、そのキー読み取りがヘッドレスでコマンド注入を乱すため使わない
 			require.NoError(t, sm.Update(world), "scenario step %d update failed", step)
 			if capture == nil {
 				continue
 			}
-			// 各ステップの見た目を撮る。ステート列を下から重ねて描く
+			// 描画は本番の renderer 経由。ポスト処理まで含めて実画面と同じ絵になる
 			screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-			for _, s := range sm.GetStates() {
-				require.NoError(t, s.Draw(world, screen), "scenario step %d draw failed", step)
-			}
+			game.Draw(screen)
 			capture(step, world, screen)
 		}
 
-		// StateMachine は state が返した遷移を次フレーム冒頭で適用する。最後のコマンドが返した
-		// Push/Pop を反映させるため、供給源が尽きた状態でもう1フレーム回して遷移を確定させる
+		// StateMachine は state が返した遷移を次フレーム冒頭で適用する。本番ループも同じ1フレーム
+		// 遅延を持つ。最後のコマンドの Push/Pop を反映させるため終端でもう1フレーム回して確定させる
 		require.NoError(t, sm.Update(world), "final transition flush failed")
 	})
 	return sm
