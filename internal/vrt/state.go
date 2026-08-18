@@ -26,8 +26,7 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 
 // AssertStateGolden はステートの描画結果を name のゴールデン画像 testdata/name.png と比較する。
 // golden 名はサブテスト名でなく呼び出し側が明示する。t.Run のスラッシュが保存先に混ざらない。
-// GOLDIE_UPDATE=1 で更新する。ピクセル差分がトレランス内なら更新をスキップし、ebitenui の
-// 時間依存ノイズによる不要な差分を防ぐ。
+// GOLDIE_UPDATE=1 で更新する。
 func AssertStateGolden(t *testing.T, name string, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
 	assertPNGGolden(t, name, RenderPNG(t, buildStates))

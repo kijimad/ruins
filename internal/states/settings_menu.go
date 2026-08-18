@@ -35,8 +35,7 @@ func (st *SettingsMenuState) OnStart(_ w.World) error {
 	return nil
 }
 
-// SetCommandSource は再生ドライバ用に Screen へコマンド供給源を差す。menuloop.CommandDriven を満たす。
-// 本番は呼ばれず、供給源なしなら従来どおりキーボードで動く
+// SetCommandSource は Screen へ委譲し menuloop.CommandDriven を満たす。再生ドライバ用の口
 func (st *SettingsMenuState) SetCommandSource(src func() (inputmapper.ActionID, bool)) {
 	st.screen.SetCommandSource(src)
 }

@@ -86,7 +86,6 @@ func (s *Screen[P]) SetCommandSource(src func() (inputmapper.ActionID, bool)) {
 // 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す
 func NewScreen[P any](model Model[P], overlays ...overlay.Layer) *Screen[P] {
 	s := &Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
-	// 既定の入力ソース。独自キーが要る state は ExtraInput を先に見て、無ければ共通のキーボード経路へ落ちる
 	s.input = func() (inputmapper.ActionID, bool) {
 		if h, ok := model.(ExtraInput); ok {
 			if action, ok := h.ExtraInput(); ok {
