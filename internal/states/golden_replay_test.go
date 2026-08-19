@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/vrt/replay"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/require"
@@ -24,9 +25,11 @@ import (
 func TestGoldenReplay(t *testing.T) {
 	t.Parallel()
 
+	// build は fixture の error をそのまま返し、サブテストで require する。
+	// *testing.T を取らないことで thelper の誤検知を避ける。golden_test.go の build と同じ規約
 	cases := []struct {
 		name    string
-		build   func(world w.World) []es.State[w.World]
+		build   func(world w.World) ([]es.State[w.World], error)
 		actions []inputmapper.ActionID
 		shots   []string
 	}{
@@ -35,8 +38,8 @@ func TestGoldenReplay(t *testing.T) {
 		// 閉じたあと1段になることは replay の遷移テストが押さえている
 		{
 			name: "SettingsMenuClose",
-			build: func(w.World) []es.State[w.World] {
-				return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
 			},
 			actions: []inputmapper.ActionID{
 				inputmapper.ActionMenuDown,   // カーソルを Language から Back へ移す
@@ -53,8 +56,8 @@ func TestGoldenReplay(t *testing.T) {
 		// push した先の画は TestGolden_SettingsMenu と同一なので撮らない
 		{
 			name: "MainMenuOpenSettings",
-			build: func(w.World) []es.State[w.World] {
-				return []es.State[w.World]{&gs.MainMenuState{}}
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.MainMenuState{}}, nil
 			},
 			actions: []inputmapper.ActionID{
 				inputmapper.ActionMenuDown,   // Start から Demo へ
@@ -70,6 +73,24 @@ func TestGoldenReplay(t *testing.T) {
 				"",
 			},
 		},
+		// x で開く詳細モーダルの描画を固定する。個数とタイトルバーが無く、性能・性質と説明が
+		// 並ぶことを覆う。入力ゲートと overlay 重ねを含む本番経路で撮る
+		{
+			name: "ItemActionDetail",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{&gs.ItemActionState{}}, nil
+			},
+			actions: []inputmapper.ActionID{
+				inputmapper.ActionOpenItemDetail, // 調べるタブ先頭アイテムの詳細モーダルを開く
+			},
+			shots: []string{
+				"",
+				"TestGolden_ItemActionDetail",
+			},
+		},
 	}
 
 	for _, tc := range cases {
@@ -77,7 +98,13 @@ func TestGoldenReplay(t *testing.T) {
 			t.Parallel()
 			require.Len(t, tc.shots, len(tc.actions)+1, "shots は Action 数+1 フレームぶん要る")
 
-			replay.PlayScenario(t, tc.build, tc.actions,
+			replay.PlayScenario(t,
+				func(world w.World) []es.State[w.World] {
+					built, err := tc.build(world)
+					require.NoError(t, err)
+					return built
+				},
+				tc.actions,
 				func(frame int, _ w.World, screen *ebiten.Image) {
 					if name := tc.shots[frame]; name != "" {
 						vrt.AssertFrameGolden(t, name, screen)
