@@ -194,15 +194,9 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
 	}
 
-	var playerEntity ecs.Entity
-	var found bool
-	playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()
-	// プレイヤーは1体なので最初の1件で確定し、残りの走査を打ち切る
-	if playerQuery.Next() {
-		playerEntity = playerQuery.Entity()
-		found = true
-		playerQuery.Close()
-	}
+	// プレイヤー不在は許す。テスト等で所有者なしのバックパックへ入れる
+	playerEntity, playerErr := query.GetPlayerEntity(world)
+	found := playerErr == nil
 
 	last := gc.InvalidEntity
 	for range count {

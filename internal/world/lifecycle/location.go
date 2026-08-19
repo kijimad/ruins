@@ -224,8 +224,10 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	var playerEntity ecs.Entity
 	var found bool
 
-	playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.ECS).Query()
+	// query.GetPlayerEntity でなくフィルタで探す。後続の Get が座標・スプライト・カメラの
+	// 存在を前提にするため、4成分そろったプレイヤーだけをここで担保する。
 	// プレイヤーは1体なので最初の1件で確定し、残りの走査を打ち切る
+	playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.ECS).Query()
 	if playerQuery.Next() {
 		playerEntity = playerQuery.Entity()
 		found = true
