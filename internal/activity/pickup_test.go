@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -172,8 +173,8 @@ func TestPickupBehavior_DoTurn_Target(t *testing.T) {
 		item2, err := lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
 		require.NoError(t, err)
 
-		// 特定のアイテム1つだけを対象にする
-		comp := NewPickupActivity(item1)
+		// item1 のスタックだけを対象にする。別品種の item2 は別スタックなので残る
+		comp := NewPickupStackActivity(world, item1)
 
 		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
@@ -191,6 +192,29 @@ func TestPickupBehavior_DoTurn_Target(t *testing.T) {
 	})
 }
 
+func TestNewPickupStackActivity_同一スタックをまとめて拾う(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+
+	// 同一品種3個を同じタイルへ。代表1個を対象にスタック丸ごと拾う
+	rep, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 3)
+	require.NoError(t, err)
+	require.Equal(t, 3, query.GetEntityCount(world, rep), "拾う前は床に3個")
+
+	comp := NewPickupStackActivity(world, rep)
+	pa := &PickupBehavior{}
+	require.NoError(t, pa.DoTurn(comp, player, world))
+	assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+
+	// 代表を含むスタック全部がバックパックへ移る。表示の個数と拾う個数が揃う
+	assert.Equal(t, 3, query.GetEntityCount(world, rep), "3個ともバックパックのスタックになる")
+	assert.True(t, world.Components.LocationInBackpack.Has(rep))
+	assert.Empty(t, query.PickablesAt(world, consts.Coord[consts.Tile]{X: 10, Y: 10}), "床に拾える物は残らない")
+}
+
 func TestPickupBehavior_Validate_Target(t *testing.T) {
 	t.Parallel()
 
@@ -204,7 +228,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
 		require.NoError(t, err)
 
-		comp := NewPickupActivity(item)
+		comp := NewPickupStackActivity(world, item)
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
@@ -224,7 +248,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		comp := NewPickupActivity(prop)
+		comp := NewPickupStackActivity(world, prop)
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)

@@ -12,41 +12,87 @@ import (
 )
 
 // MoveToBackpack はエンティティをバックパックに移動する。
-// Stackableアイテムの場合、バックパック内の同名アイテムと自動的に統合する
+// 1個1エンティティなので統合はしない。同一スタックの束ねは表示側が stackKey で行う。
 func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	clearLocation(world, entity)
 	world.Components.LocationInBackpack.Add(entity, &gc.LocationInBackpack{Owner: owner})
 	ensureRemoved(world.Components.GridElement, entity)
 	ensureMarker(world, world.Components.StatsChanged, owner, &gc.StatsChanged{})
 	ensureMarker(world, world.Components.WeightDirty, owner, &gc.WeightDirty{})
+	return nil
+}
 
-	if world.Components.Stackable.Has(entity) {
-		id := world.Components.RawID.Get(entity).ID
-		if err := mergeStackableItems(world, id, mergeInBackpack, owner); err != nil {
-			return fmt.Errorf("failed to merge items in backpack: %w", err)
-		}
+// TransferUnits は item が属するスタックのうち count 個を recipient のバックパックへ移す。
+// count が0以下、または在庫数以上ならスタックを丸ごと移す。1個1エンティティなので、
+// 同一スタックのエンティティを count 個選んで移すだけでよい。生成や分割は不要。
+func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count int) error {
+	members := query.StackMembers(world, item)
+	move := count
+	if count <= 0 || count >= len(members) {
+		move = len(members)
+	}
+	if _, err := MoveMembersToBackpack(world, members[:move], recipient); err != nil {
+		return fmt.Errorf("failed to transfer unit: %w", err)
 	}
 	return nil
 }
 
-// TransferUnits は item のうち count 個だけ recipient のバックパックへ移す。
-// count が0以下、または在庫数以上なら item を丸ごと移す。在庫数より少なければ、
-// 元スタックを count 個減らし、同名の count 個を生成して recipient のバックパックへ統合する。
-func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count int) error {
-	available := query.GetEntityCount(world, item)
-	if count <= 0 || count >= available {
-		return MoveToBackpack(world, item, recipient)
-	}
+// MoveStackToBackpack は rep と同一スタックを丸ごとバックパックへ移す。移せた個数を返す。
+// 同一スタックの実体は呼び出し時点の世界から束ね直す。前フレームの一覧から実体列を持ち越すと
+// 消えた実体が混ざりうるため、呼び出し側は代表だけを渡す
+func MoveStackToBackpack(world w.World, rep ecs.Entity, owner ecs.Entity) (int, error) {
+	return MoveMembersToBackpack(world, query.StackMembers(world, rep), owner)
+}
 
-	id := world.Components.RawID.Get(item).ID
-	if err := ChangeItemCount(world, item, -count); err != nil {
-		return fmt.Errorf("failed to decrement source stack: %w", err)
+// MoveStackToStorage は rep と同一スタックを丸ごと収納へ移す。移せた個数を返す。
+// 容量判定は呼び出し側が事前に行う
+func MoveStackToStorage(world w.World, rep ecs.Entity, storage ecs.Entity) (int, error) {
+	return MoveMembersToStorage(world, query.StackMembers(world, rep), storage)
+}
+
+// MoveStackToField は rep と同一スタックを丸ごと指定タイルへ落とす。移した個数を返す
+func MoveStackToField(world w.World, rep ecs.Entity, coord consts.Coord[consts.Tile], previousOwner ecs.Entity) int {
+	return MoveMembersToField(world, query.StackMembers(world, rep), coord, previousOwner)
+}
+
+// MoveMembersToBackpack は members を全てバックパックへ移す。移せた個数を返す。
+// スタック丸ごとの移動は MoveStackTo* が代表から束ねて委譲する。実体列を直接受けるこの層は、
+// 部分移動や、スタックに限らない一括移動が使う。移動先の詳細だけをここに集約する。
+func MoveMembersToBackpack(world w.World, members []ecs.Entity, owner ecs.Entity) (int, error) {
+	moved := 0
+	var errs []error
+	for _, member := range members {
+		if err := MoveToBackpack(world, member, owner); err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		moved++
 	}
-	moved, err := spawnItemBase(world, id, count)
-	if err != nil {
-		return fmt.Errorf("failed to generate %d units to transfer: %w", count, err)
+	return moved, errors.Join(errs...)
+}
+
+// MoveMembersToStorage は members を全て収納へ移す。移せた個数を返す。容量判定は呼び出し側が事前に行う。
+func MoveMembersToStorage(world w.World, members []ecs.Entity, storage ecs.Entity) (int, error) {
+	moved := 0
+	var errs []error
+	for _, member := range members {
+		if err := MoveToStorage(world, member, storage); err != nil {
+			errs = append(errs, err)
+			continue
+		}
+		moved++
 	}
-	return MoveToBackpack(world, moved, recipient)
+	return moved, errors.Join(errs...)
+}
+
+// MoveMembersToField は members を全て指定タイルへ落とす。各個体に GridElement を付け、床の同一スタックへ束ねる。
+// GridElement 付与を移動と対にしてここへ集約し、片方だけ忘れて床に出ないバグを防ぐ。移した個数を返す。
+func MoveMembersToField(world w.World, members []ecs.Entity, coord consts.Coord[consts.Tile], previousOwner ecs.Entity) int {
+	for _, member := range members {
+		MoveToField(world, member, &previousOwner)
+		world.Components.GridElement.Add(member, &gc.GridElement{Coord: coord})
+	}
+	return len(members)
 }
 
 // MoveToEquip はエンティティを指定スロットに装備する
@@ -101,19 +147,12 @@ func SpillStorageItems(world w.World, storage ecs.Entity, x consts.Tile, y const
 }
 
 // MoveToStorage はエンティティを収納に移動する。
-// Stackableアイテムの場合、収納内の同名アイテムと自動的に統合する
+// 1個1エンティティなので統合はしない。同一スタックの束ねは表示側が stackKey で行う。
 func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	clearLocation(world, entity)
 	world.Components.LocationInStorage.Add(entity, &gc.LocationInStorage{Owner: storage})
 	ensureRemoved(world.Components.GridElement, entity)
 	ensureMarker(world, world.Components.WeightDirty, storage, &gc.WeightDirty{})
-
-	if world.Components.Stackable.Has(entity) {
-		id := world.Components.RawID.Get(entity).ID
-		if err := mergeStackableItems(world, id, mergeInStorage, storage); err != nil {
-			return fmt.Errorf("failed to merge items in storage: %w", err)
-		}
-	}
 	return nil
 }
 
@@ -180,92 +219,19 @@ func clearLocation(world w.World, entity ecs.Entity) {
 	ensureRemoved(world.Components.LocationInStorage, entity)
 }
 
-type mergeLocation int
-
-const (
-	mergeInBackpack mergeLocation = iota
-	mergeInStorage
-)
-
-// mergeStackableItems は指定ロケーション内の同一Owner配下にある同一idのStackableアイテムを1つに統合する
-func mergeStackableItems(world w.World, itemID string, loc mergeLocation, owner ecs.Entity) error {
-	// Ark のフィルタは静的な型引数を要求するため、ロケーション種別ごとに分岐する
-	var stackableItems []ecs.Entity
-	switch loc {
-	case mergeInBackpack:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
-		for q.Next() {
-			entity := q.Entity()
-			if world.Components.RawID.Get(entity).ID != itemID {
-				continue
-			}
-			if world.Components.LocationInBackpack.Get(entity).Owner == owner {
-				stackableItems = append(stackableItems, entity)
-			}
-		}
-	case mergeInStorage:
-		q := ecs.NewFilter3[gc.Stackable, gc.LocationInStorage, gc.RawID](world.ECS).Query()
-		for q.Next() {
-			entity := q.Entity()
-			if world.Components.RawID.Get(entity).ID != itemID {
-				continue
-			}
-			if world.Components.LocationInStorage.Get(entity).Owner == owner {
-				stackableItems = append(stackableItems, entity)
-			}
-		}
-	default:
-		return fmt.Errorf("unsupported mergeLocation: %d", loc)
-	}
-
-	if len(stackableItems) <= 1 {
-		return nil
-	}
-
-	// 合流の同一判定は query.CanStackWith に集約する。出現順に survivor へ畳み、
-	// どのエンティティが残るかを決定的にする。腐敗食は鮮度段階が同じ束にだけ合流し、
-	// 合流時に劣化量を個数で加重平均する。段階違いは別の survivor として残す。
-	now := query.GetGameTime(world).TotalTurns
-	var survivors []ecs.Entity
-	for _, e := range stackableItems {
-		merged := false
-		for _, s := range survivors {
-			if !query.CanStackWith(world, s, e) {
-				continue
-			}
-			if world.Components.Perishable.Has(s) {
-				query.AdvanceRot(world, s, now)
-				query.AdvanceRot(world, e, now)
-				sp := world.Components.Perishable.Get(s)
-				sp.MergeRot(query.GetEntityCount(world, s), *world.Components.Perishable.Get(e), query.GetEntityCount(world, e))
-			}
-			if err := ChangeItemCount(world, s, query.GetEntityCount(world, e)); err != nil {
-				return fmt.Errorf("failed to merge counts: %w", err)
-			}
-			world.ECS.RemoveEntity(e)
-			merged = true
-			break
-		}
-		if !merged {
-			survivors = append(survivors, e)
-		}
-	}
-
-	return nil
-}
-
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
 func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	var playerEntity ecs.Entity
 	var found bool
 
+	// query.GetPlayerEntity でなくフィルタで探す。後続の Get が座標・スプライト・カメラの
+	// 存在を前提にするため、4成分そろったプレイヤーだけをここで担保する。
+	// プレイヤーは1体なので最初の1件で確定し、残りの走査を打ち切る
 	playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.ECS).Query()
-	for playerQuery.Next() {
-		entity := playerQuery.Entity()
-		if !found {
-			playerEntity = entity
-			found = true
-		}
+	if playerQuery.Next() {
+		playerEntity = playerQuery.Entity()
+		found = true
+		playerQuery.Close()
 	}
 	if !found {
 		return errors.New("no player entity with required components found")

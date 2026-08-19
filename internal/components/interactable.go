@@ -21,6 +21,10 @@ type Interactable struct {
 type InteractionConfig struct {
 	ActivationRange ActivationRange // 発動範囲
 	ActivationWay   ActivationWay   // 発動方式
+	// StackBundled は真なら、メニューの行をエンティティ単位でなくスタック単位で組む。
+	// 同一 StackKey の実体を1行に束ね、実行はスタック丸ごとを対象にする。
+	// 1個1エンティティのアイテムが個数ぶん同じ行に並ぶのを防ぐ
+	StackBundled bool
 }
 
 // InteractionKind は相互作用の種類を表す。
@@ -68,7 +72,9 @@ const (
 // 未知入力は raw/save 由来でありうるので panic せず末尾のゼロ値へ graceful に落とす
 func (k InteractionKind) Config() InteractionConfig {
 	switch k {
-	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItem, InteractionItemAll:
+	case InteractionItem:
+		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, StackBundled: true}
+	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
 	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}

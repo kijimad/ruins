@@ -111,13 +111,13 @@ type settingsMenuItem struct {
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
-func (st *SettingsMenuState) Fetch(world w.World) SettingsMenuProps {
+func (st *SettingsMenuState) Fetch(world w.World) (SettingsMenuProps, error) {
 	return SettingsMenuProps{
 		Items: []settingsMenuItem{
 			{Kind: settingsItemLanguage, Label: query.T(world, "Language"), Value: query.T(world, currentLanguageLabel(query.GetUserSettings(world).Language))},
 			{Kind: settingsItemBack, Label: query.T(world, "Back")},
 		},
-	}
+	}, nil
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる

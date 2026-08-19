@@ -129,6 +129,8 @@ func TestAcceptConsumeFood_食べる対象と使う対象は排他になる(t *t
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
+			_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+			require.NoError(t, err)
 			entity, err := lifecycle.SpawnBackpackItem(world, tt.item, 1)
 			require.NoError(t, err)
 			assert.Equal(t, tt.consume, acceptConsumeFood(world, entity), "食べる対象の判定")

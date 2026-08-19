@@ -1,0 +1,123 @@
+package lifecycle
+
+import (
+	"testing"
+
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestGetAmount(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+
+	_, err = SpawnBackpackItem(world, "iron", 10)
+	require.NoError(t, err)
+
+	// 素材の数量は保存されず、同一スタックのエンティティ数から導出する
+	entity, found := query.FindStackInInventory(world, "iron")
+	require.True(t, found, "素材が見つからない")
+	assert.Equal(t, 10, query.GetEntityCount(world, entity), "素材の数量が正しく取得できない")
+
+	_, found = query.FindStackInInventory(world, "存在しない素材")
+	assert.False(t, found, "存在しない素材が見つかってはいけない")
+}
+
+func TestPlusMinusAmount(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+
+	_, err = SpawnBackpackItem(world, "iron", 10)
+	require.NoError(t, err)
+
+	count := func() int {
+		entity, found := query.FindStackInInventory(world, "iron")
+		require.True(t, found)
+		return query.GetEntityCount(world, entity)
+	}
+
+	require.NoError(t, ChangeStackCount(world, "iron", 5))
+	assert.Equal(t, 15, count(), "数量増加が正しく動作しない")
+
+	require.NoError(t, ChangeStackCount(world, "iron", -3))
+	assert.Equal(t, 12, count(), "数量減少が正しく動作しない")
+
+	// 大量追加テスト。上限は無い
+	require.NoError(t, ChangeStackCount(world, "iron", 1000))
+	assert.Equal(t, 1012, count(), "数量が正しく加算されない")
+
+	// 所持数を超えて減らそうとするとエラー。個数は変わらない
+	err = ChangeStackCount(world, "iron", -1500)
+	require.ErrorContains(t, err, "insufficient item count")
+	assert.Equal(t, 1012, count(), "個数は変更されていないべき")
+}
+
+func TestChangeStackCount_未所持アイテムの操作(t *testing.T) {
+	t.Parallel()
+
+	t.Run("未所持で正の値を指定すると新規に生成される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+
+		require.NoError(t, ChangeStackCount(world, "healing_potion", 3))
+
+		entity, found := query.FindStackInInventory(world, "healing_potion")
+		require.True(t, found, "新規に生成された回復薬が見つかるべき")
+		assert.Equal(t, 3, query.GetEntityCount(world, entity))
+	})
+
+	t.Run("未所持で負の値を指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		err := ChangeStackCount(world, "healing_potion", -1)
+		require.Error(t, err)
+		assert.ErrorContains(t, err, "stackable item not found: healing_potion")
+	})
+}
+
+// TestMoveStack_スタックを丸ごと移動先へ運ぶ は、代表を渡すだけでスタック移動の共通口が
+// 全個体を運び、移動先を跨いでも個数が保存されることを固定する。drop・売買・storage が共有する土台
+func TestMoveStack_スタックを丸ごと移動先へ運ぶ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
+
+	rep, err := SpawnBackpackItem(world, "iron", 3)
+	require.NoError(t, err)
+	require.Equal(t, 3, query.GetEntityCount(world, rep), "最初はバックパックに3個")
+
+	// バックパック -> フィールド。全個体に GridElement が付き、同タイルの1スタックになる
+	moved := MoveStackToField(world, rep, consts.Coord[consts.Tile]{X: 5, Y: 5}, player)
+	assert.Equal(t, 3, moved, "3個とも落とす")
+	assert.Equal(t, 3, query.GetEntityCount(world, rep), "床でも同種3個のスタック")
+	assert.True(t, world.Components.LocationOnField.Has(rep))
+	assert.True(t, world.Components.GridElement.Has(rep))
+
+	// フィールド -> バックパック
+	n, err := MoveStackToBackpack(world, rep, player)
+	require.NoError(t, err)
+	assert.Equal(t, 3, n)
+	assert.Equal(t, 3, query.GetEntityCount(world, rep))
+	assert.True(t, world.Components.LocationInBackpack.Has(rep))
+	assert.False(t, world.Components.GridElement.Has(rep), "バックパックでは座標を持たない")
+
+	// バックパック -> 収納
+	storage := world.ECS.NewEntity()
+	n, err = MoveStackToStorage(world, rep, storage)
+	require.NoError(t, err)
+	assert.Equal(t, 3, n)
+	assert.Equal(t, 3, query.GetEntityCount(world, rep))
+	assert.True(t, world.Components.LocationInStorage.Has(rep))
+}

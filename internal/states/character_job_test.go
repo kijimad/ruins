@@ -114,7 +114,8 @@ func TestCharacterJobState_FetchProps(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.Fetch(world)
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
 
 	assert.Len(t, props.Items, 6, "職業は6つ")
 	assert.Equal(t, "Refugee", props.Items[0].Profession.Name)

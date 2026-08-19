@@ -46,7 +46,8 @@ func TestCharacterState_装備スロットは武器5と防具7の合計12(t *tes
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	props := state.Fetch(world)
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
 	assert.Len(t, props.EquipSlots, 12, "武器5スロットと防具7スロット")
 }
 
@@ -59,7 +60,8 @@ func TestCharacterState_情報タブは能力スキル効果健康基本の5つ(
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	props := state.Fetch(world)
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
 	labels := make([]string, len(props.InfoTabs))
 	for i, tab := range props.InfoTabs {
 		labels[i] = tab.Label
@@ -76,7 +78,8 @@ func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *test
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	props := state.Fetch(world)
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
 	var skillTab statusTabData
 	for _, tab := range props.InfoTabs {
 		if tab.ID == tabSkills {
@@ -96,6 +99,8 @@ func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *test
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 	entity, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 	require.NoError(t, err)
 	assert.Greater(t, overlay.DetailPageCount(world, entity), 1, "性能区画が多いアイテムの詳細は複数ページに分割される")

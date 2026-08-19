@@ -9,56 +9,38 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// FindStackableInInventory は RawID でバックパック内の Stackable アイテムを1つ返す。
-// 個数照会や消費の起点に使う。鮮度による束の分割は合流側の query.CanStackWith が担うため、
+// FindStackInInventory は RawID でバックパック内のスタックアイテムを1つ返す。
+// 個数照会や消費の起点に使う。鮮度による束の分割は合流側の query.SameStack が担うため、
 // ここは鮮度を見ず RawID だけで引く。腐敗食は鮮度違いの別束が複数ありうる点に注意する。
-func FindStackableInInventory(world w.World, id string) (ecs.Entity, bool) {
-	var foundEntity ecs.Entity
-	var found bool
-
-	stackableQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.RawID](world.ECS).Query()
-	for stackableQuery.Next() {
-		entity := stackableQuery.Entity()
-		if found {
-			continue
-		}
+func FindStackInInventory(world w.World, id string) (ecs.Entity, bool) {
+	q := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()
+	for q.Next() {
+		entity := q.Entity()
 		if world.Components.RawID.Get(entity).ID == id {
-			foundEntity = entity
-			found = true
+			q.Close()
+			return entity, true
 		}
 	}
-
-	return foundEntity, found
+	return gc.InvalidEntity, false
 }
 
 // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
 func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) {
-	var foundEntity ecs.Entity
-	var found bool
-
-	ammoQuery := ecs.NewFilter3[gc.Stackable, gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
-	for ammoQuery.Next() {
-		entity := ammoQuery.Entity()
-		if found {
-			continue
-		}
-		ammo := world.Components.Ammo.Get(entity)
-		if ammo.AmmoTag == ammoTag {
-			foundEntity = entity
-			found = true
+	q := ecs.NewFilter2[gc.LocationInBackpack, gc.Ammo](world.ECS).Query()
+	for q.Next() {
+		entity := q.Entity()
+		if world.Components.Ammo.Get(entity).AmmoTag == ammoTag {
+			q.Close()
+			return entity, true
 		}
 	}
-
-	return foundEntity, found
+	return gc.InvalidEntity, false
 }
 
-// GetEntityCount はエンティティの個数を返す。
-// Stackableであれば Stackable.Count を返し、そうでなければ1を返す。
+// GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ
+// 同じ位置にある同一スタックのエンティティを数えて導出する。位置が無ければ1になる。
 func GetEntityCount(world w.World, entity ecs.Entity) int {
-	if world.Components.Stackable.Has(entity) {
-		return world.Components.Stackable.Get(entity).Count
-	}
-	return 1
+	return len(StackMembers(world, entity))
 }
 
 // FormatNameCount は個数が2以上のとき名前の前に個数を置く。1個や非スタックは名前だけを返す。

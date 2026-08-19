@@ -34,18 +34,19 @@ func (pb *PickupBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorPickup
 }
 
-// NewPickupActivity は特定のエンティティ1つを拾う拾得アクティビティを組む。
-func NewPickupActivity(target ecs.Entity) *gc.Activity {
-	comp := NewActivity(gc.BehaviorPickup, 0)
-	comp.Params = &gc.PickupParams{Targets: []ecs.Entity{target}}
-	return comp
-}
-
 // NewPickupTileActivity は指定タイル上の拾得可能なエンティティを全部拾う拾得アクティビティを組む。
 // 何を拾うかはここで解決して Targets に確定させる。behavior はタイル走査を持たない。
 func NewPickupTileActivity(world w.World, tile consts.Coord[consts.Tile]) *gc.Activity {
 	comp := NewActivity(gc.BehaviorPickup, 0)
 	comp.Params = &gc.PickupParams{Targets: query.PickablesAt(world, tile)}
+	return comp
+}
+
+// NewPickupStackActivity は target と同一スタックのエンティティをまとめて拾う拾得アクティビティを組む。
+// 一覧の1行はスタック代表なので、代表と束ねられた全個体を Targets に確定させ、表示の個数と拾う個数を揃える。
+func NewPickupStackActivity(world w.World, target ecs.Entity) *gc.Activity {
+	comp := NewActivity(gc.BehaviorPickup, 0)
+	comp.Params = &gc.PickupParams{Targets: query.StackMembers(world, target)}
 	return comp
 }
 
@@ -95,63 +96,58 @@ func (pb *PickupBehavior) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 	return nil
 }
 
-// performPickup は Params に確定済みの Targets を順に拾う。拾得不能になったものは飛ばす。
+// performPickup は Params に確定済みの Targets を拾う。同一スタックは1行にまとめてログし、
+// 表示の個数と実際に拾った個数を揃える。拾得不能になったものは飛ばす。
 func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	p, ok := comp.Params.(*gc.PickupParams)
 	if !ok {
 		return ErrParamsTypeMismatch
 	}
 
-	collectedCount := 0
-	var errs []error
+	// 構築後に拾えなくなったものは除く。着手時に他の拾得や消滅で状態が変わりうる
+	var pickable []ecs.Entity
 	for _, entity := range p.Targets {
-		// 構築後に拾えなくなったものは飛ばす。着手時に他の拾得や消滅で状態が変わりうる
-		if !query.IsPickable(entity, world) {
-			continue
+		if query.IsPickable(entity, world) {
+			pickable = append(pickable, entity)
 		}
-		if err := pb.collect(actor, world, entity); err != nil {
-			errs = append(errs, err)
-			continue
-		}
-		collectedCount++
+	}
+	if len(pickable) == 0 {
+		return fmt.Errorf("nothing to pick up")
 	}
 
-	if collectedCount == 0 {
+	actorName := query.GetEntityName(actor, world)
+	total := 0
+	var errs []error
+	for _, stack := range query.GroupStacks(world, pickable) {
+		// 表示名と個数は移動前に確定する。移動後はスタックが割れて個数が変わるため先に数えておく
+		formattedName := query.FormatItemName(world, stack.Rep)
+		moved, err := lifecycle.MoveMembersToBackpack(world, stack.Members, actor)
+		if err != nil {
+			errs = append(errs, err)
+		}
+		if moved == 0 {
+			continue
+		}
+		gamelog.New(query.GetGameLog(world)).
+			Markup(query.T(world, "%s picked up %s.",
+				query.NameMarkup(actor, actorName, world),
+				gamelog.Tag("item", formattedName))).
+			Log()
+		total += moved
+	}
+
+	if total == 0 {
 		if len(errs) > 0 {
 			return fmt.Errorf("some pickups failed: %w", errors.Join(errs...))
 		}
 		return fmt.Errorf("nothing to pick up")
 	}
 
-	log.Debug("pickup finished", "count", collectedCount)
-
-	if collectedCount > 1 && world.Components.Player.Has(actor) {
-		gamelog.New(query.GetGameLog(world)).
-			Markup(query.T(world, "obtained %d items", collectedCount)).
-			Log()
-	}
+	log.Debug("pickup finished", "count", total)
 
 	if len(errs) > 0 {
 		return fmt.Errorf("some pickups failed: %w", errors.Join(errs...))
 	}
-
-	return nil
-}
-
-// collect はフィールド上のエンティティをバックパックに移動する
-func (pb *PickupBehavior) collect(actor ecs.Entity, world w.World, entity ecs.Entity) error {
-	// MoveToBackpack内のmergeでentityが削除される可能性があるため、名前を先に取得する
-	formattedName := query.FormatItemName(world, entity)
-	actorName := query.GetEntityName(actor, world)
-
-	if err := lifecycle.MoveToBackpack(world, entity, actor); err != nil {
-		return fmt.Errorf("failed to move to backpack: %w", err)
-	}
-	gamelog.New(query.GetGameLog(world)).
-		Markup(query.T(world, "%s picked up %s.",
-			query.NameMarkup(actor, actorName, world),
-			gamelog.Tag("item", formattedName))).
-		Log()
 
 	return nil
 }

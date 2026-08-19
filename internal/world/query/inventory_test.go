@@ -10,37 +10,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFindStackableInInventory_名前が一致するバックパック内アイテムを返す(t *testing.T) {
+func TestFindStackInInventory_名前が一致するバックパック内アイテムを返す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	owner := world.ECS.NewEntity()
 	item := world.ECS.NewEntity()
-	world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
 	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 	world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
 	world.Components.RawID.Add(item, &gc.RawID{ID: "回復薬"})
 
-	got, found := query.FindStackableInInventory(world, "回復薬")
+	got, found := query.FindStackInInventory(world, "回復薬")
 	assert.True(t, found)
 	assert.Equal(t, item, got)
 }
 
-func TestFindStackableInInventory_名前が一致しなければ見つからない(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	owner := world.ECS.NewEntity()
-	item := world.ECS.NewEntity()
-	world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
-	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
-	world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
-
-	_, found := query.FindStackableInInventory(world, "毒薬")
-	assert.False(t, found)
-}
-
-func TestFindStackableInInventory_Stackableでなければ対象外(t *testing.T) {
+func TestFindStackInInventory_名前が一致しなければ見つからない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -49,19 +34,31 @@ func TestFindStackableInInventory_Stackableでなければ対象外(t *testing.T
 	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
 	world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
 
-	_, found := query.FindStackableInInventory(world, "回復薬")
+	_, found := query.FindStackInInventory(world, "毒薬")
 	assert.False(t, found)
 }
 
-func TestFindStackableInInventory_バックパック内でなければ対象外(t *testing.T) {
+func TestFindStackInInventory_スタックでなければ対象外(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	owner := world.ECS.NewEntity()
+	item := world.ECS.NewEntity()
+	world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: owner})
+	world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
+
+	_, found := query.FindStackInInventory(world, "回復薬")
+	assert.False(t, found)
+}
+
+func TestFindStackInInventory_バックパック内でなければ対象外(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	item := world.ECS.NewEntity()
-	world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
 	world.Components.Name.Add(item, &gc.Name{Name: "回復薬"})
 
-	_, found := query.FindStackableInInventory(world, "回復薬")
+	_, found := query.FindStackInInventory(world, "回復薬")
 	assert.False(t, found)
 }
 
@@ -71,7 +68,6 @@ func TestFindAmmoInInventory_口径タグが一致するバックパック内弾
 
 	owner := world.ECS.NewEntity()
 	ammo := world.ECS.NewEntity()
-	world.Components.Stackable.Add(ammo, &gc.Stackable{Count: 10})
 	world.Components.LocationInBackpack.Add(ammo, &gc.LocationInBackpack{Owner: owner})
 	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: oapi.N9mm})
 
@@ -86,7 +82,6 @@ func TestFindAmmoInInventory_口径タグが一致しなければ見つからな
 
 	owner := world.ECS.NewEntity()
 	ammo := world.ECS.NewEntity()
-	world.Components.Stackable.Add(ammo, &gc.Stackable{Count: 10})
 	world.Components.LocationInBackpack.Add(ammo, &gc.LocationInBackpack{Owner: owner})
 	world.Components.Ammo.Add(ammo, &gc.Ammo{AmmoTag: oapi.N9mm})
 

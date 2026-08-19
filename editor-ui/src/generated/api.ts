@@ -825,10 +825,6 @@ export interface Item {
      * 1段階の長さ。この経過ターンごとに新鮮→劣化→腐敗と進む。省略すると腐敗しない
      */
     'stageLength'?: number;
-    /**
-     * スタック可能かどうか
-     */
-    'stackable'?: boolean;
     'consumable'?: Consumable;
     'providesHealing'?: ProvidesHealing;
     'wearable'?: Wearable;
@@ -1472,10 +1468,6 @@ export interface SaveDataComponentsMap {
      * ステータス変更フラグ
      */
     'StatsChanged'?: object;
-    /**
-     * スタック可能マーカー
-     */
-    'Stackable'?: object;
     /**
      * 装備位置。エンティティ参照を含む
      */

@@ -67,9 +67,9 @@ func TestApplyProfession(t *testing.T) {
 
 		assert.True(t, world.Components.CharModifiers.Has(player), "CharModifiersが再計算され付与されるべき")
 
-		item, ok := query.FindStackableInInventory(world, "wooden_stick")
+		item, ok := query.FindStackInInventory(world, "wooden_stick")
 		require.True(t, ok, "初期アイテムがバックパックに生成されるべき")
-		assert.Equal(t, 3, world.Components.Stackable.Get(item).Count, "指定した個数の初期アイテムが生成されるべき")
+		assert.Equal(t, 3, query.GetEntityCount(world, item), "指定した個数の初期アイテムが生成されるべき")
 
 		// GetWeaponsは常に長さ5のスライスを返す
 		weapons := query.GetWeapons(world, player)

@@ -17,12 +17,11 @@ func newTestRawsForItemGroup(items []oapi.Item, groups []oapi.ItemGroup) oapi.Ra
 	}
 }
 
-// testGroupItems は抽選対象のアイテム。sword は非 stackable、potion は stackable。
+// testGroupItems は抽選対象のアイテム。
 func testGroupItems() []oapi.Item {
-	stk := oapi.Stackable(true)
 	return []oapi.Item{
 		{Id: "sword", Name: "sword", Description: "d", SpriteKey: "k", SpriteSheetName: "s", Value: 1},
-		{Id: "potion", Name: "potion", Description: "d", SpriteKey: "k", SpriteSheetName: "s", Value: 1, Stackable: &stk},
+		{Id: "potion", Name: "potion", Description: "d", SpriteKey: "k", SpriteSheetName: "s", Value: 1},
 	}
 }
 
@@ -42,24 +41,7 @@ func TestSelectFromItemGroup_distributionは1エントリを個数ぶん返す(t
 	assert.Equal(t, []DrawnItem{{Name: "sword", Count: 1}}, draws, "単一エントリの distribution はそのアイテムを1個返す")
 }
 
-func TestSelectFromItemGroup_非stackableはpackぶん1個ずつに展開する(t *testing.T) {
-	t.Parallel()
-
-	groups := []oapi.ItemGroup{
-		{Id: "g", Name: "g", Subtype: oapi.Distribution, Entries: []oapi.ItemGroupEntry{
-			{Id: "sword", Weight: 1.0, Pack: "3d1"},
-		}},
-	}
-	raws := newTestRawsForItemGroup(testGroupItems(), groups)
-	rng := rand.New(rand.NewPCG(1, 2))
-
-	draws, err := SelectFromItemGroup(raws, "g", rng)
-	require.NoError(t, err)
-	assert.Equal(t, []DrawnItem{{Name: "sword", Count: 1}, {Name: "sword", Count: 1}, {Name: "sword", Count: 1}}, draws,
-		"非 stackable は pack ぶん1個ずつのエントリに展開する")
-}
-
-func TestSelectFromItemGroup_stackableは個数を1エントリにまとめる(t *testing.T) {
+func TestSelectFromItemGroup_個数を1エントリにまとめる(t *testing.T) {
 	t.Parallel()
 
 	groups := []oapi.ItemGroup{
@@ -121,10 +103,9 @@ func TestSelectFromItemGroup_未知のSubtypeはエラー(t *testing.T) {
 func TestDrawDistribution_エントリが空なら何も返さない(t *testing.T) {
 	t.Parallel()
 
-	raws := newTestRawsForItemGroup(testGroupItems(), nil)
 	rng := rand.New(rand.NewPCG(1, 2))
 
-	draws, err := drawDistribution(raws, nil, rng)
+	draws, err := drawDistribution(nil, rng)
 	require.NoError(t, err)
 	assert.Nil(t, draws)
 }
@@ -132,11 +113,10 @@ func TestDrawDistribution_エントリが空なら何も返さない(t *testing.
 func TestDrawDistribution_選ばれたエントリのIdが空なら何も返さない(t *testing.T) {
 	t.Parallel()
 
-	raws := newTestRawsForItemGroup(testGroupItems(), nil)
 	rng := rand.New(rand.NewPCG(1, 2))
 
 	// Id 空は通常あり得ないが、drawDistribution の防御ガードが何も返さず nil で抜けることを確認する
-	draws, err := drawDistribution(raws, []oapi.ItemGroupEntry{{Id: "", Weight: 1.0, Pack: "1d1"}}, rng)
+	draws, err := drawDistribution([]oapi.ItemGroupEntry{{Id: "", Weight: 1.0, Pack: "1d1"}}, rng)
 	require.NoError(t, err)
 	assert.Nil(t, draws)
 }
@@ -166,29 +146,7 @@ func TestRollPack(t *testing.T) {
 func TestExpandDraw_個数が0以下ならnil(t *testing.T) {
 	t.Parallel()
 
-	raws := newTestRawsForItemGroup(testGroupItems(), nil)
 	for _, count := range []int{0, -1} {
-		assert.Nil(t, expandDraw(raws, "sword", count), "count=%d", count)
+		assert.Nil(t, expandDraw("sword", count), "count=%d", count)
 	}
-}
-
-func TestIsStackableItem(t *testing.T) {
-	t.Parallel()
-
-	raws := newTestRawsForItemGroup(testGroupItems(), nil)
-
-	t.Run("未存在アイテムはfalse", func(t *testing.T) {
-		t.Parallel()
-		assert.False(t, isStackableItem(raws, "存在しないアイテム"))
-	})
-
-	t.Run("Stackable未設定はfalse", func(t *testing.T) {
-		t.Parallel()
-		assert.False(t, isStackableItem(raws, "sword"))
-	})
-
-	t.Run("Stackable=trueはtrue", func(t *testing.T) {
-		t.Parallel()
-		assert.True(t, isStackableItem(raws, "potion"))
-	})
 }

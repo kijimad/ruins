@@ -29,7 +29,8 @@ func GetInteractionActions(world w.World) []InteractionAction {
 
 	gridElement := world.Components.GridElement.Get(playerEntity)
 
-	var interactionActions []InteractionAction
+	var actions []InteractionAction
+	var itemEntities []ecs.Entity
 
 	// インタラクティブな相互作用を全て取得してアクションを生成
 	interactableEntities := activity.GetAllInteractiveInteractablesInRange(world, gridElement)
@@ -41,14 +42,21 @@ func GetInteractionActions(world w.World) []InteractionAction {
 			continue
 		}
 
-		interactableGrid := world.Components.GridElement.Get(interactableEntity)
 		interactable := world.Components.Interactable.Get(interactableEntity)
-		dirLabel := query.T(world, activity.GetDirectionLabel(gridElement, interactableGrid))
-		actionsForEntity := getInteractionActions(world, interactable, interactableEntity, dirLabel)
-		interactionActions = append(interactionActions, actionsForEntity...)
+		// スタック束ねの種別を持つ実体は束ね経路へ集める。拾得は同タイルに限られるので
+		// 位置を無視して束ねても別タイルの同種が混ざることはない
+		bundled, individual := splitByStackBundled(interactable.Interactions)
+		if len(bundled) > 0 {
+			itemEntities = append(itemEntities, interactableEntity)
+		}
+		if len(individual) > 0 {
+			interactableGrid := world.Components.GridElement.Get(interactableEntity)
+			dirLabel := query.T(world, activity.GetDirectionLabel(gridElement, interactableGrid))
+			actions = append(actions, getInteractionActions(world, &gc.Interactable{Interactions: individual}, interactableEntity, dirLabel)...)
+		}
 	}
 
-	return interactionActions
+	return appendItemPickupActions(world, actions, itemEntities)
 }
 
 // GetSameTileManualActions はプレイヤー直上のManual発動アクションを全て取得する
@@ -63,6 +71,7 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	playerGrid := world.Components.GridElement.Get(playerEntity)
 
 	var actions []InteractionAction
+	var itemEntities []ecs.Entity
 	sameTileQuery := query.ActiveFilter2[gc.GridElement, gc.Interactable](world).Query()
 	for sameTileQuery.Next() {
 		entity := sameTileQuery.Entity()
@@ -82,28 +91,55 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 				filtered = append(filtered, interaction)
 			}
 		}
-		if len(filtered) > 0 {
-			filteredInteractable := &gc.Interactable{Interactions: filtered}
-			entityActions := getInteractionActions(world, filteredInteractable, entity, query.T(world, "directly above"))
-			actions = append(actions, entityActions...)
+		if len(filtered) == 0 {
+			continue
+		}
+		bundled, individual := splitByStackBundled(filtered)
+		if len(bundled) > 0 {
+			itemEntities = append(itemEntities, entity)
+		}
+		if len(individual) > 0 {
+			actions = append(actions, getInteractionActions(world, &gc.Interactable{Interactions: individual}, entity, query.T(world, "directly above"))...)
 		}
 	}
 
-	// アイテム拾得アクションが2個以上ある場合、「すべて拾う」を先頭に追加する
-	itemCount := 0
-	for _, action := range actions {
-		if action.Interaction == gc.InteractionItem {
-			itemCount++
+	return appendItemPickupActions(world, actions, itemEntities)
+}
+
+// splitByStackBundled は種別を、スタック単位で束ねる行にするものとエンティティ単位の行にする
+// ものへ分ける。束ねるかは種別の宣言 Config().StackBundled が決め、一覧を組む関数はこれに従う。
+// 両方を持つ実体は両経路に載り、束ね行と個別行が並ぶ
+func splitByStackBundled(kinds []gc.InteractionKind) (bundled, individual []gc.InteractionKind) {
+	for _, kind := range kinds {
+		if kind.Config().StackBundled {
+			bundled = append(bundled, kind)
+		} else {
+			individual = append(individual, kind)
 		}
 	}
-	if itemCount >= 2 {
+	return bundled, individual
+}
+
+// appendItemPickupActions は itemEntities をスタックごとに1行へ束ねて拾得アクションを足す。
+// 代表を target にし、拾得はスタック丸ごとを対象にする。スタックが2種類以上なら「すべて拾う」を先頭に付ける。
+// 床の同種が1個1エンティティで個数ぶん並ぶのを防ぐため、アイテムを一覧へ出す関数は必ずこれを通す。
+func appendItemPickupActions(world w.World, actions []InteractionAction, itemEntities []ecs.Entity) []InteractionAction {
+	stacks := query.GroupStacks(world, itemEntities)
+	for _, stack := range stacks {
+		label := query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count)
+		actions = append(actions, InteractionAction{
+			Label:       query.T(world, "Pick up (%s)", label),
+			Target:      stack.Rep,
+			Interaction: gc.InteractionItem,
+		})
+	}
+	if len(stacks) >= 2 {
 		pickupAll := InteractionAction{
 			Label:       query.T(world, "Pick up all"),
 			Interaction: gc.InteractionItemAll,
 		}
 		actions = append([]InteractionAction{pickupAll}, actions...)
 	}
-
 	return actions
 }
 
@@ -137,12 +173,8 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				})
 			}
 		case gc.InteractionItem:
-			formattedName := query.FormatItemName(world, interactableEntity)
-			result = append(result, InteractionAction{
-				Label:       query.T(world, "Pick up (%s)", formattedName),
-				Target:      interactableEntity,
-				Interaction: interaction,
-			})
+			// StackBundled な種別は splitByStackBundled で束ね経路へ振られ、ここには来ない。
+			// 拾得行は appendItemPickupActions がスタック単位で組む
 		case gc.InteractionPortalNext:
 			result = append(result, InteractionAction{
 				Label:       query.T(world, "Warp (next floor)"),
