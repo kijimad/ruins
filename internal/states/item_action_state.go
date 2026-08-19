@@ -279,8 +279,6 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.executeSelected(world)
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
 		// 動詞の直達キーは対応タブへジャンプする。verbList から導くので動詞追加で列挙は要らない
 		if v, ok := verbByAction(action); ok {

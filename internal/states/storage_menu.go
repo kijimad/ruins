@@ -83,8 +83,6 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 		if err := st.executeTransfer(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("storageMenu: unsupported action: %s", action)
 	}

@@ -74,12 +74,9 @@ func (st *ChoiceMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		return choices[i].Run(world)
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatch で処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("choiceMenu: unsupported action: %s", action)
 	}
-	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
 // Fetch は現在の選択肢を表示スナップショットへ射影する

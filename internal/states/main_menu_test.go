@@ -71,27 +71,6 @@ func TestMainMenuState_DoAction_Cancel(t *testing.T) {
 	assert.Equal(t, es.TransQuit, transition.Type, "キャンセルでTransQuit")
 }
 
-func TestMainMenuState_DoAction_Navigation(t *testing.T) {
-	t.Parallel()
-
-	state := &MainMenuState{}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	for _, action := range []inputmapper.ActionID{
-		inputmapper.ActionMenuUp,
-		inputmapper.ActionMenuDown,
-		inputmapper.ActionMenuLeft,
-		inputmapper.ActionMenuRight,
-		inputmapper.ActionMenuTabNext,
-		inputmapper.ActionMenuTabPrev,
-	} {
-		transition, err := state.DoAction(world, action)
-		require.NoError(t, err)
-		assert.Equal(t, es.TransNone, transition.Type, "ナビゲーションはTransNone: %s", action)
-	}
-}
-
 func TestNewMainMenuState(t *testing.T) {
 	t.Parallel()
 

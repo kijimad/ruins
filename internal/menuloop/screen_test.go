@@ -383,3 +383,25 @@ func TestScreen_dirtyGateは変化時だけViewを組み直す(t *testing.T) {
 		assert.Equal(t, 2, model.viewCount, "再び不変なら据え置く")
 	})
 }
+
+// TestScreen_Update_移動系はDispatchだけでDoActionを呼ばない は入力ゲートの振り分けを固定する。
+// カーソル移動系は Screen が吸い、DoAction には画面の意味を持つ Action だけが届く
+func TestScreen_Update_移動系はDispatchだけでDoActionを呼ばない(t *testing.T) {
+	t.Parallel()
+	model := &flexModel{menu: MenuConfig{Key: "nav", TabCount: 1, ItemCounts: []int{3}}}
+	screen := NewScreen[int](model)
+	world := w.World{Resources: &resources.Resources{
+		MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
+	}}
+
+	var err error
+	vrt.WithUILock(func() {
+		_, err = screen.Update(world)
+		require.NoError(t, err)
+		_, err = screen.Update(world)
+	})
+
+	require.NoError(t, err)
+	assert.Equal(t, 0, model.doActionCalls, "移動系は DoAction に届かない")
+	assert.Equal(t, 1, screen.Selection().ItemIndex, "Dispatch でカーソルが1つ下がる")
+}

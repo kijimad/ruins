@@ -86,8 +86,6 @@ func (st *AuctionMenuState) DoAction(world w.World, action inputmapper.ActionID)
 		if err := st.selectRow(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("auctionMenu: unsupported action: %s", action)
 	}

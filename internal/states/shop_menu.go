@@ -79,8 +79,6 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 		if err := st.buySellSelected(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("shopMenu: unsupported action: %s", action)
 	}

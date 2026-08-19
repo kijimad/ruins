@@ -38,7 +38,8 @@ type MenuConfig struct {
 
 // Model はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
 // DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。メニュー入力は
-// Screen が ReadMenuInput で扱い、独自キーが要る state は KeyBindings の表で宣言する
+// Screen が ReadMenuInput で扱い、独自キーが要る state は KeyBindings の表で宣言する。
+// カーソル移動系は Screen が吸うので、DoAction には画面の意味を持つ Action だけが届く
 type Model[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
@@ -101,7 +102,8 @@ func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
 func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	m := s.model
 
-	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を DoAction へ流す。
+	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を流す。
+	// カーソル移動系は Screen が Dispatch で吸い、DoAction には画面の意味を持つ Action だけ渡す。
 	// overlay が絡んだフレームは内容が入力で変わりうるので後段で必ず dirty にする
 	ovBefore := s.activeOverlay()
 	if ovBefore != nil {
@@ -109,12 +111,13 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{}, err
 		}
 	} else if action, ok := s.readAction(world); ok {
-		if tr, err := m.DoAction(world, action); err != nil {
+		if hooks.IsNavAction(action) {
+			s.mount.Dispatch(action)
+		} else if tr, err := m.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if tr.Type != es.TransNone {
 			return tr, nil
 		}
-		s.mount.Dispatch(action)
 	}
 
 	props := m.Fetch(world)

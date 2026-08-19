@@ -60,12 +60,9 @@ func (st *MainMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 		return es.Transition[w.World]{Type: es.TransQuit}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.handleSelection(world)
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("mainMenu: unsupported action: %s", action)
 	}
-	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
 // ================

@@ -47,10 +47,8 @@ func (st *ComponentDebugState) DoAction(_ w.World, action inputmapper.ActionID) 
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect,
-		inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight,
-		inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される。単一タブでもタブ移動アクションは届くので握り潰す
+	case inputmapper.ActionMenuSelect:
+		// 閲覧専用画面。決定では何も起きない
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)

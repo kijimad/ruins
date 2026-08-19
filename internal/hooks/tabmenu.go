@@ -124,6 +124,19 @@ func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) {
 	store.states[keyPrefix] = nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)})
 }
 
+// IsNavAction はカーソル移動系の Action かを返す。reduce が消費する集合と一致させる。
+// menuloop.Screen はこの集合を Dispatch だけで処理し、DoAction へは渡さない
+func IsNavAction(a inputmapper.ActionID) bool {
+	switch a {
+	case inputmapper.ActionMenuTabPrev, inputmapper.ActionMenuTabNext,
+		inputmapper.ActionMenuUp, inputmapper.ActionMenuDown,
+		inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
+		return true
+	default:
+		return false
+	}
+}
+
 // UseTabMenu は再利用可能なタブメニュー状態管理を提供する
 // ReactのカスタムHooksに相当するパターンで、複数のUseStateを組み合わせる
 // keyPrefixは状態キーの接頭辞で、複数のタブメニューを区別するために使う
