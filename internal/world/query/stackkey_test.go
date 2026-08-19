@@ -76,6 +76,42 @@ func TestSameStack_同一判定(t *testing.T) {
 	})
 }
 
+// TestSameStack_装備の個体差 は、クラフトの乱数化などで性能が違う同名装備が束ねられないこと、
+// 性能が完全一致なら束ねられることを固定する。個体差の指紋が StackKey に効く根拠
+func TestSameStack_装備の個体差(t *testing.T) {
+	t.Parallel()
+
+	newSword := func(world w.World, damage int) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: "wooden_sword"})
+		world.Components.Melee.Add(e, &gc.Melee{Accuracy: 80, Damage: damage})
+		return e
+	}
+
+	t.Run("性能が同じ装備は束ねる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		assert.True(t, SameStack(world, newSword(world, 10), newSword(world, 10)))
+	})
+	t.Run("性能が違う装備は同じ品種でも束ねない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		assert.False(t, SameStack(world, newSword(world, 10), newSword(world, 15)))
+	})
+	t.Run("防具は防御力の違いで束ねない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		mk := func(defense int) ecs.Entity {
+			e := world.ECS.NewEntity()
+			world.Components.RawID.Add(e, &gc.RawID{ID: "leather_armor"})
+			world.Components.Wearable.Add(e, &gc.Wearable{Defense: defense})
+			return e
+		}
+		assert.False(t, SameStack(world, mk(5), mk(9)))
+		assert.True(t, SameStack(world, mk(5), mk(5)))
+	})
+}
+
 func TestStackMembers_装備品や未配置は単独スタックになる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

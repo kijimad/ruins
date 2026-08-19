@@ -35,14 +35,6 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 	if err != nil {
 		return gc.InvalidEntity, fmt.Errorf("failed to generate item: %w", err)
 	}
-	// スタックアイテムの合成では、SpawnBackpackItem内の統合処理で
-	// resultEntityが既存スタックへ統合されて削除されることがある。
-	// その場合は統合先の生存エンティティを結果として扱う
-	if !world.ECS.Alive(resultEntity) {
-		if survivor, found := query.FindStackInInventory(world, name); found {
-			resultEntity = survivor
-		}
-	}
 	randomize(world, resultEntity, smithQualityPct)
 	if err := consumeMaterials(world, name, craftCostPct); err != nil {
 		return gc.InvalidEntity, fmt.Errorf("failed to consume materials: %w", err)
@@ -104,13 +96,6 @@ func requiredMaterials(world w.World, need string) []gc.RecipeInput {
 // randomize はアイテムにランダム値を設定する。
 // smithQualityPctは品質倍率%で、100が基準。高いほどボーナスが大きくなる。
 func randomize(world w.World, entity ecs.Entity, smithQualityPct consts.Percent) {
-	// スタックなアイテムを合成した場合、SpawnBackpackItem内の統合処理で
-	// このエンティティが既存スタックに統合されて削除されていることがある。
-	// 統合済みスタックに武器/防具の乱数化は不要なので、死亡していれば何もしない
-	if !world.ECS.Alive(entity) {
-		return
-	}
-
 	// 基準からの乖離を10%刻みでボーナス段階に換算する。倍率そのものでなく段数なので int で扱う
 	qualityBonus := (int(smithQualityPct) - int(consts.PercentBase)) / 10
 

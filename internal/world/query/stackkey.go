@@ -1,6 +1,8 @@
 package query
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -13,10 +15,11 @@ import (
 type StackKey struct {
 	RawID          string            // 生成元の同定キー。まず品種が一致すること
 	FreshnessStage gc.FreshnessStage // 腐敗品の鮮度段階。非腐敗品は空文字
+	Equip          string            // 装備の個体差の指紋。性能の違う同名装備を束ねない。非装備は空文字
 }
 
 // StackKeyOf は entity のスタック同一性キーを返す。スタック同一判定の唯一の権威。
-// RawID に加え、腐敗品なら現在の鮮度段階を含める。非腐敗品の段階は空文字になる。
+// RawID に加え、腐敗品なら現在の鮮度段階を、装備なら性能の指紋を含める。
 func StackKeyOf(world w.World, entity ecs.Entity) StackKey {
 	var key StackKey
 	if world.Components.RawID.Has(entity) {
@@ -25,7 +28,25 @@ func StackKeyOf(world w.World, entity ecs.Entity) StackKey {
 	if stage, ok := FreshnessStageOf(world, entity); ok {
 		key.FreshnessStage = stage
 	}
+	key.Equip = equipFingerprint(world, entity)
 	return key
+}
+
+// equipFingerprint は装備の性能を1つの文字列に畳む。クラフトの乱数化で同名でも性能が
+// ばらつくため、生値をそのまま指紋にして性能の違う個体を別スタックに分ける。
+// 完全一致の個体だけが束ねられる。非装備は空文字で、指紋は同一性に影響しない
+func equipFingerprint(world w.World, entity ecs.Entity) string {
+	var fp string
+	if world.Components.Melee.Has(entity) {
+		fp += fmt.Sprintf("m%+v", *world.Components.Melee.Get(entity))
+	}
+	if world.Components.Fire.Has(entity) {
+		fp += fmt.Sprintf("f%+v", *world.Components.Fire.Get(entity))
+	}
+	if world.Components.Wearable.Has(entity) {
+		fp += fmt.Sprintf("w%+v", *world.Components.Wearable.Get(entity))
+	}
+	return fp
 }
 
 // SameStack は a と b が同一スタックに束ねられるかを返す。StackKey の等価そのもの。
