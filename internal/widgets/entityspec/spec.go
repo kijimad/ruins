@@ -246,7 +246,7 @@ func nutritionRows(world w.World, nutrition *gc.ProvidesNutrition) []SpecRow {
 // freshnessRow は鮮度の1行を返す。鮮度の算出は query.FreshnessStageOf に委ねる
 func freshnessRow(world w.World, entity ecs.Entity) SpecRow {
 	stage, _ := query.FreshnessStageOf(world, entity)
-	return SpecRow{Label: query.T(world, "Freshness"), Value: query.T(world, query.FreshnessLabel(stage))}
+	return SpecRow{Label: query.T(world, "Freshness"), Value: query.T(world, stage.Label())}
 }
 
 // valueRows は価値の行を返す

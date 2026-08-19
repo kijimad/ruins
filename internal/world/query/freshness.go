@@ -38,18 +38,5 @@ func FreshnessMarker(world w.World, entity ecs.Entity) string {
 	if !ok || stage == gc.FreshnessFresh {
 		return ""
 	}
-	return T(world, FreshnessLabel(stage))
-}
-
-// FreshnessLabel は鮮度段階の表示に使う英語 msgid を返す
-func FreshnessLabel(stage gc.FreshnessStage) string {
-	switch stage {
-	case gc.FreshnessFresh:
-		return "Fresh"
-	case gc.FreshnessStale:
-		return "Stale"
-	case gc.FreshnessRotten:
-		return "Rotten"
-	}
-	panic("unknown FreshnessStage: " + string(stage))
+	return T(world, stage.Label())
 }

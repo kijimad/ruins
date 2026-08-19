@@ -36,3 +36,31 @@ func (p Perishable) Stage(rot consts.Turn) FreshnessStage {
 		return FreshnessRotten
 	}
 }
+
+// Rank は段階の並び順を返す。新鮮→劣化→腐敗の固定順で、小さいほど先に並ぶ。
+// 段階の定義・順序・表示は鮮度という1つの軸の属性なので、このファイルに同居させる。
+// 段階は Stage が返す既知の3値だけで、未知値はここへ来ない不変条件なので panic させる
+func (s FreshnessStage) Rank() int {
+	switch s {
+	case FreshnessFresh:
+		return 1
+	case FreshnessStale:
+		return 2
+	case FreshnessRotten:
+		return 3
+	}
+	panic("unknown FreshnessStage: " + string(s))
+}
+
+// Label は段階の表示に使う英語 msgid を返す。訳出は表示側が query.T で行う
+func (s FreshnessStage) Label() string {
+	switch s {
+	case FreshnessFresh:
+		return "Fresh"
+	case FreshnessStale:
+		return "Stale"
+	case FreshnessRotten:
+		return "Rotten"
+	}
+	panic("unknown FreshnessStage: " + string(s))
+}
