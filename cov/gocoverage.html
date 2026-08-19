@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.3%)</option>
 				
@@ -355,7 +355,7 @@
 				
 				<option value="file149">github.com/kijimaD/ruins/internal/mapplanner/plan.go (82.9%)</option>
 				
-				<option value="file150">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (78.4%)</option>
+				<option value="file150">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (75.7%)</option>
 				
 				<option value="file151">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -449,11 +449,11 @@
 				
 				<option value="file196">github.com/kijimaD/ruins/internal/save/compress.go (83.3%)</option>
 				
-				<option value="file197">github.com/kijimaD/ruins/internal/save/desktop.go (83.9%)</option>
+				<option value="file197">github.com/kijimaD/ruins/internal/save/desktop.go (96.8%)</option>
 				
-				<option value="file198">github.com/kijimaD/ruins/internal/save/manager.go (82.2%)</option>
+				<option value="file198">github.com/kijimaD/ruins/internal/save/manager.go (89.0%)</option>
 				
-				<option value="file199">github.com/kijimaD/ruins/internal/save/serde.go (95.2%)</option>
+				<option value="file199">github.com/kijimaD/ruins/internal/save/serde.go (96.8%)</option>
 				
 				<option value="file200">github.com/kijimaD/ruins/internal/screeneffect/filter.go (96.9%)</option>
 				
@@ -1590,7 +1590,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -21371,7 +21371,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;
                                 planData.isInAnyRoom(x, y) &amp;&amp;
-                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov8" title="1">{
+                                pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span><span class="cov0" title="0">{
                                 return x, y, true
                         }</span>
                 }
@@ -37321,7 +37321,7 @@ const saveFileExt = ".json.gz"
 
 // initImpl はデスクトップ環境での初期化処理
 func (sm *SerializationManager) initImpl() error <span class="cov8" title="1">{
-        if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil </span><span class="cov0" title="0">{
+        if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("failed to create save directory: %w", err)
         }</span>
         <span class="cov8" title="1">return nil</span>
@@ -37332,7 +37332,7 @@ func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error
         // ファイルに書き込み
         fileName := filepath.Join(sm.saveDirectory, slotName+saveFileExt)
         err := os.WriteFile(fileName, data, 0644)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("failed to write save file: %w", err)
         }</span>
 
@@ -37359,7 +37359,7 @@ func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool <span c
 // listSavesImpl はデスクトップ環境でセーブファイル名の一覧を返す
 func (sm *SerializationManager) listSavesImpl() ([]string, error) <span class="cov8" title="1">{
         entries, err := os.ReadDir(sm.saveDirectory)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("failed to read save directory: %w", err)
         }</span>
 
@@ -37379,7 +37379,7 @@ func (sm *SerializationManager) listSavesImpl() ([]string, error) <span class="c
 // deleteSaveImpl はデスクトップ環境でセーブファイルを削除する
 func (sm *SerializationManager) deleteSaveImpl(slotName string) error <span class="cov8" title="1">{
         fileName := filepath.Join(sm.saveDirectory, slotName+saveFileExt)
-        if err := os.Remove(fileName); err != nil </span><span class="cov0" title="0">{
+        if err := os.Remove(fileName); err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("failed to delete save file: %w", err)
         }</span>
         <span class="cov8" title="1">return nil</span>
@@ -37431,7 +37431,7 @@ func NewSerializationManager(opts ...Option) (*SerializationManager, error) <spa
         for _, opt := range opts </span><span class="cov8" title="1">{
                 opt(sm)
         }</span>
-        <span class="cov8" title="1">if err := sm.initImpl(); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if err := sm.initImpl(); err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
         <span class="cov8" title="1">return sm, nil</span>
@@ -37491,7 +37491,7 @@ func (sm *SerializationManager) SaveWorld(world w.World, slotName string) error 
 // LoadWorldJSON はJSON文字列をファイルから読み込む
 func (sm *SerializationManager) LoadWorldJSON(slotName string) (string, error) <span class="cov8" title="1">{
         data, err := sm.loadSaveJSON(slotName)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return "", fmt.Errorf("failed to load save data: %w", err)
         }</span>
         <span class="cov8" title="1">return string(data), nil</span>
@@ -37544,7 +37544,7 @@ func restoreInto(world w.World, worldJSON []byte) error <span class="cov8" title
         }</span>
 
         // 信頼境界。復元したステージキーの整合を検査する
-        <span class="cov8" title="1">if err := validateStages(world); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if err := validateStages(world); err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("failed to validate stages: %w", err)
         }</span>
         <span class="cov8" title="1">return nil</span>
@@ -37568,13 +37568,13 @@ func (sm *SerializationManager) SaveFileExists(slotName string) bool <span class
 // セーブデータ全体をデシリアライズせず、タイムスタンプだけを抽出する。
 func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time, error) <span class="cov8" title="1">{
         data, err := sm.loadSaveJSON(slotName)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return time.Time{}, err
         }</span>
         <span class="cov8" title="1">var partial struct {
                 Timestamp time.Time `json:"timestamp"`
         }
-        if err := json.Unmarshal(data, &amp;partial); err != nil </span><span class="cov0" title="0">{
+        if err := json.Unmarshal(data, &amp;partial); err != nil </span><span class="cov8" title="1">{
                 return time.Time{}, fmt.Errorf("failed to parse save data: %w", err)
         }</span>
         <span class="cov8" title="1">return partial.Timestamp, nil</span>
@@ -37583,7 +37583,7 @@ func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time
 // ListSaves はセーブデータの一覧を新しい順に返す
 func (sm *SerializationManager) ListSaves() ([]string, error) <span class="cov8" title="1">{
         names, err := sm.listSavesImpl()
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
@@ -37624,7 +37624,7 @@ func (sm *SerializationManager) ListAutoSaves() ([]string, error) <span class="c
 // スロット名の生成、保存、古いオートセーブのローテーションを一括で行う。
 func (sm *SerializationManager) AutoSave(world w.World) error <span class="cov8" title="1">{
         slotName := fmt.Sprintf("%s%d", autoSavePrefix, time.Now().UnixNano())
-        if err := sm.SaveWorld(world, slotName); err != nil </span><span class="cov0" title="0">{
+        if err := sm.SaveWorld(world, slotName); err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("failed to auto save: %w", err)
         }</span>
         <span class="cov8" title="1">if err := sm.rotateAutoSaves(); err != nil </span><span class="cov0" title="0">{
@@ -37666,7 +37666,7 @@ func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, erro
         if err := json.Unmarshal(data, &amp;partial); err != nil </span><span class="cov0" title="0">{
                 return "", fmt.Errorf("failed to parse save data: %w", err)
         }</span>
-        <span class="cov8" title="1">if partial.PlayerName == "" </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if partial.PlayerName == "" </span><span class="cov8" title="1">{
                 return "", fmt.Errorf("player name not found in save data")
         }</span>
         <span class="cov8" title="1">return partial.PlayerName, nil</span>
@@ -37835,7 +37835,7 @@ func validateStages(world w.World) error <span class="cov8" title="1">{
                 keys = append(keys, world.Components.PortalConnection.Get(pq.Entity()).Stage)
         }</span>
         <span class="cov8" title="1">for _, k := range keys </span><span class="cov8" title="1">{
-                if err := k.Validate(); err != nil </span><span class="cov0" title="0">{
+                if err := k.Validate(); err != nil </span><span class="cov8" title="1">{
                         return fmt.Errorf("restored stage key is invalid: %w", err)
                 }</span>
         }
