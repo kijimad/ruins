@@ -40,13 +40,12 @@ func (m *dirtyTestModel) View(_ w.World, _ int, _ Selection, _ resources.UIResou
 	return &ebitenui.UI{Container: widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))}
 }
 
-// flexModel は DoAction・ExtraInput の挙動を差し替えられる Model[int] のテストダブル。
-// Update・readAction の分岐を個別に固定するのに使う
+// flexModel は DoAction の挙動を差し替えられる Model[int] のテストダブル。
+// Update・readAction の分岐を個別に固定するのに使う。Action の注入は world の入力供給源で行う
 type flexModel struct {
 	props         int
 	menu          MenuConfig
 	doAction      func(w.World, inputmapper.ActionID) (es.Transition[w.World], error)
-	extraInput    func() (inputmapper.ActionID, bool)
 	doActionCalls int
 }
 
@@ -67,16 +66,6 @@ func (m *flexModel) Menu(_ int) MenuConfig { return m.menu }
 func (m *flexModel) View(_ w.World, _ int, _ Selection, _ resources.UIResources) *ebitenui.UI {
 	return &ebitenui.UI{Container: widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))}
 }
-
-// ExtraInput は menuloop.ExtraInput を満たす。extraInput が未設定なら常にフォールバックさせる
-func (m *flexModel) ExtraInput() (inputmapper.ActionID, bool) {
-	if m.extraInput != nil {
-		return m.extraInput()
-	}
-	return "", false
-}
-
-var _ ExtraInput = (*flexModel)(nil)
 
 // testOverlay は overlay.Layer のテストダブル。Active・HandleInput の呼び出しを観測する
 type testOverlay struct {
@@ -222,29 +211,12 @@ func TestScreen_activeOverlay(t *testing.T) {
 	})
 }
 
-// TestScreen_readAction は ExtraInput が真ならそちらを優先し、偽なら world の入力供給源へ
-// 落ちることを固定する。供給源が未設定の本番ではキーボード経路になる
+// TestScreen_readAction は world の入力供給源があればそこから読み、
+// 未設定の本番ではキーボード経路になることを固定する
 func TestScreen_readAction(t *testing.T) {
 	t.Parallel()
 
-	t.Run("ExtraInputが真なら優先する", func(t *testing.T) {
-		t.Parallel()
-		world := w.World{Resources: &resources.Resources{
-			MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
-		}}
-		model := &flexModel{
-			menu:       MenuConfig{Key: "extra1"},
-			extraInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
-		}
-		screen := NewScreen[int](model)
-
-		action, ok := screen.readAction(world)
-
-		assert.True(t, ok)
-		assert.Equal(t, inputmapper.ActionMenuSelect, action, "供給源があっても ExtraInput を先に返す")
-	})
-
-	t.Run("ExtraInputが偽なら供給源へ落ちる", func(t *testing.T) {
+	t.Run("供給源があればそこから読む", func(t *testing.T) {
 		t.Parallel()
 		world := w.World{Resources: &resources.Resources{
 			MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
@@ -266,7 +238,7 @@ func TestScreen_readAction(t *testing.T) {
 
 		action, ok := screen.readAction(world)
 
-		assert.False(t, ok, "本番同様 ExtraInput 偽ならキーボード経路へ落ち、キーが無いので偽")
+		assert.False(t, ok, "本番のキーボード経路へ落ち、キーが無いので偽")
 		assert.Equal(t, inputmapper.ActionID(""), action)
 	})
 }
@@ -338,14 +310,15 @@ func TestScreen_Update_DoAction(t *testing.T) {
 		t.Parallel()
 		wantTrans := es.Transition[w.World]{Type: es.TransPop}
 		model := &flexModel{
-			menu:       MenuConfig{Key: "trans"},
-			extraInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
+			menu: MenuConfig{Key: "trans"},
 			doAction: func(_ w.World, _ inputmapper.ActionID) (es.Transition[w.World], error) {
 				return wantTrans, nil
 			},
 		}
 		screen := NewScreen[int](model)
-		world := w.World{Resources: &resources.Resources{}}
+		world := w.World{Resources: &resources.Resources{
+			MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
+		}}
 
 		var got es.Transition[w.World]
 		var err error
@@ -362,14 +335,15 @@ func TestScreen_Update_DoAction(t *testing.T) {
 		t.Parallel()
 		wantErr := errors.New("do action failed")
 		model := &flexModel{
-			menu:       MenuConfig{Key: "transerr"},
-			extraInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
+			menu: MenuConfig{Key: "transerr"},
 			doAction: func(_ w.World, _ inputmapper.ActionID) (es.Transition[w.World], error) {
 				return es.Transition[w.World]{}, wantErr
 			},
 		}
 		screen := NewScreen[int](model)
-		world := w.World{Resources: &resources.Resources{}}
+		world := w.World{Resources: &resources.Resources{
+			MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
+		}}
 
 		var err error
 		vrt.WithUILock(func() {

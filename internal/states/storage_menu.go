@@ -8,8 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menuinput"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -43,7 +43,7 @@ type StorageMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &StorageMenuState{}
-var _ menuloop.ExtraInput = &StorageMenuState{}
+var _ menuloop.KeyBindings = &StorageMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *StorageMenuState) OnStart(_ w.World) error {
@@ -67,13 +67,9 @@ func (st *StorageMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// ExtraInput は共通入力に加える独自キーを返す。x で選択中の詳細モーダルを開く
-func (st *StorageMenuState) ExtraInput() (inputmapper.ActionID, bool) {
-	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-		return inputmapper.ActionOpenItemDetail, true
-	}
-	return "", false
+// KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く
+func (st *StorageMenuState) KeyBindings() []menuinput.Binding {
+	return detailOpenBindings
 }
 
 // DoAction はActionを実行する

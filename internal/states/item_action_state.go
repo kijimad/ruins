@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -10,8 +11,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menuinput"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
@@ -221,7 +222,7 @@ type ItemActionState struct {
 }
 
 var _ es.State[w.World] = &ItemActionState{}
-var _ menuloop.ExtraInput = &ItemActionState{}
+var _ menuloop.KeyBindings = &ItemActionState{}
 
 // NewItemActionState は動詞タブ画面を initial のタブで開くファクトリを返す
 func NewItemActionState(initial verbID) es.StateFactory[w.World] {
@@ -248,21 +249,24 @@ func (st *ItemActionState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// ExtraInput は共通入力に加える動詞ショートカットを返す。verbList から導くので追加は1行で足りる。
-// Shift 無しの x は動詞でなく詳細モーダルを開く
-func (st *ItemActionState) ExtraInput() (inputmapper.ActionID, bool) {
-	ki := input.GetSharedKeyboardInput()
-	shift := ki.IsKeyPressed(ebiten.KeyShift)
-	// Shift 無しの x は動詞でなく詳細モーダルを開く。Shift+x の調べるとキーを共有するので先に分ける
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !shift {
-		return inputmapper.ActionOpenItemDetail, true
-	}
+// itemActionBindings は詳細モーダルの x と動詞ショートカットの束縛表。verbList から導くので
+// 動詞の追加で列挙は要らない。Shift 無しの x は動詞でなく詳細モーダルを開く。
+// Shift+x の調べるとキーを共有するので、詳細の束縛を先頭に置く。verbList は定数なので1度だけ組む
+var itemActionBindings = func() []menuinput.Binding {
+	bindings := slices.Clone(detailOpenBindings)
 	for _, v := range verbList {
-		if ki.IsKeyJustPressed(v.Key) && (!v.Shift || shift) {
-			return v.Action, true
+		shift := menuinput.ShiftAny
+		if v.Shift {
+			shift = menuinput.ShiftRequired
 		}
+		bindings = append(bindings, menuinput.Binding{Key: v.Key, Shift: shift, Action: v.Action})
 	}
-	return "", false
+	return bindings
+}()
+
+// KeyBindings は共通入力に加える独自キーの束縛表を返す
+func (st *ItemActionState) KeyBindings() []menuinput.Binding {
+	return itemActionBindings
 }
 
 // DoAction は Action を実行する

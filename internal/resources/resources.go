@@ -11,9 +11,8 @@ import (
 
 // Resources はゲーム固有のリソース管理を担当する
 // engine/resources.ResourceProviderインターフェースを実装する
-// 静的な資産は初期化時のみセットされ、あとから変更はされない
+// 初期化時のみセットされ、あとから変更はされない
 type Resources struct {
-	// 静的
 	ScreenDimensions ScreenDimensions
 	SpriteSheets     map[string]components.SpriteSheet
 	Fonts            map[string]Font

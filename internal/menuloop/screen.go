@@ -38,7 +38,7 @@ type MenuConfig struct {
 
 // Model はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
 // DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。メニュー入力は
-// Screen が ReadMenuInput で扱い、独自キーが要る state だけ ExtraInput で先取りする
+// Screen が ReadMenuInput で扱い、独自キーが要る state は KeyBindings の表で宣言する
 type Model[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
@@ -47,11 +47,11 @@ type Model[P any] interface {
 	View(world w.World, props P, cursor Selection, res resources.UIResources) *ebitenui.UI
 }
 
-// ExtraInput は独自キーを扱う state が満たす任意契約。Screen は各フレームでまず ExtraInput を試し、
-// 拾わなければ共通の ReadMenuInput へフォールバックする。1フレーム1アクションで ExtraInput が優先する。
-// 実装 state は var _ menuloop.ExtraInput = &XState{} で綴りとシグネチャを静的に検証する
-type ExtraInput interface {
-	ExtraInput() (inputmapper.ActionID, bool)
+// KeyBindings は共通キーに加える独自キーを持つ state が満たす任意契約。キーと Action の
+// 対応を表で返すだけで、キー読み取りの実行は menuinput が担う。表は共通キーより先に評価される。
+// 実装 state は var _ menuloop.KeyBindings = &XState{} で綴りとシグネチャを静的に検証する
+type KeyBindings interface {
+	KeyBindings() []menuinput.Binding
 }
 
 // Screen はメニューの UI ランタイム。mount・widget と overlay を保持し、毎フレームの
@@ -86,15 +86,14 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 	return nil
 }
 
-// readAction は1フレームの Action を1件読む。独自キーが要る state の ExtraInput を先に試し、
-// 拾わなければ world の入力供給源へ落ちる
+// readAction は1フレームの Action を1件読む。state が独自キーの束縛表を持つなら添えて、
+// world の入力供給源か本番のキーボードから読む
 func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
-	if h, ok := s.model.(ExtraInput); ok {
-		if action, ok := h.ExtraInput(); ok {
-			return action, true
-		}
+	var bindings []menuinput.Binding
+	if kb, ok := s.model.(KeyBindings); ok {
+		bindings = kb.KeyBindings()
 	}
-	return menuinput.ReadMenuInput(world)
+	return menuinput.ReadMenuInput(world, bindings...)
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、

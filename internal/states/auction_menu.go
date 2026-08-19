@@ -12,8 +12,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menuinput"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -50,7 +50,7 @@ type AuctionMenuState struct {
 }
 
 var _ es.State[w.World] = &AuctionMenuState{}
-var _ menuloop.ExtraInput = &AuctionMenuState{}
+var _ menuloop.KeyBindings = &AuctionMenuState{}
 
 // OnStart はステート開始時に画面を組む
 func (st *AuctionMenuState) OnStart(_ w.World) error {
@@ -70,13 +70,9 @@ func (st *AuctionMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// ExtraInput は x で選択中の詳細モーダルを開く
-func (st *AuctionMenuState) ExtraInput() (inputmapper.ActionID, bool) {
-	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-		return inputmapper.ActionOpenItemDetail, true
-	}
-	return "", false
+// KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く
+func (st *AuctionMenuState) KeyBindings() []menuinput.Binding {
+	return detailOpenBindings
 }
 
 // DoAction はActionを実行する。Enter は積む・出す、x は詳細を開く。出荷はターン経過で自動実行する

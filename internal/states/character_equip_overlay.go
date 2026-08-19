@@ -4,10 +4,8 @@ import (
 	"image"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/hooks"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuinput"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -71,11 +69,10 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 		ItemCounts: []int{len(props.Items)},
 	})
 
-	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-		o.detail.Open(world)
-	} else if action, ok := menuinput.ReadMenuInput(world); ok {
+	if action, ok := menuinput.ReadMenuInput(world, detailOpenBindings...); ok {
 		switch action {
+		case inputmapper.ActionOpenItemDetail:
+			o.detail.Open(world)
 		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 			o.active = false
 		case inputmapper.ActionMenuSelect:
