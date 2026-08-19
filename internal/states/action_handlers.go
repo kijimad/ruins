@@ -117,8 +117,10 @@ func isPickupItem(interactable *gc.Interactable) bool {
 func appendItemPickupActions(world w.World, actions []InteractionAction, itemEntities []ecs.Entity) []InteractionAction {
 	stacks := query.GroupStacks(world, itemEntities)
 	for _, stack := range stacks {
+		// 個数は束が確定済みの値を使い、行ごとに数え直さない
+		label := query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count)
 		actions = append(actions, InteractionAction{
-			Label:       query.T(world, "Pick up (%s)", query.FormatItemName(world, stack.Rep)),
+			Label:       query.T(world, "Pick up (%s)", label),
 			Target:      stack.Rep,
 			Interaction: gc.InteractionItem,
 		})

@@ -254,7 +254,7 @@ func (st *StorageMenuState) buildActiveListContainer(world w.World, props Storag
 	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = itemMenuRow(world, it.Entity, it.Weight)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res)
 }

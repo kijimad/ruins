@@ -249,10 +249,10 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 			}
 		}
 		for _, entity := range singular {
-			st.drawEntityInfo(world, entity, drawText)
+			st.drawEntityInfo(world, entity, 1, drawText)
 		}
 		for _, stack := range query.GroupStacks(world, fungible) {
-			st.drawEntityInfo(world, stack.Rep, drawText)
+			st.drawEntityInfo(world, stack.Rep, stack.Count, drawText)
 		}
 	}
 
@@ -269,10 +269,10 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	return nil
 }
 
-// drawEntityInfo はエンティティ情報を描画する。スタック代表なら個数を名前に添える。
-// 単独エンティティの個数は1なので名前だけになる
-func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, drawText func(string)) {
-	name := query.FormatNameCount(query.GetEntityName(entity, world), query.GetEntityCount(world, entity))
+// drawEntityInfo はエンティティ情報を描画する。個数は束ねた結果を呼び出し側が渡し、
+// 2以上なら名前に添える。単独エンティティは1なので名前だけになる
+func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, count int, drawText func(string)) {
+	name := query.FormatNameCount(query.GetEntityName(entity, world), count)
 
 	cat, ok := world.Components.CategoryOf(gc.FieldLookCategoryKey, entity)
 	if !ok {

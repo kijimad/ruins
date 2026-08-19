@@ -54,17 +54,6 @@ type Stack struct {
 	Members []ecs.Entity // 束に属する全エンティティ。初出順
 }
 
-// CollapseToStacks は entities を stackKey で束ね、各束の代表だけを初出順で返す。
-// 一覧を1スタック1行にするための前処理に使う。個数は代表から GetEntityCount で導出する。
-func CollapseToStacks(world w.World, entities []ecs.Entity) []ecs.Entity {
-	stacks := GroupStacks(world, entities)
-	reps := make([]ecs.Entity, len(stacks))
-	for i, s := range stacks {
-		reps[i] = s.Rep
-	}
-	return reps
-}
-
 // StackMembers は entity と同じ所有者かつ同じ位置種別にある、同一スタックのエンティティを返す。
 // 個数の数え上げ、一括消費、表示の束ねの範囲をこの1関数に集約する。バックパックと収納は
 // 所有者一致で絞る。装備やフィールド、位置未設定は束ねず entity 単独を返す。

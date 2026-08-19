@@ -160,10 +160,10 @@ func itemMenuColumns(nameWidth int, trailing ...menuColumn) ([]int, []styled.Tex
 
 // itemMenuRow は アイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、
 // メニュー固有の trailing 文字列セルを後続に付けた menuRow を返す。
-// 名前・個数・アイコンは全て entity から解決するので、呼び出し側は追加列だけ渡せばよい
-func itemMenuRow(world w.World, e ecs.Entity, trailing ...string) menuRow {
+// 個数は呼び出し側が GroupStacks で確定済みの値を渡す。ここで数え直すと一覧の行ごとに
+// 全走査が走るため、束ねた結果を持ち回って表示する
+func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuRow {
 	name := query.GetEntityName(e, world)
-	count := query.GetEntityCount(world, e)
 	icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))
 	label := query.FormatNameCount(name, count)
 	// 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする

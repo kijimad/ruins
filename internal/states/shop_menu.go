@@ -110,6 +110,7 @@ type shopTabData struct {
 // 名前・重量・個数は実体から都度出せるので持たず、プレイヤーの所持金や倍率が要る値だけを持つ
 type shopItemData struct {
 	Entity   ecs.Entity      // スタック代表の実体。表示も操作もこれから解決する
+	Count    int             // スタックの個数。束ねた結果を持ち回り、行ごとに数え直さない
 	Price    consts.Currency // 行の合計額。単価は価値と交渉スキルの倍率から出し、スタック個数を掛ける
 	IsBuy    bool            // 買いタブの行なら真
 	Disabled bool            // 所持金が足りず選べない
@@ -156,6 +157,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, player ecs.Entity, curren
 		total := query.BuyPrice(world, player, stack.Rep)
 		items = append(items, shopItemData{
 			Entity:   stack.Rep,
+			Count:    stack.Count,
 			Price:    total,
 			IsBuy:    true,
 			Disabled: currency < total,
@@ -180,6 +182,7 @@ func (st *ShopMenuState) createSellItems(world w.World, player ecs.Entity) []sho
 		// SellPrice は価値×スタック個数で既に全量の額を返す
 		items = append(items, shopItemData{
 			Entity: stack.Rep,
+			Count:  stack.Count,
 			Price:  query.SellPrice(world, player, stack.Rep),
 			IsBuy:  false,
 		})
@@ -273,10 +276,10 @@ func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, t
 	columnWidths, aligns := itemMenuColumns(0, menuColumn{Width: 80, Align: styled.AlignRight}, menuColumn{Width: 90, Align: styled.AlignRight})
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		// 名前・個数・重量・アイコンは実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している。
+		// 名前・重量・アイコンは実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している。
 		// 1行は1スタックなので、重量は額と同じく個数分の合計にし、行内の値の粒度を揃える
-		total := query.GetEntityWeight(world, it.Entity) * consts.Milligram(query.GetEntityCount(world, it.Entity))
-		rows[i] = itemMenuRow(world, it.Entity, it.Price.String(), total.KgString())
+		total := query.GetEntityWeight(world, it.Entity) * consts.Milligram(it.Count)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Price.String(), total.KgString())
 	}
 	emptyText := query.T(world, "No goods")
 	if currentTab.ID == "sell" {
