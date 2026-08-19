@@ -8,8 +8,13 @@ import (
 )
 
 // ReadMenuInput は1フレームぶんのメニュー操作を Action として読む。world が入力供給源を
-// 持つならそこから読み、持たない本番ではキーボードから変換する。ここが本番と再生で
-// 唯一分岐する点で、キー入力の有無だけが入れ替わり、後段の DoAction 以降は完全に同じ経路を通る
+// 持つならそこから読み、持たない本番ではキーボードから変換する。ここで入れ替わるのは
+// キー入力の有無だけで、後段の DoAction 以降は本番と完全に同じ経路を通る。
+//
+// メニュー state の入力はすべてここを通るが、Active な overlay は Screen.Update の入力ゲートで
+// HandleInput が専有するため通らない。widgets/overlay.Detail はキーを直読みしており、
+// 表示中は再生ドライバから駆動できない。overlay 側は menuloop を import すると循環するため、
+// 塞ぐなら world.Resources.MenuInput を overlay が直接見る形にする
 func ReadMenuInput(world w.World) (inputmapper.ActionID, bool) {
 	if src := world.Resources.MenuInput; src != nil {
 		return src()

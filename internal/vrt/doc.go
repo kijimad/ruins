@@ -8,19 +8,21 @@
 //   - WithUILock: ebitenui のグローバル状態への並行アクセスを直列化する
 //   - SharedUIResources: 共有のUIリソースを一度だけ読み込んで返す
 //
-// # ワールド構築
+// # ワールド・ステート構築
 //
-//   - InitVRTWorld: 固定シードの素の決定的ワールドを作る
+//   - InitVRTWorld: 固定シードの素の決定的ワールドを作る。画面のポスト処理は切って撮る
+//   - SetupStateMachine: ステートを構築しレイアウト確定までフレームを回す。WithUILock 区間から呼ぶ
 //
 // # ゴールデン比較。ピクセル差分で pass/fail を判定する
 //
 //   - AssertContainerGolden: ウィジェットのコンテナを固定する
 //   - AssertScreenGolden: 任意の画面描画を固定する
 //   - AssertStateGolden: ステートスタックを全段描画して固定する。世界の上にUIを重ねた自然な実画面に使う
+//   - AssertFrameGolden: 描画済みの screen を固定する。再生ドライバが撮ったフレームに使う。screen は解放しない
 //
 // # 画像生成。比較はせず保存用のPNGを返す
 //
-//   - RenderPNG: ステートを構築して描き、PNGを返す。draw が nil なら全段描画、非 nil なら任意レンダラ
+//   - RenderPNG: ステートを構築し本番の renderer で描いて、PNGを返す
 //
 // # 補助
 //

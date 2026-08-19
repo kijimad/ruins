@@ -25,10 +25,15 @@ import (
 //
 // フレーム数は len(actions)+1 になる。StateMachine は state が返した遷移を次フレーム冒頭で
 // 適用するので、最後の Action の Push/Pop を確定させる1フレームを足す。capture は各フレームの
-// 描画後に0起点のフレーム番号で呼ぶ。nil なら駆動のみで描画しない。
+// 描画後に0起点のフレーム番号で呼ぶ。nil なら駆動のみで描画しない。screen は capture から
+// 戻ったところで解放するので、抱え込まずその場で読み切る。
 //
 // state 側に再生用の口は要らない。入力供給源は world が持ち、押し込んだ先の state にも同じ源が
 // 効く。ebitenui グローバルに触れるため一連の駆動を vrt.WithUILock で直列化する。
+//
+// 駆動できるのは menuloop.Screen を持つ state まで。widgets/overlay.Detail が Active な間は
+// Screen の入力ゲートが overlay へ入力を渡し、そこはキーを直読みするので Action が届かない。
+// 詳細モーダルを開く列を組むと、閉じられずそこで進まなくなる。
 func PlayScenario(
 	t *testing.T,
 	buildStates func(w.World) []es.State[w.World],
@@ -57,10 +62,12 @@ func PlayScenario(
 			if capture == nil {
 				continue
 			}
-			// 描画も本番の MainGame.Draw。screeneffect のポスト処理まで含めて実画面と同じ絵になる
+			// 描画も本番の MainGame.Draw。screeneffect のポスト処理まで含めて実画面と同じ絵になる。
+			// 描画先はここで作ってここで解放する。capture は読むだけでよい
 			screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
 			game.Draw(screen)
 			capture(frame, world, screen)
+			screen.Deallocate()
 		}
 	})
 	return game

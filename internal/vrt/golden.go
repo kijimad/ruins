@@ -30,12 +30,19 @@ func WithUILock(fn func()) {
 	fn()
 }
 
-// captureScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。
-// 読み取り後にebiten.Imageを解放する
-func captureScreen(screen *ebiten.Image) *image.NRGBA {
+// readScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。解放はしない。
+// 呼び出し側が所有する画像を渡されるときはこちらを使う
+func readScreen(screen *ebiten.Image) *image.NRGBA {
 	bounds := screen.Bounds()
 	img := image.NewNRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
 	screen.ReadPixels(img.Pix)
+	return img
+}
+
+// captureScreen は readScreen したうえで ebiten.Image を解放する。
+// このパッケージ内で作った使い捨ての描画先に使う
+func captureScreen(screen *ebiten.Image) *image.NRGBA {
+	img := readScreen(screen)
 	screen.Deallocate()
 	return img
 }
@@ -88,10 +95,10 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 // 再生ドライバが各フレームで撮った画をそのまま渡す用途で、レイアウトも描画も呼び出し側が済ませている。
 // 自分で state を組んで撮るなら AssertStateGolden。GOLDIE_UPDATE=1 で更新する。
 //
-// screen は読み取り後に解放されるので、呼び出し後に再利用しない
+// screen は読むだけで解放しない。所有権は渡した側にある
 func AssertFrameGolden(t *testing.T, name string, screen *ebiten.Image) {
 	t.Helper()
-	assertPNGGolden(t, name, encodePNG(t, captureScreen(screen)))
+	assertPNGGolden(t, name, encodePNG(t, readScreen(screen)))
 }
 
 // encodePNG はimage.Imageをpngバイト列にエンコードする

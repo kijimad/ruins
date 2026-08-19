@@ -19,7 +19,8 @@ import (
 // カーソルの移動先やメニューの開閉が壊れると、遷移のテストが通っても見た目で落ちる。
 //
 // shots はフレーム番号ごとの golden 名で、空文字のフレームは撮らない。Action 数+1 フレーム回るので
-// 長さもそれに合わせる。全フレーム残すと差分が読みにくく資産も増えるため、節目だけ名前を付ける。
+// 長さもそれに合わせる。撮るのは静止画の golden では作れない画だけにする。既存 golden と同一の画を
+// 別名で残しても、資産が増えて README のギャラリーが重複するだけで検出力は上がらない。
 func TestGoldenReplay(t *testing.T) {
 	t.Parallel()
 
@@ -29,8 +30,9 @@ func TestGoldenReplay(t *testing.T) {
 		actions []inputmapper.ActionID
 		shots   []string
 	}{
-		// 設定メニューをカーソル移動して閉じるまでを撮る。開いた直後は TestGolden_SettingsMenu が
-		// 押さえているので、カーソルが Back へ移った画と、閉じてメインメニューへ戻った画を残す
+		// 設定メニューのカーソルが Back へ移った画を撮る。開いた直後と閉じたあとの画は
+		// TestGolden_SettingsMenu・TestGolden_MainMenu と完全に同一なので撮らない。
+		// 閉じたあと1段になることは replay の遷移テストが押さえている
 		{
 			name: "SettingsMenuClose",
 			build: func(w.World) []es.State[w.World] {
@@ -43,11 +45,12 @@ func TestGoldenReplay(t *testing.T) {
 			shots: []string{
 				"",
 				"TestGolden_ReplaySettingsBack",
-				"TestGolden_ReplaySettingsClosed",
+				"",
 			},
 		},
-		// メインメニューから設定メニューを開くまでを撮る。push を跨いでも同じ列で駆動できることを
-		// 見た目でも固定する。カーソルが Settings に載った画と、開いた直後の画を残す
+		// メインメニューでカーソルが Settings に載った画を撮る。静止画の golden は先頭行に
+		// カーソルがある状態しか撮れないので、移動後の見た目はここでしか固定できない。
+		// push した先の画は TestGolden_SettingsMenu と同一なので撮らない
 		{
 			name: "MainMenuOpenSettings",
 			build: func(w.World) []es.State[w.World] {
@@ -64,7 +67,7 @@ func TestGoldenReplay(t *testing.T) {
 				"",
 				"",
 				"TestGolden_ReplayMainMenuSettingsFocused",
-				"TestGolden_ReplayMainMenuSettingsOpened",
+				"",
 			},
 		},
 	}
@@ -76,13 +79,9 @@ func TestGoldenReplay(t *testing.T) {
 
 			replay.PlayScenario(t, tc.build, tc.actions,
 				func(frame int, _ w.World, screen *ebiten.Image) {
-					name := tc.shots[frame]
-					if name == "" {
-						// 撮らないフレームの画は使わない。AssertFrameGolden と同じく解放しておく
-						screen.Deallocate()
-						return
+					if name := tc.shots[frame]; name != "" {
+						vrt.AssertFrameGolden(t, name, screen)
 					}
-					vrt.AssertFrameGolden(t, name, screen)
 				},
 			)
 		})
