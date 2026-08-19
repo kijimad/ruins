@@ -84,6 +84,16 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 	assertPNGGolden(t, t.Name(), pngData)
 }
 
+// AssertFrameGolden は描画済みの screen を name のゴールデン画像 testdata/name.png と比較する。
+// 再生ドライバが各フレームで撮った画をそのまま渡す用途で、レイアウトも描画も呼び出し側が済ませている。
+// 自分で state を組んで撮るなら AssertStateGolden。GOLDIE_UPDATE=1 で更新する。
+//
+// screen は読み取り後に解放されるので、呼び出し後に再利用しない
+func AssertFrameGolden(t *testing.T, name string, screen *ebiten.Image) {
+	t.Helper()
+	assertPNGGolden(t, name, encodePNG(t, captureScreen(screen)))
+}
+
 // encodePNG はimage.Imageをpngバイト列にエンコードする
 func encodePNG(t *testing.T, img image.Image) []byte {
 	t.Helper()
