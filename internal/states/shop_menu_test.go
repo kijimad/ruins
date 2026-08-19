@@ -34,7 +34,8 @@ func TestShopMenuState_FetchProps(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	props := state.Fetch(world)
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
 
 	assert.Len(t, props.Tabs, 2, "タブは2つ（購入、売却）")
 	assert.Equal(t, "buy", props.Tabs[0].ID)

@@ -328,14 +328,15 @@ type verbTabData struct {
 	Items []itemRowData
 }
 
-// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
-func (st *ItemActionState) Fetch(world w.World) ItemActionProps {
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。
+// アイテムメニューはプレイヤーの操作でしか開かないので、プレイヤー不在は不変条件違反として返す
+func (st *ItemActionState) Fetch(world w.World) (ItemActionProps, error) {
 	player, err := query.GetPlayerEntity(world)
-	var backpack []query.Stack
-	if err == nil {
-		// 個数は束が確定済みの値をそのまま使い、行ごとに数え直さない
-		backpack = query.BackpackStacks(world, player)
+	if err != nil {
+		return ItemActionProps{}, err
 	}
+	// 個数は束が確定済みの値をそのまま使い、行ごとに数え直さない
+	backpack := query.BackpackStacks(world, player)
 
 	vs := verbList
 	tabs := make([]verbTabData, len(vs))
@@ -349,7 +350,7 @@ func (st *ItemActionState) Fetch(world w.World) ItemActionProps {
 		}
 		tabs[i] = verbTabData{ID: verb.ID, Label: query.T(world, verb.Label), Key: verb.KeyHint, Items: items}
 	}
-	return ItemActionProps{Tabs: tabs}
+	return ItemActionProps{Tabs: tabs}, nil
 }
 
 // playerBackpackItems はプレイヤーのバックパック内アイテムを表示順に返す

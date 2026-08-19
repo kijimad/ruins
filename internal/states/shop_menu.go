@@ -116,17 +116,18 @@ type shopItemData struct {
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。
-// プレイヤーが居なければ空の props を返す。価格は query.BuyPrice/SellPrice が取引と揃えて出す
-func (st *ShopMenuState) Fetch(world w.World) ShopProps {
+// ショップはプレイヤーの操作でしか開かないので、プレイヤー不在は不変条件違反として返す。
+// 価格は query.BuyPrice/SellPrice が取引と揃えて出す
+func (st *ShopMenuState) Fetch(world w.World) (ShopProps, error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
-		return ShopProps{}
+		return ShopProps{}, err
 	}
 	currency := query.GetCurrency(world, player)
 
 	return ShopProps{
 		Tabs: st.createTabs(world, player, currency),
-	}
+	}, nil
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる

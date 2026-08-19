@@ -111,18 +111,18 @@ type storageTabData struct {
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。
-// プレイヤーが居なければ空の props を返す
-func (st *StorageMenuState) Fetch(world w.World) StorageProps {
+// 収納メニューはプレイヤーの操作でしか開かないので、プレイヤー不在は不変条件違反として返す
+func (st *StorageMenuState) Fetch(world w.World) (StorageProps, error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
-		return StorageProps{}
+		return StorageProps{}, err
 	}
 	return StorageProps{
 		Tabs: []storageTabData{
 			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, query.StorageStacks(world, st.storageEntity))},
 			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, query.BackpackStacks(world, player))},
 		},
-	}
+	}, nil
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる

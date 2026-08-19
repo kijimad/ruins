@@ -134,7 +134,7 @@ type auctionLedgerRow struct {
 }
 
 // Fetch は世界から表示 props を構築する
-func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
+func (st *AuctionMenuState) Fetch(world w.World) (AuctionProps, error) {
 	return AuctionProps{
 		Tabs: []auctionTabData{
 			{ID: auctionTabStatus, Label: query.T(world, "In progress"), Ledger: st.statusRows(world)},
@@ -143,7 +143,7 @@ func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {
 			{ID: auctionTabFinance, Label: query.T(world, "Finance"), Entries: query.GetAuctionHistory(world).Entries},
 			{ID: auctionTabHistory, Label: query.T(world, "History"), Ledger: st.historyRows(world)},
 		},
-	}
+	}, nil
 }
 
 // Menu は一覧の構成を返す

@@ -112,10 +112,10 @@ type craftItemData struct {
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
-func (st *CraftMenuState) Fetch(world w.World) CraftProps {
+func (st *CraftMenuState) Fetch(world w.World) (CraftProps, error) {
 	return CraftProps{
 		Tabs: st.createTabs(world),
-	}
+	}, nil
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
