@@ -154,6 +154,52 @@ func TestStackMembers_床は同じタイルの同種だけ束ねる(t *testing.T
 	assert.Equal(t, 3, GetEntityCount(world, apple), "床でも同種の個数を導出する")
 }
 
+// TestStackMembers_所有者で分かれる は、同種でも所有者が違えば束ねないことを固定する。
+// この分離が壊れると他人の在庫が個数に混入し、重量・表示・丸ごと移動の範囲が silent に壊れる
+func TestStackMembers_所有者で分かれる(t *testing.T) {
+	t.Parallel()
+
+	t.Run("バックパックは所有者ごとに束ねる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		ownerA := world.ECS.NewEntity()
+		ownerB := world.ECS.NewEntity()
+		mk := func(owner ecs.Entity) ecs.Entity {
+			e := world.ECS.NewEntity()
+			world.Components.RawID.Add(e, &gc.RawID{ID: "iron"})
+			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: owner})
+			return e
+		}
+		a1 := mk(ownerA)
+		mk(ownerA)
+		b1 := mk(ownerB)
+
+		assert.Len(t, StackMembers(world, a1), 2, "A の束は A の2個だけ")
+		assert.Equal(t, 2, GetEntityCount(world, a1))
+		assert.Equal(t, 1, GetEntityCount(world, b1), "B の同種は混ざらない")
+	})
+
+	t.Run("収納は所有者ごとに束ねる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		storageA := world.ECS.NewEntity()
+		storageB := world.ECS.NewEntity()
+		mk := func(storage ecs.Entity) ecs.Entity {
+			e := world.ECS.NewEntity()
+			world.Components.RawID.Add(e, &gc.RawID{ID: "iron"})
+			world.Components.LocationInStorage.Add(e, &gc.LocationInStorage{Owner: storage})
+			return e
+		}
+		a1 := mk(storageA)
+		mk(storageA)
+		mk(storageA)
+		b1 := mk(storageB)
+
+		assert.Len(t, StackMembers(world, a1), 3, "A の束は A の3個だけ")
+		assert.Equal(t, 1, GetEntityCount(world, b1), "別収納の同種は混ざらない")
+	})
+}
+
 // TestSameStack_同定キーの無い実体は束ねない は、RawID を持たない実体同士が空キーで
 // 誤って1スタックに潰れないことを固定する。タイルや壁が混ざった任意の実体列を
 // GroupStacks へ渡しても安全である根拠

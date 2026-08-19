@@ -127,6 +127,36 @@ func TestSortEntities_同名は鮮度で決定的に並び削除後も入れ替�
 		"先頭を捨てても残りは入れ替わらない")
 }
 
+// TestSortEntities_同名同鮮度は装備指紋で決定的に並ぶ は、性能違いの同名武器が
+// 作成順に依らず同じ並びになることを固定する。指紋の副キーが無いと走査順に落ち、
+// ドロップ等の swap-remove で並びが入れ替わる
+func TestSortEntities_同名同鮮度は装備指紋で決定的に並ぶ(t *testing.T) {
+	t.Parallel()
+
+	damages := func(world w.World, order []int) []int {
+		entities := make([]ecs.Entity, 0, len(order))
+		for _, damage := range order {
+			e := world.ECS.NewEntity()
+			world.Components.Name.Add(e, &gc.Name{Name: "Sword"})
+			world.Components.RawID.Add(e, &gc.RawID{ID: "sword"})
+			world.Components.Melee.Add(e, &gc.Melee{Accuracy: 80, Damage: damage})
+			entities = append(entities, e)
+		}
+		sorted := SortEntities(world, entities)
+		out := make([]int, 0, len(sorted))
+		for _, e := range sorted {
+			out = append(out, world.Components.Melee.Get(e).Damage)
+		}
+		return out
+	}
+
+	worldA := testutil.InitTestWorld(t)
+	worldB := testutil.InitTestWorld(t)
+	// 作成順を逆にしても同じ並びになる
+	assert.Equal(t, damages(worldA, []int{5, 12, 9}), damages(worldB, []int{9, 12, 5}),
+		"性能違いの同名武器は作成順に依らず決定的に並ぶ")
+}
+
 func TestSortEntitiesWithMixedComponents(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
