@@ -406,6 +406,32 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		assert.Equal(t, gc.InteractionItem, actions[0].Interaction)
 	})
 
+	t.Run("拾得と他種を併せ持つ実体は束ね行と個別行の両方に出る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+		// 拾えて調べられる合成実体。束ねるかは種別の宣言 StackBundled が決めるので、
+		// 拾得行は束ね経路に、収納行は個別経路に、それぞれ1本ずつ出る
+		hybrid := world.ECS.NewEntity()
+		world.Components.GridElement.Add(hybrid, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 11}})
+		world.Components.LocationOnField.Add(hybrid, &gc.LocationOnField{})
+		world.Components.Interactable.Add(hybrid, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionItem, gc.InteractionStorage},
+		})
+		world.Components.RawID.Add(hybrid, &gc.RawID{ID: "mystery_box"})
+		world.Components.Name.Add(hybrid, &gc.Name{Name: "ふしぎな箱"})
+
+		actions := GetInteractionActions(world)
+		require.Len(t, actions, 2, "収納の個別行と拾得の束ね行")
+		kinds := []gc.InteractionKind{actions[0].Interaction, actions[1].Interaction}
+		assert.Contains(t, kinds, gc.InteractionItem, "拾得行が消えない")
+		assert.Contains(t, kinds, gc.InteractionStorage, "収納行も出る")
+	})
+
 	t.Run("方向キーでPropを自動攻撃しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
