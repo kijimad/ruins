@@ -237,21 +237,9 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	if len(entities) == 0 {
 		drawText(query.T(world, "Nothing here"))
 	} else {
-		// 床の同一スタックは1行に束ね、拾得メニューと見え方を揃える。束ねるのは同定キーを持つ
-		// RawID 付きだけにする。持たないタイル等を束ねると空キー同士が誤って1行に潰れる
-		var fungible []ecs.Entity
-		var singular []ecs.Entity
-		for _, entity := range entities {
-			if world.Components.RawID.Has(entity) {
-				fungible = append(fungible, entity)
-			} else {
-				singular = append(singular, entity)
-			}
-		}
-		for _, entity := range singular {
-			st.drawEntityInfo(world, entity, 1, drawText)
-		}
-		for _, stack := range query.GroupStacks(world, fungible) {
+		// 床の同一スタックは1行に束ね、拾得メニューと見え方を揃える。タイルや壁のような
+		// 同定キーの無い実体は単独スタックとして1行になる
+		for _, stack := range query.GroupStacks(world, entities) {
 			st.drawEntityInfo(world, stack.Rep, stack.Count, drawText)
 		}
 	}

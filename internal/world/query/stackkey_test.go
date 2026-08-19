@@ -154,6 +154,24 @@ func TestStackMembers_床は同じタイルの同種だけ束ねる(t *testing.T
 	assert.Equal(t, 3, GetEntityCount(world, apple), "床でも同種の個数を導出する")
 }
 
+// TestSameStack_同定キーの無い実体は束ねない は、RawID を持たない実体同士が空キーで
+// 誤って1スタックに潰れないことを固定する。タイルや壁が混ざった任意の実体列を
+// GroupStacks へ渡しても安全である根拠
+func TestSameStack_同定キーの無い実体は束ねない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	wall := world.ECS.NewEntity()
+	floor := world.ECS.NewEntity()
+	assert.False(t, SameStack(world, wall, floor), "同定キーが無い別実体は束ねない")
+	assert.True(t, SameStack(world, wall, wall), "自分自身とは同一")
+
+	stacks := GroupStacks(world, []ecs.Entity{wall, floor})
+	require.Len(t, stacks, 2, "それぞれ単独スタックになる")
+	assert.Equal(t, 1, stacks[0].Count)
+	assert.Equal(t, 1, stacks[1].Count)
+}
+
 // TestBackpackStacks_収集と整列と束ねを1口で行う は、一覧口が所有者で絞り、
 // 名前順に並べ、同一スタックを束ねた結果を返すことを固定する。一覧はこの口だけを使う
 func TestBackpackStacks_収集と整列と束ねを1口で行う(t *testing.T) {
