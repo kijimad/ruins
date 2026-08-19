@@ -173,8 +173,8 @@ func TestPickupBehavior_DoTurn_Target(t *testing.T) {
 		item2, err := lifecycle.SpawnFieldItem(world, "healing_potion", 10, 10, 1)
 		require.NoError(t, err)
 
-		// 特定のアイテム1つだけを対象にする
-		comp := NewPickupActivity(item1)
+		// item1 のスタックだけを対象にする。別品種の item2 は別スタックなので残る
+		comp := NewPickupStackActivity(world, item1)
 
 		pa := &PickupBehavior{}
 		err = pa.DoTurn(comp, player, world)
@@ -228,7 +228,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		item, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 1)
 		require.NoError(t, err)
 
-		comp := NewPickupActivity(item)
+		comp := NewPickupStackActivity(world, item)
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)
@@ -248,7 +248,7 @@ func TestPickupBehavior_Validate_Target(t *testing.T) {
 		world.Components.GridElement.Add(prop, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.LocationOnField.Add(prop, &gc.LocationOnField{})
 
-		comp := NewPickupActivity(prop)
+		comp := NewPickupStackActivity(world, prop)
 
 		pa := &PickupBehavior{}
 		err = pa.Validate(comp, player, world)

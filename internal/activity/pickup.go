@@ -34,13 +34,6 @@ func (pb *PickupBehavior) Name() gc.BehaviorName {
 	return gc.BehaviorPickup
 }
 
-// NewPickupActivity は特定のエンティティ1つを拾う拾得アクティビティを組む。
-func NewPickupActivity(target ecs.Entity) *gc.Activity {
-	comp := NewActivity(gc.BehaviorPickup, 0)
-	comp.Params = &gc.PickupParams{Targets: []ecs.Entity{target}}
-	return comp
-}
-
 // NewPickupTileActivity は指定タイル上の拾得可能なエンティティを全部拾う拾得アクティビティを組む。
 // 何を拾うかはここで解決して Targets に確定させる。behavior はタイル走査を持たない。
 func NewPickupTileActivity(world w.World, tile consts.Coord[consts.Tile]) *gc.Activity {
