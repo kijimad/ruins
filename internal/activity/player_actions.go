@@ -189,11 +189,13 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			}
 			switch interaction {
 			case gc.InteractionItem:
-				key := query.StackKeyOf(world, entity)
-				if loggedItemStacks[key] {
+				key, ok := query.StackKeyOf(world, entity)
+				if ok && loggedItemStacks[key] {
 					continue
 				}
-				loggedItemStacks[key] = true
+				if ok {
+					loggedItemStacks[key] = true
+				}
 				formattedName := query.FormatItemName(world, entity)
 				gamelog.New(query.GetGameLog(world)).
 					Markup(query.T(world, "%s is here.", gamelog.Tag("item", formattedName))).

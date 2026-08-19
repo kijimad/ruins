@@ -19,7 +19,8 @@ func TestStackKeyOf_鮮度と品種でキーが決まる(t *testing.T) {
 	// 非腐敗品。段階は空文字
 	apple := world.ECS.NewEntity()
 	world.Components.RawID.Add(apple, &gc.RawID{ID: "apple"})
-	key := StackKeyOf(world, apple)
+	key, ok := StackKeyOf(world, apple)
+	require.True(t, ok)
 	assert.Equal(t, "apple", key.RawID)
 	assert.Equal(t, gc.FreshnessStage(""), key.FreshnessStage, "非腐敗品の段階は空文字")
 
@@ -27,7 +28,8 @@ func TestStackKeyOf_鮮度と品種でキーが決まる(t *testing.T) {
 	meat := world.ECS.NewEntity()
 	world.Components.RawID.Add(meat, &gc.RawID{ID: "meat"})
 	world.Components.Perishable.Add(meat, &gc.Perishable{StageLength: consts.Turn(100)})
-	mkey := StackKeyOf(world, meat)
+	mkey, mok := StackKeyOf(world, meat)
+	require.True(t, mok)
 	assert.Equal(t, "meat", mkey.RawID)
 	assert.Equal(t, gc.FreshnessFresh, mkey.FreshnessStage, "腐敗品は現在の鮮度段階を持つ")
 }
@@ -200,9 +202,9 @@ func TestStackMembers_所有者で分かれる(t *testing.T) {
 	})
 }
 
-// TestSameStack_同定キーの無い実体は束ねない は、RawID を持たない実体同士が空キーで
-// 誤って1スタックに潰れないことを固定する。raw 定義を経ない実行時生成の実体が混ざった
-// 任意の実体列を GroupStacks へ渡しても安全である根拠
+// TestSameStack_同定キーの無い実体は束ねない は、RawID を持たない実体がスタックに
+// なりえないことを固定する。raw 定義を経ない実行時生成の実体が混ざった任意の実体列を
+// GroupStacks へ渡しても安全である根拠
 func TestSameStack_同定キーの無い実体は束ねない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
@@ -210,11 +212,13 @@ func TestSameStack_同定キーの無い実体は束ねない(t *testing.T) {
 	// 死亡フェードアウトのエフェクトのような、raw 定義を経ない実行時生成の実体を模す
 	effectA := world.ECS.NewEntity()
 	effectB := world.ECS.NewEntity()
+	_, ok := StackKeyOf(world, effectA)
+	assert.False(t, ok, "同定キーが無い実体はスタックになりえない")
 	assert.False(t, SameStack(world, effectA, effectB), "同定キーが無い別実体は束ねない")
-	assert.True(t, SameStack(world, effectA, effectA), "自分自身とは同一")
+	assert.False(t, SameStack(world, effectA, effectA), "スタックになりえない実体は自分自身とも束ねない")
 
 	stacks := GroupStacks(world, []ecs.Entity{effectA, effectB})
-	require.Len(t, stacks, 2, "それぞれ単独スタックになる")
+	require.Len(t, stacks, 2, "それぞれ1個だけの束として並ぶ")
 	assert.Equal(t, 1, stacks[0].Count)
 	assert.Equal(t, 1, stacks[1].Count)
 }

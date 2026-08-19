@@ -16,27 +16,22 @@ type StackKey struct {
 	RawID          string            // 生成元の同定キー。まず品種が一致すること
 	FreshnessStage gc.FreshnessStage // 腐敗品の鮮度段階。非腐敗品は空文字
 	Equip          string            // 装備の個体差の指紋。性能の違う同名装備を束ねない。非装備は空文字
-	// solo は RawID を持たない実体の単独化。raw 定義を経ない実行時生成の実体、
-	// 死亡フェードアウトのエフェクト等は同定キーが無く束ねようがないので、自分自身をキーに
-	// 入れて他の誰とも等しくならないようにする。これにより GroupStacks は任意の実体列を
-	// 受けても安全で、呼び出し側の事前選別が要らない
-	solo ecs.Entity
 }
 
 // StackKeyOf は entity のスタック同一性キーを返す。スタック同一判定の唯一の権威。
 // RawID に加え、腐敗品なら現在の鮮度段階を、装備なら性能の指紋を含める。
-func StackKeyOf(world w.World, entity ecs.Entity) StackKey {
-	var key StackKey
+// RawID を持たない実体はスタックになりえないので ok=false を返す。raw 定義を経ない
+// 実行時生成の実体、死亡フェードアウトのエフェクト等がこれにあたる
+func StackKeyOf(world w.World, entity ecs.Entity) (StackKey, bool) {
 	if !world.Components.RawID.Has(entity) {
-		key.solo = entity
-		return key
+		return StackKey{}, false
 	}
-	key.RawID = world.Components.RawID.Get(entity).ID
+	key := StackKey{RawID: world.Components.RawID.Get(entity).ID}
 	if stage, ok := FreshnessStageOf(world, entity); ok {
 		key.FreshnessStage = stage
 	}
 	key.Equip = equipFingerprint(world, entity)
-	return key
+	return key, true
 }
 
 // equipFingerprint は装備の性能を1つの文字列に畳む。クラフトの乱数化で同名でも性能が
@@ -57,18 +52,25 @@ func equipFingerprint(world w.World, entity ecs.Entity) string {
 }
 
 // SameStack は a と b が同一スタックに束ねられるかを返す。StackKey の等価そのもの。
+// スタックになりえない実体は自分自身とも束ねられない。
 func SameStack(world w.World, a ecs.Entity, b ecs.Entity) bool {
-	return StackKeyOf(world, a) == StackKeyOf(world, b)
+	ka, oka := StackKeyOf(world, a)
+	kb, okb := StackKeyOf(world, b)
+	return oka && okb && ka == kb
 }
 
 // StackCountOf は candidates のうち entity と同一スタックのものを数える。スタック数は保存せず
 // この数え上げで導出する。数える範囲は呼び出し側が候補集合として渡す。リロードやクラフトは
 // バックパックの中を、総重量は装備や収納も含む所有全体を候補にする、というように範囲を選ぶ。
+// スタックになりえない実体は常に1になる。
 func StackCountOf(world w.World, entity ecs.Entity, candidates []ecs.Entity) int {
-	key := StackKeyOf(world, entity)
+	key, ok := StackKeyOf(world, entity)
+	if !ok {
+		return 1
+	}
 	n := 0
 	for _, c := range candidates {
-		if StackKeyOf(world, c) == key {
+		if ck, cok := StackKeyOf(world, c); cok && ck == key {
 			n++
 		}
 	}
@@ -104,9 +106,12 @@ func StorageStacks(world w.World, storage ecs.Entity) []Stack {
 
 // StackMembers は entity と同じ所有者かつ同じ位置種別にある、同一スタックのエンティティを返す。
 // 個数の数え上げ、一括消費、表示の束ねの範囲をこの1関数に集約する。バックパックと収納は
-// 所有者一致で絞る。装備やフィールド、位置未設定は束ねず entity 単独を返す。
+// 所有者一致で絞る。装備やフィールド、位置未設定、スタックになりえない実体は entity 単独を返す。
 func StackMembers(world w.World, entity ecs.Entity) []ecs.Entity {
-	key := StackKeyOf(world, entity)
+	key, ok := StackKeyOf(world, entity)
+	if !ok {
+		return []ecs.Entity{entity}
+	}
 	switch {
 	case world.Components.LocationInBackpack.Has(entity):
 		owner := world.Components.LocationInBackpack.Get(entity).Owner
@@ -132,7 +137,10 @@ func sameStackOnField(world w.World, grid *gc.GridElement, key StackKey) []ecs.E
 	for q.Next() {
 		e := q.Entity()
 		ge := world.Components.GridElement.Get(e)
-		if ge.X == grid.X && ge.Y == grid.Y && StackKeyOf(world, e) == key {
+		if ge.X != grid.X || ge.Y != grid.Y {
+			continue
+		}
+		if ck, ok := StackKeyOf(world, e); ok && ck == key {
 			out = append(out, e)
 		}
 	}
@@ -144,7 +152,10 @@ func sameStackInBackpack(world w.World, owner ecs.Entity, key StackKey) []ecs.En
 	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.LocationInBackpack.Get(e).Owner == owner && StackKeyOf(world, e) == key {
+		if world.Components.LocationInBackpack.Get(e).Owner != owner {
+			continue
+		}
+		if ck, ok := StackKeyOf(world, e); ok && ck == key {
 			out = append(out, e)
 		}
 	}
@@ -156,7 +167,10 @@ func sameStackInStorage(world w.World, owner ecs.Entity, key StackKey) []ecs.Ent
 	q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
-		if world.Components.LocationInStorage.Get(e).Owner == owner && StackKeyOf(world, e) == key {
+		if world.Components.LocationInStorage.Get(e).Owner != owner {
+			continue
+		}
+		if ck, ok := StackKeyOf(world, e); ok && ck == key {
 			out = append(out, e)
 		}
 	}
@@ -165,11 +179,16 @@ func sameStackInStorage(world w.World, owner ecs.Entity, key StackKey) []ecs.Ent
 
 // GroupStacks は entities を StackKey で束ね、各束の代表と個数を返す。
 // 束の並びは入力での初出順にして決定的にする。表示の一覧はこの束1つを1行にする。
+// スタックになりえない実体は束ねず、1個だけの束として並ぶ。
 func GroupStacks(world w.World, entities []ecs.Entity) []Stack {
 	index := make(map[StackKey]int, len(entities))
 	stacks := make([]Stack, 0, len(entities))
 	for _, e := range entities {
-		key := StackKeyOf(world, e)
+		key, ok := StackKeyOf(world, e)
+		if !ok {
+			stacks = append(stacks, Stack{Rep: e, Count: 1, Members: []ecs.Entity{e}})
+			continue
+		}
 		if i, ok := index[key]; ok {
 			stacks[i].Count++
 			stacks[i].Members = append(stacks[i].Members, e)
