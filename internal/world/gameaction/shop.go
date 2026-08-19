@@ -9,9 +9,12 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// BuyStock はプレイヤーが商人の在庫アイテムを買う。実体を商人の収納からプレイヤーのバックパックへ移す。
+// BuyStock はプレイヤーが商人の在庫アイテムを買う。一覧の1行はスタック代表なので、
+// 同一スタックを丸ごと買い、代金は個数×単価にする。実体を商人の収納からバックパックへ移す。
 // 通貨が足りなければ何もせずエラーを返す
 func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {
+	// BuyPrice は価値×スタック個数で既に全量の額を返す。ここで個数を掛けると二重になる
+	members := query.StackMembers(world, item)
 	price := query.BuyPrice(world, player, item)
 
 	if !query.HasCurrency(world, player, price) {
@@ -22,27 +25,29 @@ func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {
 	}
 
 	// 実体をバックパックへ移す。移送に失敗したら通貨を返して整合を保つ
-	if err := lifecycle.MoveToBackpack(world, item, player); err != nil {
+	if _, err := lifecycle.MoveMembersToBackpack(world, members, player); err != nil {
 		if refundErr := query.AddCurrency(world, player, price); refundErr != nil {
 			return fmt.Errorf("move failed and refund also failed: %w (refund error: %w)", err, refundErr)
 		}
-		return fmt.Errorf("failed to move item to backpack: %w", err)
+		return fmt.Errorf("failed to move items to backpack: %w", err)
 	}
 
 	return nil
 }
 
-// SellStock はプレイヤーが持ち物を商人へ売る。実体を商人の収納へ移し、代金を受け取る。
-// 売った品は商人の在庫として店頭に並ぶ
+// SellStock はプレイヤーが持ち物を商人へ売る。一覧の1行はスタック代表なので、
+// 同一スタックを丸ごと売り、代金は個数×単価で受け取る。実体は商人の収納へ移り店頭に並ぶ
 func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.Entity) error {
+	// SellPrice は価値×スタック個数で既に全量の額を返す。ここで個数を掛けると二重になる
+	members := query.StackMembers(world, item)
 	price := query.SellPrice(world, player, item)
 
-	if err := lifecycle.MoveToStorage(world, item, merchant); err != nil {
-		return fmt.Errorf("failed to move item to merchant storage: %w", err)
+	if _, err := lifecycle.MoveMembersToStorage(world, members, merchant); err != nil {
+		return fmt.Errorf("failed to move items to merchant storage: %w", err)
 	}
 	// 代金の付与に失敗したら実体を手元へ戻し、品も金も失わないようにする。BuyStock の返金と対称
 	if err := query.AddCurrency(world, player, price); err != nil {
-		if rbErr := lifecycle.MoveToBackpack(world, item, player); rbErr != nil {
+		if _, rbErr := lifecycle.MoveMembersToBackpack(world, members, player); rbErr != nil {
 			return fmt.Errorf("payment failed and item rollback also failed: %w (rollback error: %w)", err, rbErr)
 		}
 		return fmt.Errorf("failed to add currency: %w", err)
