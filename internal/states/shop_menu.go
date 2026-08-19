@@ -126,7 +126,10 @@ func (st *ShopMenuState) Fetch(world w.World) (ShopProps, error) {
 	currency := query.GetCurrency(world, player)
 
 	return ShopProps{
-		Tabs: st.createTabs(world, player, currency),
+		Tabs: []shopTabData{
+			{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, player, currency)},
+			{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
+		},
 	}, nil
 }
 
@@ -137,13 +140,6 @@ func (st *ShopMenuState) Menu(props ShopProps) menuloop.MenuConfig {
 		itemCounts[i] = len(tab.Items)
 	}
 	return menuloop.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
-}
-
-func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency consts.Currency) []shopTabData {
-	return []shopTabData{
-		{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, player, currency)},
-		{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
-	}
 }
 
 // createBuyItems は商人の在庫アイテムを買いタブへ並べる。同一スタックは1行に束ね、

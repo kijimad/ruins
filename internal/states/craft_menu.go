@@ -114,7 +114,11 @@ type craftItemData struct {
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *CraftMenuState) Fetch(world w.World) (CraftProps, error) {
 	return CraftProps{
-		Tabs: st.createTabs(world),
+		Tabs: []craftTabData{
+			{ID: "consumables", Label: query.T(world, "Consumables"), Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
+			{ID: "weapons", Label: query.T(world, "Weapons"), Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
+			{ID: "wearables", Label: query.T(world, "Armor"), Items: st.createMenuItems(world, st.queryMenuWearable(world))},
+		},
 	}, nil
 }
 
@@ -125,14 +129,6 @@ func (st *CraftMenuState) Menu(props CraftProps) menuloop.MenuConfig {
 		itemCounts[i] = len(tab.Items)
 	}
 	return menuloop.MenuConfig{Key: "craft", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
-}
-
-func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
-	return []craftTabData{
-		{ID: "consumables", Label: query.T(world, "Consumables"), Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
-		{ID: "weapons", Label: query.T(world, "Weapons"), Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
-		{ID: "wearables", Label: query.T(world, "Armor"), Items: st.createMenuItems(world, st.queryMenuWearable(world))},
-	}
 }
 
 func (st *CraftMenuState) createMenuItems(world w.World, recipeIDs []string) []craftItemData {
