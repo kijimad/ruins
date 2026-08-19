@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (76.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (84.3%)</option>
 				
@@ -443,7 +443,7 @@
 				
 				<option value="file193">github.com/kijimaD/ruins/internal/resources/resources.go (100.0%)</option>
 				
-				<option value="file194">github.com/kijimaD/ruins/internal/resources/sprite.go (0.0%)</option>
+				<option value="file194">github.com/kijimaD/ruins/internal/resources/sprite.go (100.0%)</option>
 				
 				<option value="file195">github.com/kijimaD/ruins/internal/resources/ui.go (70.6%)</option>
 				
@@ -1590,7 +1590,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -36383,22 +36383,22 @@ import (
 // シートかキーが見つからない、テクスチャ画像が無いなど解決できない場合は理由を error で返す。
 // 矩形はテクスチャ範囲へクランプするので、範囲外を指す指定でも安全に切り出す。
 // スプライトシートというリソースに対する解決処理なのでこのパッケージに置く
-func SpriteImage(sheets map[string]components.SpriteSheet, sr *components.SpriteRender) (*ebiten.Image, error) <span class="cov0" title="0">{
-        if sr == nil </span><span class="cov0" title="0">{
+func SpriteImage(sheets map[string]components.SpriteSheet, sr *components.SpriteRender) (*ebiten.Image, error) <span class="cov8" title="1">{
+        if sr == nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("sprite render is nil")
         }</span>
-        <span class="cov0" title="0">sheet, ok := sheets[sr.SpriteSheetName]
-        if !ok </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">sheet, ok := sheets[sr.SpriteSheetName]
+        if !ok </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("sprite sheet %q not found", sr.SpriteSheetName)
         }</span>
-        <span class="cov0" title="0">sprite, ok := sheet.Sprites[sr.SpriteKey]
-        if !ok </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">sprite, ok := sheet.Sprites[sr.SpriteKey]
+        if !ok </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("sprite key %q not found in sheet %q", sr.SpriteKey, sr.SpriteSheetName)
         }</span>
-        <span class="cov0" title="0">if sheet.Texture.Image == nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if sheet.Texture.Image == nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("sprite sheet %q has no texture image", sr.SpriteSheetName)
         }</span>
-        <span class="cov0" title="0">w := sheet.Texture.Image.Bounds().Dx()
+        <span class="cov8" title="1">w := sheet.Texture.Image.Bounds().Dx()
         h := sheet.Texture.Image.Bounds().Dy()
         rect := image.Rect(
                 max(0, sprite.X),
