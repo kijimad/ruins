@@ -348,7 +348,7 @@ func TestGetSavePlayerName(t *testing.T) {
 	assert.Equal(t, "Ash", name)
 
 	_, err = manager.GetSavePlayerName("nonexistent")
-	assert.Error(t, err)
+	require.ErrorIs(t, err, fs.ErrNotExist)
 }
 
 // TestRestoreWorldFromJSON_VersionMismatch はサポート外バージョンのセーブを拒否することを検証する。
@@ -457,6 +457,7 @@ func TestSerializationManager_ListSaves_保存ディレクトリの読み込み�
 	manager, err := NewSerializationManager(WithSaveDir(dir))
 	require.NoError(t, err)
 
+	// この時点でディレクトリは空なので os.Remove で削除できる
 	require.NoError(t, os.Remove(dir))
 
 	_, err = manager.ListSaves()
@@ -519,6 +520,7 @@ func TestSerializationManager_AutoSave_保存に失敗するとエラー(t *test
 	manager, err := NewSerializationManager(WithSaveDir(dir))
 	require.NoError(t, err)
 
+	// この時点でディレクトリは空なので os.Remove で削除できる
 	require.NoError(t, os.Remove(dir))
 
 	err = manager.AutoSave(world)
@@ -550,6 +552,7 @@ func TestSerializationManager_LoadWorld_不正なステージキーは復元を�
 	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 
+	// Get が返すポインタは構造変更で無効化されるが、このテストでは後続の構造変更が無いため直接書き換えて問題ない
 	dungeon := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
 	dungeon.CurrentStage = gc.StageKey{Name: "broken-dungeon", Depth: 0}
 
