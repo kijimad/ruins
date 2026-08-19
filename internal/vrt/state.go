@@ -40,7 +40,6 @@ func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []by
 }
 
 // renderStates は world を作りステートを構築し、本番の MainGame.Draw で screen へ描いて NRGBA を返す。
-// 素の state.Draw でなく renderer 経由にすることで、ポスト処理まで含め実画面と一致させる。
 //
 // 構築も描画も ebitenui のグローバル状態に触れるため WithUILock で直列化する。InitVRTWorld も内部で
 // ロックを取り WithUILock は非再入なので、区間を2つに分ける。

@@ -62,8 +62,6 @@ func PlayScenario(
 			if capture == nil {
 				continue
 			}
-			// 描画も本番の MainGame.Draw。screeneffect のポスト処理まで含めて実画面と同じ絵になる。
-			// 描画先はここで作ってここで解放する。capture は読むだけでよい
 			screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
 			game.Draw(screen)
 			capture(frame, world, screen)
