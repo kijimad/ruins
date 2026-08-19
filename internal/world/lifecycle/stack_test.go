@@ -79,9 +79,9 @@ func TestChangeStackCount_未所持アイテムの操作(t *testing.T) {
 	})
 }
 
-// TestMoveMembers_スタックを丸ごと移動先へ運ぶ は、スタック移動の共通口が全個体を運び、
-// 移動先を跨いでも個数が保存されることを固定する。drop・pickup・storage が共有する土台
-func TestMoveMembers_スタックを丸ごと移動先へ運ぶ(t *testing.T) {
+// TestMoveStack_スタックを丸ごと移動先へ運ぶ は、代表を渡すだけでスタック移動の共通口が
+// 全個体を運び、移動先を跨いでも個数が保存されることを固定する。drop・売買・storage が共有する土台
+func TestMoveStack_スタックを丸ごと移動先へ運ぶ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -93,14 +93,14 @@ func TestMoveMembers_スタックを丸ごと移動先へ運ぶ(t *testing.T) {
 	require.Equal(t, 3, query.GetEntityCount(world, rep), "最初はバックパックに3個")
 
 	// バックパック -> フィールド。全個体に GridElement が付き、同タイルの1スタックになる
-	moved := MoveMembersToField(world, query.StackMembers(world, rep), consts.Coord[consts.Tile]{X: 5, Y: 5}, player)
+	moved := MoveStackToField(world, rep, consts.Coord[consts.Tile]{X: 5, Y: 5}, player)
 	assert.Equal(t, 3, moved, "3個とも落とす")
 	assert.Equal(t, 3, query.GetEntityCount(world, rep), "床でも同種3個のスタック")
 	assert.True(t, world.Components.LocationOnField.Has(rep))
 	assert.True(t, world.Components.GridElement.Has(rep))
 
 	// フィールド -> バックパック
-	n, err := MoveMembersToBackpack(world, query.StackMembers(world, rep), player)
+	n, err := MoveStackToBackpack(world, rep, player)
 	require.NoError(t, err)
 	assert.Equal(t, 3, n)
 	assert.Equal(t, 3, query.GetEntityCount(world, rep))
@@ -109,7 +109,7 @@ func TestMoveMembers_スタックを丸ごと移動先へ運ぶ(t *testing.T) {
 
 	// バックパック -> 収納
 	storage := world.ECS.NewEntity()
-	n, err = MoveMembersToStorage(world, query.StackMembers(world, rep), storage)
+	n, err = MoveStackToStorage(world, rep, storage)
 	require.NoError(t, err)
 	assert.Equal(t, 3, n)
 	assert.Equal(t, 3, query.GetEntityCount(world, rep))

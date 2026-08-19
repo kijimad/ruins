@@ -75,6 +75,26 @@ type Stack struct {
 	Members []ecs.Entity // 束に属する全エンティティ。初出順
 }
 
+// BackpackStacks は owner のバックパックの中身を、表示順に並べたスタックの列で返す。
+// 収集・並べ替え・束ねをこの1呼び出しに集約し、一覧はこの結果をそのまま行にする。
+// 生のエンティティ列挙から一覧を組むと、束ね忘れや並べ替え忘れが呼び出し側ごとに起きる
+func BackpackStacks(world w.World, owner ecs.Entity) []Stack {
+	var items []ecs.Entity
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		entity := q.Entity()
+		if world.Components.LocationInBackpack.Get(entity).Owner == owner {
+			items = append(items, entity)
+		}
+	}
+	return GroupStacks(world, SortEntities(world, items))
+}
+
+// StorageStacks は storage の中身を、表示順に並べたスタックの列で返す。BackpackStacks と対
+func StorageStacks(world w.World, storage ecs.Entity) []Stack {
+	return GroupStacks(world, SortEntities(world, GetStorageItems(world, storage)))
+}
+
 // StackMembers は entity と同じ所有者かつ同じ位置種別にある、同一スタックのエンティティを返す。
 // 個数の数え上げ、一括消費、表示の束ねの範囲をこの1関数に集約する。バックパックと収納は
 // 所有者一致で絞る。装備やフィールド、位置未設定は束ねず entity 単独を返す。

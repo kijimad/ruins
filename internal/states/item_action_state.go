@@ -333,8 +333,8 @@ func (st *ItemActionState) Fetch(world w.World) ItemActionProps {
 	player, err := query.GetPlayerEntity(world)
 	var backpack []query.Stack
 	if err == nil {
-		// 同一スタックは1束に畳む。個数は束が確定済みの値をそのまま使い、行ごとに数え直さない
-		backpack = query.GroupStacks(world, playerBackpackItems(world, player))
+		// 個数は束が確定済みの値をそのまま使い、行ごとに数え直さない
+		backpack = query.BackpackStacks(world, player)
 	}
 
 	vs := verbList

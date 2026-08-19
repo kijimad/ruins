@@ -37,9 +37,27 @@ func TransferUnits(world w.World, item ecs.Entity, recipient ecs.Entity, count i
 	return nil
 }
 
+// MoveStackToBackpack は rep と同一スタックを丸ごとバックパックへ移す。移せた個数を返す。
+// 同一スタックの実体は呼び出し時点の世界から束ね直す。前フレームの一覧から実体列を持ち越すと
+// 消えた実体が混ざりうるため、呼び出し側は代表だけを渡す
+func MoveStackToBackpack(world w.World, rep ecs.Entity, owner ecs.Entity) (int, error) {
+	return MoveMembersToBackpack(world, query.StackMembers(world, rep), owner)
+}
+
+// MoveStackToStorage は rep と同一スタックを丸ごと収納へ移す。移せた個数を返す。
+// 容量判定は呼び出し側が事前に行う
+func MoveStackToStorage(world w.World, rep ecs.Entity, storage ecs.Entity) (int, error) {
+	return MoveMembersToStorage(world, query.StackMembers(world, rep), storage)
+}
+
+// MoveStackToField は rep と同一スタックを丸ごと指定タイルへ落とす。移した個数を返す
+func MoveStackToField(world w.World, rep ecs.Entity, coord consts.Coord[consts.Tile], previousOwner ecs.Entity) int {
+	return MoveMembersToField(world, query.StackMembers(world, rep), coord, previousOwner)
+}
+
 // MoveMembersToBackpack は members を全てバックパックへ移す。移せた個数を返す。
-// スタックを丸ごと動かす操作はこの1関数を通し、一部だけ動かす取りこぼしを防ぐ。
-// 対象は呼び出し側が query.StackMembers 等で束ねて渡す。移動先の詳細だけをここに集約する。
+// スタック丸ごとの移動は MoveStackTo* が代表から束ねて委譲する。実体列を直接受けるこの層は、
+// 部分移動や、スタックに限らない一括移動が使う。移動先の詳細だけをここに集約する。
 func MoveMembersToBackpack(world w.World, members []ecs.Entity, owner ecs.Entity) (int, error) {
 	moved := 0
 	var errs []error

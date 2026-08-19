@@ -154,6 +154,35 @@ func TestStackMembers_床は同じタイルの同種だけ束ねる(t *testing.T
 	assert.Equal(t, 3, GetEntityCount(world, apple), "床でも同種の個数を導出する")
 }
 
+// TestBackpackStacks_収集と整列と束ねを1口で行う は、一覧口が所有者で絞り、
+// 名前順に並べ、同一スタックを束ねた結果を返すことを固定する。一覧はこの口だけを使う
+func TestBackpackStacks_収集と整列と束ねを1口で行う(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	owner := world.ECS.NewEntity()
+	other := world.ECS.NewEntity()
+	mk := func(o ecs.Entity, id string, name string) {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: id})
+		world.Components.Name.Add(e, &gc.Name{Name: name})
+		world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: o})
+	}
+	// わざと名前の逆順で作る。Zebra 2個、Alpha 1個、他人の Alpha 1個
+	mk(owner, "zebra", "Zebra")
+	mk(owner, "zebra", "Zebra")
+	mk(owner, "alpha", "Alpha")
+	mk(other, "alpha", "Alpha")
+
+	stacks := BackpackStacks(world, owner)
+
+	require.Len(t, stacks, 2, "所有者の2品種だけが束になる")
+	assert.Equal(t, "Alpha", world.Components.Name.Get(stacks[0].Rep).Name, "名前順で並ぶ")
+	assert.Equal(t, 1, stacks[0].Count)
+	assert.Equal(t, "Zebra", world.Components.Name.Get(stacks[1].Rep).Name)
+	assert.Equal(t, 2, stacks[1].Count, "同一スタックは束ねられる")
+}
+
 func TestGroupStacks_同一性キーで束ね初出順を保つ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

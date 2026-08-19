@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
@@ -131,26 +130,19 @@ func (st *StorageMenuState) Menu(props StorageProps) menuloop.MenuConfig {
 }
 
 func (st *StorageMenuState) createStorageItemData(world w.World) []itemRowData {
-	items := query.GetStorageItems(world, st.storageEntity)
-	sorted := query.SortEntities(world, items)
-	return st.toStorageItemData(world, sorted)
+	return st.toStorageItemData(world, query.StorageStacks(world, st.storageEntity))
 }
 
 func (st *StorageMenuState) createBackpackItemData(world w.World) []itemRowData {
-	var entities []ecs.Entity
-	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
-	for backpackQuery.Next() {
-		entity := backpackQuery.Entity()
-		entities = append(entities, entity)
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return nil
 	}
-
-	sorted := query.SortEntities(world, entities)
-	return st.toStorageItemData(world, sorted)
+	return st.toStorageItemData(world, query.BackpackStacks(world, player))
 }
 
-func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Entity) []itemRowData {
-	// 同一スタックを1行に束ねる。重量は束の総量、個数は束の大きさを出す
-	stacks := query.GroupStacks(world, entities)
+func (st *StorageMenuState) toStorageItemData(world w.World, stacks []query.Stack) []itemRowData {
+	// 1スタック1行。重量は束の総量、個数は束の大きさを出す
 	items := make([]itemRowData, len(stacks))
 	for i, stack := range stacks {
 		rep := stack.Rep
@@ -185,10 +177,6 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 
 	item := tab.Items[itemIndex]
 
-	// 一覧の1行はスタック代表なので、同一スタックのエンティティをまとめて動かす。
-	// スナップショットを先に取り、移動による位置変更の影響を受けないようにする
-	members := query.StackMembers(world, item.Entity)
-
 	switch tab.ID {
 	case tabIDRetrieve:
 		// 収納からバックパックへスタック丸ごと移動
@@ -196,11 +184,13 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 		if err != nil {
 			return err
 		}
-		if _, err := lifecycle.MoveMembersToBackpack(world, members, playerEntity); err != nil {
+		if _, err := lifecycle.MoveStackToBackpack(world, item.Entity, playerEntity); err != nil {
 			return err
 		}
 	case tabIDStore:
-		// バックパックから収納へスタック丸ごと移動。合計重量が容量を超えるなら何もしない
+		// バックパックから収納へスタック丸ごと移動。合計重量が容量を超えるなら何もしない。
+		// 容量判定が束の合計重量を要するため、ここだけ実体列を先に束ねる
+		members := query.StackMembers(world, item.Entity)
 		if !query.CanAddStackToStorage(world, st.storageEntity, members) {
 			return nil
 		}

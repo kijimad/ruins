@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
@@ -149,7 +148,7 @@ func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency c
 // createBuyItems は商人の在庫アイテムを買いタブへ並べる。同一スタックは1行に束ね、
 // 額はスタック個数分の合計にする。購入はスタック丸ごとなので、表示額と支払額が一致する
 func (st *ShopMenuState) createBuyItems(world w.World, player ecs.Entity, currency consts.Currency) []shopItemData {
-	stacks := query.GroupStacks(world, query.GetStorageItems(world, st.merchant))
+	stacks := query.StorageStacks(world, st.merchant)
 	items := make([]shopItemData, 0, len(stacks))
 
 	for _, stack := range stacks {
@@ -170,13 +169,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, player ecs.Entity, curren
 // createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る。
 // 同一スタックは1行に束ね、額はスタック個数分の合計にする
 func (st *ShopMenuState) createSellItems(world w.World, player ecs.Entity) []shopItemData {
-	var backpack []ecs.Entity
-	sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
-	for sellQuery.Next() {
-		backpack = append(backpack, sellQuery.Entity())
-	}
-
-	stacks := query.GroupStacks(world, backpack)
+	stacks := query.BackpackStacks(world, player)
 	items := make([]shopItemData, 0, len(stacks))
 	for _, stack := range stacks {
 		// SellPrice は価値×スタック個数で既に全量の額を返す
