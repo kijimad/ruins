@@ -97,6 +97,9 @@ func InitVRTWorld(tb testing.TB) w.World {
 		cfg.Seed = 12345
 		cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
 		cfg.DisableAnimation = true
+		// ポスト処理を切って撮る。スキャンラインの高周波パターンが無くなり、golden の
+		// 差分がUIの実変化だけを映すようになる。トレランスを絞れる
+		cfg.DisableScreenFilter = true
 		require.NoError(tb, cfg.Validate())
 
 		w2, err := maingame.InitWorld(cfg)
