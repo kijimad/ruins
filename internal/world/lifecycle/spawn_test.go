@@ -285,13 +285,15 @@ func TestSpawnItem(t *testing.T) {
 		assert.Equal(t, 1, query.GetEntityCount(world, item))
 	})
 
-	t.Run("非スタック品も複数個生成できる。1個1エンティティなので個体が並ぶ", func(t *testing.T) {
+	t.Run("装備品も性能が同一なら1スタックに束ねられる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 		require.NoError(t, err)
 
+		// raw 由来のスポーン品は性能が同一なので、武器でも同一スタックになり一覧では1行になる。
+		// 個体として分かれるのはクラフト乱数化などで性能が違うときだけ
 		item, err := SpawnBackpackItem(world, "wooden_sword", 2)
 		require.NoError(t, err)
 		assert.Equal(t, 2, query.GetEntityCount(world, item))
