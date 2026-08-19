@@ -197,9 +197,11 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 	var playerEntity ecs.Entity
 	var found bool
 	playerQuery := ecs.NewFilter1[gc.Player](world.ECS).Query()
-	for playerQuery.Next() {
+	// プレイヤーは1体なので最初の1件で確定し、残りの走査を打ち切る
+	if playerQuery.Next() {
 		playerEntity = playerQuery.Entity()
 		found = true
+		playerQuery.Close()
 	}
 
 	last := gc.InvalidEntity

@@ -225,12 +225,11 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 	var found bool
 
 	playerQuery := ecs.NewFilter4[gc.Player, gc.GridElement, gc.SpriteRender, gc.Camera](world.ECS).Query()
-	for playerQuery.Next() {
-		entity := playerQuery.Entity()
-		if !found {
-			playerEntity = entity
-			found = true
-		}
+	// プレイヤーは1体なので最初の1件で確定し、残りの走査を打ち切る
+	if playerQuery.Next() {
+		playerEntity = playerQuery.Entity()
+		found = true
+		playerQuery.Close()
 	}
 	if !found {
 		return errors.New("no player entity with required components found")
