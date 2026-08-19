@@ -29,7 +29,8 @@ func TestCraftMenuState_FetchProps(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.Fetch(world)
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
 
 	assert.Len(t, props.Tabs, 3, "タブは3つ（道具、武器、防具）")
 	assert.Equal(t, "consumables", props.Tabs[0].ID)

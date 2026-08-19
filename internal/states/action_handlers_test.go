@@ -380,6 +380,58 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		assert.Equal(t, "Attack (ゴブリン)", actions[0].Label)
 	})
 
+	t.Run("同一スタックのアイテムは1行に束ねる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+		// 同一品種3個を同じタイルへ。1個1エンティティだが拾得行は1つに束ねる
+		for range 3 {
+			item := world.ECS.NewEntity()
+			world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+			world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
+			world.Components.Interactable.Add(item, &gc.Interactable{
+				Interactions: []gc.InteractionKind{gc.InteractionItem},
+			})
+			world.Components.RawID.Add(item, &gc.RawID{ID: "bread"})
+			world.Components.Name.Add(item, &gc.Name{Name: "パン"})
+		}
+
+		actions := GetInteractionActions(world)
+		require.Len(t, actions, 1, "同一スタックは1行。すべて拾うは1スタックなので出ない")
+		assert.Contains(t, actions[0].Label, "3", "個数3がラベルに出る")
+		assert.Equal(t, gc.InteractionItem, actions[0].Interaction)
+	})
+
+	t.Run("拾得と他種を併せ持つ実体は束ね行と個別行の両方に出る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+		// 拾えて調べられる合成実体。束ねるかは種別の宣言 StackBundled が決めるので、
+		// 拾得行は束ね経路に、収納行は個別経路に、それぞれ1本ずつ出る
+		hybrid := world.ECS.NewEntity()
+		world.Components.GridElement.Add(hybrid, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 11}})
+		world.Components.LocationOnField.Add(hybrid, &gc.LocationOnField{})
+		world.Components.Interactable.Add(hybrid, &gc.Interactable{
+			Interactions: []gc.InteractionKind{gc.InteractionItem, gc.InteractionStorage},
+		})
+		world.Components.RawID.Add(hybrid, &gc.RawID{ID: "mystery_box"})
+		world.Components.Name.Add(hybrid, &gc.Name{Name: "ふしぎな箱"})
+
+		actions := GetInteractionActions(world)
+		require.Len(t, actions, 2, "収納の個別行と拾得の束ね行")
+		kinds := []gc.InteractionKind{actions[0].Interaction, actions[1].Interaction}
+		assert.Contains(t, kinds, gc.InteractionItem, "拾得行が消えない")
+		assert.Contains(t, kinds, gc.InteractionStorage, "収納行も出る")
+	})
+
 	t.Run("方向キーでPropを自動攻撃しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -511,11 +563,13 @@ func TestGetSameTileManualActions(t *testing.T) {
 		world.Components.Player.Add(player, &gc.Player{})
 		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 
+		// 別品種は別スタックなので個別行が2つ出る。RawID が同定キーになる
 		item1 := world.ECS.NewEntity()
 		world.Components.GridElement.Add(item1, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
 		world.Components.Interactable.Add(item1, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
+		world.Components.RawID.Add(item1, &gc.RawID{ID: "wooden_sword"})
 		world.Components.Name.Add(item1, &gc.Name{Name: "木刀"})
 
 		item2 := world.ECS.NewEntity()
@@ -523,6 +577,7 @@ func TestGetSameTileManualActions(t *testing.T) {
 		world.Components.Interactable.Add(item2, &gc.Interactable{
 			Interactions: []gc.InteractionKind{gc.InteractionItem},
 		})
+		world.Components.RawID.Add(item2, &gc.RawID{ID: "healing_potion"})
 		world.Components.Name.Add(item2, &gc.Name{Name: "回復薬"})
 
 		actions := GetSameTileManualActions(world)
@@ -530,6 +585,32 @@ func TestGetSameTileManualActions(t *testing.T) {
 		assert.Equal(t, "Pick up all", actions[0].Label)
 		ok := actions[0].Interaction == gc.InteractionItemAll
 		assert.True(t, ok)
+	})
+
+	t.Run("同一スタックのアイテムは1行に束ねる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+
+		// 同一品種を2個、同じタイルへ。1個1エンティティだが1スタックに束ねる
+		for range 2 {
+			item := world.ECS.NewEntity()
+			world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}})
+			world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
+			world.Components.Interactable.Add(item, &gc.Interactable{
+				Interactions: []gc.InteractionKind{gc.InteractionItem},
+			})
+			world.Components.RawID.Add(item, &gc.RawID{ID: "biscuit"})
+			world.Components.Name.Add(item, &gc.Name{Name: "ビスケット"})
+		}
+
+		actions := GetSameTileManualActions(world)
+		require.Len(t, actions, 1, "同一スタックは1行だけ。すべて拾うは1スタックなので出ない")
+		assert.Contains(t, actions[0].Label, "2", "個数2がラベルに出る")
+		assert.Equal(t, gc.InteractionItem, actions[0].Interaction)
 	})
 
 	t.Run("アイテムが1個の場合はすべて拾うが追加されない", func(t *testing.T) {

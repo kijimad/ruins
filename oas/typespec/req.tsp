@@ -94,7 +94,6 @@ model Item {
   inflictsDamage?: BaseDamage;
   providesNutrition?: NutritionAmount;
   stageLength?: StageLengthTurns;
-  stackable?: Stackable;
   consumable?: Consumable;
   providesHealing?: ProvidesHealing;
   wearable?: Wearable;

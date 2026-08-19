@@ -166,7 +166,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		assert.NotEmpty(t, chain.PlanData.Items)
 	})
 
-	t.Run("StackableアイテムはCountが2以上になる", func(t *testing.T) {
+	t.Run("スタックアイテムはCountが2以上になる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -189,17 +189,17 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		require.NotEmpty(t, chain.PlanData.Items)
 
-		// Stackableアイテムが存在することを確認
-		hasStackable := false
+		// スタックアイテムが存在することを確認
+		hasStack := false
 		for _, item := range chain.PlanData.Items {
 			if item.Count > 1 {
-				hasStackable = true
+				hasStack = true
 				break
 			}
 		}
 		// PackMaxが3なのでCount>1のアイテムが存在する可能性がある（乱数依存）
 		// 確率的に存在しない場合もあるので、アイテムが配置されていることだけ確認
-		_ = hasStackable
+		_ = hasStack
 	})
 
 	t.Run("部屋がある場合はアイテムが部屋内に配置される", func(t *testing.T) {

@@ -18,7 +18,8 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.Fetch(world)
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
 
 	require.Len(t, props.Items, 2)
 	assert.Equal(t, "Language", props.Items[0].Label)
@@ -33,7 +34,9 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	// このテストの関心は表示が UserSettings 言語に追従することで、訳文の正当性は i18n の責務。
 	query.GetUserSettings(world).Language = "ja"
 	wantJa := world.Resources.I18N.Translate("ja", "Japanese")
-	assert.Equal(t, wantJa, state.Fetch(world).Items[0].Value, "表示は config でなく UserSettings を引く")
+	jaProps, err := state.Fetch(world)
+	require.NoError(t, err)
+	assert.Equal(t, wantJa, jaProps.Items[0].Value, "表示は config でなく UserSettings を引く")
 }
 
 func TestCycleLanguage_左右で循環しシングルトンと設定を更新する(t *testing.T) {

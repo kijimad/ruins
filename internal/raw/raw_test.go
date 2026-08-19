@@ -137,7 +137,6 @@ id = "テスト素材"
 Description = "スプライト付き素材"
 SpriteSheetName = "field"
 SpriteKey = "field_item"
-Stackable = true
 `
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
@@ -147,8 +146,6 @@ Stackable = true
 	// 基本コンポーネントの確認
 	assert.NotNil(t, entitySpec.Name)
 	assert.NotNil(t, entitySpec.Description)
-	// Stackable=trueのアイテムにはStackableコンポーネントが付与される
-	assert.NotNil(t, entitySpec.Stackable)
 
 	// SpriteRenderコンポーネントの確認
 	assert.NotNil(t, entitySpec.SpriteRender, "SpriteRenderコンポーネントが設定されていない")
@@ -174,8 +171,6 @@ Description = "スプライトなし素材"
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName)
 	assert.Equal(t, "field_item", entitySpec.SpriteRender.SpriteKey)
-	// Stackable=true が設定されていないので Stackable コンポーネントは付かない
-	assert.Nil(t, entitySpec.Stackable)
 }
 
 func TestLoadTilesFromRaw(t *testing.T) {

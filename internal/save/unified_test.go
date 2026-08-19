@@ -115,9 +115,8 @@ func assertComplexWorldRestored(t *testing.T, world w.World) {
 	require.True(t, ok, "西洋鎧が復元される")
 	assert.Equal(t, 15, world.Components.Wearable.Get(armor).Defense, "防具の防御力が復元される")
 
-	iron, ok := items["鉄"]
+	_, ok = items["鉄"]
 	require.True(t, ok, "マテリアルが復元される")
-	assert.True(t, world.Components.Stackable.Has(iron), "Stackableが復元される")
 
 	// 回復薬（ProvidesHealing 倍率0.3）が値まで復元される
 	healRatioFound := false
@@ -232,13 +231,11 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	world.Components.Name.Add(material1, &gc.Name{Name: "鉄"})
 	world.Components.Value.Add(material1, &gc.Value{})
 	world.Components.LocationInBackpack.Add(material1, &gc.LocationInBackpack{Owner: player})
-	world.Components.Stackable.Add(material1, &gc.Stackable{})
 
 	material2 := world.ECS.NewEntity()
 	world.Components.Name.Add(material2, &gc.Name{Name: "緑ハーブ"})
 	world.Components.Value.Add(material2, &gc.Value{})
 	world.Components.LocationInBackpack.Add(material2, &gc.LocationInBackpack{Owner: player})
-	world.Components.Stackable.Add(material2, &gc.Stackable{})
 
 	return world
 }

@@ -3,11 +3,27 @@ package lifecycle
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// backpackCount はバックパックにある RawID が id のアイテム数を数える。
+// 個数を保存しないので、テストは数え上げで在庫を確かめる。
+func backpackCount(world w.World, id string) int {
+	n := 0
+	q := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
+	for q.Next() {
+		if world.Components.RawID.Get(q.Entity()).ID == id {
+			n++
+		}
+	}
+	return n
+}
 
 func TestChangeItemCount(t *testing.T) {
 	t.Parallel()
@@ -15,6 +31,9 @@ func TestChangeItemCount(t *testing.T) {
 	t.Run("単一アイテムを消費すると削除される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
@@ -27,9 +46,12 @@ func TestChangeItemCount(t *testing.T) {
 		assert.False(t, world.ECS.Alive(item), "アイテムが削除されているべき")
 	})
 
-	t.Run("Stackableアイテムの一部を消費", func(t *testing.T) {
+	t.Run("スタックアイテムの一部を消費", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		item, err := SpawnBackpackItem(world, "healing_potion", 5)
 		require.NoError(t, err)
@@ -39,14 +61,15 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// 残り3個であることを確認
-		stackableComp := world.Components.Stackable.Get(item)
-		assert.Equal(t, 3, stackableComp.Count)
-		assert.True(t, world.Components.Name.Has(item), "アイテムは残っているべき")
+		assert.Equal(t, 3, backpackCount(world, "healing_potion"))
 	})
 
-	t.Run("Stackableアイテムを全て消費すると削除される", func(t *testing.T) {
+	t.Run("スタックアイテムを全て消費すると削除される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		item, err := SpawnBackpackItem(world, "healing_potion", 3)
 		require.NoError(t, err)
@@ -63,6 +86,9 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+
 		item, err := SpawnBackpackItem(world, "healing_potion", 2)
 		require.NoError(t, err)
 
@@ -71,15 +97,17 @@ func TestChangeItemCount(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "insufficient item count")
 
-		// エンティティは削除されていない
+		// 在庫は変更されていない
 		assert.True(t, world.Components.Name.Has(item), "アイテムは残っているべき")
-		stackableComp := world.Components.Stackable.Get(item)
-		assert.Equal(t, 2, stackableComp.Count, "個数は変更されていないべき")
+		assert.Equal(t, 2, backpackCount(world, "healing_potion"), "個数は変更されていないべき")
 	})
 
 	t.Run("正の値で個数を増やせる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		item, err := SpawnBackpackItem(world, "healing_potion", 3)
 		require.NoError(t, err)
@@ -89,13 +117,15 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// 5個になっていることを確認
-		stackableComp := world.Components.Stackable.Get(item)
-		assert.Equal(t, 5, stackableComp.Count)
+		assert.Equal(t, 5, backpackCount(world, "healing_potion"))
 	})
 
 	t.Run("0を指定するとエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)

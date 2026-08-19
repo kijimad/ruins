@@ -6,7 +6,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -110,14 +110,19 @@ type storageTabData struct {
 	Items []itemRowData
 }
 
-// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
-func (st *StorageMenuState) Fetch(world w.World) StorageProps {
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。
+// 収納メニューはプレイヤーの操作でしか開かないので、プレイヤー不在は不変条件違反として返す
+func (st *StorageMenuState) Fetch(world w.World) (StorageProps, error) {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return StorageProps{}, err
+	}
 	return StorageProps{
 		Tabs: []storageTabData{
-			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.createStorageItemData(world)},
-			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.createBackpackItemData(world)},
+			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, query.StorageStacks(world, st.storageEntity))},
+			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, query.BackpackStacks(world, player))},
 		},
-	}
+	}, nil
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
@@ -129,37 +134,18 @@ func (st *StorageMenuState) Menu(props StorageProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: "storage", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-func (st *StorageMenuState) createStorageItemData(world w.World) []itemRowData {
-	items := query.GetStorageItems(world, st.storageEntity)
-	sorted := query.SortEntities(world, items)
-	return st.toStorageItemData(world, sorted)
-}
-
-func (st *StorageMenuState) createBackpackItemData(world w.World) []itemRowData {
-	var entities []ecs.Entity
-	backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
-	for backpackQuery.Next() {
-		entity := backpackQuery.Entity()
-		entities = append(entities, entity)
-	}
-
-	sorted := query.SortEntities(world, entities)
-	return st.toStorageItemData(world, sorted)
-}
-
-func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Entity) []itemRowData {
-	items := make([]itemRowData, len(entities))
-	for i, entity := range entities {
-		name := query.GetEntityName(entity, world)
-		item := itemRowData{
-			Entity: entity,
-			Name:   name,
-			Weight: query.GetEntityWeight(world, entity).KgString(),
+func (st *StorageMenuState) toStorageItemData(world w.World, stacks []query.Stack) []itemRowData {
+	// 1スタック1行。重量は束の総量、個数は束の大きさを出す
+	items := make([]itemRowData, len(stacks))
+	for i, stack := range stacks {
+		rep := stack.Rep
+		total := query.GetEntityWeight(world, rep) * consts.Milligram(stack.Count)
+		items[i] = itemRowData{
+			Entity: rep,
+			Name:   query.GetEntityName(rep, world),
+			Weight: total.KgString(),
+			Count:  stack.Count,
 		}
-		if world.Components.Stackable.Has(entity) {
-			item.Count = world.Components.Stackable.Get(entity).Count
-		}
-		items[i] = item
 	}
 	return items
 }
@@ -186,20 +172,20 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 
 	switch tab.ID {
 	case tabIDRetrieve:
-		// 収納からバックパックへ移動
 		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			return err
 		}
-		if err := lifecycle.MoveToBackpack(world, item.Entity, playerEntity); err != nil {
+		if _, err := lifecycle.MoveStackToBackpack(world, item.Entity, playerEntity); err != nil {
 			return err
 		}
 	case tabIDStore:
-		// バックパックから収納へ移動
-		if !query.CanAddToStorage(world, st.storageEntity, item.Entity) {
-			return nil // 重量超過の場合は何もしない
+		// 容量判定が束の合計重量を要するため、ここだけ実体列を先に束ねて可否を見てから移す
+		members := query.StackMembers(world, item.Entity)
+		if !query.CanAddStackToStorage(world, st.storageEntity, members) {
+			return nil
 		}
-		if err := lifecycle.MoveToStorage(world, item.Entity, st.storageEntity); err != nil {
+		if _, err := lifecycle.MoveMembersToStorage(world, members, st.storageEntity); err != nil {
 			return err
 		}
 	}
@@ -249,7 +235,7 @@ func (st *StorageMenuState) buildActiveListContainer(world w.World, props Storag
 	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		rows[i] = itemMenuRow(world, it.Entity, it.Weight)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res)
 }

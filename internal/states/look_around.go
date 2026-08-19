@@ -237,8 +237,9 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	if len(entities) == 0 {
 		drawText(query.T(world, "Nothing here"))
 	} else {
-		for _, entity := range entities {
-			st.drawEntityInfo(world, entity, drawText)
+		// 床の同一スタックは1行に束ね、拾得メニューと見え方を揃える
+		for _, stack := range query.GroupStacks(world, entities) {
+			st.drawEntityInfo(world, stack.Rep, stack.Count, drawText)
 		}
 	}
 
@@ -255,9 +256,9 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	return nil
 }
 
-// drawEntityInfo はエンティティ情報を描画する
-func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, drawText func(string)) {
-	name := query.GetEntityName(entity, world)
+// drawEntityInfo はエンティティ情報を描画する。個数は束ねた結果を呼び出し側が渡す
+func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, count int, drawText func(string)) {
+	name := query.FormatNameCount(query.GetEntityName(entity, world), count)
 
 	cat, ok := world.Components.CategoryOf(gc.FieldLookCategoryKey, entity)
 	if !ok {

@@ -116,7 +116,7 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 }
 
 func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
-	return Execute(NewPickupActivity(target), actor, world)
+	return Execute(NewPickupStackActivity(world, target), actor, world)
 }
 
 func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {

@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
@@ -106,27 +105,32 @@ type shopTabData struct {
 	Items []shopItemData
 }
 
-// shopItemData は一覧1行分。名前・重量・個数は実体から都度出せるので持たず、
-// プレイヤーの所持金や倍率が要る値だけを持つ
+// shopItemData は一覧1行分。1行は1スタックで、売買はスタック丸ごと行う。
+// 名前・重量・個数は実体から都度出せるので持たず、プレイヤーの所持金や倍率が要る値だけを持つ
 type shopItemData struct {
-	Entity   ecs.Entity      // 在庫・持ち物の実体。表示も操作もこれから解決する
-	Price    consts.Currency // 価値と交渉スキルの倍率から出す。実体だけでは決まらない
+	Entity   ecs.Entity      // スタック代表の実体。表示も操作もこれから解決する
+	Count    int             // スタックの個数。束ねた結果を持ち回り、行ごとに数え直さない
+	Price    consts.Currency // 行の合計額。単価は価値と交渉スキルの倍率から出し、スタック個数を掛ける
 	IsBuy    bool            // 買いタブの行なら真
 	Disabled bool            // 所持金が足りず選べない
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。
-// プレイヤーが居なければ空の props を返す。価格は query.BuyPrice/SellPrice が取引と揃えて出す
-func (st *ShopMenuState) Fetch(world w.World) ShopProps {
+// ショップはプレイヤーの操作でしか開かないので、プレイヤー不在は不変条件違反として返す。
+// 価格は query.BuyPrice/SellPrice が取引と揃えて出す
+func (st *ShopMenuState) Fetch(world w.World) (ShopProps, error) {
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
-		return ShopProps{}
+		return ShopProps{}, err
 	}
 	currency := query.GetCurrency(world, player)
 
 	return ShopProps{
-		Tabs: st.createTabs(world, player, currency),
-	}
+		Tabs: []shopTabData{
+			{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, player, currency)},
+			{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
+		},
+	}, nil
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
@@ -138,41 +142,38 @@ func (st *ShopMenuState) Menu(props ShopProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
 }
 
-func (st *ShopMenuState) createTabs(world w.World, player ecs.Entity, currency consts.Currency) []shopTabData {
-	return []shopTabData{
-		{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, player, currency)},
-		{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
-	}
-}
-
-// createBuyItems は商人の在庫アイテムを買いタブへ並べる
+// createBuyItems は商人の在庫アイテムを買いタブへ並べる。同一スタックは1行に束ね、
+// 額はスタック個数分の合計にする。購入はスタック丸ごとなので、表示額と支払額が一致する
 func (st *ShopMenuState) createBuyItems(world w.World, player ecs.Entity, currency consts.Currency) []shopItemData {
-	stock := query.GetStorageItems(world, st.merchant)
-	items := make([]shopItemData, 0, len(stock))
+	stacks := query.StorageStacks(world, st.merchant)
+	items := make([]shopItemData, 0, len(stacks))
 
-	for _, entity := range stock {
-		price := query.BuyPrice(world, player, entity)
+	for _, stack := range stacks {
+		// BuyPrice は価値×スタック個数で既に全量の額を返す
+		total := query.BuyPrice(world, player, stack.Rep)
 		items = append(items, shopItemData{
-			Entity:   entity,
-			Price:    price,
+			Entity:   stack.Rep,
+			Count:    stack.Count,
+			Price:    total,
 			IsBuy:    true,
-			Disabled: currency < price,
+			Disabled: currency < total,
 		})
 	}
 
 	return items
 }
 
-// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る
+// createSellItems はプレイヤーの持ち物を売りタブへ並べる。売ると実体が商人の在庫へ移る。
+// 同一スタックは1行に束ね、額はスタック個数分の合計にする
 func (st *ShopMenuState) createSellItems(world w.World, player ecs.Entity) []shopItemData {
-	var items []shopItemData
-	sellQuery := ecs.NewFilter2[gc.Name, gc.LocationInBackpack](world.ECS).Query()
-	for sellQuery.Next() {
-		entity := sellQuery.Entity()
-		price := query.SellPrice(world, player, entity)
+	stacks := query.BackpackStacks(world, player)
+	items := make([]shopItemData, 0, len(stacks))
+	for _, stack := range stacks {
+		// SellPrice は価値×スタック個数で既に全量の額を返す
 		items = append(items, shopItemData{
-			Entity: entity,
-			Price:  price,
+			Entity: stack.Rep,
+			Count:  stack.Count,
+			Price:  query.SellPrice(world, player, stack.Rep),
 			IsBuy:  false,
 		})
 	}
@@ -265,9 +266,10 @@ func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, t
 	columnWidths, aligns := itemMenuColumns(0, menuColumn{Width: 80, Align: styled.AlignRight}, menuColumn{Width: 90, Align: styled.AlignRight})
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		// 名前・個数・重量・アイコンは実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している
-		weight := query.GetEntityWeight(world, it.Entity).KgString()
-		rows[i] = itemMenuRow(world, it.Entity, it.Price.String(), weight)
+		// 名前・重量・アイコンは実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している。
+		// 1行は1スタックなので、重量は額と同じく個数分の合計にし、行内の値の粒度を揃える
+		total := query.GetEntityWeight(world, it.Entity) * consts.Milligram(it.Count)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Price.String(), total.KgString())
 	}
 	emptyText := query.T(world, "No goods")
 	if currentTab.ID == "sell" {

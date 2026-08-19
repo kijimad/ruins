@@ -32,21 +32,25 @@ func TestPerishable_Stage(t *testing.T) {
 	}
 }
 
-func TestPerishable_MergeRot(t *testing.T) {
+func TestFreshnessStage_Rank(t *testing.T) {
 	t.Parallel()
+	// 新鮮→劣化→腐敗の固定順。一覧の並び副キーが依存する
+	assert.Equal(t, 1, FreshnessFresh.Rank())
+	assert.Equal(t, 2, FreshnessStale.Rank())
+	assert.Equal(t, 3, FreshnessRotten.Rank())
+}
 
-	t.Run("個数で加重平均する", func(t *testing.T) {
-		t.Parallel()
-		target := Perishable{RotAccrued: 100, StageLength: 1000}
-		target.MergeRot(3, Perishable{RotAccrued: 500, StageLength: 1000}, 1)
-		// (100*3 + 500*1) / 4 = 200
-		assert.Equal(t, consts.Turn(200), target.RotAccrued)
-	})
+func TestFreshnessStage_Label(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, "Fresh", FreshnessFresh.Label())
+	assert.Equal(t, "Stale", FreshnessStale.Label())
+	assert.Equal(t, "Rotten", FreshnessRotten.Label())
+}
 
-	t.Run("総数ゼロなら変えない", func(t *testing.T) {
-		t.Parallel()
-		target := Perishable{RotAccrued: 42, StageLength: 1000}
-		target.MergeRot(0, Perishable{RotAccrued: 500, StageLength: 1000}, 0)
-		assert.Equal(t, consts.Turn(42), target.RotAccrued)
-	})
+func TestFreshnessStage_未知の段階はpanicする(t *testing.T) {
+	t.Parallel()
+	// 段階は算出値で保存されないため、未知の段階は enum 追加漏れのプログラムミスに限る。
+	// 黙って握りつぶさず即座に気付けるよう fail-fast で panic する
+	assert.Panics(t, func() { FreshnessStage("bogus").Rank() })
+	assert.Panics(t, func() { FreshnessStage("bogus").Label() })
 }

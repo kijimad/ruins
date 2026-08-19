@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
@@ -328,27 +329,28 @@ type verbTabData struct {
 	Items []itemRowData
 }
 
-// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
-func (st *ItemActionState) Fetch(world w.World) ItemActionProps {
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。
+// アイテムメニューはプレイヤーの操作でしか開かないので、プレイヤー不在は不変条件違反として返す
+func (st *ItemActionState) Fetch(world w.World) (ItemActionProps, error) {
 	player, err := query.GetPlayerEntity(world)
-	var backpack []ecs.Entity
-	if err == nil {
-		backpack = playerBackpackItems(world, player)
+	if err != nil {
+		return ItemActionProps{}, err
 	}
+	backpack := query.BackpackStacks(world, player)
 
 	vs := verbList
 	tabs := make([]verbTabData, len(vs))
 	for i, verb := range vs {
 		items := make([]itemRowData, 0, len(backpack))
-		for _, entity := range backpack {
-			if !verb.Accept(world, entity) {
+		for _, stack := range backpack {
+			if !verb.Accept(world, stack.Rep) {
 				continue
 			}
-			items = append(items, newItemActionEntry(world, entity))
+			items = append(items, newItemActionEntry(world, stack))
 		}
 		tabs[i] = verbTabData{ID: verb.ID, Label: query.T(world, verb.Label), Key: verb.KeyHint, Items: items}
 	}
-	return ItemActionProps{Tabs: tabs}
+	return ItemActionProps{Tabs: tabs}, nil
 }
 
 // playerBackpackItems はプレイヤーのバックパック内アイテムを表示順に返す
@@ -365,17 +367,18 @@ func playerBackpackItems(world w.World, player ecs.Entity) []ecs.Entity {
 	return query.SortEntities(world, result)
 }
 
-func newItemActionEntry(world w.World, entity ecs.Entity) itemRowData {
+func newItemActionEntry(world w.World, stack query.Stack) itemRowData {
+	// 1行は1スタックなので、重量は個数分の合計にして行内の粒度を名前の個数と揃える。
+	// 1個分の値は詳細モーダルが受け持つ
+	total := query.GetEntityWeight(world, stack.Rep) * consts.Milligram(stack.Count)
 	entry := itemRowData{
-		Entity: entity,
-		Name:   query.GetEntityName(entity, world),
-		Weight: query.GetEntityWeight(world, entity).KgString(),
+		Entity: stack.Rep,
+		Name:   query.GetEntityName(stack.Rep, world),
+		Weight: total.KgString(),
+		Count:  stack.Count,
 	}
-	if world.Components.Stackable.Has(entity) {
-		entry.Count = world.Components.Stackable.Get(entity).Count
-	}
-	if world.Components.Description.Has(entity) {
-		entry.Desc = query.T(world, world.Components.Description.Get(entity).Description)
+	if world.Components.Description.Has(stack.Rep) {
+		entry.Desc = query.T(world, world.Components.Description.Get(stack.Rep).Description)
 	}
 	return entry
 }
@@ -421,7 +424,7 @@ func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, t
 	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
 	rows := make([]menuRow, len(items))
 	for i, it := range items {
-		rows[i] = itemMenuRow(world, it.Entity, it.Weight)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
 }
