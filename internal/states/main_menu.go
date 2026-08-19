@@ -16,7 +16,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/mlange-42/ark/ecs"
 )
 
 // MainMenuState はメインメニューのゲームステート
@@ -29,20 +28,9 @@ type MainMenuState struct {
 
 var _ es.State[w.World] = &MainMenuState{}
 
-// OnStart はステート開始時の処理を行う
-func (st *MainMenuState) OnStart(world w.World) error {
-	// ワールドをクリアする。前のゲーム状態を削除する
-	var clearEntities []ecs.Entity
-	clearQuery := ecs.NewUnsafeFilter(world.ECS).Query()
-	for clearQuery.Next() {
-		clearEntities = append(clearEntities, clearQuery.Entity())
-	}
-	for _, e := range clearEntities {
-		world.ECS.RemoveEntity(e)
-	}
-	// シングルトンエンティティを再構築する
-	world.InitSingleton()
-
+// OnStart はステート開始時の処理を行う。world には触れない。
+// 前のゲームの後片付けは新しいゲームを始める側が world.ResetForNewGame で行う
+func (st *MainMenuState) OnStart(_ w.World) error {
 	st.screen = menuloop.NewScreen[MainMenuProps](st)
 	return nil
 }
@@ -66,12 +54,12 @@ func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
 }
 
 // DoAction はActionを実行する
-func (st *MainMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *MainMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransQuit}, nil
 	case inputmapper.ActionMenuSelect:
-		return st.handleSelection()
+		return st.handleSelection(world)
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
@@ -89,10 +77,12 @@ type MainMenuProps struct {
 	Items []mainMenuItem
 }
 
-// mainMenuItem はメインメニューの項目
+// mainMenuItem はメインメニューの項目。ResetsWorld が真の項目は遷移の前に前のゲームの
+// 全実体を消す。新しいゲームを始める Start・Demo が立てる。ロードは save 側が担うので立てない
 type mainMenuItem struct {
-	Label      string
-	Transition es.Transition[w.World]
+	Label       string
+	Transition  es.Transition[w.World]
+	ResetsWorld bool
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
@@ -107,8 +97,8 @@ func (st *MainMenuState) Fetch(world w.World) MainMenuProps {
 	t := func(msgid string) string { return query.T(world, msgid) }
 	return MainMenuProps{
 		Items: []mainMenuItem{
-			{Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},
-			{Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}},
+			{Label: t("Start"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}, ResetsWorld: true},
+			{Label: t("Demo"), Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}, ResetsWorld: true},
 			{Label: t("Load"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
 			{Label: t("Settings"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewSettingsMenuState}}},
 			{Label: t("Quit"), Transition: es.Transition[w.World]{Type: es.TransQuit}},
@@ -121,13 +111,17 @@ func (st *MainMenuState) Menu(props MainMenuProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: "menu", TabCount: 1, ItemCounts: []int{len(props.Items)}}
 }
 
-func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
+func (st *MainMenuState) handleSelection(world w.World) (es.Transition[w.World], error) {
 	props := st.screen.Props()
 	itemIndex := st.screen.Selection().ItemIndex
 	if itemIndex >= len(props.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
-	return props.Items[itemIndex].Transition, nil
+	item := props.Items[itemIndex]
+	if item.ResetsWorld {
+		world.ResetForNewGame()
+	}
+	return item.Transition, nil
 }
 
 // ================

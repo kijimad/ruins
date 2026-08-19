@@ -180,8 +180,8 @@ func (st *DungeonState) completeSwap(world w.World) (es.Transition[w.World], err
 // OnStop はステートが停止される際に呼ばれる。
 //
 // 共存方式ではオーバーワールドと遺跡が同一 world に共存し、退避中ステージも保持するため、
-// ここでは何もしない。world を捨てるのはタイトルへ戻る・ロードのときで、MainMenuState.OnStart
-// の全 entity 削除と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。
+// ここでは何もしない。world を捨てるのは新しいゲームを始める・ロードのときで、
+// world.ResetForNewGame と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。
 func (st *DungeonState) OnStop(_ w.World) error { return nil }
 
 // checkPlayerDeath はプレイヤーの死亡状態をチェックする。Update フローの述語
