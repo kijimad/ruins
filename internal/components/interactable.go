@@ -21,11 +21,19 @@ type Interactable struct {
 type InteractionConfig struct {
 	ActivationRange ActivationRange // 発動範囲
 	ActivationWay   ActivationWay   // 発動方式
-	// StackBundled は真なら、メニューの行をエンティティ単位でなくスタック単位で組む。
-	// 同一 StackKey の実体を1行に束ね、実行はスタック丸ごとを対象にする。
-	// 1個1エンティティのアイテムが個数ぶん同じ行に並ぶのを防ぐ
-	StackBundled bool
+	MenuUnit        MenuUnit        // メニューの行の単位
 }
+
+// MenuUnit は相互作用メニューの行の単位を表す
+type MenuUnit string
+
+const (
+	// MenuUnitEntity は1実体を1行にする。扉やNPCのような個体
+	MenuUnitEntity MenuUnit = "ENTITY"
+	// MenuUnitStack は同一 StackKey の実体を1行に束ね、実行はスタック丸ごとを対象にする。
+	// 1個1エンティティのアイテムが個数ぶん同じ行に並ぶのを防ぐ
+	MenuUnitStack MenuUnit = "STACK"
+)
 
 // InteractionKind は相互作用の種類を表す。
 // 種別ごとに Config() で発動プロトコル（発動範囲・発動方式）を持つ点が本質で、
@@ -73,15 +81,15 @@ const (
 func (k InteractionKind) Config() InteractionConfig {
 	switch k {
 	case InteractionItem:
-		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, StackBundled: true}
+		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitStack}
 	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll:
-		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
+		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
-		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}
+		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}
 	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionAuction:
-		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}
+		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	case InteractionExitCube:
-		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}
+		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	}
 	return InteractionConfig{}
 }
