@@ -110,12 +110,17 @@ type storageTabData struct {
 	Items []itemRowData
 }
 
-// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
+// Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。
+// プレイヤーが居なければ空の props を返す
 func (st *StorageMenuState) Fetch(world w.World) StorageProps {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return StorageProps{}
+	}
 	return StorageProps{
 		Tabs: []storageTabData{
-			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.createStorageItemData(world)},
-			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.createBackpackItemData(world)},
+			{ID: tabIDRetrieve, Label: query.T(world, "Retrieve"), Items: st.toStorageItemData(world, query.StorageStacks(world, st.storageEntity))},
+			{ID: tabIDStore, Label: query.T(world, "Store"), Items: st.toStorageItemData(world, query.BackpackStacks(world, player))},
 		},
 	}
 }
@@ -127,18 +132,6 @@ func (st *StorageMenuState) Menu(props StorageProps) menuloop.MenuConfig {
 		itemCounts[i] = len(tab.Items)
 	}
 	return menuloop.MenuConfig{Key: "storage", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
-}
-
-func (st *StorageMenuState) createStorageItemData(world w.World) []itemRowData {
-	return st.toStorageItemData(world, query.StorageStacks(world, st.storageEntity))
-}
-
-func (st *StorageMenuState) createBackpackItemData(world w.World) []itemRowData {
-	player, err := query.GetPlayerEntity(world)
-	if err != nil {
-		return nil
-	}
-	return st.toStorageItemData(world, query.BackpackStacks(world, player))
 }
 
 func (st *StorageMenuState) toStorageItemData(world w.World, stacks []query.Stack) []itemRowData {
