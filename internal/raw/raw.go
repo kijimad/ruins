@@ -325,11 +325,6 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Weight = &gc.Weight{Milligram: mg}
 	}
 
-	// Stackableフラグがtrueの場合は空のStackableコンポーネントを追加
-	if item.Stackable != nil && *item.Stackable {
-		entitySpec.Stackable = &gc.Stackable{}
-	}
-
 	if item.Book != nil {
 		book, err := newBookFromAPI(item.Book)
 		if err != nil {

@@ -189,10 +189,14 @@ func logEquipChange(world w.World, character ecs.Entity, itemName, format string
 }
 
 // Fetch は主人公のスナップショットを組む
-func (st *CharacterState) Fetch(world w.World) CharacterProps {
+func (st *CharacterState) Fetch(world w.World) (CharacterProps, error) {
 	player, err := query.GetPlayerEntity(world)
-	if err != nil || !world.ECS.Alive(player) {
-		return CharacterProps{}
+	if err != nil {
+		return CharacterProps{}, err
+	}
+	// 死亡直後のフレームは実体が消えている。遷移までの過渡状態なので空表示にする
+	if !world.ECS.Alive(player) {
+		return CharacterProps{}, nil
 	}
 	name := ""
 	if world.Components.Name.Has(player) {
@@ -202,7 +206,7 @@ func (st *CharacterState) Fetch(world w.World) CharacterProps {
 		TargetName: name,
 		EquipSlots: characterEquipSlots(world, player),
 		InfoTabs:   st.fetchInfoTabs(world, player),
-	}
+	}, nil
 }
 
 // Menu は装備・情報タブのカーソル構成を返す。情報タブの見出し行はカーソルを飛ばす

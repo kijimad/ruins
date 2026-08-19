@@ -27,13 +27,12 @@ func TestGetEntityWeight(t *testing.T) {
 		assert.Equal(t, consts.MustParseWeight("1.5 kg"), GetEntityWeight(world, e))
 	})
 
-	t.Run("スタックアイテム", func(t *testing.T) {
+	t.Run("1個1エンティティなので重量は個数を掛けない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		e := world.ECS.NewEntity()
 		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.MustParseWeight("0.5 kg")})
-		world.Components.Stackable.Add(e, &gc.Stackable{Count: 3})
-		assert.Equal(t, consts.MustParseWeight("1.5 kg"), GetEntityWeight(world, e))
+		assert.Equal(t, consts.MustParseWeight("0.5 kg"), GetEntityWeight(world, e))
 	})
 }
 
@@ -69,15 +68,16 @@ func TestCalculateOwnedWeight(t *testing.T) {
 		assert.Equal(t, consts.MustParseWeight("3 kg"), weight)
 	})
 
-	t.Run("スタック可能アイテム", func(t *testing.T) {
+	t.Run("同種5個は各エンティティの重量を合算する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.ECS.NewEntity()
 
-		item := world.ECS.NewEntity()
-		world.Components.Weight.Add(item, &gc.Weight{Milligram: consts.MustParseWeight("0.5 kg")})
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 5})
-		world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: player})
+		for range 5 {
+			item := world.ECS.NewEntity()
+			world.Components.Weight.Add(item, &gc.Weight{Milligram: consts.MustParseWeight("0.5 kg")})
+			world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{Owner: player})
+		}
 
 		weight := calculateOwnedWeight(world, player)
 		assert.Equal(t, consts.MustParseWeight("2.5 kg"), weight)

@@ -199,3 +199,23 @@ func TestSortQuadsByDepth_奥から手前へ並べる(t *testing.T) {
 	assert.Equal(t, 1.0, quads[1].p[0].z)
 	assert.Equal(t, 5.0, quads[2].p[0].z)
 }
+
+// 同一タイルの立て板は4隅が一致して奥行きが同値になる。走査順ではなく depth で前後を確定し、
+// 大きい depth を後に、つまり手前に描くことを固定する。プレイヤーが足元のアイテムより上に出る根拠
+func TestSortQuadsByDepth_奥行き同値はdepthの大きい方を手前にする(t *testing.T) {
+	t.Parallel()
+	mk := func(depth int) r3quad {
+		// 全 quad を同一座標に置き key をビット同値にする。差は depth だけ
+		return r3quad{p: [4]r3vec{{1, 0, 1}, {1, 0, 1}, {1, 0, 1}, {1, 0, 1}}, depth: depth}
+	}
+	// アイテム(1)を先、プレイヤー(3)を後に積んでも、逆に積んでも同じ順に並ぶことを確かめる
+	quads := []r3quad{mk(1), mk(3)}
+	sortQuadsByDepth(quads, r3identity)
+	assert.Equal(t, 1, quads[0].depth, "小さい depth が先で奥")
+	assert.Equal(t, 3, quads[1].depth, "大きい depth が後で手前")
+
+	reversed := []r3quad{mk(3), mk(1)}
+	sortQuadsByDepth(reversed, r3identity)
+	assert.Equal(t, 1, reversed[0].depth, "積む順に依らず depth 昇順で並ぶ")
+	assert.Equal(t, 3, reversed[1].depth)
+}

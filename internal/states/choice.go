@@ -80,9 +80,9 @@ func (st *ChoiceMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 }
 
 // Fetch は現在の選択肢を表示スナップショットへ射影する
-func (st *ChoiceMenuState) Fetch(world w.World) ChoiceProps {
+func (st *ChoiceMenuState) Fetch(world w.World) (ChoiceProps, error) {
 	title, choices := st.provide(world)
-	return ChoiceProps{Title: title, Choices: choices}
+	return ChoiceProps{Title: title, Choices: choices}, nil
 }
 
 // Menu は単一タブの選択リストとして構成を返す。見出し行はカーソルを飛ばし、多い画面はページ送りする

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -90,9 +91,15 @@ func TestSellPrice(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.ECS.NewEntity()
-		item := world.ECS.NewEntity()
-		world.Components.Value.Add(item, &gc.Value{Value: 100})
-		world.Components.Stackable.Add(item, &gc.Stackable{Count: 3})
+		// 価値100の同種を3個バックパックへ。個数はスタックから導出される
+		var item ecs.Entity
+		for range 3 {
+			e := world.ECS.NewEntity()
+			world.Components.Value.Add(e, &gc.Value{Value: 100})
+			world.Components.RawID.Add(e, &gc.RawID{ID: "gem"})
+			world.Components.LocationInBackpack.Add(e, &gc.LocationInBackpack{Owner: player})
+			item = e
+		}
 
 		assert.Equal(t, consts.Currency(150), SellPrice(world, player, item), "価値100×3個の半分")
 	})

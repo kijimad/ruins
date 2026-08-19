@@ -96,6 +96,8 @@ func TestNewDropActivity(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 	item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
 	require.NoError(t, err)
 
@@ -163,6 +165,41 @@ func TestDropBehavior_performDrop(t *testing.T) {
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
 		assert.Contains(t, recent[0], "Dropped")
+	})
+
+	t.Run("スタックを丸ごと落とし個数ぶんフィールドに出す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+		require.NoError(t, err)
+
+		// 同一スタック3個をバックパックへ。代表1個をドロップ対象にする
+		rep, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 3)
+		require.NoError(t, err)
+		require.Equal(t, 3, query.GetEntityCount(world, rep), "落とす前はスタック3個")
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			Params:       &gc.PlaceParams{Target: rep, Destination: gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}},
+		}
+
+		da := &DropBehavior{}
+		require.NoError(t, da.performDrop(comp, player, world))
+
+		// 同一タイルへ3個すべてが束ねて出る。ログの個数と落下数が一致する
+		assert.Equal(t, 3, query.GetEntityCount(world, rep), "床の同タイルに3個出る")
+		assert.True(t, world.Components.LocationOnField.Has(rep))
+
+		// 同種はバックパックに残らない
+		_, ok := query.FindStackInInventory(world, "wooden_sword")
+		assert.False(t, ok, "スタック丸ごと落ちるのでバックパックに同種は残らない")
+
+		// ログは個数3を表記する
+		store := query.GetGameLog(world)
+		recent := store.GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "3", "ログに落とした個数が出る")
 	})
 
 	t.Run("パラメータがない場合はエラー", func(t *testing.T) {

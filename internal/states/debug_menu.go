@@ -71,7 +71,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		Choice{Label: "Message display test", Run: pushMessage(messagedata.NewSystemMessage("The game was saved automatically.\n\nYour progress has been recorded safely."))},
 		Choice{Label: "Item acquisition event", Run: func(world w.World) (es.Transition[w.World], error) {
 			for id, count := range map[string]int{"iron": 1, "wooden_stick": 1, "ferrite_core": 2} {
-				if err := lifecycle.ChangeStackableCount(world, id, count); err != nil {
+				if err := lifecycle.ChangeStackCount(world, id, count); err != nil {
 					return es.Transition[w.World]{}, fmt.Errorf("failed to add item: %w", err)
 				}
 			}

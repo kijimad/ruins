@@ -31,7 +31,7 @@ func (m *dirtyTestModel) DoAction(_ w.World, _ inputmapper.ActionID) (es.Transit
 	return es.Transition[w.World]{}, nil
 }
 
-func (m *dirtyTestModel) Fetch(_ w.World) int { return m.props }
+func (m *dirtyTestModel) Fetch(_ w.World) (int, error) { return m.props, nil }
 
 func (m *dirtyTestModel) Menu(_ int) MenuConfig { return MenuConfig{Key: "test", TabCount: 0} }
 
@@ -59,7 +59,7 @@ func (m *flexModel) DoAction(world w.World, action inputmapper.ActionID) (es.Tra
 	return es.Transition[w.World]{}, nil
 }
 
-func (m *flexModel) Fetch(_ w.World) int { return m.props }
+func (m *flexModel) Fetch(_ w.World) (int, error) { return m.props, nil }
 
 func (m *flexModel) Menu(_ int) MenuConfig { return m.menu }
 

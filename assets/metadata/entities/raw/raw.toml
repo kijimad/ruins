@@ -550,7 +550,6 @@ name = "Wooden Stick"
 id = "wooden_stick"
 spriteKey = "field_item"
 spriteSheetName = "field"
-stackable = true
 value = 10
 weight = "300 g"
 
@@ -5023,7 +5022,6 @@ stageLength = 750
 providesNutrition = 25
 spriteKey = "ice_cream"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "200 g"
 
@@ -5039,7 +5037,6 @@ id = "almond"
 stageLength = 30000
 spriteKey = "almonds"
 spriteSheetName = "field"
-stackable = true
 providesNutrition = 25
 value = 20
 weight = "100 g"
@@ -5056,7 +5053,6 @@ id = "pumpkin"
 stageLength = 3000
 spriteKey = "pumpkin"
 spriteSheetName = "field"
-stackable = true
 providesNutrition = 35
 value = 28
 weight = "1 kg"
@@ -5074,7 +5070,6 @@ stageLength = 2250
 providesNutrition = 25
 spriteKey = "garlic_bread"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "200 g"
 
@@ -5091,7 +5086,6 @@ stageLength = 3000
 providesNutrition = 15
 spriteKey = "cookie"
 spriteSheetName = "field"
-stackable = true
 value = 12
 weight = "100 g"
 
@@ -5108,7 +5102,6 @@ stageLength = 1500
 providesNutrition = 35
 spriteKey = "croissant"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "150 g"
 
@@ -5125,7 +5118,6 @@ stageLength = 9000
 providesNutrition = 25
 spriteKey = "bottled_cola"
 spriteSheetName = "field"
-stackable = true
 value = 25
 weight = "350 g"
 
@@ -5142,7 +5134,6 @@ stageLength = 1500
 providesNutrition = 35
 spriteKey = "bread"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "300 g"
 
@@ -5158,7 +5149,6 @@ id = "watermelon"
 stageLength = 1500
 spriteKey = "water_melon"
 spriteSheetName = "field"
-stackable = true
 providesNutrition = 30
 value = 25
 weight = "2 kg"
@@ -5175,7 +5165,6 @@ id = "smoothie"
 stageLength = 750
 spriteKey = "smoothie"
 spriteSheetName = "field"
-stackable = true
 providesNutrition = 20
 value = 20
 weight = "300 g"
@@ -5193,7 +5182,6 @@ stageLength = 1500
 providesNutrition = 30
 spriteKey = "sausage"
 spriteSheetName = "field"
-stackable = true
 value = 25
 weight = "150 g"
 
@@ -5210,7 +5198,6 @@ stageLength = 1000
 providesNutrition = 38
 spriteKey = "tongue"
 spriteSheetName = "field"
-stackable = true
 value = 35
 weight = "250 g"
 
@@ -5227,7 +5214,6 @@ stageLength = 1500
 providesNutrition = 10
 spriteKey = "cherry"
 spriteSheetName = "field"
-stackable = true
 value = 8
 weight = "50 g"
 
@@ -5244,7 +5230,6 @@ stageLength = 3000
 providesNutrition = 15
 spriteKey = "churrocky"
 spriteSheetName = "field"
-stackable = true
 value = 18
 weight = "100 g"
 
@@ -5261,7 +5246,6 @@ stageLength = 15000
 providesNutrition = 20
 spriteKey = "candy"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "100 g"
 
@@ -5278,7 +5262,6 @@ stageLength = 4500
 providesNutrition = 40
 spriteKey = "food_item"
 spriteSheetName = "field"
-stackable = true
 value = 40
 weight = "250 g"
 
@@ -5295,7 +5278,6 @@ stageLength = 1500
 providesNutrition = 15
 spriteKey = "tomato"
 spriteSheetName = "field"
-stackable = true
 value = 12
 weight = "200 g"
 
@@ -5312,7 +5294,6 @@ stageLength = 3000
 providesNutrition = 25
 spriteKey = "donut"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "200 g"
 
@@ -5329,7 +5310,6 @@ stageLength = 3000
 providesNutrition = 22
 spriteKey = "naan"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "150 g"
 
@@ -5346,7 +5326,6 @@ stageLength = 3000
 providesNutrition = 45
 spriteKey = "hamburger"
 spriteSheetName = "field"
-stackable = true
 value = 40
 weight = "400 g"
 
@@ -5363,7 +5342,6 @@ stageLength = 3000
 providesNutrition = 28
 spriteKey = "baguette"
 spriteSheetName = "field"
-stackable = true
 value = 22
 weight = "300 g"
 
@@ -5380,7 +5358,6 @@ stageLength = 1500
 providesNutrition = 20
 spriteKey = "banana"
 spriteSheetName = "field"
-stackable = true
 value = 16
 weight = "150 g"
 
@@ -5397,7 +5374,6 @@ providesNutrition = 30
 stageLength = 1500
 spriteKey = "food_item"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "300 g"
 
@@ -5414,7 +5390,6 @@ stageLength = 3000
 providesNutrition = 30
 spriteKey = "potato"
 spriteSheetName = "field"
-stackable = true
 value = 25
 weight = "250 g"
 
@@ -5431,7 +5406,6 @@ stageLength = 30000
 providesNutrition = 30
 spriteKey = "biscuit"
 spriteSheetName = "field"
-stackable = true
 value = 25
 weight = "200 g"
 
@@ -5448,7 +5422,6 @@ stageLength = 30000
 providesNutrition = 35
 spriteKey = "beef_jerky"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "100 g"
 
@@ -5465,7 +5438,6 @@ stageLength = 3000
 providesNutrition = 40
 spriteKey = "pizza"
 spriteSheetName = "field"
-stackable = true
 value = 40
 weight = "400 g"
 
@@ -5481,7 +5453,6 @@ id = "broccoli"
 stageLength = 1500
 spriteKey = "broccoli"
 spriteSheetName = "field"
-stackable = true
 providesNutrition = 20
 value = 12
 weight = "200 g"
@@ -5499,7 +5470,6 @@ stageLength = 3000
 providesNutrition = 22
 spriteKey = "bagel"
 spriteSheetName = "field"
-stackable = true
 value = 18
 weight = "200 g"
 
@@ -5516,7 +5486,6 @@ stageLength = 3000
 providesNutrition = 25
 spriteKey = "sesame_bagel"
 spriteSheetName = "field"
-stackable = true
 value = 22
 weight = "200 g"
 
@@ -5533,7 +5502,6 @@ stageLength = 6000
 providesNutrition = 15
 spriteKey = "pop_corn"
 spriteSheetName = "field"
-stackable = true
 value = 10
 weight = "100 g"
 
@@ -5550,7 +5518,6 @@ stageLength = 1000
 providesNutrition = 30
 spriteKey = "minced_meat"
 spriteSheetName = "field"
-stackable = true
 value = 22
 weight = "300 g"
 
@@ -5566,7 +5533,6 @@ id = "ramen"
 stageLength = 3000
 spriteKey = "ramen"
 spriteSheetName = "field"
-stackable = true
 providesNutrition = 50
 value = 45
 weight = "500 g"
@@ -5584,7 +5550,6 @@ stageLength = 1000
 providesNutrition = 45
 spriteKey = "round_meat"
 spriteSheetName = "field"
-stackable = true
 value = 35
 weight = "400 g"
 
@@ -5601,7 +5566,6 @@ stageLength = 30000
 providesNutrition = 50
 spriteKey = "food_item"
 spriteSheetName = "field"
-stackable = true
 value = 50
 weight = "200 g"
 
@@ -5618,7 +5582,6 @@ stageLength = 3000
 providesNutrition = 20
 spriteKey = "scored_bread"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "200 g"
 
@@ -5633,7 +5596,6 @@ name = "Healing Potion"
 id = "healing_potion"
 spriteKey = "healing_potion"
 spriteSheetName = "field"
-stackable = true
 value = 100
 weight = "100 g"
 
@@ -5655,7 +5617,6 @@ stageLength = 30000
 providesNutrition = 40
 spriteKey = "dried_meat"
 spriteSheetName = "field"
-stackable = true
 value = 35
 weight = "100 g"
 
@@ -5672,7 +5633,6 @@ stageLength = 1000
 providesNutrition = 35
 spriteKey = "flat_meat"
 spriteSheetName = "field"
-stackable = true
 value = 28
 weight = "300 g"
 
@@ -5688,7 +5648,6 @@ name = "Grenade"
 id = "grenade"
 spriteKey = "grenade"
 spriteSheetName = "field"
-stackable = true
 value = 150
 weight = "400 g"
 
@@ -5703,7 +5662,6 @@ name = "Toothbrush Set"
 id = "toothbrush_set"
 spriteKey = "toothwash_set"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "200 g"
 
@@ -5724,7 +5682,6 @@ id = "poison_grenade"
 inflictsDamage = 15
 spriteKey = "poison_grenade"
 spriteSheetName = "field"
-stackable = true
 value = 180
 weight = "400 g"
 
@@ -5739,7 +5696,6 @@ name = "Antidote"
 id = "antidote"
 spriteKey = "green_herb"
 spriteSheetName = "field"
-stackable = true
 value = 80
 weight = "80 g"
 
@@ -5755,7 +5711,6 @@ id = "shrimp"
 stageLength = 1000
 spriteKey = "shrimp"
 spriteSheetName = "field"
-stackable = true
 providesNutrition = 40
 value = 35
 weight = "300 g"
@@ -5773,7 +5728,6 @@ stageLength = 3000
 providesNutrition = 22
 spriteKey = "spiral_bread"
 spriteSheetName = "field"
-stackable = true
 value = 18
 weight = "200 g"
 
@@ -5789,7 +5743,6 @@ id = "flame_grenade"
 inflictsDamage = 25
 spriteKey = "fire_grenade"
 spriteSheetName = "field"
-stackable = true
 value = 220
 weight = "400 g"
 
@@ -5804,7 +5757,6 @@ name = "Smoke Bomb"
 id = "smoke_bomb"
 spriteKey = "type4_grenade"
 spriteSheetName = "field"
-stackable = true
 value = 200
 weight = "350 g"
 
@@ -5820,7 +5772,6 @@ id = "beef"
 stageLength = 1000
 spriteKey = "beef"
 spriteSheetName = "field"
-stackable = true
 providesNutrition = 55
 value = 50
 weight = "500 g"
@@ -5838,7 +5789,6 @@ stageLength = 30000
 providesNutrition = 35
 spriteKey = "prosciutto"
 spriteSheetName = "field"
-stackable = true
 value = 40
 weight = "150 g"
 
@@ -5855,7 +5805,6 @@ stageLength = 1000
 providesNutrition = 40
 spriteKey = "raw_meat"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "400 g"
 
@@ -5870,7 +5819,6 @@ name = "Green Herb"
 id = "green_herb"
 spriteKey = "green_herb"
 spriteSheetName = "field"
-stackable = true
 value = 10
 weight = "50 g"
 
@@ -5892,7 +5840,6 @@ stageLength = 1500
 providesNutrition = 28
 spriteKey = "meatball"
 spriteSheetName = "field"
-stackable = true
 value = 22
 weight = "150 g"
 
@@ -5909,7 +5856,6 @@ stageLength = 30000
 providesNutrition = 30
 spriteKey = "stuffed_sausage"
 spriteSheetName = "field"
-stackable = true
 value = 28
 weight = "200 g"
 
@@ -5926,7 +5872,6 @@ stageLength = 1000
 providesNutrition = 50
 spriteKey = "belly_meat"
 spriteSheetName = "field"
-stackable = true
 value = 40
 weight = "500 g"
 
@@ -5943,7 +5888,6 @@ stageLength = 1000
 providesNutrition = 60
 spriteKey = "pig_head"
 spriteSheetName = "field"
-stackable = true
 value = 50
 weight = "800 g"
 
@@ -5958,7 +5902,6 @@ name = "Flashbang"
 id = "flashbang"
 spriteKey = "flash_grenade"
 spriteSheetName = "field"
-stackable = true
 value = 180
 weight = "300 g"
 
@@ -5975,7 +5918,6 @@ stageLength = 3000
 providesNutrition = 18
 spriteKey = "white_bread"
 spriteSheetName = "field"
-stackable = true
 value = 12
 weight = "250 g"
 
@@ -5992,7 +5934,6 @@ stageLength = 3000
 providesNutrition = 22
 spriteKey = "dark_bread"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "250 g"
 
@@ -6009,7 +5950,6 @@ stageLength = 1000
 providesNutrition = 55
 spriteKey = "bone_in_meat"
 spriteSheetName = "field"
-stackable = true
 value = 45
 weight = "600 g"
 
@@ -6026,7 +5966,6 @@ stageLength = 1000
 providesNutrition = 35
 spriteKey = "chicken"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "300 g"
 
@@ -6041,7 +5980,6 @@ name = "Yellow Herb"
 id = "yellow_herb"
 spriteKey = "heal_item"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "50 g"
 
@@ -6061,7 +5999,6 @@ name = "9mm AP"
 id = "9mm_ap"
 spriteKey = "field_item"
 spriteSheetName = "field"
-stackable = true
 value = 10
 weight = "10 g"
 
@@ -6076,7 +6013,6 @@ name = "9mm FMJ"
 id = "9mm_fmj"
 spriteKey = "field_item"
 spriteSheetName = "field"
-stackable = true
 value = 5
 weight = "10 g"
 
@@ -6091,7 +6027,6 @@ name = "9mm HP"
 id = "9mm_hp"
 spriteKey = "field_item"
 spriteSheetName = "field"
-stackable = true
 value = 8
 weight = "10 g"
 
@@ -6106,7 +6041,6 @@ name = "Energy Cell"
 id = "energy_cell"
 spriteKey = "blue_cube"
 spriteSheetName = "field"
-stackable = true
 value = 10
 weight = "20 g"
 
@@ -6121,7 +6055,6 @@ name = "Tesla Coil Orb"
 id = "tesla_coil_orb"
 spriteKey = "tesla_coil_ball"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "10 g"
 
@@ -6136,7 +6069,6 @@ name = "Rifle Round"
 id = "rifle_round"
 spriteKey = "field_item"
 spriteSheetName = "field"
-stackable = true
 value = 8
 weight = "20 g"
 
@@ -6151,7 +6083,6 @@ name = "Gray Small-Caliber Round"
 id = "small_caliber_round_gray"
 spriteKey = "small_caliber_gray"
 spriteSheetName = "field"
-stackable = true
 value = 6
 weight = "10 g"
 
@@ -6166,7 +6097,6 @@ name = "Yellow Small-Caliber Round"
 id = "small_caliber_round_yellow"
 spriteKey = "small_caliber_yellow"
 spriteSheetName = "field"
-stackable = true
 value = 7
 weight = "10 g"
 
@@ -6181,7 +6111,6 @@ name = "Heavy Round"
 id = "heavy_round"
 spriteKey = "heavy_load_round"
 spriteSheetName = "field"
-stackable = true
 value = 12
 weight = "10 g"
 
@@ -6196,7 +6125,6 @@ name = "Wooden Arrow"
 id = "wooden_arrow"
 spriteKey = "wood_arrow"
 spriteSheetName = "field"
-stackable = true
 value = 2
 weight = "30 g"
 
@@ -6210,7 +6138,6 @@ name = "Water Arrow"
 id = "water_arrow"
 spriteKey = "water_arrow"
 spriteSheetName = "field"
-stackable = true
 value = 12
 weight = "50 g"
 
@@ -6224,7 +6151,6 @@ name = "Ice Arrow"
 id = "ice_arrow"
 spriteKey = "ice_arrow"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "50 g"
 
@@ -6238,7 +6164,6 @@ name = "Fire Arrow"
 id = "fire_arrow"
 spriteKey = "fire_arrow"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "50 g"
 
@@ -6252,7 +6177,6 @@ name = "Cannon Shell"
 id = "cannon_shell"
 spriteKey = "field_item"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "500 g"
 
@@ -6267,7 +6191,6 @@ name = "Holy Arrow"
 id = "holy_arrow"
 spriteKey = "holy_arrow"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "50 g"
 
@@ -6281,7 +6204,6 @@ name = "Iron Arrow"
 id = "iron_arrow"
 spriteKey = "iron_arrow"
 spriteSheetName = "field"
-stackable = true
 value = 5
 weight = "30 g"
 
@@ -7256,7 +7178,6 @@ name = "Honey"
 id = "honey"
 spriteKey = "honey"
 spriteSheetName = "field"
-stackable = true
 value = 60
 weight = "200 g"
 
@@ -7275,7 +7196,6 @@ name = "Seaweed Fossil"
 id = "seaweed_fossil"
 spriteKey = "seaweed_fossil"
 spriteSheetName = "field"
-stackable = true
 value = 60
 weight = "150 g"
 
@@ -7285,7 +7205,6 @@ name = "Atomic Core"
 id = "atomic_core"
 spriteKey = "atomic_core"
 spriteSheetName = "field"
-stackable = true
 value = 400
 weight = "200 g"
 
@@ -7295,7 +7214,6 @@ name = "Aluminum"
 id = "aluminum"
 spriteKey = "aluminum"
 spriteSheetName = "field"
-stackable = true
 value = 80
 weight = "300 g"
 
@@ -7305,7 +7223,6 @@ name = "Emerald"
 id = "emerald"
 spriteKey = "emerald"
 spriteSheetName = "field"
-stackable = true
 value = 2000
 weight = "30 g"
 
@@ -7315,7 +7232,6 @@ name = "Omega"
 id = "omega"
 spriteKey = "omega"
 spriteSheetName = "field"
-stackable = true
 value = 150
 weight = "100 g"
 
@@ -7325,7 +7241,6 @@ name = "Mushroom Extract"
 id = "mushroom_extract"
 spriteKey = "bottle_mushroom"
 spriteSheetName = "field"
-stackable = true
 value = 50
 weight = "200 g"
 
@@ -7335,7 +7250,6 @@ name = "Cable Bundle"
 id = "cable_bundle"
 spriteKey = "stacked_cable"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "2 kg"
 
@@ -7354,7 +7268,6 @@ name = "Cord Bundle"
 id = "cord_bundle"
 spriteKey = "cable_bundle"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "200 g"
 
@@ -7364,7 +7277,6 @@ name = "Coffee Beans"
 id = "coffee_beans"
 spriteKey = "coffee_bean"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "100 g"
 
@@ -7374,7 +7286,6 @@ name = "Towel"
 id = "towel"
 spriteKey = "towel_hunger"
 spriteSheetName = "field"
-stackable = true
 value = 8
 weight = "150 g"
 
@@ -7384,7 +7295,6 @@ name = "Charger"
 id = "charger"
 spriteKey = "charger"
 spriteSheetName = "field"
-stackable = true
 value = 120
 weight = "150 g"
 
@@ -7412,7 +7322,6 @@ name = "Toilet Paper"
 id = "toilet_paper"
 spriteKey = "toilet_paper"
 spriteSheetName = "field"
-stackable = true
 value = 5
 weight = "100 g"
 
@@ -7422,7 +7331,6 @@ name = "Topaz"
 id = "topaz"
 spriteKey = "topaz"
 spriteSheetName = "field"
-stackable = true
 value = 1500
 weight = "30 g"
 
@@ -7441,7 +7349,6 @@ name = "Heart Charm"
 id = "heart_charm"
 spriteKey = "heart"
 spriteSheetName = "field"
-stackable = true
 value = 50
 weight = "50 g"
 
@@ -7460,7 +7367,6 @@ name = "Ferrite Core"
 id = "ferrite_core"
 spriteKey = "ferrite_core"
 spriteSheetName = "field"
-stackable = true
 value = 100
 weight = "500 g"
 
@@ -7470,7 +7376,6 @@ name = "Magnelite"
 id = "magnelite"
 spriteKey = "magnelight"
 spriteSheetName = "field"
-stackable = true
 value = 120
 weight = "150 g"
 
@@ -7489,7 +7394,6 @@ name = "Ring Cell"
 id = "ring_cell"
 spriteKey = "ring_cell"
 spriteSheetName = "field"
-stackable = true
 value = 100
 weight = "50 g"
 
@@ -7499,7 +7403,6 @@ name = "Raw Ruby"
 id = "raw_ruby"
 spriteKey = "red_gem"
 spriteSheetName = "field"
-stackable = true
 value = 500
 weight = "50 g"
 
@@ -7527,7 +7430,6 @@ name = "Tricolor Staff"
 id = "tricolor_staff"
 spriteKey = "tri_color_rod"
 spriteSheetName = "field"
-stackable = true
 value = 800
 weight = "800 g"
 
@@ -7537,7 +7439,6 @@ name = "Replaceable Cell"
 id = "replaceable_cell"
 spriteKey = "swap_cell"
 spriteSheetName = "field"
-stackable = true
 value = 80
 weight = "50 g"
 
@@ -7547,7 +7448,6 @@ name = "Photo"
 id = "photo"
 spriteKey = "photo"
 spriteSheetName = "field"
-stackable = true
 value = 10
 weight = "10 g"
 
@@ -7557,7 +7457,6 @@ name = "Chemical Container"
 id = "chemical_container"
 spriteKey = "chemical_vessel"
 spriteSheetName = "field"
-stackable = true
 value = 100
 weight = "300 g"
 
@@ -7576,7 +7475,6 @@ name = "Old Gear"
 id = "old_gear"
 spriteKey = "gear_iron"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "300 g"
 
@@ -7586,7 +7484,6 @@ name = "Ancient Pot"
 id = "ancient_pot"
 spriteKey = "vase"
 spriteSheetName = "field"
-stackable = true
 value = 1800
 weight = "2.5 kg"
 
@@ -7596,7 +7493,6 @@ name = "Ancient Bone"
 id = "ancient_bone"
 spriteKey = "fossil_chunk"
 spriteSheetName = "field"
-stackable = true
 value = 4
 weight = "200 g"
 
@@ -7606,7 +7502,6 @@ name = "Ancient Gold Coin"
 id = "ancient_gold_coin"
 spriteKey = "gold_ore"
 spriteSheetName = "field"
-stackable = true
 value = 1500
 weight = "10 g"
 
@@ -7616,7 +7511,6 @@ name = "Orrery"
 id = "orrery"
 spriteKey = "orbit_gauge"
 spriteSheetName = "field"
-stackable = true
 value = 250
 weight = "300 g"
 
@@ -7626,7 +7520,6 @@ name = "Great Rainbow Crystal"
 id = "great_rainbow_crystal"
 spriteKey = "rainbow_large_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 2500
 weight = "500 g"
 
@@ -7636,7 +7529,6 @@ name = "Angel Feather"
 id = "angel_feather"
 spriteKey = "field_item"
 spriteSheetName = "field"
-stackable = true
 value = 3200
 weight = "5 g"
 
@@ -7646,7 +7538,6 @@ name = "Cosmic Cornerstone"
 id = "cosmic_cornerstone"
 spriteKey = "cosmic_cornerstone"
 spriteSheetName = "field"
-stackable = true
 value = 500
 weight = "100 g"
 
@@ -7656,7 +7547,6 @@ name = "Experiment Container"
 id = "experiment_container"
 spriteKey = "test_vessel"
 spriteSheetName = "field"
-stackable = true
 value = 60
 weight = "300 g"
 
@@ -7666,7 +7556,6 @@ name = "Sharp Stone"
 id = "sharp_stone"
 spriteKey = "sharp_stone"
 spriteSheetName = "field"
-stackable = true
 value = 2
 weight = "300 g"
 
@@ -7676,7 +7565,6 @@ name = "Hay"
 id = "hay"
 spriteKey = "hay"
 spriteSheetName = "field"
-stackable = true
 value = 2
 weight = "500 g"
 
@@ -7686,7 +7574,6 @@ name = "Heart"
 id = "heart"
 spriteKey = "organ_heart"
 spriteSheetName = "field"
-stackable = true
 value = 500
 weight = "300 g"
 
@@ -7714,7 +7601,6 @@ name = "Origami"
 id = "origami"
 spriteKey = "origami"
 spriteSheetName = "field"
-stackable = true
 value = 5
 weight = "10 g"
 
@@ -7724,7 +7610,6 @@ name = "Slanted Crystal"
 id = "slanted_crystal"
 spriteKey = "diagonal_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 350
 weight = "200 g"
 
@@ -7734,7 +7619,6 @@ name = "Bright Green Stone"
 id = "bright_green_stone"
 spriteKey = "bright_green_stone"
 spriteSheetName = "field"
-stackable = true
 value = 180
 weight = "300 g"
 
@@ -7744,7 +7628,6 @@ name = "Star Fragment"
 id = "star_fragment"
 spriteKey = "rainbow_chunk"
 spriteSheetName = "field"
-stackable = true
 value = 2000
 weight = "20 g"
 
@@ -7754,7 +7637,6 @@ name = "Star Crystal"
 id = "star_crystal"
 spriteKey = "star_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 2500
 weight = "50 g"
 
@@ -7764,7 +7646,6 @@ name = "Star Iron"
 id = "star_iron"
 spriteKey = "cosmic_stone"
 spriteSheetName = "field"
-stackable = true
 value = 400
 weight = "1.5 kg"
 
@@ -7774,7 +7655,6 @@ name = "Lumber Pile"
 id = "lumber_pile"
 spriteKey = "stacked_woods"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "10 kg"
 
@@ -7793,7 +7673,6 @@ name = "Dye"
 id = "dye"
 spriteKey = "dye"
 spriteSheetName = "field"
-stackable = true
 value = 50
 weight = "100 g"
 
@@ -7803,7 +7682,6 @@ name = "Resin Stone"
 id = "resin_stone"
 spriteKey = "resin_stone"
 spriteSheetName = "field"
-stackable = true
 value = 60
 weight = "200 g"
 
@@ -7813,7 +7691,6 @@ name = "Resin Craft"
 id = "resin_craft"
 spriteKey = "resin_craft"
 spriteSheetName = "field"
-stackable = true
 value = 180
 weight = "100 g"
 
@@ -7823,7 +7700,6 @@ name = "Orange Ore"
 id = "orange_ore"
 spriteKey = "orange_ore"
 spriteSheetName = "field"
-stackable = true
 value = 150
 weight = "500 g"
 
@@ -7833,7 +7709,6 @@ name = "Equipment Core"
 id = "equipment_core"
 spriteKey = "equipment_core"
 spriteSheetName = "field"
-stackable = true
 value = 180
 weight = "200 g"
 
@@ -7843,7 +7718,6 @@ name = "Crystal Powder"
 id = "crystal_powder"
 spriteKey = "purple_powder"
 spriteSheetName = "field"
-stackable = true
 value = 6
 weight = "100 g"
 
@@ -7862,7 +7736,6 @@ name = "Ice Stone"
 id = "ice_stone"
 spriteKey = "ice_ston"
 spriteSheetName = "field"
-stackable = true
 value = 150
 weight = "500 g"
 
@@ -7872,7 +7745,6 @@ name = "Floating Stone"
 id = "floating_stone"
 spriteKey = "floating_stone"
 spriteSheetName = "field"
-stackable = true
 value = 200
 weight = "50 g"
 
@@ -7882,7 +7754,6 @@ name = "Sea Cube"
 id = "sea_cube"
 spriteKey = "marine_cube"
 spriteSheetName = "field"
-stackable = true
 value = 600
 weight = "300 g"
 
@@ -7892,7 +7763,6 @@ name = "Swirl Stone"
 id = "swirl_stone"
 spriteKey = "spiral_stone"
 spriteSheetName = "field"
-stackable = true
 value = 70
 weight = "200 g"
 
@@ -7902,7 +7772,6 @@ name = "Ashes"
 id = "ashes"
 spriteKey = "yellow_powder"
 spriteSheetName = "field"
-stackable = true
 value = 1
 weight = "50 g"
 
@@ -7912,7 +7781,6 @@ name = "Beast Fur"
 id = "beast_fur"
 spriteKey = "field_item"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "1 kg"
 
@@ -7922,7 +7790,6 @@ name = "Amber"
 id = "amber"
 spriteKey = "ammonite_fossil"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "100 g"
 
@@ -7941,7 +7808,6 @@ name = "Stone"
 id = "stone"
 spriteKey = "stone"
 spriteSheetName = "field"
-stackable = true
 value = 1
 weight = "1 kg"
 
@@ -7951,7 +7817,6 @@ name = "Stone Pedestal"
 id = "stone_pedestal"
 spriteKey = "stone_holder"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "2 kg"
 
@@ -7961,7 +7826,6 @@ name = "Stone Tablet"
 id = "stone_tablet"
 spriteKey = "stone_tablet"
 spriteSheetName = "field"
-stackable = true
 value = 40
 weight = "800 g"
 
@@ -7971,7 +7835,6 @@ name = "Coal"
 id = "coal"
 spriteKey = "coal"
 spriteSheetName = "field"
-stackable = true
 value = 10
 weight = "1 kg"
 
@@ -7981,7 +7844,6 @@ name = "Jar of Sand"
 id = "jar_of_sand"
 spriteKey = "bottle_sand"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "300 g"
 
@@ -7991,7 +7853,6 @@ name = "Hardwood"
 id = "hardwood"
 spriteKey = "heavy_wood"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "3 kg"
 
@@ -8001,7 +7862,6 @@ name = "Seed Core"
 id = "seed_core"
 spriteKey = "seed_core"
 spriteSheetName = "field"
-stackable = true
 value = 150
 weight = "100 g"
 
@@ -8011,7 +7871,6 @@ name = "Dragon Skull"
 id = "dragon_skull"
 spriteKey = "dragon_head"
 spriteSheetName = "field"
-stackable = true
 value = 5000
 weight = "2 kg"
 
@@ -8021,7 +7880,6 @@ name = "Rough Brown Crystal"
 id = "rough_brown_crystal"
 spriteKey = "rough_brown_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 120
 weight = "500 g"
 
@@ -8031,7 +7889,6 @@ name = "Clay"
 id = "clay"
 spriteKey = "clay"
 spriteSheetName = "field"
-stackable = true
 value = 3
 weight = "1 kg"
 
@@ -8041,7 +7898,6 @@ name = "Pure Crystal"
 id = "pure_crystal"
 spriteKey = "crystal"
 spriteSheetName = "field"
-stackable = true
 value = 600
 weight = "300 g"
 
@@ -8051,7 +7907,6 @@ name = "Purple Gem"
 id = "purple_gem"
 spriteKey = "purple_gem"
 spriteSheetName = "field"
-stackable = true
 value = 1200
 weight = "30 g"
 
@@ -8061,7 +7916,6 @@ name = "Purple Core"
 id = "purple_core"
 spriteKey = "purple_core"
 spriteSheetName = "field"
-stackable = true
 value = 300
 weight = "150 g"
 
@@ -8071,7 +7925,6 @@ name = "Purple Star"
 id = "purple_star"
 spriteKey = "purple_star"
 spriteSheetName = "field"
-stackable = true
 value = 350
 weight = "50 g"
 
@@ -8081,7 +7934,6 @@ name = "Amethyst"
 id = "amethyst"
 spriteKey = "amethyst_stone"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "400 g"
 
@@ -8091,7 +7943,6 @@ name = "Purple Stone"
 id = "purple_stone"
 spriteKey = "purple"
 spriteSheetName = "field"
-stackable = true
 value = 200
 weight = "300 g"
 
@@ -8101,7 +7952,6 @@ name = "Green Stone"
 id = "green_stone"
 spriteKey = "green_stone"
 spriteSheetName = "field"
-stackable = true
 value = 80
 weight = "300 g"
 
@@ -8111,7 +7961,6 @@ name = "Green Lattice"
 id = "green_lattice"
 spriteKey = "green_lattice"
 spriteSheetName = "field"
-stackable = true
 value = 50
 weight = "150 g"
 
@@ -8121,7 +7970,6 @@ name = "Green Crystal"
 id = "green_crystal"
 spriteKey = "green_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 300
 weight = "200 g"
 
@@ -8131,7 +7979,6 @@ name = "Green Crystal Stone"
 id = "green_crystal_stone"
 spriteKey = "green_crystal_stone"
 spriteSheetName = "field"
-stackable = true
 value = 200
 weight = "400 g"
 
@@ -8141,7 +7988,6 @@ name = "Feather"
 id = "feather"
 spriteKey = "feather"
 spriteSheetName = "field"
-stackable = true
 value = 5
 weight = "10 g"
 
@@ -8151,7 +7997,6 @@ name = "Jar of Spores"
 id = "jar_of_spores"
 spriteKey = "bottle_spore"
 spriteSheetName = "field"
-stackable = true
 value = 80
 weight = "200 g"
 
@@ -8161,7 +8006,6 @@ name = "Fine Amber"
 id = "fine_amber"
 spriteKey = "fine_amber"
 spriteSheetName = "field"
-stackable = true
 value = 800
 weight = "50 g"
 
@@ -8171,7 +8015,6 @@ name = "Mossy Stone"
 id = "mossy_stone"
 spriteKey = "moss_stone"
 spriteSheetName = "field"
-stackable = true
 value = 100
 weight = "400 g"
 
@@ -8181,7 +8024,6 @@ name = "Brown Crystal"
 id = "brown_crystal"
 spriteKey = "brown_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 250
 weight = "200 g"
 
@@ -8191,7 +8033,6 @@ name = "Brown Gear"
 id = "brown_gear"
 spriteKey = "gear_brown"
 spriteSheetName = "field"
-stackable = true
 value = 40
 weight = "300 g"
 
@@ -8201,7 +8042,6 @@ name = "Brown Medicine Bottle"
 id = "brown_medicine_bottle"
 spriteKey = "bottle_brown"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "200 g"
 
@@ -8211,7 +8051,6 @@ name = "Distilled Water"
 id = "distilled_water"
 spriteKey = "faucet_bottle"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "300 g"
 
@@ -8221,7 +8060,6 @@ name = "Azure Stone"
 id = "azure_stone"
 spriteKey = "blue_stone"
 spriteSheetName = "field"
-stackable = true
 value = 150
 weight = "300 g"
 
@@ -8231,7 +8069,6 @@ name = "Void Stone"
 id = "void_stone"
 spriteKey = "void_stone"
 spriteSheetName = "field"
-stackable = true
 value = 500
 weight = "200 g"
 
@@ -8241,7 +8078,6 @@ name = "Rainbow Crystal"
 id = "rainbow_crystal"
 spriteKey = "rainbow_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 800
 weight = "200 g"
 
@@ -8251,7 +8087,6 @@ name = "Rainbow Stone"
 id = "rainbow_stone"
 spriteKey = "rainbow_stone"
 spriteSheetName = "field"
-stackable = true
 value = 400
 weight = "300 g"
 
@@ -8261,7 +8096,6 @@ name = "Jar of Snake Venom"
 id = "jar_of_snake_venom"
 spriteKey = "bottle_snake"
 spriteSheetName = "field"
-stackable = true
 value = 300
 weight = "200 g"
 
@@ -8271,7 +8105,6 @@ name = "Serpentine Stone"
 id = "serpentine_stone"
 spriteKey = "snake_stone"
 spriteSheetName = "field"
-stackable = true
 value = 120
 weight = "300 g"
 
@@ -8281,7 +8114,6 @@ name = "Vial of Blood"
 id = "vial_of_blood"
 spriteKey = "bottle_blood"
 spriteSheetName = "field"
-stackable = true
 value = 200
 weight = "200 g"
 
@@ -8291,7 +8123,6 @@ name = "Blood Ruby"
 id = "bloodstained_ruby"
 spriteKey = "red_crystal_stone"
 spriteSheetName = "field"
-stackable = true
 value = 3000
 weight = "30 g"
 
@@ -8301,7 +8132,6 @@ name = "Blood"
 id = "blood"
 spriteKey = "blood"
 spriteSheetName = "field"
-stackable = true
 value = 5
 weight = "200 g"
 
@@ -8311,7 +8141,6 @@ name = "Bloodstone"
 id = "blood_red_stone"
 spriteKey = "crimson_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "800 g"
 
@@ -8330,7 +8159,6 @@ name = "Test Tube"
 id = "test_tube"
 spriteKey = "test_tube"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "50 g"
 
@@ -8340,7 +8168,6 @@ name = "Bean Extract"
 id = "bean_extract"
 spriteKey = "bottle_bean"
 spriteSheetName = "field"
-stackable = true
 value = 40
 weight = "200 g"
 
@@ -8350,7 +8177,6 @@ name = "Red Stone"
 id = "red_stone"
 spriteKey = "red_stone"
 spriteSheetName = "field"
-stackable = true
 value = 100
 weight = "300 g"
 
@@ -8360,7 +8186,6 @@ name = "Red Stone Gear"
 id = "red_stone_gear"
 spriteKey = "gear_redstone"
 spriteSheetName = "field"
-stackable = true
 value = 300
 weight = "300 g"
 
@@ -8370,7 +8195,6 @@ name = "Brilliant Stone"
 id = "brilliant_stone"
 spriteKey = "pyroxene"
 spriteSheetName = "field"
-stackable = true
 value = 200
 weight = "300 g"
 
@@ -8380,7 +8204,6 @@ name = "Gold Gear"
 id = "gold_gear"
 spriteKey = "gear_gold"
 spriteSheetName = "field"
-stackable = true
 value = 1000
 weight = "200 g"
 
@@ -8390,7 +8213,6 @@ name = "Iron"
 id = "iron"
 spriteKey = "iron_content"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "2 kg"
 
@@ -8400,7 +8222,6 @@ name = "Scrap Iron"
 id = "scrap_iron"
 spriteKey = "scrap_metal"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "1 kg"
 
@@ -8410,7 +8231,6 @@ name = "Iron Ore"
 id = "iron_ore"
 spriteKey = "iron_ore"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "3 kg"
 
@@ -8420,7 +8240,6 @@ name = "Silver Shard"
 id = "silver_shard"
 spriteKey = "round_pebble"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "200 g"
 
@@ -8430,7 +8249,6 @@ name = "Rusted Chain"
 id = "rusted_chain"
 spriteKey = "field_item"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "1.2 kg"
 
@@ -8440,7 +8258,6 @@ name = "Meteoric Iron"
 id = "meteoric_iron"
 spriteKey = "meteorite"
 spriteSheetName = "field"
-stackable = true
 value = 800
 weight = "2 kg"
 
@@ -8450,7 +8267,6 @@ name = "Lightning Stone"
 id = "lightning_stone"
 spriteKey = "yellow_crystal_stone"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "600 g"
 
@@ -8460,7 +8276,6 @@ name = "Electric Wire"
 id = "electric_wire"
 spriteKey = "wire"
 spriteSheetName = "field"
-stackable = true
 value = 8
 weight = "300 g"
 
@@ -8470,7 +8285,6 @@ name = "Mist Crystal"
 id = "mist_crystal"
 spriteKey = "soul_stone"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "300 g"
 
@@ -8480,7 +8294,6 @@ name = "Blue Crystal"
 id = "blue_crystal"
 spriteKey = "blue_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 300
 weight = "200 g"
 
@@ -8490,7 +8303,6 @@ name = "Blue Crystal Stone"
 id = "blue_crystal_stone"
 spriteKey = "blue_crystal_stone"
 spriteSheetName = "field"
-stackable = true
 value = 200
 weight = "400 g"
 
@@ -8500,7 +8312,6 @@ name = "Skeleton Gear"
 id = "skeleton_gear"
 spriteKey = "gear_skull"
 spriteSheetName = "field"
-stackable = true
 value = 150
 weight = "300 g"
 
@@ -8510,7 +8321,6 @@ name = "Yellow Orb"
 id = "yellow_orb"
 spriteKey = "yellow_ball"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "100 g"
 
@@ -8520,7 +8330,6 @@ name = "Yellow Wire"
 id = "yellow_wire"
 spriteKey = "yellow_wire"
 spriteSheetName = "field"
-stackable = true
 value = 8
 weight = "300 g"
 
@@ -8530,7 +8339,6 @@ name = "Black Core Stone"
 id = "black_core_stone"
 spriteKey = "black_core_stone"
 spriteSheetName = "field"
-stackable = true
 value = 450
 weight = "200 g"
 
@@ -8540,7 +8348,6 @@ name = "Obsidian"
 id = "obsidian"
 spriteKey = "obsidian"
 spriteSheetName = "field"
-stackable = true
 value = 0
 weight = "500 g"
 
@@ -8550,7 +8357,6 @@ name = "Black Pearl"
 id = "black_pearl"
 spriteKey = "black_crystal"
 spriteSheetName = "field"
-stackable = true
 value = 3500
 weight = "20 g"
 
@@ -8560,7 +8366,6 @@ name = "Black Powder"
 id = "black_powder"
 spriteKey = "black_powder"
 spriteSheetName = "field"
-stackable = true
 value = 200
 weight = "200 g"
 
@@ -15922,7 +15727,6 @@ stageLength = 3000
 providesNutrition = 20
 spriteKey = "cake"
 spriteSheetName = "field"
-stackable = true
 value = 20
 weight = "150 g"
 
@@ -15939,7 +15743,6 @@ stageLength = 1000
 providesNutrition = 30
 spriteKey = "chiken"
 spriteSheetName = "field"
-stackable = true
 value = 40
 weight = "1500 g"
 
@@ -15956,7 +15759,6 @@ stageLength = 1500
 providesNutrition = 15
 spriteKey = "corn"
 spriteSheetName = "field"
-stackable = true
 value = 12
 weight = "200 g"
 
@@ -15973,7 +15775,6 @@ stageLength = 30000
 providesNutrition = 10
 spriteKey = "cup_tea"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "250 g"
 
@@ -15990,7 +15791,6 @@ stageLength = 3000
 providesNutrition = 30
 spriteKey = "fried_chiken"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "200 g"
 
@@ -16007,7 +15807,6 @@ stageLength = 9000
 providesNutrition = 15
 spriteKey = "grape_soda"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "350 g"
 
@@ -16024,7 +15823,6 @@ stageLength = 9000
 providesNutrition = 15
 spriteKey = "green_soda"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "350 g"
 
@@ -16041,7 +15839,6 @@ stageLength = 9000
 providesNutrition = 15
 spriteKey = "hawai_soda"
 spriteSheetName = "field"
-stackable = true
 value = 18
 weight = "350 g"
 
@@ -16058,7 +15855,6 @@ stageLength = 9000
 providesNutrition = 15
 spriteKey = "lemon_soda"
 spriteSheetName = "field"
-stackable = true
 value = 15
 weight = "350 g"
 
@@ -16075,7 +15871,6 @@ stageLength = 1500
 providesNutrition = 5
 spriteKey = "mint"
 spriteSheetName = "field"
-stackable = true
 value = 8
 weight = "50 g"
 
@@ -16092,7 +15887,6 @@ stageLength = 1500
 providesNutrition = 5
 spriteKey = "pepper"
 spriteSheetName = "field"
-stackable = true
 value = 10
 weight = "50 g"
 
@@ -16109,7 +15903,6 @@ stageLength = 1000
 providesNutrition = 25
 spriteKey = "salmon"
 spriteSheetName = "field"
-stackable = true
 value = 35
 weight = "200 g"
 
@@ -16126,7 +15919,6 @@ stageLength = 1000
 providesNutrition = 25
 spriteKey = "role"
 spriteSheetName = "field"
-stackable = true
 value = 30
 weight = "150 g"
 
@@ -16141,7 +15933,6 @@ name = "Hard Disk"
 id = "hard_disk"
 spriteKey = "hdd"
 spriteSheetName = "field"
-stackable = true
 value = 50
 weight = "300 g"
 
@@ -16169,7 +15960,6 @@ name = "Mobile Device"
 id = "mobile_device"
 spriteKey = "violet_card"
 spriteSheetName = "field"
-stackable = true
 value = 80
 weight = "150 g"
 
@@ -16179,7 +15969,6 @@ name = "Octahedral Crystal"
 id = "octahedron_crystal"
 spriteKey = "octahedron"
 spriteSheetName = "field"
-stackable = true
 value = 100
 weight = "200 g"
 
@@ -16189,7 +15978,6 @@ name = "Rainbow Orb"
 id = "rainbow_orb"
 spriteKey = "rainbow_ball"
 spriteSheetName = "field"
-stackable = true
 value = 100
 weight = "200 g"
 
@@ -16199,7 +15987,6 @@ name = "Angel Statue"
 id = "angel_statue"
 spriteKey = "angel"
 spriteSheetName = "field"
-stackable = true
 value = 60
 weight = "500 g"
 

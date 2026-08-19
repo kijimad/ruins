@@ -101,6 +101,48 @@ func TestBuyStock(t *testing.T) {
 		assert.True(t, world.Components.LocationInStorage.Has(item))
 	})
 
+	t.Run("スタックは丸ごと買い代金は個数分になる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+		world.Components.Wallet.Get(player).Currency = 1000
+
+		merchant := world.ECS.NewEntity()
+		rep, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 3, merchant)
+		require.NoError(t, err)
+
+		require.NoError(t, BuyStock(world, player, rep))
+
+		// 3個ともバックパックへ移り、在庫に同種は残らない
+		assert.Equal(t, 3, query.GetEntityCount(world, rep), "バックパックのスタックが3個になる")
+		assert.True(t, world.Components.LocationInBackpack.Has(rep))
+		assert.Empty(t, query.GetStorageItems(world, merchant), "在庫は空になる")
+		// 代金は個数×単価
+		assert.Equal(t, 1000-query.CalculateBuyPrice(woodenSwordValue)*3, query.GetCurrency(world, player))
+	})
+
+	t.Run("スタック全量の代金が払えなければ買えない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+		// 1個分は払えるが3個分には足りない額にする
+		world.Components.Wallet.Get(player).Currency = query.CalculateBuyPrice(woodenSwordValue) * 2
+
+		merchant := world.ECS.NewEntity()
+		rep, err := lifecycle.SpawnStorageItem(world, "wooden_sword", 3, merchant)
+		require.NoError(t, err)
+
+		require.Error(t, BuyStock(world, player, rep))
+		// 在庫に3個とも残り、所持金も減らない
+		assert.Equal(t, 3, query.GetEntityCount(world, rep))
+		assert.True(t, world.Components.LocationInStorage.Has(rep))
+		assert.Equal(t, query.CalculateBuyPrice(woodenSwordValue)*2, query.GetCurrency(world, player))
+	})
+
 	// query.Player のコールバック内で購入すると実体移送がクエリ反復中に走り
 	// ワールドロック違反でパニックしていた回帰ケース
 	t.Run("query.Player経由の購入でパニックしない", func(t *testing.T) {
@@ -129,21 +171,48 @@ func TestBuyStock(t *testing.T) {
 
 func TestSellStock(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
 
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
-	require.NoError(t, err)
-	world.Components.Wallet.Get(player).Currency = 0
+	t.Run("1個の売却", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
 
-	merchant := world.ECS.NewEntity()
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+		world.Components.Wallet.Get(player).Currency = 0
 
-	item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
-	require.NoError(t, err)
+		merchant := world.ECS.NewEntity()
 
-	require.NoError(t, SellStock(world, player, merchant, item))
+		item, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 1)
+		require.NoError(t, err)
 
-	// 代金を受け取り、実体が商人の在庫へ並ぶ
-	assert.Equal(t, query.CalculateSellPrice(woodenSwordValue), query.GetCurrency(world, player))
-	require.True(t, world.Components.LocationInStorage.Has(item))
-	assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
+		require.NoError(t, SellStock(world, player, merchant, item))
+
+		// 代金を受け取り、実体が商人の在庫へ並ぶ
+		assert.Equal(t, query.CalculateSellPrice(woodenSwordValue), query.GetCurrency(world, player))
+		require.True(t, world.Components.LocationInStorage.Has(item))
+		assert.Equal(t, merchant, world.Components.LocationInStorage.Get(item).Owner)
+	})
+
+	t.Run("スタックは丸ごと売り代金は個数分になる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+		world.Components.Wallet.Get(player).Currency = 0
+
+		merchant := world.ECS.NewEntity()
+		rep, err := lifecycle.SpawnBackpackItem(world, "wooden_sword", 5)
+		require.NoError(t, err)
+
+		require.NoError(t, SellStock(world, player, merchant, rep))
+
+		// 5個とも商人の在庫へ移り、代金は個数×単価
+		assert.Equal(t, 5, query.GetEntityCount(world, rep), "在庫のスタックが5個になる")
+		assert.True(t, world.Components.LocationInStorage.Has(rep))
+		assert.Equal(t, query.CalculateSellPrice(woodenSwordValue)*5, query.GetCurrency(world, player))
+		// バックパックに同種は残らない
+		_, found := query.FindStackInInventory(world, "wooden_sword")
+		assert.False(t, found)
+	})
 }

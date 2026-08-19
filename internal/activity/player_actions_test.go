@@ -2,6 +2,7 @@ package activity
 
 import (
 	"math/rand/v2"
+	"strings"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -9,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -134,6 +136,27 @@ func TestExecuteMoveAction(t *testing.T) {
 		assert.Equal(t, 10, int(gridAfter.Y))
 		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
+}
+
+func TestShowTileInteractionMessage_床の同種スタックは1行にまとめる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// タイル(10,10)に同種を3個置く
+	_, err := lifecycle.SpawnFieldItem(world, "wooden_sword", 10, 10, 3)
+	require.NoError(t, err)
+
+	playerGrid := &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 10, Y: 10}}
+	showTileInteractionMessage(world, playerGrid)
+
+	var hits []string
+	for _, e := range query.GetGameLog(world).GetRecentEntries(10) {
+		if strings.Contains(e.Text(), "is here") {
+			hits = append(hits, e.Text())
+		}
+	}
+	require.Len(t, hits, 1, "同種3個でもログは1行にまとまる")
+	assert.Contains(t, hits[0], "3", "1行に個数がまとめて出る")
 }
 
 func TestExecuteWaitAction(t *testing.T) {

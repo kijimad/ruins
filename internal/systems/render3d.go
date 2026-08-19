@@ -109,6 +109,8 @@ type r3quad struct {
 	col   [3]float64 // 頂点色の乗算。テクスチャ面は灰色の減光、フラット面は平均色
 	alpha float64    // 頂点アルファ。既定は不透明の1。霜など半透明の重ねだけ1未満にする
 	key   float64
+	// depth は画家ソートの副キー。quad は元エンティティを持たないので、立て板を作るときにSpriteRender.Depth をここへ焼き込む
+	depth int
 }
 
 const (
@@ -423,12 +425,17 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		b1 := r3add(base, r3scale(right, bw))
 		top := r3vec{0, bh, 0}
 		tl, tr := r3add(b0, top), r3add(b1, top)
+		// 立て板の上下は SpriteRender.Depth で決める。同一タイルのプレイヤーとアイテムは4隅が
+		// 一致して奥行きが同値になるので、この副キーが無いと走査順で前後がばらつく
+		depth := int(sr.Depth)
 		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b))
+		quads[len(quads)-1].depth = depth
 		// エンティティの立て板へ氷を重ねる。スプライトのテクスチャとUVで貼り、透明な余白は氷が乗らない。
-		// 同じ4隅と同じアトラスなので、画家ソートの安定性で氷がエンティティの手前に描かれる
+		// 立て板と同じ depth を与え、同値時は挿入順で氷を後に、つまり手前に描く
 		if a, d := frost(int(g.X)); d {
 			uv := [4][2]float64{{ux, uy}, {ux + uw, uy}, {ux + uw, uy + uh}, {ux, uy + uh}}
 			appendFrostQuad(&quads, [4]r3vec{tl, tr, b1, b0}, uv, atlas, a)
+			quads[len(quads)-1].depth = depth
 		}
 	}
 	return quads
@@ -445,7 +452,14 @@ func sortQuadsByDepth(quads []r3quad, view r3mat) {
 		_, _, vz, _ := r3apply(view, c)
 		quads[i].key = vz
 	}
-	sort.SliceStable(quads, func(i, j int) bool { return quads[i].key < quads[j].key })
+	// 奥行きが同値のときは depth で割る。同一タイルの立て板はここで前後が確定する。
+	// 大きい depth を後に描いて手前にし、プレイヤーを足元のアイテムより必ず上へ出す
+	sort.SliceStable(quads, func(i, j int) bool {
+		if quads[i].key != quads[j].key {
+			return quads[i].key < quads[j].key
+		}
+		return quads[i].depth < quads[j].depth
+	})
 }
 
 // projectToScreen は点をスクリーン座標へ投影する。カメラ後方や w<=0 の点は ok=false。

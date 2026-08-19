@@ -76,7 +76,7 @@ type componentDebugItem struct {
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
-func (st *ComponentDebugState) Fetch(world w.World) ComponentDebugProps {
+func (st *ComponentDebugState) Fetch(world w.World) (ComponentDebugProps, error) {
 	// Ark に登録された全コンポーネントを走査し、種類ごとの保有エンティティ数を集計する
 	ids := ecs.ComponentIDs(world.ECS)
 	items := make([]componentDebugItem, 0, len(ids))
@@ -104,7 +104,7 @@ func (st *ComponentDebugState) Fetch(world w.World) ComponentDebugProps {
 		return cmp.Compare(b.Count, a.Count)
 	})
 
-	return ComponentDebugProps{Items: items, Total: total}
+	return ComponentDebugProps{Items: items, Total: total}, nil
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる

@@ -43,7 +43,9 @@ type MenuConfig struct {
 type Model[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
-	Fetch(world w.World) P
+	// Fetch は世界から表示 props を構築する。失敗は握りつぶさず error で返し、
+	// Screen.Update がそのままフレームのエラーとして表面化させる
+	Fetch(world w.World) (P, error)
 	Menu(props P) MenuConfig
 	View(world w.World, props P, cursor Selection, res resources.UIResources) *ebitenui.UI
 }
@@ -120,7 +122,10 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		}
 	}
 
-	props := m.Fetch(world)
+	props, err := m.Fetch(world)
+	if err != nil {
+		return es.Transition[w.World]{}, err
+	}
 	s.mount.SetProps(props)
 	cfg := m.Menu(props)
 	if cfg.TabCount > 0 {

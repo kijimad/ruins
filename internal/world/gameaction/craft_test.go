@@ -15,6 +15,8 @@ import (
 func TestCanCraft(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 
 	// 必要な素材を作成（木刀レシピは木の棒2個が必要）
 	material, _ := lifecycle.SpawnBackpackItem(world, "wooden_stick", 5)
@@ -24,9 +26,8 @@ func TestCanCraft(t *testing.T) {
 	assert.True(t, canCraft, "十分な素材があるときはクラフト可能であるべき")
 	require.NoError(t, err, "十分な素材があるときはエラーが発生してはいけない")
 
-	// 素材が不足している場合のテスト
-	materialComp := world.Components.Stackable.Get(material)
-	materialComp.Count = 1 // 木の棒の量を1にする（2個必要なので不足）
+	// 素材が不足している場合のテスト。木の棒を1個に減らす。2個必要なので不足する
+	require.NoError(t, lifecycle.ChangeItemCount(world, material, -4))
 
 	canCraft, err = CanCraft(world, "wooden_sword")
 	assert.False(t, canCraft, "素材が不足しているときはクラフト不可能であるべき")
@@ -45,9 +46,11 @@ func TestCanCraft(t *testing.T) {
 func TestCraft(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 
 	// 存在しないレシピでのクラフト試行
-	_, err := Craft(world, "存在しない武器")
+	_, err = Craft(world, "存在しない武器")
 	require.Error(t, err, "存在しないレシピでエラーが返されるべき")
 	assert.Contains(t, err.Error(), "recipe not found", "エラーメッセージにレシピ不存在の内容が含まれるべき")
 
@@ -63,10 +66,10 @@ func TestCraft(t *testing.T) {
 	assert.NoError(t, err, "素材が十分ならばエラーは発生しないべき")
 }
 
-// TestCraft_StackableTwice はStackableアイテムを連続で合成しても
+// TestCraft_StackTwice はスタックアイテムを連続で合成しても
 // パニックせず、統合先の生存エンティティが返ることを検証する。
 // 2回目の合成で新エンティティが既存スタックへ統合されて削除される回帰ケース。
-func TestCraft_StackableTwice(t *testing.T) {
+func TestCraft_StackTwice(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -74,7 +77,7 @@ func TestCraft_StackableTwice(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 	require.NoError(t, err)
 
-	// 回復薬は緑ハーブ×1・黄ハーブ×1で合成できるStackableアイテム
+	// 回復薬は緑ハーブ×1・黄ハーブ×1で合成できるスタックアイテム
 	_, _ = lifecycle.SpawnBackpackItem(world, "green_herb", 2)
 	_, _ = lifecycle.SpawnBackpackItem(world, "yellow_herb", 2)
 

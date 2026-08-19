@@ -83,7 +83,7 @@ type mainMenuItem struct {
 }
 
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
-func (st *MainMenuState) Fetch(world w.World) MainMenuProps {
+func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
 	var startFuncs []es.StateFactory[w.World]
 	if world.Config.SkipOpening {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
@@ -100,7 +100,7 @@ func (st *MainMenuState) Fetch(world w.World) MainMenuProps {
 			{Label: t("Settings"), Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewSettingsMenuState}}},
 			{Label: t("Quit"), Transition: es.Transition[w.World]{Type: es.TransQuit}},
 		},
-	}
+	}, nil
 }
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる

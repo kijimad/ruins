@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -116,13 +115,13 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 	}
 
-	// 死亡エンティティのバックパック内アイテムをフィールドにドロップする
+	// 死亡エンティティのバックパック内アイテムをフィールドにドロップする。
+	// クエリ走査中の構造変更を避けるため先に集め、フィールドへの一括移動は移動口に委ねる
 	for _, entity := range toDelete {
 		if !world.Components.GridElement.Has(entity) {
 			continue
 		}
-		grid := world.Components.GridElement.Get(entity)
-		gridX, gridY := grid.X, grid.Y
+		coord := world.Components.GridElement.Get(entity).Coord
 		owner := entity
 		var items []ecs.Entity
 		backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()
@@ -132,10 +131,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 				items = append(items, item)
 			}
 		}
-		for _, item := range items {
-			world.Components.GridElement.Add(item, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: gridX, Y: gridY}})
-			lifecycle.MoveToField(world, item, &owner)
-		}
+		lifecycle.MoveMembersToField(world, items, coord, owner)
 	}
 
 	// エンティティを削除する
