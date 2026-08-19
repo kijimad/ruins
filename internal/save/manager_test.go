@@ -2,6 +2,9 @@ package save
 
 import (
 	"encoding/json"
+	"io/fs"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -429,6 +432,133 @@ func TestLoadWorld_ReaddsStatsChanged(t *testing.T) {
 		}
 	}
 	assert.True(t, found, "ロード後、Abilities保持エンティティに StatsChanged が再付与される")
+}
+
+// TestNewSerializationManager_保存ディレクトリの作成に失敗するとエラー は、セーブディレクトリの
+// 親パス上に同名ファイルが既にあり MkdirAll が失敗するケースを検証する。
+func TestNewSerializationManager_保存ディレクトリの作成に失敗するとエラー(t *testing.T) {
+	t.Parallel()
+
+	// blocker をファイルとして作っておくと、その配下をディレクトリとして MkdirAll できない
+	blocker := filepath.Join(t.TempDir(), "blocker")
+	require.NoError(t, os.WriteFile(blocker, []byte("x"), 0644))
+
+	_, err := NewSerializationManager(WithSaveDir(filepath.Join(blocker, "saves")))
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to create save directory")
+}
+
+// TestSerializationManager_ListSaves_保存ディレクトリの読み込みに失敗するとエラー は、
+// 生成後にセーブディレクトリ自体が失われた場合に ListSaves がエラーを返すことを検証する。
+func TestSerializationManager_ListSaves_保存ディレクトリの読み込みに失敗するとエラー(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(dir))
+	require.NoError(t, err)
+
+	require.NoError(t, os.Remove(dir))
+
+	_, err = manager.ListSaves()
+	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+// TestSerializationManager_deleteSaveImpl_存在しないスロットの削除はエラー は、
+// 実ファイルが無いスロット名を消そうとしたときに os.Remove 由来のエラーが伝播することを検証する。
+func TestSerializationManager_deleteSaveImpl_存在しないスロットの削除はエラー(t *testing.T) {
+	t.Parallel()
+
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	err = manager.deleteSaveImpl("does_not_exist")
+	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+// TestSerializationManager_LoadWorldJSON_存在しないスロットはエラー は、
+// LoadWorldJSON が読み込み失敗をラップしつつ、元のファイル未検出エラーを保持することを検証する。
+func TestSerializationManager_LoadWorldJSON_存在しないスロットはエラー(t *testing.T) {
+	t.Parallel()
+
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	_, err = manager.LoadWorldJSON("does_not_exist")
+	require.ErrorIs(t, err, fs.ErrNotExist)
+}
+
+// TestSerializationManager_GetSaveFileTimestamp はタイムスタンプ抽出のエラーパスを検証する。
+func TestSerializationManager_GetSaveFileTimestamp(t *testing.T) {
+	t.Parallel()
+
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	t.Run("存在しないスロットはエラー", func(t *testing.T) {
+		t.Parallel()
+		_, err := manager.GetSaveFileTimestamp("does_not_exist")
+		require.ErrorIs(t, err, fs.ErrNotExist)
+	})
+
+	t.Run("壊れたJSONはエラー", func(t *testing.T) {
+		t.Parallel()
+		require.NoError(t, manager.storeSaveJSON("broken_json", []byte("not json")))
+		_, err := manager.GetSaveFileTimestamp("broken_json")
+		require.Error(t, err)
+		assert.ErrorContains(t, err, "failed to parse save data")
+	})
+}
+
+// TestSerializationManager_AutoSave_保存に失敗するとエラー は、セーブディレクトリが失われた状態で
+// AutoSave を呼ぶと、内部の SaveWorld 失敗が "failed to auto save" として伝播することを検証する。
+func TestSerializationManager_AutoSave_保存に失敗するとエラー(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	dir := t.TempDir()
+	manager, err := NewSerializationManager(WithSaveDir(dir))
+	require.NoError(t, err)
+
+	require.NoError(t, os.Remove(dir))
+
+	err = manager.AutoSave(world)
+	require.ErrorIs(t, err, fs.ErrNotExist)
+	assert.ErrorContains(t, err, "failed to auto save")
+}
+
+// TestSerializationManager_GetSavePlayerName_プレイヤー名が空ならエラー は、
+// playerName フィールドが空文字のセーブデータを弾くことを検証する。
+func TestSerializationManager_GetSavePlayerName_プレイヤー名が空ならエラー(t *testing.T) {
+	t.Parallel()
+
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	require.NoError(t, manager.storeSaveJSON("no_player_name", []byte(`{"playerName":""}`)))
+
+	_, err = manager.GetSavePlayerName("no_player_name")
+	assert.EqualError(t, err, "player name not found in save data")
+}
+
+// TestSerializationManager_LoadWorld_不正なステージキーは復元を拒否する は、コンストラクタを
+// 経由しない不正な StageKey が紛れ込んだセーブを validateStages が弾くことを検証する。
+// ダンジョン階なのに深度0という、Validate が不正とみなす組み合わせを作る。
+func TestSerializationManager_LoadWorld_不正なステージキーは復元を拒否する(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
+	require.NoError(t, err)
+
+	dungeon := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
+	dungeon.CurrentStage = gc.StageKey{Name: "broken-dungeon", Depth: 0}
+
+	require.NoError(t, manager.SaveWorld(world, "invalid_stage"))
+
+	newWorld := testutil.InitTestWorld(t)
+	err = manager.LoadWorld(newWorld, "invalid_stage")
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "restored stage key is invalid")
 }
 
 // TestRestoreWorldFromJSON_PreservesWorldOnFailure はロードが復元段階で失敗しても、現行ワールドが
