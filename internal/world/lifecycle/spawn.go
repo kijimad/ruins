@@ -192,7 +192,8 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts 
 }
 
 // SpawnBackpackItem はバックパック内にアイテムを count 個生成する。
-// 1個1エンティティなので count 回生成する。戻り値は最後に生成したエンティティ。
+// 1個1エンティティなので count 回生成する。戻り値はスタック代表としての1個で、
+// 同一スタックの個体はどれも等価。個数や全個体は代表から query 側で導出する。
 func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {
 	if count <= 0 {
 		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
@@ -294,7 +295,7 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 	return nil
 }
 
-// SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値は最後に生成したエンティティ。
+// SpawnStorageItem は収納内にアイテムを count 個生成する。戻り値はスタック代表としての1個。
 func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {
 	if count <= 0 {
 		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
@@ -313,7 +314,7 @@ func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Ent
 	return last, nil
 }
 
-// SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値は最後のエンティティ。
+// SpawnFieldItem はフィールド上に同じ位置へアイテムを count 個生成する。戻り値はスタック代表としての1個。
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
 	if count <= 0 {
 		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
