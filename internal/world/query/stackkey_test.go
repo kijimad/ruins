@@ -201,18 +201,19 @@ func TestStackMembers_所有者で分かれる(t *testing.T) {
 }
 
 // TestSameStack_同定キーの無い実体は束ねない は、RawID を持たない実体同士が空キーで
-// 誤って1スタックに潰れないことを固定する。タイルや壁が混ざった任意の実体列を
-// GroupStacks へ渡しても安全である根拠
+// 誤って1スタックに潰れないことを固定する。raw 定義を経ない実行時生成の実体が混ざった
+// 任意の実体列を GroupStacks へ渡しても安全である根拠
 func TestSameStack_同定キーの無い実体は束ねない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	wall := world.ECS.NewEntity()
-	floor := world.ECS.NewEntity()
-	assert.False(t, SameStack(world, wall, floor), "同定キーが無い別実体は束ねない")
-	assert.True(t, SameStack(world, wall, wall), "自分自身とは同一")
+	// 死亡フェードアウトのエフェクトのような、raw 定義を経ない実行時生成の実体を模す
+	effectA := world.ECS.NewEntity()
+	effectB := world.ECS.NewEntity()
+	assert.False(t, SameStack(world, effectA, effectB), "同定キーが無い別実体は束ねない")
+	assert.True(t, SameStack(world, effectA, effectA), "自分自身とは同一")
 
-	stacks := GroupStacks(world, []ecs.Entity{wall, floor})
+	stacks := GroupStacks(world, []ecs.Entity{effectA, effectB})
 	require.Len(t, stacks, 2, "それぞれ単独スタックになる")
 	assert.Equal(t, 1, stacks[0].Count)
 	assert.Equal(t, 1, stacks[1].Count)
