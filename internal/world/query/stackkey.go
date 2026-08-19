@@ -24,7 +24,6 @@ type StackKey struct {
 
 // StackKeyOf は entity のスタック同一性キーを返す。スタック同一判定の唯一の権威。
 // RawID に加え、腐敗品なら現在の鮮度段階を、装備なら性能の指紋を含める。
-// RawID を持たない実体は自分自身だけの単独スタックになる。
 func StackKeyOf(world w.World, entity ecs.Entity) StackKey {
 	var key StackKey
 	if !world.Components.RawID.Has(entity) {

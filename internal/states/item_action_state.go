@@ -336,7 +336,6 @@ func (st *ItemActionState) Fetch(world w.World) (ItemActionProps, error) {
 	if err != nil {
 		return ItemActionProps{}, err
 	}
-	// 個数は束が確定済みの値をそのまま使い、行ごとに数え直さない
 	backpack := query.BackpackStacks(world, player)
 
 	vs := verbList

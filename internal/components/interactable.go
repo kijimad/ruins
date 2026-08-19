@@ -73,7 +73,6 @@ const (
 func (k InteractionKind) Config() InteractionConfig {
 	switch k {
 	case InteractionItem:
-		// アイテム拾得だけはスタック単位で行を組む。同一スタックを1行に束ね、丸ごと拾う
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, StackBundled: true}
 	case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}

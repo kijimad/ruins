@@ -48,8 +48,7 @@ func (st *DemoStartState) OnStart(world w.World) error {
 
 // spawnDebugBiscuits はデバッグ用に鮮度の違うビスケットを初期所持へ積む。
 // 鮮度でスタックが分かれることを手元で確認するための仕込みで、新鮮・劣化・腐敗を各2個そろえる。
-// 段階の境界は StageLength に連動するので、RotAccrued を StageLength の倍数で置いて raw の変更に追随させる。
-// 開始直後は経過ターンがなく実効劣化は RotAccrued に等しいので、この値がそのまま段階を決める。
+// 開始直後は実効劣化が RotAccrued に等しいので、StageLength の倍数で置けば段階が決まり raw の変更にも追随する。
 func spawnDebugBiscuits(world w.World) error {
 	// 新鮮 [0, SL) 劣化 [SL, 2SL) 腐敗 [2SL, ) の各段階を作る RotAccrued の倍率
 	for _, mul := range []float64{0, 1, 2} {

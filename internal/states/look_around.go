@@ -237,8 +237,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	if len(entities) == 0 {
 		drawText(query.T(world, "Nothing here"))
 	} else {
-		// 床の同一スタックは1行に束ね、拾得メニューと見え方を揃える。タイルや壁のような
-		// 同定キーの無い実体は単独スタックとして1行になる
+		// 床の同一スタックは1行に束ね、拾得メニューと見え方を揃える
 		for _, stack := range query.GroupStacks(world, entities) {
 			st.drawEntityInfo(world, stack.Rep, stack.Count, drawText)
 		}
@@ -257,8 +256,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	return nil
 }
 
-// drawEntityInfo はエンティティ情報を描画する。個数は束ねた結果を呼び出し側が渡し、
-// 2以上なら名前に添える。単独エンティティは1なので名前だけになる
+// drawEntityInfo はエンティティ情報を描画する。個数は束ねた結果を呼び出し側が渡す
 func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, count int, drawText func(string)) {
 	name := query.FormatNameCount(query.GetEntityName(entity, world), count)
 

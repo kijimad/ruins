@@ -123,11 +123,9 @@ func splitByStackBundled(kinds []gc.InteractionKind) (bundled, individual []gc.I
 // appendItemPickupActions は itemEntities をスタックごとに1行へ束ねて拾得アクションを足す。
 // 代表を target にし、拾得はスタック丸ごとを対象にする。スタックが2種類以上なら「すべて拾う」を先頭に付ける。
 // 床の同種が1個1エンティティで個数ぶん並ぶのを防ぐため、アイテムを一覧へ出す関数は必ずこれを通す。
-// 表示の個数は FormatItemName が数え上げ、拾う個数は executeItem が StackMembers で束ねる。両者を揃える唯一口
 func appendItemPickupActions(world w.World, actions []InteractionAction, itemEntities []ecs.Entity) []InteractionAction {
 	stacks := query.GroupStacks(world, itemEntities)
 	for _, stack := range stacks {
-		// 個数は束が確定済みの値を使い、行ごとに数え直さない
 		label := query.FormatNameCount(query.GetEntityName(stack.Rep, world), stack.Count)
 		actions = append(actions, InteractionAction{
 			Label:       query.T(world, "Pick up (%s)", label),

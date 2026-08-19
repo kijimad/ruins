@@ -172,7 +172,6 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 
 	switch tab.ID {
 	case tabIDRetrieve:
-		// 収納からバックパックへスタック丸ごと移動
 		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			return err
@@ -181,8 +180,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 			return err
 		}
 	case tabIDStore:
-		// バックパックから収納へスタック丸ごと移動。合計重量が容量を超えるなら何もしない。
-		// 容量判定が束の合計重量を要するため、ここだけ実体列を先に束ねる
+		// 容量判定が束の合計重量を要するため、ここだけ実体列を先に束ねて可否を見てから移す
 		members := query.StackMembers(world, item.Entity)
 		if !query.CanAddStackToStorage(world, st.storageEntity, members) {
 			return nil

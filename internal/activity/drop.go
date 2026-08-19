@@ -110,7 +110,6 @@ func (db *DropBehavior) performDrop(comp *gc.Activity, actor ecs.Entity, world w
 	// 名前は移動前に確定する。移動後はスタックが割れて個数が変わるため、先に数えておく
 	formattedName := query.FormatItemName(world, target)
 
-	// 一覧の1行はスタック代表なので、同一スタックをまとめて足元へ落とす
 	lifecycle.MoveStackToField(world, target, targetTile, actor)
 
 	gamelog.New(query.GetGameLog(world)).
