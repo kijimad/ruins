@@ -15,6 +15,8 @@ import (
 func TestCanCraft(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 
 	// 必要な素材を作成（木刀レシピは木の棒2個が必要）
 	material, _ := lifecycle.SpawnBackpackItem(world, "wooden_stick", 5)
@@ -44,9 +46,11 @@ func TestCanCraft(t *testing.T) {
 func TestCraft(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 
 	// 存在しないレシピでのクラフト試行
-	_, err := Craft(world, "存在しない武器")
+	_, err = Craft(world, "存在しない武器")
 	require.Error(t, err, "存在しないレシピでエラーが返されるべき")
 	assert.Contains(t, err.Error(), "recipe not found", "エラーメッセージにレシピ不存在の内容が含まれるべき")
 

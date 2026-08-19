@@ -50,6 +50,8 @@ func TestMoveToField_所有者からの移送で現ステージへ束縛する(t
 	query.SetDungeon(world, &gc.Dungeon{CurrentStage: interior})
 
 	owner := world.ECS.NewEntity()
+	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 
 	item, err := SpawnBackpackItem(world, "iron", 1)
 	require.NoError(t, err)
@@ -250,25 +252,25 @@ func TestUnequipAll(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("他プレイヤーの装備は影響を受けない", func(t *testing.T) {
+	t.Run("他の所有者の装備は影響を受けない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player1, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
+		player, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 		require.NoError(t, err)
-		player2, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
-		require.NoError(t, err)
+		// プレイヤーは1体という不変条件があるため、別の所有者は素のエンティティで表す。
+		// UnequipAll の関心は所有者の分離で、所有者がプレイヤーである必要はない
+		other := world.ECS.NewEntity()
 
-		// player2の装備を実経路で用意する
 		item, err := SpawnBackpackItem(world, "claymore", 1)
 		require.NoError(t, err)
-		MoveToEquip(world, item, player2, gc.SlotWeapon1)
+		MoveToEquip(world, item, other, gc.SlotWeapon1)
 
-		// player1の装備解除
-		err = UnequipAll(world, player1)
+		// プレイヤーの装備解除
+		err = UnequipAll(world, player)
 		require.NoError(t, err)
 
-		// player2の装備は残っている
+		// 別所有者の装備は残っている
 		assert.True(t, world.Components.LocationEquipped.Has(item))
 	})
 }

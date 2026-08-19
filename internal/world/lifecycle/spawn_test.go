@@ -262,6 +262,9 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+
 		item, err := SpawnBackpackItem(world, "healing_potion", 5)
 		require.NoError(t, err)
 
@@ -273,6 +276,9 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+
 		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
@@ -282,6 +288,9 @@ func TestSpawnItem(t *testing.T) {
 	t.Run("非スタック品も複数個生成できる。1個1エンティティなので個体が並ぶ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		item, err := SpawnBackpackItem(world, "wooden_sword", 2)
 		require.NoError(t, err)
@@ -309,10 +318,22 @@ func TestSpawnItem(t *testing.T) {
 	t.Run("存在しないアイテム名を指定するとエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
-		_, err := SpawnBackpackItem(world, "存在しないアイテム", 1)
+		_, err = SpawnBackpackItem(world, "存在しないアイテム", 1)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "key not found")
+	})
+
+	t.Run("プレイヤー不在ではエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// バックパックはプレイヤーの所有物。所有者なしの生成は不変条件違反として拒否される
+		_, err := SpawnBackpackItem(world, "healing_potion", 1)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "no player entity exists")
 	})
 }
 

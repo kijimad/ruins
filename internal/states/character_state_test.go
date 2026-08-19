@@ -99,6 +99,8 @@ func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *test
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 	entity, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 	require.NoError(t, err)
 	assert.Greater(t, overlay.DetailPageCount(world, entity), 1, "性能区画が多いアイテムの詳細は複数ページに分割される")

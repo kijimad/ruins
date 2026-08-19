@@ -32,6 +32,9 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+
 		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)
 
@@ -46,6 +49,9 @@ func TestChangeItemCount(t *testing.T) {
 	t.Run("スタックアイテムの一部を消費", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		item, err := SpawnBackpackItem(world, "healing_potion", 5)
 		require.NoError(t, err)
@@ -62,6 +68,9 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+
 		item, err := SpawnBackpackItem(world, "healing_potion", 3)
 		require.NoError(t, err)
 
@@ -76,6 +85,9 @@ func TestChangeItemCount(t *testing.T) {
 	t.Run("所持数を超えて消費しようとするとエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		item, err := SpawnBackpackItem(world, "healing_potion", 2)
 		require.NoError(t, err)
@@ -94,6 +106,9 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
+
 		item, err := SpawnBackpackItem(world, "healing_potion", 3)
 		require.NoError(t, err)
 
@@ -108,6 +123,9 @@ func TestChangeItemCount(t *testing.T) {
 	t.Run("0を指定するとエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		item, err := SpawnBackpackItem(world, "wooden_sword", 1)
 		require.NoError(t, err)

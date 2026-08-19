@@ -177,6 +177,8 @@ func TestShopMenuState_buildItemContainer_商品ありでpanicしない(t *testi
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
 
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 	e, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3)
 	require.NoError(t, err)
 

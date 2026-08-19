@@ -78,10 +78,14 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 	world.Components.WeightDirty.Add(playerEntity, &gc.WeightDirty{})
 
 	// 初期装備として松明を持たせて装備する。プレイヤーは内蔵光源を持たないので、
-	// これが明かりになる。外すと暗くなる。StatsChangedSystem が装備の光源を owner へ転写する
-	torch, err := SpawnBackpackItem(world, "torch", 1)
+	// これが明かりになる。外すと暗くなる。StatsChangedSystem が装備の光源を owner へ転写する。
+	// 所有者は生成中のプレイヤーと確定しているので、世界からの検索を挟まず直接持たせる
+	torch, err := spawnItemBase(world, "torch")
 	if err != nil {
 		return gc.InvalidEntity, fmt.Errorf("failed to spawn starting torch: %w", err)
+	}
+	if err := MoveToBackpack(world, torch, playerEntity); err != nil {
+		return gc.InvalidEntity, fmt.Errorf("failed to give starting torch: %w", err)
 	}
 	MoveToEquip(world, torch, playerEntity, gc.SlotWeapon1)
 
@@ -194,9 +198,12 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 		return gc.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
 	}
 
-	// プレイヤー不在は許す。テスト等で所有者なしのバックパックへ入れる
-	playerEntity, playerErr := query.GetPlayerEntity(world)
-	found := playerErr == nil
+	// バックパックはプレイヤーの所有物なので、プレイヤー不在での生成は不変条件違反として返す。
+	// 所有者なしのバックパック品は束ねの所有者一致に掛からず、silent な迷子になる
+	playerEntity, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return gc.InvalidEntity, fmt.Errorf("failed to spawn backpack item: %w", err)
+	}
 
 	last := gc.InvalidEntity
 	for range count {
@@ -204,9 +211,7 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 		if err != nil {
 			return gc.InvalidEntity, err
 		}
-		if !found {
-			world.Components.LocationInBackpack.Add(item, &gc.LocationInBackpack{})
-		} else if err := MoveToBackpack(world, item, playerEntity); err != nil {
+		if err := MoveToBackpack(world, item, playerEntity); err != nil {
 			return item, fmt.Errorf("failed to move to backpack: %w", err)
 		}
 		last = item

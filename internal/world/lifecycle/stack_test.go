@@ -13,8 +13,10 @@ import (
 func TestGetAmount(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 
-	_, err := SpawnBackpackItem(world, "iron", 10)
+	_, err = SpawnBackpackItem(world, "iron", 10)
 	require.NoError(t, err)
 
 	// 素材の数量は保存されず、同一スタックのエンティティ数から導出する
@@ -29,8 +31,10 @@ func TestGetAmount(t *testing.T) {
 func TestPlusMinusAmount(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
+	_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+	require.NoError(t, err)
 
-	_, err := SpawnBackpackItem(world, "iron", 10)
+	_, err = SpawnBackpackItem(world, "iron", 10)
 	require.NoError(t, err)
 
 	count := func() int {
@@ -61,6 +65,8 @@ func TestChangeStackCount_未所持アイテムの操作(t *testing.T) {
 	t.Run("未所持で正の値を指定すると新規に生成される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		_, err := SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
+		require.NoError(t, err)
 
 		require.NoError(t, ChangeStackCount(world, "healing_potion", 3))
 
