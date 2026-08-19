@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
@@ -368,10 +369,13 @@ func playerBackpackItems(world w.World, player ecs.Entity) []ecs.Entity {
 }
 
 func newItemActionEntry(world w.World, stack query.Stack) itemRowData {
+	// 1行は1スタックなので、重量は個数分の合計にして行内の粒度を名前の個数と揃える。
+	// 1個分の値は詳細モーダルが受け持つ
+	total := query.GetEntityWeight(world, stack.Rep) * consts.Milligram(stack.Count)
 	entry := itemRowData{
 		Entity: stack.Rep,
 		Name:   query.GetEntityName(stack.Rep, world),
-		Weight: query.GetEntityWeight(world, stack.Rep).KgString(),
+		Weight: total.KgString(),
 		Count:  stack.Count,
 	}
 	if world.Components.Description.Has(stack.Rep) {
