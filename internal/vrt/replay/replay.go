@@ -1,5 +1,7 @@
-// Package replay は実在メニュー state を本番の Screen.Update フローでコマンド列駆動する。
-// VRT の world 構築と直列化を再利用しつつ、menuloop のコマンド供給源へ依存する。
+// Package replay は実在メニュー state を本番の MainGame ループで Action 列から駆動する。
+// 本番との違いは入力の出どころだけで、キーボードから変換する代わりに Action 列をそのまま
+// 供給する。更新も描画も本番と同じ MainGame.Update・MainGame.Draw を通す。
+//
 // vrt 本体へ menuloop 依存を持ち込むと menuloop のテストとで import 循環になるため、
 // ここを vrt のサブパッケージに分けて循環を避ける。vrt の公開シンボルだけ使う。
 package replay
@@ -10,58 +12,75 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/maingame"
-	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/vrt"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/stretchr/testify/require"
 )
 
-// PlayScenario は buildStates で組んだ state スタックの最上段へ Scenario のコマンドを
-// 1フレーム1件で流し込み、各ステップ後に capture を呼ぶ。capture が nil なら駆動のみで描画しない。
-// 使い捨て state を作らず、DoAction から先のメニュー挙動を実物のまま検証する。
+// PlayScenario は buildStates で組んだ state を本番の MainGame ループで actions から駆動し、
+// 駆動し終えた MainGame を返す。遷移結果は game.StateMachine から検査できる。
 //
-// 最上段 state は menuloop.CommandDriven を実装している必要がある。返す StateMachine で
-// 遷移結果を検査できる。ebitenui グローバルに触れるため一連の駆動を vrt.WithUILock で直列化する。
+// フレーム数は len(actions)+1 になる。StateMachine は state が返した遷移を次フレーム冒頭で
+// 適用するので、最後の Action の Push/Pop を確定させる1フレームを足す。capture は各フレームの
+// 描画後に0起点のフレーム番号で呼ぶ。nil なら駆動のみで描画しない。
+//
+// state 側に再生用の口は要らない。入力供給源は world が持ち、押し込んだ先の state にも同じ源が
+// 効く。ebitenui グローバルに触れるため一連の駆動を vrt.WithUILock で直列化する。
 func PlayScenario(
 	t *testing.T,
 	buildStates func(w.World) []es.State[w.World],
-	scenario menuloop.Scenario,
-	capture func(step int, world w.World, screen *ebiten.Image),
-) es.StateMachine[w.World] {
+	actions []inputmapper.ActionID,
+	capture func(frame int, world w.World, screen *ebiten.Image),
+) *maingame.MainGame {
 	t.Helper()
 	world := vrt.InitVRTWorld(t)
-	src := menuloop.NewScenarioReplay(scenario)
 
-	var sm es.StateMachine[w.World]
+	var game *maingame.MainGame
 	vrt.WithUILock(func() {
-		sm = vrt.SetupStateMachine(t, world, buildStates)
-		game, err := maingame.NewMainGame(world, sm)
+		// レイアウト確定フレームは供給源を差す前に回す。Action を消費させない
+		sm := vrt.SetupStateMachine(t, world, buildStates)
+
+		var err error
+		game, err = maingame.NewMainGame(world, sm)
 		require.NoError(t, err)
+		world.Resources.MenuInput = actionSource(actions)
 
-		// 最上段の state へ供給源を差す。レイアウト確定フレームは供給源なしで回るのでコマンドを消費しない
-		states := sm.GetStates()
-		driven, ok := states[len(states)-1].(menuloop.CommandDriven)
-		require.True(t, ok, "top state must implement menuloop.CommandDriven")
-		driven.SetCommandSource(src)
-
-		for step := range scenario.Commands {
-			// 駆動は本番と同じ StateMachine.Update。MainGame.Update はこれに開発用のデバッグ
-			// トグルを重ねるだけで、そのキー読み取りがヘッドレスでコマンド注入を乱すため使わない
-			require.NoError(t, sm.Update(world), "scenario step %d update failed", step)
+		for frame := range len(actions) + 1 {
+			if err := game.Update(); err != nil {
+				// 全ての state が Pop されたときの正常終了。以降は駆動するものが無い
+				require.ErrorIs(t, err, ebiten.Termination, "frame %d update failed", frame)
+				return
+			}
 			if capture == nil {
 				continue
 			}
-			// 描画は本番の renderer 経由。ポスト処理まで含めて実画面と同じ絵になる
+			// 描画も本番の MainGame.Draw。screeneffect のポスト処理まで含めて実画面と同じ絵になる
 			screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
 			game.Draw(screen)
-			capture(step, world, screen)
+			capture(frame, world, screen)
 		}
-
-		// StateMachine は state が返した遷移を次フレーム冒頭で適用する。本番ループも同じ1フレーム
-		// 遅延を持つ。最後のコマンドの Push/Pop を反映させるため終端でもう1フレーム回して確定させる
-		require.NoError(t, sm.Update(world), "final transition flush failed")
 	})
-	return sm
+	return game
+}
+
+// NoInput は入力の無いフレームを表す。本番はキーを押していないフレームが大半なので、
+// 待ちが要る場面ではこれを並べる。state を push した直後のフレームは新しい Screen の
+// タブ登録がまだ済んでいないため、続けて操作するなら1つ挟む
+const NoInput inputmapper.ActionID = ""
+
+// actionSource は Action 列を1フレーム1件で吐く供給源を作る。NoInput と列が尽きたあとは
+// 偽を返し、Screen はキーボード経路へ戻る
+func actionSource(actions []inputmapper.ActionID) inputmapper.Source {
+	rest := actions
+	return func() (inputmapper.ActionID, bool) {
+		if len(rest) == 0 {
+			return NoInput, false
+		}
+		action := rest[0]
+		rest = rest[1:]
+		return action, action != NoInput
+	}
 }

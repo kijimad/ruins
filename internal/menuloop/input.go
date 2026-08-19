@@ -4,10 +4,21 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// HandleMenuInput はメニュー操作のキー入力をActionに変換する
-func HandleMenuInput() (inputmapper.ActionID, bool) {
+// ReadMenuInput は1フレームぶんのメニュー操作を Action として読む。world が入力供給源を
+// 持つならそこから読み、持たない本番ではキーボードから変換する。ここが本番と再生で
+// 唯一分岐する点で、キー入力の有無だけが入れ替わり、後段の DoAction 以降は完全に同じ経路を通る
+func ReadMenuInput(world w.World) (inputmapper.ActionID, bool) {
+	if src := world.Resources.MenuInput; src != nil {
+		return src()
+	}
+	return handleMenuInput()
+}
+
+// handleMenuInput はメニュー操作のキー入力を Action に変換する。本番の入力経路
+func handleMenuInput() (inputmapper.ActionID, bool) {
 	keyboardInput := input.GetSharedKeyboardInput()
 
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {

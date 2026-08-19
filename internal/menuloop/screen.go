@@ -37,7 +37,7 @@ type MenuConfig struct {
 
 // Model はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
 // DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。メニュー入力は
-// Screen が HandleMenuInput で扱い、独自キーが要る state だけ ExtraInput で先取りする
+// Screen が ReadMenuInput で扱い、独自キーが要る state だけ ExtraInput で先取りする
 type Model[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
@@ -47,7 +47,7 @@ type Model[P any] interface {
 }
 
 // ExtraInput は独自キーを扱う state が満たす任意契約。Screen は各フレームでまず ExtraInput を試し、
-// 拾わなければ共通の HandleMenuInput へフォールバックする。1フレーム1アクションで ExtraInput が優先する。
+// 拾わなければ共通の ReadMenuInput へフォールバックする。1フレーム1アクションで ExtraInput が優先する。
 // 実装 state は var _ menuloop.ExtraInput = &XState{} で綴りとシグネチャを静的に検証する
 type ExtraInput interface {
 	ExtraInput() (inputmapper.ActionID, bool)
@@ -64,37 +64,12 @@ type Screen[P any] struct {
 	overlays      []overlay.Layer
 	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
 	seeded        bool      // 初期タブへ寄せたか
-	// input は1フレームの入力ソース。既定は state の ExtraInput を先に見て、無ければキーボード経路へ落ちる。
-	// 再生ドライバは SetCommandSource でコマンド供給源をこの前段に差し込む
-	input func() (inputmapper.ActionID, bool)
-}
-
-// SetCommandSource はコマンド供給源を入力ソースの前段に差し込む。本番は呼ばず既定のキーボード経路の
-// ままで、テストや再生ドライバから使う。供給源は1フレーム1件で返し、尽きたら (_, false) を返して
-// 既定の入力ソースへ落ちる
-func (s *Screen[P]) SetCommandSource(src func() (inputmapper.ActionID, bool)) {
-	base := s.input
-	s.input = func() (inputmapper.ActionID, bool) {
-		if action, ok := src(); ok {
-			return action, true
-		}
-		return base()
-	}
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
 // 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す
 func NewScreen[P any](model Model[P], overlays ...overlay.Layer) *Screen[P] {
-	s := &Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
-	s.input = func() (inputmapper.ActionID, bool) {
-		if h, ok := model.(ExtraInput); ok {
-			if action, ok := h.ExtraInput(); ok {
-				return action, true
-			}
-		}
-		return HandleMenuInput()
-	}
-	return s
+	return &Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
 }
 
 // Props は現在の props を返す。View 以外から現在値を参照する必要があるとき使う
@@ -110,10 +85,15 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 	return nil
 }
 
-// readAction は1フレームの入力ソースから Action を1件読む。ソースの組み立ては NewScreen の
-// 既定と SetCommandSource の前段差し込みが決める
-func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) {
-	return s.input()
+// readAction は1フレームの Action を1件読む。独自キーが要る state の ExtraInput を先に試し、
+// 拾わなければ world の入力供給源へ落ちる
+func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
+	if h, ok := s.model.(ExtraInput); ok {
+		if action, ok := h.ExtraInput(); ok {
+			return action, true
+		}
+	}
+	return ReadMenuInput(world)
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、
@@ -128,7 +108,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		if err := ovBefore.HandleInput(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	} else if action, ok := s.readAction(); ok {
+	} else if action, ok := s.readAction(world); ok {
 		if tr, err := m.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if tr.Type != es.TransNone {

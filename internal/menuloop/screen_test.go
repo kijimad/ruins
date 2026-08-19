@@ -222,79 +222,51 @@ func TestScreen_activeOverlay(t *testing.T) {
 	})
 }
 
-// TestScreen_readAction は ExtraInput が真ならそちらを優先し、
-// 偽なら HandleMenuInput にフォールバックすることを固定する
+// TestScreen_readAction は ExtraInput が真ならそちらを優先し、偽なら world の入力供給源へ
+// 落ちることを固定する。供給源が未設定の本番ではキーボード経路になる
 func TestScreen_readAction(t *testing.T) {
 	t.Parallel()
 
 	t.Run("ExtraInputが真なら優先する", func(t *testing.T) {
 		t.Parallel()
+		world := w.World{Resources: &resources.Resources{
+			MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
+		}}
 		model := &flexModel{
 			menu:       MenuConfig{Key: "extra1"},
 			extraInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
 		}
 		screen := NewScreen[int](model)
 
-		action, ok := screen.readAction()
+		action, ok := screen.readAction(world)
 
 		assert.True(t, ok)
-		assert.Equal(t, inputmapper.ActionMenuSelect, action)
+		assert.Equal(t, inputmapper.ActionMenuSelect, action, "供給源があっても ExtraInput を先に返す")
 	})
 
-	t.Run("ExtraInputが偽ならHandleMenuInputにフォールバックする", func(t *testing.T) {
+	t.Run("ExtraInputが偽なら供給源へ落ちる", func(t *testing.T) {
 		t.Parallel()
+		world := w.World{Resources: &resources.Resources{
+			MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
+		}}
 		model := &flexModel{menu: MenuConfig{Key: "extra2"}}
 		screen := NewScreen[int](model)
 
-		action, ok := screen.readAction()
-
-		assert.False(t, ok)
-		assert.Equal(t, inputmapper.ActionID(""), action)
-	})
-
-	t.Run("コマンド供給源はExtraInputより優先する", func(t *testing.T) {
-		t.Parallel()
-		model := &flexModel{
-			menu:       MenuConfig{Key: "cmd1"},
-			extraInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
-		}
-		screen := NewScreen[int](model)
-		screen.SetCommandSource(NewScenarioReplay(Scenario{Commands: []inputmapper.ActionID{inputmapper.ActionMenuDown}}))
-
-		action, ok := screen.readAction()
+		action, ok := screen.readAction(world)
 
 		assert.True(t, ok)
-		assert.Equal(t, inputmapper.ActionMenuDown, action, "ExtraInput が真でも commands を先に返す")
+		assert.Equal(t, inputmapper.ActionMenuDown, action)
 	})
 
-	t.Run("コマンドが尽きたらExtraInputへ戻る", func(t *testing.T) {
+	t.Run("供給源が未設定ならキーボード経路へ落ちる", func(t *testing.T) {
 		t.Parallel()
-		model := &flexModel{
-			menu:       MenuConfig{Key: "cmd2"},
-			extraInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
-		}
+		world := w.World{Resources: &resources.Resources{}}
+		model := &flexModel{menu: MenuConfig{Key: "extra3"}}
 		screen := NewScreen[int](model)
-		// 1件だけの供給源。2回目以降は尽きて ExtraInput へフォールバックする
-		screen.SetCommandSource(NewScenarioReplay(Scenario{Commands: []inputmapper.ActionID{inputmapper.ActionMenuDown}}))
 
-		first, ok := screen.readAction()
-		require.True(t, ok)
-		require.Equal(t, inputmapper.ActionMenuDown, first)
+		action, ok := screen.readAction(world)
 
-		second, ok := screen.readAction()
-		assert.True(t, ok)
-		assert.Equal(t, inputmapper.ActionMenuSelect, second, "供給源が尽きたら ExtraInput が返る")
-	})
-
-	t.Run("供給源未設定なら従来どおりExtraInputとキーボード経路", func(t *testing.T) {
-		t.Parallel()
-		model := &flexModel{menu: MenuConfig{Key: "cmd3"}}
-		screen := NewScreen[int](model)
-		// SetCommandSource を呼ばない。commands は nil のまま
-
-		action, ok := screen.readAction()
-
-		assert.False(t, ok, "本番同様 ExtraInput 偽なら HandleMenuInput へ落ちる")
+		assert.False(t, ok, "本番同様 ExtraInput 偽ならキーボード経路へ落ち、キーが無いので偽")
 		assert.Equal(t, inputmapper.ActionID(""), action)
 	})
 }

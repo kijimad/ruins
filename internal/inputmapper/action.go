@@ -3,6 +3,11 @@ package inputmapper
 // ActionID はアクションの一意な識別子
 type ActionID string
 
+// Source は1フレームぶんの入力を Action として返す供給源。第2返り値が偽なら入力なし。
+// 本番はキーボードから変換した Action を返し、再生ドライバは Action 列をそのまま返す。
+// キー入力を経由せずに Action を供給するための、入力層の唯一の差し替え点になる
+type Source func() (ActionID, bool)
+
 // 移動系アクション
 const (
 	ActionMoveNorth     ActionID = "move_north"
