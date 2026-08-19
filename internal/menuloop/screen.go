@@ -12,6 +12,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menuinput"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -93,7 +94,7 @@ func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
 			return action, true
 		}
 	}
-	return ReadMenuInput(world)
+	return menuinput.ReadMenuInput(world)
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、

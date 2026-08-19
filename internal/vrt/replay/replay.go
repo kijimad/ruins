@@ -31,9 +31,8 @@ import (
 // state 側に再生用の口は要らない。入力供給源は world が持ち、押し込んだ先の state にも同じ源が
 // 効く。ebitenui グローバルに触れるため一連の駆動を vrt.WithUILock で直列化する。
 //
-// 駆動できるのは menuloop.Screen を持つ state まで。widgets/overlay.Detail が Active な間は
-// Screen の入力ゲートが overlay へ入力を渡し、そこはキーを直読みするので Action が届かない。
-// 詳細モーダルを開く列を組むと、閉じられずそこで進まなくなる。
+// overlay が Active な間は Screen の入力ゲートが overlay へ入力を渡すが、overlay も
+// menuinput.ReadMenuInput で同じ供給源から読むので、詳細モーダルを開いた先も Action 列で駆動できる。
 func PlayScenario(
 	t *testing.T,
 	buildStates func(w.World) []es.State[w.World],

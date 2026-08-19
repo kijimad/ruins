@@ -1,4 +1,4 @@
-package menuloop
+package menuinput
 
 import (
 	"testing"

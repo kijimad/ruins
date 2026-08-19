@@ -1,4 +1,8 @@
-package menuloop
+// Package menuinput はメニュー操作のキーボード入力を Action へ変換し、再生時は world の
+// 供給源へ差し替える。menuloop と overlay の両方から使い、入力層の差し替え点を1つにする。
+// menuloop は overlay を import するため overlay から menuloop は呼べない。両者より下の
+// このパッケージに置くことで、循環せず入力経路を共有できる。
+package menuinput
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
@@ -10,11 +14,6 @@ import (
 // ReadMenuInput は1フレームぶんのメニュー操作を Action として読む。world が入力供給源を
 // 持つならそこから読み、持たない本番ではキーボードから変換する。ここで入れ替わるのは
 // キー入力の有無だけで、後段の DoAction 以降は本番と完全に同じ経路を通る。
-//
-// メニュー state の入力はすべてここを通るが、Active な overlay は Screen.Update の入力ゲートで
-// HandleInput が専有するため通らない。widgets/overlay.Detail はキーを直読みしており、
-// 表示中は再生ドライバから駆動できない。overlay 側は menuloop を import すると循環するため、
-// 塞ぐなら world.Resources.MenuInput を overlay が直接見る形にする
 func ReadMenuInput(world w.World) (inputmapper.ActionID, bool) {
 	if src := world.Resources.MenuInput; src != nil {
 		return src()

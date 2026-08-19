@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt/replay"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -83,4 +84,32 @@ func TestPlayScenario_押し込んだ先のstateも同じ列で駆動する(t *t
 	require.Len(t, remaining, 1, "開いて閉じたのでメインメニューだけが残る")
 	_, ok := remaining[0].(*states.MainMenuState)
 	assert.True(t, ok, "残るのはメインメニュー")
+}
+
+// TestPlayScenario_詳細モーダル表示中も駆動する は、overlay の Detail が Active な間も
+// Action 列で駆動が続くことを固定する。Detail 表示中は Screen の入力ゲートが overlay へ
+// 入力を渡すが、overlay も同じ供給源から読むので Action が届く。overlay がキーを直読みする
+// 実装へ戻ると、詳細を閉じる Cancel が届かず開きっぱなしになり、残り2段でここが落ちる。
+// 土台はキャラクター画面にする。メインメニューは OnStart で全実体を消すため、先に用意した
+// アイテムが失われて詳細を開けない
+func TestPlayScenario_詳細モーダル表示中も駆動する(t *testing.T) {
+	t.Parallel()
+	game := replay.PlayScenario(t,
+		func(world w.World) []es.State[w.World] {
+			_, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3)
+			require.NoError(t, err)
+			return []es.State[w.World]{&states.CharacterState{}, &states.ItemActionState{}}
+		},
+		[]inputmapper.ActionID{
+			inputmapper.ActionOpenItemDetail, // 調べるタブ先頭アイテムの詳細モーダルを開く
+			inputmapper.ActionMenuCancel,     // 表示中の詳細モーダルへ届き、閉じる
+			inputmapper.ActionMenuCancel,     // メニュー本体へ届き、ItemAction を Pop する
+		},
+		nil,
+	)
+
+	remaining := game.StateMachine.GetStates()
+	require.Len(t, remaining, 1, "詳細を閉じたあとの Cancel が本体へ届き ItemAction が Pop される")
+	_, ok := remaining[0].(*states.CharacterState)
+	assert.True(t, ok, "残るのはキャラクター画面")
 }

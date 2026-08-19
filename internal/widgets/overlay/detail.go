@@ -4,8 +4,8 @@ import (
 	"image"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/input"
+	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/menuinput"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -41,7 +41,7 @@ func EntityDetailContent(world w.World, e ecs.Entity) DetailContent {
 
 // Detail は詳細モーダルの表示状態・ページ送り入力・ウィンドウ組み立てをまとめて担う。
 // 呼び出し側は「何を出すか」を返す provide 関数を渡すだけでよく、
-// 入力・ページ数・描画といった内部には触れない。x で開き、左右でページを繰り、Esc・x・Enter で閉じる
+// 入力・ページ数・描画といった内部には触れない。x で開き、左右でページを繰り、Esc・Enter で閉じる
 type Detail struct {
 	active  bool
 	page    int
@@ -86,20 +86,29 @@ func (d *Detail) HandleInput(world w.World) error {
 	if !d.active {
 		return nil
 	}
-	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyEscape) || ki.IsKeyJustPressed(ebiten.KeyX) || ki.IsEnterJustPressedOnce() {
-		d.active = false
+	// メニューと同じ入力供給源から読む。再生ドライバが差した Action もここに届くので、
+	// overlay 表示中も本番フローのまま駆動できる
+	action, ok := menuinput.ReadMenuInput(world)
+	if !ok {
 		return nil
 	}
 	total := 1
 	if content, ok := d.provide(world); ok {
 		total = detailPageCount(len(content.Rows))
 	}
-	switch {
-	case ki.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) && d.page > 0:
-		d.page--
-	case ki.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) && d.page < total-1:
-		d.page++
+	switch action {
+	case inputmapper.ActionMenuCancel, inputmapper.ActionMenuSelect:
+		d.active = false
+	case inputmapper.ActionMenuTabPrev, inputmapper.ActionMenuLeft:
+		if d.page > 0 {
+			d.page--
+		}
+	case inputmapper.ActionMenuTabNext, inputmapper.ActionMenuRight:
+		if d.page < total-1 {
+			d.page++
+		}
+	default:
+		// 詳細モーダルは閉じるとページ送りしか扱わない
 	}
 	return nil
 }
