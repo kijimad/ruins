@@ -10,10 +10,19 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// HintEntry はキー表記とラベル訳の組。ヒント行とキー一覧ヘルプが共有する表示単位
+// KeyToken はキー表記の1粒。Boxed はグリフ自体が白い箱を持つキーキャップ変種であることを示す。
+// 箱を持たないトークンは描画側が背景の箱を敷き、全キーを白背景に黒グリフで揃える
+type KeyToken struct {
+	Text  string
+	Boxed bool
+}
+
+// HintEntry はキー表記とラベル訳の組。ヒント行とキー一覧ヘルプが共有する表示単位。
+// Keys は文字列文脈用の連結表記で、Tokens は箱の有無を保った粒のままの表記
 type HintEntry struct {
-	Keys  string
-	Label string
+	Keys   string
+	Label  string
+	Tokens []KeyToken
 }
 
 // HintEntries は束縛表から表示単位の一覧を導出する。表の順に並べ、Label が空の行は
@@ -31,11 +40,13 @@ func HintEntries(world w.World, table []Binding) []HintEntry {
 	for i := 0; i < len(labeled); {
 		// i から同じ Label が続く範囲が1項目。j が範囲の終端に進む
 		var keys strings.Builder
+		var tokens []KeyToken
 		j := i
 		for ; j < len(labeled) && labeled[j].Label == labeled[i].Label; j++ {
 			keys.WriteString(KeyLabel(labeled[j]))
+			tokens = append(tokens, KeyTokens(labeled[j])...)
 		}
-		entries = append(entries, HintEntry{Keys: keys.String(), Label: query.T(world, labeled[i].Label)})
+		entries = append(entries, HintEntry{Keys: keys.String(), Label: query.T(world, labeled[i].Label), Tokens: tokens})
 		i = j
 	}
 	return entries
@@ -73,47 +84,56 @@ func HelpHint(world w.World) string {
 	return NavHint(world, rows)
 }
 
-// KeyLabel は Binding のキー表記を返す。矢印や Enter/Esc は素の記号がフォントに無く
-// 文字化けするため FontAwesome のアイコンを使う。文字キーは小文字で表し、
-// Shift 併用は大文字で表す。verbList の KeyHint と同じ表記規約
-func KeyLabel(b Binding) string {
+// KeyTokens は Binding のキー表記をトークン列で返す。Shift 併用は Shift 記号のトークンを前置する。
+// 箱入りのキーキャップグリフは Boxed を立て、描画側が二重に箱を敷かないようにする
+func KeyTokens(b Binding) []KeyToken {
 	if b.Key == ebiten.KeySlash && b.Shift == ShiftRequired {
-		return consts.IconKeyHelp
+		return []KeyToken{{Text: consts.IconKeyHelp, Boxed: true}}
 	}
 	// 数字キーはキーキャップグリフで表す
 	if b.Key >= ebiten.KeyDigit0 && b.Key <= ebiten.KeyDigit9 {
-		return consts.IconKeyDigitBoxes[b.Key-ebiten.KeyDigit0]
+		return []KeyToken{{Text: consts.IconKeyDigitBoxes[b.Key-ebiten.KeyDigit0], Boxed: true}}
 	}
 	// 英字キーはキーキャップグリフで表す。グリフは大文字デザインなので、
 	// Shift 併用は大文字化でなく Shift 記号の前置で表す
 	if b.Key >= ebiten.KeyA && b.Key <= ebiten.KeyZ {
-		keycap := string(consts.IconKeyAlphaBoxBase + rune(b.Key-ebiten.KeyA))
+		keycap := KeyToken{Text: string(consts.IconKeyAlphaBoxBase + rune(b.Key-ebiten.KeyA)), Boxed: true}
 		if b.Shift == ShiftRequired {
-			return consts.IconKeyShift + keycap
+			return []KeyToken{{Text: consts.IconKeyShift}, keycap}
 		}
-		return keycap
+		return []KeyToken{keycap}
 	}
 	switch b.Key {
 	case ebiten.KeyArrowLeft:
-		return consts.IconKeyArrowLeft
+		return []KeyToken{{Text: consts.IconKeyArrowLeft, Boxed: true}}
 	case ebiten.KeyArrowRight:
-		return consts.IconKeyArrowRight
+		return []KeyToken{{Text: consts.IconKeyArrowRight, Boxed: true}}
 	case ebiten.KeyArrowUp:
-		return consts.IconKeyArrowUp
+		return []KeyToken{{Text: consts.IconKeyArrowUp, Boxed: true}}
 	case ebiten.KeyArrowDown:
-		return consts.IconKeyArrowDown
+		return []KeyToken{{Text: consts.IconKeyArrowDown, Boxed: true}}
 	case ebiten.KeyEnter:
-		return consts.IconKeyEnter
+		return []KeyToken{{Text: consts.IconKeyEnter}}
 	case ebiten.KeyEscape:
-		return consts.IconKeyEsc
+		return []KeyToken{{Text: consts.IconKeyEsc}}
 	case ebiten.KeySpace:
-		return consts.IconKeySpace
+		return []KeyToken{{Text: consts.IconKeySpace}}
 	case ebiten.KeyTab:
-		return consts.IconKeyTab
+		return []KeyToken{{Text: consts.IconKeyTab}}
 	case ebiten.KeyPeriod:
-		return consts.IconKeyDot
+		return []KeyToken{{Text: consts.IconKeyDot}}
 	default:
 		// 専用表記の無いキーは内部名をそのまま出す
-		return b.Key.String()
+		return []KeyToken{{Text: b.Key.String()}}
 	}
+}
+
+// KeyLabel は Binding のキー表記を文字列文脈用に連結して返す。フッターなど
+// 装飾を敷けない場所で使う。表記の規約は KeyTokens が持つ
+func KeyLabel(b Binding) string {
+	var sb strings.Builder
+	for _, tok := range KeyTokens(b) {
+		sb.WriteString(tok.Text)
+	}
+	return sb.String()
 }
