@@ -8,7 +8,6 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -41,9 +40,12 @@ var keyHelpBindings = []keybind.Binding{
 // OnStart は一覧の UI を組む。束縛表は state の寿命の間変わらないので1度だけ組めばよい
 func (st *KeyHelpState) OnStart(world w.World) error {
 	res := world.Resources.UIResources
-	list := styled.NewVerticalContainer()
+	// キーを左寄せ、説明を右寄せの2列で揃える。他メニューの一覧と同じテーブル部品を使う
+	widths := []int{140, 220}
+	list := styled.NewTableContainer(widths, res)
 	for _, e := range keybind.HintEntries(world, st.tables...) {
-		list.AddChild(styled.NewBodyText(e.Keys+"  "+e.Label, theme.TextPrimary, res))
+		styled.NewTableRow(list, widths, styled.TextCells(e.Keys, e.Label),
+			[]styled.TextAlign{styled.AlignLeft, styled.AlignRight}, new(false), res)
 	}
 	st.widget = menuframe.NewPanelScreen(res, query.T(world, "Key bindings"), list,
 		keybind.NavHint(world, keyHelpBindings))
