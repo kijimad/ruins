@@ -9,6 +9,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/i18n"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -211,7 +212,7 @@ func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor
 	)
 	menuContainer.AddChild(titleText)
 	menuContainer.AddChild(table)
-	menuContainer.AddChild(styled.NewDescriptionText(menuNavHint(world, false), res))
+	menuContainer.AddChild(styled.NewDescriptionText(keybind.HelpHint(world), res))
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

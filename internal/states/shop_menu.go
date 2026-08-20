@@ -244,7 +244,7 @@ func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menuloop.Se
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(world, true, detailOpenBindings),
+		Footer:    keybind.HelpHint(world),
 	})
 }
 

@@ -216,11 +216,11 @@ func TestNavHint(t *testing.T) {
 		{Key: ebiten.KeyX, Shift: ShiftForbidden, Action: inputmapper.ActionOpenItemDetail, Label: "Details"},
 	}
 
-	t.Run("タブ有りは共通キー全部と固有キーを並べる", func(t *testing.T) {
+	t.Run("表の順に並べ閉じる操作を末尾へ回す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		got := NavHint(world, true, MenuCommon, detail)
+		got := NavHint(world, MenuCommon, detail)
 
 		want := consts.IconArrowLeft + consts.IconArrowRight + " Tab   " +
 			consts.IconArrowUp + consts.IconArrowDown + " Select   " +
@@ -231,27 +231,22 @@ func TestNavHint(t *testing.T) {
 		assert.Equal(t, want, got)
 	})
 
-	t.Run("タブ無しはタブ切替の行を出さない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		got := NavHint(world, false, MenuCommon)
-
-		want := consts.IconArrowUp + consts.IconArrowDown + " Select   " +
-			consts.IconKeyEnter + " Confirm   " +
-			"? Help   " +
-			consts.IconKeyEsc + " Back"
-		assert.Equal(t, want, got)
-	})
-
 	t.Run("Shift併用は大文字で表す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		got := NavHint(world, false, []Binding{
+		got := NavHint(world, []Binding{
 			{Key: ebiten.KeyX, Shift: ShiftRequired, Action: inputmapper.ActionVerbExamine, Label: "Inspect"},
 		})
 
 		assert.Equal(t, "X Inspect", got)
 	})
+}
+
+// TestHelpHint はフッター常設の入口ヒントがヘルプ行だけに絞られることを固定する
+func TestHelpHint(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	assert.Equal(t, "? Help", HelpHint(world))
 }

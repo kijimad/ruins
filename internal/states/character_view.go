@@ -6,6 +6,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
@@ -36,7 +37,7 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menul
 		TabLabels: characterTabLabels(world),
 		TabIndex:  cursor.TabIndex,
 		Content:   content,
-		Footer:    menuNavHint(world, true, detailOpenBindings),
+		Footer:    keybind.HelpHint(world),
 	})
 }
 

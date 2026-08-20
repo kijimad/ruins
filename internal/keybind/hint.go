@@ -45,28 +45,37 @@ func HintEntries(world w.World, tables ...[]Binding) []HintEntry {
 }
 
 // NavHint は束縛表からキー操作ヒントの1行を組む。表を変えれば表示が追随し、
-// 挙動とヒントの二重管理をなくす。戻る操作は常に最後に置くため、ActionMenuCancel の行だけ
-// 末尾へ回す。hasTabs が偽ならタブ切替の行を出さない
-func NavHint(world w.World, hasTabs bool, tables ...[]Binding) string {
+// 挙動とヒントの二重管理をなくす。戻る操作は常に最後に置くため、
+// ActionMenuCancel と ActionCloseMenu の行だけ末尾へ回す
+func NavHint(world w.World, tables ...[]Binding) string {
 	var rows []Binding
-	var cancels []Binding
+	var closes []Binding
 	for _, table := range tables {
 		for _, b := range table {
-			if !hasTabs && (b.Action == inputmapper.ActionMenuTabPrev || b.Action == inputmapper.ActionMenuTabNext) {
-				continue
-			}
-			if b.Action == inputmapper.ActionMenuCancel {
-				cancels = append(cancels, b)
+			if b.Action == inputmapper.ActionMenuCancel || b.Action == inputmapper.ActionCloseMenu {
+				closes = append(closes, b)
 				continue
 			}
 			rows = append(rows, b)
 		}
 	}
 	parts := make([]string, 0, 8)
-	for _, e := range HintEntries(world, rows, cancels) {
+	for _, e := range HintEntries(world, rows, closes) {
 		parts = append(parts, e.Keys+" "+e.Label)
 	}
 	return strings.Join(parts, "   ")
+}
+
+// HelpHint はキー一覧ヘルプへの入口だけを示すフッター文字列を組む。
+// 各画面の全キー列挙はヘルプ画面が担い、常設のフッターは入口の1項目に絞って画面を静かに保つ
+func HelpHint(world w.World) string {
+	var rows []Binding
+	for _, b := range MenuCommon {
+		if b.Action == inputmapper.ActionOpenKeyHelp {
+			rows = append(rows, b)
+		}
+	}
+	return NavHint(world, rows)
 }
 
 // KeyLabel は Binding のキー表記を返す。矢印や Enter/Esc は素の記号がフォントに無く

@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
@@ -130,6 +131,6 @@ func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cu
 	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		Header:  fmt.Sprintf("Components total: %d", props.Total),
 		Content: container,
-		Footer:  menuNavHint(world, false),
+		Footer:  keybind.HelpHint(world),
 	})
 }

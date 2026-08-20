@@ -202,7 +202,7 @@ func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menul
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(world, true, detailOpenBindings),
+		Footer:    keybind.HelpHint(world),
 	})
 }
 

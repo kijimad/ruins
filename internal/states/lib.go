@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -181,14 +180,6 @@ func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widg
 		pageText = " "
 	}
 	return styled.NewPageIndicator(pageText, res)
-}
-
-// menuNavHint はメニュー共通のキー操作案内を組み立てる。全メニューのフッターに常設し、
-// どの画面でも同じキーで同じ操作ができることを示す。表示は共通キーと画面固有の束縛表から
-// 導出するので、表を変えればヒントが追随する。hasTabs が true のときタブ切替を含める
-func menuNavHint(world w.World, hasTabs bool, extras ...[]keybind.Binding) string {
-	tables := append([][]keybind.Binding{keybind.MenuCommon}, extras...)
-	return keybind.NavHint(world, hasTabs, tables...)
 }
 
 // ================

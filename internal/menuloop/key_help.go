@@ -34,7 +34,7 @@ func NewKeyHelpState(tables ...[]keybind.Binding) es.StateFactory[w.World] {
 
 // keyHelpBindings はヘルプ画面自身の束縛表。Esc か開いたときと同じ ? で閉じる
 var keyHelpBindings = []keybind.Binding{
-	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
+	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu, Label: "Back"},
 	{Key: ebiten.KeySlash, Shift: keybind.ShiftRequired, Action: inputmapper.ActionCloseMenu},
 }
 
@@ -46,7 +46,7 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 		list.AddChild(styled.NewBodyText(e.Keys+"  "+e.Label, theme.TextPrimary, res))
 	}
 	st.widget = menuframe.NewPanelScreen(res, query.T(world, "Key bindings"), list,
-		keybind.NavHint(world, false, keyHelpBindings))
+		keybind.NavHint(world, keyHelpBindings))
 	return nil
 }
 
