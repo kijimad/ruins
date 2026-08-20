@@ -63,7 +63,6 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 	return nil
 }
 
-// hasEscapeLabel は表に Esc の表示行があるかを返す
 func hasEscapeLabel(table []keybind.Binding) bool {
 	for _, b := range table {
 		if b.Key == ebiten.KeyEscape && b.Label != "" {
@@ -161,7 +160,7 @@ func fillRoundedRect(dst *ebiten.Image, x, y, w, h, r float32) {
 	p.ArcTo(x, y, x+r, y, r)
 	p.Close()
 	op := &vector.DrawPathOptions{AntiAlias: true}
-	op.ColorScale.ScaleWithColor(theme.KeycapBackground)
+	op.ColorScale.ScaleWithColor(theme.TextPrimary)
 	vector.FillPath(dst, &p, nil, op)
 }
 
