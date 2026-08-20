@@ -70,10 +70,9 @@ func (st *LookAroundState) Update(world w.World) (es.Transition[w.World], error)
 	return st.ConsumeTransition(), nil
 }
 
-// lookAroundBindings は見回しモードの束縛表。矢印でカーソルを動かし、Esc か x で閉じる
+// lookAroundBindings は見回しモードの束縛表。矢印でカーソルを動かし、Esc で閉じる
 var lookAroundBindings = []keybind.Binding{
 	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
-	{Key: ebiten.KeyX, Action: inputmapper.ActionCloseMenu},
 	{Key: ebiten.KeyUp, Action: inputmapper.ActionMoveNorth},
 	{Key: ebiten.KeyDown, Action: inputmapper.ActionMoveSouth},
 	{Key: ebiten.KeyLeft, Action: inputmapper.ActionMoveWest},
