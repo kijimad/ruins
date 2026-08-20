@@ -13,6 +13,7 @@ var errNoFontSource = errors.New("no available font source")
 type fonts struct {
 	smallFace      text.Face
 	bodyFace       text.Face
+	mediumFace     text.Face
 	titleFontFace  text.Face
 	splashFontFace text.Face
 }
@@ -28,6 +29,10 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load body font: %w", err)
 	}
+	mediumFace, err := loadFont(sources, 24)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load medium font: %w", err)
+	}
 	titleFontFace, err := loadFont(sources, 32)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load title font: %w", err)
@@ -40,6 +45,7 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 	return &fonts{
 		smallFace:      smallFace,
 		bodyFace:       bodyFace,
+		mediumFace:     mediumFace,
 		titleFontFace:  titleFontFace,
 		splashFontFace: splashFontFace,
 	}, nil

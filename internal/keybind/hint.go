@@ -92,11 +92,11 @@ func KeyLabel(b Binding) string {
 	// 英字キーはキーキャップグリフで表す。グリフは大文字デザインなので、
 	// Shift 併用は大文字化でなく Shift 記号の前置で表す
 	if b.Key >= ebiten.KeyA && b.Key <= ebiten.KeyZ {
-		cap := string(consts.IconKeyAlphaBoxBase + rune(b.Key-ebiten.KeyA))
+		keycap := string(consts.IconKeyAlphaBoxBase + rune(b.Key-ebiten.KeyA))
 		if b.Shift == ShiftRequired {
-			return consts.IconKeyShift + cap
+			return consts.IconKeyShift + keycap
 		}
-		return cap
+		return keycap
 	}
 	switch b.Key {
 	case ebiten.KeyArrowLeft:
