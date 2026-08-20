@@ -51,7 +51,7 @@ type menuListOpts struct {
 	HeaderRow       []string
 	EmptyText       string
 	// ItemsPerPage は1ページの行数の上書き。0 ならタブ帯つきモーダルの実測容量。
-	// 見出しなど追加のチェームを持つ画面は menuframe.ListCapacity で自分の容量を求めて渡す
+	// 見出しなど追加の枠部品を持つ画面は menuframe.ListCapacity で自分の容量を求めて渡す
 	ItemsPerPage int
 }
 
