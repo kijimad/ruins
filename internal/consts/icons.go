@@ -24,6 +24,11 @@ const (
 	IconKeyShift = "\U000f0636" // md-apple_keyboard_shift
 	IconKeyHelp  = "\U000f078b" // md-help_box。? キーのキーキャップ表記
 	IconKeyDot   = "\U000f09df" // md-circle_small。. キーのキーキャップ表記
+	// 矢印キーのキーキャップ表記。ページ送り等の装飾矢印 IconArrow* とは使い分ける
+	IconKeyArrowUp    = "\U000f0738" // md-arrow_up_bold_box
+	IconKeyArrowDown  = "\U000f072f" // md-arrow_down_bold_box
+	IconKeyArrowLeft  = "\U000f0732" // md-arrow_left_bold_box
+	IconKeyArrowRight = "\U000f0735" // md-arrow_right_bold_box
 
 	// UI
 	IconHome     = "\uf015"

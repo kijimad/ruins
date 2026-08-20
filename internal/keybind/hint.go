@@ -95,13 +95,13 @@ func KeyLabel(b Binding) string {
 	}
 	switch b.Key {
 	case ebiten.KeyArrowLeft:
-		return consts.IconArrowLeft
+		return consts.IconKeyArrowLeft
 	case ebiten.KeyArrowRight:
-		return consts.IconArrowRight
+		return consts.IconKeyArrowRight
 	case ebiten.KeyArrowUp:
-		return consts.IconArrowUp
+		return consts.IconKeyArrowUp
 	case ebiten.KeyArrowDown:
-		return consts.IconArrowDown
+		return consts.IconKeyArrowDown
 	case ebiten.KeyEnter:
 		return consts.IconKeyEnter
 	case ebiten.KeyEscape:

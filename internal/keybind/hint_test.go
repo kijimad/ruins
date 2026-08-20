@@ -27,8 +27,8 @@ func TestNavHint(t *testing.T) {
 
 		got := NavHint(world, MustMerge(MenuCommon, detail))
 
-		want := consts.IconArrowLeft + consts.IconArrowRight + " Tab   " +
-			consts.IconArrowUp + consts.IconArrowDown + " Select   " +
+		want := consts.IconKeyArrowLeft + consts.IconKeyArrowRight + " Tab   " +
+			consts.IconKeyArrowUp + consts.IconKeyArrowDown + " Select   " +
 			consts.IconKeyEnter + " Confirm   " +
 			consts.IconKeyHelp + " Help   " +
 			string(consts.IconKeyAlphaBoxBase+'x'-'a') + " Details   " +
