@@ -102,29 +102,36 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 	return nil
 }
 
+// dispatch は1件の Action を消費者の連鎖に流す。カーソルの mount、共通のキー一覧ヘルプ、
+// 画面の DoAction の順に試し、先に消費したものが勝つ。DoAction には画面の意味を持つ
+// Action だけが届く
+func (s *Screen[P]) dispatch(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+	if s.mount.DispatchNav(action) {
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	}
+	if action == inputmapper.ActionOpenKeyHelp {
+		// ? のキー一覧ヘルプは全メニュー共通なので Screen が吸い、
+		// この画面の合成済みの表から一覧を組んで push する
+		return es.Transition[w.World]{Type: es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{NewKeyHelpState(s.table)}}, nil
+	}
+	return s.model.DoAction(world, action)
+}
+
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、
 // UseTabMenu、dirty なら View 再構築と overlay 重ね、widget.Update、の順で回す
 func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	m := s.model
 
-	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を流す。
-	// Action はまずカーソルの mount に渡してみて、消費されなければ後続へ流す。
-	// DoAction には画面の意味を持つ Action だけが届く。
+	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を dispatch の連鎖へ流す。
 	// overlay が絡んだフレームは内容が入力で変わりうるので後段で必ず dirty にする
 	ovBefore := s.activeOverlay()
 	if ovBefore != nil {
 		if err := ovBefore.HandleInput(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	} else if action, ok := keybind.ReadInput(world, s.table); ok && !s.mount.DispatchNav(action) {
-		// カーソル移動として消費されなかった Action だけが画面の意味を持つ
-		if action == inputmapper.ActionOpenKeyHelp {
-			// ? のキー一覧ヘルプは全メニュー共通なので Screen が吸い、
-			// この画面の束縛表と共通表から一覧を組んで push する
-			return es.Transition[w.World]{Type: es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewKeyHelpState(s.table)}}, nil
-		}
-		if tr, err := m.DoAction(world, action); err != nil {
+	} else if action, ok := keybind.ReadInput(world, s.table); ok {
+		if tr, err := s.dispatch(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if tr.Type != es.TransNone {
 			return tr, nil
