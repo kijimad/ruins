@@ -22,6 +22,8 @@ const (
 	IconKeySpace = "\U000f1050" // md-keyboard_space
 	IconKeyTab   = "\U000f0312" // md-keyboard_tab
 	IconKeyShift = "\U000f0636" // md-apple_keyboard_shift
+	IconKeyHelp  = "\U000f078b" // md-help_box。? キーのキーキャップ表記
+	IconKeyDot   = "\U000f09df" // md-circle_small。. キーのキーキャップ表記
 
 	// UI
 	IconHome     = "\uf015"

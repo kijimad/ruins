@@ -78,7 +78,7 @@ func HelpHint(world w.World) string {
 // Shift 併用は大文字で表す。verbList の KeyHint と同じ表記規約
 func KeyLabel(b Binding) string {
 	if b.Key == ebiten.KeySlash && b.Shift == ShiftRequired {
-		return "?"
+		return consts.IconKeyHelp
 	}
 	// 数字キーはキーキャップグリフで表す
 	if b.Key >= ebiten.KeyDigit0 && b.Key <= ebiten.KeyDigit9 {
@@ -111,7 +111,7 @@ func KeyLabel(b Binding) string {
 	case ebiten.KeyTab:
 		return consts.IconKeyTab
 	case ebiten.KeyPeriod:
-		return "."
+		return consts.IconKeyDot
 	default:
 		// 専用表記の無いキーは内部名をそのまま出す
 		return b.Key.String()
