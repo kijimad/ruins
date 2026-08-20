@@ -108,12 +108,12 @@ func renderKeycaps(tokens []keybind.KeyToken, res resources.UIResources) *ebiten
 	const chipPad = 3
 	face := res.Text.BodyFace
 
-	type cap struct {
+	type keycap struct {
 		text  string
 		boxed bool
 		w     int
 	}
-	caps := make([]cap, 0, len(tokens))
+	caps := make([]keycap, 0, len(tokens))
 	total := 0
 	for i, tok := range tokens {
 		w, _ := text.Measure(tok.Text, face, 0)
@@ -121,7 +121,7 @@ func renderKeycaps(tokens []keybind.KeyToken, res resources.UIResources) *ebiten
 		if !tok.Boxed {
 			cw += chipPad * 2
 		}
-		caps = append(caps, cap{text: tok.Text, boxed: tok.Boxed, w: cw})
+		caps = append(caps, keycap{text: tok.Text, boxed: tok.Boxed, w: cw})
 		total += cw
 		if i > 0 {
 			total += theme.Space2
@@ -140,7 +140,7 @@ func renderKeycaps(tokens []keybind.KeyToken, res resources.UIResources) *ebiten
 		clr := theme.TextPrimary
 		tx := x
 		if !c.boxed {
-			vector.DrawFilledRect(img, float32(x), 1, float32(c.w), height-2, theme.TextPrimary, false)
+			vector.FillRect(img, float32(x), 1, float32(c.w), height-2, theme.TextPrimary, false)
 			clr = theme.ScreenBackground
 			tx += chipPad
 		}
