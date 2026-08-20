@@ -19,7 +19,6 @@ func rgb(v uint64) color.RGBA {
 var (
 	// TextPrimary は見出し・タイトルに使う白色
 	TextPrimary = rgb(0xf5f5f5)
-
 	// TextSecondary は補助テキストに使うグレー
 	TextSecondary = rgb(0xa9a9a9)
 	// TextAccent はアクセントカラーとして使う緑色
