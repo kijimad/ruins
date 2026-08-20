@@ -74,7 +74,7 @@ func TestKeyLabel_キーキャップ表記(t *testing.T) {
 	require.Len(t, entries, 1, "同じラベルの連続行は1項目にまとまる")
 	var wantDigits strings.Builder
 	for n := rune(1); n <= 5; n++ {
-		wantDigits.WriteString(string(consts.IconKeyDigitBase + n))
+		wantDigits.WriteRune(consts.IconKeyDigitBase + n)
 	}
 	assert.Equal(t, wantDigits.String(), entries[0].Keys, "数字は数字グリフで連結される")
 

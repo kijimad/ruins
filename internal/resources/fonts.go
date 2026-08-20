@@ -13,6 +13,7 @@ var errNoFontSource = errors.New("no available font source")
 type fonts struct {
 	smallFace      text.Face
 	bodyFace       text.Face
+	keycapFace     text.Face
 	titleFontFace  text.Face
 	splashFontFace text.Face
 }
@@ -28,6 +29,12 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load body font: %w", err)
 	}
+	// キーキャップの箱に入れるグリフ用。アイコンフォントの plain 変種は em 内の余白が広く
+	// 本文サイズでは小さく見えるため、ひと回り大きい em で描いて字面を出す
+	keycapFace, err := loadFont(sources, 24)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load keycap font: %w", err)
+	}
 	titleFontFace, err := loadFont(sources, 32)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load title font: %w", err)
@@ -40,6 +47,7 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 	return &fonts{
 		smallFace:      smallFace,
 		bodyFace:       bodyFace,
+		keycapFace:     keycapFace,
 		titleFontFace:  titleFontFace,
 		splashFontFace: splashFontFace,
 	}, nil

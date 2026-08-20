@@ -102,12 +102,12 @@ func keyHelpRow(e keybind.HintEntry, res resources.UIResources) *widget.Containe
 
 // renderKeycaps はキーの粒の並びを1枚の画像へ描く。全トークンへ一律に角丸の箱を敷き、
 // 中の表記を黒で描いてキーキャップに見せる。中身は全てアイコンフォントのグリフなので、
-// 行の本文と釣り合う小さめの face 1つで描ける。
+// face 1つで描ける。
 // widget の入れ子で組むと preferred 幅の計算で潰れるため、画像にして寸法を確定させる
 func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
-	const height = 18
+	const height = 24
 	const chipPad = 4
-	const radius = 4
+	const radius = 5
 
 	type keycap struct {
 		text string
@@ -117,7 +117,7 @@ func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	}
 	caps := make([]keycap, 0, len(tokens))
 	total := 0
-	face := res.Text.SmallFace
+	face := res.Text.KeycapFace
 	for i, tok := range tokens {
 		w, h := text.Measure(tok, face, 0)
 		cw := int(w) + chipPad*2
