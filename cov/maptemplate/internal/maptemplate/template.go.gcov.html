@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.6&nbsp;%</td>
+            <td class="headerCovTableEntryHi">93.3&nbsp;%</td>
             <td class="headerCovTableEntry">478</td>
-            <td class="headerCovTableEntry">409</td>
+            <td class="headerCovTableEntry">446</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-20 00:28:25</td>
+            <td class="headerValue">2026-08-20 23:33:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -107,12 +107,12 @@
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           2 :                                 if prop, ok := palette.GetProp(charStr); ok {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                                         cell.Prop = prop</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 :                                         cell.NPC = npc</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :                                 if npc, ok := palette.GetNPC(charStr); ok {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                                         cell.NPC = npc</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                                 }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :                         }</span>
 <span id="L52"><span class="lineNum">      52</span>              :                         // パレットで解決できなかった場合、文字自体をTerrain名として使用する</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           2 :                         if cell.Terrain == &quot;&quot; {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :                         if cell.Terrain == &quot;&quot; {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                                 cell.Terrain = charStr</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                         cells[y][x] = cell</span></span>
@@ -138,13 +138,13 @@
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                                 sb.WriteByte(':')</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                                 sb.WriteString(cell.Prop)</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         if cell.NPC != &quot;&quot; {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC tlaBgUNC">           0 :                                 sb.WriteByte(':')</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                                 sb.WriteString(cell.NPC)</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           2 :                         if cell.NPC != &quot;&quot; {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                                 sb.WriteByte(':')</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                                 sb.WriteString(cell.NPC)</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L83"><span class="lineNum">      83</span>              :                 }</span>
 <span id="L84"><span class="lineNum">      84</span>              :         }</span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC tlaBgGNC">           1 :         return sb.String()</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         return sb.String()</span></span>
 <span id="L86"><span class="lineNum">      86</span>              : }</span>
 <span id="L87"><span class="lineNum">      87</span>              : </span>
 <span id="L88"><span class="lineNum">      88</span>              : // ChunkTemplate はチャンクテンプレート定義</span>
@@ -217,11 +217,11 @@
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L156"><span class="lineNum">     156</span>              : </span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC tlaBgGNC">           1 :         var file ChunkTemplateFile</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         if err := toml.Unmarshal(data, &amp;file); err != nil {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to parse template TOML: %w&quot;, err)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           2 :         if err := toml.Unmarshal(data, &amp;file); err != nil {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to parse template TOML: %w&quot;, err)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L161"><span class="lineNum">     161</span>              : </span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC tlaBgGNC">           2 :         for i := range file.Chunks {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           2 :         for i := range file.Chunks {</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 // 名前からサイズを自動設定</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           2 :                 if err := l.parseSizeFromName(&amp;file.Chunks[i]); err != nil {</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                         return nil, fmt.Errorf(&quot;failed to parse template %d name: %w&quot;, i, err)</span></span>
@@ -263,16 +263,16 @@
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L202"><span class="lineNum">     202</span>              : </span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         width, err := strconv.Atoi(dimensions[0])</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to parse width: %s&quot;, dimensions[0])</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to parse width: %s&quot;, dimensions[0])</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L207"><span class="lineNum">     207</span>              : </span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC tlaBgGNC">           1 :         height, err := strconv.Atoi(dimensions[1])</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to parse height: %s&quot;, dimensions[1])</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         height, err := strconv.Atoi(dimensions[1])</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to parse height: %s&quot;, dimensions[1])</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L212"><span class="lineNum">     212</span>              : </span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC tlaBgGNC">           1 :         t.Size = Size{W: width, H: height}</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         t.Size = Size{W: width, H: height}</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L215"><span class="lineNum">     215</span>              : }</span>
 <span id="L216"><span class="lineNum">     216</span>              : </span>
@@ -305,11 +305,11 @@
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L244"><span class="lineNum">     244</span>              : </span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC tlaBgGNC">           1 :         expectedWidth := utf8.RuneCountInString(lines[0])</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         if expectedWidth == 0 {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;map row is empty&quot;)</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           2 :         if expectedWidth == 0 {</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;map row is empty&quot;)</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L249"><span class="lineNum">     249</span>              : </span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC tlaBgGNC">           2 :         for i, line := range lines {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           2 :         for i, line := range lines {</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 lineWidth := utf8.RuneCountInString(line)</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           2 :                 if lineWidth != expectedWidth {</span></span>
 <span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;map row %d length mismatch: expected %d, got %d&quot;, i, expectedWidth, lineWidth)</span></span>
@@ -346,11 +346,11 @@
 <span id="L284"><span class="lineNum">     284</span>              : // 同じ名前のチャンクが複数ある場合、すべて登録される（バリエーション）</span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 : func (l *TemplateLoader) LoadChunk(path string) error {</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         templates, err := l.LoadFile(path)</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to read chunk: %w&quot;, err)</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;failed to read chunk: %w&quot;, err)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L290"><span class="lineNum">     290</span>              : </span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC tlaBgGNC">           2 :         for i := range templates {</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           2 :         for i := range templates {</span></span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 name := templates[i].Name</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                 l.chunkCache[name] = append(l.chunkCache[name], &amp;templates[i])</span></span>
 <span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -406,11 +406,11 @@
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           2 :         for _, dir := range directories {</span></span>
 <span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :                 entries, err := fs.ReadDir(assets.FS, dir)</span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to read directory %s: %w&quot;, dir, err)</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;failed to read directory %s: %w&quot;, dir, err)</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L350"><span class="lineNum">     350</span>              : </span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC tlaBgGNC">           2 :                 for _, entry := range entries {</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           2 :                 for _, entry := range entries {</span></span>
 <span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 :                         if entry.IsDir() || !strings.HasSuffix(entry.Name(), &quot;.toml&quot;) {</span></span>
 <span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
 <span id="L354"><span class="lineNum">     354</span>              :                         }</span>
@@ -449,10 +449,10 @@
 <span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         palettes := make([]*Palette, 0, len(templateCopy.Palettes))</span></span>
 <span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           2 :         for _, paletteName := range templateCopy.Palettes {</span></span>
 <span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                 palette, ok := l.paletteCache[paletteName]</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, nil, nil, fmt.Errorf(&quot;palette '%s' not found; register it in advance with RegisterAllPalettes&quot;, paletteName)</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC tlaBgGNC">           1 :                 palettes = append(palettes, palette)</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           2 :                 if !ok {</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :                         return nil, nil, nil, fmt.Errorf(&quot;palette '%s' not found; register it in advance with RegisterAllPalettes&quot;, paletteName)</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :                 palettes = append(palettes, palette)</span></span>
 <span id="L394"><span class="lineNum">     394</span>              :         }</span>
 <span id="L395"><span class="lineNum">     395</span>              : </span>
 <span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         mergedPalette := MergePalettes(palettes...)</span></span>
@@ -469,11 +469,11 @@
 <span id="L407"><span class="lineNum">     407</span>              : // selectChunkByWeight は重みづけランダム選択でチャンクを選択する</span>
 <span id="L408"><span class="lineNum">     408</span>              : // 各チャンク名に複数のバリエーションがある場合、すべてを候補に含める</span>
 <span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 : func (l *TemplateLoader) selectChunkByWeight(chunkNames []string, rng *rand.Rand) (*ChunkTemplate, error) {</span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :         if len(chunkNames) == 0 {</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;chunk candidates are empty&quot;)</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           2 :         if len(chunkNames) == 0 {</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;chunk candidates are empty&quot;)</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L413"><span class="lineNum">     413</span>              : </span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC tlaBgGNC">           1 :         candidates := make([]*ChunkTemplate, 0)</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaGNC">           1 :         candidates := make([]*ChunkTemplate, 0)</span></span>
 <span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 :         // 各チャンク名のすべてのバリエーションを候補に追加</span></span>
 <span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           2 :         for _, name := range chunkNames {</span></span>
@@ -506,20 +506,20 @@
 <span id="L444"><span class="lineNum">     444</span>              : </span>
 <span id="L445"><span class="lineNum">     445</span>              : // selectChunkByWeightFromList はChunkTemplateのリストから重み付きランダム選択する</span>
 <span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 : func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate, rng *rand.Rand) (*ChunkTemplate, error) {</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :         if len(candidates) == 0 {</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;chunk candidates are empty&quot;)</span></span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           2 :         if len(candidates) == 0 {</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;chunk candidates are empty&quot;)</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L450"><span class="lineNum">     450</span>              : </span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC tlaBgGNC">           1 :         totalWeight := 0</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :         totalWeight := 0</span></span>
 <span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           2 :         for _, candidate := range candidates {</span></span>
 <span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                 totalWeight += candidate.Weight</span></span>
 <span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L455"><span class="lineNum">     455</span>              : </span>
-<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :         if totalWeight == 0 {</span></span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;total weight is 0&quot;)</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           2 :         if totalWeight == 0 {</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;total weight is 0&quot;)</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L459"><span class="lineNum">     459</span>              : </span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC tlaBgGNC">           1 :         r := rng.IntN(totalWeight)</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :         r := rng.IntN(totalWeight)</span></span>
 <span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :         cumulative := 0</span></span>
 <span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           2 :         for _, candidate := range candidates {</span></span>
 <span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :                 cumulative += candidate.Weight</span></span>
@@ -569,11 +569,11 @@
 <span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :         placementRegions := make([][]placeholderRegion, len(t.Placements))</span></span>
 <span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           2 :         for idx, placement := range t.Placements {</span></span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           1 :                 if placement.ID == &quot;&quot; {</span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, fmt.Errorf(&quot;placement %d: ID is not specified&quot;, idx)</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           2 :                 if placement.ID == &quot;&quot; {</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :                         return nil, fmt.Errorf(&quot;placement %d: ID is not specified&quot;, idx)</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L513"><span class="lineNum">     513</span>              : </span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC tlaBgGNC">           1 :                 regions, err := findAllPlaceholderRegionsByID(lines, placement.ID)</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :                 regions, err := findAllPlaceholderRegionsByID(lines, placement.ID)</span></span>
 <span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, fmt.Errorf(&quot;placement %d (ID='%s'): %w&quot;, idx, placement.ID, err)</span></span>
 <span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -627,23 +627,23 @@
 <span id="L565"><span class="lineNum">     565</span>              :         }</span>
 <span id="L566"><span class="lineNum">     566</span>              : </span>
 <span id="L567"><span class="lineNum">     567</span>              :         // 展開後にTerrainが空のセル（未解決プレースホルダ）がないか検証</span>
-<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           1 :         if err := validateNoPlaceholdersRemaining(cells); err != nil {</span></span>
-<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           2 :         if err := validateNoPlaceholdersRemaining(cells); err != nil {</span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L571"><span class="lineNum">     571</span>              : </span>
-<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC tlaBgGNC">           1 :         return cells, nil</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">           1 :         return cells, nil</span></span>
 <span id="L573"><span class="lineNum">     573</span>              : }</span>
 <span id="L574"><span class="lineNum">     574</span>              : </span>
 <span id="L575"><span class="lineNum">     575</span>              : // validateNoPlaceholdersRemaining は展開後のセル配列にプレースホルダが残っていないか検証する</span>
 <span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">           1 : func validateNoPlaceholdersRemaining(cells [][]MapCell) error {</span></span>
 <span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">           2 :         for y, row := range cells {</span></span>
 <span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC">           2 :                 for x, cell := range row {</span></span>
-<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           1 :                         if cell.Terrain == placeholderStr {</span></span>
-<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;unexpanded placeholder '@' remains in expanded map at x=%d, y=%d&quot;, x, y)</span></span>
-<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           2 :                         if cell.Terrain == placeholderStr {</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;unexpanded placeholder '@' remains in expanded map at x=%d, y=%d&quot;, x, y)</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L582"><span class="lineNum">     582</span>              :                 }</span>
 <span id="L583"><span class="lineNum">     583</span>              :         }</span>
-<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L585"><span class="lineNum">     585</span>              : }</span>
 <span id="L586"><span class="lineNum">     586</span>              : </span>
 <span id="L587"><span class="lineNum">     587</span>              : // placeholderRegion はプレースホルダ領域の位置とサイズ</span>
@@ -654,11 +654,11 @@
 <span id="L592"><span class="lineNum">     592</span>              : // findAllPlaceholderRegionsByID は識別子に一致する全てのプレースホルダ領域を検出する。</span>
 <span id="L593"><span class="lineNum">     593</span>              : // 同じIDが複数箇所にある場合、それぞれ独立した領域として返す</span>
 <span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">           1 : func findAllPlaceholderRegionsByID(lines []string, id string) ([]placeholderRegion, error) {</span></span>
-<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           1 :         if len(id) != 1 {</span></span>
-<span id="L596"><span class="lineNum">     596</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;identifier must be a single character: %q&quot;, id)</span></span>
-<span id="L597"><span class="lineNum">     597</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           2 :         if len(id) != 1 {</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;identifier must be a single character: %q&quot;, id)</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L598"><span class="lineNum">     598</span>              : </span>
-<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC tlaBgGNC">           1 :         idChar := rune(id[0])</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 :         idChar := rune(id[0])</span></span>
 <span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :         positions := findAllIdentifierPositions(lines, idChar)</span></span>
 <span id="L602"><span class="lineNum">     602</span> <span class="tlaGNC">           2 :         if len(positions) == 0 {</span></span>
@@ -768,15 +768,15 @@
 <span id="L706"><span class="lineNum">     706</span> <span class="tlaGNC">           1 : func validateRectangle(lines []string, id string, startX, startY, width, height int, placeholder, idChar rune) error {</span></span>
 <span id="L707"><span class="lineNum">     707</span> <span class="tlaGNC">           2 :         for dy := range height {</span></span>
 <span id="L708"><span class="lineNum">     708</span> <span class="tlaGNC">           1 :                 y := startY + dy</span></span>
-<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">           1 :                 if y &gt;= len(lines) {</span></span>
-<span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;identifier '%s': rectangular region is incomplete; y=%d out of range&quot;, id, y)</span></span>
-<span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC tlaBgGNC">           2 :                 for dx := range width {</span></span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaGNC">           2 :                 if y &gt;= len(lines) {</span></span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaGNC">           1 :                         return fmt.Errorf(&quot;identifier '%s': rectangular region is incomplete; y=%d out of range&quot;, id, y)</span></span>
+<span id="L711"><span class="lineNum">     711</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC">           2 :                 for dx := range width {</span></span>
 <span id="L713"><span class="lineNum">     713</span> <span class="tlaGNC">           1 :                         x := startX + dx</span></span>
-<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">           1 :                         if x &gt;= len(lines[y]) {</span></span>
-<span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;identifier '%s': rectangular region is incomplete; x=%d, y=%d out of range&quot;, id, x, y)</span></span>
-<span id="L716"><span class="lineNum">     716</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC tlaBgGNC">           1 :                         ch := rune(lines[y][x])</span></span>
+<span id="L714"><span class="lineNum">     714</span> <span class="tlaGNC">           2 :                         if x &gt;= len(lines[y]) {</span></span>
+<span id="L715"><span class="lineNum">     715</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(&quot;identifier '%s': rectangular region is incomplete; x=%d, y=%d out of range&quot;, id, x, y)</span></span>
+<span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">           1 :                         ch := rune(lines[y][x])</span></span>
 <span id="L718"><span class="lineNum">     718</span> <span class="tlaGNC">           2 :                         if ch != placeholder &amp;&amp; ch != idChar {</span></span>
 <span id="L719"><span class="lineNum">     719</span> <span class="tlaGNC">           1 :                                 return fmt.Errorf(</span></span>
 <span id="L720"><span class="lineNum">     720</span> <span class="tlaGNC">           1 :                                         &quot;identifier '%s': invalid char '%c' in placeholder region [%d,%d]; expected '@' or '%s'&quot;,</span></span>

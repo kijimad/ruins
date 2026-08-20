@@ -379,9 +379,9 @@
 				
 				<option value="file161">github.com/kijimaD/ruins/internal/mapspawner/spawner.go (87.0%)</option>
 				
-				<option value="file162">github.com/kijimaD/ruins/internal/maptemplate/palette.go (92.3%)</option>
+				<option value="file162">github.com/kijimaD/ruins/internal/maptemplate/palette.go (98.5%)</option>
 				
-				<option value="file163">github.com/kijimaD/ruins/internal/maptemplate/template.go (88.8%)</option>
+				<option value="file163">github.com/kijimaD/ruins/internal/maptemplate/template.go (94.5%)</option>
 				
 				<option value="file164">github.com/kijimaD/ruins/internal/menuloop/input.go (50.0%)</option>
 				
@@ -22697,7 +22697,7 @@ func (l *PaletteLoader) Load(r io.Reader) (*Palette, error) <span class="cov8" t
         }</span>
 
         <span class="cov8" title="1">var file PaletteFile
-        if err := toml.Unmarshal(data, &amp;file); err != nil </span><span class="cov0" title="0">{
+        if err := toml.Unmarshal(data, &amp;file); err != nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("failed to parse palette TOML: %w", err)
         }</span>
 
@@ -22736,7 +22736,7 @@ func (l *PaletteLoader) validate(p *Palette) error <span class="cov8" title="1">
         }
 
         <span class="cov8" title="1">for char, entry := range p.Props </span><span class="cov8" title="1">{
-                if utf8.RuneCountInString(char) != 1 </span><span class="cov0" title="0">{
+                if utf8.RuneCountInString(char) != 1 </span><span class="cov8" title="1">{
                         return fmt.Errorf("props key must be a single character: %q", char)
                 }</span>
                 <span class="cov8" title="1">if entry.Tile == "" </span><span class="cov8" title="1">{
@@ -22745,7 +22745,7 @@ func (l *PaletteLoader) validate(p *Palette) error <span class="cov8" title="1">
         }
 
         <span class="cov8" title="1">for char, entry := range p.NPCs </span><span class="cov8" title="1">{
-                if utf8.RuneCountInString(char) != 1 </span><span class="cov0" title="0">{
+                if utf8.RuneCountInString(char) != 1 </span><span class="cov8" title="1">{
                         return fmt.Errorf("npcs key must be a single character: %q", char)
                 }</span>
                 <span class="cov8" title="1">if entry.Tile == "" </span><span class="cov8" title="1">{
@@ -22823,7 +22823,7 @@ func (p *Palette) GetNPC(char string) (string, bool) <span class="cov8" title="1
         if !ok </span><span class="cov8" title="1">{
                 return "", false
         }</span>
-        <span class="cov0" title="0">return entry.ID, true</span>
+        <span class="cov8" title="1">return entry.ID, true</span>
 }
 </pre>
 		
@@ -22874,7 +22874,7 @@ func ResolveMapCells(mapStr string, palette *Palette) [][]MapCell <span class="c
                                 <span class="cov8" title="1">if prop, ok := palette.GetProp(charStr); ok </span><span class="cov8" title="1">{
                                         cell.Prop = prop
                                 }</span>
-                                <span class="cov8" title="1">if npc, ok := palette.GetNPC(charStr); ok </span><span class="cov0" title="0">{
+                                <span class="cov8" title="1">if npc, ok := palette.GetNPC(charStr); ok </span><span class="cov8" title="1">{
                                         cell.NPC = npc
                                 }</span>
                         }
@@ -22905,7 +22905,7 @@ func FormatResolvedMap(cells [][]MapCell) string <span class="cov8" title="1">{
                                 sb.WriteByte(':')
                                 sb.WriteString(cell.Prop)
                         }</span>
-                        <span class="cov8" title="1">if cell.NPC != "" </span><span class="cov0" title="0">{
+                        <span class="cov8" title="1">if cell.NPC != "" </span><span class="cov8" title="1">{
                                 sb.WriteByte(':')
                                 sb.WriteString(cell.NPC)
                         }</span>
@@ -22984,7 +22984,7 @@ func (l *TemplateLoader) Load(r io.Reader) ([]ChunkTemplate, error) <span class=
         }</span>
 
         <span class="cov8" title="1">var file ChunkTemplateFile
-        if err := toml.Unmarshal(data, &amp;file); err != nil </span><span class="cov0" title="0">{
+        if err := toml.Unmarshal(data, &amp;file); err != nil </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("failed to parse template TOML: %w", err)
         }</span>
 
@@ -23030,12 +23030,12 @@ func (l *TemplateLoader) parseSizeFromName(t *ChunkTemplate) error <span class="
         }</span>
 
         <span class="cov8" title="1">width, err := strconv.Atoi(dimensions[0])
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("failed to parse width: %s", dimensions[0])
         }</span>
 
         <span class="cov8" title="1">height, err := strconv.Atoi(dimensions[1])
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("failed to parse height: %s", dimensions[1])
         }</span>
 
@@ -23072,7 +23072,7 @@ func (l *TemplateLoader) validateMap(t *ChunkTemplate) error <span class="cov8" 
         }</span>
 
         <span class="cov8" title="1">expectedWidth := utf8.RuneCountInString(lines[0])
-        if expectedWidth == 0 </span><span class="cov0" title="0">{
+        if expectedWidth == 0 </span><span class="cov8" title="1">{
                 return fmt.Errorf("map row is empty")
         }</span>
 
@@ -23113,7 +23113,7 @@ func (t *ChunkTemplate) GetCharAt(x, y int) (string, error) <span class="cov8" t
 // 同じ名前のチャンクが複数ある場合、すべて登録される（バリエーション）
 func (l *TemplateLoader) LoadChunk(path string) error <span class="cov8" title="1">{
         templates, err := l.LoadFile(path)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("failed to read chunk: %w", err)
         }</span>
 
@@ -23173,7 +23173,7 @@ func (l *TemplateLoader) RegisterAllPalettes(directories []string) error <span c
 
         for _, dir := range directories </span><span class="cov8" title="1">{
                 entries, err := fs.ReadDir(assets.FS, dir)
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         return fmt.Errorf("failed to read directory %s: %w", dir, err)
                 }</span>
 
@@ -23216,7 +23216,7 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
         palettes := make([]*Palette, 0, len(templateCopy.Palettes))
         for _, paletteName := range templateCopy.Palettes </span><span class="cov8" title="1">{
                 palette, ok := l.paletteCache[paletteName]
-                if !ok </span><span class="cov0" title="0">{
+                if !ok </span><span class="cov8" title="1">{
                         return nil, nil, nil, fmt.Errorf("palette '%s' not found; register it in advance with RegisterAllPalettes", paletteName)
                 }</span>
                 <span class="cov8" title="1">palettes = append(palettes, palette)</span>
@@ -23236,7 +23236,7 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
 // selectChunkByWeight は重みづけランダム選択でチャンクを選択する
 // 各チャンク名に複数のバリエーションがある場合、すべてを候補に含める
 func (l *TemplateLoader) selectChunkByWeight(chunkNames []string, rng *rand.Rand) (*ChunkTemplate, error) <span class="cov8" title="1">{
-        if len(chunkNames) == 0 </span><span class="cov0" title="0">{
+        if len(chunkNames) == 0 </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("chunk candidates are empty")
         }</span>
 
@@ -23273,7 +23273,7 @@ func (l *TemplateLoader) buildMergedPalette(paletteNames []string) *Palette <spa
 
 // selectChunkByWeightFromList はChunkTemplateのリストから重み付きランダム選択する
 func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate, rng *rand.Rand) (*ChunkTemplate, error) <span class="cov8" title="1">{
-        if len(candidates) == 0 </span><span class="cov0" title="0">{
+        if len(candidates) == 0 </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("chunk candidates are empty")
         }</span>
 
@@ -23282,7 +23282,7 @@ func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate
                 totalWeight += candidate.Weight
         }</span>
 
-        <span class="cov8" title="1">if totalWeight == 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if totalWeight == 0 </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("total weight is 0")
         }</span>
 
@@ -23336,7 +23336,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
         placementRegions := make([][]placeholderRegion, len(t.Placements))
 
         for idx, placement := range t.Placements </span><span class="cov8" title="1">{
-                if placement.ID == "" </span><span class="cov0" title="0">{
+                if placement.ID == "" </span><span class="cov8" title="1">{
                         return nil, fmt.Errorf("placement %d: ID is not specified", idx)
                 }</span>
 
@@ -23394,7 +23394,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
         }
 
         // 展開後にTerrainが空のセル（未解決プレースホルダ）がないか検証
-        <span class="cov8" title="1">if err := validateNoPlaceholdersRemaining(cells); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if err := validateNoPlaceholdersRemaining(cells); err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
@@ -23405,7 +23405,7 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 func validateNoPlaceholdersRemaining(cells [][]MapCell) error <span class="cov8" title="1">{
         for y, row := range cells </span><span class="cov8" title="1">{
                 for x, cell := range row </span><span class="cov8" title="1">{
-                        if cell.Terrain == placeholderStr </span><span class="cov0" title="0">{
+                        if cell.Terrain == placeholderStr </span><span class="cov8" title="1">{
                                 return fmt.Errorf("unexpanded placeholder '@' remains in expanded map at x=%d, y=%d", x, y)
                         }</span>
                 }
@@ -23421,7 +23421,7 @@ type placeholderRegion struct {
 // findAllPlaceholderRegionsByID は識別子に一致する全てのプレースホルダ領域を検出する。
 // 同じIDが複数箇所にある場合、それぞれ独立した領域として返す
 func findAllPlaceholderRegionsByID(lines []string, id string) ([]placeholderRegion, error) <span class="cov8" title="1">{
-        if len(id) != 1 </span><span class="cov0" title="0">{
+        if len(id) != 1 </span><span class="cov8" title="1">{
                 return nil, fmt.Errorf("identifier must be a single character: %q", id)
         }</span>
 
@@ -23535,12 +23535,12 @@ func calculateHeight(lines []string, startY, startX int, placeholder, idChar run
 func validateRectangle(lines []string, id string, startX, startY, width, height int, placeholder, idChar rune) error <span class="cov8" title="1">{
         for dy := range height </span><span class="cov8" title="1">{
                 y := startY + dy
-                if y &gt;= len(lines) </span><span class="cov0" title="0">{
+                if y &gt;= len(lines) </span><span class="cov8" title="1">{
                         return fmt.Errorf("identifier '%s': rectangular region is incomplete; y=%d out of range", id, y)
                 }</span>
                 <span class="cov8" title="1">for dx := range width </span><span class="cov8" title="1">{
                         x := startX + dx
-                        if x &gt;= len(lines[y]) </span><span class="cov0" title="0">{
+                        if x &gt;= len(lines[y]) </span><span class="cov8" title="1">{
                                 return fmt.Errorf("identifier '%s': rectangular region is incomplete; x=%d, y=%d out of range", id, x, y)
                         }</span>
                         <span class="cov8" title="1">ch := rune(lines[y][x])
