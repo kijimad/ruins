@@ -125,7 +125,7 @@ func (st *StorageMenuState) Menu(props StorageProps) menuloop.MenuConfig {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menuloop.MenuConfig{Key: "storage", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "storage", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto}
 }
 
 func (st *StorageMenuState) toStorageItemData(world w.World, stacks []query.Stack) []itemRowData {

@@ -54,7 +54,8 @@ func buildEquipList(world w.World, slots []equipItemData, itemIndex int, res res
 		}
 		rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName)}}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots")}, res)
+	// 人物画面は見出しとタブ帯の両方を持つので、その構成での実測容量を使う
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)
 }
 
 // buildEquipSelectWindow は装備選択のサブウィンドウを rect の位置へ組み立てる。

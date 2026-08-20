@@ -110,7 +110,7 @@ func (st *ComponentDebugState) Fetch(world w.World) (ComponentDebugProps, error)
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
 func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConfig {
-	return menuloop.MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuloop.ItemsPerPageAuto}
 }
 
 // ================

@@ -153,7 +153,7 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 			itemCounts[i] = len(tab.Ledger)
 		}
 	}
-	return menuloop.MenuConfig{Key: "auction", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "auction", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto}
 }
 
 // stageItems は落札済みで持ち物にある品を積むタブへ並べる。積荷へ入れるとステーションの収納へ移る。

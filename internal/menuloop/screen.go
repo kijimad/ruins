@@ -25,6 +25,11 @@ type Selection struct {
 	ItemIndex int
 }
 
+// ItemsPerPageAuto は ItemsPerPage に、タブ帯つきモーダルの1ページへ収まる実測行数を
+// 使う指定。実値は Update が UIResources から測って解決する。Menu は world を持たず
+// 自力で測れないため、番兵で指定して Screen に解決させる
+const ItemsPerPageAuto = -1
+
 // MenuConfig は Fetch 済みの props から決まるメニュー構成。state 固有差をここで吸収する。
 // TabCount が 0 のときは一覧を持たない画面として UseTabMenu を登録しない
 type MenuConfig struct {
@@ -72,6 +77,7 @@ type Screen[P any] struct {
 	overlays      []overlay.Layer
 	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
 	seeded        bool      // 初期タブへ寄せたか
+	pageSize      int       // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
@@ -143,7 +149,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{}, err
 	}
 	s.mount.SetProps(props)
-	cfg := m.Menu(props)
+	cfg := s.resolveConfig(world, m.Menu(props))
 	if cfg.TabCount > 0 {
 		hooks.UseTabMenu(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{
 			TabCount:     cfg.TabCount,
@@ -193,7 +199,24 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 // UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する。
 // 構成は model から導出するので呼び出し側は tab 番号だけを渡す
 func (s *Screen[P]) SetTab(tab int) {
-	s.setTab(s.model.Menu(s.Props()), tab)
+	cfg := s.model.Menu(s.Props())
+	if cfg.ItemsPerPage == ItemsPerPageAuto {
+		// SetTab は Update 後に呼ぶ前提なので、Update が測定済みの値をそのまま使う
+		cfg.ItemsPerPage = s.pageSize
+	}
+	s.setTab(cfg, tab)
+}
+
+// resolveConfig は MenuConfig の ItemsPerPageAuto を実測のページ行数へ解決する。
+// 測定は Auto 指定の画面が最初に通ったときだけ行い、以後は測定済みの値を使う
+func (s *Screen[P]) resolveConfig(world w.World, cfg MenuConfig) MenuConfig {
+	if cfg.ItemsPerPage == ItemsPerPageAuto {
+		if s.pageSize == 0 {
+			s.pageSize = menuframe.ListCapacity(world.Resources.UIResources, false, true)
+		}
+		cfg.ItemsPerPage = s.pageSize
+	}
+	return cfg
 }
 
 // setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する
