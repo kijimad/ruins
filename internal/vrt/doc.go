@@ -17,7 +17,6 @@
 //
 //   - AssertContainerGolden: ウィジェットのコンテナを固定する
 //   - AssertScreenGolden: 任意の画面描画を固定する
-//   - AssertStateGolden: ステートスタックを全段描画して固定する。世界の上にUIを重ねた自然な実画面に使う
 //   - AssertFrameGolden: 描画済みの screen を固定する。再生ドライバが撮ったフレームに使う。screen は解放しない
 //
 // # 画像生成。比較はせず保存用のPNGを返す

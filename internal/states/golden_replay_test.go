@@ -1,47 +1,321 @@
 package states_test
 
 import (
+	"fmt"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/vrt/replay"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/require"
 )
 
 // replayStep はリプレイの1手。shot が真なら action を適用した直後のフレームを撮る。
+// action のゼロ値は入力なしで1フレーム進める待ちの手で、state を組んだ直後の画は
+// 待ち1手に shot を付けて撮る。
 // golden 名はケース名から導出するので、撮るのは1ケース1枚。別の画も撮りたいときはケースを分ける
 type replayStep struct {
 	action inputmapper.ActionID
 	shot   bool
 }
 
-// TestGolden の静止画は state を組んだ直後の1枚を撮る。ここは操作した結果の画を撮る点が違う。
-// 実在メニューを本番の MainGame ループで Action 列から駆動し、節目のフレームを golden で固定する。
+// newGoldenBackdrop はメニュー系 golden の背景に使うオーバーワールド状態を作る。
+// 開始チャンクを背景とし、決定的な RunSeed で golden を安定させる。
+func newGoldenBackdrop() (es.State[w.World], error) {
+	return gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
+}
+
+// TestGolden はステートの実描画を本番の MainGame ループで駆動して固定する VRT をまとめて回す。
+// 各ケースは build が返すステート列を組み、steps の Action 列で操作し、shot の手の直後の
+// フレームを golden と比較する。組んだ直後の静止画も操作後の画も同じリプレイ機構で撮る。
 // カーソルの移動先やメニューの開閉が壊れると、遷移のテストが通っても見た目で落ちる。
 //
-// 撮るのは静止画の golden では作れない画だけにする。既存 golden と同一の画を
+// 撮るのは互いに異なる画だけにする。既存 golden と同一の画を
 // 別名で残しても、資産が増えて README のギャラリーが重複するだけで検出力は上がらない
-func TestGoldenReplay(t *testing.T) {
+func TestGolden(t *testing.T) {
 	t.Parallel()
 
 	// build は fixture の error をそのまま返し、サブテストで require する。
-	// *testing.T を取らないことで thelper の誤検知を避ける。golden_test.go の build と同じ規約
+	// *testing.T を取らないことで thelper の誤検知を避ける
 	cases := []struct {
 		name  string
 		build func(world w.World) ([]es.State[w.World], error)
 		steps []replayStep
 	}{
+		// ================ 組んだ直後の画を待ち1手で撮るケース ================
+		{
+			name: "MainMenu",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.MainMenuState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "SettingsMenu",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "CharacterNaming",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.CharacterNamingState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "CharacterJob",
+			build: func(w.World) ([]es.State[w.World], error) {
+				s, err := gs.NewCharacterJobState("Ash")()
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// OverworldMap は N キーで開く種別俯瞰図の描画を固定する。記号の色表・凡例・現在地マーカー・
+		// 荒れ地の文字非重畳を含む描画経路を覆う。実際のプレイどおり下段の世界の上に地図UIを重ねて撮る。
+		{
+			name: "OverworldMap",
+			build: func(w.World) ([]es.State[w.World], error) {
+				backdrop, err := newGoldenBackdrop()
+				if err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{backdrop, &gs.OverworldMapState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// ItemAction は動詞タブ画面を固定する。調べるタブでバックパックのアイテムを名前のみで一覧する経路を覆う。
+		{
+			name: "ItemAction",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{&gs.ItemActionState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// Character は画面タブメニューを固定する。装備タブでプレイヤーのスロット一覧を1カラムで並べる経路を覆う。
+		{
+			name: "Character",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.CharacterState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "CraftMenu",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				// 回復薬の材料を持たせ、合成可能な行にチェックが付く様子を確認する
+				if _, err := lifecycle.SpawnBackpackItem(world, "green_herb", 1); err != nil {
+					return nil, err
+				}
+				if _, err := lifecycle.SpawnBackpackItem(world, "yellow_herb", 1); err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{&gs.CraftMenuState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "ShopMenu",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.ShopMenuState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "SaveMenu",
+			build: func(w.World) ([]es.State[w.World], error) {
+				s, err := gs.NewSaveMenuState()
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "LoadMenu",
+			build: func(w.World) ([]es.State[w.World], error) {
+				s, err := gs.NewLoadMenuState()
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "DebugMenu",
+			build: func(w.World) ([]es.State[w.World], error) {
+				s, err := gs.NewDebugMenuState()
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "ComponentDebug",
+			build: func(w.World) ([]es.State[w.World], error) {
+				s, err := gs.NewComponentDebugState()
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// CubePanel はキューブ内部のコントロールパネルの描画を固定する。
+		// 現ステージを内部にし重量物を1つ置いて、総重量が出る状態でパネルを描く。
+		{
+			name: "CubePanel",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				// 内部を現ステージにする。パネルの OnStart はここから総重量を算出する
+				query.GetDungeon(world).CurrentStage = gc.NewCubeInteriorStage()
+				// 内部の床へ重量物を1つ置き、総重量が非ゼロで出るようにする
+				item := world.ECS.NewEntity()
+				world.Components.Weight.Add(item, &gc.Weight{Milligram: 5 * consts.MilligramPerKg})
+				world.Components.LocationOnField.Add(item, &gc.LocationOnField{})
+				world.Components.StageBound.Add(item, &gc.StageBound{Key: gc.NewCubeInteriorStage()})
+				return []es.State[w.World]{&gs.CubePanelState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// LookAround は実際のプレイどおり、3D世界とHUDの上にカーソルと情報パネルを重ねて撮る。
+		{
+			name: "LookAround",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.DungeonState{
+					Depth:          1,
+					DefinitionName: dungeon.DungeonDebug.Name(),
+					BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				}, &gs.LookAroundState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "GameOver",
+			build: func(w.World) ([]es.State[w.World], error) {
+				s, err := gs.NewGameOverMessageState()
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "Message",
+			build: func(w.World) ([]es.State[w.World], error) {
+				messageData := messagedata.NewDialogMessage(
+					"This is a VRT test of the message window.\n\nA message to check the display state.",
+					"VRT Test",
+				).WithChoice(
+					"Choice 1", func(_ w.World) error { return nil },
+				).WithChoice(
+					"Choice 2", func(_ w.World) error { return nil },
+				)
+				s, err := gs.NewMessageState(messageData)
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// Shooting は実際のプレイどおり、3D世界とHUDの上に照準と射撃パネルを重ねて撮る。
+		{
+			name: "Shooting",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.DungeonState{
+					Depth:          1,
+					DefinitionName: dungeon.DungeonDebug.Name(),
+					BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				}, &gs.ShootingState{}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "PersistentMessage",
+			build: func(w.World) ([]es.State[w.World], error) {
+				messageData := messagedata.NewDialogMessage("This is a VRT test of the persistent message.", "Test")
+				return []es.State[w.World]{gs.NewPersistentMessageState(messageData)}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		{
+			name: "StorageMenu",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				storageEntity, err := lifecycle.SpawnProp(world, "wooden_crate", 3, 3)
+				if err != nil {
+					return nil, err
+				}
+				if _, err := lifecycle.SpawnStorageItem(world, "healing_potion", 1, storageEntity); err != nil {
+					return nil, err
+				}
+				s, err := gs.NewStorageMenuState(storageEntity)
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
+		{
+			name: "ChoiceMenuMany",
+			build: func(w.World) ([]es.State[w.World], error) {
+				choices := make([]gs.Choice, 0, 30)
+				for i := range 30 {
+					choices = append(choices, gs.Choice{Label: fmt.Sprintf("Item %d", i+1)})
+				}
+				menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "Select", choices })
+				return []es.State[w.World]{menu}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// ChoiceMenuHeaders は共通の選択メニューの見出し行とページ表示なしの短い一覧を覆う。
+		{
+			name: "ChoiceMenuHeaders",
+			build: func(w.World) ([]es.State[w.World], error) {
+				choices := []gs.Choice{
+					{Label: "Weapon", Header: true},
+					{Label: "Wooden Sword"},
+					{Label: "Ray Gun"},
+					{Label: "Armor", Header: true},
+					{Label: "Leather Armor"},
+					{Label: "Back"},
+				}
+				menu := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) { return "Equipment", choices })
+				return []es.State[w.World]{menu}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// Overworld は新規ゲーム開始直後のオーバーワールド実画面を固定する。
+		{
+			name: "Overworld",
+			build: func(w.World) ([]es.State[w.World], error) {
+				s, err := gs.NewOverworldState(
+					mapplanner.PlannerTypeOverworldField,
+					dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
+					&overworld.NewGameParams{},
+				)()
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
+		// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
+		{
+			name: "Dungeon",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.DungeonState{
+					Depth:          1,
+					DefinitionName: dungeon.DungeonDebug.Name(),
+					BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				}}, nil
+			},
+			steps: []replayStep{{shot: true}},
+		},
+		// ================ 操作した結果の画を撮るケース ================
 		// 設定メニューのカーソルが Back へ移った画を撮る。開いた直後と閉じたあとの画は
-		// TestGolden_SettingsMenu・TestGolden_MainMenu と完全に同一なので撮らない。
+		// SettingsMenu・MainMenu と完全に同一なので撮らない。
 		// 閉じたあと1段になることは replay の遷移テストが押さえている
 		{
 			name: "SettingsMenuClose",
@@ -53,9 +327,9 @@ func TestGoldenReplay(t *testing.T) {
 				{action: inputmapper.ActionMenuSelect},           // Back を決定して設定メニューを閉じる
 			},
 		},
-		// メインメニューでカーソルが Settings に載った画を撮る。静止画の golden は先頭行に
+		// メインメニューでカーソルが Settings に載った画を撮る。組んだ直後の画は先頭行に
 		// カーソルがある状態しか撮れないので、移動後の見た目はここでしか固定できない。
-		// push した先の画は TestGolden_SettingsMenu と同一なので撮らない
+		// push した先の画は SettingsMenu と同一なので撮らない
 		{
 			name: "MainMenuOpenSettings",
 			build: func(w.World) ([]es.State[w.World], error) {

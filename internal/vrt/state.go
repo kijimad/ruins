@@ -24,14 +24,6 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 	return func(_ w.World) []es.State[w.World] { return states }
 }
 
-// AssertStateGolden はステートの描画結果を name のゴールデン画像 testdata/name.png と比較する。
-// golden 名はサブテスト名でなく呼び出し側が明示する。t.Run のスラッシュが保存先に混ざらない。
-// GOLDIE_UPDATE=1 で更新する。
-func AssertStateGolden(t *testing.T, name string, buildStates func(w.World) []es.State[w.World]) {
-	t.Helper()
-	assertPNGGolden(t, name, RenderPNG(t, buildStates))
-}
-
 // RenderPNG はステートを構築し本番の renderer で描いてPNGを返す。比較はしない、画像保存用。
 // screeneffect のポスト処理まで含めて実画面と同じ絵になる。
 func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []byte {
