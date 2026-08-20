@@ -587,7 +587,7 @@ func (w *Window) handleChoiceInput() error {
 	}
 }
 
-// choiceBindings は選択肢メニューの束縛表。上下でカーソルを動かし、Enter で決定、Esc で閉じる
+// choiceBindings は選択肢メニューの束縛表
 var choiceBindings = []keybind.Binding{
 	{Key: ebiten.KeyArrowUp, Press: keybind.PressRepeat, Action: inputmapper.ActionMenuUp},
 	{Key: ebiten.KeyArrowDown, Press: keybind.PressRepeat, Action: inputmapper.ActionMenuDown},

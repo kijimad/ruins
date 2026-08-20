@@ -265,7 +265,7 @@ var itemActionBindings = func() []keybind.Binding {
 	return bindings
 }()
 
-// KeyBindings は共通入力に加える独自キーの束縛表を返す
+// KeyBindings は動詞タブへの直達キーを共通入力に足す
 func (st *ItemActionState) KeyBindings() []keybind.Binding {
 	return itemActionBindings
 }

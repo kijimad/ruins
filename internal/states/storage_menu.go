@@ -67,7 +67,7 @@ func (st *StorageMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く
+// KeyBindings は x の詳細表示を共通入力に足す
 func (st *StorageMenuState) KeyBindings() []keybind.Binding {
 	return detailOpenBindings
 }
