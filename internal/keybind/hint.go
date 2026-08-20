@@ -122,7 +122,11 @@ func KeyTokens(b Binding) []string {
 }
 
 // KeyLabel は Binding のキー表記を文字列文脈用に連結して返す。フッターなど
-// 装飾を敷けない場所で使う。表記の規約は KeyTokens が持つ
+// 装飾を敷けない場所で使う。表記の規約は KeyTokens が持つが、? だけは ASCII で出す。
+// 文字列文脈は本文フォントと混ざるため、倍率の違うアイコングリフではサイズが割れる
 func KeyLabel(b Binding) string {
+	if b.Key == ebiten.KeySlash && b.Shift == ShiftRequired {
+		return "?"
+	}
 	return strings.Join(KeyTokens(b), "")
 }

@@ -30,7 +30,7 @@ func TestNavHint(t *testing.T) {
 		want := consts.IconArrowLeft + consts.IconArrowRight + " Tab   " +
 			consts.IconArrowUp + consts.IconArrowDown + " Select   " +
 			consts.IconKeyEnter + " Confirm   " +
-			consts.IconQuestion + " Help   " +
+			"? Help   " +
 			string(consts.IconKeyAlphaBase+'x'-'a') + " Details   " +
 			consts.IconKeyEsc + " Back"
 		assert.Equal(t, want, got)
@@ -48,12 +48,13 @@ func TestNavHint(t *testing.T) {
 	})
 }
 
-// TestHelpHint はフッター常設の入口ヒントがヘルプ行だけに絞られることを固定する
+// TestHelpHint はフッター常設の入口ヒントがヘルプ行だけに絞られることを固定する。
+// 文字列文脈の ? は本文フォントに混ざるので ASCII で出る
 func TestHelpHint(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	assert.Equal(t, consts.IconQuestion+" Help", HelpHint(world))
+	assert.Equal(t, "? Help", HelpHint(world))
 }
 
 // TestKeyLabel_キーキャップ表記 は ebiten の内部名が表示へ漏れないことを固定する。
