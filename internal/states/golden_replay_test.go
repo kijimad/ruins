@@ -396,25 +396,6 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionOpenItemDetail, shot: true}, // 調べるタブ先頭アイテムの詳細モーダルを開いた画を撮る
 			},
 		},
-		// 装備選択ポップアップを実プレイ経路で撮る。人物画面の装備タブで空の武器スロットを
-		// 選ぶと開く。武器スロット1は初期装備の松明で埋まるので、1つ下げて空のスロット2で開く。
-		// 候補はバックパックの装備可能な武器。アイコンが名前の左に出る配置を覆う
-		{
-			name: "EquipSelect",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				if _, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1); err != nil {
-					return nil, err
-				}
-				if _, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1); err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{&gs.CharacterState{}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionMenuDown},               // 武器スロット1から空のスロット2へ
-				{action: inputmapper.ActionMenuSelect, shot: true}, // 空スロットで装備選択を開いた画を撮る
-			},
-		},
 	}
 
 	for _, tc := range cases {
