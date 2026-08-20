@@ -54,6 +54,9 @@ type menuListOpts struct {
 	AlwaysIndicator bool
 	HeaderRow       []string
 	EmptyText       string
+	// ItemsPerPage は1ページの行数の上書き。0 なら全メニュー共通の menuItemsPerPage。
+	// タブ付き画面はヘッダーが縦を食うぶん、モーダルより少ない行数を指定する
+	ItemsPerPage int
 }
 
 // renderMenuList は一覧を共通の作法で組む唯一の入口。ページ送り・ページ表示・空行埋め・
@@ -72,8 +75,12 @@ func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []sty
 		}
 	}
 
+	perPage := opts.ItemsPerPage
+	if perPage == 0 {
+		perPage = menuItemsPerPage
+	}
 	container := styled.NewVerticalContainer()
-	pg := pagination.New(itemIndex, len(rows), menuItemsPerPage)
+	pg := pagination.New(itemIndex, len(rows), perPage)
 	if opts.AlwaysIndicator || pg.IsEnabled() {
 		container.AddChild(newPageIndicator(pg, res))
 	}
@@ -96,13 +103,13 @@ func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []sty
 		styled.NewTableRow(table, colWidths, entry.Item.Cells, aligns, &isSelected, res)
 	}
 	// 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
-	if len(rows) > menuItemsPerPage {
+	if len(rows) > perPage {
 		blank := make([]string, len(colWidths))
 		for i := range blank {
 			blank[i] = " "
 		}
 		blankCells := styled.TextCells(blank...)
-		for i := len(visible); i < menuItemsPerPage; i++ {
+		for i := len(visible); i < perPage; i++ {
 			notSelected := false
 			styled.NewTableRow(table, colWidths, blankCells, aligns, &notSelected, res)
 		}

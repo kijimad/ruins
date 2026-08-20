@@ -165,7 +165,7 @@ func fillRoundedRect(dst *ebiten.Image, x, y, w, h, r float32) {
 	p.ArcTo(x, y, x+r, y, r)
 	p.Close()
 	op := &vector.DrawPathOptions{AntiAlias: true}
-	op.ColorScale.ScaleWithColor(theme.TextPrimary)
+	op.ColorScale.ScaleWithColor(theme.KeycapBackground)
 	vector.FillPath(dst, &p, nil, op)
 }
 

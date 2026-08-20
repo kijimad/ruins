@@ -266,6 +266,10 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 
 // buildInfoTable は読み取り専用タブのアイテム一覧をテーブルで組み立てる
 // buildInfoTable は情報タブの一覧を組み立てる。能力タブは補正列を加える
+// characterInfoItemsPerPage は情報タブ1ページの行数。タブ列とタイトルが縦を食うため
+// モーダル共通の menuItemsPerPage より少なくし、パネルの下端から溢れないようにする
+const characterInfoItemsPerPage = 14
+
 func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
 	hasModifier := tab.ID == tabAbilities
 	var columnWidths []int
@@ -290,5 +294,6 @@ func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resourc
 		}
 		rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries")}, res)
+	// タブ列と見出しが縦を食うタブ画面では、モーダル共通の行数だと下端から溢れる
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries"), ItemsPerPage: characterInfoItemsPerPage}, res)
 }

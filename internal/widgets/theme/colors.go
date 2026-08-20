@@ -19,6 +19,9 @@ func rgb(v uint64) color.RGBA {
 var (
 	// TextPrimary は見出し・タイトルに使う白色
 	TextPrimary = rgb(0xf5f5f5)
+
+	// KeycapBackground はキー一覧のキーキャップの箱の色。純白だと浮くので少し沈んだ明灰にする
+	KeycapBackground = rgb(0xc9c7bd)
 	// TextSecondary は補助テキストに使うグレー
 	TextSecondary = rgb(0xa9a9a9)
 	// TextAccent はアクセントカラーとして使う緑色
