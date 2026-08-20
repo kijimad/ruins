@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestReadInput は本番と再生で唯一分岐する点の挙動を固定する。world が供給源を持つなら
@@ -249,4 +250,26 @@ func TestHelpHint(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	assert.Equal(t, "? Help", HelpHint(world))
+}
+
+// TestKeyLabel_内部名を持つキーの表記 は ebiten の内部名が表示へ漏れないことを固定する。
+// 数字キーの String は Digit1 のような内部名を返すため、写像を挟まないと
+// ヘルプの連結表記が digit1digit2 のように壊れる
+func TestKeyLabel_内部名を持つキーの表記(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	weaponSlots := []Binding{
+		{Key: ebiten.Key1, Action: inputmapper.ActionSwitchWeaponSlot1, Label: "Weapon slot"},
+		{Key: ebiten.Key2, Action: inputmapper.ActionSwitchWeaponSlot2, Label: "Weapon slot"},
+		{Key: ebiten.Key3, Action: inputmapper.ActionSwitchWeaponSlot3, Label: "Weapon slot"},
+		{Key: ebiten.Key4, Action: inputmapper.ActionSwitchWeaponSlot4, Label: "Weapon slot"},
+		{Key: ebiten.Key5, Action: inputmapper.ActionSwitchWeaponSlot5, Label: "Weapon slot"},
+	}
+	entries := HintEntries(world, weaponSlots)
+	require.Len(t, entries, 1, "同じラベルの連続行は1項目にまとまる")
+	assert.Equal(t, "12345", entries[0].Keys)
+
+	assert.Equal(t, ".", KeyLabel(Binding{Key: ebiten.KeyPeriod}), "記号キーは記号で表す")
+	assert.Equal(t, "Space", KeyLabel(Binding{Key: ebiten.KeySpace}), "複数文字の内部名はそのまま出す")
 }

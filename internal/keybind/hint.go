@@ -85,6 +85,10 @@ func KeyLabel(b Binding) string {
 	if b.Key == ebiten.KeySlash && b.Shift == ShiftRequired {
 		return "?"
 	}
+	// 数字キーの String は Digit1 のような内部名なので、数字1文字へ写す
+	if b.Key >= ebiten.KeyDigit0 && b.Key <= ebiten.KeyDigit9 {
+		return string(rune('0' + int(b.Key-ebiten.KeyDigit0)))
+	}
 	switch b.Key {
 	case ebiten.KeyArrowLeft:
 		return consts.IconArrowLeft
@@ -98,8 +102,15 @@ func KeyLabel(b Binding) string {
 		return consts.IconKeyEnter
 	case ebiten.KeyEscape:
 		return consts.IconKeyEsc
+	case ebiten.KeyPeriod:
+		return "."
 	default:
+		// 英字キーは1文字名になる。小文字で表し、Shift 併用だけ大文字にする。
+		// Space のような複数文字の内部名はそのまま出す
 		name := b.Key.String()
+		if len(name) > 1 {
+			return name
+		}
 		if b.Shift == ShiftRequired {
 			return strings.ToUpper(name)
 		}
