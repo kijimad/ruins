@@ -1,6 +1,7 @@
 package keybind
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,8 +30,8 @@ func TestNavHint(t *testing.T) {
 		want := consts.IconArrowLeft + consts.IconArrowRight + " Tab   " +
 			consts.IconArrowUp + consts.IconArrowDown + " Select   " +
 			consts.IconKeyEnter + " Confirm   " +
-			"? Help   " +
-			"X Details   " +
+			consts.IconQuestion + " Help   " +
+			string(consts.IconKeyAlphaBase+'x'-'a') + " Details   " +
 			consts.IconKeyEsc + " Back"
 		assert.Equal(t, want, got)
 	})
@@ -43,7 +44,7 @@ func TestNavHint(t *testing.T) {
 			{Key: ebiten.KeyX, Shift: ShiftRequired, Action: inputmapper.ActionVerbExamine, Label: "Inspect"},
 		})
 
-		assert.Equal(t, consts.IconKeyShift+"X Inspect", got)
+		assert.Equal(t, consts.IconKeyShift+string(consts.IconKeyAlphaBase+'x'-'a')+" Inspect", got)
 	})
 }
 
@@ -52,7 +53,7 @@ func TestHelpHint(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	assert.Equal(t, "? Help", HelpHint(world))
+	assert.Equal(t, consts.IconQuestion+" Help", HelpHint(world))
 }
 
 // TestKeyLabel_キーキャップ表記 は ebiten の内部名が表示へ漏れないことを固定する。
@@ -71,8 +72,12 @@ func TestKeyLabel_キーキャップ表記(t *testing.T) {
 	}
 	entries := HintEntries(world, weaponSlots)
 	require.Len(t, entries, 1, "同じラベルの連続行は1項目にまとまる")
-	assert.Equal(t, "12345", entries[0].Keys, "数字は数字1文字で連結される")
+	var wantDigits strings.Builder
+	for n := rune(1); n <= 5; n++ {
+		wantDigits.WriteString(string(consts.IconKeyDigitBase + n))
+	}
+	assert.Equal(t, wantDigits.String(), entries[0].Keys, "数字は数字グリフで連結される")
 
-	assert.Equal(t, ".", KeyLabel(Binding{Key: ebiten.KeyPeriod}), "記号キーは記号1文字で表す")
+	assert.Equal(t, consts.IconKeyDot, KeyLabel(Binding{Key: ebiten.KeyPeriod}), "記号キーも記号グリフで表す")
 	assert.Equal(t, consts.IconKeySpace, KeyLabel(Binding{Key: ebiten.KeySpace}), "Spaceはキーキャップグリフで表す")
 }

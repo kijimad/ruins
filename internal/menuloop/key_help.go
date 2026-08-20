@@ -100,9 +100,9 @@ func keyHelpRow(e keybind.HintEntry, res resources.UIResources) *widget.Containe
 	return row
 }
 
-// renderKeycaps はキーの粒の並びを1枚の画像へ描く。全トークンへ一律に白い角丸の箱を敷き、
-// 中の表記を黒で描いてキーキャップに見せる。行の本文と釣り合う小ぶりな箱にするため、
-// 素の文字は本文の face、グリフはひと回り小さい face で描く。
+// renderKeycaps はキーの粒の並びを1枚の画像へ描く。全トークンへ一律に角丸の箱を敷き、
+// 中の表記を黒で描いてキーキャップに見せる。中身は全てアイコンフォントのグリフなので、
+// 行の本文と釣り合う小さめの face 1つで描ける。
 // widget の入れ子で組むと preferred 幅の計算で潰れるため、画像にして寸法を確定させる
 func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	const height = 18
@@ -117,12 +117,8 @@ func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	}
 	caps := make([]keycap, 0, len(tokens))
 	total := 0
+	face := res.Text.SmallFace
 	for i, tok := range tokens {
-		// アイコングリフは合成で1.5倍に出るため、素の文字より小さい face で釣り合わせる
-		face := res.Text.BodyFace
-		if !isASCII(tok) {
-			face = res.Text.SmallFace
-		}
 		w, h := text.Measure(tok, face, 0)
 		cw := int(w) + chipPad*2
 		caps = append(caps, keycap{text: tok, face: face, w: cw, h: int(h)})
@@ -167,16 +163,6 @@ func fillRoundedRect(dst *ebiten.Image, x, y, w, h, r float32) {
 	op := &vector.DrawPathOptions{AntiAlias: true}
 	op.ColorScale.ScaleWithColor(theme.KeycapBackground)
 	vector.FillPath(dst, &p, nil, op)
-}
-
-// isASCII はトークンが素の文字だけかを返す。真なら本文の face、偽ならひと回り小さい face で描く
-func isASCII(s string) bool {
-	for _, r := range s {
-		if r > 0x7F {
-			return false
-		}
-	}
-	return true
 }
 
 // Update は閉じる入力だけを読む。ヘルプ表示中は時間を進めない

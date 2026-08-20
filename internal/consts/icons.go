@@ -22,6 +22,7 @@ const (
 	IconKeySpace = "\U000f1050" // md-keyboard_space
 	IconKeyTab   = "\U000f0312" // md-keyboard_tab
 	IconKeyShift = "\U000f0636" // md-apple_keyboard_shift
+	IconKeyDot   = "\U000f09df" // md-circle_small。. キー
 
 	// UI
 	IconHome     = "\uf015"
@@ -60,4 +61,13 @@ const (
 	IconInfo     = "\uf129"
 	IconQuestion = "\uf128"
 	IconCube     = "\uf1b2" // fa-cube
+)
+
+// キー一覧の箱に入れる文字グリフの基点。箱は描画側が自前で敷くため、中身は箱なしの
+// plain 変種を使う。どちらも連続配置であることを実グリフのコードポイントで確認済み
+const (
+	// IconKeyAlphaBase は md-alpha_a。a からの差分を足す
+	IconKeyAlphaBase rune = 0xF0AEE
+	// IconKeyDigitBase は md-numeric_0。数字の値を足す
+	IconKeyDigitBase rune = 0xF0B39
 )

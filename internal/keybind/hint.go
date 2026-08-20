@@ -78,19 +78,19 @@ func HelpHint(world w.World) string {
 }
 
 // KeyTokens は Binding のキー表記をトークン列で返す。Shift 併用は Shift 記号のトークンを前置する。
-// 表記は素の文字か記号グリフで、キーキャップの箱は持たない。箱は描画側が全トークンへ一律に敷く
+// 表記は全てアイコンフォントの箱なしグリフで、本文フォントの文字は混ぜない。
+// フォント合成の倍率差でサイズが割れるのを防ぐ。キーキャップの箱は描画側が一律に敷く
 func KeyTokens(b Binding) []string {
 	if b.Key == ebiten.KeySlash && b.Shift == ShiftRequired {
-		return []string{"?"}
+		return []string{consts.IconQuestion}
 	}
-	// 数字キーは数字1文字で表す
+	// 数字キーは数字グリフで表す
 	if b.Key >= ebiten.KeyDigit0 && b.Key <= ebiten.KeyDigit9 {
-		return []string{string(rune('0' + b.Key - ebiten.KeyDigit0))}
+		return []string{string(consts.IconKeyDigitBase + rune(b.Key-ebiten.KeyDigit0))}
 	}
-	// 英字キーは物理キーの刻印に合わせて大文字1字で表す。
-	// Shift 併用は大文字化でなく Shift 記号の前置で表す
+	// 英字キーは英字グリフで表す。Shift 併用は Shift 記号の前置で表す
 	if b.Key >= ebiten.KeyA && b.Key <= ebiten.KeyZ {
-		keycap := string(rune('A' + b.Key - ebiten.KeyA))
+		keycap := string(consts.IconKeyAlphaBase + rune(b.Key-ebiten.KeyA))
 		if b.Shift == ShiftRequired {
 			return []string{consts.IconKeyShift, keycap}
 		}
@@ -114,7 +114,7 @@ func KeyTokens(b Binding) []string {
 	case ebiten.KeyTab:
 		return []string{consts.IconKeyTab}
 	case ebiten.KeyPeriod:
-		return []string{"."}
+		return []string{consts.IconKeyDot}
 	default:
 		// 専用表記の無いキーは内部名をそのまま出す
 		return []string{b.Key.String()}
