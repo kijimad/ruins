@@ -8,7 +8,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menuinput"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -120,7 +120,7 @@ func (st *CharacterState) Draw(_ w.World, screen *ebiten.Image) error {
 
 // KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く。
 // 装備選択中は overlay が入力を専有するため Screen はこれを読まない
-func (st *CharacterState) KeyBindings() []menuinput.Binding {
+func (st *CharacterState) KeyBindings() []keybind.Binding {
 	return detailOpenBindings
 }
 

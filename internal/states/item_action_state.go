@@ -13,7 +13,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menuinput"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
@@ -253,20 +253,20 @@ func (st *ItemActionState) Draw(_ w.World, screen *ebiten.Image) error {
 // itemActionBindings は詳細モーダルの x と動詞ショートカットの束縛表。verbList から導くので
 // 動詞の追加で列挙は要らない。Shift 無しの x は動詞でなく詳細モーダルを開く。
 // Shift+x の調べるとキーを共有するので、詳細の束縛を先頭に置く。verbList は定数なので1度だけ組む
-var itemActionBindings = func() []menuinput.Binding {
+var itemActionBindings = func() []keybind.Binding {
 	bindings := slices.Clone(detailOpenBindings)
 	for _, v := range verbList {
-		shift := menuinput.ShiftAny
+		shift := keybind.ShiftAny
 		if v.Shift {
-			shift = menuinput.ShiftRequired
+			shift = keybind.ShiftRequired
 		}
-		bindings = append(bindings, menuinput.Binding{Key: v.Key, Shift: shift, Action: v.Action})
+		bindings = append(bindings, keybind.Binding{Key: v.Key, Shift: shift, Action: v.Action})
 	}
 	return bindings
 }()
 
 // KeyBindings は共通入力に加える独自キーの束縛表を返す
-func (st *ItemActionState) KeyBindings() []menuinput.Binding {
+func (st *ItemActionState) KeyBindings() []keybind.Binding {
 	return itemActionBindings
 }
 

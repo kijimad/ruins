@@ -219,7 +219,7 @@ func TestScreen_readAction(t *testing.T) {
 	t.Run("供給源があればそこから読む", func(t *testing.T) {
 		t.Parallel()
 		world := w.World{Resources: &resources.Resources{
-			MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
+			InputSource: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
 		}}
 		model := &flexModel{menu: MenuConfig{Key: "extra2"}}
 		screen := NewScreen[int](model)
@@ -317,7 +317,7 @@ func TestScreen_Update_DoAction(t *testing.T) {
 		}
 		screen := NewScreen[int](model)
 		world := w.World{Resources: &resources.Resources{
-			MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
+			InputSource: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
 		}}
 
 		var got es.Transition[w.World]
@@ -342,7 +342,7 @@ func TestScreen_Update_DoAction(t *testing.T) {
 		}
 		screen := NewScreen[int](model)
 		world := w.World{Resources: &resources.Resources{
-			MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
+			InputSource: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
 		}}
 
 		var err error
@@ -391,7 +391,7 @@ func TestScreen_Update_移動系はDispatchだけでDoActionを呼ばない(t *t
 	model := &flexModel{menu: MenuConfig{Key: "nav", TabCount: 1, ItemCounts: []int{3}}}
 	screen := NewScreen[int](model)
 	world := w.World{Resources: &resources.Resources{
-		MenuInput: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
+		InputSource: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
 	}}
 
 	var err error

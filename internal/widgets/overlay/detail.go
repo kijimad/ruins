@@ -5,7 +5,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menuinput"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -88,7 +88,7 @@ func (d *Detail) HandleInput(world w.World) error {
 	}
 	// メニューと同じ入力供給源から読む。再生ドライバが差した Action もここに届くので、
 	// overlay 表示中も本番フローのまま駆動できる
-	action, ok := menuinput.ReadMenuInput(world)
+	action, ok := keybind.ReadInput(world)
 	if !ok {
 		return nil
 	}

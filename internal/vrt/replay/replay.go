@@ -32,7 +32,7 @@ import (
 // 効く。ebitenui グローバルに触れるため一連の駆動を vrt.WithUILock で直列化する。
 //
 // overlay が Active な間は Screen の入力ゲートが overlay へ入力を渡すが、overlay も
-// menuinput.ReadMenuInput で同じ供給源から読むので、詳細モーダルを開いた先も Action 列で駆動できる。
+// keybind.ReadInput で同じ供給源から読むので、詳細モーダルを開いた先も Action 列で駆動できる。
 func PlayScenario(
 	t *testing.T,
 	buildStates func(w.World) []es.State[w.World],
@@ -50,7 +50,7 @@ func PlayScenario(
 		var err error
 		game, err = maingame.NewMainGame(world, sm)
 		require.NoError(t, err)
-		world.Resources.MenuInput = actionSource(actions)
+		world.Resources.InputSource = actionSource(actions)
 
 		for frame := range len(actions) + 1 {
 			if err := game.Update(); err != nil {

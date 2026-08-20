@@ -12,7 +12,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menuinput"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -38,7 +38,7 @@ type MenuConfig struct {
 
 // Model はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
 // DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。メニュー入力は
-// Screen が ReadMenuInput で扱い、独自キーが要る state は KeyBindings の表で宣言する。
+// Screen が ReadInput で扱い、独自キーが要る state は KeyBindings の表で宣言する。
 // カーソル移動系は Screen が吸うので、DoAction には画面の意味を持つ Action だけが届く
 type Model[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
@@ -51,10 +51,10 @@ type Model[P any] interface {
 }
 
 // KeyBindings は共通キーに加える独自キーを持つ state が満たす任意契約。キーと Action の
-// 対応を表で返すだけで、キー読み取りの実行は menuinput が担う。表は共通キーより先に評価される。
+// 対応を表で返すだけで、キー読み取りの実行は keybind が担う。表は共通キーより先に評価される。
 // 実装 state は var _ menuloop.KeyBindings = &XState{} で綴りとシグネチャを静的に検証する
 type KeyBindings interface {
-	KeyBindings() []menuinput.Binding
+	KeyBindings() []keybind.Binding
 }
 
 // Screen はメニューの UI ランタイム。mount・widget と overlay を保持し、毎フレームの
@@ -92,11 +92,11 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 // readAction は1フレームの Action を1件読む。state が独自キーの束縛表を持つなら添えて、
 // world の入力供給源か本番のキーボードから読む
 func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
-	var bindings []menuinput.Binding
+	var bindings []keybind.Binding
 	if kb, ok := s.model.(KeyBindings); ok {
 		bindings = kb.KeyBindings()
 	}
-	return menuinput.ReadMenuInput(world, bindings...)
+	return keybind.ReadInput(world, bindings...)
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、

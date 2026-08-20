@@ -1,11 +1,11 @@
-// Package menuinput はメニュー操作のキーボード入力を Action へ変換し、再生時は world の
-// 供給源へ差し替える。menuloop と overlay の両方から使い、入力層の差し替え点を1つにする。
+// Package keybind はキーボード入力を Action へ変換し、再生時は world の供給源へ差し替える。
+// メニュー・overlay・フィールドの全文脈から使い、入力層の差し替え点を1つにする。
 // menuloop は overlay を import するため overlay から menuloop は呼べない。両者より下の
 // このパッケージに置くことで、循環せず入力経路を共有できる。
 //
-// state 固有の追加キーは Binding の表で宣言し、変換の実行はこのパッケージが担う。
+// 文脈ごとのキーは Binding の表で宣言し、変換の実行はこのパッケージが担う。
 // キー読み取りが呼び出し側へ散らないので、キー→Action 対応をまとめて単体テストできる。
-package menuinput
+package keybind
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
@@ -33,12 +33,12 @@ type Binding struct {
 	Action inputmapper.ActionID
 }
 
-// ReadMenuInput は1フレームぶんのメニュー操作を Action として読む。world が入力供給源を
+// ReadInput は1フレームぶんの入力を Action として読む。world が入力供給源を
 // 持つならそこから読み、持たない本番ではキーボードから変換する。ここで入れ替わるのは
 // キー入力の有無だけで、後段の DoAction 以降は本番と完全に同じ経路を通る。
 // bindings は state 固有の追加キーで、共通キーより先に評価する
-func ReadMenuInput(world w.World, bindings ...Binding) (inputmapper.ActionID, bool) {
-	if src := world.Resources.MenuInput; src != nil {
+func ReadInput(world w.World, bindings ...Binding) (inputmapper.ActionID, bool) {
+	if src := world.Resources.InputSource; src != nil {
 		return src()
 	}
 	return convertKeys(input.GetSharedKeyboardInput(), bindings)

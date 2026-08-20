@@ -7,7 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menuinput"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -69,7 +69,7 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 		ItemCounts: []int{len(props.Items)},
 	})
 
-	if action, ok := menuinput.ReadMenuInput(world, detailOpenBindings...); ok {
+	if action, ok := keybind.ReadInput(world, detailOpenBindings...); ok {
 		switch action {
 		case inputmapper.ActionOpenItemDetail:
 			o.detail.Open(world)

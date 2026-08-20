@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menuinput"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -68,7 +68,7 @@ func (st *StorageMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 }
 
 // KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く
-func (st *StorageMenuState) KeyBindings() []menuinput.Binding {
+func (st *StorageMenuState) KeyBindings() []keybind.Binding {
 	return detailOpenBindings
 }
 
