@@ -17,11 +17,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// replayStep はリプレイの1手。action を適用した直後のフレームを shot の golden 名で撮る。
-// shot が空の手は撮らない
+// replayStep はリプレイの1手。shot が真なら action を適用した直後のフレームを撮る。
+// golden 名はケース名から導出するので、撮るのは1ケース1枚。別の画も撮りたいときはケースを分ける
 type replayStep struct {
 	action inputmapper.ActionID
-	shot   string
+	shot   bool
 }
 
 // TestGolden の静止画は state を組んだ直後の1枚を撮る。ここは操作した結果の画を撮る点が違う。
@@ -49,8 +49,8 @@ func TestGoldenReplay(t *testing.T) {
 				return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
 			},
 			steps: []replayStep{
-				{action: inputmapper.ActionMenuDown, shot: "TestGolden_ReplaySettingsBack"}, // カーソルが Language から Back へ移った画
-				{action: inputmapper.ActionMenuSelect},                                      // Back を決定して設定メニューを閉じる
+				{action: inputmapper.ActionMenuDown, shot: true}, // カーソルが Language から Back へ移った画を撮る
+				{action: inputmapper.ActionMenuSelect},           // Back を決定して設定メニューを閉じる
 			},
 		},
 		// メインメニューでカーソルが Settings に載った画を撮る。静止画の golden は先頭行に
@@ -62,10 +62,10 @@ func TestGoldenReplay(t *testing.T) {
 				return []es.State[w.World]{&gs.MainMenuState{}}, nil
 			},
 			steps: []replayStep{
-				{action: inputmapper.ActionMenuDown},                                                   // Start から Demo へ
-				{action: inputmapper.ActionMenuDown},                                                   // Demo から Load へ
-				{action: inputmapper.ActionMenuDown, shot: "TestGolden_ReplayMainMenuSettingsFocused"}, // Load から Settings へ
-				{action: inputmapper.ActionMenuSelect},                                                 // Settings を開いて push する
+				{action: inputmapper.ActionMenuDown},             // Start から Demo へ
+				{action: inputmapper.ActionMenuDown},             // Demo から Load へ
+				{action: inputmapper.ActionMenuDown, shot: true}, // Load から Settings へ。移った画を撮る
+				{action: inputmapper.ActionMenuSelect},           // Settings を開いて push する
 			},
 		},
 		// ? で開くキー一覧ヘルプの描画を固定する。ヘルプの golden はこの1枚に絞る。
@@ -80,7 +80,7 @@ func TestGoldenReplay(t *testing.T) {
 				}}, nil
 			},
 			steps: []replayStep{
-				{action: inputmapper.ActionOpenKeyHelp, shot: "TestGolden_KeyHelp"}, // キー一覧ヘルプを push した画
+				{action: inputmapper.ActionOpenKeyHelp, shot: true}, // キー一覧ヘルプを push した画を撮る
 			},
 		},
 		// x で開く詳細モーダルの描画を固定する。個数とタイトルバーが無く、性能・性質と説明が
@@ -94,7 +94,7 @@ func TestGoldenReplay(t *testing.T) {
 				return []es.State[w.World]{&gs.ItemActionState{}}, nil
 			},
 			steps: []replayStep{
-				{action: inputmapper.ActionOpenItemDetail, shot: "TestGolden_ItemActionDetail"}, // 調べるタブ先頭アイテムの詳細モーダルを開いた画
+				{action: inputmapper.ActionOpenItemDetail, shot: true}, // 調べるタブ先頭アイテムの詳細モーダルを開いた画を撮る
 			},
 		},
 	}
@@ -103,10 +103,15 @@ func TestGoldenReplay(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
+			shots := 0
 			actions := make([]inputmapper.ActionID, len(tc.steps))
 			for i, s := range tc.steps {
 				actions[i] = s.action
+				if s.shot {
+					shots++
+				}
 			}
+			require.LessOrEqual(t, shots, 1, "golden 名はケース名から導出するので撮るのは1ケース1枚")
 			replay.PlayScenario(t,
 				func(world w.World) []es.State[w.World] {
 					built, err := tc.build(world)
@@ -117,11 +122,8 @@ func TestGoldenReplay(t *testing.T) {
 				func(frame int, _ w.World, screen *ebiten.Image) {
 					// フレーム 0 は開始直後で、どの手もまだ適用されていないので撮らない。
 					// フレーム i は steps[i-1] の適用直後にあたる
-					if frame == 0 {
-						return
-					}
-					if name := tc.steps[frame-1].shot; name != "" {
-						vrt.AssertFrameGolden(t, name, screen)
+					if frame > 0 && tc.steps[frame-1].shot {
+						vrt.AssertFrameGolden(t, "TestGolden_"+tc.name, screen)
 					}
 				},
 			)
