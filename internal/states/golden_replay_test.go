@@ -17,23 +17,28 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// replayStep はリプレイの1手。action を適用した直後のフレームを shot の golden 名で撮る。
+// shot が空の手は撮らない
+type replayStep struct {
+	action inputmapper.ActionID
+	shot   string
+}
+
 // TestGolden の静止画は state を組んだ直後の1枚を撮る。ここは操作した結果の画を撮る点が違う。
 // 実在メニューを本番の MainGame ループで Action 列から駆動し、節目のフレームを golden で固定する。
 // カーソルの移動先やメニューの開閉が壊れると、遷移のテストが通っても見た目で落ちる。
 //
-// shots はフレーム番号ごとの golden 名で、空文字のフレームは撮らない。Action 数+1 フレーム回るので
-// 長さもそれに合わせる。撮るのは静止画の golden では作れない画だけにする。既存 golden と同一の画を
-// 別名で残しても、資産が増えて README のギャラリーが重複するだけで検出力は上がらない。
+// 撮るのは静止画の golden では作れない画だけにする。既存 golden と同一の画を
+// 別名で残しても、資産が増えて README のギャラリーが重複するだけで検出力は上がらない
 func TestGoldenReplay(t *testing.T) {
 	t.Parallel()
 
 	// build は fixture の error をそのまま返し、サブテストで require する。
 	// *testing.T を取らないことで thelper の誤検知を避ける。golden_test.go の build と同じ規約
 	cases := []struct {
-		name    string
-		build   func(world w.World) ([]es.State[w.World], error)
-		actions []inputmapper.ActionID
-		shots   []string
+		name  string
+		build func(world w.World) ([]es.State[w.World], error)
+		steps []replayStep
 	}{
 		// 設定メニューのカーソルが Back へ移った画を撮る。開いた直後と閉じたあとの画は
 		// TestGolden_SettingsMenu・TestGolden_MainMenu と完全に同一なので撮らない。
@@ -43,14 +48,9 @@ func TestGoldenReplay(t *testing.T) {
 			build: func(w.World) ([]es.State[w.World], error) {
 				return []es.State[w.World]{&gs.MainMenuState{}, &gs.SettingsMenuState{}}, nil
 			},
-			actions: []inputmapper.ActionID{
-				inputmapper.ActionMenuDown,   // カーソルを Language から Back へ移す
-				inputmapper.ActionMenuSelect, // Back を決定して設定メニューを閉じる
-			},
-			shots: []string{
-				"",
-				"TestGolden_ReplaySettingsBack",
-				"",
+			steps: []replayStep{
+				{action: inputmapper.ActionMenuDown, shot: "TestGolden_ReplaySettingsBack"}, // カーソルが Language から Back へ移った画
+				{action: inputmapper.ActionMenuSelect},                                      // Back を決定して設定メニューを閉じる
 			},
 		},
 		// メインメニューでカーソルが Settings に載った画を撮る。静止画の golden は先頭行に
@@ -61,18 +61,11 @@ func TestGoldenReplay(t *testing.T) {
 			build: func(w.World) ([]es.State[w.World], error) {
 				return []es.State[w.World]{&gs.MainMenuState{}}, nil
 			},
-			actions: []inputmapper.ActionID{
-				inputmapper.ActionMenuDown,   // Start から Demo へ
-				inputmapper.ActionMenuDown,   // Demo から Load へ
-				inputmapper.ActionMenuDown,   // Load から Settings へ
-				inputmapper.ActionMenuSelect, // Settings を開いて push する
-			},
-			shots: []string{
-				"",
-				"",
-				"",
-				"TestGolden_ReplayMainMenuSettingsFocused",
-				"",
+			steps: []replayStep{
+				{action: inputmapper.ActionMenuDown},                                                   // Start から Demo へ
+				{action: inputmapper.ActionMenuDown},                                                   // Demo から Load へ
+				{action: inputmapper.ActionMenuDown, shot: "TestGolden_ReplayMainMenuSettingsFocused"}, // Load から Settings へ
+				{action: inputmapper.ActionMenuSelect},                                                 // Settings を開いて push する
 			},
 		},
 		// ? で開くキー一覧ヘルプの描画を固定する。ヘルプの golden はこの1枚に絞る。
@@ -86,12 +79,8 @@ func TestGoldenReplay(t *testing.T) {
 					BuilderType:    mapplanner.PlannerTypeSmallRoom,
 				}}, nil
 			},
-			actions: []inputmapper.ActionID{
-				inputmapper.ActionOpenKeyHelp, // キー一覧ヘルプを push する
-			},
-			shots: []string{
-				"",
-				"TestGolden_KeyHelp",
+			steps: []replayStep{
+				{action: inputmapper.ActionOpenKeyHelp, shot: "TestGolden_KeyHelp"}, // キー一覧ヘルプを push した画
 			},
 		},
 		// x で開く詳細モーダルの描画を固定する。個数とタイトルバーが無く、性能・性質と説明が
@@ -104,12 +93,8 @@ func TestGoldenReplay(t *testing.T) {
 				}
 				return []es.State[w.World]{&gs.ItemActionState{}}, nil
 			},
-			actions: []inputmapper.ActionID{
-				inputmapper.ActionOpenItemDetail, // 調べるタブ先頭アイテムの詳細モーダルを開く
-			},
-			shots: []string{
-				"",
-				"TestGolden_ItemActionDetail",
+			steps: []replayStep{
+				{action: inputmapper.ActionOpenItemDetail, shot: "TestGolden_ItemActionDetail"}, // 調べるタブ先頭アイテムの詳細モーダルを開いた画
 			},
 		},
 	}
@@ -117,17 +102,25 @@ func TestGoldenReplay(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			require.Len(t, tc.shots, len(tc.actions)+1, "shots は Action 数+1 フレームぶん要る")
 
+			actions := make([]inputmapper.ActionID, len(tc.steps))
+			for i, s := range tc.steps {
+				actions[i] = s.action
+			}
 			replay.PlayScenario(t,
 				func(world w.World) []es.State[w.World] {
 					built, err := tc.build(world)
 					require.NoError(t, err)
 					return built
 				},
-				tc.actions,
+				actions,
 				func(frame int, _ w.World, screen *ebiten.Image) {
-					if name := tc.shots[frame]; name != "" {
+					// フレーム 0 は開始直後で、どの手もまだ適用されていないので撮らない。
+					// フレーム i は steps[i-1] の適用直後にあたる
+					if frame == 0 {
+						return
+					}
+					if name := tc.steps[frame-1].shot; name != "" {
 						vrt.AssertFrameGolden(t, name, screen)
 					}
 				},
