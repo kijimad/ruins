@@ -183,17 +183,6 @@ func TestMustMerge(t *testing.T) {
 		assert.Len(t, table, 2)
 	})
 
-	t.Run("Heldが異なる同時押しの対は許す", func(t *testing.T) {
-		t.Parallel()
-		diag := []Binding{
-			{Key: ebiten.KeyUp, Shift: ShiftRequired, Held: new(ebiten.KeyLeft), Action: inputmapper.ActionMoveNorthWest},
-			{Key: ebiten.KeyUp, Shift: ShiftRequired, Held: new(ebiten.KeyRight), Action: inputmapper.ActionMoveNorthEast},
-		}
-
-		table := MustMerge(diag)
-
-		assert.Len(t, table, 2)
-	})
 }
 
 // TestConvertKeys_押下モード は PressMode ごとのキー判定を固定する。

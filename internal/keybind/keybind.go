@@ -43,7 +43,6 @@ type Binding struct {
 	Key    ebiten.Key
 	Shift  ShiftMode
 	Press  PressMode
-	Held   *ebiten.Key // 同時押しが要る追加キー。nil なら単独キーで一致する。斜め移動のような2キー同時押しで使う
 	Action inputmapper.ActionID
 	Label  string // ヒント表示の msgid。空なら隠しキーとしてヒントに出さない
 }
@@ -78,8 +77,7 @@ func ReadInput(world w.World, table []Binding) (inputmapper.ActionID, bool) {
 
 // Convert はキー入力を Action に変換する。本番の入力経路。
 // 表の行は条件が互いに素になるよう MustMerge が検証済みなので、評価順に意味は無い。
-// 唯一の例外は同キー同 Shift で Held だけ違う同時押しの対で、両方成立する縮退入力だけ先の行が勝つ。
-// Shift と同時押しの条件を押下判定より先に見て、リピート判定の副作用を条件外の行で起こさない
+// Shift 条件を押下判定より先に見て、リピート判定の副作用を条件外の行で起こさない
 func Convert(ki input.KeyboardInput, table []Binding) (inputmapper.ActionID, bool) {
 	shift := ki.IsKeyPressed(ebiten.KeyShift)
 	for _, b := range table {
@@ -87,9 +85,6 @@ func Convert(ki input.KeyboardInput, table []Binding) (inputmapper.ActionID, boo
 			continue
 		}
 		if b.Shift == ShiftForbidden && shift {
-			continue
-		}
-		if b.Held != nil && !ki.IsKeyPressed(*b.Held) {
 			continue
 		}
 		if !pressed(ki, b) {
@@ -114,9 +109,8 @@ func MustMerge(fragments ...[]Binding) []Binding {
 	return table
 }
 
-// validate は表の全行対で条件の重なりを検査する。同じキーで Shift 条件が交差し、
-// かつ同時押し条件も交差する組は、どちらが発火するかが行順に依存するため拒否する。
-// 同キー同 Shift でも Held が互いに異なる非 nil の対は、斜め移動のような対等の同時押し仲間として許す
+// validate は表の全行対で条件の重なりを検査する。同じキーで Shift 条件が交差する組は、
+// どちらが発火するかが行順に依存するため拒否する
 func validate(table []Binding) error {
 	for i, a := range table {
 		for _, b := range table[i+1:] {
@@ -125,10 +119,6 @@ func validate(table []Binding) error {
 			}
 			shiftOverlap := a.Shift == ShiftAny || b.Shift == ShiftAny || a.Shift == b.Shift
 			if !shiftOverlap {
-				continue
-			}
-			heldOverlap := a.Held == nil || b.Held == nil || *a.Held == *b.Held
-			if !heldOverlap {
 				continue
 			}
 			return fmt.Errorf("keybind: overlapping bindings: %s and %s compete for key %v", a.Action, b.Action, a.Key)

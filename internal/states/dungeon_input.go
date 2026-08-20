@@ -22,11 +22,8 @@ import (
 
 // 入力・アクション・イベント処理を dungeon.go から分離する。DungeonState のメソッドはこのファイルにも置く。
 
-// dungeonBindings はダンジョン操作の束縛表。モーダル開閉・動詞直達・移動・待機・武器切替。
-// 斜め移動は Shift 併用で縦キーのリピートをタイミングのドライバーにし、
-// 横キーは押しっぱなし判定だけを使う。両軸をリピートにすると頻度が2倍になるため。
-// 全行の条件は互いに素で行順に意味は無い。例外は左右の Held だけが違う斜めの対で、
-// 左右同時押しという縮退入力のときだけ先の行が勝つ
+// dungeonBindings はダンジョン操作の束縛表。モーダル開閉・動詞直達・移動・視点回転・待機・武器切替。
+// 全行の条件は互いに素で行順に意味は無い
 var dungeonBindings = []keybind.Binding{
 	// モーダル開閉
 	{Key: ebiten.KeyM, Action: inputmapper.ActionOpenDungeonMenu, Label: "Menu"},
@@ -43,16 +40,15 @@ var dungeonBindings = []keybind.Binding{
 	{Key: ebiten.KeyR, Action: inputmapper.ActionVerbRead, Label: "Read"},
 	{Key: ebiten.KeyT, Action: inputmapper.ActionVerbUse, Label: "Use"},
 	{Key: ebiten.KeyS, Action: inputmapper.ActionVerbList, Label: "List"},
-	// 斜め移動。Shift 押下中は2キー同時押しの斜めだけ受け付ける
-	{Key: ebiten.KeyUp, Shift: keybind.ShiftRequired, Press: keybind.PressRepeat, Held: new(ebiten.KeyLeft), Action: inputmapper.ActionMoveNorthWest},
-	{Key: ebiten.KeyUp, Shift: keybind.ShiftRequired, Press: keybind.PressRepeat, Held: new(ebiten.KeyRight), Action: inputmapper.ActionMoveNorthEast},
-	{Key: ebiten.KeyDown, Shift: keybind.ShiftRequired, Press: keybind.PressRepeat, Held: new(ebiten.KeyLeft), Action: inputmapper.ActionMoveSouthWest},
-	{Key: ebiten.KeyDown, Shift: keybind.ShiftRequired, Press: keybind.PressRepeat, Held: new(ebiten.KeyRight), Action: inputmapper.ActionMoveSouthEast},
-	// 移動。WASD は動詞へ空けるため矢印キーのみを使う
-	{Key: ebiten.KeyUp, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveNorth, Label: "Move"},
-	{Key: ebiten.KeyDown, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveSouth, Label: "Move"},
-	{Key: ebiten.KeyLeft, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveWest, Label: "Move"},
-	{Key: ebiten.KeyRight, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveEast, Label: "Move"},
+	// 移動。WASD は動詞へ空けるため矢印キーのみを使う。斜めへは視点を回してから直進する
+	{Key: ebiten.KeyUp, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveNorth, Label: "Move"},
+	{Key: ebiten.KeyDown, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveSouth, Label: "Move"},
+	{Key: ebiten.KeyLeft, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveWest, Label: "Move"},
+	{Key: ebiten.KeyRight, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveEast, Label: "Move"},
+	// 視点回転。左の Z を反時計回り、右の C を時計回りにしてキーの左右と回る向きをそろえる。
+	// JIS でズレる記号は避ける
+	{Key: ebiten.KeyZ, Action: inputmapper.ActionRotateLeft, Label: "Rotate"},
+	{Key: ebiten.KeyC, Action: inputmapper.ActionRotateRight, Label: "Rotate"},
 	// 待機・足元の相互作用
 	{Key: ebiten.KeyPeriod, Press: keybind.PressRepeat, Action: inputmapper.ActionWait, Label: "Wait"},
 	{Key: ebiten.KeyEnter, Action: inputmapper.ActionInteract, Label: "Use here"},
@@ -101,8 +97,9 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	// UI系アクションは常に実行可能
 	switch action {
 	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot, inputmapper.ActionPickup,
-		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
-		// UI系はターンチェック不要
+		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList,
+		inputmapper.ActionRotateLeft, inputmapper.ActionRotateRight:
+		// UI系と視点操作はターンを消費しないのでターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
 		if !query.CanPlayerAct(world) {
@@ -187,25 +184,12 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionMoveNorthEast:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUpRight)); err != nil {
-			return es.Transition[w.World]{Type: es.TransNone}, err
-		}
+	// 視点回転。回してから直進すると斜めの world 方向へ動ける
+	case inputmapper.ActionRotateLeft:
+		st.three.rotate(1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionMoveNorthWest:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUpLeft)); err != nil {
-			return es.Transition[w.World]{Type: es.TransNone}, err
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionMoveSouthEast:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDownRight)); err != nil {
-			return es.Transition[w.World]{Type: es.TransNone}, err
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionMoveSouthWest:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDownLeft)); err != nil {
-			return es.Transition[w.World]{Type: es.TransNone}, err
-		}
+	case inputmapper.ActionRotateRight:
+		st.three.rotate(-1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionWait:
 		if err := activity.ExecuteWaitAction(world); err != nil {

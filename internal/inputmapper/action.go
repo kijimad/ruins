@@ -8,17 +8,19 @@ type ActionID string
 // キー入力を経由せずに Action を供給するための、入力層の唯一の差し替え点になる
 type Source func() (ActionID, bool)
 
-// 移動系アクション
+// 移動系アクション。移動は4方向のみで、斜めへは視点を回してから直進する
 const (
-	ActionMoveNorth     ActionID = "move_north"
-	ActionMoveSouth     ActionID = "move_south"
-	ActionMoveEast      ActionID = "move_east"
-	ActionMoveWest      ActionID = "move_west"
-	ActionMoveNorthEast ActionID = "move_north_east"
-	ActionMoveNorthWest ActionID = "move_north_west"
-	ActionMoveSouthEast ActionID = "move_south_east"
-	ActionMoveSouthWest ActionID = "move_south_west"
-	ActionWait          ActionID = "wait"
+	ActionMoveNorth ActionID = "move_north"
+	ActionMoveSouth ActionID = "move_south"
+	ActionMoveEast  ActionID = "move_east"
+	ActionMoveWest  ActionID = "move_west"
+	ActionWait      ActionID = "wait"
+)
+
+// 視点操作アクション。カメラの向きを45度単位で回す
+const (
+	ActionRotateLeft  ActionID = "rotate_left"
+	ActionRotateRight ActionID = "rotate_right"
 )
 
 // UI系アクション

@@ -80,9 +80,9 @@ func keyHelpRow(e keybind.HintEntry, res resources.UIResources) *widget.Containe
 			widget.GridLayoutOpts.Columns(2),
 			widget.GridLayoutOpts.Spacing(theme.Space3, 0),
 			// stretch 列は preferred 幅 0 として扱われるため、キー列でなくラベル列を伸ばす。
-			// キー列を伸縮にすると、パネルが preferred 幅で組まれる文脈で 0 に潰れる
+			// キー列を伸縮にすると、パネルが preferred 幅で組まれる文脈で 0 に潰れる。
+			// 行数が多い文脈でもパネルが画面へ収まるよう、行自体は上下 padding を持たない
 			widget.GridLayoutOpts.Stretch([]bool{false, true}, []bool{false}),
-			widget.GridLayoutOpts.Padding(&widget.Insets{Top: theme.Space1, Bottom: theme.Space1}),
 		)),
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{Stretch: true})),
 	)

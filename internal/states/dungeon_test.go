@@ -100,10 +100,6 @@ func TestDoActionMovementActions(t *testing.T) {
 		{inputmapper.ActionMoveSouth, 0, 1},
 		{inputmapper.ActionMoveEast, 1, 0},
 		{inputmapper.ActionMoveWest, -1, 0},
-		{inputmapper.ActionMoveNorthEast, 1, -1},
-		{inputmapper.ActionMoveNorthWest, -1, -1},
-		{inputmapper.ActionMoveSouthEast, 1, 1},
-		{inputmapper.ActionMoveSouthWest, -1, 1},
 	}
 
 	for _, tt := range tests {
@@ -280,8 +276,9 @@ func TestDungeonBindings_WASDは移動しない(t *testing.T) {
 	}
 }
 
-// TestDungeonBindings_NoShiftNoDiagonal はShiftなしでは2キー同時押しでも斜め移動しないことを検証する
-func TestDungeonBindings_NoShiftNoDiagonal(t *testing.T) {
+// TestDungeonBindings_同時押しは片方だけ効く は2キー同時押しで1方向だけが返ることを検証する。
+// 斜め移動は無く、斜めへは視点を回してから直進する
+func TestDungeonBindings_同時押しは片方だけ効く(t *testing.T) {
 	t.Parallel()
 
 	mock := input.NewMockKeyboardInput()
@@ -290,35 +287,29 @@ func TestDungeonBindings_NoShiftNoDiagonal(t *testing.T) {
 
 	action, ok := keybind.Convert(mock, dungeonTable)
 	assert.True(t, ok)
-	// Shiftなしでは表で先にある方向、つまり上が返る
+	// 表で先にある方向、つまり上が返る
 	assert.Equal(t, inputmapper.ActionMoveNorth, action)
 }
 
-// TestDungeonBindings_ShiftDiagonal は斜め移動の各方向を検証する。
-// 縦軸のRepeatのみをタイミングドライバーとして使い、横軸はHeld判定のみ行う
-func TestDungeonBindings_ShiftDiagonal(t *testing.T) {
+// TestDungeonBindings_視点回転 は Z/C が回転 Action に変換されることを検証する。
+// 左の Z が反時計回り、右の C が時計回り
+func TestDungeonBindings_視点回転(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name          string
-		verticalKey   ebiten.Key
-		horizontalKey ebiten.Key
-		expected      inputmapper.ActionID
+		name     string
+		key      ebiten.Key
+		expected inputmapper.ActionID
 	}{
-		{"左上（矢印）", ebiten.KeyUp, ebiten.KeyLeft, inputmapper.ActionMoveNorthWest},
-		{"右上（矢印）", ebiten.KeyUp, ebiten.KeyRight, inputmapper.ActionMoveNorthEast},
-		{"左下（矢印）", ebiten.KeyDown, ebiten.KeyLeft, inputmapper.ActionMoveSouthWest},
-		{"右下（矢印）", ebiten.KeyDown, ebiten.KeyRight, inputmapper.ActionMoveSouthEast},
+		{"Zで反時計回り", ebiten.KeyZ, inputmapper.ActionRotateLeft},
+		{"Cで時計回り", ebiten.KeyC, inputmapper.ActionRotateRight},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			mock := input.NewMockKeyboardInput()
-			// 縦軸はRepeatで発火し、横軸はHeldで判定する。斜めはShift併用
-			mock.SetKeyPressed(ebiten.KeyShift, true)
-			mock.SetKeyPressedWithRepeat(tt.verticalKey, true)
-			mock.SetKeyPressed(tt.horizontalKey, true)
+			mock.SetKeyJustPressed(tt.key, true)
 
 			action, ok := keybind.Convert(mock, dungeonTable)
 			assert.True(t, ok)
@@ -327,49 +318,31 @@ func TestDungeonBindings_ShiftDiagonal(t *testing.T) {
 	}
 }
 
-// TestDungeonBindings_ShiftSingleKey はShift中に1キーだけでは移動しないことを検証する
-func TestDungeonBindings_ShiftSingleKey(t *testing.T) {
+// TestDoActionRotate_回してから直進で斜めに動く は回転 Action と直進の合成で
+// world の斜め方向へ移動できることを検証する。斜め移動キーの代替経路
+func TestDoActionRotate_回してから直進で斜めに動く(t *testing.T) {
 	t.Parallel()
 
-	keys := []ebiten.Key{ebiten.KeyUp, ebiten.KeyDown, ebiten.KeyLeft, ebiten.KeyRight}
-	for _, key := range keys {
-		t.Run(key.String(), func(t *testing.T) {
-			t.Parallel()
-			mock := input.NewMockKeyboardInput()
-			mock.SetKeyPressed(ebiten.KeyShift, true)
-			mock.SetKeyPressed(key, true)
-			mock.SetKeyPressedWithRepeat(key, true)
+	initialX, initialY := 10, 10
+	world := testutil.InitTestWorld(t)
+	playerEntity, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: consts.Tile(initialX), Y: consts.Tile(initialY)}, "ash")
+	require.NoError(t, err)
 
-			_, ok := keybind.Convert(mock, dungeonTable)
-			assert.False(t, ok, "1キーのみでは斜め移動しないべき")
-		})
-	}
-}
+	state := &DungeonState{}
 
-// TestDungeonBindings_ShiftDiagonalPriority はShift併用の斜めが単独移動より先に一致することを検証する
-func TestDungeonBindings_ShiftDiagonalPriority(t *testing.T) {
-	t.Parallel()
+	// 反時計回りに45度回す。回転はターンを消費しない
+	transition, err := state.DoAction(world, inputmapper.ActionRotateLeft)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransNone, transition.Type)
 
-	mock := input.NewMockKeyboardInput()
-	mock.SetKeyPressed(ebiten.KeyShift, true)
-	mock.SetKeyPressedWithRepeat(ebiten.KeyUp, true)
-	mock.SetKeyPressed(ebiten.KeyLeft, true)
+	// 画面上方向への直進が、回したカメラでは world の左上へスナップする
+	_, err = state.DoAction(world, inputmapper.ActionMoveNorth)
+	require.NoError(t, err)
 
-	action, ok := keybind.Convert(mock, dungeonTable)
-	assert.True(t, ok)
-	assert.Equal(t, inputmapper.ActionMoveNorthWest, action)
-}
-
-// TestDungeonBindings_ShiftSingleKeyNoAction はShift+単一キーでは移動しないことを検証する
-func TestDungeonBindings_ShiftSingleKeyNoAction(t *testing.T) {
-	t.Parallel()
-
-	mock := input.NewMockKeyboardInput()
-	mock.SetKeyPressed(ebiten.KeyShift, true)
-	mock.SetKeyPressedWithRepeat(ebiten.KeyUp, true)
-
-	_, ok := keybind.Convert(mock, dungeonTable)
-	assert.False(t, ok, "Shift+単一キーでは移動しないべき")
+	grid := world.Components.GridElement.Get(playerEntity)
+	require.NotNil(t, grid)
+	assert.Equal(t, initialX-1, int(grid.X))
+	assert.Equal(t, initialY-1, int(grid.Y))
 }
 
 // TestDoActionUIActionsAlwaysWork はUI系アクションはターンフェーズに関わらず動作する

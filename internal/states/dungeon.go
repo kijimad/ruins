@@ -9,7 +9,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -213,9 +212,8 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		}}, nil
 	}
 
-	// 入力はゲーム本体と同じ共有キーボードを通す。カメラ操作は3Dへ委譲する
-	kb := input.GetSharedKeyboardInput()
-	st.three.update(kb)
+	// カメラのポインタ操作は3Dへ委譲する。キー操作は束縛表を通して DoAction に届く
+	st.three.update()
 
 	// キー入力をActionに変換
 	if action, ok := st.readAction(world); ok {
