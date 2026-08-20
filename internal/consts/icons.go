@@ -19,6 +19,9 @@ const (
 	IconSave     = "\uf0c7"
 	IconKeyEnter = "\U000f0311" // md-keyboard_return
 	IconKeyEsc   = "\U000f12b7" // md-keyboard_esc
+	IconKeySpace = "\U000f1050" // md-keyboard_space
+	IconKeyTab   = "\U000f0312" // md-keyboard_tab
+	IconKeyShift = "\U000f0636" // md-apple_keyboard_shift
 
 	// UI
 	IconHome     = "\uf015"
@@ -57,4 +60,13 @@ const (
 	IconInfo     = "\uf129"
 	IconQuestion = "\uf128"
 	IconCube     = "\uf1b2" // fa-cube
+)
+
+// キーキャップグリフの基点。系列が連続配置なので基点からの差分で各キーのグリフを導く
+const (
+	// IconKeyAlphaBoxBase は md-alpha_a_box。英字キーキャップの先頭で、a からの差分を足す
+	IconKeyAlphaBoxBase rune = 0xF0B08
+	// IconKeyDigitBoxBase は md-numeric_0_box。数字キーキャップの先頭で、数字の値の3倍を足す。
+	// 数字系列は box・box-multiple・box-outline の3種ごとに並ぶため刻みが3になる
+	IconKeyDigitBoxBase rune = 0xF03A1
 )

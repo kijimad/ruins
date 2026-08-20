@@ -1,6 +1,7 @@
 package keybind
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -227,12 +228,12 @@ func TestNavHint(t *testing.T) {
 			consts.IconArrowUp + consts.IconArrowDown + " Select   " +
 			consts.IconKeyEnter + " Confirm   " +
 			"? Help   " +
-			"x Details   " +
+			string(consts.IconKeyAlphaBoxBase+'x'-'a') + " Details   " +
 			consts.IconKeyEsc + " Back"
 		assert.Equal(t, want, got)
 	})
 
-	t.Run("Shift併用は大文字で表す", func(t *testing.T) {
+	t.Run("Shift併用はShift記号を前置する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -240,7 +241,7 @@ func TestNavHint(t *testing.T) {
 			{Key: ebiten.KeyX, Shift: ShiftRequired, Action: inputmapper.ActionVerbExamine, Label: "Inspect"},
 		})
 
-		assert.Equal(t, "X Inspect", got)
+		assert.Equal(t, consts.IconKeyShift+string(consts.IconKeyAlphaBoxBase+'x'-'a')+" Inspect", got)
 	})
 }
 
@@ -252,10 +253,10 @@ func TestHelpHint(t *testing.T) {
 	assert.Equal(t, "? Help", HelpHint(world))
 }
 
-// TestKeyLabel_内部名を持つキーの表記 は ebiten の内部名が表示へ漏れないことを固定する。
-// 数字キーの String は Digit1 のような内部名を返すため、写像を挟まないと
+// TestKeyLabel_キーキャップ表記 は ebiten の内部名が表示へ漏れないことを固定する。
+// 数字キーの String は Digit1 のような内部名を返すため、グリフへの写像を挟まないと
 // ヘルプの連結表記が digit1digit2 のように壊れる
-func TestKeyLabel_内部名を持つキーの表記(t *testing.T) {
+func TestKeyLabel_キーキャップ表記(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -268,8 +269,12 @@ func TestKeyLabel_内部名を持つキーの表記(t *testing.T) {
 	}
 	entries := HintEntries(world, weaponSlots)
 	require.Len(t, entries, 1, "同じラベルの連続行は1項目にまとまる")
-	assert.Equal(t, "12345", entries[0].Keys)
+	var wantDigits strings.Builder
+	for n := rune(1); n <= 5; n++ {
+		wantDigits.WriteString(string(consts.IconKeyDigitBoxBase + 3*n))
+	}
+	assert.Equal(t, wantDigits.String(), entries[0].Keys, "数字はキーキャップグリフで連結される")
 
 	assert.Equal(t, ".", KeyLabel(Binding{Key: ebiten.KeyPeriod}), "記号キーは記号で表す")
-	assert.Equal(t, "Space", KeyLabel(Binding{Key: ebiten.KeySpace}), "複数文字の内部名はそのまま出す")
+	assert.Equal(t, consts.IconKeySpace, KeyLabel(Binding{Key: ebiten.KeySpace}), "Spaceはキーキャップグリフで表す")
 }
