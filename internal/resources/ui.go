@@ -68,10 +68,8 @@ type UIResources struct {
 
 // TextResources はテキストリソースを管理する
 type TextResources struct {
-	SmallFace text.Face
-	BodyFace  text.Face
-	// KeycapFace はキーキャップの箱に入れる素の文字用。アイコングリフの実効サイズと釣り合わせる
-	KeycapFace     text.Face
+	SmallFace      text.Face
+	BodyFace       text.Face
 	TitleFontFace  text.Face
 	SplashFontFace text.Face
 }
@@ -269,7 +267,6 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		Text: &TextResources{
 			SmallFace:      fonts.smallFace,
 			BodyFace:       fonts.bodyFace,
-			KeycapFace:     fonts.keycapFace,
 			TitleFontFace:  fonts.titleFontFace,
 			SplashFontFace: fonts.splashFontFace,
 		},

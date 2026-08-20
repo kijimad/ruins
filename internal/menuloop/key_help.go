@@ -100,13 +100,14 @@ func keyHelpRow(e keybind.HintEntry, res resources.UIResources) *widget.Containe
 	return row
 }
 
-// renderKeycaps はキーの粒の並びを1枚の画像へ描く。全トークンへ一律に白い箱を敷き、
-// 中の表記を黒で描いてキーキャップに見せる。素の文字はアイコングリフの実効サイズと
-// 釣り合う KeycapFace で描く。
+// renderKeycaps はキーの粒の並びを1枚の画像へ描く。全トークンへ一律に白い角丸の箱を敷き、
+// 中の表記を黒で描いてキーキャップに見せる。行の本文と釣り合う小ぶりな箱にするため、
+// 素の文字は本文の face、グリフはひと回り小さい face で描く。
 // widget の入れ子で組むと preferred 幅の計算で潰れるため、画像にして寸法を確定させる
 func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
-	const height = 24
+	const height = 18
 	const chipPad = 4
+	const radius = 4
 
 	type keycap struct {
 		text string
@@ -117,10 +118,10 @@ func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	caps := make([]keycap, 0, len(tokens))
 	total := 0
 	for i, tok := range tokens {
-		// 素の文字はアイコンより小さく出るため、専用の KeycapFace で釣り合わせる
+		// アイコングリフは合成で1.5倍に出るため、素の文字より小さい face で釣り合わせる
 		face := res.Text.BodyFace
-		if isASCII(tok) {
-			face = res.Text.KeycapFace
+		if !isASCII(tok) {
+			face = res.Text.SmallFace
 		}
 		w, h := text.Measure(tok, face, 0)
 		cw := int(w) + chipPad*2
@@ -140,7 +141,7 @@ func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 		if i > 0 {
 			x += theme.Space2
 		}
-		vector.FillRect(img, float32(x), 0, float32(c.w), height, theme.TextPrimary, false)
+		fillRoundedRect(img, float32(x), 0, float32(c.w), height, radius)
 		op := &text.DrawOptions{}
 		op.GeoM.Translate(float64(x+chipPad), float64(height-c.h)/2)
 		op.ColorScale.ScaleWithColor(theme.ScreenBackground)
@@ -150,7 +151,25 @@ func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	return img
 }
 
-// isASCII はトークンが素の文字だけかを返す。真ならキーキャップ用の大きめの face で描く
+// fillRoundedRect は角丸の塗り矩形を描く。キーキャップの箱に使う
+func fillRoundedRect(dst *ebiten.Image, x, y, w, h, r float32) {
+	var p vector.Path
+	p.MoveTo(x+r, y)
+	p.LineTo(x+w-r, y)
+	p.ArcTo(x+w, y, x+w, y+r, r)
+	p.LineTo(x+w, y+h-r)
+	p.ArcTo(x+w, y+h, x+w-r, y+h, r)
+	p.LineTo(x+r, y+h)
+	p.ArcTo(x, y+h, x, y+h-r, r)
+	p.LineTo(x, y+r)
+	p.ArcTo(x, y, x+r, y, r)
+	p.Close()
+	op := &vector.DrawPathOptions{AntiAlias: true}
+	op.ColorScale.ScaleWithColor(theme.TextPrimary)
+	vector.FillPath(dst, &p, nil, op)
+}
+
+// isASCII はトークンが素の文字だけかを返す。真なら本文の face、偽ならひと回り小さい face で描く
 func isASCII(s string) bool {
 	for _, r := range s {
 		if r > 0x7F {

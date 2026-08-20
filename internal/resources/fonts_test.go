@@ -61,7 +61,7 @@ func TestLoadFont_複数ソースはMultiFaceにフォールバックする(t *t
 	assert.True(t, ok)
 }
 
-func TestLoadFonts_成功時は5サイズ分のFaceを持つ(t *testing.T) {
+func TestLoadFonts_成功時は4サイズ分のFaceを持つ(t *testing.T) {
 	t.Parallel()
 
 	src := newTestFaceSource(t)
@@ -72,7 +72,6 @@ func TestLoadFonts_成功時は5サイズ分のFaceを持つ(t *testing.T) {
 	// fonts は非公開型で外部から個別サイズを取り出す手段がないため、同一パッケージのテストとしてフィールドへ直接アクセスする
 	assert.NotNil(t, fs.smallFace)
 	assert.NotNil(t, fs.bodyFace)
-	assert.NotNil(t, fs.keycapFace)
 	assert.NotNil(t, fs.titleFontFace)
 	assert.NotNil(t, fs.splashFontFace)
 }

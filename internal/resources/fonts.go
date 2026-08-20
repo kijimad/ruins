@@ -13,7 +13,6 @@ var errNoFontSource = errors.New("no available font source")
 type fonts struct {
 	smallFace      text.Face
 	bodyFace       text.Face
-	keycapFace     text.Face
 	titleFontFace  text.Face
 	splashFontFace text.Face
 }
@@ -29,12 +28,6 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load body font: %w", err)
 	}
-	// キーキャップの箱に入れる ASCII 用。アイコンフォントは iconScale で 24px 相当になるため、
-	// 素の文字をそれと釣り合う大きさで描く
-	keycapFace, err := loadFont(sources, 22)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load keycap font: %w", err)
-	}
 	titleFontFace, err := loadFont(sources, 32)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load title font: %w", err)
@@ -47,7 +40,6 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 	return &fonts{
 		smallFace:      smallFace,
 		bodyFace:       bodyFace,
-		keycapFace:     keycapFace,
 		titleFontFace:  titleFontFace,
 		splashFontFace: splashFontFace,
 	}, nil
