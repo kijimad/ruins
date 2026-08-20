@@ -4,8 +4,10 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt/replay"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -110,4 +112,31 @@ func TestPlayScenario_詳細モーダル表示中も駆動する(t *testing.T) {
 	require.Len(t, remaining, 1, "詳細を閉じたあとの Cancel が本体へ届き ItemAction が Pop される")
 	_, ok := remaining[0].(*states.MainMenuState)
 	assert.True(t, ok, "残るのはメインメニュー")
+}
+
+// TestPlayScenario_ダンジョンをAction列で駆動する は、メニュー外のフィールド文脈も同じ供給源で
+// 駆動できることを固定する。ダンジョンメニューを開いて閉じる列を流すと、ChoiceMenu の push と
+// pop が起き、ダンジョンだけが残る。キー直読みの実装へ戻ると Action が届かずここで落ちる
+func TestPlayScenario_ダンジョンをAction列で駆動する(t *testing.T) {
+	t.Parallel()
+	game := replay.PlayScenario(t,
+		func(_ w.World) []es.State[w.World] {
+			return []es.State[w.World]{&states.DungeonState{
+				Depth:          1,
+				DefinitionName: dungeon.DungeonDebug.Name(),
+				BuilderType:    mapplanner.PlannerTypeSmallRoom,
+			}}
+		},
+		[]inputmapper.ActionID{
+			inputmapper.ActionOpenDungeonMenu, // ダンジョンメニューを push する
+			replay.NoInput,                    // 積まれたメニューのタブ登録を待つ
+			inputmapper.ActionMenuCancel,      // メニューを閉じて pop する
+		},
+		nil,
+	)
+
+	remaining := game.StateMachine.GetStates()
+	require.Len(t, remaining, 1, "メニューを開いて閉じたのでダンジョンだけが残る")
+	_, ok := remaining[0].(*states.DungeonState)
+	assert.True(t, ok, "残るのはダンジョン")
 }

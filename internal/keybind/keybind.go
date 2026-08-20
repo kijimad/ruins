@@ -41,6 +41,7 @@ type Binding struct {
 	Key    ebiten.Key
 	Shift  ShiftMode
 	Press  PressMode
+	Held   *ebiten.Key // 同時押しが要る追加キー。nil なら単独キーで一致する。斜め移動のような2キー同時押しで使う
 	Action inputmapper.ActionID
 	Label  string // ヒント表示の msgid。空なら隠しキーとしてヒントに出さない
 }
@@ -68,12 +69,13 @@ func ReadInput(world w.World, tables ...[]Binding) (inputmapper.ActionID, bool) 
 	if src := world.Resources.InputSource; src != nil {
 		return src()
 	}
-	return convertKeys(input.GetSharedKeyboardInput(), tables...)
+	return Convert(input.GetSharedKeyboardInput(), tables...)
 }
 
-// convertKeys はキー入力を Action に変換する。本番の入力経路。
-// tables を先頭から順に評価し、最初に一致した行の Action を返す
-func convertKeys(ki input.KeyboardInput, tables ...[]Binding) (inputmapper.ActionID, bool) {
+// Convert はキー入力を Action に変換する。本番の入力経路。
+// tables を先頭から順に評価し、最初に一致した行の Action を返す。
+// Shift と同時押しの条件を押下判定より先に見て、リピート判定の副作用を条件外の行で起こさない
+func Convert(ki input.KeyboardInput, tables ...[]Binding) (inputmapper.ActionID, bool) {
 	shift := ki.IsKeyPressed(ebiten.KeyShift)
 	for _, table := range tables {
 		for _, b := range table {
@@ -81,6 +83,9 @@ func convertKeys(ki input.KeyboardInput, tables ...[]Binding) (inputmapper.Actio
 				continue
 			}
 			if b.Shift == ShiftForbidden && shift {
+				continue
+			}
+			if b.Held != nil && !ki.IsKeyPressed(*b.Held) {
 				continue
 			}
 			if !pressed(ki, b) {

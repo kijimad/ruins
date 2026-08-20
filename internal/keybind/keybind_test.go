@@ -94,7 +94,7 @@ func TestConvertKeys(t *testing.T) {
 				ki := input.NewMockKeyboardInput()
 				tc.press(ki)
 
-				action, ok := convertKeys(ki, MenuCommon)
+				action, ok := Convert(ki, MenuCommon)
 
 				assert.True(t, ok)
 				assert.Equal(t, tc.want, action)
@@ -104,7 +104,7 @@ func TestConvertKeys(t *testing.T) {
 
 	t.Run("キーが無ければ入力なし", func(t *testing.T) {
 		t.Parallel()
-		action, ok := convertKeys(input.NewMockKeyboardInput(), MenuCommon)
+		action, ok := Convert(input.NewMockKeyboardInput(), MenuCommon)
 
 		assert.False(t, ok)
 		assert.Equal(t, inputmapper.ActionID(""), action)
@@ -143,7 +143,7 @@ func TestConvertKeys(t *testing.T) {
 				ki := input.NewMockKeyboardInput()
 				tc.press(ki)
 
-				action, ok := convertKeys(ki, bindings)
+				action, ok := Convert(ki, bindings)
 
 				assert.True(t, ok)
 				assert.Equal(t, tc.want, action)
@@ -157,7 +157,7 @@ func TestConvertKeys(t *testing.T) {
 		ki.SetKeyJustPressed(ebiten.KeyEscape, true)
 		bindings := []Binding{{Key: ebiten.KeyEscape, Shift: ShiftAny, Action: inputmapper.ActionCloseMenu}}
 
-		action, ok := convertKeys(ki, bindings, MenuCommon)
+		action, ok := Convert(ki, bindings, MenuCommon)
 
 		assert.True(t, ok)
 		assert.Equal(t, inputmapper.ActionCloseMenu, action, "同じキーなら束縛表が共通変換を上書きする")
@@ -175,7 +175,7 @@ func TestConvertKeys_押下モード(t *testing.T) {
 		ki.SetKeyPressedWithRepeat(ebiten.KeyH, true)
 		bindings := []Binding{{Key: ebiten.KeyH, Press: PressRepeat, Action: inputmapper.ActionMoveWest}}
 
-		action, ok := convertKeys(ki, bindings)
+		action, ok := Convert(ki, bindings)
 
 		assert.True(t, ok)
 		assert.Equal(t, inputmapper.ActionMoveWest, action)
@@ -187,7 +187,7 @@ func TestConvertKeys_押下モード(t *testing.T) {
 		ki.SetKeyPressedWithRepeat(ebiten.KeyH, true)
 		bindings := []Binding{{Key: ebiten.KeyH, Action: inputmapper.ActionMoveWest}}
 
-		_, ok := convertKeys(ki, bindings)
+		_, ok := Convert(ki, bindings)
 
 		assert.False(t, ok, "既定の PressJust は JustPressed だけを見る")
 	})
@@ -197,11 +197,11 @@ func TestConvertKeys_押下モード(t *testing.T) {
 		ki := input.NewMockKeyboardInput()
 		// 押下したフレームでは発火せず、離したフレームで発火する
 		ki.SetKeyPressed(ebiten.KeyEnter, true)
-		_, ok := convertKeys(ki, MenuCommon)
+		_, ok := Convert(ki, MenuCommon)
 		assert.False(t, ok, "押下中はまだ発火しない")
 
 		ki.SetKeyPressed(ebiten.KeyEnter, false)
-		action, ok := convertKeys(ki, MenuCommon)
+		action, ok := Convert(ki, MenuCommon)
 		assert.True(t, ok, "押上で1度だけ発火する")
 		assert.Equal(t, inputmapper.ActionMenuSelect, action)
 	})

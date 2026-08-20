@@ -79,7 +79,6 @@ func NewOverworldState(planner mapplanner.PlannerType, definition *dungeon.Overw
 // State interface ================
 
 var _ es.State[w.World] = &DungeonState{}
-var _ es.ActionHandler[w.World] = &DungeonState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *DungeonState) OnPause(_ w.World) error { return nil }
@@ -219,7 +218,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	st.three.update(kb)
 
 	// キー入力をActionに変換
-	if action, ok := st.HandleInput(world.Config); ok {
+	if action, ok := st.readAction(world); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
