@@ -64,11 +64,22 @@ const (
 	IconCube     = "\uf1b2" // fa-cube
 )
 
-// キーキャップグリフの基点。系列が連続配置なので基点からの差分で各キーのグリフを導く
-const (
-	// IconKeyAlphaBoxBase は md-alpha_a_box。英字キーキャップの先頭で、a からの差分を足す
-	IconKeyAlphaBoxBase rune = 0xF0B08
-	// IconKeyDigitBoxBase は md-numeric_0_box。数字キーキャップの先頭で、数字の値の3倍を足す。
-	// 数字系列は box・box-multiple・box-outline の3種ごとに並ぶため刻みが3になる
-	IconKeyDigitBoxBase rune = 0xF03A1
-)
+// IconKeyAlphaBoxBase は md-alpha_a_box。英字キーキャップの先頭で、a からの差分を足す。
+// a から z まで連続配置であることは実グリフのコードポイントで確認済み
+const IconKeyAlphaBoxBase rune = 0xF0B08
+
+// IconKeyDigitBoxes は数字キーのキーキャップグリフ md-numeric_N_box。
+// 系列のコードポイントは等差でなく5の前後で刻みが乱れるため、算術でなく実測の表で持つ。
+// 等差を仮定すると 5 だけ outline 系の別グリフを拾い、白抜きの箱が1つ混ざる
+var IconKeyDigitBoxes = [10]string{
+	"\U000f03a1", // 0
+	"\U000f03a4", // 1
+	"\U000f03a7", // 2
+	"\U000f03aa", // 3
+	"\U000f03ad", // 4
+	"\U000f03b1", // 5
+	"\U000f03b3", // 6
+	"\U000f03b6", // 7
+	"\U000f03b9", // 8
+	"\U000f03bc", // 9
+}

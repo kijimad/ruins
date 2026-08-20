@@ -82,7 +82,7 @@ func KeyLabel(b Binding) string {
 	}
 	// 数字キーはキーキャップグリフで表す
 	if b.Key >= ebiten.KeyDigit0 && b.Key <= ebiten.KeyDigit9 {
-		return string(consts.IconKeyDigitBoxBase + 3*rune(b.Key-ebiten.KeyDigit0))
+		return consts.IconKeyDigitBoxes[b.Key-ebiten.KeyDigit0]
 	}
 	// 英字キーはキーキャップグリフで表す。グリフは大文字デザインなので、
 	// Shift 併用は大文字化でなく Shift 記号の前置で表す
