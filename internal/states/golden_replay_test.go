@@ -3,8 +3,10 @@ package states_test
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/mapplanner"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/vrt/replay"
@@ -73,15 +75,16 @@ func TestGoldenReplay(t *testing.T) {
 				"",
 			},
 		},
-		// ? で開くキー一覧ヘルプの描画を固定する。動詞タブ画面の束縛表と共通表から
-		// 一覧が導出されることを覆う。Screen の入力ゲートが OpenKeyHelp を吸って push する経路で撮る
+		// ? で開くキー一覧ヘルプの描画を固定する。ヘルプの golden はこの1枚に絞る。
+		// 文脈は最もキーが多いダンジョンにし、数字連結や記号の表記崩れまで一覧で検出する
 		{
 			name: "KeyHelp",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{&gs.ItemActionState{}}, nil
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.DungeonState{
+					Depth:          1,
+					DefinitionName: dungeon.DungeonDebug.Name(),
+					BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				}}, nil
 			},
 			actions: []inputmapper.ActionID{
 				inputmapper.ActionOpenKeyHelp, // キー一覧ヘルプを push する
