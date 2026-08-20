@@ -41,7 +41,7 @@ func (m *dirtyTestModel) View(_ w.World, _ int, _ Selection, _ resources.UIResou
 }
 
 // flexModel は DoAction の挙動を差し替えられる Model[int] のテストダブル。
-// Update・readAction の分岐を個別に固定するのに使う。Action の注入は world の入力供給源で行う
+// Update の分岐を個別に固定するのに使う。Action の注入は world の入力供給源で行う
 type flexModel struct {
 	props         int
 	menu          MenuConfig
@@ -208,38 +208,6 @@ func TestScreen_activeOverlay(t *testing.T) {
 		screen := NewScreen[int](model, ov1, ov2)
 
 		assert.Same(t, ov2, screen.activeOverlay())
-	})
-}
-
-// TestScreen_readAction は world の入力供給源があればそこから読み、
-// 未設定の本番ではキーボード経路になることを固定する
-func TestScreen_readAction(t *testing.T) {
-	t.Parallel()
-
-	t.Run("供給源があればそこから読む", func(t *testing.T) {
-		t.Parallel()
-		world := w.World{Resources: &resources.Resources{
-			InputSource: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuDown, true },
-		}}
-		model := &flexModel{menu: MenuConfig{Key: "extra2"}}
-		screen := NewScreen[int](model)
-
-		action, ok := screen.readAction(world)
-
-		assert.True(t, ok)
-		assert.Equal(t, inputmapper.ActionMenuDown, action)
-	})
-
-	t.Run("供給源が未設定ならキーボード経路へ落ちる", func(t *testing.T) {
-		t.Parallel()
-		world := w.World{Resources: &resources.Resources{}}
-		model := &flexModel{menu: MenuConfig{Key: "extra3"}}
-		screen := NewScreen[int](model)
-
-		action, ok := screen.readAction(world)
-
-		assert.False(t, ok, "本番のキーボード経路へ落ち、キーが無いので偽")
-		assert.Equal(t, inputmapper.ActionID(""), action)
 	})
 }
 

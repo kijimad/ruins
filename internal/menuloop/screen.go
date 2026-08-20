@@ -102,12 +102,6 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 	return nil
 }
 
-// readAction は1フレームの Action を1件読む。合成済みの表を添えて、
-// world の入力供給源か本番のキーボードから読む
-func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
-	return keybind.ReadInput(world, s.table)
-}
-
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、
 // UseTabMenu、dirty なら View 再構築と overlay 重ね、widget.Update、の順で回す
 func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
@@ -122,7 +116,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		if err := ovBefore.HandleInput(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	} else if action, ok := s.readAction(world); ok && !s.mount.DispatchNav(action) {
+	} else if action, ok := keybind.ReadInput(world, s.table); ok && !s.mount.DispatchNav(action) {
 		// カーソル移動として消費されなかった Action だけが画面の意味を持つ
 		if action == inputmapper.ActionOpenKeyHelp {
 			// ? のキー一覧ヘルプは全メニュー共通なので Screen が吸い、
