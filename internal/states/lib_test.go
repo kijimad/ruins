@@ -29,12 +29,17 @@ func TestMenuList_実測容量が画面に収まる(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			capacity := menuframe.ListCapacity(res, tc.hasHeader, true)
+			// ListCapacity も realListHeight も ebitenui のウィジェットを組み、スレッド非対応な
+			// ebitenui グローバルへ触れる。並行テストと競合しないよう WithUILock で直列化する
+			var capacity, fit, over int
+			vrt.WithUILock(func() {
+				capacity = menuframe.ListCapacity(res, tc.hasHeader, true)
+				fit = realListHeight(res, tc.hasHeader, capacity)
+				over = realListHeight(res, tc.hasHeader, capacity+1)
+			})
 			require.Positive(t, capacity)
-
-			assert.LessOrEqual(t, realListHeight(res, tc.hasHeader, capacity), consts.GameHeight,
-				"容量ぶんの満杯ページは画面に収まる")
-			assert.Greater(t, realListHeight(res, tc.hasHeader, capacity+1), consts.GameHeight,
+			assert.LessOrEqual(t, fit, consts.GameHeight, "容量ぶんの満杯ページは画面に収まる")
+			assert.Greater(t, over, consts.GameHeight,
 				"1行増やすと収まらない。つまり容量は目一杯の値になっている")
 		})
 	}
