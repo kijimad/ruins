@@ -88,3 +88,22 @@ var IconKeyDigitBoxes = [10]string{
 	"\U000f03b9", // 8
 	"\U000f03bc", // 9
 }
+
+// IsKeycapGlyph は自前の白い箱を持つキーキャップ系グリフかを返す。
+// box 変種を選ぶ判断はこのファイルの定数定義が持つので、判定も隣に置く。
+// ヘルプの描画はこれで箱を敷くか決め、箱の有無をデータで持ち回らない
+func IsKeycapGlyph(r rune) bool {
+	if r >= IconKeyAlphaBoxBase && r <= IconKeyAlphaBoxBase+25 {
+		return true
+	}
+	switch string(r) {
+	case IconKeyHelp, IconKeyArrowUp, IconKeyArrowDown, IconKeyArrowLeft, IconKeyArrowRight:
+		return true
+	}
+	for _, d := range IconKeyDigitBoxes {
+		if string(r) == d {
+			return true
+		}
+	}
+	return false
+}

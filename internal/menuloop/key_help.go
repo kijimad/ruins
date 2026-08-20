@@ -1,11 +1,14 @@
 package menuloop
 
 import (
+	"unicode/utf8"
+
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
@@ -103,7 +106,7 @@ func keyHelpRow(e keybind.HintEntry, res resources.UIResources) *widget.Containe
 // renderKeycaps はキーの粒の並びを1枚の画像へ描く。箱入りグリフはそのまま白いキーキャップに
 // 見えるので素の色で描き、箱を持たないグリフには白い箱を敷いて黒で描き、見た目を揃える。
 // widget の入れ子で組むと preferred 幅の計算で潰れるため、画像にして寸法を確定させる
-func renderKeycaps(tokens []keybind.KeyToken, res resources.UIResources) *ebiten.Image {
+func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	const height = 24
 	const chipPad = 3
 	face := res.Text.BodyFace
@@ -116,12 +119,14 @@ func renderKeycaps(tokens []keybind.KeyToken, res resources.UIResources) *ebiten
 	caps := make([]keycap, 0, len(tokens))
 	total := 0
 	for i, tok := range tokens {
-		w, _ := text.Measure(tok.Text, face, 0)
+		r, _ := utf8.DecodeRuneInString(tok)
+		boxed := utf8.RuneCountInString(tok) == 1 && consts.IsKeycapGlyph(r)
+		w, _ := text.Measure(tok, face, 0)
 		cw := int(w)
-		if !tok.Boxed {
+		if !boxed {
 			cw += chipPad * 2
 		}
-		caps = append(caps, keycap{text: tok.Text, boxed: tok.Boxed, w: cw})
+		caps = append(caps, keycap{text: tok, boxed: boxed, w: cw})
 		total += cw
 		if i > 0 {
 			total += theme.Space2
