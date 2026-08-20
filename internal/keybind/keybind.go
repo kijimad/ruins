@@ -97,7 +97,7 @@ func Convert(ki input.KeyboardInput, table []Binding) (inputmapper.ActionID, boo
 
 // MustMerge は束縛表の断片を1枚に合成する。条件が重なる行の組があれば panic で拒否し、
 // ある断片が別の断片のキーを黙って影で食う継承的な事故を構築時に締め出す。
-// 全パッケージ変数の合成は起動と単体テストの両方で必ず通るため、事実上コンパイル時検査になる
+// 検査が走るのは合成の実行時。パッケージ変数の表は起動時に、Screen の表はその画面の構築時に走る
 func MustMerge(fragments ...[]Binding) []Binding {
 	var table []Binding
 	for _, f := range fragments {
