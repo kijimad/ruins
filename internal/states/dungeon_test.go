@@ -475,3 +475,33 @@ func TestDungeonState_OnStartResume_PreservesWorld(t *testing.T) {
 	// 復元済みの地形（固定物）が再生成で破棄されずに残る
 	assert.True(t, world.ECS.Alive(prop), "復元済みエンティティが保持される")
 }
+
+// TestDungeonBindings_ヘルプとデバッグのSlash共有 は、デバッグ表を重ねても Shift+Slash の
+// ヘルプが影で食われないことを固定する。デバッグ表は先に評価されるため、Shift 条件を
+// 誤ると Shift+Slash がデバッグメニューに一致してヘルプへ届かなくなる
+func TestDungeonBindings_ヘルプとデバッグのSlash共有(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Shift+Slashはデバッグ表があってもヘルプを開く", func(t *testing.T) {
+		t.Parallel()
+		mock := input.NewMockKeyboardInput()
+		mock.SetKeyPressed(ebiten.KeyShift, true)
+		mock.SetKeyJustPressed(ebiten.KeySlash, true)
+
+		action, ok := keybind.Convert(mock, dungeonDebugBindings, dungeonBindings)
+
+		assert.True(t, ok)
+		assert.Equal(t, inputmapper.ActionOpenKeyHelp, action)
+	})
+
+	t.Run("Shift無しのSlashはデバッグメニューを開く", func(t *testing.T) {
+		t.Parallel()
+		mock := input.NewMockKeyboardInput()
+		mock.SetKeyJustPressed(ebiten.KeySlash, true)
+
+		action, ok := keybind.Convert(mock, dungeonDebugBindings, dungeonBindings)
+
+		assert.True(t, ok)
+		assert.Equal(t, inputmapper.ActionOpenDebugMenu, action)
+	})
+}

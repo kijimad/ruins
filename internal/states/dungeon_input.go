@@ -66,9 +66,10 @@ var dungeonBindings = []keybind.Binding{
 }
 
 // dungeonDebugBindings はデバッグ設定のときだけ有効なキー。本番の表とは分け、
-// readAction が設定を見て先頭へ足す
+// readAction が設定を見て先頭へ足す。Slash はキー一覧ヘルプの Shift+Slash とキーを共有するので、
+// Shift 無しに限定してヘルプを影で食わないようにする
 var dungeonDebugBindings = []keybind.Binding{
-	{Key: ebiten.KeySlash, Action: inputmapper.ActionOpenDebugMenu},
+	{Key: ebiten.KeySlash, Shift: keybind.ShiftForbidden, Action: inputmapper.ActionOpenDebugMenu},
 }
 
 // readAction は1フレームのダンジョン操作を Action として読む。供給源があればそこから読み、
