@@ -1,7 +1,6 @@
 package keybind
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -27,11 +26,11 @@ func TestNavHint(t *testing.T) {
 
 		got := NavHint(world, MustMerge(MenuCommon, detail))
 
-		want := consts.IconKeyArrowLeft + consts.IconKeyArrowRight + " Tab   " +
-			consts.IconKeyArrowUp + consts.IconKeyArrowDown + " Select   " +
+		want := consts.IconArrowLeft + consts.IconArrowRight + " Tab   " +
+			consts.IconArrowUp + consts.IconArrowDown + " Select   " +
 			consts.IconKeyEnter + " Confirm   " +
-			consts.IconKeyHelp + " Help   " +
-			string(consts.IconKeyAlphaBoxBase+'x'-'a') + " Details   " +
+			"? Help   " +
+			"X Details   " +
 			consts.IconKeyEsc + " Back"
 		assert.Equal(t, want, got)
 	})
@@ -44,7 +43,7 @@ func TestNavHint(t *testing.T) {
 			{Key: ebiten.KeyX, Shift: ShiftRequired, Action: inputmapper.ActionVerbExamine, Label: "Inspect"},
 		})
 
-		assert.Equal(t, consts.IconKeyShift+string(consts.IconKeyAlphaBoxBase+'x'-'a')+" Inspect", got)
+		assert.Equal(t, consts.IconKeyShift+"X Inspect", got)
 	})
 }
 
@@ -53,7 +52,7 @@ func TestHelpHint(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	assert.Equal(t, consts.IconKeyHelp+" Help", HelpHint(world))
+	assert.Equal(t, "? Help", HelpHint(world))
 }
 
 // TestKeyLabel_キーキャップ表記 は ebiten の内部名が表示へ漏れないことを固定する。
@@ -72,12 +71,8 @@ func TestKeyLabel_キーキャップ表記(t *testing.T) {
 	}
 	entries := HintEntries(world, weaponSlots)
 	require.Len(t, entries, 1, "同じラベルの連続行は1項目にまとまる")
-	var wantDigits strings.Builder
-	for n := 1; n <= 5; n++ {
-		wantDigits.WriteString(consts.IconKeyDigitBoxes[n])
-	}
-	assert.Equal(t, wantDigits.String(), entries[0].Keys, "数字はキーキャップグリフで連結される")
+	assert.Equal(t, "12345", entries[0].Keys, "数字は数字1文字で連結される")
 
-	assert.Equal(t, consts.IconKeyDot, KeyLabel(Binding{Key: ebiten.KeyPeriod}), "記号キーもキーキャップグリフで表す")
+	assert.Equal(t, ".", KeyLabel(Binding{Key: ebiten.KeyPeriod}), "記号キーは記号1文字で表す")
 	assert.Equal(t, consts.IconKeySpace, KeyLabel(Binding{Key: ebiten.KeySpace}), "Spaceはキーキャップグリフで表す")
 }

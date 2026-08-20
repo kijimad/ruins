@@ -1,14 +1,11 @@
 package menuloop
 
 import (
-	"unicode/utf8"
-
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
@@ -103,30 +100,31 @@ func keyHelpRow(e keybind.HintEntry, res resources.UIResources) *widget.Containe
 	return row
 }
 
-// renderKeycaps はキーの粒の並びを1枚の画像へ描く。箱入りグリフはそのまま白いキーキャップに
-// 見えるので素の色で描き、箱を持たないグリフには白い箱を敷いて黒で描き、見た目を揃える。
+// renderKeycaps はキーの粒の並びを1枚の画像へ描く。全トークンへ一律に白い箱を敷き、
+// 中の表記を黒で描いてキーキャップに見せる。素の文字はアイコングリフの実効サイズと
+// 釣り合う KeycapFace で描く。
 // widget の入れ子で組むと preferred 幅の計算で潰れるため、画像にして寸法を確定させる
 func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	const height = 24
-	const chipPad = 3
-	face := res.Text.BodyFace
+	const chipPad = 4
 
 	type keycap struct {
-		text  string
-		boxed bool
-		w     int
+		text string
+		face text.Face
+		w    int
+		h    int
 	}
 	caps := make([]keycap, 0, len(tokens))
 	total := 0
 	for i, tok := range tokens {
-		r, _ := utf8.DecodeRuneInString(tok)
-		boxed := utf8.RuneCountInString(tok) == 1 && consts.IsKeycapGlyph(r)
-		w, _ := text.Measure(tok, face, 0)
-		cw := int(w)
-		if !boxed {
-			cw += chipPad * 2
+		// 素の文字はアイコンより小さく出るため、専用の KeycapFace で釣り合わせる
+		face := res.Text.BodyFace
+		if isASCII(tok) {
+			face = res.Text.KeycapFace
 		}
-		caps = append(caps, keycap{text: tok, boxed: boxed, w: cw})
+		w, h := text.Measure(tok, face, 0)
+		cw := int(w) + chipPad*2
+		caps = append(caps, keycap{text: tok, face: face, w: cw, h: int(h)})
 		total += cw
 		if i > 0 {
 			total += theme.Space2
@@ -142,20 +140,24 @@ func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 		if i > 0 {
 			x += theme.Space2
 		}
-		clr := theme.TextPrimary
-		tx := x
-		if !c.boxed {
-			vector.FillRect(img, float32(x), 1, float32(c.w), height-2, theme.TextPrimary, false)
-			clr = theme.ScreenBackground
-			tx += chipPad
-		}
+		vector.FillRect(img, float32(x), 0, float32(c.w), height, theme.TextPrimary, false)
 		op := &text.DrawOptions{}
-		op.GeoM.Translate(float64(tx), 0)
-		op.ColorScale.ScaleWithColor(clr)
-		text.Draw(img, c.text, face, op)
+		op.GeoM.Translate(float64(x+chipPad), float64(height-c.h)/2)
+		op.ColorScale.ScaleWithColor(theme.ScreenBackground)
+		text.Draw(img, c.text, c.face, op)
 		x += c.w
 	}
 	return img
+}
+
+// isASCII はトークンが素の文字だけかを返す。真ならキーキャップ用の大きめの face で描く
+func isASCII(s string) bool {
+	for _, r := range s {
+		if r > 0x7F {
+			return false
+		}
+	}
+	return true
 }
 
 // Update は閉じる入力だけを読む。ヘルプ表示中は時間を進めない

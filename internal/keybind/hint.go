@@ -11,8 +11,7 @@ import (
 )
 
 // HintEntry はキー表記とラベル訳の組。ヒント行とキー一覧ヘルプが共有する表示単位。
-// Keys は文字列文脈用の連結表記で、Tokens は粒のままの表記。グリフが自前の箱を持つかは
-// consts.IsKeycapGlyph がグリフから判定するので、粒は素の文字列でよい
+// Keys は文字列文脈用の連結表記で、Tokens は粒のままの表記
 type HintEntry struct {
 	Keys   string
 	Label  string
@@ -78,19 +77,20 @@ func HelpHint(world w.World) string {
 	return NavHint(world, rows)
 }
 
-// KeyTokens は Binding のキー表記をトークン列で返す。Shift 併用は Shift 記号のトークンを前置する
+// KeyTokens は Binding のキー表記をトークン列で返す。Shift 併用は Shift 記号のトークンを前置する。
+// 表記は素の文字か記号グリフで、キーキャップの箱は持たない。箱は描画側が全トークンへ一律に敷く
 func KeyTokens(b Binding) []string {
 	if b.Key == ebiten.KeySlash && b.Shift == ShiftRequired {
-		return []string{consts.IconKeyHelp}
+		return []string{"?"}
 	}
-	// 数字キーはキーキャップグリフで表す
+	// 数字キーは数字1文字で表す
 	if b.Key >= ebiten.KeyDigit0 && b.Key <= ebiten.KeyDigit9 {
-		return []string{consts.IconKeyDigitBoxes[b.Key-ebiten.KeyDigit0]}
+		return []string{string(rune('0' + b.Key - ebiten.KeyDigit0))}
 	}
-	// 英字キーはキーキャップグリフで表す。グリフは大文字デザインなので、
+	// 英字キーは物理キーの刻印に合わせて大文字1字で表す。
 	// Shift 併用は大文字化でなく Shift 記号の前置で表す
 	if b.Key >= ebiten.KeyA && b.Key <= ebiten.KeyZ {
-		keycap := string(consts.IconKeyAlphaBoxBase + rune(b.Key-ebiten.KeyA))
+		keycap := string(rune('A' + b.Key - ebiten.KeyA))
 		if b.Shift == ShiftRequired {
 			return []string{consts.IconKeyShift, keycap}
 		}
@@ -98,13 +98,13 @@ func KeyTokens(b Binding) []string {
 	}
 	switch b.Key {
 	case ebiten.KeyArrowLeft:
-		return []string{consts.IconKeyArrowLeft}
+		return []string{consts.IconArrowLeft}
 	case ebiten.KeyArrowRight:
-		return []string{consts.IconKeyArrowRight}
+		return []string{consts.IconArrowRight}
 	case ebiten.KeyArrowUp:
-		return []string{consts.IconKeyArrowUp}
+		return []string{consts.IconArrowUp}
 	case ebiten.KeyArrowDown:
-		return []string{consts.IconKeyArrowDown}
+		return []string{consts.IconArrowDown}
 	case ebiten.KeyEnter:
 		return []string{consts.IconKeyEnter}
 	case ebiten.KeyEscape:
@@ -114,7 +114,7 @@ func KeyTokens(b Binding) []string {
 	case ebiten.KeyTab:
 		return []string{consts.IconKeyTab}
 	case ebiten.KeyPeriod:
-		return []string{consts.IconKeyDot}
+		return []string{"."}
 	default:
 		// 専用表記の無いキーは内部名をそのまま出す
 		return []string{b.Key.String()}

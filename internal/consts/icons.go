@@ -22,13 +22,6 @@ const (
 	IconKeySpace = "\U000f1050" // md-keyboard_space
 	IconKeyTab   = "\U000f0312" // md-keyboard_tab
 	IconKeyShift = "\U000f0636" // md-apple_keyboard_shift
-	IconKeyHelp  = "\U000f078b" // md-help_box。? キーのキーキャップ表記
-	IconKeyDot   = "\U000f09df" // md-circle_small。. キーのキーキャップ表記
-	// 矢印キーのキーキャップ表記。ページ送り等の装飾矢印 IconArrow* とは使い分ける
-	IconKeyArrowUp    = "\U000f0738" // md-arrow_up_bold_box
-	IconKeyArrowDown  = "\U000f072f" // md-arrow_down_bold_box
-	IconKeyArrowLeft  = "\U000f0732" // md-arrow_left_bold_box
-	IconKeyArrowRight = "\U000f0735" // md-arrow_right_bold_box
 
 	// UI
 	IconHome     = "\uf015"
@@ -68,42 +61,3 @@ const (
 	IconQuestion = "\uf128"
 	IconCube     = "\uf1b2" // fa-cube
 )
-
-// IconKeyAlphaBoxBase は md-alpha_a_box。英字キーキャップの先頭で、a からの差分を足す。
-// a から z まで連続配置であることは実グリフのコードポイントで確認済み
-const IconKeyAlphaBoxBase rune = 0xF0B08
-
-// IconKeyDigitBoxes は数字キーのキーキャップグリフ md-numeric_N_box。
-// 系列のコードポイントは等差でなく5の前後で刻みが乱れるため、算術でなく実測の表で持つ。
-// 等差を仮定すると 5 だけ outline 系の別グリフを拾い、白抜きの箱が1つ混ざる
-var IconKeyDigitBoxes = [10]string{
-	"\U000f03a1", // 0
-	"\U000f03a4", // 1
-	"\U000f03a7", // 2
-	"\U000f03aa", // 3
-	"\U000f03ad", // 4
-	"\U000f03b1", // 5
-	"\U000f03b3", // 6
-	"\U000f03b6", // 7
-	"\U000f03b9", // 8
-	"\U000f03bc", // 9
-}
-
-// IsKeycapGlyph は自前の白い箱を持つキーキャップ系グリフかを返す。
-// box 変種を選ぶ判断はこのファイルの定数定義が持つので、判定も隣に置く。
-// ヘルプの描画はこれで箱を敷くか決め、箱の有無をデータで持ち回らない
-func IsKeycapGlyph(r rune) bool {
-	if r >= IconKeyAlphaBoxBase && r <= IconKeyAlphaBoxBase+25 {
-		return true
-	}
-	switch string(r) {
-	case IconKeyHelp, IconKeyArrowUp, IconKeyArrowDown, IconKeyArrowLeft, IconKeyArrowRight:
-		return true
-	}
-	for _, d := range IconKeyDigitBoxes {
-		if string(r) == d {
-			return true
-		}
-	}
-	return false
-}
