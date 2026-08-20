@@ -8,7 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
+	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -41,10 +42,14 @@ func (st *CubePanelState) OnStart(world w.World) error {
 	return nil
 }
 
+// cubePanelBindings はコントロールパネルの束縛表。Esc で閉じるだけ
+var cubePanelBindings = []keybind.Binding{
+	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
+}
+
 // Update はキー入力で閉じるだけ。パネル表示中は時間を進めない。
-func (st *CubePanelState) Update(_ w.World) (es.Transition[w.World], error) {
-	keyboardInput := input.GetSharedKeyboardInput()
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
+func (st *CubePanelState) Update(world w.World) (es.Transition[w.World], error) {
+	if action, ok := keybind.ReadInput(world, cubePanelBindings); ok && action == inputmapper.ActionCloseMenu {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
 	return st.ConsumeTransition(), nil

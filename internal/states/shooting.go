@@ -12,8 +12,8 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -58,34 +58,21 @@ func (st *ShootingState) OnStop(_ w.World) error { return nil }
 func (st *ShootingState) Update(world w.World) (es.Transition[w.World], error) {
 	st.blinkCounter++
 
-	if action, ok := st.handleInput(); ok {
+	if action, ok := keybind.ReadInput(world, shootingBindings); ok {
 		return st.doAction(world, action)
 	}
 
 	return st.ConsumeTransition(), nil
 }
 
-// handleInput はキー入力をActionIDに変換する
-func (st *ShootingState) handleInput() (inputmapper.ActionID, bool) {
-	keyboardInput := input.GetSharedKeyboardInput()
-
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
-		return inputmapper.ActionCloseMenu, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyTab) {
-		if ebiten.IsKeyPressed(ebiten.KeyShift) {
-			return inputmapper.ActionMenuTabPrev, true
-		}
-		return inputmapper.ActionMenuTabNext, true
-	}
-	if keyboardInput.IsEnterJustPressedOnce() {
-		return inputmapper.ActionShoot, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyR) {
-		return inputmapper.ActionReload, true
-	}
-
-	return "", false
+// shootingBindings は射撃モードの束縛表。Tab で標的を切り替え、Enter で撃つ。
+// Shift+Tab の行を Tab の行より先に置き、Shift 併用を先に判定する
+var shootingBindings = []keybind.Binding{
+	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
+	{Key: ebiten.KeyTab, Shift: keybind.ShiftRequired, Action: inputmapper.ActionMenuTabPrev},
+	{Key: ebiten.KeyTab, Action: inputmapper.ActionMenuTabNext},
+	{Key: ebiten.KeyEnter, Action: inputmapper.ActionShoot},
+	{Key: ebiten.KeyR, Action: inputmapper.ActionReload},
 }
 
 // doAction はActionIDを実行する
