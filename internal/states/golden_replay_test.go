@@ -342,6 +342,19 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuSelect},           // Settings を開いて push する
 			},
 		},
+		// 人物画面のスキルタブへ移り、複数ページの一覧を撮る。装備タブから2回タブ送りして開く。
+		// スキルは25個超えでページ送りが要り、カテゴリ見出し行も混ざる。ページ表示行・見出し行・
+		// 見出しとタブ帯を持つ構成の実測容量、を1枚で覆う。装備タブの静止画では出ない画
+		{
+			name: "CharacterSkills",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.CharacterState{}}, nil
+			},
+			steps: []replayStep{
+				{action: inputmapper.ActionMenuTabNext},             // 装備から能力へ
+				{action: inputmapper.ActionMenuTabNext, shot: true}, // 能力からスキルへ。開いた画を撮る
+			},
+		},
 		// ? で開くキー一覧ヘルプの描画を固定する。ヘルプの golden はこの1枚に絞る。
 		// 文脈は最もキーが多いダンジョンにし、数字連結や記号の表記崩れまで一覧で検出する
 		{
