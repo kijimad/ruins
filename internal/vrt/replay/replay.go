@@ -76,7 +76,8 @@ func PlayScenario(
 const NoInput inputmapper.ActionID = ""
 
 // actionSource は Action 列を1フレーム1件で吐く供給源を作る。NoInput と列が尽きたあとは
-// 偽を返し、Screen はキーボード経路へ戻る
+// 偽を返す。供給源は非 nil のままなので ReadInput はキーボードへ戻らず、そのフレームは
+// 入力なしとして扱われる
 func actionSource(actions []inputmapper.ActionID) inputmapper.Source {
 	rest := actions
 	return func() (inputmapper.ActionID, bool) {
