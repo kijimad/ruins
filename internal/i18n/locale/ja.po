@@ -5672,3 +5672,39 @@ msgstr "手取り"
 
 msgid "Turn"
 msgstr "ターン"
+
+msgid "Menu"
+msgstr "メニュー"
+
+msgid "Interact"
+msgstr "交流"
+
+msgid "Field info"
+msgstr "視界情報"
+
+msgid "Map"
+msgstr "地図"
+
+msgid "Shoot"
+msgstr "射撃"
+
+msgid "Pick up"
+msgstr "拾う"
+
+msgid "Move"
+msgstr "移動"
+
+msgid "Wait"
+msgstr "待機"
+
+msgid "Use here"
+msgstr "足元を使う"
+
+msgid "Weapon slot"
+msgstr "武器スロット"
+
+msgid "Help"
+msgstr "ヘルプ"
+
+msgid "Key bindings"
+msgstr "キー一覧"

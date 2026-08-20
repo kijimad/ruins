@@ -32,7 +32,9 @@ const (
 	ActionOpenInteractionMenu ActionID = "open_interaction_menu"
 	ActionOpenFieldInfo       ActionID = "open_field_info"
 	ActionOpenOverworldMap    ActionID = "open_overworld_map"
-	ActionCloseMenu           ActionID = "close_menu"
+	// ActionOpenKeyHelp は現在の文脈のキー一覧ヘルプを開く
+	ActionOpenKeyHelp ActionID = "open_key_help"
+	ActionCloseMenu   ActionID = "close_menu"
 )
 
 // アイテム系アクション

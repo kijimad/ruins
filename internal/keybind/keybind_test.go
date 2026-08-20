@@ -225,6 +225,7 @@ func TestNavHint(t *testing.T) {
 		want := consts.IconArrowLeft + consts.IconArrowRight + " Tab   " +
 			consts.IconArrowUp + consts.IconArrowDown + " Select   " +
 			consts.IconKeyEnter + " Confirm   " +
+			"? Help   " +
 			"x Details   " +
 			consts.IconKeyEsc + " Back"
 		assert.Equal(t, want, got)
@@ -238,6 +239,7 @@ func TestNavHint(t *testing.T) {
 
 		want := consts.IconArrowUp + consts.IconArrowDown + " Select   " +
 			consts.IconKeyEnter + " Confirm   " +
+			"? Help   " +
 			consts.IconKeyEsc + " Back"
 		assert.Equal(t, want, got)
 	})

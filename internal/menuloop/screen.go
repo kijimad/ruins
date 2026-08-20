@@ -89,14 +89,18 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 	return nil
 }
 
+// bindings は state 固有の束縛表を返す。持たない state は nil
+func (s *Screen[P]) bindings() []keybind.Binding {
+	if kb, ok := s.model.(KeyBindings); ok {
+		return kb.KeyBindings()
+	}
+	return nil
+}
+
 // readAction は1フレームの Action を1件読む。state が独自キーの束縛表を持つなら添えて、
 // world の入力供給源か本番のキーボードから読む
 func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
-	var bindings []keybind.Binding
-	if kb, ok := s.model.(KeyBindings); ok {
-		bindings = kb.KeyBindings()
-	}
-	return keybind.ReadInput(world, bindings, keybind.MenuCommon)
+	return keybind.ReadInput(world, s.bindings(), keybind.MenuCommon)
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、
@@ -115,6 +119,11 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	} else if action, ok := s.readAction(world); ok {
 		if hooks.IsNavAction(action) {
 			s.mount.Dispatch(action)
+		} else if action == inputmapper.ActionOpenKeyHelp {
+			// ? のキー一覧ヘルプは全メニュー共通なので Screen が吸い、
+			// この画面の束縛表と共通表から一覧を組んで push する
+			return es.Transition[w.World]{Type: es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewKeyHelpState(s.bindings(), keybind.MenuCommon)}}, nil
 		} else if tr, err := m.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if tr.Type != es.TransNone {

@@ -10,18 +10,21 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// NavHint は束縛表からキー操作ヒントの1行を組む。表を変えれば表示が追随し、
-// 挙動とヒントの二重管理をなくす。tables を表の順に並べ、Label が空の行は隠しキーとして出さない。
-// 連続する同じ Label の行はキー表記を連結して1項目にまとめる。戻る操作は常に最後に置くため、
-// ActionMenuCancel の行だけ末尾へ回す。hasTabs が偽ならタブ切替の行を出さない
-func NavHint(world w.World, hasTabs bool, tables ...[]Binding) string {
-	var parts []string
-	var cancels []string
+// HintEntry はキー表記とラベル訳の組。ヒント行とキー一覧ヘルプが共有する表示単位
+type HintEntry struct {
+	Keys  string
+	Label string
+}
+
+// HintEntries は束縛表から表示単位の一覧を導出する。表の順に並べ、Label が空の行は
+// 隠しキーとして出さない。連続する同じ Label の行はキー表記を連結して1項目にまとめる
+func HintEntries(world w.World, tables ...[]Binding) []HintEntry {
+	var entries []HintEntry
 	label := ""
 	keys := ""
 	flush := func() {
 		if label != "" {
-			parts = append(parts, keys+" "+query.T(world, label))
+			entries = append(entries, HintEntry{Keys: keys, Label: query.T(world, label)})
 		}
 		label, keys = "", ""
 	}
@@ -30,29 +33,49 @@ func NavHint(world w.World, hasTabs bool, tables ...[]Binding) string {
 			if b.Label == "" {
 				continue
 			}
-			if !hasTabs && (b.Action == inputmapper.ActionMenuTabPrev || b.Action == inputmapper.ActionMenuTabNext) {
-				continue
-			}
-			if b.Action == inputmapper.ActionMenuCancel {
-				cancels = append(cancels, keyLabel(b)+" "+query.T(world, b.Label))
-				continue
-			}
 			if b.Label != label {
 				flush()
 				label = b.Label
 			}
-			keys += keyLabel(b)
+			keys += KeyLabel(b)
 		}
 		flush()
 	}
-	parts = append(parts, cancels...)
+	return entries
+}
+
+// NavHint は束縛表からキー操作ヒントの1行を組む。表を変えれば表示が追随し、
+// 挙動とヒントの二重管理をなくす。戻る操作は常に最後に置くため、ActionMenuCancel の行だけ
+// 末尾へ回す。hasTabs が偽ならタブ切替の行を出さない
+func NavHint(world w.World, hasTabs bool, tables ...[]Binding) string {
+	var rows []Binding
+	var cancels []Binding
+	for _, table := range tables {
+		for _, b := range table {
+			if !hasTabs && (b.Action == inputmapper.ActionMenuTabPrev || b.Action == inputmapper.ActionMenuTabNext) {
+				continue
+			}
+			if b.Action == inputmapper.ActionMenuCancel {
+				cancels = append(cancels, b)
+				continue
+			}
+			rows = append(rows, b)
+		}
+	}
+	parts := make([]string, 0, 8)
+	for _, e := range HintEntries(world, rows, cancels) {
+		parts = append(parts, e.Keys+" "+e.Label)
+	}
 	return strings.Join(parts, "   ")
 }
 
-// keyLabel は Binding のキー表記を返す。矢印や Enter/Esc は素の記号がフォントに無く
+// KeyLabel は Binding のキー表記を返す。矢印や Enter/Esc は素の記号がフォントに無く
 // 文字化けするため FontAwesome のアイコンを使う。文字キーは小文字で表し、
 // Shift 併用は大文字で表す。verbList の KeyHint と同じ表記規約
-func keyLabel(b Binding) string {
+func KeyLabel(b Binding) string {
+	if b.Key == ebiten.KeySlash && b.Shift == ShiftRequired {
+		return "?"
+	}
 	switch b.Key {
 	case ebiten.KeyArrowLeft:
 		return consts.IconArrowLeft

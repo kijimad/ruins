@@ -59,6 +59,7 @@ var MenuCommon = []Binding{
 	{Key: ebiten.KeyTab, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionMenuTabPrev},
 	{Key: ebiten.KeyTab, Press: PressJust, Action: inputmapper.ActionMenuTabNext},
 	{Key: ebiten.KeyEnter, Press: PressJust, Action: inputmapper.ActionMenuSelect, Label: "Confirm"},
+	{Key: ebiten.KeySlash, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionOpenKeyHelp, Label: "Help"},
 	{Key: ebiten.KeyEscape, Press: PressJust, Action: inputmapper.ActionMenuCancel, Label: "Back"},
 }
 

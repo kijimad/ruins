@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -27,39 +28,41 @@ import (
 // 斜めの行を単独移動の行より先に置き、同時押しを先に判定する
 var dungeonBindings = []keybind.Binding{
 	// モーダル開閉
-	{Key: ebiten.KeyM, Action: inputmapper.ActionOpenDungeonMenu},
-	{Key: ebiten.KeySpace, Action: inputmapper.ActionOpenInteractionMenu},
+	{Key: ebiten.KeyM, Action: inputmapper.ActionOpenDungeonMenu, Label: "Menu"},
+	{Key: ebiten.KeySpace, Action: inputmapper.ActionOpenInteractionMenu, Label: "Interact"},
 	// 視界情報表示。調べる X すなわち Shift+x へ X を譲り、フィールド情報は L に置く
-	{Key: ebiten.KeyL, Action: inputmapper.ActionOpenFieldInfo},
-	{Key: ebiten.KeyN, Action: inputmapper.ActionOpenOverworldMap},
-	{Key: ebiten.KeyF, Action: inputmapper.ActionShoot},
-	{Key: ebiten.KeyG, Action: inputmapper.ActionPickup},
+	{Key: ebiten.KeyL, Action: inputmapper.ActionOpenFieldInfo, Label: "Field info"},
+	{Key: ebiten.KeyN, Action: inputmapper.ActionOpenOverworldMap, Label: "Map"},
+	{Key: ebiten.KeyF, Action: inputmapper.ActionShoot, Label: "Shoot"},
+	{Key: ebiten.KeyG, Action: inputmapper.ActionPickup, Label: "Pick up"},
 	// 動詞タブ画面への直達。調べる X は Shift+x で区別する
-	{Key: ebiten.KeyX, Shift: keybind.ShiftRequired, Action: inputmapper.ActionVerbExamine},
-	{Key: ebiten.KeyD, Action: inputmapper.ActionVerbPlace},
-	{Key: ebiten.KeyE, Action: inputmapper.ActionVerbConsume},
-	{Key: ebiten.KeyR, Action: inputmapper.ActionVerbRead},
-	{Key: ebiten.KeyT, Action: inputmapper.ActionVerbUse},
-	{Key: ebiten.KeyS, Action: inputmapper.ActionVerbList},
+	{Key: ebiten.KeyX, Shift: keybind.ShiftRequired, Action: inputmapper.ActionVerbExamine, Label: "Inspect"},
+	{Key: ebiten.KeyD, Action: inputmapper.ActionVerbPlace, Label: "Drop"},
+	{Key: ebiten.KeyE, Action: inputmapper.ActionVerbConsume, Label: "Eat"},
+	{Key: ebiten.KeyR, Action: inputmapper.ActionVerbRead, Label: "Read"},
+	{Key: ebiten.KeyT, Action: inputmapper.ActionVerbUse, Label: "Use"},
+	{Key: ebiten.KeyS, Action: inputmapper.ActionVerbList, Label: "List"},
 	// 斜め移動。Shift 押下中は2キー同時押しの斜めだけ受け付ける
 	{Key: ebiten.KeyUp, Shift: keybind.ShiftRequired, Press: keybind.PressRepeat, Held: new(ebiten.KeyLeft), Action: inputmapper.ActionMoveNorthWest},
 	{Key: ebiten.KeyUp, Shift: keybind.ShiftRequired, Press: keybind.PressRepeat, Held: new(ebiten.KeyRight), Action: inputmapper.ActionMoveNorthEast},
 	{Key: ebiten.KeyDown, Shift: keybind.ShiftRequired, Press: keybind.PressRepeat, Held: new(ebiten.KeyLeft), Action: inputmapper.ActionMoveSouthWest},
 	{Key: ebiten.KeyDown, Shift: keybind.ShiftRequired, Press: keybind.PressRepeat, Held: new(ebiten.KeyRight), Action: inputmapper.ActionMoveSouthEast},
 	// 移動。WASD は動詞へ空けるため矢印キーのみを使う
-	{Key: ebiten.KeyUp, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveNorth},
-	{Key: ebiten.KeyDown, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveSouth},
-	{Key: ebiten.KeyLeft, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveWest},
-	{Key: ebiten.KeyRight, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveEast},
-	// 待機・相互作用
-	{Key: ebiten.KeyPeriod, Press: keybind.PressRepeat, Action: inputmapper.ActionWait},
-	{Key: ebiten.KeyEnter, Action: inputmapper.ActionInteract},
-	// 武器スロット切り替え
-	{Key: ebiten.Key1, Action: inputmapper.ActionSwitchWeaponSlot1},
-	{Key: ebiten.Key2, Action: inputmapper.ActionSwitchWeaponSlot2},
-	{Key: ebiten.Key3, Action: inputmapper.ActionSwitchWeaponSlot3},
-	{Key: ebiten.Key4, Action: inputmapper.ActionSwitchWeaponSlot4},
-	{Key: ebiten.Key5, Action: inputmapper.ActionSwitchWeaponSlot5},
+	{Key: ebiten.KeyUp, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveNorth, Label: "Move"},
+	{Key: ebiten.KeyDown, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveSouth, Label: "Move"},
+	{Key: ebiten.KeyLeft, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveWest, Label: "Move"},
+	{Key: ebiten.KeyRight, Shift: keybind.ShiftForbidden, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveEast, Label: "Move"},
+	// 待機・足元の相互作用
+	{Key: ebiten.KeyPeriod, Press: keybind.PressRepeat, Action: inputmapper.ActionWait, Label: "Wait"},
+	{Key: ebiten.KeyEnter, Action: inputmapper.ActionInteract, Label: "Use here"},
+	// 武器スロット切り替え。同じラベルの連続行なのでヒントでは 12345 と連結される
+	{Key: ebiten.Key1, Action: inputmapper.ActionSwitchWeaponSlot1, Label: "Weapon slot"},
+	{Key: ebiten.Key2, Action: inputmapper.ActionSwitchWeaponSlot2, Label: "Weapon slot"},
+	{Key: ebiten.Key3, Action: inputmapper.ActionSwitchWeaponSlot3, Label: "Weapon slot"},
+	{Key: ebiten.Key4, Action: inputmapper.ActionSwitchWeaponSlot4, Label: "Weapon slot"},
+	{Key: ebiten.Key5, Action: inputmapper.ActionSwitchWeaponSlot5, Label: "Weapon slot"},
+	// キー一覧ヘルプ
+	{Key: ebiten.KeySlash, Shift: keybind.ShiftRequired, Action: inputmapper.ActionOpenKeyHelp, Label: "Help"},
 }
 
 // dungeonDebugBindings はデバッグ設定のときだけ有効なキー。本番の表とは分け、
@@ -88,7 +91,7 @@ func (st *DungeonState) moveDir(base gc.Direction) gc.Direction {
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionShoot, inputmapper.ActionPickup,
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot, inputmapper.ActionPickup,
 		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
 		// UI系はターンチェック不要
 	default:
@@ -119,6 +122,10 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return &LookAroundState{}, nil },
 		}}, nil
+	case inputmapper.ActionOpenKeyHelp:
+		// ダンジョン文脈のキー一覧を開く。表示は束縛表から導出する
+		return es.Transition[w.World]{Type: es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{menuloop.NewKeyHelpState(dungeonBindings)}}, nil
 	case inputmapper.ActionOpenOverworldMap:
 		// 地図は今まさにオーバーワールドにいるときだけ開く。ダンジョンやキューブ内部では
 		// 帯が現ステージにないので無視する。State 属性の isSeamless でなく現ステージで判定する

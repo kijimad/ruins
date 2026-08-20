@@ -73,6 +73,24 @@ func TestGoldenReplay(t *testing.T) {
 				"",
 			},
 		},
+		// ? で開くキー一覧ヘルプの描画を固定する。動詞タブ画面の束縛表と共通表から
+		// 一覧が導出されることを覆う。Screen の入力ゲートが OpenKeyHelp を吸って push する経路で撮る
+		{
+			name: "KeyHelp",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{&gs.ItemActionState{}}, nil
+			},
+			actions: []inputmapper.ActionID{
+				inputmapper.ActionOpenKeyHelp, // キー一覧ヘルプを push する
+			},
+			shots: []string{
+				"",
+				"TestGolden_KeyHelp",
+			},
+		},
 		// x で開く詳細モーダルの描画を固定する。個数とタイトルバーが無く、性能・性質と説明が
 		// 並ぶことを覆う。入力ゲートと overlay 重ねを含む本番経路で撮る
 		{
