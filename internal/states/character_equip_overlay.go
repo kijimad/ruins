@@ -80,10 +80,11 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 				return err
 			}
 			o.active = false
-		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-			o.mount.Dispatch(action)
 		default:
-			// 装備選択中は上記以外のアクションを扱わない
+			// 移動系は自前カーソルの mount へ流す。それ以外は装備選択中は扱わない
+			if hooks.IsNavAction(action) {
+				o.mount.Dispatch(action)
+			}
 		}
 	}
 	o.mount.Update()

@@ -70,51 +70,80 @@ func (n *tabMenuNav) clamp(s TabMenuState) TabMenuState {
 	return s
 }
 
-// reduce はアクションに応じて状態を更新する
+// navHandlers は移動系 Action と状態遷移の対応表。移動系の集合の唯一の定義で、
+// IsNavAction の判定も reduce の分岐もここから導く。集合と挙動が別の場所に複製されると
+// 片方だけ更新してずれるため、1つの表に束ねる
+var navHandlers = map[inputmapper.ActionID]func(*tabMenuNav, TabMenuState) TabMenuState{
+	inputmapper.ActionMenuTabPrev: (*tabMenuNav).tabPrev,
+	inputmapper.ActionMenuTabNext: (*tabMenuNav).tabNext,
+	inputmapper.ActionMenuUp:      (*tabMenuNav).up,
+	inputmapper.ActionMenuDown:    (*tabMenuNav).down,
+	inputmapper.ActionMenuLeft:    (*tabMenuNav).left,
+	inputmapper.ActionMenuRight:   (*tabMenuNav).right,
+}
+
+// reduce はアクションに応じて状態を更新する。移動系でなければ何もしない
 func (n *tabMenuNav) reduce(s TabMenuState, a inputmapper.ActionID) TabMenuState {
 	s = n.clamp(s)
-	tabIdx := s.TabIndex
-	itemIdx := s.ItemIndex
-	count := n.itemCountForTab(tabIdx)
+	if h, ok := navHandlers[a]; ok {
+		return h(n, s)
+	}
+	return s
+}
 
-	switch a {
-	case inputmapper.ActionMenuTabPrev:
-		if n.config.TabCount == 0 {
-			return s
-		}
-		newTab := (tabIdx - 1 + n.config.TabCount) % n.config.TabCount
-		return TabMenuState{TabIndex: newTab, ItemIndex: n.firstSelectable(newTab)}
-	case inputmapper.ActionMenuTabNext:
-		if n.config.TabCount == 0 {
-			return s
-		}
-		newTab := (tabIdx + 1) % n.config.TabCount
-		return TabMenuState{TabIndex: newTab, ItemIndex: n.firstSelectable(newTab)}
-	case inputmapper.ActionMenuUp:
-		if count == 0 {
-			return s
-		}
-		next := (itemIdx - 1 + count) % count
-		return TabMenuState{TabIndex: tabIdx, ItemIndex: n.skipNext(tabIdx, next, -1)}
-	case inputmapper.ActionMenuDown:
-		if count == 0 {
-			return s
-		}
-		next := (itemIdx + 1) % count
-		return TabMenuState{TabIndex: tabIdx, ItemIndex: n.skipNext(tabIdx, next, 1)}
-	case inputmapper.ActionMenuLeft:
-		if n.config.ItemsPerPage > 0 && itemIdx >= n.config.ItemsPerPage {
-			return TabMenuState{TabIndex: tabIdx, ItemIndex: n.skipNext(tabIdx, itemIdx-n.config.ItemsPerPage, 1)}
-		}
-		return s
-	case inputmapper.ActionMenuRight:
-		if n.config.ItemsPerPage > 0 && itemIdx+n.config.ItemsPerPage < count {
-			return TabMenuState{TabIndex: tabIdx, ItemIndex: n.skipNext(tabIdx, itemIdx+n.config.ItemsPerPage, 1)}
-		}
-		return s
-	default:
+// tabPrev は前のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く
+func (n *tabMenuNav) tabPrev(s TabMenuState) TabMenuState {
+	if n.config.TabCount == 0 {
 		return s
 	}
+	newTab := (s.TabIndex - 1 + n.config.TabCount) % n.config.TabCount
+	return TabMenuState{TabIndex: newTab, ItemIndex: n.firstSelectable(newTab)}
+}
+
+// tabNext は次のタブへ循環して移り、カーソルを新タブの先頭選択可能行へ置く
+func (n *tabMenuNav) tabNext(s TabMenuState) TabMenuState {
+	if n.config.TabCount == 0 {
+		return s
+	}
+	newTab := (s.TabIndex + 1) % n.config.TabCount
+	return TabMenuState{TabIndex: newTab, ItemIndex: n.firstSelectable(newTab)}
+}
+
+// up はカーソルを1つ上へ動かす。端では循環し、見出し行は飛ばす
+func (n *tabMenuNav) up(s TabMenuState) TabMenuState {
+	count := n.itemCountForTab(s.TabIndex)
+	if count == 0 {
+		return s
+	}
+	next := (s.ItemIndex - 1 + count) % count
+	return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, next, -1)}
+}
+
+// down はカーソルを1つ下へ動かす。端では循環し、見出し行は飛ばす
+func (n *tabMenuNav) down(s TabMenuState) TabMenuState {
+	count := n.itemCountForTab(s.TabIndex)
+	if count == 0 {
+		return s
+	}
+	next := (s.ItemIndex + 1) % count
+	return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, next, 1)}
+}
+
+// left はページを1つ前へ繰る。ページ送りが無効か先頭ページなら何もしない
+func (n *tabMenuNav) left(s TabMenuState) TabMenuState {
+	if n.config.ItemsPerPage > 0 && s.ItemIndex >= n.config.ItemsPerPage {
+		return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, s.ItemIndex-n.config.ItemsPerPage, 1)}
+	}
+	return s
+}
+
+// right はページを1つ次へ繰る。ページ送りが無効か末尾ページなら何もしない
+func (n *tabMenuNav) right(s TabMenuState) TabMenuState {
+	count := n.itemCountForTab(s.TabIndex)
+	if n.config.ItemsPerPage > 0 && s.ItemIndex+n.config.ItemsPerPage < count {
+		return TabMenuState{TabIndex: s.TabIndex, ItemIndex: n.skipNext(s.TabIndex, s.ItemIndex+n.config.ItemsPerPage, 1)}
+	}
+	return s
 }
 
 // SetTab は指定タブへ直接カーソルを移す。新タブの先頭選択可能行へカーソルを置き、範囲外はクランプする。
@@ -124,17 +153,12 @@ func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) {
 	store.states[keyPrefix] = nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)})
 }
 
-// IsNavAction はカーソル移動系の Action かを返す。reduce が消費する集合と一致させる。
-// menuloop.Screen はこの集合を Dispatch だけで処理し、DoAction へは渡さない
+// IsNavAction はカーソル移動系の Action かを返す。集合は navHandlers から導くので、
+// 遷移の追加と判定がずれることはない。menuloop.Screen はこの集合を Dispatch だけで処理し、
+// DoAction へは渡さない
 func IsNavAction(a inputmapper.ActionID) bool {
-	switch a {
-	case inputmapper.ActionMenuTabPrev, inputmapper.ActionMenuTabNext,
-		inputmapper.ActionMenuUp, inputmapper.ActionMenuDown,
-		inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
-		return true
-	default:
-		return false
-	}
+	_, ok := navHandlers[a]
+	return ok
 }
 
 // UseTabMenu は再利用可能なタブメニュー状態管理を提供する
