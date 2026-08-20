@@ -51,7 +51,8 @@ type Model[P any] interface {
 }
 
 // KeyBindings は共通キーに加える独自キーを持つ state が満たす任意契約。キーと Action の
-// 対応を表で返すだけで、キー読み取りの実行は keybind が担う。表は共通キーより先に評価される。
+// 対応を表で返すだけで、キー読み取りの実行は keybind が担う。表は NewScreen が共通表と
+// 1枚に合成し、共通キーとの重なりは構築時に拒否される。
 // 実装 state は var _ menuloop.KeyBindings = &XState{} で綴りとシグネチャを静的に検証する
 type KeyBindings interface {
 	KeyBindings() []keybind.Binding
@@ -62,7 +63,10 @@ type KeyBindings interface {
 // widget は ebitenui を retained として扱い、props・カーソル・overlay が変わったフレームだけ組み直す。
 // 変化が無ければ前フレームのツリーを再利用する
 type Screen[P any] struct {
-	model         Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
+	model Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
+	// table はこの画面のキー束縛。state 固有の断片と共通表を構築時に1枚へ合成済みで、
+	// 実行時に表を重ねる階層は無い。重なりは MustMerge が構築時に拒否する
+	table         []keybind.Binding
 	mount         *hooks.Mount[P]
 	widget        *ebitenui.UI
 	overlays      []overlay.Layer
@@ -73,7 +77,16 @@ type Screen[P any] struct {
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
 // 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す
 func NewScreen[P any](model Model[P], overlays ...overlay.Layer) *Screen[P] {
-	return &Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
+	var frag []keybind.Binding
+	if kb, ok := model.(KeyBindings); ok {
+		frag = kb.KeyBindings()
+	}
+	return &Screen[P]{
+		model:    model,
+		table:    keybind.MustMerge(frag, keybind.MenuCommon),
+		mount:    hooks.NewMount[P](),
+		overlays: overlays,
+	}
 }
 
 // Props は現在の props を返す。View 以外から現在値を参照する必要があるとき使う
@@ -89,18 +102,10 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 	return nil
 }
 
-// bindings は state 固有の束縛表を返す。持たない state は nil
-func (s *Screen[P]) bindings() []keybind.Binding {
-	if kb, ok := s.model.(KeyBindings); ok {
-		return kb.KeyBindings()
-	}
-	return nil
-}
-
-// readAction は1フレームの Action を1件読む。state が独自キーの束縛表を持つなら添えて、
+// readAction は1フレームの Action を1件読む。合成済みの表を添えて、
 // world の入力供給源か本番のキーボードから読む
 func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
-	return keybind.ReadInput(world, s.bindings(), keybind.MenuCommon)
+	return keybind.ReadInput(world, s.table)
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、
@@ -123,7 +128,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 			// ? のキー一覧ヘルプは全メニュー共通なので Screen が吸い、
 			// この画面の束縛表と共通表から一覧を組んで push する
 			return es.Transition[w.World]{Type: es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewKeyHelpState(s.bindings(), keybind.MenuCommon)}}, nil
+				NewStateFuncs: []es.StateFactory[w.World]{NewKeyHelpState(s.table)}}, nil
 		} else if tr, err := m.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if tr.Type != es.TransNone {

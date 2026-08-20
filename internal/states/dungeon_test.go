@@ -256,7 +256,7 @@ func TestDungeonBindings_Cardinal(t *testing.T) {
 			mock := input.NewMockKeyboardInput()
 			mock.SetKeyPressedWithRepeat(tt.key, true)
 
-			action, ok := keybind.Convert(mock, dungeonBindings)
+			action, ok := keybind.Convert(mock, dungeonTable)
 			assert.True(t, ok)
 			assert.Equal(t, tt.expected, action)
 		})
@@ -274,7 +274,7 @@ func TestDungeonBindings_WASDは移動しない(t *testing.T) {
 			mock := input.NewMockKeyboardInput()
 			mock.SetKeyPressedWithRepeat(key, true)
 
-			_, ok := keybind.Convert(mock, dungeonBindings)
+			_, ok := keybind.Convert(mock, dungeonTable)
 			assert.False(t, ok, "WASDは移動しないべき")
 		})
 	}
@@ -288,7 +288,7 @@ func TestDungeonBindings_NoShiftNoDiagonal(t *testing.T) {
 	mock.SetKeyPressedWithRepeat(ebiten.KeyUp, true)
 	mock.SetKeyPressedWithRepeat(ebiten.KeyLeft, true)
 
-	action, ok := keybind.Convert(mock, dungeonBindings)
+	action, ok := keybind.Convert(mock, dungeonTable)
 	assert.True(t, ok)
 	// Shiftなしでは表で先にある方向、つまり上が返る
 	assert.Equal(t, inputmapper.ActionMoveNorth, action)
@@ -320,7 +320,7 @@ func TestDungeonBindings_ShiftDiagonal(t *testing.T) {
 			mock.SetKeyPressedWithRepeat(tt.verticalKey, true)
 			mock.SetKeyPressed(tt.horizontalKey, true)
 
-			action, ok := keybind.Convert(mock, dungeonBindings)
+			action, ok := keybind.Convert(mock, dungeonTable)
 			assert.True(t, ok)
 			assert.Equal(t, tt.expected, action)
 		})
@@ -340,7 +340,7 @@ func TestDungeonBindings_ShiftSingleKey(t *testing.T) {
 			mock.SetKeyPressed(key, true)
 			mock.SetKeyPressedWithRepeat(key, true)
 
-			_, ok := keybind.Convert(mock, dungeonBindings)
+			_, ok := keybind.Convert(mock, dungeonTable)
 			assert.False(t, ok, "1キーのみでは斜め移動しないべき")
 		})
 	}
@@ -355,7 +355,7 @@ func TestDungeonBindings_ShiftDiagonalPriority(t *testing.T) {
 	mock.SetKeyPressedWithRepeat(ebiten.KeyUp, true)
 	mock.SetKeyPressed(ebiten.KeyLeft, true)
 
-	action, ok := keybind.Convert(mock, dungeonBindings)
+	action, ok := keybind.Convert(mock, dungeonTable)
 	assert.True(t, ok)
 	assert.Equal(t, inputmapper.ActionMoveNorthWest, action)
 }
@@ -368,7 +368,7 @@ func TestDungeonBindings_ShiftSingleKeyNoAction(t *testing.T) {
 	mock.SetKeyPressed(ebiten.KeyShift, true)
 	mock.SetKeyPressedWithRepeat(ebiten.KeyUp, true)
 
-	_, ok := keybind.Convert(mock, dungeonBindings)
+	_, ok := keybind.Convert(mock, dungeonTable)
 	assert.False(t, ok, "Shift+単一キーでは移動しないべき")
 }
 
@@ -488,7 +488,7 @@ func TestDungeonBindings_ヘルプとデバッグのSlash共有(t *testing.T) {
 		mock.SetKeyPressed(ebiten.KeyShift, true)
 		mock.SetKeyJustPressed(ebiten.KeySlash, true)
 
-		action, ok := keybind.Convert(mock, dungeonDebugBindings, dungeonBindings)
+		action, ok := keybind.Convert(mock, dungeonDebugTable)
 
 		assert.True(t, ok)
 		assert.Equal(t, inputmapper.ActionOpenKeyHelp, action)
@@ -499,7 +499,7 @@ func TestDungeonBindings_ヘルプとデバッグのSlash共有(t *testing.T) {
 		mock := input.NewMockKeyboardInput()
 		mock.SetKeyJustPressed(ebiten.KeySlash, true)
 
-		action, ok := keybind.Convert(mock, dungeonDebugBindings, dungeonBindings)
+		action, ok := keybind.Convert(mock, dungeonDebugTable)
 
 		assert.True(t, ok)
 		assert.Equal(t, inputmapper.ActionOpenDebugMenu, action)

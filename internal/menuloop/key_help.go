@@ -18,16 +18,16 @@ import (
 // メニュー外の画面は自分の DoAction から push する
 type KeyHelpState struct {
 	es.BaseState[w.World]
-	tables [][]keybind.Binding
+	table  []keybind.Binding
 	widget *ebitenui.UI
 }
 
 var _ es.State[w.World] = &KeyHelpState{}
 
-// NewKeyHelpState は tables のキー一覧を表示するヘルプのファクトリを返す
-func NewKeyHelpState(tables ...[]keybind.Binding) es.StateFactory[w.World] {
+// NewKeyHelpState は合成済みの表のキー一覧を表示するヘルプのファクトリを返す
+func NewKeyHelpState(table []keybind.Binding) es.StateFactory[w.World] {
 	return func() (es.State[w.World], error) {
-		return &KeyHelpState{tables: tables}, nil
+		return &KeyHelpState{table: table}, nil
 	}
 }
 
@@ -43,7 +43,7 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 	// キーを左寄せ、説明を右寄せの2列で揃える。他メニューの一覧と同じテーブル部品を使う
 	widths := []int{140, 220}
 	list := styled.NewTableContainer(widths, res)
-	for _, e := range keybind.HintEntries(world, st.tables...) {
+	for _, e := range keybind.HintEntries(world, st.table) {
 		styled.NewTableRow(list, widths, styled.TextCells(e.Keys, e.Label),
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignRight}, new(false), res)
 	}

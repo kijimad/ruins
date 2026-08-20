@@ -69,7 +69,7 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 		ItemCounts: []int{len(props.Items)},
 	})
 
-	if action, ok := keybind.ReadInput(world, detailOpenBindings, keybind.MenuCommon); ok {
+	if action, ok := keybind.ReadInput(world, equipSelectTable); ok {
 		switch action {
 		case inputmapper.ActionOpenItemDetail:
 			o.detail.Open(world)

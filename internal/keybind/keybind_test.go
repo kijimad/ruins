@@ -26,7 +26,7 @@ func TestReadInput(t *testing.T) {
 			InputSource: func() (inputmapper.ActionID, bool) { return inputmapper.ActionMenuSelect, true },
 		}}
 
-		action, ok := ReadInput(world)
+		action, ok := ReadInput(world, nil)
 
 		assert.True(t, ok)
 		assert.Equal(t, inputmapper.ActionMenuSelect, action)
@@ -38,7 +38,7 @@ func TestReadInput(t *testing.T) {
 			InputSource: func() (inputmapper.ActionID, bool) { return "", false },
 		}}
 
-		action, ok := ReadInput(world)
+		action, ok := ReadInput(world, nil)
 
 		assert.False(t, ok, "供給源が尽きたフレームは入力なしとして扱う")
 		assert.Equal(t, inputmapper.ActionID(""), action)
@@ -48,7 +48,7 @@ func TestReadInput(t *testing.T) {
 		t.Parallel()
 		world := w.World{Resources: &resources.Resources{}}
 
-		action, ok := ReadInput(world)
+		action, ok := ReadInput(world, nil)
 
 		assert.False(t, ok, "本番経路。テストではキーが押されないので偽")
 		assert.Equal(t, inputmapper.ActionID(""), action)
@@ -153,16 +153,50 @@ func TestConvertKeys(t *testing.T) {
 		}
 	})
 
-	t.Run("束縛表は共通キーより先に効く", func(t *testing.T) {
+}
+
+// TestMustMerge は表の合成が条件の重なりを構築時に拒否することを固定する。
+// 実行時に表を重ねる階層を持たない代わりに、影で食う組はここで即死させる
+func TestMustMerge(t *testing.T) {
+	t.Parallel()
+
+	t.Run("同じキーの重なりは拒否する", func(t *testing.T) {
 		t.Parallel()
-		ki := input.NewMockKeyboardInput()
-		ki.SetKeyJustPressed(ebiten.KeyEscape, true)
-		bindings := []Binding{{Key: ebiten.KeyEscape, Shift: ShiftAny, Action: inputmapper.ActionCloseMenu}}
+		frag := []Binding{{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu}}
 
-		action, ok := Convert(ki, bindings, MenuCommon)
+		assert.Panics(t, func() { MustMerge(frag, MenuCommon) },
+			"共通表の Escape と重なるので合成できない")
+	})
 
-		assert.True(t, ok)
-		assert.Equal(t, inputmapper.ActionCloseMenu, action, "同じキーなら束縛表が共通変換を上書きする")
+	t.Run("ShiftAnyは条件付きの行とも重なる", func(t *testing.T) {
+		t.Parallel()
+		// デバッグ表の Slash が ShiftAny のままヘルプの Shift+Slash を影で食った実バグの形
+		debug := []Binding{{Key: ebiten.KeySlash, Action: inputmapper.ActionOpenDebugMenu}}
+		help := []Binding{{Key: ebiten.KeySlash, Shift: ShiftRequired, Action: inputmapper.ActionOpenKeyHelp}}
+
+		assert.Panics(t, func() { MustMerge(debug, help) })
+	})
+
+	t.Run("Shift条件が互いに素なら合成できる", func(t *testing.T) {
+		t.Parallel()
+		debug := []Binding{{Key: ebiten.KeySlash, Shift: ShiftForbidden, Action: inputmapper.ActionOpenDebugMenu}}
+		help := []Binding{{Key: ebiten.KeySlash, Shift: ShiftRequired, Action: inputmapper.ActionOpenKeyHelp}}
+
+		table := MustMerge(debug, help)
+
+		assert.Len(t, table, 2)
+	})
+
+	t.Run("Heldが異なる同時押しの対は許す", func(t *testing.T) {
+		t.Parallel()
+		diag := []Binding{
+			{Key: ebiten.KeyUp, Shift: ShiftRequired, Held: new(ebiten.KeyLeft), Action: inputmapper.ActionMoveNorthWest},
+			{Key: ebiten.KeyUp, Shift: ShiftRequired, Held: new(ebiten.KeyRight), Action: inputmapper.ActionMoveNorthEast},
+		}
+
+		table := MustMerge(diag)
+
+		assert.Len(t, table, 2)
 	})
 }
 
@@ -222,7 +256,7 @@ func TestNavHint(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		got := NavHint(world, MenuCommon, detail)
+		got := NavHint(world, MustMerge(MenuCommon, detail))
 
 		want := consts.IconArrowLeft + consts.IconArrowRight + " Tab   " +
 			consts.IconArrowUp + consts.IconArrowDown + " Select   " +

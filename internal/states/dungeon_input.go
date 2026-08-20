@@ -22,10 +22,11 @@ import (
 
 // 入力・アクション・イベント処理を dungeon.go から分離する。DungeonState のメソッドはこのファイルにも置く。
 
-// dungeonBindings はダンジョン操作の束縛表。モーダル開閉・動詞直達・移動・待機・武器切替を
-// 表の順で評価する。斜め移動は Shift 併用で縦キーのリピートをタイミングのドライバーにし、
+// dungeonBindings はダンジョン操作の束縛表。モーダル開閉・動詞直達・移動・待機・武器切替。
+// 斜め移動は Shift 併用で縦キーのリピートをタイミングのドライバーにし、
 // 横キーは押しっぱなし判定だけを使う。両軸をリピートにすると頻度が2倍になるため。
-// 斜めの行を単独移動の行より先に置き、同時押しを先に判定する
+// 全行の条件は互いに素で行順に意味は無い。例外は左右の Held だけが違う斜めの対で、
+// 左右同時押しという縮退入力のときだけ先の行が勝つ
 var dungeonBindings = []keybind.Binding{
 	// モーダル開閉
 	{Key: ebiten.KeyM, Action: inputmapper.ActionOpenDungeonMenu, Label: "Menu"},
@@ -65,20 +66,27 @@ var dungeonBindings = []keybind.Binding{
 	{Key: ebiten.KeySlash, Shift: keybind.ShiftRequired, Action: inputmapper.ActionOpenKeyHelp, Label: "Help"},
 }
 
-// dungeonDebugBindings はデバッグ設定のときだけ有効なキー。本番の表とは分け、
-// readAction が設定を見て先頭へ足す。Slash はキー一覧ヘルプの Shift+Slash とキーを共有するので、
-// Shift 無しに限定してヘルプを影で食わないようにする
+// dungeonDebugBindings はデバッグ設定のときだけ有効なキー。本番の表とは分けて合成する。
+// Slash はキー一覧ヘルプの Shift+Slash とキーを共有するので Shift 無しに限定する。
+// 条件が重なれば MustMerge が構築時に拒否する
 var dungeonDebugBindings = []keybind.Binding{
 	{Key: ebiten.KeySlash, Shift: keybind.ShiftForbidden, Action: inputmapper.ActionOpenDebugMenu},
 }
+
+// dungeonTable と dungeonDebugTable は合成済みの束縛表。デバッグ設定で使う表ごと分け、
+// 実行時に表を重ねる階層を持たない。デバッグ行との重なりも構築時に検証される
+var (
+	dungeonTable      = keybind.MustMerge(dungeonBindings)
+	dungeonDebugTable = keybind.MustMerge(dungeonDebugBindings, dungeonBindings)
+)
 
 // readAction は1フレームのダンジョン操作を Action として読む。供給源があればそこから読み、
 // 再生ドライバがメニューと同じ注入点でダンジョンも駆動できる
 func (st *DungeonState) readAction(world w.World) (inputmapper.ActionID, bool) {
 	if world.Config.Debug {
-		return keybind.ReadInput(world, dungeonDebugBindings, dungeonBindings)
+		return keybind.ReadInput(world, dungeonDebugTable)
 	}
-	return keybind.ReadInput(world, dungeonBindings)
+	return keybind.ReadInput(world, dungeonTable)
 }
 
 // moveDir は移動方向を3Dカメラの向きへ回して合わせる。
@@ -126,7 +134,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	case inputmapper.ActionOpenKeyHelp:
 		// ダンジョン文脈のキー一覧を開く。表示は束縛表から導出する
 		return es.Transition[w.World]{Type: es.TransPush,
-			NewStateFuncs: []es.StateFactory[w.World]{menuloop.NewKeyHelpState(dungeonBindings)}}, nil
+			NewStateFuncs: []es.StateFactory[w.World]{menuloop.NewKeyHelpState(dungeonTable)}}, nil
 	case inputmapper.ActionOpenOverworldMap:
 		// 地図は今まさにオーバーワールドにいるときだけ開く。ダンジョンやキューブ内部では
 		// 帯が現ステージにないので無視する。State 属性の isSeamless でなく現ステージで判定する
