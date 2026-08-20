@@ -96,7 +96,7 @@ func (s *Screen[P]) readAction(world w.World) (inputmapper.ActionID, bool) {
 	if kb, ok := s.model.(KeyBindings); ok {
 		bindings = kb.KeyBindings()
 	}
-	return keybind.ReadInput(world, bindings...)
+	return keybind.ReadInput(world, bindings, keybind.MenuCommon)
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、

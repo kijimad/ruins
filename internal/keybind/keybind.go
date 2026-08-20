@@ -26,66 +26,79 @@ const (
 	ShiftForbidden
 )
 
-// Binding は state 固有の追加キーと Action の対応。共通キーより先に、表の順で評価する
+// PressMode はキーの押下判定の種類
+type PressMode int
+
+const (
+	// PressJust は押した瞬間の1フレームだけ発火する
+	PressJust PressMode = iota
+	// PressRepeat は押しっぱなしでリピート発火する。移動やカーソル送りに使う
+	PressRepeat
+)
+
+// Binding は1つのキー操作と Action の対応。表の順で評価する
 type Binding struct {
 	Key    ebiten.Key
 	Shift  ShiftMode
+	Press  PressMode
 	Action inputmapper.ActionID
+	Label  string // ヒント表示の msgid。空なら隠しキーとしてヒントに出さない
+}
+
+// MenuCommon はメニュー共通のキー束縛。各メニューの固有表の後に渡して評価する。
+// 左右キーはタブ切替に固定する。全メニューで意味を揃え、ページ送りには使わない。
+// 長い一覧は上下でカーソルがページ境界を越えると自動でページが繰られる。
+// Shift+Tab の行を Tab の行より先に置き、Shift 併用を先に判定する
+var MenuCommon = []Binding{
+	{Key: ebiten.KeyEscape, Press: PressJust, Action: inputmapper.ActionMenuCancel},
+	{Key: ebiten.KeyArrowLeft, Press: PressRepeat, Action: inputmapper.ActionMenuTabPrev},
+	{Key: ebiten.KeyArrowRight, Press: PressRepeat, Action: inputmapper.ActionMenuTabNext},
+	{Key: ebiten.KeyArrowUp, Press: PressRepeat, Action: inputmapper.ActionMenuUp},
+	{Key: ebiten.KeyArrowDown, Press: PressRepeat, Action: inputmapper.ActionMenuDown},
+	{Key: ebiten.KeyTab, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionMenuTabPrev},
+	{Key: ebiten.KeyTab, Press: PressJust, Action: inputmapper.ActionMenuTabNext},
+	{Key: ebiten.KeyEnter, Press: PressJust, Action: inputmapper.ActionMenuSelect},
 }
 
 // ReadInput は1フレームぶんの入力を Action として読む。world が入力供給源を
-// 持つならそこから読み、持たない本番ではキーボードから変換する。ここで入れ替わるのは
-// キー入力の有無だけで、後段の DoAction 以降は本番と完全に同じ経路を通る。
-// bindings は state 固有の追加キーで、共通キーより先に評価する
-func ReadInput(world w.World, bindings ...Binding) (inputmapper.ActionID, bool) {
+// 持つならそこから読み、持たない本番では tables を表の順に評価してキーボードから変換する。
+// ここで入れ替わるのはキー入力の有無だけで、後段の DoAction 以降は本番と完全に同じ経路を通る
+func ReadInput(world w.World, tables ...[]Binding) (inputmapper.ActionID, bool) {
 	if src := world.Resources.InputSource; src != nil {
 		return src()
 	}
-	return convertKeys(input.GetSharedKeyboardInput(), bindings)
+	return convertKeys(input.GetSharedKeyboardInput(), tables...)
 }
 
 // convertKeys はキー入力を Action に変換する。本番の入力経路。
-// 追加キーの束縛表を先に見てから、全メニュー共通のキーへ落ちる
-func convertKeys(ki input.KeyboardInput, bindings []Binding) (inputmapper.ActionID, bool) {
+// tables を先頭から順に評価し、最初に一致した行の Action を返す
+func convertKeys(ki input.KeyboardInput, tables ...[]Binding) (inputmapper.ActionID, bool) {
 	shift := ki.IsKeyPressed(ebiten.KeyShift)
-	for _, b := range bindings {
-		if !ki.IsKeyJustPressed(b.Key) {
-			continue
+	for _, table := range tables {
+		for _, b := range table {
+			if b.Shift == ShiftRequired && !shift {
+				continue
+			}
+			if b.Shift == ShiftForbidden && shift {
+				continue
+			}
+			if !pressed(ki, b) {
+				continue
+			}
+			return b.Action, true
 		}
-		if b.Shift == ShiftRequired && !shift {
-			continue
-		}
-		if b.Shift == ShiftForbidden && shift {
-			continue
-		}
-		return b.Action, true
-	}
-
-	if ki.IsKeyJustPressed(ebiten.KeyEscape) {
-		return inputmapper.ActionMenuCancel, true
-	}
-	// 左右キーはタブ切替に固定する。全メニューで意味を揃え、ページ送りには使わない。
-	// 長い一覧は上下でカーソルがページ境界を越えると自動でページが繰られる
-	if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
-		return inputmapper.ActionMenuTabPrev, true
-	}
-	if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
-		return inputmapper.ActionMenuTabNext, true
-	}
-	if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) {
-		return inputmapper.ActionMenuUp, true
-	}
-	if ki.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) {
-		return inputmapper.ActionMenuDown, true
-	}
-	if ki.IsKeyJustPressed(ebiten.KeyTab) {
-		if shift {
-			return inputmapper.ActionMenuTabPrev, true
-		}
-		return inputmapper.ActionMenuTabNext, true
-	}
-	if ki.IsEnterJustPressedOnce() {
-		return inputmapper.ActionMenuSelect, true
 	}
 	return "", false
+}
+
+// pressed は Binding の押下モードに応じたキー判定を返す。
+// Enter は押下押上のワンセット検出というデバイス層の癖を持つため、ここでだけ特別に扱う
+func pressed(ki input.KeyboardInput, b Binding) bool {
+	if b.Press == PressRepeat {
+		return ki.IsKeyPressedWithRepeat(b.Key)
+	}
+	if b.Key == ebiten.KeyEnter {
+		return ki.IsEnterJustPressedOnce()
+	}
+	return ki.IsKeyJustPressed(b.Key)
 }

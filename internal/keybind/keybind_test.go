@@ -92,7 +92,7 @@ func TestConvertKeys(t *testing.T) {
 				ki := input.NewMockKeyboardInput()
 				tc.press(ki)
 
-				action, ok := convertKeys(ki, nil)
+				action, ok := convertKeys(ki, MenuCommon)
 
 				assert.True(t, ok)
 				assert.Equal(t, tc.want, action)
@@ -102,7 +102,7 @@ func TestConvertKeys(t *testing.T) {
 
 	t.Run("キーが無ければ入力なし", func(t *testing.T) {
 		t.Parallel()
-		action, ok := convertKeys(input.NewMockKeyboardInput(), nil)
+		action, ok := convertKeys(input.NewMockKeyboardInput(), MenuCommon)
 
 		assert.False(t, ok)
 		assert.Equal(t, inputmapper.ActionID(""), action)
@@ -155,9 +155,52 @@ func TestConvertKeys(t *testing.T) {
 		ki.SetKeyJustPressed(ebiten.KeyEscape, true)
 		bindings := []Binding{{Key: ebiten.KeyEscape, Shift: ShiftAny, Action: inputmapper.ActionCloseMenu}}
 
-		action, ok := convertKeys(ki, bindings)
+		action, ok := convertKeys(ki, bindings, MenuCommon)
 
 		assert.True(t, ok)
 		assert.Equal(t, inputmapper.ActionCloseMenu, action, "同じキーなら束縛表が共通変換を上書きする")
+	})
+}
+
+// TestConvertKeys_押下モード は PressMode ごとのキー判定を固定する。
+// リピート行は押しっぱなしで発火し、既定の PressJust は押した瞬間だけ発火する
+func TestConvertKeys_押下モード(t *testing.T) {
+	t.Parallel()
+
+	t.Run("PressRepeatは押しっぱなしで発火する", func(t *testing.T) {
+		t.Parallel()
+		ki := input.NewMockKeyboardInput()
+		ki.SetKeyPressedWithRepeat(ebiten.KeyH, true)
+		bindings := []Binding{{Key: ebiten.KeyH, Press: PressRepeat, Action: inputmapper.ActionMoveWest}}
+
+		action, ok := convertKeys(ki, bindings)
+
+		assert.True(t, ok)
+		assert.Equal(t, inputmapper.ActionMoveWest, action)
+	})
+
+	t.Run("PressJustはリピート状態では発火しない", func(t *testing.T) {
+		t.Parallel()
+		ki := input.NewMockKeyboardInput()
+		ki.SetKeyPressedWithRepeat(ebiten.KeyH, true)
+		bindings := []Binding{{Key: ebiten.KeyH, Action: inputmapper.ActionMoveWest}}
+
+		_, ok := convertKeys(ki, bindings)
+
+		assert.False(t, ok, "既定の PressJust は JustPressed だけを見る")
+	})
+
+	t.Run("Enterは押下押上のワンセットで発火する", func(t *testing.T) {
+		t.Parallel()
+		ki := input.NewMockKeyboardInput()
+		// 押下したフレームでは発火せず、離したフレームで発火する
+		ki.SetKeyPressed(ebiten.KeyEnter, true)
+		_, ok := convertKeys(ki, MenuCommon)
+		assert.False(t, ok, "押下中はまだ発火しない")
+
+		ki.SetKeyPressed(ebiten.KeyEnter, false)
+		action, ok := convertKeys(ki, MenuCommon)
+		assert.True(t, ok, "押上で1度だけ発火する")
+		assert.Equal(t, inputmapper.ActionMenuSelect, action)
 	})
 }

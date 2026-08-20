@@ -88,7 +88,7 @@ func (d *Detail) HandleInput(world w.World) error {
 	}
 	// メニューと同じ入力供給源から読む。再生ドライバが差した Action もここに届くので、
 	// overlay 表示中も本番フローのまま駆動できる
-	action, ok := keybind.ReadInput(world)
+	action, ok := keybind.ReadInput(world, keybind.MenuCommon)
 	if !ok {
 		return nil
 	}
