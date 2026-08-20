@@ -43,9 +43,9 @@ func GetInteractionActions(world w.World) []InteractionAction {
 		}
 
 		interactable := world.Components.Interactable.Get(interactableEntity)
-		// スタック束ねの種別を持つ実体は束ね経路へ集める。拾得は同タイルに限られるので
+		// スタック単位の種別を持つ実体は束ね経路へ集める。拾得は同タイルに限られるので
 		// 位置を無視して束ねても別タイルの同種が混ざることはない
-		bundled, individual := splitByStackBundled(interactable.Interactions)
+		bundled, individual := splitByMenuUnit(interactable.Interactions)
 		if len(bundled) > 0 {
 			itemEntities = append(itemEntities, interactableEntity)
 		}
@@ -94,7 +94,7 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 		if len(filtered) == 0 {
 			continue
 		}
-		bundled, individual := splitByStackBundled(filtered)
+		bundled, individual := splitByMenuUnit(filtered)
 		if len(bundled) > 0 {
 			itemEntities = append(itemEntities, entity)
 		}
@@ -106,18 +106,21 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 	return appendItemPickupActions(world, actions, itemEntities)
 }
 
-// splitByStackBundled は種別を、スタック単位で束ねる行にするものとエンティティ単位の行にする
-// ものへ分ける。束ねるかは種別の宣言 Config().StackBundled が決め、一覧を組む関数はこれに従う。
-// 両方を持つ実体は両経路に載り、束ね行と個別行が並ぶ
-func splitByStackBundled(kinds []gc.InteractionKind) (bundled, individual []gc.InteractionKind) {
+// splitByMenuUnit は種別を、行の単位の宣言 Config().MenuUnit に従ってスタック単位と
+// エンティティ単位へ分ける。一覧を組む関数はこの振り分けに従う。
+// 両方を持つ実体は両経路に載り、束ね行と個別行が並ぶ。
+// switch に default を置かず、単位の追加漏れを exhaustive linter に検知させる。
+// 未知の種別の単位はゼロ値で raw/save 由来でありうるので、行を組まず黙って落とす
+func splitByMenuUnit(kinds []gc.InteractionKind) (stack, entity []gc.InteractionKind) {
 	for _, kind := range kinds {
-		if kind.Config().StackBundled {
-			bundled = append(bundled, kind)
-		} else {
-			individual = append(individual, kind)
+		switch kind.Config().MenuUnit {
+		case gc.MenuUnitStack:
+			stack = append(stack, kind)
+		case gc.MenuUnitEntity:
+			entity = append(entity, kind)
 		}
 	}
-	return bundled, individual
+	return stack, entity
 }
 
 // appendItemPickupActions は itemEntities をスタックごとに1行へ束ねて拾得アクションを足す。
@@ -173,7 +176,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				})
 			}
 		case gc.InteractionItem:
-			// StackBundled な種別は splitByStackBundled で束ね経路へ振られ、ここには来ない。
+			// スタック単位の種別は splitByMenuUnit で束ね経路へ振られ、ここには来ない。
 			// 拾得行は appendItemPickupActions がスタック単位で組む
 		case gc.InteractionPortalNext:
 			result = append(result, InteractionAction{
