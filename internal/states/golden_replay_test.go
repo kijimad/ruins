@@ -34,12 +34,6 @@ type replayStep struct {
 	suffix string
 }
 
-// newGoldenBackdrop はメニュー系 golden の背景に使うオーバーワールド状態を作る。
-// 開始チャンクを背景とし、決定的な RunSeed で golden を安定させる。
-func newGoldenBackdrop() (es.State[w.World], error) {
-	return gs.NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
-}
-
 // TestGolden はステートの実描画を本番の MainGame ループで駆動して固定する VRT をまとめて回す。
 // 各ケースは build が返すステート列を組み、steps の Action 列で操作し、shot の手の直後の
 // フレームを golden と比較する。組んだ直後の静止画も操作後の画も同じリプレイ機構で撮る。
@@ -92,7 +86,9 @@ func TestGolden(t *testing.T) {
 		{
 			name: "OverworldMap",
 			build: func(w.World) ([]es.State[w.World], error) {
-				backdrop, err := newGoldenBackdrop()
+				// 背景は開始チャンクのオーバーワールド。決定的な RunSeed で golden を安定させる
+				backdrop, err := gs.NewOverworldState(mapplanner.PlannerTypeOverworldField,
+					dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1), &overworld.NewGameParams{RunSeed: 42})()
 				if err != nil {
 					return nil, err
 				}
