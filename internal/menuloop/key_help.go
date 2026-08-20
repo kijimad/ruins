@@ -117,7 +117,7 @@ func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	}
 	caps := make([]keycap, 0, len(tokens))
 	total := 0
-	face := res.Text.BodyFace
+	face := res.Text.KeycapFace
 	for i, tok := range tokens {
 		w, h := text.Measure(tok, face, 0)
 		cw := int(w) + chipPad*2
