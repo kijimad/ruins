@@ -48,20 +48,13 @@ linters:
       # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする
       - linters: [gosmopolitan]
         path: '_test\.go$'
-      # キー直読み禁止の例外。設計 260820105000 の3チャンネルモデルに基づく
+      # キー直読み禁止の例外。設計 260820105000 の3チャンネルモデルに基づく。
+      # パッケージ単位の守りは depguard の keyboard_device_guard が担い、ここは
+      # ebiten 混在パッケージの入力シンボルを直接使う3箇所だけを許す
       - linters: [forbidigo] # デバイス層そのもの
         path: 'internal/input/'
         text: '束縛表を通す'
-      - linters: [forbidigo] # 変換器。束縛表からキーを読む唯一の場所
-        path: 'internal/keybind/'
-        text: '束縛表を通す'
-      - linters: [forbidigo] # テキストチャンネル。IME は Action に還元できない
-        path: 'internal/states/character_naming\.go'
-        text: '束縛表を通す'
-      - linters: [forbidigo] # 3Dカメラ操作。連続入力でありターン制の Action ではない
-        path: 'internal/states/dungeon\.go'
-        text: '束縛表を通す'
-      - linters: [forbidigo] # カメラのズーム。同上
+      - linters: [forbidigo] # カメラのズーム。連続入力でありターン制の Action ではない
         path: 'internal/systems/camera_system\.go'
         text: '束縛表を通す'
       - linters: [forbidigo] # パフォーマンスモニターのトグル。state 外のグローバルホットキー
@@ -106,16 +99,10 @@ linters:
           msg: 手動の一時ディレクトリ生成は禁止。テストでは t.TempDir を使う。後片付け漏れと誤削除を防ぐ
         - pattern: '^ioutil\.TempDir$'
           msg: ioutil は非推奨。テストの一時ディレクトリは t.TempDir を使う
-        # キーの直読みを禁止する。キーと Action の対応は keybind の束縛表で宣言し、
-        # 変換と再生供給源の差し替えは keybind が一手に担う。直読みが散ると再生ドライバから
-        # 駆動できない画面が生まれ、キー対応がテスト圏外に漏れる。
-        # 例外はデバイス層 input・変換器 keybind・テキストチャンネル・カメラ操作・
-        # グローバルホットキーだけで、exclusions.rules に理由付きで列挙する
-        - pattern: '^input\.GetSharedKeyboardInput$'
-          msg: キーの直読みは禁止。keybind の束縛表を通す
-        - pattern: '^inpututil\.[A-Za-z]+$'
-          msg: キーの直読みは禁止。keybind の束縛表を通す
-        - pattern: '^ebiten\.IsKeyPressed$'
+        # キーの直読みを禁止する。デバイス能力の本体は depguard の keyboard_device_guard が
+        # import 許可制で守る。ebiten 本体は描画と入力が同居していて import を禁止できないため、
+        # 入力系シンボルだけここで塞ぐ。例外は exclusions.rules に理由付きで列挙する
+        - pattern: '^ebiten\.(IsKeyPressed|AppendInputChars|InputChars|KeyName)$'
           msg: キーの直読みは禁止。keybind の束縛表を通す
     exhaustive:
       check:
@@ -134,6 +121,26 @@ linters:
               desc: 標準ライブラリを使う
             - pkg: "github.com/hajimehoshi/ebiten$"
               desc: ebiten/v2を使う
+        # キー読み取り能力への import 許可制。読み取り API を持つパッケージを
+        # 使える場所を列挙し、それ以外からは新旧問わず全シンボルを塞ぐ。
+        # 例外は設計 260820105000 の3チャンネルモデルに基づく。テストは
+        # MockKeyboardInput を使うため除外する
+        keyboard_device_guard:
+          list-mode: lax
+          files:
+            - "$all"
+            - "!$test"
+            - "!**/internal/input/**"
+            - "!**/internal/keybind/**"
+            - "!**/internal/states/character_naming.go"
+            - "!**/internal/states/dungeon.go"
+            - "!**/internal/states/dungeon_3d.go"
+            - "!**/internal/maingame/game.go"
+          deny:
+            - pkg: "github.com/kijimaD/ruins/internal/input$"
+              desc: キー読み取りは keybind の束縛表を通す。例外はテキストチャンネルとカメラのみ
+            - pkg: "github.com/hajimehoshi/ebiten/v2/inpututil"
+              desc: 生のキー状態 API はデバイス層 internal/input に閉じる
         # engine はゲーム基盤。ドメインに依存させない
         engine_guard:
           list-mode: strict
