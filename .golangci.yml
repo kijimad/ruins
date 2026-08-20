@@ -48,8 +48,8 @@ linters:
       # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする
       - linters: [gosmopolitan]
         path: '_test\.go$'
-      # キー直読み禁止の例外。設計 260820105000 の3チャンネルモデルに基づく。
-      # パッケージ単位の守りは depguard の keyboard_device_guard が担い、ここは
+      # キー直読み禁止の例外。入力は束縛表を通して Action へ変換するのが原則で、
+      # パッケージ単位の守りは depguard の keyboard_device_guard が担う。ここは
       # ebiten 混在パッケージの入力シンボルを直接使う3箇所だけを許す
       - linters: [forbidigo] # デバイス層そのもの
         path: 'internal/input/'
@@ -123,7 +123,7 @@ linters:
               desc: ebiten/v2を使う
         # キー読み取り能力への import 許可制。読み取り API を持つパッケージを
         # 使える場所を列挙し、それ以外からは新旧問わず全シンボルを塞ぐ。
-        # 例外は設計 260820105000 の3チャンネルモデルに基づく。テストは
+        # 入力を束縛表へ集約し、デバイス層とごく少数の例外だけが直接読む。テストは
         # MockKeyboardInput を使うため除外する
         keyboard_device_guard:
           list-mode: lax
