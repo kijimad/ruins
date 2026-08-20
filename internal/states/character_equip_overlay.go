@@ -81,10 +81,8 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 			}
 			o.active = false
 		default:
-			// 移動系は自前カーソルの mount へ流す。それ以外は装備選択中は扱わない
-			if hooks.IsNavAction(action) {
-				o.mount.Dispatch(action)
-			}
+			// 移動系は自前カーソルの mount が消費する。それ以外は装備選択中は扱わない
+			o.mount.DispatchNav(action)
 		}
 	}
 	o.mount.Update()

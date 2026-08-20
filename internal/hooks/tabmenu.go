@@ -71,7 +71,7 @@ func (n *tabMenuNav) clamp(s TabMenuState) TabMenuState {
 }
 
 // navHandlers は移動系 Action と状態遷移の対応表。移動系の集合の唯一の定義で、
-// IsNavAction の判定も reduce の分岐もここから導く。集合と挙動が別の場所に複製されると
+// DispatchNav の消費判定も reduce の分岐もここから導く。集合と挙動が別の場所に複製されると
 // 片方だけ更新してずれるため、1つの表に束ねる
 var navHandlers = map[inputmapper.ActionID]func(*tabMenuNav, TabMenuState) TabMenuState{
 	inputmapper.ActionMenuTabPrev: (*tabMenuNav).tabPrev,
@@ -153,12 +153,15 @@ func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) {
 	store.states[keyPrefix] = nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)})
 }
 
-// IsNavAction はカーソル移動系の Action かを返す。集合は navHandlers から導くので、
-// 遷移の追加と判定がずれることはない。menuloop.Screen はこの集合を Dispatch だけで処理し、
-// DoAction へは渡さない
-func IsNavAction(a inputmapper.ActionID) bool {
-	_, ok := navHandlers[a]
-	return ok
+// DispatchNav はカーソル移動系の Action なら Dispatch して真を返し、それ以外は何もせず偽を返す。
+// 呼び出し側は集合を知る必要がなく、消費されなかった Action をそのまま後続へ渡せばよい。
+// 消費の可否は navHandlers の所属と一致するので、reduce の実行を待たず同期的に答えられる
+func (m *Mount[Props]) DispatchNav(a inputmapper.ActionID) bool {
+	if _, ok := navHandlers[a]; !ok {
+		return false
+	}
+	m.Dispatch(a)
+	return true
 }
 
 // UseTabMenu は再利用可能なタブメニュー状態管理を提供する
