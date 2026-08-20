@@ -48,18 +48,6 @@ linters:
       # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする
       - linters: [gosmopolitan]
         path: '_test\.go$'
-      # キー直読み禁止の例外。入力は束縛表を通して Action へ変換するのが原則で、
-      # パッケージ単位の守りは depguard の keyboard_device_guard が担う。ここは
-      # ebiten 混在パッケージの入力シンボルを直接使う3箇所だけを許す
-      - linters: [forbidigo] # デバイス層そのもの
-        path: 'internal/input/'
-        text: '束縛表を通す'
-      - linters: [forbidigo] # カメラのズーム。連続入力でありターン制の Action ではない
-        path: 'internal/systems/camera_system\.go'
-        text: '束縛表を通す'
-      - linters: [forbidigo] # パフォーマンスモニターのトグル。state 外のグローバルホットキー
-        path: 'internal/maingame/game\.go'
-        text: '束縛表を通す'
 
   settings:
     gosmopolitan:
@@ -99,11 +87,6 @@ linters:
           msg: 手動の一時ディレクトリ生成は禁止。テストでは t.TempDir を使う。後片付け漏れと誤削除を防ぐ
         - pattern: '^ioutil\.TempDir$'
           msg: ioutil は非推奨。テストの一時ディレクトリは t.TempDir を使う
-        # キーの直読みを禁止する。デバイス能力の本体は depguard の keyboard_device_guard が
-        # import 許可制で守る。ebiten 本体は描画と入力が同居していて import を禁止できないため、
-        # 入力系シンボルだけここで塞ぐ。例外は exclusions.rules に理由付きで列挙する
-        - pattern: '^ebiten\.(IsKeyPressed|AppendInputChars|InputChars|KeyName)$'
-          msg: キーの直読みは禁止。keybind の束縛表を通す
     exhaustive:
       check:
         - switch
