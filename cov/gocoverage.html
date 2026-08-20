@@ -9871,10 +9871,28 @@ type Interactable struct {
 type InteractionConfig struct {
         ActivationRange ActivationRange // 発動範囲
         ActivationWay   ActivationWay   // 発動方式
-        // StackBundled は真なら、メニューの行をエンティティ単位でなくスタック単位で組む。
-        // 同一 StackKey の実体を1行に束ね、実行はスタック丸ごとを対象にする。
+        MenuUnit        MenuUnit        // メニューの行の単位
+}
+
+// MenuUnit は相互作用メニューの行の単位を表す
+type MenuUnit string
+
+const (
+        // MenuUnitEntity は1実体を1行にする。扉やNPCのような個体
+        MenuUnitEntity MenuUnit = "ENTITY"
+        // MenuUnitStack は同一 StackKey の実体を1行に束ね、実行はスタック丸ごとを対象にする。
         // 1個1エンティティのアイテムが個数ぶん同じ行に並ぶのを防ぐ
-        StackBundled bool
+        MenuUnitStack MenuUnit = "STACK"
+)
+
+// Valid はMenuUnitの値が有効かを検証する
+func (enum MenuUnit) Valid() error <span class="cov8" title="1">{
+        switch enum </span>{
+        case MenuUnitEntity, MenuUnitStack:<span class="cov8" title="1">
+                return nil</span>
+        default:<span class="cov8" title="1">
+                return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)</span>
+        }
 }
 
 // InteractionKind は相互作用の種類を表す。
@@ -9923,15 +9941,15 @@ const (
 func (k InteractionKind) Config() InteractionConfig <span class="cov8" title="1">{
         switch k </span>{
         case InteractionItem:<span class="cov8" title="1">
-                return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, StackBundled: true}</span>
+                return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitStack}</span>
         case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll:<span class="cov8" title="1">
-                return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}</span>
+                return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}</span>
         case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:<span class="cov8" title="1">
-                return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision}</span>
+                return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}</span>
         case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionAuction:<span class="cov8" title="1">
-                return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual}</span>
+                return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}</span>
         case InteractionExitCube:<span class="cov8" title="1">
-                return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual}</span>
+                return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}</span>
         }
         <span class="cov8" title="1">return InteractionConfig{}</span>
 }
@@ -38116,9 +38134,9 @@ func GetInteractionActions(world w.World) []InteractionAction <span class="cov8"
                 }
 
                 <span class="cov8" title="1">interactable := world.Components.Interactable.Get(interactableEntity)
-                // スタック束ねの種別を持つ実体は束ね経路へ集める。拾得は同タイルに限られるので
+                // スタック単位の種別を持つ実体は束ね経路へ集める。拾得は同タイルに限られるので
                 // 位置を無視して束ねても別タイルの同種が混ざることはない
-                bundled, individual := splitByStackBundled(interactable.Interactions)
+                bundled, individual := splitByMenuUnit(interactable.Interactions)
                 if len(bundled) &gt; 0 </span><span class="cov8" title="1">{
                         itemEntities = append(itemEntities, interactableEntity)
                 }</span>
@@ -38167,7 +38185,7 @@ func GetSameTileManualActions(world w.World) []InteractionAction <span class="co
                 <span class="cov8" title="1">if len(filtered) == 0 </span><span class="cov8" title="1">{
                         continue</span>
                 }
-                <span class="cov8" title="1">bundled, individual := splitByStackBundled(filtered)
+                <span class="cov8" title="1">bundled, individual := splitByMenuUnit(filtered)
                 if len(bundled) &gt; 0 </span><span class="cov8" title="1">{
                         itemEntities = append(itemEntities, entity)
                 }</span>
@@ -38179,18 +38197,21 @@ func GetSameTileManualActions(world w.World) []InteractionAction <span class="co
         <span class="cov8" title="1">return appendItemPickupActions(world, actions, itemEntities)</span>
 }
 
-// splitByStackBundled は種別を、スタック単位で束ねる行にするものとエンティティ単位の行にする
-// ものへ分ける。束ねるかは種別の宣言 Config().StackBundled が決め、一覧を組む関数はこれに従う。
-// 両方を持つ実体は両経路に載り、束ね行と個別行が並ぶ
-func splitByStackBundled(kinds []gc.InteractionKind) (bundled, individual []gc.InteractionKind) <span class="cov8" title="1">{
+// splitByMenuUnit は種別を、行の単位の宣言 Config().MenuUnit に従ってスタック単位と
+// エンティティ単位へ分ける。一覧を組む関数はこの振り分けに従う。
+// 両方を持つ実体は両経路に載り、束ね行と個別行が並ぶ。
+// switch に default を置かず、単位の追加漏れを exhaustive linter に検知させる。
+// 未知の種別の単位はゼロ値で raw/save 由来でありうるので、行を組まず黙って落とす
+func splitByMenuUnit(kinds []gc.InteractionKind) (stack, entity []gc.InteractionKind) <span class="cov8" title="1">{
         for _, kind := range kinds </span><span class="cov8" title="1">{
-                if kind.Config().StackBundled </span><span class="cov8" title="1">{
-                        bundled = append(bundled, kind)
-                }</span> else<span class="cov8" title="1"> {
-                        individual = append(individual, kind)
-                }</span>
+                switch kind.Config().MenuUnit </span>{
+                case gc.MenuUnitStack:<span class="cov8" title="1">
+                        stack = append(stack, kind)</span>
+                case gc.MenuUnitEntity:<span class="cov8" title="1">
+                        entity = append(entity, kind)</span>
+                }
         }
-        <span class="cov8" title="1">return bundled, individual</span>
+        <span class="cov8" title="1">return stack, entity</span>
 }
 
 // appendItemPickupActions は itemEntities をスタックごとに1行へ束ねて拾得アクションを足す。
@@ -38246,7 +38267,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
                                 })
                         }</span>
                 case gc.InteractionItem:<span class="cov0" title="0"></span>
-                        // StackBundled な種別は splitByStackBundled で束ね経路へ振られ、ここには来ない。
+                        // スタック単位の種別は splitByMenuUnit で束ね経路へ振られ、ここには来ない。
                         // 拾得行は appendItemPickupActions がスタック単位で組む
                 case gc.InteractionPortalNext:<span class="cov8" title="1">
                         result = append(result, InteractionAction{
