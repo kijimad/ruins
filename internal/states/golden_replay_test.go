@@ -25,11 +25,13 @@ import (
 
 // replayStep はリプレイの1手。shot が真なら action を適用した直後のフレームを撮る。
 // action のゼロ値は入力なしで1フレーム進める待ちの手で、state を組んだ直後の画は
-// 待ち1手に shot を付けて撮る。
-// golden 名はケース名から導出するので、撮るのは1ケース1枚。別の画も撮りたいときはケースを分ける
+// 待ち1手に shot を付けて撮る。golden 名はケース名から導出し、1ケースで複数撮るときは
+// suffix で区別して TestGolden_<ケース名>_<suffix> になる。単発は suffix を空にする。
+// 全タブを撮るときは ActionMenuTabNext を並べ、各手に suffix でタブ名を付ける
 type replayStep struct {
 	action inputmapper.ActionID
 	shot   bool
+	suffix string
 }
 
 // newGoldenBackdrop はメニュー系 golden の背景に使うオーバーワールド状態を作る。
@@ -98,7 +100,8 @@ func TestGolden(t *testing.T) {
 			},
 			steps: []replayStep{{shot: true}},
 		},
-		// ItemAction は動詞タブ画面を固定する。調べるタブでバックパックのアイテムを名前のみで一覧する経路を覆う。
+		// ItemAction は動詞タブ画面の全タブを撮る。動詞ごとにバックパックのアイテムが
+		// 適用可否で絞られる。回復薬は調べる・置く・食べる・使う・出品に出て、読むには出ない
 		{
 			name: "ItemAction",
 			build: func(world w.World) ([]es.State[w.World], error) {
@@ -107,15 +110,30 @@ func TestGolden(t *testing.T) {
 				}
 				return []es.State[w.World]{&gs.ItemActionState{}}, nil
 			},
-			steps: []replayStep{{shot: true}},
+			steps: []replayStep{
+				{shot: true, suffix: "Inspect"}, // 初期タブ
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Drop"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Eat"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Read"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Use"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "List"},
+			},
 		},
-		// Character は画面タブメニューを固定する。装備タブでプレイヤーのスロット一覧を1カラムで並べる経路を覆う。
+		// Character は人物画面の全タブを撮る。装備は編集タブ、以降は読み取り専用の情報タブ。
+		// スキルはページ送りとカテゴリ見出しを含む
 		{
 			name: "Character",
 			build: func(w.World) ([]es.State[w.World], error) {
 				return []es.State[w.World]{&gs.CharacterState{}}, nil
 			},
-			steps: []replayStep{{shot: true}},
+			steps: []replayStep{
+				{shot: true, suffix: "Equipment"}, // 初期タブ
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Abilities"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Skills"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Effects"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Health"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Basic"},
+			},
 		},
 		{
 			name: "CraftMenu",
@@ -129,14 +147,21 @@ func TestGolden(t *testing.T) {
 				}
 				return []es.State[w.World]{&gs.CraftMenuState{}}, nil
 			},
-			steps: []replayStep{{shot: true}},
+			steps: []replayStep{
+				{shot: true, suffix: "Consumables"}, // 初期タブ
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Weapons"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Armor"},
+			},
 		},
 		{
 			name: "ShopMenu",
 			build: func(w.World) ([]es.State[w.World], error) {
 				return []es.State[w.World]{&gs.ShopMenuState{}}, nil
 			},
-			steps: []replayStep{{shot: true}},
+			steps: []replayStep{
+				{shot: true, suffix: "Buy"}, // 初期タブ
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Sell"},
+			},
 		},
 		{
 			name: "SaveMenu",
@@ -255,7 +280,10 @@ func TestGolden(t *testing.T) {
 				s, err := gs.NewStorageMenuState(storageEntity)
 				return []es.State[w.World]{s}, err
 			},
-			steps: []replayStep{{shot: true}},
+			steps: []replayStep{
+				{shot: true, suffix: "Retrieve"}, // 初期タブ
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Store"},
+			},
 		},
 		// ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
 		{
@@ -342,19 +370,6 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuSelect},           // Settings を開いて push する
 			},
 		},
-		// 人物画面のスキルタブへ移り、複数ページの一覧を撮る。装備タブから2回タブ送りして開く。
-		// スキルは25個超えでページ送りが要り、カテゴリ見出し行も混ざる。ページ表示行・見出し行・
-		// 見出しとタブ帯を持つ構成の実測容量、を1枚で覆う。装備タブの静止画では出ない画
-		{
-			name: "CharacterSkills",
-			build: func(w.World) ([]es.State[w.World], error) {
-				return []es.State[w.World]{&gs.CharacterState{}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionMenuTabNext},             // 装備から能力へ
-				{action: inputmapper.ActionMenuTabNext, shot: true}, // 能力からスキルへ。開いた画を撮る
-			},
-		},
 		// ? で開くキー一覧ヘルプの描画を固定する。ヘルプの golden はこの1枚に絞る。
 		// 文脈は最もキーが多いダンジョンにし、数字連結や記号の表記崩れまで一覧で検出する
 		{
@@ -367,7 +382,8 @@ func TestGolden(t *testing.T) {
 				}}, nil
 			},
 			steps: []replayStep{
-				{action: inputmapper.ActionOpenKeyHelp, shot: true}, // キー一覧ヘルプを push した画を撮る
+				{action: inputmapper.ActionOpenKeyHelp}, // ヘルプを push する。反映は次フレーム
+				{shot: true},                            // 押し込まれたヘルプを撮る
 			},
 		},
 		// x で開く詳細モーダルの描画を固定する。個数とタイトルバーが無く、性能・性質と説明が
@@ -390,15 +406,22 @@ func TestGolden(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			shots := 0
+			// 各撮影の golden 名をケース名と suffix から先に確定し、重複を弾く。
+			// 複数撮るケースは suffix で区別する
+			seen := map[string]bool{}
 			actions := make([]inputmapper.ActionID, len(tc.steps))
 			for i, s := range tc.steps {
 				actions[i] = s.action
-				if s.shot {
-					shots++
+				if !s.shot {
+					continue
 				}
+				name := "TestGolden_" + tc.name
+				if s.suffix != "" {
+					name += "_" + s.suffix
+				}
+				require.False(t, seen[name], "golden 名 %s が重複している。複数撮るなら suffix で区別する", name)
+				seen[name] = true
 			}
-			require.LessOrEqual(t, shots, 1, "golden 名はケース名から導出するので撮るのは1ケース1枚")
 			replay.PlayScenario(t,
 				func(world w.World) []es.State[w.World] {
 					built, err := tc.build(world)
@@ -407,11 +430,18 @@ func TestGolden(t *testing.T) {
 				},
 				actions,
 				func(frame int, _ w.World, screen *ebiten.Image) {
-					// フレーム 0 は開始直後で、どの手もまだ適用されていないので撮らない。
-					// フレーム i は steps[i-1] の適用直後にあたる
-					if frame > 0 && tc.steps[frame-1].shot {
-						vrt.AssertFrameGolden(t, "TestGolden_"+tc.name, screen)
+					// フレーム f は steps[f] の action を適用した直後の画。カーソル移動や
+					// タブ送りは同一フレームで効くのでその手で撮る。state を push する手は
+					// 次フレームで反映されるので、末尾に待ち手を足してそこで撮る。
+					// 末尾の settle フレームには対応する step が無いので撮らない
+					if frame >= len(tc.steps) || !tc.steps[frame].shot {
+						return
 					}
+					name := "TestGolden_" + tc.name
+					if suffix := tc.steps[frame].suffix; suffix != "" {
+						name += "_" + suffix
+					}
+					vrt.AssertFrameGolden(t, name, screen)
 				},
 			)
 		})
