@@ -68,11 +68,8 @@ type UIResources struct {
 
 // TextResources はテキストリソースを管理する
 type TextResources struct {
-	SmallFace text.Face
-	BodyFace  text.Face
-	// MediumFace は本文より一回り大きい字。キーキャップグリフのように
-	// 本文サイズでは潰れる字形を読ませるときに使う
-	MediumFace     text.Face
+	SmallFace      text.Face
+	BodyFace       text.Face
 	TitleFontFace  text.Face
 	SplashFontFace text.Face
 }
@@ -270,7 +267,6 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		Text: &TextResources{
 			SmallFace:      fonts.smallFace,
 			BodyFace:       fonts.bodyFace,
-			MediumFace:     fonts.mediumFace,
 			TitleFontFace:  fonts.titleFontFace,
 			SplashFontFace: fonts.splashFontFace,
 		},

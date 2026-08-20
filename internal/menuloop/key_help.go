@@ -44,12 +44,7 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 	widths := []int{140, 220}
 	list := styled.NewTableContainer(widths, res)
 	for _, e := range keybind.HintEntries(world, st.tables...) {
-		// キーキャップグリフは本文サイズでは潰れるので、キー列だけ大きい face で描く
-		cells := []styled.Cell{
-			{Text: e.Keys, Face: &res.Text.MediumFace},
-			{Text: e.Label},
-		}
-		styled.NewTableRow(list, widths, cells,
+		styled.NewTableRow(list, widths, styled.TextCells(e.Keys, e.Label),
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignRight}, new(false), res)
 	}
 	st.widget = menuframe.NewPanelScreen(res, query.T(world, "Key bindings"), list,

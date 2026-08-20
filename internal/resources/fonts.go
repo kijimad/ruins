@@ -13,7 +13,6 @@ var errNoFontSource = errors.New("no available font source")
 type fonts struct {
 	smallFace      text.Face
 	bodyFace       text.Face
-	mediumFace     text.Face
 	titleFontFace  text.Face
 	splashFontFace text.Face
 }
@@ -29,10 +28,6 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load body font: %w", err)
 	}
-	mediumFace, err := loadFont(sources, 24)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load medium font: %w", err)
-	}
 	titleFontFace, err := loadFont(sources, 32)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load title font: %w", err)
@@ -45,11 +40,15 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 	return &fonts{
 		smallFace:      smallFace,
 		bodyFace:       bodyFace,
-		mediumFace:     mediumFace,
 		titleFontFace:  titleFontFace,
 		splashFontFace: splashFontFace,
 	}, nil
 }
+
+// iconScale はフォールバックのアイコンフォントに掛ける倍率。キーキャップのように
+// 箱の中へ字形が入るグリフは同サイズだと本文より小さく見えるため、アイコン側だけ拡大して
+// 本文と釣り合わせる。文字コードも呼び出し側も変えず、フォント合成の1点で効かせる
+const iconScale = 1.5
 
 func loadFont(sources []*text.GoTextFaceSource, size float64) (text.Face, error) {
 	if len(sources) == 0 {
@@ -57,11 +56,15 @@ func loadFont(sources []*text.GoTextFaceSource, size float64) (text.Face, error)
 	}
 
 	faces := make([]text.Face, 0, len(sources))
-	for _, src := range sources {
+	for i, src := range sources {
 		if src != nil {
+			faceSize := size
+			if i > 0 {
+				faceSize = size * iconScale
+			}
 			faces = append(faces, &text.GoTextFace{
 				Source: src,
-				Size:   size,
+				Size:   faceSize,
 			})
 		}
 	}

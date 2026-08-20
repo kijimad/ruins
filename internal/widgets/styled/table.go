@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
@@ -29,9 +28,6 @@ const tableRowHeight = 20
 type Cell struct {
 	Text string
 	Icon *ebiten.Image
-	// Face は文字列セルのフォント上書き。nil なら本文の BodyFace で描く。
-	// キーキャップグリフのように本文サイズでは潰れる字形を大きく出すときに使う
-	Face *text.Face
 }
 
 // TextCell は文字列を表すセルを返す
@@ -219,12 +215,8 @@ func addRowCells(row *widget.Container, columnWidths []int, cells []Cell, aligns
 			gridData.HorizontalPosition = widget.GridLayoutPositionEnd
 		}
 
-		face := &res.Text.BodyFace
-		if cell.Face != nil {
-			face = cell.Face
-		}
 		textWidget := widget.NewText(
-			widget.TextOpts.Text(cell.Text, face, textColor),
+			widget.TextOpts.Text(cell.Text, &res.Text.BodyFace, textColor),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(gridData),
