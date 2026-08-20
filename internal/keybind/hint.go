@@ -31,7 +31,8 @@ func HintEntries(world w.World, table []Binding) []HintEntry {
 
 	var entries []HintEntry
 	for i := 0; i < len(labeled); {
-		// i から同じ Label が続く範囲が1項目。j が範囲の終端に進む
+		// i から同じ Label が続く範囲が1項目。j が範囲の終端に進む。
+		// 同ラベルのキーは区切りなしで連結する。左右キーの Tab なら Keys は "←→" になる
 		var keys strings.Builder
 		var tokens []string
 		j := i

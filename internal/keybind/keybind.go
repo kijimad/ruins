@@ -110,7 +110,10 @@ func MustMerge(fragments ...[]Binding) []Binding {
 }
 
 // validate は表の全行対で条件の重なりを検査する。同じキーで Shift 条件が交差する組は、
-// どちらが発火するかが行順に依存するため拒否する
+// どちらが発火するかが行順に依存するため拒否する。
+// PressMode は検査に含めない。ShiftRequired と ShiftForbidden は同時に真になれない排他条件だが、
+// PressRepeat と PressJust は押した瞬間に両方成立しうるので、キーを分ける条件として使えない。
+// 同じキーを押下モードで振り分けるのでなく、キー自体を分けて設計する
 func validate(table []Binding) error {
 	for i, a := range table {
 		for _, b := range table[i+1:] {

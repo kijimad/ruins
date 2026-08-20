@@ -27,7 +27,9 @@ type Selection struct {
 
 // ItemsPerPageAuto は ItemsPerPage に、タブ帯つきモーダルの1ページへ収まる実測行数を
 // 使う指定。実値は Update が UIResources から測って解決する。Menu は world を持たず
-// 自力で測れないため、番兵で指定して Screen に解決させる
+// 自力で測れないため、番兵で指定して Screen に解決させる。
+// 測るのは見出し無し・タブ帯ありの構成に固定する。見出しを持つ画面はこの番兵を使わず、
+// 自分の構成で menuframe.ListCapacity を呼んで求めた値を直接渡すこと
 const ItemsPerPageAuto = -1
 
 // MenuConfig は Fetch 済みの props から決まるメニュー構成。state 固有差をここで吸収する。
