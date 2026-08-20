@@ -105,9 +105,9 @@ func keyHelpRow(e keybind.HintEntry, res resources.UIResources) *widget.Containe
 // face 1つで描ける。
 // widget の入れ子で組むと preferred 幅の計算で潰れるため、画像にして寸法を確定させる
 func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
-	const height = 24
+	const height = 20
 	const chipPad = 4
-	const radius = 5
+	const radius = 4
 
 	type keycap struct {
 		text string
@@ -117,7 +117,7 @@ func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	}
 	caps := make([]keycap, 0, len(tokens))
 	total := 0
-	face := res.Text.KeycapFace
+	face := res.Text.BodyFace
 	for i, tok := range tokens {
 		w, h := text.Measure(tok, face, 0)
 		cw := int(w) + chipPad*2
