@@ -2,10 +2,9 @@ package states
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -185,19 +184,11 @@ func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widg
 }
 
 // menuNavHint はメニュー共通のキー操作案内を組み立てる。全メニューのフッターに常設し、
-// どの画面でも同じキーで同じ操作ができることを示す。矢印や Enter/Esc は素の記号がフォントに
-// 無く文字化けするため FontAwesome のアイコンを使う。hasTabs が true のときタブ切替を含め、
-// extras に画面固有の案内を後ろへ足す
-func menuNavHint(world w.World, hasTabs bool, extras ...string) string {
-	parts := make([]string, 0, 4+len(extras))
-	if hasTabs {
-		parts = append(parts, consts.IconArrowLeft+consts.IconArrowRight+" "+query.T(world, "Tab"))
-	}
-	parts = append(parts, consts.IconArrowUp+consts.IconArrowDown+" "+query.T(world, "Select"))
-	parts = append(parts, consts.IconKeyEnter+" "+query.T(world, "Confirm"))
-	parts = append(parts, extras...)
-	parts = append(parts, consts.IconKeyEsc+" "+query.T(world, "Back"))
-	return strings.Join(parts, "   ")
+// どの画面でも同じキーで同じ操作ができることを示す。表示は共通キーと画面固有の束縛表から
+// 導出するので、表を変えればヒントが追随する。hasTabs が true のときタブ切替を含める
+func menuNavHint(world w.World, hasTabs bool, extras ...[]keybind.Binding) string {
+	tables := append([][]keybind.Binding{keybind.MenuCommon}, extras...)
+	return keybind.NavHint(world, hasTabs, tables...)
 }
 
 // ================

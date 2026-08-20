@@ -48,16 +48,17 @@ type Binding struct {
 // MenuCommon はメニュー共通のキー束縛。各メニューの固有表の後に渡して評価する。
 // 左右キーはタブ切替に固定する。全メニューで意味を揃え、ページ送りには使わない。
 // 長い一覧は上下でカーソルがページ境界を越えると自動でページが繰られる。
-// Shift+Tab の行を Tab の行より先に置き、Shift 併用を先に判定する
+// Shift+Tab の行を Tab の行より先に置き、Shift 併用を先に判定する。
+// Tab キーは左右の別名なので Label を持たせずヒントに出さない
 var MenuCommon = []Binding{
-	{Key: ebiten.KeyEscape, Press: PressJust, Action: inputmapper.ActionMenuCancel},
-	{Key: ebiten.KeyArrowLeft, Press: PressRepeat, Action: inputmapper.ActionMenuTabPrev},
-	{Key: ebiten.KeyArrowRight, Press: PressRepeat, Action: inputmapper.ActionMenuTabNext},
-	{Key: ebiten.KeyArrowUp, Press: PressRepeat, Action: inputmapper.ActionMenuUp},
-	{Key: ebiten.KeyArrowDown, Press: PressRepeat, Action: inputmapper.ActionMenuDown},
+	{Key: ebiten.KeyArrowLeft, Press: PressRepeat, Action: inputmapper.ActionMenuTabPrev, Label: "Tab"},
+	{Key: ebiten.KeyArrowRight, Press: PressRepeat, Action: inputmapper.ActionMenuTabNext, Label: "Tab"},
+	{Key: ebiten.KeyArrowUp, Press: PressRepeat, Action: inputmapper.ActionMenuUp, Label: "Select"},
+	{Key: ebiten.KeyArrowDown, Press: PressRepeat, Action: inputmapper.ActionMenuDown, Label: "Select"},
 	{Key: ebiten.KeyTab, Shift: ShiftRequired, Press: PressJust, Action: inputmapper.ActionMenuTabPrev},
 	{Key: ebiten.KeyTab, Press: PressJust, Action: inputmapper.ActionMenuTabNext},
-	{Key: ebiten.KeyEnter, Press: PressJust, Action: inputmapper.ActionMenuSelect},
+	{Key: ebiten.KeyEnter, Press: PressJust, Action: inputmapper.ActionMenuSelect, Label: "Confirm"},
+	{Key: ebiten.KeyEscape, Press: PressJust, Action: inputmapper.ActionMenuCancel, Label: "Back"},
 }
 
 // ReadInput は1フレームぶんの入力を Action として読む。world が入力供給源を

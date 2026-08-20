@@ -35,8 +35,8 @@ msgstr "防具"
 msgid "Materials"
 msgstr "材料"
 
-msgid "x Details"
-msgstr "x 詳細"
+msgid "Details"
+msgstr "詳細"
 
 msgid "No recipes"
 msgstr "(レシピなし)"

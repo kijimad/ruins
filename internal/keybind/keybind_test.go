@@ -4,9 +4,11 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 )
@@ -202,5 +204,52 @@ func TestConvertKeys_押下モード(t *testing.T) {
 		action, ok := convertKeys(ki, MenuCommon)
 		assert.True(t, ok, "押上で1度だけ発火する")
 		assert.Equal(t, inputmapper.ActionMenuSelect, action)
+	})
+}
+
+// TestNavHint はキー操作ヒントが束縛表から導出されることを固定する。
+// 同じ Label の連続行はキー表記が連結され、Cancel の行は末尾へ回る
+func TestNavHint(t *testing.T) {
+	t.Parallel()
+
+	detail := []Binding{
+		{Key: ebiten.KeyX, Shift: ShiftForbidden, Action: inputmapper.ActionOpenItemDetail, Label: "Details"},
+	}
+
+	t.Run("タブ有りは共通キー全部と固有キーを並べる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		got := NavHint(world, true, MenuCommon, detail)
+
+		want := consts.IconArrowLeft + consts.IconArrowRight + " Tab   " +
+			consts.IconArrowUp + consts.IconArrowDown + " Select   " +
+			consts.IconKeyEnter + " Confirm   " +
+			"x Details   " +
+			consts.IconKeyEsc + " Back"
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("タブ無しはタブ切替の行を出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		got := NavHint(world, false, MenuCommon)
+
+		want := consts.IconArrowUp + consts.IconArrowDown + " Select   " +
+			consts.IconKeyEnter + " Confirm   " +
+			consts.IconKeyEsc + " Back"
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("Shift併用は大文字で表す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		got := NavHint(world, false, []Binding{
+			{Key: ebiten.KeyX, Shift: ShiftRequired, Action: inputmapper.ActionVerbExamine, Label: "Inspect"},
+		})
+
+		assert.Equal(t, "X Inspect", got)
 	})
 }

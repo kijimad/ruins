@@ -31,14 +31,12 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menul
 		content = widget.NewContainer()
 	}
 
-	extras := []string{query.T(world, "x Details")}
-
 	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		Header:    header,
 		TabLabels: characterTabLabels(world),
 		TabIndex:  cursor.TabIndex,
 		Content:   content,
-		Footer:    menuNavHint(world, true, extras...),
+		Footer:    menuNavHint(world, true, detailOpenBindings),
 	})
 }
 
