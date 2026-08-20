@@ -35,6 +35,16 @@ const (
 	MenuUnitStack MenuUnit = "STACK"
 )
 
+// Valid はMenuUnitの値が有効かを検証する
+func (enum MenuUnit) Valid() error {
+	switch enum {
+	case MenuUnitEntity, MenuUnitStack:
+		return nil
+	default:
+		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
+	}
+}
+
 // InteractionKind は相互作用の種類を表す。
 // 種別ごとに Config() で発動プロトコル（発動範囲・発動方式）を持つ点が本質で、
 // これは domain コンポーネント（Door の開閉状態、Dialog のメッセージキー等）とは

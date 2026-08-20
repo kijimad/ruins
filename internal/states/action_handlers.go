@@ -108,12 +108,15 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 
 // splitByMenuUnit は種別を、行の単位の宣言 Config().MenuUnit に従ってスタック単位と
 // エンティティ単位へ分ける。一覧を組む関数はこの振り分けに従う。
-// 両方を持つ実体は両経路に載り、束ね行と個別行が並ぶ
+// 両方を持つ実体は両経路に載り、束ね行と個別行が並ぶ。
+// switch に default を置かず、単位の追加漏れを exhaustive linter に検知させる。
+// 未知の種別の単位はゼロ値で raw/save 由来でありうるので、行を組まず黙って落とす
 func splitByMenuUnit(kinds []gc.InteractionKind) (stack, entity []gc.InteractionKind) {
 	for _, kind := range kinds {
-		if kind.Config().MenuUnit == gc.MenuUnitStack {
+		switch kind.Config().MenuUnit {
+		case gc.MenuUnitStack:
 			stack = append(stack, kind)
-		} else {
+		case gc.MenuUnitEntity:
 			entity = append(entity, kind)
 		}
 	}
