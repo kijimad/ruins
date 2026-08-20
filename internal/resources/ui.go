@@ -70,8 +70,8 @@ type UIResources struct {
 type TextResources struct {
 	SmallFace text.Face
 	BodyFace  text.Face
-	// KeycapFace はキーキャップの箱に入れるグリフ用。字面を出すため本文よりひと回り大きい。
-	// 通常の行に混ぜると行メトリクスを引き上げるので、キーキャップの offscreen 描画だけで使う
+	// KeycapFace はキーキャップの箱に描くグリフ専用のフェイス。本文よりひと回り大きい。
+	// 大きいフェイスは行の高さも広げるため、widget のテキストには使わないこと
 	KeycapFace     text.Face
 	TitleFontFace  text.Face
 	SplashFontFace text.Face
