@@ -17,28 +17,27 @@ type HintEntry struct {
 }
 
 // HintEntries は束縛表から表示単位の一覧を導出する。表の順に並べ、Label が空の行は
-// 隠しキーとして出さない。連続する同じ Label の行はキー表記を連結して1項目にまとめる
+// 隠しキーとして出さない。連続する同じ Label の行はキー表記を連結して1項目にまとめる。
+// 隠しキーの行を挟んでも連続とみなすため、先に表示行だけへ絞ってからまとめる
 func HintEntries(world w.World, table []Binding) []HintEntry {
-	var entries []HintEntry
-	label := ""
-	keys := ""
-	flush := func() {
-		if label != "" {
-			entries = append(entries, HintEntry{Keys: keys, Label: query.T(world, label)})
-		}
-		label, keys = "", ""
-	}
+	var labeled []Binding
 	for _, b := range table {
-		if b.Label == "" {
-			continue
+		if b.Label != "" {
+			labeled = append(labeled, b)
 		}
-		if b.Label != label {
-			flush()
-			label = b.Label
-		}
-		keys += KeyLabel(b)
 	}
-	flush()
+
+	var entries []HintEntry
+	for i := 0; i < len(labeled); {
+		// i から同じ Label が続く範囲が1項目。j が範囲の終端に進む
+		var keys strings.Builder
+		j := i
+		for ; j < len(labeled) && labeled[j].Label == labeled[i].Label; j++ {
+			keys.WriteString(KeyLabel(labeled[j]))
+		}
+		entries = append(entries, HintEntry{Keys: keys.String(), Label: query.T(world, labeled[i].Label)})
+		i = j
+	}
 	return entries
 }
 
