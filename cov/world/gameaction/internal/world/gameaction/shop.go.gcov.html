@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">55.6&nbsp;%</td>
-            <td class="headerCovTableEntry">27</td>
-            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryLo">60.0&nbsp;%</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">18</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,47 +71,51 @@
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              : )</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // BuyStock はプレイヤーが商人の在庫アイテムを買う。実体を商人の収納からプレイヤーのバックパックへ移す。</span>
-<span id="L13"><span class="lineNum">      13</span>              : // 通貨が足りなければ何もせずエラーを返す</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 : func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         price := query.BuyPrice(world, player, item)</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           2 :         if !query.HasCurrency(world, player, price) {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;not enough currency: need %d, have %d&quot;, price, query.GetCurrency(world, player))</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         if !query.ConsumeCurrency(world, player, price) {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to consume currency&quot;)</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L23"><span class="lineNum">      23</span>              : </span>
-<span id="L24"><span class="lineNum">      24</span>              :         // 実体をバックパックへ移す。移送に失敗したら通貨を返して整合を保つ</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := lifecycle.MoveToBackpack(world, item, player); err != nil {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 :                 if refundErr := query.AddCurrency(world, player, price); refundErr != nil {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;move failed and refund also failed: %w (refund error: %w)&quot;, err, refundErr)</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to move item to backpack: %w&quot;, err)</span></span>
-<span id="L30"><span class="lineNum">      30</span>              :         }</span>
-<span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L33"><span class="lineNum">      33</span>              : }</span>
-<span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span>              : // SellStock はプレイヤーが持ち物を商人へ売る。実体を商人の収納へ移し、代金を受け取る。</span>
-<span id="L36"><span class="lineNum">      36</span>              : // 売った品は商人の在庫として店頭に並ぶ</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.Entity) error {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         price := query.SellPrice(world, player, item)</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if err := lifecycle.MoveToStorage(world, item, merchant); err != nil {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to move item to merchant storage: %w&quot;, err)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L43"><span class="lineNum">      43</span>              :         // 代金の付与に失敗したら実体を手元へ戻し、品も金も失わないようにする。BuyStock の返金と対称</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := query.AddCurrency(world, player, price); err != nil {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :                 if rbErr := lifecycle.MoveToBackpack(world, item, player); rbErr != nil {</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;payment failed and item rollback also failed: %w (rollback error: %w)&quot;, err, rbErr)</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to add currency: %w&quot;, err)</span></span>
-<span id="L49"><span class="lineNum">      49</span>              :         }</span>
-<span id="L50"><span class="lineNum">      50</span>              : </span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L52"><span class="lineNum">      52</span>              : }</span>
+<span id="L12"><span class="lineNum">      12</span>              : // BuyStock はプレイヤーが商人の在庫アイテムを買う。一覧の1行はスタック代表なので、</span>
+<span id="L13"><span class="lineNum">      13</span>              : // 同一スタックを丸ごと買い、代金は個数×単価にする。実体を商人の収納からバックパックへ移す。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // 通貨が足りなければ何もせずエラーを返す</span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 : func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         // BuyPrice は価値×スタック個数で全量の額を返す。移動もスタック丸ごとで、額と個数が揃う</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         price := query.BuyPrice(world, player, item)</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if !query.HasCurrency(world, player, price) {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;not enough currency: need %d, have %d&quot;, price, query.GetCurrency(world, player))</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         if !query.ConsumeCurrency(world, player, price) {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to consume currency&quot;)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              :         // 実体をバックパックへ移す。移送に失敗したら通貨を返して整合を保つ</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 :         if _, err := lifecycle.MoveStackToBackpack(world, item, player); err != nil {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :                 if refundErr := query.AddCurrency(world, player, price); refundErr != nil {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;move failed and refund also failed: %w (refund error: %w)&quot;, err, refundErr)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to move items to backpack: %w&quot;, err)</span></span>
+<span id="L32"><span class="lineNum">      32</span>              :         }</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : // SellStock はプレイヤーが持ち物を商人へ売る。一覧の1行はスタック代表なので、</span>
+<span id="L38"><span class="lineNum">      38</span>              : // 同一スタックを丸ごと売り、代金は個数×単価で受け取る。実体は商人の収納へ移り店頭に並ぶ</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.Entity) error {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         // SellPrice は価値×スタック個数で全量の額を返す。額は移動前に確定する。移動後は</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         // スタックの位置が変わり個数の数え上げ範囲がずれるため、先に出しておく</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         price := query.SellPrice(world, player, item)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         if _, err := lifecycle.MoveStackToStorage(world, item, merchant); err != nil {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to move items to merchant storage: %w&quot;, err)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span>              :         // 代金の付与に失敗したら実体を手元へ戻し、品も金も失わないようにする。BuyStock の返金と対称</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := query.AddCurrency(world, player, price); err != nil {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 :                 if _, rbErr := lifecycle.MoveStackToBackpack(world, item, player); rbErr != nil {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;payment failed and item rollback also failed: %w (rollback error: %w)&quot;, err, rbErr)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;failed to add currency: %w&quot;, err)</span></span>
+<span id="L53"><span class="lineNum">      53</span>              :         }</span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.5&nbsp;%</td>
-            <td class="headerCovTableEntry">95</td>
-            <td class="headerCovTableEntry">86</td>
+            <td class="headerCovTableEntryHi">90.4&nbsp;%</td>
+            <td class="headerCovTableEntry">94</td>
+            <td class="headerCovTableEntry">85</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -222,10 +222,10 @@
 <span id="L160"><span class="lineNum">     160</span>              : </span>
 <span id="L161"><span class="lineNum">     161</span>              : // itemMenuRow は アイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、</span>
 <span id="L162"><span class="lineNum">     162</span>              : // メニュー固有の trailing 文字列セルを後続に付けた menuRow を返す。</span>
-<span id="L163"><span class="lineNum">     163</span>              : // 名前・個数・アイコンは全て entity から解決するので、呼び出し側は追加列だけ渡せばよい</span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 : func itemMenuRow(world w.World, e ecs.Entity, trailing ...string) menuRow {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(e, world)</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         count := query.GetEntityCount(world, e)</span></span>
+<span id="L163"><span class="lineNum">     163</span>              : // 個数は呼び出し側が GroupStacks で確定済みの値を渡す。ここで数え直すと一覧の行ごとに</span>
+<span id="L164"><span class="lineNum">     164</span>              : // 全走査が走るため、束ねた結果を持ち回って表示する</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 : func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuRow {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(e, world)</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         label := query.FormatNameCount(name, count)</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         // 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする</span></span>

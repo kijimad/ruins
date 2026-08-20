@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -173,13 +173,13 @@
 <span id="L111"><span class="lineNum">     111</span>              : }</span>
 <span id="L112"><span class="lineNum">     112</span>              : </span>
 <span id="L113"><span class="lineNum">     113</span>              : // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *SettingsMenuState) Fetch(world w.World) SettingsMenuProps {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *SettingsMenuState) Fetch(world w.World) (SettingsMenuProps, error) {</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         return SettingsMenuProps{</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 Items: []settingsMenuItem{</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                         {Kind: settingsItemLanguage, Label: query.T(world, &quot;Language&quot;), Value: query.T(world, currentLanguageLabel(query.GetUserSettings(world).Language))},</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                         {Kind: settingsItemBack, Label: query.T(world, &quot;Back&quot;)},</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L122"><span class="lineNum">     122</span>              : </span>
 <span id="L123"><span class="lineNum">     123</span>              : // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる</span>

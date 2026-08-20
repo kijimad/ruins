@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">55.2&nbsp;%</td>
-            <td class="headerCovTableEntry">145</td>
-            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntryLo">50.0&nbsp;%</td>
+            <td class="headerCovTableEntry">134</td>
+            <td class="headerCovTableEntry">67</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,7 +68,7 @@
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/ebitenui/ebitenui&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/ebitenui/ebitenui/widget&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/input&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
@@ -172,149 +172,135 @@
 <span id="L110"><span class="lineNum">     110</span>              :         Items []itemRowData</span>
 <span id="L111"><span class="lineNum">     111</span>              : }</span>
 <span id="L112"><span class="lineNum">     112</span>              : </span>
-<span id="L113"><span class="lineNum">     113</span>              : // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) Fetch(world w.World) StorageProps {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         return StorageProps{</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 Tabs: []storageTabData{</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                         {ID: tabIDRetrieve, Label: query.T(world, &quot;Retrieve&quot;), Items: st.createStorageItemData(world)},</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                         {ID: tabIDStore, Label: query.T(world, &quot;Store&quot;), Items: st.createBackpackItemData(world)},</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L122"><span class="lineNum">     122</span>              : </span>
-<span id="L123"><span class="lineNum">     123</span>              : // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : func (st *StorageMenuState) Menu(props StorageProps) menuloop.MenuConfig {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         itemCounts := make([]int, len(props.Tabs))</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 itemCounts[i] = len(tab.Items)</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         return menuloop.MenuConfig{Key: &quot;storage&quot;, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}</span></span>
-<span id="L130"><span class="lineNum">     130</span>              : }</span>
-<span id="L131"><span class="lineNum">     131</span>              : </span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 : func (st *StorageMenuState) createStorageItemData(world w.World) []itemRowData {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         items := query.GetStorageItems(world, st.storageEntity)</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         sorted := query.SortEntities(world, items)</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         return st.toStorageItemData(world, sorted)</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L137"><span class="lineNum">     137</span>              : </span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 : func (st *StorageMenuState) createBackpackItemData(world w.World) []itemRowData {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         var entities []ecs.Entity</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         backpackQuery := ecs.NewFilter1[gc.LocationInBackpack](world.ECS).Query()</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           2 :         for backpackQuery.Next() {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 entity := backpackQuery.Entity()</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 entities = append(entities, entity)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L145"><span class="lineNum">     145</span>              : </span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         sorted := query.SortEntities(world, entities)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         return st.toStorageItemData(world, sorted)</span></span>
-<span id="L148"><span class="lineNum">     148</span>              : }</span>
-<span id="L149"><span class="lineNum">     149</span>              : </span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 : func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Entity) []itemRowData {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         items := make([]itemRowData, len(entities))</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           2 :         for i, entity := range entities {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 name := query.GetEntityName(entity, world)</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 item := itemRowData{</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                         Entity: entity,</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                         Name:   name,</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                         Weight: query.GetEntityWeight(world, entity).KgString(),</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           2 :                 if world.Components.Stackable.Has(entity) {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                         item.Count = world.Components.Stackable.Get(entity).Count</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 items[i] = item</span></span>
-<span id="L163"><span class="lineNum">     163</span>              :         }</span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         return items</span></span>
-<span id="L165"><span class="lineNum">     165</span>              : }</span>
-<span id="L166"><span class="lineNum">     166</span>              : </span>
-<span id="L167"><span class="lineNum">     167</span>              : // ================</span>
-<span id="L168"><span class="lineNum">     168</span>              : // アクション実行</span>
-<span id="L169"><span class="lineNum">     169</span>              : // ================</span>
+<span id="L113"><span class="lineNum">     113</span>              : // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる。</span>
+<span id="L114"><span class="lineNum">     114</span>              : // 収納メニューはプレイヤーの操作でしか開かないので、プレイヤー不在は不変条件違反として返す</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) Fetch(world w.World) (StorageProps, error) {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                 return StorageProps{}, err</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC tlaBgGNC">           1 :         return StorageProps{</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 Tabs: []storageTabData{</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                         {ID: tabIDRetrieve, Label: query.T(world, &quot;Retrieve&quot;), Items: st.toStorageItemData(world, query.StorageStacks(world, st.storageEntity))},</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                         {ID: tabIDStore, Label: query.T(world, &quot;Store&quot;), Items: st.toStorageItemData(world, query.BackpackStacks(world, player))},</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         }, nil</span></span>
+<span id="L126"><span class="lineNum">     126</span>              : }</span>
+<span id="L127"><span class="lineNum">     127</span>              : </span>
+<span id="L128"><span class="lineNum">     128</span>              : // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 : func (st *StorageMenuState) Menu(props StorageProps) menuloop.MenuConfig {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         itemCounts := make([]int, len(props.Tabs))</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 itemCounts[i] = len(tab.Items)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         return menuloop.MenuConfig{Key: &quot;storage&quot;, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}</span></span>
+<span id="L135"><span class="lineNum">     135</span>              : }</span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 : func (st *StorageMenuState) toStorageItemData(world w.World, stacks []query.Stack) []itemRowData {</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         // 1スタック1行。重量は束の総量、個数は束の大きさを出す</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         items := make([]itemRowData, len(stacks))</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           2 :         for i, stack := range stacks {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 rep := stack.Rep</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 total := query.GetEntityWeight(world, rep) * consts.Milligram(stack.Count)</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 items[i] = itemRowData{</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                         Entity: rep,</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                         Name:   query.GetEntityName(rep, world),</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                         Weight: total.KgString(),</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                         Count:  stack.Count,</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         return items</span></span>
+<span id="L151"><span class="lineNum">     151</span>              : }</span>
+<span id="L152"><span class="lineNum">     152</span>              : </span>
+<span id="L153"><span class="lineNum">     153</span>              : // ================</span>
+<span id="L154"><span class="lineNum">     154</span>              : // アクション実行</span>
+<span id="L155"><span class="lineNum">     155</span>              : // ================</span>
+<span id="L156"><span class="lineNum">     156</span>              : </span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *StorageMenuState) executeTransfer(world w.World) error {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         tabIndex := cursor.TabIndex</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         itemIndex := cursor.ItemIndex</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         tab := props.Tabs[tabIndex]</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         if len(tab.Items) == 0 || itemIndex &gt;= len(tab.Items) {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L170"><span class="lineNum">     170</span>              : </span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *StorageMenuState) executeTransfer(world w.World) error {</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         tabIndex := cursor.TabIndex</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         itemIndex := cursor.ItemIndex</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         tab := props.Tabs[tabIndex]</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         if len(tab.Items) == 0 || itemIndex &gt;= len(tab.Items) {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L184"><span class="lineNum">     184</span>              : </span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         item := tab.Items[itemIndex]</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         switch tab.ID {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         case tabIDRetrieve:</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                 // 収納からバックパックへ移動</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 if err := lifecycle.MoveToBackpack(world, item.Entity, playerEntity); err != nil {</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         case tabIDStore:</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 // バックパックから収納へ移動</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                 if !query.CanAddToStorage(world, st.storageEntity, item.Entity) {</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                         return nil // 重量超過の場合は何もしない</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                 if err := lifecycle.MoveToStorage(world, item.Entity, st.storageEntity); err != nil {</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L205"><span class="lineNum">     205</span>              :         }</span>
-<span id="L206"><span class="lineNum">     206</span>              : </span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L208"><span class="lineNum">     208</span>              : }</span>
-<span id="L209"><span class="lineNum">     209</span>              : </span>
-<span id="L210"><span class="lineNum">     210</span>              : // ================</span>
-<span id="L211"><span class="lineNum">     211</span>              : // View</span>
-<span id="L212"><span class="lineNum">     212</span>              : // ================</span>
-<span id="L213"><span class="lineNum">     213</span>              : </span>
-<span id="L214"><span class="lineNum">     214</span>              : // View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる</span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         // カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 labels[i] = tab.Label</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         return menuframe.NewTabScreen(res, menuframe.TabScreen{</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                 TabLabels: labels,</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 TabIndex:  cursor.TabIndex,</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 Footer:    menuNavHint(world, true, query.T(world, &quot;x Details&quot;)),</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         item := tab.Items[itemIndex]</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         switch tab.ID {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         case tabIDRetrieve:</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 playerEntity, err := query.GetPlayerEntity(world)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 if _, err := lifecycle.MoveStackToBackpack(world, item.Entity, playerEntity); err != nil {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         case tabIDStore:</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                 // 容量判定が束の合計重量を要するため、ここだけ実体列を先に束ねて可否を見てから移す</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                 members := query.StackMembers(world, item.Entity)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 if !query.CanAddStackToStorage(world, st.storageEntity, members) {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                 if _, err := lifecycle.MoveMembersToStorage(world, members, st.storageEntity); err != nil {</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L191"><span class="lineNum">     191</span>              :         }</span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L194"><span class="lineNum">     194</span>              : }</span>
+<span id="L195"><span class="lineNum">     195</span>              : </span>
+<span id="L196"><span class="lineNum">     196</span>              : // ================</span>
+<span id="L197"><span class="lineNum">     197</span>              : // View</span>
+<span id="L198"><span class="lineNum">     198</span>              : // ================</span>
+<span id="L199"><span class="lineNum">     199</span>              : </span>
+<span id="L200"><span class="lineNum">     200</span>              : // View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる</span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         // カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 labels[i] = tab.Label</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         return menuframe.NewTabScreen(res, menuframe.TabScreen{</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 TabLabels: labels,</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 TabIndex:  cursor.TabIndex,</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 Footer:    menuNavHint(world, true, query.T(world, &quot;x Details&quot;)),</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L213"><span class="lineNum">     213</span>              : }</span>
+<span id="L214"><span class="lineNum">     214</span>              : </span>
+<span id="L215"><span class="lineNum">     215</span>              : // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :         items := props.Tabs[cursor.TabIndex].Items</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         if cursor.ItemIndex &gt;= len(items) {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         return items[cursor.ItemIndex].Entity, true</span></span>
 <span id="L227"><span class="lineNum">     227</span>              : }</span>
 <span id="L228"><span class="lineNum">     228</span>              : </span>
-<span id="L229"><span class="lineNum">     229</span>              : // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す</span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 return ecs.Entity{}, false</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :         items := props.Tabs[cursor.TabIndex].Items</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :         if cursor.ItemIndex &gt;= len(items) {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                 return ecs.Entity{}, false</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         return items[cursor.ItemIndex].Entity, true</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) buildActiveListContainer(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC tlaBgUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L233"><span class="lineNum">     233</span>              : </span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC tlaBgGNC">           1 :         currentTab := props.Tabs[tabIndex]</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(currentTab.Items))</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           2 :         for i, it := range currentTab.Items {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No items&quot;)}, res)</span></span>
 <span id="L241"><span class="lineNum">     241</span>              : }</span>
-<span id="L242"><span class="lineNum">     242</span>              : </span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *StorageMenuState) buildActiveListContainer(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC tlaBgUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L247"><span class="lineNum">     247</span>              : </span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC tlaBgGNC">           1 :         currentTab := props.Tabs[tabIndex]</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(currentTab.Items))</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           2 :         for i, it := range currentTab.Items {</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                 rows[i] = itemMenuRow(world, it.Entity, it.Weight)</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No items&quot;)}, res)</span></span>
-<span id="L255"><span class="lineNum">     255</span>              : }</span>
         </pre>
               </td>
             </tr>

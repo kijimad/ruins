@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">26.3&nbsp;%</td>
-            <td class="headerCovTableEntry">339</td>
-            <td class="headerCovTableEntry">89</td>
+            <td class="headerCovTableEntryLo">26.7&nbsp;%</td>
+            <td class="headerCovTableEntry">348</td>
+            <td class="headerCovTableEntry">93</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -171,409 +171,423 @@
 <span id="L109"><span class="lineNum">     109</span>              :         col   [3]float64 // 頂点色の乗算。テクスチャ面は灰色の減光、フラット面は平均色</span>
 <span id="L110"><span class="lineNum">     110</span>              :         alpha float64    // 頂点アルファ。既定は不透明の1。霜など半透明の重ねだけ1未満にする</span>
 <span id="L111"><span class="lineNum">     111</span>              :         key   float64</span>
-<span id="L112"><span class="lineNum">     112</span>              : }</span>
-<span id="L113"><span class="lineNum">     113</span>              : </span>
-<span id="L114"><span class="lineNum">     114</span>              : const (</span>
-<span id="L115"><span class="lineNum">     115</span>              :         r3wallHeight = 1.0  // 壁の高さ。タイル1個分</span>
-<span id="L116"><span class="lineNum">     116</span>              :         r3cullRadius = 60.0 // プレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る</span>
-<span id="L117"><span class="lineNum">     117</span>              : )</span>
-<span id="L118"><span class="lineNum">     118</span>              : </span>
-<span id="L119"><span class="lineNum">     119</span>              : // visFunc はタイルの明るさ・状態・光源色を返す。bright は 0..1 の明るさで Darkness を反映する。</span>
-<span id="L120"><span class="lineNum">     120</span>              : // drawable はタイルを描くか、visible は今まさに見えているか。light は光源色の乗算で、</span>
-<span id="L121"><span class="lineNum">     121</span>              : // 無色なら {1,1,1}。動体は visible のときだけ描く。</span>
-<span id="L122"><span class="lineNum">     122</span>              : type visFunc func(*gc.GridElement) (bright float64, drawable, visible bool, light [3]float64)</span>
-<span id="L123"><span class="lineNum">     123</span>              : </span>
-<span id="L124"><span class="lineNum">     124</span>              : // normalizeLight は光源色を最大成分で正規化した乗算色にする。明るさは bright が持つので、</span>
-<span id="L125"><span class="lineNum">     125</span>              : // ここでは色味だけを表す。無色や未設定は {1,1,1} を返す。</span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 : func normalizeLight(c color.RGBA) [3]float64 {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         m := max(c.R, max(c.G, c.B))</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           2 :         if c.A == 0 || m == 0 {</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 return [3]float64{1, 1, 1}</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         f := 1.0 / float64(m)</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         return [3]float64{float64(c.R) * f, float64(c.G) * f, float64(c.B) * f}</span></span>
-<span id="L133"><span class="lineNum">     133</span>              : }</span>
-<span id="L134"><span class="lineNum">     134</span>              : </span>
-<span id="L135"><span class="lineNum">     135</span>              : // spriteRect は SpriteRender からアトラス画像と切り出し矩形を解決する。見つからなければ ok=false。</span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys *Render3DSystem) spriteRect(world w.World, sr *gc.SpriteRender) (atlas *ebiten.Image, x, y, ww, hh float64, ok bool) {</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         if world.Resources.SpriteSheets == nil {</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 return nil, 0, 0, 0, 0, false</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         sheet, exists := world.Resources.SpriteSheets[sr.SpriteSheetName]</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         if !exists || sheet.Texture.Image == nil {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 return nil, 0, 0, 0, 0, false</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         sp, exists := sheet.Sprites[sr.SpriteKey]</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 return nil, 0, 0, 0, 0, false</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         return sheet.Texture.Image, float64(sp.X), float64(sp.Y), float64(sp.Width), float64(sp.Height), true</span></span>
-<span id="L149"><span class="lineNum">     149</span>              : }</span>
-<span id="L150"><span class="lineNum">     150</span>              : </span>
-<span id="L151"><span class="lineNum">     151</span>              : // scaleCol は色に係数を掛ける。面ごとのシェードを乗算色へ乗せるのに使う。</span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 : func scaleCol(c [3]float64, s float64) [3]float64 {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         return [3]float64{c[0] * s, c[1] * s, c[2] * s}</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64) {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         *out = append(*out, r3quad{</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                 p:     [4]r3vec{p0, p1, p2, p3},</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                 uv:    [4][2]float64{{x, y}, {x + ww, y}, {x + ww, y + hh}, {x, y + hh}},</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                 atlas: atlas,</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 col:   col,</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 alpha: 1,</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L165"><span class="lineNum">     165</span>              : </span>
-<span id="L166"><span class="lineNum">     166</span>              : // addFlatQuad は面をスプライトの平均色でフラットに塗る。壁の側面に使う。真上視点用テクスチャを</span>
-<span id="L167"><span class="lineNum">     167</span>              : // 垂直面へ引き伸ばす違和感を避け、新規アートなしでローポリらしい平板シェードにする。</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64) {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         c := avgSpriteColor(atlas, x, y, ww, hh)</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         *out = append(*out, r3quad{</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :                 p:     [4]r3vec{p0, p1, p2, p3},</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :                 uv:    [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 atlas: whitePixel(),</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 col:   [3]float64{c[0] * col[0], c[1] * col[1], c[2] * col[2]},</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 alpha: 1,</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L178"><span class="lineNum">     178</span>              : </span>
-<span id="L179"><span class="lineNum">     179</span>              : // frostColorNorm は氷オーバーレイの色を 0..1 で表す。2Dの FrostRenderSystem と同じ寒色。</span>
-<span id="L180"><span class="lineNum">     180</span>              : var frostColorNorm = [3]float64{130.0 / 255, 205.0 / 255, 240.0 / 255}</span>
-<span id="L181"><span class="lineNum">     181</span>              : </span>
-<span id="L182"><span class="lineNum">     182</span>              : // addFrostQuad は床や壁天面へ氷を重ねる。タイルは一様な四角なので白1pxで塗りつぶす。</span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) addFrostQuad(out *[]r3quad, fx, fz, topY, alpha float64) {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         p := [4]r3vec{{fx, topY, fz}, {fx + 1, topY, fz}, {fx + 1, topY, fz + 1}, {fx, topY, fz + 1}}</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         zeroUV := [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}}</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         appendFrostQuad(out, p, zeroUV, whitePixel(), alpha)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L188"><span class="lineNum">     188</span>              : </span>
-<span id="L189"><span class="lineNum">     189</span>              : // appendFrostQuad は氷クアッドを1枚積む。頂点色を氷色×alpha にプリマルチプライしアルファを渡すことで、</span>
-<span id="L190"><span class="lineNum">     190</span>              : // ソースオーバー合成が 2D の氷オーバーレイと同じになる。atlas と uv を受け、床・壁は白1px、ビルボードは</span>
-<span id="L191"><span class="lineNum">     191</span>              : // スプライトのテクスチャで貼る。スプライトで貼るとアルファでマスクされ透明な余白に氷が乗らない。</span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 : func appendFrostQuad(out *[]r3quad, p [4]r3vec, uv [4][2]float64, atlas *ebiten.Image, alpha float64) {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :         *out = append(*out, r3quad{</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 p:     p,</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 uv:    uv,</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                 atlas: atlas,</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 col:   [3]float64{frostColorNorm[0] * alpha, frostColorNorm[1] * alpha, frostColorNorm[2] * alpha},</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 alpha: alpha,</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L201"><span class="lineNum">     201</span>              : </span>
-<span id="L202"><span class="lineNum">     202</span>              : type flatColorKey struct {</span>
-<span id="L203"><span class="lineNum">     203</span>              :         atlas      *ebiten.Image</span>
-<span id="L204"><span class="lineNum">     204</span>              :         x, y, w, h int</span>
-<span id="L205"><span class="lineNum">     205</span>              : }</span>
-<span id="L206"><span class="lineNum">     206</span>              : </span>
-<span id="L207"><span class="lineNum">     207</span>              : var (</span>
-<span id="L208"><span class="lineNum">     208</span>              :         r3whiteImg  *ebiten.Image</span>
-<span id="L209"><span class="lineNum">     209</span>              :         r3whiteOnce sync.Once</span>
-<span id="L210"><span class="lineNum">     210</span>              :         r3flatColor sync.Map // flatColorKey -&gt; [3]float64</span>
-<span id="L211"><span class="lineNum">     211</span>              : )</span>
-<span id="L212"><span class="lineNum">     212</span>              : </span>
-<span id="L213"><span class="lineNum">     213</span>              : // whitePixel はフラット塗り用の白1pxを返す。頂点色をそのまま出すために使う。</span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 : func whitePixel() *ebiten.Image {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         r3whiteOnce.Do(func() {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                 r3whiteImg = ebiten.NewImage(1, 1)</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 r3whiteImg.Fill(color.White)</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :         return r3whiteImg</span></span>
-<span id="L220"><span class="lineNum">     220</span>              : }</span>
-<span id="L221"><span class="lineNum">     221</span>              : </span>
-<span id="L222"><span class="lineNum">     222</span>              : // avgSpriteColor はアトラス上の矩形の平均色を 0..1 で返す。透明画素は除く。結果はキャッシュする。</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 : func avgSpriteColor(atlas *ebiten.Image, x, y, w, h float64) [3]float64 {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :         key := flatColorKey{atlas, int(x), int(y), int(w), int(h)}</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :         if v, ok := r3flatColor.Load(key); ok {</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 if c, ok2 := v.([3]float64); ok2 {</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                         return c</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L229"><span class="lineNum">     229</span>              :         }</span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :         var sr, sg, sb, n float64</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         for py := int(y); py &lt; int(y+h); py++ {</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 for px := int(x); px &lt; int(x+w); px++ {</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                         cr, cg, cb, ca := atlas.At(px, py).RGBA()</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                         if ca == 0 {</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                                 continue</span></span>
-<span id="L236"><span class="lineNum">     236</span>              :                         }</span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                         sr += float64(cr &gt;&gt; 8)</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                         sg += float64(cg &gt;&gt; 8)</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                         sb += float64(cb &gt;&gt; 8)</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                         n++</span></span>
-<span id="L241"><span class="lineNum">     241</span>              :                 }</span>
-<span id="L242"><span class="lineNum">     242</span>              :         }</span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         res := [3]float64{0.5, 0.5, 0.5}</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :         if n &gt; 0 {</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                 res = [3]float64{sr / n / 255, sg / n / 255, sb / n / 255}</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         r3flatColor.Store(key, res)</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         return res</span></span>
-<span id="L249"><span class="lineNum">     249</span>              : }</span>
-<span id="L250"><span class="lineNum">     250</span>              : </span>
-<span id="L251"><span class="lineNum">     251</span>              : // Draw は w.Renderer を満たす。3Dシーンを screen へ描く。</span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         quads, vp, view := sys.buildScene(world, sw, sh)</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         sys.emit(screen, quads, vp, view, sw, sh)</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L258"><span class="lineNum">     258</span>              : </span>
-<span id="L259"><span class="lineNum">     259</span>              : // buildScene はカメラ行列とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。</span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) buildScene(world w.World, sw, sh int) (quads []r3quad, vp, view r3mat) {</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :         pcx, pcz := sys.playerCenter(world)</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :         target := r3vec{pcx + 0.5, 0.4, pcz + 0.5}</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :         dist, pitch, yaw := sys.Dist, sys.Pitch, sys.Yaw</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :         // ゼロ値の Render3DSystem をそのまま描いたときの保険。負値は設定ミスなので隠さずそのまま出す</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :         if dist == 0 {</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 dist, pitch, yaw = 9, 0.62, 0</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L269"><span class="lineNum">     269</span>              :         // カメラはプレイヤーの南側から北を見下ろす。画面の上を北に合わせ、北上のミニマップと向きをそろえる</span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         dir := r3vec{math.Cos(pitch) * math.Sin(yaw), math.Sin(pitch), math.Cos(pitch) * math.Cos(yaw)}</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :         eye := r3add(target, r3scale(dir, dist))</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         up := r3vec{0, 1, 0}</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         view = r3lookAt(eye, target, up)</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         vp = r3mul(r3perspective(52, float64(sw)/float64(sh), 0.1, 200), view)</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :         visFactor := sys.visFactorFunc(world)</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :         frost := sys.frostFunc(world)</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         quads = sys.collectTiles(world, pcx, pcz, visFactor, frost)</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         right := r3norm(r3cross(r3norm(r3sub(target, eye)), up))</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :         quads = sys.collectBillboards(world, quads, pcx, pcz, right, visFactor, frost)</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         return quads, vp, view</span></span>
-<span id="L282"><span class="lineNum">     282</span>              : }</span>
-<span id="L283"><span class="lineNum">     283</span>              : </span>
-<span id="L284"><span class="lineNum">     284</span>              : // playerCenter はプレイヤーのタイル座標を返す。いなければ既定値。</span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) playerCenter(world w.World) (float64, float64) {</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :         if pe, err := query.GetPlayerEntity(world); err == nil &amp;&amp; world.Components.GridElement.Has(pe) {</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 g := world.Components.GridElement.Get(pe)</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 return float64(g.X), float64(g.Y)</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         return 25, 25</span></span>
-<span id="L291"><span class="lineNum">     291</span>              : }</span>
-<span id="L292"><span class="lineNum">     292</span>              : </span>
-<span id="L293"><span class="lineNum">     293</span>              : // visFactorFunc は視界に応じた減光係数を返す関数を作る。隠れタイルは ok=false。</span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC tlaBgGNC">           1 : func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           2 :         if !sys.UseFOV {</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           2 :                 return func(*gc.GridElement) (float64, bool, bool, [3]float64) { return 1, true, true, [3]float64{1, 1, 1} }</span></span>
-<span id="L297"><span class="lineNum">     297</span>              :         }</span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC tlaBgUNC">           0 :         renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :         return func(g *gc.GridElement) (float64, bool, bool, [3]float64) {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                 return tileVisFactor(renderMap[*g])</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L302"><span class="lineNum">     302</span>              : }</span>
-<span id="L303"><span class="lineNum">     303</span>              : </span>
-<span id="L304"><span class="lineNum">     304</span>              : // tileVisFactor はタイルの描画情報から明るさ・描画可否・可視・光源色を導く純関数。</span>
-<span id="L305"><span class="lineNum">     305</span>              : // 可視は Darkness を 1-d の明るさへ、LightColor を色味へ反映する。記憶は visible=false、未探索は描かない。</span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC tlaBgGNC">           1 : func tileVisFactor(info TileRenderInfo) (bright float64, drawable, visible bool, light [3]float64) {</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :         white := [3]float64{1, 1, 1}</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :         switch v := info.(type) {</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :         case TileRenderVisible:</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 return 1 - float64(v.Darkness), true, true, normalizeLight(v.LightColor)</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         case TileRenderRemembered:</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 return 1 - float64(v.Darkness), true, false, white</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                 return 0, false, false, white</span></span>
-<span id="L315"><span class="lineNum">     315</span>              :         }</span>
-<span id="L316"><span class="lineNum">     316</span>              : }</span>
-<span id="L317"><span class="lineNum">     317</span>              : </span>
-<span id="L318"><span class="lineNum">     318</span>              : // frostFunc は寒波前線の氷を載せる判定を作る。オーバーワールドでなければ常に載せない。</span>
-<span id="L319"><span class="lineNum">     319</span>              : // タイル列の絶対Xから frostAlpha でアルファと可否を返す。frostAlpha は2Dの霜と共有する純関数。</span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys *Render3DSystem) frostFunc(world w.World) func(tileX int) (alpha float64, draw bool) {</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :         if !query.IsOnOverworld(world) {</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 return func(int) (float64, bool) { return 0, false }</span></span>
-<span id="L323"><span class="lineNum">     323</span>              :         }</span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :         sb := *query.GetSeamlessBand(world)</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :         frontEast := int(sb.Front.EastAbsX)</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         coldZoneWest := int(sb.Front.ColdZoneWest())</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :         return func(tileX int) (float64, bool) {</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :                 a, d := frostAlpha(frontEast, coldZoneWest, int(sb.LocalToAbsX(consts.Tile(tileX))))</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                 return float64(a), d</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L331"><span class="lineNum">     331</span>              : }</span>
-<span id="L332"><span class="lineNum">     332</span>              : </span>
-<span id="L333"><span class="lineNum">     333</span>              : // collectTiles は床と壁のクアッドを集める。可視タイルには寒波前線の氷を重ねる。</span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFactor visFunc, frost func(int) (float64, bool)) []r3quad {</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :         var quads []r3quad</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         walls := map[[2]int]bool{}</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         wallQ := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).With(ecs.C[gc.Tile]()).Query()</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         for wallQ.Next() {</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                 g := world.Components.GridElement.Get(wallQ.Entity())</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 walls[[2]int{int(g.X), int(g.Y)}] = true</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :         tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         for tileQ.Next() {</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                 e := tileQ.Entity()</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 g := world.Components.GridElement.Get(e)</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                 fx, fz := float64(g.X), float64(g.Y)</span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 if math.Abs(fx-pcx) &gt; r3cullRadius || math.Abs(fz-pcz) &gt; r3cullRadius {</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L349"><span class="lineNum">     349</span>              :                 }</span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                 sr := world.Components.SpriteRender.Get(e)</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :                 atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)</span></span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L354"><span class="lineNum">     354</span>              :                 }</span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                 vf, vok, vis, light := visFactor(g)</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :                 if !vok {</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L358"><span class="lineNum">     358</span>              :                 }</span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                 tint := scaleCol(light, vf) // 明るさと光源色を合わせた乗算色</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                 isWall := world.Components.BlockPass.Has(e)</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                 if isWall {</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                         sys.addWall(&amp;quads, walls, int(g.X), int(g.Y), fx, fz, atlas, ux, uy, uw, uh, tint)</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                 } else {</span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                         sys.addQuad(&amp;quads, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, atlas, ux, uy, uw, uh, tint)</span></span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L366"><span class="lineNum">     366</span>              :                 // 霜は今見えているタイルにだけ載せる。床は地面、壁は天面の高さへ、z-fight を避け少し上へ重ねる</span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                 if vis {</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                         if a, d := frost(int(g.X)); d {</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                                 topY := 0.02</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :                                 if isWall {</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :                                         topY = r3wallHeight + 0.02</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                                 }</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                                 sys.addFrostQuad(&amp;quads, fx, fz, topY, a)</span></span>
-<span id="L374"><span class="lineNum">     374</span>              :                         }</span>
-<span id="L375"><span class="lineNum">     375</span>              :                 }</span>
-<span id="L376"><span class="lineNum">     376</span>              :         }</span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :         return quads</span></span>
-<span id="L378"><span class="lineNum">     378</span>              : }</span>
-<span id="L379"><span class="lineNum">     379</span>              : </span>
-<span id="L380"><span class="lineNum">     380</span>              : // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。</span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :         // 天面は真上視点なので既存テクスチャをそのまま貼り、側面はフラット単色にする。</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :         // 面ごとのシェード 天面0.95・南北0.6・東西0.78 は疑似方向光源で、平板な側面に陰影を付けて立体に見せる</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.95))</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :         if !walls[[2]int{ix, iy - 1}] {</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :         if !walls[[2]int{ix, iy + 1}] {</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :         if !walls[[2]int{ix - 1, iy}] {</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :         if !walls[[2]int{ix + 1, iy}] {</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L397"><span class="lineNum">     397</span>              : }</span>
-<span id="L398"><span class="lineNum">     398</span>              : </span>
-<span id="L399"><span class="lineNum">     399</span>              : // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。可視かつ凍結タイルの</span>
-<span id="L400"><span class="lineNum">     400</span>              : // エンティティには、同じ立て板の位置へ氷を重ねる。2Dが霜をスプライトの上に載せるのと同じにする。</span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right r3vec, visFactor visFunc, frost func(int) (float64, bool)) []r3quad {</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :         objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :         for objQ.Next() {</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :                 e := objQ.Entity()</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :                 g := world.Components.GridElement.Get(e)</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :                 fx, fz := float64(g.X), float64(g.Y)</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :                 if math.Abs(fx-pcx) &gt; r3cullRadius || math.Abs(fz-pcz) &gt; r3cullRadius {</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L409"><span class="lineNum">     409</span>              :                 }</span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                 sr := world.Components.SpriteRender.Get(e)</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :                 atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L414"><span class="lineNum">     414</span>              :                 }</span>
-<span id="L415"><span class="lineNum">     415</span>              :                 // 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない</span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :                 b, vok, vis, light := visFactor(g)</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :                 if !vok || !vis {</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L419"><span class="lineNum">     419</span>              :                 }</span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :                 base := r3vec{fx + 0.5, 0, fz + 0.5}</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :                 const bw, bh = 0.45, 1.0</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                 b0 := r3add(base, r3scale(right, -bw))</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                 b1 := r3add(base, r3scale(right, bw))</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                 top := r3vec{0, bh, 0}</span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :                 tl, tr := r3add(b0, top), r3add(b1, top)</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :                 sys.addQuad(&amp;quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b))</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :                 // エンティティの立て板へ氷を重ねる。スプライトのテクスチャとUVで貼り、透明な余白は氷が乗らない。</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :                 // 同じ4隅と同じアトラスなので、画家ソートの安定性で氷がエンティティの手前に描かれる</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                 if a, d := frost(int(g.X)); d {</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :                         uv := [4][2]float64{{ux, uy}, {ux + uw, uy}, {ux + uw, uy + uh}, {ux, uy + uh}}</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                         appendFrostQuad(&amp;quads, [4]r3vec{tl, tr, b1, b0}, uv, atlas, a)</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L433"><span class="lineNum">     433</span>              :         }</span>
-<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :         return quads</span></span>
-<span id="L435"><span class="lineNum">     435</span>              : }</span>
-<span id="L436"><span class="lineNum">     436</span>              : </span>
-<span id="L437"><span class="lineNum">     437</span>              : // sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。</span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaGNC tlaBgGNC">           1 : func sortQuadsByDepth(quads []r3quad, view r3mat) {</span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaGNC">           2 :         for i := range quads {</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 :                 c := r3vec{}</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           2 :                 for _, p := range quads[i].p {</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :                         c = r3add(c, p)</span></span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaGNC">           1 :                 c = r3scale(c, 0.25)</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                 _, _, vz, _ := r3apply(view, c)</span></span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                 quads[i].key = vz</span></span>
-<span id="L447"><span class="lineNum">     447</span>              :         }</span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           2 :         sort.SliceStable(quads, func(i, j int) bool { return quads[i].key &lt; quads[j].key })</span></span>
-<span id="L449"><span class="lineNum">     449</span>              : }</span>
-<span id="L450"><span class="lineNum">     450</span>              : </span>
-<span id="L451"><span class="lineNum">     451</span>              : // projectToScreen は点をスクリーン座標へ投影する。カメラ後方や w&lt;=0 の点は ok=false。</span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 : func projectToScreen(vp r3mat, p r3vec, sw, sh int) (float64, float64, bool) {</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :         cx, cy, _, cw := r3apply(vp, p)</span></span>
-<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           2 :         if cw &lt;= 0.001 {</span></span>
-<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :                 return 0, 0, false</span></span>
-<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :         return (cx/cw*0.5 + 0.5) * float64(sw), (1 - (cy/cw*0.5 + 0.5)) * float64(sh), true</span></span>
-<span id="L458"><span class="lineNum">     458</span>              : }</span>
-<span id="L459"><span class="lineNum">     459</span>              : </span>
-<span id="L460"><span class="lineNum">     460</span>              : // emit はクアッドを奥行きでソートし、アトラスが変わる境目でバッチに分けて描く。</span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, vp, view r3mat, sw, sh int) {</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :         sortQuadsByDepth(quads, view)</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :         var verts []ebiten.Vertex</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :         var inds []uint16</span></span>
-<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :         var curAtlas *ebiten.Image</span></span>
-<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :         flush := func() {</span></span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :                 if len(inds) == 0 || curAtlas == nil {</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :                         return</span></span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :                 screen.DrawTriangles(verts, inds, curAtlas, &amp;ebiten.DrawTrianglesOptions{})</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :                 verts = verts[:0]</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                 inds = inds[:0]</span></span>
-<span id="L474"><span class="lineNum">     474</span>              :         }</span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :         project := func(p r3vec) (float64, float64, bool) {</span></span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :                 return projectToScreen(vp, p, sw, sh)</span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :         for i := range quads {</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :                 q := &amp;quads[i]</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :                 // アトラス切り替え、または uint16 の頂点インデックス上限を跨ぐ前に flush する。</span></span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                 // 同一スプライトシートのタイルが大量に積まれても 65535 を超えると黙って描画化けするため</span></span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                 if q.atlas != curAtlas || len(verts)+4 &gt; maxVertsPerBatch {</span></span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :                         flush()</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :                         curAtlas = q.atlas</span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :                 sys.emitQuad(&amp;verts, &amp;inds, q, project)</span></span>
-<span id="L487"><span class="lineNum">     487</span>              :         }</span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :         flush()</span></span>
-<span id="L489"><span class="lineNum">     489</span>              : }</span>
-<span id="L490"><span class="lineNum">     490</span>              : </span>
-<span id="L491"><span class="lineNum">     491</span>              : // maxVertsPerBatch は1回の DrawTriangles へ積む頂点数の上限。インデックスが uint16 なので 65535 まで。</span>
-<span id="L492"><span class="lineNum">     492</span>              : const maxVertsPerBatch = 65535</span>
-<span id="L493"><span class="lineNum">     493</span>              : </span>
-<span id="L494"><span class="lineNum">     494</span>              : // emitQuad は1クアッドを三角形2枚として頂点バッファへ積む。画面外の頂点があれば捨てる。</span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r3quad, project func(r3vec) (float64, float64, bool)) {</span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :         var sp [4][2]float64</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :         for k, p := range q.p {</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :                 sx, sy, ok := project(p)</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :                         return</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :                 sp[k] = [2]float64{sx, sy}</span></span>
-<span id="L503"><span class="lineNum">     503</span>              :         }</span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :         b := uint16(len(*verts))</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :         cr, cg, cb, ca := float32(q.col[0]), float32(q.col[1]), float32(q.col[2]), float32(q.alpha)</span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :         for k := range 4 {</span></span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 :                 *verts = append(*verts, ebiten.Vertex{</span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :                         DstX: float32(sp[k][0]), DstY: float32(sp[k][1]),</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :                         SrcX: float32(q.uv[k][0]), SrcY: float32(q.uv[k][1]),</span></span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :                         ColorR: cr, ColorG: cg, ColorB: cb, ColorA: ca,</span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :         *inds = append(*inds, b, b+1, b+2, b, b+2, b+3)</span></span>
-<span id="L514"><span class="lineNum">     514</span>              : }</span>
+<span id="L112"><span class="lineNum">     112</span>              :         // depth は画家ソートの副キー。quad は元エンティティを持たないので、立て板を作るときにSpriteRender.Depth をここへ焼き込む</span>
+<span id="L113"><span class="lineNum">     113</span>              :         depth int</span>
+<span id="L114"><span class="lineNum">     114</span>              : }</span>
+<span id="L115"><span class="lineNum">     115</span>              : </span>
+<span id="L116"><span class="lineNum">     116</span>              : const (</span>
+<span id="L117"><span class="lineNum">     117</span>              :         r3wallHeight = 1.0  // 壁の高さ。タイル1個分</span>
+<span id="L118"><span class="lineNum">     118</span>              :         r3cullRadius = 60.0 // プレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る</span>
+<span id="L119"><span class="lineNum">     119</span>              : )</span>
+<span id="L120"><span class="lineNum">     120</span>              : </span>
+<span id="L121"><span class="lineNum">     121</span>              : // visFunc はタイルの明るさ・状態・光源色を返す。bright は 0..1 の明るさで Darkness を反映する。</span>
+<span id="L122"><span class="lineNum">     122</span>              : // drawable はタイルを描くか、visible は今まさに見えているか。light は光源色の乗算で、</span>
+<span id="L123"><span class="lineNum">     123</span>              : // 無色なら {1,1,1}。動体は visible のときだけ描く。</span>
+<span id="L124"><span class="lineNum">     124</span>              : type visFunc func(*gc.GridElement) (bright float64, drawable, visible bool, light [3]float64)</span>
+<span id="L125"><span class="lineNum">     125</span>              : </span>
+<span id="L126"><span class="lineNum">     126</span>              : // normalizeLight は光源色を最大成分で正規化した乗算色にする。明るさは bright が持つので、</span>
+<span id="L127"><span class="lineNum">     127</span>              : // ここでは色味だけを表す。無色や未設定は {1,1,1} を返す。</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 : func normalizeLight(c color.RGBA) [3]float64 {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         m := max(c.R, max(c.G, c.B))</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           2 :         if c.A == 0 || m == 0 {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 return [3]float64{1, 1, 1}</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         f := 1.0 / float64(m)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         return [3]float64{float64(c.R) * f, float64(c.G) * f, float64(c.B) * f}</span></span>
+<span id="L135"><span class="lineNum">     135</span>              : }</span>
+<span id="L136"><span class="lineNum">     136</span>              : </span>
+<span id="L137"><span class="lineNum">     137</span>              : // spriteRect は SpriteRender からアトラス画像と切り出し矩形を解決する。見つからなければ ok=false。</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys *Render3DSystem) spriteRect(world w.World, sr *gc.SpriteRender) (atlas *ebiten.Image, x, y, ww, hh float64, ok bool) {</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         if world.Resources.SpriteSheets == nil {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 return nil, 0, 0, 0, 0, false</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         sheet, exists := world.Resources.SpriteSheets[sr.SpriteSheetName]</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         if !exists || sheet.Texture.Image == nil {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 return nil, 0, 0, 0, 0, false</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         sp, exists := sheet.Sprites[sr.SpriteKey]</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 return nil, 0, 0, 0, 0, false</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         return sheet.Texture.Image, float64(sp.X), float64(sp.Y), float64(sp.Width), float64(sp.Height), true</span></span>
+<span id="L151"><span class="lineNum">     151</span>              : }</span>
+<span id="L152"><span class="lineNum">     152</span>              : </span>
+<span id="L153"><span class="lineNum">     153</span>              : // scaleCol は色に係数を掛ける。面ごとのシェードを乗算色へ乗せるのに使う。</span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 : func scaleCol(c [3]float64, s float64) [3]float64 {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         return [3]float64{c[0] * s, c[1] * s, c[2] * s}</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) addQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64) {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         *out = append(*out, r3quad{</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                 p:     [4]r3vec{p0, p1, p2, p3},</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 uv:    [4][2]float64{{x, y}, {x + ww, y}, {x + ww, y + hh}, {x, y + hh}},</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 atlas: atlas,</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :                 col:   col,</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 alpha: 1,</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span>              : // addFlatQuad は面をスプライトの平均色でフラットに塗る。壁の側面に使う。真上視点用テクスチャを</span>
+<span id="L169"><span class="lineNum">     169</span>              : // 垂直面へ引き伸ばす違和感を避け、新規アートなしでローポリらしい平板シェードにする。</span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 r3vec, atlas *ebiten.Image, x, y, ww, hh float64, col [3]float64) {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         c := avgSpriteColor(atlas, x, y, ww, hh)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         *out = append(*out, r3quad{</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 p:     [4]r3vec{p0, p1, p2, p3},</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 uv:    [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}},</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 atlas: whitePixel(),</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 col:   [3]float64{c[0] * col[0], c[1] * col[1], c[2] * col[2]},</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                 alpha: 1,</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L180"><span class="lineNum">     180</span>              : </span>
+<span id="L181"><span class="lineNum">     181</span>              : // frostColorNorm は氷オーバーレイの色を 0..1 で表す。2Dの FrostRenderSystem と同じ寒色。</span>
+<span id="L182"><span class="lineNum">     182</span>              : var frostColorNorm = [3]float64{130.0 / 255, 205.0 / 255, 240.0 / 255}</span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span>              : // addFrostQuad は床や壁天面へ氷を重ねる。タイルは一様な四角なので白1pxで塗りつぶす。</span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) addFrostQuad(out *[]r3quad, fx, fz, topY, alpha float64) {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         p := [4]r3vec{{fx, topY, fz}, {fx + 1, topY, fz}, {fx + 1, topY, fz + 1}, {fx, topY, fz + 1}}</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         zeroUV := [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}}</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         appendFrostQuad(out, p, zeroUV, whitePixel(), alpha)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L190"><span class="lineNum">     190</span>              : </span>
+<span id="L191"><span class="lineNum">     191</span>              : // appendFrostQuad は氷クアッドを1枚積む。頂点色を氷色×alpha にプリマルチプライしアルファを渡すことで、</span>
+<span id="L192"><span class="lineNum">     192</span>              : // ソースオーバー合成が 2D の氷オーバーレイと同じになる。atlas と uv を受け、床・壁は白1px、ビルボードは</span>
+<span id="L193"><span class="lineNum">     193</span>              : // スプライトのテクスチャで貼る。スプライトで貼るとアルファでマスクされ透明な余白に氷が乗らない。</span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 : func appendFrostQuad(out *[]r3quad, p [4]r3vec, uv [4][2]float64, atlas *ebiten.Image, alpha float64) {</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         *out = append(*out, r3quad{</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                 p:     p,</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 uv:    uv,</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 atlas: atlas,</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                 col:   [3]float64{frostColorNorm[0] * alpha, frostColorNorm[1] * alpha, frostColorNorm[2] * alpha},</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 alpha: alpha,</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L203"><span class="lineNum">     203</span>              : </span>
+<span id="L204"><span class="lineNum">     204</span>              : type flatColorKey struct {</span>
+<span id="L205"><span class="lineNum">     205</span>              :         atlas      *ebiten.Image</span>
+<span id="L206"><span class="lineNum">     206</span>              :         x, y, w, h int</span>
+<span id="L207"><span class="lineNum">     207</span>              : }</span>
+<span id="L208"><span class="lineNum">     208</span>              : </span>
+<span id="L209"><span class="lineNum">     209</span>              : var (</span>
+<span id="L210"><span class="lineNum">     210</span>              :         r3whiteImg  *ebiten.Image</span>
+<span id="L211"><span class="lineNum">     211</span>              :         r3whiteOnce sync.Once</span>
+<span id="L212"><span class="lineNum">     212</span>              :         r3flatColor sync.Map // flatColorKey -&gt; [3]float64</span>
+<span id="L213"><span class="lineNum">     213</span>              : )</span>
+<span id="L214"><span class="lineNum">     214</span>              : </span>
+<span id="L215"><span class="lineNum">     215</span>              : // whitePixel はフラット塗り用の白1pxを返す。頂点色をそのまま出すために使う。</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 : func whitePixel() *ebiten.Image {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :         r3whiteOnce.Do(func() {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                 r3whiteImg = ebiten.NewImage(1, 1)</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 r3whiteImg.Fill(color.White)</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         return r3whiteImg</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : // avgSpriteColor はアトラス上の矩形の平均色を 0..1 で返す。透明画素は除く。結果はキャッシュする。</span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 : func avgSpriteColor(atlas *ebiten.Image, x, y, w, h float64) [3]float64 {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         key := flatColorKey{atlas, int(x), int(y), int(w), int(h)}</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         if v, ok := r3flatColor.Load(key); ok {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 if c, ok2 := v.([3]float64); ok2 {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                         return c</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L231"><span class="lineNum">     231</span>              :         }</span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         var sr, sg, sb, n float64</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         for py := int(y); py &lt; int(y+h); py++ {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 for px := int(x); px &lt; int(x+w); px++ {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                         cr, cg, cb, ca := atlas.At(px, py).RGBA()</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                         if ca == 0 {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                                 continue</span></span>
+<span id="L238"><span class="lineNum">     238</span>              :                         }</span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                         sr += float64(cr &gt;&gt; 8)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                         sg += float64(cg &gt;&gt; 8)</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                         sb += float64(cb &gt;&gt; 8)</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                         n++</span></span>
+<span id="L243"><span class="lineNum">     243</span>              :                 }</span>
+<span id="L244"><span class="lineNum">     244</span>              :         }</span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         res := [3]float64{0.5, 0.5, 0.5}</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :         if n &gt; 0 {</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                 res = [3]float64{sr / n / 255, sg / n / 255, sb / n / 255}</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         r3flatColor.Store(key, res)</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         return res</span></span>
+<span id="L251"><span class="lineNum">     251</span>              : }</span>
+<span id="L252"><span class="lineNum">     252</span>              : </span>
+<span id="L253"><span class="lineNum">     253</span>              : // Draw は w.Renderer を満たす。3Dシーンを screen へ描く。</span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         sw, sh := screen.Bounds().Dx(), screen.Bounds().Dy()</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         quads, vp, view := sys.buildScene(world, sw, sh)</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :         sys.emit(screen, quads, vp, view, sw, sh)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span>              : // buildScene はカメラ行列とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) buildScene(world w.World, sw, sh int) (quads []r3quad, vp, view r3mat) {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :         pcx, pcz := sys.playerCenter(world)</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :         target := r3vec{pcx + 0.5, 0.4, pcz + 0.5}</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :         dist, pitch, yaw := sys.Dist, sys.Pitch, sys.Yaw</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :         // ゼロ値の Render3DSystem をそのまま描いたときの保険。負値は設定ミスなので隠さずそのまま出す</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :         if dist == 0 {</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                 dist, pitch, yaw = 9, 0.62, 0</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L271"><span class="lineNum">     271</span>              :         // カメラはプレイヤーの南側から北を見下ろす。画面の上を北に合わせ、北上のミニマップと向きをそろえる</span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         dir := r3vec{math.Cos(pitch) * math.Sin(yaw), math.Sin(pitch), math.Cos(pitch) * math.Cos(yaw)}</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         eye := r3add(target, r3scale(dir, dist))</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         up := r3vec{0, 1, 0}</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :         view = r3lookAt(eye, target, up)</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :         vp = r3mul(r3perspective(52, float64(sw)/float64(sh), 0.1, 200), view)</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         visFactor := sys.visFactorFunc(world)</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         frost := sys.frostFunc(world)</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :         quads = sys.collectTiles(world, pcx, pcz, visFactor, frost)</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         right := r3norm(r3cross(r3norm(r3sub(target, eye)), up))</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :         quads = sys.collectBillboards(world, quads, pcx, pcz, right, visFactor, frost)</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         return quads, vp, view</span></span>
+<span id="L284"><span class="lineNum">     284</span>              : }</span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span>              : // playerCenter はプレイヤーのタイル座標を返す。いなければ既定値。</span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) playerCenter(world w.World) (float64, float64) {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         if pe, err := query.GetPlayerEntity(world); err == nil &amp;&amp; world.Components.GridElement.Has(pe) {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 g := world.Components.GridElement.Get(pe)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 return float64(g.X), float64(g.Y)</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :         return 25, 25</span></span>
+<span id="L293"><span class="lineNum">     293</span>              : }</span>
+<span id="L294"><span class="lineNum">     294</span>              : </span>
+<span id="L295"><span class="lineNum">     295</span>              : // visFactorFunc は視界に応じた減光係数を返す関数を作る。隠れタイルは ok=false。</span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC tlaBgGNC">           1 : func (sys *Render3DSystem) visFactorFunc(world w.World) visFunc {</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           2 :         if !sys.UseFOV {</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           2 :                 return func(*gc.GridElement) (float64, bool, bool, [3]float64) { return 1, true, true, [3]float64{1, 1, 1} }</span></span>
+<span id="L299"><span class="lineNum">     299</span>              :         }</span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC tlaBgUNC">           0 :         renderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         return func(g *gc.GridElement) (float64, bool, bool, [3]float64) {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                 return tileVisFactor(renderMap[*g])</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L304"><span class="lineNum">     304</span>              : }</span>
+<span id="L305"><span class="lineNum">     305</span>              : </span>
+<span id="L306"><span class="lineNum">     306</span>              : // tileVisFactor はタイルの描画情報から明るさ・描画可否・可視・光源色を導く純関数。</span>
+<span id="L307"><span class="lineNum">     307</span>              : // 可視は Darkness を 1-d の明るさへ、LightColor を色味へ反映する。記憶は visible=false、未探索は描かない。</span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC tlaBgGNC">           1 : func tileVisFactor(info TileRenderInfo) (bright float64, drawable, visible bool, light [3]float64) {</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :         white := [3]float64{1, 1, 1}</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         switch v := info.(type) {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         case TileRenderVisible:</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 return 1 - float64(v.Darkness), true, true, normalizeLight(v.LightColor)</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         case TileRenderRemembered:</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                 return 1 - float64(v.Darkness), true, false, white</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 return 0, false, false, white</span></span>
+<span id="L317"><span class="lineNum">     317</span>              :         }</span>
+<span id="L318"><span class="lineNum">     318</span>              : }</span>
+<span id="L319"><span class="lineNum">     319</span>              : </span>
+<span id="L320"><span class="lineNum">     320</span>              : // frostFunc は寒波前線の氷を載せる判定を作る。オーバーワールドでなければ常に載せない。</span>
+<span id="L321"><span class="lineNum">     321</span>              : // タイル列の絶対Xから frostAlpha でアルファと可否を返す。frostAlpha は2Dの霜と共有する純関数。</span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys *Render3DSystem) frostFunc(world w.World) func(tileX int) (alpha float64, draw bool) {</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :         if !query.IsOnOverworld(world) {</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 return func(int) (float64, bool) { return 0, false }</span></span>
+<span id="L325"><span class="lineNum">     325</span>              :         }</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :         sb := *query.GetSeamlessBand(world)</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :         frontEast := int(sb.Front.EastAbsX)</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :         coldZoneWest := int(sb.Front.ColdZoneWest())</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :         return func(tileX int) (float64, bool) {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                 a, d := frostAlpha(frontEast, coldZoneWest, int(sb.LocalToAbsX(consts.Tile(tileX))))</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                 return float64(a), d</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L333"><span class="lineNum">     333</span>              : }</span>
+<span id="L334"><span class="lineNum">     334</span>              : </span>
+<span id="L335"><span class="lineNum">     335</span>              : // collectTiles は床と壁のクアッドを集める。可視タイルには寒波前線の氷を重ねる。</span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFactor visFunc, frost func(int) (float64, bool)) []r3quad {</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         var quads []r3quad</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         walls := map[[2]int]bool{}</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         wallQ := query.ActiveFilter2[gc.GridElement, gc.BlockPass](world).With(ecs.C[gc.Tile]()).Query()</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         for wallQ.Next() {</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                 g := world.Components.GridElement.Get(wallQ.Entity())</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                 walls[[2]int{int(g.X), int(g.Y)}] = true</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :         tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :         for tileQ.Next() {</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                 e := tileQ.Entity()</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 g := world.Components.GridElement.Get(e)</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 fx, fz := float64(g.X), float64(g.Y)</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                 if math.Abs(fx-pcx) &gt; r3cullRadius || math.Abs(fz-pcz) &gt; r3cullRadius {</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L351"><span class="lineNum">     351</span>              :                 }</span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 sr := world.Components.SpriteRender.Get(e)</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :                 atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L356"><span class="lineNum">     356</span>              :                 }</span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                 vf, vok, vis, light := visFactor(g)</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                 if !vok {</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L360"><span class="lineNum">     360</span>              :                 }</span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                 tint := scaleCol(light, vf) // 明るさと光源色を合わせた乗算色</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 isWall := world.Components.BlockPass.Has(e)</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                 if isWall {</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                         sys.addWall(&amp;quads, walls, int(g.X), int(g.Y), fx, fz, atlas, ux, uy, uw, uh, tint)</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                 } else {</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                         sys.addQuad(&amp;quads, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, atlas, ux, uy, uw, uh, tint)</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L368"><span class="lineNum">     368</span>              :                 // 霜は今見えているタイルにだけ載せる。床は地面、壁は天面の高さへ、z-fight を避け少し上へ重ねる</span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                 if vis {</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :                         if a, d := frost(int(g.X)); d {</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :                                 topY := 0.02</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                                 if isWall {</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                                         topY = r3wallHeight + 0.02</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                                 sys.addFrostQuad(&amp;quads, fx, fz, topY, a)</span></span>
+<span id="L376"><span class="lineNum">     376</span>              :                         }</span>
+<span id="L377"><span class="lineNum">     377</span>              :                 }</span>
+<span id="L378"><span class="lineNum">     378</span>              :         }</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         return quads</span></span>
+<span id="L380"><span class="lineNum">     380</span>              : }</span>
+<span id="L381"><span class="lineNum">     381</span>              : </span>
+<span id="L382"><span class="lineNum">     382</span>              : // addWall は壁1マスの天面と、隣が壁でない側だけの側面を積む。</span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         // 天面は真上視点なので既存テクスチャをそのまま貼り、側面はフラット単色にする。</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :         // 面ごとのシェード 天面0.95・南北0.6・東西0.78 は疑似方向光源で、平板な側面に陰影を付けて立体に見せる</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.95))</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         if !walls[[2]int{ix, iy - 1}] {</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         if !walls[[2]int{ix, iy + 1}] {</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :         if !walls[[2]int{ix - 1, iy}] {</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         if !walls[[2]int{ix + 1, iy}] {</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                 sys.addFlatQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L399"><span class="lineNum">     399</span>              : }</span>
+<span id="L400"><span class="lineNum">     400</span>              : </span>
+<span id="L401"><span class="lineNum">     401</span>              : // collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。可視かつ凍結タイルの</span>
+<span id="L402"><span class="lineNum">     402</span>              : // エンティティには、同じ立て板の位置へ氷を重ねる。2Dが霜をスプライトの上に載せるのと同じにする。</span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right r3vec, visFactor visFunc, frost func(int) (float64, bool)) []r3quad {</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :         objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :         for objQ.Next() {</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :                 e := objQ.Entity()</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :                 g := world.Components.GridElement.Get(e)</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :                 fx, fz := float64(g.X), float64(g.Y)</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :                 if math.Abs(fx-pcx) &gt; r3cullRadius || math.Abs(fz-pcz) &gt; r3cullRadius {</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L411"><span class="lineNum">     411</span>              :                 }</span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                 sr := world.Components.SpriteRender.Get(e)</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :                 atlas, ux, uy, uw, uh, ok := sys.spriteRect(world, sr)</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L416"><span class="lineNum">     416</span>              :                 }</span>
+<span id="L417"><span class="lineNum">     417</span>              :                 // 動体は今見えているタイルにだけ描く。フォグ内や記憶エリアの敵・アイテムは位置を見せない</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                 b, vok, vis, light := visFactor(g)</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :                 if !vok || !vis {</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L421"><span class="lineNum">     421</span>              :                 }</span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                 base := r3vec{fx + 0.5, 0, fz + 0.5}</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                 const bw, bh = 0.45, 1.0</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                 b0 := r3add(base, r3scale(right, -bw))</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :                 b1 := r3add(base, r3scale(right, bw))</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :                 top := r3vec{0, bh, 0}</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :                 tl, tr := r3add(b0, top), r3add(b1, top)</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :                 // 立て板の上下は SpriteRender.Depth で決める。同一タイルのプレイヤーとアイテムは4隅が</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                 // 一致して奥行きが同値になるので、この副キーが無いと走査順で前後がばらつく</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :                 depth := int(sr.Depth)</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                 sys.addQuad(&amp;quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b))</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :                 quads[len(quads)-1].depth = depth</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :                 // エンティティの立て板へ氷を重ねる。スプライトのテクスチャとUVで貼り、透明な余白は氷が乗らない。</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :                 // 立て板と同じ depth を与え、同値時は挿入順で氷を後に、つまり手前に描く</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :                 if a, d := frost(int(g.X)); d {</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :                         uv := [4][2]float64{{ux, uy}, {ux + uw, uy}, {ux + uw, uy + uh}, {ux, uy + uh}}</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :                         appendFrostQuad(&amp;quads, [4]r3vec{tl, tr, b1, b0}, uv, atlas, a)</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :                         quads[len(quads)-1].depth = depth</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L440"><span class="lineNum">     440</span>              :         }</span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :         return quads</span></span>
+<span id="L442"><span class="lineNum">     442</span>              : }</span>
+<span id="L443"><span class="lineNum">     443</span>              : </span>
+<span id="L444"><span class="lineNum">     444</span>              : // sortQuadsByDepth はカメラ空間の奥行きでクアッドを安定ソートする。画家アルゴリズムの前段。</span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC tlaBgGNC">           1 : func sortQuadsByDepth(quads []r3quad, view r3mat) {</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           2 :         for i := range quads {</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :                 c := r3vec{}</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           2 :                 for _, p := range quads[i].p {</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :                         c = r3add(c, p)</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 :                 c = r3scale(c, 0.25)</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaGNC">           1 :                 _, _, vz, _ := r3apply(view, c)</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaGNC">           1 :                 quads[i].key = vz</span></span>
+<span id="L454"><span class="lineNum">     454</span>              :         }</span>
+<span id="L455"><span class="lineNum">     455</span>              :         // 奥行きが同値のときは depth で割る。同一タイルの立て板はここで前後が確定する。</span>
+<span id="L456"><span class="lineNum">     456</span>              :         // 大きい depth を後に描いて手前にし、プレイヤーを足元のアイテムより必ず上へ出す</span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           2 :         sort.SliceStable(quads, func(i, j int) bool {</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           2 :                 if quads[i].key != quads[j].key {</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 :                         return quads[i].key &lt; quads[j].key</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :                 return quads[i].depth &lt; quads[j].depth</span></span>
+<span id="L462"><span class="lineNum">     462</span>              :         })</span>
+<span id="L463"><span class="lineNum">     463</span>              : }</span>
+<span id="L464"><span class="lineNum">     464</span>              : </span>
+<span id="L465"><span class="lineNum">     465</span>              : // projectToScreen は点をスクリーン座標へ投影する。カメラ後方や w&lt;=0 の点は ok=false。</span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 : func projectToScreen(vp r3mat, p r3vec, sw, sh int) (float64, float64, bool) {</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 :         cx, cy, _, cw := r3apply(vp, p)</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           2 :         if cw &lt;= 0.001 {</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :                 return 0, 0, false</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :         return (cx/cw*0.5 + 0.5) * float64(sw), (1 - (cy/cw*0.5 + 0.5)) * float64(sh), true</span></span>
+<span id="L472"><span class="lineNum">     472</span>              : }</span>
+<span id="L473"><span class="lineNum">     473</span>              : </span>
+<span id="L474"><span class="lineNum">     474</span>              : // emit はクアッドを奥行きでソートし、アトラスが変わる境目でバッチに分けて描く。</span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys *Render3DSystem) emit(screen *ebiten.Image, quads []r3quad, vp, view r3mat, sw, sh int) {</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :         sortQuadsByDepth(quads, view)</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :         var verts []ebiten.Vertex</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :         var inds []uint16</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :         var curAtlas *ebiten.Image</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :         flush := func() {</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                 if len(inds) == 0 || curAtlas == nil {</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :                 screen.DrawTriangles(verts, inds, curAtlas, &amp;ebiten.DrawTrianglesOptions{})</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :                 verts = verts[:0]</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :                 inds = inds[:0]</span></span>
+<span id="L488"><span class="lineNum">     488</span>              :         }</span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :         project := func(p r3vec) (float64, float64, bool) {</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :                 return projectToScreen(vp, p, sw, sh)</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :         for i := range quads {</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :                 q := &amp;quads[i]</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :                 // アトラス切り替え、または uint16 の頂点インデックス上限を跨ぐ前に flush する。</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :                 // 同一スプライトシートのタイルが大量に積まれても 65535 を超えると黙って描画化けするため</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :                 if q.atlas != curAtlas || len(verts)+4 &gt; maxVertsPerBatch {</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :                         flush()</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :                         curAtlas = q.atlas</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :                 sys.emitQuad(&amp;verts, &amp;inds, q, project)</span></span>
+<span id="L501"><span class="lineNum">     501</span>              :         }</span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :         flush()</span></span>
+<span id="L503"><span class="lineNum">     503</span>              : }</span>
+<span id="L504"><span class="lineNum">     504</span>              : </span>
+<span id="L505"><span class="lineNum">     505</span>              : // maxVertsPerBatch は1回の DrawTriangles へ積む頂点数の上限。インデックスが uint16 なので 65535 まで。</span>
+<span id="L506"><span class="lineNum">     506</span>              : const maxVertsPerBatch = 65535</span>
+<span id="L507"><span class="lineNum">     507</span>              : </span>
+<span id="L508"><span class="lineNum">     508</span>              : // emitQuad は1クアッドを三角形2枚として頂点バッファへ積む。画面外の頂点があれば捨てる。</span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 : func (sys *Render3DSystem) emitQuad(verts *[]ebiten.Vertex, inds *[]uint16, q *r3quad, project func(r3vec) (float64, float64, bool)) {</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :         var sp [4][2]float64</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :         for k, p := range q.p {</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :                 sx, sy, ok := project(p)</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :                 sp[k] = [2]float64{sx, sy}</span></span>
+<span id="L517"><span class="lineNum">     517</span>              :         }</span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :         b := uint16(len(*verts))</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :         cr, cg, cb, ca := float32(q.col[0]), float32(q.col[1]), float32(q.col[2]), float32(q.alpha)</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :         for k := range 4 {</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                 *verts = append(*verts, ebiten.Vertex{</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                         DstX: float32(sp[k][0]), DstY: float32(sp[k][1]),</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :                         SrcX: float32(q.uv[k][0]), SrcY: float32(q.uv[k][1]),</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :                         ColorR: cr, ColorG: cg, ColorB: cb, ColorA: ca,</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :         *inds = append(*inds, b, b+1, b+2, b, b+2, b+3)</span></span>
+<span id="L528"><span class="lineNum">     528</span>              : }</span>
         </pre>
               </td>
             </tr>

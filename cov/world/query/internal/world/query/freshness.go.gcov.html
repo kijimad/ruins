@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">60.4&nbsp;%</td>
-            <td class="headerCovTableEntry">48</td>
-            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">20</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,65 +83,25 @@
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return p.RotAccrued + consts.Turn(float64(elapsed)*perishRate(world, entity))</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
-<span id="L24"><span class="lineNum">      24</span>              : // AdvanceRot は entity の RotAccrued を now まで前進させ、RotUpdatedTurn を揃える。</span>
-<span id="L25"><span class="lineNum">      25</span>              : // 速度が変わる直前や合流の前に呼び、以後の実効値計算を正しく保つ。</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 : func AdvanceRot(world w.World, entity ecs.Entity, now consts.Turn) {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         p := world.Components.Perishable.Get(entity)</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         p.RotAccrued = EffectiveRot(world, entity, now)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         p.RotUpdatedTurn = now</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L31"><span class="lineNum">      31</span>              : </span>
-<span id="L32"><span class="lineNum">      32</span>              : // FreshnessStageOf は entity の鮮度段階を返す。Perishable を持たなければ ok=false。</span>
-<span id="L33"><span class="lineNum">      33</span>              : // 鮮度の算出をここへ集約し、食べる処理と表示が同じ判定を通す</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">           1 : func FreshnessStageOf(world w.World, entity ecs.Entity) (gc.FreshnessStage, bool) {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :         if !world.Components.Perishable.Has(entity) {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         now := GetGameTime(world).TotalTurns</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return world.Components.Perishable.Get(entity).Stage(EffectiveRot(world, entity, now)), true</span></span>
-<span id="L40"><span class="lineNum">      40</span>              : }</span>
-<span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span>              : // CanStackWith は a と b が同じ束に合流できるかを返す。スタック合流の同一判定はここに集約する。</span>
-<span id="L43"><span class="lineNum">      43</span>              : // 非腐敗は RawID 一致で合流する。腐敗食は RawID 一致かつ現在の鮮度段階が同じときだけ合流し、</span>
-<span id="L44"><span class="lineNum">      44</span>              : // 合流時に劣化量を加重平均する。段階違いの合流を禁じ、新鮮で腐敗を薄める抜け穴を防ぐ。</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 : func CanStackWith(world w.World, a ecs.Entity, b ecs.Entity) bool {</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         if world.Components.RawID.Get(a).ID != world.Components.RawID.Get(b).ID {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         aPerish := world.Components.Perishable.Has(a)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         if aPerish != world.Components.Perishable.Has(b) {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         if !aPerish {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 return true</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         sa, _ := FreshnessStageOf(world, a)</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         sb, _ := FreshnessStageOf(world, b)</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         return sa == sb</span></span>
-<span id="L59"><span class="lineNum">      59</span>              : }</span>
-<span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span>              : // FreshnessMarker はメニュー行に添える鮮度の訳語を返す。新鮮や非腐敗は空文字。</span>
-<span id="L62"><span class="lineNum">      62</span>              : // 呼び出し側は空なら何も足さない</span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC tlaBgGNC">           1 : func FreshnessMarker(world w.World, entity ecs.Entity) string {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         stage, ok := FreshnessStageOf(world, entity)</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           2 :         if !ok || stage == gc.FreshnessFresh {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 return &quot;&quot;</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         return T(world, FreshnessLabel(stage))</span></span>
-<span id="L69"><span class="lineNum">      69</span>              : }</span>
-<span id="L70"><span class="lineNum">      70</span>              : </span>
-<span id="L71"><span class="lineNum">      71</span>              : // FreshnessLabel は鮮度段階の表示に使う英語 msgid を返す</span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : func FreshnessLabel(stage gc.FreshnessStage) string {</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         switch stage {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         case gc.FreshnessFresh:</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 return &quot;Fresh&quot;</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         case gc.FreshnessStale:</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 return &quot;Stale&quot;</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         case gc.FreshnessRotten:</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 return &quot;Rotten&quot;</span></span>
-<span id="L80"><span class="lineNum">      80</span>              :         }</span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         panic(&quot;unknown FreshnessStage: &quot; + string(stage))</span></span>
-<span id="L82"><span class="lineNum">      82</span>              : }</span>
+<span id="L24"><span class="lineNum">      24</span>              : // FreshnessStageOf は entity の鮮度段階を返す。Perishable を持たなければ ok=false。</span>
+<span id="L25"><span class="lineNum">      25</span>              : // 鮮度の算出をここへ集約し、食べる処理と表示が同じ判定を通す</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : func FreshnessStageOf(world w.World, entity ecs.Entity) (gc.FreshnessStage, bool) {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :         if !world.Components.Perishable.Has(entity) {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, false</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         now := GetGameTime(world).TotalTurns</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return world.Components.Perishable.Get(entity).Stage(EffectiveRot(world, entity, now)), true</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : }</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // FreshnessMarker はメニュー行に添える鮮度の訳語を返す。新鮮や非腐敗は空文字。</span>
+<span id="L35"><span class="lineNum">      35</span>              : // 呼び出し側は空なら何も足さない</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : func FreshnessMarker(world w.World, entity ecs.Entity) string {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         stage, ok := FreshnessStageOf(world, entity)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 :         if !ok || stage == gc.FreshnessFresh {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return &quot;&quot;</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         return T(world, stage.Label())</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : }</span>
         </pre>
               </td>
             </tr>

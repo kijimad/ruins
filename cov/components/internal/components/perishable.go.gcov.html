@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">14</td>
-            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">26</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -99,17 +99,33 @@
 <span id="L37"><span class="lineNum">      37</span>              :         }</span>
 <span id="L38"><span class="lineNum">      38</span>              : }</span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
-<span id="L40"><span class="lineNum">      40</span>              : // MergeRot は個数で加重平均した劣化量に自身を更新する。合流の survivor 側で呼ぶ。</span>
-<span id="L41"><span class="lineNum">      41</span>              : // 呼ぶ前に双方を同じ基準時刻まで前進させ、RotAccrued を実効値にしておく前提。</span>
-<span id="L42"><span class="lineNum">      42</span>              : // 呼び出し側は両者の StageLength が同値であることも保証する。段階の長さが違うと</span>
-<span id="L43"><span class="lineNum">      43</span>              : // 平均した RotAccrued が別の段階境界で解釈され無意味になる。CanStackWith の RawID 一致がこれを担保する。</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : func (p *Perishable) MergeRot(selfCount int, other Perishable, otherCount int) {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         total := selfCount + otherCount</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           2 :         if total &lt;= 0 {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         p.RotAccrued = (p.RotAccrued*consts.Turn(selfCount) + other.RotAccrued*consts.Turn(otherCount)) / consts.Turn(total)</span></span>
-<span id="L50"><span class="lineNum">      50</span>              : }</span>
+<span id="L40"><span class="lineNum">      40</span>              : // Rank は段階の並び順を返す。新鮮→劣化→腐敗の固定順で、小さいほど先に並ぶ。</span>
+<span id="L41"><span class="lineNum">      41</span>              : // 段階の定義・順序・表示は鮮度という1つの軸の属性なので、このファイルに同居させる。</span>
+<span id="L42"><span class="lineNum">      42</span>              : // 段階は Stage が返す既知の3値だけで、未知値はここへ来ない不変条件なので panic させる</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : func (s FreshnessStage) Rank() int {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         switch s {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         case FreshnessFresh:</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 return 1</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         case FreshnessStale:</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 return 2</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         case FreshnessRotten:</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 return 3</span></span>
+<span id="L51"><span class="lineNum">      51</span>              :         }</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         panic(&quot;unknown FreshnessStage: &quot; + string(s))</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : }</span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              : // Label は段階の表示に使う英語 msgid を返す。訳出は表示側が query.T で行う</span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : func (s FreshnessStage) Label() string {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         switch s {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         case FreshnessFresh:</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return &quot;Fresh&quot;</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         case FreshnessStale:</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return &quot;Stale&quot;</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         case FreshnessRotten:</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 return &quot;Rotten&quot;</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :         }</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         panic(&quot;unknown FreshnessStage: &quot; + string(s))</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
         </pre>
               </td>
             </tr>

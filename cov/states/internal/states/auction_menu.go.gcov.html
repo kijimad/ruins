@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -196,7 +196,7 @@
 <span id="L134"><span class="lineNum">     134</span>              : }</span>
 <span id="L135"><span class="lineNum">     135</span>              : </span>
 <span id="L136"><span class="lineNum">     136</span>              : // Fetch は世界から表示 props を構築する</span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) Fetch(world w.World) AuctionProps {</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) Fetch(world w.World) (AuctionProps, error) {</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         return AuctionProps{</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 Tabs: []auctionTabData{</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                         {ID: auctionTabStatus, Label: query.T(world, &quot;In progress&quot;), Ledger: st.statusRows(world)},</span></span>
@@ -205,7 +205,7 @@
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                         {ID: auctionTabFinance, Label: query.T(world, &quot;Finance&quot;), Entries: query.GetAuctionHistory(world).Entries},</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                         {ID: auctionTabHistory, Label: query.T(world, &quot;History&quot;), Ledger: st.historyRows(world)},</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 },</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         }, nil</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L148"><span class="lineNum">     148</span>              : </span>
 <span id="L149"><span class="lineNum">     149</span>              : // Menu は一覧の構成を返す</span>

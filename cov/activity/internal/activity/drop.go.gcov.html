@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -169,10 +169,10 @@
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L108"><span class="lineNum">     108</span>              : </span>
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC tlaBgGNC">           1 :         target := p.Target</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         formattedName := query.FormatItemName(world, target)</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         lifecycle.MoveToField(world, target, &amp;actor)</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         world.Components.GridElement.Add(target, &amp;gc.GridElement{Coord: targetTile})</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         // 名前は移動前に確定する。移動後はスタックが割れて個数が変わるため、先に数えておく</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         formattedName := query.FormatItemName(world, target)</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         lifecycle.MoveStackToField(world, target, targetTile, actor)</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         gamelog.New(query.GetGameLog(world)).</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 Markup(query.T(world, &quot;Dropped %s.&quot;, gamelog.Tag(&quot;item&quot;, formattedName))).</span></span>

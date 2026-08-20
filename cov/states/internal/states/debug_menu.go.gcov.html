@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -133,7 +133,7 @@
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 Choice{Label: &quot;Message display test&quot;, Run: pushMessage(messagedata.NewSystemMessage(&quot;The game was saved automatically.\n\nYour progress has been recorded safely.&quot;))},</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 Choice{Label: &quot;Item acquisition event&quot;, Run: func(world w.World) (es.Transition[w.World], error) {</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC tlaBgUNC">           0 :                         for id, count := range map[string]int{&quot;iron&quot;: 1, &quot;wooden_stick&quot;: 1, &quot;ferrite_core&quot;: 2} {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                                 if err := lifecycle.ChangeStackableCount(world, id, count); err != nil {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                                 if err := lifecycle.ChangeStackCount(world, id, count); err != nil {</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                                         return es.Transition[w.World]{}, fmt.Errorf(&quot;failed to add item: %w&quot;, err)</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                                 }</span></span>
 <span id="L77"><span class="lineNum">      77</span>              :                         }</span>

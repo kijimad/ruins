@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-19 23:53:19</td>
+            <td class="headerValue">2026-08-20 00:01:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -154,13 +154,13 @@
 <span id="L92"><span class="lineNum">      92</span>              : }</span>
 <span id="L93"><span class="lineNum">      93</span>              : </span>
 <span id="L94"><span class="lineNum">      94</span>              : // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる</span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 : func (st *CharacterJobState) Fetch(world w.World) JobMenuProps {</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 : func (st *CharacterJobState) Fetch(world w.World) (JobMenuProps, error) {</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         professions := raw.PtrSlice(world.Resources.RawMaster.Professions)</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         items := make([]jobMenuItem, len(professions))</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           2 :         for i := range professions {</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 items[i] = jobMenuItem{Profession: professions[i]}</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         return JobMenuProps{Items: items}</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         return JobMenuProps{Items: items}, nil</span></span>
 <span id="L102"><span class="lineNum">     102</span>              : }</span>
 <span id="L103"><span class="lineNum">     103</span>              : </span>
 <span id="L104"><span class="lineNum">     104</span>              : // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる</span>
