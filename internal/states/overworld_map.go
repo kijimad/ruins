@@ -100,7 +100,6 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 var overworldMapBindings = []keybind.Binding{
 	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
 	{Key: ebiten.KeyN, Action: inputmapper.ActionCloseMenu},
-	{Key: ebiten.KeyM, Action: inputmapper.ActionCloseMenu},
 }
 
 // Update はキー入力で閉じるだけ。マップ表示中は時間を進めない。
