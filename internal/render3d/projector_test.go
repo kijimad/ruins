@@ -85,16 +85,6 @@ func TestProjector_カメラ後方のタイルは投影できない(t *testing.T
 	assert.False(t, ok)
 }
 
-func TestNew_3D値が未設定のカメラでも既定の視点で組む(t *testing.T) {
-	t.Parallel()
-
-	// 3Dの値を持たないセーブから復元するとゼロ値になる。そのまま使うと真横から見る絵になるので、
-	// 投影を組む時点でも既定へ寄せる
-	center, ok := render3d.New(gc.Camera{}, playerTile, screenW, screenH).TileCenter(playerTile, 0)
-	require.True(t, ok)
-	assert.InDelta(t, 374.8, float64(center.Y), 0.05)
-}
-
 func TestProjector_BillboardScaleは立て板の画面上の高さを返す(t *testing.T) {
 	t.Parallel()
 

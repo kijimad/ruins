@@ -77,21 +77,6 @@ func (c Camera) Yaw() float64 {
 	return float64(c.Orient) * (2 * math.Pi / CameraOrientCount)
 }
 
-// NormalizeOrbit は3Dオービットの値を可動域へ収める。
-// Dist が可動域の外なら値が入っていないとみなし、Orient と Pitch も含めて既定の視点へ戻す。
-// 3Dの値を持たないセーブから復元するとゼロ値になり、この経路で救う。
-// Orient は 0 が正当な向きなので、それ単独では未設定を判定できず Dist を手がかりにする。
-func (c *Camera) NormalizeOrbit() {
-	if c.Dist < CameraMinDist || c.Dist > CameraMaxDist {
-		c.Orient = 0
-		c.Pitch = CameraDefaultPitch
-		c.Dist = CameraDefaultDist
-		return
-	}
-	c.Pitch = min(max(c.Pitch, CameraMinPitch), CameraMaxPitch)
-	c.Orient = ((c.Orient % CameraOrientCount) + CameraOrientCount) % CameraOrientCount
-}
-
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
 	UsableScene UsableSceneType
