@@ -251,9 +251,13 @@ func TestVisualEffectSystem_DamageEffectCompletion(t *testing.T) {
 
 	// 残り時間が極小のダメージエフェクトを作成
 	effect := &gc.DamageTextEffect{
-		FadeInMs: 100, HoldMs: 500, FadeOutMs: 200,
-		TotalMs: 800, RemainingMs: 1,
-		Text: "1", Offset: consts.Coord[float64]{Y: -8},
+		FadeAnimation: gc.FadeAnimation{
+			FadeInMs: 100, HoldMs: 500, FadeOutMs: 200,
+			TotalMs: 800, RemainingMs: 1,
+		},
+		TextProperties: gc.TextProperties{
+			Text: "1", Offset: consts.Coord[float64]{Y: -8},
+		},
 		VelocityY: -0.5,
 	}
 	entity := world.ECS.NewEntity()
@@ -283,8 +287,10 @@ func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
 			TotalMs:     100,
 			RemainingMs: 1, // ほぼ完了（残り1ミリ秒）
 		},
-		Text:   "テスト",
-		Offset: consts.Coord[float64]{X: 100, Y: 100},
+		TextProperties: gc.TextProperties{
+			Text:   "テスト",
+			Offset: consts.Coord[float64]{X: 100, Y: 100},
+		},
 	}
 	effectEntity := world.ECS.NewEntity()
 	world.Components.VisualEffects.Add(effectEntity, &gc.VisualEffects{
