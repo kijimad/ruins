@@ -12,11 +12,8 @@ import (
 // プレイヤーを置かずに世界だけ描く場面で使う
 var defaultPlayerTile = consts.Coord[consts.Tile]{X: 25, Y: 25}
 
-// For は world の状態から投影を組む。
-//
-// 画面寸法は引数で受けず world から読む。呼び出し側ごとに寸法の取り方が分かれると、
-// 世界レイヤと重ねるレイヤが違う行列を持ち、片方だけ静かにずれる余地ができる。
-// 投影の入口を1つにする以上、その入力も1つに絞る。
+// For は world の状態から投影を組む。画面寸法もカメラ姿勢も world から読み、呼び出し側には
+// 取らせない。寸法やカメラの取り方が呼び出し側ごとに分かれると、投影が再び2系統へ割れるためである。
 //
 // カメラが無ければ既定の視点で組む。ここで投影を諦めるとカーソルが消えてしまい、
 // 位置がずれるより分かりにくい壊れ方になる。
@@ -44,6 +41,9 @@ func PlayerTile(world w.World) consts.Coord[consts.Tile] {
 // 箱になるのは Tile と BlockPass を併せ持つエンティティだけである。扉やキューブは通行を
 // 塞ぐが箱にはならないので、SpatialIndex の通行不能判定をそのまま流用してはいけない。
 // ただし通行できるタイルは箱にもならないので、索引で先に落として全走査を避ける。
+//
+// 内部でエンティティ検索のクエリを開くので、クエリ反復中には呼ばない。呼び出し元は Draw の
+// カーソル描画で、その時点でアクティブなクエリは無い。
 func IsWallTile(world w.World, c consts.Coord[consts.Tile]) bool {
 	if si := query.GetSpatialIndex(world); si != nil && !si.IsBlockPass(c) {
 		return false
