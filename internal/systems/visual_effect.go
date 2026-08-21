@@ -275,6 +275,10 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	if !ok {
 		return nil
 	}
+	// 高さ0のスプライトは拡大率が定まらず描けない。ゼロ除算を避けて描画をやめる
+	if sprite.Height == 0 {
+		return nil
+	}
 	zoom := scale / float64(sprite.Height)
 
 	op := &ebiten.DrawRectShaderOptions{}

@@ -57,7 +57,9 @@ func IsWallTile(world w.World, c consts.Coord[consts.Tile]) bool {
 }
 
 // IsWallTileEntity は箱として描かれるタイルの述語。壁の集合を組む側と、タイルを指す側が
-// 同じ判定を通ることで、どのタイルが箱かの認識が2箇所に分かれない
+// 同じ判定を通ることで、どのタイルが箱かの認識が2箇所に分かれない。
+// Has を見るだけでクエリを開かないので、WallTileSet のクエリ反復中から呼んでも安全。
+// 座標からエンティティを引く IsWallTile とはこの点が異なる。
 func IsWallTileEntity(world w.World, e ecs.Entity) bool {
 	return world.Components.Tile.Has(e) && world.Components.BlockPass.Has(e)
 }
