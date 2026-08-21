@@ -3,6 +3,7 @@ package states
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 
@@ -38,8 +39,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 		startY     int
 		mapWidth   int
 		mapHeight  int
-		moveX      int
-		moveY      int
+		move       gc.Direction
 		expectedX  int
 		expectedY  int
 		shouldMove bool
@@ -50,8 +50,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			startY:     5,
 			mapWidth:   20,
 			mapHeight:  20,
-			moveX:      1,
-			moveY:      0,
+			move:       gc.DirectionRight,
 			expectedX:  6,
 			expectedY:  5,
 			shouldMove: true,
@@ -62,8 +61,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			startY:     5,
 			mapWidth:   20,
 			mapHeight:  20,
-			moveX:      -1,
-			moveY:      0,
+			move:       gc.DirectionLeft,
 			expectedX:  4,
 			expectedY:  5,
 			shouldMove: true,
@@ -74,8 +72,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			startY:     5,
 			mapWidth:   20,
 			mapHeight:  20,
-			moveX:      0,
-			moveY:      -1,
+			move:       gc.DirectionUp,
 			expectedX:  5,
 			expectedY:  4,
 			shouldMove: true,
@@ -86,8 +83,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			startY:     5,
 			mapWidth:   20,
 			mapHeight:  20,
-			moveX:      0,
-			moveY:      1,
+			move:       gc.DirectionDown,
 			expectedX:  5,
 			expectedY:  6,
 			shouldMove: true,
@@ -98,8 +94,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			startY:     5,
 			mapWidth:   20,
 			mapHeight:  20,
-			moveX:      -1,
-			moveY:      0,
+			move:       gc.DirectionLeft,
 			expectedX:  0,
 			expectedY:  5,
 			shouldMove: false,
@@ -110,8 +105,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			startY:     0,
 			mapWidth:   20,
 			mapHeight:  20,
-			moveX:      0,
-			moveY:      -1,
+			move:       gc.DirectionUp,
 			expectedX:  5,
 			expectedY:  0,
 			shouldMove: false,
@@ -122,8 +116,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			startY:     5,
 			mapWidth:   20,
 			mapHeight:  20,
-			moveX:      1,
-			moveY:      0,
+			move:       gc.DirectionRight,
 			expectedX:  19,
 			expectedY:  5,
 			shouldMove: false,
@@ -134,8 +127,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			startY:     19,
 			mapWidth:   20,
 			mapHeight:  20,
-			moveX:      0,
-			moveY:      1,
+			move:       gc.DirectionDown,
 			expectedX:  5,
 			expectedY:  19,
 			shouldMove: false,
@@ -154,7 +146,7 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 				cursor: consts.Coord[consts.Tile]{X: consts.Tile(tt.startX), Y: consts.Tile(tt.startY)},
 			}
 
-			state.moveCursor(world, tt.moveX, tt.moveY)
+			state.moveCursor(world, tt.move)
 
 			assert.Equal(t, consts.Tile(tt.expectedX), state.cursor.X, "カーソルX座標が期待値と異なる")
 			assert.Equal(t, consts.Tile(tt.expectedY), state.cursor.Y, "カーソルY座標が期待値と異なる")

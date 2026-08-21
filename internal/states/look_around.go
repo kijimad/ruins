@@ -85,13 +85,13 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMoveNorth:
-		st.moveCursor(world, 0, -1)
+		st.moveCursor(world, gc.DirectionUp)
 	case inputmapper.ActionMoveSouth:
-		st.moveCursor(world, 0, 1)
+		st.moveCursor(world, gc.DirectionDown)
 	case inputmapper.ActionMoveWest:
-		st.moveCursor(world, -1, 0)
+		st.moveCursor(world, gc.DirectionLeft)
 	case inputmapper.ActionMoveEast:
-		st.moveCursor(world, 1, 0)
+		st.moveCursor(world, gc.DirectionRight)
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("unsupported action: %s", action)
 	}
@@ -99,9 +99,14 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
 	return st.ConsumeTransition(), nil
 }
 
-// moveCursor はカーソルを移動する
-func (st *LookAroundState) moveCursor(world w.World, dx, dy int) {
-	next := st.cursor.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
+// moveCursor はカーソルを移動する。押した向きはカメラの水平角で回し、画面の上下左右に合わせる。
+// カメラが回転していても、右キーで画面の右にあるタイルへ動く。
+func (st *LookAroundState) moveCursor(world w.World, base gc.Direction) {
+	var yaw float64
+	if camera := query.GetPlayerCamera(world); camera != nil {
+		yaw = camera.Yaw()
+	}
+	next := st.cursor.Add(gc.RotateScreenDir(base, yaw).GetDelta())
 
 	field := query.GetCurrentStageField(world)
 	if field == nil {

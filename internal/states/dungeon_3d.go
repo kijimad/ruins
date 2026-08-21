@@ -1,8 +1,6 @@
 package states
 
 import (
-	"math"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -60,18 +58,13 @@ func (d *dungeon3D) rotate(world w.World, delta int) {
 	camera.Orient = (camera.Orient + delta + gc.CameraOrientCount) % gc.CameraOrientCount
 }
 
-// moveDir は押されたキーの画面意図を、カメラの向きで world ベクトルへ回し最寄りの8方向へスナップする。
+// moveDir は押されたキーの画面意図を、カメラの向きで world の8方向へ回す。
 func (d *dungeon3D) moveDir(world w.World, base gc.Direction) gc.Direction {
-	su, sr := base.ScreenIntent()
 	var y float64
 	if camera := query.GetPlayerCamera(world); camera != nil {
 		y = camera.Yaw()
 	}
-	// 南から北を見下ろすカメラに合わせる。画面奥 forward=(-sin y, -cos y)、画面右 right=(cos y, -sin y)、
-	// world = su*forward + sr*right
-	wx := -su*math.Sin(y) + sr*math.Cos(y)
-	wy := -su*math.Cos(y) - sr*math.Sin(y)
-	return gc.SnapWorldVec(wx, wy)
+	return gc.RotateScreenDir(base, y)
 }
 
 // draw は3Dシーンを screen へ描く。
