@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">326</td>
+            <td class="headerCovTableEntry">322</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-20 23:33:37</td>
+            <td class="headerValue">2026-08-21 00:24:03</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,8 +74,8 @@
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/input&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/keybind&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/menuloop&quot;</span>
 <span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/entityspec&quot;</span>
@@ -112,7 +112,7 @@
 <span id="L50"><span class="lineNum">      50</span>              : }</span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              : var _ es.State[w.World] = &amp;AuctionMenuState{}</span>
-<span id="L53"><span class="lineNum">      53</span>              : var _ menuloop.ExtraInput = &amp;AuctionMenuState{}</span>
+<span id="L53"><span class="lineNum">      53</span>              : var _ menuloop.KeyBindings = &amp;AuctionMenuState{}</span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span>              : // OnStart はステート開始時に画面を組む</span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *AuctionMenuState) OnStart(_ w.World) error {</span></span>
@@ -132,434 +132,428 @@
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L72"><span class="lineNum">      72</span>              : </span>
-<span id="L73"><span class="lineNum">      73</span>              : // ExtraInput は x で選択中の詳細モーダルを開く</span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) ExtraInput() (inputmapper.ActionID, bool) {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         ki := input.GetSharedKeyboardInput()</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         if ki.IsKeyJustPressed(ebiten.KeyX) &amp;&amp; !ki.IsKeyPressed(ebiten.KeyShift) {</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                 return inputmapper.ActionOpenItemDetail, true</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         return &quot;&quot;, false</span></span>
-<span id="L80"><span class="lineNum">      80</span>              : }</span>
-<span id="L81"><span class="lineNum">      81</span>              : </span>
-<span id="L82"><span class="lineNum">      82</span>              : // DoAction はActionを実行する。Enter は積む・出す、x は詳細を開く。出荷はターン経過で自動実行する</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         switch action {</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         case inputmapper.ActionOpenItemDetail:</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :                 if err := st.selectRow(world); err != nil {</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:</span></span>
-<span id="L94"><span class="lineNum">      94</span>              :                 // Dispatchで処理される</span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;auctionMenu: unsupported action: %s&quot;, action)</span></span>
-<span id="L97"><span class="lineNum">      97</span>              :         }</span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L99"><span class="lineNum">      99</span>              : }</span>
-<span id="L100"><span class="lineNum">     100</span>              : </span>
-<span id="L101"><span class="lineNum">     101</span>              : // AuctionProps は画面の表示 props</span>
-<span id="L102"><span class="lineNum">     102</span>              : type AuctionProps struct {</span>
-<span id="L103"><span class="lineNum">     103</span>              :         Tabs []auctionTabData</span>
-<span id="L104"><span class="lineNum">     104</span>              : }</span>
-<span id="L105"><span class="lineNum">     105</span>              : </span>
-<span id="L106"><span class="lineNum">     106</span>              : type auctionTabData struct {</span>
-<span id="L107"><span class="lineNum">     107</span>              :         ID      auctionTabID</span>
-<span id="L108"><span class="lineNum">     108</span>              :         Label   string</span>
-<span id="L109"><span class="lineNum">     109</span>              :         Items   []auctionItemRow   // 積む・出荷タブの品</span>
-<span id="L110"><span class="lineNum">     110</span>              :         Ledger  []auctionLedgerRow // 出品中・履歴タブの台帳</span>
-<span id="L111"><span class="lineNum">     111</span>              :         Entries []gc.AuctionEntry  // 金銭タブの明細</span>
-<span id="L112"><span class="lineNum">     112</span>              : }</span>
-<span id="L113"><span class="lineNum">     113</span>              : </span>
-<span id="L114"><span class="lineNum">     114</span>              : // auctionItemRow は積む・出荷タブの1行。実体と、出品状況を表す表示を持つ</span>
-<span id="L115"><span class="lineNum">     115</span>              : type auctionItemRow struct {</span>
-<span id="L116"><span class="lineNum">     116</span>              :         Entity   ecs.Entity</span>
-<span id="L117"><span class="lineNum">     117</span>              :         Name     string</span>
-<span id="L118"><span class="lineNum">     118</span>              :         Status   string          // 落札済みか出品中</span>
-<span id="L119"><span class="lineNum">     119</span>              :         Value    consts.Currency // 入札額。落札済みは落札額、出品中は現在値</span>
-<span id="L120"><span class="lineNum">     120</span>              :         HasValue bool            // 金額を出すか</span>
-<span id="L121"><span class="lineNum">     121</span>              : }</span>
-<span id="L122"><span class="lineNum">     122</span>              : </span>
-<span id="L123"><span class="lineNum">     123</span>              : // auctionLedgerRow は進行中・履歴タブの1行</span>
-<span id="L124"><span class="lineNum">     124</span>              : type auctionLedgerRow struct {</span>
-<span id="L125"><span class="lineNum">     125</span>              :         Number  int</span>
-<span id="L126"><span class="lineNum">     126</span>              :         Name    string</span>
-<span id="L127"><span class="lineNum">     127</span>              :         Bid     consts.Currency</span>
-<span id="L128"><span class="lineNum">     128</span>              :         Ship    consts.Currency</span>
-<span id="L129"><span class="lineNum">     129</span>              :         Fee     consts.Currency</span>
-<span id="L130"><span class="lineNum">     130</span>              :         Net     consts.Currency</span>
-<span id="L131"><span class="lineNum">     131</span>              :         Turn    int</span>
-<span id="L132"><span class="lineNum">     132</span>              :         Ongoing bool</span>
-<span id="L133"><span class="lineNum">     133</span>              :         Shipped bool</span>
-<span id="L134"><span class="lineNum">     134</span>              : }</span>
-<span id="L135"><span class="lineNum">     135</span>              : </span>
-<span id="L136"><span class="lineNum">     136</span>              : // Fetch は世界から表示 props を構築する</span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) Fetch(world w.World) (AuctionProps, error) {</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         return AuctionProps{</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 Tabs: []auctionTabData{</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                         {ID: auctionTabStatus, Label: query.T(world, &quot;In progress&quot;), Ledger: st.statusRows(world)},</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                         {ID: auctionTabShip, Label: query.T(world, &quot;Ship&quot;), Items: st.stageItems(world)},</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                         {ID: auctionTabPending, Label: query.T(world, &quot;Pending&quot;), Items: st.shipItems(world)},</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                         {ID: auctionTabFinance, Label: query.T(world, &quot;Finance&quot;), Entries: query.GetAuctionHistory(world).Entries},</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                         {ID: auctionTabHistory, Label: query.T(world, &quot;History&quot;), Ledger: st.historyRows(world)},</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 },</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         }, nil</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L148"><span class="lineNum">     148</span>              : </span>
-<span id="L149"><span class="lineNum">     149</span>              : // Menu は一覧の構成を返す</span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         itemCounts := make([]int, len(props.Tabs))</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         for i, tab := range props.Tabs {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                 switch tab.ID {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :                 case auctionTabShip, auctionTabPending:</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                         itemCounts[i] = len(tab.Items)</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                 case auctionTabFinance:</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :                         itemCounts[i] = len(tab.Entries)</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                 case auctionTabStatus, auctionTabHistory:</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                         itemCounts[i] = len(tab.Ledger)</span></span>
-<span id="L160"><span class="lineNum">     160</span>              :                 }</span>
-<span id="L161"><span class="lineNum">     161</span>              :         }</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         return menuloop.MenuConfig{Key: &quot;auction&quot;, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}</span></span>
-<span id="L163"><span class="lineNum">     163</span>              : }</span>
-<span id="L164"><span class="lineNum">     164</span>              : </span>
-<span id="L165"><span class="lineNum">     165</span>              : // stageItems は落札済みで持ち物にある品を積むタブへ並べる。積荷へ入れるとステーションの収納へ移る。</span>
-<span id="L166"><span class="lineNum">     166</span>              : // 出荷できるのは落札を勝ち取った品に限る</span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) stageItems(world w.World) []auctionItemRow {</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         var candidates []ecs.Entity</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         for _, e := range playerBackpackItems(world, player) {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 if world.Components.AuctionSold.Has(e) {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                         candidates = append(candidates, e)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L177"><span class="lineNum">     177</span>              :         }</span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         return st.toItemRows(world, candidates)</span></span>
-<span id="L179"><span class="lineNum">     179</span>              : }</span>
+<span id="L73"><span class="lineNum">      73</span>              : // KeyBindings は x の詳細表示を共通入力に足す</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) KeyBindings() []keybind.Binding {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         return detailOpenBindings</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L77"><span class="lineNum">      77</span>              : </span>
+<span id="L78"><span class="lineNum">      78</span>              : // DoAction はActionを実行する。Enter は積む・出す、x は詳細を開く。出荷はターン経過で自動実行する</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         switch action {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         case inputmapper.ActionOpenItemDetail:</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :                 if err := st.selectRow(world); err != nil {</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;auctionMenu: unsupported action: %s&quot;, action)</span></span>
+<span id="L91"><span class="lineNum">      91</span>              :         }</span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L93"><span class="lineNum">      93</span>              : }</span>
+<span id="L94"><span class="lineNum">      94</span>              : </span>
+<span id="L95"><span class="lineNum">      95</span>              : // AuctionProps は画面の表示 props</span>
+<span id="L96"><span class="lineNum">      96</span>              : type AuctionProps struct {</span>
+<span id="L97"><span class="lineNum">      97</span>              :         Tabs []auctionTabData</span>
+<span id="L98"><span class="lineNum">      98</span>              : }</span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span>              : type auctionTabData struct {</span>
+<span id="L101"><span class="lineNum">     101</span>              :         ID      auctionTabID</span>
+<span id="L102"><span class="lineNum">     102</span>              :         Label   string</span>
+<span id="L103"><span class="lineNum">     103</span>              :         Items   []auctionItemRow   // 積む・出荷タブの品</span>
+<span id="L104"><span class="lineNum">     104</span>              :         Ledger  []auctionLedgerRow // 出品中・履歴タブの台帳</span>
+<span id="L105"><span class="lineNum">     105</span>              :         Entries []gc.AuctionEntry  // 金銭タブの明細</span>
+<span id="L106"><span class="lineNum">     106</span>              : }</span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              : // auctionItemRow は積む・出荷タブの1行。実体と、出品状況を表す表示を持つ</span>
+<span id="L109"><span class="lineNum">     109</span>              : type auctionItemRow struct {</span>
+<span id="L110"><span class="lineNum">     110</span>              :         Entity   ecs.Entity</span>
+<span id="L111"><span class="lineNum">     111</span>              :         Name     string</span>
+<span id="L112"><span class="lineNum">     112</span>              :         Status   string          // 落札済みか出品中</span>
+<span id="L113"><span class="lineNum">     113</span>              :         Value    consts.Currency // 入札額。落札済みは落札額、出品中は現在値</span>
+<span id="L114"><span class="lineNum">     114</span>              :         HasValue bool            // 金額を出すか</span>
+<span id="L115"><span class="lineNum">     115</span>              : }</span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span>              : // auctionLedgerRow は進行中・履歴タブの1行</span>
+<span id="L118"><span class="lineNum">     118</span>              : type auctionLedgerRow struct {</span>
+<span id="L119"><span class="lineNum">     119</span>              :         Number  int</span>
+<span id="L120"><span class="lineNum">     120</span>              :         Name    string</span>
+<span id="L121"><span class="lineNum">     121</span>              :         Bid     consts.Currency</span>
+<span id="L122"><span class="lineNum">     122</span>              :         Ship    consts.Currency</span>
+<span id="L123"><span class="lineNum">     123</span>              :         Fee     consts.Currency</span>
+<span id="L124"><span class="lineNum">     124</span>              :         Net     consts.Currency</span>
+<span id="L125"><span class="lineNum">     125</span>              :         Turn    int</span>
+<span id="L126"><span class="lineNum">     126</span>              :         Ongoing bool</span>
+<span id="L127"><span class="lineNum">     127</span>              :         Shipped bool</span>
+<span id="L128"><span class="lineNum">     128</span>              : }</span>
+<span id="L129"><span class="lineNum">     129</span>              : </span>
+<span id="L130"><span class="lineNum">     130</span>              : // Fetch は世界から表示 props を構築する</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) Fetch(world w.World) (AuctionProps, error) {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         return AuctionProps{</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                 Tabs: []auctionTabData{</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                         {ID: auctionTabStatus, Label: query.T(world, &quot;In progress&quot;), Ledger: st.statusRows(world)},</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                         {ID: auctionTabShip, Label: query.T(world, &quot;Ship&quot;), Items: st.stageItems(world)},</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                         {ID: auctionTabPending, Label: query.T(world, &quot;Pending&quot;), Items: st.shipItems(world)},</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                         {ID: auctionTabFinance, Label: query.T(world, &quot;Finance&quot;), Entries: query.GetAuctionHistory(world).Entries},</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                         {ID: auctionTabHistory, Label: query.T(world, &quot;History&quot;), Ledger: st.historyRows(world)},</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 },</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         }, nil</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L142"><span class="lineNum">     142</span>              : </span>
+<span id="L143"><span class="lineNum">     143</span>              : // Menu は一覧の構成を返す</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         itemCounts := make([]int, len(props.Tabs))</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         for i, tab := range props.Tabs {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 switch tab.ID {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 case auctionTabShip, auctionTabPending:</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                         itemCounts[i] = len(tab.Items)</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 case auctionTabFinance:</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                         itemCounts[i] = len(tab.Entries)</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 case auctionTabStatus, auctionTabHistory:</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                         itemCounts[i] = len(tab.Ledger)</span></span>
+<span id="L154"><span class="lineNum">     154</span>              :                 }</span>
+<span id="L155"><span class="lineNum">     155</span>              :         }</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         return menuloop.MenuConfig{Key: &quot;auction&quot;, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto}</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : }</span>
+<span id="L158"><span class="lineNum">     158</span>              : </span>
+<span id="L159"><span class="lineNum">     159</span>              : // stageItems は落札済みで持ち物にある品を積むタブへ並べる。積荷へ入れるとステーションの収納へ移る。</span>
+<span id="L160"><span class="lineNum">     160</span>              : // 出荷できるのは落札を勝ち取った品に限る</span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) stageItems(world w.World) []auctionItemRow {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         var candidates []ecs.Entity</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         for _, e := range playerBackpackItems(world, player) {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                 if world.Components.AuctionSold.Has(e) {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                         candidates = append(candidates, e)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L171"><span class="lineNum">     171</span>              :         }</span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         return st.toItemRows(world, candidates)</span></span>
+<span id="L173"><span class="lineNum">     173</span>              : }</span>
+<span id="L174"><span class="lineNum">     174</span>              : </span>
+<span id="L175"><span class="lineNum">     175</span>              : // shipItems はこのステーションの積荷を出荷タブへ並べる。次の集荷で出荷される</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) shipItems(world w.World) []auctionItemRow {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         items := query.GetStorageItems(world, st.stationEntity)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         return st.toItemRows(world, query.SortEntities(world, items))</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L180"><span class="lineNum">     180</span>              : </span>
-<span id="L181"><span class="lineNum">     181</span>              : // shipItems はこのステーションの積荷を出荷タブへ並べる。次の集荷で出荷される</span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) shipItems(world w.World) []auctionItemRow {</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         items := query.GetStorageItems(world, st.stationEntity)</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         return st.toItemRows(world, query.SortEntities(world, items))</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L186"><span class="lineNum">     186</span>              : </span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) toItemRows(world w.World, entities []ecs.Entity) []auctionItemRow {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         rows := make([]auctionItemRow, len(entities))</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         for i, e := range entities {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 row := auctionItemRow{Entity: e, Name: query.GetEntityName(e, world)}</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 // 積む・出荷タブにはタグを貼った品しか来ないので、出品中か落札済みのいずれかになる。</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                 // 金額はどの状態でも入札額を出す。出品中は現在値、落札済みは落札額</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 switch {</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 case world.Components.AuctionSold.Has(e):</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                         row.Status = query.T(world, &quot;Won&quot;)</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                         row.Value = world.Components.AuctionSold.Get(e).Bid</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                         row.HasValue = true</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 case world.Components.AuctionListing.Has(e):</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                         row.Status = query.T(world, &quot;Bidding&quot;)</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                         row.Value = world.Components.AuctionListing.Get(e).CurrentBid</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                         row.HasValue = true</span></span>
-<span id="L202"><span class="lineNum">     202</span>              :                 }</span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                 rows[i] = row</span></span>
-<span id="L204"><span class="lineNum">     204</span>              :         }</span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         return rows</span></span>
-<span id="L206"><span class="lineNum">     206</span>              : }</span>
-<span id="L207"><span class="lineNum">     207</span>              : </span>
-<span id="L208"><span class="lineNum">     208</span>              : // statusRows は進行中の取引を番号順に返す。出品中の品と、落札済みでまだ出荷していない品を並べる。</span>
-<span id="L209"><span class="lineNum">     209</span>              : // 出荷が済むまで取引は完了しないので、どちらも一覧に残す</span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) statusRows(world w.World) []auctionLedgerRow {</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :         var rows []auctionLedgerRow</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         lq := ecs.NewFilter1[gc.AuctionListing](world.ECS).Query()</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         for lq.Next() {</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                 item := lq.Entity()</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                 l := world.Components.AuctionListing.Get(item)</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                 ship := query.AuctionShippingCost(world, item)</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 fee := query.AuctionFee(l.CurrentBid)</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                 rows = append(rows, auctionLedgerRow{</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                         Number: l.Number, Name: query.GetEntityName(item, world),</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                         Bid: l.CurrentBid, Ship: ship, Fee: fee, Net: l.CurrentBid - ship - fee, Ongoing: true,</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         sq := ecs.NewFilter1[gc.AuctionSold](world.ECS).Query()</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :         for sq.Next() {</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                 item := sq.Entity()</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 s := world.Components.AuctionSold.Get(item)</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                 ship := query.AuctionShippingCost(world, item)</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 fee := query.AuctionFee(s.Bid)</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                 rows = append(rows, auctionLedgerRow{</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                         Number: s.Number, Name: query.GetEntityName(item, world),</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                         Bid: s.Bid, Ship: ship, Fee: fee, Net: s.Bid - ship - fee,</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         sort.Slice(rows, func(i, j int) bool { return rows[i].Number &lt; rows[j].Number })</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         return rows</span></span>
-<span id="L236"><span class="lineNum">     236</span>              : }</span>
-<span id="L237"><span class="lineNum">     237</span>              : </span>
-<span id="L238"><span class="lineNum">     238</span>              : // historyRows は発送済みの実績を新しい順に返す</span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) historyRows(world w.World) []auctionLedgerRow {</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         h := query.GetAuctionHistory(world)</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         rows := make([]auctionLedgerRow, 0, len(h.Records))</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         for i := len(h.Records) - 1; i &gt;= 0; i-- {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                 r := h.Records[i]</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 rows = append(rows, auctionLedgerRow{</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                         Number: r.Number, Name: r.Name, Bid: r.Bid, Ship: r.Ship, Fee: r.Fee, Net: r.Net, Turn: r.Turn, Shipped: true,</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         return rows</span></span>
-<span id="L249"><span class="lineNum">     249</span>              : }</span>
-<span id="L250"><span class="lineNum">     250</span>              : </span>
-<span id="L251"><span class="lineNum">     251</span>              : // selectRow は Enter の対象を処理する。積むタブは積荷へ入れ、出荷タブは持ち物へ戻し、</span>
-<span id="L252"><span class="lineNum">     252</span>              : // 金銭タブは明細を精算する。出品中と履歴タブは詳細を開くだけで状態は変えない</span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) selectRow(world w.World) error {</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         tab := props.Tabs[cursor.TabIndex]</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :         switch tab.ID {</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :         case auctionTabShip:</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                 // 落札済みの品をステーションの積荷へ入れる。次の集荷で出荷される</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                 item, ok := st.selectedItem(tab, cursor.ItemIndex)</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 if !query.CanAddToStorage(world, st.stationEntity, item) {</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                 return lifecycle.MoveToStorage(world, item, st.stationEntity)</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :         case auctionTabPending:</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                 // 積荷から降ろして持ち物へ戻す。集荷前なら取り消せる</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 item, ok := st.selectedItem(tab, cursor.ItemIndex)</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                 return lifecycle.MoveToBackpack(world, item, player)</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :         case auctionTabFinance:</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 return st.settleEntry(world, cursor.ItemIndex)</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :         case auctionTabStatus, auctionTabHistory:</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
-<span id="L286"><span class="lineNum">     286</span>              :         }</span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L288"><span class="lineNum">     288</span>              : }</span>
-<span id="L289"><span class="lineNum">     289</span>              : </span>
-<span id="L290"><span class="lineNum">     290</span>              : // settleEntry は金銭タブの選択中の明細を精算する。受取金は所持金へ加え、請求は引く。</span>
-<span id="L291"><span class="lineNum">     291</span>              : // 精算した明細をログに出す。集金の一撃がここで起こる</span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) settleEntry(world w.World, index int) error {</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :         now := int(query.GetGameTime(world).TotalTurns)</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :         e, ok := query.SettleAuctionEntry(world, player, index, now)</span></span>
-<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         switch e.Kind {</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryReceipt:</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                         Markup(query.T(world, &quot;Collected %s. Received %s.&quot;, gamelog.Tag(&quot;item&quot;, e.Name), e.Amount.String())).</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                         Log()</span></span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryInvoice:</span></span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                         Markup(query.T(world, &quot;Paid %s: %s.&quot;, query.T(world, e.Name), e.Amount.String())).</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                         Log()</span></span>
-<span id="L311"><span class="lineNum">     311</span>              :         }</span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L313"><span class="lineNum">     313</span>              : }</span>
-<span id="L314"><span class="lineNum">     314</span>              : </span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) selectedItem(tab auctionTabData, index int) (ecs.Entity, bool) {</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :         if index &lt; 0 || index &gt;= len(tab.Items) {</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 return gc.InvalidEntity, false</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         return tab.Items[index].Entity, true</span></span>
-<span id="L320"><span class="lineNum">     320</span>              : }</span>
-<span id="L321"><span class="lineNum">     321</span>              : </span>
-<span id="L322"><span class="lineNum">     322</span>              : // View は props を UI へ組む</span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :         labels := make([]string, len(props.Tabs))</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :         for i, tab := range props.Tabs {</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :                 labels[i] = tab.Label</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :         return menuframe.NewTabScreen(res, menuframe.TabScreen{</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                 TabLabels: labels,</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                 TabIndex:  cursor.TabIndex,</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                 Content:   st.buildActiveContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                 Footer:    menuNavHint(world, true, query.T(world, &quot;x Details&quot;)),</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L334"><span class="lineNum">     334</span>              : }</span>
-<span id="L335"><span class="lineNum">     335</span>              : </span>
-<span id="L336"><span class="lineNum">     336</span>              : // detailContent は x で開く詳細の内容を返す。積む・出荷タブは品の詳細、状況タブは台帳の内訳</span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) detailContent(world w.World) (overlay.DetailContent, bool) {</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                 return overlay.DetailContent{}, false</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         tab := props.Tabs[cursor.TabIndex]</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabShip || tab.ID == auctionTabPending {</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 item, ok := st.selectedItem(tab, cursor.ItemIndex)</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                 if !ok || !world.ECS.Alive(item) {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) toItemRows(world w.World, entities []ecs.Entity) []auctionItemRow {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         rows := make([]auctionItemRow, len(entities))</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         for i, e := range entities {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                 row := auctionItemRow{Entity: e, Name: query.GetEntityName(e, world)}</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 // 積む・出荷タブにはタグを貼った品しか来ないので、出品中か落札済みのいずれかになる。</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                 // 金額はどの状態でも入札額を出す。出品中は現在値、落札済みは落札額</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                 switch {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                 case world.Components.AuctionSold.Has(e):</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                         row.Status = query.T(world, &quot;Won&quot;)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                         row.Value = world.Components.AuctionSold.Get(e).Bid</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                         row.HasValue = true</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                 case world.Components.AuctionListing.Has(e):</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                         row.Status = query.T(world, &quot;Bidding&quot;)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                         row.Value = world.Components.AuctionListing.Get(e).CurrentBid</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                         row.HasValue = true</span></span>
+<span id="L196"><span class="lineNum">     196</span>              :                 }</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                 rows[i] = row</span></span>
+<span id="L198"><span class="lineNum">     198</span>              :         }</span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         return rows</span></span>
+<span id="L200"><span class="lineNum">     200</span>              : }</span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span>              : // statusRows は進行中の取引を番号順に返す。出品中の品と、落札済みでまだ出荷していない品を並べる。</span>
+<span id="L203"><span class="lineNum">     203</span>              : // 出荷が済むまで取引は完了しないので、どちらも一覧に残す</span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) statusRows(world w.World) []auctionLedgerRow {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         var rows []auctionLedgerRow</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         lq := ecs.NewFilter1[gc.AuctionListing](world.ECS).Query()</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         for lq.Next() {</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                 item := lq.Entity()</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 l := world.Components.AuctionListing.Get(item)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 ship := query.AuctionShippingCost(world, item)</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                 fee := query.AuctionFee(l.CurrentBid)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                 rows = append(rows, auctionLedgerRow{</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                         Number: l.Number, Name: query.GetEntityName(item, world),</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                         Bid: l.CurrentBid, Ship: ship, Fee: fee, Net: l.CurrentBid - ship - fee, Ongoing: true,</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :         sq := ecs.NewFilter1[gc.AuctionSold](world.ECS).Query()</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         for sq.Next() {</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 item := sq.Entity()</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                 s := world.Components.AuctionSold.Get(item)</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                 ship := query.AuctionShippingCost(world, item)</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                 fee := query.AuctionFee(s.Bid)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                 rows = append(rows, auctionLedgerRow{</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                         Number: s.Number, Name: query.GetEntityName(item, world),</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                         Bid: s.Bid, Ship: ship, Fee: fee, Net: s.Bid - ship - fee,</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         sort.Slice(rows, func(i, j int) bool { return rows[i].Number &lt; rows[j].Number })</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         return rows</span></span>
+<span id="L230"><span class="lineNum">     230</span>              : }</span>
+<span id="L231"><span class="lineNum">     231</span>              : </span>
+<span id="L232"><span class="lineNum">     232</span>              : // historyRows は発送済みの実績を新しい順に返す</span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) historyRows(world w.World) []auctionLedgerRow {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         h := query.GetAuctionHistory(world)</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         rows := make([]auctionLedgerRow, 0, len(h.Records))</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :         for i := len(h.Records) - 1; i &gt;= 0; i-- {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 r := h.Records[i]</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                 rows = append(rows, auctionLedgerRow{</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                         Number: r.Number, Name: r.Name, Bid: r.Bid, Ship: r.Ship, Fee: r.Fee, Net: r.Net, Turn: r.Turn, Shipped: true,</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         return rows</span></span>
+<span id="L243"><span class="lineNum">     243</span>              : }</span>
+<span id="L244"><span class="lineNum">     244</span>              : </span>
+<span id="L245"><span class="lineNum">     245</span>              : // selectRow は Enter の対象を処理する。積むタブは積荷へ入れ、出荷タブは持ち物へ戻し、</span>
+<span id="L246"><span class="lineNum">     246</span>              : // 金銭タブは明細を精算する。出品中と履歴タブは詳細を開くだけで状態は変えない</span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) selectRow(world w.World) error {</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :         tab := props.Tabs[cursor.TabIndex]</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         switch tab.ID {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         case auctionTabShip:</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :                 // 落札済みの品をステーションの積荷へ入れる。次の集荷で出荷される</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                 item, ok := st.selectedItem(tab, cursor.ItemIndex)</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :                 if !query.CanAddToStorage(world, st.stationEntity, item) {</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                 return lifecycle.MoveToStorage(world, item, st.stationEntity)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :         case auctionTabPending:</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                 // 積荷から降ろして持ち物へ戻す。集荷前なら取り消せる</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 item, ok := st.selectedItem(tab, cursor.ItemIndex)</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                 player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                 return lifecycle.MoveToBackpack(world, item, player)</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :         case auctionTabFinance:</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 return st.settleEntry(world, cursor.ItemIndex)</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         case auctionTabStatus, auctionTabHistory:</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
+<span id="L280"><span class="lineNum">     280</span>              :         }</span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L282"><span class="lineNum">     282</span>              : }</span>
+<span id="L283"><span class="lineNum">     283</span>              : </span>
+<span id="L284"><span class="lineNum">     284</span>              : // settleEntry は金銭タブの選択中の明細を精算する。受取金は所持金へ加え、請求は引く。</span>
+<span id="L285"><span class="lineNum">     285</span>              : // 精算した明細をログに出す。集金の一撃がここで起こる</span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) settleEntry(world w.World, index int) error {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         now := int(query.GetGameTime(world).TotalTurns)</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :         e, ok := query.SettleAuctionEntry(world, player, index, now)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :         switch e.Kind {</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryReceipt:</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :                         Markup(query.T(world, &quot;Collected %s. Received %s.&quot;, gamelog.Tag(&quot;item&quot;, e.Name), e.Amount.String())).</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :                         Log()</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryInvoice:</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                         Markup(query.T(world, &quot;Paid %s: %s.&quot;, query.T(world, e.Name), e.Amount.String())).</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                         Log()</span></span>
+<span id="L305"><span class="lineNum">     305</span>              :         }</span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L307"><span class="lineNum">     307</span>              : }</span>
+<span id="L308"><span class="lineNum">     308</span>              : </span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) selectedItem(tab auctionTabData, index int) (ecs.Entity, bool) {</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :         if index &lt; 0 || index &gt;= len(tab.Items) {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                 return gc.InvalidEntity, false</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :         return tab.Items[index].Entity, true</span></span>
+<span id="L314"><span class="lineNum">     314</span>              : }</span>
+<span id="L315"><span class="lineNum">     315</span>              : </span>
+<span id="L316"><span class="lineNum">     316</span>              : // View は props を UI へ組む</span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         labels := make([]string, len(props.Tabs))</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :         for i, tab := range props.Tabs {</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 labels[i] = tab.Label</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :         return menuframe.NewTabScreen(res, menuframe.TabScreen{</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                 TabLabels: labels,</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 TabIndex:  cursor.TabIndex,</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 Content:   st.buildActiveContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :                 Footer:    keybind.HelpHint(world),</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L328"><span class="lineNum">     328</span>              : }</span>
+<span id="L329"><span class="lineNum">     329</span>              : </span>
+<span id="L330"><span class="lineNum">     330</span>              : // detailContent は x で開く詳細の内容を返す。積む・出荷タブは品の詳細、状況タブは台帳の内訳</span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) detailContent(world w.World) (overlay.DetailContent, bool) {</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :         props := st.screen.Props()</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                 return overlay.DetailContent{}, false</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         tab := props.Tabs[cursor.TabIndex]</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabShip || tab.ID == auctionTabPending {</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                 item, ok := st.selectedItem(tab, cursor.ItemIndex)</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 if !ok || !world.ECS.Alive(item) {</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                         return overlay.DetailContent{}, false</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 return overlay.EntityDetailContent(world, item), true</span></span>
+<span id="L344"><span class="lineNum">     344</span>              :         }</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabFinance {</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                 if cursor.ItemIndex &lt; 0 || cursor.ItemIndex &gt;= len(tab.Entries) {</span></span>
 <span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                         return overlay.DetailContent{}, false</span></span>
 <span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                 return overlay.EntityDetailContent(world, item), true</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                 return auctionEntryDetail(world, tab.Entries[cursor.ItemIndex]), true</span></span>
 <span id="L350"><span class="lineNum">     350</span>              :         }</span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabFinance {</span></span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 if cursor.ItemIndex &lt; 0 || cursor.ItemIndex &gt;= len(tab.Entries) {</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :                         return overlay.DetailContent{}, false</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                 return auctionEntryDetail(world, tab.Entries[cursor.ItemIndex]), true</span></span>
-<span id="L356"><span class="lineNum">     356</span>              :         }</span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         if cursor.ItemIndex &lt; 0 || cursor.ItemIndex &gt;= len(tab.Ledger) {</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                 return overlay.DetailContent{}, false</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :         return auctionLedgerDetail(world, tab.Ledger[cursor.ItemIndex]), true</span></span>
-<span id="L361"><span class="lineNum">     361</span>              : }</span>
-<span id="L362"><span class="lineNum">     362</span>              : </span>
-<span id="L363"><span class="lineNum">     363</span>              : // auctionEntryDetail は金銭明細1件の内訳を詳細内容にする。受取金は落札額から配送料と手数料を引いた</span>
-<span id="L364"><span class="lineNum">     364</span>              : // 手取りの内訳を、請求は請求額を見せる</span>
-<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 : func auctionEntryDetail(world w.World, e gc.AuctionEntry) overlay.DetailContent {</span></span>
-<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :         switch e.Kind {</span></span>
-<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryReceipt:</span></span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                 return overlay.DetailContent{</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                         Name: e.Name,</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :                         Rows: []entityspec.SpecRow{</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Kind&quot;), Value: query.T(world, &quot;Receipt&quot;)},</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Bid&quot;), Value: e.Bid.String()},</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Shipping&quot;), Value: e.Ship.String()},</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Fee&quot;), Value: e.Fee.String()},</span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Net&quot;), Value: e.Amount.String()},</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :                         },</span></span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryInvoice:</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                 return overlay.DetailContent{</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                         Name: query.T(world, e.Name),</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                         Rows: []entityspec.SpecRow{</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Kind&quot;), Value: query.T(world, &quot;Invoice&quot;)},</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Amount&quot;), Value: e.Amount.String()},</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                         },</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L386"><span class="lineNum">     386</span>              :         }</span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         return overlay.DetailContent{Name: e.Name}</span></span>
-<span id="L388"><span class="lineNum">     388</span>              : }</span>
-<span id="L389"><span class="lineNum">     389</span>              : </span>
-<span id="L390"><span class="lineNum">     390</span>              : // auctionLedgerDetail は台帳1行の内訳を詳細内容にする。価格は価格記号を付けて出す</span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 : func auctionLedgerDetail(world w.World, r auctionLedgerRow) overlay.DetailContent {</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         bidLabel := query.T(world, &quot;Bid&quot;)</span></span>
-<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :         if r.Ongoing {</span></span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 bidLabel = query.T(world, &quot;Current bid&quot;)</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         rows := []entityspec.SpecRow{</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Number&quot;), Value: &quot;#&quot; + strconv.Itoa(r.Number)},</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 {Label: bidLabel, Value: r.Bid.String()},</span></span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Shipping&quot;), Value: r.Ship.String()},</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Fee&quot;), Value: r.Fee.String()},</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Net&quot;), Value: r.Net.String()},</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :         if r.Shipped {</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Turn&quot;), Value: strconv.Itoa(r.Turn)})</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         return overlay.DetailContent{Name: r.Name, Rows: rows}</span></span>
-<span id="L407"><span class="lineNum">     407</span>              : }</span>
-<span id="L408"><span class="lineNum">     408</span>              : </span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :         tab := props.Tabs[tabIndex]</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabShip || tab.ID == auctionTabPending {</span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :                 return st.buildItemContainer(world, tab, itemIndex, res)</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabFinance {</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                 return st.buildFinanceContainer(world, tab, itemIndex, res)</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         return st.buildLedgerContainer(world, tab, itemIndex, res)</span></span>
-<span id="L421"><span class="lineNum">     421</span>              : }</span>
-<span id="L422"><span class="lineNum">     422</span>              : </span>
-<span id="L423"><span class="lineNum">     423</span>              : // buildFinanceContainer は金銭タブの一覧を組む。各行は名前と種別と符号付きの金額。</span>
-<span id="L424"><span class="lineNum">     424</span>              : // 受取金はそのまま、請求はマイナスで出し、足し引きが読めるようにする</span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) buildFinanceContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :         rows := make([]menuRow, len(tab.Entries))</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :         for i, e := range tab.Entries {</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :                 kind := query.T(world, &quot;Receipt&quot;)</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                 name := e.Name</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :                 amount := e.Amount.String()</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                 if e.Kind == gc.AuctionEntryInvoice {</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :                         kind = query.T(world, &quot;Invoice&quot;)</span></span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :                         name = query.T(world, e.Name)</span></span>
-<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :                         amount = (-e.Amount).String()</span></span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :                 rows[i] = menuRow{Cells: []styled.Cell{</span></span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :                         styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount),</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :                 }}</span></span>
-<span id="L439"><span class="lineNum">     439</span>              :         }</span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :         return renderMenuList(itemIndex, rows, []int{200, 80, 120},</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :                 []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :                 menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No bills or receipts.&quot;)}, res)</span></span>
-<span id="L443"><span class="lineNum">     443</span>              : }</span>
-<span id="L444"><span class="lineNum">     444</span>              : </span>
-<span id="L445"><span class="lineNum">     445</span>              : // buildItemContainer は積む・出荷タブの一覧を組む。各行は品名と落札状況と金額</span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :         rows := make([]menuRow, len(tab.Items))</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :         for i, it := range tab.Items {</span></span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :                 value := &quot;&quot;</span></span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :                 if it.HasValue {</span></span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :                         value = it.Value.String()</span></span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :                 rows[i] = menuRow{Cells: []styled.Cell{</span></span>
-<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :                         styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value),</span></span>
-<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :                 }}</span></span>
-<span id="L456"><span class="lineNum">     456</span>              :         }</span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :         empty := query.T(world, &quot;No items to ship.&quot;)</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabPending {</span></span>
-<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :                 empty = query.T(world, &quot;Nothing awaiting pickup.&quot;)</span></span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :         return renderMenuList(itemIndex, rows, []int{200, 90, 110},</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :                 []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :                 menuListOpts{AlwaysIndicator: true, EmptyText: empty}, res)</span></span>
-<span id="L464"><span class="lineNum">     464</span>              : }</span>
-<span id="L465"><span class="lineNum">     465</span>              : </span>
-<span id="L466"><span class="lineNum">     466</span>              : // buildLedgerContainer は進行中・履歴タブの一覧を組む。進行中は番号・品名・状態・金額の4列、</span>
-<span id="L467"><span class="lineNum">     467</span>              : // 履歴は状態が発送済みで固定なので番号・品名・金額の3列にする。金額はどの行も入札額を出す</span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) buildLedgerContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabHistory {</span></span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :                 rows := make([]menuRow, len(tab.Ledger))</span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :                 for i, r := range tab.Ledger {</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :                         rows[i] = menuRow{Cells: []styled.Cell{</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                                 styled.TextCell(&quot;#&quot; + strconv.Itoa(r.Number)),</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                                 styled.TextCell(r.Name),</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :                                 styled.TextCell(r.Bid.String()),</span></span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :                         }}</span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :                 return renderMenuList(itemIndex, rows, []int{50, 200, 120},</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :                         []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :                         menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No shipments yet.&quot;)}, res)</span></span>
-<span id="L481"><span class="lineNum">     481</span>              :         }</span>
-<span id="L482"><span class="lineNum">     482</span>              : </span>
-<span id="L483"><span class="lineNum">     483</span>              :         // 進行中タブは出品中と落札済みが混ざるので、状態を1列足して取引の段階を見せる</span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :         rows := make([]menuRow, len(tab.Ledger))</span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :         for i, r := range tab.Ledger {</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :                 status := query.T(world, &quot;Won&quot;)</span></span>
-<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :                 if r.Ongoing {</span></span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :                         status = query.T(world, &quot;Bidding&quot;)</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :                 rows[i] = menuRow{Cells: []styled.Cell{</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :                         styled.TextCell(&quot;#&quot; + strconv.Itoa(r.Number)),</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :                         styled.TextCell(r.Name),</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :                         styled.TextCell(status),</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :                         styled.TextCell(r.Bid.String()),</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :                 }}</span></span>
-<span id="L496"><span class="lineNum">     496</span>              :         }</span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :         return renderMenuList(itemIndex, rows, []int{50, 170, 70, 110},</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :                 []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight},</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :                 menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No deals in progress.&quot;)}, res)</span></span>
-<span id="L500"><span class="lineNum">     500</span>              : }</span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :         if cursor.ItemIndex &lt; 0 || cursor.ItemIndex &gt;= len(tab.Ledger) {</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 return overlay.DetailContent{}, false</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         return auctionLedgerDetail(world, tab.Ledger[cursor.ItemIndex]), true</span></span>
+<span id="L355"><span class="lineNum">     355</span>              : }</span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span>              : // auctionEntryDetail は金銭明細1件の内訳を詳細内容にする。受取金は落札額から配送料と手数料を引いた</span>
+<span id="L358"><span class="lineNum">     358</span>              : // 手取りの内訳を、請求は請求額を見せる</span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 : func auctionEntryDetail(world w.World, e gc.AuctionEntry) overlay.DetailContent {</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :         switch e.Kind {</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryReceipt:</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 return overlay.DetailContent{</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                         Name: e.Name,</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                         Rows: []entityspec.SpecRow{</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Kind&quot;), Value: query.T(world, &quot;Receipt&quot;)},</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Bid&quot;), Value: e.Bid.String()},</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Shipping&quot;), Value: e.Ship.String()},</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Fee&quot;), Value: e.Fee.String()},</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Net&quot;), Value: e.Amount.String()},</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :                         },</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryInvoice:</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                 return overlay.DetailContent{</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :                         Name: query.T(world, e.Name),</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                         Rows: []entityspec.SpecRow{</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Kind&quot;), Value: query.T(world, &quot;Invoice&quot;)},</span></span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                                 {Label: query.T(world, &quot;Amount&quot;), Value: e.Amount.String()},</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :                         },</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L380"><span class="lineNum">     380</span>              :         }</span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         return overlay.DetailContent{Name: e.Name}</span></span>
+<span id="L382"><span class="lineNum">     382</span>              : }</span>
+<span id="L383"><span class="lineNum">     383</span>              : </span>
+<span id="L384"><span class="lineNum">     384</span>              : // auctionLedgerDetail は台帳1行の内訳を詳細内容にする。価格は価格記号を付けて出す</span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 : func auctionLedgerDetail(world w.World, r auctionLedgerRow) overlay.DetailContent {</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         bidLabel := query.T(world, &quot;Bid&quot;)</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         if r.Ongoing {</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                 bidLabel = query.T(world, &quot;Current bid&quot;)</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         rows := []entityspec.SpecRow{</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Number&quot;), Value: &quot;#&quot; + strconv.Itoa(r.Number)},</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                 {Label: bidLabel, Value: r.Bid.String()},</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Shipping&quot;), Value: r.Ship.String()},</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Fee&quot;), Value: r.Fee.String()},</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Net&quot;), Value: r.Net.String()},</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :         if r.Shipped {</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 rows = append(rows, entityspec.SpecRow{Label: query.T(world, &quot;Turn&quot;), Value: strconv.Itoa(r.Turn)})</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :         return overlay.DetailContent{Name: r.Name, Rows: rows}</span></span>
+<span id="L401"><span class="lineNum">     401</span>              : }</span>
+<span id="L402"><span class="lineNum">     402</span>              : </span>
+<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) buildActiveContainer(world w.World, props AuctionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :         tab := props.Tabs[tabIndex]</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabShip || tab.ID == auctionTabPending {</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :                 return st.buildItemContainer(world, tab, itemIndex, res)</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabFinance {</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                 return st.buildFinanceContainer(world, tab, itemIndex, res)</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :         return st.buildLedgerContainer(world, tab, itemIndex, res)</span></span>
+<span id="L415"><span class="lineNum">     415</span>              : }</span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span>              : // buildFinanceContainer は金銭タブの一覧を組む。各行は名前と種別と符号付きの金額。</span>
+<span id="L418"><span class="lineNum">     418</span>              : // 受取金はそのまま、請求はマイナスで出し、足し引きが読めるようにする</span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) buildFinanceContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         rows := make([]menuRow, len(tab.Entries))</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :         for i, e := range tab.Entries {</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                 kind := query.T(world, &quot;Receipt&quot;)</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                 name := e.Name</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                 amount := e.Amount.String()</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :                 if e.Kind == gc.AuctionEntryInvoice {</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :                         kind = query.T(world, &quot;Invoice&quot;)</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :                         name = query.T(world, e.Name)</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :                         amount = (-e.Amount).String()</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :                 rows[i] = menuRow{Cells: []styled.Cell{</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                         styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount),</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :                 }}</span></span>
+<span id="L433"><span class="lineNum">     433</span>              :         }</span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :         return renderMenuList(itemIndex, rows, []int{200, 80, 120},</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :                 []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :                 menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No bills or receipts.&quot;)}, res)</span></span>
+<span id="L437"><span class="lineNum">     437</span>              : }</span>
+<span id="L438"><span class="lineNum">     438</span>              : </span>
+<span id="L439"><span class="lineNum">     439</span>              : // buildItemContainer は積む・出荷タブの一覧を組む。各行は品名と落札状況と金額</span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) buildItemContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :         rows := make([]menuRow, len(tab.Items))</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :         for i, it := range tab.Items {</span></span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :                 value := &quot;&quot;</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                 if it.HasValue {</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :                         value = it.Value.String()</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :                 rows[i] = menuRow{Cells: []styled.Cell{</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :                         styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value),</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :                 }}</span></span>
+<span id="L450"><span class="lineNum">     450</span>              :         }</span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :         empty := query.T(world, &quot;No items to ship.&quot;)</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabPending {</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :                 empty = query.T(world, &quot;Nothing awaiting pickup.&quot;)</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :         return renderMenuList(itemIndex, rows, []int{200, 90, 110},</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :                 []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :                 menuListOpts{AlwaysIndicator: true, EmptyText: empty}, res)</span></span>
+<span id="L458"><span class="lineNum">     458</span>              : }</span>
+<span id="L459"><span class="lineNum">     459</span>              : </span>
+<span id="L460"><span class="lineNum">     460</span>              : // buildLedgerContainer は進行中・履歴タブの一覧を組む。進行中は番号・品名・状態・金額の4列、</span>
+<span id="L461"><span class="lineNum">     461</span>              : // 履歴は状態が発送済みで固定なので番号・品名・金額の3列にする。金額はどの行も入札額を出す</span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 : func (st *AuctionMenuState) buildLedgerContainer(world w.World, tab auctionTabData, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :         if tab.ID == auctionTabHistory {</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :                 rows := make([]menuRow, len(tab.Ledger))</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :                 for i, r := range tab.Ledger {</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :                         rows[i] = menuRow{Cells: []styled.Cell{</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :                                 styled.TextCell(&quot;#&quot; + strconv.Itoa(r.Number)),</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :                                 styled.TextCell(r.Name),</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :                                 styled.TextCell(r.Bid.String()),</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :                         }}</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :                 return renderMenuList(itemIndex, rows, []int{50, 200, 120},</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                         []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                         menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No shipments yet.&quot;)}, res)</span></span>
+<span id="L475"><span class="lineNum">     475</span>              :         }</span>
+<span id="L476"><span class="lineNum">     476</span>              : </span>
+<span id="L477"><span class="lineNum">     477</span>              :         // 進行中タブは出品中と落札済みが混ざるので、状態を1列足して取引の段階を見せる</span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :         rows := make([]menuRow, len(tab.Ledger))</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :         for i, r := range tab.Ledger {</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :                 status := query.T(world, &quot;Won&quot;)</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                 if r.Ongoing {</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                         status = query.T(world, &quot;Bidding&quot;)</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :                 rows[i] = menuRow{Cells: []styled.Cell{</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :                         styled.TextCell(&quot;#&quot; + strconv.Itoa(r.Number)),</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :                         styled.TextCell(r.Name),</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :                         styled.TextCell(status),</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :                         styled.TextCell(r.Bid.String()),</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :                 }}</span></span>
+<span id="L490"><span class="lineNum">     490</span>              :         }</span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :         return renderMenuList(itemIndex, rows, []int{50, 170, 70, 110},</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :                 []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight},</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :                 menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No deals in progress.&quot;)}, res)</span></span>
+<span id="L494"><span class="lineNum">     494</span>              : }</span>
         </pre>
               </td>
             </tr>

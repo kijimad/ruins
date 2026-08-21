@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">31.9&nbsp;%</td>
-            <td class="headerCovTableEntry">640</td>
-            <td class="headerCovTableEntry">204</td>
+            <td class="headerCovTableEntryLo">31.0&nbsp;%</td>
+            <td class="headerCovTableEntry">625</td>
+            <td class="headerCovTableEntry">194</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-20 23:33:37</td>
+            <td class="headerValue">2026-08-21 00:24:03</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,8 +72,8 @@
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/ebitenui/ebitenui/widget&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/hooks&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/input&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/keybind&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/messagedata&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
@@ -542,355 +542,347 @@
 <span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L482"><span class="lineNum">     482</span>              : </span>
-<span id="L483"><span class="lineNum">     483</span>              : // HandleInput はキーボード入力をActionに変換する</span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC tlaBgGNC">           1 : func (w *Window) HandleInput() (inputmapper.ActionID, bool) {</span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           2 :         for _, key := range w.config.SkippableKeys {</span></span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">           2 :                 if key == ebiten.KeyEnter {</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           1 :                         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return inputmapper.ActionConfirm, true</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC tlaBgGNC">           1 :                 } else if keyboardInput.IsKeyJustPressed(key) {</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC tlaBgUNC">           0 :                         return inputmapper.ActionSkip, true</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L495"><span class="lineNum">     495</span>              :         }</span>
-<span id="L496"><span class="lineNum">     496</span>              : </span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC tlaBgGNC">           1 :         return &quot;&quot;, false</span></span>
-<span id="L498"><span class="lineNum">     498</span>              : }</span>
-<span id="L499"><span class="lineNum">     499</span>              : </span>
-<span id="L500"><span class="lineNum">     500</span>              : // DoAction はActionを実行する</span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 : func (w *Window) DoAction(action inputmapper.ActionID) {</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :         switch action {</span></span>
-<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 :         case inputmapper.ActionConfirm, inputmapper.ActionSkip:</span></span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :                 w.Close()</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;invalid action: %s&quot;, action))</span></span>
-<span id="L507"><span class="lineNum">     507</span>              :         }</span>
-<span id="L508"><span class="lineNum">     508</span>              : }</span>
-<span id="L509"><span class="lineNum">     509</span>              : </span>
-<span id="L510"><span class="lineNum">     510</span>              : // initChoiceMenu は選択肢メニューを初期化する</span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC tlaBgUNC">           0 : func (w *Window) initChoiceMenu() {</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :         if len(w.content.Choices) == 0 {</span></span>
-<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L515"><span class="lineNum">     515</span>              : </span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :         items := make([]item, len(w.content.Choices))</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :         for i, choice := range w.content.Choices {</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :                 items[i] = item{</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :                         ID:       choice.Text,</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :                         Label:    choice.Text,</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                         UserData: i,</span></span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L524"><span class="lineNum">     524</span>              : </span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :         itemsPerPage := w.calculateItemsPerPage(len(w.content.Choices))</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :         config := tabMenuConfig{</span></span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :                 Tabs: []tabItem{</span></span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :                         {ID: &quot;choices&quot;, Label: &quot;&quot;, Items: items},</span></span>
-<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :                 },</span></span>
-<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :                 ItemsPerPage: itemsPerPage,</span></span>
-<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :         // hooks で Skip 込みのナビゲーションを管理する</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :         skips := make([]bool, len(w.currentMessage.Choices))</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 :         for i, choice := range w.currentMessage.Choices {</span></span>
-<span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :                 skips[i] = choice.Action == nil</span></span>
-<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L539"><span class="lineNum">     539</span>              : </span>
-<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :         w.choiceStore = hooks.NewStore()</span></span>
-<span id="L541"><span class="lineNum">     541</span> <span class="tlaUNC">           0 :         menuState := hooks.UseTabMenu(w.choiceStore, &quot;choices&quot;, hooks.TabMenuConfig{</span></span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :                 TabCount:     1,</span></span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :                 ItemCounts:   []int{len(items)},</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 ItemsPerPage: itemsPerPage,</span></span>
-<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                 Skips:        [][]bool{skips},</span></span>
-<span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :         w.choiceMenuView = newView(config, w.world)</span></span>
-<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :         w.choiceMenuView.SetState(viewState{</span></span>
-<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :                 TabIndex:  menuState.TabIndex,</span></span>
-<span id="L551"><span class="lineNum">     551</span> <span class="tlaUNC">           0 :                 ItemIndex: menuState.ItemIndex,</span></span>
-<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :         w.currentMenuPage = 1</span></span>
-<span id="L554"><span class="lineNum">     554</span>              : }</span>
-<span id="L555"><span class="lineNum">     555</span>              : </span>
-<span id="L556"><span class="lineNum">     556</span>              : // handleChoiceInput はキー入力を hooks Store にディスパッチし、view を同期する</span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 : func (w *Window) handleChoiceInput() error {</span></span>
-<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
-<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :         action, ok := w.translateChoiceInput(keyboardInput)</span></span>
-<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L563"><span class="lineNum">     563</span>              : </span>
-<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 :         switch action {</span></span>
-<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
-<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :                 menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, &quot;choices&quot;)</span></span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :                 return w.selectChoice(menuState.ItemIndex)</span></span>
-<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuCancel:</span></span>
-<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :                 w.Close()</span></span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :                 w.choiceStore.Dispatch(action)</span></span>
-<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :                 menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, &quot;choices&quot;)</span></span>
-<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :                 w.choiceMenuView.SetState(viewState{</span></span>
-<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :                         TabIndex:  menuState.TabIndex,</span></span>
-<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :                         ItemIndex: menuState.ItemIndex,</span></span>
-<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :                 w.choiceMenuView.UpdateFocus()</span></span>
-<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :                 newPage := w.choiceMenuView.GetCurrentPage()</span></span>
-<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :                 if newPage != w.currentMenuPage {</span></span>
-<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :                         w.currentMenuPage = newPage</span></span>
-<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :                         w.needsUIRebuild = true</span></span>
-<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L586"><span class="lineNum">     586</span>              :         }</span>
-<span id="L587"><span class="lineNum">     587</span>              : }</span>
-<span id="L588"><span class="lineNum">     588</span>              : </span>
-<span id="L589"><span class="lineNum">     589</span>              : // translateChoiceInput はキーボード入力を選択肢メニューのアクションに変換する</span>
-<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC tlaBgGNC">           1 : func (w *Window) translateChoiceInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {</span></span>
-<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">           2 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) {</span></span>
-<span id="L592"><span class="lineNum">     592</span> <span class="tlaGNC">           1 :                 return inputmapper.ActionMenuUp, true</span></span>
-<span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">           2 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) {</span></span>
-<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           1 :                 return inputmapper.ActionMenuDown, true</span></span>
-<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           2 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
-<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">           1 :                 return inputmapper.ActionMenuSelect, true</span></span>
-<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           2 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
-<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :                 return inputmapper.ActionMenuCancel, true</span></span>
-<span id="L602"><span class="lineNum">     602</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L603"><span class="lineNum">     603</span> <span class="tlaGNC">           1 :         return &quot;&quot;, false</span></span>
-<span id="L604"><span class="lineNum">     604</span>              : }</span>
-<span id="L605"><span class="lineNum">     605</span>              : </span>
-<span id="L606"><span class="lineNum">     606</span>              : // rebuildUI はUIを再構築する</span>
-<span id="L607"><span class="lineNum">     607</span> <span class="tlaUNC tlaBgUNC">           0 : func (w *Window) rebuildUI() {</span></span>
-<span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :         w.ui = nil</span></span>
-<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :         w.window = nil</span></span>
-<span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC">           0 :         w.initUI()</span></span>
-<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L612"><span class="lineNum">     612</span>              : </span>
-<span id="L613"><span class="lineNum">     613</span>              : // calculateItemsPerPage は1ページあたりのアイテム数を計算する</span>
-<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC tlaBgGNC">           1 : func (w *Window) calculateItemsPerPage(totalItems int) int {</span></span>
-<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :         maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)</span></span>
-<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           1 :         // ウィンドウ内のオーバーヘッドを計算する</span></span>
-<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC">           1 :         messageHeight := 0</span></span>
-<span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC">           2 :         if w.hasMessage() {</span></span>
-<span id="L620"><span class="lineNum">     620</span> <span class="tlaGNC">           1 :                 messageHeight = 150</span></span>
-<span id="L621"><span class="lineNum">     621</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC">           1 :         topPadding := 20</span></span>
-<span id="L623"><span class="lineNum">     623</span> <span class="tlaGNC">           1 :         bottomPadding := 15</span></span>
-<span id="L624"><span class="lineNum">     624</span> <span class="tlaGNC">           1 :         titleBarHeight := 0</span></span>
-<span id="L625"><span class="lineNum">     625</span> <span class="tlaGNC">           2 :         if w.content.SpeakerName != &quot;&quot; {</span></span>
-<span id="L626"><span class="lineNum">     626</span> <span class="tlaGNC">           1 :                 titleBarHeight = 40</span></span>
-<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 :         spacingHeight := 0</span></span>
-<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           2 :         if w.hasMessage() {</span></span>
-<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           1 :                 spacingHeight = 10</span></span>
-<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">           1 :         pageIndicatorHeight := 30</span></span>
-<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC">           1 :         overhead := messageHeight + topPadding + bottomPadding + titleBarHeight + spacingHeight + pageIndicatorHeight</span></span>
-<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">           1 :         availableHeight := maxHeightWithChoices - overhead</span></span>
-<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L637"><span class="lineNum">     637</span> <span class="tlaGNC">           1 :         choiceItemHeight := 40</span></span>
-<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">           1 :         maxItemsPerPage := availableHeight / choiceItemHeight</span></span>
-<span id="L639"><span class="lineNum">     639</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">           2 :         if maxItemsPerPage &lt; 3 {</span></span>
-<span id="L641"><span class="lineNum">     641</span> <span class="tlaGNC">           1 :                 maxItemsPerPage = 3</span></span>
-<span id="L642"><span class="lineNum">     642</span> <span class="tlaGNC">           3 :         } else if maxItemsPerPage &gt; 15 {</span></span>
-<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC">           1 :                 maxItemsPerPage = 15</span></span>
-<span id="L644"><span class="lineNum">     644</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L645"><span class="lineNum">     645</span>              : </span>
-<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">           2 :         if totalItems &lt;= maxItemsPerPage {</span></span>
-<span id="L647"><span class="lineNum">     647</span> <span class="tlaGNC">           1 :                 return totalItems</span></span>
-<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L649"><span class="lineNum">     649</span>              : </span>
-<span id="L650"><span class="lineNum">     650</span> <span class="tlaGNC">           1 :         return maxItemsPerPage</span></span>
-<span id="L651"><span class="lineNum">     651</span>              : }</span>
-<span id="L652"><span class="lineNum">     652</span>              : </span>
-<span id="L653"><span class="lineNum">     653</span>              : // selectChoice は選択肢を選択する</span>
-<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           1 : func (w *Window) selectChoice(index int) error {</span></span>
-<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">           2 :         if index &lt; 0 || index &gt;= len(w.content.Choices) {</span></span>
-<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L658"><span class="lineNum">     658</span>              : </span>
-<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">           1 :         choice := w.content.Choices[index]</span></span>
-<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">           1 :         // コールバック実行</span></span>
-<span id="L662"><span class="lineNum">     662</span> <span class="tlaGNC">           2 :         if w.onChoice != nil {</span></span>
-<span id="L663"><span class="lineNum">     663</span> <span class="tlaGNC">           1 :                 w.onChoice(choice)</span></span>
-<span id="L664"><span class="lineNum">     664</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L665"><span class="lineNum">     665</span>              : </span>
-<span id="L666"><span class="lineNum">     666</span>              :         // アクション実行</span>
-<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC">           2 :         if choice.Action != nil {</span></span>
-<span id="L668"><span class="lineNum">     668</span> <span class="tlaGNC">           2 :                 if err := choice.Action(); err != nil {</span></span>
-<span id="L669"><span class="lineNum">     669</span> <span class="tlaGNC">           1 :                         return err</span></span>
-<span id="L670"><span class="lineNum">     670</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L671"><span class="lineNum">     671</span>              :         }</span>
-<span id="L672"><span class="lineNum">     672</span>              : </span>
-<span id="L673"><span class="lineNum">     673</span>              :         // ウィンドウを閉じる</span>
-<span id="L674"><span class="lineNum">     674</span> <span class="tlaGNC">           1 :         w.Close()</span></span>
-<span id="L675"><span class="lineNum">     675</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L676"><span class="lineNum">     676</span>              : }</span>
-<span id="L677"><span class="lineNum">     677</span>              : </span>
-<span id="L678"><span class="lineNum">     678</span>              : // createSegmentedTextLines はTextSegmentLinesから色付きテキストウィジェットを作成する（改行対応）</span>
-<span id="L679"><span class="lineNum">     679</span> <span class="tlaUNC tlaBgUNC">           0 : func (w *Window) createSegmentedTextLines() *widget.Container {</span></span>
-<span id="L680"><span class="lineNum">     680</span> <span class="tlaUNC">           0 :         // メインコンテナは縦方向（行を縦に並べる）</span></span>
-<span id="L681"><span class="lineNum">     681</span> <span class="tlaUNC">           0 :         mainContainer := widget.NewContainer(</span></span>
-<span id="L682"><span class="lineNum">     682</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(</span></span>
-<span id="L683"><span class="lineNum">     683</span> <span class="tlaUNC">           0 :                         widget.NewRowLayout(</span></span>
-<span id="L684"><span class="lineNum">     684</span> <span class="tlaUNC">           0 :                                 widget.RowLayoutOpts.Direction(widget.DirectionVertical),</span></span>
-<span id="L685"><span class="lineNum">     685</span> <span class="tlaUNC">           0 :                                 widget.RowLayoutOpts.Spacing(0),</span></span>
-<span id="L686"><span class="lineNum">     686</span> <span class="tlaUNC">           0 :                                 widget.RowLayoutOpts.Padding(&amp;widget.Insets{</span></span>
-<span id="L687"><span class="lineNum">     687</span> <span class="tlaUNC">           0 :                                         Top:    0,</span></span>
-<span id="L688"><span class="lineNum">     688</span> <span class="tlaUNC">           0 :                                         Bottom: 0,</span></span>
-<span id="L689"><span class="lineNum">     689</span> <span class="tlaUNC">           0 :                                         Left:   theme.Space3,</span></span>
-<span id="L690"><span class="lineNum">     690</span> <span class="tlaUNC">           0 :                                         Right:  theme.Space3,</span></span>
-<span id="L691"><span class="lineNum">     691</span> <span class="tlaUNC">           0 :                                 }),</span></span>
-<span id="L692"><span class="lineNum">     692</span> <span class="tlaUNC">           0 :                         ),</span></span>
-<span id="L693"><span class="lineNum">     693</span> <span class="tlaUNC">           0 :                 ),</span></span>
-<span id="L694"><span class="lineNum">     694</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.WidgetOpts(</span></span>
-<span id="L695"><span class="lineNum">     695</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L696"><span class="lineNum">     696</span> <span class="tlaUNC">           0 :                                 Stretch: true,</span></span>
-<span id="L697"><span class="lineNum">     697</span> <span class="tlaUNC">           0 :                         }),</span></span>
-<span id="L698"><span class="lineNum">     698</span> <span class="tlaUNC">           0 :                 ),</span></span>
-<span id="L699"><span class="lineNum">     699</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L700"><span class="lineNum">     700</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L701"><span class="lineNum">     701</span> <span class="tlaUNC">           0 :         res := w.world.Resources.UIResources</span></span>
-<span id="L702"><span class="lineNum">     702</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L703"><span class="lineNum">     703</span> <span class="tlaUNC">           0 :         // 各行を処理</span></span>
-<span id="L704"><span class="lineNum">     704</span> <span class="tlaUNC">           0 :         for _, lineSegments := range w.content.TextSegmentLines {</span></span>
-<span id="L705"><span class="lineNum">     705</span> <span class="tlaUNC">           0 :                 // 空行かどうかを判定（全セグメントが空白文字のみ）</span></span>
-<span id="L706"><span class="lineNum">     706</span> <span class="tlaUNC">           0 :                 isEmptyLine := true</span></span>
-<span id="L707"><span class="lineNum">     707</span> <span class="tlaUNC">           0 :                 for _, seg := range lineSegments {</span></span>
-<span id="L708"><span class="lineNum">     708</span> <span class="tlaUNC">           0 :                         var trimmed strings.Builder</span></span>
-<span id="L709"><span class="lineNum">     709</span> <span class="tlaUNC">           0 :                         for _, r := range seg.Text {</span></span>
-<span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC">           0 :                                 if r != ' ' &amp;&amp; r != '\t' &amp;&amp; r != '\n' &amp;&amp; r != '\r' {</span></span>
-<span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :                                         trimmed.WriteRune(r)</span></span>
-<span id="L712"><span class="lineNum">     712</span> <span class="tlaUNC">           0 :                                 }</span></span>
-<span id="L713"><span class="lineNum">     713</span>              :                         }</span>
-<span id="L714"><span class="lineNum">     714</span> <span class="tlaUNC">           0 :                         if trimmed.String() != &quot;&quot; {</span></span>
-<span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC">           0 :                                 isEmptyLine = false</span></span>
-<span id="L716"><span class="lineNum">     716</span> <span class="tlaUNC">           0 :                                 break</span></span>
-<span id="L717"><span class="lineNum">     717</span>              :                         }</span>
-<span id="L718"><span class="lineNum">     718</span>              :                 }</span>
-<span id="L719"><span class="lineNum">     719</span>              : </span>
-<span id="L720"><span class="lineNum">     720</span>              :                 // 空行の場合は固定高さのスペーサーを追加</span>
-<span id="L721"><span class="lineNum">     721</span> <span class="tlaUNC">           0 :                 if isEmptyLine {</span></span>
-<span id="L722"><span class="lineNum">     722</span> <span class="tlaUNC">           0 :                         spacer := widget.NewText(</span></span>
-<span id="L723"><span class="lineNum">     723</span> <span class="tlaUNC">           0 :                                 widget.TextOpts.Text(&quot; &quot;, &amp;res.Text.BodyFace, w.config.textStyle.Color),</span></span>
-<span id="L724"><span class="lineNum">     724</span> <span class="tlaUNC">           0 :                                 widget.TextOpts.WidgetOpts(</span></span>
-<span id="L725"><span class="lineNum">     725</span> <span class="tlaUNC">           0 :                                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),</span></span>
-<span id="L726"><span class="lineNum">     726</span> <span class="tlaUNC">           0 :                                 ),</span></span>
-<span id="L727"><span class="lineNum">     727</span> <span class="tlaUNC">           0 :                         )</span></span>
-<span id="L728"><span class="lineNum">     728</span> <span class="tlaUNC">           0 :                         mainContainer.AddChild(spacer)</span></span>
-<span id="L729"><span class="lineNum">     729</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L730"><span class="lineNum">     730</span>              :                 }</span>
-<span id="L731"><span class="lineNum">     731</span>              : </span>
-<span id="L732"><span class="lineNum">     732</span>              :                 // 行コンテナ（横方向）</span>
-<span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC">           0 :                 lineContainer := widget.NewContainer(</span></span>
-<span id="L734"><span class="lineNum">     734</span> <span class="tlaUNC">           0 :                         widget.ContainerOpts.Layout(</span></span>
-<span id="L735"><span class="lineNum">     735</span> <span class="tlaUNC">           0 :                                 widget.NewRowLayout(</span></span>
-<span id="L736"><span class="lineNum">     736</span> <span class="tlaUNC">           0 :                                         widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),</span></span>
-<span id="L737"><span class="lineNum">     737</span> <span class="tlaUNC">           0 :                                         widget.RowLayoutOpts.Spacing(0),</span></span>
-<span id="L738"><span class="lineNum">     738</span> <span class="tlaUNC">           0 :                                 ),</span></span>
-<span id="L739"><span class="lineNum">     739</span> <span class="tlaUNC">           0 :                         ),</span></span>
-<span id="L740"><span class="lineNum">     740</span> <span class="tlaUNC">           0 :                         widget.ContainerOpts.WidgetOpts(</span></span>
-<span id="L741"><span class="lineNum">     741</span> <span class="tlaUNC">           0 :                                 widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L742"><span class="lineNum">     742</span> <span class="tlaUNC">           0 :                                         Stretch: true,</span></span>
-<span id="L743"><span class="lineNum">     743</span> <span class="tlaUNC">           0 :                                 }),</span></span>
-<span id="L744"><span class="lineNum">     744</span> <span class="tlaUNC">           0 :                         ),</span></span>
-<span id="L745"><span class="lineNum">     745</span> <span class="tlaUNC">           0 :                 )</span></span>
-<span id="L746"><span class="lineNum">     746</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L747"><span class="lineNum">     747</span> <span class="tlaUNC">           0 :                 // 行内の各セグメントを処理</span></span>
-<span id="L748"><span class="lineNum">     748</span> <span class="tlaUNC">           0 :                 for _, segment := range lineSegments {</span></span>
-<span id="L749"><span class="lineNum">     749</span> <span class="tlaUNC">           0 :                         segmentColor := w.config.textStyle.Color</span></span>
-<span id="L750"><span class="lineNum">     750</span> <span class="tlaUNC">           0 :                         if segment.Color != nil {</span></span>
-<span id="L751"><span class="lineNum">     751</span> <span class="tlaUNC">           0 :                                 segmentColor = *segment.Color</span></span>
-<span id="L752"><span class="lineNum">     752</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L753"><span class="lineNum">     753</span>              : </span>
-<span id="L754"><span class="lineNum">     754</span>              :                         // セグメント用のコンテナオプション</span>
-<span id="L755"><span class="lineNum">     755</span> <span class="tlaUNC">           0 :                         var segmentOpts []widget.ContainerOpt</span></span>
-<span id="L756"><span class="lineNum">     756</span> <span class="tlaUNC">           0 :                         segmentOpts = append(segmentOpts,</span></span>
-<span id="L757"><span class="lineNum">     757</span> <span class="tlaUNC">           0 :                                 widget.ContainerOpts.Layout(</span></span>
-<span id="L758"><span class="lineNum">     758</span> <span class="tlaUNC">           0 :                                         widget.NewRowLayout(</span></span>
-<span id="L759"><span class="lineNum">     759</span> <span class="tlaUNC">           0 :                                                 widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),</span></span>
-<span id="L760"><span class="lineNum">     760</span> <span class="tlaUNC">           0 :                                                 widget.RowLayoutOpts.Spacing(0),</span></span>
-<span id="L761"><span class="lineNum">     761</span> <span class="tlaUNC">           0 :                                         ),</span></span>
-<span id="L762"><span class="lineNum">     762</span> <span class="tlaUNC">           0 :                                 ),</span></span>
-<span id="L763"><span class="lineNum">     763</span> <span class="tlaUNC">           0 :                         )</span></span>
-<span id="L764"><span class="lineNum">     764</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L765"><span class="lineNum">     765</span> <span class="tlaUNC">           0 :                         // 背景色の設定</span></span>
-<span id="L766"><span class="lineNum">     766</span> <span class="tlaUNC">           0 :                         if segment.BackgroundColor != nil {</span></span>
-<span id="L767"><span class="lineNum">     767</span> <span class="tlaUNC">           0 :                                 segmentOpts = append(segmentOpts,</span></span>
-<span id="L768"><span class="lineNum">     768</span> <span class="tlaUNC">           0 :                                         widget.ContainerOpts.BackgroundImage(eui_image.NewNineSliceColor(*segment.BackgroundColor)),</span></span>
-<span id="L769"><span class="lineNum">     769</span> <span class="tlaUNC">           0 :                                 )</span></span>
-<span id="L770"><span class="lineNum">     770</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L771"><span class="lineNum">     771</span>              : </span>
-<span id="L772"><span class="lineNum">     772</span> <span class="tlaUNC">           0 :                         segmentContainer := widget.NewContainer(segmentOpts...)</span></span>
+<span id="L483"><span class="lineNum">     483</span>              : // HandleInput はキーボード入力をActionに変換する。束縛表は設定の SkippableKeys から導出し、</span>
+<span id="L484"><span class="lineNum">     484</span>              : // 供給源があればそこから読むので再生ドライバでも駆動できる</span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC tlaBgGNC">           1 : func (w *Window) HandleInput() (inputmapper.ActionID, bool) {</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :         return keybind.ReadInput(w.world, skipBindings(w.config.SkippableKeys))</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L488"><span class="lineNum">     488</span>              : </span>
+<span id="L489"><span class="lineNum">     489</span>              : // skipBindings は読み飛ばしキーの一覧から束縛表を導出する。Enter だけは確定として区別する</span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           1 : func skipBindings(keys []ebiten.Key) []keybind.Binding {</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 :         rows := make([]keybind.Binding, 0, len(keys))</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           2 :         for _, key := range keys {</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 :                 action := inputmapper.ActionSkip</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           2 :                 if key == ebiten.KeyEnter {</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :                         action = inputmapper.ActionConfirm</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :                 rows = append(rows, keybind.Binding{Key: key, Action: action})</span></span>
+<span id="L498"><span class="lineNum">     498</span>              :         }</span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :         return rows</span></span>
+<span id="L500"><span class="lineNum">     500</span>              : }</span>
+<span id="L501"><span class="lineNum">     501</span>              : </span>
+<span id="L502"><span class="lineNum">     502</span>              : // DoAction はActionを実行する</span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 : func (w *Window) DoAction(action inputmapper.ActionID) {</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :         switch action {</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :         case inputmapper.ActionConfirm, inputmapper.ActionSkip:</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :                 w.Close()</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;invalid action: %s&quot;, action))</span></span>
+<span id="L509"><span class="lineNum">     509</span>              :         }</span>
+<span id="L510"><span class="lineNum">     510</span>              : }</span>
+<span id="L511"><span class="lineNum">     511</span>              : </span>
+<span id="L512"><span class="lineNum">     512</span>              : // initChoiceMenu は選択肢メニューを初期化する</span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC tlaBgUNC">           0 : func (w *Window) initChoiceMenu() {</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :         if len(w.content.Choices) == 0 {</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L517"><span class="lineNum">     517</span>              : </span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :         items := make([]item, len(w.content.Choices))</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :         for i, choice := range w.content.Choices {</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :                 items[i] = item{</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                         ID:       choice.Text,</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                         Label:    choice.Text,</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :                         UserData: i,</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L526"><span class="lineNum">     526</span>              : </span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :         itemsPerPage := w.calculateItemsPerPage(len(w.content.Choices))</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         config := tabMenuConfig{</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :                 Tabs: []tabItem{</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :                         {ID: &quot;choices&quot;, Label: &quot;&quot;, Items: items},</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :                 },</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 :                 ItemsPerPage: itemsPerPage,</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 :         // hooks で Skip 込みのナビゲーションを管理する</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :         skips := make([]bool, len(w.currentMessage.Choices))</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :         for i, choice := range w.currentMessage.Choices {</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :                 skips[i] = choice.Action == nil</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L541"><span class="lineNum">     541</span>              : </span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :         w.choiceStore = hooks.NewStore()</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :         menuState := hooks.UseTabMenu(w.choiceStore, &quot;choices&quot;, hooks.TabMenuConfig{</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 TabCount:     1,</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                 ItemCounts:   []int{len(items)},</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :                 ItemsPerPage: itemsPerPage,</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :                 Skips:        [][]bool{skips},</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :         w.choiceMenuView = newView(config, w.world)</span></span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaUNC">           0 :         w.choiceMenuView.SetState(viewState{</span></span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :                 TabIndex:  menuState.TabIndex,</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :                 ItemIndex: menuState.ItemIndex,</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :         w.currentMenuPage = 1</span></span>
+<span id="L556"><span class="lineNum">     556</span>              : }</span>
+<span id="L557"><span class="lineNum">     557</span>              : </span>
+<span id="L558"><span class="lineNum">     558</span>              : // handleChoiceInput はキー入力を hooks Store にディスパッチし、view を同期する</span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 : func (w *Window) handleChoiceInput() error {</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :         action, ok := keybind.ReadInput(w.world, choiceBindings)</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L564"><span class="lineNum">     564</span>              : </span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 :         switch action {</span></span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :                 menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, &quot;choices&quot;)</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :                 return w.selectChoice(menuState.ItemIndex)</span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :         case inputmapper.ActionMenuCancel:</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :                 w.Close()</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :                 w.choiceStore.Dispatch(action)</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :                 menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, &quot;choices&quot;)</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :                 w.choiceMenuView.SetState(viewState{</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :                         TabIndex:  menuState.TabIndex,</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC">           0 :                         ItemIndex: menuState.ItemIndex,</span></span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 :                 w.choiceMenuView.UpdateFocus()</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :                 newPage := w.choiceMenuView.GetCurrentPage()</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :                 if newPage != w.currentMenuPage {</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :                         w.currentMenuPage = newPage</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :                         w.needsUIRebuild = true</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L587"><span class="lineNum">     587</span>              :         }</span>
+<span id="L588"><span class="lineNum">     588</span>              : }</span>
+<span id="L589"><span class="lineNum">     589</span>              : </span>
+<span id="L590"><span class="lineNum">     590</span>              : // choiceBindings は選択肢メニューの束縛表</span>
+<span id="L591"><span class="lineNum">     591</span>              : var choiceBindings = []keybind.Binding{</span>
+<span id="L592"><span class="lineNum">     592</span>              :         {Key: ebiten.KeyArrowUp, Press: keybind.PressRepeat, Action: inputmapper.ActionMenuUp},</span>
+<span id="L593"><span class="lineNum">     593</span>              :         {Key: ebiten.KeyArrowDown, Press: keybind.PressRepeat, Action: inputmapper.ActionMenuDown},</span>
+<span id="L594"><span class="lineNum">     594</span>              :         {Key: ebiten.KeyEnter, Action: inputmapper.ActionMenuSelect},</span>
+<span id="L595"><span class="lineNum">     595</span>              :         {Key: ebiten.KeyEscape, Action: inputmapper.ActionMenuCancel},</span>
+<span id="L596"><span class="lineNum">     596</span>              : }</span>
+<span id="L597"><span class="lineNum">     597</span>              : </span>
+<span id="L598"><span class="lineNum">     598</span>              : // rebuildUI はUIを再構築する</span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 : func (w *Window) rebuildUI() {</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaUNC">           0 :         w.ui = nil</span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaUNC">           0 :         w.window = nil</span></span>
+<span id="L602"><span class="lineNum">     602</span> <span class="tlaUNC">           0 :         w.initUI()</span></span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L604"><span class="lineNum">     604</span>              : </span>
+<span id="L605"><span class="lineNum">     605</span>              : // calculateItemsPerPage は1ページあたりのアイテム数を計算する</span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC tlaBgGNC">           1 : func (w *Window) calculateItemsPerPage(totalItems int) int {</span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">           1 :         maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)</span></span>
+<span id="L608"><span class="lineNum">     608</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           1 :         // ウィンドウ内のオーバーヘッドを計算する</span></span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaGNC">           1 :         messageHeight := 0</span></span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaGNC">           2 :         if w.hasMessage() {</span></span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaGNC">           1 :                 messageHeight = 150</span></span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           1 :         topPadding := 20</span></span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :         bottomPadding := 15</span></span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :         titleBarHeight := 0</span></span>
+<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           2 :         if w.content.SpeakerName != &quot;&quot; {</span></span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC">           1 :                 titleBarHeight = 40</span></span>
+<span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L620"><span class="lineNum">     620</span> <span class="tlaGNC">           1 :         spacingHeight := 0</span></span>
+<span id="L621"><span class="lineNum">     621</span> <span class="tlaGNC">           2 :         if w.hasMessage() {</span></span>
+<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC">           1 :                 spacingHeight = 10</span></span>
+<span id="L623"><span class="lineNum">     623</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L624"><span class="lineNum">     624</span> <span class="tlaGNC">           1 :         pageIndicatorHeight := 30</span></span>
+<span id="L625"><span class="lineNum">     625</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L626"><span class="lineNum">     626</span> <span class="tlaGNC">           1 :         overhead := messageHeight + topPadding + bottomPadding + titleBarHeight + spacingHeight + pageIndicatorHeight</span></span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           1 :         availableHeight := maxHeightWithChoices - overhead</span></span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           1 :         choiceItemHeight := 40</span></span>
+<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           1 :         maxItemsPerPage := availableHeight / choiceItemHeight</span></span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">           2 :         if maxItemsPerPage &lt; 3 {</span></span>
+<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">           1 :                 maxItemsPerPage = 3</span></span>
+<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC">           3 :         } else if maxItemsPerPage &gt; 15 {</span></span>
+<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">           1 :                 maxItemsPerPage = 15</span></span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L637"><span class="lineNum">     637</span>              : </span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">           2 :         if totalItems &lt;= maxItemsPerPage {</span></span>
+<span id="L639"><span class="lineNum">     639</span> <span class="tlaGNC">           1 :                 return totalItems</span></span>
+<span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L641"><span class="lineNum">     641</span>              : </span>
+<span id="L642"><span class="lineNum">     642</span> <span class="tlaGNC">           1 :         return maxItemsPerPage</span></span>
+<span id="L643"><span class="lineNum">     643</span>              : }</span>
+<span id="L644"><span class="lineNum">     644</span>              : </span>
+<span id="L645"><span class="lineNum">     645</span>              : // selectChoice は選択肢を選択する</span>
+<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">           1 : func (w *Window) selectChoice(index int) error {</span></span>
+<span id="L647"><span class="lineNum">     647</span> <span class="tlaGNC">           2 :         if index &lt; 0 || index &gt;= len(w.content.Choices) {</span></span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L649"><span class="lineNum">     649</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L650"><span class="lineNum">     650</span>              : </span>
+<span id="L651"><span class="lineNum">     651</span> <span class="tlaGNC">           1 :         choice := w.content.Choices[index]</span></span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           1 :         // コールバック実行</span></span>
+<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           2 :         if w.onChoice != nil {</span></span>
+<span id="L655"><span class="lineNum">     655</span> <span class="tlaGNC">           1 :                 w.onChoice(choice)</span></span>
+<span id="L656"><span class="lineNum">     656</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L657"><span class="lineNum">     657</span>              : </span>
+<span id="L658"><span class="lineNum">     658</span>              :         // アクション実行</span>
+<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">           2 :         if choice.Action != nil {</span></span>
+<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">           2 :                 if err := choice.Action(); err != nil {</span></span>
+<span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">           1 :                         return err</span></span>
+<span id="L662"><span class="lineNum">     662</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L663"><span class="lineNum">     663</span>              :         }</span>
+<span id="L664"><span class="lineNum">     664</span>              : </span>
+<span id="L665"><span class="lineNum">     665</span>              :         // ウィンドウを閉じる</span>
+<span id="L666"><span class="lineNum">     666</span> <span class="tlaGNC">           1 :         w.Close()</span></span>
+<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L668"><span class="lineNum">     668</span>              : }</span>
+<span id="L669"><span class="lineNum">     669</span>              : </span>
+<span id="L670"><span class="lineNum">     670</span>              : // createSegmentedTextLines はTextSegmentLinesから色付きテキストウィジェットを作成する（改行対応）</span>
+<span id="L671"><span class="lineNum">     671</span> <span class="tlaUNC tlaBgUNC">           0 : func (w *Window) createSegmentedTextLines() *widget.Container {</span></span>
+<span id="L672"><span class="lineNum">     672</span> <span class="tlaUNC">           0 :         // メインコンテナは縦方向（行を縦に並べる）</span></span>
+<span id="L673"><span class="lineNum">     673</span> <span class="tlaUNC">           0 :         mainContainer := widget.NewContainer(</span></span>
+<span id="L674"><span class="lineNum">     674</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(</span></span>
+<span id="L675"><span class="lineNum">     675</span> <span class="tlaUNC">           0 :                         widget.NewRowLayout(</span></span>
+<span id="L676"><span class="lineNum">     676</span> <span class="tlaUNC">           0 :                                 widget.RowLayoutOpts.Direction(widget.DirectionVertical),</span></span>
+<span id="L677"><span class="lineNum">     677</span> <span class="tlaUNC">           0 :                                 widget.RowLayoutOpts.Spacing(0),</span></span>
+<span id="L678"><span class="lineNum">     678</span> <span class="tlaUNC">           0 :                                 widget.RowLayoutOpts.Padding(&amp;widget.Insets{</span></span>
+<span id="L679"><span class="lineNum">     679</span> <span class="tlaUNC">           0 :                                         Top:    0,</span></span>
+<span id="L680"><span class="lineNum">     680</span> <span class="tlaUNC">           0 :                                         Bottom: 0,</span></span>
+<span id="L681"><span class="lineNum">     681</span> <span class="tlaUNC">           0 :                                         Left:   theme.Space3,</span></span>
+<span id="L682"><span class="lineNum">     682</span> <span class="tlaUNC">           0 :                                         Right:  theme.Space3,</span></span>
+<span id="L683"><span class="lineNum">     683</span> <span class="tlaUNC">           0 :                                 }),</span></span>
+<span id="L684"><span class="lineNum">     684</span> <span class="tlaUNC">           0 :                         ),</span></span>
+<span id="L685"><span class="lineNum">     685</span> <span class="tlaUNC">           0 :                 ),</span></span>
+<span id="L686"><span class="lineNum">     686</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.WidgetOpts(</span></span>
+<span id="L687"><span class="lineNum">     687</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L688"><span class="lineNum">     688</span> <span class="tlaUNC">           0 :                                 Stretch: true,</span></span>
+<span id="L689"><span class="lineNum">     689</span> <span class="tlaUNC">           0 :                         }),</span></span>
+<span id="L690"><span class="lineNum">     690</span> <span class="tlaUNC">           0 :                 ),</span></span>
+<span id="L691"><span class="lineNum">     691</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L692"><span class="lineNum">     692</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L693"><span class="lineNum">     693</span> <span class="tlaUNC">           0 :         res := w.world.Resources.UIResources</span></span>
+<span id="L694"><span class="lineNum">     694</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L695"><span class="lineNum">     695</span> <span class="tlaUNC">           0 :         // 各行を処理</span></span>
+<span id="L696"><span class="lineNum">     696</span> <span class="tlaUNC">           0 :         for _, lineSegments := range w.content.TextSegmentLines {</span></span>
+<span id="L697"><span class="lineNum">     697</span> <span class="tlaUNC">           0 :                 // 空行かどうかを判定（全セグメントが空白文字のみ）</span></span>
+<span id="L698"><span class="lineNum">     698</span> <span class="tlaUNC">           0 :                 isEmptyLine := true</span></span>
+<span id="L699"><span class="lineNum">     699</span> <span class="tlaUNC">           0 :                 for _, seg := range lineSegments {</span></span>
+<span id="L700"><span class="lineNum">     700</span> <span class="tlaUNC">           0 :                         var trimmed strings.Builder</span></span>
+<span id="L701"><span class="lineNum">     701</span> <span class="tlaUNC">           0 :                         for _, r := range seg.Text {</span></span>
+<span id="L702"><span class="lineNum">     702</span> <span class="tlaUNC">           0 :                                 if r != ' ' &amp;&amp; r != '\t' &amp;&amp; r != '\n' &amp;&amp; r != '\r' {</span></span>
+<span id="L703"><span class="lineNum">     703</span> <span class="tlaUNC">           0 :                                         trimmed.WriteRune(r)</span></span>
+<span id="L704"><span class="lineNum">     704</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L705"><span class="lineNum">     705</span>              :                         }</span>
+<span id="L706"><span class="lineNum">     706</span> <span class="tlaUNC">           0 :                         if trimmed.String() != &quot;&quot; {</span></span>
+<span id="L707"><span class="lineNum">     707</span> <span class="tlaUNC">           0 :                                 isEmptyLine = false</span></span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaUNC">           0 :                                 break</span></span>
+<span id="L709"><span class="lineNum">     709</span>              :                         }</span>
+<span id="L710"><span class="lineNum">     710</span>              :                 }</span>
+<span id="L711"><span class="lineNum">     711</span>              : </span>
+<span id="L712"><span class="lineNum">     712</span>              :                 // 空行の場合は固定高さのスペーサーを追加</span>
+<span id="L713"><span class="lineNum">     713</span> <span class="tlaUNC">           0 :                 if isEmptyLine {</span></span>
+<span id="L714"><span class="lineNum">     714</span> <span class="tlaUNC">           0 :                         spacer := widget.NewText(</span></span>
+<span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC">           0 :                                 widget.TextOpts.Text(&quot; &quot;, &amp;res.Text.BodyFace, w.config.textStyle.Color),</span></span>
+<span id="L716"><span class="lineNum">     716</span> <span class="tlaUNC">           0 :                                 widget.TextOpts.WidgetOpts(</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaUNC">           0 :                                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaUNC">           0 :                                 ),</span></span>
+<span id="L719"><span class="lineNum">     719</span> <span class="tlaUNC">           0 :                         )</span></span>
+<span id="L720"><span class="lineNum">     720</span> <span class="tlaUNC">           0 :                         mainContainer.AddChild(spacer)</span></span>
+<span id="L721"><span class="lineNum">     721</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L722"><span class="lineNum">     722</span>              :                 }</span>
+<span id="L723"><span class="lineNum">     723</span>              : </span>
+<span id="L724"><span class="lineNum">     724</span>              :                 // 行コンテナ（横方向）</span>
+<span id="L725"><span class="lineNum">     725</span> <span class="tlaUNC">           0 :                 lineContainer := widget.NewContainer(</span></span>
+<span id="L726"><span class="lineNum">     726</span> <span class="tlaUNC">           0 :                         widget.ContainerOpts.Layout(</span></span>
+<span id="L727"><span class="lineNum">     727</span> <span class="tlaUNC">           0 :                                 widget.NewRowLayout(</span></span>
+<span id="L728"><span class="lineNum">     728</span> <span class="tlaUNC">           0 :                                         widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),</span></span>
+<span id="L729"><span class="lineNum">     729</span> <span class="tlaUNC">           0 :                                         widget.RowLayoutOpts.Spacing(0),</span></span>
+<span id="L730"><span class="lineNum">     730</span> <span class="tlaUNC">           0 :                                 ),</span></span>
+<span id="L731"><span class="lineNum">     731</span> <span class="tlaUNC">           0 :                         ),</span></span>
+<span id="L732"><span class="lineNum">     732</span> <span class="tlaUNC">           0 :                         widget.ContainerOpts.WidgetOpts(</span></span>
+<span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC">           0 :                                 widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L734"><span class="lineNum">     734</span> <span class="tlaUNC">           0 :                                         Stretch: true,</span></span>
+<span id="L735"><span class="lineNum">     735</span> <span class="tlaUNC">           0 :                                 }),</span></span>
+<span id="L736"><span class="lineNum">     736</span> <span class="tlaUNC">           0 :                         ),</span></span>
+<span id="L737"><span class="lineNum">     737</span> <span class="tlaUNC">           0 :                 )</span></span>
+<span id="L738"><span class="lineNum">     738</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaUNC">           0 :                 // 行内の各セグメントを処理</span></span>
+<span id="L740"><span class="lineNum">     740</span> <span class="tlaUNC">           0 :                 for _, segment := range lineSegments {</span></span>
+<span id="L741"><span class="lineNum">     741</span> <span class="tlaUNC">           0 :                         segmentColor := w.config.textStyle.Color</span></span>
+<span id="L742"><span class="lineNum">     742</span> <span class="tlaUNC">           0 :                         if segment.Color != nil {</span></span>
+<span id="L743"><span class="lineNum">     743</span> <span class="tlaUNC">           0 :                                 segmentColor = *segment.Color</span></span>
+<span id="L744"><span class="lineNum">     744</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L745"><span class="lineNum">     745</span>              : </span>
+<span id="L746"><span class="lineNum">     746</span>              :                         // セグメント用のコンテナオプション</span>
+<span id="L747"><span class="lineNum">     747</span> <span class="tlaUNC">           0 :                         var segmentOpts []widget.ContainerOpt</span></span>
+<span id="L748"><span class="lineNum">     748</span> <span class="tlaUNC">           0 :                         segmentOpts = append(segmentOpts,</span></span>
+<span id="L749"><span class="lineNum">     749</span> <span class="tlaUNC">           0 :                                 widget.ContainerOpts.Layout(</span></span>
+<span id="L750"><span class="lineNum">     750</span> <span class="tlaUNC">           0 :                                         widget.NewRowLayout(</span></span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaUNC">           0 :                                                 widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),</span></span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaUNC">           0 :                                                 widget.RowLayoutOpts.Spacing(0),</span></span>
+<span id="L753"><span class="lineNum">     753</span> <span class="tlaUNC">           0 :                                         ),</span></span>
+<span id="L754"><span class="lineNum">     754</span> <span class="tlaUNC">           0 :                                 ),</span></span>
+<span id="L755"><span class="lineNum">     755</span> <span class="tlaUNC">           0 :                         )</span></span>
+<span id="L756"><span class="lineNum">     756</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L757"><span class="lineNum">     757</span> <span class="tlaUNC">           0 :                         // 背景色の設定</span></span>
+<span id="L758"><span class="lineNum">     758</span> <span class="tlaUNC">           0 :                         if segment.BackgroundColor != nil {</span></span>
+<span id="L759"><span class="lineNum">     759</span> <span class="tlaUNC">           0 :                                 segmentOpts = append(segmentOpts,</span></span>
+<span id="L760"><span class="lineNum">     760</span> <span class="tlaUNC">           0 :                                         widget.ContainerOpts.BackgroundImage(eui_image.NewNineSliceColor(*segment.BackgroundColor)),</span></span>
+<span id="L761"><span class="lineNum">     761</span> <span class="tlaUNC">           0 :                                 )</span></span>
+<span id="L762"><span class="lineNum">     762</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L763"><span class="lineNum">     763</span>              : </span>
+<span id="L764"><span class="lineNum">     764</span> <span class="tlaUNC">           0 :                         segmentContainer := widget.NewContainer(segmentOpts...)</span></span>
+<span id="L765"><span class="lineNum">     765</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L766"><span class="lineNum">     766</span> <span class="tlaUNC">           0 :                         // テキストウィジェット</span></span>
+<span id="L767"><span class="lineNum">     767</span> <span class="tlaUNC">           0 :                         textWidget := widget.NewText(</span></span>
+<span id="L768"><span class="lineNum">     768</span> <span class="tlaUNC">           0 :                                 widget.TextOpts.Text(segment.Text, &amp;res.Text.BodyFace, segmentColor),</span></span>
+<span id="L769"><span class="lineNum">     769</span> <span class="tlaUNC">           0 :                                 widget.TextOpts.WidgetOpts(</span></span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaUNC">           0 :                                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),</span></span>
+<span id="L771"><span class="lineNum">     771</span> <span class="tlaUNC">           0 :                                 ),</span></span>
+<span id="L772"><span class="lineNum">     772</span> <span class="tlaUNC">           0 :                         )</span></span>
 <span id="L773"><span class="lineNum">     773</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L774"><span class="lineNum">     774</span> <span class="tlaUNC">           0 :                         // テキストウィジェット</span></span>
-<span id="L775"><span class="lineNum">     775</span> <span class="tlaUNC">           0 :                         textWidget := widget.NewText(</span></span>
-<span id="L776"><span class="lineNum">     776</span> <span class="tlaUNC">           0 :                                 widget.TextOpts.Text(segment.Text, &amp;res.Text.BodyFace, segmentColor),</span></span>
-<span id="L777"><span class="lineNum">     777</span> <span class="tlaUNC">           0 :                                 widget.TextOpts.WidgetOpts(</span></span>
-<span id="L778"><span class="lineNum">     778</span> <span class="tlaUNC">           0 :                                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),</span></span>
-<span id="L779"><span class="lineNum">     779</span> <span class="tlaUNC">           0 :                                 ),</span></span>
-<span id="L780"><span class="lineNum">     780</span> <span class="tlaUNC">           0 :                         )</span></span>
-<span id="L781"><span class="lineNum">     781</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L782"><span class="lineNum">     782</span> <span class="tlaUNC">           0 :                         segmentContainer.AddChild(textWidget)</span></span>
-<span id="L783"><span class="lineNum">     783</span> <span class="tlaUNC">           0 :                         lineContainer.AddChild(segmentContainer)</span></span>
-<span id="L784"><span class="lineNum">     784</span>              :                 }</span>
-<span id="L785"><span class="lineNum">     785</span>              : </span>
-<span id="L786"><span class="lineNum">     786</span> <span class="tlaUNC">           0 :                 mainContainer.AddChild(lineContainer)</span></span>
-<span id="L787"><span class="lineNum">     787</span>              :         }</span>
-<span id="L788"><span class="lineNum">     788</span>              : </span>
-<span id="L789"><span class="lineNum">     789</span> <span class="tlaUNC">           0 :         return mainContainer</span></span>
-<span id="L790"><span class="lineNum">     790</span>              : }</span>
-<span id="L791"><span class="lineNum">     791</span>              : </span>
-<span id="L792"><span class="lineNum">     792</span>              : // createChoiceText は選択肢用のテキストウィジェットを作成する（自然な幅で中央寄せ用）</span>
-<span id="L793"><span class="lineNum">     793</span> <span class="tlaUNC">           0 : func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Container {</span></span>
-<span id="L794"><span class="lineNum">     794</span> <span class="tlaUNC">           0 :         res := w.world.Resources.UIResources</span></span>
-<span id="L795"><span class="lineNum">     795</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L796"><span class="lineNum">     796</span> <span class="tlaUNC">           0 :         // 背景色の設定</span></span>
-<span id="L797"><span class="lineNum">     797</span> <span class="tlaUNC">           0 :         var backgroundColor *eui_image.NineSlice</span></span>
-<span id="L798"><span class="lineNum">     798</span> <span class="tlaUNC">           0 :         if isSelected {</span></span>
-<span id="L799"><span class="lineNum">     799</span> <span class="tlaUNC">           0 :                 // 選択中は背景色を付ける</span></span>
-<span id="L800"><span class="lineNum">     800</span> <span class="tlaUNC">           0 :                 backgroundColor = eui_image.NewNineSliceColor(theme.ChoiceSelectedBg)</span></span>
-<span id="L801"><span class="lineNum">     801</span> <span class="tlaUNC">           0 :         } else {</span></span>
-<span id="L802"><span class="lineNum">     802</span> <span class="tlaUNC">           0 :                 // 非選択は透明</span></span>
-<span id="L803"><span class="lineNum">     803</span> <span class="tlaUNC">           0 :                 backgroundColor = eui_image.NewNineSliceColor(theme.Transparent)</span></span>
-<span id="L804"><span class="lineNum">     804</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L805"><span class="lineNum">     805</span>              : </span>
-<span id="L806"><span class="lineNum">     806</span>              :         // コンテナ（自然な幅を保持）</span>
-<span id="L807"><span class="lineNum">     807</span> <span class="tlaUNC">           0 :         container := widget.NewContainer(</span></span>
-<span id="L808"><span class="lineNum">     808</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(backgroundColor),</span></span>
-<span id="L809"><span class="lineNum">     809</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(widget.NewAnchorLayout()),</span></span>
-<span id="L810"><span class="lineNum">     810</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L811"><span class="lineNum">     811</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L812"><span class="lineNum">     812</span> <span class="tlaUNC">           0 :         // テキストウィジェット</span></span>
-<span id="L813"><span class="lineNum">     813</span> <span class="tlaUNC">           0 :         textWidget := widget.NewText(</span></span>
-<span id="L814"><span class="lineNum">     814</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(choiceText, &amp;res.Text.BodyFace, w.config.textStyle.Color),</span></span>
-<span id="L815"><span class="lineNum">     815</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
-<span id="L816"><span class="lineNum">     816</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{</span></span>
-<span id="L817"><span class="lineNum">     817</span> <span class="tlaUNC">           0 :                                 HorizontalPosition: widget.AnchorLayoutPositionCenter,</span></span>
-<span id="L818"><span class="lineNum">     818</span> <span class="tlaUNC">           0 :                                 VerticalPosition:   widget.AnchorLayoutPositionCenter,</span></span>
-<span id="L819"><span class="lineNum">     819</span> <span class="tlaUNC">           0 :                                 Padding: &amp;widget.Insets{</span></span>
-<span id="L820"><span class="lineNum">     820</span> <span class="tlaUNC">           0 :                                         Top:    theme.Space2,</span></span>
-<span id="L821"><span class="lineNum">     821</span> <span class="tlaUNC">           0 :                                         Bottom: theme.Space2,</span></span>
-<span id="L822"><span class="lineNum">     822</span> <span class="tlaUNC">           0 :                                         Left:   theme.Space5,</span></span>
-<span id="L823"><span class="lineNum">     823</span> <span class="tlaUNC">           0 :                                         Right:  theme.Space5,</span></span>
-<span id="L824"><span class="lineNum">     824</span> <span class="tlaUNC">           0 :                                 },</span></span>
-<span id="L825"><span class="lineNum">     825</span> <span class="tlaUNC">           0 :                         }),</span></span>
-<span id="L826"><span class="lineNum">     826</span> <span class="tlaUNC">           0 :                 ),</span></span>
-<span id="L827"><span class="lineNum">     827</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L828"><span class="lineNum">     828</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L829"><span class="lineNum">     829</span> <span class="tlaUNC">           0 :         container.AddChild(textWidget)</span></span>
-<span id="L830"><span class="lineNum">     830</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L831"><span class="lineNum">     831</span>              : }</span>
+<span id="L774"><span class="lineNum">     774</span> <span class="tlaUNC">           0 :                         segmentContainer.AddChild(textWidget)</span></span>
+<span id="L775"><span class="lineNum">     775</span> <span class="tlaUNC">           0 :                         lineContainer.AddChild(segmentContainer)</span></span>
+<span id="L776"><span class="lineNum">     776</span>              :                 }</span>
+<span id="L777"><span class="lineNum">     777</span>              : </span>
+<span id="L778"><span class="lineNum">     778</span> <span class="tlaUNC">           0 :                 mainContainer.AddChild(lineContainer)</span></span>
+<span id="L779"><span class="lineNum">     779</span>              :         }</span>
+<span id="L780"><span class="lineNum">     780</span>              : </span>
+<span id="L781"><span class="lineNum">     781</span> <span class="tlaUNC">           0 :         return mainContainer</span></span>
+<span id="L782"><span class="lineNum">     782</span>              : }</span>
+<span id="L783"><span class="lineNum">     783</span>              : </span>
+<span id="L784"><span class="lineNum">     784</span>              : // createChoiceText は選択肢用のテキストウィジェットを作成する（自然な幅で中央寄せ用）</span>
+<span id="L785"><span class="lineNum">     785</span> <span class="tlaUNC">           0 : func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Container {</span></span>
+<span id="L786"><span class="lineNum">     786</span> <span class="tlaUNC">           0 :         res := w.world.Resources.UIResources</span></span>
+<span id="L787"><span class="lineNum">     787</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L788"><span class="lineNum">     788</span> <span class="tlaUNC">           0 :         // 背景色の設定</span></span>
+<span id="L789"><span class="lineNum">     789</span> <span class="tlaUNC">           0 :         var backgroundColor *eui_image.NineSlice</span></span>
+<span id="L790"><span class="lineNum">     790</span> <span class="tlaUNC">           0 :         if isSelected {</span></span>
+<span id="L791"><span class="lineNum">     791</span> <span class="tlaUNC">           0 :                 // 選択中は背景色を付ける</span></span>
+<span id="L792"><span class="lineNum">     792</span> <span class="tlaUNC">           0 :                 backgroundColor = eui_image.NewNineSliceColor(theme.ChoiceSelectedBg)</span></span>
+<span id="L793"><span class="lineNum">     793</span> <span class="tlaUNC">           0 :         } else {</span></span>
+<span id="L794"><span class="lineNum">     794</span> <span class="tlaUNC">           0 :                 // 非選択は透明</span></span>
+<span id="L795"><span class="lineNum">     795</span> <span class="tlaUNC">           0 :                 backgroundColor = eui_image.NewNineSliceColor(theme.Transparent)</span></span>
+<span id="L796"><span class="lineNum">     796</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L797"><span class="lineNum">     797</span>              : </span>
+<span id="L798"><span class="lineNum">     798</span>              :         // コンテナ（自然な幅を保持）</span>
+<span id="L799"><span class="lineNum">     799</span> <span class="tlaUNC">           0 :         container := widget.NewContainer(</span></span>
+<span id="L800"><span class="lineNum">     800</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(backgroundColor),</span></span>
+<span id="L801"><span class="lineNum">     801</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(widget.NewAnchorLayout()),</span></span>
+<span id="L802"><span class="lineNum">     802</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L803"><span class="lineNum">     803</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L804"><span class="lineNum">     804</span> <span class="tlaUNC">           0 :         // テキストウィジェット</span></span>
+<span id="L805"><span class="lineNum">     805</span> <span class="tlaUNC">           0 :         textWidget := widget.NewText(</span></span>
+<span id="L806"><span class="lineNum">     806</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(choiceText, &amp;res.Text.BodyFace, w.config.textStyle.Color),</span></span>
+<span id="L807"><span class="lineNum">     807</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
+<span id="L808"><span class="lineNum">     808</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{</span></span>
+<span id="L809"><span class="lineNum">     809</span> <span class="tlaUNC">           0 :                                 HorizontalPosition: widget.AnchorLayoutPositionCenter,</span></span>
+<span id="L810"><span class="lineNum">     810</span> <span class="tlaUNC">           0 :                                 VerticalPosition:   widget.AnchorLayoutPositionCenter,</span></span>
+<span id="L811"><span class="lineNum">     811</span> <span class="tlaUNC">           0 :                                 Padding: &amp;widget.Insets{</span></span>
+<span id="L812"><span class="lineNum">     812</span> <span class="tlaUNC">           0 :                                         Top:    theme.Space2,</span></span>
+<span id="L813"><span class="lineNum">     813</span> <span class="tlaUNC">           0 :                                         Bottom: theme.Space2,</span></span>
+<span id="L814"><span class="lineNum">     814</span> <span class="tlaUNC">           0 :                                         Left:   theme.Space5,</span></span>
+<span id="L815"><span class="lineNum">     815</span> <span class="tlaUNC">           0 :                                         Right:  theme.Space5,</span></span>
+<span id="L816"><span class="lineNum">     816</span> <span class="tlaUNC">           0 :                                 },</span></span>
+<span id="L817"><span class="lineNum">     817</span> <span class="tlaUNC">           0 :                         }),</span></span>
+<span id="L818"><span class="lineNum">     818</span> <span class="tlaUNC">           0 :                 ),</span></span>
+<span id="L819"><span class="lineNum">     819</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L820"><span class="lineNum">     820</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L821"><span class="lineNum">     821</span> <span class="tlaUNC">           0 :         container.AddChild(textWidget)</span></span>
+<span id="L822"><span class="lineNum">     822</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L823"><span class="lineNum">     823</span>              : }</span>
         </pre>
               </td>
             </tr>
