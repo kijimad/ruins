@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">31</td>
-            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">16</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,11 +98,11 @@
 <span id="L36"><span class="lineNum">      36</span>              : )</span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // Valid はMenuUnitの値が有効かを検証する</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC tlaBgGNC">           1 : func (enum MenuUnit) Valid() error {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         switch enum {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         case MenuUnitEntity, MenuUnitStack:</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : func (enum MenuUnit) Valid() error {</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           1 :         switch enum {</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :         case MenuUnitEntity, MenuUnitStack:</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L43"><span class="lineNum">      43</span>              :         default:</span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;get %s: %w&quot;, enum, ErrInvalidEnumType)</span></span>
 <span id="L45"><span class="lineNum">      45</span>              :         }</span>
 <span id="L46"><span class="lineNum">      46</span>              : }</span>
@@ -150,17 +150,17 @@
 <span id="L88"><span class="lineNum">      88</span>              : // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。</span>
 <span id="L89"><span class="lineNum">      89</span>              : // switch に default を置かず、既知種別の網羅漏れを exhaustive linter に検知させる。</span>
 <span id="L90"><span class="lineNum">      90</span>              : // 未知入力は raw/save 由来でありうるので panic せず末尾のゼロ値へ graceful に落とす</span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 : func (k InteractionKind) Config() InteractionConfig {</span></span>
+<span id="L91"><span class="lineNum">      91</span>              : func (k InteractionKind) Config() InteractionConfig {</span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         switch k {</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         case InteractionItem:</span></span>
+<span id="L93"><span class="lineNum">      93</span>              :         case InteractionItem:</span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitStack}</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll:</span></span>
+<span id="L95"><span class="lineNum">      95</span>              :         case InteractionPortalNext, InteractionPortalPrev, InteractionDungeonEnter, InteractionItemAll:</span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:</span></span>
+<span id="L97"><span class="lineNum">      97</span>              :         case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:</span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                 return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionAuction:</span></span>
+<span id="L99"><span class="lineNum">      99</span>              :         case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionAuction:</span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         case InteractionExitCube:</span></span>
+<span id="L101"><span class="lineNum">     101</span>              :         case InteractionExitCube:</span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}</span></span>
 <span id="L103"><span class="lineNum">     103</span>              :         }</span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         return InteractionConfig{}</span></span>
@@ -177,11 +177,11 @@
 <span id="L115"><span class="lineNum">     115</span>              : )</span>
 <span id="L116"><span class="lineNum">     116</span>              : </span>
 <span id="L117"><span class="lineNum">     117</span>              : // Valid はActivationRangeの値が有効かを検証する</span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 : func (enum ActivationRange) Valid() error {</span></span>
+<span id="L118"><span class="lineNum">     118</span>              : func (enum ActivationRange) Valid() error {</span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         switch enum {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         case ActivationRangeSameTile, ActivationRangeAdjacent:</span></span>
+<span id="L120"><span class="lineNum">     120</span>              :         case ActivationRangeSameTile, ActivationRangeAdjacent:</span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :         default:</span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;get %s: %w&quot;, enum, ErrInvalidEnumType)</span></span>
 <span id="L124"><span class="lineNum">     124</span>              :         }</span>
 <span id="L125"><span class="lineNum">     125</span>              : }</span>
@@ -201,11 +201,11 @@
 <span id="L139"><span class="lineNum">     139</span>              : )</span>
 <span id="L140"><span class="lineNum">     140</span>              : </span>
 <span id="L141"><span class="lineNum">     141</span>              : // Valid はActivationWayの値が有効かを検証する</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : func (enum ActivationWay) Valid() error {</span></span>
+<span id="L142"><span class="lineNum">     142</span>              : func (enum ActivationWay) Valid() error {</span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         switch enum {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         case ActivationWayAuto, ActivationWayManual, ActivationWayOnCollision:</span></span>
+<span id="L144"><span class="lineNum">     144</span>              :         case ActivationWayAuto, ActivationWayManual, ActivationWayOnCollision:</span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L146"><span class="lineNum">     146</span>              :         default:</span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;get %s: %w&quot;, enum, ErrInvalidEnumType)</span></span>
 <span id="L148"><span class="lineNum">     148</span>              :         }</span>
 <span id="L149"><span class="lineNum">     149</span>              : }</span>

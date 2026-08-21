@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.9&nbsp;%</td>
-            <td class="headerCovTableEntry">55</td>
-            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntryHi">90.2&nbsp;%</td>
+            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntry">46</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,8 +98,8 @@
 <span id="L36"><span class="lineNum">      36</span>              :         &quot;magenta&quot;: gamelog.ColorMagenta, &quot;orange&quot;: gamelog.ColorOrange, &quot;purple&quot;: gamelog.ColorPurple,</span>
 <span id="L37"><span class="lineNum">      37</span>              : }</span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func tagStyle(tag string) (markupStyle, bool) {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           2 :         if s, ok := tagStyles[tag]; ok {</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : func tagStyle(tag string) (markupStyle, bool) {</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if s, ok := tagStyles[tag]; ok {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return s, true</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         if name, ok := strings.CutPrefix(tag, &quot;color_&quot;); ok {</span></span>
@@ -113,13 +113,13 @@
 <span id="L51"><span class="lineNum">      51</span>              : // AddMarkup は &lt;tag&gt;...&lt;/tag&gt; マークアップ付きテキストを追加する。</span>
 <span id="L52"><span class="lineNum">      52</span>              : // タグの外は既定色、keyword は赤文字＋背景、意味タグは前景色になる。</span>
 <span id="L53"><span class="lineNum">      53</span>              : // 改行 \n は行分割する。未知タグや閉じ忘れは literal として本文に残す</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : func (m *MessageData) AddMarkup(text string) *MessageData {</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : func (m *MessageData) AddMarkup(text string) *MessageData {</span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         m.ensureCurrentLine()</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         for _, seg := range parseMarkupSegments(text) {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 // 断片ごとに \n で行を割る。AddText と同じく空文字の断片も落とさない</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         for _, seg := range parseMarkupSegments(text) {</span></span>
+<span id="L57"><span class="lineNum">      57</span>              :                 // 断片ごとに \n で行を割る。AddText と同じく空文字の断片も落とさない</span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 lines := strings.Split(seg.text, &quot;\n&quot;)</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           2 :                 for i, line := range lines {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :                         if i &gt; 0 {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 for i, line := range lines {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                         if i &gt; 0 {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                                 m.TextSegmentLines = append(m.TextSegmentLines, []TextSegment{})</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                         idx := len(m.TextSegmentLines) - 1</span></span>
@@ -140,16 +140,16 @@
 <span id="L78"><span class="lineNum">      78</span>              : </span>
 <span id="L79"><span class="lineNum">      79</span>              : // parseMarkupSegments は &lt;tag&gt;...&lt;/tag&gt; をスタイル付き断片へ分解する。</span>
 <span id="L80"><span class="lineNum">      80</span>              : // タグの外は既定スタイル、対応しないタグや閉じ括弧の無いマークは literal として残す</span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : func parseMarkupSegments(s string) []markupSegment {</span></span>
+<span id="L81"><span class="lineNum">      81</span>              : func parseMarkupSegments(s string) []markupSegment {</span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         var segs []markupSegment</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           2 :         add := func(text string, style markupStyle) {</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           2 :                 if text != &quot;&quot; {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         add := func(text string, style markupStyle) {</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 if text != &quot;&quot; {</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                         segs = append(segs, markupSegment{text: text, style: style})</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L87"><span class="lineNum">      87</span>              :         }</span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           2 :         for len(s) &gt; 0 {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         for len(s) &gt; 0 {</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 open := strings.IndexByte(s, '&lt;')</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           2 :                 if open &lt; 0 {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 if open &lt; 0 {</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                         add(s, markupStyle{})</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                         break</span></span>
 <span id="L93"><span class="lineNum">      93</span>              :                 }</span>
@@ -165,7 +165,7 @@
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 style, known := tagStyle(tag)</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 closeTag := &quot;&lt;/&quot; + tag + &quot;&gt;&quot;</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 ci := strings.Index(s[gt+1:], closeTag)</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           2 :                 if !known || ci &lt; 0 {</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 if !known || ci &lt; 0 {</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                         add(s[:gt+1], markupStyle{})</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                         s = s[gt+1:]</span></span>
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                         continue</span></span>

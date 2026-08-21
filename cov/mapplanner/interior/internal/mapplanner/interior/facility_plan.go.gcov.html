@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">99</td>
-            <td class="headerCovTableEntry">99</td>
+            <td class="headerCovTableEntry">85</td>
+            <td class="headerCovTableEntry">85</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,8 +73,8 @@
 <span id="L11"><span class="lineNum">      11</span>              : </span>
 <span id="L12"><span class="lineNum">      12</span>              : // storeBackRole は店の奥室 i 番目の役割を返す。0番は必ず倉庫にして店に物置が1つは在る不変条件を守り、</span>
 <span id="L13"><span class="lineNum">      13</span>              : // 以降は事務所・従業員トイレ・冷蔵庫室・倉庫から seed で選んで奥室に多様な役割を出す。</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 : func storeBackRole(seed uint64, i int) roleName {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           2 :         if i == 0 {</span></span>
+<span id="L14"><span class="lineNum">      14</span>              : func storeBackRole(seed uint64, i int) roleName {</span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 :         if i == 0 {</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 return &quot;storeroom&quot;</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         pool := []roleName{&quot;office&quot;, &quot;restroom&quot;, &quot;coldroom&quot;, &quot;storeroom&quot;}</span></span>
@@ -84,15 +84,15 @@
 <span id="L22"><span class="lineNum">      22</span>              : // clinicBackRole は診療所の奥室 i 番目(0-indexed, total は奥室総数)の役割を返す。0番は必ず薬局、</span>
 <span id="L23"><span class="lineNum">      23</span>              : // 3室以上なら末尾をトイレ、4室なら医師室も足し、残りを診察室で埋める。薬局と水回りと医師室を保証しつつ</span>
 <span id="L24"><span class="lineNum">      24</span>              : // 診察室を主にする。</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : func clinicBackRole(i, total int) roleName {</span></span>
+<span id="L25"><span class="lineNum">      25</span>              : func clinicBackRole(i, total int) roleName {</span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         case i == 0:</span></span>
+<span id="L27"><span class="lineNum">      27</span>              :         case i == 0:</span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 return &quot;pharmacy&quot;</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         case i == total-1 &amp;&amp; total &gt;= 3:</span></span>
+<span id="L29"><span class="lineNum">      29</span>              :         case i == total-1 &amp;&amp; total &gt;= 3:</span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 return &quot;restroom&quot;</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         case i == total-2 &amp;&amp; total &gt;= 4:</span></span>
+<span id="L31"><span class="lineNum">      31</span>              :         case i == total-2 &amp;&amp; total &gt;= 4:</span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return &quot;office&quot;</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L33"><span class="lineNum">      33</span>              :         default:</span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 return &quot;exam&quot;</span></span>
 <span id="L35"><span class="lineNum">      35</span>              :         }</span>
 <span id="L36"><span class="lineNum">      36</span>              : }</span>
@@ -104,28 +104,28 @@
 <span id="L42"><span class="lineNum">      42</span>              : // 並べる。売場は商品棚と冷蔵ケースの開けた空間、奥は樽の物置にして、民家の細かい間仕切りとも診療所の廊下型</span>
 <span id="L43"><span class="lineNum">      43</span>              : // とも違う「店の平面」にする。バックヤードを奥の壁沿いに置くか横の壁沿いに置くかを seed で選び、下ストリップ・</span>
 <span id="L44"><span class="lineNum">      44</span>              : // 右柱・左柱の3型を出す。どの型でも売場は北の入口に面する。バックヤードの個数も seed で 2〜3 に変える。</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : func PlanStore(footprint Rect, seed uint64) []PlannedRoom {</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : func PlanStore(footprint Rect, seed uint64) []PlannedRoom {</span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         switch childSeed(seed, 6_000_002) % 3 {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         case 0:</span></span>
+<span id="L47"><span class="lineNum">      47</span>              :         case 0:</span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 return storeBackBottom(footprint, seed)</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         case 1:</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :         case 1:</span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 return storeBackSide(footprint, seed, false)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L51"><span class="lineNum">      51</span>              :         default:</span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 return storeBackSide(footprint, seed, true)</span></span>
 <span id="L53"><span class="lineNum">      53</span>              :         }</span>
 <span id="L54"><span class="lineNum">      54</span>              : }</span>
 <span id="L55"><span class="lineNum">      55</span>              : </span>
 <span id="L56"><span class="lineNum">      56</span>              : // storeBackCells は個数ぶんのバックヤードの cell を役割付きで返す。</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : func storeBackCells(seed uint64, n int) []cell {</span></span>
+<span id="L57"><span class="lineNum">      57</span>              : func storeBackCells(seed uint64, n int) []cell {</span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         cells := make([]cell, n)</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           2 :         for i := range cells {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         for i := range cells {</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 cells[i] = cell{key: storeBackKeys[i], role: storeBackRole(seed, i), weight: 1}</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         return cells</span></span>
 <span id="L63"><span class="lineNum">      63</span>              : }</span>
 <span id="L64"><span class="lineNum">      64</span>              : </span>
 <span id="L65"><span class="lineNum">      65</span>              : // storeBackBottom は売場を上いっぱいに取り、バックヤードを下の壁沿いに縦線で 2〜3 室へ並べる型。</span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : func storeBackBottom(footprint Rect, seed uint64) []PlannedRoom {</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : func storeBackBottom(footprint Rect, seed uint64) []PlannedRoom {</span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         bottom := y0 + h - 1</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         l := newLayout(seed)</span></span>
@@ -139,7 +139,7 @@
 <span id="L77"><span class="lineNum">      77</span>              : </span>
 <span id="L78"><span class="lineNum">      78</span>              : // storeBackSide は売場を縦いっぱいの高さで取り、バックヤードを横の壁沿いの柱に横線で 2〜3 室へ積む型。</span>
 <span id="L79"><span class="lineNum">      79</span>              : // left なら柱が左、そうでなければ右。奥行きでなく横幅で店と物置を分け、下ストリップ型と別の平面にする。</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 : func storeBackSide(footprint Rect, seed uint64, left bool) []PlannedRoom {</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : func storeBackSide(footprint Rect, seed uint64, left bool) []PlannedRoom {</span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         right := x0 + w - 1</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         l := newLayout(seed)</span></span>
@@ -148,10 +148,10 @@
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         n := 2 + int(childSeed(seed, 6_000_000)%2)</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         var backCol, sales Rect</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           2 :         if left {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         if left {</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 backCol = Rect{X: x0, Y: y0, W: backW, H: h}</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 sales = Rect{X: x0 + backW - 1, Y: y0, W: w - backW + 1, H: h} // 柱と列を共有する</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           2 :         } else {</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         } else {</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 backCol = Rect{X: right - backW + 1, Y: y0, W: backW, H: h}</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 sales = Rect{X: x0, Y: y0, W: w - backW + 1, H: h}</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -164,7 +164,7 @@
 <span id="L102"><span class="lineNum">     102</span>              : // 中央の縦廊下を通し、廊下の左右に診察室を並べる。待合が手前・診察室が奥・廊下が背骨という動線で、店の</span>
 <span id="L103"><span class="lineNum">     103</span>              : // 開けた売場とも民家の水回りとも違う「診療所の平面」にする。各翼を seed で上下2室へ割るか1室のまま</span>
 <span id="L104"><span class="lineNum">     104</span>              : // にするかを変え、診察室が2室の広い診療所と4室の細かい診療所を出す。</span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 : func PlanClinic(footprint Rect, seed uint64) []PlannedRoom {</span></span>
+<span id="L105"><span class="lineNum">     105</span>              : func PlanClinic(footprint Rect, seed uint64) []PlannedRoom {</span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         right, bottom := x0+w-1, y0+h-1</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         l := newLayout(seed)</span></span>
@@ -179,7 +179,7 @@
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         l.connect(&quot;waiting&quot;, &quot;corridor&quot;)</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         total := 2</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           2 :         if split {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         if split {</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 total = 4</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         bi := 0</span></span>
@@ -189,15 +189,15 @@
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         }{</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 {&quot;exam_l&quot;, x0, cxL},</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 {&quot;exam_r&quot;, cxR, right},</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           2 :         } {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         } {</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 base := Rect{X: wing.xlo, Y: waitBot, W: wing.xhi - wing.xlo + 1, H: bottom - waitBot + 1}</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           2 :                 if split {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 if split {</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                         l.strip(base, splitRows, &quot;corridor&quot;, []cell{</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                                 {key: wing.key + &quot;_a&quot;, role: clinicBackRole(bi, total), weight: 1},</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                                 {key: wing.key + &quot;_b&quot;, role: clinicBackRole(bi+1, total), weight: 1},</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         })</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                         bi += 2</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           2 :                 } else {</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 } else {</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                         l.room(wing.key, clinicBackRole(bi, total), base)</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                         l.connect(&quot;corridor&quot;, wing.key)</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                         bi++</span></span>

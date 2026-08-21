@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">62.5&nbsp;%</td>
-            <td class="headerCovTableEntry">40</td>
-            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryLo">60.0&nbsp;%</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">21</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,14 +83,14 @@
 <span id="L21"><span class="lineNum">      21</span>              : }</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // OnStart はステート開始時にデフォルトプレイヤーを生成し、オーバーワールドへの遷移を設定する</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *DemoStartState) OnStart(world w.World) error {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, &quot;ash&quot;)</span></span>
+<span id="L24"><span class="lineNum">      24</span>              : func (st *DemoStartState) OnStart(world w.World) error {</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, &quot;ash&quot;)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to spawn player: %w&quot;, err)</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         professions := raw.PtrSlice(world.Resources.RawMaster.Professions)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           2 :         if len(professions) &gt; 0 {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         if len(professions) &gt; 0 {</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to apply profession: %w&quot;, err)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -111,10 +111,10 @@
 <span id="L49"><span class="lineNum">      49</span>              : // spawnDebugBiscuits はデバッグ用に鮮度の違うビスケットを初期所持へ積む。</span>
 <span id="L50"><span class="lineNum">      50</span>              : // 鮮度でスタックが分かれることを手元で確認するための仕込みで、新鮮・劣化・腐敗を各2個そろえる。</span>
 <span id="L51"><span class="lineNum">      51</span>              : // 開始直後は実効劣化が RotAccrued に等しいので、StageLength の倍数で置けば段階が決まり raw の変更にも追随する。</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : func spawnDebugBiscuits(world w.World) error {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         // 新鮮 [0, SL) 劣化 [SL, 2SL) 腐敗 [2SL, ) の各段階を作る RotAccrued の倍率</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           2 :         for _, mul := range []float64{0, 1, 2} {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :                 for range 2 {</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : func spawnDebugBiscuits(world w.World) error {</span>
+<span id="L53"><span class="lineNum">      53</span>              :         // 新鮮 [0, SL) 劣化 [SL, 2SL) 腐敗 [2SL, ) の各段階を作る RotAccrued の倍率</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         for _, mul := range []float64{0, 1, 2} {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 for range 2 {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                         entity, err := lifecycle.SpawnBackpackItem(world, &quot;biscuit&quot;, 1)</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;failed to spawn debug biscuit: %w&quot;, err)</span></span>
@@ -136,13 +136,13 @@
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 : func (st *DemoStartState) OnResume(_ w.World) error { return nil }</span></span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span>              : // Update はOnStartで設定された遷移を消費してオーバーワールドに遷移する</span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *DemoStartState) Update(_ w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         return st.ConsumeTransition(), nil</span></span>
+<span id="L77"><span class="lineNum">      77</span>              : func (st *DemoStartState) Update(_ w.World) (es.Transition[w.World], error) {</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">           1 :         return st.ConsumeTransition(), nil</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L80"><span class="lineNum">      80</span>              : </span>
 <span id="L81"><span class="lineNum">      81</span>              : // Draw はスクリーンに描画する</span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *DemoStartState) Draw(_ w.World, screen *ebiten.Image) error {</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         screen.Fill(theme.ScreenBackground)</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : func (st *DemoStartState) Draw(_ w.World, screen *ebiten.Image) error {</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC tlaBgUNC">           0 :         screen.Fill(theme.ScreenBackground)</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>

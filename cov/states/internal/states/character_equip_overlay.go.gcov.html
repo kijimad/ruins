@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">72.9&nbsp;%</td>
-            <td class="headerCovTableEntry">70</td>
-            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntryMed">75.9&nbsp;%</td>
+            <td class="headerCovTableEntry">58</td>
+            <td class="headerCovTableEntry">44</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -89,16 +89,16 @@
 <span id="L27"><span class="lineNum">      27</span>              : var _ overlay.Layer = (*characterEquipOverlay)(nil)</span>
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              : // newCharacterEquipOverlay は共有の詳細モーダルを参照する装備選択 overlay を作る</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 : func newCharacterEquipOverlay(detail *overlay.Detail) characterEquipOverlay {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return characterEquipOverlay{mount: hooks.NewMount[charEquipProps](), detail: detail}</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : func newCharacterEquipOverlay(detail *overlay.Detail) characterEquipOverlay {</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 :         return characterEquipOverlay{mount: hooks.NewMount[charEquipProps](), detail: detail}</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // Active は装備選択中かを返す</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func (o *characterEquipOverlay) Active() bool { return o.active }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // Open は空スロットに対する装備選択を開き、候補を読み込む</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : func (o *characterEquipOverlay) Open(world w.World, slot equipItemData) {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         // 開くたびに mount を作り直し、再オープン時はカーソルを先頭へ戻す</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : func (o *characterEquipOverlay) Open(world w.World, slot equipItemData) {</span>
+<span id="L39"><span class="lineNum">      39</span>              :         // 開くたびに mount を作り直し、再オープン時はカーソルを先頭へ戻す</span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         o.mount = hooks.NewMount[charEquipProps]()</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         o.mount.SetProps(charEquipProps{</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 Items:             equipableForSlot(world, slot.SlotNumber),</span></span>
@@ -110,10 +110,10 @@
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
 <span id="L50"><span class="lineNum">      50</span>              : // selectedItem は現在カーソルが指す候補を返す。候補が無ければ ok=false</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : func (o *characterEquipOverlay) selectedItem() (ecs.Entity, bool) {</span></span>
+<span id="L51"><span class="lineNum">      51</span>              : func (o *characterEquipOverlay) selectedItem() (ecs.Entity, bool) {</span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         props := o.mount.GetProps()</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         ms, _ := hooks.GetState[hooks.TabMenuState](o.mount, &quot;char_equip&quot;)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           2 :         if ms.ItemIndex &lt; 0 || ms.ItemIndex &gt;= len(props.Items) {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         if ms.ItemIndex &lt; 0 || ms.ItemIndex &gt;= len(props.Items) {</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, false</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         return props.Items[ms.ItemIndex], true</span></span>
@@ -121,7 +121,7 @@
 <span id="L59"><span class="lineNum">      59</span>              : </span>
 <span id="L60"><span class="lineNum">      60</span>              : // HandleInput は装備選択中の入力を処理する。毎フレーム呼ばれるので自前カーソル mount の維持もここで行う。</span>
 <span id="L61"><span class="lineNum">      61</span>              : // x で詳細を入れ子に開き、Enter で装着して閉じ、Esc で閉じる</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : func (o *characterEquipOverlay) HandleInput(world w.World) error {</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : func (o *characterEquipOverlay) HandleInput(world w.World) error {</span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         if !o.active {</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -133,17 +133,17 @@
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         if action, ok := keybind.ReadInput(world, equipSelectTable); ok {</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC tlaBgUNC">           0 :                 switch action {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                 case inputmapper.ActionOpenItemDetail:</span></span>
+<span id="L74"><span class="lineNum">      74</span>              :                 case inputmapper.ActionOpenItemDetail:</span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                         o.detail.Open(world)</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
+<span id="L76"><span class="lineNum">      76</span>              :                 case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                         o.active = false</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 case inputmapper.ActionMenuSelect:</span></span>
+<span id="L78"><span class="lineNum">      78</span>              :                 case inputmapper.ActionMenuSelect:</span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                         if err := o.execute(world); err != nil {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                                 return err</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                         o.active = false</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :                 default:</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :                         // 移動系は自前カーソルの mount が消費する。それ以外は装備選択中は扱わない</span></span>
+<span id="L83"><span class="lineNum">      83</span>              :                 default:</span>
+<span id="L84"><span class="lineNum">      84</span>              :                         // 移動系は自前カーソルの mount が消費する。それ以外は装備選択中は扱わない</span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :                         o.mount.DispatchNav(action)</span></span>
 <span id="L86"><span class="lineNum">      86</span>              :                 }</span>
 <span id="L87"><span class="lineNum">      87</span>              :         }</span>
@@ -152,15 +152,15 @@
 <span id="L90"><span class="lineNum">      90</span>              : }</span>
 <span id="L91"><span class="lineNum">      91</span>              : </span>
 <span id="L92"><span class="lineNum">      92</span>              : // execute は選んだ候補を装着する。既存の装備があれば持ち物へ戻す</span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 : func (o *characterEquipOverlay) execute(world w.World) error {</span></span>
+<span id="L93"><span class="lineNum">      93</span>              : func (o *characterEquipOverlay) execute(world w.World) error {</span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         props := o.mount.GetProps()</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         ms, _ := hooks.GetState[hooks.TabMenuState](o.mount, &quot;char_equip&quot;)</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           2 :         if ms.ItemIndex &lt; 0 || ms.ItemIndex &gt;= len(props.Items) {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         if ms.ItemIndex &lt; 0 || ms.ItemIndex &gt;= len(props.Items) {</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         item := props.Items[ms.ItemIndex]</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         itemName := query.GetEntityName(item, world)</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           2 :         if props.PreviousEquipment != nil {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         if props.PreviousEquipment != nil {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 if err := lifecycle.MoveToBackpack(world, *props.PreviousEquipment, props.TargetCharacter); err != nil {</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -171,7 +171,7 @@
 <span id="L109"><span class="lineNum">     109</span>              : }</span>
 <span id="L110"><span class="lineNum">     110</span>              : </span>
 <span id="L111"><span class="lineNum">     111</span>              : // Window は装備候補のサブウィンドウを rect の位置へ組む</span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 : func (o *characterEquipOverlay) Window(world w.World, rect image.Rectangle) *widget.Window {</span></span>
+<span id="L112"><span class="lineNum">     112</span>              : func (o *characterEquipOverlay) Window(world w.World, rect image.Rectangle) *widget.Window {</span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         if !o.active {</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         }</span></span>

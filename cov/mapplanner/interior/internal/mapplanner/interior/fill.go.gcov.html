@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">34</td>
-            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">29</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,8 +72,8 @@
 <span id="L10"><span class="lineNum">      10</span>              : // FillRoom は content を解決し、各 Selection を placement 意味論に従って部屋のタイルへ置く。</span>
 <span id="L11"><span class="lineNum">      11</span>              : // seed 由来の決定的生成で、同じ引数なら完全に一致し再訪で一致する。占有を追跡し stuff を重ねない。</span>
 <span id="L12"><span class="lineNum">      12</span>              : // 占有 map は抽選でなく membership 判定にのみ使うので決定性を損なわない。</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 : func FillRoom(seed uint64, room Room, content Content) []Placed {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         occupied := make(map[Vec]bool)</span></span>
+<span id="L13"><span class="lineNum">      13</span>              : func FillRoom(seed uint64, room Room, content Content) []Placed {</span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 :         occupied := make(map[Vec]bool)</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         placed := placeSelections(seed, room, content.Resolve(seed), occupied)</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         // 塞がり防止。通路を塞ぐ家具を撤回し、戸口から全床へ到達できるようにする</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         return repairReachability(room, placed)</span></span>
@@ -82,7 +82,7 @@
 <span id="L20"><span class="lineNum">      20</span>              : // Flavor は既存の配置の隙間へ施設別の flavor decor を足す。戦利品を増やさず character を与え、空き箱</span>
 <span id="L21"><span class="lineNum">      21</span>              : // 部屋を無くすための post-pass。flavor は装飾で通行を阻まないので到達性修復は要らない。蝋燭の輪のような</span>
 <span id="L22"><span class="lineNum">      22</span>              : // 束も置ける。既存 placed を占有として避け、残った床へ置く。</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 : func Flavor(seed uint64, room Room, placed []Placed, flavor Content) []Placed {</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : func Flavor(seed uint64, room Room, placed []Placed, flavor Content) []Placed {</span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         occupied := occupiedSet(placed)</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         fseed := childSeed(seed, 7_000_000)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         extra := placeSelections(fseed, room, flavor.Resolve(fseed), occupied)</span></span>
@@ -91,17 +91,17 @@
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span>              : // placeSelections は解決済みの Selection 列を部屋のタイルへ置く。anchor を density 場で選び、衛星を</span>
 <span id="L31"><span class="lineNum">      31</span>              : // anchor 相対に束ねる。occupied は呼び出し側から渡し、既存配置を避けさせる。FillRoom と Flavor が共有する。</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : func placeSelections(seed uint64, room Room, selections []Selection, occupied map[Vec]bool) []Placed {</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : func placeSelections(seed uint64, room Room, selections []Selection, occupied map[Vec]bool) []Placed {</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         placed := make([]Placed, 0, len(selections))</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :         for i, sel := range selections {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 // 置き方は解決段で archetype 既定を含め具体化済み。配置の seed は解決の seed と別枠にする</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         for i, sel := range selections {</span></span>
+<span id="L35"><span class="lineNum">      35</span>              :                 // 置き方は解決段で archetype 既定を含め具体化済み。配置の seed は解決の seed と別枠にする</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 s := childSeed(seed, 1_000_000+i)</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           2 :                 for _, t := range selectTiles(room, sel.Placement, occupied, s, sel.Count) {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 for _, t := range selectTiles(room, sel.Placement, occupied, s, sel.Count) {</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                         occupied[t] = true</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                         placed = append(placed, Placed{Kind: sel.Kind, Ref: sel.Ref, Pos: t})</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                         // anchor と一緒に衛星を束で置く。机に対する椅子や蝋燭の輪など</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :                         for _, sat := range sel.Satellites {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           2 :                                 if pos, ok := placeSatellite(room, occupied, t, sat); ok {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                         for _, sat := range sel.Satellites {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                                 if pos, ok := placeSatellite(room, occupied, t, sat); ok {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                                         occupied[pos] = true</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                                         placed = append(placed, Placed{Kind: sat.Kind, Ref: sat.Ref, Pos: pos})</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                                 }</span></span>
@@ -115,10 +115,10 @@
 <span id="L53"><span class="lineNum">      53</span>              : // 候補が尽きたら諦める。前から試すので Offsets が優先順、机の四辺のうち空いた辺へ椅子が回り込む。戸口とその</span>
 <span id="L54"><span class="lineNum">      54</span>              : // 直前は避ける。ここを塞ぐと部屋の唯一の入口が家具で埋まり、到達性修復は塞がれた戸口内側から flood を始められず</span>
 <span id="L55"><span class="lineNum">      55</span>              : // 空振りして、部屋ごと入れなくなる softlock になる。anchor の selectTiles と同じ除外を衛星にも掛ける。</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : func placeSatellite(room Room, occupied map[Vec]bool, anchor Vec, sat Satellite) (Vec, bool) {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         for _, off := range sat.Offsets {</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : func placeSatellite(room Room, occupied map[Vec]bool, anchor Vec, sat Satellite) (Vec, bool) {</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         for _, off := range sat.Offsets {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 p := Vec{X: anchor.X + off.X, Y: anchor.Y + off.Y}</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           2 :                 if room.Rect.containsInterior(p) &amp;&amp; !occupied[p] &amp;&amp; !isDoorwayAdjacent(room, p) {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 if room.Rect.containsInterior(p) &amp;&amp; !occupied[p] &amp;&amp; !isDoorwayAdjacent(room, p) {</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                         return p, true</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L62"><span class="lineNum">      62</span>              :         }</span>

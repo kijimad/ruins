@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">17.4&nbsp;%</td>
-            <td class="headerCovTableEntry">23</td>
-            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">14.3&nbsp;%</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">3</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,8 +86,8 @@
 <span id="L24"><span class="lineNum">      24</span>              : }</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // takeSnapshot はRecordingが有効な場合にMetaPlanの現在の状態をスナップショットとして保存する</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 : func (b *PlannerChain) takeSnapshot(label string) {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         if !b.Recording {</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : func (b *PlannerChain) takeSnapshot(label string) {</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">           1 :         if !b.Recording {</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 :         d := &amp;b.PlanData</span></span>
@@ -107,7 +107,7 @@
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // deepCloneCorridors は二次元スライスを深くコピーする。</span>
 <span id="L47"><span class="lineNum">      47</span>              : // slices.Cloneは外側のスライスのみコピーし内側は参照を共有するため、スナップショット間の干渉を防ぐ</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 : func deepCloneCorridors(src [][]gc.TileIdx) [][]gc.TileIdx {</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : func deepCloneCorridors(src [][]gc.TileIdx) [][]gc.TileIdx {</span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         dst := make([][]gc.TileIdx, len(src))</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         for i, c := range src {</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 dst[i] = slices.Clone(c)</span></span>

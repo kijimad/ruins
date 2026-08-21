@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">44</td>
-            <td class="headerCovTableEntry">44</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntry">40</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -100,23 +100,23 @@
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              : // Markup は &lt;tag&gt;...&lt;/tag&gt; マークアップ付き文字列を色付き断片へ解釈してログへ積む。</span>
 <span id="L40"><span class="lineNum">      40</span>              : // マークアップは開発者が書く信頼できる入力なので、未知タグや閉じ忘れは記述ミスとして panic する</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 : func (l *Logger) Markup(s string) *Logger {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         l.fragments = append(l.fragments, ParseMarkup(s)...)</span></span>
+<span id="L41"><span class="lineNum">      41</span>              : func (l *Logger) Markup(s string) *Logger {</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :         l.fragments = append(l.fragments, ParseMarkup(s)...)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return l</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // ParseMarkup は &lt;tag&gt;...&lt;/tag&gt; を色付き断片列へ分解する。タグの外は白。</span>
 <span id="L47"><span class="lineNum">      47</span>              : // 未知タグ・閉じ括弧の無いマーク・閉じタグ抜けは記述ミスとして panic し、黙って地の文に落とさない。</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : func ParseMarkup(s string) []LogFragment {</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : func ParseMarkup(s string) []LogFragment {</span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         var frags []LogFragment</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           2 :         add := func(text string, c color.RGBA) {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :                 if text != &quot;&quot; {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         add := func(text string, c color.RGBA) {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 if text != &quot;&quot; {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         frags = append(frags, LogFragment{Color: c, Text: text})</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L54"><span class="lineNum">      54</span>              :         }</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :         for len(s) &gt; 0 {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         for len(s) &gt; 0 {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 open := strings.IndexByte(s, '&lt;')</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :                 if open &lt; 0 {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 if open &lt; 0 {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                         add(s, ColorWhite)</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         break</span></span>
 <span id="L60"><span class="lineNum">      60</span>              :                 }</span>
@@ -124,17 +124,17 @@
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 s = s[open:]</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 gt := strings.IndexByte(s, '&gt;')</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           2 :                 if gt &lt; 0 {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 if gt &lt; 0 {</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                         panic(fmt.Sprintf(&quot;gamelog: unclosed markup bracket in %q&quot;, s))</span></span>
 <span id="L67"><span class="lineNum">      67</span>              :                 }</span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 tag := s[1:gt]</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 c, known := tagColor(tag)</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           2 :                 if !known {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 if !known {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                         panic(fmt.Sprintf(&quot;gamelog: unknown markup tag &lt;%s&gt;&quot;, tag))</span></span>
 <span id="L72"><span class="lineNum">      72</span>              :                 }</span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 closeTag := &quot;&lt;/&quot; + tag + &quot;&gt;&quot;</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 ci := strings.Index(s[gt+1:], closeTag)</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           2 :                 if ci &lt; 0 {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 if ci &lt; 0 {</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                         panic(fmt.Sprintf(&quot;gamelog: missing close tag %s&quot;, closeTag))</span></span>
 <span id="L77"><span class="lineNum">      77</span>              :                 }</span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 add(s[gt+1:gt+1+ci], c)</span></span>
@@ -144,12 +144,12 @@
 <span id="L82"><span class="lineNum">      82</span>              : }</span>
 <span id="L83"><span class="lineNum">      83</span>              : </span>
 <span id="L84"><span class="lineNum">      84</span>              : // tagColor はタグ名を色へ解決する。セマンティックタグと color_XXX 形式に対応する</span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 : func tagColor(tag string) (color.RGBA, bool) {</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           2 :         if c, ok := tagColors[tag]; ok {</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : func tagColor(tag string) (color.RGBA, bool) {</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         if c, ok := tagColors[tag]; ok {</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 return c, true</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           2 :         if named, ok := strings.CutPrefix(tag, &quot;color_&quot;); ok {</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           2 :                 if c, ok := namedColors[named]; ok {</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         if named, ok := strings.CutPrefix(tag, &quot;color_&quot;); ok {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                 if c, ok := namedColors[named]; ok {</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                         return c, true</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L93"><span class="lineNum">      93</span>              :         }</span>
@@ -158,7 +158,7 @@
 <span id="L96"><span class="lineNum">      96</span>              : </span>
 <span id="L97"><span class="lineNum">      97</span>              : // Tag は text を tag で包んだマークアップ文字列を返す。色付きの値を書式の引数として</span>
 <span id="L98"><span class="lineNum">      98</span>              : // 渡したいときに使う。例: query.T(world, &quot;%[1]s を得た&quot;, gamelog.Tag(&quot;item&quot;, name))</span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 : func Tag(tag, text string) string {</span></span>
+<span id="L99"><span class="lineNum">      99</span>              : func Tag(tag, text string) string {</span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         return fmt.Sprintf(&quot;&lt;%s&gt;%s&lt;/%s&gt;&quot;, tag, text, tag)</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>

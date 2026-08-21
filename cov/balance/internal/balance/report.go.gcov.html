@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">95.9&nbsp;%</td>
-            <td class="headerCovTableEntry">147</td>
-            <td class="headerCovTableEntry">141</td>
+            <td class="headerCovTableEntryHi">95.8&nbsp;%</td>
+            <td class="headerCovTableEntry">142</td>
+            <td class="headerCovTableEntry">136</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,14 +72,14 @@
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // GenerateReport はマスターデータからシミュレーションを実行し、レポートを生成する。返す型は tsp 由来の</span>
 <span id="L12"><span class="lineNum">      12</span>              : // oapi.BalanceReport で、balance.json の形は oas/typespec/balance.tsp を単一ソースとする。</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 : func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*oapi.BalanceReport, error) {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, playerName)</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L13"><span class="lineNum">      13</span>              : func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*oapi.BalanceReport, error) {</span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 :         player, err := LoadCombatantFromMember(master, playerName)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to load player: %w&quot;, err)</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         weapon, err := LoadWeaponFromItem(master, weaponName)</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to load weapon: %w&quot;, err)</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
@@ -103,8 +103,8 @@
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 // フォールバック無しで回せなくなるため、append する配列は空スライスで初期化して契約を守る。</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 EnemyTables: []oapi.BalanceEnemyTableRun{},</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           2 :         for _, table := range raw.PtrSlice(master.EnemyTables) {</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         for _, table := range raw.PtrSlice(master.EnemyTables) {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 stats := RunSimulations(master, table.Id, player, weapon, maxDepth, trials, seed)</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 run := oapi.BalanceEnemyTableRun{</span></span>
@@ -116,8 +116,8 @@
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                         Depths:      []oapi.BalanceDepthStat{},</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                         TrialData:   []oapi.BalanceTrialResult{},</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :                 for depth := 1; depth &lt;= maxDepth; depth++ {</span></span>
+<span id="L57"><span class="lineNum">      57</span>              : </span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 for depth := 1; depth &lt;= maxDepth; depth++ {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         hps := stats.HPAtDepth(depth)</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                         if len(hps) == 0 {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC tlaBgUNC">           0 :                                 break</span></span>
@@ -145,25 +145,25 @@
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                         })</span></span>
 <span id="L84"><span class="lineNum">      84</span>              :                 }</span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           2 :                 for i, r := range stats.Results {</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 for i, r := range stats.Results {</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                         trial := oapi.BalanceTrialResult{</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                                 Index:        i,</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                                 ReachedDepth: r.ReachedDepth,</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                                 Died:         r.Died,</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                                 Depths:       []oapi.BalanceTrialDepthStat{},</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           2 :                         for depth := 1; depth &lt;= r.ReachedDepth; depth++ {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                         for depth := 1; depth &lt;= r.ReachedDepth; depth++ {</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                                 td := oapi.BalanceTrialDepthStat{Depth: depth}</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           2 :                                 if hp, ok := r.HPByDepth[depth]; ok {</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                                 if hp, ok := r.HPByDepth[depth]; ok {</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                                         td.Hp = hp</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           2 :                                 if hp, ok := r.HPBeforeHealByDepth[depth]; ok {</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                                 if hp, ok := r.HPBeforeHealByDepth[depth]; ok {</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                                         td.HpBeforeHeal = hp</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           2 :                                 if w, ok := r.WeaponByDepth[depth]; ok {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                                 if w, ok := r.WeaponByDepth[depth]; ok {</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                                         td.Weapon = w</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           2 :                                 if h, ok := r.HungerByDepth[depth]; ok {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                                 if h, ok := r.HungerByDepth[depth]; ok {</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                                         td.Hunger = h</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                                 }</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                                 trial.Depths = append(trial.Depths, td)</span></span>
@@ -181,7 +181,7 @@
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC tlaBgGNC">           1 :         report.BattleMetrics = metrics</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         // 施設種別ごとの loot 分布を生成する</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :         // 施設種別ごとの loot 分布を生成する</span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         report.RoomLoot = GenerateRoomLoot(master, roomLootTrials, seed)</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         return report, nil</span></span>
@@ -193,9 +193,9 @@
 <span id="L131"><span class="lineNum">     131</span>              : const battleMetricTrials = 500</span>
 <span id="L132"><span class="lineNum">     132</span>              : </span>
 <span id="L133"><span class="lineNum">     133</span>              : // generateBattleMetrics は全武器×全敵の組み合わせで戦闘シミュレーションを実行する</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 : func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) ([]oapi.BalanceBattleMetric, error) {</span></span>
+<span id="L134"><span class="lineNum">     134</span>              : func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) ([]oapi.BalanceBattleMetric, error) {</span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         player, err := LoadCombatantFromMember(master, playerName)</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to load player for battle metrics: %w&quot;, err)</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L139"><span class="lineNum">     139</span>              : </span>
@@ -206,10 +206,10 @@
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         var weapons []weaponEntry</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         items := raw.PtrSlice(master.Items)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           2 :         for i := range items {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         for i := range items {</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 item := &amp;items[i]</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 w, err := LoadWeaponFromItem(master, item.Id)</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L152"><span class="lineNum">     152</span>              :                 }</span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 weapons = append(weapons, weaponEntry{name: item.Name, stats: w})</span></span>
@@ -217,8 +217,8 @@
 <span id="L155"><span class="lineNum">     155</span>              : </span>
 <span id="L156"><span class="lineNum">     156</span>              :         // 敵一覧を収集する（全敵テーブルからユニークな敵名を取得する）</span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         enemySet := make(map[string]struct{})</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           2 :         for _, table := range raw.PtrSlice(master.EnemyTables) {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           2 :                 for _, entry := range table.Entries {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         for _, table := range raw.PtrSlice(master.EnemyTables) {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 for _, entry := range table.Entries {</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                         enemySet[entry.Id] = struct{}{}</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L162"><span class="lineNum">     162</span>              :         }</span>
@@ -227,8 +227,8 @@
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         metrics := []oapi.BalanceBattleMetric{}</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           2 :         for _, w := range weapons {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           2 :                 for enemyName := range enemySet {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         for _, w := range weapons {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 for enemyName := range enemySet {</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         enemyStats, err := LoadCombatantFromMember(master, enemyName)</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>

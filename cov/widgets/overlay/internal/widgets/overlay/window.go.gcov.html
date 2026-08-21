@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">34</td>
-            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">30</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,13 +80,13 @@
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // DetailPageCount はエンティティの詳細ウィンドウのページ数を返す。</span>
 <span id="L20"><span class="lineNum">      20</span>              : // 呼び出し側が実体からページ数を確かめる公開の入口</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 : func DetailPageCount(world w.World, entity ecs.Entity) int {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return detailPageCount(len(entityspec.SpecRows(world, entity)))</span></span>
+<span id="L21"><span class="lineNum">      21</span>              : func DetailPageCount(world w.World, entity ecs.Entity) int {</span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 :         return detailPageCount(len(entityspec.SpecRows(world, entity)))</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
 <span id="L25"><span class="lineNum">      25</span>              : // detailPageCount は行数からページ数を返す。ページ計算は pagination に委ねる。</span>
 <span id="L26"><span class="lineNum">      26</span>              : // 行が無いか負数のときの1丸めも pagination.GetTotalPages が吸収する</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : func detailPageCount(rowCount int) int {</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : func detailPageCount(rowCount int) int {</span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return pagination.New(0, rowCount, detailRowsPerPage).GetTotalPages()</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
@@ -94,18 +94,18 @@
 <span id="L32"><span class="lineNum">      32</span>              : // name が空なら名前行を省き、desc が空なら説明行を省く。タイトルバーは表示しない。</span>
 <span id="L33"><span class="lineNum">      33</span>              : // 行が多いときは page でページ分割する。位置表示は1ページでも常に出し、ページ有無で</span>
 <span id="L34"><span class="lineNum">      34</span>              : // 位置がずれないようにする。page は範囲外なら内部でクランプする</span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string, rows []entityspec.SpecRow, page int) *widget.Window {</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : func buildDetailFromRows(world w.World, rect image.Rectangle, name, desc string, rows []entityspec.SpecRow, page int) *widget.Window {</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         res := world.Resources.UIResources</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         content := styled.NewWindowContainer(res)</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 :         if name != &quot;&quot; {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         if name != &quot;&quot; {</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 content.AddChild(styled.NewMenuText(name, res))</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         total := detailPageCount(len(rows))</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           2 :         if page &lt; 0 {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         if page &lt; 0 {</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 page = 0</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           2 :         if page &gt;= total {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         if page &gt;= total {</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 page = total - 1</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L49"><span class="lineNum">      49</span>              :         // page を先頭アイテム位置に読み替えて pagination に可視範囲を委ねる</span>
@@ -116,8 +116,8 @@
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         entityspec.RenderSpecRows(spec, rows[start:end], res)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         content.AddChild(spec)</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         // 説明は性能行のページ送りとは別物なので、最終ページのページャ直上にだけ出す。全ページへの重複を避ける</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :         if desc != &quot;&quot; &amp;&amp; page == total-1 {</span></span>
+<span id="L57"><span class="lineNum">      57</span>              :         // 説明は性能行のページ送りとは別物なので、最終ページのページャ直上にだけ出す。全ページへの重複を避ける</span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         if desc != &quot;&quot; &amp;&amp; page == total-1 {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 content.AddChild(styled.NewDescriptionText(desc, res))</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L61"><span class="lineNum">      61</span>              :         // 位置は番号だけで示す。1ページでも 1/1 を常設し、ページ有無で表示がずれないようにする。左右キーでページを繰る。</span>

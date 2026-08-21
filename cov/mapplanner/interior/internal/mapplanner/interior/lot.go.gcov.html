@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.4&nbsp;%</td>
-            <td class="headerCovTableEntry">46</td>
-            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntryMed">85.7&nbsp;%</td>
+            <td class="headerCovTableEntry">35</td>
+            <td class="headerCovTableEntry">30</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,25 +75,25 @@
 <span id="L13"><span class="lineNum">      13</span>              : </span>
 <span id="L14"><span class="lineNum">      14</span>              : // lotElements は敷地の外構 prop を返す。街路側の footprint 縁に塀を並べ、入口の軸を門として開ける。前庭には</span>
 <span id="L15"><span class="lineNum">      15</span>              : // 店なら自販機、民家なら観葉を1つ置く。</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 : func lotElements(s Site, facility FacilityKind) []Placed {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         fside := frontSide(s)</span></span>
+<span id="L16"><span class="lineNum">      16</span>              : func lotElements(s Site, facility FacilityKind) []Placed {</span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">           1 :         fside := frontSide(s)</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         lo, hi, edge := lotEdgeSpan(s.Footprint, fside)</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         doorAxis := edge.along(s.Door)</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         var out []Placed</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         // 塀で敷地を囲い、入口の軸を門として開ける。商店街は街路に面して開くので塀を張らない</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         if s.Type != siteShopfront {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :                 for a := lo; a &lt;= hi; a++ {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :                         if abs(a-doorAxis) &lt;= 1 { // 門の隙間。街路から前庭へ入る</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         if s.Type != siteShopfront {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 for a := lo; a &lt;= hi; a++ {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                         if abs(a-doorAxis) &lt;= 1 { // 門の隙間。街路から前庭へ入る</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                                 continue</span></span>
 <span id="L27"><span class="lineNum">      27</span>              :                         }</span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                         out = append(out, Placed{Kind: KindDecor, Ref: &quot;fence&quot;, Pos: edge.at(a)})</span></span>
 <span id="L29"><span class="lineNum">      29</span>              :                 }</span>
 <span id="L30"><span class="lineNum">      30</span>              :         }</span>
 <span id="L31"><span class="lineNum">      31</span>              :         // 前庭の外構。店は入口脇に自販機、民家は観葉。前庭のタイルにだけ置く</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :         if spot, ok := yardSpot(s, fside, doorAxis); ok {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         if spot, ok := yardSpot(s, fside, doorAxis); ok {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 ref := &quot;plant&quot;</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :                 if isShop(facility) {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 if isShop(facility) {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                         ref = &quot;vending&quot;</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 out = append(out, Placed{Kind: KindDecor, Ref: ref, Pos: spot})</span></span>
@@ -103,35 +103,35 @@
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span>              : // lotEdgeSpan は footprint の街路側の縁を、縁に沿う軸の範囲[lo,hi]と縁のラインで返す。塀は角も含めて敷地を</span>
 <span id="L43"><span class="lineNum">      43</span>              : // ぐるりと閉じるので corners を除かない。</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : func lotEdgeSpan(f Rect, fside side) (lo, hi consts.Tile, edge tileLine) {</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : func lotEdgeSpan(f Rect, fside side) (lo, hi consts.Tile, edge tileLine) {</span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         switch fside {</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         case sideNorth:</span></span>
+<span id="L46"><span class="lineNum">      46</span>              :         case sideNorth:</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return f.X, f.X + f.W - 1, tileLine{cross: f.Y, horiz: true}</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC tlaBgUNC">           0 :         case sideSouth:</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return f.X, f.X + f.W - 1, tileLine{cross: f.Y + f.H - 1, horiz: true}</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 :         case sideWest:</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 return f.Y, f.Y + f.H - 1, tileLine{cross: f.X, horiz: false}</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC tlaBgUNC">           0 :         case sideEast:</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 return f.Y, f.Y + f.H - 1, tileLine{cross: f.X + f.W - 1, horiz: false}</span></span>
+<span id="L48"><span class="lineNum">      48</span>              :         case sideSouth:</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 :                 return f.X, f.X + f.W - 1, tileLine{cross: f.Y + f.H - 1, horiz: true}</span></span>
+<span id="L50"><span class="lineNum">      50</span>              :         case sideWest:</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC tlaBgGNC">           1 :                 return f.Y, f.Y + f.H - 1, tileLine{cross: f.X, horiz: false}</span></span>
+<span id="L52"><span class="lineNum">      52</span>              :         case sideEast:</span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC tlaBgUNC">           0 :                 return f.Y, f.Y + f.H - 1, tileLine{cross: f.X + f.W - 1, horiz: false}</span></span>
 <span id="L54"><span class="lineNum">      54</span>              :         }</span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         panic(&quot;unknown side: &quot; + strconv.Itoa(int(fside)))</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : }</span>
 <span id="L57"><span class="lineNum">      57</span>              : </span>
 <span id="L58"><span class="lineNum">      58</span>              : // yardSpot は前庭の外構を置くタイルを返す。門の脇で塀の1マス内側の前庭タイルを試す。前庭でなければ置かない。</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">           1 : func yardSpot(s Site, fside side, doorAxis consts.Tile) (Vec, bool) {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         f := s.Footprint</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : func yardSpot(s Site, fside side, doorAxis consts.Tile) (Vec, bool) {</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC tlaBgGNC">           1 :         f := s.Footprint</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         var p Vec</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         switch fside {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         case sideNorth:</span></span>
+<span id="L63"><span class="lineNum">      63</span>              :         case sideNorth:</span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 p = Vec{X: doorAxis + 2, Y: f.Y + 1}</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 :         case sideSouth:</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                 p = Vec{X: doorAxis + 2, Y: f.Y + f.H - 2}</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           1 :         case sideWest:</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 p = Vec{X: f.X + 1, Y: doorAxis + 2}</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC tlaBgUNC">           0 :         case sideEast:</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 p = Vec{X: f.X + f.W - 2, Y: doorAxis + 2}</span></span>
+<span id="L65"><span class="lineNum">      65</span>              :         case sideSouth:</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                 p = Vec{X: doorAxis + 2, Y: f.Y + f.H - 2}</span></span>
+<span id="L67"><span class="lineNum">      67</span>              :         case sideWest:</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC tlaBgGNC">           1 :                 p = Vec{X: f.X + 1, Y: doorAxis + 2}</span></span>
+<span id="L69"><span class="lineNum">      69</span>              :         case sideEast:</span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 :                 p = Vec{X: f.X + f.W - 2, Y: doorAxis + 2}</span></span>
 <span id="L71"><span class="lineNum">      71</span>              :         }</span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           2 :         if s.Garden[p] {</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC tlaBgGNC">           1 :         if s.Garden[p] {</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 return p, true</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         return Vec{}, false</span></span>

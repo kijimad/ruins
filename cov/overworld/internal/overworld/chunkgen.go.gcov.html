@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.6&nbsp;%</td>
-            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryMed">76.0&nbsp;%</td>
             <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">19</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,8 +85,8 @@
 <span id="L23"><span class="lineNum">      23</span>              : //</span>
 <span id="L24"><span class="lineNum">      24</span>              : // 奇数を掛けるのは 2^64 を法として可逆で座標の情報を落とさないため。定数を変えると同じ runSeed</span>
 <span id="L25"><span class="lineNum">      25</span>              : // でも別の世界になる。</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 : func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         x := runSeed + uint64(cx)*0x9E3779B97F4A7C15 + uint64(cy)*0xC2B2AE3D27D4EB4F</span></span>
+<span id="L26"><span class="lineNum">      26</span>              : func ChunkSeed2D(runSeed uint64, cx, cy consts.Chunk) uint64 {</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 :         x := runSeed + uint64(cx)*0x9E3779B97F4A7C15 + uint64(cy)*0xC2B2AE3D27D4EB4F</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 30</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         x *= 0xBF58476D1CE4E5B9</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         x ^= x &gt;&gt; 27</span></span>
@@ -99,8 +99,8 @@
 <span id="L37"><span class="lineNum">      37</span>              : // チャンク座標ごとに (runSeed, 座標) から決定的に、地形→地物の層の順で生成し、</span>
 <span id="L38"><span class="lineNum">      38</span>              : // 帯ローカルの (offsetX, offsetY) へ配置する。東西は無限にストリーミングし、南北は帯の行数に有界。</span>
 <span id="L39"><span class="lineNum">      39</span>              : // rows は帯の行数で当選行の抽選に使う。</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :         return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error {</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : func NewChunkGen(world w.World, runSeed uint64, chunkW, chunkH consts.Tile, rows consts.Chunk, planner mapplanner.PlannerType) worldstream.ChunkGen {</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         return func(c consts.Coord[consts.Chunk], offsetX, offsetY consts.Tile) error {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 plan, err := mapplanner.Plan(world, chunkW, chunkH, ChunkSeed2D(runSeed, c.X, c.Y), planner)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to generate chunk (x=%d, y=%d): %w&quot;, c.X, c.Y, err)</span></span>
@@ -116,12 +116,12 @@
 <span id="L54"><span class="lineNum">      54</span>              :                 // 置換タイル自身と、隣接する土の添字がここで揃う</span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 :                 RecalcAutotileInXRange(world, offsetX, offsetX+chunkW)</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 // 生成したチャンクのフィールドエンティティをオーバーワールドステージへ束縛する。</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 // ステージをまたいで束縛するので、遺跡へ入るとき帯のエンティティをまとめて退避できる。</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 // シフトで生成される新チャンクもここで束縛される。Player・既束縛は</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 // Bind が自然に除外する</span></span>
+<span id="L57"><span class="lineNum">      57</span>              :                 // ステージをまたいで束縛するので、遺跡へ入るとき帯のエンティティをまとめて退避できる。</span>
+<span id="L58"><span class="lineNum">      58</span>              :                 // シフトで生成される新チャンクもここで束縛される。Player・既束縛は</span>
+<span id="L59"><span class="lineNum">      59</span>              :                 // Bind が自然に除外する</span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 stage.Bind(world, gc.NewOverworldStage())</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 // このチャンクの4境界を接合後に再計算して継ぎ目を消す。片側が空の帯端は自己スキップ</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 // されるため、東西南北を無条件にまとめて呼べる。東シフトは西境界、西シフトは東境界が実境界。</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :                 // されるため、東西南北を無条件にまとめて呼べる。東シフトは西境界、西シフトは東境界が実境界。</span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 RecalcChunkSeams(world, offsetX, offsetY, chunkW, chunkH)</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L65"><span class="lineNum">      65</span>              :         }</span>

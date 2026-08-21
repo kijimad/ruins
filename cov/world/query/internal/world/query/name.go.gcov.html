@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">16.7&nbsp;%</td>
-            <td class="headerCovTableEntry">18</td>
-            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">2</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,8 +70,8 @@
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              : // GetEntityName はエンティティの表示名を現在言語で返す。Name コンポーネントの英語原文を</span>
 <span id="L10"><span class="lineNum">      10</span>              : // query.T で訳す。移行中の未訳 name は原文フォールバックでそのまま返る</span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">           1 : func GetEntityName(entity ecs.Entity, world w.World) string {</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           1 :         if !world.ECS.Alive(entity) || !world.Components.Name.Has(entity) {</span></span>
+<span id="L11"><span class="lineNum">      11</span>              : func GetEntityName(entity ecs.Entity, world w.World) string {</span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 :         if !world.ECS.Alive(entity) || !world.Components.Name.Has(entity) {</span></span>
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC tlaBgUNC">           0 :                 return T(world, &quot;Unknown&quot;)</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 :         return T(world, world.Components.Name.Get(entity).Name)</span></span>
@@ -79,8 +79,8 @@
 <span id="L17"><span class="lineNum">      17</span>              : </span>
 <span id="L18"><span class="lineNum">      18</span>              : // GetEntityID はエンティティの同定キーを返す。raw 定義やレシピ参照との照合に使う。</span>
 <span id="L19"><span class="lineNum">      19</span>              : // 表示名ではなく英語の id を返す。RawID コンポーネントを持たなければ空文字を返す</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC tlaBgUNC">           0 : func GetEntityID(entity ecs.Entity, world w.World) string {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         if !world.ECS.Alive(entity) || !world.Components.RawID.Has(entity) {</span></span>
+<span id="L20"><span class="lineNum">      20</span>              : func GetEntityID(entity ecs.Entity, world w.World) string {</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC tlaBgUNC">           0 :         if !world.ECS.Alive(entity) || !world.Components.RawID.Has(entity) {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                 return &quot;&quot;</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         return world.Components.RawID.Get(entity).ID</span></span>
@@ -89,13 +89,13 @@
 <span id="L27"><span class="lineNum">      27</span>              : // NameMarkup はエンティティ種別に応じたタグで名前を包んだマークアップ文字列を返す。</span>
 <span id="L28"><span class="lineNum">      28</span>              : // Player=&lt;player&gt;、NPC=&lt;npc&gt;、その他は裸のテキスト。gamelog.Markup へ書式の引数として渡す。</span>
 <span id="L29"><span class="lineNum">      29</span>              : // 名前の色は実行時の種別で決まるため、書式文字列でなくここでタグ付けする</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 : func NameMarkup(entity ecs.Entity, name string, world w.World) string {</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : func NameMarkup(entity ecs.Entity, name string, world w.World) string {</span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         switch {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         case world.Components.Player.Has(entity):</span></span>
+<span id="L32"><span class="lineNum">      32</span>              :         case world.Components.Player.Has(entity):</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 return gamelog.Tag(&quot;player&quot;, name)</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         case world.Components.SoloAI.Has(entity):</span></span>
+<span id="L34"><span class="lineNum">      34</span>              :         case world.Components.SoloAI.Has(entity):</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 return gamelog.Tag(&quot;npc&quot;, name)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L36"><span class="lineNum">      36</span>              :         default:</span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 return name</span></span>
 <span id="L38"><span class="lineNum">      38</span>              :         }</span>
 <span id="L39"><span class="lineNum">      39</span>              : }</span>

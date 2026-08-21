@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">73.3&nbsp;%</td>
-            <td class="headerCovTableEntry">15</td>
-            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">71.4&nbsp;%</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,8 +77,8 @@
 <span id="L15"><span class="lineNum">      15</span>              : }</span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              : // InitGeneric は型安全なワールド初期化</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func InitGeneric[C c.ComponentInitializer, R r.ResourceInitializer](gameComponents C, gameResources R) (Generic[C, R], error) {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         world := ecs.NewWorld()</span></span>
+<span id="L18"><span class="lineNum">      18</span>              : func InitGeneric[C c.ComponentInitializer, R r.ResourceInitializer](gameComponents C, gameResources R) (Generic[C, R], error) {</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         world := ecs.NewWorld()</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         components, err := c.InitComponents(world, gameComponents)</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 :                 return Generic[C, R]{}, err</span></span>

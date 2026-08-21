@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">60.0&nbsp;%</td>
-            <td class="headerCovTableEntry">30</td>
-            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryLo">52.0&nbsp;%</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">13</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,11 +74,11 @@
 <span id="L12"><span class="lineNum">      12</span>              : // BuyStock はプレイヤーが商人の在庫アイテムを買う。一覧の1行はスタック代表なので、</span>
 <span id="L13"><span class="lineNum">      13</span>              : // 同一スタックを丸ごと買い、代金は個数×単価にする。実体を商人の収納からバックパックへ移す。</span>
 <span id="L14"><span class="lineNum">      14</span>              : // 通貨が足りなければ何もせずエラーを返す</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 : func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         // BuyPrice は価値×スタック個数で全量の額を返す。移動もスタック丸ごとで、額と個数が揃う</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         price := query.BuyPrice(world, player, item)</span></span>
+<span id="L15"><span class="lineNum">      15</span>              : func BuyStock(world w.World, player ecs.Entity, item ecs.Entity) error {</span>
+<span id="L16"><span class="lineNum">      16</span>              :         // BuyPrice は価値×スタック個数で全量の額を返す。移動もスタック丸ごとで、額と個数が揃う</span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC tlaBgGNC">           1 :         price := query.BuyPrice(world, player, item)</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if !query.HasCurrency(world, player, price) {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         if !query.HasCurrency(world, player, price) {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;not enough currency: need %d, have %d&quot;, price, query.GetCurrency(world, player))</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         if !query.ConsumeCurrency(world, player, price) {</span></span>
@@ -98,9 +98,9 @@
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // SellStock はプレイヤーが持ち物を商人へ売る。一覧の1行はスタック代表なので、</span>
 <span id="L38"><span class="lineNum">      38</span>              : // 同一スタックを丸ごと売り、代金は個数×単価で受け取る。実体は商人の収納へ移り店頭に並ぶ</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.Entity) error {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         // SellPrice は価値×スタック個数で全量の額を返す。額は移動前に確定する。移動後は</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         // スタックの位置が変わり個数の数え上げ範囲がずれるため、先に出しておく</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : func SellStock(world w.World, player ecs.Entity, merchant ecs.Entity, item ecs.Entity) error {</span>
+<span id="L40"><span class="lineNum">      40</span>              :         // SellPrice は価値×スタック個数で全量の額を返す。額は移動前に確定する。移動後は</span>
+<span id="L41"><span class="lineNum">      41</span>              :         // スタックの位置が変わり個数の数え上げ範囲がずれるため、先に出しておく</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         price := query.SellPrice(world, player, item)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         if _, err := lifecycle.MoveStackToStorage(world, item, merchant); err != nil {</span></span>

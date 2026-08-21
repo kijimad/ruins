@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.1&nbsp;%</td>
-            <td class="headerCovTableEntry">17</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryHi">91.7&nbsp;%</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">11</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -83,24 +83,24 @@
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // rollSiteType は施設種別と seed から敷地類型を1つ引く。民家は戸建。店は商店街かロードサイドを seed で選び、</span>
 <span id="L23"><span class="lineNum">      23</span>              : // 街路に面した店と郊外の駐車場付き店を出し分ける。</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 : func rollSiteType(facility FacilityKind, seed uint64) siteType {</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         if !isShop(facility) {</span></span>
+<span id="L24"><span class="lineNum">      24</span>              : func rollSiteType(facility FacilityKind, seed uint64) siteType {</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         if !isShop(facility) {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 return siteDetached</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         if childSeed(seed, 12_000_000)%2 == 0 {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         if childSeed(seed, 12_000_000)%2 == 0 {</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 return siteShopfront</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return siteRoadside</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : }</span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              : // frontYardOf は敷地類型ごとの前庭の奥行きを返す。商店街は街路に面して浅く、ロードサイドは駐車場ぶん深い。</span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func frontYardOf(st siteType) consts.Tile {</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : func frontYardOf(st siteType) consts.Tile {</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         switch st {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         case siteDetached:</span></span>
+<span id="L37"><span class="lineNum">      37</span>              :         case siteDetached:</span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 return frontYard</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         case siteShopfront:</span></span>
+<span id="L39"><span class="lineNum">      39</span>              :         case siteShopfront:</span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 return 1</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         case siteRoadside:</span></span>
+<span id="L41"><span class="lineNum">      41</span>              :         case siteRoadside:</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 return 5</span></span>
 <span id="L43"><span class="lineNum">      43</span>              :         }</span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;unknown siteType: &quot; + strconv.Itoa(int(st)))</span></span>

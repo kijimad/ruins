@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">79.6&nbsp;%</td>
-            <td class="headerCovTableEntry">93</td>
-            <td class="headerCovTableEntry">74</td>
+            <td class="headerCovTableEntryMed">79.3&nbsp;%</td>
+            <td class="headerCovTableEntry">82</td>
+            <td class="headerCovTableEntry">65</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,10 +85,10 @@
 <span id="L23"><span class="lineNum">      23</span>              : // wireDoorways は conns の各対を共有壁の戸口で繋ぎ、部屋キー→戸口列の対応を返す。戸口の位置抽選は</span>
 <span id="L24"><span class="lineNum">      24</span>              : // childSeed(seed, i+1) に閉じ、分割比ジッタの 5_000_000 番台や型選択の 0 と相関しない。民家・店・診療所の</span>
 <span id="L25"><span class="lineNum">      25</span>              : // どのテンプレも部屋間の連結にこの1関数を共有する。</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 : func wireDoorways(rectOf map[string]Rect, seed uint64, conns [][2]string) map[string][]Doorway {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         doors := map[string][]Doorway{}</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         for i, c := range conns {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :                 if d, ok := sharedDoorway(rectOf[c[0]], rectOf[c[1]], childSeed(seed, i+1)); ok {</span></span>
+<span id="L26"><span class="lineNum">      26</span>              : func wireDoorways(rectOf map[string]Rect, seed uint64, conns [][2]string) map[string][]Doorway {</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 :         doors := map[string][]Doorway{}</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         for i, c := range conns {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 if d, ok := sharedDoorway(rectOf[c[0]], rectOf[c[1]], childSeed(seed, i+1)); ok {</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                         doors[c[0]] = append(doors[c[0]], d)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                         doors[c[1]] = append(doors[c[1]], d)</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 }</span></span>
@@ -98,9 +98,9 @@
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // assembleRooms は矩形表と戸口表を order の順に PlannedRoom へ組む。返す順序が動線の手前から奥へ並ぶよう</span>
 <span id="L38"><span class="lineNum">      38</span>              : // order を作る。</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : func assembleRooms(rectOf map[string]Rect, doors map[string][]Doorway, order []roomRole) []PlannedRoom {</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : func assembleRooms(rectOf map[string]Rect, doors map[string][]Doorway, order []roomRole) []PlannedRoom {</span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         rooms := make([]PlannedRoom, 0, len(order))</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :         for _, o := range order {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         for _, o := range order {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 rooms = append(rooms, PlannedRoom{</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                         Room: Room{Rect: rectOf[o.key], Doorways: doors[o.key]},</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                         Role: o.role,</span></span>
@@ -112,14 +112,14 @@
 <span id="L50"><span class="lineNum">      50</span>              : // jitterSplit は分割線を seed で ±1 揺らす。固定比率のテンプレでも部屋サイズが seed ごとに変わり、同一</span>
 <span id="L51"><span class="lineNum">      51</span>              : // スケルトンの見えを崩す。分割線は隣接2室が共有するので、1本を動かしても両室が揃って動き連結は保たれる。</span>
 <span id="L52"><span class="lineNum">      52</span>              : // index は分割線ごとに変え、ジッタ同士・戸口抽選・型選択の相関を避けるため 5_000_000 番台へ閉じる。</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func jitterSplit(seed uint64, index int, base consts.Tile) consts.Tile {</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : func jitterSplit(seed uint64, index int, base consts.Tile) consts.Tile {</span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         return base + consts.Tile(childSeed(seed, 5_000_000+index)%3) - 1</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : </span>
 <span id="L57"><span class="lineNum">      57</span>              : // PlanHouseMid は横廊下の中型民家。玄関を左上角に置き、上段(玄関・居間・台所)を全幅の横廊下で繋ぎ、下段は</span>
 <span id="L58"><span class="lineNum">      58</span>              : // 寝室を広く取り、右下の水回り小ブロックへ浴室とトイレを寄せる。玄関を街路の当たる左上角に固定するので、</span>
 <span id="L59"><span class="lineNum">      59</span>              : // 北入口でも西入口でも敷地計画の frontSlot が入口を玄関へスナップし、入口は必ず玄関へ開く。</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : func PlanHouseMid(footprint Rect, seed uint64) []PlannedRoom {</span></span>
+<span id="L60"><span class="lineNum">      60</span>              : func PlanHouseMid(footprint Rect, seed uint64) []PlannedRoom {</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         right, bottom := x0+w-1, y0+h-1</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         l := newLayout(seed)</span></span>
@@ -129,7 +129,7 @@
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         l.room(&quot;corridor&quot;, &quot;corridor&quot;, Rect{X: x0, Y: topBot, W: w, H: corrBot - topBot + 1})</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         // 玄関は左上角に幅4で固定する。strip 任せで幅3になると内側1で、西入口のポーチの凹み1マスで入口が隣室へ</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         // ずれる。幅4なら内側2で凹みを吸える。残りの上段を居間・台所へ割り、いずれも下の廊下へ面させる</span></span>
+<span id="L70"><span class="lineNum">      70</span>              :         // ずれる。幅4なら内側2で凹みを吸える。残りの上段を居間・台所へ割り、いずれも下の廊下へ面させる</span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         gRight := x0 + wetBlockSide - 1</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         l.room(&quot;genkan&quot;, &quot;genkan&quot;, Rect{X: x0, Y: y0, W: gRight - x0 + 1, H: topBot - y0 + 1})</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         l.connect(&quot;corridor&quot;, &quot;genkan&quot;)</span></span>
@@ -146,7 +146,7 @@
 <span id="L84"><span class="lineNum">      84</span>              : // PlanHouseMidV は縦廊下の中型民家。玄関を左上角に置き、その下へ縦廊下を伸ばす。右エリアに居間・台所・寝室を</span>
 <span id="L85"><span class="lineNum">      85</span>              : // 縦に積み、寝室の右端の水回り小ブロックへ浴室とトイレを寄せる。横型と骨格が違い、入口は必ず玄関へ開く。</span>
 <span id="L86"><span class="lineNum">      86</span>              : // 右エリアの縦積みは建物高が要るので、PlanHouseAny は高い建物でのみ縦型を選ぶ。</span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 : func PlanHouseMidV(footprint Rect, seed uint64) []PlannedRoom {</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : func PlanHouseMidV(footprint Rect, seed uint64) []PlannedRoom {</span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         right := x0 + w - 1</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         l := newLayout(seed)</span></span>
@@ -172,8 +172,8 @@
 <span id="L110"><span class="lineNum">     110</span>              : // PlanHouseCompact は狭い footprint 向けの小さな民家。中型が入らない ~13 未満の建物で、居間・寝室・台所・</span>
 <span id="L111"><span class="lineNum">     111</span>              : // 浴室の田の字4室にする。本番のチャンク24では通常この経路に落ちないが、より小さな建物のフォールバックとして</span>
 <span id="L112"><span class="lineNum">     112</span>              : // 民家らしい部屋の作り分けを保つ。入口は敷地計画 Site が居間側へ開ける。</span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC tlaBgUNC">           0 : func PlanHouseCompact(footprint Rect, seed uint64) []PlannedRoom {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H</span></span>
+<span id="L113"><span class="lineNum">     113</span>              : func PlanHouseCompact(footprint Rect, seed uint64) []PlannedRoom {</span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC tlaBgUNC">           0 :         x0, y0, w, h := footprint.X, footprint.Y, footprint.W, footprint.H</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         bottom := y0 + h - 1</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         l := newLayout(seed)</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 : </span></span>
@@ -193,17 +193,17 @@
 <span id="L131"><span class="lineNum">     131</span>              : // PlanHouseAny は建物サイズから中型かコンパクトを決定的に選ぶ。高さ16以上は縦積みの入る横型・縦型を seed で</span>
 <span id="L132"><span class="lineNum">     132</span>              : // 選び骨格の変化を出す。それ未満(高さ13以上)は縦積みが入らないので横型に限る。さらに狭ければ田の字。型の選択は</span>
 <span id="L133"><span class="lineNum">     133</span>              : // childSeed(seed, 0) に閉じ、各テンプレ内部の戸口抽選や分割比ジッタと相関しないようにする。</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC tlaBgGNC">           1 : func PlanHouseAny(footprint Rect, seed uint64) []PlannedRoom {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         case footprint.W &gt;= 14 &amp;&amp; footprint.H &gt;= 16:</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           2 :                 if childSeed(seed, 0)%2 == 0 {</span></span>
+<span id="L134"><span class="lineNum">     134</span>              : func PlanHouseAny(footprint Rect, seed uint64) []PlannedRoom {</span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC tlaBgGNC">           1 :         switch {</span></span>
+<span id="L136"><span class="lineNum">     136</span>              :         case footprint.W &gt;= 14 &amp;&amp; footprint.H &gt;= 16:</span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 if childSeed(seed, 0)%2 == 0 {</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                         return PlanHouseMid(footprint, seed)</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 return PlanHouseMidV(footprint, seed)</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         case footprint.W &gt;= 14 &amp;&amp; footprint.H &gt;= 13:</span></span>
+<span id="L141"><span class="lineNum">     141</span>              :         case footprint.W &gt;= 14 &amp;&amp; footprint.H &gt;= 13:</span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 return PlanHouseMid(footprint, seed)</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC tlaBgUNC">           0 :         default:</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 return PlanHouseCompact(footprint, seed)</span></span>
+<span id="L143"><span class="lineNum">     143</span>              :         default:</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC tlaBgUNC">           0 :                 return PlanHouseCompact(footprint, seed)</span></span>
 <span id="L145"><span class="lineNum">     145</span>              :         }</span>
 <span id="L146"><span class="lineNum">     146</span>              : }</span>
         </pre>

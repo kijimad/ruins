@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntry">45</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,9 +81,9 @@
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // DrawFramedBackground は枠線付きの背景を描画する。</span>
 <span id="L21"><span class="lineNum">      21</span>              : // HighlightColor/ShadowColorが設定されている場合、上辺/下辺に1pxの線を追加して立体感を出す</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 : func DrawFramedBackground(screen *ebiten.Image, x, y, width, height int, style BackgroundStyle) {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         // 枠線を描画</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         if style.BorderWidth &gt; 0 {</span></span>
+<span id="L22"><span class="lineNum">      22</span>              : func DrawFramedBackground(screen *ebiten.Image, x, y, width, height int, style BackgroundStyle) {</span>
+<span id="L23"><span class="lineNum">      23</span>              :         // 枠線を描画</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 :         if style.BorderWidth &gt; 0 {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 vector.StrokeRect(screen,</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :                         float32(x),</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                         float32(y),</span></span>
@@ -105,7 +105,7 @@
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 style.BackgroundColor,</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 false)</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         // 上辺ハイライト線（1px）</span></span>
+<span id="L46"><span class="lineNum">      46</span>              :         // 上辺ハイライト線（1px）</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         if style.HighlightColor.A &gt; 0 {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :                 vector.FillRect(screen,</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                         float32(x+borderOffset),</span></span>
@@ -129,7 +129,7 @@
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              : // PanelStyle はゲーム内パネルの標準スタイルを返す</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 : func PanelStyle() BackgroundStyle {</span></span>
+<span id="L70"><span class="lineNum">      70</span>              : func PanelStyle() BackgroundStyle {</span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         return BackgroundStyle{</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 BackgroundColor: theme.PanelBackground,</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :                 BorderColor:     theme.PanelHighlight,</span></span>
@@ -137,7 +137,7 @@
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                 HighlightColor:  theme.PanelHighlight,</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 ShadowColor:     theme.PanelShadow,</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L78"><span class="lineNum">      78</span>              : }</span>
         </pre>
               </td>
             </tr>

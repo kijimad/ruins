@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">61.9&nbsp;%</td>
-            <td class="headerCovTableEntry">21</td>
-            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">68.8&nbsp;%</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">11</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,21 +79,21 @@
 <span id="L17"><span class="lineNum">      17</span>              : }</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // newRenderer はポスト処理チェーンを与えて renderer を作る。</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC tlaBgUNC">           0 : func newRenderer(pipeline *screeneffect.Pipeline) renderer {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         return renderer{pipeline: pipeline}</span></span>
+<span id="L20"><span class="lineNum">      20</span>              : func newRenderer(pipeline *screeneffect.Pipeline) renderer {</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC tlaBgUNC">           0 :         return renderer{pipeline: pipeline}</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // Draw は state 群をスタックの下から順にフレームへ描き、ポスト処理をかけて screen へ出す。</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 : func (r *renderer) Draw(screen *ebiten.Image, states []es.State[w.World], world w.World) {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         b := screen.Bounds()</span></span>
+<span id="L25"><span class="lineNum">      25</span>              : func (r *renderer) Draw(screen *ebiten.Image, states []es.State[w.World], world w.World) {</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         b := screen.Bounds()</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         r.ensureFrame(b.Dx(), b.Dy())</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         r.frame.Clear()</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           2 :         for _, state := range states {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         for _, state := range states {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 if err := state.Draw(world, r.frame); err != nil {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :                         // Draw は Ebiten インターフェースのため戻り値を返せない。panic にして</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                         // スタックトレースを残す。log.Fatal は os.Exit で defer を飛ばすため使わない。</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                         panic(err)</span></span>
+<span id="L32"><span class="lineNum">      32</span>              :                         // Draw は Ebiten インターフェースのため戻り値を返せない。panic にして</span>
+<span id="L33"><span class="lineNum">      33</span>              :                         // スタックトレースを残す。log.Fatal は os.Exit で defer を飛ばすため使わない。</span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                         panic(err)</span></span>
 <span id="L35"><span class="lineNum">      35</span>              :                 }</span>
 <span id="L36"><span class="lineNum">      36</span>              :         }</span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
@@ -101,7 +101,7 @@
 <span id="L39"><span class="lineNum">      39</span>              : }</span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span>              : // ensureFrame はフレームバッファを画面サイズで用意する。サイズが変わったら作り直す。</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 : func (r *renderer) ensureFrame(width, height int) {</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : func (r *renderer) ensureFrame(width, height int) {</span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         if r.frame != nil &amp;&amp; r.frameW == width &amp;&amp; r.frameH == height {</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>

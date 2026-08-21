@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">89.1&nbsp;%</td>
-            <td class="headerCovTableEntry">55</td>
-            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntryMed">87.0&nbsp;%</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntry">40</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -89,25 +89,25 @@
 <span id="L27"><span class="lineNum">      27</span>              : // collection は各エントリを独立に確率判定する。個数は entry の pack ダイスで振る。stackable は個数を1エントリ</span>
 <span id="L28"><span class="lineNum">      28</span>              : // にまとめ、非 stackable は1個ずつのエントリに展開する。深度を扱わず group を直接引くので、地上の床 loot と</span>
 <span id="L29"><span class="lineNum">      29</span>              : // 家具の収納 loot が同じ抽選を共有できる。</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 : func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]DrawnItem, error) {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         group, err := GetItemGroup(raws, groupID)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]DrawnItem, error) {</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 :         group, err := GetItemGroup(raws, groupID)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         switch group.Subtype {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         case oapi.Distribution:</span></span>
+<span id="L36"><span class="lineNum">      36</span>              :         case oapi.Distribution:</span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return drawDistribution(group.Entries, rng)</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         case oapi.Collection:</span></span>
+<span id="L38"><span class="lineNum">      38</span>              :         case oapi.Collection:</span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return drawCollection(group.Entries, rng)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 // group.Subtype は raw 由来で未知値が来うる。データ不整合として呼び出し側へ返す</span></span>
+<span id="L40"><span class="lineNum">      40</span>              :         default:</span>
+<span id="L41"><span class="lineNum">      41</span>              :                 // group.Subtype は raw 由来で未知値が来うる。データ不整合として呼び出し側へ返す</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;%w for %q: %s&quot;, errUnknownItemGroupSubtype, groupID, group.Subtype)</span></span>
 <span id="L43"><span class="lineNum">      43</span>              :         }</span>
 <span id="L44"><span class="lineNum">      44</span>              : }</span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // drawDistribution は重み比で1エントリを選び、その pack ぶんを返す。</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :         if len(entries) == 0 {</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : func drawDistribution(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         if len(entries) == 0 {</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return nil, nil</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         entry, err := SelectByWeightFunc(</span></span>
@@ -119,7 +119,7 @@
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC tlaBgGNC">           2 :         if entry.Id == &quot;&quot; {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC tlaBgGNC">           1 :         if entry.Id == &quot;&quot; {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return nil, nil</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         count, err := rollPack(entry.Pack, rng)</span></span>
@@ -131,13 +131,13 @@
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span>              : // drawCollection は各エントリを 0-100 の確率で独立に判定し、当選ぶんを返す。両方出ることも、どちらも出ない</span>
 <span id="L71"><span class="lineNum">      71</span>              : // こともある。</span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : func drawCollection(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {</span></span>
+<span id="L72"><span class="lineNum">      72</span>              : func drawCollection(entries []oapi.ItemGroupEntry, rng *rand.Rand) ([]DrawnItem, error) {</span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         var out []DrawnItem</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :         for _, e := range entries {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           2 :                 if e.Weight &lt;= 0 {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         for _, e := range entries {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 if e.Weight &lt;= 0 {</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L77"><span class="lineNum">      77</span>              :                 }</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           2 :                 if rng.Float64()*100 &lt; e.Weight {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 if rng.Float64()*100 &lt; e.Weight {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         count, err := rollPack(e.Pack, rng)</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                         if err != nil {</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return nil, err</span></span>
@@ -150,9 +150,9 @@
 <span id="L88"><span class="lineNum">      88</span>              : </span>
 <span id="L89"><span class="lineNum">      89</span>              : // rollPack は pack のダイス表記を振って個数を返す。pack は必須で、空表記や不正表記は ParseDice が弾く。</span>
 <span id="L90"><span class="lineNum">      90</span>              : // ロード時の validateSpawnDice が同じ ParseDice で全 pack を検証するので、正常データでは実行時にエラーにならない。</span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 : func rollPack(pack oapi.Dice, rng *rand.Rand) (int, error) {</span></span>
+<span id="L91"><span class="lineNum">      91</span>              : func rollPack(pack oapi.Dice, rng *rand.Rand) (int, error) {</span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         d, err := consts.ParseDice(pack)</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;%w %q: %w&quot;, errInvalidPackDice, pack, err)</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         return d.Roll(rng), nil</span></span>
@@ -160,8 +160,8 @@
 <span id="L98"><span class="lineNum">      98</span>              : </span>
 <span id="L99"><span class="lineNum">      99</span>              : // expandDraw は抽選結果を DrawnItem に落とす。個数は spawn 側が1個1エンティティに展開するので、</span>
 <span id="L100"><span class="lineNum">     100</span>              : // ここでは個数を1エントリにまとめて返す。</span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : func expandDraw(name string, count int) []DrawnItem {</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           2 :         if count &lt;= 0 {</span></span>
+<span id="L101"><span class="lineNum">     101</span>              : func expandDraw(name string, count int) []DrawnItem {</span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         if count &lt;= 0 {</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         return []DrawnItem{{Name: name, Count: count}}</span></span>

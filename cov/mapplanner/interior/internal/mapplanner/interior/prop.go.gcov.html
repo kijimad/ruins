@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">7</td>
-            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">5</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -137,14 +137,14 @@
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span>              : // PropRawName は Ref に対応する raw prop 名と、それが in-game に spawn されるかを返す。overworld の spawn と</span>
 <span id="L77"><span class="lineNum">      77</span>              : // VRT の描画がこの1関数を共有し、片方だけが描く/置くという乖離が構造的に起きないようにする。</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">           1 : func PropRawName(ref string) (string, bool) {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         name, ok := propRaw[ref]</span></span>
+<span id="L78"><span class="lineNum">      78</span>              : func PropRawName(ref string) (string, bool) {</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC tlaBgGNC">           1 :         name, ok := propRaw[ref]</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         return name, ok</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L82"><span class="lineNum">      82</span>              : </span>
 <span id="L83"><span class="lineNum">      83</span>              : // PropRaws は Ref から raw prop 名への対応表を返す。値の raw が実在するかを検査するテストが全対を舐めるのに使う。</span>
 <span id="L84"><span class="lineNum">      84</span>              : // 返す map は書き換えない前提。</span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 : func PropRaws() map[string]string {</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : func PropRaws() map[string]string {</span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         return propRaw</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>

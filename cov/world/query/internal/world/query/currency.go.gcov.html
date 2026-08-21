@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">92.3&nbsp;%</td>
-            <td class="headerCovTableEntry">26</td>
-            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryHi">90.9&nbsp;%</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">20</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,9 +71,9 @@
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // AddCurrency はエンティティに所持金を追加する</span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 : func AddCurrency(world w.World, entity ecs.Entity, amount consts.Currency) error {</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         wallet := world.Components.Wallet.Get(entity)</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           2 :         if wallet == nil {</span></span>
+<span id="L12"><span class="lineNum">      12</span>              : func AddCurrency(world w.World, entity ecs.Entity, amount consts.Currency) error {</span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 :         wallet := world.Components.Wallet.Get(entity)</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         if wallet == nil {</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;entity has no Wallet component&quot;)</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         wallet.Currency += amount</span></span>
@@ -81,24 +81,24 @@
 <span id="L19"><span class="lineNum">      19</span>              : }</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // GetCurrency はエンティティの所持金を取得する</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : func GetCurrency(world w.World, entity ecs.Entity) consts.Currency {</span></span>
+<span id="L22"><span class="lineNum">      22</span>              : func GetCurrency(world w.World, entity ecs.Entity) consts.Currency {</span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         wallet := world.Components.Wallet.Get(entity)</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           2 :         if wallet == nil {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if wallet == nil {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         return wallet.Currency</span></span>
 <span id="L28"><span class="lineNum">      28</span>              : }</span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span>              : // HasCurrency は指定額以上の所持金を持っているか確認</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : func HasCurrency(world w.World, entity ecs.Entity, amount consts.Currency) bool {</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : func HasCurrency(world w.World, entity ecs.Entity, amount consts.Currency) bool {</span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         return GetCurrency(world, entity) &gt;= amount</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              : // ConsumeCurrency はエンティティの所持金を消費する</span>
 <span id="L36"><span class="lineNum">      36</span>              : // 所持金が足りない場合はfalseを返す</span>
 <span id="L37"><span class="lineNum">      37</span>              : // TODO(kijima): 使いにくいのを直す</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : func ConsumeCurrency(world w.World, entity ecs.Entity, amount consts.Currency) bool {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           2 :         if !HasCurrency(world, entity, amount) {</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : func ConsumeCurrency(world w.World, entity ecs.Entity, amount consts.Currency) bool {</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         if !HasCurrency(world, entity, amount) {</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         wallet := world.Components.Wallet.Get(entity)</span></span>

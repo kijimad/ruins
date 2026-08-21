@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">59.1&nbsp;%</td>
-            <td class="headerCovTableEntry">44</td>
-            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntryLo">60.6&nbsp;%</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntry">20</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,11 +90,11 @@
 <span id="L28"><span class="lineNum">      28</span>              : )</span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span>              : // NewPlannerChainByTemplateType は指定されたテンプレートタイプでプランナーチェーンを作成する</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 : func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*PlannerChain, error) {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         // テンプレートローダーを作成</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         templateLoader := maptemplate.NewTemplateLoader()</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*PlannerChain, error) {</span>
+<span id="L32"><span class="lineNum">      32</span>              :         // テンプレートローダーを作成</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 :         templateLoader := maptemplate.NewTemplateLoader()</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         // すべてのチャンクを事前登録</span></span>
+<span id="L35"><span class="lineNum">      35</span>              :         // すべてのチャンクを事前登録</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if err := templateLoader.RegisterAllChunks([]string{</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 &quot;levels/chunks&quot;,</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 &quot;levels/facilities&quot;,</span></span>
@@ -113,22 +113,22 @@
 <span id="L51"><span class="lineNum">      51</span>              :         // テンプレート名を決定</span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 :         var templateName string</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         switch templateType {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 :         case TemplateTypeSmallRoom:</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                 templateName = &quot;10x10_small_room&quot;</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         case TemplateTypeOfficeBuilding:</span></span>
+<span id="L54"><span class="lineNum">      54</span>              :         case TemplateTypeSmallRoom:</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :                 templateName = &quot;10x10_small_room&quot;</span></span>
+<span id="L56"><span class="lineNum">      56</span>              :         case TemplateTypeOfficeBuilding:</span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 templateName = &quot;15x10_office_building&quot;</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         case TemplateTypeSmallTown:</span></span>
+<span id="L58"><span class="lineNum">      58</span>              :         case TemplateTypeSmallTown:</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 templateName = &quot;50x50_small_town&quot;</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC tlaBgGNC">           1 :         case TemplateTypeTownPlaza:</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 templateName = &quot;50x20_town_plaza&quot;</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         case TemplateTypeBossFloor:</span></span>
+<span id="L60"><span class="lineNum">      60</span>              :         case TemplateTypeTownPlaza:</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 :                 templateName = &quot;50x20_town_plaza&quot;</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :         case TemplateTypeBossFloor:</span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 templateName = &quot;50x50_boss_floor&quot;</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC tlaBgUNC">           0 :         case TemplateTypeCubeInteriorInitial:</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                 templateName = &quot;5x5_cube_interior&quot;</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC tlaBgGNC">           1 :         case TemplateTypeDebugTown:</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 templateName = &quot;20x20_debug_town&quot;</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC tlaBgUNC">           0 :         default:</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;unknown template type: %d&quot;, templateType)</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :         case TemplateTypeCubeInteriorInitial:</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 :                 templateName = &quot;5x5_cube_interior&quot;</span></span>
+<span id="L66"><span class="lineNum">      66</span>              :         case TemplateTypeDebugTown:</span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           1 :                 templateName = &quot;20x20_debug_town&quot;</span></span>
+<span id="L68"><span class="lineNum">      68</span>              :         default:</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;unknown template type: %d&quot;, templateType)</span></span>
 <span id="L70"><span class="lineNum">      70</span>              :         }</span>
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              :         // テンプレート名を指定して展開済みテンプレートとセル配列を取得</span>

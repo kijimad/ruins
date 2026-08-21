@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntry">51</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -108,8 +108,8 @@
 <span id="L46"><span class="lineNum">      46</span>              :         },</span>
 <span id="L47"><span class="lineNum">      47</span>              : }</span>
 <span id="L48"><span class="lineNum">      48</span>              : </span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC tlaBgUNC">           0 : func runDesignDocValidate(_ context.Context, _ *cli.Command) error {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         docs, err := designdoc.LoadDir(designdoc.DefaultDir)</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : func runDesignDocValidate(_ context.Context, _ *cli.Command) error {</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :         docs, err := designdoc.LoadDir(designdoc.DefaultDir)</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -127,7 +127,7 @@
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : }</span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 : func runDesignDocGen(_ context.Context, _ *cli.Command) error {</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : func runDesignDocGen(_ context.Context, _ *cli.Command) error {</span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         changed, err := designdoc.BackfillDir(designdoc.DefaultDir)</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 return err</span></span>
@@ -141,7 +141,7 @@
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L80"><span class="lineNum">      80</span>              : }</span>
 <span id="L81"><span class="lineNum">      81</span>              : </span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 : func runDesignDocList(_ context.Context, cmd *cli.Command) error {</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : func runDesignDocList(_ context.Context, cmd *cli.Command) error {</span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         docs, err := designdoc.LoadDir(designdoc.DefaultDir)</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :                 return err</span></span>

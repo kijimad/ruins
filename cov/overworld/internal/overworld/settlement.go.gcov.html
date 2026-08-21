@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.2&nbsp;%</td>
-            <td class="headerCovTableEntry">27</td>
-            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryMed">83.3&nbsp;%</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">20</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,12 +111,12 @@
 <span id="L49"><span class="lineNum">      49</span>              : // settlementFeature は小集落の feature 実装。当選チャンクに村または一軒家を置く。</span>
 <span id="L50"><span class="lineNum">      50</span>              : type settlementFeature struct{}</span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC tlaBgGNC">           1 : func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :         if !settlementPlacement.At(runSeed, c, rows) {</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : func (settlementFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 :         if !settlementPlacement.At(runSeed, c, rows) {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              :         // 市街地と重なった当選は市街地へ譲る。安全な補給地が危険地帯の中に出るのを防ぐ</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         center := consts.Coord[consts.Tile]{X: g.offsetX + g.chunkW/2, Y: g.offsetY + g.chunkH/2}</span></span>
@@ -125,7 +125,7 @@
 <span id="L63"><span class="lineNum">      63</span>              : </span>
 <span id="L64"><span class="lineNum">      64</span>              : // settlementVillageRoll は集落の規模抽選。真なら村、偽なら一軒家。純粋に (runSeed, 座標) の</span>
 <span id="L65"><span class="lineNum">      65</span>              : // 関数で、地図の分類と生成の両方がこれを使うので規模の見た目と実体が一致する。</span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : func settlementVillageRoll(runSeed uint64, c consts.Coord[consts.Chunk]) bool {</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : func settlementVillageRoll(runSeed uint64, c consts.Coord[consts.Chunk]) bool {</span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         return ChunkSeed2D(runSeed^settlementSalt, c.X, c.Y)%10 &lt; 6</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : </span>
@@ -133,18 +133,18 @@
 <span id="L71"><span class="lineNum">      71</span>              : // 近傍へ決定的に配置する。村は全サービスのNPCが揃い、一軒家は商人だけの行商拠点になる。</span>
 <span id="L72"><span class="lineNum">      72</span>              : // 集落はステージでなくオーバーワールドの地物なので、専用の State を持たず prop として常在する。</span>
 <span id="L73"><span class="lineNum">      73</span>              : // 帯への束縛は呼び出し元のチャンク生成が一括で行う。</span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 : func spawnSettlement(world w.World, center consts.Coord[consts.Tile], village bool) error {</span></span>
+<span id="L74"><span class="lineNum">      74</span>              : func spawnSettlement(world w.World, center consts.Coord[consts.Tile], village bool) error {</span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         npcs, props := hamletNPCs, hamletProps</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           2 :         if village {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         if village {</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 npcs, props = villageNPCs, villageProps</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           2 :         for _, n := range npcs {</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         for _, n := range npcs {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 pos := consts.Coord[consts.Tile]{X: center.X + n.dx, Y: center.Y + n.dy}</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnNeutralNPC(world, pos, n.name); err != nil {</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place settlement NPC (%s): %w&quot;, n.name, err)</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L84"><span class="lineNum">      84</span>              :         }</span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC tlaBgGNC">           2 :         for _, p := range props {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, p := range props {</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 if _, err := lifecycle.SpawnProp(world, p.name, center.X+p.dx, center.Y+p.dy); err != nil {</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to place settlement prop (%s): %w&quot;, p.name, err)</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                 }</span></span>

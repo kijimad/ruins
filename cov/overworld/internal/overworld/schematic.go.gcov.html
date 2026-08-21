@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">96.4&nbsp;%</td>
-            <td class="headerCovTableEntry">56</td>
-            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntryHi">95.6&nbsp;%</td>
+            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntry">43</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -141,15 +141,15 @@
 <span id="L79"><span class="lineNum">      79</span>              : </span>
 <span id="L80"><span class="lineNum">      80</span>              : // LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。</span>
 <span id="L81"><span class="lineNum">      81</span>              : // SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。</span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC tlaBgGNC">           1 : func LegendGlyphs() []GlyphInfo {</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return append(PlaceGlyphs(), FacilityGlyphs()...)</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : func LegendGlyphs() []GlyphInfo {</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC tlaBgGNC">           1 :         return append(PlaceGlyphs(), FacilityGlyphs()...)</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
 <span id="L86"><span class="lineNum">      86</span>              : // PlaceGlyphs は地物種別の記号と名前を表示順で返す。UI の凡例や着色で使う。FacilityGlyphs と対で、</span>
 <span id="L87"><span class="lineNum">      87</span>              : // 施設側と同じ形で地物種別を扱えるようにする。分類漏れの保険 placeUnknown は含めない。</span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 : func PlaceGlyphs() []GlyphInfo {</span></span>
+<span id="L88"><span class="lineNum">      88</span>              : func PlaceGlyphs() []GlyphInfo {</span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         out := make([]GlyphInfo, 0, len(placeOrder))</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           2 :         for _, k := range placeOrder {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         for _, k := range placeOrder {</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 out = append(out, placeGlyphs[k])</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         return out</span></span>
@@ -157,9 +157,9 @@
 <span id="L95"><span class="lineNum">      95</span>              : </span>
 <span id="L96"><span class="lineNum">      96</span>              : // FacilityGlyphs は施設種別の文字と名前を表示順で返す。UI の凡例や着色で建物を種別ごとに</span>
 <span id="L97"><span class="lineNum">      97</span>              : // 扱うために使う。地物レベルの記号は PlaceGlyphs が対で返す。</span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 : func FacilityGlyphs() []GlyphInfo {</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : func FacilityGlyphs() []GlyphInfo {</span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         out := make([]GlyphInfo, 0, len(facilityOrder))</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           2 :         for _, k := range facilityOrder {</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         for _, k := range facilityOrder {</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 out = append(out, facilityGlyphs[k])</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         return out</span></span>
@@ -181,17 +181,17 @@
 <span id="L119"><span class="lineNum">     119</span>              : // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に</span>
 <span id="L120"><span class="lineNum">     120</span>              : // 荒れ地を返す。優先度は市街地 &gt; 遺跡入口 &gt; 集落 &gt; 点在POI &gt; 荒れ地。地図も生成もこの分類を</span>
 <span id="L121"><span class="lineNum">     121</span>              : // 唯一の源にするので、地図の記号と実体が食い違わない。</span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 : func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           2 :         if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok {</span></span>
+<span id="L122"><span class="lineNum">     122</span>              : func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {</span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok {</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 return chunkUrban</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :         if dungeonEntrancePlacement.At(runSeed, c, rows) {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         if dungeonEntrancePlacement.At(runSeed, c, rows) {</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 return chunkDungeonEntrance</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           2 :         if settlementPlacement.At(runSeed, c, rows) {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         if settlementPlacement.At(runSeed, c, rows) {</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 return chunkSettlement</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           2 :         if poiPlacement.At(runSeed, c, rows) {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         if poiPlacement.At(runSeed, c, rows) {</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 return chunkPOI</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         return chunkWasteland</span></span>
@@ -199,34 +199,34 @@
 <span id="L137"><span class="lineNum">     137</span>              : </span>
 <span id="L138"><span class="lineNum">     138</span>              : // ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は</span>
 <span id="L139"><span class="lineNum">     139</span>              : // 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。</span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 : func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {</span></span>
+<span id="L140"><span class="lineNum">     140</span>              : func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {</span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         switch chunkTypeAt(runSeed, c, rows) {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         case chunkUrban:</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :         case chunkUrban:</span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 kind, _, _ := urbanChunkInfo(runSeed, c, rows)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :                 if g, ok := facilityGlyphs[kind]; ok {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 if g, ok := facilityGlyphs[kind]; ok {</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                         return g.Label</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 return placeGlyphs[placeUnknown].Label</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC tlaBgGNC">           1 :         case chunkDungeonEntrance:</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 return placeGlyphs[placeDungeonEntrance].Label</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         case chunkSettlement:</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           2 :                 if settlementVillageRoll(runSeed, c) {</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         case chunkDungeonEntrance:</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC tlaBgGNC">           1 :                 return placeGlyphs[placeDungeonEntrance].Label</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :         case chunkSettlement:</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 if settlementVillageRoll(runSeed, c) {</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         return placeGlyphs[placeVillage].Label</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 return placeGlyphs[placeHamlet].Label</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         case chunkPOI:</span></span>
+<span id="L155"><span class="lineNum">     155</span>              :         case chunkPOI:</span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 return placeGlyphs[placePOI].Label</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         case chunkWasteland:</span></span>
+<span id="L157"><span class="lineNum">     157</span>              :         case chunkWasteland:</span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 return placeGlyphs[placeField].Label</span></span>
 <span id="L159"><span class="lineNum">     159</span>              :         }</span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :         return placeGlyphs[placeUnknown].Label</span></span>
 <span id="L161"><span class="lineNum">     161</span>              : }</span>
 <span id="L162"><span class="lineNum">     162</span>              : </span>
 <span id="L163"><span class="lineNum">     163</span>              : // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。</span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 : func SchematicLegend() string {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         glyphs := LegendGlyphs()</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : func SchematicLegend() string {</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC tlaBgGNC">           1 :         glyphs := LegendGlyphs()</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, len(glyphs))</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           2 :         for _, g := range glyphs {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         for _, g := range glyphs {</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 parts = append(parts, fmt.Sprintf(&quot;%c %s&quot;, g.Label, g.Name))</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         return strings.Join(parts, &quot;  &quot;)</span></span>

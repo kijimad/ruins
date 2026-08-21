@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">14</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,8 +74,8 @@
 <span id="L12"><span class="lineNum">      12</span>              : // SubImage は画像の部分矩形を切り出す。</span>
 <span id="L13"><span class="lineNum">      13</span>              : // ebiten.Image.SubImage は image.Image を返すが実体は常に *ebiten.Image であり、</span>
 <span id="L14"><span class="lineNum">      14</span>              : // 各所での未チェック型アサーションを避けるためここに集約する</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC tlaBgUNC">           0 : func SubImage(img *ebiten.Image, r image.Rectangle) *ebiten.Image {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :         sub, ok := img.SubImage(r).(*ebiten.Image)</span></span>
+<span id="L15"><span class="lineNum">      15</span>              : func SubImage(img *ebiten.Image, r image.Rectangle) *ebiten.Image {</span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC tlaBgUNC">           0 :         sub, ok := img.SubImage(r).(*ebiten.Image)</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :                 panic(&quot;ebiten.Image.SubImage did not return *ebiten.Image&quot;)</span></span>
 <span id="L19"><span class="lineNum">      19</span>              :         }</span>
@@ -97,7 +97,7 @@
 <span id="L35"><span class="lineNum">      35</span>              : }</span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // UnmarshalText fills structure fields from text data</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : func (t *Texture) UnmarshalText(text []byte) error {</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : func (t *Texture) UnmarshalText(text []byte) error {</span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         bs, err := assets.FS.ReadFile(string(text))</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 return err</span></span>

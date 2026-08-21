@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.4&nbsp;%</td>
-            <td class="headerCovTableEntry">582</td>
-            <td class="headerCovTableEntry">456</td>
+            <td class="headerCovTableEntryMed">77.6&nbsp;%</td>
+            <td class="headerCovTableEntry">563</td>
+            <td class="headerCovTableEntry">437</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -247,11 +247,11 @@
 <span id="L185"><span class="lineNum">     185</span>              : }</span>
 <span id="L186"><span class="lineNum">     186</span>              : </span>
 <span id="L187"><span class="lineNum">     187</span>              : // NewUIResources は新しいUIリソースを作成する</span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC tlaBgGNC">           1 : func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         background := image.NewNineSliceColor(hexToColor(backgroundColor))</span></span>
+<span id="L188"><span class="lineNum">     188</span>              : func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC tlaBgGNC">           1 :         background := image.NewNineSliceColor(hexToColor(backgroundColor))</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         fonts, err := loadFonts(sources)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 return UIResources{}, err</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L195"><span class="lineNum">     195</span>              : </span>
@@ -353,7 +353,7 @@
 <span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L292"><span class="lineNum">     292</span>              : }</span>
 <span id="L293"><span class="lineNum">     293</span>              : </span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 : func newButtonResources(fonts *fonts) (*ButtonResources, error) {</span></span>
+<span id="L294"><span class="lineNum">     294</span>              : func newButtonResources(fonts *fonts) (*ButtonResources, error) {</span>
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :         idle, err := loadImageNineSlice(&quot;assets/graphics/button-idle.png&quot;, 12, 0)</span></span>
 <span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -384,7 +384,7 @@
 <span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 PressedHover: pressedHover,</span></span>
 <span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                 Disabled:     disabled,</span></span>
 <span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L325"><span class="lineNum">     325</span>              : </span>
 <span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         return &amp;ButtonResources{</span></span>
 <span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 Image: i,</span></span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 : </span></span>
@@ -402,7 +402,7 @@
 <span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L341"><span class="lineNum">     341</span>              : }</span>
 <span id="L342"><span class="lineNum">     342</span>              : </span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 : func newCheckboxResources() (*CheckboxResources, error) {</span></span>
+<span id="L343"><span class="lineNum">     343</span>              : func newCheckboxResources() (*CheckboxResources, error) {</span>
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         idle, err := loadImageNineSlice(&quot;assets/graphics/checkbox-idle.png&quot;, 20, 0)</span></span>
 <span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -469,7 +469,7 @@
 <span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L408"><span class="lineNum">     408</span>              : }</span>
 <span id="L409"><span class="lineNum">     409</span>              : </span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 : func newLabelResources(fonts *fonts) *LabelResources {</span></span>
+<span id="L410"><span class="lineNum">     410</span>              : func newLabelResources(fonts *fonts) *LabelResources {</span>
 <span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :         return &amp;LabelResources{</span></span>
 <span id="L412"><span class="lineNum">     412</span> <span class="tlaGNC">           1 :                 Text: &amp;widget.LabelColor{</span></span>
 <span id="L413"><span class="lineNum">     413</span> <span class="tlaGNC">           1 :                         Idle:     hexToColor(labelIdleColor),</span></span>
@@ -478,9 +478,9 @@
 <span id="L416"><span class="lineNum">     416</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L417"><span class="lineNum">     417</span> <span class="tlaGNC">           1 :                 Face: fonts.bodyFace,</span></span>
 <span id="L418"><span class="lineNum">     418</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L419"><span class="lineNum">     419</span>              : }</span>
 <span id="L420"><span class="lineNum">     420</span>              : </span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 : func newComboButtonResources(fonts *fonts) (*ComboButtonResources, error) {</span></span>
+<span id="L421"><span class="lineNum">     421</span>              : func newComboButtonResources(fonts *fonts) (*ComboButtonResources, error) {</span>
 <span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :         idle, err := loadImageNineSlice(&quot;assets/graphics/combo-button-idle.png&quot;, 12, 0)</span></span>
 <span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -507,7 +507,7 @@
 <span id="L445"><span class="lineNum">     445</span> <span class="tlaGNC">           1 :                 Pressed:  pressed,</span></span>
 <span id="L446"><span class="lineNum">     446</span> <span class="tlaGNC">           1 :                 Disabled: disabled,</span></span>
 <span id="L447"><span class="lineNum">     447</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L448"><span class="lineNum">     448</span>              : </span>
 <span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC">           1 :         arrowDown, err := loadGraphicImages(&quot;assets/graphics/arrow-down-idle.png&quot;, &quot;assets/graphics/arrow-down-disabled.png&quot;)</span></span>
 <span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -531,7 +531,7 @@
 <span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L470"><span class="lineNum">     470</span>              : }</span>
 <span id="L471"><span class="lineNum">     471</span>              : </span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 : func newListResources(fonts *fonts) (*ListResources, error) {</span></span>
+<span id="L472"><span class="lineNum">     472</span>              : func newListResources(fonts *fonts) (*ListResources, error) {</span>
 <span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :         idle, err := newImageFromFile(&quot;assets/graphics/list-idle.png&quot;)</span></span>
 <span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -629,7 +629,7 @@
 <span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L568"><span class="lineNum">     568</span>              : }</span>
 <span id="L569"><span class="lineNum">     569</span>              : </span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">           1 : func newSliderResources() (*SliderResources, error) {</span></span>
+<span id="L570"><span class="lineNum">     570</span>              : func newSliderResources() (*SliderResources, error) {</span>
 <span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC">           1 :         idle, err := newImageFromFile(&quot;assets/graphics/slider-track-idle.png&quot;)</span></span>
 <span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -673,7 +673,7 @@
 <span id="L611"><span class="lineNum">     611</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L612"><span class="lineNum">     612</span>              : }</span>
 <span id="L613"><span class="lineNum">     613</span>              : </span>
-<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           1 : func newProgressBarResources() (*ProgressBarResources, error) {</span></span>
+<span id="L614"><span class="lineNum">     614</span>              : func newProgressBarResources() (*ProgressBarResources, error) {</span>
 <span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :         idle, err := newImageFromFile(&quot;assets/graphics/progressbar-track-idle.png&quot;)</span></span>
 <span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L617"><span class="lineNum">     617</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -702,7 +702,7 @@
 <span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L641"><span class="lineNum">     641</span>              : }</span>
 <span id="L642"><span class="lineNum">     642</span>              : </span>
-<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC">           1 : func newPanelResources() (*PanelResources, error) {</span></span>
+<span id="L643"><span class="lineNum">     643</span>              : func newPanelResources() (*PanelResources, error) {</span>
 <span id="L644"><span class="lineNum">     644</span> <span class="tlaGNC">           1 :         i, err := loadImageNineSlice(&quot;assets/graphics/panel-idle.png&quot;, 40, 40)</span></span>
 <span id="L645"><span class="lineNum">     645</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L646"><span class="lineNum">     646</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -737,7 +737,7 @@
 <span id="L675"><span class="lineNum">     675</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L676"><span class="lineNum">     676</span>              : }</span>
 <span id="L677"><span class="lineNum">     677</span>              : </span>
-<span id="L678"><span class="lineNum">     678</span> <span class="tlaGNC">           1 : func newTabBookResources(fonts *fonts) *TabBookResources {</span></span>
+<span id="L678"><span class="lineNum">     678</span>              : func newTabBookResources(fonts *fonts) *TabBookResources {</span>
 <span id="L679"><span class="lineNum">     679</span> <span class="tlaGNC">           1 :         return &amp;TabBookResources{</span></span>
 <span id="L680"><span class="lineNum">     680</span> <span class="tlaGNC">           1 :                 ButtonFace: fonts.bodyFace,</span></span>
 <span id="L681"><span class="lineNum">     681</span> <span class="tlaGNC">           1 : </span></span>
@@ -751,9 +751,9 @@
 <span id="L689"><span class="lineNum">     689</span> <span class="tlaGNC">           1 :                         Right: 30,</span></span>
 <span id="L690"><span class="lineNum">     690</span> <span class="tlaGNC">           1 :                 },</span></span>
 <span id="L691"><span class="lineNum">     691</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L692"><span class="lineNum">     692</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L692"><span class="lineNum">     692</span>              : }</span>
 <span id="L693"><span class="lineNum">     693</span>              : </span>
-<span id="L694"><span class="lineNum">     694</span> <span class="tlaGNC">           1 : func newHeaderResources(fonts *fonts) (*HeaderResources, error) {</span></span>
+<span id="L694"><span class="lineNum">     694</span>              : func newHeaderResources(fonts *fonts) (*HeaderResources, error) {</span>
 <span id="L695"><span class="lineNum">     695</span> <span class="tlaGNC">           1 :         bg, err := loadImageNineSlice(&quot;assets/graphics/header.png&quot;, 446, 9)</span></span>
 <span id="L696"><span class="lineNum">     696</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L697"><span class="lineNum">     697</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -774,7 +774,7 @@
 <span id="L712"><span class="lineNum">     712</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L713"><span class="lineNum">     713</span>              : }</span>
 <span id="L714"><span class="lineNum">     714</span>              : </span>
-<span id="L715"><span class="lineNum">     715</span> <span class="tlaGNC">           1 : func newTextInputResources(fonts *fonts) (*TextInputResources, error) {</span></span>
+<span id="L715"><span class="lineNum">     715</span>              : func newTextInputResources(fonts *fonts) (*TextInputResources, error) {</span>
 <span id="L716"><span class="lineNum">     716</span> <span class="tlaGNC">           1 :         idle, err := newImageFromFile(&quot;assets/graphics/text-input-idle.png&quot;)</span></span>
 <span id="L717"><span class="lineNum">     717</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L718"><span class="lineNum">     718</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -809,7 +809,7 @@
 <span id="L747"><span class="lineNum">     747</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L748"><span class="lineNum">     748</span>              : }</span>
 <span id="L749"><span class="lineNum">     749</span>              : </span>
-<span id="L750"><span class="lineNum">     750</span> <span class="tlaGNC">           1 : func newTextAreaResources(fonts *fonts) (*TextAreaResources, error) {</span></span>
+<span id="L750"><span class="lineNum">     750</span>              : func newTextAreaResources(fonts *fonts) (*TextAreaResources, error) {</span>
 <span id="L751"><span class="lineNum">     751</span> <span class="tlaGNC">           1 :         idle, err := newImageFromFile(&quot;assets/graphics/list-idle.png&quot;)</span></span>
 <span id="L752"><span class="lineNum">     752</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L753"><span class="lineNum">     753</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -882,7 +882,7 @@
 <span id="L820"><span class="lineNum">     820</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L821"><span class="lineNum">     821</span>              : }</span>
 <span id="L822"><span class="lineNum">     822</span>              : </span>
-<span id="L823"><span class="lineNum">     823</span> <span class="tlaGNC">           1 : func newToolTipResources(fonts *fonts) (*ToolTipResources, error) {</span></span>
+<span id="L823"><span class="lineNum">     823</span>              : func newToolTipResources(fonts *fonts) (*ToolTipResources, error) {</span>
 <span id="L824"><span class="lineNum">     824</span> <span class="tlaGNC">           1 :         bg, err := newImageFromFile(&quot;assets/graphics/tool-tip.png&quot;)</span></span>
 <span id="L825"><span class="lineNum">     825</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L826"><span class="lineNum">     826</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -903,9 +903,9 @@
 <span id="L841"><span class="lineNum">     841</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L842"><span class="lineNum">     842</span>              : }</span>
 <span id="L843"><span class="lineNum">     843</span>              : </span>
-<span id="L844"><span class="lineNum">     844</span> <span class="tlaGNC">           1 : func hexToColor(h string) color.Color {</span></span>
+<span id="L844"><span class="lineNum">     844</span>              : func hexToColor(h string) color.Color {</span>
 <span id="L845"><span class="lineNum">     845</span> <span class="tlaGNC">           1 :         u, err := strconv.ParseUint(h, 16, 0)</span></span>
-<span id="L846"><span class="lineNum">     846</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L846"><span class="lineNum">     846</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L847"><span class="lineNum">     847</span> <span class="tlaGNC">           1 :                 panic(err)</span></span>
 <span id="L848"><span class="lineNum">     848</span>              :         }</span>
 <span id="L849"><span class="lineNum">     849</span>              : </span>

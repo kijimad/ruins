@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">66.7&nbsp;%</td>
-            <td class="headerCovTableEntry">9</td>
-            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">62.5&nbsp;%</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">5</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,8 +67,8 @@
 <span id="L5"><span class="lineNum">       5</span>              : // runUpdaters は指定した updater を world.Updaters から名前で引いて順に回す。</span>
 <span id="L6"><span class="lineNum">       6</span>              : // メニュー state が HUD 用の再計算 system を毎フレーム回すのに使う。渡すインスタンスは</span>
 <span id="L7"><span class="lineNum">       7</span>              : // 名前の取得にだけ使い、状態を持つ登録済みインスタンスの実体を実行する。</span>
-<span id="L8"><span class="lineNum">       8</span> <span class="tlaGNC tlaBgGNC">           1 : func runUpdaters(world w.World, updaters ...w.Updater) error {</span></span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           2 :         for _, updater := range updaters {</span></span>
+<span id="L8"><span class="lineNum">       8</span>              : func runUpdaters(world w.World, updaters ...w.Updater) error {</span>
+<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, updater := range updaters {</span></span>
 <span id="L10"><span class="lineNum">      10</span> <span class="tlaGNC">           1 :                 sys, ok := world.Updaters[updater.String()]</span></span>
 <span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
 <span id="L12"><span class="lineNum">      12</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>

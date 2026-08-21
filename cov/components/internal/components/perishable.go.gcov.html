@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">26</td>
-            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">14</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -88,13 +88,13 @@
 <span id="L26"><span class="lineNum">      26</span>              : // Stage は累積劣化量 rot から鮮度段階を返す。now でなく実効の rot を渡す。</span>
 <span id="L27"><span class="lineNum">      27</span>              : // 劣化速度は置き場所で変わるため rot の算出は query 層が担い、段階付けだけをここに置く。</span>
 <span id="L28"><span class="lineNum">      28</span>              : // 新鮮 [0, StageLength) → 劣化 [StageLength, 2*StageLength) → 腐敗 [2*StageLength, )。</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 : func (p Perishable) Stage(rot consts.Turn) FreshnessStage {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         switch {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         case rot &lt; p.StageLength:</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : func (p Perishable) Stage(rot consts.Turn) FreshnessStage {</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         switch {</span></span>
+<span id="L31"><span class="lineNum">      31</span>              :         case rot &lt; p.StageLength:</span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return FreshnessFresh</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         case rot &lt; 2*p.StageLength:</span></span>
+<span id="L33"><span class="lineNum">      33</span>              :         case rot &lt; 2*p.StageLength:</span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 return FreshnessStale</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L35"><span class="lineNum">      35</span>              :         default:</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return FreshnessRotten</span></span>
 <span id="L37"><span class="lineNum">      37</span>              :         }</span>
 <span id="L38"><span class="lineNum">      38</span>              : }</span>
@@ -102,26 +102,26 @@
 <span id="L40"><span class="lineNum">      40</span>              : // Rank は段階の並び順を返す。新鮮→劣化→腐敗の固定順で、小さいほど先に並ぶ。</span>
 <span id="L41"><span class="lineNum">      41</span>              : // 段階の定義・順序・表示は鮮度という1つの軸の属性なので、このファイルに同居させる。</span>
 <span id="L42"><span class="lineNum">      42</span>              : // 段階は Stage が返す既知の3値だけで、未知値はここへ来ない不変条件なので panic させる</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : func (s FreshnessStage) Rank() int {</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : func (s FreshnessStage) Rank() int {</span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         switch s {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         case FreshnessFresh:</span></span>
+<span id="L45"><span class="lineNum">      45</span>              :         case FreshnessFresh:</span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 return 1</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         case FreshnessStale:</span></span>
+<span id="L47"><span class="lineNum">      47</span>              :         case FreshnessStale:</span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 return 2</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         case FreshnessRotten:</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :         case FreshnessRotten:</span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 return 3</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :         }</span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         panic(&quot;unknown FreshnessStage: &quot; + string(s))</span></span>
 <span id="L53"><span class="lineNum">      53</span>              : }</span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span>              : // Label は段階の表示に使う英語 msgid を返す。訳出は表示側が query.T で行う</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : func (s FreshnessStage) Label() string {</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : func (s FreshnessStage) Label() string {</span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         switch s {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         case FreshnessFresh:</span></span>
+<span id="L58"><span class="lineNum">      58</span>              :         case FreshnessFresh:</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return &quot;Fresh&quot;</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         case FreshnessStale:</span></span>
+<span id="L60"><span class="lineNum">      60</span>              :         case FreshnessStale:</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return &quot;Stale&quot;</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         case FreshnessRotten:</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :         case FreshnessRotten:</span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 return &quot;Rotten&quot;</span></span>
 <span id="L64"><span class="lineNum">      64</span>              :         }</span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         panic(&quot;unknown FreshnessStage: &quot; + string(s))</span></span>

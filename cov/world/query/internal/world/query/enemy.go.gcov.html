@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">89.1&nbsp;%</td>
-            <td class="headerCovTableEntry">55</td>
-            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntryMed">88.2&nbsp;%</td>
+            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntry">45</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,9 +73,9 @@
 <span id="L11"><span class="lineNum">      11</span>              : )</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
 <span id="L13"><span class="lineNum">      13</span>              : // GetVisibleEnemies は視界内の敵エンティティをすべて取得して返す</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 : func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         playerEntity, err := GetPlayerEntity(world)</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L14"><span class="lineNum">      14</span>              : func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {</span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 :         playerEntity, err := GetPlayerEntity(world)</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
@@ -87,13 +87,13 @@
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         var enemies []ecs.Entity</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         // 座標が重なる退避中ステージの敵を可視判定に混ぜない。現ステージのみ対象にする</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         // 座標が重なる退避中ステージの敵を可視判定に混ぜない。現ステージのみ対象にする</span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         enemiesQuery := ActiveFilter2[gc.GridElement, gc.FactionEnemy](world).Query()</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           2 :         for enemiesQuery.Next() {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         for enemiesQuery.Next() {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 entity := enemiesQuery.Entity()</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :                 if !IsInVision(world, playerGrid.Coord, gridElement.Coord) {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 if !IsInVision(world, playerGrid.Coord, gridElement.Coord) {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L36"><span class="lineNum">      36</span>              :                 }</span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
@@ -105,16 +105,16 @@
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              : // IsInVision はプレイヤーから指定座標が現在見えるかをチェックする。</span>
 <span id="L45"><span class="lineNum">      45</span>              : // リアルタイムの可視性データを使用し、暗闇のタイルは見えないと判定する</span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : func IsInVision(world w.World, player, target consts.Coord[consts.Tile]) bool {</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : func IsInVision(world w.World, player, target consts.Coord[consts.Tile]) bool {</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         distanceInPixels := geometry.Distance(float64(player.X), float64(player.Y), float64(target.X), float64(target.Y)) * float64(consts.TileSize)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         visionRadius := float64(consts.VisionRadiusTiles) * float64(consts.TileSize)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           2 :         if distanceInPixels &gt; visionRadius {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         if distanceInPixels &gt; visionRadius {</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         vs := GetVisionState(world)</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :         if vs.VisibleTiles == nil {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         if vs.VisibleTiles == nil {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
@@ -122,7 +122,7 @@
 <span id="L60"><span class="lineNum">      60</span>              : }</span>
 <span id="L61"><span class="lineNum">      61</span>              : </span>
 <span id="L62"><span class="lineNum">      62</span>              : // GetVisibleItems は視界内のアイテムエンティティをすべて取得して返す</span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 : func GetVisibleItems(world w.World) ([]ecs.Entity, error) {</span></span>
+<span id="L63"><span class="lineNum">      63</span>              : func GetVisibleItems(world w.World) ([]ecs.Entity, error) {</span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         playerEntity, err := GetPlayerEntity(world)</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
@@ -137,11 +137,11 @@
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         var items []ecs.Entity</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         itemsQuery := ActiveFilter2[gc.GridElement, gc.LocationOnField](world).Query()</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           2 :         for itemsQuery.Next() {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         for itemsQuery.Next() {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 entity := itemsQuery.Entity()</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           2 :                 if !IsInVision(world, playerGrid.Coord, gridElement.Coord) {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 if !IsInVision(world, playerGrid.Coord, gridElement.Coord) {</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L84"><span class="lineNum">      84</span>              :                 }</span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>

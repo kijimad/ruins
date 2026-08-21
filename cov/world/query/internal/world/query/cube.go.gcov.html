@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">20</td>
-            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">17</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,12 +79,12 @@
 <span id="L17"><span class="lineNum">      17</span>              : // 内部は外にいる間 Suspended になるが、総重量は退避中も保持したい。Suspended は退避で付くが</span>
 <span id="L18"><span class="lineNum">      18</span>              : // LocationOnField は残るので、Suspended を除外する ActiveFilter でなく生のフィルタで全ステージを</span>
 <span id="L19"><span class="lineNum">      19</span>              : // 走査し、Key 一致で絞る。</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 : func CubeWeight(world w.World, interior gc.StageKey) consts.Milligram {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         var total consts.Milligram</span></span>
+<span id="L20"><span class="lineNum">      20</span>              : func CubeWeight(world w.World, interior gc.StageKey) consts.Milligram {</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 :         var total consts.Milligram</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         weightQuery := ecs.NewFilter2[gc.Weight, gc.LocationOnField](world.ECS).Query()</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         for weightQuery.Next() {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         for weightQuery.Next() {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 entity := weightQuery.Entity()</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :                 if world.Components.StageBound.Has(entity) &amp;&amp; world.Components.StageBound.Get(entity).Key == interior {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 if world.Components.StageBound.Has(entity) &amp;&amp; world.Components.StageBound.Get(entity).Key == interior {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                         total += GetEntityWeight(world, entity)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L28"><span class="lineNum">      28</span>              :         }</span>
@@ -93,17 +93,17 @@
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // PushCost は総重量から1タイル押すのに要するAPを返す。空のキューブでも歩行の10倍規模の</span>
 <span id="L33"><span class="lineNum">      33</span>              : // 基準がかかり、総重量に比例して増える。変わるのは行動点で何ターンで払えるかである。</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : func PushCost(total consts.Milligram) int {</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : func PushCost(total consts.Milligram) int {</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         kg := int(total / consts.MilligramPerKg)</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return consts.PushCostBase + consts.PushCostPerKg*kg</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              : // PushPower はこのターン押しへ充てられるAP総量を返す。プレイヤーの TurnBased.AP.Current を用いる。</span>
 <span id="L40"><span class="lineNum">      40</span>              : // 同じ PushCost をより少ないターンで払えれば速く進む。押しコスト自体は不変。</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : func PushPower(world w.World) int {</span></span>
+<span id="L41"><span class="lineNum">      41</span>              : func PushPower(world w.World) int {</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         var total int</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         playerQuery := ActiveFilter2[gc.TurnBased, gc.Player](world).Query()</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :         for playerQuery.Next() {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         for playerQuery.Next() {</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 total += world.Components.TurnBased.Get(playerQuery.Entity()).AP.Current</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         return total</span></span>

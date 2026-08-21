@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntry">20</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,13 +72,13 @@
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // OutlinedText は枠線付きテキストを描画する</span>
 <span id="L12"><span class="lineNum">      12</span>              : // 8方向にオフセットして枠線を描画した後、本体のテキストを描画する</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC tlaBgUNC">           0 : func OutlinedText(screen *ebiten.Image, str string, face text.Face, x, y float64, textColor, outlineColor color.Color) {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :         offsets := []struct{ dx, dy float64 }{</span></span>
+<span id="L13"><span class="lineNum">      13</span>              : func OutlinedText(screen *ebiten.Image, str string, face text.Face, x, y float64, textColor, outlineColor color.Color) {</span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC tlaBgUNC">           0 :         offsets := []struct{ dx, dy float64 }{</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :                 {-1, -1}, {0, -1}, {1, -1},</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :                 {-1, 0}, {1, 0},</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :                 {-1, 1}, {0, 1}, {1, 1},</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         op := &amp;text.DrawOptions{}</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         for _, offset := range offsets {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                 op.GeoM.Reset()</span></span>
@@ -97,7 +97,7 @@
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // drawOutlinedText は枠線付きテキストを描画する</span>
 <span id="L37"><span class="lineNum">      37</span>              : // textColorを指定することで任意の色でテキストを描画できる</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : func drawOutlinedText(screen *ebiten.Image, textStr string, face text.Face, x, y float64, textColor color.Color) {</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : func drawOutlinedText(screen *ebiten.Image, textStr string, face text.Face, x, y float64, textColor color.Color) {</span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         OutlinedText(screen, textStr, face, x, y, textColor, theme.HUDTextOutline)</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">87.2&nbsp;%</td>
-            <td class="headerCovTableEntry">47</td>
-            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntryMed">85.7&nbsp;%</td>
+            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntry">36</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,12 +73,12 @@
 <span id="L11"><span class="lineNum">      11</span>              : </span>
 <span id="L12"><span class="lineNum">      12</span>              : // Load は環境変数から設定を読み込み、新しいConfigインスタンスを返す</span>
 <span id="L13"><span class="lineNum">      13</span>              : // Seedが環境変数で指定されていない場合は、ランダム値を生成する</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 : func Load() (*Config, error) {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         cfg := &amp;Config{}</span></span>
+<span id="L14"><span class="lineNum">      14</span>              : func Load() (*Config, error) {</span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 :         cfg := &amp;Config{}</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         // プロファイルを最初に決定(デフォルトはproduction)</span></span>
+<span id="L17"><span class="lineNum">      17</span>              :         // プロファイルを最初に決定(デフォルトはproduction)</span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         profile := os.Getenv(&quot;RUINS_PROFILE&quot;)</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if profile == &quot;&quot; {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         if profile == &quot;&quot; {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 cfg.Profile = ProfileProduction</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         } else {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 :                 cfg.Profile = Profile(profile)</span></span>
@@ -87,9 +87,9 @@
 <span id="L25"><span class="lineNum">      25</span>              :         // プロファイルに基づくデフォルト値を設定</span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         cfg.ApplyProfileDefaults()</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         // 永続化されたユーザー設定をファイルから読み込んで上書きする。</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         // 失敗してもデフォルト値で起動を継続する。ファイルの生成は EnsureUserConfigFile が担う</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           2 :         if err := cfg.loadUserConfig(); err != nil {</span></span>
+<span id="L28"><span class="lineNum">      28</span>              :         // 永続化されたユーザー設定をファイルから読み込んで上書きする。</span>
+<span id="L29"><span class="lineNum">      29</span>              :         // 失敗してもデフォルト値で起動を継続する。ファイルの生成は EnsureUserConfigFile が担う</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         if err := cfg.loadUserConfig(); err != nil {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 logger.New(logger.CategoryLoad).Warn(&quot;failed to load user config; continuing with defaults&quot;, &quot;error&quot;, err)</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
@@ -99,7 +99,7 @@
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              :         // Seedが未設定の場合はランダム値を生成</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           2 :         if os.Getenv(&quot;RUINS_SEED&quot;) == &quot;&quot; {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           1 :         if os.Getenv(&quot;RUINS_SEED&quot;) == &quot;&quot; {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 cfg.Seed = rand.Uint64()</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L43"><span class="lineNum">      43</span>              :         // SeedからRNGを生成</span>
@@ -113,7 +113,7 @@
 <span id="L51"><span class="lineNum">      51</span>              : }</span>
 <span id="L52"><span class="lineNum">      52</span>              : </span>
 <span id="L53"><span class="lineNum">      53</span>              : // String は設定の文字列表現を返す（デバッグ用）</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : func (c *Config) String() string {</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : func (c *Config) String() string {</span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         return fmt.Sprintf(`Config{</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         Profile: %s,</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         WindowWidth: %d, WindowHeight: %d,</span></span>

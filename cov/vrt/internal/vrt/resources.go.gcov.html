@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">15</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -78,8 +78,8 @@
 <span id="L16"><span class="lineNum">      16</span>              : )</span>
 <span id="L17"><span class="lineNum">      17</span>              : </span>
 <span id="L18"><span class="lineNum">      18</span>              : // SharedUIResources はテスト用UIリソースを返す。sync.Onceで1回だけ初期化する</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC tlaBgUNC">           0 : func SharedUIResources(t *testing.T) resources.UIResources {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
+<span id="L19"><span class="lineNum">      19</span>              : func SharedUIResources(t *testing.T) resources.UIResources {</span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC tlaBgUNC">           0 :         t.Helper()</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         uiResourcesOnce.Do(func() {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                 fonts, err := loader.LoadFonts()</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>

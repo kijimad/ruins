@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">56</td>
+            <td class="headerCovTableEntry">50</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -317,8 +317,8 @@
 <span id="L255"><span class="lineNum">     255</span>              : </span>
 <span id="L256"><span class="lineNum">     256</span>              : // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,</span>
 <span id="L257"><span class="lineNum">     257</span>              : // after base64-decoding and flate-decompressing the embedded blob.</span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC tlaBgUNC">           0 : func decodeSpec() ([]byte, error) {</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         encoded := strings.Join(swaggerSpec, &quot;&quot;)</span></span>
+<span id="L258"><span class="lineNum">     258</span>              : func decodeSpec() ([]byte, error) {</span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC tlaBgUNC">           0 :         encoded := strings.Join(swaggerSpec, &quot;&quot;)</span></span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :         compressed, err := base64.StdEncoding.DecodeString(encoded)</span></span>
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;error base64 decoding spec: %w&quot;, err)</span></span>
@@ -338,7 +338,7 @@
 <span id="L276"><span class="lineNum">     276</span>              : var rawSpec = decodeSpecCached()</span>
 <span id="L277"><span class="lineNum">     277</span>              : </span>
 <span id="L278"><span class="lineNum">     278</span>              : // a naive cache of the decoded OpenAPI spec</span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 : func decodeSpecCached() func() ([]byte, error) {</span></span>
+<span id="L279"><span class="lineNum">     279</span>              : func decodeSpecCached() func() ([]byte, error) {</span>
 <span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :         data, err := decodeSpec()</span></span>
 <span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         return func() ([]byte, error) {</span></span>
 <span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                 return data, err</span></span>
@@ -346,7 +346,7 @@
 <span id="L284"><span class="lineNum">     284</span>              : }</span>
 <span id="L285"><span class="lineNum">     285</span>              : </span>
 <span id="L286"><span class="lineNum">     286</span>              : // Constructs a synthetic filesystem for resolving external references when loading openapi specifications.</span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 : func PathToRawSpec(pathToFile string) map[string]func() ([]byte, error) {</span></span>
+<span id="L287"><span class="lineNum">     287</span>              : func PathToRawSpec(pathToFile string) map[string]func() ([]byte, error) {</span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         res := make(map[string]func() ([]byte, error))</span></span>
 <span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         if len(pathToFile) &gt; 0 {</span></span>
 <span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 res[pathToFile] = rawSpec</span></span>
@@ -360,7 +360,7 @@
 <span id="L298"><span class="lineNum">     298</span>              : // PathToRawSpec; externally-referenced files must be embedded in their</span>
 <span id="L299"><span class="lineNum">     299</span>              : // corresponding Go packages (via the import-mapping feature). URL-based</span>
 <span id="L300"><span class="lineNum">     300</span>              : // external refs are not supported.</span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 : func GetSpec() (swagger *openapi3.T, err error) {</span></span>
+<span id="L301"><span class="lineNum">     301</span>              : func GetSpec() (swagger *openapi3.T, err error) {</span>
 <span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :         resolvePath := PathToRawSpec(&quot;&quot;)</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :         loader := openapi3.NewLoader()</span></span>
@@ -392,7 +392,7 @@
 <span id="L330"><span class="lineNum">     330</span>              : // are not resolved here; the bytes are the spec exactly as embedded by</span>
 <span id="L331"><span class="lineNum">     331</span>              : // codegen. The result is cached at package init time, so repeated calls</span>
 <span id="L332"><span class="lineNum">     332</span>              : // are cheap.</span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 : func GetSpecJSON() ([]byte, error) {</span></span>
+<span id="L333"><span class="lineNum">     333</span>              : func GetSpecJSON() ([]byte, error) {</span>
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :         return rawSpec()</span></span>
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L336"><span class="lineNum">     336</span>              : </span>
@@ -402,7 +402,7 @@
 <span id="L340"><span class="lineNum">     340</span>              : // Deprecated: GetSwagger predates kin-openapi renaming openapi3.Swagger</span>
 <span id="L341"><span class="lineNum">     341</span>              : // to openapi3.T. Use [GetSpec] instead. This wrapper is retained for</span>
 <span id="L342"><span class="lineNum">     342</span>              : // backwards compatibility.</span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 : func GetSwagger() (*openapi3.T, error) {</span></span>
+<span id="L343"><span class="lineNum">     343</span>              : func GetSwagger() (*openapi3.T, error) {</span>
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :         return GetSpec()</span></span>
 <span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>

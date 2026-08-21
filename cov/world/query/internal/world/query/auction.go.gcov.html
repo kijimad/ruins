@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntry">68</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,14 +86,14 @@
 <span id="L24"><span class="lineNum">      24</span>              : )</span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // AuctionOpeningBid は開始入札額を返す。基準価値に分散を掛けた控えめな額から競売が始まる。</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC tlaBgUNC">           0 : func AuctionOpeningBid(world w.World, item ecs.Entity) consts.Currency {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         base := GetItemValue(world, item)</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : func AuctionOpeningBid(world w.World, item ecs.Entity) consts.Currency {</span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :         base := GetItemValue(world, item)</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         variance := 0.8 + world.Config.RNG.Float64()*0.4</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         return consts.Currency(float64(base) * auctionOpeningMult * variance)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              : // AuctionRaise は1回の入札での上げ幅を返す。入札が来るたびこの額だけ現在値が上がる。</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 : func AuctionRaise(world w.World, item ecs.Entity) consts.Currency {</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : func AuctionRaise(world w.World, item ecs.Entity) consts.Currency {</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         base := GetItemValue(world, item)</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         variance := 0.8 + world.Config.RNG.Float64()*0.4</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         raise := max(consts.Currency(float64(base)*auctionRaiseMult*variance), 1)</span></span>
@@ -101,24 +101,24 @@
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
 <span id="L41"><span class="lineNum">      41</span>              : // AuctionShippingCost は発送料を返す。重量に比例するので、重い安物は手取りを食う。</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 : func AuctionShippingCost(world w.World, item ecs.Entity) consts.Currency {</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : func AuctionShippingCost(world w.World, item ecs.Entity) consts.Currency {</span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         weightKg := float64(GetEntityWeight(world, item)) / float64(consts.MilligramPerKg)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         return consts.Currency(weightKg * auctionShipRatePerKg)</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
 <span id="L47"><span class="lineNum">      47</span>              : // AuctionFee は手数料を返す。落札額に比例する。</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 : func AuctionFee(bid consts.Currency) consts.Currency {</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : func AuctionFee(bid consts.Currency) consts.Currency {</span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         return consts.Currency(float64(bid) * auctionFeeRate)</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              : // GetAuctionHistory は出荷実績の履歴シングルトンを取得する。</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 : func GetAuctionHistory(world w.World) *gc.AuctionHistory {</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : func GetAuctionHistory(world w.World) *gc.AuctionHistory {</span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         return GetSingleton[gc.AuctionHistory](world, world.Components.AuctionHistory)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : </span>
 <span id="L57"><span class="lineNum">      57</span>              : // StartAuctionListing はタグを貼って出品を始める。連番を採番し開始入札で AuctionListing を付ける。</span>
 <span id="L58"><span class="lineNum">      58</span>              : // 採番した番号を返す。以後この番号でその出品を指す。</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 : func StartAuctionListing(world w.World, item ecs.Entity, now int) int {</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : func StartAuctionListing(world w.World, item ecs.Entity, now int) int {</span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         history := GetAuctionHistory(world)</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         history.NextNumber++</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         number := history.NextNumber</span></span>
@@ -135,8 +135,8 @@
 <span id="L73"><span class="lineNum">      73</span>              : // 受取金の額面は落札額から配送料と手数料を引いた手取り。集荷料金は集荷1回につき定額で別立て。</span>
 <span id="L74"><span class="lineNum">      74</span>              : // だから小分けに集荷するほど集荷料金の請求がかさみ、1回にまとめるほど得になる。</span>
 <span id="L75"><span class="lineNum">      75</span>              : // 集荷した総件数と、受取金の明細を発生させた件数を返す。</span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 : func CollectStagedItems(world w.World, station ecs.Entity) (collected, receipts int) {</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         // GetStorageItems は確定したスライスを返すので、反復中に削除してよい</span></span>
+<span id="L76"><span class="lineNum">      76</span>              : func CollectStagedItems(world w.World, station ecs.Entity) (collected, receipts int) {</span>
+<span id="L77"><span class="lineNum">      77</span>              :         // GetStorageItems は確定したスライスを返すので、反復中に削除してよい</span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         items := GetStorageItems(world, station)</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         if len(items) == 0 {</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                 return 0, 0</span></span>
@@ -174,21 +174,21 @@
 <span id="L112"><span class="lineNum">     112</span>              : </span>
 <span id="L113"><span class="lineNum">     113</span>              : // SettleAuctionEntry は金銭タブの明細1件を精算する。受取金は所持金へ加え、請求は所持金から引く。</span>
 <span id="L114"><span class="lineNum">     114</span>              : // 精算した受取金は出荷実績として履歴へ移す。精算した明細と、精算できたかを返す。</span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 : func SettleAuctionEntry(world w.World, player ecs.Entity, index, now int) (gc.AuctionEntry, bool) {</span></span>
+<span id="L115"><span class="lineNum">     115</span>              : func SettleAuctionEntry(world w.World, player ecs.Entity, index, now int) (gc.AuctionEntry, bool) {</span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         history := GetAuctionHistory(world)</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         if index &lt; 0 || index &gt;= len(history.Entries) {</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                 return gc.AuctionEntry{}, false</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         e := history.Entries[index]</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         switch e.Kind {</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryReceipt:</span></span>
+<span id="L122"><span class="lineNum">     122</span>              :         case gc.AuctionEntryReceipt:</span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                 if err := AddCurrency(world, player, e.Amount); err != nil {</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                         return gc.AuctionEntry{}, false</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 history.Records = append(history.Records, gc.AuctionRecord{</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                         Number: e.Number, Name: e.Name, Bid: e.Bid, Ship: e.Ship, Fee: e.Fee, Net: e.Amount, Turn: now,</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         case gc.AuctionEntryInvoice:</span></span>
+<span id="L129"><span class="lineNum">     129</span>              :         case gc.AuctionEntryInvoice:</span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 if err := AddCurrency(world, player, -e.Amount); err != nil {</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                         return gc.AuctionEntry{}, false</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 }</span></span>

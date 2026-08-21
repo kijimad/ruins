@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">73.3&nbsp;%</td>
-            <td class="headerCovTableEntry">15</td>
-            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">71.4&nbsp;%</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -87,8 +87,8 @@
 <span id="L25"><span class="lineNum">      25</span>              : // place は当選チャンクの中心付近へ遺跡入口を置く。進入先の遺跡定義は登録済み一覧から</span>
 <span id="L26"><span class="lineNum">      26</span>              : // チャンク座標のシードで決定的に選ぶ。開始チャンクには driver が歩いて届く入口を別途</span>
 <span id="L27"><span class="lineNum">      27</span>              : // 置くため、ここでは重複を避けてスキップする。</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">           1 : func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :         if !dungeonEntrancePlacement.At(runSeed, c, rows) {</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : func (dungeonEntranceFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 :         if !dungeonEntrancePlacement.At(runSeed, c, rows) {</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         defs := dungeon.GetAllDungeons()</span></span>

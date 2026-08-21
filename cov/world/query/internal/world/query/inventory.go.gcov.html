@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">32</td>
-            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">27</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,11 +74,11 @@
 <span id="L12"><span class="lineNum">      12</span>              : // FindStackInInventory は RawID でバックパック内のスタックアイテムを1つ返す。</span>
 <span id="L13"><span class="lineNum">      13</span>              : // 個数照会や消費の起点に使う。鮮度による束の分割は合流側の query.SameStack が担うため、</span>
 <span id="L14"><span class="lineNum">      14</span>              : // ここは鮮度を見ず RawID だけで引く。腐敗食は鮮度違いの別束が複数ありうる点に注意する。</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 : func FindStackInInventory(world w.World, id string) (ecs.Entity, bool) {</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
+<span id="L15"><span class="lineNum">      15</span>              : func FindStackInInventory(world w.World, id string) (ecs.Entity, bool) {</span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 :         q := ecs.NewFilter2[gc.LocationInBackpack, gc.RawID](world.ECS).Query()</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :                 if world.Components.RawID.Get(entity).ID == id {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 if world.Components.RawID.Get(entity).ID == id {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                         q.Close()</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                         return entity, true</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 }</span></span>
@@ -87,11 +87,11 @@
 <span id="L25"><span class="lineNum">      25</span>              : }</span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
 <span id="L27"><span class="lineNum">      27</span>              : // FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) {</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool) {</span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         q := ecs.NewFilter2[gc.LocationInBackpack, gc.Ammo](world.ECS).Query()</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           2 :         for q.Next() {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 entity := q.Entity()</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :                 if world.Components.Ammo.Get(entity).AmmoTag == ammoTag {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 if world.Components.Ammo.Get(entity).AmmoTag == ammoTag {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         q.Close()</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                         return entity, true</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 }</span></span>
@@ -101,14 +101,14 @@
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              : // GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ</span>
 <span id="L41"><span class="lineNum">      41</span>              : // 同じ位置にある同一スタックのエンティティを数えて導出する。位置が無ければ1になる。</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 : func GetEntityCount(world w.World, entity ecs.Entity) int {</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : func GetEntityCount(world w.World, entity ecs.Entity) int {</span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return len(StackMembers(world, entity))</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // FormatNameCount は個数が2以上のとき名前の前に個数を置く。1個や非スタックは名前だけを返す。</span>
 <span id="L47"><span class="lineNum">      47</span>              : // メニュー行とログの両方がこの1関数を通し、&quot;個数 名前&quot; の表記を揃える</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : func FormatNameCount(name string, count int) string {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           2 :         if count &gt; 1 {</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : func FormatNameCount(name string, count int) string {</span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         if count &gt; 1 {</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;%d %s&quot;, count, name)</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         return name</span></span>
@@ -117,9 +117,9 @@
 <span id="L55"><span class="lineNum">      55</span>              : // FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする。</span>
 <span id="L56"><span class="lineNum">      56</span>              : // 名前はNameコンポーネントから取得し、見つからない場合は &quot;Unknown Item&quot; を返す。</span>
 <span id="L57"><span class="lineNum">      57</span>              : // 表記は FormatNameCount に委ね、個数が2以上のとき &quot;個数 名前&quot; になる</span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : func FormatItemName(world w.World, itemEntity ecs.Entity) string {</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : func FormatItemName(world w.World, itemEntity ecs.Entity) string {</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         name := T(world, &quot;Unknown Item&quot;)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 name = T(world, nameComp.Name)</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return FormatNameCount(name, GetEntityCount(world, itemEntity))</span></span>

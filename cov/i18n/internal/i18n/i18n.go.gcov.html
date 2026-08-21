@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">96.7&nbsp;%</td>
-            <td class="headerCovTableEntry">30</td>
-            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntryHi">95.8&nbsp;%</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">23</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,12 +91,12 @@
 <span id="L29"><span class="lineNum">      29</span>              : }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // SupportedLangs は対応する言語の一覧を表示順で返す。呼び出し側の変更が定義へ波及しないよう複製を返す。</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">           1 : func SupportedLangs() []Lang {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         return slices.Clone(supportedLangs)</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : func SupportedLangs() []Lang {</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 :         return slices.Clone(supportedLangs)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
 <span id="L36"><span class="lineNum">      36</span>              : // IsSupportedLang は code が対応する言語コードかを返す。設定値の検証に使う。</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : func IsSupportedLang(code string) bool {</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : func IsSupportedLang(code string) bool {</span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 :         return slices.ContainsFunc(supportedLangs, func(l Lang) bool { return l.Code == code })</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : }</span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
@@ -108,9 +108,9 @@
 <span id="L46"><span class="lineNum">      46</span>              : }</span>
 <span id="L47"><span class="lineNum">      47</span>              : </span>
 <span id="L48"><span class="lineNum">      48</span>              : // NewCatalog は対応言語ごとに埋め込み PO を読んでカタログを構築する。言語集合は supportedLangs に従う。</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : func NewCatalog() Catalog {</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : func NewCatalog() Catalog {</span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         langs := make(map[string]*gotext.Po, len(supportedLangs))</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :         for _, l := range supportedLangs {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         for _, l := range supportedLangs {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 langs[l.Code] = loadPo(l.Code)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         return Catalog{langs: langs}</span></span>
@@ -118,8 +118,8 @@
 <span id="L56"><span class="lineNum">      56</span>              : </span>
 <span id="L57"><span class="lineNum">      57</span>              : // loadPo は言語コードの翻訳 PO を返す。源泉言語 en は原文そのものなので空 PO にし、未訳フォールバックで原文を返す。</span>
 <span id="L58"><span class="lineNum">      58</span>              : // それ以外は埋め込みの locale/&lt;code&gt;.po を解析する。</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : func loadPo(code string) *gotext.Po {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :         if code == defaultLang {</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : func loadPo(code string) *gotext.Po {</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         if code == defaultLang {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return gotext.NewPo()</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return mustParse(&quot;locale/&quot; + code + &quot;.po&quot;)</span></span>
@@ -127,7 +127,7 @@
 <span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span>              : // mustParse は埋め込み PO を読んで解析する。埋め込みなので読み込み失敗はビルドの誤りとして panic する。</span>
 <span id="L67"><span class="lineNum">      67</span>              : // gotext の Parse はエラーを返さず内部で握り潰すので、解析失敗はここで検知できない。妥当性はテストで担保する。</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : func mustParse(path string) *gotext.Po {</span></span>
+<span id="L68"><span class="lineNum">      68</span>              : func mustParse(path string) *gotext.Po {</span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         data, err := localeFS.ReadFile(path)</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;i18n: failed to read embedded PO: %s: %v&quot;, path, err))</span></span>
@@ -142,9 +142,9 @@
 <span id="L80"><span class="lineNum">      80</span>              : //</span>
 <span id="L81"><span class="lineNum">      81</span>              : // gotext の Get は書式引数で printf 整形するため、直接呼ぶと go vet が非定数の書式文字列と誤検知する。</span>
 <span id="L82"><span class="lineNum">      82</span>              : // メソッド値を介して呼び回避する。</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 : func (c Catalog) Translate(lang, msgid string, args ...any) string {</span></span>
+<span id="L83"><span class="lineNum">      83</span>              : func (c Catalog) Translate(lang, msgid string, args ...any) string {</span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         po, ok := c.langs[lang]</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 po = c.langs[defaultLang]</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         get := po.Get</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.5&nbsp;%</td>
-            <td class="headerCovTableEntry">186</td>
-            <td class="headerCovTableEntry">159</td>
+            <td class="headerCovTableEntryMed">85.2&nbsp;%</td>
+            <td class="headerCovTableEntry">169</td>
+            <td class="headerCovTableEntry">144</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -100,8 +100,8 @@
 <span id="L38"><span class="lineNum">      38</span>              : }</span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
 <span id="L40"><span class="lineNum">      40</span>              : // NewCharacterNamingState は名付けステートのファクトリを返す</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 : func NewCharacterNamingState() (es.State[w.World], error) {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return &amp;CharacterNamingState{}, nil</span></span>
+<span id="L41"><span class="lineNum">      41</span>              : func NewCharacterNamingState() (es.State[w.World], error) {</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;CharacterNamingState{}, nil</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
 <span id="L45"><span class="lineNum">      45</span>              : // State interface ================</span>
@@ -116,14 +116,14 @@
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 : func (st *CharacterNamingState) OnResume(_ w.World) error { return nil }</span></span>
 <span id="L55"><span class="lineNum">      55</span>              : </span>
 <span id="L56"><span class="lineNum">      56</span>              : // OnStart はステート開始時の処理を行う</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterNamingState) OnStart(world w.World) error {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         st.mount = hooks.NewMount[namingProps]()</span></span>
+<span id="L57"><span class="lineNum">      57</span>              : func (st *CharacterNamingState) OnStart(world w.World) error {</span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC tlaBgGNC">           1 :         st.mount = hooks.NewMount[namingProps]()</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         // 既存プレイヤーの名前を初期値として設定</span></span>
+<span id="L60"><span class="lineNum">      60</span>              :         // 既存プレイヤーの名前を初期値として設定</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         initialName := &quot;&quot;</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           2 :                 if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         if err == nil {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         initialName = nameComp.Name</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L67"><span class="lineNum">      67</span>              :         }</span>
@@ -139,10 +139,10 @@
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *CharacterNamingState) OnStop(_ w.World) error { return nil }</span></span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
 <span id="L79"><span class="lineNum">      79</span>              : // Update はゲームステートの更新処理を行う</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         props := st.mount.GetProps()</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], error) {</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC tlaBgGNC">           1 :         props := st.mount.GetProps()</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         // エラーメッセージの自動クリア</span></span>
+<span id="L83"><span class="lineNum">      83</span>              :         // エラーメッセージの自動クリア</span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         expired, _, resetTimer := hooks.UseTimer(st.mount.Store(), &quot;errorTimer&quot;, errorDisplayTime)</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         if expired &amp;&amp; props.ErrorMessage != &quot;&quot; {</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC tlaBgUNC">           0 :                 st.mount.SetProps(namingProps{</span></span>
@@ -153,7 +153,7 @@
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L92"><span class="lineNum">      92</span>              : </span>
 <span id="L93"><span class="lineNum">      93</span>              :         // TextInput から現在の値を同期</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC tlaBgGNC">           2 :         if textInput, ok := hooks.GetRef[*widget.TextInput](st.mount.Store(), &quot;textInput&quot;); ok &amp;&amp; textInput != nil {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC tlaBgGNC">           1 :         if textInput, ok := hooks.GetRef[*widget.TextInput](st.mount.Store(), &quot;textInput&quot;); ok &amp;&amp; textInput != nil {</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                 currentText := textInput.GetText()</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 if currentText != props.CurrentName {</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC tlaBgUNC">           0 :                         st.mount.SetProps(namingProps{</span></span>
@@ -173,7 +173,7 @@
 <span id="L111"><span class="lineNum">     111</span>              :         }</span>
 <span id="L112"><span class="lineNum">     112</span>              : </span>
 <span id="L113"><span class="lineNum">     113</span>              :         // dirty判定とUI再構築</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC tlaBgGNC">           2 :         if st.mount.Update() || st.widget == nil {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC tlaBgGNC">           1 :         if st.mount.Update() || st.widget == nil {</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 st.widget = st.buildUI(world)</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L117"><span class="lineNum">     117</span>              : </span>
@@ -182,16 +182,16 @@
 <span id="L120"><span class="lineNum">     120</span>              : }</span>
 <span id="L121"><span class="lineNum">     121</span>              : </span>
 <span id="L122"><span class="lineNum">     122</span>              : // Draw はスクリーンに描画する</span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 : func (st *CharacterNamingState) Draw(_ w.World, screen *ebiten.Image) error {</span></span>
+<span id="L123"><span class="lineNum">     123</span>              : func (st *CharacterNamingState) Draw(_ w.World, screen *ebiten.Image) error {</span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         screen.Fill(theme.ScreenBackground)</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           2 :         if st.widget != nil {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         if st.widget != nil {</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 st.widget.Draw(screen)</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L129"><span class="lineNum">     129</span>              : }</span>
 <span id="L130"><span class="lineNum">     130</span>              : </span>
 <span id="L131"><span class="lineNum">     131</span>              : // HandleInput はキー入力をActionに変換する</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 : func (st *CharacterNamingState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : func (st *CharacterNamingState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {</span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuSelect, true</span></span>
@@ -203,13 +203,13 @@
 <span id="L141"><span class="lineNum">     141</span>              : }</span>
 <span id="L142"><span class="lineNum">     142</span>              : </span>
 <span id="L143"><span class="lineNum">     143</span>              : // DoAction はActionを実行する</span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : func (st *CharacterNamingState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
+<span id="L144"><span class="lineNum">     144</span>              : func (st *CharacterNamingState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         switch action {</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
+<span id="L146"><span class="lineNum">     146</span>              :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 return st.cancel(world), nil</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 return st.confirmName(world), nil</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         case inputmapper.ActionMenuSelect:</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC tlaBgUNC">           0 :                 return st.confirmName(world), nil</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :         default:</span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;characterNaming: unsupported action: %s&quot;, action)</span></span>
 <span id="L152"><span class="lineNum">     152</span>              :         }</span>
 <span id="L153"><span class="lineNum">     153</span>              : }</span>
@@ -225,12 +225,12 @@
 <span id="L163"><span class="lineNum">     163</span>              : }</span>
 <span id="L164"><span class="lineNum">     164</span>              : </span>
 <span id="L165"><span class="lineNum">     165</span>              : // confirmName は名前を確定する</span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World] {</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         props := st.mount.GetProps()</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World] {</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC tlaBgGNC">           1 :         props := st.mount.GetProps()</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         name := props.CurrentName</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         nameLen := utf8.RuneCountInString(name)</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           2 :         if nameLen &lt; nameMinLength || nameLen &gt; nameMaxLength {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         if nameLen &lt; nameMinLength || nameLen &gt; nameMaxLength {</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 st.mount.SetProps(namingProps{</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                         CurrentName:  props.CurrentName,</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                         ErrorMessage: query.T(world, &quot;Enter a name of 1 to 10 characters&quot;),</span></span>
@@ -241,9 +241,9 @@
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L180"><span class="lineNum">     180</span>              : </span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         playerEntity, err := query.GetPlayerEntity(world)</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 // 既存プレイヤーの名前を変更した</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           2 :                 if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         if err == nil {</span></span>
+<span id="L183"><span class="lineNum">     183</span>              :                 // 既存プレイヤーの名前を変更した</span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                         nameComp.Name = name</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}</span></span>
@@ -257,9 +257,9 @@
 <span id="L195"><span class="lineNum">     195</span>              : }</span>
 <span id="L196"><span class="lineNum">     196</span>              : </span>
 <span id="L197"><span class="lineNum">     197</span>              : // cancel はキャンセルする</span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 : func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {</span></span>
+<span id="L198"><span class="lineNum">     198</span>              : func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {</span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         _, err := query.GetPlayerEntity(world)</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         if err == nil {</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}</span></span>
 <span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         return es.Transition[w.World]{</span></span>
@@ -272,7 +272,7 @@
 <span id="L210"><span class="lineNum">     210</span>              : // buildUI</span>
 <span id="L211"><span class="lineNum">     211</span>              : // ================</span>
 <span id="L212"><span class="lineNum">     212</span>              : </span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 : func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {</span></span>
+<span id="L213"><span class="lineNum">     213</span>              : func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {</span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         res := world.Resources.UIResources</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         props := st.mount.GetProps()</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 : </span></span>
@@ -302,8 +302,8 @@
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 ),</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         )</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         // テキスト入力を作成</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           2 :         textInput := hooks.UseRef(st.mount.Store(), &quot;textInput&quot;, func() *widget.TextInput {</span></span>
+<span id="L243"><span class="lineNum">     243</span>              :         // テキスト入力を作成</span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         textInput := hooks.UseRef(st.mount.Store(), &quot;textInput&quot;, func() *widget.TextInput {</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 ti := widget.NewTextInput(</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                         widget.TextInputOpts.WidgetOpts(</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                                 widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
@@ -333,7 +333,7 @@
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 ),</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         )</span></span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         // 操作ヒント</span></span>
+<span id="L274"><span class="lineNum">     274</span>              :         // 操作ヒント</span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         hintLabel := widget.NewText(</span></span>
 <span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(consts.IconKeyEnter+&quot; &quot;+query.T(world, &quot;Confirm&quot;)+&quot; / &quot;+consts.IconKeyEsc+&quot; &quot;+query.T(world, &quot;Back&quot;), &amp;res.Text.SmallFace, theme.TextAccent),</span></span>
 <span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>

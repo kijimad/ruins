@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">89.8&nbsp;%</td>
-            <td class="headerCovTableEntry">88</td>
+            <td class="headerCovTableEntryMed">88.6&nbsp;%</td>
             <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntry">70</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -78,8 +78,8 @@
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              : // newMenuListTable はコマンドメニュー系の一覧用テーブルを作る。行間を少し空け、項目が少ない</span>
 <span id="L18"><span class="lineNum">      18</span>              : // 簡易メニューが詰まって見えないようにする。データ一覧系の密なテーブルとは行間だけを変える</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 : func newMenuListTable(columnWidths []int, res resources.UIResources) *widget.Container {</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         return styled.NewTableContainer(columnWidths, res,</span></span>
+<span id="L19"><span class="lineNum">      19</span>              : func newMenuListTable(columnWidths []int, res resources.UIResources) *widget.Container {</span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 :         return styled.NewTableContainer(columnWidths, res,</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 widget.ContainerOpts.Layout(widget.NewRowLayout(</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                         widget.RowLayoutOpts.Direction(widget.DirectionVertical),</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                         widget.RowLayoutOpts.Spacing(theme.Space2),</span></span>
@@ -121,39 +121,39 @@
 <span id="L59"><span class="lineNum">      59</span>              : // 行間をここに集約し、各メニューは行データ menuRow と列幅を渡すだけにする。これにより</span>
 <span id="L60"><span class="lineNum">      60</span>              : // ページ送り忘れ・行間ずれを構造的に防ぐ。</span>
 <span id="L61"><span class="lineNum">      61</span>              : // 列幅と行の値は呼び出し側が対で用意する。全幅の一覧では列幅の合計を menuRowWidth に揃える</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) *widget.Container {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         // 列幅とセル数の対応を検査する。ずれると列が既定幅へ無言で落ちて崩れるため、内部の呼び出し</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         // 不整合として早期に panic させる。アイコン列も普通の1列なのでセル数は常に列幅数と一致する</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) *widget.Container {</span>
+<span id="L63"><span class="lineNum">      63</span>              :         // 列幅とセル数の対応を検査する。ずれると列が既定幅へ無言で落ちて崩れるため、内部の呼び出し</span>
+<span id="L64"><span class="lineNum">      64</span>              :         // 不整合として早期に panic させる。アイコン列も普通の1列なのでセル数は常に列幅数と一致する</span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         if opts.HeaderRow != nil &amp;&amp; len(opts.HeaderRow) != len(colWidths) {</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;renderMenuList: HeaderRow column count %d does not match column widths %d&quot;, len(opts.HeaderRow), len(colWidths)))</span></span>
 <span id="L67"><span class="lineNum">      67</span>              :         }</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC tlaBgGNC">           2 :         for i, r := range rows {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC tlaBgGNC">           1 :         for i, r := range rows {</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 if len(r.Cells) != len(colWidths) {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC tlaBgUNC">           0 :                         panic(fmt.Sprintf(&quot;renderMenuList: row %d column count %d does not match column widths %d&quot;, i, len(r.Cells), len(colWidths)))</span></span>
 <span id="L71"><span class="lineNum">      71</span>              :                 }</span>
 <span id="L72"><span class="lineNum">      72</span>              :         }</span>
 <span id="L73"><span class="lineNum">      73</span>              : </span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC tlaBgGNC">           1 :         perPage := opts.ItemsPerPage</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           2 :         if perPage == 0 {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         if perPage == 0 {</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 perPage = menuframe.ListCapacity(res, false, true)</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         container := styled.NewVerticalContainer()</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         pg := pagination.New(itemIndex, len(rows), perPage)</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           2 :         if opts.AlwaysIndicator || pg.IsEnabled() {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if opts.AlwaysIndicator || pg.IsEnabled() {</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 container.AddChild(newPageIndicator(pg, res))</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L83"><span class="lineNum">      83</span>              : </span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         table := styled.NewTableContainer(colWidths, res)</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           2 :         if opts.Spaced {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         if opts.Spaced {</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 table = newMenuListTable(colWidths, res)</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         if opts.HeaderRow != nil {</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC tlaBgUNC">           0 :                 styled.NewTableHeaderRow(table, colWidths, opts.HeaderRow, res)</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC tlaBgGNC">           1 :         visible := pagination.VisibleEntries(rows, pg)</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           2 :         for _, entry := range visible {</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           2 :                 if entry.Item.Header {</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                         // 見出し行はアイコンを持たない前提で、セルの文字列を並べて見出し専用行に渡す</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         for _, entry := range visible {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 if entry.Item.Header {</span></span>
+<span id="L94"><span class="lineNum">      94</span>              :                         // 見出し行はアイコンを持たない前提で、セルの文字列を並べて見出し専用行に渡す</span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                         styled.NewTableHeaderRow(table, colWidths, cellTexts(entry.Item.Cells), res)</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L97"><span class="lineNum">      97</span>              :                 }</span>
@@ -161,9 +161,9 @@
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 styled.NewTableRow(table, colWidths, entry.Item.Cells, aligns, &amp;isSelected, res)</span></span>
 <span id="L100"><span class="lineNum">     100</span>              :         }</span>
 <span id="L101"><span class="lineNum">     101</span>              :         // 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする</span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           2 :         if len(rows) &gt; perPage {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         if len(rows) &gt; perPage {</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 blank := make([]string, len(colWidths))</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           2 :                 for i := range blank {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 for i := range blank {</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                         blank[i] = &quot; &quot;</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 blankCells := styled.TextCells(blank...)</span></span>
@@ -174,16 +174,16 @@
 <span id="L112"><span class="lineNum">     112</span>              :         }</span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC tlaBgGNC">           1 :         container.AddChild(table)</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         // 行が無いときの空表示を一覧側で持つ。各メニューが同じ後処理を書かずに済む</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           2 :         if len(rows) == 0 &amp;&amp; opts.EmptyText != &quot;&quot; {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         if len(rows) == 0 &amp;&amp; opts.EmptyText != &quot;&quot; {</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 container.AddChild(styled.NewDescriptionText(opts.EmptyText, res))</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         return container</span></span>
 <span id="L119"><span class="lineNum">     119</span>              : }</span>
 <span id="L120"><span class="lineNum">     120</span>              : </span>
 <span id="L121"><span class="lineNum">     121</span>              : // cellTexts は見出し行のセルから文字列を取り出す。見出しはアイコンを持たない前提で Text を並べる</span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 : func cellTexts(cells []styled.Cell) []string {</span></span>
+<span id="L122"><span class="lineNum">     122</span>              : func cellTexts(cells []styled.Cell) []string {</span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         texts := make([]string, len(cells))</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           2 :         for i, c := range cells {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         for i, c := range cells {</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 texts[i] = c.Text</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         return texts</span></span>
@@ -209,12 +209,12 @@
 <span id="L147"><span class="lineNum">     147</span>              : // itemMenuColumns は アイコン列と名前列の共通の先頭2列に、メニュー固有の trailing 列を足した</span>
 <span id="L148"><span class="lineNum">     148</span>              : // 列幅と揃えを返す。アイコン列は行高と同じ正方、名前列は nameWidth で左揃え。</span>
 <span id="L149"><span class="lineNum">     149</span>              : // これで対象メニュー間でアイコンと名前の見た目が揃う</span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 : func itemMenuColumns(nameWidth int, trailing ...menuColumn) ([]int, []styled.TextAlign) {</span></span>
+<span id="L150"><span class="lineNum">     150</span>              : func itemMenuColumns(nameWidth int, trailing ...menuColumn) ([]int, []styled.TextAlign) {</span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         colWidths := make([]int, 0, 2+len(trailing))</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         aligns := make([]styled.TextAlign, 0, 2+len(trailing))</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         colWidths = append(colWidths, itemIconColumnWidth, nameWidth)</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         aligns = append(aligns, styled.AlignLeft, styled.AlignLeft)</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           2 :         for _, c := range trailing {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         for _, c := range trailing {</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                 colWidths = append(colWidths, c.Width)</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 aligns = append(aligns, c.Align)</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -225,7 +225,7 @@
 <span id="L163"><span class="lineNum">     163</span>              : // メニュー固有の trailing 文字列セルを後続に付けた menuRow を返す。</span>
 <span id="L164"><span class="lineNum">     164</span>              : // 個数は呼び出し側が GroupStacks で確定済みの値を渡す。ここで数え直すと一覧の行ごとに</span>
 <span id="L165"><span class="lineNum">     165</span>              : // 全走査が走るため、束ねた結果を持ち回って表示する</span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 : func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuRow {</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuRow {</span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         name := query.GetEntityName(e, world)</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         label := query.FormatNameCount(name, count)</span></span>
@@ -239,9 +239,9 @@
 <span id="L177"><span class="lineNum">     177</span>              : </span>
 <span id="L178"><span class="lineNum">     178</span>              : // newPageIndicator はページ位置を示す行を組み立てる。1ページに収まり表示が空になるときも</span>
 <span id="L179"><span class="lineNum">     179</span>              : // 高さを一定に保つため半角空白を置く。ページングを持つ一覧で共通に使う</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 : func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widget.Container {</span></span>
+<span id="L180"><span class="lineNum">     180</span>              : func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widget.Container {</span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         pageText := pg.GetPageText()</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           2 :         if pageText == &quot;&quot; {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         if pageText == &quot;&quot; {</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 pageText = &quot; &quot;</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         return styled.NewPageIndicator(pageText, res)</span></span>

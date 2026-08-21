@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">100</td>
-            <td class="headerCovTableEntry">100</td>
+            <td class="headerCovTableEntry">89</td>
+            <td class="headerCovTableEntry">89</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -88,8 +88,8 @@
 <span id="L26"><span class="lineNum">      26</span>              : }</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // Update はフェードアニメーションを進めつつY座標を移動させる</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 : func (e *DamageTextEffect) Update(deltaMs float64) bool {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         e.Offset.Y += e.VelocityY</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : func (e *DamageTextEffect) Update(deltaMs float64) bool {</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         e.Offset.Y += e.VelocityY</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return e.FadeAnimation.Update(deltaMs)</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
@@ -102,7 +102,7 @@
 <span id="L40"><span class="lineNum">      40</span>              : }</span>
 <span id="L41"><span class="lineNum">      41</span>              : </span>
 <span id="L42"><span class="lineNum">      42</span>              : // NewSplashTextEffect はダンジョン開始時などのスプラッシュエフェクトを作成する</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *SplashTextEffect {</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *SplashTextEffect {</span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         fadeInMs := 800.0</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         holdMs := 1600.0</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         fadeOutMs := 800.0</span></span>
@@ -125,10 +125,10 @@
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 Face:      face,</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 LineWidth: float64(screenW) * 0.7,</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              : // NewDamageEffect はダメージ数値表示エフェクトを作成する</span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : func NewDamageEffect(damage int) *DamageTextEffect {</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : func NewDamageEffect(damage int) *DamageTextEffect {</span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         totalMs := 800.0</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return &amp;DamageTextEffect{</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 FadeAnimation: FadeAnimation{</span></span>
@@ -146,10 +146,10 @@
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 },</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 VelocityY: -0.5,</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : }</span>
 <span id="L88"><span class="lineNum">      88</span>              : </span>
 <span id="L89"><span class="lineNum">      89</span>              : // NewMissEffect はミス表示エフェクトを作成する</span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 : func NewMissEffect() *DamageTextEffect {</span></span>
+<span id="L90"><span class="lineNum">      90</span>              : func NewMissEffect() *DamageTextEffect {</span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         totalMs := 600.0</span></span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         return &amp;DamageTextEffect{</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 FadeAnimation: FadeAnimation{</span></span>
@@ -167,10 +167,10 @@
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                 },</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 VelocityY: -0.3,</span></span>
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L108"><span class="lineNum">     108</span>              : }</span>
 <span id="L109"><span class="lineNum">     109</span>              : </span>
 <span id="L110"><span class="lineNum">     110</span>              : // NewHealEffect は回復数値表示エフェクトを作成する</span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 : func NewHealEffect(amount int) *DamageTextEffect {</span></span>
+<span id="L111"><span class="lineNum">     111</span>              : func NewHealEffect(amount int) *DamageTextEffect {</span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         totalMs := 800.0</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         return &amp;DamageTextEffect{</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 FadeAnimation: FadeAnimation{</span></span>
@@ -188,10 +188,10 @@
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 },</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 VelocityY: -0.5,</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L129"><span class="lineNum">     129</span>              : }</span>
 <span id="L130"><span class="lineNum">     130</span>              : </span>
 <span id="L131"><span class="lineNum">     131</span>              : // NewSpriteFadeoutEffect はスプライトフェードアウトエフェクトを作成する</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 : func NewSpriteFadeoutEffect(spriteSheetName, spriteKey string) *SpriteFadeoutEffect {</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : func NewSpriteFadeoutEffect(spriteSheetName, spriteKey string) *SpriteFadeoutEffect {</span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         totalMs := 400.0</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         return &amp;SpriteFadeoutEffect{</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 FadeAnimation: FadeAnimation{</span></span>
@@ -205,7 +205,7 @@
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 SpriteSheetName: spriteSheetName,</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 SpriteKey:       spriteKey,</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L146"><span class="lineNum">     146</span>              : }</span>
         </pre>
               </td>
             </tr>

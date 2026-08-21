@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.6&nbsp;%</td>
-            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntryMed">89.7&nbsp;%</td>
             <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">26</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,14 +73,14 @@
 <span id="L11"><span class="lineNum">      11</span>              : // SortEntities はエンティティリストをソートする汎用関数</span>
 <span id="L12"><span class="lineNum">      12</span>              : // Nameコンポーネントを持つエンティティを名前順でソートする</span>
 <span id="L13"><span class="lineNum">      13</span>              : // Nameコンポーネントを持っていないエンティティはスキップされる</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 : func SortEntities(world w.World, entities []ecs.Entity) []ecs.Entity {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           2 :         if len(entities) == 0 {</span></span>
+<span id="L14"><span class="lineNum">      14</span>              : func SortEntities(world w.World, entities []ecs.Entity) []ecs.Entity {</span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 :         if len(entities) == 0 {</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 return entities</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         named := make([]ecs.Entity, 0, len(entities))</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         for _, entity := range entities {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 :                 if world.Components.Name.Has(entity) {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         for _, entity := range entities {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 if world.Components.Name.Has(entity) {</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                         named = append(named, entity)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L24"><span class="lineNum">      24</span>              :         }</span>
@@ -88,14 +88,14 @@
 <span id="L26"><span class="lineNum">      26</span>              :         // 表示名で並べ、同名は品種・鮮度・装備の個体差で決定的に割る。ECS の走査順に依存させない。</span>
 <span id="L27"><span class="lineNum">      27</span>              :         // 走査順に頼ると、ドロップ等の構造変更で Ark の swap-remove が格納順を変え、</span>
 <span id="L28"><span class="lineNum">      28</span>              :         // 同名の別スタックの並びが入れ替わる。同定に使える値だけで全順序を定めて安定させる。</span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :         slices.SortStableFunc(named, func(a, b ecs.Entity) int {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           2 :                 if c := cmp.Compare(world.Components.Name.Get(a).Name, world.Components.Name.Get(b).Name); c != 0 {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         slices.SortStableFunc(named, func(a, b ecs.Entity) int {</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 if c := cmp.Compare(world.Components.Name.Get(a).Name, world.Components.Name.Get(b).Name); c != 0 {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                         return c</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 if c := cmp.Compare(sortRawID(world, a), sortRawID(world, b)); c != 0 {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                         return c</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           2 :                 if c := cmp.Compare(freshnessRank(world, a), freshnessRank(world, b)); c != 0 {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           1 :                 if c := cmp.Compare(freshnessRank(world, a), freshnessRank(world, b)); c != 0 {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                         return c</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return cmp.Compare(equipFingerprint(world, a), equipFingerprint(world, b))</span></span>
@@ -105,8 +105,8 @@
 <span id="L43"><span class="lineNum">      43</span>              : }</span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
 <span id="L45"><span class="lineNum">      45</span>              : // sortRawID は同定キー RawID を返す。持たなければ空文字。同名の別品種を決定的に分ける副キー。</span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : func sortRawID(world w.World, entity ecs.Entity) string {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           2 :         if world.Components.RawID.Has(entity) {</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : func sortRawID(world w.World, entity ecs.Entity) string {</span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         if world.Components.RawID.Has(entity) {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 return world.Components.RawID.Get(entity).ID</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;&quot;</span></span>
@@ -114,9 +114,9 @@
 <span id="L52"><span class="lineNum">      52</span>              : </span>
 <span id="L53"><span class="lineNum">      53</span>              : // freshnessRank は鮮度段階を並び順の数値にする。非腐敗品は先頭の0、腐敗品は段階の Rank に従う。</span>
 <span id="L54"><span class="lineNum">      54</span>              : // 同一品種でも鮮度が違えば別スタックになるため、その並びを決定的にする副キー。</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 : func freshnessRank(world w.World, entity ecs.Entity) int {</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         stage, ok := FreshnessStageOf(world, entity)</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : func freshnessRank(world w.World, entity ecs.Entity) int {</span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           1 :         stage, ok := FreshnessStageOf(world, entity)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return stage.Rank()</span></span>

@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntry">73</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -93,9 +93,9 @@
 <span id="L31"><span class="lineNum">      31</span>              :         Flags:       []cli.Flag{},</span>
 <span id="L32"><span class="lineNum">      32</span>              : }</span>
 <span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 : func runPlay(_ context.Context, _ *cli.Command) error {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         // Steam APIの初期化。steamタグなしではno-op</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         if err := steam.Init(); err != nil {</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : func runPlay(_ context.Context, _ *cli.Command) error {</span>
+<span id="L35"><span class="lineNum">      35</span>              :         // Steam APIの初期化。steamタグなしではno-op</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC tlaBgUNC">           0 :         if err := steam.Init(); err != nil {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;steam initialization failed: %w&quot;, err)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
@@ -114,7 +114,7 @@
 <span id="L52"><span class="lineNum">      52</span>              :         // ログ設定を読み込み</span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         logger.LoadFromConfig(cfg.LogLevel, cfg.LogCategories)</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         // デバッグモードの場合は設定を表示</span></span>
+<span id="L55"><span class="lineNum">      55</span>              :         // デバッグモードの場合は設定を表示</span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         if cfg.Debug {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 log.Printf(&quot;Configuration loaded:\n%s&quot;, cfg.String())</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -124,7 +124,7 @@
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         ebiten.SetWindowSize(cfg.User.WindowWidth, cfg.User.WindowHeight)</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         ebiten.SetWindowTitle(&quot;ruins&quot;)</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         // FPS設定</span></span>
+<span id="L65"><span class="lineNum">      65</span>              :         // FPS設定</span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         if cfg.TargetFPS != 60 {</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 ebiten.SetTPS(cfg.TargetFPS)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -154,7 +154,7 @@
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                 profileOptions = append(profileOptions, profile.ProfilePath(cfg.ProfilePath))</span></span>
 <span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                 defer profile.Start(profileOptions...).Stop()</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                 // pprofサーバー起動</span></span>
+<span id="L95"><span class="lineNum">      95</span>              :                 // pprofサーバー起動</span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                 pprofAddr := fmt.Sprintf(&quot;localhost:%d&quot;, cfg.PProfPort)</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 go func() {</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                         log.Printf(&quot;pprof server starting on http://%s&quot;, pprofAddr)</span></span>
@@ -175,7 +175,7 @@
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 if stateErr != nil {</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                         return stateErr</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         } else {</span></span>
+<span id="L116"><span class="lineNum">     116</span>              :         } else {</span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                 initialState = &amp;gs.MainMenuState{}</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L119"><span class="lineNum">     119</span>              : </span>

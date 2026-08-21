@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">25</td>
-            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">15</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,8 +90,8 @@
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              : // BodyWeight は能力値から算出する体の重量を返す。基準体重に体格分、Vitality と Strength、を足す。</span>
 <span id="L30"><span class="lineNum">      30</span>              : // member や NPC の体重に使い、価格と同じく体格を反映させる</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 : func (a Abilities) BodyWeight() consts.Milligram {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         physiqueKg := a.Vitality.Base + a.Strength.Base</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : func (a Abilities) BodyWeight() consts.Milligram {</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC tlaBgGNC">           1 :         physiqueKg := a.Vitality.Base + a.Strength.Base</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         return consts.Milligram((bodyWeightBaseKg + physiqueKg) * consts.MilligramPerKg)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : </span>
@@ -119,30 +119,30 @@
 <span id="L57"><span class="lineNum">      57</span>              : }</span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
 <span id="L59"><span class="lineNum">      59</span>              : // AbilityName は能力値IDの表示名を返す。未定義ならpanicする</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : func AbilityName(id AbilityID) string {</span></span>
+<span id="L60"><span class="lineNum">      60</span>              : func AbilityName(id AbilityID) string {</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         name, ok := abilityName[id]</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;undefined ability ID: %d&quot;, id))</span></span>
 <span id="L64"><span class="lineNum">      64</span>              :         }</span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         return name</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : }</span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              : // ValueOf は指定された能力値IDに対応するTotal値を返す</span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : func (a *Abilities) ValueOf(id AbilityID) int {</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : func (a *Abilities) ValueOf(id AbilityID) int {</span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         switch id {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         case AblSTR:</span></span>
+<span id="L71"><span class="lineNum">      71</span>              :         case AblSTR:</span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 return a.Strength.Total</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         case AblSEN:</span></span>
+<span id="L73"><span class="lineNum">      73</span>              :         case AblSEN:</span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 return a.Sensation.Total</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         case AblDEX:</span></span>
+<span id="L75"><span class="lineNum">      75</span>              :         case AblDEX:</span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 return a.Dexterity.Total</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         case AblAGI:</span></span>
+<span id="L77"><span class="lineNum">      77</span>              :         case AblAGI:</span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 return a.Agility.Total</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         case AblVIT:</span></span>
+<span id="L79"><span class="lineNum">      79</span>              :         case AblVIT:</span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 return a.Vitality.Total</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         case AblDEF:</span></span>
+<span id="L81"><span class="lineNum">      81</span>              :         case AblDEF:</span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 return a.Defense.Total</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L83"><span class="lineNum">      83</span>              :         default:</span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L85"><span class="lineNum">      85</span>              :         }</span>
 <span id="L86"><span class="lineNum">      86</span>              : }</span>

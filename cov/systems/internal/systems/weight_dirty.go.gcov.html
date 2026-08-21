@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.0&nbsp;%</td>
-            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryMed">83.3&nbsp;%</td>
             <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,22 +76,22 @@
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // String はシステム名を返す</span>
 <span id="L16"><span class="lineNum">      16</span>              : // w.Updater interfaceを実装する</span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys WeightDirtySystem) String() string {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         return &quot;WeightDirtySystem&quot;</span></span>
+<span id="L17"><span class="lineNum">      17</span>              : func (sys WeightDirtySystem) String() string {</span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;WeightDirtySystem&quot;</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // Update はWeightDirtyフラグをチェックし、対象エンティティの重量を再計算する</span>
 <span id="L22"><span class="lineNum">      22</span>              : // w.Updater interfaceを実装する</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func (sys *WeightDirtySystem) Update(world w.World) error {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         // WeightDirtyマーカーが付いたエンティティを収集する。</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         var changedEntities []ecs.Entity</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : func (sys *WeightDirtySystem) Update(world w.World) error {</span>
+<span id="L24"><span class="lineNum">      24</span>              :         // WeightDirtyマーカーが付いたエンティティを収集する。</span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         var changedEntities []ecs.Entity</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         weightDirtyQuery := query.ActiveFilter1[gc.WeightDirty](world).Query()</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :         for weightDirtyQuery.Next() {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         for weightDirtyQuery.Next() {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 changedEntities = append(changedEntities, weightDirtyQuery.Entity())</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              :         // 変動のあったエンティティのフラグをクリアして重量を再計算する</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :         for _, entity := range changedEntities {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         for _, entity := range changedEntities {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 world.Components.WeightDirty.Remove(entity)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 query.UpdateWeightCapacity(world, entity)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>

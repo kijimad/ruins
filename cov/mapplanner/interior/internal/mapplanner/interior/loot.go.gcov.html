@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">57.1&nbsp;%</td>
-            <td class="headerCovTableEntry">7</td>
-            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">60.0&nbsp;%</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">3</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -84,15 +84,15 @@
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // LootGroupName は loot Ref に対応する raw item group 名と、spawn されるかを返す。overworld の床 loot spawn と</span>
 <span id="L24"><span class="lineNum">      24</span>              : // VRT の描画がこの1関数を共有し、片方だけが置く、描くという乖離が構造的に起きないようにする。</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 : func LootGroupName(ref string) (string, bool) {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         name, ok := lootRaw[ref]</span></span>
+<span id="L25"><span class="lineNum">      25</span>              : func LootGroupName(ref string) (string, bool) {</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         name, ok := lootRaw[ref]</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         return name, ok</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span>              : // LootGroups は loot Ref から raw item group id への対応表を返す。値の group が実在するかを検査するテストが</span>
 <span id="L31"><span class="lineNum">      31</span>              : // 全対を舐めるのに使う。返す map は書き換えない前提。</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 : func LootGroups() map[string]string {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         return lootRaw</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : func LootGroups() map[string]string {</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC tlaBgUNC">           0 :         return lootRaw</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>

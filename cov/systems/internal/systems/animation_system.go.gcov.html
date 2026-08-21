@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">23</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,19 +80,19 @@
 <span id="L18"><span class="lineNum">      18</span>              : }</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // NewAnimationSystem はAnimationSystemを初期化する</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC tlaBgUNC">           0 : func NewAnimationSystem() *AnimationSystem {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         return &amp;AnimationSystem{}</span></span>
+<span id="L21"><span class="lineNum">      21</span>              : func NewAnimationSystem() *AnimationSystem {</span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 :         return &amp;AnimationSystem{}</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
 <span id="L25"><span class="lineNum">      25</span>              : // String はシステム名を返す</span>
 <span id="L26"><span class="lineNum">      26</span>              : // w.Updater interfaceを実装</span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 : func (sys AnimationSystem) String() string {</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : func (sys AnimationSystem) String() string {</span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         return &quot;AnimationSystem&quot;</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // Update は全エンティティのスプライトアニメーションを更新する</span>
 <span id="L32"><span class="lineNum">      32</span>              : // w.Updater interfaceを実装</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : func (sys *AnimationSystem) Update(world w.World) error {</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : func (sys *AnimationSystem) Update(world w.World) error {</span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         if world.Config.DisableAnimation {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 return nil</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -104,7 +104,7 @@
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 entity := spriteQuery.Entity()</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 // AnimKeysが空ならアニメーションなし</span></span>
+<span id="L45"><span class="lineNum">      45</span>              :                 // AnimKeysが空ならアニメーションなし</span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                 if len(spriteRender.AnimKeys) == 0 {</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L48"><span class="lineNum">      48</span>              :                 }</span>
@@ -113,10 +113,10 @@
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 numFrames := int64(len(spriteRender.AnimKeys))</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 frameInterval := TotalAnimationDuration / numFrames</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 // フレームインデックスを計算</span></span>
+<span id="L54"><span class="lineNum">      54</span>              :                 // フレームインデックスを計算</span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                 frameIndex := (sys.animationCounter / frameInterval) % numFrames</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 // SpriteKeyを更新</span></span>
+<span id="L57"><span class="lineNum">      57</span>              :                 // SpriteKeyを更新</span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 spriteRender.SpriteKey = spriteRender.AnimKeys[frameIndex]</span></span>
 <span id="L59"><span class="lineNum">      59</span>              :         }</span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         return nil</span></span>

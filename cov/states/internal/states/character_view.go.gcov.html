@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">91.1&nbsp;%</td>
-            <td class="headerCovTableEntry">45</td>
-            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntryHi">90.0&nbsp;%</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntry">36</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,15 +80,15 @@
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              : // View は人物画面のタブ本体を props と選択位置から組み立てる描画。ラベルの訳のみ world から引く。</span>
 <span id="L20"><span class="lineNum">      20</span>              : // 詳細や装備選択のオーバーレイ窓は Screen が重ねる。menuloop.Model の View 部にあたる</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterState) View(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         // 見出しは対象キャラ名</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         header := props.TargetName</span></span>
+<span id="L21"><span class="lineNum">      21</span>              : func (st *CharacterState) View(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {</span>
+<span id="L22"><span class="lineNum">      22</span>              :         // 見出しは対象キャラ名</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 :         header := props.TargetName</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         // コンテンツは現在タブの中身。装備は編集可能、以降は読み取り専用の情報タブ</span></span>
+<span id="L25"><span class="lineNum">      25</span>              :         // コンテンツは現在タブの中身。装備は編集可能、以降は読み取り専用の情報タブ</span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         var content *widget.Container</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :         if charTabAt(cursor.TabIndex) == charTabEquip {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         if charTabAt(cursor.TabIndex) == charTabEquip {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 content = buildEquipList(world, props.EquipSlots, cursor.ItemIndex, res)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           3 :         } else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx &gt;= 0 &amp;&amp; infoIdx &lt; len(props.InfoTabs) {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           2 :         } else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx &gt;= 0 &amp;&amp; infoIdx &lt; len(props.InfoTabs) {</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 content = buildInfoTable(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         } else {</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :                 content = widget.NewContainer()</span></span>
@@ -105,13 +105,13 @@
 <span id="L43"><span class="lineNum">      43</span>              : </span>
 <span id="L44"><span class="lineNum">      44</span>              : // buildEquipList は装備タブの一覧を組み立てる。スロット名、装備アイコン、装備名を並べ、</span>
 <span id="L45"><span class="lineNum">      45</span>              : // 未装備はアイコンと名前を空欄にする。アイコンは装備名の左に置く</span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : func buildEquipList(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : func buildEquipList(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         columnWidths := []int{120, itemIconColumnWidth, 220}</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft}</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(slots))</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           2 :         for i, slot := range slots {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         for i, slot := range slots {</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 var icon *ebiten.Image</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           2 :                 if slot.Entity != nil {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 if slot.Entity != nil {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         icon, _ = resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(*slot.Entity))</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName)}}</span></span>
@@ -122,14 +122,14 @@
 <span id="L60"><span class="lineNum">      60</span>              : </span>
 <span id="L61"><span class="lineNum">      61</span>              : // buildEquipSelectWindow は装備選択のサブウィンドウを rect の位置へ組み立てる。</span>
 <span id="L62"><span class="lineNum">      62</span>              : // 候補名は world から引くため world を受け取るが、選択状態は selectedIndex で明示的に渡す</span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 : func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex int, rect image.Rectangle, res resources.UIResources) *widget.Window {</span></span>
+<span id="L63"><span class="lineNum">      63</span>              : func buildEquipSelectWindow(world w.World, props charEquipProps, selectedIndex int, rect image.Rectangle, res resources.UIResources) *widget.Window {</span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         content := styled.NewWindowContainer(res)</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         title := styled.NewWindowHeaderContainer(query.T(world, &quot;Choose equipment&quot;), res)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         win := styled.NewSmallWindow(title, content)</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         if len(props.Items) == 0 {</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC tlaBgUNC">           0 :                 content.AddChild(styled.NewDescriptionText(query.T(world, &quot;Nothing to equip&quot;), res))</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC tlaBgGNC">           2 :         for i, entity := range props.Items {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC tlaBgGNC">           1 :         for i, entity := range props.Items {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 name := query.GetEntityName(entity, world)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(entity))</span></span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 content.AddChild(styled.NewListItem(icon, name, theme.TextSecondary, i == selectedIndex, res))</span></span>

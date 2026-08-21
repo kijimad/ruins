@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">79.5&nbsp;%</td>
-            <td class="headerCovTableEntry">146</td>
-            <td class="headerCovTableEntry">116</td>
+            <td class="headerCovTableEntryMed">78.7&nbsp;%</td>
+            <td class="headerCovTableEntry">136</td>
+            <td class="headerCovTableEntry">107</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -99,9 +99,9 @@
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC tlaBgUNC">           0 : func IconCell(img *ebiten.Image) Cell { return Cell{Icon: img} }</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              : // TextCells は文字列だけの行を手早く組む</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           1 : func TextCells(ss ...string) []Cell {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         cells := make([]Cell, len(ss))</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           2 :         for i, s := range ss {</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : func TextCells(ss ...string) []Cell {</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         cells := make([]Cell, len(ss))</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         for i, s := range ss {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 cells[i] = TextCell(s)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         return cells</span></span>
@@ -109,7 +109,7 @@
 <span id="L47"><span class="lineNum">      47</span>              : </span>
 <span id="L48"><span class="lineNum">      48</span>              : // NewTableContainer はテーブルのコンテナを作成する</span>
 <span id="L49"><span class="lineNum">      49</span>              : // 各行がコンテナとなる縦並びレイアウトで、行単位の背景色設定が可能</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func NewTableContainer(_ []int, _ resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : func NewTableContainer(_ []int, _ resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {</span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         defaultOpts := []widget.ContainerOpt{</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 widget.ContainerOpts.Layout(</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         widget.NewRowLayout(</span></span>
@@ -124,7 +124,7 @@
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                         }),</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 ),</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         allOpts := make([]widget.ContainerOpt, 0, len(defaultOpts)+len(opts))</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         allOpts = append(allOpts, defaultOpts...)</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         allOpts = append(allOpts, opts...)</span></span>
@@ -133,11 +133,11 @@
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L72"><span class="lineNum">      72</span>              : </span>
 <span id="L73"><span class="lineNum">      73</span>              : // NewTableHeaderRow はヘッダー行のセル群を作成してコンテナに追加する</span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 : func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers []string, res resources.UIResources) {</span></span>
+<span id="L74"><span class="lineNum">      74</span>              : func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers []string, res resources.UIResources) {</span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         row := newRowContainer(columnWidths, image.NewNineSliceColor(theme.Transparent))</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           2 :         for i, header := range headers {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         for i, header := range headers {</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 width := 80</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           2 :                 if i &lt; len(columnWidths) {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 if i &lt; len(columnWidths) {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         width = columnWidths[i]</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L81"><span class="lineNum">      81</span>              : </span>
@@ -158,15 +158,15 @@
 <span id="L96"><span class="lineNum">      96</span>              : // 各セルは Icon が非 nil ならアイコン、nil なら文字列で描く。</span>
 <span id="L97"><span class="lineNum">      97</span>              : // isSelected が nil の場合は通常行、非 nil の場合は最初の列にカーソルを表示する選択可能行になる。</span>
 <span id="L98"><span class="lineNum">      98</span>              : // aligns が nil の場合は全て左揃えになる</span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 : func NewTableRow(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, isSelected *bool, res resources.UIResources) {</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           2 :         if isSelected == nil {</span></span>
+<span id="L99"><span class="lineNum">      99</span>              : func NewTableRow(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, isSelected *bool, res resources.UIResources) {</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         if isSelected == nil {</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 NewTableRowColored(container, columnWidths, cells, aligns, theme.TextPrimary, res)</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L104"><span class="lineNum">     104</span>              :         // 選択行は選択バーの背景と選択色にし、行の下に区切り線を引く</span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         bgImage := image.NewNineSliceColor(theme.Transparent)</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         textColor := theme.TextSecondary</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           2 :         if *isSelected {</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :         if *isSelected {</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 bgImage = res.Panel.SelectionBar</span></span>
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 textColor = theme.TextSelected</span></span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -178,8 +178,8 @@
 <span id="L116"><span class="lineNum">     116</span>              : </span>
 <span id="L117"><span class="lineNum">     117</span>              : // NewSpriteCell は img を一辺 size のアイコン widget にする。原寸が size より大きければ縮小する。</span>
 <span id="L118"><span class="lineNum">     118</span>              : // img が nil のときは透明な size×size のセルを返し、アイコンの無い行の桁を合わせる</span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC tlaBgUNC">           0 : func NewSpriteCell(img *ebiten.Image, size int) *widget.Graphic {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         scaled := ebiten.NewImage(size, size)</span></span>
+<span id="L119"><span class="lineNum">     119</span>              : func NewSpriteCell(img *ebiten.Image, size int) *widget.Graphic {</span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC tlaBgUNC">           0 :         scaled := ebiten.NewImage(size, size)</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         if img != nil {</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 bounds := img.Bounds()</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                 iw, ih := bounds.Dx(), bounds.Dy()</span></span>
@@ -210,23 +210,23 @@
 <span id="L148"><span class="lineNum">     148</span>              : // ================</span>
 <span id="L149"><span class="lineNum">     149</span>              : </span>
 <span id="L150"><span class="lineNum">     150</span>              : // newRowContainer は行コンテナを作成する。背景画像を指定でき、横幅は親に合わせて伸びる</span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">           1 : func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Container {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         columns := len(columnWidths)</span></span>
+<span id="L151"><span class="lineNum">     151</span>              : func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Container {</span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC tlaBgGNC">           1 :         columns := len(columnWidths)</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         if columns == 0 {</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC tlaBgUNC">           0 :                 columns = 1</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L156"><span class="lineNum">     156</span>              : </span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC tlaBgGNC">           1 :         stretch := make([]bool, columns)</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         // 幅0の列があればそこを伸縮させて親コンテナの幅を埋める。無ければ最後の列を伸縮させる。</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         // 幅0は「ここを伸ばす」印で、名前を伸ばして右側の数値列をまとめたい表で使う</span></span>
+<span id="L159"><span class="lineNum">     159</span>              :         // 幅0は「ここを伸ばす」印で、名前を伸ばして右側の数値列をまとめたい表で使う</span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         stretchIdx := columns - 1</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           2 :         for i, cw := range columnWidths {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         for i, cw := range columnWidths {</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 if cw == 0 {</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC tlaBgUNC">           0 :                         stretchIdx = i</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                         break</span></span>
 <span id="L165"><span class="lineNum">     165</span>              :                 }</span>
 <span id="L166"><span class="lineNum">     166</span>              :         }</span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC tlaBgGNC">           2 :         if columns &gt; 0 {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC tlaBgGNC">           1 :         if columns &gt; 0 {</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 stretch[stretchIdx] = true</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L170"><span class="lineNum">     170</span>              : </span>
@@ -250,7 +250,7 @@
 <span id="L188"><span class="lineNum">     188</span>              : </span>
 <span id="L189"><span class="lineNum">     189</span>              : // NewTableRowColored はデータ行を指定色の文字で描く。選択ハイライトや区切り線は付かない。</span>
 <span id="L190"><span class="lineNum">     190</span>              : // 詳細モーダルで条件可否を色分けする用途に使う</span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 : func NewTableRowColored(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {</span></span>
+<span id="L191"><span class="lineNum">     191</span>              : func NewTableRowColored(container *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {</span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         row := newRowContainer(columnWidths, image.NewNineSliceColor(theme.Transparent))</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         addRowCells(row, columnWidths, cells, aligns, textColor, res)</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         container.AddChild(row)</span></span>
@@ -258,10 +258,10 @@
 <span id="L196"><span class="lineNum">     196</span>              : </span>
 <span id="L197"><span class="lineNum">     197</span>              : // addRowCells は行コンテナへセルを並べる。各セルは Icon が非 nil ならアイコン、nil なら文字列で描く。</span>
 <span id="L198"><span class="lineNum">     198</span>              : // 列幅と揃えは列ごとの配列で受け、セルの位置がそのまま列の位置になる</span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 : func addRowCells(row *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           2 :         for i, cell := range cells {</span></span>
+<span id="L199"><span class="lineNum">     199</span>              : func addRowCells(row *widget.Container, columnWidths []int, cells []Cell, aligns []TextAlign, textColor color.RGBA, res resources.UIResources) {</span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         for i, cell := range cells {</span></span>
 <span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 width := 80</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           2 :                 if i &lt; len(columnWidths) {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 if i &lt; len(columnWidths) {</span></span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                         width = columnWidths[i]</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L205"><span class="lineNum">     205</span>              : </span>
@@ -272,7 +272,7 @@
 <span id="L210"><span class="lineNum">     210</span>              : </span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC tlaBgGNC">           1 :                 textPos := widget.TextPositionStart</span></span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 gridData := widget.GridLayoutData{}</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           2 :                 if aligns != nil &amp;&amp; i &lt; len(aligns) &amp;&amp; aligns[i] == AlignRight {</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 if aligns != nil &amp;&amp; i &lt; len(aligns) &amp;&amp; aligns[i] == AlignRight {</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                         textPos = widget.TextPositionEnd</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                         gridData.HorizontalPosition = widget.GridLayoutPositionEnd</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 }</span></span>

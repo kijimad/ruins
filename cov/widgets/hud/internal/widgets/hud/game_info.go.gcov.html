@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">107</td>
+            <td class="headerCovTableEntry">79</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -82,22 +82,22 @@
 <span id="L20"><span class="lineNum">      20</span>              : }</span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // NewGameInfo は新しいHUDGameInfoを作成する</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 : func NewGameInfo(bodyFace text.Face, headingFace text.Face, gaugeFill *ebiten.Image) *GameInfo {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         return &amp;GameInfo{</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : func NewGameInfo(bodyFace text.Face, headingFace text.Face, gaugeFill *ebiten.Image) *GameInfo {</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 :         return &amp;GameInfo{</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 bodyFace:    bodyFace,</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :                 headingFace: headingFace,</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 gaugeFill:   gaugeFill,</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :                 enabled:     true,</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : }</span>
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // Update はゲーム情報エリアを更新する</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : func (info *GameInfo) Update(_ w.World) {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         // 現在は更新処理なし</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L34"><span class="lineNum">      34</span>              :         // 現在は更新処理なし</span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // Draw はゲーム情報エリアを描画する</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {</span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         if !info.enabled {</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -105,21 +105,21 @@
 <span id="L43"><span class="lineNum">      43</span>              :         // HP情報</span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         info.drawHealthBar(screen, data.PlayerHP, data.PlayerMaxHP)</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         // 所持重量表示（右下）</span></span>
+<span id="L46"><span class="lineNum">      46</span>              :         // 所持重量表示（右下）</span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         info.drawWeightDisplay(screen, data)</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         // フロア情報（最後に描画して最前面に表示）</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :         // フロア情報（最後に描画して最前面に表示）</span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         info.drawFloorNumber(screen, data)</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : }</span>
 <span id="L52"><span class="lineNum">      52</span>              : </span>
 <span id="L53"><span class="lineNum">      53</span>              : // drawFloorNumber は階層番号を描画する</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 : func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) {</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) {</span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         floorText := fmt.Sprintf(&quot;%3dF&quot;, data.FloorNumber)</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         // テキストの幅を測定</span></span>
+<span id="L57"><span class="lineNum">      57</span>              :         // テキストの幅を測定</span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         textWidth, _ := text.Measure(floorText, info.headingFace, 0)</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         // 右上に配置</span></span>
+<span id="L60"><span class="lineNum">      60</span>              :         // 右上に配置</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         x := float64(data.ScreenDimensions.Width) - textWidth - theme.Space4F</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         y := theme.Space4F</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 : </span></span>
@@ -138,11 +138,11 @@
 <span id="L76"><span class="lineNum">      76</span>              : )</span>
 <span id="L77"><span class="lineNum">      77</span>              : </span>
 <span id="L78"><span class="lineNum">      78</span>              : // drawHealthBar はプレイヤーの体力ゲージを描画する</span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 : func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) {</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) {</span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         x := gaugeBaseX</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         y := gaugeBaseY</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         // HP比率を計算</span></span>
+<span id="L83"><span class="lineNum">      83</span>              :         // HP比率を計算</span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         hpRatio := float64(0)</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         if maxHP &gt; 0 {</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :                 hpRatio = float64(currentHP) / float64(maxHP)</span></span>
@@ -168,17 +168,17 @@
 <span id="L106"><span class="lineNum">     106</span>              : // drawGaugeBar はゲージバーを描画する。</span>
 <span id="L107"><span class="lineNum">     107</span>              : // 上下にグラデーションセパレーターライン、その間に白枠線で囲まれたグラデーション塗りを描画する。</span>
 <span id="L108"><span class="lineNum">     108</span>              : // セパレーターラインと枠線はゲージ塗りより左右に少しはみ出す</span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 : func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio float64, fillColor, borderColor color.RGBA) {</span></span>
+<span id="L109"><span class="lineNum">     109</span>              : func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio float64, fillColor, borderColor color.RGBA) {</span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         fy := float32(y)</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         frameX := float32(x - gaugeOverhang)</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         frameW := float32(width + gaugeOverhang*2)</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :         fillAreaH := float32(gaugeBorderH + gaugeFillHeight)</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         // 白い枠線（上辺と下辺のみ）</span></span>
+<span id="L115"><span class="lineNum">     115</span>              :         // 白い枠線（上辺と下辺のみ）</span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         vector.FillRect(screen, frameX, fy, frameW, 1, borderColor, false)</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         vector.FillRect(screen, frameX, fy+fillAreaH-1, frameW, 1, borderColor, false)</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         // 塗り（縦方向グラデーション: 上が明るく下が暗い光沢効果）</span></span>
+<span id="L119"><span class="lineNum">     119</span>              :         // 塗り（縦方向グラデーション: 上が明るく下が暗い光沢効果）</span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         if ratio &gt; 0 &amp;&amp; info.gaugeFill != nil {</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                 fillW := width * ratio</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 srcH := float64(info.gaugeFill.Bounds().Dy())</span></span>
@@ -191,38 +191,38 @@
 <span id="L129"><span class="lineNum">     129</span>              : }</span>
 <span id="L130"><span class="lineNum">     130</span>              : </span>
 <span id="L131"><span class="lineNum">     131</span>              : // drawWeightDisplay はプレイヤーの所持重量を右下に描画する</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 : func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData) {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         // 所持重量テキストを作成する</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData) {</span>
+<span id="L133"><span class="lineNum">     133</span>              :         // 所持重量テキストを作成する</span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         weightText := fmt.Sprintf(&quot;%s / %s&quot;, data.PlayerWeight.KgString(), data.PlayerMaxWeight.KgString())</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         // テキストの幅を測定</span></span>
+<span id="L136"><span class="lineNum">     136</span>              :         // テキストの幅を測定</span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         textWidth, textHeight := text.Measure(weightText, info.bodyFace, 0)</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         // メッセージエリアの高さを取得</span></span>
+<span id="L139"><span class="lineNum">     139</span>              :         // メッセージエリアの高さを取得</span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         messageAreaHeight := float64(data.MessageAreaHeight)</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         // 画面右下に配置（通貨表示の上に重ならないように2行分上げる）</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :         // 画面右下に配置（通貨表示の上に重ならないように2行分上げる）</span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         screenWidth := float64(data.ScreenDimensions.Width)</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         screenHeight := float64(data.ScreenDimensions.Height)</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         x := screenWidth - textWidth - theme.Space4F</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         y := screenHeight - messageAreaHeight - theme.Space4F - textHeight*2 - theme.Space2F</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         // 重量比率を計算して色を決定</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         // 重量比率を計算して色を決定</span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         var textColor color.RGBA</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         if data.PlayerMaxWeight &gt; 0 {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 ratio := float64(data.PlayerWeight) / float64(data.PlayerMaxWeight)</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 switch {</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                 case ratio &gt; 1.0:</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :                         // 超過: 赤</span></span>
+<span id="L153"><span class="lineNum">     153</span>              :                 case ratio &gt; 1.0:</span>
+<span id="L154"><span class="lineNum">     154</span>              :                         // 超過: 赤</span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                         textColor = theme.HUDWeightDanger</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                 case ratio &gt; 0.8:</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :                         // 80%以上: 黄色</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :                 case ratio &gt; 0.8:</span>
+<span id="L157"><span class="lineNum">     157</span>              :                         // 80%以上: 黄色</span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                         textColor = theme.HUDWeightWarning</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                 default:</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                         // 通常: 白</span></span>
+<span id="L159"><span class="lineNum">     159</span>              :                 default:</span>
+<span id="L160"><span class="lineNum">     160</span>              :                         // 通常: 白</span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                         textColor = theme.TextPrimary</span></span>
 <span id="L162"><span class="lineNum">     162</span>              :                 }</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         } else {</span></span>
+<span id="L163"><span class="lineNum">     163</span>              :         } else {</span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 textColor = theme.TextPrimary</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L166"><span class="lineNum">     166</span>              : </span>

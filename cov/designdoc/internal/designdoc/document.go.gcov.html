@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">17</td>
-            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,9 +81,9 @@
 <span id="L19"><span class="lineNum">      19</span>              : )</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // Valid は status が定義済みの値かを返す。</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 : func (s Status) Valid() bool {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         switch s {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         case StatusDraft, StatusAccepted, StatusInProgress, StatusDone, StatusSuperseded, StatusDropped:</span></span>
+<span id="L22"><span class="lineNum">      22</span>              : func (s Status) Valid() bool {</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 :         switch s {</span></span>
+<span id="L24"><span class="lineNum">      24</span>              :         case StatusDraft, StatusAccepted, StatusInProgress, StatusDone, StatusSuperseded, StatusDropped:</span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 return true</span></span>
 <span id="L26"><span class="lineNum">      26</span>              :         }</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
@@ -92,11 +92,11 @@
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // IsOpen は未完了、すなわちバックログとして着手対象かを返す。アクションが要るかの単一の基準で、</span>
 <span id="L32"><span class="lineNum">      32</span>              : // README の未完了一覧に載せる範囲もこれで決める。done・superseded・dropped は閉じた状態とみなす。</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func (s Status) IsOpen() bool {</span></span>
+<span id="L33"><span class="lineNum">      33</span>              : func (s Status) IsOpen() bool {</span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         switch s {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         case StatusDraft, StatusAccepted, StatusInProgress:</span></span>
+<span id="L35"><span class="lineNum">      35</span>              :         case StatusDraft, StatusAccepted, StatusInProgress:</span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return true</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         case StatusDone, StatusSuperseded, StatusDropped:</span></span>
+<span id="L37"><span class="lineNum">      37</span>              :         case StatusDone, StatusSuperseded, StatusDropped:</span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L39"><span class="lineNum">      39</span>              :         }</span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
@@ -114,9 +114,9 @@
 <span id="L52"><span class="lineNum">      52</span>              : )</span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
 <span id="L54"><span class="lineNum">      54</span>              : // Valid は auto が定義済みの値かを返す。</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 : func (a Auto) Valid() bool {</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : func (a Auto) Valid() bool {</span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         switch a {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         case AutoMechanical, AutoNeedsDecision:</span></span>
+<span id="L57"><span class="lineNum">      57</span>              :         case AutoMechanical, AutoNeedsDecision:</span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return true</span></span>
 <span id="L59"><span class="lineNum">      59</span>              :         }</span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>

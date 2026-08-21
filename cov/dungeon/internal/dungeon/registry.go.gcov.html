@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">20</td>
-            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">16</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -178,14 +178,14 @@
 <span id="L116"><span class="lineNum">     116</span>              : </span>
 <span id="L117"><span class="lineNum">     117</span>              : // GetAllDungeons は選択画面に表示する全ダンジョン定義を返す。</span>
 <span id="L118"><span class="lineNum">     118</span>              : // オーバーワールドやデバッグなどの内部用の定義は含まない。</span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC tlaBgGNC">           1 : func GetAllDungeons() []*DungeonDefinition {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         return allDungeons</span></span>
+<span id="L119"><span class="lineNum">     119</span>              : func GetAllDungeons() []*DungeonDefinition {</span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC tlaBgGNC">           1 :         return allDungeons</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L122"><span class="lineNum">     122</span>              : </span>
 <span id="L123"><span class="lineNum">     123</span>              : // GetAllDungeonNames は全ダンジョン名のスライスを返す</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : func GetAllDungeonNames() []string {</span></span>
+<span id="L124"><span class="lineNum">     124</span>              : func GetAllDungeonNames() []string {</span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         names := make([]string, len(allDungeons))</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :         for i := range allDungeons {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         for i := range allDungeons {</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 names[i] = allDungeons[i].Name()</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         return names</span></span>
@@ -200,15 +200,15 @@
 <span id="L138"><span class="lineNum">     138</span>              : }</span>
 <span id="L139"><span class="lineNum">     139</span>              : </span>
 <span id="L140"><span class="lineNum">     140</span>              : // GetStageDefinition は名前からステージ定義のマスタを取得する。</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 : func GetStageDefinition(name string) (StageDefinition, bool) {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         // 内部用の定義を先にチェックする</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           2 :         for _, k := range internalDefinitions {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :                 if k.Name() == name {</span></span>
+<span id="L141"><span class="lineNum">     141</span>              : func GetStageDefinition(name string) (StageDefinition, bool) {</span>
+<span id="L142"><span class="lineNum">     142</span>              :         // 内部用の定義を先にチェックする</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         for _, k := range internalDefinitions {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 if k.Name() == name {</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                         return k, true</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L147"><span class="lineNum">     147</span>              :         }</span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           2 :         for _, d := range allDungeons {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           2 :                 if d.Name() == name {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         for _, d := range allDungeons {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 if d.Name() == name {</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                         return d, true</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L152"><span class="lineNum">     152</span>              :         }</span>

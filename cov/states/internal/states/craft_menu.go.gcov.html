@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">71.4&nbsp;%</td>
-            <td class="headerCovTableEntry">175</td>
-            <td class="headerCovTableEntry">125</td>
+            <td class="headerCovTableEntryLo">69.1&nbsp;%</td>
+            <td class="headerCovTableEntry">152</td>
+            <td class="headerCovTableEntry">105</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -103,8 +103,8 @@
 <span id="L41"><span class="lineNum">      41</span>              : var _ menuloop.KeyBindings = &amp;CraftMenuState{}</span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
 <span id="L43"><span class="lineNum">      43</span>              : // OnStart はステートが開始される際に呼ばれる</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CraftMenuState) OnStart(_ w.World) error {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         st.detail = overlay.NewDetail(st.detailContent)</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : func (st *CraftMenuState) OnStart(_ w.World) error {</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC tlaBgGNC">           1 :         st.detail = overlay.NewDetail(st.detailContent)</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           2 :         st.result = overlay.NewEntityDetail(func() (ecs.Entity, bool) { return st.resultEntity, true })</span></span>
 <span id="L47"><span class="lineNum">      47</span>              :         // result を先に登録する。合成結果が開いている間はそちらが入力を専有する</span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         st.screen = menuloop.NewScreen[CraftProps](st, &amp;st.result, &amp;st.detail)</span></span>
@@ -112,35 +112,35 @@
 <span id="L50"><span class="lineNum">      50</span>              : }</span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              : // Update はゲームステートの更新処理を行う</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) {</span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         return st.screen.Update(world)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L56"><span class="lineNum">      56</span>              : </span>
 <span id="L57"><span class="lineNum">      57</span>              : // Draw はゲームステートの描画処理を行う</span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) Draw(_ w.World, screen *ebiten.Image) error {</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : func (st *CraftMenuState) Draw(_ w.World, screen *ebiten.Image) error {</span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         st.screen.Draw(screen)</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L62"><span class="lineNum">      62</span>              : </span>
 <span id="L63"><span class="lineNum">      63</span>              : // KeyBindings は x の詳細表示を共通入力に足す</span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) KeyBindings() []keybind.Binding {</span></span>
+<span id="L64"><span class="lineNum">      64</span>              : func (st *CraftMenuState) KeyBindings() []keybind.Binding {</span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         return detailOpenBindings</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
 <span id="L68"><span class="lineNum">      68</span>              : // DoAction はActionを実行する</span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         switch action {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionOpenDebugMenu:</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDebugMenuState}}, nil</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC tlaBgGNC">           1 :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionOpenItemDetail:</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC tlaBgGNC">           1 :         case inputmapper.ActionMenuSelect:</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 if err := st.craftSelected(world); err != nil {</span></span>
+<span id="L71"><span class="lineNum">      71</span>              :         case inputmapper.ActionOpenDebugMenu:</span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDebugMenuState}}, nil</span></span>
+<span id="L73"><span class="lineNum">      73</span>              :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC tlaBgGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L75"><span class="lineNum">      75</span>              :         case inputmapper.ActionOpenItemDetail:</span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC tlaBgUNC">           0 :                 st.detail.Open(world)</span></span>
+<span id="L77"><span class="lineNum">      77</span>              :         case inputmapper.ActionMenuSelect:</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">           1 :                 if err := st.craftSelected(world); err != nil {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC tlaBgUNC">           0 :                         return es.Transition[w.World]{}, err</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L81"><span class="lineNum">      81</span>              :         default:</span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;craftMenu: unsupported action: %s&quot;, action)</span></span>
 <span id="L83"><span class="lineNum">      83</span>              :         }</span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC tlaBgGNC">           1 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
@@ -168,7 +168,7 @@
 <span id="L106"><span class="lineNum">     106</span>              : }</span>
 <span id="L107"><span class="lineNum">     107</span>              : </span>
 <span id="L108"><span class="lineNum">     108</span>              : // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる</span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) Fetch(world w.World) (CraftProps, error) {</span></span>
+<span id="L109"><span class="lineNum">     109</span>              : func (st *CraftMenuState) Fetch(world w.World) (CraftProps, error) {</span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         return CraftProps{</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 Tabs: []craftTabData{</span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :                         {ID: &quot;consumables&quot;, Label: query.T(world, &quot;Consumables&quot;), Items: st.createMenuItems(world, st.queryMenuConsumable(world))},</span></span>
@@ -179,18 +179,18 @@
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L118"><span class="lineNum">     118</span>              : </span>
 <span id="L119"><span class="lineNum">     119</span>              : // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる</span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) Menu(props CraftProps) menuloop.MenuConfig {</span></span>
+<span id="L120"><span class="lineNum">     120</span>              : func (st *CraftMenuState) Menu(props CraftProps) menuloop.MenuConfig {</span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         itemCounts := make([]int, len(props.Tabs))</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         for i, tab := range props.Tabs {</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 itemCounts[i] = len(tab.Items)</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         return menuloop.MenuConfig{Key: &quot;craft&quot;, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto}</span></span>
 <span id="L126"><span class="lineNum">     126</span>              : }</span>
 <span id="L127"><span class="lineNum">     127</span>              : </span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) createMenuItems(world w.World, recipeIDs []string) []craftItemData {</span></span>
+<span id="L128"><span class="lineNum">     128</span>              : func (st *CraftMenuState) createMenuItems(world w.World, recipeIDs []string) []craftItemData {</span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         items := make([]craftItemData, len(recipeIDs))</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           2 :         for i, recipeID := range recipeIDs {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         for i, recipeID := range recipeIDs {</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                 canCraft, _ := gameaction.CanCraft(world, recipeID)</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 // レシピ id は生成アイテム id と一致する。表示名はアイテムの英語名を翻訳して出し、材料表示と経路を揃える</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 items[i] = craftItemData{</span></span>
@@ -198,20 +198,20 @@
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         RecipeName: query.T(world, raw.ItemName(world.Resources.RawMaster, recipeID)),</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                         CanCraft:   canCraft,</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L139"><span class="lineNum">     139</span>              :         }</span>
 <span id="L140"><span class="lineNum">     140</span>              : </span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         return items</span></span>
 <span id="L142"><span class="lineNum">     142</span>              : }</span>
 <span id="L143"><span class="lineNum">     143</span>              : </span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {</span></span>
+<span id="L144"><span class="lineNum">     144</span>              : func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {</span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         var items []string</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           2 :         for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L151"><span class="lineNum">     151</span>              :                 }</span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC tlaBgGNC">           2 :                 if spec.Consumable != nil {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC tlaBgGNC">           1 :                 if spec.Consumable != nil {</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                         items = append(items, recipe.Id)</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L155"><span class="lineNum">     155</span>              :         }</span>
@@ -220,16 +220,16 @@
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         return items</span></span>
 <span id="L159"><span class="lineNum">     159</span>              : }</span>
 <span id="L160"><span class="lineNum">     160</span>              : </span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {</span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         var items []string</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           2 :         for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L168"><span class="lineNum">     168</span>              :                 }</span>
 <span id="L169"><span class="lineNum">     169</span>              :                 // TODO: カテゴリ定義で判定したい</span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           2 :                 if spec.Melee != nil || spec.Fire != nil {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           1 :                 if spec.Melee != nil || spec.Fire != nil {</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                         items = append(items, recipe.Id)</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L173"><span class="lineNum">     173</span>              :         }</span>
@@ -238,15 +238,15 @@
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         return items</span></span>
 <span id="L177"><span class="lineNum">     177</span>              : }</span>
 <span id="L178"><span class="lineNum">     178</span>              : </span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) queryMenuWearable(world w.World) []string {</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : func (st *CraftMenuState) queryMenuWearable(world w.World) []string {</span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         var items []string</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           2 :         for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Id)</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L186"><span class="lineNum">     186</span>              :                 }</span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">           2 :                 if spec.Wearable != nil {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC tlaBgGNC">           1 :                 if spec.Wearable != nil {</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                         items = append(items, recipe.Id)</span></span>
 <span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L190"><span class="lineNum">     190</span>              :         }</span>
@@ -261,9 +261,9 @@
 <span id="L199"><span class="lineNum">     199</span>              : </span>
 <span id="L200"><span class="lineNum">     200</span>              : // craftSelected は現在カーソルが当たっているレシピを合成し、結果モーダルを開く。</span>
 <span id="L201"><span class="lineNum">     201</span>              : // 合成不可のレシピは何もしない。決定で即実行し、途中のアクション選択は挟まない</span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) craftSelected(world w.World) error {</span></span>
+<span id="L202"><span class="lineNum">     202</span>              : func (st *CraftMenuState) craftSelected(world w.World) error {</span>
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         item, ok := st.selectedRecipe()</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           2 :         if !ok || !item.CanCraft {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         if !ok || !item.CanCraft {</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC tlaBgUNC">           0 :         resultEntity, err := gameaction.Craft(world, item.RecipeID)</span></span>
@@ -276,10 +276,10 @@
 <span id="L214"><span class="lineNum">     214</span>              : }</span>
 <span id="L215"><span class="lineNum">     215</span>              : </span>
 <span id="L216"><span class="lineNum">     216</span>              : // selectedRecipe は現在カーソルが当たっているレシピを返す</span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         props := st.screen.Props()</span></span>
+<span id="L217"><span class="lineNum">     217</span>              : func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {</span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">           1 :         props := st.screen.Props()</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         cursor := st.screen.Selection()</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           2 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         if cursor.TabIndex &gt;= len(props.Tabs) {</span></span>
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 return craftItemData{}, false</span></span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :         items := props.Tabs[cursor.TabIndex].Items</span></span>
@@ -294,10 +294,10 @@
 <span id="L232"><span class="lineNum">     232</span>              : // ================</span>
 <span id="L233"><span class="lineNum">     233</span>              : </span>
 <span id="L234"><span class="lineNum">     234</span>              : // View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる</span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         // カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           2 :         for i, tab := range props.Tabs {</span></span>
+<span id="L235"><span class="lineNum">     235</span>              : func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {</span>
+<span id="L236"><span class="lineNum">     236</span>              :         // カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC tlaBgGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         for i, tab := range props.Tabs {</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 labels[i] = tab.Label</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         return menuframe.NewTabScreen(res, menuframe.TabScreen{</span></span>
@@ -308,7 +308,7 @@
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L247"><span class="lineNum">     247</span>              : }</span>
 <span id="L248"><span class="lineNum">     248</span>              : </span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
+<span id="L249"><span class="lineNum">     249</span>              : func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span>
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(tabs) {</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC tlaBgUNC">           0 :                 return styled.NewVerticalContainer()</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -318,9 +318,9 @@
 <span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         columnWidths := []int{20, 320}</span></span>
 <span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}</span></span>
 <span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(currentTab.Items))</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           2 :         for i, it := range currentTab.Items {</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         for i, it := range currentTab.Items {</span></span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 mark := consts.IconClose</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           2 :                 if it.CanCraft {</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 if it.CanCraft {</span></span>
 <span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                         mark = consts.IconCheck</span></span>
 <span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}</span></span>
@@ -329,9 +329,9 @@
 <span id="L267"><span class="lineNum">     267</span>              : }</span>
 <span id="L268"><span class="lineNum">     268</span>              : </span>
 <span id="L269"><span class="lineNum">     269</span>              : // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点</span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) detailContent(world w.World) (overlay.DetailContent, bool) {</span></span>
+<span id="L270"><span class="lineNum">     270</span>              : func (st *CraftMenuState) detailContent(world w.World) (overlay.DetailContent, bool) {</span>
 <span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         item, ok := st.selectedRecipe()</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           2 :         if !ok || item.RecipeID == &quot;&quot; {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         if !ok || item.RecipeID == &quot;&quot; {</span></span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 return overlay.DetailContent{}, false</span></span>
 <span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC tlaBgUNC">           0 :         spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeID)</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">91.1&nbsp;%</td>
-            <td class="headerCovTableEntry">101</td>
-            <td class="headerCovTableEntry">92</td>
+            <td class="headerCovTableEntryHi">91.6&nbsp;%</td>
+            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntry">87</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-21 00:24:03</td>
+            <td class="headerValue">2026-08-21 12:13:58</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,19 +98,19 @@
 <span id="L36"><span class="lineNum">      36</span>              : </span>
 <span id="L37"><span class="lineNum">      37</span>              : // rollAttack は1回の攻撃をロールし、与えたダメージを返す。</span>
 <span id="L38"><span class="lineNum">      38</span>              : // 本体（activity/attack.go）と同じ計算順序: 基本ダメージ → クリティカル → 防御減算 → クランプ</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC tlaBgGNC">           1 : func rollAttack(attacker, defender CombatantStats, weapon WeaponStats, rng *rand.Rand) int {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : func rollAttack(attacker, defender CombatantStats, weapon WeaponStats, rng *rand.Rand) int {</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           1 :         hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         roll := rng.IntN(formula.DiceMax) + 1</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           2 :         if roll &gt; hitRate {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         if roll &gt; hitRate {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         baseAbil := attacker.Strength</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           2 :         if weapon.IsRanged {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         if weapon.IsRanged {</span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 baseAbil = attacker.Sensation</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         baseDamage := baseAbil + rng.IntN(formula.DamageRandomRange) + 1 + weapon.Damage</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :         if roll &lt;= formula.CriticalHitThreshold {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         if roll &lt;= formula.CriticalHitThreshold {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
@@ -119,20 +119,20 @@
 <span id="L57"><span class="lineNum">      57</span>              : }</span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
 <span id="L59"><span class="lineNum">      59</span>              : // SimulateBattle は1戦闘を模擬する</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : func SimulateBattle(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, rng *rand.Rand) BattleResult {</span></span>
+<span id="L60"><span class="lineNum">      60</span>              : func SimulateBattle(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, rng *rand.Rand) BattleResult {</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         playerHP := player.HP</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         enemyHP := enemy.HP</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         turns := 0</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         damageDealt := 0</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         damageTaken := 0</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           2 :         for playerHP &gt; 0 &amp;&amp; enemyHP &gt; 0 {</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         for playerHP &gt; 0 &amp;&amp; enemyHP &gt; 0 {</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 turns++</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 dmgToEnemy := rollAttack(player, enemy, playerWeapon, rng)</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 enemyHP -= dmgToEnemy</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 damageDealt += dmgToEnemy</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :                 if enemyHP &lt;= 0 {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 if enemyHP &lt;= 0 {</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                         break</span></span>
 <span id="L75"><span class="lineNum">      75</span>              :                 }</span>
 <span id="L76"><span class="lineNum">      76</span>              : </span>
@@ -150,9 +150,9 @@
 <span id="L88"><span class="lineNum">      88</span>              : }</span>
 <span id="L89"><span class="lineNum">      89</span>              : </span>
 <span id="L90"><span class="lineNum">      90</span>              : // LoadCombatantFromMember はraw.Masterのメンバー定義からCombatantStatsを生成する</span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 : func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, error) {</span></span>
+<span id="L91"><span class="lineNum">      91</span>              : func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, error) {</span>
 <span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         spec, err := raw.NewMemberSpec(master, name)</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 return CombatantStats{}, fmt.Errorf(&quot;failed to load member %q: %w&quot;, name, err)</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         if spec.Abilities == nil {</span></span>
@@ -173,21 +173,21 @@
 <span id="L111"><span class="lineNum">     111</span>              : }</span>
 <span id="L112"><span class="lineNum">     112</span>              : </span>
 <span id="L113"><span class="lineNum">     113</span>              : // LoadWeaponFromItem はraw.MasterのアイテムからWeaponStatsを生成する</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 : func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {</span></span>
+<span id="L114"><span class="lineNum">     114</span>              : func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {</span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         spec, err := raw.NewItemSpec(master, name)</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 return WeaponStats{}, fmt.Errorf(&quot;failed to load weapon %q: %w&quot;, name, err)</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L119"><span class="lineNum">     119</span>              : </span>
 <span id="L120"><span class="lineNum">     120</span>              :         // Fireを先にチェックする。MeleeとFireの両方を持つ武器は遠距離として扱う</span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           2 :         if spec.Fire != nil {</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         if spec.Fire != nil {</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 return WeaponStats{</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                         Damage:   spec.Fire.Damage,</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                         Accuracy: spec.Fire.Accuracy,</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                         IsRanged: true,</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 }, nil</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           2 :         if spec.Melee != nil {</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         if spec.Melee != nil {</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 return WeaponStats{</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                         Damage:   spec.Melee.Damage,</span></span>
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                         Accuracy: spec.Melee.Accuracy,</span></span>
@@ -199,15 +199,15 @@
 <span id="L137"><span class="lineNum">     137</span>              : }</span>
 <span id="L138"><span class="lineNum">     138</span>              : </span>
 <span id="L139"><span class="lineNum">     139</span>              : // LoadEnemyWeapon は敵のCommandTableから武器を取得しWeaponStatsを返す</span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 : func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {</span></span>
+<span id="L140"><span class="lineNum">     140</span>              : func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {</span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         member, err := raw.FindMember(master, enemyName)</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 return WeaponStats{}, err</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L145"><span class="lineNum">     145</span>              : </span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         if member.CommandTableId == nil {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 // CommandTableがない場合は素手</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 return LoadWeaponFromItem(master, &quot;bare_hands&quot;)</span></span>
+<span id="L147"><span class="lineNum">     147</span>              :                 // CommandTableがない場合は素手</span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC tlaBgUNC">           0 :                 return LoadWeaponFromItem(master, &quot;bare_hands&quot;)</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L150"><span class="lineNum">     150</span>              : </span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">           1 :         ct, err := raw.GetCommandTable(master, *member.CommandTableId)</span></span>
@@ -221,8 +221,8 @@
 <span id="L159"><span class="lineNum">     159</span>              : </span>
 <span id="L160"><span class="lineNum">     160</span>              :         // 最も重みの高い攻撃を代表として使う</span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC tlaBgGNC">           1 :         bestEntry := ct.Entries[0]</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           2 :         for _, entry := range ct.Entries[1:] {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           2 :                 if entry.Weight &gt; bestEntry.Weight {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         for _, entry := range ct.Entries[1:] {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 if entry.Weight &gt; bestEntry.Weight {</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         bestEntry = entry</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L166"><span class="lineNum">     166</span>              :         }</span>
