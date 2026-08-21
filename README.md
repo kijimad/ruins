@@ -113,6 +113,7 @@ $ make help
 | draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
 | draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/6 | item, combat, ecs |
 | draft | [大きなゲームループ: 一方向逃避を駆動と終端で閉じる](docs/design/260821223229.md) | 0/10 | gamedesign, narrative, worldgen |
+| draft | [身体ペナルティと病気: 既存 hediff エンジンに免疫レースと発症源を足す](docs/design/260821232324.md) | 0/9 | gamedesign, combat, item, ecs |
 
 
 ## Reference
