@@ -119,7 +119,7 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 
 	// カメラはフレーム内で不変。ここで1回だけ取得し各描画関数へ渡す。
 	// 描画するスプライト/影の数だけフィルタ生成が走るのを防ぐ
-	camera := getCamera(world)
+	camera := query.GetPlayerCamera(world)
 
 	if err := sys.renderFloorLayer(world, screen, tileRenderMap, camera); err != nil {
 		return err

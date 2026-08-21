@@ -12,7 +12,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
-	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -210,8 +210,8 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	}
 	targetCoord := world.Components.GridElement.Get(target).Coord
 
-	projector := gs.NewProjector(world, screen.Bounds().Dx(), screen.Bounds().Dy())
-	corners, ok := projector.TileCorners(targetCoord, gs.TileTopHeight(world, targetCoord))
+	projector := render3d.For(world)
+	corners, ok := projector.TileCorners(targetCoord, render3d.TileTopHeight(world, targetCoord))
 	if !ok {
 		return
 	}

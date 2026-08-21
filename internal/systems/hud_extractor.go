@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -129,7 +130,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	}
 	// 世界を描くのと同じ投影を使う。デバッグ表示だけ別の変換に取り残すと、
 	// それを手本にして古い変換が新しい箇所へ広がる
-	projector := NewProjector(world, screenDimensions.Width, screenDimensions.Height)
+	projector := render3d.For(world)
 
 	// AI状態情報と視界範囲情報を抽出
 	var aiStates []hud.AIStateInfo

@@ -9,11 +9,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// getCamera は単一のカメラコンポーネントを返す。存在しなければ nil。
-func getCamera(world w.World) *gc.Camera {
-	return query.GetPlayerCamera(world)
-}
-
 // CameraSystem はカメラの追従とズーム処理を行う
 type CameraSystem struct{}
 
@@ -36,7 +31,7 @@ func (sys *CameraSystem) Update(world w.World) error {
 	}
 
 	// カメラのズーム処理と追従処理
-	camera := getCamera(world)
+	camera := query.GetPlayerCamera(world)
 	if camera == nil {
 		return nil
 	}

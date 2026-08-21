@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -87,7 +88,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	}
 
 	// 投影はフレーム内で不変。ここで1回だけ組み、エンティティごとの描画へ渡す
-	projector := NewProjector(world, screen.Bounds().Dx(), screen.Bounds().Dy())
+	projector := render3d.For(world)
 
 	var err error
 	drawQuery := query.ActiveFilter1[gc.VisualEffects](world).Query()
@@ -180,7 +181,7 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 // drawDamageText はエンティティの立て板の頭にダメージテキストを描画する。
 // Offset は投影後の画面座標へ足す。浮き上がる量は演出であって世界の長さではないので、
 // カメラの遠近やズームで速さが変わらないようにする。
-func (sys *VisualEffectSystem) drawDamageText(screen *ebiten.Image, projector Projector, face text.Face, gridElement *gc.GridElement, effect *gc.DamageTextEffect) {
+func (sys *VisualEffectSystem) drawDamageText(screen *ebiten.Image, projector render3d.Projector, face text.Face, gridElement *gc.GridElement, effect *gc.DamageTextEffect) {
 	anchor, ok := projector.BillboardTop(gridElement.Coord)
 	if !ok {
 		return
@@ -222,7 +223,7 @@ func (sys *VisualEffectSystem) drawHorizontalLine(world w.World, screen *ebiten.
 }
 
 // drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する
-func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, projector Projector, gridElement *gc.GridElement, effect *gc.SpriteFadeoutEffect) error {
+func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, projector render3d.Projector, gridElement *gc.GridElement, effect *gc.SpriteFadeoutEffect) error {
 	if effect.Alpha <= 0 {
 		return nil
 	}
@@ -270,7 +271,7 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	if !ok {
 		return nil
 	}
-	center, ok := projector.TileCenter(gridElement.Coord, BillboardHeight/2)
+	center, ok := projector.TileCenter(gridElement.Coord, render3d.BillboardHeight/2)
 	if !ok {
 		return nil
 	}

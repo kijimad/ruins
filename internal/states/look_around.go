@@ -11,7 +11,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
-	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -128,8 +128,8 @@ const cursorFrameWidth = 3
 // drawCursor はカーソルを描画する。
 // タイルは透視投影で台形になるので、投影した四隅を線で結んで実際の輪郭に合わせる。
 func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
-	projector := gs.NewProjector(world, screen.Bounds().Dx(), screen.Bounds().Dy())
-	corners, ok := projector.TileCorners(st.cursor, gs.TileTopHeight(world, st.cursor))
+	projector := render3d.For(world)
+	corners, ok := projector.TileCorners(st.cursor, render3d.TileTopHeight(world, st.cursor))
 	if !ok {
 		return
 	}

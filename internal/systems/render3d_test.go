@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/render3d"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 )
@@ -49,107 +50,6 @@ func TestTileVisFactor(t *testing.T) {
 	})
 }
 
-// assertVecInDelta は r3vec を成分ごとに近似比較する。
-func assertVecInDelta(t *testing.T, want, got r3vec, delta float64) {
-	t.Helper()
-	assert.InDelta(t, want.x, got.x, delta)
-	assert.InDelta(t, want.y, got.y, delta)
-	assert.InDelta(t, want.z, got.z, delta)
-}
-
-// r3identity は 4x4 単位行列。
-var r3identity = r3mat{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}
-
-// TestR3VecOps はベクトルの加減・スケール・内積を固定する。
-func TestR3VecOps(t *testing.T) {
-	t.Parallel()
-	assert.Equal(t, r3vec{-2, 0, 2}, r3sub(r3vec{1, 2, 3}, r3vec{3, 2, 1}))
-	assert.Equal(t, r3vec{4, 4, 4}, r3add(r3vec{1, 2, 3}, r3vec{3, 2, 1}))
-	assert.Equal(t, r3vec{2, 4, 6}, r3scale(r3vec{1, 2, 3}, 2))
-	assert.InDelta(t, 10.0, r3dot(r3vec{1, 2, 3}, r3vec{3, 2, 1}), 1e-9) // 3+4+3
-}
-
-// TestR3Cross は外積が右手系で軸を巡回することを固定する。
-func TestR3Cross(t *testing.T) {
-	t.Parallel()
-	assert.Equal(t, r3vec{0, 0, 1}, r3cross(r3vec{1, 0, 0}, r3vec{0, 1, 0})) // x×y=z
-	assert.Equal(t, r3vec{1, 0, 0}, r3cross(r3vec{0, 1, 0}, r3vec{0, 0, 1})) // y×z=x
-}
-
-// TestR3Norm は正規化と、ゼロベクトルでゼロ除算しない保険を固定する。
-func TestR3Norm(t *testing.T) {
-	t.Parallel()
-	t.Run("単位ベクトルへ正規化する", func(t *testing.T) {
-		t.Parallel()
-		assertVecInDelta(t, r3vec{1, 0, 0}, r3norm(r3vec{5, 0, 0}), 1e-9)
-	})
-	t.Run("ゼロベクトルはそのまま返す", func(t *testing.T) {
-		t.Parallel()
-		assert.Equal(t, r3vec{0, 0, 0}, r3norm(r3vec{0, 0, 0}))
-	})
-}
-
-// TestR3Apply_単位行列は点を保つ は行優先の変換が単位行列で恒等になることを固定する。
-func TestR3Apply_単位行列は点を保つ(t *testing.T) {
-	t.Parallel()
-	x, y, z, wc := r3apply(r3identity, r3vec{2, 3, 4})
-	assert.Equal(t, [4]float64{2, 3, 4, 1}, [4]float64{x, y, z, wc})
-}
-
-// TestR3Mul_対角行列の積 は行列積が対角成分を掛け合わせることを固定する。
-func TestR3Mul_対角行列の積(t *testing.T) {
-	t.Parallel()
-	a := r3mat{2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1}
-	b := r3mat{3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1}
-	assert.Equal(t, r3mat{6, 0, 0, 0, 0, 6, 0, 0, 0, 0, 6, 0, 0, 0, 0, 1}, r3mul(a, b))
-}
-
-// TestR3LookAt は視点が原点へ、注視点がカメラ前方(-Z)へ写ることを固定する。
-func TestR3LookAt(t *testing.T) {
-	t.Parallel()
-	view := r3lookAt(r3vec{0, 0, 5}, r3vec{0, 0, 0}, r3vec{0, 1, 0})
-	t.Run("視点はカメラ原点に写る", func(t *testing.T) {
-		t.Parallel()
-		x, y, z, wc := r3apply(view, r3vec{0, 0, 5})
-		assert.InDelta(t, 0, x, 1e-9)
-		assert.InDelta(t, 0, y, 1e-9)
-		assert.InDelta(t, 0, z, 1e-9)
-		assert.InDelta(t, 1, wc, 1e-9)
-	})
-	t.Run("注視点はカメラ前方5に写る", func(t *testing.T) {
-		t.Parallel()
-		_, _, z, _ := r3apply(view, r3vec{0, 0, 0})
-		assert.InDelta(t, -5, z, 1e-9)
-	})
-}
-
-// TestR3Perspective は fov90/aspect1 で近面の端がNDCの端へ写ることを固定する。
-func TestR3Perspective(t *testing.T) {
-	t.Parallel()
-	m := r3perspective(90, 1, 1, 100)
-	cx, _, _, cw := r3apply(m, r3vec{1, 0, -1}) // カメラ空間の右端
-	assert.InDelta(t, 1, cw, 1e-9)              // w = -z = 1
-	assert.InDelta(t, 1, cx/cw, 1e-9)           // NDC x = 1(右端)
-}
-
-// TestProjectToScreen は投影の要、画面中央への写像とカメラ後方の除外を固定する。
-func TestProjectToScreen(t *testing.T) {
-	t.Parallel()
-	vp := r3mul(r3perspective(90, 1, 1, 100), r3lookAt(r3vec{0, 0, 5}, r3vec{0, 0, 0}, r3vec{0, 1, 0}))
-	t.Run("注視点は画面中央へ写る", func(t *testing.T) {
-		t.Parallel()
-		x, y, ok := projectToScreen(vp, r3vec{0, 0, 0}, 960, 720)
-		assert.True(t, ok)
-		assert.InDelta(t, 480, x, 1e-6)
-		assert.InDelta(t, 360, y, 1e-6)
-	})
-	t.Run("カメラ後方の点は描かない", func(t *testing.T) {
-		t.Parallel()
-		_, _, ok := projectToScreen(vp, r3vec{0, 0, 10}, 960, 720) // 視点より後ろ
-		assert.False(t, ok)
-	})
-}
-
 // TestNormalizeLight は光源色の正規化と、無効時に白へフォールバックすることを固定する。
 func TestNormalizeLight(t *testing.T) {
 	t.Parallel()
@@ -191,13 +91,13 @@ func TestVisFactorFunc_FOV無効は全タイルを等倍で描く(t *testing.T) 
 func TestSortQuadsByDepth_奥から手前へ並べる(t *testing.T) {
 	t.Parallel()
 	mk := func(z float64) r3quad {
-		return r3quad{p: [4]r3vec{{0, 0, z}, {0, 0, z}, {0, 0, z}, {0, 0, z}}}
+		return r3quad{p: [4]render3d.Vec{render3d.At(0, 0, z), render3d.At(0, 0, z), render3d.At(0, 0, z), render3d.At(0, 0, z)}}
 	}
 	quads := []r3quad{mk(5), mk(-3), mk(1)}
-	sortQuadsByDepth(quads, r3identity) // view=単位行列なので key=重心z
-	assert.Equal(t, -3.0, quads[0].p[0].z)
-	assert.Equal(t, 1.0, quads[1].p[0].z)
-	assert.Equal(t, 5.0, quads[2].p[0].z)
+	sortQuadsByDepth(quads, func(v render3d.Vec) float64 { return v.Z }) // 奥行きは重心zそのもの
+	assert.Equal(t, -3.0, quads[0].p[0].Z)
+	assert.Equal(t, 1.0, quads[1].p[0].Z)
+	assert.Equal(t, 5.0, quads[2].p[0].Z)
 }
 
 // 同一タイルの立て板は4隅が一致して奥行きが同値になる。走査順ではなく depth で前後を確定し、
@@ -206,16 +106,16 @@ func TestSortQuadsByDepth_奥行き同値はdepthの大きい方を手前にす�
 	t.Parallel()
 	mk := func(depth int) r3quad {
 		// 全 quad を同一座標に置き key をビット同値にする。差は depth だけ
-		return r3quad{p: [4]r3vec{{1, 0, 1}, {1, 0, 1}, {1, 0, 1}, {1, 0, 1}}, depth: depth}
+		return r3quad{p: [4]render3d.Vec{render3d.At(1, 0, 1), render3d.At(1, 0, 1), render3d.At(1, 0, 1), render3d.At(1, 0, 1)}, depth: depth}
 	}
 	// アイテム(1)を先、プレイヤー(3)を後に積んでも、逆に積んでも同じ順に並ぶことを確かめる
 	quads := []r3quad{mk(1), mk(3)}
-	sortQuadsByDepth(quads, r3identity)
+	sortQuadsByDepth(quads, func(v render3d.Vec) float64 { return v.Z })
 	assert.Equal(t, 1, quads[0].depth, "小さい depth が先で奥")
 	assert.Equal(t, 3, quads[1].depth, "大きい depth が後で手前")
 
 	reversed := []r3quad{mk(3), mk(1)}
-	sortQuadsByDepth(reversed, r3identity)
+	sortQuadsByDepth(reversed, func(v render3d.Vec) float64 { return v.Z })
 	assert.Equal(t, 1, reversed[0].depth, "積む順に依らず depth 昇順で並ぶ")
 	assert.Equal(t, 3, reversed[1].depth)
 }
