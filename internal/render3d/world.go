@@ -29,6 +29,9 @@ func PlayerTile(world w.World) consts.Coord[consts.Tile] {
 	if err != nil {
 		panic("render3d.PlayerTile: プレイヤーが居ない")
 	}
+	if !world.Components.GridElement.Has(pe) {
+		panic("render3d.PlayerTile: プレイヤーに GridElement が無い")
+	}
 	return world.Components.GridElement.Get(pe).Coord
 }
 
