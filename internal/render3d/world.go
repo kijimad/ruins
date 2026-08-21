@@ -8,30 +8,26 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// defaultPlayerTile はプレイヤーがいないときに見る位置。マップ生成の確認など、
-// プレイヤーを置かずに世界だけ描く場面で使う
-var defaultPlayerTile = consts.Coord[consts.Tile]{X: 25, Y: 25}
-
 // ProjectorFor は world の状態から投影を組む。画面寸法もカメラ姿勢も world から読み、呼び出し側には
 // 取らせない。寸法やカメラの取り方が呼び出し側ごとに分かれると、投影が再び2系統へ割れるためである。
 //
-// カメラが無ければ既定の視点で組む。ここで投影を諦めるとカーソルが消えてしまい、
-// 位置がずれるより分かりにくい壊れ方になる。
+// ダンジョン描画はプレイヤーの存在を前提とする。プレイヤーはカメラごと生成され、死んでも
+// 退場まで残るので、ここでカメラが無いのはプログラミングエラーとして panic する。
 func ProjectorFor(world w.World) Projector {
 	sw, sh := world.Resources.GetScreenDimensions()
-	orbit := gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}
-	if camera := query.GetPlayerCamera(world); camera != nil {
-		orbit = *camera
+	camera := query.GetPlayerCamera(world)
+	if camera == nil {
+		panic("render3d.ProjectorFor: プレイヤーのカメラが無い")
 	}
-	return NewProjector(orbit, PlayerTile(world), sw, sh)
+	return NewProjector(*camera, PlayerTile(world), sw, sh)
 }
 
-// PlayerTile はプレイヤーの立つタイルを返す。いなければ既定値を返す。
-// 投影の注視点と、描画範囲を絞るカリングの中心が同じ位置を指すようにする
+// PlayerTile はプレイヤーの立つタイルを返す。投影の注視点と、描画範囲を絞るカリングの中心が
+// 同じ位置を指すようにする。ダンジョン描画はプレイヤーの存在を前提とし、居なければ panic する。
 func PlayerTile(world w.World) consts.Coord[consts.Tile] {
 	pe, err := query.GetPlayerEntity(world)
-	if err != nil || !world.Components.GridElement.Has(pe) {
-		return defaultPlayerTile
+	if err != nil {
+		panic("render3d.PlayerTile: プレイヤーが居ない")
 	}
 	return world.Components.GridElement.Get(pe).Coord
 }

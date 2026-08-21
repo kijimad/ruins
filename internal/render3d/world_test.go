@@ -25,18 +25,6 @@ func TestFor_ワールドのカメラとプレイヤー位置から投影を組�
 	assert.Equal(t, render3d.NewProjector(defaultView, playerTile, screenW, screenH), render3d.ProjectorFor(world))
 }
 
-func TestFor_カメラが無くても既定の視点で組む(t *testing.T) {
-	t.Parallel()
-
-	// 投影を諦めるとカーソルが消え、位置がずれるより分かりにくい壊れ方になる
-	world := testutil.InitTestWorld(t)
-	world.Resources.SetScreenDimensions(screenW, screenH)
-	require.Nil(t, query.GetPlayerCamera(world))
-
-	_, ok := render3d.ProjectorFor(world).TileCenter(playerTile, 0)
-	assert.True(t, ok)
-}
-
 func TestFor_カメラを回すと投影が追随する(t *testing.T) {
 	t.Parallel()
 
