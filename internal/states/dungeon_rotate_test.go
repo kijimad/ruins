@@ -33,22 +33,22 @@ func TestDungeon3D_rotate(t *testing.T) {
 	d := &dungeon3D{}
 
 	d.rotate(world, 1)
-	assert.Equal(t, 1, camera.Orient)
+	assert.Equal(t, gc.Orient(1), camera.Orient)
 	assert.InDelta(t, math.Pi/4, camera.Yaw(), 1e-9)
 
 	d.rotate(world, -1)
-	assert.Equal(t, 0, camera.Orient)
+	assert.Equal(t, gc.Orient(0), camera.Orient)
 
 	// 反時計回りは環で7へ回り込む
 	d.rotate(world, -1)
-	assert.Equal(t, 7, camera.Orient)
+	assert.Equal(t, gc.Orient(7), camera.Orient)
 	assert.InDelta(t, 7*math.Pi/4, camera.Yaw(), 1e-9)
 
 	// 8回転で一巡して元へ戻る
 	for range 8 {
 		d.rotate(world, 1)
 	}
-	assert.Equal(t, 7, camera.Orient)
+	assert.Equal(t, gc.Orient(7), camera.Orient)
 }
 
 func TestDungeon3D_moveDir(t *testing.T) {

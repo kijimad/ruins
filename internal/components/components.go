@@ -43,8 +43,8 @@ const (
 	CameraMaxScale = 10
 )
 
-// 3Dオービットカメラの既定値と可動域。カメラ操作の入力と、セーブから復元した値の正規化が
-// 同じ範囲を参照する
+// 3Dオービットカメラの既定値と可動域。見下ろし角と距離のクランプ、向きの巡回といった
+// カメラ操作の入力がこの範囲を参照する
 const (
 	CameraDefaultPitch = 0.62
 	CameraDefaultDist  = 16
@@ -56,25 +56,39 @@ const (
 	CameraOrientCount = 8
 )
 
-// Camera はカメラ
-// 滑らかなズームと追従のため、実際値と目標値を別々に持つ
+// Orient はカメラの水平向きを45度刻みで表す。0..CameraOrientCount-1 を巡回する一次情報で、
+// 3D世界の描画と、重ねるカーソルやエフェクトの投影と、移動キーの向き解決が同じ値を読む。
+type Orient int
+
+// Yaw は水平角をラジアンで返す
+func (o Orient) Yaw() float64 {
+	return float64(o) * (2 * math.Pi / CameraOrientCount)
+}
+
+// Rotated は delta 段だけ回した向きを返す。負や範囲外でも巡回に収める
+func (o Orient) Rotated(delta int) Orient {
+	n := (int(o)+delta)%CameraOrientCount + CameraOrientCount
+	return Orient(n % CameraOrientCount)
+}
+
+// Camera は視点を表すコンポーネント。真上から見下ろす2D描画と、ダンジョンのローポリ3D描画とで
+// 別々の座標系を1つに持つ。2Dはマップ生成ビジュアライザ、3Dはダンジョン本編が使う。
 type Camera struct {
-	// Scale/ScaleTo/Pos/Target は真上から見下ろす2D描画のカメラ。ズーム率とワールドピクセルの位置
+	// Scale/ScaleTo/Pos/Target は真上から見下ろす2D描画のカメラ。ズーム率とワールドピクセルの位置。
+	// 滑らかなズームと追従のため、実際値と目標値を別々に持つ
 	Scale   float64
 	ScaleTo float64
 	Pos     consts.Coord[consts.WorldPixel]
 	Target  consts.Coord[consts.WorldPixel]
 
-	// Orient は水平角を45度刻みで表す 0..CameraOrientCount-1。水平角の一次情報で、
-	// 3D世界の描画と、それに重ねるカーソルやエフェクトの投影と、移動キーの向き解決が同じ値を読む
-	Orient int
-	// Pitch は見下ろし角のラジアン、Dist は注視点からカメラまでのタイル数
+	// Orient は水平向き、Pitch は見下ろし角のラジアン、Dist は注視点からカメラまでのタイル数
+	Orient      Orient
 	Pitch, Dist float64
 }
 
 // Yaw は水平角をラジアンで返す。Orient から導出するので、水平角が2箇所に分かれてずれることがない
 func (c Camera) Yaw() float64 {
-	return float64(c.Orient) * (2 * math.Pi / CameraOrientCount)
+	return c.Orient.Yaw()
 }
 
 // Consumable は消耗品。一度使うとなくなる

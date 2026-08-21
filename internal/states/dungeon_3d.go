@@ -55,7 +55,7 @@ func (d *dungeon3D) rotate(world w.World, delta int) {
 	if camera == nil {
 		return
 	}
-	camera.Orient = (camera.Orient + delta + gc.CameraOrientCount) % gc.CameraOrientCount
+	camera.Orient = camera.Orient.Rotated(delta)
 }
 
 // moveDir は押されたキーの画面意図を、カメラの向きで world の8方向へ回す。
