@@ -6,6 +6,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
@@ -31,14 +32,12 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menul
 		content = widget.NewContainer()
 	}
 
-	extras := []string{query.T(world, "x Details")}
-
 	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		Header:    header,
 		TabLabels: characterTabLabels(world),
 		TabIndex:  cursor.TabIndex,
 		Content:   content,
-		Footer:    menuNavHint(world, true, extras...),
+		Footer:    keybind.HelpHint(world),
 	})
 }
 
@@ -55,7 +54,8 @@ func buildEquipList(world w.World, slots []equipItemData, itemIndex int, res res
 		}
 		rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName)}}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots")}, res)
+	// 人物画面は見出しとタブ帯の両方を持つので、その構成での実測容量を使う
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)
 }
 
 // buildEquipSelectWindow は装備選択のサブウィンドウを rect の位置へ組み立てる。

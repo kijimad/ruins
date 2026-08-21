@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -74,12 +75,9 @@ func (st *ChoiceMenuState) DoAction(world w.World, action inputmapper.ActionID) 
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		return choices[i].Run(world)
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatch で処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("choiceMenu: unsupported action: %s", action)
 	}
-	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
 // Fetch は現在の選択肢を表示スナップショットへ射影する
@@ -94,7 +92,7 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 	for i, c := range props.Choices {
 		skips[i] = c.Header
 	}
-	return menuloop.MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuItemsPerPage, Skips: [][]bool{skips}}
+	return menuloop.MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuloop.ItemsPerPageAuto, Skips: [][]bool{skips}}
 }
 
 // View は選択肢の1カラム一覧を中央パネルに組む純粋描画。メインメニューやセーブロードと同じ簡易メニューの
@@ -107,7 +105,7 @@ func (st *ChoiceMenuState) View(world w.World, props ChoiceProps, cursor menuloo
 	// 単一タブのコマンドメニューなので行間を空け、ページ表示は複数ページのときだけ出す。
 	// メインメニューと先頭位置・行間を揃える
 	list := renderMenuList(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
-	return menuframe.NewPanelScreen(res, props.Title, list, menuNavHint(world, false))
+	return menuframe.NewPanelScreen(res, props.Title, list, keybind.HelpHint(world))
 }
 
 // pushChoice は指定ファクトリの state を push する Choice.Run を返す。選択メニューの共通部品

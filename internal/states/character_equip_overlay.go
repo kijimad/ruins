@@ -4,12 +4,10 @@ import (
 	"image"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/hooks"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/menuloop"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -71,11 +69,10 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 		ItemCounts: []int{len(props.Items)},
 	})
 
-	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-		o.detail.Open(world)
-	} else if action, ok := menuloop.HandleMenuInput(); ok {
+	if action, ok := keybind.ReadInput(world, equipSelectTable); ok {
 		switch action {
+		case inputmapper.ActionOpenItemDetail:
+			o.detail.Open(world)
 		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 			o.active = false
 		case inputmapper.ActionMenuSelect:
@@ -83,10 +80,9 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 				return err
 			}
 			o.active = false
-		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-			o.mount.Dispatch(action)
 		default:
-			// 装備選択中は上記以外のアクションを扱わない
+			// 移動系は自前カーソルの mount が消費する。それ以外は装備選択中は扱わない
+			o.mount.DispatchNav(action)
 		}
 	}
 	o.mount.Update()

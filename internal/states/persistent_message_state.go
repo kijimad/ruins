@@ -2,8 +2,9 @@ package states
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/messagewindow"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -16,10 +17,14 @@ type PersistentMessageState struct {
 
 var _ es.State[w.World] = &PersistentMessageState{}
 
+// persistentMessageBindings は常設メッセージの束縛表。Esc で明示的に閉じる
+var persistentMessageBindings = []keybind.Binding{
+	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
+}
+
 // Update はゲームステートの更新処理を行う
-func (st *PersistentMessageState) Update(_ w.World) (es.Transition[w.World], error) {
-	// Escapeキーで明示的にPopする
-	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+func (st *PersistentMessageState) Update(world w.World) (es.Transition[w.World], error) {
+	if action, ok := keybind.ReadInput(world, persistentMessageBindings); ok && action == inputmapper.ActionCloseMenu {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
 

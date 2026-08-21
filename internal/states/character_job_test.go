@@ -150,29 +150,6 @@ func TestCharacterJobState_DoAction_CloseMenu(t *testing.T) {
 	assert.Equal(t, es.TransPop, transition.Type, "CloseMenuでTransPop")
 }
 
-func TestCharacterJobState_DoAction_Navigation(t *testing.T) {
-	t.Parallel()
-
-	state := &CharacterJobState{playerName: "TestPlayer"}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	actions := []inputmapper.ActionID{
-		inputmapper.ActionMenuUp,
-		inputmapper.ActionMenuDown,
-		inputmapper.ActionMenuLeft,
-		inputmapper.ActionMenuRight,
-		inputmapper.ActionMenuTabNext,
-		inputmapper.ActionMenuTabPrev,
-	}
-
-	for _, action := range actions {
-		transition, err := state.DoAction(world, action)
-		require.NoError(t, err)
-		assert.Equal(t, es.TransNone, transition.Type, "ナビゲーションはTransNone: %s", action)
-	}
-}
-
 func TestNewCharacterJobState(t *testing.T) {
 	t.Parallel()
 

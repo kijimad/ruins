@@ -115,8 +115,8 @@ func TestCharacterEquipOverlay_候補が無ければ何もしない(t *testing.T
 }
 
 // TestGolden_EquipSelect は装備選択ポップアップの見た目を固定する。候補ごとにアイテムの
-// アイコンが名前の左に出ることを覆う。overlay で開くポップアップは他の golden に写らないため、
-// 内容コンテナを直接描いて視覚の死角を埋める
+// アイコンが名前の左に出ることを覆う。ポップアップは widget の見た目が主題で、背景の全画面に
+// 依存させると環境差の合成ノイズで脆くなるため、内容コンテナを直接描いて決定的に撮る
 func TestGolden_EquipSelect(t *testing.T) {
 	t.Parallel()
 

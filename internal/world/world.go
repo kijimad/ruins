@@ -79,6 +79,20 @@ func (world World) InitSingleton() {
 	world.Resources.SingletonEntity = singleton
 }
 
+// ResetForNewGame は前のゲームの全実体を消し、シングルトンを作り直す。
+// 新しいゲームを始める経路が呼ぶ。ロードは save 側の ECS.Reset が同じ役目を担う
+func (world World) ResetForNewGame() {
+	var clearEntities []ecs.Entity
+	clearQuery := ecs.NewUnsafeFilter(world.ECS).Query()
+	for clearQuery.Next() {
+		clearEntities = append(clearEntities, clearQuery.Entity())
+	}
+	for _, e := range clearEntities {
+		world.ECS.RemoveEntity(e)
+	}
+	world.InitSingleton()
+}
+
 // GetWorld は entities.World インターフェースを満たすためのメソッド
 func (world World) GetWorld() *ecs.World {
 	return world.ECS

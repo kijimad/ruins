@@ -11,6 +11,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -69,12 +70,9 @@ func (st *CharacterJobState) DoAction(world w.World, action inputmapper.ActionID
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.handleSelection(world)
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("characterJob: unsupported action: %s", action)
 	}
-	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
 // ================
@@ -212,7 +210,7 @@ func (st *CharacterJobState) View(world w.World, props JobMenuProps, cursor menu
 		),
 	)
 	hintLabel := widget.NewText(
-		widget.TextOpts.Text(consts.IconArrowUp+consts.IconArrowDown+" "+query.T(world, "Select")+" / "+consts.IconKeyEnter+" "+query.T(world, "Confirm")+" / "+consts.IconKeyEsc+" "+query.T(world, "Back"), &res.Text.SmallFace, theme.TextAccent),
+		widget.TextOpts.Text(keybind.HelpHint(world), &res.Text.SmallFace, theme.TextAccent),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,

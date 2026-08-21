@@ -104,6 +104,26 @@ linters:
               desc: 標準ライブラリを使う
             - pkg: "github.com/hajimehoshi/ebiten$"
               desc: ebiten/v2を使う
+        # キー読み取り能力への import 許可制。読み取り API を持つパッケージを
+        # 使える場所を列挙し、それ以外からは新旧問わず全シンボルを塞ぐ。
+        # 入力を束縛表へ集約し、デバイス層とごく少数の例外だけが直接読む。テストは
+        # MockKeyboardInput を使うため除外する
+        keyboard_device_guard:
+          list-mode: lax
+          files:
+            - "$all"
+            - "!$test"
+            - "!**/internal/input/**"
+            - "!**/internal/keybind/**"
+            - "!**/internal/states/character_naming.go"
+            - "!**/internal/states/dungeon.go"
+            - "!**/internal/states/dungeon_3d.go"
+            - "!**/internal/maingame/game.go"
+          deny:
+            - pkg: "github.com/kijimaD/ruins/internal/input$"
+              desc: キー読み取りは keybind の束縛表を通す。例外はテキストチャンネルとカメラのみ
+            - pkg: "github.com/hajimehoshi/ebiten/v2/inpututil"
+              desc: 生のキー状態 API はデバイス層 internal/input に閉じる
         # engine はゲーム基盤。ドメインに依存させない
         engine_guard:
           list-mode: strict

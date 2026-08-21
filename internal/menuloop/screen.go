@@ -12,6 +12,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -23,6 +24,13 @@ type Selection struct {
 	TabIndex  int
 	ItemIndex int
 }
+
+// ItemsPerPageAuto は ItemsPerPage に、タブ帯つきモーダルの1ページへ収まる実測行数を
+// 使う指定。実値は Update が UIResources から測って解決する。Menu は world を持たず
+// 自力で測れないため、番兵で指定して Screen に解決させる。
+// 測るのは見出し無し・タブ帯ありの構成に固定する。見出しを持つ画面はこの番兵を使わず、
+// 自分の構成で menuframe.ListCapacity を呼んで求めた値を直接渡すこと
+const ItemsPerPageAuto = -1
 
 // MenuConfig は Fetch 済みの props から決まるメニュー構成。state 固有差をここで吸収する。
 // TabCount が 0 のときは一覧を持たない画面として UseTabMenu を登録しない
@@ -37,7 +45,8 @@ type MenuConfig struct {
 
 // Model はメニュー1画面が Screen に対して満たす契約。UI 機構は持たず純粋な部品を提供する。
 // DoAction・ConsumeTransition は既存の ActionHandler・BaseState をそのまま使う。メニュー入力は
-// Screen が HandleMenuInput で扱い、独自キーが要る state だけ ExtraInput で先取りする
+// Screen が ReadInput で扱い、独自キーが要る state は KeyBindings の表で宣言する。
+// カーソル移動系は Screen が吸うので、DoAction には画面の意味を持つ Action だけが届く
 type Model[P any] interface {
 	ConsumeTransition() es.Transition[w.World]
 	DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error)
@@ -48,11 +57,12 @@ type Model[P any] interface {
 	View(world w.World, props P, cursor Selection, res resources.UIResources) *ebitenui.UI
 }
 
-// ExtraInput は独自キーを扱う state が満たす任意契約。Screen は各フレームでまず ExtraInput を試し、
-// 拾わなければ共通の HandleMenuInput へフォールバックする。1フレーム1アクションで ExtraInput が優先する。
-// 実装 state は var _ menuloop.ExtraInput = &XState{} で綴りとシグネチャを静的に検証する
-type ExtraInput interface {
-	ExtraInput() (inputmapper.ActionID, bool)
+// KeyBindings は共通キーに加える独自キーを持つ state が満たす任意契約。キーと Action の
+// 対応を表で返すだけで、キー読み取りの実行は keybind が担う。表は NewScreen が共通表と
+// 1枚に合成し、共通キーとの重なりは構築時に拒否される。
+// 実装 state は var _ menuloop.KeyBindings = &XState{} で綴りとシグネチャを静的に検証する
+type KeyBindings interface {
+	KeyBindings() []keybind.Binding
 }
 
 // Screen はメニューの UI ランタイム。mount・widget と overlay を保持し、毎フレームの
@@ -60,18 +70,31 @@ type ExtraInput interface {
 // widget は ebitenui を retained として扱い、props・カーソル・overlay が変わったフレームだけ組み直す。
 // 変化が無ければ前フレームのツリーを再利用する
 type Screen[P any] struct {
-	model         Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
+	model Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
+	// table はこの画面のキー束縛。state 固有の断片と共通表を構築時に1枚へ合成済みで、
+	// 実行時に表を重ねる階層は無い。重なりは MustMerge が構築時に拒否する
+	table         []keybind.Binding
 	mount         *hooks.Mount[P]
 	widget        *ebitenui.UI
 	overlays      []overlay.Layer
 	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
 	seeded        bool      // 初期タブへ寄せたか
+	pageSize      int       // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
 // 優先順位順に、ポインタで渡し、state が保持する実体と同一を指す
 func NewScreen[P any](model Model[P], overlays ...overlay.Layer) *Screen[P] {
-	return &Screen[P]{model: model, mount: hooks.NewMount[P](), overlays: overlays}
+	var frag []keybind.Binding
+	if kb, ok := model.(KeyBindings); ok {
+		frag = kb.KeyBindings()
+	}
+	return &Screen[P]{
+		model:    model,
+		table:    keybind.MustMerge(frag, keybind.MenuCommon),
+		mount:    hooks.NewMount[P](),
+		overlays: overlays,
+	}
 }
 
 // Props は現在の props を返す。View 以外から現在値を参照する必要があるとき使う
@@ -87,15 +110,20 @@ func (s *Screen[P]) activeOverlay() overlay.Layer {
 	return nil
 }
 
-// readAction は1フレームの入力を Action に変換する。ExtraInput を持つ state はそれを先に試し、
-// 拾わなければ共通の HandleMenuInput にフォールバックする。1フレーム1アクションで ExtraInput が優先する
-func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) {
-	if h, ok := s.model.(ExtraInput); ok {
-		if action, ok := h.ExtraInput(); ok {
-			return action, true
-		}
+// dispatch は1件の Action を消費者の連鎖に流す。カーソルの mount、共通のキー一覧ヘルプ、
+// 画面の DoAction の順に試し、先に消費したものが勝つ。DoAction には画面の意味を持つ
+// Action だけが届く
+func (s *Screen[P]) dispatch(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+	if s.mount.DispatchNav(action) {
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
-	return HandleMenuInput()
+	if action == inputmapper.ActionOpenKeyHelp {
+		// ? のキー一覧ヘルプは全メニュー共通なので Screen が吸い、
+		// この画面の合成済みの表から一覧を組んで push する
+		return es.Transition[w.World]{Type: es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{NewKeyHelpState(s.table)}}, nil
+	}
+	return s.model.DoAction(world, action)
 }
 
 // Update はメニュー1フレームを進める。入力ゲート、Fetch/SetProps、
@@ -103,20 +131,19 @@ func (s *Screen[P]) readAction() (inputmapper.ActionID, bool) {
 func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	m := s.model
 
-	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を DoAction へ流す。
+	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を dispatch の連鎖へ流す。
 	// overlay が絡んだフレームは内容が入力で変わりうるので後段で必ず dirty にする
 	ovBefore := s.activeOverlay()
 	if ovBefore != nil {
 		if err := ovBefore.HandleInput(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	} else if action, ok := s.readAction(); ok {
-		if tr, err := m.DoAction(world, action); err != nil {
+	} else if action, ok := keybind.ReadInput(world, s.table); ok {
+		if tr, err := s.dispatch(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if tr.Type != es.TransNone {
 			return tr, nil
 		}
-		s.mount.Dispatch(action)
 	}
 
 	props, err := m.Fetch(world)
@@ -124,7 +151,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{}, err
 	}
 	s.mount.SetProps(props)
-	cfg := m.Menu(props)
+	cfg := s.resolveConfig(world, m.Menu(props))
 	if cfg.TabCount > 0 {
 		hooks.UseTabMenu(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{
 			TabCount:     cfg.TabCount,
@@ -174,7 +201,24 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 // UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する。
 // 構成は model から導出するので呼び出し側は tab 番号だけを渡す
 func (s *Screen[P]) SetTab(tab int) {
-	s.setTab(s.model.Menu(s.Props()), tab)
+	cfg := s.model.Menu(s.Props())
+	if cfg.ItemsPerPage == ItemsPerPageAuto {
+		// SetTab は Update 後に呼ぶ前提なので、Update が測定済みの値をそのまま使う
+		cfg.ItemsPerPage = s.pageSize
+	}
+	s.setTab(cfg, tab)
+}
+
+// resolveConfig は MenuConfig の ItemsPerPageAuto を実測のページ行数へ解決する。
+// 測定は Auto 指定の画面が最初に通ったときだけ行い、以後は測定済みの値を使う
+func (s *Screen[P]) resolveConfig(world w.World, cfg MenuConfig) MenuConfig {
+	if cfg.ItemsPerPage == ItemsPerPageAuto {
+		if s.pageSize == 0 {
+			s.pageSize = menuframe.ListCapacity(world.Resources.UIResources, false, true)
+		}
+		cfg.ItemsPerPage = s.pageSize
+	}
+	return cfg
 }
 
 // setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する

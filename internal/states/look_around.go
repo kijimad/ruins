@@ -10,8 +10,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -63,34 +63,20 @@ func (st *LookAroundState) OnStop(_ w.World) error { return nil }
 func (st *LookAroundState) Update(world w.World) (es.Transition[w.World], error) {
 	st.blinkCounter++
 
-	if action, ok := st.handleInput(); ok {
+	if action, ok := keybind.ReadInput(world, lookAroundBindings); ok {
 		return st.doAction(world, action)
 	}
 
 	return st.ConsumeTransition(), nil
 }
 
-// handleInput はキー入力をActionIDに変換する
-func (st *LookAroundState) handleInput() (inputmapper.ActionID, bool) {
-	keyboardInput := input.GetSharedKeyboardInput()
-
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) || keyboardInput.IsKeyJustPressed(ebiten.KeyX) {
-		return inputmapper.ActionCloseMenu, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyUp) {
-		return inputmapper.ActionMoveNorth, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyDown) {
-		return inputmapper.ActionMoveSouth, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) {
-		return inputmapper.ActionMoveWest, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyRight) {
-		return inputmapper.ActionMoveEast, true
-	}
-
-	return "", false
+// lookAroundBindings は見回しモードの束縛表。矢印でカーソルを動かし、Esc で閉じる
+var lookAroundBindings = []keybind.Binding{
+	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
+	{Key: ebiten.KeyUp, Action: inputmapper.ActionMoveNorth},
+	{Key: ebiten.KeyDown, Action: inputmapper.ActionMoveSouth},
+	{Key: ebiten.KeyLeft, Action: inputmapper.ActionMoveWest},
+	{Key: ebiten.KeyRight, Action: inputmapper.ActionMoveEast},
 }
 
 // doAction はActionIDを実行する

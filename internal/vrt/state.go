@@ -24,52 +24,36 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 	return func(_ w.World) []es.State[w.World] { return states }
 }
 
-// AssertStateGolden はステートの描画結果を name のゴールデン画像 testdata/name.png と比較する。
-// golden 名はサブテスト名でなく呼び出し側が明示する。t.Run のスラッシュが保存先に混ざらない。
-// GOLDIE_UPDATE=1 で更新する。ピクセル差分がトレランス内なら更新をスキップし、ebitenui の
-// 時間依存ノイズによる不要な差分を防ぐ。
-func AssertStateGolden(t *testing.T, name string, buildStates func(w.World) []es.State[w.World]) {
+// RenderPNG はステートを構築し本番の renderer で描いてPNGを返す。比較はしない、画像保存用。
+// screeneffect のポスト処理まで含めて実画面と同じ絵になる。
+func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []byte {
 	t.Helper()
-	assertPNGGolden(t, name, RenderPNG(t, buildStates, nil))
+	return encodePNG(t, renderStates(t, buildStates))
 }
 
-// RenderPNG はステートを構築し screen へ描いてPNGを返す。比較はしない、画像保存用。
-// draw が nil なら全段描画、非 nil なら任意のレンダラで描く。
-func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World], draw func(world w.World, screen *ebiten.Image)) []byte {
-	t.Helper()
-	img := renderStates(t, buildStates, func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image) {
-		if draw != nil {
-			draw(world, screen)
-			return
-		}
-		for _, state := range sm.GetStates() {
-			require.NoError(t, state.Draw(world, screen), "failed to draw")
-		}
-	})
-	return encodePNG(t, img)
-}
-
-// renderStates は world を作りステートを構築し、drawStates で screen へ描いて NRGBA を返す。
+// renderStates は world を作りステートを構築し、本番の MainGame.Draw で screen へ描いて NRGBA を返す。
 //
 // 構築も描画も ebitenui のグローバル状態に触れるため WithUILock で直列化する。InitVRTWorld も内部で
 // ロックを取り WithUILock は非再入なので、区間を2つに分ける。
-func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World], drawStates func(sm es.StateMachine[w.World], world w.World, screen *ebiten.Image)) *image.NRGBA {
+func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
 	t.Helper()
 	world := InitVRTWorld(t)
 
 	var out *image.NRGBA
 	WithUILock(func() {
-		sm := setupStateMachine(t, world, buildStates)
+		sm := SetupStateMachine(t, world, buildStates)
+		game, err := maingame.NewMainGame(world, sm)
+		require.NoError(t, err)
 		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-		drawStates(sm, world, screen)
+		game.Draw(screen)
 		out = captureScreen(screen)
 	})
 	return out
 }
 
-// setupStateMachine はステートを構築しレイアウト確定までフレームを回す。
+// SetupStateMachine はステートを構築しレイアウト確定までフレームを回す。
 // ebitenui グローバルに触れるため WithUILock 区間から呼ぶ。
-func setupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []es.State[w.World]) es.StateMachine[w.World] {
+func SetupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []es.State[w.World]) es.StateMachine[w.World] {
 	t.Helper()
 	states := buildStates(world)
 	require.NotEmpty(t, states, "at least one state is required")
@@ -82,11 +66,9 @@ func setupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []
 		require.NoError(t, stateMachine.PushState(world, states[1:]...))
 	}
 
-	// レイアウト確定のためフレームを回す
+	// レイアウト確定のためフレームを回す。警告なく失敗を握り潰すと不可解なテスト失敗になるので報告する
 	for range 10 {
-		if err := stateMachine.Update(world); err != nil {
-			break
-		}
+		require.NoError(t, stateMachine.Update(world), "layout warm-up failed")
 	}
 	return stateMachine
 }
@@ -106,6 +88,9 @@ func InitVRTWorld(tb testing.TB) w.World {
 		cfg.Seed = 12345
 		cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
 		cfg.DisableAnimation = true
+		// ポスト処理を切って撮る。スキャンラインの高周波パターンが無くなり、golden の
+		// 差分がUIの実変化だけを映すようになる。トレランスを絞れる
+		cfg.DisableScreenFilter = true
 		require.NoError(tb, cfg.Validate())
 
 		w2, err := maingame.InitWorld(cfg)

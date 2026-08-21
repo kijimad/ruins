@@ -9,7 +9,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -79,7 +78,6 @@ func NewOverworldState(planner mapplanner.PlannerType, definition *dungeon.Overw
 // State interface ================
 
 var _ es.State[w.World] = &DungeonState{}
-var _ es.ActionHandler[w.World] = &DungeonState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *DungeonState) OnPause(_ w.World) error { return nil }
@@ -180,8 +178,8 @@ func (st *DungeonState) completeSwap(world w.World) (es.Transition[w.World], err
 // OnStop はステートが停止される際に呼ばれる。
 //
 // 共存方式ではオーバーワールドと遺跡が同一 world に共存し、退避中ステージも保持するため、
-// ここでは何もしない。world を捨てるのはタイトルへ戻る・ロードのときで、MainMenuState.OnStart
-// の全 entity 削除と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。
+// ここでは何もしない。world を捨てるのは新しいゲームを始める・ロードのときで、
+// world.ResetForNewGame と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。
 func (st *DungeonState) OnStop(_ w.World) error { return nil }
 
 // checkPlayerDeath はプレイヤーの死亡状態をチェックする。Update フローの述語
@@ -214,12 +212,11 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		}}, nil
 	}
 
-	// 入力はゲーム本体と同じ共有キーボードを通す。カメラ操作は3Dへ委譲する
-	kb := input.GetSharedKeyboardInput()
-	st.three.update(kb)
+	// カメラのポインタ操作は3Dへ委譲する。キー操作は束縛表を通して DoAction に届く
+	st.three.update()
 
 	// キー入力をActionに変換
-	if action, ok := st.HandleInput(world.Config); ok {
+	if action, ok := st.readAction(world); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {

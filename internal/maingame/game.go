@@ -27,15 +27,20 @@ type MainGame struct {
 
 // NewMainGame はMainGameを初期化する
 func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {
-	retroFilter, err := screeneffect.NewRetroFilter()
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize retro filter: %w", err)
+	// フィルタを切ったときはシェーダを組み立てず、素通しのパイプラインにする
+	var filters []screeneffect.Filter
+	if !world.Config.DisableScreenFilter {
+		retroFilter, err := screeneffect.NewRetroFilter()
+		if err != nil {
+			return nil, fmt.Errorf("failed to initialize retro filter: %w", err)
+		}
+		filters = append(filters, retroFilter)
 	}
 
 	return &MainGame{
 		World:        world,
 		StateMachine: stateMachine,
-		renderer:     newRenderer(screeneffect.NewPipeline(retroFilter)),
+		renderer:     newRenderer(screeneffect.NewPipeline(filters...)),
 	}, nil
 }
 

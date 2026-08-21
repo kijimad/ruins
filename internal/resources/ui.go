@@ -68,8 +68,11 @@ type UIResources struct {
 
 // TextResources はテキストリソースを管理する
 type TextResources struct {
-	SmallFace      text.Face
-	BodyFace       text.Face
+	SmallFace text.Face
+	BodyFace  text.Face
+	// KeycapFace はキーキャップの箱に描くグリフ専用のフェイス。本文よりひと回り大きい。
+	// 大きいフェイスは行の高さも広げるため、widget のテキストには使わないこと
+	KeycapFace     text.Face
 	TitleFontFace  text.Face
 	SplashFontFace text.Face
 }
@@ -267,6 +270,7 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		Text: &TextResources{
 			SmallFace:      fonts.smallFace,
 			BodyFace:       fonts.bodyFace,
+			KeycapFace:     fonts.keycapFace,
 			TitleFontFace:  fonts.titleFontFace,
 			SplashFontFace: fonts.splashFontFace,
 		},

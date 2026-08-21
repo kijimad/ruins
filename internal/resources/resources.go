@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/i18n"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -12,7 +13,6 @@ import (
 // engine/resources.ResourceProviderインターフェースを実装する
 // 初期化時のみセットされ、あとから変更はされない
 type Resources struct {
-	// 静的
 	ScreenDimensions ScreenDimensions
 	SpriteSheets     map[string]components.SpriteSheet
 	Fonts            map[string]Font
@@ -21,6 +21,11 @@ type Resources struct {
 	RawMaster        oapi.Raws
 	I18N             i18n.Catalog // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
 	SingletonEntity  ecs.Entity   // シングルトンエンティティIDキャッシュ
+
+	// InputSource は Action の入力供給源。nil なら本番どおりキーボードから変換する。
+	// 再生ドライバだけが Action 列を返す供給源を差し、キー入力を経由せず本番フローを駆動する。
+	// world 単位で持つことでグローバル可変状態を作らず、押し込んだ先の state にも同じ源が効く
+	InputSource inputmapper.Source
 }
 
 // ScreenDimensions contains current screen dimensions

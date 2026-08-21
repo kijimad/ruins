@@ -7,8 +7,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -92,7 +92,7 @@ type CharacterState struct {
 }
 
 var _ es.State[w.World] = &CharacterState{}
-var _ menuloop.ExtraInput = &CharacterState{}
+var _ menuloop.KeyBindings = &CharacterState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CharacterState) OnStart(_ w.World) error {
@@ -118,14 +118,10 @@ func (st *CharacterState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// ExtraInput は共通入力に加える独自キーを返す。装備選択中は overlay が入力を専有するため
-// Screen はこれを呼ばない。詳細の x を画面固有キーとしてここで読む
-func (st *CharacterState) ExtraInput() (inputmapper.ActionID, bool) {
-	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-		return inputmapper.ActionOpenItemDetail, true
-	}
-	return "", false
+// KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く。
+// 装備選択中は overlay が入力を専有するため Screen はこれを読まない
+func (st *CharacterState) KeyBindings() []keybind.Binding {
+	return detailOpenBindings
 }
 
 // DoAction は閲覧中の Action を実行する
@@ -138,8 +134,6 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
 		return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
 	}

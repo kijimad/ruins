@@ -8,8 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -35,7 +35,7 @@ type ShopMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}
-var _ menuloop.ExtraInput = &ShopMenuState{}
+var _ menuloop.KeyBindings = &ShopMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
@@ -62,13 +62,9 @@ func (st *ShopMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// ExtraInput は共通入力に加える独自キーを返す。x で選択中商品の詳細モーダルを開く
-func (st *ShopMenuState) ExtraInput() (inputmapper.ActionID, bool) {
-	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-		return inputmapper.ActionOpenItemDetail, true
-	}
-	return "", false
+// KeyBindings は x の詳細表示を共通入力に足す
+func (st *ShopMenuState) KeyBindings() []keybind.Binding {
+	return detailOpenBindings
 }
 
 // DoAction はActionを実行する
@@ -82,8 +78,6 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 		if err := st.buySellSelected(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("shopMenu: unsupported action: %s", action)
 	}
@@ -139,7 +133,7 @@ func (st *ShopMenuState) Menu(props ShopProps) menuloop.MenuConfig {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menuloop.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "shop", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto}
 }
 
 // createBuyItems は商人の在庫アイテムを買いタブへ並べる。同一スタックは1行に束ね、
@@ -250,7 +244,7 @@ func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menuloop.Se
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
+		Footer:    keybind.HelpHint(world),
 	})
 }
 

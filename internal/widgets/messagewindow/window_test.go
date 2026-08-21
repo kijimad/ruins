@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -538,7 +539,7 @@ func Test_selectChoice(t *testing.T) {
 	})
 }
 
-func Test_translateChoiceInput(t *testing.T) {
+func Test_choiceBindings(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -591,9 +592,8 @@ func Test_translateChoiceInput(t *testing.T) {
 
 			mock := input.NewMockKeyboardInput()
 			tt.setup(mock)
-			win := &Window{}
 
-			action, ok := win.translateChoiceInput(mock)
+			action, ok := keybind.Convert(mock, choiceBindings)
 
 			assert.Equal(t, tt.wantAction, action)
 			assert.Equal(t, tt.wantOK, ok)

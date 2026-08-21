@@ -30,12 +30,19 @@ func WithUILock(fn func()) {
 	fn()
 }
 
-// captureScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。
-// 読み取り後にebiten.Imageを解放する
-func captureScreen(screen *ebiten.Image) *image.NRGBA {
+// readScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。解放はしない。
+// 呼び出し側が所有する画像を渡されるときはこちらを使う
+func readScreen(screen *ebiten.Image) *image.NRGBA {
 	bounds := screen.Bounds()
 	img := image.NewNRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
 	screen.ReadPixels(img.Pix)
+	return img
+}
+
+// captureScreen は readScreen したうえで ebiten.Image を解放する。
+// このパッケージ内で作った使い捨ての描画先に使う
+func captureScreen(screen *ebiten.Image) *image.NRGBA {
+	img := readScreen(screen)
 	screen.Deallocate()
 	return img
 }
@@ -84,6 +91,16 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 	assertPNGGolden(t, t.Name(), pngData)
 }
 
+// AssertFrameGolden は描画済みの screen を name のゴールデン画像 testdata/name.png と比較する。
+// 再生ドライバが各フレームで撮った画をそのまま渡す用途で、レイアウトも描画も呼び出し側が済ませている。
+// state の組み立てと駆動は replay.PlayScenario が担う。GOLDIE_UPDATE=1 で更新する。
+//
+// screen は読むだけで解放しない。所有権は渡した側にある
+func AssertFrameGolden(t *testing.T, name string, screen *ebiten.Image) {
+	t.Helper()
+	assertPNGGolden(t, name, encodePNG(t, readScreen(screen)))
+}
+
 // encodePNG はimage.Imageをpngバイト列にエンコードする
 func encodePNG(t *testing.T, img image.Image) []byte {
 	t.Helper()
@@ -93,15 +110,24 @@ func encodePNG(t *testing.T, img image.Image) []byte {
 }
 
 // noiseScale はトレランス算出の係数。
-// ebitenuiのノイズはUI要素のエッジで発生し、エッジ量は画像面積の平方根に比例する。
+// ノイズはUI要素のエッジで発生し、エッジ量は画像面積の平方根に比例する。
 // tolerance = noiseScale / √totalPixels で算出する。
 //
-// 960×720 の全画面ステートで約2%になる値にしている。フォントのアンチエイリアスと
-// アルファ合成の丸めは GL 実装に依存し、ゴールデンの生成環境と実行環境が違うと
-// 系統的な差分が残る。実測ではこの系統差が厳密比較で約1.3%に達し、実行順による
-// 揺れがそこへ乗る。2%はこの実測値に余裕を持たせた値で、代わりに全画面では
-// メニュー1行規模までの変化を検出できない
-const noiseScale = 17.0
+// 960×720 の全画面ステートで約0.036%、約250画素、になる値にしている。VRT は
+// Config.DisableScreenFilter でレトロフィルタを切って撮る。切ったあと、同一マシンでの
+// ハードウェア GL とソフトウェア GL の差は振幅8bitで2以内に収まり、channelTolerance16 が
+// 吸収する。取りこぼすのは mesa のバージョン差でグリフが1px ずれる位置ノイズで、これは
+// 振幅255のエッジ反転として数えられる。アイコンを多く重ねた全画面ほどエッジが増え、
+// CI のソフトウェア GL で標準の83画素を超えて落ちていた。250画素はそこへ余裕を持たせた値。
+//
+// 検出できる粒度: メニューのラベル2行を書き換えた実測が0.0825%、570画素、で検出する。
+// 250画素はその半分より下なので実変化は拾える。逆に単語1つぶんの微変化は250画素を
+// 下回ると見逃す。文字単位の変化まで見たいならトレランスではなく専用の小さい golden を撮る。
+//
+// この係数を緩めすぎると実変化が静かに素通りする。上限の目安は2行ラベル変更 570画素の
+// 半分、係数0.34。TestToleranceForSize がこの上限を守らせる。以前の45.0は全画面で5.4%あり、
+// テキスト行が丸ごと別言語になっていた golden を見逃していた。
+const noiseScale = 0.3
 
 // toleranceForSize は画像のピクセル数からトレランス比率を算出する。
 // ノイズ量はUIエッジに比例するため √面積 でスケーリングし、
@@ -117,7 +143,8 @@ func toleranceForSize(width, height int) float64 {
 // assertPNGGolden はPNGバイト列を name のゴールデン画像と比較する。golden は testdata/name.png。
 // name はサブテスト名でなく明示的に渡す。t.Run のスラッシュがパスに混ざらず、保存先が平置きになる。
 // 画像サイズからトレランスを自動算出し、小さい画像は寛容に、大きい画像は厳密に判定する。
-// GOLDIE_UPDATE=1 のときはトレランス内なら更新をスキップする
+// GOLDIE_UPDATE=1 のときはトレランスを見ず無条件に上書きする。トレランス内スキップは
+// 実変化を隠すので、更新は手動で走らせたときに必ず反映させる
 func assertPNGGolden(t *testing.T, name string, pngData []byte) {
 	t.Helper()
 
@@ -127,16 +154,8 @@ func assertPNGGolden(t *testing.T, name string, pngData []byte) {
 
 	if isGoldieUpdate() {
 		g := newGoldie(t)
-		goldenPath := g.GoldenFileName(t, name)
-		if existingData, err := os.ReadFile(goldenPath); err == nil {
-			equalFn := pngPixelEqualFn(toleranceRatio)
-			if equalFn(pngData, existingData) {
-				t.Logf("skipped update within tolerance: %s", goldenPath)
-				return
-			}
-		}
 		require.NoError(t, g.Update(t, name, pngData))
-		t.Logf("updated golden image: %s", goldenPath)
+		t.Logf("updated golden image: %s", g.GoldenFileName(t, name))
 		return
 	}
 

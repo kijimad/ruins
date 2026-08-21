@@ -61,7 +61,7 @@ func TestVerbByAction_直達アクションを動詞へ対応づける(t *testin
 }
 
 // TestVerbList_各動詞が直達キーとアクションを持ち往復する は verbList を単一の真実にした不変条件を守る。
-// ExtraInput と verbByAction はこの一覧から導くので、動詞を1行足すだけで直達が効く。
+// KeyBindings の束縛表と verbByAction はこの一覧から導くので、動詞を1行足すだけで直達が効く。
 // キーやアクションを欠く行や、アクションが自身へ戻らない不整合を検知し、silent failure を防ぐ
 func TestVerbList_各動詞が直達キーとアクションを持ち往復する(t *testing.T) {
 	t.Parallel()
@@ -72,7 +72,7 @@ func TestVerbList_各動詞が直達キーとアクションを持ち往復す�
 		require.NotEmpty(t, v.Action, "動詞 %s は直達アクションを持つ", v.ID)
 		require.NotNil(t, v.Accept, "動詞 %s は Accept を持つ。nil だと Fetch で panic する", v.ID)
 
-		// 直達キーは一意。重複すると ExtraInput のループで先勝ちして片方が黙って隠れる
+		// 直達キーは一意。重複すると束縛表の評価で先勝ちして片方が黙って隠れる
 		keyID := fmt.Sprintf("%d/%t", v.Key, v.Shift)
 		prevKey, dupKey := seenKey[keyID]
 		assert.False(t, dupKey, "直達キーが重複する: %s と %s", prevKey, v.ID)

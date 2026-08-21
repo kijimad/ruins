@@ -10,7 +10,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
+	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/overworld"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -95,12 +96,15 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 	return nil
 }
 
+// overworldMapBindings は種別俯瞰図の束縛表。開いたキーと同じ N でも閉じられる
+var overworldMapBindings = []keybind.Binding{
+	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
+	{Key: ebiten.KeyN, Action: inputmapper.ActionCloseMenu},
+}
+
 // Update はキー入力で閉じるだけ。マップ表示中は時間を進めない。
-func (st *OverworldMapState) Update(_ w.World) (es.Transition[w.World], error) {
-	keyboardInput := input.GetSharedKeyboardInput()
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) ||
-		keyboardInput.IsKeyJustPressed(ebiten.KeyN) ||
-		keyboardInput.IsKeyJustPressed(ebiten.KeyM) {
+func (st *OverworldMapState) Update(world w.World) (es.Transition[w.World], error) {
+	if action, ok := keybind.ReadInput(world, overworldMapBindings); ok && action == inputmapper.ActionCloseMenu {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
 	return st.ConsumeTransition(), nil
