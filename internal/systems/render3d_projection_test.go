@@ -30,5 +30,5 @@ func TestBuildScene_世界描画と重ねる側が同じ投影を使う(t *testi
 	sys := &Render3DSystem{UseFOV: false}
 	_, projector := sys.buildScene(world)
 
-	assert.Equal(t, render3d.For(world), projector, "世界描画とオーバーレイが同じ投影を使う")
+	assert.Equal(t, render3d.ProjectorFor(world), projector, "世界描画とオーバーレイが同じ投影を使う")
 }

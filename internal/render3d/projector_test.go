@@ -24,7 +24,7 @@ var (
 func TestNew_足元のタイル中心は画面中央の真下に写る(t *testing.T) {
 	t.Parallel()
 
-	center, ok := render3d.New(defaultView, playerTile, screenW, screenH).TileCenter(playerTile, 0)
+	center, ok := render3d.NewProjector(defaultView, playerTile, screenW, screenH).TileCenter(playerTile, 0)
 	require.True(t, ok)
 	// カメラは高さ 0.4 を見つめるので、地面は画面中央より下に写る
 	assert.InDelta(t, 480.0, float64(center.X), 0.05)
@@ -35,12 +35,12 @@ func TestNew_カメラを回すとタイルの写る位置が変わる(t *testin
 	t.Parallel()
 
 	far := consts.Coord[consts.Tile]{X: 25, Y: 20}
-	north, ok := render3d.New(defaultView, playerTile, screenW, screenH).TileCenter(far, 0)
+	north, ok := render3d.NewProjector(defaultView, playerTile, screenW, screenH).TileCenter(far, 0)
 	require.True(t, ok)
 
 	turned := defaultView
 	turned.Orient = 1
-	rotated, ok := render3d.New(turned, playerTile, screenW, screenH).TileCenter(far, 0)
+	rotated, ok := render3d.NewProjector(turned, playerTile, screenW, screenH).TileCenter(far, 0)
 	require.True(t, ok)
 
 	// 真北を向いていれば奥のタイルは画面中央の真上、45度回すと右へ寄る
@@ -51,7 +51,7 @@ func TestNew_カメラを回すとタイルの写る位置が変わる(t *testin
 func TestProjector_四隅は北西から時計回りに並ぶ(t *testing.T) {
 	t.Parallel()
 
-	corners, ok := render3d.New(defaultView, playerTile, screenW, screenH).TileCorners(playerTile, 0)
+	corners, ok := render3d.NewProjector(defaultView, playerTile, screenW, screenH).TileCorners(playerTile, 0)
 	require.True(t, ok)
 
 	nw, ne, se, sw := corners[0], corners[1], corners[2], corners[3]
@@ -65,7 +65,7 @@ func TestProjector_四隅は北西から時計回りに並ぶ(t *testing.T) {
 func TestProjector_高さを上げると画面の上へ写る(t *testing.T) {
 	t.Parallel()
 
-	projector := render3d.New(defaultView, playerTile, screenW, screenH)
+	projector := render3d.NewProjector(defaultView, playerTile, screenW, screenH)
 	tile := consts.Coord[consts.Tile]{X: 25, Y: 24}
 
 	ground, ok := projector.TileCenter(tile, 0)
@@ -80,7 +80,7 @@ func TestProjector_カメラ後方のタイルは投影できない(t *testing.T
 	t.Parallel()
 
 	// カメラはプレイヤーの南側にいる。そのさらに南は視線の裏側に回る
-	_, ok := render3d.New(defaultView, playerTile, screenW, screenH).
+	_, ok := render3d.NewProjector(defaultView, playerTile, screenW, screenH).
 		TileCenter(consts.Coord[consts.Tile]{X: 25, Y: 60}, 0)
 	assert.False(t, ok)
 }
@@ -88,7 +88,7 @@ func TestProjector_カメラ後方のタイルは投影できない(t *testing.T
 func TestProjector_BillboardScaleは立て板の画面上の高さを返す(t *testing.T) {
 	t.Parallel()
 
-	projector := render3d.New(defaultView, playerTile, screenW, screenH)
+	projector := render3d.NewProjector(defaultView, playerTile, screenW, screenH)
 	nearScale, ok := projector.BillboardScale(playerTile)
 	require.True(t, ok)
 	farScale, ok := projector.BillboardScale(consts.Coord[consts.Tile]{X: 25, Y: 20})
@@ -101,7 +101,7 @@ func TestProjector_BillboardScaleは立て板の画面上の高さを返す(t *t
 func TestProjector_Depthは奥ほど小さい(t *testing.T) {
 	t.Parallel()
 
-	projector := render3d.New(defaultView, playerTile, screenW, screenH)
+	projector := render3d.NewProjector(defaultView, playerTile, screenW, screenH)
 	nearDepth := projector.Depth(render3d.Vec{X: 25.5, Z: 25.5})
 	farDepth := projector.Depth(render3d.Vec{X: 25.5, Z: 20.5})
 

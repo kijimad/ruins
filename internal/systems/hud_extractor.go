@@ -130,7 +130,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	}
 	// 世界を描くのと同じ投影を使う。デバッグ表示だけ別の変換に取り残すと、
 	// それを手本にして古い変換が新しい箇所へ広がる
-	projector := render3d.For(world)
+	projector := render3d.ProjectorFor(world)
 
 	// AI状態情報と視界範囲情報を抽出
 	var aiStates []hud.AIStateInfo

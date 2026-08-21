@@ -210,7 +210,7 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	}
 	targetCoord := world.Components.GridElement.Get(target).Coord
 
-	projector := render3d.For(world)
+	projector := render3d.ProjectorFor(world)
 	corners, ok := projector.TileCorners(targetCoord, render3d.TileTopHeight(world, targetCoord))
 	if !ok {
 		return

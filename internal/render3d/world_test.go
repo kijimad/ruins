@@ -29,7 +29,7 @@ func TestFor_ワールドのカメラとプレイヤー位置から投影を組�
 
 	world := newWorld(t)
 	// 同じ状態からは同じ投影が組める。呼び出し側ごとに寸法の取り方が分かれないことを固定する
-	assert.Equal(t, render3d.New(defaultView, playerTile, screenW, screenH), render3d.For(world))
+	assert.Equal(t, render3d.NewProjector(defaultView, playerTile, screenW, screenH), render3d.ProjectorFor(world))
 }
 
 func TestFor_カメラが無くても既定の視点で組む(t *testing.T) {
@@ -40,7 +40,7 @@ func TestFor_カメラが無くても既定の視点で組む(t *testing.T) {
 	world.Resources.SetScreenDimensions(screenW, screenH)
 	require.Nil(t, query.GetPlayerCamera(world))
 
-	_, ok := render3d.For(world).TileCenter(playerTile, 0)
+	_, ok := render3d.ProjectorFor(world).TileCenter(playerTile, 0)
 	assert.True(t, ok)
 }
 
@@ -52,10 +52,10 @@ func TestFor_カメラを回すと投影が追随する(t *testing.T) {
 	require.NotNil(t, camera)
 	far := consts.Coord[consts.Tile]{X: 25, Y: 20}
 
-	north, ok := render3d.For(world).TileCenter(far, 0)
+	north, ok := render3d.ProjectorFor(world).TileCenter(far, 0)
 	require.True(t, ok)
 	camera.Orient = 1
-	rotated, ok := render3d.For(world).TileCenter(far, 0)
+	rotated, ok := render3d.ProjectorFor(world).TileCenter(far, 0)
 	require.True(t, ok)
 
 	assert.Greater(t, float64(rotated.X), float64(north.X)+100)

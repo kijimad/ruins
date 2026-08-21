@@ -192,7 +192,7 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 
 // buildScene は投影とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。
 func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Projector) {
-	projector := render3d.For(world)
+	projector := render3d.ProjectorFor(world)
 	center := render3d.PlayerTile(world)
 	pcx, pcz := float64(center.X), float64(center.Y)
 

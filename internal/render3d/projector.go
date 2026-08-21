@@ -34,10 +34,10 @@ type Projector struct {
 	sw, sh int
 }
 
-// New は視点からの投影を組む。
+// NewProjector は視点からの投影を組む。
 //
 // orbit はカメラの向きと距離、center は注視するタイルで、通常はプレイヤーの立つタイルを渡す。
-func New(orbit gc.Camera, center consts.Coord[consts.Tile], sw, sh int) Projector {
+func NewProjector(orbit gc.Camera, center consts.Coord[consts.Tile], sw, sh int) Projector {
 	target := Vec{float64(center.X) + 0.5, cameraTargetHeight, float64(center.Y) + 0.5}
 	yaw, pitch := orbit.Yaw(), orbit.Pitch
 	// カメラはプレイヤーの南側から北を見下ろす。画面の上を北に合わせ、北上のミニマップと向きをそろえる

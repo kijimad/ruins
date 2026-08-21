@@ -12,18 +12,18 @@ import (
 // プレイヤーを置かずに世界だけ描く場面で使う
 var defaultPlayerTile = consts.Coord[consts.Tile]{X: 25, Y: 25}
 
-// For は world の状態から投影を組む。画面寸法もカメラ姿勢も world から読み、呼び出し側には
+// ProjectorFor は world の状態から投影を組む。画面寸法もカメラ姿勢も world から読み、呼び出し側には
 // 取らせない。寸法やカメラの取り方が呼び出し側ごとに分かれると、投影が再び2系統へ割れるためである。
 //
 // カメラが無ければ既定の視点で組む。ここで投影を諦めるとカーソルが消えてしまい、
 // 位置がずれるより分かりにくい壊れ方になる。
-func For(world w.World) Projector {
+func ProjectorFor(world w.World) Projector {
 	sw, sh := world.Resources.GetScreenDimensions()
 	orbit := gc.Camera{Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist}
 	if camera := query.GetPlayerCamera(world); camera != nil {
 		orbit = *camera
 	}
-	return New(orbit, PlayerTile(world), sw, sh)
+	return NewProjector(orbit, PlayerTile(world), sw, sh)
 }
 
 // PlayerTile はプレイヤーの立つタイルを返す。いなければ既定値を返す。
