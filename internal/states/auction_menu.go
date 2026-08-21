@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strconv"
 
@@ -233,8 +234,7 @@ func (st *AuctionMenuState) statusRows(world w.World) []auctionLedgerRow {
 func (st *AuctionMenuState) historyRows(world w.World) []auctionLedgerRow {
 	h := query.GetAuctionHistory(world)
 	rows := make([]auctionLedgerRow, 0, len(h.Records))
-	for i := len(h.Records) - 1; i >= 0; i-- {
-		r := h.Records[i]
+	for _, r := range slices.Backward(h.Records) {
 		rows = append(rows, auctionLedgerRow{
 			Number: r.Number, Name: r.Name, Bid: r.Bid, Ship: r.Ship, Fee: r.Fee, Net: r.Net, Turn: r.Turn, Shipped: true,
 		})

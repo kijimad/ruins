@@ -7,6 +7,8 @@
 package menuloop
 
 import (
+	"slices"
+
 	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -181,8 +183,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 		// overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、
 		// 描画は逆順に重ね、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に
 		// 隠れて操作不能になるのを防ぐ
-		for i := len(s.overlays) - 1; i >= 0; i-- {
-			ov := s.overlays[i]
+		for _, ov := range slices.Backward(s.overlays) {
 			if ov.Active() {
 				if win := ov.Window(world, menuframe.CenterWindowRect(world)); win != nil {
 					s.widget.AddWindow(win)

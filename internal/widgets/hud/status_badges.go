@@ -3,6 +3,7 @@ package hud
 import (
 	"fmt"
 	"image/color"
+	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -65,9 +66,7 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 
 	// 下から上に向かって描画
 	currentY := baseY
-	for i := len(badges) - 1; i >= 0; i-- {
-		badge := badges[i]
-
+	for _, badge := range slices.Backward(badges) {
 		// テキストサイズを測定
 		textWidth, textHeight := text.Measure(badge.Text, sb.bodyFace, 0)
 

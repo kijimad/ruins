@@ -61,16 +61,16 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 					metaPlan.NextPortals = append(metaPlan.NextPortals, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 				default:
 					metaPlan.Props = append(metaPlan.Props, PropsSpec{
-						Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},
-						Name:  cell.Prop,
+						X: consts.Tile(x), Y: consts.Tile(y),
+						Name: cell.Prop,
 					})
 				}
 			}
 
 			if cell.NPC != "" {
 				metaPlan.NPCs = append(metaPlan.NPCs, NPCSpec{
-					Coord: consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)},
-					Name:  cell.NPC,
+					X: consts.Tile(x), Y: consts.Tile(y),
+					Name: cell.NPC,
 				})
 			}
 		}

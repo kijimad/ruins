@@ -39,8 +39,8 @@ func TestStateNoReuse(t *testing.T) {
 		factory := func() (State[TestWorld], error) {
 			instanceCount++
 			return &TestStateWithID{
-				TestState: TestState{name: "TestState"},
-				ID:        instanceCount,
+				name: "TestState",
+				ID:   instanceCount,
 			}, nil
 		}
 
@@ -79,8 +79,8 @@ func TestStateNoReuse(t *testing.T) {
 		factory := func() (State[TestWorld], error) {
 			idCounter++
 			state := &TestStateWithID{
-				TestState: TestState{name: "TestState"},
-				ID:        idCounter,
+				name: "TestState",
+				ID:   idCounter,
 			}
 			createdStates = append(createdStates, state)
 			return state, nil

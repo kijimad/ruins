@@ -64,8 +64,6 @@ func (st *PersistentMessageState) OnResume(world w.World) error {
 // world 依存の構築が要る呼び出しは &PersistentMessageState{} を直接組んで build を設定する
 func NewPersistentMessageState(messageData *messagedata.MessageData) *PersistentMessageState {
 	return &PersistentMessageState{
-		MessageState: MessageState{
-			build: func(_ w.World) *messagedata.MessageData { return messageData },
-		},
+		build: func(_ w.World) *messagedata.MessageData { return messageData },
 	}
 }

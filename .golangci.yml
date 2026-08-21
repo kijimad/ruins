@@ -48,6 +48,16 @@ linters:
       # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする
       - linters: [gosmopolitan]
         path: '_test\.go$'
+      # マップ生成の実体カタログは同じ実体名を定義・レシピ・配置の各ファイルで参照するので、
+      # 短い識別子文字列がファイルを跨いで必然的に重複する。goconst はこれを定数化候補として
+      # 集計するが、実体名は typed な参照であり定数化しても単一化しない。誤検知なので当該
+      # サブシステムでは goconst を抑制する。実体名の一元管理は別途 raw 定義で担う
+      - linters: [goconst]
+        path: 'internal/(mapplanner|overworld|dungeon)/'
+      # 束縛表の Label は msgid で、i18n 規約によりインラインの英語リテラルに保つ。定数化すると
+      # 静的な msgid 抽出から漏れる。同じラベルの行が複数並ぶのは正当なので goconst を抑制する
+      - linters: [goconst]
+        source: 'Label:\s*"'
 
   settings:
     gosmopolitan:

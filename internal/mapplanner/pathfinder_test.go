@@ -174,7 +174,7 @@ func TestFindPlayerStartPosition_AvoidsNPCs(t *testing.T) {
 
 	// 中央付近にNPCを配置してプレイヤーの最優先候補位置を塞ぐ
 	planData.NPCs = []NPCSpec{
-		{Coord: consts.Coord[consts.Tile]{X: consts.Tile(width / 2), Y: consts.Tile(height / 2)}, Name: "test"},
+		{X: consts.Tile(width / 2), Y: consts.Tile(height / 2), Name: "test"},
 	}
 
 	pf := NewPathFinder(planData)
