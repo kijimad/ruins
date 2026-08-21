@@ -166,7 +166,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		// 視界円の半径は、足元から視界距離だけ離れたタイルまでの画面上の距離で表す
 		scaledRadius := float32(0)
 		if base, okBase := projector.TileCenter(gridElement.Coord, 0); okBase {
-			edge := gridElement.Coord.Add(consts.Coord[consts.Tile]{X: consts.Tile(solo.ViewDistance)})
+			edge := gridElement.Add(consts.Coord[consts.Tile]{X: solo.ViewDistance})
 			if far, okFar := projector.TileCenter(edge, 0); okFar {
 				scaledRadius = float32(math.Abs(float64(far.X - base.X)))
 			}
