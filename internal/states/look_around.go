@@ -3,7 +3,6 @@ package states
 import (
 	"fmt"
 	"math"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -13,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -122,54 +122,24 @@ func (st *LookAroundState) Draw(world w.World, screen *ebiten.Image) error {
 	return st.drawInfoPanel(world, screen)
 }
 
-// カーソル画像キャッシュ。sync.Once で一度だけ初期化する
-var (
-	cursorImageCache     *ebiten.Image
-	cursorImageCacheOnce sync.Once
-)
+// cursorFrameWidth はカーソル枠の線の太さ
+const cursorFrameWidth = 3
 
-// drawCursor はカーソルを描画する
+// drawCursor はカーソルを描画する。
+// タイルは透視投影で台形になるので、投影した四隅を線で結んで実際の輪郭に合わせる。
 func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
-	tileSize := int(consts.TileSize)
-	cursorPixelX := float64(int(st.cursor.X) * tileSize)
-	cursorPixelY := float64(int(st.cursor.Y) * tileSize)
-
-	// カーソル画像をキャッシュから取得または作成
-	cursorImageCacheOnce.Do(func() {
-		cursorImageCache = ebiten.NewImage(tileSize, tileSize)
-		// 枠線を描画（太さ3px、白色で目立つように）
-		cursorColor := theme.CursorLook
-		for i := range 3 {
-			// 上辺
-			for x := range tileSize {
-				cursorImageCache.Set(x, i, cursorColor)
-			}
-			// 下辺
-			for x := range tileSize {
-				cursorImageCache.Set(x, tileSize-1-i, cursorColor)
-			}
-			// 左辺
-			for y := range tileSize {
-				cursorImageCache.Set(i, y, cursorColor)
-			}
-			// 右辺
-			for y := range tileSize {
-				cursorImageCache.Set(tileSize-1-i, y, cursorColor)
-			}
-		}
-	})
-
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(cursorPixelX, cursorPixelY)
-	gs.SetTranslate(world, op)
-
-	// 点滅エフェクト: アルファ値を変化させる。アニメーション無効時は固定値
-	if !world.Config.DisableAnimation {
-		alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)
-		op.ColorScale.ScaleAlpha(float32(alpha))
+	projector := gs.NewProjector(world, screen.Bounds().Dx(), screen.Bounds().Dy())
+	corners, ok := projector.TileCorners(st.cursor, gs.TileTopHeight(world, st.cursor))
+	if !ok {
+		return
 	}
 
-	screen.DrawImage(cursorImageCache, op)
+	cursorColor := theme.CursorLook
+	// 点滅エフェクト: アルファ値を変化させる。アニメーション無効時は固定値
+	if !world.Config.DisableAnimation {
+		cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
+	}
+	hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)
 }
 
 // drawInfoPanel はタイル情報パネルを描画する

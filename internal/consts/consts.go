@@ -8,7 +8,7 @@ type WorldPixel float64
 
 // ScreenPixel は画面空間のピクセル単位。カメラ変換後の描画位置を表す。
 // WorldPixel とは別型にして、ワールド座標とスクリーン座標の取り違えを型で弾く。
-// 変換は WorldToScreen で行う。
+// タイルから画面への変換は systems.Projector が3Dカメラを通して行う。
 type ScreenPixel float64
 
 // Tile はタイルの位置。ピクセル数ではない

@@ -10,6 +10,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	arkserde "github.com/mlange-42/ark-serde"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -110,6 +111,12 @@ func reestablishSingleton(world w.World) error {
 		if field.ExploredTiles == nil {
 			field.ExploredTiles = make(map[gc.GridElement]bool)
 		}
+	}
+
+	// カメラの3Dオービットを可動域へ収める。3Dの値を持たないセーブから復元するとゼロ値になり、
+	// そのままでは真横から見る壊れた視点になる。Get はポインタを返すので直接書き換える
+	if camera := query.GetPlayerCamera(world); camera != nil {
+		camera.NormalizeOrbit()
 	}
 
 	// CharModifiers.Sources は json:"-" で除外され、ロード時に再計算する規約。

@@ -35,15 +35,6 @@ func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {
 	return Coord[WorldPixel]{X: WorldPixel(grid.X)*TileSize + half, Y: WorldPixel(grid.Y)*TileSize + half}
 }
 
-// WorldToScreen はワールドピクセル座標をカメラ変換して画面のスクリーンピクセル座標へ変換する。
-// cameraPos はカメラ中心のワールド位置、scale はズーム率、screen は画面サイズ。
-func WorldToScreen(world Coord[WorldPixel], cameraPos Coord[WorldPixel], scale float64, screenW, screenH int) Coord[ScreenPixel] {
-	return Coord[ScreenPixel]{
-		X: ScreenPixel(float64(world.X-cameraPos.X)*scale + float64(screenW)/2),
-		Y: ScreenPixel(float64(world.Y-cameraPos.Y)*scale + float64(screenH)/2),
-	}
-}
-
 // AbsTileX は東西の絶対タイル X 座標。
 //
 // 東へ進むほど無限に増える絶対軸で、帯ローカルの GridElement.X とは別物。GridElement.X は

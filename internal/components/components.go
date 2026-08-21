@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"image/color"
+	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -36,15 +37,59 @@ func addComp[T any](m *ecs.Map[T], entity ecs.Entity, v *T) {
 	}
 }
 
+// 2D描画のズーム率の可動域。真上から見下ろすマップ生成ビジュアライザが使う
+const (
+	CameraMinScale = 0.8
+	CameraMaxScale = 10
+)
+
+// 3Dオービットカメラの既定値と可動域。カメラ操作の入力と、セーブから復元した値の正規化が
+// 同じ範囲を参照する
+const (
+	CameraDefaultPitch = 0.62
+	CameraDefaultDist  = 16
+	CameraMinPitch     = 0.15
+	CameraMaxPitch     = 1.45
+	CameraMinDist      = 3
+	CameraMaxDist      = 25
+	// CameraOrientCount は水平角の分割数。8にすると45度刻みで一周する
+	CameraOrientCount = 8
+)
+
 // Camera はカメラ
 // 滑らかなズームと追従のため、実際値と目標値を別々に持つ
 type Camera struct {
-	// ズーム率
+	// Scale/ScaleTo/Pos/Target は真上から見下ろす2D描画のカメラ。ズーム率とワールドピクセルの位置
 	Scale   float64
 	ScaleTo float64
-	// カメラ位置。ワールド空間のピクセル単位
-	Pos    consts.Coord[consts.WorldPixel]
-	Target consts.Coord[consts.WorldPixel]
+	Pos     consts.Coord[consts.WorldPixel]
+	Target  consts.Coord[consts.WorldPixel]
+
+	// Orient は水平角を45度刻みで表す 0..CameraOrientCount-1。水平角の一次情報で、
+	// 3D世界の描画と、それに重ねるカーソルやエフェクトの投影と、移動キーの向き解決が同じ値を読む
+	Orient int
+	// Pitch は見下ろし角のラジアン、Dist は注視点からカメラまでのタイル数
+	Pitch, Dist float64
+}
+
+// Yaw は水平角をラジアンで返す。Orient から導出するので、水平角が2箇所に分かれてずれることがない
+func (c Camera) Yaw() float64 {
+	return float64(c.Orient) * (2 * math.Pi / CameraOrientCount)
+}
+
+// NormalizeOrbit は3Dオービットの値を可動域へ収める。
+// Dist が可動域の外なら値が入っていないとみなし、Orient と Pitch も含めて既定の視点へ戻す。
+// 3Dの値を持たないセーブから復元するとゼロ値になり、この経路で救う。
+// Orient は 0 が正当な向きなので、それ単独では未設定を判定できず Dist を手がかりにする。
+func (c *Camera) NormalizeOrbit() {
+	if c.Dist < CameraMinDist || c.Dist > CameraMaxDist {
+		c.Orient = 0
+		c.Pitch = CameraDefaultPitch
+		c.Dist = CameraDefaultDist
+		return
+	}
+	c.Pitch = min(max(c.Pitch, CameraMinPitch), CameraMaxPitch)
+	c.Orient = ((c.Orient % CameraOrientCount) + CameraOrientCount) % CameraOrientCount
 }
 
 // Consumable は消耗品。一度使うとなくなる

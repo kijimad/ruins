@@ -213,7 +213,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	}
 
 	// カメラのポインタ操作は3Dへ委譲する。キー操作は束縛表を通して DoAction に届く
-	st.three.update()
+	st.three.update(world)
 
 	// キー入力をActionに変換
 	if action, ok := st.readAction(world); ok {
@@ -278,7 +278,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 // Draw はゲームステートの描画処理を行う。世界と HUD を screen へ描く。
 // フィールドのライティングは vision が壁遮蔽込みで計算した per-tile の暗さを
-// RenderSpriteSystem が描く。地上は時間帯の色フィルタを世界へ一様に掛ける。
+// Render3DSystem が描く。地上は時間帯の色フィルタを世界へ一様に掛ける。
 func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 	if st.baseImage != nil {
 		screen.DrawImage(st.baseImage, nil)

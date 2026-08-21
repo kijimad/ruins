@@ -5,18 +5,13 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
 // getCamera は単一のカメラコンポーネントを返す。存在しなければ nil。
-// カメラはシングルトン的に1つだけ存在する前提で、各所のクエリ定型を集約する
 func getCamera(world w.World) *gc.Camera {
-	var camera *gc.Camera
-	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
-	for cameraQuery.Next() {
-		camera = world.Components.Camera.Get(cameraQuery.Entity())
-	}
-	return camera
+	return query.GetPlayerCamera(world)
 }
 
 // CameraSystem はカメラの追従とズーム処理を行う
@@ -73,11 +68,7 @@ func (sys *CameraSystem) Update(world w.World) error {
 	camera.ScaleTo += scrollY * (camera.ScaleTo / 7)
 
 	// ズーム率の範囲制限
-	if camera.ScaleTo < 0.8 {
-		camera.ScaleTo = 0.8
-	} else if camera.ScaleTo > 10 {
-		camera.ScaleTo = 10
-	}
+	camera.ScaleTo = min(max(camera.ScaleTo, gc.CameraMinScale), gc.CameraMaxScale)
 
 	// ズームも滑らかに追従
 	camera.Scale = camera.ScaleTo

@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"math"
 	"slices"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/activity"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -203,49 +202,25 @@ func (st *ShootingState) Draw(world w.World, screen *ebiten.Image) error {
 	return st.drawShootingPanel(world, screen)
 }
 
-// shootingCursorCache はターゲットカーソル画像のキャッシュ。sync.Once で一度だけ初期化する
-var (
-	shootingCursorCache     *ebiten.Image
-	shootingCursorCacheOnce sync.Once
-)
-
 // drawTargetCursor は選択中の敵にカーソルを描画する
 func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	target := st.enemies[st.targetIndex]
 	if !world.Components.GridElement.Has(target) {
 		return
 	}
-	targetGrid := world.Components.GridElement.Get(target)
+	targetCoord := world.Components.GridElement.Get(target).Coord
 
-	tileSize := int(consts.TileSize)
-	cursorPixelX := float64(int(targetGrid.X) * tileSize)
-	cursorPixelY := float64(int(targetGrid.Y) * tileSize)
-
-	shootingCursorCacheOnce.Do(func() {
-		shootingCursorCache = ebiten.NewImage(tileSize, tileSize)
-		cursorColor := theme.CursorShoot
-		for i := range 3 {
-			for x := range tileSize {
-				shootingCursorCache.Set(x, i, cursorColor)
-				shootingCursorCache.Set(x, tileSize-1-i, cursorColor)
-			}
-			for y := range tileSize {
-				shootingCursorCache.Set(i, y, cursorColor)
-				shootingCursorCache.Set(tileSize-1-i, y, cursorColor)
-			}
-		}
-	})
-
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(cursorPixelX, cursorPixelY)
-	gs.SetTranslate(world, op)
-
-	if !world.Config.DisableAnimation {
-		alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)
-		op.ColorScale.ScaleAlpha(float32(alpha))
+	projector := gs.NewProjector(world, screen.Bounds().Dx(), screen.Bounds().Dy())
+	corners, ok := projector.TileCorners(targetCoord, gs.TileTopHeight(world, targetCoord))
+	if !ok {
+		return
 	}
 
-	screen.DrawImage(shootingCursorCache, op)
+	cursorColor := theme.CursorShoot
+	if !world.Config.DisableAnimation {
+		cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
+	}
+	hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)
 }
 
 // drawShootingPanel は射撃情報パネルを描画する

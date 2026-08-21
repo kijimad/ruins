@@ -21,10 +21,11 @@
 | <img src="internal/states/testdata/TestGolden_Dungeon.png" width="200" /><br>Dungeon | <img src="internal/states/testdata/TestGolden_EquipSelect.png" width="200" /><br>EquipSelect | <img src="internal/states/testdata/TestGolden_EquipSelectFlow.png" width="200" /><br>EquipSelectFlow | <img src="internal/states/testdata/TestGolden_GameOver.png" width="200" /><br>GameOver |
 | <img src="internal/states/testdata/TestGolden_ItemActionDetail.png" width="200" /><br>ItemActionDetail | <img src="internal/states/testdata/TestGolden_ItemAction_Drop.png" width="200" /><br>ItemAction_Drop | <img src="internal/states/testdata/TestGolden_ItemAction_Eat.png" width="200" /><br>ItemAction_Eat | <img src="internal/states/testdata/TestGolden_ItemAction_Inspect.png" width="200" /><br>ItemAction_Inspect |
 | <img src="internal/states/testdata/TestGolden_ItemAction_List.png" width="200" /><br>ItemAction_List | <img src="internal/states/testdata/TestGolden_ItemAction_Read.png" width="200" /><br>ItemAction_Read | <img src="internal/states/testdata/TestGolden_ItemAction_Use.png" width="200" /><br>ItemAction_Use | <img src="internal/states/testdata/TestGolden_KeyHelp.png" width="200" /><br>KeyHelp |
-| <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround | <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu | <img src="internal/states/testdata/TestGolden_MainMenuOpenSettings.png" width="200" /><br>MainMenuOpenSettings |
-| <img src="internal/states/testdata/TestGolden_Message.png" width="200" /><br>Message | <img src="internal/states/testdata/TestGolden_Overworld.png" width="200" /><br>Overworld | <img src="internal/states/testdata/TestGolden_OverworldMap.png" width="200" /><br>OverworldMap | <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage |
-| <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_SettingsMenuClose.png" width="200" /><br>SettingsMenuClose | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting |
-| <img src="internal/states/testdata/TestGolden_ShopMenu_Buy.png" width="200" /><br>ShopMenu_Buy | <img src="internal/states/testdata/TestGolden_ShopMenu_Sell.png" width="200" /><br>ShopMenu_Sell | <img src="internal/states/testdata/TestGolden_StorageMenu_Retrieve.png" width="200" /><br>StorageMenu_Retrieve | <img src="internal/states/testdata/TestGolden_StorageMenu_Store.png" width="200" /><br>StorageMenu_Store |
+| <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround | <img src="internal/states/testdata/TestGolden_LookAround_Away.png" width="200" /><br>LookAround_Away | <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu |
+| <img src="internal/states/testdata/TestGolden_MainMenuOpenSettings.png" width="200" /><br>MainMenuOpenSettings | <img src="internal/states/testdata/TestGolden_Message.png" width="200" /><br>Message | <img src="internal/states/testdata/TestGolden_Overworld.png" width="200" /><br>Overworld | <img src="internal/states/testdata/TestGolden_OverworldMap.png" width="200" /><br>OverworldMap |
+| <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_SettingsMenuClose.png" width="200" /><br>SettingsMenuClose |
+| <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu_Buy.png" width="200" /><br>ShopMenu_Buy | <img src="internal/states/testdata/TestGolden_ShopMenu_Sell.png" width="200" /><br>ShopMenu_Sell | <img src="internal/states/testdata/TestGolden_StorageMenu_Retrieve.png" width="200" /><br>StorageMenu_Retrieve |
+| <img src="internal/states/testdata/TestGolden_StorageMenu_Store.png" width="200" /><br>StorageMenu_Store | | | |
 
 
 各画像はゴールデンテストで自動生成される。
@@ -103,6 +104,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [通信販売: オークション形式の販売機構](docs/design/260814170822.md) | 5/6（見送り2） | gamedesign, item, ui |
+| in-progress | [タイルを指すオーバーレイを3D投影へ一本化する](docs/design/260821010458.md) | 18/18 | ui, ecs, refactor |
 | draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
 | draft | [OSS 調査 2026-08](docs/design/260801002222.md) | 0/5 | meta, worldgen, combat, ui |
@@ -112,7 +114,6 @@ $ make help
 | draft | [背の低い家具を通行可能にして移動コストで体系化する](docs/design/260814140548.md) | 0/7（見送り1） | movement, combat, gamedesign |
 | draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
 | draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/6 | item, combat, ecs |
-| draft | [タイルを指すオーバーレイを3D投影へ一本化する](docs/design/260821010458.md) | 0/17 | ui, ecs, refactor |
 
 
 ## Reference

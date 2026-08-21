@@ -20,16 +20,15 @@ import (
 // テクスチャは既存スプライトシートをそのまま流用する。Ebiten は深度バッファを持たないため、
 // 各クアッドをカメラ空間の奥行きで並べ替える画家アルゴリズムで隠面を解く。
 type Render3DSystem struct {
-	// Yaw/Pitch/Dist はプレイヤーを中心に回すオービットカメラ。マウスドラッグで動かす。
-	Yaw, Pitch, Dist float64
 	// UseFOV は視界データに従い、隠れたタイルを描かず記憶タイルを減光する。
 	// 本番のダンジョンでは true、部屋全体を見せたいデモでは false にする
 	UseFOV bool
 }
 
-// NewRender3DSystem は既定のオービットカメラで初期化する。
+// NewRender3DSystem は視界を反映する本番の設定で初期化する。
+// オービットカメラの向きと距離は ECS の Camera が持ち、Projector 経由で読む。
 func NewRender3DSystem() *Render3DSystem {
-	return &Render3DSystem{Yaw: 0, Pitch: 0.62, Dist: 16, UseFOV: true}
+	return &Render3DSystem{UseFOV: true}
 }
 
 // String は w.Renderer を満たす。
@@ -114,8 +113,11 @@ type r3quad struct {
 }
 
 const (
-	r3wallHeight = 1.0  // 壁の高さ。タイル1個分
-	r3cullRadius = 60.0 // プレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る
+	// WallHeight は壁の高さ。タイル1個分。壁タイルを指すカーソルはこの高さの天面へ描く
+	WallHeight = 1.0
+	// BillboardHeight はエンティティの立て板の高さ。頭の上に出す表示の基準になる
+	BillboardHeight = 1.0
+	r3cullRadius    = 60.0 // プレイヤーからこのタイル数だけ描く。カメラの視錐台より広めに取る
 )
 
 // visFunc はタイルの明るさ・状態・光源色を返す。bright は 0..1 の明るさで Darkness を反映する。
@@ -260,36 +262,14 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 
 // buildScene はカメラ行列とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。
 func (sys *Render3DSystem) buildScene(world w.World, sw, sh int) (quads []r3quad, vp, view r3mat) {
-	pcx, pcz := sys.playerCenter(world)
-
-	target := r3vec{pcx + 0.5, 0.4, pcz + 0.5}
-	dist, pitch, yaw := sys.Dist, sys.Pitch, sys.Yaw
-	// ゼロ値の Render3DSystem をそのまま描いたときの保険。負値は設定ミスなので隠さずそのまま出す
-	if dist == 0 {
-		dist, pitch, yaw = 9, 0.62, 0
-	}
-	// カメラはプレイヤーの南側から北を見下ろす。画面の上を北に合わせ、北上のミニマップと向きをそろえる
-	dir := r3vec{math.Cos(pitch) * math.Sin(yaw), math.Sin(pitch), math.Cos(pitch) * math.Cos(yaw)}
-	eye := r3add(target, r3scale(dir, dist))
-	up := r3vec{0, 1, 0}
-	view = r3lookAt(eye, target, up)
-	vp = r3mul(r3perspective(52, float64(sw)/float64(sh), 0.1, 200), view)
+	p := NewProjector(world, sw, sh)
+	pcx, pcz := playerTileCenter(world)
 
 	visFactor := sys.visFactorFunc(world)
 	frost := sys.frostFunc(world)
 	quads = sys.collectTiles(world, pcx, pcz, visFactor, frost)
-	right := r3norm(r3cross(r3norm(r3sub(target, eye)), up))
-	quads = sys.collectBillboards(world, quads, pcx, pcz, right, visFactor, frost)
-	return quads, vp, view
-}
-
-// playerCenter はプレイヤーのタイル座標を返す。いなければ既定値。
-func (sys *Render3DSystem) playerCenter(world w.World) (float64, float64) {
-	if pe, err := query.GetPlayerEntity(world); err == nil && world.Components.GridElement.Has(pe) {
-		g := world.Components.GridElement.Get(pe)
-		return float64(g.X), float64(g.Y)
-	}
-	return 25, 25
+	quads = sys.collectBillboards(world, quads, pcx, pcz, p.right(), visFactor, frost)
+	return quads, p.vp, p.view
 }
 
 // visFactorFunc は視界に応じた減光係数を返す関数を作る。隠れタイルは ok=false。
@@ -370,7 +350,7 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 			if a, d := frost(int(g.X)); d {
 				topY := 0.02
 				if isWall {
-					topY = r3wallHeight + 0.02
+					topY = WallHeight + 0.02
 				}
 				sys.addFrostQuad(&quads, fx, fz, topY, a)
 			}
@@ -383,18 +363,18 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[[2]int]bool, ix, iy int, fx, fz float64, atlas *ebiten.Image, ux, uy, uw, uh float64, tint [3]float64) {
 	// 天面は真上視点なので既存テクスチャをそのまま貼り、側面はフラット単色にする。
 	// 面ごとのシェード 天面0.95・南北0.6・東西0.78 は疑似方向光源で、平板な側面に陰影を付けて立体に見せる
-	sys.addQuad(out, r3vec{fx, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.95))
+	sys.addQuad(out, r3vec{fx, WallHeight, fz}, r3vec{fx + 1, WallHeight, fz}, r3vec{fx + 1, WallHeight, fz + 1}, r3vec{fx, WallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.95))
 	if !walls[[2]int{ix, iy - 1}] {
-		sys.addFlatQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))
+		sys.addFlatQuad(out, r3vec{fx, 0, fz}, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, WallHeight, fz}, r3vec{fx, WallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))
 	}
 	if !walls[[2]int{ix, iy + 1}] {
-		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))
+		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz + 1}, r3vec{fx, 0, fz + 1}, r3vec{fx, WallHeight, fz + 1}, r3vec{fx + 1, WallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.6))
 	}
 	if !walls[[2]int{ix - 1, iy}] {
-		sys.addFlatQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, r3wallHeight, fz}, r3vec{fx, r3wallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))
+		sys.addFlatQuad(out, r3vec{fx, 0, fz + 1}, r3vec{fx, 0, fz}, r3vec{fx, WallHeight, fz}, r3vec{fx, WallHeight, fz + 1}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))
 	}
 	if !walls[[2]int{ix + 1, iy}] {
-		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, r3wallHeight, fz + 1}, r3vec{fx + 1, r3wallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))
+		sys.addFlatQuad(out, r3vec{fx + 1, 0, fz}, r3vec{fx + 1, 0, fz + 1}, r3vec{fx + 1, WallHeight, fz + 1}, r3vec{fx + 1, WallHeight, fz}, atlas, ux, uy, uw, uh, scaleCol(tint, 0.78))
 	}
 }
 
@@ -420,7 +400,8 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 			continue
 		}
 		base := r3vec{fx + 0.5, 0, fz + 0.5}
-		const bw, bh = 0.45, 1.0
+		const bw = 0.45
+		const bh = BillboardHeight
 		b0 := r3add(base, r3scale(right, -bw))
 		b1 := r3add(base, r3scale(right, bw))
 		top := r3vec{0, bh, 0}
