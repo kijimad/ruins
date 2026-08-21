@@ -2,7 +2,7 @@
 # base #
 ########
 
-FROM golang:1.26-bookworm AS base
+FROM golang:1.27-bookworm AS base
 RUN apt update && apt install -y \
     gcc \
     libc6-dev \

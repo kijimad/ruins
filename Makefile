@@ -53,7 +53,7 @@ build-steam: ## Steam向けビルドする
 .PHONY: fmt
 fmt: ## フォーマットする
 	go tool goimports -w .
-	go fix ./...
+	go fix -embedlit=false ./...
 	npx @taplo/cli format
 
 .PHONY: lint
@@ -77,7 +77,7 @@ aseprite: ## asepriteでパッキングする。画像の変更を反映した�
 .PHONY: toolsinstall
 toolsinstall: ## 開発ツールをインストールする
 	# golangci-lint は依存が巨大でアプリの依存グラフを汚すため tool 化せず版固定でインストールする。
-	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.3
+	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.1
 	@sudo apt-get install -y bubblewrap
 	@npm install
 	@./scripts/setup-hooks.sh

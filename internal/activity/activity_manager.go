@@ -35,8 +35,7 @@ func Execute(comp *gc.Activity, actor ecs.Entity, world w.World) (*ActionResult,
 
 	// アクティビティを開始
 	if err := StartActivity(comp, actor, world); err != nil {
-		var ve *UserError
-		if errors.As(err, &ve) {
+		if ve, ok := errors.AsType[*UserError](err); ok {
 			// ユーザ起因の失敗はここで gamelog へ出し、err=nil で閉じる
 			gamelog.New(query.GetGameLog(world)).Markup(ve.Msg).Log()
 			result := &ActionResult{
