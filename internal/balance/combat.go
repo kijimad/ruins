@@ -104,8 +104,8 @@ func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, err
 		Dexterity: abils.Dexterity.Base,
 		Agility:   abils.Agility.Base,
 		Defense:   abils.Defense.Base,
-
-		HP: formula.CalcHP(abils.Vitality.Base, abils.Strength.Base, abils.Sensation.Base)}
+	}
+	stats.HP = formula.CalcHP(abils.Vitality.Base, abils.Strength.Base, abils.Sensation.Base)
 
 	return stats, nil
 }

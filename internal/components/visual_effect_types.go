@@ -47,17 +47,21 @@ func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *
 	totalMs := fadeInMs + holdMs + fadeOutMs
 
 	return &SplashTextEffect{
-		FadeInMs:    fadeInMs,
-		HoldMs:      holdMs,
-		FadeOutMs:   fadeOutMs,
-		TotalMs:     totalMs,
-		RemainingMs: totalMs,
-		Alpha:       0.0,
-		Offset:      consts.Coord[float64]{X: float64(screenW) / 2, Y: float64(screenH) * 2 / 5},
-		Text:        textStr,
-		Color:       color.RGBA{255, 255, 255, 255},
-		Face:        face,
-		LineWidth:   float64(screenW) * 0.7,
+		FadeAnimation: FadeAnimation{
+			FadeInMs:    fadeInMs,
+			HoldMs:      holdMs,
+			FadeOutMs:   fadeOutMs,
+			TotalMs:     totalMs,
+			RemainingMs: totalMs,
+			Alpha:       0.0,
+		},
+		TextProperties: TextProperties{
+			Offset: consts.Coord[float64]{X: float64(screenW) / 2, Y: float64(screenH) * 2 / 5},
+			Text:   textStr,
+			Color:  color.RGBA{255, 255, 255, 255},
+		},
+		Face:      face,
+		LineWidth: float64(screenW) * 0.7,
 	}
 }
 
@@ -65,16 +69,20 @@ func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *
 func NewDamageEffect(damage int) *DamageTextEffect {
 	totalMs := 800.0
 	return &DamageTextEffect{
-		FadeInMs:    100,
-		HoldMs:      500,
-		FadeOutMs:   200,
-		TotalMs:     totalMs,
-		RemainingMs: totalMs,
-		Alpha:       0.0,
-		Offset:      consts.Coord[float64]{X: 0, Y: -8},
-		Text:        fmt.Sprintf("%d", damage),
-		Color:       color.RGBA{255, 80, 80, 255},
-		VelocityY:   -0.5,
+		FadeAnimation: FadeAnimation{
+			FadeInMs:    100,
+			HoldMs:      500,
+			FadeOutMs:   200,
+			TotalMs:     totalMs,
+			RemainingMs: totalMs,
+			Alpha:       0.0,
+		},
+		TextProperties: TextProperties{
+			Offset: consts.Coord[float64]{X: 0, Y: -8},
+			Text:   fmt.Sprintf("%d", damage),
+			Color:  color.RGBA{255, 80, 80, 255},
+		},
+		VelocityY: -0.5,
 	}
 }
 
@@ -82,16 +90,20 @@ func NewDamageEffect(damage int) *DamageTextEffect {
 func NewMissEffect() *DamageTextEffect {
 	totalMs := 600.0
 	return &DamageTextEffect{
-		FadeInMs:    50,
-		HoldMs:      400,
-		FadeOutMs:   150,
-		TotalMs:     totalMs,
-		RemainingMs: totalMs,
-		Alpha:       0.0,
-		Offset:      consts.Coord[float64]{X: 0, Y: -8},
-		Text:        "MISS",
-		Color:       color.RGBA{180, 180, 180, 255},
-		VelocityY:   -0.3,
+		FadeAnimation: FadeAnimation{
+			FadeInMs:    50,
+			HoldMs:      400,
+			FadeOutMs:   150,
+			TotalMs:     totalMs,
+			RemainingMs: totalMs,
+			Alpha:       0.0,
+		},
+		TextProperties: TextProperties{
+			Offset: consts.Coord[float64]{X: 0, Y: -8},
+			Text:   "MISS",
+			Color:  color.RGBA{180, 180, 180, 255},
+		},
+		VelocityY: -0.3,
 	}
 }
 
@@ -99,16 +111,20 @@ func NewMissEffect() *DamageTextEffect {
 func NewHealEffect(amount int) *DamageTextEffect {
 	totalMs := 800.0
 	return &DamageTextEffect{
-		FadeInMs:    100,
-		HoldMs:      500,
-		FadeOutMs:   200,
-		TotalMs:     totalMs,
-		RemainingMs: totalMs,
-		Alpha:       0.0,
-		Offset:      consts.Coord[float64]{X: 0, Y: -8},
-		Text:        fmt.Sprintf("+%d", amount),
-		Color:       color.RGBA{80, 255, 80, 255},
-		VelocityY:   -0.5,
+		FadeAnimation: FadeAnimation{
+			FadeInMs:    100,
+			HoldMs:      500,
+			FadeOutMs:   200,
+			TotalMs:     totalMs,
+			RemainingMs: totalMs,
+			Alpha:       0.0,
+		},
+		TextProperties: TextProperties{
+			Offset: consts.Coord[float64]{X: 0, Y: -8},
+			Text:   fmt.Sprintf("+%d", amount),
+			Color:  color.RGBA{80, 255, 80, 255},
+		},
+		VelocityY: -0.5,
 	}
 }
 
@@ -116,12 +132,14 @@ func NewHealEffect(amount int) *DamageTextEffect {
 func NewSpriteFadeoutEffect(spriteSheetName, spriteKey string) *SpriteFadeoutEffect {
 	totalMs := 400.0
 	return &SpriteFadeoutEffect{
-		FadeInMs:        0,
-		HoldMs:          100,
-		FadeOutMs:       300,
-		TotalMs:         totalMs,
-		RemainingMs:     totalMs,
-		Alpha:           1.0,
+		FadeAnimation: FadeAnimation{
+			FadeInMs:    0,
+			HoldMs:      100,
+			FadeOutMs:   300,
+			TotalMs:     totalMs,
+			RemainingMs: totalMs,
+			Alpha:       1.0,
+		},
 		SpriteSheetName: spriteSheetName,
 		SpriteKey:       spriteKey,
 	}

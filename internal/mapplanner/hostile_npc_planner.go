@@ -105,8 +105,8 @@ func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, entries []Sp
 			continue
 		}
 		planData.NPCs = append(planData.NPCs, NPCSpec{
-			X: anchorX, Y: anchorY,
-			Name: entry.Name,
+			Coord: consts.Coord[consts.Tile]{X: anchorX, Y: anchorY},
+			Name:  entry.Name,
 		})
 		placed++
 		failCount = 0
@@ -119,8 +119,8 @@ func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, entries []Sp
 				break
 			}
 			planData.NPCs = append(planData.NPCs, NPCSpec{
-				X: tx, Y: ty,
-				Name: entry.Name,
+				Coord: consts.Coord[consts.Tile]{X: tx, Y: ty},
+				Name:  entry.Name,
 			})
 			placed++
 			failCount = 0
@@ -154,8 +154,8 @@ func (n *HostileNPCPlanner) planWithRandomPosition(planData *MetaPlan, entries [
 		}
 
 		planData.NPCs = append(planData.NPCs, NPCSpec{
-			X: tx, Y: ty,
-			Name: entry.Name,
+			Coord: consts.Coord[consts.Tile]{X: tx, Y: ty},
+			Name:  entry.Name,
 		})
 		placed++
 	}

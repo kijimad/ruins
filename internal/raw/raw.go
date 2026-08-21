@@ -221,10 +221,10 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		return gc.EntitySpec{}, err
 	}
 
-	entitySpec := gc.EntitySpec{
-		Name:        &gc.Name{Name: item.Name},
-		RawID:       &gc.RawID{ID: item.Id},
-		Description: &gc.Description{Description: item.Description}}
+	entitySpec := gc.EntitySpec{}
+	entitySpec.Name = &gc.Name{Name: item.Name}
+	entitySpec.RawID = &gc.RawID{ID: item.Id}
+	entitySpec.Description = &gc.Description{Description: item.Description}
 
 	// デフォルト値設定
 	spriteSheetName := item.SpriteSheetName
@@ -349,9 +349,9 @@ func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "Recipes")
 	}
 
-	entitySpec := gc.EntitySpec{
-		Name:   &gc.Name{Name: recipe.Name},
-		Recipe: &gc.Recipe{}}
+	entitySpec := gc.EntitySpec{}
+	entitySpec.Name = &gc.Name{Name: recipe.Name}
+	entitySpec.Recipe = &gc.Recipe{}
 	for _, input := range recipe.Inputs {
 		entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{ID: input.Id, Amount: input.Amount})
 	}
@@ -411,26 +411,26 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		return gc.EntitySpec{}, fmt.Errorf("key does not exist: %s", name)
 	}
 
-	entitySpec := gc.EntitySpec{
-		Name:      &gc.Name{Name: member.Name},
-		RawID:     &gc.RawID{ID: member.Id},
-		TurnBased: &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}}, // TODO: Abilitiesから計算する
-		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: member.SpriteSheetName,
-			SpriteKey:       member.SpriteKey,
-			AnimKeys:        PtrSlice(member.AnimKeys),
-			Depth:           gc.DepthNumPlayer,
-		},
-		Abilities: &gc.Abilities{
-			Vitality:  gc.Ability{Base: member.Abilities.Vitality},
-			Strength:  gc.Ability{Base: member.Abilities.Strength},
-			Sensation: gc.Ability{Base: member.Abilities.Sensation},
-			Dexterity: gc.Ability{Base: member.Abilities.Dexterity},
-			Agility:   gc.Ability{Base: member.Abilities.Agility},
-			Defense:   gc.Ability{Base: member.Abilities.Defense},
-		},
-		HP:             &gc.HP{},
-		WeightCapacity: &gc.WeightCapacity{}}
+	entitySpec := gc.EntitySpec{}
+	entitySpec.Name = &gc.Name{Name: member.Name}
+	entitySpec.RawID = &gc.RawID{ID: member.Id}
+	entitySpec.TurnBased = &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
+	entitySpec.SpriteRender = &gc.SpriteRender{
+		SpriteSheetName: member.SpriteSheetName,
+		SpriteKey:       member.SpriteKey,
+		AnimKeys:        PtrSlice(member.AnimKeys),
+		Depth:           gc.DepthNumPlayer,
+	}
+	entitySpec.Abilities = &gc.Abilities{
+		Vitality:  gc.Ability{Base: member.Abilities.Vitality},
+		Strength:  gc.Ability{Base: member.Abilities.Strength},
+		Sensation: gc.Ability{Base: member.Abilities.Sensation},
+		Dexterity: gc.Ability{Base: member.Abilities.Dexterity},
+		Agility:   gc.Ability{Base: member.Abilities.Agility},
+		Defense:   gc.Ability{Base: member.Abilities.Defense},
+	}
+	entitySpec.HP = &gc.HP{}
+	entitySpec.WeightCapacity = &gc.WeightCapacity{}
 	// 体重は能力値の体格から算出する。売買や運搬で member 自身の重量として扱う
 	entitySpec.Weight = &gc.Weight{Milligram: entitySpec.Abilities.BodyWeight()}
 	if member.Player != nil && *member.Player {
@@ -597,11 +597,11 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 		return gc.EntitySpec{}, err
 	}
 
-	entitySpec := gc.EntitySpec{
-		Name:        &gc.Name{Name: tileRaw.Name},
-		RawID:       &gc.RawID{ID: tileRaw.Id},
-		Description: &gc.Description{Description: tileRaw.Description},
-		GridElement: &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}}
+	entitySpec := gc.EntitySpec{}
+	entitySpec.Name = &gc.Name{Name: tileRaw.Name}
+	entitySpec.RawID = &gc.RawID{ID: tileRaw.Id}
+	entitySpec.Description = &gc.Description{Description: tileRaw.Description}
+	entitySpec.GridElement = &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}}
 
 	// SpriteRenderを設定
 	sprite := toGCSpriteRender(tileRaw.SpriteRender)
@@ -645,11 +645,11 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		return gc.EntitySpec{}, err
 	}
 
-	entitySpec := gc.EntitySpec{
-		Fixed:       &gc.Fixed{},
-		Name:        &gc.Name{Name: propRaw.Name},
-		RawID:       &gc.RawID{ID: propRaw.Id},
-		Description: &gc.Description{Description: propRaw.Description}}
+	entitySpec := gc.EntitySpec{}
+	entitySpec.Fixed = &gc.Fixed{}
+	entitySpec.Name = &gc.Name{Name: propRaw.Name}
+	entitySpec.RawID = &gc.RawID{ID: propRaw.Id}
+	entitySpec.Description = &gc.Description{Description: propRaw.Description}
 
 	// SpriteRenderの設定（AnimKeysを含む）
 	spriteRender := toGCSpriteRender(propRaw.SpriteRender)

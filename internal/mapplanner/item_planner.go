@@ -108,7 +108,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		// 最初のアイテムをアンカーに配置
 		first := items[0]
 		planData.Items = append(planData.Items, ItemSpec{
-			X: anchorX, Y: anchorY,
+			Coord: consts.Coord[consts.Tile]{X: anchorX, Y: anchorY},
 			Name:  first.Name,
 			Count: first.Count,
 		})
@@ -129,7 +129,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 				break
 			}
 			planData.Items = append(planData.Items, ItemSpec{
-				X: nx, Y: ny,
+				Coord: consts.Coord[consts.Tile]{X: nx, Y: ny},
 				Name:  items[idx].Name,
 				Count: items[idx].Count,
 			})
