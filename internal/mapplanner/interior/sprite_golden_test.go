@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"
@@ -151,7 +150,7 @@ func TestGolden_BuildingHouse(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0} // 北壁の入口
-	g := goldie.New(t, goldie.WithNameSuffix(".png"), goldie.WithEqualFn(testutil.PNGPixelEqual))
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
 		return FurnishBuilding(seed, footprint, door, facHouse)
 	}))
@@ -165,7 +164,7 @@ func TestGolden_BuildingStore(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
-	g := goldie.New(t, goldie.WithNameSuffix(".png"), goldie.WithEqualFn(testutil.PNGPixelEqual))
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
 		return FurnishBuilding(seed, footprint, door, "store")
 	}))
@@ -178,7 +177,7 @@ func TestGolden_BuildingClinic(t *testing.T) {
 
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
-	g := goldie.New(t, goldie.WithNameSuffix(".png"), goldie.WithEqualFn(testutil.PNGPixelEqual))
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
 		return FurnishBuilding(seed, footprint, door, facClinic)
 	}))
@@ -197,7 +196,7 @@ func TestGolden_StagesHouse(t *testing.T) {
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
 	site, stages := FurnishStages(1, footprint, door, facHouse)
-	g := goldie.New(t, goldie.WithNameSuffix(".png"), goldie.WithEqualFn(testutil.PNGPixelEqual))
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
 }
 
@@ -209,7 +208,7 @@ func TestGolden_StagesStore(t *testing.T) {
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
 	site, stages := FurnishStages(1, footprint, door, "store")
-	g := goldie.New(t, goldie.WithNameSuffix(".png"), goldie.WithEqualFn(testutil.PNGPixelEqual))
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
 }
 
@@ -220,7 +219,7 @@ func TestGolden_StagesClinic(t *testing.T) {
 	footprint := Rect{X: 0, Y: 0, W: prodFootprint, H: prodFootprint}
 	door := Vec{X: prodFootprint / 2, Y: 0}
 	site, stages := FurnishStages(1, footprint, door, facClinic)
-	g := goldie.New(t, goldie.WithNameSuffix(".png"), goldie.WithEqualFn(testutil.PNGPixelEqual))
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordStages(t, site, stages))
 }
 
@@ -282,7 +281,7 @@ func TestGolden_RoomFlavor(t *testing.T) {
 // 単室は敷地計画を持たないので庭・ポーチの無い素の Site に包む。
 func assertRoomGolden(t *testing.T, room Room, role roleName, fill func(seed uint64) []Placed) {
 	t.Helper()
-	g := goldie.New(t, goldie.WithFixtureDir(roomFixtureDir), goldie.WithNameSuffix(".png"), goldie.WithEqualFn(testutil.PNGPixelEqual))
+	g := goldie.New(t, goldie.WithFixtureDir(roomFixtureDir), goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), recordSeeds(t, func(seed uint64) (Site, []Placed) {
 		return singleRoomSite(room, role), fill(seed)
 	}))

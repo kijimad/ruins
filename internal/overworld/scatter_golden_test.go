@@ -49,7 +49,7 @@ func TestGolden_Scatter(t *testing.T) {
 	var buf bytes.Buffer
 	require.NoError(t, png.Encode(&buf, img))
 
-	g := goldie.New(t, goldie.WithNameSuffix(".png"), goldie.WithEqualFn(testutil.PNGPixelEqual))
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), buf.Bytes())
 }
 

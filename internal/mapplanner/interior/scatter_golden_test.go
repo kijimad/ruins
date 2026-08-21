@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/sebdah/goldie/v2"
 )
 
@@ -35,7 +34,7 @@ func TestGolden_ScatterArea(t *testing.T) {
 	}
 	labels := []string{"all n=90", "all n=300", "all n=630", "parity n=300"}
 
-	g := goldie.New(t, goldie.WithNameSuffix(".png"), goldie.WithEqualFn(testutil.PNGPixelEqual))
+	g := goldie.New(t, goldie.WithNameSuffix(".png"))
 	g.Assert(t, t.Name(), montage(t, int(area.W)*scatterDotPx, int(area.H)*scatterDotPx, 2, labels, panels))
 }
 
