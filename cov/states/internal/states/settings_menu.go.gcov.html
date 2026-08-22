@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -239,8 +239,8 @@
 <span id="L177"><span class="lineNum">     177</span>              : // UserSettings は world 初期化で常に登録されるため nil を想定しない。Fetch も同じ前提で読む。</span>
 <span id="L178"><span class="lineNum">     178</span>              : func applyLanguage(world w.World, code string) {</span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         query.GetUserSettings(world).Language = code</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         world.Config.User.Language = code</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         if err := world.Config.SaveUserConfig(); err != nil {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         world.Resources.Config.User.Language = code</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         if err := world.Resources.Config.SaveUserConfig(); err != nil {</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC tlaBgUNC">           0 :                 logger.New(logger.CategorySave).Warn(&quot;failed to save language setting&quot;, &quot;error&quot;, err)</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L184"><span class="lineNum">     184</span>              : }</span>

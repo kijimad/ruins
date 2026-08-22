@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,65 +65,67 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              : )</span>
-<span id="L11"><span class="lineNum">      11</span>              : </span>
-<span id="L12"><span class="lineNum">      12</span>              : // Resources はゲーム固有のリソース管理を担当する</span>
-<span id="L13"><span class="lineNum">      13</span>              : // engine/resources.ResourceProviderインターフェースを実装する</span>
-<span id="L14"><span class="lineNum">      14</span>              : // 初期化時のみセットされ、あとから変更はされない</span>
-<span id="L15"><span class="lineNum">      15</span>              : type Resources struct {</span>
-<span id="L16"><span class="lineNum">      16</span>              :         ScreenDimensions ScreenDimensions</span>
-<span id="L17"><span class="lineNum">      17</span>              :         SpriteSheets     map[string]components.SpriteSheet</span>
-<span id="L18"><span class="lineNum">      18</span>              :         Fonts            map[string]Font</span>
-<span id="L19"><span class="lineNum">      19</span>              :         Faces            map[string]text.Face</span>
-<span id="L20"><span class="lineNum">      20</span>              :         UIResources      UIResources</span>
-<span id="L21"><span class="lineNum">      21</span>              :         RawMaster        oapi.Raws</span>
-<span id="L22"><span class="lineNum">      22</span>              :         I18N             i18n.Catalog // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く</span>
-<span id="L23"><span class="lineNum">      23</span>              :         SingletonEntity  ecs.Entity   // シングルトンエンティティIDキャッシュ</span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              :         // InputSource は Action の入力供給源。nil なら本番どおりキーボードから変換する。</span>
-<span id="L26"><span class="lineNum">      26</span>              :         // 再生ドライバだけが Action 列を返す供給源を差し、キー入力を経由せず本番フローを駆動する。</span>
-<span id="L27"><span class="lineNum">      27</span>              :         // world 単位で持つことでグローバル可変状態を作らず、押し込んだ先の state にも同じ源が効く</span>
-<span id="L28"><span class="lineNum">      28</span>              :         InputSource inputmapper.Source</span>
-<span id="L29"><span class="lineNum">      29</span>              : }</span>
-<span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span>              : // ScreenDimensions contains current screen dimensions</span>
-<span id="L32"><span class="lineNum">      32</span>              : type ScreenDimensions struct {</span>
-<span id="L33"><span class="lineNum">      33</span>              :         Width  int</span>
-<span id="L34"><span class="lineNum">      34</span>              :         Height int</span>
-<span id="L35"><span class="lineNum">      35</span>              : }</span>
-<span id="L36"><span class="lineNum">      36</span>              : </span>
-<span id="L37"><span class="lineNum">      37</span>              : // GetScreenDimensions はスクリーン寸法を取得する</span>
-<span id="L38"><span class="lineNum">      38</span>              : func (r *Resources) GetScreenDimensions() (width, height int) {</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC tlaBgGNC">           1 :         return r.ScreenDimensions.Width, r.ScreenDimensions.Height</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span>              : // SetScreenDimensions はスクリーン寸法を設定する</span>
-<span id="L43"><span class="lineNum">      43</span>              : func (r *Resources) SetScreenDimensions(width, height int) {</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         r.ScreenDimensions.Width = width</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         r.ScreenDimensions.Height = height</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L47"><span class="lineNum">      47</span>              : </span>
-<span id="L48"><span class="lineNum">      48</span>              : // InitializeResources は engine/resources.ResourceInitializer インターフェースを実装する</span>
-<span id="L49"><span class="lineNum">      49</span>              : func (r *Resources) InitializeResources() error {</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         *r = *InitGameResources()</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L53"><span class="lineNum">      53</span>              : </span>
-<span id="L54"><span class="lineNum">      54</span>              : // InitGameResources はゲームリソースを初期化する</span>
-<span id="L55"><span class="lineNum">      55</span>              : func InitGameResources() *Resources {</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return &amp;Resources{</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 SpriteSheets: map[string]components.SpriteSheet{},</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 Fonts:        map[string]Font{},</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 Faces:        map[string]text.Face{},</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 UIResources:  UIResources{},</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 // 全言語の訳を持つ不変マスタを常に持たせる。どのワールドでも res.I18N が非 nil になる。</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 I18N: i18n.NewCatalog(),</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L64"><span class="lineNum">      64</span>              : }</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/config&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/i18n&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              : )</span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              : // Resources はゲーム固有のリソース管理を担当する</span>
+<span id="L14"><span class="lineNum">      14</span>              : // engine/resources.ResourceProviderインターフェースを実装する</span>
+<span id="L15"><span class="lineNum">      15</span>              : // 初期化時のみセットされ、あとから変更はされない</span>
+<span id="L16"><span class="lineNum">      16</span>              : type Resources struct {</span>
+<span id="L17"><span class="lineNum">      17</span>              :         ScreenDimensions ScreenDimensions</span>
+<span id="L18"><span class="lineNum">      18</span>              :         SpriteSheets     map[string]components.SpriteSheet</span>
+<span id="L19"><span class="lineNum">      19</span>              :         Fonts            map[string]Font</span>
+<span id="L20"><span class="lineNum">      20</span>              :         Faces            map[string]text.Face</span>
+<span id="L21"><span class="lineNum">      21</span>              :         UIResources      UIResources</span>
+<span id="L22"><span class="lineNum">      22</span>              :         RawMaster        oapi.Raws</span>
+<span id="L23"><span class="lineNum">      23</span>              :         I18N             i18n.Catalog   // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く</span>
+<span id="L24"><span class="lineNum">      24</span>              :         Config           *config.Config // 実行設定。起動時に注入する</span>
+<span id="L25"><span class="lineNum">      25</span>              :         SingletonEntity  ecs.Entity     // シングルトンエンティティIDキャッシュ</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              :         // InputSource は Action の入力供給源。nil なら本番どおりキーボードから変換する。</span>
+<span id="L28"><span class="lineNum">      28</span>              :         // 再生ドライバだけが Action 列を返す供給源を差し、キー入力を経由せず本番フローを駆動する。</span>
+<span id="L29"><span class="lineNum">      29</span>              :         // world 単位で持つことでグローバル可変状態を作らず、押し込んだ先の state にも同じ源が効く</span>
+<span id="L30"><span class="lineNum">      30</span>              :         InputSource inputmapper.Source</span>
+<span id="L31"><span class="lineNum">      31</span>              : }</span>
+<span id="L32"><span class="lineNum">      32</span>              : </span>
+<span id="L33"><span class="lineNum">      33</span>              : // ScreenDimensions contains current screen dimensions</span>
+<span id="L34"><span class="lineNum">      34</span>              : type ScreenDimensions struct {</span>
+<span id="L35"><span class="lineNum">      35</span>              :         Width  int</span>
+<span id="L36"><span class="lineNum">      36</span>              :         Height int</span>
+<span id="L37"><span class="lineNum">      37</span>              : }</span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : // GetScreenDimensions はスクリーン寸法を取得する</span>
+<span id="L40"><span class="lineNum">      40</span>              : func (r *Resources) GetScreenDimensions() (width, height int) {</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 :         return r.ScreenDimensions.Width, r.ScreenDimensions.Height</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : // SetScreenDimensions はスクリーン寸法を設定する</span>
+<span id="L45"><span class="lineNum">      45</span>              : func (r *Resources) SetScreenDimensions(width, height int) {</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         r.ScreenDimensions.Width = width</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         r.ScreenDimensions.Height = height</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L49"><span class="lineNum">      49</span>              : </span>
+<span id="L50"><span class="lineNum">      50</span>              : // InitializeResources は engine/resources.ResourceInitializer インターフェースを実装する</span>
+<span id="L51"><span class="lineNum">      51</span>              : func (r *Resources) InitializeResources() error {</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         *r = *InitGameResources()</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : </span>
+<span id="L56"><span class="lineNum">      56</span>              : // InitGameResources はゲームリソースを初期化する</span>
+<span id="L57"><span class="lineNum">      57</span>              : func InitGameResources() *Resources {</span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         return &amp;Resources{</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 SpriteSheets: map[string]components.SpriteSheet{},</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 Fonts:        map[string]Font{},</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 Faces:        map[string]text.Face{},</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 UIResources:  UIResources{},</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 // 全言語の訳を持つ不変マスタを常に持たせる。どのワールドでも res.I18N が非 nil になる。</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 I18N: i18n.NewCatalog(),</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
         </pre>
               </td>
             </tr>

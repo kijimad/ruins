@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -190,7 +190,7 @@
 <span id="L128"><span class="lineNum">     128</span>              :         // 商人は品揃えを在庫として持つ。生成経路に依らずここで積むことで、集落でも街マップの</span>
 <span id="L129"><span class="lineNum">     129</span>              :         // マッププランナ経由でも同じ在庫を持たせる。売買と雇用はこの在庫を出し入れする</span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC tlaBgGNC">           1 :         if name == &quot;merchant&quot; {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 if err := PopulateMerchantStock(world, npcEntity, world.Config.RNG); err != nil {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 if err := PopulateMerchantStock(world, npcEntity, world.Resources.Config.RNG); err != nil {</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC tlaBgUNC">           0 :                         return gc.InvalidEntity, fmt.Errorf(&quot;failed to stock merchant: %w&quot;, err)</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L134"><span class="lineNum">     134</span>              :         }</span>

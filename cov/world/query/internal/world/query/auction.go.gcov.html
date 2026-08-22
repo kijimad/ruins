@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -88,14 +88,14 @@
 <span id="L26"><span class="lineNum">      26</span>              : // AuctionOpeningBid は開始入札額を返す。基準価値に分散を掛けた控えめな額から競売が始まる。</span>
 <span id="L27"><span class="lineNum">      27</span>              : func AuctionOpeningBid(world w.World, item ecs.Entity) consts.Currency {</span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :         base := GetItemValue(world, item)</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         variance := 0.8 + world.Config.RNG.Float64()*0.4</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         variance := 0.8 + world.Resources.Config.RNG.Float64()*0.4</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         return consts.Currency(float64(base) * auctionOpeningMult * variance)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L32"><span class="lineNum">      32</span>              : </span>
 <span id="L33"><span class="lineNum">      33</span>              : // AuctionRaise は1回の入札での上げ幅を返す。入札が来るたびこの額だけ現在値が上がる。</span>
 <span id="L34"><span class="lineNum">      34</span>              : func AuctionRaise(world w.World, item ecs.Entity) consts.Currency {</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         base := GetItemValue(world, item)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         variance := 0.8 + world.Config.RNG.Float64()*0.4</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         variance := 0.8 + world.Resources.Config.RNG.Float64()*0.4</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         raise := max(consts.Currency(float64(base)*auctionRaiseMult*variance), 1)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         return raise</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : }</span></span>

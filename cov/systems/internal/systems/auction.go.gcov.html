@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -194,7 +194,7 @@
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC tlaBgGNC">           1 :         l.LastTurn = now</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L134"><span class="lineNum">     134</span>              :         // 入札が来る限り延長する。来たら現在値を上げる</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         if world.Config.RNG.Float64() &lt; query.AuctionBidChance {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance {</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 l.CurrentBid += query.AuctionRaise(world, item)</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         }</span></span>

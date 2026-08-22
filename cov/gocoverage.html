@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.1%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -709,7 +709,7 @@
 				
 				<option value="file326">github.com/kijimaD/ruins/internal/world/stage/stage.go (100.0%)</option>
 				
-				<option value="file327">github.com/kijimaD/ruins/internal/world/world.go (97.7%)</option>
+				<option value="file327">github.com/kijimaD/ruins/internal/world/world.go (98.0%)</option>
 				
 				<option value="file328">github.com/kijimaD/ruins/internal/worldstream/band.go (91.0%)</option>
 				
@@ -1608,7 +1608,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1622,7 +1622,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 </span>
         // 被ダメージで中断可能なアクティビティをキャンセルする
         <span class="cov8" title="1">if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span>{
-                <span class="cov8" title="1">CancelActivity(target, "took an attack", world)
+                <span class="cov0" title="0">CancelActivity(target, "took an attack", world)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -1661,7 +1661,7 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 func rollHitCheckWithModifier(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) (hit bool, critical bool) {
         <span class="cov8" title="1">hitRate := calculateHitRate(attacker, target, world, attack, modifier)
 </span>
-        <span class="cov8" title="1">roll := world.Config.RNG.IntN(formula.DiceMax) + 1
+        <span class="cov8" title="1">roll := world.Resources.Config.RNG.IntN(formula.DiceMax) + 1
         hit = roll &lt;= hitRate
         critical = roll &lt;= formula.CriticalHitThreshold
 </span>
@@ -1691,14 +1691,14 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
                 targetDefense = targetAbilsComp.Defense.Total
 </span>        }
 
-        <span class="cov8" title="1">baseDamage := baseAbil + world.Config.RNG.IntN(formula.DamageRandomRange) + 1
+        <span class="cov8" title="1">baseDamage := baseAbil + world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1
         baseDamage += attack.GetDamage()
         baseDamage += damageModifier
 </span>
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
@@ -1945,7 +1945,7 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 </span>        }
 
         <span class="cov8" title="1">name := query.GetEntityName(target, world)
-        stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)
+        stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to roll disassembly yields: %w", err)
 </span>        }
@@ -15627,7 +15627,7 @@ type MainGame struct {
 func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {
         // フィルタを切ったときはシェーダを組み立てず、素通しのパイプラインにする
         <span class="cov0" title="0">var filters []screeneffect.Filter
-        if !world.Config.DisableScreenFilter </span>{
+        if !world.Resources.Config.DisableScreenFilter </span>{
                 <span class="cov0" title="0">retroFilter, err := screeneffect.NewRetroFilter()
                 if err != nil </span>{
                         <span class="cov0" title="0">return nil, fmt.Errorf("failed to initialize retro filter: %w", err)
@@ -15654,7 +15654,7 @@ func (game *MainGame) Update() error {
         // デバッグ表示をトグルする
         <span class="cov8" title="1">if ebiten.IsKeyPressed(ebiten.KeyShift) &amp;&amp; inpututil.IsKeyJustPressed(ebiten.KeyTab) </span>{
                 // パフォーマンスモニターは攻略に関係ないのでトグルできてよい
-                <span class="cov0" title="0">game.World.Config.ShowMonitor = !game.World.Config.ShowMonitor
+                <span class="cov0" title="0">game.World.Resources.Config.ShowMonitor = !game.World.Resources.Config.ShowMonitor
 </span>        }
 
         <span class="cov8" title="1">if err := game.StateMachine.Update(game.World); err != nil </span>{
@@ -15675,7 +15675,7 @@ func (game *MainGame) Draw(screen *ebiten.Image) {
         <span class="cov8" title="1">game.renderer.Draw(screen, game.StateMachine.GetStates(), game.World)
 </span>
         // パフォーマンスモニターは最前面のデバッグ表示なので、ポスト処理の外で screen へ直に描く。
-        <span class="cov8" title="1">if game.World.Config.ShowMonitor </span>{
+        <span class="cov8" title="1">if game.World.Resources.Config.ShowMonitor </span>{
                 <span class="cov0" title="0">ebitenutil.DebugPrint(screen, getPerformanceInfo())
 </span>        }
 }
@@ -37208,6 +37208,7 @@ func loadImageNineSlice(path string, centerWidth int, centerHeight int) (*image.
 import (
         "github.com/hajimehoshi/ebiten/v2/text/v2"
         "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/config"
         "github.com/kijimaD/ruins/internal/i18n"
         "github.com/kijimaD/ruins/internal/inputmapper"
         "github.com/kijimaD/ruins/internal/oapi"
@@ -37224,8 +37225,9 @@ type Resources struct {
         Faces            map[string]text.Face
         UIResources      UIResources
         RawMaster        oapi.Raws
-        I18N             i18n.Catalog // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
-        SingletonEntity  ecs.Entity   // シングルトンエンティティIDキャッシュ
+        I18N             i18n.Catalog   // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
+        Config           *config.Config // 実行設定。起動時に注入する
+        SingletonEntity  ecs.Entity     // シングルトンエンティティIDキャッシュ
 
         // InputSource は Action の入力供給源。nil なら本番どおりキーボードから変換する。
         // 再生ドライバだけが Action 列を返す供給源を差し、キー入力を経由せず本番フローを駆動する。
@@ -38421,7 +38423,7 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
         // 先に probe を通し、成功したときだけ本番ワールドへ適用することで、ロード失敗時も
         // 本番ワールドを無傷で残し、呼び出し側がアプリを継続できるようにする。
         // 復元を2回走らせるコストは、ロードがゲーム開始時の1回きりの操作なので許容する。
-        <span class="cov8" title="1">probe, err := w.InitWorld(&amp;gc.Components{}, world.Config)
+        <span class="cov8" title="1">probe, err := w.InitWorld(&amp;gc.Components{}, world.Resources.Config)
         if err != nil </span>{
                 <span class="cov0" title="0">return fmt.Errorf("failed to create probe world: %w", err)
 </span>        }
@@ -38688,7 +38690,7 @@ func reestablishSingleton(world w.World) error {
 </span>        // 視界計算の一時状態は serde 除外なのでロード後に再構築する
         <span class="cov8" title="1">world.Components.VisionState.Add(singleton, gc.NewVisionState())
 </span>        // グローバル設定は serde 除外なので config から再構築する
-        <span class="cov8" title="1">world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Config.User.Language))
+        <span class="cov8" title="1">world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 </span>
         // json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
         // ロック中の反復では構造変更しないため、対象を集めてから初期化する
@@ -40540,7 +40542,7 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
         }
 
         // 入力処理
-        <span class="cov8" title="1">if action, ok := st.HandleInput(world.Config); ok </span>{
+        <span class="cov8" title="1">if action, ok := st.HandleInput(world.Resources.Config); ok </span>{
                 <span class="cov0" title="0">if transition, err := st.DoAction(world, action); err != nil </span>{
                         <span class="cov0" title="0">return es.Transition[w.World]{}, err
 </span>                } else <span class="cov0" title="0">if transition.Type != es.TransNone </span>{
@@ -41957,9 +41959,9 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) </span>{ <span class="cov0" title="0">return NewMessageState(md) }</span>}}, nil
                 }},
                 Choice{Label: "Toggle debug display", Run: popAfter(func(world w.World) error {
-                        <span class="cov0" title="0">world.Config.ShowMapDebug = !world.Config.ShowMapDebug
-                        world.Config.ShowAIDebug = !world.Config.ShowAIDebug
-                        world.Config.NoEncounter = !world.Config.NoEncounter
+                        <span class="cov0" title="0">world.Resources.Config.ShowMapDebug = !world.Resources.Config.ShowMapDebug
+                        world.Resources.Config.ShowAIDebug = !world.Resources.Config.ShowAIDebug
+                        world.Resources.Config.NoEncounter = !world.Resources.Config.NoEncounter
                         return nil
 </span>                })},
                 Choice{Label: "Advance time of day", Run: popAfter(func(world w.World) error {
@@ -42645,7 +42647,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
         <span class="cov8" title="1">var zero consts.Coord[consts.Tile]
         var noEntity ecs.Entity
 </span>
-        <span class="cov8" title="1">stageSeed := world.Config.RNG.Uint64()
+        <span class="cov8" title="1">stageSeed := world.Resources.Config.RNG.Uint64()
         stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
 </span>
         // ビルダータイプを決定する。最終階層かつボスフロアプランナーがあればボスフロアにする
@@ -42819,7 +42821,7 @@ func exitCube(world w.World) error {
 // だが、spawn_points を持つので Plan の到達性検証はポータルを要求せず通る。
 // 出口の戻り先 Coord の結線は入場時の runtime 処理なので enterCube が貼る。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
-        <span class="cov8" title="1">seed := world.Config.RNG.Uint64()
+        <span class="cov8" title="1">seed := world.Resources.Config.RNG.Uint64()
         plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, mapplanner.PlannerTypeCubeInterior)
         if err != nil </span>{
                 <span class="cov0" title="0">return err
@@ -43103,7 +43105,7 @@ var (
 // readAction は1フレームのダンジョン操作を Action として読む。供給源があればそこから読み、
 // 再生ドライバがメニューと同じ注入点でダンジョンも駆動できる
 func (st *DungeonState) readAction(world w.World) (inputmapper.ActionID, bool) {
-        <span class="cov8" title="1">if world.Config.Debug </span>{
+        <span class="cov8" title="1">if world.Resources.Config.Debug </span>{
                 <span class="cov8" title="1">return keybind.ReadInput(world, dungeonDebugTable)
 </span>        }
         <span class="cov0" title="0">return keybind.ReadInput(world, dungeonTable)</span>
@@ -43486,7 +43488,7 @@ func NewDemoStartState() (es.State[w.World], error) {
 // 帯形状はマスタ DungeonOverworld が持つので、プレイ固有の RunSeed だけを渡す。
 func newGameOverworldState(world w.World) es.StateFactory[w.World] {
         <span class="cov8" title="1">return NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &amp;overworld.NewGameParams{
-                RunSeed: world.Config.RNG.Uint64(),
+                RunSeed: world.Resources.Config.RNG.Uint64(),
         })
 </span>}
 
@@ -44579,7 +44581,7 @@ func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) error
 
         <span class="cov8" title="1">cursorColor := theme.CursorLook
 </span>        // 点滅エフェクト: アルファ値を変化させる。アニメーション無効時は固定値
-        <span class="cov8" title="1">if !world.Config.DisableAnimation </span>{
+        <span class="cov8" title="1">if !world.Resources.Config.DisableAnimation </span>{
                 <span class="cov0" title="0">cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
 </span>        }
         <span class="cov8" title="1">hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)
@@ -44818,7 +44820,7 @@ type mainMenuItem struct {
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
         <span class="cov8" title="1">var startFuncs []es.StateFactory[w.World]
-        if world.Config.SkipOpening </span>{
+        if world.Resources.Config.SkipOpening </span>{
                 <span class="cov8" title="1">startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
 </span>        } else {
                 <span class="cov0" title="0">startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
@@ -44978,7 +44980,7 @@ func (st *MapGenVisualizerState) OnResume(_ w.World) error { <span class="cov0" 
 func (st *MapGenVisualizerState) OnStart(world w.World) error {
         <span class="cov0" title="0">seed := st.Seed
         if seed == 0 </span>{
-                <span class="cov0" title="0">seed = world.Config.RNG.Uint64()
+                <span class="cov0" title="0">seed = world.Resources.Config.RNG.Uint64()
 </span>        }
 
         <span class="cov0" title="0">chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, seed, st.PlannerType)
@@ -45750,8 +45752,8 @@ func cycleLanguage(world w.World) {
 // UserSettings は world 初期化で常に登録されるため nil を想定しない。Fetch も同じ前提で読む。
 func applyLanguage(world w.World, code string) {
         <span class="cov8" title="1">query.GetUserSettings(world).Language = code
-        world.Config.User.Language = code
-        if err := world.Config.SaveUserConfig(); err != nil </span>{
+        world.Resources.Config.User.Language = code
+        if err := world.Resources.Config.SaveUserConfig(); err != nil </span>{
                 <span class="cov0" title="0">logger.New(logger.CategorySave).Warn("failed to save language setting", "error", err)
 </span>        }
 }
@@ -46019,7 +46021,7 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) e
 </span>        }
 
         <span class="cov0" title="0">cursorColor := theme.CursorShoot
-        if !world.Config.DisableAnimation </span>{
+        if !world.Resources.Config.DisableAnimation </span>{
                 <span class="cov0" title="0">cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
 </span>        }
         <span class="cov0" title="0">hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)
@@ -46705,7 +46707,7 @@ func (sys AnimationSystem) String() string {
 // Update は全エンティティのスプライトアニメーションを更新する
 // w.Updater interfaceを実装
 func (sys *AnimationSystem) Update(world w.World) error {
-        <span class="cov0" title="0">if world.Config.DisableAnimation </span>{
+        <span class="cov0" title="0">if world.Resources.Config.DisableAnimation </span>{
                 <span class="cov0" title="0">return nil
 </span>        }
 
@@ -46869,7 +46871,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
         <span class="cov8" title="1">l.LastTurn = now
 </span>
         // 入札が来る限り延長する。来たら現在値を上げる
-        <span class="cov8" title="1">if world.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
+        <span class="cov8" title="1">if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
                 <span class="cov8" title="1">l.CurrentBid += query.AuctionRaise(world, item)
                 return
 </span>        }
@@ -47127,7 +47129,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 </span>                }
 
                 // アイテム選択
-                <span class="cov8" title="1">materialName, err := raw.SelectDropByWeight(dropTable, world.Config.RNG)
+                <span class="cov8" title="1">materialName, err := raw.SelectDropByWeight(dropTable, world.Resources.Config.RNG)
                 if err != nil </span>{
                         <span class="cov0" title="0">return err
 </span>                }
@@ -47157,7 +47159,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
                 <span class="cov0" title="0">grid := world.Components.GridElement.Get(entity)
 </span>                // 産出名・個数表記はロード時に検証済みで、ここで失敗するのは整合性バグ。
                 // 握りつぶすと産出が静かに消えるため loud に返す
-                <span class="cov0" title="0">stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, 0, 0, false)
+                <span class="cov0" title="0">stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, 0, 0, false)
                 if err != nil </span>{
                         <span class="cov0" title="0">return fmt.Errorf("failed to draw salvage item: %w", err)
 </span>                }
@@ -47521,7 +47523,7 @@ type TileColorInfo = hud.TileColorInfo
 
 // extractDebugOverlay はデバッグオーバーレイデータを抽出する
 func extractDebugOverlay(world w.World) hud.DebugOverlayData {
-        <span class="cov8" title="1">if !world.Config.ShowAIDebug </span>{
+        <span class="cov8" title="1">if !world.Resources.Config.ShowAIDebug </span>{
                 <span class="cov8" title="1">return hud.DebugOverlayData{Enabled: false}
 </span>        }
 
@@ -48797,7 +48799,7 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
                 <span class="cov0" title="0">screen.DrawImage(img, op)
 </span>        }
 
-        <span class="cov0" title="0">if world.Config.ShowMapDebug </span>{
+        <span class="cov0" title="0">if world.Resources.Config.ShowMapDebug </span>{
                 // デバッグ用：スプライト番号表示(dirt, dwall)
                 <span class="cov0" title="0">if spriteRender.SpriteSheetName == "tile" </span>{
                         <span class="cov0" title="0">var number string
@@ -49594,7 +49596,7 @@ func processAITurn(world w.World) error {
         <span class="cov8" title="1">log := logger.New(logger.CategoryTurn)
         log.Debug("AI turn processing start")
 </span>
-        <span class="cov8" title="1">processor := aiinput.NewProcessor(world.Config.RNG)
+        <span class="cov8" title="1">processor := aiinput.NewProcessor(world.Resources.Config.RNG)
         if err := processor.ProcessAll(world); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
@@ -50150,7 +50152,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 </span>        }
 
         // アニメーション無効時は即座に削除
-        <span class="cov8" title="1">if world.Config.DisableAnimation </span>{
+        <span class="cov8" title="1">if world.Resources.Config.DisableAnimation </span>{
                 <span class="cov8" title="1">for _, entity := range entitiesToDelete </span>{
                         <span class="cov8" title="1">world.ECS.RemoveEntity(entity)
 </span>                }
@@ -50520,9 +50522,9 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
         world, err := w.InitWorld(&amp;gc.Components{}, testCfg)
         require.NoError(tb, err)
 </span>
-        <span class="cov0" title="0">world.Config.LogLevel = "ignore"
-        world.Config.Seed = rand.Uint64()
-        world.Config.RNG = rand.New(rand.NewPCG(world.Config.Seed, 0))
+        <span class="cov0" title="0">world.Resources.Config.LogLevel = "ignore"
+        world.Resources.Config.Seed = rand.Uint64()
+        world.Resources.Config.RNG = rand.New(rand.NewPCG(world.Resources.Config.Seed, 0))
         world.Resources.SetScreenDimensions(960, 720)
 </span>
         // RawMasterのみを共有リソースから取得（一度だけ読み込む）
@@ -56159,7 +56161,7 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
         // 商人は品揃えを在庫として持つ。生成経路に依らずここで積むことで、集落でも街マップの
         // マッププランナ経由でも同じ在庫を持たせる。売買と雇用はこの在庫を出し入れする
         <span class="cov8" title="1">if name == "merchant" </span>{
-                <span class="cov8" title="1">if err := PopulateMerchantStock(world, npcEntity, world.Config.RNG); err != nil </span>{
+                <span class="cov8" title="1">if err := PopulateMerchantStock(world, npcEntity, world.Resources.Config.RNG); err != nil </span>{
                         <span class="cov0" title="0">return gc.InvalidEntity, fmt.Errorf("failed to stock merchant: %w", err)
 </span>                }
         }
@@ -56710,7 +56712,7 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
                 <span class="cov0" title="0">return nil, "", fmt.Errorf("failed to get command table: %w", err)
 </span>        }
 
-        <span class="cov8" title="1">weaponName, err := raw.SelectCommandByWeight(commandTable, world.Config.RNG)
+        <span class="cov8" title="1">weaponName, err := raw.SelectCommandByWeight(commandTable, world.Resources.Config.RNG)
         if err != nil </span>{
                 <span class="cov0" title="0">return nil, "", fmt.Errorf("failed to select weapon: %w", err)
 </span>        }
@@ -56788,14 +56790,14 @@ const (
 // AuctionOpeningBid は開始入札額を返す。基準価値に分散を掛けた控えめな額から競売が始まる。
 func AuctionOpeningBid(world w.World, item ecs.Entity) consts.Currency {
         <span class="cov0" title="0">base := GetItemValue(world, item)
-        variance := 0.8 + world.Config.RNG.Float64()*0.4
+        variance := 0.8 + world.Resources.Config.RNG.Float64()*0.4
         return consts.Currency(float64(base) * auctionOpeningMult * variance)
 </span>}
 
 // AuctionRaise は1回の入札での上げ幅を返す。入札が来るたびこの額だけ現在値が上がる。
 func AuctionRaise(world w.World, item ecs.Entity) consts.Currency {
         <span class="cov0" title="0">base := GetItemValue(world, item)
-        variance := 0.8 + world.Config.RNG.Float64()*0.4
+        variance := 0.8 + world.Resources.Config.RNG.Float64()*0.4
         raise := max(consts.Currency(float64(base)*auctionRaiseMult*variance), 1)
         return raise
 </span>}
@@ -58648,7 +58650,6 @@ type World struct {
         ECS        *ecs.World
         Components *gc.Components
         Resources  *resources.Resources
-        Config     *config.Config
         Updaters   map[string]Updater
         Renderers  map[string]Renderer
 }
@@ -58664,11 +58665,11 @@ func InitWorld(c *gc.Components, cfg *config.Config) (World, error) {
                 ECS:        arkWorld,
                 Components: c,
                 Resources:  resources.InitGameResources(),
-                Config:     cfg,
                 Updaters:   make(map[string]Updater),
                 Renderers:  make(map[string]Renderer),
 </span>        }
-
+        <span class="cov8" title="1">world.Resources.Config = cfg
+</span>
         <span class="cov8" title="1">world.InitSingleton()
 </span>
         <span class="cov8" title="1">return world, nil</span>
@@ -58688,7 +58689,7 @@ func (world World) InitSingleton() {
         world.Components.GameTime.Add(singleton, &amp;gc.GameTime{})
         world.Components.VisionState.Add(singleton, gc.NewVisionState())
 </span>        // config は構築時に渡されているので、設定言語をそのまま種にする。
-        <span class="cov8" title="1">world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Config.User.Language))
+        <span class="cov8" title="1">world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
         world.Components.AuctionHistory.Add(singleton, gc.NewAuctionHistory())
         world.Resources.SingletonEntity = singleton
 </span>}

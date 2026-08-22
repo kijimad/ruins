@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -208,7 +208,7 @@
 <span id="L146"><span class="lineNum">     146</span>              : </span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC tlaBgGNC">           1 :         cursorColor := theme.CursorLook</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         // 点滅エフェクト: アルファ値を変化させる。アニメーション無効時は固定値</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         if !world.Config.DisableAnimation {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         if !world.Resources.Config.DisableAnimation {</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC tlaBgUNC">           0 :                 cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC tlaBgGNC">           1 :         hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)</span></span>

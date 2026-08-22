@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -153,9 +153,9 @@
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(md) }}}, nil</span></span>
 <span id="L92"><span class="lineNum">      92</span>              :                 }},</span>
 <span id="L93"><span class="lineNum">      93</span>              :                 Choice{Label: &quot;Toggle debug display&quot;, Run: popAfter(func(world w.World) error {</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                         world.Config.ShowMapDebug = !world.Config.ShowMapDebug</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                         world.Config.ShowAIDebug = !world.Config.ShowAIDebug</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                         world.Config.NoEncounter = !world.Config.NoEncounter</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                         world.Resources.Config.ShowMapDebug = !world.Resources.Config.ShowMapDebug</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                         world.Resources.Config.ShowAIDebug = !world.Resources.Config.ShowAIDebug</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                         world.Resources.Config.NoEncounter = !world.Resources.Config.NoEncounter</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                 })},</span></span>
 <span id="L99"><span class="lineNum">      99</span>              :                 Choice{Label: &quot;Advance time of day&quot;, Run: popAfter(func(world w.World) error {</span>

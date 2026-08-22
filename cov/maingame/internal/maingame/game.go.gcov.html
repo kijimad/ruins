@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,7 +91,7 @@
 <span id="L29"><span class="lineNum">      29</span>              : func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {</span>
 <span id="L30"><span class="lineNum">      30</span>              :         // フィルタを切ったときはシェーダを組み立てず、素通しのパイプラインにする</span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 :         var filters []screeneffect.Filter</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         if !world.Config.DisableScreenFilter {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         if !world.Resources.Config.DisableScreenFilter {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 retroFilter, err := screeneffect.NewRetroFilter()</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;failed to initialize retro filter: %w&quot;, err)</span></span>
@@ -118,7 +118,7 @@
 <span id="L56"><span class="lineNum">      56</span>              :         // デバッグ表示をトグルする</span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         if ebiten.IsKeyPressed(ebiten.KeyShift) &amp;&amp; inpututil.IsKeyJustPressed(ebiten.KeyTab) {</span></span>
 <span id="L58"><span class="lineNum">      58</span>              :                 // パフォーマンスモニターは攻略に関係ないのでトグルできてよい</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC tlaBgUNC">           0 :                 game.World.Config.ShowMonitor = !game.World.Config.ShowMonitor</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC tlaBgUNC">           0 :                 game.World.Resources.Config.ShowMonitor = !game.World.Resources.Config.ShowMonitor</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L61"><span class="lineNum">      61</span>              : </span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           1 :         if err := game.StateMachine.Update(game.World); err != nil {</span></span>
@@ -139,7 +139,7 @@
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         game.renderer.Draw(screen, game.StateMachine.GetStates(), game.World)</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L79"><span class="lineNum">      79</span>              :         // パフォーマンスモニターは最前面のデバッグ表示なので、ポスト処理の外で screen へ直に描く。</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if game.World.Config.ShowMonitor {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if game.World.Resources.Config.ShowMonitor {</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC tlaBgUNC">           0 :                 ebitenutil.DebugPrint(screen, getPerformanceInfo())</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L83"><span class="lineNum">      83</span>              : }</span>

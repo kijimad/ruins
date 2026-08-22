@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,7 +111,7 @@
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         var zero consts.Coord[consts.Tile]</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         var noEntity ecs.Entity</span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         stageSeed := world.Config.RNG.Uint64()</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         stageSeed := world.Resources.Config.RNG.Uint64()</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         stageRNG := rand.New(rand.NewPCG(stageSeed, 0))</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L55"><span class="lineNum">      55</span>              :         // ビルダータイプを決定する。最終階層かつボスフロアプランナーがあればボスフロアにする</span>
@@ -285,7 +285,7 @@
 <span id="L223"><span class="lineNum">     223</span>              : // だが、spawn_points を持つので Plan の到達性検証はポータルを要求せず通る。</span>
 <span id="L224"><span class="lineNum">     224</span>              : // 出口の戻り先 Coord の結線は入場時の runtime 処理なので enterCube が貼る。</span>
 <span id="L225"><span class="lineNum">     225</span>              : func spawnCubeInterior(world w.World, key gc.StageKey) error {</span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         seed := world.Config.RNG.Uint64()</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         seed := world.Resources.Config.RNG.Uint64()</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, mapplanner.PlannerTypeCubeInterior)</span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>

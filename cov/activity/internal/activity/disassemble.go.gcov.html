@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -218,7 +218,7 @@
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L157"><span class="lineNum">     157</span>              : </span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC tlaBgGNC">           1 :         name := query.GetEntityName(target, world)</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to roll disassembly yields: %w&quot;, err)</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         }</span></span>

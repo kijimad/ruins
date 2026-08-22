@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 03:05:25</td>
+            <td class="headerValue">2026-08-22 04:36:00</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -191,7 +191,7 @@
 <span id="L129"><span class="lineNum">     129</span>              :         // 先に probe を通し、成功したときだけ本番ワールドへ適用することで、ロード失敗時も</span>
 <span id="L130"><span class="lineNum">     130</span>              :         // 本番ワールドを無傷で残し、呼び出し側がアプリを継続できるようにする。</span>
 <span id="L131"><span class="lineNum">     131</span>              :         // 復元を2回走らせるコストは、ロードがゲーム開始時の1回きりの操作なので許容する。</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         probe, err := w.InitWorld(&amp;gc.Components{}, world.Config)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         probe, err := w.InitWorld(&amp;gc.Components{}, world.Resources.Config)</span></span>
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to create probe world: %w&quot;, err)</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         }</span></span>
