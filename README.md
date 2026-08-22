@@ -113,7 +113,7 @@ $ make help
 | draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
 | draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/6 | item, combat, ecs |
 | draft | [大きなゲームループ: 一方向逃避を駆動と終端で閉じる](docs/design/260821223229.md) | 3/9 | gamedesign, narrative, worldgen |
-| draft | [身体モデル: 血を生命ゲージに、部位の傷でドラマを作り、病気に免疫レースを足す](docs/design/260821232324.md) | 0/19 | gamedesign, combat, item, ecs |
+| draft | [身体モデル: 血を生命ゲージに、部位の傷でドラマを作り、病気に免疫レースを足す](docs/design/260821232324.md) | 0/20 | gamedesign, combat, item, ecs |
 | draft | [駆動: 冷気前線は極寒の場であり、死は低体温から訪れる](docs/design/260822014347.md) | 0/5 | gamedesign, worldgen |
 | draft | [終端: 生還と死で run を締め、到達距離を記録する](docs/design/260822014348.md) | 0/7 | gamedesign, ecs, ui |
 | draft | [経済: 行商人と遠隔注文で金を前方へ流す](docs/design/260822014349.md) | 0/7 | gamedesign, item |
