@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/activity"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/logger"
@@ -136,11 +137,12 @@ func NewRunResultState() (es.State[w.World], error) {
 			dist = o.ReachedDist
 			days = o.Days
 		}
-		var kills, items, sales int
+		var kills, items int
+		var sales consts.Currency
 		if s := query.GetRunStats(world); s != nil {
 			kills = s.EnemiesKilled
 			items = s.ItemsScavenged
-			sales = int(s.SalesTotal)
+			sales = s.SalesTotal
 		}
 		text := query.T(world, "You died.") + "\n\n" +
 			query.T(world, "Reached: %d", dist) + "\n" +

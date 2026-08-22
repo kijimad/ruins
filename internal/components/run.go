@@ -14,17 +14,11 @@ type RunOutcome struct {
 }
 
 // RunStats は run 中に貯める統計を保持するシングルトン。
-// RunOutcome と違い run を通じて積み上がるので serde 保存対象にする
+// RunOutcome と違い run を通じて積み上がるので serde 保存対象にする。
+// 加算経路のあるカウンタだけを持つ。負傷や遺跡数は接続時に足す
 type RunStats struct {
 	EnemiesKilled  int             // 倒した敵の数
 	MaxDist        int             // 到達した最大前進距離。スコアの主軸
 	ItemsScavenged int             // 漁ったアイテム数
-	RuinsLooted    int             // 漁った遺跡数
 	SalesTotal     consts.Currency // 売上累計
-	WoundsTaken    int             // 負った傷の数
-}
-
-// NewRunStats は初期化された RunStats を返す
-func NewRunStats() *RunStats {
-	return &RunStats{}
 }

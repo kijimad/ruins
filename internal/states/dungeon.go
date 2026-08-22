@@ -203,6 +203,7 @@ func (st *DungeonState) recordRunOutcome(world w.World) {
 func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	playerDead := false
 	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()
+	// 早期 break しないこと。クエリは最後まで反復してワールドロックを解放する必要がある
 	for playerDeadQuery.Next() {
 		playerDead = true
 	}

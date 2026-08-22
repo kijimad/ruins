@@ -62,7 +62,8 @@ func GetRunOutcome(world w.World) *gc.RunOutcome {
 	return GetSingleton[gc.RunOutcome](world, world.Components.RunOutcome)
 }
 
-// SetRunOutcome は run の決着をシングルトンへ確定する。既に決着済みなら値を上書きする
+// SetRunOutcome は run の決着をシングルトンへ確定する。既に決着済みなら値を上書きする。
+// Add と代入はどちらも値をアーキタイプ領域へコピーするので、渡したポインタの後の変更は反映されない
 func SetRunOutcome(world w.World, outcome *gc.RunOutcome) {
 	entity := world.Resources.SingletonEntity
 	if world.Components.RunOutcome.Has(entity) {

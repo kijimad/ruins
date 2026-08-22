@@ -61,6 +61,29 @@ func TestDeadCleanupSystem(t *testing.T) {
 	assert.False(t, world.Components.Dead.Has(alive), "生きているエンティティにDeadコンポーネントはないべき")
 }
 
+// TestDeadCleanupSystem_EnemiesKilledStat は敵の除去だけが撃破統計へ加算されることを確認する
+func TestDeadCleanupSystem_EnemiesKilledStat(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	// 敵の死は撃破としてカウントされる
+	enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 3, Y: 3}, "moss_turtle")
+	require.NoError(t, err)
+	world.Components.Dead.Add(enemy, &gc.Dead{})
+
+	// プレイヤーの死はカウントしない
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	world.Components.Dead.Add(player, &gc.Dead{})
+
+	require.NoError(t, (&DeadCleanupSystem{}).Update(world))
+
+	stats := query.GetRunStats(world)
+	require.NotNil(t, stats)
+	assert.Equal(t, 1, stats.EnemiesKilled, "敵1体の撃破だけがカウントされる")
+}
+
 func TestDeadCleanupSystem_NoDeadEntities(t *testing.T) {
 	t.Parallel()
 
