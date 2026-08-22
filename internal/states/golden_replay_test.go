@@ -131,27 +131,13 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Basic"},
 			},
 		},
-		// RunStats は道中の統計画面を撮る。character と同じテーブル枠に統計が並ぶ
+		// RunStats は統計テーブル画面を撮る。character と同じテーブル枠に統計が並ぶ。
+		// 死の結果画面 NewRunResultState は見出しが違うだけの同じテーブルなので撮り分けない
 		{
 			name: "RunStats",
 			build: func(world w.World) ([]es.State[w.World], error) {
 				seedRunStatsForShot(world)
 				st, err := gs.NewRunStatsState()
-				if err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{st}, nil
-			},
-			steps: []replayStep{
-				{shot: true, suffix: "Table"},
-			},
-		},
-		// RunResult は死の結果画面を撮る。統計を同じテーブルで見せ、見出しが死の告知になる
-		{
-			name: "RunResult",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				seedRunStatsForShot(world)
-				st, err := gs.NewRunResultState()
 				if err != nil {
 					return nil, err
 				}
