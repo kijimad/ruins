@@ -72,9 +72,10 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 
 	// テーブル名と危険度をプランナーに渡す。エントリの解決はプランナーが行う。
 	// 危険度は入場時に確定した遺跡共通の値で、階層に依らず全階同一になる。
+	// テーブルは全 entry が minDanger>=1 で危険度0では空になるため、開始付近でも最も浅い湧きが出るよう1で下限を張る。
 	builderType.EnemyTableName = def.EnemyTableName()
 	builderType.ItemTableName = def.ItemTableName()
-	builderType.Danger = st.Danger
+	builderType.Danger = max(1, st.Danger)
 
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
 	if err != nil {

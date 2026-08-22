@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -166,11 +167,17 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 		}
 		lootDice = d
 	}
+	// 危険度は建物の前進距離で決める。東の建物ほど希少な loot が出る。廃墟テーブルは全 entry が
+	// minDanger>=1 で危険度0では何も引けないため、開始付近でも最も浅い戦利品が出るよう1で下限を張る。
+	danger := 1
+	if band := query.GetSeamlessBand(world); band != nil && world.Components.GridElement.Has(entity) {
+		if d := query.DangerLevelAt(world, band.LocalToAbsX(world.Components.GridElement.Get(entity).Coord.X)); d > danger {
+			danger = d
+		}
+	}
 	n := lootDice.Roll(rng)
 	for range n {
-		// 危険度は地上の建物なので最も浅い1を使う。廃墟テーブルは全 entry が minDanger>=1 なので
-		// 危険度0では何も引けない。地上の廃屋あさりは最も浅い戦利品が出る
-		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, 1)
+		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)
 		if err != nil {
 			return err
 		}

@@ -266,11 +266,22 @@ func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.C
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}
+	// 湧き数は街の規模で決める。敵種別は街の前進距離に応じた危険度でフィルタし、東ほど強敵が出る。
+	// テーブルは全 entry が minDanger>=1 で危険度0では空になるため、開始付近でも最も浅い敵が出るよう1で下限を張る。
 	count := 1 + rng.IntN(int(size))
+	danger := 1
+	if band := query.GetSeamlessBand(world); band != nil {
+		if d := query.DangerLevelAt(world, band.LocalToAbsX(g.offsetX+g.chunkW/2)); d > danger {
+			danger = d
+		}
+	}
 	for range count {
-		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(size))
+		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, danger)
 		if err != nil {
 			return fmt.Errorf("failed to select urban enemy: %w", err)
+		}
+		if enemyName == "" {
+			continue // 危険度帯に該当する敵がいなければこの1体は諦める
 		}
 		// 敵は街路に湧かせ、建物の footprint と壁の上は避ける。占有は footprint 全域に及ぶので、一度引いて
 		// 塞がっていたら目標数を満たすよう空きが出るまで位置を引き直す。試行を尽くしても空かなければその
