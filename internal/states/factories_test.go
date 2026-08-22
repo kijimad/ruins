@@ -3,10 +3,32 @@ package states
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestRunResultText は結果画面の本文へ決着と統計の各値が反映されることを確認する
+func TestRunResultText(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	query.SetRunOutcome(world, &gc.RunOutcome{ReachedDist: 1234, Days: 7, Turns: 5678})
+	stats := query.GetRunStats(world)
+	require.NotNil(t, stats)
+	stats.EnemiesKilled = 42
+	stats.ItemsScavenged = 13
+	stats.SalesTotal = 999
+
+	text := runResultText(world)
+
+	// ラベルの訳に依存しないよう、各統計値が本文に含まれることで検証する
+	for _, want := range []string{"1234", "7", "5678", "42", "13", "999"} {
+		assert.Contains(t, text, want, "結果テキストに統計値 %s が含まれる", want)
+	}
+}
 
 func TestNewOpeningState(t *testing.T) {
 	t.Parallel()

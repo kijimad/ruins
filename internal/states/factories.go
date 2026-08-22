@@ -132,27 +132,7 @@ func NewRunResultState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
 	messageState.build = func(world w.World) *messagedata.MessageData {
-		var dist, days, turns int
-		if o := query.GetRunOutcome(world); o != nil {
-			dist = o.ReachedDist
-			days = o.Days
-			turns = o.Turns
-		}
-		var kills, items int
-		var sales consts.Currency
-		if s := query.GetRunStats(world); s != nil {
-			kills = s.EnemiesKilled
-			items = s.ItemsScavenged
-			sales = s.SalesTotal
-		}
-		text := query.T(world, "You died.") + "\n\n" +
-			query.T(world, "Distance reached: %d", dist) + "\n" +
-			query.T(world, "Days: %d", days) + "\n" +
-			query.T(world, "Turns: %d", turns) + "\n" +
-			query.T(world, "Enemies killed: %d", kills) + "\n" +
-			query.T(world, "Items scavenged: %d", items) + "\n" +
-			query.T(world, "Sales: %d", sales)
-		return messagedata.NewSystemMessage(text).
+		return messagedata.NewSystemMessage(runResultText(world)).
 			WithChoice(query.T(world, "Return to main menu"), func(_ w.World) error {
 				messageState.SetTransition(es.Transition[w.World]{
 					Type:          es.TransReplace,
@@ -162,6 +142,30 @@ func NewRunResultState() (es.State[w.World], error) {
 	}
 
 	return messageState, nil
+}
+
+// runResultText は結果画面の本文を、決着 RunOutcome と統計 RunStats から組む
+func runResultText(world w.World) string {
+	var dist, days, turns int
+	if o := query.GetRunOutcome(world); o != nil {
+		dist = o.ReachedDist
+		days = o.Days
+		turns = o.Turns
+	}
+	var kills, items int
+	var sales consts.Currency
+	if s := query.GetRunStats(world); s != nil {
+		kills = s.EnemiesKilled
+		items = s.ItemsScavenged
+		sales = s.SalesTotal
+	}
+	return query.T(world, "You died.") + "\n\n" +
+		query.T(world, "Distance reached: %d", dist) + "\n" +
+		query.T(world, "Days: %d", days) + "\n" +
+		query.T(world, "Turns: %d", turns) + "\n" +
+		query.T(world, "Enemies killed: %d", kills) + "\n" +
+		query.T(world, "Items scavenged: %d", items) + "\n" +
+		query.T(world, "Sales: %d", sales)
 }
 
 // NewAllClearEventState は全ダンジョンクリア時のイベントStateを作成するファクトリー関数
