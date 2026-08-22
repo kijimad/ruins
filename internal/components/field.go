@@ -153,8 +153,6 @@ func (d Direction) ScreenIntent() (su, sr float64) {
 
 // RotateScreenDir は画面基準の方向を、カメラの水平角 yaw で world の8方向へ回す。
 // 見下ろしカメラが回転しても、押したキーが画面上で指す向きへ動くようにする。
-// 南から北を見下ろすカメラに合わせ、画面奥 forward=(-sin yaw, -cos yaw)、画面右 right=(cos yaw, -sin yaw) とし、
-// world = su*forward + sr*right を最寄りの8方向へスナップする。
 func RotateScreenDir(base Direction, yaw float64) Direction {
 	su, sr := base.ScreenIntent()
 	wx := -su*math.Sin(yaw) + sr*math.Cos(yaw)

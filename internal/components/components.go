@@ -86,7 +86,7 @@ type Camera struct {
 	Pitch, Dist float64
 }
 
-// Yaw は水平角をラジアンで返す。Orient から導出するので、水平角が2箇所に分かれてずれることがない
+// Yaw は水平角をラジアンで返す
 func (c Camera) Yaw() float64 {
 	return c.Orient.Yaw()
 }

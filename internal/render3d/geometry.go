@@ -73,6 +73,5 @@ func lookAt(eye, center, up Vec) mat {
 	}
 }
 
-// At は座標から点を作る。タイル世界の幾何は座標を並べる記述が多く、
-// 3成分を毎回名前で書くと式が読みにくくなるため、位置だけの短い入口を用意する
+// At は座標から点を作る。3成分を並べる式が読みやすくなる
 func At(x, y, z float64) Vec { return Vec{X: x, Y: y, Z: z} }
