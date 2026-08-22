@@ -9,14 +9,16 @@ import (
 // TimeOfDay は時間帯を表す
 type TimeOfDay int
 
-// 時間帯定数
+// 時間帯定数。新規ゲームは昼から始まるので、経過ターンの区切り順に昼から並べる。
+// これで TotalTurns=0 が昼を無変換で指す。各時間帯は turnsPerTimeOfDay ずつ続き、
+// 深夜の次に翌日の夜明けへ折り返す。かっこ内は1周目の経過ターン範囲で、以降は1日ごとに繰り返す
 const (
-	TimeDawn     TimeOfDay = iota // 夜明け (0-249ターン)
-	TimeMorning                   // 朝 (250-499ターン)
-	TimeDay                       // 昼 (500-749ターン)
-	TimeEvening                   // 夕 (750-999ターン)
-	TimeNight                     // 夜 (1000-1249ターン)
-	TimeMidnight                  // 深夜 (1250-1499ターン)
+	TimeDay      TimeOfDay = iota // 昼 経過0-249
+	TimeEvening                   // 夕 経過250-499
+	TimeNight                     // 夜 経過500-749
+	TimeMidnight                  // 深夜 経過750-999
+	TimeDawn                      // 夜明け 経過1000-1249
+	TimeMorning                   // 朝 経過1250-1499
 )
 
 // String は時間帯名を返す
@@ -45,53 +47,32 @@ const turnsPerDay consts.Turn = 1500
 // 時間帯ごとのターン数
 const turnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン
 
+// noonOffsetFromDawn は暦の1日、夜明け始まり、における昼の位置。夜明けから朝を経て昼までの2区切り。
+// 新規ゲームは昼から始まるので、暦では1日目のこのぶんが既に過ぎている。
+// 時間帯は昼始まりの定数順で無変換に導けるが、日数は暦の夜明けで繰り上がるため、ここだけオフセットが要る。
+const noonOffsetFromDawn consts.Turn = 2 * turnsPerTimeOfDay // 500ターン
+
 // GameTime はゲーム内時間を管理する
 type GameTime struct {
-	TotalTurns consts.Turn // 経過した総ターン数
+	TotalTurns consts.Turn // run 開始からの経過ターン数
 }
 
-// newGameStartTimeOfDay は新規ゲームの開始時間帯。昼から始める。
-// TotalTurns は run 開始からの経過ターンで 0 始まり。暦上の時刻はこのぶん進んだ位置から始まる。
-// 「昼開始」の規約はこの1点だけが持ち、時刻と日数の導出はここを介して行う。
-// おかげで TotalTurns は純粋な経過ターンになり、表示はオフセットの無い値をそのまま使える。
-const newGameStartTimeOfDay = TimeDay
-
-// StartOfTimeOfDayTurns は暦上で指定した時間帯が始まるターンを返す純関数。0 は夜明けの開始。
-// 新規ゲームの開始オフセットの算出にも使う。
-func StartOfTimeOfDayTurns(t TimeOfDay) consts.Turn {
-	return turnsPerTimeOfDay * consts.Turn(t)
-}
-
-// calendarTurn は時刻導出に使う暦上のターン。経過ターンに新規ゲームの開始時間帯ぶんを足す。
-// これで TotalTurns=0 が昼を指し、時間帯と日数は従来と同じ暦位置から導ける。
-func (gt *GameTime) calendarTurn() consts.Turn {
-	return gt.TotalTurns + StartOfTimeOfDayTurns(newGameStartTimeOfDay)
-}
-
-// timeOfDayAt は暦上のターンから時間帯を導く純関数。0 は夜明け。
-func timeOfDayAt(calendarTurn consts.Turn) TimeOfDay {
-	return TimeOfDay((calendarTurn % turnsPerDay) / turnsPerTimeOfDay)
-}
-
-// dayNumberAt は暦上のターンから経過日数を導く純関数。1日目から始まる。
-func dayNumberAt(calendarTurn consts.Turn) int {
-	return int(calendarTurn/turnsPerDay) + 1
-}
-
-// GetTimeOfDay は現在の時間帯を返す
+// GetTimeOfDay は現在の時間帯を返す。時間帯定数を昼始まりに並べてあるので、
+// 経過ターンを区切りで割るだけで昼始まりの時間帯になり、オフセットは要らない
 func (gt *GameTime) GetTimeOfDay() TimeOfDay {
-	return timeOfDayAt(gt.calendarTurn())
+	return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)
 }
 
-// GetTemperatureModifier は時間帯による気温修正値を返す
-func (gt *GameTime) GetTemperatureModifier() int {
-	return temperatureModifier(gt.GetTimeOfDay())
+// GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる。
+// 新規ゲームは昼開始なので、昼までに過ぎたぶんを足してから日数を数える
+func (gt *GameTime) GetDayNumber() int {
+	return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1
 }
 
-// temperatureModifier は時間帯ごとの気温修正値を返す純関数。
+// GetTemperatureModifier は時間帯による気温修正値を返す。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
-func temperatureModifier(t TimeOfDay) int {
-	switch t {
+func (gt *GameTime) GetTemperatureModifier() int {
+	switch gt.GetTimeOfDay() {
 	case TimeDawn:
 		return 0 // 夜明け: +0°C
 	case TimeMorning:
@@ -105,7 +86,7 @@ func temperatureModifier(t TimeOfDay) int {
 	case TimeMidnight:
 		return -10 // 深夜: -10°C
 	}
-	panic(fmt.Sprintf("unknown TimeOfDay: %d", t))
+	panic(fmt.Sprintf("unknown TimeOfDay: %d", gt.GetTimeOfDay()))
 }
 
 // Advance はターンを進める
@@ -118,9 +99,4 @@ func (gt *GameTime) Advance() {
 // 深夜からは翌日の夜明けへ折り返す。
 func (gt *GameTime) AdvanceToNextTimeOfDay() {
 	gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay
-}
-
-// GetDayNumber は経過日数を返す（1日目から始まる）
-func (gt *GameTime) GetDayNumber() int {
-	return dayNumberAt(gt.calendarTurn())
 }
