@@ -116,6 +116,7 @@ $ make help
 | draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/5（見送り1） | item, combat, ecs |
 | draft | [身体の不調: 少数部位の負傷と、まとめて配る手当て](docs/design/260821232324.md) | 0/11 | gamedesign, combat, item, ecs |
 | draft | [逓増: 危険と希少性の軸を深さから距離と日数へ移す](docs/design/260822014350.md) | 0/7 | gamedesign, worldgen, ecs |
+| draft | [気候生存: 前線を廃し、常時の寒さと吹雪と資源枯渇で自主移動を促す](docs/design/260822220253.md) | 0/9 | gamedesign, worldgen, movement, ecs |
 
 
 ## Reference
