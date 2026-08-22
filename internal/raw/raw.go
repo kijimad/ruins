@@ -788,7 +788,7 @@ const MinDanger = 1
 // テーブルエントリからグループを選び、グループ内からアイテムを選択して返す
 func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {
 	if danger < MinDanger {
-		return "", fmt.Errorf("危険度 %d は最小 %d 未満。呼び出し側で危険度を明示的に指定すること", danger, MinDanger)
+		return "", fmt.Errorf("danger %d is below the minimum %d; the caller must specify a valid danger", danger, MinDanger)
 	}
 	filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))
 	for _, entry := range it.Entries {
@@ -825,7 +825,7 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, dange
 // SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する
 func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string, error) {
 	if danger < MinDanger {
-		return "", fmt.Errorf("危険度 %d は最小 %d 未満。呼び出し側で危険度を明示的に指定すること", danger, MinDanger)
+		return "", fmt.Errorf("danger %d is below the minimum %d; the caller must specify a valid danger", danger, MinDanger)
 	}
 	filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))
 	for _, entry := range et.Entries {

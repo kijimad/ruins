@@ -44,7 +44,7 @@ linters:
     paths:
       - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
     rules:
-      # gosmopolitan の源泉英語化 allowlist。移行が済んだ領域から外していく。
+      # gosmopolitan の源泉英語化 allowlist
       # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする
       - linters: [gosmopolitan]
         path: '_test\.go$'

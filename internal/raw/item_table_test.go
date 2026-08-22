@@ -74,7 +74,7 @@ func TestSelectItemByWeight_危険度が最小未満はエラー(t *testing.T) {
 	raws := newTestRawsForItemTable(testGroups, table)
 	rng := rand.New(rand.NewPCG(1, 2))
 	_, err := SelectItemByWeight(raws, table, rng, MinDanger-1)
-	require.ErrorContains(t, err, "危険度")
+	require.ErrorContains(t, err, "danger")
 }
 
 func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {

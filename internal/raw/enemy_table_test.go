@@ -35,7 +35,7 @@ func TestSelectEnemyByWeight_危険度が最小未満はエラー(t *testing.T) 
 	}
 	rng := rand.New(rand.NewPCG(1, 2))
 	_, err := SelectEnemyByWeight(enemyTable, rng, MinDanger-1)
-	require.ErrorContains(t, err, "危険度")
+	require.ErrorContains(t, err, "danger")
 }
 
 func TestEnemyTable_SelectByWeight_MultipleEntries(t *testing.T) {
