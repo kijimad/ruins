@@ -9,22 +9,26 @@ import (
 func TestDangerLevel(t *testing.T) {
 	t.Parallel()
 
-	t.Run("日数が増えると危険度は下がらない", func(t *testing.T) {
+	t.Run("危険度は1始まりで最小は1", func(t *testing.T) {
 		t.Parallel()
-		early := DangerLevel(1)
-		late := DangerLevel(dangerDaysPerLevel * 4)
-		assert.Greater(t, late, early, "日数が進めば危険度は上がるはず")
+		assert.Equal(t, 1, DangerLevel(0))
+		assert.Equal(t, 1, DangerLevel(dangerDaysPerLevel-1))
 	})
 
 	t.Run("1段ぶんの日数で危険度が1上がる", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 0, DangerLevel(dangerDaysPerLevel-1))
-		assert.Equal(t, 1, DangerLevel(dangerDaysPerLevel))
+		assert.Equal(t, 2, DangerLevel(dangerDaysPerLevel))
+		assert.Equal(t, 3, DangerLevel(dangerDaysPerLevel*2))
 	})
 
-	t.Run("負の入力は0として扱う", func(t *testing.T) {
+	t.Run("日数が増えると危険度は下がらない", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 0, DangerLevel(-5))
+		assert.Greater(t, DangerLevel(dangerDaysPerLevel*4), DangerLevel(1))
+	})
+
+	t.Run("負の入力は最小の1を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, 1, DangerLevel(-5))
 	})
 
 	t.Run("同じ入力は常に同じ値", func(t *testing.T) {

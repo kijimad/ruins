@@ -71,11 +71,14 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	}
 
 	// テーブル名と危険度をプランナーに渡す。エントリの解決はプランナーが行う。
-	// 危険度は入場時に確定した遺跡共通の値で、階層に依らず全階同一になる。
-	// テーブルは全 entry が minDanger>=1 で危険度0では空になるため、開始付近でも最も浅い湧きが出るよう1で下限を張る。
+	// 危険度は最初のフロア生成時の経過日数で一度だけ確定し、全階で共有する。階に依らず同じ。
+	// DangerLevel は1始まりなので、そのまま raw のゲートへ渡せる。
 	builderType.EnemyTableName = def.EnemyTableName()
 	builderType.ItemTableName = def.ItemTableName()
-	builderType.Danger = max(1, st.Danger)
+	if st.Danger == 0 {
+		st.Danger = query.DangerLevelAt(world)
+	}
+	builderType.Danger = st.Danger
 
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
 	if err != nil {
@@ -333,9 +336,6 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	}
 	// 入口のオーバーワールド座標。swapTo 前に値でコピーする
 	fromPos := world.Components.GridElement.Get(player).Coord
-
-	// 遺跡の危険度を入場時の経過日数から一度だけ確定し、全階へ配る。階を降りても変わらない。
-	st.Danger = query.DangerLevelAt(world)
 
 	target := gc.NewDungeonStage(defName, 1)
 	// 既にその遺跡1階にいるなら自己スワップになるので何もしない。デバッグ進入で

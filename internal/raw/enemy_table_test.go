@@ -26,6 +26,18 @@ func TestEnemyTable_SelectByWeight_SingleEntry(t *testing.T) {
 	assert.Equal(t, "スライム", result, "エントリが1つの場合はそれが選択されるべき")
 }
 
+func TestSelectEnemyByWeight_危険度が最小未満はエラー(t *testing.T) {
+	t.Parallel()
+
+	enemyTable := oapi.EnemyTable{
+		Name:    "テスト",
+		Entries: []oapi.EnemyTableEntry{{Id: "スライム", Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
+	}
+	rng := rand.New(rand.NewPCG(1, 2))
+	_, err := SelectEnemyByWeight(enemyTable, rng, MinDanger-1)
+	require.ErrorContains(t, err, "危険度")
+}
+
 func TestEnemyTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	t.Parallel()
 

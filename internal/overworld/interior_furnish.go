@@ -167,9 +167,9 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 		}
 		lootDice = d
 	}
-	// 危険度は経過日数で決める。日が進むほど希少な loot が出る。廃墟テーブルは全 entry が
-	// minDanger>=1 で危険度0では何も引けないため、序盤でも最も浅い戦利品が出るよう1で下限を張る。
-	danger := max(1, query.DangerLevelAt(world))
+	// 危険度は経過日数で決める。日が進むほど希少な loot が出る。
+	// DangerLevel は1始まりなので、そのまま raw のゲートへ渡せる。
+	danger := query.DangerLevelAt(world)
 	n := lootDice.Roll(rng)
 	for range n {
 		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)

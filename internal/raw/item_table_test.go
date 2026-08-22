@@ -64,6 +64,19 @@ func TestItemTable_SelectByWeight_SingleEntry(t *testing.T) {
 	assert.Equal(t, "回復薬", result, "グループに1アイテムのみの場合はそれが選択されるべき")
 }
 
+func TestSelectItemByWeight_危険度が最小未満はエラー(t *testing.T) {
+	t.Parallel()
+
+	table := oapi.ItemTable{
+		Name:    "テスト",
+		Entries: []oapi.ItemTableEntry{{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 20}},
+	}
+	raws := newTestRawsForItemTable(testGroups, table)
+	rng := rand.New(rand.NewPCG(1, 2))
+	_, err := SelectItemByWeight(raws, table, rng, MinDanger-1)
+	require.ErrorContains(t, err, "危険度")
+}
+
 func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	t.Parallel()
 

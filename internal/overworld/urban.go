@@ -267,9 +267,9 @@ func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.C
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}
 	// 湧き数は街の規模で決める。敵種別は経過日数の危険度でフィルタし、日が進むほど強敵が出る。
-	// テーブルは全 entry が minDanger>=1 で危険度0では空になるため、序盤でも最も浅い敵が出るよう1で下限を張る。
+	// DangerLevel は1始まりなので、そのまま raw のゲートへ渡せる。
 	count := 1 + rng.IntN(int(size))
-	danger := max(1, query.DangerLevelAt(world))
+	danger := query.DangerLevelAt(world)
 	for range count {
 		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, danger)
 		if err != nil {
