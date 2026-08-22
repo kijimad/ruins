@@ -15,7 +15,7 @@ func TestNewHostileNPCPlanner(t *testing.T) {
 	plannerType := PlannerType{
 		Name:           "test",
 		EnemyTableName: "normal",
-		Danger:          1,
+		Danger:         1,
 	}
 	planner := NewHostileNPCPlanner(world, plannerType)
 
@@ -31,7 +31,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		plannerType := PlannerType{
-			Name:  "test_empty",
+			Name:   "test_empty",
 			Danger: 1,
 		}
 
@@ -55,7 +55,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_with_enemies",
 			EnemyTableName: "normal",
-			Danger:          1,
+			Danger:         1,
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -78,7 +78,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_valid_position",
 			EnemyTableName: "normal",
-			Danger:          1,
+			Danger:         1,
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -106,7 +106,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_multiple_enemies",
 			EnemyTableName: "normal",
-			Danger:          1,
+			Danger:         1,
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -129,7 +129,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_room_based",
 			EnemyTableName: "normal",
-			Danger:          1,
+			Danger:         1,
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -165,7 +165,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_big_room_cluster",
 			EnemyTableName: "normal",
-			Danger:          1,
+			Danger:         1,
 		}
 
 		chain, err := NewBigRoomPlanner(40, 40, 12345)
@@ -206,7 +206,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		plannerType := PlannerType{
 			Name:           "test_same_species",
 			EnemyTableName: "normal",
-			Danger:          1,
+			Danger:         1,
 		}
 
 		chain, err := NewSmallRoomPlanner(40, 40, 100)

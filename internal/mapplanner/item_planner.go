@@ -11,8 +11,8 @@ import (
 // アイテム配置用の定数
 const (
 	// アイテム配置関連
-	baseItemCount     = 8 // アイテム配置の基本数
-	randomItemCount   = 5 // アイテム配置のランダム追加数（0-4の範囲）
+	baseItemCount      = 8 // アイテム配置の基本数
+	randomItemCount    = 5 // アイテム配置のランダム追加数（0-4の範囲）
 	itemIncreaseDanger = 5 // アイテム数増加の危険度しきい値
 
 	// 配置処理関連
@@ -27,7 +27,7 @@ type ItemSpec struct {
 	Count int    // 個数
 }
 
-// itemGroupRef はアイテムテーブルの1エントリ。深度フィルタ後に残った参照先グループの id とテーブル重み。
+// itemGroupRef はアイテムテーブルの1エントリ。危険度フィルタ後に残った参照先グループの id とテーブル重み。
 // グループ中身の抽選は raw.SelectFromItemGroup が draw 時に行う。
 type itemGroupRef struct {
 	GroupID string
