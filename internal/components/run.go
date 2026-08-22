@@ -6,7 +6,8 @@ import "github.com/kijimaD/ruins/internal/consts"
 type DeathCause string
 
 // RunOutcome は run の決着を保持するシングルトン。いまは死のみ。
-// 決着の瞬間に生成し、終端 State が消費する。run 中は存在しないので serde 対象にしない
+// 決着の瞬間に生成し、終端 State が消費する。決着時のみ存在し、セーブは生存中にしか
+// 起きないので保存時には居ない。ゆえに既定の丸ごと保存のままでよく serde 除外は要らない
 type RunOutcome struct {
 	Cause       DeathCause // 死因
 	ReachedDist int        // 到達した前進距離。スコアの主軸

@@ -42,7 +42,6 @@ func skipComponents() []ecs.Comp {
 		ecs.C[gc.Activity](),           // 実行中アクティビティ・毎ターン変動
 		ecs.C[gc.LastActivity](),       // ターン進行で消費
 		ecs.C[gc.UserSettings](),       // config 由来のランタイムミラー。ロード時に config から再構築
-		ecs.C[gc.RunOutcome](),         // 決着の一瞬。run 中は存在しない。ロード後は決着前の世界に戻る
 	}
 }
 
