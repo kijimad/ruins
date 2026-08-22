@@ -24,7 +24,8 @@ type dungeon3D struct {
 // ensure は描画システムを遅延構築する。
 func (d *dungeon3D) ensure() {
 	if d.sys == nil {
-		d.sys = gs.NewRender3DSystem()
+		// 本番のダンジョンは視界を反映するので UseFOV を立てる
+		d.sys = &gs.Render3DSystem{UseFOV: true}
 	}
 }
 

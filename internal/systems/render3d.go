@@ -26,12 +26,6 @@ type Render3DSystem struct {
 	UseFOV bool
 }
 
-// NewRender3DSystem は視界を反映する本番の設定で初期化する。
-// オービットカメラの向きと距離は ECS の Camera が持ち、Projector 経由で読む。
-func NewRender3DSystem() *Render3DSystem {
-	return &Render3DSystem{UseFOV: true}
-}
-
 // String は w.Renderer を満たす。
 func (sys *Render3DSystem) String() string { return "Render3DSystem" }
 

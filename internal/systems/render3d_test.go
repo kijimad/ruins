@@ -73,7 +73,7 @@ func TestNormalizeLight(t *testing.T) {
 // TestRender3DSystem_String は w.Renderer の識別名を固定する。
 func TestRender3DSystem_String(t *testing.T) {
 	t.Parallel()
-	assert.Equal(t, "Render3DSystem", NewRender3DSystem().String())
+	assert.Equal(t, "Render3DSystem", (&Render3DSystem{}).String())
 }
 
 // TestVisFactorFunc_FOV無効は全タイルを等倍で描く は視界無効時の分岐を固定する。
