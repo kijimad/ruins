@@ -262,7 +262,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	}
 	lootCount := lootDice.Roll(metaPlan.RNG)
 
-	// 危険度は生成中フロアのプランから取る。呼び出し側が世界の現在地から確定し MetaPlan に載せている。
+	// 危険度は生成中フロアのプランから取る。
 	danger := metaPlan.Danger
 
 	for range lootCount {

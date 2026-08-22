@@ -71,8 +71,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	}
 
 	// テーブル名と危険度をプランナーに渡す。エントリの解決はプランナーが行う。
-	// 危険度は最初のフロア生成時の経過日数で一度だけ確定し、全階で共有する。階に依らず同じ。
-	// DangerLevel は1始まりなので、そのまま raw のゲートへ渡せる。
+	// 危険度は最初のフロア生成時に確定して全階で共有する。階に依らず同じ。
 	builderType.EnemyTableName = def.EnemyTableName()
 	builderType.ItemTableName = def.ItemTableName()
 	if st.Danger == 0 {

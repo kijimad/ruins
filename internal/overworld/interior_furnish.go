@@ -168,7 +168,6 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 		lootDice = d
 	}
 	// 危険度は経過日数で決める。日が進むほど希少な loot が出る。
-	// DangerLevel は1始まりなので、そのまま raw のゲートへ渡せる。
 	danger := query.DangerLevelAt(world)
 	n := lootDice.Roll(rng)
 	for range n {

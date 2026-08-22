@@ -780,8 +780,8 @@ func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
 	)
 }
 
-// MinDanger は spawn テーブルが引ける最小の危険度。テーブルは全 entry が minDanger>=1 の
-// 1始まり設計で、これ未満は呼び出し側の危険度の指定漏れとみなしエラーにする。
+// MinDanger は spawn テーブルが引ける最小の危険度。テーブルは1始まり設計で、これ未満は
+// 危険度の指定漏れとしてエラーにする。
 const MinDanger = 1
 
 // SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する

@@ -159,8 +159,7 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType 
 			total += f.weight
 		}
 	}
-	// total>0 は zoneCatalog の不変条件で保証される。各地区は minSpan<=2 の基本施設を持ち、
-	// span は urbanSizeOf により常に2以上なので、候補が空にならず rng.IntN(total) は安全。
+	// 各地区は minSpan<=2 の基本施設を持ち span は常に2以上なので total>0。rng.IntN は安全。
 	roll := rng.IntN(total)
 	for _, f := range cat {
 		if span < f.minSpan {
@@ -269,7 +268,6 @@ func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.C
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}
 	// 湧き数は街の規模で決める。敵種別は経過日数の危険度でフィルタし、日が進むほど強敵が出る。
-	// DangerLevel は1始まりなので、そのまま raw のゲートへ渡せる。
 	count := 1 + rng.IntN(int(size))
 	danger := query.DangerLevelAt(world)
 	for range count {

@@ -27,8 +27,8 @@ type DungeonState struct {
 	// baseImage は下に敷く背景
 	baseImage *ebiten.Image
 	Depth     int
-	// Danger はこの遺跡の危険度。最初のフロア生成時の経過日数から確定し、全階で共有する。
-	// 階を降りても変わらない。生成する階の敵とアイテムの湧きフィルタに使う。ゼロ値は未確定を表す。
+	// Danger はこの遺跡の危険度。最初のフロア生成時に確定し全階で共有する。階を降りても変わらない。
+	// ゼロ値は未確定を表す。
 	Danger int
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
