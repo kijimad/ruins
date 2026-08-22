@@ -22,7 +22,8 @@ import (
 // 各クアッドをカメラ空間の奥行きで並べ替える画家アルゴリズムで隠面を解く。
 type Render3DSystem struct {
 	// UseFOV は視界データに従い、隠れたタイルを描かず記憶タイルを減光する。
-	// 本番のダンジョンでは true、部屋全体を見せたいデモでは false にする
+	// 本番のダンジョンでは true、部屋全体を見せたいデモでは false にする。
+	// TODO: この切り替えは system でなく設定で保持する。設計は docs/design/260822112145.md
 	UseFOV bool
 }
 
