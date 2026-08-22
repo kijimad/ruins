@@ -290,8 +290,7 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 	if shifted {
 		// Band の最終 eastIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、
 		// シフトのたびでなくループを抜けてから一度だけ同期する
-		sb := query.GetSeamlessBand(world)
-		sb.EastIndex = dr.band.EastIndex()
+		query.GetSeamlessBand(world).EastIndex = dr.band.EastIndex()
 	}
 	return shifted, nil
 }
