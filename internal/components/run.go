@@ -10,7 +10,7 @@ type DeathCause string
 // 起きないので保存時には居ない。ゆえに既定の丸ごと保存のままでよく serde 除外は要らない
 type RunOutcome struct {
 	Cause       DeathCause // 死因
-	ReachedDist int        // 到達した前進距離。スコアの主軸
+	ReachedDist int        // 到達した前進距離。統計の一項目
 	Days        int        // 生存日数
 	Turns       int        // 経過ターン数
 }
@@ -20,7 +20,7 @@ type RunOutcome struct {
 // 加算経路のあるカウンタだけを持つ。負傷や遺跡数は接続時に足す
 type RunStats struct {
 	EnemiesKilled  int             // 倒した敵の数
-	MaxDist        int             // 到達した最大前進距離。スコアの主軸
+	MaxDist        int             // 到達した最大前進距離
 	ItemsScavenged int             // 漁ったアイテム数
 	SalesTotal     consts.Currency // 売上累計
 }
