@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.5&nbsp;%</td>
-            <td class="headerCovTableEntry">83</td>
-            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntryMed">86.0&nbsp;%</td>
+            <td class="headerCovTableEntry">86</td>
+            <td class="headerCovTableEntry">74</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 08:22:59</td>
+            <td class="headerValue">2026-08-22 12:43:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -207,12 +207,17 @@
 <span id="L145"><span class="lineNum">     145</span>              : </span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC tlaBgGNC">           1 :         log.Debug(&quot;pickup finished&quot;, &quot;count&quot;, total)</span></span>
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         if len(errs) &gt; 0 {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;some pickups failed: %w&quot;, errors.Join(errs...))</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L151"><span class="lineNum">     151</span>              : </span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L153"><span class="lineNum">     153</span>              : }</span>
+<span id="L148"><span class="lineNum">     148</span>              :         // 漁り統計: 拾えた個数を run 統計へ加算する</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         if s := query.GetRunStats(world); s != nil {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 s.ItemsScavenged += total</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L152"><span class="lineNum">     152</span>              : </span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         if len(errs) &gt; 0 {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;some pickups failed: %w&quot;, errors.Join(errs...))</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L156"><span class="lineNum">     156</span>              : </span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L158"><span class="lineNum">     158</span>              : }</span>
         </pre>
               </td>
             </tr>

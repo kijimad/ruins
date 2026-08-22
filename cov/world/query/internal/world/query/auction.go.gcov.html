@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">68</td>
+            <td class="headerCovTableEntry">72</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 08:22:59</td>
+            <td class="headerValue">2026-08-22 12:43:33</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -188,14 +188,18 @@
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 history.Records = append(history.Records, gc.AuctionRecord{</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                         Number: e.Number, Name: e.Name, Bid: e.Bid, Ship: e.Ship, Fee: e.Fee, Net: e.Amount, Turn: now,</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L129"><span class="lineNum">     129</span>              :         case gc.AuctionEntryInvoice:</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 if err := AddCurrency(world, player, -e.Amount); err != nil {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                         return gc.AuctionEntry{}, false</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                 // 売上統計: 受取金を run 統計へ加算する</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 if s := GetRunStats(world); s != nil {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                         s.SalesTotal += e.Amount</span></span>
 <span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L133"><span class="lineNum">     133</span>              :         }</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         history.Entries = append(history.Entries[:index], history.Entries[index+1:]...)</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         return e, true</span></span>
-<span id="L136"><span class="lineNum">     136</span>              : }</span>
+<span id="L133"><span class="lineNum">     133</span>              :         case gc.AuctionEntryInvoice:</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 if err := AddCurrency(world, player, -e.Amount); err != nil {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                         return gc.AuctionEntry{}, false</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :         }</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         history.Entries = append(history.Entries[:index], history.Entries[index+1:]...)</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         return e, true</span></span>
+<span id="L140"><span class="lineNum">     140</span>              : }</span>
         </pre>
               </td>
             </tr>
