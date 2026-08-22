@@ -159,6 +159,7 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType 
 			total += f.weight
 		}
 	}
+	// 各地区は minSpan<=2 の基本施設を持ち span は常に2以上なので total>0。rng.IntN は安全。
 	roll := rng.IntN(total)
 	for _, f := range cat {
 		if span < f.minSpan {
@@ -266,11 +267,16 @@ func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.C
 	if err != nil {
 		return fmt.Errorf("failed to get urban enemy table: %w", err)
 	}
+	// 湧き数は街の規模で決める。敵種別は経過日数の危険度でフィルタし、日が進むほど強敵が出る。
 	count := 1 + rng.IntN(int(size))
+	danger := query.DangerLevelAt(world)
 	for range count {
-		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(size))
+		enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, danger)
 		if err != nil {
 			return fmt.Errorf("failed to select urban enemy: %w", err)
+		}
+		if enemyName == "" {
+			continue // 危険度帯に該当する敵がいなければこの1体は諦める
 		}
 		// 敵は街路に湧かせ、建物の footprint と壁の上は避ける。占有は footprint 全域に及ぶので、一度引いて
 		// 塞がっていたら目標数を満たすよう空きが出るまで位置を引き直す。試行を尽くしても空かなければその

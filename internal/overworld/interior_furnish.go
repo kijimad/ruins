@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -166,11 +167,11 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 		}
 		lootDice = d
 	}
+	// 危険度は経過日数で決める。日が進むほど希少な loot が出る。
+	danger := query.DangerLevelAt(world)
 	n := lootDice.Roll(rng)
 	for range n {
-		// 深度は地上の建物なので浅い loot の1を使う。廃墟テーブルは全 entry が minDepth>=1 なので深度0では
-		// 何も引けない。地上の廃屋あさりは最も浅い戦利品が出る
-		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, 1)
+		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)
 		if err != nil {
 			return err
 		}

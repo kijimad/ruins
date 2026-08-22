@@ -19,22 +19,22 @@ const tableTypeLabels: Record<TableType, string> = {
   "drop-tables": "ドロップテーブル",
 };
 
-interface DepthEntry {
+interface DangerEntry {
   name: string;
   weight: number;
 }
 
 interface EnemyTableEntry {
   enemyName: string;
-  minDepth: number;
-  maxDepth: number;
+  minDanger: number;
+  maxDanger: number;
   weight: number;
 }
 
 interface ItemTableEntry {
   itemName: string;
-  minDepth: number;
-  maxDepth: number;
+  minDanger: number;
+  maxDanger: number;
   weight: number;
 }
 
@@ -58,10 +58,10 @@ function getEntryName(
   return "";
 }
 
-function hasDepthRange(
+function hasDangerRange(
   entry: EnemyTableEntry | ItemTableEntry | DropTableEntry,
 ): entry is EnemyTableEntry | ItemTableEntry {
-  return "minDepth" in entry && "maxDepth" in entry;
+  return "minDanger" in entry && "maxDanger" in entry;
 }
 
 export function TableViewerPage() {
@@ -86,30 +86,30 @@ export function TableViewerPage() {
   const activeTable = tables.find((t) => t.name === activeTableName);
   const entries = useMemo(() => activeTable?.entries ?? [], [activeTable]);
 
-  // 階層ごとのエントリを構築する
-  const { depthMap, maxDepth } = useMemo(() => {
+  // 危険度ごとのエントリを構築する
+  const { dangerMap, maxDanger } = useMemo(() => {
     const isDropTable = tableType === "drop-tables";
     if (isDropTable) {
-      // ドロップテーブルは階層なし。全エントリをdepth=0に入れる
-      const map = new Map<number, DepthEntry[]>();
-      const items: DepthEntry[] = entries.map((e) => ({
+      // ドロップテーブルは危険度なし。全エントリを危険度0に入れる
+      const map = new Map<number, DangerEntry[]>();
+      const items: DangerEntry[] = entries.map((e) => ({
         name: getEntryName(e),
         weight: e.weight,
       }));
       if (items.length > 0) map.set(0, items);
-      return { depthMap: map, maxDepth: 0 };
+      return { dangerMap: map, maxDanger: 0 };
     }
 
     let max = 0;
     for (const e of entries) {
-      if (hasDepthRange(e) && e.maxDepth > max) max = e.maxDepth;
+      if (hasDangerRange(e) && e.maxDanger > max) max = e.maxDanger;
     }
 
-    const map = new Map<number, DepthEntry[]>();
+    const map = new Map<number, DangerEntry[]>();
     for (let d = 1; d <= max; d++) {
-      const active: DepthEntry[] = [];
+      const active: DangerEntry[] = [];
       for (const e of entries) {
-        if (hasDepthRange(e) && d >= e.minDepth && d <= e.maxDepth) {
+        if (hasDangerRange(e) && d >= e.minDanger && d <= e.maxDanger) {
           active.push({ name: getEntryName(e), weight: e.weight });
         }
       }
@@ -118,7 +118,7 @@ export function TableViewerPage() {
         map.set(d, active);
       }
     }
-    return { depthMap: map, maxDepth: max };
+    return { dangerMap: map, maxDanger: max };
   }, [entries, tableType]);
 
   const isLoading =
@@ -180,15 +180,15 @@ export function TableViewerPage() {
       {entries.length === 0 ? (
         <Text color="fg.muted">エントリがありません</Text>
       ) : tableType === "drop-tables" ? (
-        <DropTableView entries={depthMap.get(0) ?? []} />
+        <DropTableView entries={dangerMap.get(0) ?? []} />
       ) : (
-        <DepthTableView depthMap={depthMap} maxDepth={maxDepth} />
+        <DangerTableView dangerMap={dangerMap} maxDanger={maxDanger} />
       )}
     </Box>
   );
 }
 
-function DropTableView({ entries }: { entries: DepthEntry[] }) {
+function DropTableView({ entries }: { entries: DangerEntry[] }) {
   const sorted = [...entries].sort((a, b) => b.weight - a.weight);
   const totalWeight = sorted.reduce((s, e) => s + e.weight, 0);
 
@@ -221,25 +221,25 @@ function DropTableView({ entries }: { entries: DepthEntry[] }) {
   );
 }
 
-function DepthTableView({
-  depthMap,
-  maxDepth,
+function DangerTableView({
+  dangerMap,
+  maxDanger,
 }: {
-  depthMap: Map<number, DepthEntry[]>;
-  maxDepth: number;
+  dangerMap: Map<number, DangerEntry[]>;
+  maxDanger: number;
 }) {
   return (
     <Box>
-      {Array.from({ length: maxDepth }, (_, i) => i + 1).map((depth) => {
-        const entries = depthMap.get(depth);
+      {Array.from({ length: maxDanger }, (_, i) => i + 1).map((danger) => {
+        const entries = dangerMap.get(danger);
         if (!entries) return null;
         const totalWeight = entries.reduce((s, e) => s + e.weight, 0);
 
         return (
-          <Box key={depth} mb="4">
+          <Box key={danger} mb="4">
             <Flex align="center" gap="2" mb="1">
               <Text fontSize="sm" fontWeight="bold" whiteSpace="nowrap">
-                {depth}F
+                危険度{danger}
               </Text>
               <Badge colorPalette="gray" size="sm">
                 {entries.length}種

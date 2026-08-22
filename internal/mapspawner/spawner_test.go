@@ -186,7 +186,7 @@ func TestPopulateStorageLoot_未知のルートテーブルはエラー(t *testi
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
-	plan.Depth = 1
+	plan.Danger = 1
 
 	propRaw := oapi.Prop{
 		Storage: &oapi.StorageRaw{LootTableId: new("存在しないテーブル")},
@@ -204,7 +204,7 @@ func TestPopulateStorageLoot_ルートテーブルからアイテムを収納す
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
-	plan.Depth = 1
+	plan.Danger = 1
 
 	propRaw, err := raw.GetProp(world.Resources.RawMaster, "wooden_crate")
 	require.NoError(t, err)

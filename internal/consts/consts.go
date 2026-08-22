@@ -73,11 +73,6 @@ const (
 	AIVisionDistance Tile = 5
 )
 
-const (
-	// GameClearDepth はゲームクリアとなる深度
-	GameClearDepth = 100
-)
-
 // ========== タイル名 ==========
 
 const (

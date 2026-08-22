@@ -238,8 +238,8 @@ model ItemTableEntry {
   /** 参照するアイテムグループの id */
   id: EntityID;
   weight: EntryWeight;
-  minDepth: DepthLevel;
-  maxDepth: DepthLevel;
+  minDanger: DangerLevel;
+  maxDanger: DangerLevel;
 }
 
 /** アイテムテーブル */
@@ -253,8 +253,8 @@ model ItemTable {
 model EnemyTableEntry {
   id: EntityID;
   weight: EntryWeight;
-  minDepth: DepthLevel;
-  maxDepth: DepthLevel;
+  minDanger: DangerLevel;
+  maxDanger: DangerLevel;
   /** 1群あたりの敵数のダイス表記 */
   pack: Dice;
 }
