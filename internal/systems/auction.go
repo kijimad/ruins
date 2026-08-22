@@ -132,7 +132,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 	l.LastTurn = now
 
 	// 入札が来る限り延長する。来たら現在値を上げる
-	if world.Config.RNG.Float64() < query.AuctionBidChance {
+	if world.Resources.Config.RNG.Float64() < query.AuctionBidChance {
 		l.CurrentBid += query.AuctionRaise(world, item)
 		return
 	}

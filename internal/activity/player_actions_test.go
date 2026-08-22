@@ -113,7 +113,7 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("敵がいる位置への移動は攻撃になる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
+		world.Resources.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
@@ -347,7 +347,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 	t.Run("死亡した敵への移動は攻撃にならない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
+		world.Resources.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)
@@ -369,7 +369,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 	t.Run("敵を倒した後の再移動はMoveになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
+		world.Resources.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
 		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 		require.NoError(t, err)

@@ -49,7 +49,7 @@ func TestCycleLanguage_次の言語へ循環しシングルトンと設定を更
 	// SupportedLangs の並びは ja, en。en から送ると ja へ回る
 	cycleLanguage(world)
 	assert.Equal(t, "ja", query.GetUserSettings(world).Language, "シングルトンが ja へ切り替わる")
-	assert.Equal(t, "ja", world.Config.User.Language, "config も ja へ更新される")
+	assert.Equal(t, "ja", world.Resources.Config.User.Language, "config も ja へ更新される")
 
 	cycleLanguage(world)
 	assert.Equal(t, "en", query.GetUserSettings(world).Language, "循環して en へ戻る")

@@ -49,7 +49,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	var zero consts.Coord[consts.Tile]
 	var noEntity ecs.Entity
 
-	stageSeed := world.Config.RNG.Uint64()
+	stageSeed := world.Resources.Config.RNG.Uint64()
 	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
 
 	// ビルダータイプを決定する。最終階層かつボスフロアプランナーがあればボスフロアにする
@@ -223,7 +223,7 @@ func exitCube(world w.World) error {
 // だが、spawn_points を持つので Plan の到達性検証はポータルを要求せず通る。
 // 出口の戻り先 Coord の結線は入場時の runtime 処理なので enterCube が貼る。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
-	seed := world.Config.RNG.Uint64()
+	seed := world.Resources.Config.RNG.Uint64()
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, mapplanner.PlannerTypeCubeInterior)
 	if err != nil {
 		return err

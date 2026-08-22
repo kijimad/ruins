@@ -120,7 +120,7 @@ type TileColorInfo = hud.TileColorInfo
 
 // extractDebugOverlay はデバッグオーバーレイデータを抽出する
 func extractDebugOverlay(world w.World) hud.DebugOverlayData {
-	if !world.Config.ShowAIDebug {
+	if !world.Resources.Config.ShowAIDebug {
 		return hud.DebugOverlayData{Enabled: false}
 	}
 

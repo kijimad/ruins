@@ -400,7 +400,7 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 		screen.DrawImage(img, op)
 	}
 
-	if world.Config.ShowMapDebug {
+	if world.Resources.Config.ShowMapDebug {
 		// デバッグ用：スプライト番号表示(dirt, dwall)
 		if spriteRender.SpriteSheetName == "tile" {
 			var number string

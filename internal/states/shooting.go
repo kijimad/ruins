@@ -222,7 +222,7 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) e
 	}
 
 	cursorColor := theme.CursorShoot
-	if !world.Config.DisableAnimation {
+	if !world.Resources.Config.DisableAnimation {
 		cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
 	}
 	hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)

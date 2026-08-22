@@ -178,7 +178,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Config.RNG = rand.New(rand.NewPCG(42, 0))
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
 	// プレイヤーを作成（武器なし、素手で攻撃）
 	player := world.ECS.NewEntity()
@@ -386,7 +386,7 @@ func TestExecuteInteraction_Fixed(t *testing.T) {
 	t.Run("Propを攻撃できる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
+		world.Resources.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
 		player := world.ECS.NewEntity()
 		world.Components.Player.Add(player, &gc.Player{})

@@ -677,7 +677,7 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 	world.Updaters = make(map[string]w.Updater)
 
 	// 苔亀のwander移動は80%待機の確率的挙動のため、シードを固定してflaky化を防ぐ
-	world.Config.RNG = rand.New(rand.NewPCG(1, 0))
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(1, 0))
 
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
@@ -732,7 +732,7 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 	world.Updaters = make(map[string]w.Updater)
 
 	// 苔亀のwander移動は80%待機の確率的挙動のため、シードを固定してflaky化を防ぐ
-	world.Config.RNG = rand.New(rand.NewPCG(1, 0))
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(1, 0))
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)

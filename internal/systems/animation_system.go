@@ -31,7 +31,7 @@ func (sys AnimationSystem) String() string {
 // Update は全エンティティのスプライトアニメーションを更新する
 // w.Updater interfaceを実装
 func (sys *AnimationSystem) Update(world w.World) error {
-	if world.Config.DisableAnimation {
+	if world.Resources.Config.DisableAnimation {
 		return nil
 	}
 

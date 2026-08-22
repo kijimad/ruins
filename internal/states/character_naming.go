@@ -102,7 +102,7 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 	}
 
 	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
+	if action, ok := st.HandleInput(world.Resources.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {

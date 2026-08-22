@@ -65,7 +65,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 
 		// アイテム選択
-		materialName, err := raw.SelectDropByWeight(dropTable, world.Config.RNG)
+		materialName, err := raw.SelectDropByWeight(dropTable, world.Resources.Config.RNG)
 		if err != nil {
 			return err
 		}
@@ -95,7 +95,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		grid := world.Components.GridElement.Get(entity)
 		// 産出名・個数表記はロード時に検証済みで、ここで失敗するのは整合性バグ。
 		// 握りつぶすと産出が静かに消えるため loud に返す
-		stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, 0, 0, false)
+		stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, 0, 0, false)
 		if err != nil {
 			return fmt.Errorf("failed to draw salvage item: %w", err)
 		}

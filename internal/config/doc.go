@@ -49,16 +49,16 @@
 //	world, _ := maingame.InitWorld(cfg)
 //
 //	// world経由での設定アクセス
-//	if world.Config.Profile == config.ProfileDevelopment {
+//	if world.Resources.Config.Profile == config.ProfileDevelopment {
 //		log.Println("Development mode")
 //	}
 //
 //	// ウィンドウサイズの取得
-//	width := world.Config.User.WindowWidth
-//	height := world.Config.User.WindowHeight
+//	width := world.Resources.Config.User.WindowWidth
+//	height := world.Resources.Config.User.WindowHeight
 //
 //	// デバッグモードの確認
-//	if world.Config.Debug {
+//	if world.Resources.Config.Debug {
 //		log.Println("Debug mode enabled")
 //	}
 //

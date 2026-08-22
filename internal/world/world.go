@@ -34,7 +34,6 @@ type World struct {
 	ECS        *ecs.World
 	Components *gc.Components
 	Resources  *resources.Resources
-	Config     *config.Config
 	Updaters   map[string]Updater
 	Renderers  map[string]Renderer
 }
@@ -50,10 +49,10 @@ func InitWorld(c *gc.Components, cfg *config.Config) (World, error) {
 		ECS:        arkWorld,
 		Components: c,
 		Resources:  resources.InitGameResources(),
-		Config:     cfg,
 		Updaters:   make(map[string]Updater),
 		Renderers:  make(map[string]Renderer),
 	}
+	world.Resources.Config = cfg
 
 	world.InitSingleton()
 
@@ -74,7 +73,7 @@ func (world World) InitSingleton() {
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	// config は構築時に渡されているので、設定言語をそのまま種にする。
-	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Config.User.Language))
+	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 	world.Components.AuctionHistory.Add(singleton, gc.NewAuctionHistory())
 	world.Resources.SingletonEntity = singleton
 }
