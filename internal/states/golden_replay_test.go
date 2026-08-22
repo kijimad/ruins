@@ -136,7 +136,15 @@ func TestGolden(t *testing.T) {
 		{
 			name: "RunStats",
 			build: func(world w.World) ([]es.State[w.World], error) {
-				seedRunStatsForShot(world)
+				// 見栄えのする統計値を仕込む。経過1240ターンで日数が2日目に乗る
+				if s := query.GetRunStats(world); s != nil {
+					s.EnemiesKilled = 12
+					s.ItemsScavenged = 8
+					s.SalesTotal = 3400
+				}
+				if gt := query.GetGameTime(world); gt != nil {
+					gt.TotalTurns = 1240
+				}
 				st, err := gs.NewRunStatsState()
 				if err != nil {
 					return nil, err
@@ -484,18 +492,5 @@ func TestGolden(t *testing.T) {
 				},
 			)
 		})
-	}
-}
-
-// seedRunStatsForShot は統計画面の golden 用に見栄えのする統計値を仕込む。
-// ターンは開始原点に経過を足し、表示の経過ターンが 0 に潰れない見た目にする
-func seedRunStatsForShot(world w.World) {
-	if s := query.GetRunStats(world); s != nil {
-		s.EnemiesKilled = 12
-		s.ItemsScavenged = 8
-		s.SalesTotal = 3400
-	}
-	if gt := query.GetGameTime(world); gt != nil {
-		gt.TotalTurns = 1240
 	}
 }
