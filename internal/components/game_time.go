@@ -70,7 +70,8 @@ func (gt *GameTime) GetDayNumber() int {
 // GetTemperatureModifier は時間帯による気温修正値を返す。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
 func (gt *GameTime) GetTemperatureModifier() int {
-	switch gt.GetTimeOfDay() {
+	tod := gt.GetTimeOfDay()
+	switch tod {
 	case TimeDawn:
 		return 0 // 夜明け: +0°C
 	case TimeMorning:
@@ -84,7 +85,7 @@ func (gt *GameTime) GetTemperatureModifier() int {
 	case TimeMidnight:
 		return -10 // 深夜: -10°C
 	}
-	panic(fmt.Sprintf("unknown TimeOfDay: %d", gt.GetTimeOfDay()))
+	panic(fmt.Sprintf("unknown TimeOfDay: %d", tod))
 }
 
 // Advance はターンを進める
