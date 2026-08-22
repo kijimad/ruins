@@ -64,9 +64,9 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	world, err := w.InitWorld(&gc.Components{}, testCfg)
 	require.NoError(tb, err)
 
-	world.Config.LogLevel = "ignore"
-	world.Config.Seed = rand.Uint64()
-	world.Config.RNG = rand.New(rand.NewPCG(world.Config.Seed, 0))
+	world.Resources.Config.LogLevel = "ignore"
+	world.Resources.Config.Seed = rand.Uint64()
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(world.Resources.Config.Seed, 0))
 	world.Resources.SetScreenDimensions(960, 720)
 
 	// RawMasterのみを共有リソースから取得（一度だけ読み込む）

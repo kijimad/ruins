@@ -36,7 +36,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	}
 
 	// アニメーション無効時は即座に削除
-	if world.Config.DisableAnimation {
+	if world.Resources.Config.DisableAnimation {
 		for _, entity := range entitiesToDelete {
 			world.ECS.RemoveEntity(entity)
 		}

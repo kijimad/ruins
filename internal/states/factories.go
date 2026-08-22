@@ -93,7 +93,7 @@ func NewDemoStartState() (es.State[w.World], error) {
 // 帯形状はマスタ DungeonOverworld が持つので、プレイ固有の RunSeed だけを渡す。
 func newGameOverworldState(world w.World) es.StateFactory[w.World] {
 	return NewOverworldState(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, &overworld.NewGameParams{
-		RunSeed: world.Config.RNG.Uint64(),
+		RunSeed: world.Resources.Config.RNG.Uint64(),
 	})
 }
 

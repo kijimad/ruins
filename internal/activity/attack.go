@@ -348,7 +348,7 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 func rollHitCheckWithModifier(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) (hit bool, critical bool) {
 	hitRate := calculateHitRate(attacker, target, world, attack, modifier)
 
-	roll := world.Config.RNG.IntN(formula.DiceMax) + 1
+	roll := world.Resources.Config.RNG.IntN(formula.DiceMax) + 1
 	hit = roll <= hitRate
 	critical = roll <= formula.CriticalHitThreshold
 
@@ -378,7 +378,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		targetDefense = targetAbilsComp.Defense.Total
 	}
 
-	baseDamage := baseAbil + world.Config.RNG.IntN(formula.DamageRandomRange) + 1
+	baseDamage := baseAbil + world.Resources.Config.RNG.IntN(formula.DamageRandomRange) + 1
 	baseDamage += attack.GetDamage()
 	baseDamage += damageModifier
 

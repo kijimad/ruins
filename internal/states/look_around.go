@@ -146,7 +146,7 @@ func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) error
 
 	cursorColor := theme.CursorLook
 	// 点滅エフェクト: アルファ値を変化させる。アニメーション無効時は固定値
-	if !world.Config.DisableAnimation {
+	if !world.Resources.Config.DisableAnimation {
 		cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
 	}
 	hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)

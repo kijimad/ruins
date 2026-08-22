@@ -628,7 +628,7 @@ func TestExtractDebugOverlay(t *testing.T) {
 	t.Run("無効時はEnabledがfalseになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Config.ShowAIDebug = false
+		world.Resources.Config.ShowAIDebug = false
 
 		data := extractDebugOverlay(world)
 
@@ -641,7 +641,7 @@ func TestExtractDebugOverlay(t *testing.T) {
 	t.Run("有効時はAI状態と視界範囲とHP表示を反映する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Config.ShowAIDebug = true
+		world.Resources.Config.ShowAIDebug = true
 		world.Resources.SetScreenDimensions(800, 600)
 
 		camera := world.ECS.NewEntity()

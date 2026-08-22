@@ -145,8 +145,8 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// シード2でドロップするケース
-	world.Config.Seed = 2
-	world.Config.RNG = rand.New(rand.NewPCG(world.Config.Seed, 0))
+	world.Resources.Config.Seed = 2
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(world.Resources.Config.Seed, 0))
 
 	// 敵エンティティを作成
 	enemy := world.ECS.NewEntity()

@@ -91,9 +91,9 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{func() (es.State[w.World], error) { return NewMessageState(md) }}}, nil
 		}},
 		Choice{Label: "Toggle debug display", Run: popAfter(func(world w.World) error {
-			world.Config.ShowMapDebug = !world.Config.ShowMapDebug
-			world.Config.ShowAIDebug = !world.Config.ShowAIDebug
-			world.Config.NoEncounter = !world.Config.NoEncounter
+			world.Resources.Config.ShowMapDebug = !world.Resources.Config.ShowMapDebug
+			world.Resources.Config.ShowAIDebug = !world.Resources.Config.ShowAIDebug
+			world.Resources.Config.NoEncounter = !world.Resources.Config.NoEncounter
 			return nil
 		})},
 		Choice{Label: "Advance time of day", Run: popAfter(func(world w.World) error {

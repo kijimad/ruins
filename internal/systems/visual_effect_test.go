@@ -111,7 +111,7 @@ func TestVisualEffectSystem_DisableAnimation(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// アニメーションを無効化
-	world.Config.DisableAnimation = true
+	world.Resources.Config.DisableAnimation = true
 
 	// エフェクトを作成
 	titleEffect := gc.NewSplashTextEffect("テストダンジョン 1F", nil, 800, 600)

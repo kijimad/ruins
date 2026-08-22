@@ -44,7 +44,7 @@ func TestTurnSystem_分解を完走してもAPが枯渇しない(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)

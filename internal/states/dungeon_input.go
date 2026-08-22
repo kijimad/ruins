@@ -79,7 +79,7 @@ var (
 // readAction は1フレームのダンジョン操作を Action として読む。供給源があればそこから読み、
 // 再生ドライバがメニューと同じ注入点でダンジョンも駆動できる
 func (st *DungeonState) readAction(world w.World) (inputmapper.ActionID, bool) {
-	if world.Config.Debug {
+	if world.Resources.Config.Debug {
 		return keybind.ReadInput(world, dungeonDebugTable)
 	}
 	return keybind.ReadInput(world, dungeonTable)

@@ -17,7 +17,7 @@ func TestPopulateMerchantStock_在庫にアイテムを積む(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	merchant := world.ECS.NewEntity()
 
-	require.NoError(t, PopulateMerchantStock(world, merchant, world.Config.RNG))
+	require.NoError(t, PopulateMerchantStock(world, merchant, world.Resources.Config.RNG))
 
 	total := 0
 	for _, item := range merchantStockItems {

@@ -177,8 +177,8 @@ func cycleLanguage(world w.World) {
 // UserSettings は world 初期化で常に登録されるため nil を想定しない。Fetch も同じ前提で読む。
 func applyLanguage(world w.World, code string) {
 	query.GetUserSettings(world).Language = code
-	world.Config.User.Language = code
-	if err := world.Config.SaveUserConfig(); err != nil {
+	world.Resources.Config.User.Language = code
+	if err := world.Resources.Config.SaveUserConfig(); err != nil {
 		logger.New(logger.CategorySave).Warn("failed to save language setting", "error", err)
 	}
 }

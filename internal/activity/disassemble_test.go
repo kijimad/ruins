@@ -119,7 +119,7 @@ func TestDisassembleBehavior_propを分解すると素材が足元に落ちる(t
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
@@ -164,7 +164,7 @@ func TestDisassembleBehavior_アイテムを分解すると消費して素材が
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
@@ -199,7 +199,7 @@ func TestDisassembleBehavior_収納propを分解すると中身が足元に出�
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
@@ -262,7 +262,7 @@ func TestDisassembleBehavior_スタックのあるアイテムは1個だけ消�
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 
@@ -288,7 +288,7 @@ func TestDisassembleBehavior_Finish_レベルアップでStatsChangedが付く(t
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Config.RNG = rand.New(rand.NewPCG(7, 0))
+	world.Resources.Config.RNG = rand.New(rand.NewPCG(7, 0))
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
 	require.NoError(t, err)
 

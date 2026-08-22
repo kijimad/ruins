@@ -45,7 +45,7 @@ func (st *MapGenVisualizerState) OnResume(_ w.World) error { return nil }
 func (st *MapGenVisualizerState) OnStart(world w.World) error {
 	seed := st.Seed
 	if seed == 0 {
-		seed = world.Config.RNG.Uint64()
+		seed = world.Resources.Config.RNG.Uint64()
 	}
 
 	chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, seed, st.PlannerType)

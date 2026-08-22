@@ -85,7 +85,7 @@ type mainMenuItem struct {
 // Fetch は世界から表示 props を構築する。menuloop.Model の Model 部にあたる
 func (st *MainMenuState) Fetch(world w.World) (MainMenuProps, error) {
 	var startFuncs []es.StateFactory[w.World]
-	if world.Config.SkipOpening {
+	if world.Resources.Config.SkipOpening {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
 	} else {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
