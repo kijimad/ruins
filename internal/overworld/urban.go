@@ -82,12 +82,14 @@ const (
 	facilityLab     facilityType = "lab"     // 研究施設
 )
 
-// facilityWeight は施設の抽選重みと規模 gate。minSpan は市街地の一辺がこの値以上のときだけ
-// 抽選対象になる。規模で絞る gate で、大きな市街地でだけ専門施設が混ざる。
+// facilityWeight は施設の抽選重みと2つの gate。minSpan は市街地の一辺がこの値以上のとき、
+// minDanger は街の前進距離の危険度がこの値以上のときだけ抽選対象になる。規模で専門施設を絞り、
+// 前進距離で高危険の施設を遠くの街だけに出す。両方を満たしたときに候補へ入る。
 type facilityWeight struct {
-	kind    facilityType
-	weight  int
-	minSpan consts.Chunk
+	kind      facilityType
+	weight    int
+	minSpan   consts.Chunk
+	minDanger int
 }
 
 // zone は市街地内の地区。中心からの位置で決まり、地区ごとに施設抽選の重みを変える。
@@ -104,24 +106,25 @@ const (
 
 // zoneCatalog は地区ごとの施設抽選重み。地区で重みが揃うので同じ地区の隣接チャンクは同種へ
 // 寄り、地区が生まれる。都心は必ず span=3 で現れるので専門施設の骨董品店・診療所・研究施設を
-// 含められる。各地区とも span=2 の入口を持つので、規模 gate で候補が空になり抽選が壊れることはない。
+// 含められる。専門施設は前進距離の危険度でも gate し、遠くの街ほど高危険の施設が解禁される。
+// 各地区とも span=2・danger=0 で通る基本施設を持つので、gate で候補が空になり抽選が壊れることはない。
 var zoneCatalog = map[zone][]facilityWeight{
 	zoneDowntown: {
-		{facilityStore, 25, 2},
-		{facilityOffice, 20, 2},
-		{facilityAntique, 20, 3},
-		{facilityClinic, 20, 3},
-		{facilityLab, 15, 3},
+		{facilityStore, 25, 2, 0},
+		{facilityOffice, 20, 2, 0},
+		{facilityClinic, 20, 3, 1},
+		{facilityAntique, 20, 3, 2},
+		{facilityLab, 15, 3, 4},
 	},
 	zoneResidential: {
-		{facilityHouse, 65, 2},
-		{facilityStore, 25, 2},
-		{facilityClinic, 10, 3},
+		{facilityHouse, 65, 2, 0},
+		{facilityStore, 25, 2, 0},
+		{facilityClinic, 10, 3, 1},
 	},
 	zoneIndustrial: {
-		{facilityDepot, 65, 2},
-		{facilityOffice, 25, 2},
-		{facilityHouse, 10, 2},
+		{facilityDepot, 65, 2, 0},
+		{facilityOffice, 25, 2, 0},
+		{facilityHouse, 10, 2, 0},
 	},
 }
 
@@ -150,18 +153,18 @@ func zoneOf(lx, ly, cw, ch consts.Chunk, urbanSeed uint64) zone {
 	return zoneResidential
 }
 
-// rollFacilityInZone は地区の重み表から規模 gate を通った施設を1つ重みで抽選する。
-func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType {
+// rollFacilityInZone は地区の重み表から規模と危険度の gate を通った施設を1つ重みで抽選する。
+func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk, danger int) facilityType {
 	cat := zoneCatalog[z]
 	total := 0
 	for _, f := range cat {
-		if span >= f.minSpan {
+		if span >= f.minSpan && danger >= f.minDanger {
 			total += f.weight
 		}
 	}
 	roll := rng.IntN(total)
 	for _, f := range cat {
-		if span < f.minSpan {
+		if span < f.minSpan || danger < f.minDanger {
 			continue
 		}
 		roll -= f.weight
@@ -175,7 +178,7 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType 
 // urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。
 // 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで
 // 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。
-func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {
+func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, chunkW consts.Tile) (kind facilityType, size consts.Chunk, ok bool) {
 	anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)
 	if !ok {
 		return "", 0, false
@@ -184,10 +187,13 @@ func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Ch
 	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
 	size = max(cw, ch)
 	z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, urbanSeed)
+	// 施設 gate に使う前進距離の危険度。街の西端アンカーの絶対Xから、日数を含めない距離のみで
+	// 求める。地図表示と生成が同じ座標で同じ値を得るよう、日数依存の DangerLevelAt は使わない。
+	danger := query.DangerLevel(consts.AbsTileX(anchor.X.Tiles(chunkW)), 0)
 	// 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。
 	// ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える
 	frng := rand.New(rand.NewPCG(chunkSeed, 0x1))
-	return rollFacilityInZone(frng, z, size), size, true
+	return rollFacilityInZone(frng, z, size, danger), size, true
 }
 
 // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので
@@ -199,7 +205,7 @@ func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.C
 	}
 
 	// 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う
-	fac, size, _ := urbanChunkInfo(runSeed, c, rows)
+	fac, size, _ := urbanChunkInfo(runSeed, c, rows, g.chunkW)
 	urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)
 	chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)
 	return renderUrbanChunk(world, g, chunkSeed, size, fac)

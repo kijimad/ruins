@@ -60,8 +60,8 @@ func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出�
 	small := map[facilityType]bool{}
 	big := map[facilityType]bool{}
 	for s := range uint64(300) {
-		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), zoneDowntown, 2)] = true
-		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), zoneDowntown, 3)] = true
+		small[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), zoneDowntown, 2, 10)] = true
+		big[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), zoneDowntown, 3, 10)] = true
 	}
 	for _, f := range []facilityType{facilityAntique, facilityClinic, facilityLab} {
 		assert.Falsef(t, small[f], "span=2 の都心に minSpan=3 の %s は出ない", f)
@@ -70,14 +70,30 @@ func TestRollFacilityInZone_規模gateで専門施設はspan3以上でだけ出�
 		"span=3 の都心では専門施設が混ざる")
 }
 
+// TestRollFacilityInZone_危険度gateで高危険施設は近距離で出ない は、前進距離の危険度 gate が効いて
+// 開始付近の街に高危険の専門施設が出ないことを固定する。研究施設 lab は minDanger=4 なので danger=0 では
+// span=3 でも出ず、danger=4 で初めて解禁される。gate を外すと近距離に高危険施設が漏れる退行を検知する。
+func TestRollFacilityInZone_危険度gateで高危険施設は近距離で出ない(t *testing.T) {
+	t.Parallel()
+
+	near := map[facilityType]bool{}
+	far := map[facilityType]bool{}
+	for s := range uint64(300) {
+		near[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), zoneDowntown, 3, 0)] = true
+		far[rollFacilityInZone(rand.New(rand.NewPCG(s, 0)), zoneDowntown, 3, 4)] = true
+	}
+	assert.False(t, near[facilityLab], "danger=0 の都心に minDanger=4 の研究施設は出ない")
+	assert.True(t, far[facilityLab], "danger=4 で研究施設が解禁される")
+}
+
 // TestRollFacilityInZone_決定的 は、同じ rng 状態から同じ施設が出て、必ず有効な種別を返すことを固定する。
 func TestRollFacilityInZone_決定的(t *testing.T) {
 	t.Parallel()
 
-	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), zoneResidential, 3)
+	first := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), zoneResidential, 3, 10)
 	assert.NotEmpty(t, first, "有効な施設種別を返す")
 	for range 5 {
-		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), zoneResidential, 3)
+		got := rollFacilityInZone(rand.New(rand.NewPCG(7, 0)), zoneResidential, 3, 10)
 		assert.Equal(t, first, got, "同じ rng シードなら同じ施設")
 	}
 }
@@ -98,7 +114,7 @@ func TestUrbanZoning_隣接同種率が独立期待を上回る(t *testing.T) {
 		for y := range rows {
 			for x := range consts.Chunk(60) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if k, _, ok := urbanChunkInfo(s, c, rows); ok {
+				if k, _, ok := urbanChunkInfo(s, c, rows, 50); ok {
 					grid[c] = k
 					kindCount[k]++
 					total++
