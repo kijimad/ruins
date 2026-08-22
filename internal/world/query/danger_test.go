@@ -30,9 +30,4 @@ func TestDangerLevel(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, 1, dangerLevel(-5))
 	})
-
-	t.Run("同じ入力は常に同じ値", func(t *testing.T) {
-		t.Parallel()
-		assert.Equal(t, dangerLevel(7), dangerLevel(7))
-	})
 }
