@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -485,7 +485,7 @@
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/states/character_state.go (62.7%)</option>
 				
-				<option value="file215">github.com/kijimaD/ruins/internal/states/character_view.go (93.5%)</option>
+				<option value="file215">github.com/kijimaD/ruins/internal/states/character_view.go (93.9%)</option>
 				
 				<option value="file216">github.com/kijimaD/ruins/internal/states/choice.go (77.1%)</option>
 				
@@ -1767,8 +1767,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -41170,18 +41170,21 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menul
         })</span>
 }
 
-// buildEquipList は装備タブの一覧を組み立てる。スロット名、装備アイコン、装備名を並べ、
-// 未装備はアイコンと名前を空欄にする。アイコンは装備名の左に置く
+// buildEquipList は装備タブの一覧を組み立てる。スロット名、装備アイコン、装備名を左に並べ、
+// 右端に装備の重量を表示する。名前列を幅0で伸ばし、重量列を右端へ寄せて情報タブの値と揃える。
+// 未装備はアイコン・名前・重量を空欄にする。アイコンは装備名の左に置く
 func buildEquipList(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
-        <span class="cov8" title="1">columnWidths := []int{120, itemIconColumnWidth, 220}
-        aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft}
+        <span class="cov8" title="1">columnWidths := []int{150, itemIconColumnWidth, 0, 90}
+        aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
         rows := make([]menuRow, len(slots))
         for i, slot := range slots </span>{
                 <span class="cov8" title="1">var icon *ebiten.Image
+                weight := ""
                 if slot.Entity != nil </span>{
                         <span class="cov8" title="1">icon, _ = resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(*slot.Entity))
+                        weight = query.GetEntityWeight(world, *slot.Entity).KgString()
 </span>                }
-                <span class="cov8" title="1">rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName)}}</span>
+                <span class="cov8" title="1">rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName), styled.TextCell(weight)}}</span>
         }
         // 人物画面は見出しとタブ帯の両方を持つので、その構成での実測容量を使う
         <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)</span>
