@@ -164,7 +164,7 @@ func runStatsFields(world w.World) (days, turns, kills, items int, sales consts.
 	}
 	if gt := query.GetGameTime(world); gt != nil {
 		days = gt.GetDayNumber()
-		turns = int(gt.TotalTurns)
+		turns = gt.ElapsedTurns()
 	}
 	return
 }

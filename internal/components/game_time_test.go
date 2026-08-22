@@ -149,3 +149,28 @@ func TestGameTime_GetDayNumber(t *testing.T) {
 		})
 	}
 }
+
+func TestGameTime_ElapsedTurns(t *testing.T) {
+	t.Parallel()
+
+	// 昼開始なので原点は 500。新規ゲーム直後は経過0、そこから TotalTurns の増分ぶん増える
+	assert.Equal(t, consts.Turn(500), GameStartTurns(), "昼開始の原点は500")
+
+	tests := []struct {
+		name       string
+		totalTurns consts.Turn
+		expected   int
+	}{
+		{"開始直後は経過0", GameStartTurns(), 0},
+		{"開始から10ターン", GameStartTurns() + 10, 10},
+		{"翌日昼までで1500", GameStartTurns() + 1500, 1500},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gt := &GameTime{TotalTurns: tt.totalTurns}
+			assert.Equal(t, tt.expected, gt.ElapsedTurns())
+		})
+	}
+}

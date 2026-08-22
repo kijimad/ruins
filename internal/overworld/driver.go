@@ -125,7 +125,7 @@ func (dr *Driver) startInitialBand(world w.World) error {
 	}
 
 	// 新規ゲームは昼から始める。時間帯は TotalTurns から導出するので昼の開始ターンに合わせる
-	query.GetGameTime(world).TotalTurns = gc.StartOfTimeOfDayTurns(gc.TimeDay)
+	query.GetGameTime(world).TotalTurns = gc.GameStartTurns()
 
 	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
 	chunkW, chunkH, cols, rows := dr.definition.BandShape()

@@ -3,6 +3,7 @@ package states
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +20,8 @@ func TestRunResultText(t *testing.T) {
 	s.EnemiesKilled = 42
 	s.ItemsScavenged = 13
 	s.SalesTotal = 999
-	query.GetGameTime(world).TotalTurns = 5678
+	// 表示は run 開始からの経過ターン。開始原点に 5678 を足せば経過は 5678 になる
+	query.GetGameTime(world).TotalTurns = gc.GameStartTurns() + 5678
 
 	text := runResultText(world)
 
@@ -39,7 +41,8 @@ func TestRunStatsText(t *testing.T) {
 	s.EnemiesKilled = 42
 	s.ItemsScavenged = 13
 	s.SalesTotal = 999
-	query.GetGameTime(world).TotalTurns = 5678
+	// 表示は run 開始からの経過ターン。開始原点に 5678 を足せば経過は 5678 になる
+	query.GetGameTime(world).TotalTurns = gc.GameStartTurns() + 5678
 
 	text := runStatsText(world)
 

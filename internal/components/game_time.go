@@ -56,6 +56,13 @@ func StartOfTimeOfDayTurns(t TimeOfDay) consts.Turn {
 	return turnsPerTimeOfDay * consts.Turn(t)
 }
 
+// GameStartTurns は新規ゲームの開始ターンを返す。新規ゲームは昼から始まる。
+// 時間帯を TotalTurns の剰余で導出する設計上、昼開始は TotalTurns がこの値から始まることを意味する。
+// 開始を設定する側と、経過ターンを測る側の双方がこの原点を参照する。
+func GameStartTurns() consts.Turn {
+	return StartOfTimeOfDayTurns(TimeDay)
+}
+
 // GetTimeOfDay は現在の時間帯を返す
 func (gt *GameTime) GetTimeOfDay() TimeOfDay {
 	turnInDay := gt.TotalTurns % turnsPerDay
@@ -97,4 +104,10 @@ func (gt *GameTime) AdvanceToNextTimeOfDay() {
 // GetDayNumber は経過日数を返す（1日目から始まる）
 func (gt *GameTime) GetDayNumber() int {
 	return int(gt.TotalTurns/turnsPerDay) + 1
+}
+
+// ElapsedTurns は新規ゲーム開始からの経過ターン数を返す。
+// TotalTurns は昼開始の分だけ底上げされているので、run 内の経過として見せるにはこの相対値を使う。
+func (gt *GameTime) ElapsedTurns() int {
+	return int(gt.TotalTurns - GameStartTurns())
 }
