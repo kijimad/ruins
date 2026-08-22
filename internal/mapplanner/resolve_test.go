@@ -33,9 +33,9 @@ func dangerBoundaryRaws() *oapi.Raws {
 }
 
 var dangerBoundaryCases = []struct {
-	name  string
+	name   string
 	danger int
-	want  []string
+	want   []string
 }{
 	{"MinDanger一致は含む", 1, []string{"low"}},
 	{"MaxDanger一致は含む", 3, []string{"low"}},

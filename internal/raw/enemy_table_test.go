@@ -140,11 +140,11 @@ func TestEnemyTable_SelectByWeight_Reproducibility(t *testing.T) {
 	}
 }
 
-func TestEnemyTable_SelectByWeight_DepthFiltering_MinDanger(t *testing.T) {
+func TestEnemyTable_SelectByWeight_DangerFiltering_MinDanger(t *testing.T) {
 	t.Parallel()
 
 	enemyTable := oapi.EnemyTable{
-		Name: "深度テスト",
+		Name: "危険度テスト",
 		Entries: []oapi.EnemyTableEntry{
 			{Id: "弱い敵", Weight: 1.0, MinDanger: 1, MaxDanger: 5},
 			{Id: "中級の敵", Weight: 1.0, MinDanger: 5, MaxDanger: 10},
@@ -154,7 +154,7 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDanger(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 
-	// 深度1: 弱い敵のみ選択可能
+	// 危険度1: 弱い敵のみ選択可能
 	results := make(map[string]int)
 	for range 1000 {
 		result, err := SelectEnemyByWeight(enemyTable, rng, 1)
@@ -163,11 +163,11 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDanger(t *testing.T) {
 			results[result]++
 		}
 	}
-	assert.Positive(t, results["弱い敵"], "深度1では弱い敵が選択されるべき")
-	assert.Equal(t, 0, results["中級の敵"], "深度1では中級の敵は選択されない")
-	assert.Equal(t, 0, results["強い敵"], "深度1では強い敵は選択されない")
+	assert.Positive(t, results["弱い敵"], "危険度1では弱い敵が選択されるべき")
+	assert.Equal(t, 0, results["中級の敵"], "危険度1では中級の敵は選択されない")
+	assert.Equal(t, 0, results["強い敵"], "危険度1では強い敵は選択されない")
 
-	// 深度5: 弱い敵と中級の敵が選択可能
+	// 危険度5: 弱い敵と中級の敵が選択可能
 	results = make(map[string]int)
 	for range 1000 {
 		result, err := SelectEnemyByWeight(enemyTable, rng, 5)
@@ -176,11 +176,11 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDanger(t *testing.T) {
 			results[result]++
 		}
 	}
-	assert.Positive(t, results["弱い敵"], "深度5では弱い敵が選択されるべき")
-	assert.Positive(t, results["中級の敵"], "深度5では中級の敵が選択されるべき")
-	assert.Equal(t, 0, results["強い敵"], "深度5では強い敵は選択されない")
+	assert.Positive(t, results["弱い敵"], "危険度5では弱い敵が選択されるべき")
+	assert.Positive(t, results["中級の敵"], "危険度5では中級の敵が選択されるべき")
+	assert.Equal(t, 0, results["強い敵"], "危険度5では強い敵は選択されない")
 
-	// 深度15: 強い敵のみ選択可能
+	// 危険度15: 強い敵のみ選択可能
 	results = make(map[string]int)
 	for range 1000 {
 		result, err := SelectEnemyByWeight(enemyTable, rng, 15)
@@ -189,16 +189,16 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDanger(t *testing.T) {
 			results[result]++
 		}
 	}
-	assert.Equal(t, 0, results["弱い敵"], "深度15では弱い敵は選択されない")
-	assert.Equal(t, 0, results["中級の敵"], "深度15では中級の敵は選択されない")
-	assert.Positive(t, results["強い敵"], "深度15では強い敵が選択されるべき")
+	assert.Equal(t, 0, results["弱い敵"], "危険度15では弱い敵は選択されない")
+	assert.Equal(t, 0, results["中級の敵"], "危険度15では中級の敵は選択されない")
+	assert.Positive(t, results["強い敵"], "危険度15では強い敵が選択されるべき")
 }
 
-func TestEnemyTable_SelectByWeight_DepthFiltering_NoMatch(t *testing.T) {
+func TestEnemyTable_SelectByWeight_DangerFiltering_NoMatch(t *testing.T) {
 	t.Parallel()
 
 	enemyTable := oapi.EnemyTable{
-		Name: "深度範囲外",
+		Name: "危険度範囲外",
 		Entries: []oapi.EnemyTableEntry{
 			{Id: "敵1", Weight: 1.0, MinDanger: 10, MaxDanger: 20},
 			{Id: "敵2", Weight: 1.0, MinDanger: 20, MaxDanger: 30},
@@ -207,13 +207,13 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_NoMatch(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 
-	// 深度5: 全ての敵が範囲外
+	// 危険度5: 全ての敵が範囲外
 	result, err := SelectEnemyByWeight(enemyTable, rng, 5)
 	require.NoError(t, err)
-	assert.Empty(t, result, "深度範囲外の場合は空文字列を返すべき")
+	assert.Empty(t, result, "危険度範囲外の場合は空文字列を返すべき")
 
-	// 深度50: 全ての敵が範囲外
+	// 危険度50: 全ての敵が範囲外
 	result, err = SelectEnemyByWeight(enemyTable, rng, 50)
 	require.NoError(t, err)
-	assert.Empty(t, result, "深度範囲外の場合は空文字列を返すべき")
+	assert.Empty(t, result, "危険度範囲外の場合は空文字列を返すべき")
 }
