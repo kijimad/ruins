@@ -38,6 +38,11 @@ func (st *DemoStartState) OnStart(world w.World) error {
 		return err
 	}
 
+	// デバッグ用に本を初期所持へ積む。読書アクティビティを開始直後に試せるようにする
+	if _, err := lifecycle.SpawnBackpackItem(world, "grape_book", 1); err != nil {
+		return fmt.Errorf("failed to spawn debug book: %w", err)
+	}
+
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
 		NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)},
