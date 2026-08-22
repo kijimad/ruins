@@ -530,6 +530,24 @@ msgstr "防具(足)"
 msgid "Armor (jewelry)"
 msgstr "防具(装飾)"
 
+msgid "Statistics"
+msgstr "統計"
+
+msgid "Days"
+msgstr "生存日数"
+
+msgid "Turns"
+msgstr "経過ターン"
+
+msgid "Enemies killed"
+msgstr "撃破数"
+
+msgid "Items scavenged"
+msgstr "回収数"
+
+msgid "Sales"
+msgstr "売上"
+
 msgid "You died."
 msgstr "死亡した。"
 

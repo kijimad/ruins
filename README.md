@@ -23,9 +23,9 @@
 | <img src="internal/states/testdata/TestGolden_ItemAction_List.png" width="200" /><br>ItemAction_List | <img src="internal/states/testdata/TestGolden_ItemAction_Read.png" width="200" /><br>ItemAction_Read | <img src="internal/states/testdata/TestGolden_ItemAction_Use.png" width="200" /><br>ItemAction_Use | <img src="internal/states/testdata/TestGolden_KeyHelp.png" width="200" /><br>KeyHelp |
 | <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround | <img src="internal/states/testdata/TestGolden_LookAround_Away.png" width="200" /><br>LookAround_Away | <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu |
 | <img src="internal/states/testdata/TestGolden_MainMenuOpenSettings.png" width="200" /><br>MainMenuOpenSettings | <img src="internal/states/testdata/TestGolden_Message.png" width="200" /><br>Message | <img src="internal/states/testdata/TestGolden_Overworld.png" width="200" /><br>Overworld | <img src="internal/states/testdata/TestGolden_OverworldMap.png" width="200" /><br>OverworldMap |
-| <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu | <img src="internal/states/testdata/TestGolden_SettingsMenuClose.png" width="200" /><br>SettingsMenuClose |
-| <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu_Buy.png" width="200" /><br>ShopMenu_Buy | <img src="internal/states/testdata/TestGolden_ShopMenu_Sell.png" width="200" /><br>ShopMenu_Sell | <img src="internal/states/testdata/TestGolden_StorageMenu_Retrieve.png" width="200" /><br>StorageMenu_Retrieve |
-| <img src="internal/states/testdata/TestGolden_StorageMenu_Store.png" width="200" /><br>StorageMenu_Store | | | |
+| <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_RunStats_Table.png" width="200" /><br>RunStats_Table | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_SettingsMenu.png" width="200" /><br>SettingsMenu |
+| <img src="internal/states/testdata/TestGolden_SettingsMenuClose.png" width="200" /><br>SettingsMenuClose | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu_Buy.png" width="200" /><br>ShopMenu_Buy | <img src="internal/states/testdata/TestGolden_ShopMenu_Sell.png" width="200" /><br>ShopMenu_Sell |
+| <img src="internal/states/testdata/TestGolden_StorageMenu_Retrieve.png" width="200" /><br>StorageMenu_Retrieve | <img src="internal/states/testdata/TestGolden_StorageMenu_Store.png" width="200" /><br>StorageMenu_Store | | |
 
 
 各画像はゴールデンテストで自動生成される。
@@ -104,6 +104,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [通信販売: オークション形式の販売機構](docs/design/260814170822.md) | 5/6（見送り2） | gamedesign, item, ui |
+| in-progress | [終端: run を死で締め、統計を記録して見せる](docs/design/260822014348.md) | 5/7（見送り1） | gamedesign, ecs, ui |
 | in-progress | [逓増: 危険と希少性の軸を深さから経過日数へ移す](docs/design/260822014350.md) | 7/9 | gamedesign, worldgen, ecs |
 | draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
@@ -115,7 +116,6 @@ $ make help
 | draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
 | draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/5（見送り1） | item, combat, ecs |
 | draft | [身体の不調: 少数部位の負傷と、まとめて配る手当て](docs/design/260821232324.md) | 0/11 | gamedesign, combat, item, ecs |
-| draft | [終端: run を死で締め、統計を記録して見せる](docs/design/260822014348.md) | 0/7（見送り1） | gamedesign, ecs, ui |
 
 
 ## Reference

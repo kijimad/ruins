@@ -131,6 +131,30 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Basic"},
 			},
 		},
+		// RunStats は統計テーブル画面を撮る。character と同じテーブル枠に統計が並ぶ。
+		// 死の結果画面 NewRunResultState は見出しが違うだけの同じテーブルなので撮り分けない
+		{
+			name: "RunStats",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				// 見栄えのする統計値を仕込む。経過1240ターンで日数が2日目に乗る
+				if s := query.GetRunStats(world); s != nil {
+					s.EnemiesKilled = 12
+					s.ItemsScavenged = 8
+					s.SalesTotal = 3400
+				}
+				if gt := query.GetGameTime(world); gt != nil {
+					gt.TotalTurns = 1240
+				}
+				st, err := gs.NewRunStatsState()
+				if err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{st}, nil
+			},
+			steps: []replayStep{
+				{shot: true, suffix: "Table"},
+			},
+		},
 		{
 			name: "CraftMenu",
 			build: func(world w.World) ([]es.State[w.World], error) {

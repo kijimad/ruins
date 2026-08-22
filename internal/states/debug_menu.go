@@ -42,6 +42,13 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			return err
 		})},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
+		{Label: "Run result (death screen)", Run: func(world w.World) (es.Transition[w.World], error) {
+			// 死因に目印の debug を入れて結果画面を確認する
+			if s := query.GetRunStats(world); s != nil {
+				s.Cause = "debug"
+			}
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
+		}},
 		{Label: "Clear all dungeons", Run: popAfter(func(world w.World) error {
 			for _, name := range dungeon.GetAllDungeonNames() {
 				query.GetGameProgress(world).MarkDungeonCleared(name)

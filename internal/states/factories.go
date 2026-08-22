@@ -28,6 +28,7 @@ func dungeonMenuChoices(world w.World) (string, []Choice) {
 	return "", []Choice{
 		{Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
 		{Label: query.T(world, "Character"), Run: pushChoice(NewCharacterState)},
+		{Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
 		{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)},
 		{Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}}, nil

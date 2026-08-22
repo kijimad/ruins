@@ -27,8 +27,8 @@ type DungeonState struct {
 	// baseImage は下に敷く背景
 	baseImage *ebiten.Image
 	Depth     int
-	// Danger はこの遺跡の危険度。入場時に入口のオーバーワールド位置と経過日数から確定し、
-	// 全階で共有する。階を降りても変わらない。生成する階の敵とアイテムの湧きフィルタに使う。
+	// Danger はこの遺跡の危険度。入場時の経過日数から確定し、全階で共有する。
+	// 階を降りても変わらない。生成する階の敵とアイテムの湧きフィルタに使う。
 	Danger int
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
@@ -189,6 +189,7 @@ func (st *DungeonState) OnStop(_ w.World) error { return nil }
 func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	playerDead := false
 	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()
+	// 早期 break しないこと。クエリは最後まで反復してワールドロックを解放する必要がある
 	for playerDeadQuery.Next() {
 		playerDead = true
 	}
@@ -242,9 +243,9 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{}, err
 	}
 
-	// プレイヤー死亡チェック
+	// プレイヤー死亡チェック。死亡で run は終わり結果画面へ移る
 	if st.checkPlayerDeath(world) {
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewGameOverMessageState}}, nil
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 	}
 
 	// ステート遷移リクエストを処理

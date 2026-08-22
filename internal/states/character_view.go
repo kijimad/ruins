@@ -41,18 +41,21 @@ func (st *CharacterState) View(world w.World, props CharacterProps, cursor menul
 	})
 }
 
-// buildEquipList は装備タブの一覧を組み立てる。スロット名、装備アイコン、装備名を並べ、
-// 未装備はアイコンと名前を空欄にする。アイコンは装備名の左に置く
+// buildEquipList は装備タブの一覧を組み立てる。スロット名、装備アイコン、装備名を左に並べ、
+// 右端に装備の重量を表示する。名前列を幅0で伸ばし、重量列を右端へ寄せて情報タブの値と揃える。
+// 未装備はアイコン・名前・重量を空欄にする。アイコンは装備名の左に置く
 func buildEquipList(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
-	columnWidths := []int{120, itemIconColumnWidth, 220}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft}
+	columnWidths := []int{150, itemIconColumnWidth, 0, 90}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(slots))
 	for i, slot := range slots {
 		var icon *ebiten.Image
+		weight := ""
 		if slot.Entity != nil {
 			icon, _ = resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(*slot.Entity))
+			weight = query.GetEntityWeight(world, *slot.Entity).KgString()
 		}
-		rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName)}}
+		rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName), styled.TextCell(weight)}}
 	}
 	// 人物画面は見出しとタブ帯の両方を持つので、その構成での実測容量を使う
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)
