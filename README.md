@@ -116,6 +116,7 @@ $ make help
 | draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
 | draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/5（見送り1） | item, combat, ecs |
 | draft | [身体の不調: 少数部位の負傷と、まとめて配る手当て](docs/design/260821232324.md) | 0/11 | gamedesign, combat, item, ecs |
+| draft | [初期言語をホストと Steam のロケールから決め、ビルドで固定できるようにする](docs/design/260823004406.md) | 0/8 | ui, steam, save |
 
 
 ## Reference
