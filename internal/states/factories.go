@@ -125,6 +125,41 @@ func NewGameOverMessageState() (es.State[w.World], error) {
 	return messageState, nil
 }
 
+// NewRunResultState は run の死の結果画面を作成するファクトリー関数。
+// RunOutcome と RunStats を読み、死因とスコアと統計を表示する
+func NewRunResultState() (es.State[w.World], error) {
+	messageState := &MessageState{}
+
+	messageState.build = func(world w.World) *messagedata.MessageData {
+		var dist, days int
+		if o := query.GetRunOutcome(world); o != nil {
+			dist = o.ReachedDist
+			days = o.Days
+		}
+		var kills, items, sales int
+		if s := query.GetRunStats(world); s != nil {
+			kills = s.EnemiesKilled
+			items = s.ItemsScavenged
+			sales = int(s.SalesTotal)
+		}
+		text := query.T(world, "You died.") + "\n\n" +
+			query.T(world, "Reached: %d", dist) + "\n" +
+			query.T(world, "Days: %d", days) + "\n" +
+			query.T(world, "Enemies killed: %d", kills) + "\n" +
+			query.T(world, "Items scavenged: %d", items) + "\n" +
+			query.T(world, "Sales: %d", sales)
+		return messagedata.NewSystemMessage(text).
+			WithChoice(query.T(world, "Return to main menu"), func(_ w.World) error {
+				messageState.SetTransition(es.Transition[w.World]{
+					Type:          es.TransReplace,
+					NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}})
+				return nil
+			})
+	}
+
+	return messageState, nil
+}
+
 // NewAllClearEventState は全ダンジョンクリア時のイベントStateを作成するファクトリー関数
 func NewAllClearEventState() (es.State[w.World], error) {
 	messageState := &MessageState{}

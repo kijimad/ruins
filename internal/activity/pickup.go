@@ -145,6 +145,11 @@ func (pb *PickupBehavior) performPickup(comp *gc.Activity, actor ecs.Entity, wor
 
 	log.Debug("pickup finished", "count", total)
 
+	// 漁り統計: 拾えた個数を run 統計へ加算する
+	if s := query.GetRunStats(world); s != nil {
+		s.ItemsScavenged += total
+	}
+
 	if len(errs) > 0 {
 		return fmt.Errorf("some pickups failed: %w", errors.Join(errs...))
 	}

@@ -126,6 +126,10 @@ func SettleAuctionEntry(world w.World, player ecs.Entity, index, now int) (gc.Au
 		history.Records = append(history.Records, gc.AuctionRecord{
 			Number: e.Number, Name: e.Name, Bid: e.Bid, Ship: e.Ship, Fee: e.Fee, Net: e.Amount, Turn: now,
 		})
+		// 売上統計: 受取金を run 統計へ加算する
+		if s := GetRunStats(world); s != nil {
+			s.SalesTotal += e.Amount
+		}
 	case gc.AuctionEntryInvoice:
 		if err := AddCurrency(world, player, -e.Amount); err != nil {
 			return gc.AuctionEntry{}, false

@@ -530,6 +530,21 @@ msgstr "防具(足)"
 msgid "Armor (jewelry)"
 msgstr "防具(装飾)"
 
+msgid "Reached: %d"
+msgstr "到達: %d"
+
+msgid "Days: %d"
+msgstr "生存日数: %d"
+
+msgid "Enemies killed: %d"
+msgstr "撃破数: %d"
+
+msgid "Items scavenged: %d"
+msgstr "回収数: %d"
+
+msgid "Sales: %d"
+msgstr "売上: %d"
+
 msgid "You died."
 msgstr "死亡した。"
 

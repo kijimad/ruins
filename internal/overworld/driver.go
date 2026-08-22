@@ -290,7 +290,14 @@ func (dr *Driver) MaybeShift(world w.World) (bool, error) {
 	if shifted {
 		// Band の最終 eastIndex を永続状態へ書き戻す。セーブに要るのは最終値だけなので、
 		// シフトのたびでなくループを抜けてから一度だけ同期する
-		query.GetSeamlessBand(world).EastIndex = dr.band.EastIndex()
+		sb := query.GetSeamlessBand(world)
+		sb.EastIndex = dr.band.EastIndex()
+		// 到達距離統計: 最大前進チャンク数を run 統計へ反映する
+		if stats := query.GetRunStats(world); stats != nil {
+			if d := int(sb.EastIndex); d > stats.MaxDist {
+				stats.MaxDist = d
+			}
+		}
 	}
 	return shifted, nil
 }

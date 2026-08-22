@@ -52,6 +52,26 @@ func GetUserSettings(world w.World) *gc.UserSettings {
 	return GetSingleton[gc.UserSettings](world, world.Components.UserSettings)
 }
 
+// GetRunStats はシングルトンから run 統計を取得する
+func GetRunStats(world w.World) *gc.RunStats {
+	return GetSingleton[gc.RunStats](world, world.Components.RunStats)
+}
+
+// GetRunOutcome はシングルトンから run の決着を取得する。決着前は nil
+func GetRunOutcome(world w.World) *gc.RunOutcome {
+	return GetSingleton[gc.RunOutcome](world, world.Components.RunOutcome)
+}
+
+// SetRunOutcome は run の決着をシングルトンへ確定する。既に決着済みなら値を上書きする
+func SetRunOutcome(world w.World, outcome *gc.RunOutcome) {
+	entity := world.Resources.SingletonEntity
+	if world.Components.RunOutcome.Has(entity) {
+		*world.Components.RunOutcome.Get(entity) = *outcome
+		return
+	}
+	world.Components.RunOutcome.Add(entity, outcome)
+}
+
 // T は現在の設定言語での msgid の訳を返す。現在言語は UserSettings、マスタは Resources.I18N から引く。
 // args を渡すと訳を書式として整形する。"%s攻撃力" のようにデータ値を差し込む訳に使う。
 func T(world w.World, msgid string, args ...any) string {
