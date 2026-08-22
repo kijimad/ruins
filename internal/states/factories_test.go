@@ -3,7 +3,6 @@ package states
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -15,17 +14,18 @@ func TestRunResultText(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	query.SetRunOutcome(world, &gc.RunOutcome{ReachedDist: 1234, Days: 7, Turns: 5678})
-	stats := query.GetRunStats(world)
-	require.NotNil(t, stats)
-	stats.EnemiesKilled = 42
-	stats.ItemsScavenged = 13
-	stats.SalesTotal = 999
+	s := query.GetRunStats(world)
+	require.NotNil(t, s)
+	s.MaxDist = 1234
+	s.EnemiesKilled = 42
+	s.ItemsScavenged = 13
+	s.SalesTotal = 999
+	query.GetGameTime(world).TotalTurns = 5678
 
 	text := runResultText(world)
 
 	// ラベルの訳に依存しないよう、各統計値が本文に含まれることで検証する
-	for _, want := range []string{"1234", "7", "5678", "42", "13", "999"} {
+	for _, want := range []string{"1234", "5678", "42", "13", "999"} {
 		assert.Contains(t, text, want, "結果テキストに統計値 %s が含まれる", want)
 	}
 }

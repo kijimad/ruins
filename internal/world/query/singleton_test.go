@@ -30,29 +30,16 @@ func TestGetGameProgress(t *testing.T) {
 	})
 }
 
-func TestRunOutcomeRoundTrip(t *testing.T) {
+func TestRecordDeath(t *testing.T) {
 	t.Parallel()
 
-	t.Run("決着前は RunOutcome が nil で RunStats は初期化済み", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		assert.Nil(t, GetRunOutcome(world))
-		require.NotNil(t, GetRunStats(world))
-	})
+	world := testutil.InitTestWorld(t)
+	stats := GetRunStats(world)
+	require.NotNil(t, stats)
+	assert.Empty(t, stats.Cause, "決着前は死因が空")
 
-	t.Run("SetRunOutcome で決着を確定し、二度目は上書きする", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		SetRunOutcome(world, &gc.RunOutcome{Cause: "test", ReachedDist: 12, Days: 3})
-		got := GetRunOutcome(world)
-		require.NotNil(t, got)
-		assert.Equal(t, gc.DeathCause("test"), got.Cause)
-		assert.Equal(t, 12, got.ReachedDist)
-
-		SetRunOutcome(world, &gc.RunOutcome{ReachedDist: 99})
-		assert.Equal(t, 99, GetRunOutcome(world).ReachedDist)
-	})
+	RecordDeath(world, "test")
+	assert.Equal(t, "test", GetRunStats(world).Cause, "死因が記録される")
 }
 
 func TestGetDungeon(t *testing.T) {

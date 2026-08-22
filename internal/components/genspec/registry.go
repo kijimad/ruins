@@ -103,8 +103,7 @@ var Registry = []Def{
 	{Field: "VisionState"},     // 視界計算の一時状態を保持するシングルトン
 	{Field: "UserSettings"},    // 設定画面で変更するグローバル設定を保持するシングルトン
 	{Field: "AuctionHistory"},  // 通信販売の金銭明細と出荷実績履歴、採番カウンタ、評判を保持するシングルトン
-	{Field: "RunOutcome"},      // run の決着、死因とスコアを保持するシングルトン。決着時のみ存在し、セーブできる範囲では居ないので serde 除外は不要
-	{Field: "RunStats"},        // run 中に積み上げる統計を保持するシングルトン。serde 保存
+	{Field: "RunStats"},        // run を通じて積み上げる統計と死因を保持するシングルトン。serde 保存
 
 	// auction ================
 	{Field: "AuctionListing"}, // 通信販売で出品中の品の現在値と採番を保持する

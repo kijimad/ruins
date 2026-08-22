@@ -57,39 +57,12 @@ func GetRunStats(world w.World) *gc.RunStats {
 	return GetSingleton[gc.RunStats](world, world.Components.RunStats)
 }
 
-// GetRunOutcome はシングルトンから run の決着を取得する。決着前は nil
-func GetRunOutcome(world w.World) *gc.RunOutcome {
-	return GetSingleton[gc.RunOutcome](world, world.Components.RunOutcome)
-}
-
-// FinalizeRunOutcome は現在の run 統計と時刻から死の決着を確定する。決着済みなら何もしない。
-// 到達距離は RunStats の最大前進距離、生存日数は GameTime から埋める
-func FinalizeRunOutcome(world w.World, cause gc.DeathCause) {
-	if GetRunOutcome(world) != nil {
-		return
-	}
-	dist := 0
+// RecordDeath は死因を run 統計へ記録する。決着のスナップショットは RunStats と GameTime が
+// 既に保持しているので、ここで確定するのは死因だけ。結果画面は RunStats と GameTime を読む
+func RecordDeath(world w.World, cause string) {
 	if s := GetRunStats(world); s != nil {
-		dist = s.MaxDist
+		s.Cause = cause
 	}
-	days := 0
-	turns := 0
-	if gt := GetGameTime(world); gt != nil {
-		days = gt.GetDayNumber()
-		turns = int(gt.TotalTurns)
-	}
-	SetRunOutcome(world, &gc.RunOutcome{Cause: cause, ReachedDist: dist, Days: days, Turns: turns})
-}
-
-// SetRunOutcome は run の決着をシングルトンへ確定する。既に決着済みなら値を上書きする。
-// Add と代入はどちらも値をアーキタイプ領域へコピーするので、渡したポインタの後の変更は反映されない
-func SetRunOutcome(world w.World, outcome *gc.RunOutcome) {
-	entity := world.Resources.SingletonEntity
-	if world.Components.RunOutcome.Has(entity) {
-		*world.Components.RunOutcome.Get(entity) = *outcome
-		return
-	}
-	world.Components.RunOutcome.Add(entity, outcome)
 }
 
 // T は現在の設定言語での msgid の訳を返す。現在言語は UserSettings、マスタは Resources.I18N から引く。

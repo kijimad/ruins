@@ -128,7 +128,7 @@ func NewGameOverMessageState() (es.State[w.World], error) {
 }
 
 // NewRunResultState は run の死の結果画面を作成するファクトリー関数。
-// RunOutcome と RunStats を読み、死因とスコアと統計を表示する
+// RunStats と GameTime を読み、統計を表示する
 func NewRunResultState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
@@ -170,21 +170,9 @@ func runStatsFields(world w.World) (dist, days, turns, kills, items int, sales c
 	return
 }
 
-// runResultText は結果画面の本文を、決着 RunOutcome と統計 RunStats から組む
+// runResultText は結果画面の本文を、統計 RunStats と時刻 GameTime から組む
 func runResultText(world w.World) string {
-	var dist, days, turns int
-	if o := query.GetRunOutcome(world); o != nil {
-		dist = o.ReachedDist
-		days = o.Days
-		turns = o.Turns
-	}
-	var kills, items int
-	var sales consts.Currency
-	if s := query.GetRunStats(world); s != nil {
-		kills = s.EnemiesKilled
-		items = s.ItemsScavenged
-		sales = s.SalesTotal
-	}
+	dist, days, turns, kills, items, sales := runStatsFields(world)
 	return query.T(world, "You died.") + "\n\n" + statLines(world, dist, days, turns, kills, items, sales)
 }
 

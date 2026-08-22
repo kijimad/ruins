@@ -43,7 +43,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		})},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
 		{Label: "Run result (death screen)", Run: func(world w.World) (es.Transition[w.World], error) {
-			query.FinalizeRunOutcome(world, "debug")
+			query.RecordDeath(world, "debug")
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 		}},
 		{Label: "Clear all dungeons", Run: popAfter(func(world w.World) error {

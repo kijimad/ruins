@@ -242,7 +242,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	// プレイヤー死亡チェック
 	if st.checkPlayerDeath(world) {
-		query.FinalizeRunOutcome(world, "")
+		query.RecordDeath(world, "")
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 	}
 
