@@ -131,6 +131,36 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Basic"},
 			},
 		},
+		// RunStats は道中の統計画面を撮る。character と同じテーブル枠に統計が並ぶ
+		{
+			name: "RunStats",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				seedRunStatsForShot(world)
+				st, err := gs.NewRunStatsState()
+				if err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{st}, nil
+			},
+			steps: []replayStep{
+				{shot: true, suffix: "Table"},
+			},
+		},
+		// RunResult は死の結果画面を撮る。統計を同じテーブルで見せ、見出しが死の告知になる
+		{
+			name: "RunResult",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				seedRunStatsForShot(world)
+				st, err := gs.NewRunResultState()
+				if err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{st}, nil
+			},
+			steps: []replayStep{
+				{shot: true, suffix: "Table"},
+			},
+		},
 		{
 			name: "CraftMenu",
 			build: func(world w.World) ([]es.State[w.World], error) {
@@ -468,5 +498,18 @@ func TestGolden(t *testing.T) {
 				},
 			)
 		})
+	}
+}
+
+// seedRunStatsForShot は統計画面の golden 用に見栄えのする統計値を仕込む。
+// ターンは開始原点に経過を足し、表示の経過ターンが 0 に潰れない見た目にする
+func seedRunStatsForShot(world w.World) {
+	if s := query.GetRunStats(world); s != nil {
+		s.EnemiesKilled = 12
+		s.ItemsScavenged = 8
+		s.SalesTotal = 3400
+	}
+	if gt := query.GetGameTime(world); gt != nil {
+		gt.TotalTurns = gc.GameStartTurns() + 1240
 	}
 }

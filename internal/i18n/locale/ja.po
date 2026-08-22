@@ -533,20 +533,20 @@ msgstr "防具(装飾)"
 msgid "Statistics"
 msgstr "統計"
 
-msgid "Days: %d"
-msgstr "生存日数: %d"
+msgid "Days"
+msgstr "生存日数"
 
-msgid "Turns: %d"
-msgstr "経過ターン: %d"
+msgid "Turns"
+msgstr "経過ターン"
 
-msgid "Enemies killed: %d"
-msgstr "撃破数: %d"
+msgid "Enemies killed"
+msgstr "撃破数"
 
-msgid "Items scavenged: %d"
-msgstr "回収数: %d"
+msgid "Items scavenged"
+msgstr "回収数"
 
-msgid "Sales: %d"
-msgstr "売上: %d"
+msgid "Sales"
+msgstr "売上"
 
 msgid "You died."
 msgstr "死亡した。"
