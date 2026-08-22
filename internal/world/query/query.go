@@ -102,3 +102,14 @@ func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {
 	}
 	return entities
 }
+
+// GetPlayerCamera はカメラを返す。存在しなければ nil を返す。
+// カメラはワールドに1つだけ存在する前提で、視点を読む側の定型をここへ集約する。
+func GetPlayerCamera(world w.World) *gc.Camera {
+	var camera *gc.Camera
+	cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
+	for cameraQuery.Next() {
+		camera = world.Components.Camera.Get(cameraQuery.Entity())
+	}
+	return camera
+}

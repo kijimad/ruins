@@ -86,8 +86,8 @@ func (st *DungeonState) readAction(world w.World) (inputmapper.ActionID, bool) {
 }
 
 // moveDir は移動方向を3Dカメラの向きへ回して合わせる。
-func (st *DungeonState) moveDir(base gc.Direction) gc.Direction {
-	return st.three.moveDir(base)
+func (st *DungeonState) moveDir(world w.World, base gc.Direction) gc.Direction {
+	return st.three.moveDir(world, base)
 }
 
 // DoAction はActionを実行する
@@ -165,31 +165,31 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 
 	// 移動系アクション
 	case inputmapper.ActionMoveNorth:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUp)); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionUp)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouth:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDown)); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionDown)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveEast:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionRight)); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionRight)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveWest:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionLeft)); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionLeft)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	// 視点回転。回してから直進すると斜めの world 方向へ動ける
 	case inputmapper.ActionRotateLeft:
-		st.three.rotate(1)
+		st.three.rotate(world, 1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionRotateRight:
-		st.three.rotate(-1)
+		st.three.rotate(world, -1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionWait:
 		if err := activity.ExecuteWaitAction(world); err != nil {

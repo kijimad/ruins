@@ -151,6 +151,15 @@ func (d Direction) ScreenIntent() (su, sr float64) {
 	}
 }
 
+// RotateScreenDir は画面基準の方向を、カメラの水平角 yaw で world の8方向へ回す。
+// 見下ろしカメラが回転しても、押したキーが画面上で指す向きへ動くようにする。
+func RotateScreenDir(base Direction, yaw float64) Direction {
+	su, sr := base.ScreenIntent()
+	wx := -su*math.Sin(yaw) + sr*math.Cos(yaw)
+	wy := -su*math.Cos(yaw) - sr*math.Sin(yaw)
+	return SnapWorldVec(wx, wy)
+}
+
 // SnapWorldVec は world 平面のベクトルを最寄りの8方向へスナップする。
 // カメラ相対移動で、回した向きの world ベクトルから実際の移動方向を決めるのに使う。
 // ゼロベクトルは DirectionNone を返す。
