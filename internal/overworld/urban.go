@@ -159,6 +159,8 @@ func rollFacilityInZone(rng *rand.Rand, z zone, span consts.Chunk) facilityType 
 			total += f.weight
 		}
 	}
+	// total>0 は zoneCatalog の不変条件で保証される。各地区は minSpan<=2 の基本施設を持ち、
+	// span は urbanSizeOf により常に2以上なので、候補が空にならず rng.IntN(total) は安全。
 	roll := rng.IntN(total)
 	for _, f := range cat {
 		if span < f.minSpan {

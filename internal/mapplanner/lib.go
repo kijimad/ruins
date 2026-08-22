@@ -33,6 +33,7 @@ type DoorSpec struct {
 type MetaPlan struct {
 	// Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。
 	// 生成物の抽選はこれを基準にする。呼び出し側が世界の現在地から確定して渡す。
+	// 1以上であること。raw のゲートは危険度1始まりで、0以下は指定漏れとしてエラーになる。
 	Danger int
 	// 階層情報
 	Level gc.Level
@@ -389,7 +390,7 @@ type PlannerType struct {
 	EnemyTableName string
 	// アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する
 	ItemTableName string
-	// 危険度。敵やアイテムのフィルタリングに使用する
+	// 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
 	Danger int
 	// プランナー関数
 	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
