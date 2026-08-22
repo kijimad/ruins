@@ -8,8 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// resolveEnemyEntries は敵テーブル名とRawMasterから、指定深度でフィルタリングしたSpawnEntryを返す
-func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]SpawnEntry, error) {
+// resolveEnemyEntries は敵テーブル名とRawMasterから、指定危険度でフィルタリングしたSpawnEntryを返す
+func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, danger int) ([]SpawnEntry, error) {
 	// tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。
 	// どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。
 	if rawMaster == nil || tableName == "" {
@@ -21,7 +21,7 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]S
 	}
 	result := make([]SpawnEntry, 0, len(enemyTable.Entries))
 	for _, entry := range enemyTable.Entries {
-		if depth < entry.MinDanger || depth > entry.MaxDanger {
+		if danger < entry.MinDanger || danger > entry.MaxDanger {
 			continue
 		}
 		pack, err := consts.ParseDice(entry.Pack)
@@ -37,10 +37,10 @@ func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]S
 	return result, nil
 }
 
-// resolveItemSources はアイテムテーブル名と RawMaster から、指定深度でフィルタリングした参照先グループを返す。
-// グループ中身の解決と抽選は draw 時に raw.SelectFromItemGroup が担うので、ここはテーブルの深度フィルタと
+// resolveItemSources はアイテムテーブル名と RawMaster から、指定危険度でフィルタリングした参照先グループを返す。
+// グループ中身の解決と抽選は draw 時に raw.SelectFromItemGroup が担うので、ここはテーブルの危険度フィルタと
 // 参照先グループの収集だけを行う。テーブルから group への参照の実在は raw のロード時検証が担保する。
-func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]itemGroupRef, error) {
+func resolveItemSources(rawMaster *oapi.Raws, tableName string, danger int) ([]itemGroupRef, error) {
 	// tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。
 	// どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。
 	if rawMaster == nil || tableName == "" {
@@ -52,7 +52,7 @@ func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]it
 	}
 	result := make([]itemGroupRef, 0, len(itemTable.Entries))
 	for _, entry := range itemTable.Entries {
-		if depth < entry.MinDanger || depth > entry.MaxDanger {
+		if danger < entry.MinDanger || danger > entry.MaxDanger {
 			continue
 		}
 		result = append(result, itemGroupRef{GroupID: entry.Id, Weight: entry.Weight})
