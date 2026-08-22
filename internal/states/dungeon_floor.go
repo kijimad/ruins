@@ -70,10 +70,14 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		builderType = st.BuilderType
 	}
 
-	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
+	// テーブル名と危険度をプランナーに渡す。エントリの解決はプランナーが行う。
+	// 危険度は最初のフロア生成時に確定して全階で共有する。階に依らず同じ。
 	builderType.EnemyTableName = def.EnemyTableName()
 	builderType.ItemTableName = def.ItemTableName()
-	builderType.Depth = depth
+	if st.Danger == 0 {
+		st.Danger = query.DangerLevelAt(world)
+	}
+	builderType.Danger = st.Danger
 
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
 	if err != nil {

@@ -31,9 +31,9 @@ type DoorSpec struct {
 
 // MetaPlan は階層のタイルを作る元になる概念の集合体
 type MetaPlan struct {
-	// Depth はこのプランが生成する階層の深度。生成中フロアの深度で、世界の現在地に依存しない。
-	// 収納loot など深度依存の抽選はこれを使う。プレイヤーがまだ移動していない生成時点でも正しい。
-	Depth int
+	// Danger はこのプランに適用する危険度。敵やアイテムの湧きフィルタに使う。1以上であること。
+	// 呼び出し側が世界の現在地から確定して渡す。
+	Danger int
 	// 階層情報
 	Level gc.Level
 	// 部屋群。部屋は長方形の移動可能な空間のことをいう。
@@ -389,8 +389,8 @@ type PlannerType struct {
 	EnemyTableName string
 	// アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する
 	ItemTableName string
-	// 階層の深度。敵やアイテムのフィルタリングに使用する
-	Depth int
+	// 危険度。敵やアイテムのフィルタリングに使用する。1以上であること。
+	Danger int
 	// プランナー関数
 	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }

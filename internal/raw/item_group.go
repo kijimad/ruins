@@ -25,7 +25,7 @@ type DrawnItem struct {
 
 // SelectFromItemGroup は item group から1回ぶんの loot を抽選する。distribution は重み比で1エントリを選び、
 // collection は各エントリを独立に確率判定する。個数は entry の pack ダイスで振る。stackable は個数を1エントリ
-// にまとめ、非 stackable は1個ずつのエントリに展開する。深度を扱わず group を直接引くので、地上の床 loot と
+// にまとめ、非 stackable は1個ずつのエントリに展開する。危険度を扱わず group を直接引くので、地上の床 loot と
 // 家具の収納 loot が同じ抽選を共有できる。
 func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]DrawnItem, error) {
 	group, err := GetItemGroup(raws, groupID)
