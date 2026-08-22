@@ -1,10 +1,35 @@
 package components
 
 import (
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestRotateScreenDir(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		base Direction
+		yaw  float64
+		want Direction
+	}{
+		{"回転なしは上キーで北", DirectionUp, 0, DirectionUp},
+		{"回転なしは右キーで東", DirectionRight, 0, DirectionRight},
+		{"180度で上キーは南へ反転", DirectionUp, math.Pi, DirectionDown},
+		{"180度で右キーは西へ反転", DirectionRight, math.Pi, DirectionLeft},
+		{"90度で上キーは西へ", DirectionUp, math.Pi / 2, DirectionLeft},
+		{"270度で上キーは東へ", DirectionUp, 3 * math.Pi / 2, DirectionRight},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, RotateScreenDir(tc.base, tc.yaw))
+		})
+	}
+}
 
 func TestSnapWorldVec(t *testing.T) {
 	t.Parallel()

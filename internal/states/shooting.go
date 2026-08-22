@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"math"
 	"slices"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/activity"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
-	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/render3d"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -198,54 +197,36 @@ func (st *ShootingState) updateTargetCache(world w.World) {
 // Draw はステートの描画処理
 func (st *ShootingState) Draw(world w.World, screen *ebiten.Image) error {
 	if len(st.enemies) > 0 {
-		st.drawTargetCursor(world, screen)
+		if err := st.drawTargetCursor(world, screen); err != nil {
+			return err
+		}
 	}
 	return st.drawShootingPanel(world, screen)
 }
 
-// shootingCursorCache はターゲットカーソル画像のキャッシュ。sync.Once で一度だけ初期化する
-var (
-	shootingCursorCache     *ebiten.Image
-	shootingCursorCacheOnce sync.Once
-)
-
 // drawTargetCursor は選択中の敵にカーソルを描画する
-func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
+func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) error {
 	target := st.enemies[st.targetIndex]
 	if !world.Components.GridElement.Has(target) {
-		return
+		return nil
 	}
-	targetGrid := world.Components.GridElement.Get(target)
+	targetCoord := world.Components.GridElement.Get(target).Coord
 
-	tileSize := int(consts.TileSize)
-	cursorPixelX := float64(int(targetGrid.X) * tileSize)
-	cursorPixelY := float64(int(targetGrid.Y) * tileSize)
+	projector, err := render3d.WorldProjector(world)
+	if err != nil {
+		return err
+	}
+	corners, ok := projector.TileCorners(targetCoord, render3d.TileTopHeight(world, targetCoord))
+	if !ok {
+		return nil
+	}
 
-	shootingCursorCacheOnce.Do(func() {
-		shootingCursorCache = ebiten.NewImage(tileSize, tileSize)
-		cursorColor := theme.CursorShoot
-		for i := range 3 {
-			for x := range tileSize {
-				shootingCursorCache.Set(x, i, cursorColor)
-				shootingCursorCache.Set(x, tileSize-1-i, cursorColor)
-			}
-			for y := range tileSize {
-				shootingCursorCache.Set(i, y, cursorColor)
-				shootingCursorCache.Set(tileSize-1-i, y, cursorColor)
-			}
-		}
-	})
-
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(cursorPixelX, cursorPixelY)
-	gs.SetTranslate(world, op)
-
+	cursorColor := theme.CursorShoot
 	if !world.Config.DisableAnimation {
-		alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)
-		op.ColorScale.ScaleAlpha(float32(alpha))
+		cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
 	}
-
-	screen.DrawImage(shootingCursorCache, op)
+	hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)
+	return nil
 }
 
 // drawShootingPanel は射撃情報パネルを描画する

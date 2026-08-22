@@ -208,6 +208,8 @@ func TestGolden(t *testing.T) {
 			steps: []replayStep{{shot: true}},
 		},
 		// LookAround は実際のプレイどおり、3D世界とHUDの上にカーソルと情報パネルを重ねて撮る。
+		// カーソルを足元から離した画も撮る。プレイヤーの真下では投影のずれが最小になり、
+		// 離した位置でこそカーソル枠が実際のタイルに乗っているかが分かる
 		{
 			name: "LookAround",
 			build: func(w.World) ([]es.State[w.World], error) {
@@ -217,7 +219,13 @@ func TestGolden(t *testing.T) {
 					BuilderType:    mapplanner.PlannerTypeSmallRoom,
 				}, &gs.LookAroundState{}}, nil
 			},
-			steps: []replayStep{{shot: true}},
+			steps: []replayStep{
+				{shot: true},
+				{action: inputmapper.ActionMoveNorth},
+				{action: inputmapper.ActionMoveNorth},
+				{action: inputmapper.ActionMoveEast},
+				{action: inputmapper.ActionMoveEast, shot: true, suffix: "Away"},
+			},
 		},
 		{
 			name: "GameOver",
