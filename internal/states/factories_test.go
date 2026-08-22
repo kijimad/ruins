@@ -16,7 +16,6 @@ func TestRunResultText(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	s := query.GetRunStats(world)
 	require.NotNil(t, s)
-	s.MaxDist = 1234
 	s.EnemiesKilled = 42
 	s.ItemsScavenged = 13
 	s.SalesTotal = 999
@@ -25,7 +24,7 @@ func TestRunResultText(t *testing.T) {
 	text := runResultText(world)
 
 	// ラベルの訳に依存しないよう、各統計値が本文に含まれることで検証する
-	for _, want := range []string{"1234", "5678", "42", "13", "999"} {
+	for _, want := range []string{"5678", "42", "13", "999"} {
 		assert.Contains(t, text, want, "結果テキストに統計値 %s が含まれる", want)
 	}
 }
@@ -37,7 +36,6 @@ func TestRunStatsText(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	s := query.GetRunStats(world)
 	require.NotNil(t, s)
-	s.MaxDist = 1234
 	s.EnemiesKilled = 42
 	s.ItemsScavenged = 13
 	s.SalesTotal = 999
@@ -45,7 +43,7 @@ func TestRunStatsText(t *testing.T) {
 
 	text := runStatsText(world)
 
-	for _, want := range []string{"1234", "5678", "42", "13", "999"} {
+	for _, want := range []string{"5678", "42", "13", "999"} {
 		assert.Contains(t, text, want, "統計テキストに値 %s が含まれる", want)
 	}
 }
