@@ -73,10 +73,12 @@ func FinalizeRunOutcome(world w.World, cause gc.DeathCause) {
 		dist = s.MaxDist
 	}
 	days := 0
+	turns := 0
 	if gt := GetGameTime(world); gt != nil {
 		days = gt.GetDayNumber()
+		turns = int(gt.TotalTurns)
 	}
-	SetRunOutcome(world, &gc.RunOutcome{Cause: cause, ReachedDist: dist, Days: days})
+	SetRunOutcome(world, &gc.RunOutcome{Cause: cause, ReachedDist: dist, Days: days, Turns: turns})
 }
 
 // SetRunOutcome は run の決着をシングルトンへ確定する。既に決着済みなら値を上書きする。

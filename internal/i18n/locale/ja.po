@@ -536,6 +536,9 @@ msgstr "到達距離: %d"
 msgid "Days: %d"
 msgstr "生存日数: %d"
 
+msgid "Turns: %d"
+msgstr "経過ターン: %d"
+
 msgid "Enemies killed: %d"
 msgstr "撃破数: %d"
 

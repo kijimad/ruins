@@ -132,10 +132,11 @@ func NewRunResultState() (es.State[w.World], error) {
 	messageState := &MessageState{}
 
 	messageState.build = func(world w.World) *messagedata.MessageData {
-		var dist, days int
+		var dist, days, turns int
 		if o := query.GetRunOutcome(world); o != nil {
 			dist = o.ReachedDist
 			days = o.Days
+			turns = o.Turns
 		}
 		var kills, items int
 		var sales consts.Currency
@@ -147,6 +148,7 @@ func NewRunResultState() (es.State[w.World], error) {
 		text := query.T(world, "You died.") + "\n\n" +
 			query.T(world, "Distance reached: %d", dist) + "\n" +
 			query.T(world, "Days: %d", days) + "\n" +
+			query.T(world, "Turns: %d", turns) + "\n" +
 			query.T(world, "Enemies killed: %d", kills) + "\n" +
 			query.T(world, "Items scavenged: %d", items) + "\n" +
 			query.T(world, "Sales: %d", sales)

@@ -12,6 +12,7 @@ type RunOutcome struct {
 	Cause       DeathCause // 死因
 	ReachedDist int        // 到達した前進距離。スコアの主軸
 	Days        int        // 生存日数
+	Turns       int        // 経過ターン数
 }
 
 // RunStats は run 中に貯める統計を保持するシングルトン。
