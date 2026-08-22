@@ -530,8 +530,8 @@ msgstr "防具(足)"
 msgid "Armor (jewelry)"
 msgstr "防具(装飾)"
 
-msgid "Reached: %d"
-msgstr "到達: %d"
+msgid "Distance reached: %d"
+msgstr "到達距離: %d"
 
 msgid "Days: %d"
 msgstr "生存日数: %d"

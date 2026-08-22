@@ -62,6 +62,23 @@ func GetRunOutcome(world w.World) *gc.RunOutcome {
 	return GetSingleton[gc.RunOutcome](world, world.Components.RunOutcome)
 }
 
+// FinalizeRunOutcome は現在の run 統計と時刻から死の決着を確定する。決着済みなら何もしない。
+// 到達距離は RunStats の最大前進距離、生存日数は GameTime から埋める
+func FinalizeRunOutcome(world w.World, cause gc.DeathCause) {
+	if GetRunOutcome(world) != nil {
+		return
+	}
+	dist := 0
+	if s := GetRunStats(world); s != nil {
+		dist = s.MaxDist
+	}
+	days := 0
+	if gt := GetGameTime(world); gt != nil {
+		days = gt.GetDayNumber()
+	}
+	SetRunOutcome(world, &gc.RunOutcome{Cause: cause, ReachedDist: dist, Days: days})
+}
+
 // SetRunOutcome は run の決着をシングルトンへ確定する。既に決着済みなら値を上書きする。
 // Add と代入はどちらも値をアーキタイプ領域へコピーするので、渡したポインタの後の変更は反映されない
 func SetRunOutcome(world w.World, outcome *gc.RunOutcome) {

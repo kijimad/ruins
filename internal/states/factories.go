@@ -145,7 +145,7 @@ func NewRunResultState() (es.State[w.World], error) {
 			sales = s.SalesTotal
 		}
 		text := query.T(world, "You died.") + "\n\n" +
-			query.T(world, "Reached: %d", dist) + "\n" +
+			query.T(world, "Distance reached: %d", dist) + "\n" +
 			query.T(world, "Days: %d", days) + "\n" +
 			query.T(world, "Enemies killed: %d", kills) + "\n" +
 			query.T(world, "Items scavenged: %d", items) + "\n" +

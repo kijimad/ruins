@@ -182,23 +182,6 @@ func (st *DungeonState) completeSwap(world w.World) (es.Transition[w.World], err
 // world.ResetForNewGame と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。
 func (st *DungeonState) OnStop(_ w.World) error { return nil }
 
-// recordRunOutcome は死の決着を確定する。到達距離を run 統計から、生存日数を時刻から埋める。
-// 決着済みなら何もしない
-func (st *DungeonState) recordRunOutcome(world w.World) {
-	if query.GetRunOutcome(world) != nil {
-		return
-	}
-	dist := 0
-	if s := query.GetRunStats(world); s != nil {
-		dist = s.MaxDist
-	}
-	days := 0
-	if gt := query.GetGameTime(world); gt != nil {
-		days = gt.GetDayNumber()
-	}
-	query.SetRunOutcome(world, &gc.RunOutcome{ReachedDist: dist, Days: days})
-}
-
 // checkPlayerDeath はプレイヤーの死亡状態をチェックする。Update フローの述語
 func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	playerDead := false
@@ -259,7 +242,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	// プレイヤー死亡チェック
 	if st.checkPlayerDeath(world) {
-		st.recordRunOutcome(world)
+		query.FinalizeRunOutcome(world, "")
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 	}
 
