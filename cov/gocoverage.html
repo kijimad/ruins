@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.1%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -597,11 +597,11 @@
 				
 				<option value="file270">github.com/kijimaD/ruins/internal/widgets/hud/weapon_slots.go (0.0%)</option>
 				
-				<option value="file271">github.com/kijimaD/ruins/internal/widgets/menuframe/capacity.go (0.0%)</option>
+				<option value="file271">github.com/kijimaD/ruins/internal/widgets/menuframe/capacity.go (100.0%)</option>
 				
 				<option value="file272">github.com/kijimaD/ruins/internal/widgets/menuframe/layout.go (100.0%)</option>
 				
-				<option value="file273">github.com/kijimaD/ruins/internal/widgets/menuframe/screen.go (0.0%)</option>
+				<option value="file273">github.com/kijimaD/ruins/internal/widgets/menuframe/screen.go (100.0%)</option>
 				
 				<option value="file274">github.com/kijimaD/ruins/internal/widgets/messagelog/widget.go (70.9%)</option>
 				
@@ -1600,7 +1600,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1690,7 +1690,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
@@ -52070,17 +52070,17 @@ import (
 // 構成は見出しの有無とタブ帯の有無で決まる。画面寸法とフォントは実行中変わらないため、
 // 構成ごとに1度だけ測って使い回す
 func ListCapacity(res resources.UIResources, hasHeader, hasTabs bool) int {
-        <span class="cov0" title="0">listCapacityMu.Lock()
+        <span class="cov8" title="1">listCapacityMu.Lock()
         defer listCapacityMu.Unlock()
         key := [2]bool{hasHeader, hasTabs}
         if n, ok := listCapacityCache[key]; ok </span>{
-                <span class="cov0" title="0">return n
+                <span class="cov8" title="1">return n
 </span>        }
-        <span class="cov0" title="0">n := 1
+        <span class="cov8" title="1">n := 1
         for n &lt; listCapacityLimit &amp;&amp; listHeight(res, hasHeader, hasTabs, n+1) &lt;= consts.GameHeight </span>{
-                <span class="cov0" title="0">n++
+                <span class="cov8" title="1">n++
 </span>        }
-        <span class="cov0" title="0">listCapacityCache[key] = n
+        <span class="cov8" title="1">listCapacityCache[key] = n
         return n</span>
 }
 
@@ -52097,22 +52097,22 @@ var (
 // 高さだけが要るので中身はダミーで組む。実物との一致は states 側のテストが
 // 実際の一覧を組んで固定する
 func listHeight(res resources.UIResources, hasHeader, hasTabs bool, n int) int {
-        <span class="cov0" title="0">content := styled.NewVerticalContainer()
+        <span class="cov8" title="1">content := styled.NewVerticalContainer()
         content.AddChild(styled.NewPageIndicator(" ", res))
         table := styled.NewTableContainer(nil, res)
         notSelected := false
         for range n </span>{
-                <span class="cov0" title="0">styled.NewTableRow(table, []int{20, 300}, styled.TextCells(" ", " "), nil, &amp;notSelected, res)
+                <span class="cov8" title="1">styled.NewTableRow(table, []int{20, 300}, styled.TextCells(" ", " "), nil, &amp;notSelected, res)
 </span>        }
-        <span class="cov0" title="0">content.AddChild(table)
+        <span class="cov8" title="1">content.AddChild(table)
         p := TabScreen{Content: content, Footer: " "}
         if hasHeader </span>{
-                <span class="cov0" title="0">p.Header = " "
+                <span class="cov8" title="1">p.Header = " "
 </span>        }
-        <span class="cov0" title="0">if hasTabs </span>{
-                <span class="cov0" title="0">p.TabLabels = []string{" "}
+        <span class="cov8" title="1">if hasTabs </span>{
+                <span class="cov8" title="1">p.TabLabels = []string{" "}
 </span>        }
-        <span class="cov0" title="0">_, h := NewTabScreen(res, p).Container.PreferredSize()
+        <span class="cov8" title="1">_, h := NewTabScreen(res, p).Container.PreferredSize()
         return h</span>
 }
 </pre>
@@ -52182,7 +52182,7 @@ type TabScreen struct {
 // タイトル・本体・フッターを縦に積む。メインメニューやセーブロードのような簡易コマンドメニューの見た目に揃える。
 // 大きめモーダルの NewTabScreen と違い、項目数が少ない画面がエントリ数相応の大きさに収まる
 func NewPanelScreen(res resources.UIResources, title string, content *widget.Container, footer string) *ebitenui.UI {
-        <span class="cov0" title="0">panel := styled.NewVerticalContainer(
+        <span class="cov8" title="1">panel := styled.NewVerticalContainer(
                 widget.ContainerOpts.BackgroundImage(res.Panel.Image),
                 widget.ContainerOpts.WidgetOpts(
                         widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
@@ -52193,15 +52193,15 @@ func NewPanelScreen(res resources.UIResources, title string, content *widget.Con
                 ),
         )
         if title != "" </span>{
-                <span class="cov0" title="0">panel.AddChild(styled.NewMenuText(title, res))
+                <span class="cov8" title="1">panel.AddChild(styled.NewMenuText(title, res))
 </span>        }
-        <span class="cov0" title="0">panel.AddChild(content)
+        <span class="cov8" title="1">panel.AddChild(content)
         if footer != "" </span>{
-                <span class="cov0" title="0">panel.AddChild(styled.NewDescriptionText(footer, res))
+                <span class="cov8" title="1">panel.AddChild(styled.NewDescriptionText(footer, res))
 </span>        }
         // 下部にログ領域ぶんの余白を確保し、その上の領域で中央寄せする。データ一覧のモーダルと
         // 同じくログに被らないようにする
-        <span class="cov0" title="0">logReserve := consts.GameHeight - logTopY(consts.GameHeight) + theme.Space3
+        <span class="cov8" title="1">logReserve := consts.GameHeight - logTopY(consts.GameHeight) + theme.Space3
         root := widget.NewContainer(widget.ContainerOpts.Layout(
                 widget.NewAnchorLayout(widget.AnchorLayoutOpts.Padding(&amp;widget.Insets{Bottom: logReserve})),
         ))
@@ -52214,28 +52214,28 @@ func NewPanelScreen(res resources.UIResources, title string, content *widget.Con
 // コンテンツは上詰めされ、フッターは下端でログの手前に収まる。呼び出し側は
 // 返り値へ詳細モーダル等のウィンドウを AddWindow できる。
 func NewTabScreen(res resources.UIResources, p TabScreen) *ebitenui.UI {
-        <span class="cov0" title="0">children := make([]widget.PreferredSizeLocateableWidget, 0, 5)
+        <span class="cov8" title="1">children := make([]widget.PreferredSizeLocateableWidget, 0, 5)
         rowStretch := make([]bool, 0, 5)
         add := func(c widget.PreferredSizeLocateableWidget, stretch bool) </span>{
-                <span class="cov0" title="0">children = append(children, c)
+                <span class="cov8" title="1">children = append(children, c)
                 rowStretch = append(rowStretch, stretch)
 </span>        }
 
-        <span class="cov0" title="0">if p.Header != "" </span>{
-                <span class="cov0" title="0">add(centerRow(styled.NewMenuText(p.Header, res)), false)
+        <span class="cov8" title="1">if p.Header != "" </span>{
+                <span class="cov8" title="1">add(centerRow(styled.NewMenuText(p.Header, res)), false)
 </span>        }
-        <span class="cov0" title="0">if len(p.TabLabels) &gt; 0 </span>{
-                <span class="cov0" title="0">add(centerRow(styled.NewTabBar(p.TabLabels, p.TabIndex, res)), false)
+        <span class="cov8" title="1">if len(p.TabLabels) &gt; 0 </span>{
+                <span class="cov8" title="1">add(centerRow(styled.NewTabBar(p.TabLabels, p.TabIndex, res)), false)
 </span>        }
-        <span class="cov0" title="0">add(p.Content, false)
+        <span class="cov8" title="1">add(p.Content, false)
         add(widget.NewContainer(), true) // 伸縮スペーサー。フッターを下端へ押す
         if p.Footer != "" </span>{
-                <span class="cov0" title="0">footer := styled.NewRowContainer()
+                <span class="cov8" title="1">footer := styled.NewRowContainer()
                 footer.AddChild(styled.NewDescriptionText(p.Footer, res))
                 add(footer, false)
 </span>        }
 
-        <span class="cov0" title="0">root := widget.NewContainer(
+        <span class="cov8" title="1">root := widget.NewContainer(
                 widget.ContainerOpts.BackgroundImage(res.Panel.Image),
                 widget.ContainerOpts.Layout(widget.NewGridLayout(
                         widget.GridLayoutOpts.Columns(1),
@@ -52245,14 +52245,14 @@ func NewTabScreen(res resources.UIResources, p TabScreen) *ebitenui.UI {
                 )),
         )
         for _, c := range children </span>{
-                <span class="cov0" title="0">root.AddChild(c)
+                <span class="cov8" title="1">root.AddChild(c)
 </span>        }
-        <span class="cov0" title="0">return &amp;ebitenui.UI{Container: wrapModalRoot(root)}</span>
+        <span class="cov8" title="1">return &amp;ebitenui.UI{Container: wrapModalRoot(root)}</span>
 }
 
 // centerRow は子を水平中央に置くアンカーコンテナを返す。タブ帯や見出しの中央寄せに使う
 func centerRow(child widget.PreferredSizeLocateableWidget) *widget.Container {
-        <span class="cov0" title="0">row := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
+        <span class="cov8" title="1">row := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
         child.GetWidget().LayoutData = widget.AnchorLayoutData{HorizontalPosition: widget.AnchorLayoutPositionCenter}
         row.AddChild(child)
         return row
@@ -52262,7 +52262,7 @@ func centerRow(child widget.PreferredSizeLocateableWidget) *widget.Container {
 // 外周は背景を持たず透明にし、周囲に後ろのフィールドを覗かせる。動詞タブ画面と各メニューで共通に使う。
 // 下端はゲームログの上端より上で止め、ログと重ならないようにする。
 func wrapModalRoot(root *widget.Container) *widget.Container {
-        <span class="cov0" title="0">bottom := consts.GameHeight - logTopY(consts.GameHeight) + theme.Space3
+        <span class="cov8" title="1">bottom := consts.GameHeight - logTopY(consts.GameHeight) + theme.Space3
         outer := widget.NewContainer(
                 widget.ContainerOpts.Layout(widget.NewGridLayout(
                         widget.GridLayoutOpts.Columns(1),
