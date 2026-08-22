@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestFor_ワールドのカメラとプレイヤー位置から投影を組む(t *testing.T) {
+func TestWorldProjector_ワールドのカメラとプレイヤー位置から投影を組む(t *testing.T) {
 	t.Parallel()
 
 	// プレイヤーの spawn がカメラを既定の3Dオービットごと用意する
@@ -27,7 +27,7 @@ func TestFor_ワールドのカメラとプレイヤー位置から投影を組�
 	assert.Equal(t, render3d.NewProjector(defaultView, playerTile, screenW, screenH), projector)
 }
 
-func TestFor_カメラを回すと投影が追随する(t *testing.T) {
+func TestWorldProjector_カメラを回すと投影が追随する(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
