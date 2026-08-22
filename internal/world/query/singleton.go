@@ -57,14 +57,6 @@ func GetRunStats(world w.World) *gc.RunStats {
 	return GetSingleton[gc.RunStats](world, world.Components.RunStats)
 }
 
-// RecordDeath は死因を run 統計へ記録する。決着のスナップショットは RunStats と GameTime が
-// 既に保持しているので、ここで確定するのは死因だけ。結果画面は RunStats と GameTime を読む
-func RecordDeath(world w.World, cause string) {
-	if s := GetRunStats(world); s != nil {
-		s.Cause = cause
-	}
-}
-
 // T は現在の設定言語での msgid の訳を返す。現在言語は UserSettings、マスタは Resources.I18N から引く。
 // args を渡すと訳を書式として整形する。"%s攻撃力" のようにデータ値を差し込む訳に使う。
 func T(world w.World, msgid string, args ...any) string {

@@ -30,18 +30,6 @@ func TestGetGameProgress(t *testing.T) {
 	})
 }
 
-func TestRecordDeath(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	stats := GetRunStats(world)
-	require.NotNil(t, stats)
-	assert.Empty(t, stats.Cause, "決着前は死因が空")
-
-	RecordDeath(world, "test")
-	assert.Equal(t, "test", GetRunStats(world).Cause, "死因が記録される")
-}
-
 func TestGetDungeon(t *testing.T) {
 	t.Parallel()
 

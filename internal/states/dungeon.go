@@ -240,9 +240,9 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{}, err
 	}
 
-	// プレイヤー死亡チェック
+	// プレイヤー死亡チェック。死亡で run は終わり結果画面へ移る。
+	// 死因 RunStats.Cause は身体モデル接続後にここで実際の要因を記録する。今は既定の空のまま
 	if st.checkPlayerDeath(world) {
-		query.RecordDeath(world, "")
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 	}
 
