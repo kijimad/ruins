@@ -34,15 +34,28 @@ func TestSnapWorldVec(t *testing.T) {
 func TestDirection_ScreenIntent(t *testing.T) {
 	t.Parallel()
 
-	su, sr := DirectionUp.ScreenIntent()
-	assert.Equal(t, 1.0, su)
-	assert.Equal(t, 0.0, sr)
-
-	su, sr = DirectionDownLeft.ScreenIntent()
-	assert.Equal(t, -1.0, su)
-	assert.Equal(t, -1.0, sr)
-
-	su, sr = DirectionNone.ScreenIntent()
-	assert.Equal(t, 0.0, su)
-	assert.Equal(t, 0.0, sr)
+	cases := []struct {
+		name   string
+		dir    Direction
+		wantSu float64
+		wantSr float64
+	}{
+		{"上", DirectionUp, 1, 0},
+		{"下", DirectionDown, -1, 0},
+		{"右", DirectionRight, 0, 1},
+		{"左", DirectionLeft, 0, -1},
+		{"右上", DirectionUpRight, 1, 1},
+		{"左上", DirectionUpLeft, 1, -1},
+		{"右下", DirectionDownRight, -1, 1},
+		{"左下", DirectionDownLeft, -1, -1},
+		{"方向なし", DirectionNone, 0, 0},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			su, sr := tc.dir.ScreenIntent()
+			assert.Equal(t, tc.wantSu, su)
+			assert.Equal(t, tc.wantSr, sr)
+		})
+	}
 }
