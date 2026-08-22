@@ -88,7 +88,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	}
 
 	// 投影はフレーム内で不変。ここで1回だけ組み、エンティティごとの描画へ渡す
-	projector, err := render3d.ProjectorFor(world)
+	projector, err := render3d.WorldProjector(world)
 	if err != nil {
 		return err
 	}

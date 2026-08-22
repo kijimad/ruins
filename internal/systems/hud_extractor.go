@@ -131,7 +131,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	// 世界を描くのと同じ投影を使う。デバッグ表示だけ別の変換に取り残すと、
 	// それを手本にして古い変換が新しい箇所へ広がる。
 	// このデバッグ抽出は error を返せないので、投影が組めなければ表示を諦める
-	projector, err := render3d.ProjectorFor(world)
+	projector, err := render3d.WorldProjector(world)
 	if err != nil {
 		return hud.DebugOverlayData{Enabled: false}
 	}

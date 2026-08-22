@@ -212,7 +212,7 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) e
 	}
 	targetCoord := world.Components.GridElement.Get(target).Coord
 
-	projector, err := render3d.ProjectorFor(world)
+	projector, err := render3d.WorldProjector(world)
 	if err != nil {
 		return err
 	}

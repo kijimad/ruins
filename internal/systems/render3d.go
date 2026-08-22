@@ -195,7 +195,7 @@ func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
 
 // buildScene は投影とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。
 func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Projector, error) {
-	projector, err := render3d.ProjectorFor(world)
+	projector, err := render3d.WorldProjector(world)
 	if err != nil {
 		return nil, render3d.Projector{}, err
 	}

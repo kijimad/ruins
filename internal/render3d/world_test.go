@@ -22,7 +22,7 @@ func TestFor_ワールドのカメラとプレイヤー位置から投影を組�
 	require.NoError(t, err)
 
 	// 同じ状態からは同じ投影が組める。呼び出し側ごとに寸法の取り方が分かれないことを固定する
-	projector, err := render3d.ProjectorFor(world)
+	projector, err := render3d.WorldProjector(world)
 	require.NoError(t, err)
 	assert.Equal(t, render3d.NewProjector(defaultView, playerTile, screenW, screenH), projector)
 }
@@ -38,12 +38,12 @@ func TestFor_カメラを回すと投影が追随する(t *testing.T) {
 	require.NotNil(t, camera)
 	far := consts.Coord[consts.Tile]{X: 25, Y: 20}
 
-	projector, err := render3d.ProjectorFor(world)
+	projector, err := render3d.WorldProjector(world)
 	require.NoError(t, err)
 	north, ok := projector.TileCenter(far, 0)
 	require.True(t, ok)
 	camera.Orient = 1
-	projector, err = render3d.ProjectorFor(world)
+	projector, err = render3d.WorldProjector(world)
 	require.NoError(t, err)
 	rotated, ok := projector.TileCenter(far, 0)
 	require.True(t, ok)

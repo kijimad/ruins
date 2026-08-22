@@ -135,7 +135,7 @@ const cursorFrameWidth = 3
 // drawCursor はカーソルを描画する。
 // タイルは透視投影で台形になるので、投影した四隅を線で結んで実際の輪郭に合わせる。
 func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) error {
-	projector, err := render3d.ProjectorFor(world)
+	projector, err := render3d.WorldProjector(world)
 	if err != nil {
 		return err
 	}

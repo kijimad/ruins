@@ -10,12 +10,12 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ProjectorFor は world の状態から投影を組む。画面寸法もカメラ姿勢も world から読み、呼び出し側には
+// WorldProjector は world の状態から投影を組む。画面寸法もカメラ姿勢も world から読み、呼び出し側には
 // 取らせない。寸法やカメラの取り方が呼び出し側ごとに分かれると、投影が再び2系統へ割れるためである。
 //
 // ダンジョン描画はプレイヤーの存在を前提とする。カメラやプレイヤーが無ければ投影は組めないので、
 // error を返して呼び出し側の描画をやめさせる。
-func ProjectorFor(world w.World) (Projector, error) {
+func WorldProjector(world w.World) (Projector, error) {
 	sw, sh := world.Resources.GetScreenDimensions()
 	camera := query.GetPlayerCamera(world)
 	if camera == nil {

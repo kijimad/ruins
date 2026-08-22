@@ -31,7 +31,7 @@ func TestBuildScene_世界描画と重ねる側が同じ投影を使う(t *testi
 	_, projector, err := sys.buildScene(world)
 	require.NoError(t, err)
 
-	fromWorld, err := render3d.ProjectorFor(world)
+	fromWorld, err := render3d.WorldProjector(world)
 	require.NoError(t, err)
 	assert.Equal(t, fromWorld, projector, "世界描画とオーバーレイが同じ投影を使う")
 }
