@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -359,7 +359,7 @@
 				
 				<option value="file151">github.com/kijimaD/ruins/internal/mapplanner/plan.go (88.5%)</option>
 				
-				<option value="file152">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (75.7%)</option>
+				<option value="file152">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (78.4%)</option>
 				
 				<option value="file153">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -1608,7 +1608,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1622,7 +1622,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 </span>
         // 被ダメージで中断可能なアクティビティをキャンセルする
         <span class="cov8" title="1">if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span>{
-                <span class="cov0" title="0">CancelActivity(target, "took an attack", world)
+                <span class="cov8" title="1">CancelActivity(target, "took an attack", world)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -21803,7 +21803,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;
                                 planData.isInAnyRoom(x, y) &amp;&amp;
                                 pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span>{
-                                <span class="cov0" title="0">return x, y, true
+                                <span class="cov8" title="1">return x, y, true
 </span>                        }
                 }
                 <span class="cov8" title="1">return 0, 0, false</span>
