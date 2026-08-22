@@ -120,7 +120,7 @@ const (
 // 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在POI > 荒れ地。地図も生成もこの分類を
 // 唯一の源にするので、地図の記号と実体が食い違わない。
 func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {
-	if _, _, _, ok := urbanRegionOf(runSeed, c, rows); ok {
+	if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok {
 		return chunkUrban
 	}
 	if dungeonEntrancePlacement.At(runSeed, c, rows) {
@@ -137,10 +137,10 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk
 
 // ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
 // 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
-func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, chunkW consts.Tile) rune {
+func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, rows) {
 	case chunkUrban:
-		kind, _, _ := urbanChunkInfo(runSeed, c, rows, chunkW)
+		kind, _, _ := urbanChunkInfo(runSeed, c, rows)
 		if g, ok := facilityGlyphs[kind]; ok {
 			return g.Label
 		}

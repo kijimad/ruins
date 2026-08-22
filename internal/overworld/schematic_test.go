@@ -27,7 +27,7 @@ func findUrbanChunk(t *testing.T, rows consts.Chunk) (uint64, consts.Coord[const
 		for y := range rows {
 			for x := range consts.Chunk(12) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
-				if _, _, ok := urbanChunkInfo(s, c, rows, 50); ok {
+				if _, _, ok := urbanChunkInfo(s, c, rows); ok {
 					return s, c
 				}
 			}
@@ -42,11 +42,11 @@ func TestChunkPlace_市街地の建物チャンクは施設種別の文字を返
 
 	const rows consts.Chunk = 9
 	seed, c := findUrbanChunk(t, rows)
-	kind, _, ok := urbanChunkInfo(seed, c, rows, 50)
+	kind, _, ok := urbanChunkInfo(seed, c, rows)
 	require.True(t, ok, "前提: 市街地チャンク")
 
 	want := facilityGlyphs[kind].Label
-	assert.Equal(t, want, ChunkPlace(seed, c, rows, 50), "建物チャンクは施設種別の文字を返す")
+	assert.Equal(t, want, ChunkPlace(seed, c, rows), "建物チャンクは施設種別の文字を返す")
 }
 
 func TestChunkPlace_純関数で決定的(t *testing.T) {
@@ -54,9 +54,9 @@ func TestChunkPlace_純関数で決定的(t *testing.T) {
 
 	const rows consts.Chunk = 9
 	seed, c := findUrbanChunk(t, rows)
-	first := ChunkPlace(seed, c, rows, 50)
+	first := ChunkPlace(seed, c, rows)
 	for range 5 {
-		assert.Equal(t, first, ChunkPlace(seed, c, rows, 50), "同じ引数なら毎回同じ文字")
+		assert.Equal(t, first, ChunkPlace(seed, c, rows), "同じ引数なら毎回同じ文字")
 	}
 }
 
@@ -71,10 +71,10 @@ func TestChunkPlace_遺跡入口と集落が地物の文字で出る(t *testing.
 			for x := range consts.Chunk(8) {
 				c := consts.Coord[consts.Chunk]{X: x, Y: y}
 				// 市街地に上書きされないチャンクだけ見る
-				if _, _, ok := urbanChunkInfo(s, c, rows, 50); ok {
+				if _, _, ok := urbanChunkInfo(s, c, rows); ok {
 					continue
 				}
-				switch ChunkPlace(s, c, rows, 50) {
+				switch ChunkPlace(s, c, rows) {
 				case placeGlyphs[placeDungeonEntrance].Label:
 					foundDungeonEntrance = true
 				case placeGlyphs[placeVillage].Label:

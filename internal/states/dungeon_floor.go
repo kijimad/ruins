@@ -334,11 +334,8 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	// 入口のオーバーワールド座標。swapTo 前に値でコピーする
 	fromPos := world.Components.GridElement.Get(player).Coord
 
-	// 遺跡の危険度を入場時に確定する。帯は現ステージ=オーバーワールドにあり、swapTo で
-	// 遺跡へ移ると nil になるため、ここで入口の絶対Xと経過日数から一度だけ求めて全階へ配る。
-	if band := query.GetSeamlessBand(world); band != nil {
-		st.Danger = query.DangerLevelAt(world, band.LocalToAbsX(fromPos.X))
-	}
+	// 遺跡の危険度を入場時の経過日数から一度だけ確定し、全階へ配る。階を降りても変わらない。
+	st.Danger = query.DangerLevelAt(world)
 
 	target := gc.NewDungeonStage(defName, 1)
 	// 既にその遺跡1階にいるなら自己スワップになるので何もしない。デバッグ進入で

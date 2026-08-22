@@ -167,14 +167,9 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 		}
 		lootDice = d
 	}
-	// 危険度は建物の前進距離で決める。東の建物ほど希少な loot が出る。廃墟テーブルは全 entry が
-	// minDanger>=1 で危険度0では何も引けないため、開始付近でも最も浅い戦利品が出るよう1で下限を張る。
-	danger := 1
-	if band := query.GetSeamlessBand(world); band != nil && world.Components.GridElement.Has(entity) {
-		if d := query.DangerLevelAt(world, band.LocalToAbsX(world.Components.GridElement.Get(entity).Coord.X)); d > danger {
-			danger = d
-		}
-	}
+	// 危険度は経過日数で決める。日が進むほど希少な loot が出る。廃墟テーブルは全 entry が
+	// minDanger>=1 で危険度0では何も引けないため、序盤でも最も浅い戦利品が出るよう1で下限を張る。
+	danger := max(1, query.DangerLevelAt(world))
 	n := lootDice.Roll(rng)
 	for range n {
 		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, danger)

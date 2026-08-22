@@ -625,11 +625,11 @@ export interface EnemyTableEntry {
      */
     'weight': number;
     /**
-     * 危険度。前進距離と経過日数から決まる
+     * 危険度。経過日数から決まる
      */
     'minDanger': number;
     /**
-     * 危険度。前進距離と経過日数から決まる
+     * 危険度。経過日数から決まる
      */
     'maxDanger': number;
     /**
@@ -927,11 +927,11 @@ export interface ItemTableEntry {
      */
     'weight': number;
     /**
-     * 危険度。前進距離と経過日数から決まる
+     * 危険度。経過日数から決まる
      */
     'minDanger': number;
     /**
-     * 危険度。前進距離と経過日数から決まる
+     * 危険度。経過日数から決まる
      */
     'maxDanger': number;
 }

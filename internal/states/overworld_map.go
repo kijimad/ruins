@@ -66,7 +66,7 @@ func (st *OverworldMapState) OnStart(world w.World) error {
 		st.glyphs[cy] = make([]rune, winChunksX)
 		for i := range winChunksX {
 			c := consts.Coord[consts.Chunk]{X: winX0 + consts.Chunk(i), Y: cy}
-			st.glyphs[cy][i] = overworld.ChunkPlace(sb.RunSeed, c, rows, sb.ChunkW)
+			st.glyphs[cy][i] = overworld.ChunkPlace(sb.RunSeed, c, rows)
 		}
 	}
 

@@ -920,7 +920,7 @@ type CubePanelTriggerRaw = map[string]interface{}
 // DamageBonus ダメージ補正値
 type DamageBonus = int
 
-// DangerLevel 危険度。前進距離と経過日数から決まる
+// DangerLevel 危険度。経過日数から決まる
 type DangerLevel = int
 
 // Defense 防御力。被ダメージを軽減する
@@ -1038,10 +1038,10 @@ type EnemyTableEntry struct {
 	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
-	// MaxDanger 危険度。前進距離と経過日数から決まる
+	// MaxDanger 危険度。経過日数から決まる
 	MaxDanger DangerLevel `json:"maxDanger"`
 
-	// MinDanger 危険度。前進距離と経過日数から決まる
+	// MinDanger 危険度。経過日数から決まる
 	MinDanger DangerLevel `json:"minDanger"`
 
 	// Pack 1群あたりの敵数のダイス表記
@@ -1295,10 +1295,10 @@ type ItemTableEntry struct {
 	// Id 参照するアイテムグループの id
 	Id EntityID `json:"id"`
 
-	// MaxDanger 危険度。前進距離と経過日数から決まる
+	// MaxDanger 危険度。経過日数から決まる
 	MaxDanger DangerLevel `json:"maxDanger"`
 
-	// MinDanger 危険度。前進距離と経過日数から決まる
+	// MinDanger 危険度。経過日数から決まる
 	MinDanger DangerLevel `json:"minDanger"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
