@@ -113,7 +113,7 @@ $ make help
 | draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
 | draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/6 | item, combat, ecs |
 | draft | [身体の不調: 少数の部位と、部位から算出する身体機能](docs/design/260821232324.md) | 0/15 | gamedesign, combat, item, ecs |
-| draft | [終端: run を死で締め、到達距離を記録する](docs/design/260822014348.md) | 0/5（見送り1） | gamedesign, ecs, ui |
+| draft | [終端: run を死で締め、統計を記録して見せる](docs/design/260822014348.md) | 0/7（見送り1） | gamedesign, ecs, ui |
 | draft | [逓増: 危険と希少性の軸を深さから距離と日数へ移す](docs/design/260822014350.md) | 0/7 | gamedesign, worldgen, ecs |
 
 
