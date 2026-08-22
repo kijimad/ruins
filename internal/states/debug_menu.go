@@ -43,7 +43,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		})},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
 		{Label: "Run result (death screen)", Run: func(world w.World) (es.Transition[w.World], error) {
-			// デバッグ経路の死。死因は身体モデル未接続なので目印の debug を入れる
+			// 死因に目印の debug を入れて結果画面を確認する
 			if s := query.GetRunStats(world); s != nil {
 				s.Cause = "debug"
 			}

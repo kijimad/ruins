@@ -57,14 +57,12 @@ type GameTime struct {
 	TotalTurns consts.Turn // run 開始からの経過ターン数
 }
 
-// GetTimeOfDay は現在の時間帯を返す。時間帯定数を昼始まりに並べてあるので、
-// 経過ターンを区切りで割るだけで昼始まりの時間帯になり、オフセットは要らない
+// GetTimeOfDay は現在の時間帯を返す
 func (gt *GameTime) GetTimeOfDay() TimeOfDay {
 	return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)
 }
 
-// GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる。
-// 新規ゲームは昼開始なので、昼までに過ぎたぶんを足してから日数を数える
+// GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる
 func (gt *GameTime) GetDayNumber() int {
 	return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1
 }
