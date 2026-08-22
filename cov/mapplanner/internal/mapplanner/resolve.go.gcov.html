@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 14:29:26</td>
+            <td class="headerValue">2026-08-22 15:34:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,8 +70,8 @@
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span>              : // resolveEnemyEntries は敵テーブル名とRawMasterから、指定深度でフィルタリングしたSpawnEntryを返す</span>
-<span id="L12"><span class="lineNum">      12</span>              : func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, depth int) ([]SpawnEntry, error) {</span>
+<span id="L11"><span class="lineNum">      11</span>              : // resolveEnemyEntries は敵テーブル名とRawMasterから、指定危険度でフィルタリングしたSpawnEntryを返す</span>
+<span id="L12"><span class="lineNum">      12</span>              : func resolveEnemyEntries(rawMaster *oapi.Raws, tableName string, danger int) ([]SpawnEntry, error) {</span>
 <span id="L13"><span class="lineNum">      13</span>              :         // tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。</span>
 <span id="L14"><span class="lineNum">      14</span>              :         // どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。</span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC tlaBgGNC">           1 :         if rawMaster == nil || tableName == &quot;&quot; {</span></span>
@@ -83,7 +83,7 @@
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 :         result := make([]SpawnEntry, 0, len(enemyTable.Entries))</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         for _, entry := range enemyTable.Entries {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 if depth &lt; entry.MinDepth || depth &gt; entry.MaxDepth {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 if danger &lt; entry.MinDanger || danger &gt; entry.MaxDanger {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L26"><span class="lineNum">      26</span>              :                 }</span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 pack, err := consts.ParseDice(entry.Pack)</span></span>
@@ -99,10 +99,10 @@
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return result, nil</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : }</span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
-<span id="L40"><span class="lineNum">      40</span>              : // resolveItemSources はアイテムテーブル名と RawMaster から、指定深度でフィルタリングした参照先グループを返す。</span>
-<span id="L41"><span class="lineNum">      41</span>              : // グループ中身の解決と抽選は draw 時に raw.SelectFromItemGroup が担うので、ここはテーブルの深度フィルタと</span>
+<span id="L40"><span class="lineNum">      40</span>              : // resolveItemSources はアイテムテーブル名と RawMaster から、指定危険度でフィルタリングした参照先グループを返す。</span>
+<span id="L41"><span class="lineNum">      41</span>              : // グループ中身の解決と抽選は draw 時に raw.SelectFromItemGroup が担うので、ここはテーブルの危険度フィルタと</span>
 <span id="L42"><span class="lineNum">      42</span>              : // 参照先グループの収集だけを行う。テーブルから group への参照の実在は raw のロード時検証が担保する。</span>
-<span id="L43"><span class="lineNum">      43</span>              : func resolveItemSources(rawMaster *oapi.Raws, tableName string, depth int) ([]itemGroupRef, error) {</span>
+<span id="L43"><span class="lineNum">      43</span>              : func resolveItemSources(rawMaster *oapi.Raws, tableName string, danger int) ([]itemGroupRef, error) {</span>
 <span id="L44"><span class="lineNum">      44</span>              :         // tableName 空はテーブル非設定のプランナー、rawMaster nil は Resources 未設定のワールド。</span>
 <span id="L45"><span class="lineNum">      45</span>              :         // どちらも配置対象が無いだけの正常系なので、error でなく空を返す。呼び出し側は len 0 を no-op として扱う。</span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         if rawMaster == nil || tableName == &quot;&quot; {</span></span>
@@ -114,7 +114,7 @@
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 :         result := make([]itemGroupRef, 0, len(itemTable.Entries))</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         for _, entry := range itemTable.Entries {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 if depth &lt; entry.MinDepth || depth &gt; entry.MaxDepth {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 if danger &lt; entry.MinDanger || danger &gt; entry.MaxDanger {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L57"><span class="lineNum">      57</span>              :                 }</span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 result = append(result, itemGroupRef{GroupID: entry.Id, Weight: entry.Weight})</span></span>

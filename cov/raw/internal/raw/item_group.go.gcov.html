@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 14:29:26</td>
+            <td class="headerValue">2026-08-22 15:34:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -87,7 +87,7 @@
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span>              : // SelectFromItemGroup は item group から1回ぶんの loot を抽選する。distribution は重み比で1エントリを選び、</span>
 <span id="L27"><span class="lineNum">      27</span>              : // collection は各エントリを独立に確率判定する。個数は entry の pack ダイスで振る。stackable は個数を1エントリ</span>
-<span id="L28"><span class="lineNum">      28</span>              : // にまとめ、非 stackable は1個ずつのエントリに展開する。深度を扱わず group を直接引くので、地上の床 loot と</span>
+<span id="L28"><span class="lineNum">      28</span>              : // にまとめ、非 stackable は1個ずつのエントリに展開する。危険度を扱わず group を直接引くので、地上の床 loot と</span>
 <span id="L29"><span class="lineNum">      29</span>              : // 家具の収納 loot が同じ抽選を共有できる。</span>
 <span id="L30"><span class="lineNum">      30</span>              : func SelectFromItemGroup(raws oapi.Raws, groupID string, rng *rand.Rand) ([]DrawnItem, error) {</span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 :         group, err := GetItemGroup(raws, groupID)</span></span>

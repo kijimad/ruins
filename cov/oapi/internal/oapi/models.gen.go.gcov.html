@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 14:29:26</td>
+            <td class="headerValue">2026-08-22 15:34:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -982,11 +982,11 @@
 <span id="L920"><span class="lineNum">     920</span>              : // DamageBonus ダメージ補正値</span>
 <span id="L921"><span class="lineNum">     921</span>              : type DamageBonus = int</span>
 <span id="L922"><span class="lineNum">     922</span>              : </span>
-<span id="L923"><span class="lineNum">     923</span>              : // Defense 防御力。被ダメージを軽減する</span>
-<span id="L924"><span class="lineNum">     924</span>              : type Defense = int</span>
+<span id="L923"><span class="lineNum">     923</span>              : // DangerLevel 危険度。経過日数から決まる</span>
+<span id="L924"><span class="lineNum">     924</span>              : type DangerLevel = int</span>
 <span id="L925"><span class="lineNum">     925</span>              : </span>
-<span id="L926"><span class="lineNum">     926</span>              : // DepthLevel 階層レベル</span>
-<span id="L927"><span class="lineNum">     927</span>              : type DepthLevel = int</span>
+<span id="L926"><span class="lineNum">     926</span>              : // Defense 防御力。被ダメージを軽減する</span>
+<span id="L927"><span class="lineNum">     927</span>              : type Defense = int</span>
 <span id="L928"><span class="lineNum">     928</span>              : </span>
 <span id="L929"><span class="lineNum">     929</span>              : // Dexterity 器用さ。クリティカル率に影響する</span>
 <span id="L930"><span class="lineNum">     930</span>              : type Dexterity = int</span>
@@ -1100,11 +1100,11 @@
 <span id="L1038"><span class="lineNum">    1038</span>              :         // Id エンティティの英語 id</span>
 <span id="L1039"><span class="lineNum">    1039</span>              :         Id EntityID `json:&quot;id&quot;`</span>
 <span id="L1040"><span class="lineNum">    1040</span>              : </span>
-<span id="L1041"><span class="lineNum">    1041</span>              :         // MaxDepth 階層レベル</span>
-<span id="L1042"><span class="lineNum">    1042</span>              :         MaxDepth DepthLevel `json:&quot;maxDepth&quot;`</span>
+<span id="L1041"><span class="lineNum">    1041</span>              :         // MaxDanger 危険度。経過日数から決まる</span>
+<span id="L1042"><span class="lineNum">    1042</span>              :         MaxDanger DangerLevel `json:&quot;maxDanger&quot;`</span>
 <span id="L1043"><span class="lineNum">    1043</span>              : </span>
-<span id="L1044"><span class="lineNum">    1044</span>              :         // MinDepth 階層レベル</span>
-<span id="L1045"><span class="lineNum">    1045</span>              :         MinDepth DepthLevel `json:&quot;minDepth&quot;`</span>
+<span id="L1044"><span class="lineNum">    1044</span>              :         // MinDanger 危険度。経過日数から決まる</span>
+<span id="L1045"><span class="lineNum">    1045</span>              :         MinDanger DangerLevel `json:&quot;minDanger&quot;`</span>
 <span id="L1046"><span class="lineNum">    1046</span>              : </span>
 <span id="L1047"><span class="lineNum">    1047</span>              :         // Pack 1群あたりの敵数のダイス表記</span>
 <span id="L1048"><span class="lineNum">    1048</span>              :         Pack Dice `json:&quot;pack&quot;`</span>
@@ -1357,11 +1357,11 @@
 <span id="L1295"><span class="lineNum">    1295</span>              :         // Id 参照するアイテムグループの id</span>
 <span id="L1296"><span class="lineNum">    1296</span>              :         Id EntityID `json:&quot;id&quot;`</span>
 <span id="L1297"><span class="lineNum">    1297</span>              : </span>
-<span id="L1298"><span class="lineNum">    1298</span>              :         // MaxDepth 階層レベル</span>
-<span id="L1299"><span class="lineNum">    1299</span>              :         MaxDepth DepthLevel `json:&quot;maxDepth&quot;`</span>
+<span id="L1298"><span class="lineNum">    1298</span>              :         // MaxDanger 危険度。経過日数から決まる</span>
+<span id="L1299"><span class="lineNum">    1299</span>              :         MaxDanger DangerLevel `json:&quot;maxDanger&quot;`</span>
 <span id="L1300"><span class="lineNum">    1300</span>              : </span>
-<span id="L1301"><span class="lineNum">    1301</span>              :         // MinDepth 階層レベル</span>
-<span id="L1302"><span class="lineNum">    1302</span>              :         MinDepth DepthLevel `json:&quot;minDepth&quot;`</span>
+<span id="L1301"><span class="lineNum">    1301</span>              :         // MinDanger 危険度。経過日数から決まる</span>
+<span id="L1302"><span class="lineNum">    1302</span>              :         MinDanger DangerLevel `json:&quot;minDanger&quot;`</span>
 <span id="L1303"><span class="lineNum">    1303</span>              : </span>
 <span id="L1304"><span class="lineNum">    1304</span>              :         // Weight テーブルエントリの重み。大きいほど選ばれやすい</span>
 <span id="L1305"><span class="lineNum">    1305</span>              :         Weight EntryWeight `json:&quot;weight&quot;`</span>

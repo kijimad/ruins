@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.7&nbsp;%</td>
-            <td class="headerCovTableEntry">141</td>
-            <td class="headerCovTableEntry">125</td>
+            <td class="headerCovTableEntryMed">88.2&nbsp;%</td>
+            <td class="headerCovTableEntry">144</td>
+            <td class="headerCovTableEntry">127</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 14:29:26</td>
+            <td class="headerValue">2026-08-22 15:34:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -221,190 +221,196 @@
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                         total += f.weight</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L161"><span class="lineNum">     161</span>              :         }</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         roll := rng.IntN(total)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         for _, f := range cat {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 if span &lt; f.minSpan {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L166"><span class="lineNum">     166</span>              :                 }</span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC tlaBgGNC">           1 :                 roll -= f.weight</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 if roll &lt; 0 {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                         return f.kind</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L171"><span class="lineNum">     171</span>              :         }</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;unreachable: selection weight total and subtraction are inconsistent&quot;)</span></span>
-<span id="L173"><span class="lineNum">     173</span>              : }</span>
-<span id="L174"><span class="lineNum">     174</span>              : </span>
-<span id="L175"><span class="lineNum">     175</span>              : // urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。</span>
-<span id="L176"><span class="lineNum">     176</span>              : // 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで</span>
-<span id="L177"><span class="lineNum">     177</span>              : // 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。</span>
-<span id="L178"><span class="lineNum">     178</span>              : func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {</span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC tlaBgGNC">           1 :         anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, 0, false</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         size = max(cw, ch)</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, urbanSeed)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         // 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。</span></span>
-<span id="L188"><span class="lineNum">     188</span>              :         // ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える</span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         frng := rand.New(rand.NewPCG(chunkSeed, 0x1))</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         return rollFacilityInZone(frng, z, size), size, true</span></span>
-<span id="L191"><span class="lineNum">     191</span>              : }</span>
-<span id="L192"><span class="lineNum">     192</span>              : </span>
-<span id="L193"><span class="lineNum">     193</span>              : // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので</span>
-<span id="L194"><span class="lineNum">     194</span>              : // 生成順に依存しない。</span>
-<span id="L195"><span class="lineNum">     195</span>              : func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         anchor, _, _, ok := urbanRegionOf(runSeed, c, rows)</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L200"><span class="lineNum">     200</span>              : </span>
-<span id="L201"><span class="lineNum">     201</span>              :         // 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う</span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         fac, size, _ := urbanChunkInfo(runSeed, c, rows)</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         return renderUrbanChunk(world, g, chunkSeed, size, fac)</span></span>
-<span id="L206"><span class="lineNum">     206</span>              : }</span>
-<span id="L207"><span class="lineNum">     207</span>              : </span>
-<span id="L208"><span class="lineNum">     208</span>              : // renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。</span>
-<span id="L209"><span class="lineNum">     209</span>              : func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType) error {</span>
-<span id="L210"><span class="lineNum">     210</span>              :         // ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける</span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0x2))</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         footprint, door, err := planUrbanLot(world, g, rng)</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC tlaBgGNC">           1 :         isWall, occupied, err := furnishBuilding(world, g, footprint, door, fac, seed)</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC tlaBgGNC">           1 :         return spawnUrbanEnemies(world, g, rng, size, isWall, occupied)</span></span>
-<span id="L221"><span class="lineNum">     221</span>              : }</span>
-<span id="L222"><span class="lineNum">     222</span>              : </span>
-<span id="L223"><span class="lineNum">     223</span>              : // planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と</span>
-<span id="L224"><span class="lineNum">     224</span>              : // 内装は furnishBuilding が Site から描くので、ここは街路だけ描いて区画と入口を返す。扉の向きは壁の走る</span>
-<span id="L225"><span class="lineNum">     225</span>              : // 方向から furnishBuilding が決める。区画の中で前庭を空け坪庭を作り玄関を凹ませるのは interior の敷地計画に委ねる。</span>
-<span id="L226"><span class="lineNum">     226</span>              : func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, interior.Vec, error) {</span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         tiles := g.tiles.get()</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L229"><span class="lineNum">     229</span>              :         // 建物区画の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残す。区画は最小 3×3 を保証する。</span>
-<span id="L230"><span class="lineNum">     230</span>              :         // 扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が破綻しない下限で、市街地チャンクは</span>
-<span id="L231"><span class="lineNum">     231</span>              :         // chunkW,chunkH &gt;= urbanStreetW+3 を前提にする</span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         spanX := g.chunkW - urbanStreetW</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         spanY := g.chunkH - urbanStreetW</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         bw := max(3, spanX-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         bh := max(3, spanY-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         bx := urbanStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         by := urbanStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L239"><span class="lineNum">     239</span>              :         // 街路が北・西にあるので扉は道路に面する北辺か西辺に開ける。位置は interior が前室の内側へ寄せ、</span>
-<span id="L240"><span class="lineNum">     240</span>              :         // 向きは furnishBuilding が壁の走る方向から決める</span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         doorX, doorY := bx+1+consts.Tile(rng.IntN(int(bw-2))), by</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         if rng.IntN(2) == 0 {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 doorX, doorY = bx, by+1+consts.Tile(rng.IntN(int(bh-2)))</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L245"><span class="lineNum">     245</span>              : </span>
-<span id="L246"><span class="lineNum">     246</span>              :         // 街路を描く。建物区画のタイルは furnishBuilding が Site から描くのでここでは触らない</span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         for ly := range g.chunkH {</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 for lx := range g.chunkW {</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                         if lx &gt;= urbanStreetW &amp;&amp; ly &gt;= urbanStreetW {</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L251"><span class="lineNum">     251</span>              :                         }</span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return interior.Rect{}, interior.Vec{}, fmt.Errorf(&quot;failed to place urban street (x=%d, y=%d): %w&quot;, g.offsetX+lx, g.offsetY+ly, err)</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L255"><span class="lineNum">     255</span>              :                 }</span>
-<span id="L256"><span class="lineNum">     256</span>              :         }</span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC tlaBgGNC">           1 :         footprint := interior.Rect{X: bx, Y: by, W: bw, H: bh}</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         door := interior.Vec{X: doorX, Y: doorY}</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         return footprint, door, nil</span></span>
-<span id="L260"><span class="lineNum">     260</span>              : }</span>
-<span id="L261"><span class="lineNum">     261</span>              : </span>
-<span id="L262"><span class="lineNum">     262</span>              : // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから</span>
-<span id="L263"><span class="lineNum">     263</span>              : // 規模を深度とみなして重み抽選する。壁マスに埋まる位置は避ける。</span>
-<span id="L264"><span class="lineNum">     264</span>              : func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {</span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to get urban enemy table: %w&quot;, err)</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC tlaBgGNC">           1 :         count := 1 + rng.IntN(int(size))</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         for range count {</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, int(size))</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to select urban enemy: %w&quot;, err)</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L275"><span class="lineNum">     275</span>              :                 // 敵は街路に湧かせ、建物の footprint と壁の上は避ける。占有は footprint 全域に及ぶので、一度引いて</span>
-<span id="L276"><span class="lineNum">     276</span>              :                 // 塞がっていたら目標数を満たすよう空きが出るまで位置を引き直す。試行を尽くしても空かなければその</span>
-<span id="L277"><span class="lineNum">     277</span>              :                 // 1体は諦める。抽選順は固定なので同じ seed なら同じ結果になる</span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC tlaBgGNC">           1 :                 for range urbanSpawnTries {</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                         lx := consts.Tile(rng.IntN(int(g.chunkW)))</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                         ly := consts.Tile(rng.IntN(int(g.chunkH)))</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                         pos := consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                         if isWall(lx, ly) || occupied[pos] {</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L284"><span class="lineNum">     284</span>              :                         }</span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                         if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;failed to place urban enemy: %w&quot;, err)</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC tlaBgGNC">           1 :                         break</span></span>
-<span id="L289"><span class="lineNum">     289</span>              :                 }</span>
-<span id="L290"><span class="lineNum">     290</span>              :         }</span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L292"><span class="lineNum">     292</span>              : }</span>
-<span id="L293"><span class="lineNum">     293</span>              : </span>
-<span id="L294"><span class="lineNum">     294</span>              : // urbanSpawnTries は敵1体あたり街路の空きタイルを探す最大試行数。建物が footprint 全域を占有し有効タイルが</span>
-<span id="L295"><span class="lineNum">     295</span>              : // 減るので、数回の引き直しで目標数をほぼ満たせるだけの余裕を持たせる。</span>
-<span id="L296"><span class="lineNum">     296</span>              : const urbanSpawnTries = 24</span>
-<span id="L297"><span class="lineNum">     297</span>              : </span>
-<span id="L298"><span class="lineNum">     298</span>              : // tileIndex はチャンク生成中に地物が共有するタイルの座標引き索引。地物が壁や道を置換する</span>
-<span id="L299"><span class="lineNum">     299</span>              : // とき使う。最初に必要とした地物が全域スキャンで構築し、以降の地物は再利用する。壁を置かない</span>
-<span id="L300"><span class="lineNum">     300</span>              : // 荒れ地では一度も構築されず、全域スキャンの無駄を避ける。replaceTile が置換後の実体を書き</span>
-<span id="L301"><span class="lineNum">     301</span>              : // 戻すので、地物をまたいでも索引は実状態を映し続け、二重残留を防ぐ。</span>
-<span id="L302"><span class="lineNum">     302</span>              : type tileIndex struct {</span>
-<span id="L303"><span class="lineNum">     303</span>              :         world    w.World</span>
-<span id="L304"><span class="lineNum">     304</span>              :         loX, hiX consts.Tile</span>
-<span id="L305"><span class="lineNum">     305</span>              :         tiles    map[gc.GridElement]ecs.Entity</span>
-<span id="L306"><span class="lineNum">     306</span>              : }</span>
-<span id="L307"><span class="lineNum">     307</span>              : </span>
-<span id="L308"><span class="lineNum">     308</span>              : // get は索引を返す。未構築なら遅延構築する。壁を置く地物が現れて初めてスキャンが走る。</span>
-<span id="L309"><span class="lineNum">     309</span>              : func (ix *tileIndex) get() map[gc.GridElement]ecs.Entity {</span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         if ix.tiles == nil {</span></span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 ix.tiles = tileEntitiesInRange(ix.world, ix.loX, ix.hiX)</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         return ix.tiles</span></span>
-<span id="L314"><span class="lineNum">     314</span>              : }</span>
-<span id="L315"><span class="lineNum">     315</span>              : </span>
-<span id="L316"><span class="lineNum">     316</span>              : // tileEntitiesInRange は X 範囲 [loX, hiX) のタイルエンティティを座標引きできるよう集める。</span>
-<span id="L317"><span class="lineNum">     317</span>              : func tileEntitiesInRange(world w.World, loX, hiX consts.Tile) map[gc.GridElement]ecs.Entity {</span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         tiles := make(map[gc.GridElement]ecs.Entity)</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.GridElement, gc.Tile](world).Query()</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                 e := q.Entity()</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 g := *world.Components.GridElement.Get(e)</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                 if g.X &gt;= loX &amp;&amp; g.X &lt; hiX {</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                         tiles[g] = e</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L326"><span class="lineNum">     326</span>              :         }</span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         return tiles</span></span>
-<span id="L328"><span class="lineNum">     328</span>              : }</span>
-<span id="L329"><span class="lineNum">     329</span>              : </span>
-<span id="L330"><span class="lineNum">     330</span>              : // replaceTile は座標のタイルを取り除き、tileName のタイルへ置き換える。</span>
-<span id="L331"><span class="lineNum">     331</span>              : // オートタイル添字は仮の 0 で置き、後段の RecalcAutotileInXRange が実状態から揃える。</span>
-<span id="L332"><span class="lineNum">     332</span>              : func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileName string) error {</span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         g := gc.GridElement{Coord: pos}</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :         if e, ok := tiles[g]; ok &amp;&amp; world.ECS.Alive(e) {</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                 world.ECS.RemoveEntity(e)</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :         e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, new(0))</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L341"><span class="lineNum">     341</span>              :         // 置換後の実体を索引へ書き戻す。索引を地物間で共有するため、後続の地物が同じ座標を</span>
-<span id="L342"><span class="lineNum">     342</span>              :         // 正しく再置換でき、旧タイルの二重残留を防ぐ</span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC tlaBgGNC">           1 :         tiles[g] = e</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L345"><span class="lineNum">     345</span>              : }</span>
+<span id="L162"><span class="lineNum">     162</span>              :         // 各地区は minSpan&lt;=2 の基本施設を持ち span は常に2以上なので total&gt;0。rng.IntN は安全。</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         roll := rng.IntN(total)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         for _, f := range cat {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 if span &lt; f.minSpan {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L167"><span class="lineNum">     167</span>              :                 }</span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC tlaBgGNC">           1 :                 roll -= f.weight</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 if roll &lt; 0 {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         return f.kind</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L172"><span class="lineNum">     172</span>              :         }</span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(&quot;unreachable: selection weight total and subtraction are inconsistent&quot;)</span></span>
+<span id="L174"><span class="lineNum">     174</span>              : }</span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span>              : // urbanChunkInfo は c が市街地の建物チャンクなら、その施設種別と市街地の規模を返す純関数。</span>
+<span id="L177"><span class="lineNum">     177</span>              : // 地図と生成の両方がこれを呼び、地図の記号と実体の施設を一致させる。施設は地区の重みで</span>
+<span id="L178"><span class="lineNum">     178</span>              : // 抽選するので、隣接チャンクが同じ地区なら同種へ寄る。</span>
+<span id="L179"><span class="lineNum">     179</span>              : func urbanChunkInfo(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (kind facilityType, size consts.Chunk, ok bool) {</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC tlaBgGNC">           1 :         anchor, cw, ch, ok := urbanRegionOf(runSeed, c, rows)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 return &quot;&quot;, 0, false</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         size = max(cw, ch)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         z := zoneOf(c.X-anchor.X, c.Y-anchor.Y, cw, ch, urbanSeed)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         // 施設抽選は建物幾何と別の乱数ストリームにして、片方を変えても他方が動かないようにする。</span></span>
+<span id="L189"><span class="lineNum">     189</span>              :         // ストリーム識別子 0x1 は施設抽選、0x2 は建物幾何と敵配置。renderUrbanChunk と揃える</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         frng := rand.New(rand.NewPCG(chunkSeed, 0x1))</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         return rollFacilityInZone(frng, z, size), size, true</span></span>
+<span id="L192"><span class="lineNum">     192</span>              : }</span>
+<span id="L193"><span class="lineNum">     193</span>              : </span>
+<span id="L194"><span class="lineNum">     194</span>              : // place は c が市街地の建物チャンクなら自分の建物を1棟描く。各チャンクは自己完結するので</span>
+<span id="L195"><span class="lineNum">     195</span>              : // 生成順に依存しない。</span>
+<span id="L196"><span class="lineNum">     196</span>              : func (urbanFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         anchor, _, _, ok := urbanRegionOf(runSeed, c, rows)</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span>              :         // 施設種別は地図(ChunkPlace)の表示に加え、建物内装の prop 差にも使う</span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         fac, size, _ := urbanChunkInfo(runSeed, c, rows)</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         urbanSeed := ChunkSeed2D(runSeed^urbanSalt, anchor.X, anchor.Y)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         chunkSeed := ChunkSeed2D(urbanSeed, c.X-anchor.X, c.Y-anchor.Y)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         return renderUrbanChunk(world, g, chunkSeed, size, fac)</span></span>
+<span id="L207"><span class="lineNum">     207</span>              : }</span>
+<span id="L208"><span class="lineNum">     208</span>              : </span>
+<span id="L209"><span class="lineNum">     209</span>              : // renderUrbanChunk は1チャンクに建物1棟を描き、施設種別に応じた内装を満たし、規模に応じた敵を湧かせる。</span>
+<span id="L210"><span class="lineNum">     210</span>              : func renderUrbanChunk(world w.World, g chunkGeom, seed uint64, size consts.Chunk, fac facilityType) error {</span>
+<span id="L211"><span class="lineNum">     211</span>              :         // ストリーム識別子 0x2 は建物幾何と敵配置。施設抽選の 0x1、内装の 0x3 と分けて相互干渉を避ける</span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0x2))</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         footprint, door, err := planUrbanLot(world, g, rng)</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC tlaBgGNC">           1 :         isWall, occupied, err := furnishBuilding(world, g, footprint, door, fac, seed)</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC tlaBgGNC">           1 :         return spawnUrbanEnemies(world, g, rng, size, isWall, occupied)</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : // planUrbanLot は北辺・西辺の街路を描き、敷地内に建物区画 footprint と道路へ面した入口を選ぶ。建物の外形と</span>
+<span id="L225"><span class="lineNum">     225</span>              : // 内装は furnishBuilding が Site から描くので、ここは街路だけ描いて区画と入口を返す。扉の向きは壁の走る</span>
+<span id="L226"><span class="lineNum">     226</span>              : // 方向から furnishBuilding が決める。区画の中で前庭を空け坪庭を作り玄関を凹ませるのは interior の敷地計画に委ねる。</span>
+<span id="L227"><span class="lineNum">     227</span>              : func planUrbanLot(world w.World, g chunkGeom, rng *rand.Rand) (interior.Rect, interior.Vec, error) {</span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         tiles := g.tiles.get()</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L230"><span class="lineNum">     230</span>              :         // 建物区画の大きさと位置。北辺・西辺の街路を避け、敷地内で余白を残す。区画は最小 3×3 を保証する。</span>
+<span id="L231"><span class="lineNum">     231</span>              :         // 扉オフセット IntN(bw-2) と敷地内配置 IntN(spanX-bw+1) が破綻しない下限で、市街地チャンクは</span>
+<span id="L232"><span class="lineNum">     232</span>              :         // chunkW,chunkH &gt;= urbanStreetW+3 を前提にする</span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         spanX := g.chunkW - urbanStreetW</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         spanY := g.chunkH - urbanStreetW</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         bw := max(3, spanX-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         bh := max(3, spanY-consts.Tile(rng.IntN(int(urbanMaxSetback)+1)))</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         bx := urbanStreetW + consts.Tile(rng.IntN(int(spanX-bw)+1))</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         by := urbanStreetW + consts.Tile(rng.IntN(int(spanY-bh)+1))</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L240"><span class="lineNum">     240</span>              :         // 街路が北・西にあるので扉は道路に面する北辺か西辺に開ける。位置は interior が前室の内側へ寄せ、</span>
+<span id="L241"><span class="lineNum">     241</span>              :         // 向きは furnishBuilding が壁の走る方向から決める</span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         doorX, doorY := bx+1+consts.Tile(rng.IntN(int(bw-2))), by</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         if rng.IntN(2) == 0 {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                 doorX, doorY = bx, by+1+consts.Tile(rng.IntN(int(bh-2)))</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L246"><span class="lineNum">     246</span>              : </span>
+<span id="L247"><span class="lineNum">     247</span>              :         // 街路を描く。建物区画のタイルは furnishBuilding が Site から描くのでここでは触らない</span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         for ly := range g.chunkH {</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 for lx := range g.chunkW {</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         if lx &gt;= urbanStreetW &amp;&amp; ly &gt;= urbanStreetW {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L252"><span class="lineNum">     252</span>              :                         }</span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                         if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}, consts.TileNameFloor); err != nil {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return interior.Rect{}, interior.Vec{}, fmt.Errorf(&quot;failed to place urban street (x=%d, y=%d): %w&quot;, g.offsetX+lx, g.offsetY+ly, err)</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L256"><span class="lineNum">     256</span>              :                 }</span>
+<span id="L257"><span class="lineNum">     257</span>              :         }</span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC tlaBgGNC">           1 :         footprint := interior.Rect{X: bx, Y: by, W: bw, H: bh}</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         door := interior.Vec{X: doorX, Y: doorY}</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         return footprint, door, nil</span></span>
+<span id="L261"><span class="lineNum">     261</span>              : }</span>
+<span id="L262"><span class="lineNum">     262</span>              : </span>
+<span id="L263"><span class="lineNum">     263</span>              : // spawnUrbanEnemies はチャンクに敵を数体湧かせる。数は市街地の規模に比例し、種類は敵テーブルから</span>
+<span id="L264"><span class="lineNum">     264</span>              : // 規模を深度とみなして重み抽選する。壁マスに埋まる位置は避ける。</span>
+<span id="L265"><span class="lineNum">     265</span>              : func spawnUrbanEnemies(world w.World, g chunkGeom, rng *rand.Rand, size consts.Chunk, isWall func(lx, ly consts.Tile) bool, occupied map[consts.Coord[consts.Tile]]bool) error {</span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, urbanEnemyTable)</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;failed to get urban enemy table: %w&quot;, err)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L270"><span class="lineNum">     270</span>              :         // 湧き数は街の規模で決める。敵種別は経過日数の危険度でフィルタし、日が進むほど強敵が出る。</span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC tlaBgGNC">           1 :         count := 1 + rng.IntN(int(size))</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         danger := query.DangerLevelAt(world)</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         for range count {</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, danger)</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;failed to select urban enemy: %w&quot;, err)</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC tlaBgGNC">           1 :                 if enemyName == &quot;&quot; {</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue // 危険度帯に該当する敵がいなければこの1体は諦める</span></span>
+<span id="L280"><span class="lineNum">     280</span>              :                 }</span>
+<span id="L281"><span class="lineNum">     281</span>              :                 // 敵は街路に湧かせ、建物の footprint と壁の上は避ける。占有は footprint 全域に及ぶので、一度引いて</span>
+<span id="L282"><span class="lineNum">     282</span>              :                 // 塞がっていたら目標数を満たすよう空きが出るまで位置を引き直す。試行を尽くしても空かなければその</span>
+<span id="L283"><span class="lineNum">     283</span>              :                 // 1体は諦める。抽選順は固定なので同じ seed なら同じ結果になる</span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC tlaBgGNC">           1 :                 for range urbanSpawnTries {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                         lx := consts.Tile(rng.IntN(int(g.chunkW)))</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                         ly := consts.Tile(rng.IntN(int(g.chunkH)))</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                         pos := consts.Coord[consts.Tile]{X: g.offsetX + lx, Y: g.offsetY + ly}</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                         if isWall(lx, ly) || occupied[pos] {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L290"><span class="lineNum">     290</span>              :                         }</span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                         if _, err := lifecycle.SpawnEnemy(world, pos, enemyName); err != nil {</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return fmt.Errorf(&quot;failed to place urban enemy: %w&quot;, err)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC tlaBgGNC">           1 :                         break</span></span>
+<span id="L295"><span class="lineNum">     295</span>              :                 }</span>
+<span id="L296"><span class="lineNum">     296</span>              :         }</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L298"><span class="lineNum">     298</span>              : }</span>
+<span id="L299"><span class="lineNum">     299</span>              : </span>
+<span id="L300"><span class="lineNum">     300</span>              : // urbanSpawnTries は敵1体あたり街路の空きタイルを探す最大試行数。建物が footprint 全域を占有し有効タイルが</span>
+<span id="L301"><span class="lineNum">     301</span>              : // 減るので、数回の引き直しで目標数をほぼ満たせるだけの余裕を持たせる。</span>
+<span id="L302"><span class="lineNum">     302</span>              : const urbanSpawnTries = 24</span>
+<span id="L303"><span class="lineNum">     303</span>              : </span>
+<span id="L304"><span class="lineNum">     304</span>              : // tileIndex はチャンク生成中に地物が共有するタイルの座標引き索引。地物が壁や道を置換する</span>
+<span id="L305"><span class="lineNum">     305</span>              : // とき使う。最初に必要とした地物が全域スキャンで構築し、以降の地物は再利用する。壁を置かない</span>
+<span id="L306"><span class="lineNum">     306</span>              : // 荒れ地では一度も構築されず、全域スキャンの無駄を避ける。replaceTile が置換後の実体を書き</span>
+<span id="L307"><span class="lineNum">     307</span>              : // 戻すので、地物をまたいでも索引は実状態を映し続け、二重残留を防ぐ。</span>
+<span id="L308"><span class="lineNum">     308</span>              : type tileIndex struct {</span>
+<span id="L309"><span class="lineNum">     309</span>              :         world    w.World</span>
+<span id="L310"><span class="lineNum">     310</span>              :         loX, hiX consts.Tile</span>
+<span id="L311"><span class="lineNum">     311</span>              :         tiles    map[gc.GridElement]ecs.Entity</span>
+<span id="L312"><span class="lineNum">     312</span>              : }</span>
+<span id="L313"><span class="lineNum">     313</span>              : </span>
+<span id="L314"><span class="lineNum">     314</span>              : // get は索引を返す。未構築なら遅延構築する。壁を置く地物が現れて初めてスキャンが走る。</span>
+<span id="L315"><span class="lineNum">     315</span>              : func (ix *tileIndex) get() map[gc.GridElement]ecs.Entity {</span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         if ix.tiles == nil {</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                 ix.tiles = tileEntitiesInRange(ix.world, ix.loX, ix.hiX)</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         return ix.tiles</span></span>
+<span id="L320"><span class="lineNum">     320</span>              : }</span>
+<span id="L321"><span class="lineNum">     321</span>              : </span>
+<span id="L322"><span class="lineNum">     322</span>              : // tileEntitiesInRange は X 範囲 [loX, hiX) のタイルエンティティを座標引きできるよう集める。</span>
+<span id="L323"><span class="lineNum">     323</span>              : func tileEntitiesInRange(world w.World, loX, hiX consts.Tile) map[gc.GridElement]ecs.Entity {</span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :         tiles := make(map[gc.GridElement]ecs.Entity)</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         q := query.ActiveFilter2[gc.GridElement, gc.Tile](world).Query()</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         for q.Next() {</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 e := q.Entity()</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :                 g := *world.Components.GridElement.Get(e)</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 if g.X &gt;= loX &amp;&amp; g.X &lt; hiX {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                         tiles[g] = e</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L332"><span class="lineNum">     332</span>              :         }</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         return tiles</span></span>
+<span id="L334"><span class="lineNum">     334</span>              : }</span>
+<span id="L335"><span class="lineNum">     335</span>              : </span>
+<span id="L336"><span class="lineNum">     336</span>              : // replaceTile は座標のタイルを取り除き、tileName のタイルへ置き換える。</span>
+<span id="L337"><span class="lineNum">     337</span>              : // オートタイル添字は仮の 0 で置き、後段の RecalcAutotileInXRange が実状態から揃える。</span>
+<span id="L338"><span class="lineNum">     338</span>              : func replaceTile(world w.World, tiles map[gc.GridElement]ecs.Entity, pos consts.Coord[consts.Tile], tileName string) error {</span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :         g := gc.GridElement{Coord: pos}</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 :         if e, ok := tiles[g]; ok &amp;&amp; world.ECS.Alive(e) {</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                 world.ECS.RemoveEntity(e)</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         e, err := lifecycle.SpawnTile(world, tileName, pos.X, pos.Y, new(0))</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L347"><span class="lineNum">     347</span>              :         // 置換後の実体を索引へ書き戻す。索引を地物間で共有するため、後続の地物が同じ座標を</span>
+<span id="L348"><span class="lineNum">     348</span>              :         // 正しく再置換でき、旧タイルの二重残留を防ぐ</span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC tlaBgGNC">           1 :         tiles[g] = e</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L351"><span class="lineNum">     351</span>              : }</span>
         </pre>
               </td>
             </tr>
