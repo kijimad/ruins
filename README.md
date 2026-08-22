@@ -112,7 +112,7 @@ $ make help
 | draft | [背の低い家具を通行可能にして移動コストで体系化する](docs/design/260814140548.md) | 0/7（見送り1） | movement, combat, gamedesign |
 | draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
 | draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/6 | item, combat, ecs |
-| draft | [身体の不調: 少数の部位と、部位から算出する身体機能](docs/design/260821232324.md) | 0/13 | gamedesign, combat, item, ecs |
+| draft | [身体の不調: 少数の部位と、部位から算出する身体機能](docs/design/260821232324.md) | 0/14 | gamedesign, combat, item, ecs |
 | draft | [終端: 生還と死で run を締め、到達距離を記録する](docs/design/260822014348.md) | 0/7 | gamedesign, ecs, ui |
 | draft | [逓増: 危険と希少性の軸を深さから距離と日数へ移す](docs/design/260822014350.md) | 0/7 | gamedesign, worldgen, ecs |
 
