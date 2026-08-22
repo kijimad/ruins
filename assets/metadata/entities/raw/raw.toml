@@ -12056,74 +12056,74 @@ id = "ruins_area"
 
 [[itemTables.entries]]
 id = "scrap_of_paper"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 1
 
 [[itemTables.entries]]
 id = "healing_item"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 3
 
 [[itemTables.entries]]
 id = "materials"
-maxDepth = 25
-minDepth = 3
+maxDanger = 25
+minDanger = 3
 weight = 2
 
 [[itemTables.entries]]
 id = "thrown_weapon"
-maxDepth = 30
-minDepth = 8
+maxDanger = 30
+minDanger = 8
 weight = 1
 
 [[itemTables.entries]]
 id = "food"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 2
 
 [[itemTables.entries]]
 id = "early_melee_weapon"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 2
 
 [[itemTables.entries]]
 id = "early_armor"
-maxDepth = 10
-minDepth = 1
+maxDanger = 10
+minDanger = 1
 weight = 0.8
 
 [[itemTables.entries]]
 id = "midgame_melee_weapon"
-maxDepth = 15
-minDepth = 5
+maxDanger = 15
+minDanger = 5
 weight = 1.5
 
 [[itemTables.entries]]
 id = "midgame_armor"
-maxDepth = 16
-minDepth = 5
+maxDanger = 16
+minDanger = 5
 weight = 0.6
 
 [[itemTables.entries]]
 id = "endgame_melee_weapon"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 1
 
 [[itemTables.entries]]
 id = "endgame_armor"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 0.4
 
 [[itemTables.entries]]
 id = "ranged_weapon"
-maxDepth = 20
-minDepth = 5
+maxDanger = 20
+minDanger = 5
 weight = 0.3
 
 [[itemTables]]
@@ -12132,62 +12132,62 @@ id = "forest"
 
 [[itemTables.entries]]
 id = "healing_item"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 4
 
 [[itemTables.entries]]
 id = "food"
-maxDepth = 25
-minDepth = 1
+maxDanger = 25
+minDanger = 1
 weight = 3
 
 [[itemTables.entries]]
 id = "early_melee_weapon"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 2
 
 [[itemTables.entries]]
 id = "early_armor"
-maxDepth = 10
-minDepth = 1
+maxDanger = 10
+minDanger = 1
 weight = 1
 
 [[itemTables.entries]]
 id = "midgame_melee_weapon"
-maxDepth = 15
-minDepth = 5
+maxDanger = 15
+minDanger = 5
 weight = 1.2
 
 [[itemTables.entries]]
 id = "midgame_armor"
-maxDepth = 16
-minDepth = 5
+maxDanger = 16
+minDanger = 5
 weight = 0.5
 
 [[itemTables.entries]]
 id = "endgame_melee_weapon"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 0.8
 
 [[itemTables.entries]]
 id = "ranged_weapon"
-maxDepth = 20
-minDepth = 5
+maxDanger = 20
+minDanger = 5
 weight = 0.5
 
 [[itemTables.entries]]
 id = "throwing_weapon"
-maxDepth = 10
-minDepth = 2
+maxDanger = 10
+minDanger = 2
 weight = 0.5
 
 [[itemTables.entries]]
 id = "thrown_weapon"
-maxDepth = 25
-minDepth = 8
+maxDanger = 25
+minDanger = 8
 weight = 0.6
 
 [[itemTables]]
@@ -12196,68 +12196,68 @@ id = "cave"
 
 [[itemTables.entries]]
 id = "healing_item"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 2.5
 
 [[itemTables.entries]]
 id = "materials"
-maxDepth = 25
-minDepth = 3
+maxDanger = 25
+minDanger = 3
 weight = 3
 
 [[itemTables.entries]]
 id = "food"
-maxDepth = 20
-minDepth = 1
+maxDanger = 20
+minDanger = 1
 weight = 1.5
 
 [[itemTables.entries]]
 id = "early_melee_weapon"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1.5
 
 [[itemTables.entries]]
 id = "early_armor"
-maxDepth = 10
-minDepth = 1
+maxDanger = 10
+minDanger = 1
 weight = 0.6
 
 [[itemTables.entries]]
 id = "midgame_melee_weapon"
-maxDepth = 15
-minDepth = 5
+maxDanger = 15
+minDanger = 5
 weight = 1.5
 
 [[itemTables.entries]]
 id = "midgame_armor"
-maxDepth = 16
-minDepth = 5
+maxDanger = 16
+minDanger = 5
 weight = 0.5
 
 [[itemTables.entries]]
 id = "endgame_melee_weapon"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 1.2
 
 [[itemTables.entries]]
 id = "endgame_armor"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 0.5
 
 [[itemTables.entries]]
 id = "ranged_weapon"
-maxDepth = 20
-minDepth = 5
+maxDanger = 20
+minDanger = 5
 weight = 0.2
 
 [[itemTables.entries]]
 id = "thrown_weapon"
-maxDepth = 30
-minDepth = 8
+maxDanger = 30
+minDanger = 8
 weight = 0.5
 
 
@@ -12267,20 +12267,20 @@ id = "pantry"
 
 [[itemTables.entries]]
 id = "scrap_of_paper"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 1
 
 [[itemTables.entries]]
 id = "food"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 5
 
 [[itemTables.entries]]
 id = "healing_item"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 2
 
 [[itemTables]]
@@ -12289,20 +12289,20 @@ id = "medicine_shelf"
 
 [[itemTables.entries]]
 id = "scrap_of_paper"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 1
 
 [[itemTables.entries]]
 id = "healing_item"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 5
 
 [[itemTables.entries]]
 id = "food"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 1
 
 [[itemTables]]
@@ -12311,26 +12311,26 @@ id = "storage_box"
 
 [[itemTables.entries]]
 id = "scrap_of_paper"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 1
 
 [[itemTables.entries]]
 id = "food"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 2
 
 [[itemTables.entries]]
 id = "early_armor"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 3
 
 [[itemTables.entries]]
 id = "healing_item"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 2
 
 [[itemTables]]
@@ -12339,20 +12339,20 @@ id = "store_shelf"
 
 [[itemTables.entries]]
 id = "scrap_of_paper"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 1
 
 [[itemTables.entries]]
 id = "food"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 3
 
 [[itemTables.entries]]
 id = "healing_item"
-maxDepth = 30
-minDepth = 1
+maxDanger = 30
+minDanger = 1
 weight = 2
 
 [[enemyTables]]
@@ -12361,232 +12361,232 @@ id = "ruins_area"
 
 [[enemyTables.entries]]
 id = "slime"
-maxDepth = 25
-minDepth = 1
+maxDanger = 25
+minDanger = 1
 weight = 1.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "rat"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "decayed_soldier"
-maxDepth = 10
-minDepth = 2
+maxDanger = 10
+minDanger = 2
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "floating_eye"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "bat"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "ash_bug"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "shadow_rat"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "rusted_doll"
-maxDepth = 10
-minDepth = 2
+maxDanger = 10
+minDanger = 2
 weight = 0.7
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "poison_spider"
-maxDepth = 20
-minDepth = 3
+maxDanger = 20
+minDanger = 3
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "stray_dog"
-maxDepth = 22
-minDepth = 3
+maxDanger = 22
+minDanger = 3
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "skeleton_soldier"
-maxDepth = 25
-minDepth = 9
+maxDanger = 25
+minDanger = 9
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "fireball"
-maxDepth = 25
-minDepth = 7
+maxDanger = 25
+minDanger = 7
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "iron_sentinel"
-maxDepth = 25
-minDepth = 10
+maxDanger = 25
+minDanger = 10
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "crystal_wraith"
-maxDepth = 25
-minDepth = 11
+maxDanger = 25
+minDanger = 11
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "light_tank"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "ash_idol"
-maxDepth = 35
-minDepth = 19
+maxDanger = 35
+minDanger = 19
 weight = 0.15
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "blue_beast"
-maxDepth = 25
-minDepth = 7
+maxDanger = 25
+minDanger = 7
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "dark_doctor"
-maxDepth = 25
-minDepth = 10
+maxDanger = 25
+minDanger = 10
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "three_headed_dragon"
-maxDepth = 35
-minDepth = 16
+maxDanger = 35
+minDanger = 16
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "black_corpse"
-maxDepth = 25
-minDepth = 10
+maxDanger = 25
+minDanger = 10
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "red_line_man"
-maxDepth = 25
-minDepth = 9
+maxDanger = 25
+minDanger = 9
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "gray_tank"
-maxDepth = 30
-minDepth = 15
+maxDanger = 30
+minDanger = 15
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "heavy_artillery_tank"
-maxDepth = 35
-minDepth = 18
+maxDanger = 35
+minDanger = 18
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "blue_figure"
-maxDepth = 25
-minDepth = 7
+maxDanger = 25
+minDanger = 7
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "old_tank"
-maxDepth = 25
-minDepth = 10
+maxDanger = 25
+minDanger = 10
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "chemical_tank"
-maxDepth = 30
-minDepth = 14
+maxDanger = 30
+minDanger = 14
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "pink_slime"
-maxDepth = 10
-minDepth = 2
+maxDanger = 10
+minDanger = 2
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "purple_floater"
-maxDepth = 20
-minDepth = 10
+maxDanger = 20
+minDanger = 10
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "shock_orb"
-maxDepth = 22
-minDepth = 12
+maxDanger = 22
+minDanger = 12
 weight = 0.15
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "dragon_head"
-maxDepth = 30
-minDepth = 18
+maxDanger = 30
+minDanger = 18
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "armor_ghost"
-maxDepth = 25
-minDepth = 14
+maxDanger = 25
+minDanger = 14
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "shadow_priest"
-maxDepth = 25
-minDepth = 16
+maxDanger = 25
+minDanger = 16
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "guard_soldier"
-maxDepth = 22
-minDepth = 12
+maxDanger = 22
+minDanger = 12
 weight = 0.1
 pack = "1d3"
 
@@ -12596,190 +12596,190 @@ id = "forest"
 
 [[enemyTables.entries]]
 id = "slime"
-maxDepth = 25
-minDepth = 1
+maxDanger = 25
+minDanger = 1
 weight = 1.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "bat"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "poison_mushroom"
-maxDepth = 10
-minDepth = 2
+maxDanger = 10
+minDanger = 2
 weight = 0.7
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "giant_bee"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "glow_bug"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "poison_frog"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "shadow_rat"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "moss_turtle"
-maxDepth = 10
-minDepth = 2
+maxDanger = 10
+minDanger = 2
 weight = 0.6
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "fire_cat"
-maxDepth = 20
-minDepth = 4
+maxDanger = 20
+minDanger = 4
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "stray_dog"
-maxDepth = 22
-minDepth = 3
+maxDanger = 22
+minDanger = 3
 weight = 0.8
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "dream_moth"
-maxDepth = 25
-minDepth = 5
+maxDanger = 25
+minDanger = 5
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "fireball"
-maxDepth = 22
-minDepth = 6
+maxDanger = 22
+minDanger = 6
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "dark_crab"
-maxDepth = 25
-minDepth = 8
+maxDanger = 25
+minDanger = 8
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "light_tank"
-maxDepth = 25
-minDepth = 10
+maxDanger = 25
+minDanger = 10
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "green_dragon"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "tree_spirit"
-maxDepth = 25
-minDepth = 7
+maxDanger = 25
+minDanger = 7
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "gold_slime"
-maxDepth = 25
-minDepth = 3
+maxDanger = 25
+minDanger = 3
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "rainbow_dragon"
-maxDepth = 30
-minDepth = 14
+maxDanger = 30
+minDanger = 14
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "dark_doctor"
-maxDepth = 25
-minDepth = 9
+maxDanger = 25
+minDanger = 9
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "green_devourer"
-maxDepth = 22
-minDepth = 5
+maxDanger = 22
+minDanger = 5
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "red_line_man"
-maxDepth = 25
-minDepth = 9
+maxDanger = 25
+minDanger = 9
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "desert_tank"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "blue_figure"
-maxDepth = 22
-minDepth = 7
+maxDanger = 22
+minDanger = 7
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "chemical_tank"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "butterfly"
-maxDepth = 15
-minDepth = 1
+maxDanger = 15
+minDanger = 1
 weight = 3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "pink_slime"
-maxDepth = 12
-minDepth = 1
+maxDanger = 12
+minDanger = 1
 weight = 1.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "gorilla"
-maxDepth = 22
-minDepth = 12
+maxDanger = 22
+minDanger = 12
 weight = 0.1
 pack = "1d3"
 
@@ -12789,232 +12789,232 @@ id = "cave"
 
 [[enemyTables.entries]]
 id = "slime"
-maxDepth = 25
-minDepth = 1
+maxDanger = 25
+minDanger = 1
 weight = 1.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "rat"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "bat"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "glow_bug"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "ash_bug"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "poison_frog"
-maxDepth = 8
-minDepth = 1
+maxDanger = 8
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "moss_turtle"
-maxDepth = 10
-minDepth = 2
+maxDanger = 10
+minDanger = 2
 weight = 0.6
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "poison_spider"
-maxDepth = 20
-minDepth = 3
+maxDanger = 20
+minDanger = 3
 weight = 0.7
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "ice_dog"
-maxDepth = 22
-minDepth = 6
+maxDanger = 22
+minDanger = 6
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "skeleton_soldier"
-maxDepth = 25
-minDepth = 8
+maxDanger = 25
+minDanger = 8
 weight = 0.5
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "fireball"
-maxDepth = 22
-minDepth = 7
+maxDanger = 22
+minDanger = 7
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "iron_sentinel"
-maxDepth = 25
-minDepth = 10
+maxDanger = 25
+minDanger = 10
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "crystal_wraith"
-maxDepth = 25
-minDepth = 11
+maxDanger = 25
+minDanger = 11
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "light_tank"
-maxDepth = 25
-minDepth = 12
+maxDanger = 25
+minDanger = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "green_dragon"
-maxDepth = 30
-minDepth = 14
+maxDanger = 30
+minDanger = 14
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "dream_whale"
-maxDepth = 30
-minDepth = 12
+maxDanger = 30
+minDanger = 12
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "blue_beast"
-maxDepth = 22
-minDepth = 7
+maxDanger = 22
+minDanger = 7
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "three_headed_dragon"
-maxDepth = 35
-minDepth = 16
+maxDanger = 35
+minDanger = 16
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "gold_slime"
-maxDepth = 25
-minDepth = 3
+maxDanger = 25
+minDanger = 3
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "black_corpse"
-maxDepth = 25
-minDepth = 9
+maxDanger = 25
+minDanger = 9
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "green_devourer"
-maxDepth = 22
-minDepth = 6
+maxDanger = 22
+minDanger = 6
 weight = 0.4
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "red_line_man"
-maxDepth = 25
-minDepth = 10
+maxDanger = 25
+minDanger = 10
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "red_tank"
-maxDepth = 30
-minDepth = 14
+maxDanger = 30
+minDanger = 14
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "heavy_artillery_tank"
-maxDepth = 35
-minDepth = 16
+maxDanger = 35
+minDanger = 16
 weight = 0.15
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "blue_figure"
-maxDepth = 25
-minDepth = 7
+maxDanger = 25
+minDanger = 7
 weight = 0.35
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "frozen_tank"
-maxDepth = 30
-minDepth = 14
+maxDanger = 30
+minDanger = 14
 weight = 0.25
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "old_tank"
-maxDepth = 25
-minDepth = 10
+maxDanger = 25
+minDanger = 10
 weight = 0.3
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "penguin"
-maxDepth = 10
-minDepth = 1
+maxDanger = 10
+minDanger = 1
 weight = 1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "purple_floater"
-maxDepth = 20
-minDepth = 10
+maxDanger = 20
+minDanger = 10
 weight = 0.2
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "shock_orb"
-maxDepth = 22
-minDepth = 12
+maxDanger = 22
+minDanger = 12
 weight = 0.15
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "dragon_head"
-maxDepth = 30
-minDepth = 18
+maxDanger = 30
+minDanger = 18
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "armor_ghost"
-maxDepth = 25
-minDepth = 14
+maxDanger = 25
+minDanger = 14
 weight = 0.1
 pack = "1d3"
 
 [[enemyTables.entries]]
 id = "shadow_priest"
-maxDepth = 25
-minDepth = 16
+maxDanger = 25
+minDanger = 16
 weight = 0.1
 pack = "1d3"
 

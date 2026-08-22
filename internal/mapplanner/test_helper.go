@@ -24,31 +24,31 @@ func CreateTestRawMaster() *oapi.Raws {
 			Id:   "normal",
 			Name: "normal",
 			Entries: []oapi.ItemTableEntry{
-				{Id: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{Id: "ores", Weight: 0.5, MinDepth: 3, MaxDepth: 40},
+				{Id: "healing_items", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
+				{Id: "ores", Weight: 0.5, MinDanger: 3, MaxDanger: 40},
 			},
 		},
 		{
 			Id:   "cave",
 			Name: "cave",
 			Entries: []oapi.ItemTableEntry{
-				{Id: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{Id: "ores", Weight: 0.6, MinDepth: 3, MaxDepth: 25},
+				{Id: "healing_items", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
+				{Id: "ores", Weight: 0.6, MinDanger: 3, MaxDanger: 25},
 			},
 		},
 		{
 			Id:   "forest",
 			Name: "forest",
 			Entries: []oapi.ItemTableEntry{
-				{Id: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
+				{Id: "healing_items", Weight: 1.0, MinDanger: 1, MaxDanger: 15},
 			},
 		},
 		{
 			Id:   "ruins",
 			Name: "ruins",
 			Entries: []oapi.ItemTableEntry{
-				{Id: "healing_items", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
-				{Id: "ores", Weight: 0.8, MinDepth: 3, MaxDepth: 20},
+				{Id: "healing_items", Weight: 1.0, MinDanger: 1, MaxDanger: 15},
+				{Id: "ores", Weight: 0.8, MinDanger: 3, MaxDanger: 20},
 			},
 		},
 	}
@@ -59,37 +59,37 @@ func CreateTestRawMaster() *oapi.Raws {
 			Id:   "normal",
 			Name: "normal",
 			Entries: []oapi.EnemyTableEntry{
-				{Id: "slime", Weight: 1.2, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
-				{Id: "fireball", Weight: 1.0, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
-				{Id: "light_tank", Weight: 0.8, MinDepth: 10, MaxDepth: 50, Pack: "1d1"},
+				{Id: "slime", Weight: 1.2, MinDanger: 1, MaxDanger: 10, Pack: "1d1"},
+				{Id: "fireball", Weight: 1.0, MinDanger: 1, MaxDanger: 20, Pack: "1d1"},
+				{Id: "light_tank", Weight: 0.8, MinDanger: 10, MaxDanger: 50, Pack: "1d1"},
 			},
 		},
 		{
 			Id:   "cave",
 			Name: "cave",
 			Entries: []oapi.EnemyTableEntry{
-				{Id: "slime", Weight: 1.0, MinDepth: 1, MaxDepth: 8, Pack: "1d1"},
-				{Id: "fireball", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
-				{Id: "light_tank", Weight: 0.6, MinDepth: 8, MaxDepth: 25, Pack: "1d1"},
+				{Id: "slime", Weight: 1.0, MinDanger: 1, MaxDanger: 8, Pack: "1d1"},
+				{Id: "fireball", Weight: 1.0, MinDanger: 1, MaxDanger: 15, Pack: "1d1"},
+				{Id: "light_tank", Weight: 0.6, MinDanger: 8, MaxDanger: 25, Pack: "1d1"},
 			},
 		},
 		{
 			Id:   "forest",
 			Name: "forest",
 			Entries: []oapi.EnemyTableEntry{
-				{Id: "slime", Weight: 1.2, MinDepth: 1, MaxDepth: 12, Pack: "1d1"},
-				{Id: "fireball", Weight: 1.0, MinDepth: 1, MaxDepth: 15, Pack: "1d1"},
-				{Id: "light_tank", Weight: 0.5, MinDepth: 10, MaxDepth: 20, Pack: "1d1"},
+				{Id: "slime", Weight: 1.2, MinDanger: 1, MaxDanger: 12, Pack: "1d1"},
+				{Id: "fireball", Weight: 1.0, MinDanger: 1, MaxDanger: 15, Pack: "1d1"},
+				{Id: "light_tank", Weight: 0.5, MinDanger: 10, MaxDanger: 20, Pack: "1d1"},
 			},
 		},
 		{
 			Id:   "ruins",
 			Name: "ruins",
 			Entries: []oapi.EnemyTableEntry{
-				{Id: "slime", Weight: 0.9, MinDepth: 1, MaxDepth: 10, Pack: "1d1"},
-				{Id: "fireball", Weight: 0.8, MinDepth: 1, MaxDepth: 20, Pack: "1d1"},
-				{Id: "light_tank", Weight: 1.0, MinDepth: 5, MaxDepth: 30, Pack: "1d1"},
-				{Id: "ash_idol", Weight: 0.7, MinDepth: 15, MaxDepth: 35, Pack: "1d1"},
+				{Id: "slime", Weight: 0.9, MinDanger: 1, MaxDanger: 10, Pack: "1d1"},
+				{Id: "fireball", Weight: 0.8, MinDanger: 1, MaxDanger: 20, Pack: "1d1"},
+				{Id: "light_tank", Weight: 1.0, MinDanger: 5, MaxDanger: 30, Pack: "1d1"},
+				{Id: "ash_idol", Weight: 0.7, MinDanger: 15, MaxDanger: 35, Pack: "1d1"},
 			},
 		},
 	}

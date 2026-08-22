@@ -625,13 +625,13 @@ export interface EnemyTableEntry {
      */
     'weight': number;
     /**
-     * 階層レベル
+     * 危険度。前進距離と経過日数から決まる
      */
-    'minDepth': number;
+    'minDanger': number;
     /**
-     * 階層レベル
+     * 危険度。前進距離と経過日数から決まる
      */
-    'maxDepth': number;
+    'maxDanger': number;
     /**
      * 1群あたりの敵数のダイス表記
      */
@@ -927,13 +927,13 @@ export interface ItemTableEntry {
      */
     'weight': number;
     /**
-     * 階層レベル
+     * 危険度。前進距離と経過日数から決まる
      */
-    'minDepth': number;
+    'minDanger': number;
     /**
-     * 階層レベル
+     * 危険度。前進距離と経過日数から決まる
      */
-    'maxDepth': number;
+    'maxDanger': number;
 }
 /**
  * アイテムテーブル一覧

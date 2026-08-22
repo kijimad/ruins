@@ -780,12 +780,12 @@ func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
 	)
 }
 
-// SelectItemByWeight はアイテムテーブルから深度を考慮してグループ経由で重み付きランダム選択する
+// SelectItemByWeight はアイテムテーブルから危険度を考慮してグループ経由で重み付きランダム選択する
 // テーブルエントリからグループを選び、グループ内からアイテムを選択して返す
-func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, depth int) (string, error) {
+func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, danger int) (string, error) {
 	filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))
 	for _, entry := range it.Entries {
-		if depth < entry.MinDepth || depth > entry.MaxDepth {
+		if danger < entry.MinDanger || danger > entry.MaxDanger {
 			continue
 		}
 		filtered = append(filtered, entry)
@@ -815,11 +815,11 @@ func SelectItemByWeight(raws oapi.Raws, it oapi.ItemTable, rng *rand.Rand, depth
 	)
 }
 
-// SelectEnemyByWeight は敵テーブルから深度を考慮して重み付きランダム選択する
-func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) {
+// SelectEnemyByWeight は敵テーブルから危険度を考慮して重み付きランダム選択する
+func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, danger int) (string, error) {
 	filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))
 	for _, entry := range et.Entries {
-		if depth < entry.MinDepth || depth > entry.MaxDepth {
+		if danger < entry.MinDanger || danger > entry.MaxDanger {
 			continue
 		}
 		filtered = append(filtered, entry)

@@ -920,11 +920,11 @@ type CubePanelTriggerRaw = map[string]interface{}
 // DamageBonus ダメージ補正値
 type DamageBonus = int
 
+// DangerLevel 危険度。前進距離と経過日数から決まる
+type DangerLevel = int
+
 // Defense 防御力。被ダメージを軽減する
 type Defense = int
-
-// DepthLevel 階層レベル
-type DepthLevel = int
 
 // Dexterity 器用さ。クリティカル率に影響する
 type Dexterity = int
@@ -1038,11 +1038,11 @@ type EnemyTableEntry struct {
 	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
 
-	// MaxDepth 階層レベル
-	MaxDepth DepthLevel `json:"maxDepth"`
+	// MaxDanger 危険度。前進距離と経過日数から決まる
+	MaxDanger DangerLevel `json:"maxDanger"`
 
-	// MinDepth 階層レベル
-	MinDepth DepthLevel `json:"minDepth"`
+	// MinDanger 危険度。前進距離と経過日数から決まる
+	MinDanger DangerLevel `json:"minDanger"`
 
 	// Pack 1群あたりの敵数のダイス表記
 	Pack Dice `json:"pack"`
@@ -1295,11 +1295,11 @@ type ItemTableEntry struct {
 	// Id 参照するアイテムグループの id
 	Id EntityID `json:"id"`
 
-	// MaxDepth 階層レベル
-	MaxDepth DepthLevel `json:"maxDepth"`
+	// MaxDanger 危険度。前進距離と経過日数から決まる
+	MaxDanger DangerLevel `json:"maxDanger"`
 
-	// MinDepth 階層レベル
-	MinDepth DepthLevel `json:"minDepth"`
+	// MinDanger 危険度。前進距離と経過日数から決まる
+	MinDanger DangerLevel `json:"minDanger"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`

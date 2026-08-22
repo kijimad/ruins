@@ -52,7 +52,7 @@ func TestItemTable_SelectByWeight_SingleEntry(t *testing.T) {
 	table := oapi.ItemTable{
 		Name: "テスト",
 		Entries: []oapi.ItemTableEntry{
-			{Id: "回復", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+			{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 		},
 	}
 	raws := newTestRawsForItemTable(testGroups, table)
@@ -70,8 +70,8 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	table := oapi.ItemTable{
 		Name: "通常",
 		Entries: []oapi.ItemTableEntry{
-			{Id: "回復", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-			{Id: "武器", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+			{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
+			{Id: "武器", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 		},
 	}
 	raws := newTestRawsForItemTable(testGroups, table)
@@ -98,8 +98,8 @@ func TestItemTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 	table := oapi.ItemTable{
 		Name: "テスト",
 		Entries: []oapi.ItemTableEntry{
-			{Id: "回復", Weight: 0, MinDepth: 1, MaxDepth: 10},
-			{Id: "武器", Weight: 0, MinDepth: 1, MaxDepth: 10},
+			{Id: "回復", Weight: 0, MinDanger: 1, MaxDanger: 10},
+			{Id: "武器", Weight: 0, MinDanger: 1, MaxDanger: 10},
 		},
 	}
 	raws := newTestRawsForItemTable(testGroups, table)
@@ -133,9 +133,9 @@ func TestItemTable_SelectByWeight_Reproducibility(t *testing.T) {
 	table := oapi.ItemTable{
 		Name: "通常",
 		Entries: []oapi.ItemTableEntry{
-			{Id: "回復", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-			{Id: "武器", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-			{Id: "素材", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+			{Id: "回復", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
+			{Id: "武器", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
+			{Id: "素材", Weight: 1.0, MinDanger: 1, MaxDanger: 20},
 		},
 	}
 	raws := newTestRawsForItemTable(testGroups, table)
