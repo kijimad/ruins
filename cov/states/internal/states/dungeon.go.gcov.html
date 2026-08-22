@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 02:12:32</td>
+            <td class="headerValue">2026-08-22 03:05:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -275,7 +275,7 @@
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L214"><span class="lineNum">     214</span>              : </span>
 <span id="L215"><span class="lineNum">     215</span>              :         // カメラのポインタ操作は3Dへ委譲する。キー操作は束縛表を通して DoAction に届く</span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC tlaBgGNC">           1 :         st.three.update()</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC tlaBgGNC">           1 :         st.three.update(world)</span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L218"><span class="lineNum">     218</span>              :         // キー入力をActionに変換</span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         if action, ok := st.readAction(world); ok {</span></span>
@@ -340,7 +340,7 @@
 <span id="L278"><span class="lineNum">     278</span>              : </span>
 <span id="L279"><span class="lineNum">     279</span>              : // Draw はゲームステートの描画処理を行う。世界と HUD を screen へ描く。</span>
 <span id="L280"><span class="lineNum">     280</span>              : // フィールドのライティングは vision が壁遮蔽込みで計算した per-tile の暗さを</span>
-<span id="L281"><span class="lineNum">     281</span>              : // RenderSpriteSystem が描く。地上は時間帯の色フィルタを世界へ一様に掛ける。</span>
+<span id="L281"><span class="lineNum">     281</span>              : // Render3DSystem が描く。地上は時間帯の色フィルタを世界へ一様に掛ける。</span>
 <span id="L282"><span class="lineNum">     282</span>              : func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {</span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         if st.baseImage != nil {</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :                 screen.DrawImage(st.baseImage, nil)</span></span>

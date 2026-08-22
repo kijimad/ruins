@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 02:12:32</td>
+            <td class="headerValue">2026-08-22 03:05:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -148,8 +148,8 @@
 <span id="L86"><span class="lineNum">      86</span>              : }</span>
 <span id="L87"><span class="lineNum">      87</span>              : </span>
 <span id="L88"><span class="lineNum">      88</span>              : // moveDir は移動方向を3Dカメラの向きへ回して合わせる。</span>
-<span id="L89"><span class="lineNum">      89</span>              : func (st *DungeonState) moveDir(base gc.Direction) gc.Direction {</span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">           1 :         return st.three.moveDir(base)</span></span>
+<span id="L89"><span class="lineNum">      89</span>              : func (st *DungeonState) moveDir(world w.World, base gc.Direction) gc.Direction {</span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">           1 :         return st.three.moveDir(world, base)</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L92"><span class="lineNum">      92</span>              : </span>
 <span id="L93"><span class="lineNum">      93</span>              : // DoAction はActionを実行する</span>
@@ -227,31 +227,31 @@
 <span id="L165"><span class="lineNum">     165</span>              : </span>
 <span id="L166"><span class="lineNum">     166</span>              :         // 移動系アクション</span>
 <span id="L167"><span class="lineNum">     167</span>              :         case inputmapper.ActionMoveNorth:</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC tlaBgGNC">           1 :                 if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUp)); err != nil {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC tlaBgGNC">           1 :                 if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionUp)); err != nil {</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC tlaBgUNC">           0 :                         return es.Transition[w.World]{Type: es.TransNone}, err</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC tlaBgGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L172"><span class="lineNum">     172</span>              :         case inputmapper.ActionMoveSouth:</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDown)); err != nil {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionDown)); err != nil {</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC tlaBgUNC">           0 :                         return es.Transition[w.World]{Type: es.TransNone}, err</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC tlaBgGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L177"><span class="lineNum">     177</span>              :         case inputmapper.ActionMoveEast:</span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionRight)); err != nil {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionRight)); err != nil {</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC tlaBgUNC">           0 :                         return es.Transition[w.World]{Type: es.TransNone}, err</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC tlaBgGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L182"><span class="lineNum">     182</span>              :         case inputmapper.ActionMoveWest:</span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionLeft)); err != nil {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionLeft)); err != nil {</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC tlaBgUNC">           0 :                         return es.Transition[w.World]{Type: es.TransNone}, err</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC tlaBgGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L187"><span class="lineNum">     187</span>              :         // 視点回転。回してから直進すると斜めの world 方向へ動ける</span>
 <span id="L188"><span class="lineNum">     188</span>              :         case inputmapper.ActionRotateLeft:</span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 st.three.rotate(1)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 st.three.rotate(world, 1)</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L191"><span class="lineNum">     191</span>              :         case inputmapper.ActionRotateRight:</span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC tlaBgUNC">           0 :                 st.three.rotate(-1)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC tlaBgUNC">           0 :                 st.three.rotate(world, -1)</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
 <span id="L194"><span class="lineNum">     194</span>              :         case inputmapper.ActionWait:</span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 if err := activity.ExecuteWaitAction(world); err != nil {</span></span>

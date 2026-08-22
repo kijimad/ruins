@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">77.5&nbsp;%</td>
-            <td class="headerCovTableEntry">40</td>
-            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryMed">82.2&nbsp;%</td>
+            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntry">37</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 02:12:32</td>
+            <td class="headerValue">2026-08-22 03:05:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -197,9 +197,9 @@
 <span id="L135"><span class="lineNum">     135</span>              :         case DirectionDown:</span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC tlaBgUNC">           0 :                 return -1, 0</span></span>
 <span id="L137"><span class="lineNum">     137</span>              :         case DirectionRight:</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 return 0, 1</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC tlaBgGNC">           1 :                 return 0, 1</span></span>
 <span id="L139"><span class="lineNum">     139</span>              :         case DirectionLeft:</span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 return 0, -1</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, -1</span></span>
 <span id="L141"><span class="lineNum">     141</span>              :         case DirectionUpRight:</span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 return 1, 1</span></span>
 <span id="L143"><span class="lineNum">     143</span>              :         case DirectionUpLeft:</span>
@@ -213,27 +213,36 @@
 <span id="L151"><span class="lineNum">     151</span>              :         }</span>
 <span id="L152"><span class="lineNum">     152</span>              : }</span>
 <span id="L153"><span class="lineNum">     153</span>              : </span>
-<span id="L154"><span class="lineNum">     154</span>              : // SnapWorldVec は world 平面のベクトルを最寄りの8方向へスナップする。</span>
-<span id="L155"><span class="lineNum">     155</span>              : // カメラ相対移動で、回した向きの world ベクトルから実際の移動方向を決めるのに使う。</span>
-<span id="L156"><span class="lineNum">     156</span>              : // ゼロベクトルは DirectionNone を返す。</span>
-<span id="L157"><span class="lineNum">     157</span>              : func SnapWorldVec(wx, wy float64) Direction {</span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         best := DirectionNone</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         bestDot := 0.0</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         for _, d := range direction8 {</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 delta := d.GetDelta()</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 dx, dy := float64(delta.X), float64(delta.Y)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 norm := math.Hypot(dx, dy)</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 if norm == 0 {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
-<span id="L166"><span class="lineNum">     166</span>              :                 }</span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC tlaBgGNC">           1 :                 dot := (wx*dx + wy*dy) / norm</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 if dot &gt; bestDot {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                         bestDot = dot</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         best = d</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L172"><span class="lineNum">     172</span>              :         }</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         return best</span></span>
-<span id="L174"><span class="lineNum">     174</span>              : }</span>
+<span id="L154"><span class="lineNum">     154</span>              : // RotateScreenDir は画面基準の方向を、カメラの水平角 yaw で world の8方向へ回す。</span>
+<span id="L155"><span class="lineNum">     155</span>              : // 見下ろしカメラが回転しても、押したキーが画面上で指す向きへ動くようにする。</span>
+<span id="L156"><span class="lineNum">     156</span>              : func RotateScreenDir(base Direction, yaw float64) Direction {</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         su, sr := base.ScreenIntent()</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         wx := -su*math.Sin(yaw) + sr*math.Cos(yaw)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         wy := -su*math.Cos(yaw) - sr*math.Sin(yaw)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         return SnapWorldVec(wx, wy)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span>              : // SnapWorldVec は world 平面のベクトルを最寄りの8方向へスナップする。</span>
+<span id="L164"><span class="lineNum">     164</span>              : // カメラ相対移動で、回した向きの world ベクトルから実際の移動方向を決めるのに使う。</span>
+<span id="L165"><span class="lineNum">     165</span>              : // ゼロベクトルは DirectionNone を返す。</span>
+<span id="L166"><span class="lineNum">     166</span>              : func SnapWorldVec(wx, wy float64) Direction {</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         best := DirectionNone</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         bestDot := 0.0</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         for _, d := range direction8 {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 delta := d.GetDelta()</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 dx, dy := float64(delta.X), float64(delta.Y)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 norm := math.Hypot(dx, dy)</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 if norm == 0 {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L175"><span class="lineNum">     175</span>              :                 }</span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC tlaBgGNC">           1 :                 dot := (wx*dx + wy*dy) / norm</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 if dot &gt; bestDot {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                         bestDot = dot</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                         best = d</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L181"><span class="lineNum">     181</span>              :         }</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         return best</span></span>
+<span id="L183"><span class="lineNum">     183</span>              : }</span>
         </pre>
               </td>
             </tr>

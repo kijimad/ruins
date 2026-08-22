@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">88.0&nbsp;%</td>
-            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntryMed">78.6&nbsp;%</td>
+            <td class="headerCovTableEntry">56</td>
             <td class="headerCovTableEntry">44</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-22 02:12:32</td>
+            <td class="headerValue">2026-08-22 03:05:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -164,6 +164,17 @@
 <span id="L102"><span class="lineNum">     102</span>              :         }</span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :         return entities</span></span>
 <span id="L104"><span class="lineNum">     104</span>              : }</span>
+<span id="L105"><span class="lineNum">     105</span>              : </span>
+<span id="L106"><span class="lineNum">     106</span>              : // GetPlayerCamera はカメラを返す。存在しなければ nil を返す。</span>
+<span id="L107"><span class="lineNum">     107</span>              : // カメラはワールドに1つだけ存在する前提で、視点を読む側の定型をここへ集約する。</span>
+<span id="L108"><span class="lineNum">     108</span>              : func GetPlayerCamera(world w.World) *gc.Camera {</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC tlaBgUNC">           0 :         var camera *gc.Camera</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         for cameraQuery.Next() {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                 camera = world.Components.Camera.Get(cameraQuery.Entity())</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         return camera</span></span>
+<span id="L115"><span class="lineNum">     115</span>              : }</span>
         </pre>
               </td>
             </tr>
