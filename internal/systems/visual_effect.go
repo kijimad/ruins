@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -36,7 +36,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	}
 
 	// アニメーション無効時は即座に削除
-	if world.Config.DisableAnimation {
+	if world.Resources.Config.DisableAnimation {
 		for _, entity := range entitiesToDelete {
 			world.ECS.RemoveEntity(entity)
 		}
@@ -87,7 +87,12 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return nil
 	}
 
-	var err error
+	// 投影はフレーム内で不変。ここで1回だけ組み、エンティティごとの描画へ渡す
+	projector, err := render3d.WorldProjector(world)
+	if err != nil {
+		return err
+	}
+
 	drawQuery := query.ActiveFilter1[gc.VisualEffects](world).Query()
 	for drawQuery.Next() {
 		entity := drawQuery.Entity()
@@ -104,12 +109,12 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 			case *gc.DamageTextEffect:
 				if world.Components.GridElement.Has(entity) {
 					gridElement := world.Components.GridElement.Get(entity)
-					sys.drawDamageText(world, screen, smallFace, gridElement, e)
+					sys.drawDamageText(screen, projector, smallFace, gridElement, e)
 				}
 			case *gc.SpriteFadeoutEffect:
 				if world.Components.GridElement.Has(entity) {
 					gridElement := world.Components.GridElement.Get(entity)
-					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, e)
+					err = sys.drawSpriteFadeoutEffect(world, screen, projector, gridElement, e)
 					if err != nil {
 						break effectLoop
 					}
@@ -175,22 +180,16 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 	screen.DrawImage(buf, op)
 }
 
-// drawDamageText はエンティティ座標でダメージテキストを描画する
-func (sys *VisualEffectSystem) drawDamageText(world w.World, screen *ebiten.Image, face text.Face, gridElement *gc.GridElement, effect *gc.DamageTextEffect) {
-	// グリッド座標をタイル中心のピクセル座標に変換
-	center := consts.TileCenterToWorld(gridElement.Coord)
-	pixelX := float64(center.X)
-	pixelY := float64(center.Y)
-
-	// オフセットを適用
-	pixelX += effect.Offset.X
-	pixelY += effect.Offset.Y
-
-	// カメラ変換を適用して画面座標に変換
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(pixelX, pixelY)
-	SetTranslate(world, op)
-	screenX, screenY := op.GeoM.Apply(0, 0)
+// drawDamageText はエンティティの立て板の頭にダメージテキストを描画する。
+// Offset は投影後の画面座標へ足す。浮き上がる量は演出であって世界の長さではないので、
+// カメラの遠近やズームで速さが変わらないようにする。
+func (sys *VisualEffectSystem) drawDamageText(screen *ebiten.Image, projector render3d.Projector, face text.Face, gridElement *gc.GridElement, effect *gc.DamageTextEffect) {
+	anchor, ok := projector.BillboardTop(gridElement.Coord)
+	if !ok {
+		return
+	}
+	screenX := float64(anchor.X) + effect.Offset.X
+	screenY := float64(anchor.Y) + effect.Offset.Y
 
 	// テキストサイズを測定して中央揃え
 	textWidth, _ := text.Measure(effect.Text, face, 0)
@@ -226,7 +225,7 @@ func (sys *VisualEffectSystem) drawHorizontalLine(world w.World, screen *ebiten.
 }
 
 // drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する
-func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, gridElement *gc.GridElement, effect *gc.SpriteFadeoutEffect) error {
+func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, projector render3d.Projector, gridElement *gc.GridElement, effect *gc.SpriteFadeoutEffect) error {
 	if effect.Alpha <= 0 {
 		return nil
 	}
@@ -268,21 +267,26 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	bottom := min(textureHeight, sprite.Y+sprite.Height)
 	img := gc.SubImage(texture.Image, image.Rect(left, top, right, bottom))
 
-	// グリッド座標をタイル中心のピクセル座標に変換
-	center := consts.TileCenterToWorld(gridElement.Coord)
-	pixelX := float64(center.X)
-	pixelY := float64(center.Y)
+	// 立て板と同じ位置・大きさで重ねる。スプライトの高さが立て板1枚分になるよう拡大率を決め、
+	// 立て板の中心へ合わせる
+	scale, ok := projector.BillboardScale(gridElement.Coord)
+	if !ok {
+		return nil
+	}
+	center, ok := projector.TileCenter(gridElement.Coord, render3d.BillboardHeight/2)
+	if !ok {
+		return nil
+	}
+	// 高さ0のスプライトは拡大率が定まらず描けない。ゼロ除算を避けて描画をやめる
+	if sprite.Height == 0 {
+		return nil
+	}
+	zoom := scale / float64(sprite.Height)
 
-	// シェーダー描画オプションを設定
 	op := &ebiten.DrawRectShaderOptions{}
-	op.GeoM.Translate(float64(-sprite.Width/2), float64(-sprite.Height/2))
-	op.GeoM.Translate(pixelX, pixelY)
-
-	// カメラ変換を適用
-	imgOp := &ebiten.DrawImageOptions{}
-	imgOp.GeoM = op.GeoM
-	SetTranslate(world, imgOp)
-	op.GeoM = imgOp.GeoM
+	op.GeoM.Translate(float64(-sprite.Width)/2, float64(-sprite.Height)/2)
+	op.GeoM.Scale(zoom, zoom)
+	op.GeoM.Translate(float64(center.X), float64(center.Y))
 
 	// ソース画像を設定
 	op.Images[0] = img

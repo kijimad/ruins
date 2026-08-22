@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -264,7 +265,6 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 	return rows
 }
 
-// buildInfoTable は読み取り専用タブのアイテム一覧をテーブルで組み立てる
 // buildInfoTable は情報タブの一覧を組み立てる。能力タブは補正列を加える
 func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
 	hasModifier := tab.ID == tabAbilities
@@ -290,5 +290,6 @@ func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resourc
 		}
 		rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries")}, res)
+	// この画面は見出しとタブ帯の両方が縦を食うので、その構成での実測容量を使う
+	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)
 }

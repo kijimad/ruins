@@ -1960,16 +1960,16 @@ components:
       minimum: -100
       maximum: 100
       description: ダメージ補正値
+    DangerLevel:
+      type: integer
+      minimum: 0
+      maximum: 100
+      description: 危険度。経過日数から決まる
     Defense:
       type: integer
       minimum: -100
       maximum: 100
       description: 防御力。被ダメージを軽減する
-    DepthLevel:
-      type: integer
-      minimum: 0
-      maximum: 100
-      description: 階層レベル
     Dexterity:
       type: integer
       minimum: -100
@@ -2141,18 +2141,18 @@ components:
       required:
         - id
         - weight
-        - minDepth
-        - maxDepth
+        - minDanger
+        - maxDanger
         - pack
       properties:
         id:
           $ref: '#/components/schemas/EntityID'
         weight:
           $ref: '#/components/schemas/EntryWeight'
-        minDepth:
-          $ref: '#/components/schemas/DepthLevel'
-        maxDepth:
-          $ref: '#/components/schemas/DepthLevel'
+        minDanger:
+          $ref: '#/components/schemas/DangerLevel'
+        maxDanger:
+          $ref: '#/components/schemas/DangerLevel'
         pack:
           allOf:
             - $ref: '#/components/schemas/Dice'
@@ -2496,8 +2496,8 @@ components:
       required:
         - id
         - weight
-        - minDepth
-        - maxDepth
+        - minDanger
+        - maxDanger
       properties:
         id:
           allOf:
@@ -2505,10 +2505,10 @@ components:
           description: 参照するアイテムグループの id
         weight:
           $ref: '#/components/schemas/EntryWeight'
-        minDepth:
-          $ref: '#/components/schemas/DepthLevel'
-        maxDepth:
-          $ref: '#/components/schemas/DepthLevel'
+        minDanger:
+          $ref: '#/components/schemas/DangerLevel'
+        maxDanger:
+          $ref: '#/components/schemas/DangerLevel'
       description: アイテムテーブルエントリ。アイテムグループを参照する
     ItemTableList:
       type: object

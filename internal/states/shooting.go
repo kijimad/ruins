@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"math"
 	"slices"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/activity"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/keybind"
+	"github.com/kijimaD/ruins/internal/render3d"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -58,34 +57,21 @@ func (st *ShootingState) OnStop(_ w.World) error { return nil }
 func (st *ShootingState) Update(world w.World) (es.Transition[w.World], error) {
 	st.blinkCounter++
 
-	if action, ok := st.handleInput(); ok {
+	if action, ok := keybind.ReadInput(world, shootingBindings); ok {
 		return st.doAction(world, action)
 	}
 
 	return st.ConsumeTransition(), nil
 }
 
-// handleInput はキー入力をActionIDに変換する
-func (st *ShootingState) handleInput() (inputmapper.ActionID, bool) {
-	keyboardInput := input.GetSharedKeyboardInput()
-
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
-		return inputmapper.ActionCloseMenu, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyTab) {
-		if ebiten.IsKeyPressed(ebiten.KeyShift) {
-			return inputmapper.ActionMenuTabPrev, true
-		}
-		return inputmapper.ActionMenuTabNext, true
-	}
-	if keyboardInput.IsEnterJustPressedOnce() {
-		return inputmapper.ActionShoot, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyR) {
-		return inputmapper.ActionReload, true
-	}
-
-	return "", false
+// shootingBindings は射撃モードの束縛表。Tab で標的を切り替え、Enter で撃つ。
+// Shift+Tab の行を Tab の行より先に置き、Shift 併用を先に判定する
+var shootingBindings = []keybind.Binding{
+	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
+	{Key: ebiten.KeyTab, Shift: keybind.ShiftRequired, Action: inputmapper.ActionMenuTabPrev},
+	{Key: ebiten.KeyTab, Action: inputmapper.ActionMenuTabNext},
+	{Key: ebiten.KeyEnter, Action: inputmapper.ActionShoot},
+	{Key: ebiten.KeyR, Action: inputmapper.ActionReload},
 }
 
 // doAction はActionIDを実行する
@@ -211,54 +197,36 @@ func (st *ShootingState) updateTargetCache(world w.World) {
 // Draw はステートの描画処理
 func (st *ShootingState) Draw(world w.World, screen *ebiten.Image) error {
 	if len(st.enemies) > 0 {
-		st.drawTargetCursor(world, screen)
+		if err := st.drawTargetCursor(world, screen); err != nil {
+			return err
+		}
 	}
 	return st.drawShootingPanel(world, screen)
 }
 
-// shootingCursorCache はターゲットカーソル画像のキャッシュ。sync.Once で一度だけ初期化する
-var (
-	shootingCursorCache     *ebiten.Image
-	shootingCursorCacheOnce sync.Once
-)
-
 // drawTargetCursor は選択中の敵にカーソルを描画する
-func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
+func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) error {
 	target := st.enemies[st.targetIndex]
 	if !world.Components.GridElement.Has(target) {
-		return
+		return nil
 	}
-	targetGrid := world.Components.GridElement.Get(target)
+	targetCoord := world.Components.GridElement.Get(target).Coord
 
-	tileSize := int(consts.TileSize)
-	cursorPixelX := float64(int(targetGrid.X) * tileSize)
-	cursorPixelY := float64(int(targetGrid.Y) * tileSize)
-
-	shootingCursorCacheOnce.Do(func() {
-		shootingCursorCache = ebiten.NewImage(tileSize, tileSize)
-		cursorColor := theme.CursorShoot
-		for i := range 3 {
-			for x := range tileSize {
-				shootingCursorCache.Set(x, i, cursorColor)
-				shootingCursorCache.Set(x, tileSize-1-i, cursorColor)
-			}
-			for y := range tileSize {
-				shootingCursorCache.Set(i, y, cursorColor)
-				shootingCursorCache.Set(tileSize-1-i, y, cursorColor)
-			}
-		}
-	})
-
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(cursorPixelX, cursorPixelY)
-	gs.SetTranslate(world, op)
-
-	if !world.Config.DisableAnimation {
-		alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)
-		op.ColorScale.ScaleAlpha(float32(alpha))
+	projector, err := render3d.WorldProjector(world)
+	if err != nil {
+		return err
+	}
+	corners, ok := projector.TileCorners(targetCoord, render3d.TileTopHeight(world, targetCoord))
+	if !ok {
+		return nil
 	}
 
-	screen.DrawImage(shootingCursorCache, op)
+	cursorColor := theme.CursorShoot
+	if !world.Resources.Config.DisableAnimation {
+		cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
+	}
+	hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)
+	return nil
 }
 
 // drawShootingPanel は射撃情報パネルを描画する

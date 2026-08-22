@@ -26,14 +26,14 @@ const (
 // AuctionOpeningBid は開始入札額を返す。基準価値に分散を掛けた控えめな額から競売が始まる。
 func AuctionOpeningBid(world w.World, item ecs.Entity) consts.Currency {
 	base := GetItemValue(world, item)
-	variance := 0.8 + world.Config.RNG.Float64()*0.4
+	variance := 0.8 + world.Resources.Config.RNG.Float64()*0.4
 	return consts.Currency(float64(base) * auctionOpeningMult * variance)
 }
 
 // AuctionRaise は1回の入札での上げ幅を返す。入札が来るたびこの額だけ現在値が上がる。
 func AuctionRaise(world w.World, item ecs.Entity) consts.Currency {
 	base := GetItemValue(world, item)
-	variance := 0.8 + world.Config.RNG.Float64()*0.4
+	variance := 0.8 + world.Resources.Config.RNG.Float64()*0.4
 	raise := max(consts.Currency(float64(base)*auctionRaiseMult*variance), 1)
 	return raise
 }
@@ -126,6 +126,10 @@ func SettleAuctionEntry(world w.World, player ecs.Entity, index, now int) (gc.Au
 		history.Records = append(history.Records, gc.AuctionRecord{
 			Number: e.Number, Name: e.Name, Bid: e.Bid, Ship: e.Ship, Fee: e.Fee, Net: e.Amount, Turn: now,
 		})
+		// 売上統計: 受取金を run 統計へ加算する
+		if s := GetRunStats(world); s != nil {
+			s.SalesTotal += e.Amount
+		}
 	case gc.AuctionEntryInvoice:
 		if err := AddCurrency(world, player, -e.Amount); err != nil {
 			return gc.AuctionEntry{}, false

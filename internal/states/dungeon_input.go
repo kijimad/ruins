@@ -6,12 +6,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -22,102 +22,72 @@ import (
 
 // 入力・アクション・イベント処理を dungeon.go から分離する。DungeonState のメソッドはこのファイルにも置く。
 
-// HandleInput はキー入力をActionに変換する
-func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, bool) {
-	keyboardInput := input.GetSharedKeyboardInput()
-
-	if cfg.Debug && keyboardInput.IsKeyJustPressed(ebiten.KeySlash) {
-		return inputmapper.ActionOpenDebugMenu, true
-	}
-
-	// ダンジョンメニュー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyM) {
-		return inputmapper.ActionOpenDungeonMenu, true
-	}
-
-	// インタラクションメニュー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeySpace) {
-		return inputmapper.ActionOpenInteractionMenu, true
-	}
-
-	// 視界情報表示。調べる X すなわち Shift+x へ X を譲り、フィールド情報は L へ移す
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyL) {
-		return inputmapper.ActionOpenFieldInfo, true
-	}
-
-	// オーバーワールド地図
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyN) {
-		return inputmapper.ActionOpenOverworldMap, true
-	}
-
-	// 射撃モード
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyF) {
-		return inputmapper.ActionShoot, true
-	}
-
-	// 拾うモード
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyG) {
-		return inputmapper.ActionPickup, true
-	}
-
+// dungeonBindings はダンジョン操作の束縛表。モーダル開閉・動詞直達・移動・視点回転・待機・武器切替。
+// 全行の条件は互いに素で行順に意味は無い
+var dungeonBindings = []keybind.Binding{
+	// モーダル開閉
+	{Key: ebiten.KeyM, Action: inputmapper.ActionOpenDungeonMenu, Label: "Menu"},
+	{Key: ebiten.KeySpace, Action: inputmapper.ActionOpenInteractionMenu, Label: "Interact"},
+	// 視界情報表示。調べる X すなわち Shift+x へ X を譲り、フィールド情報は L に置く
+	{Key: ebiten.KeyL, Action: inputmapper.ActionOpenFieldInfo, Label: "Field info"},
+	{Key: ebiten.KeyN, Action: inputmapper.ActionOpenOverworldMap, Label: "Map"},
+	{Key: ebiten.KeyF, Action: inputmapper.ActionShoot, Label: "Shoot"},
+	{Key: ebiten.KeyG, Action: inputmapper.ActionPickup, Label: "Pick up"},
 	// 動詞タブ画面への直達。調べる X は Shift+x で区別する
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyX) && keyboardInput.IsKeyPressed(ebiten.KeyShift) {
-		return inputmapper.ActionVerbExamine, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyD) {
-		return inputmapper.ActionVerbPlace, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyE) {
-		return inputmapper.ActionVerbConsume, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyR) {
-		return inputmapper.ActionVerbRead, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyT) {
-		return inputmapper.ActionVerbUse, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyS) {
-		return inputmapper.ActionVerbList, true
-	}
+	{Key: ebiten.KeyX, Shift: keybind.ShiftRequired, Action: inputmapper.ActionVerbExamine, Label: "Inspect"},
+	{Key: ebiten.KeyD, Action: inputmapper.ActionVerbPlace, Label: "Drop"},
+	{Key: ebiten.KeyE, Action: inputmapper.ActionVerbConsume, Label: "Eat"},
+	{Key: ebiten.KeyR, Action: inputmapper.ActionVerbRead, Label: "Read"},
+	{Key: ebiten.KeyT, Action: inputmapper.ActionVerbUse, Label: "Use"},
+	{Key: ebiten.KeyS, Action: inputmapper.ActionVerbList, Label: "List"},
+	// 移動。WASD は動詞へ空けるため矢印キーのみを使う。斜めへは視点を回してから直進する
+	{Key: ebiten.KeyUp, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveNorth, Label: "Move"},
+	{Key: ebiten.KeyDown, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveSouth, Label: "Move"},
+	{Key: ebiten.KeyLeft, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveWest, Label: "Move"},
+	{Key: ebiten.KeyRight, Press: keybind.PressRepeat, Action: inputmapper.ActionMoveEast, Label: "Move"},
+	// 視点回転。左の Z を反時計回り、右の C を時計回りにしてキーの左右と回る向きをそろえる。
+	// JIS でズレる記号は避ける
+	{Key: ebiten.KeyZ, Action: inputmapper.ActionRotateLeft, Label: "Rotate"},
+	{Key: ebiten.KeyC, Action: inputmapper.ActionRotateRight, Label: "Rotate"},
+	// 待機・足元の相互作用
+	{Key: ebiten.KeyPeriod, Press: keybind.PressRepeat, Action: inputmapper.ActionWait, Label: "Wait"},
+	{Key: ebiten.KeyEnter, Action: inputmapper.ActionInteract, Label: "Use here"},
+	// 武器スロット切り替え。同じラベルの連続行なのでヒントでは 12345 と連結される
+	{Key: ebiten.Key1, Action: inputmapper.ActionSwitchWeaponSlot1, Label: "Weapon slot"},
+	{Key: ebiten.Key2, Action: inputmapper.ActionSwitchWeaponSlot2, Label: "Weapon slot"},
+	{Key: ebiten.Key3, Action: inputmapper.ActionSwitchWeaponSlot3, Label: "Weapon slot"},
+	{Key: ebiten.Key4, Action: inputmapper.ActionSwitchWeaponSlot4, Label: "Weapon slot"},
+	{Key: ebiten.Key5, Action: inputmapper.ActionSwitchWeaponSlot5, Label: "Weapon slot"},
+	// キー一覧ヘルプ
+	{Key: ebiten.KeySlash, Shift: keybind.ShiftRequired, Action: inputmapper.ActionOpenKeyHelp, Label: "Help"},
+}
 
-	// 移動入力
-	if action, ok := handleMoveInput(keyboardInput); ok {
-		return action, true
-	}
+// dungeonDebugBindings はデバッグ設定のときだけ有効なキー。本番の表とは分けて合成する。
+// Slash はキー一覧ヘルプの Shift+Slash とキーを共有するので Shift 無しに限定する。
+// 条件が重なれば MustMerge が構築時に拒否する
+var dungeonDebugBindings = []keybind.Binding{
+	{Key: ebiten.KeySlash, Shift: keybind.ShiftForbidden, Action: inputmapper.ActionOpenDebugMenu},
+}
 
-	// 待機キー（キーリピート対応）
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyPeriod) {
-		return inputmapper.ActionWait, true
-	}
+// dungeonTable と dungeonDebugTable は合成済みの束縛表。デバッグ設定で使う表ごと分け、
+// 実行時に表を重ねる階層を持たない。デバッグ行との重なりも構築時に検証される
+var (
+	dungeonTable      = keybind.MustMerge(dungeonBindings)
+	dungeonDebugTable = keybind.MustMerge(dungeonDebugBindings, dungeonBindings)
+)
 
-	// 相互作用キー（Enter）
-	if keyboardInput.IsEnterJustPressedOnce() {
-		return inputmapper.ActionInteract, true
+// readAction は1フレームのダンジョン操作を Action として読む。供給源があればそこから読み、
+// 再生ドライバがメニューと同じ注入点でダンジョンも駆動できる
+func (st *DungeonState) readAction(world w.World) (inputmapper.ActionID, bool) {
+	if world.Resources.Config.Debug {
+		return keybind.ReadInput(world, dungeonDebugTable)
 	}
-
-	// 武器スロット切り替え（1-5キー）
-	if keyboardInput.IsKeyJustPressed(ebiten.Key1) {
-		return inputmapper.ActionSwitchWeaponSlot1, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.Key2) {
-		return inputmapper.ActionSwitchWeaponSlot2, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.Key3) {
-		return inputmapper.ActionSwitchWeaponSlot3, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.Key4) {
-		return inputmapper.ActionSwitchWeaponSlot4, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.Key5) {
-		return inputmapper.ActionSwitchWeaponSlot5, true
-	}
-
-	return "", false
+	return keybind.ReadInput(world, dungeonTable)
 }
 
 // moveDir は移動方向を3Dカメラの向きへ回して合わせる。
-func (st *DungeonState) moveDir(base gc.Direction) gc.Direction {
-	return st.three.moveDir(base)
+func (st *DungeonState) moveDir(world w.World, base gc.Direction) gc.Direction {
+	return st.three.moveDir(world, base)
 }
 
 // DoAction はActionを実行する
@@ -126,9 +96,10 @@ func (st *DungeonState) moveDir(base gc.Direction) gc.Direction {
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionShoot, inputmapper.ActionPickup,
-		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList:
-		// UI系はターンチェック不要
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot, inputmapper.ActionPickup,
+		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList,
+		inputmapper.ActionRotateLeft, inputmapper.ActionRotateRight:
+		// UI系と視点操作はターンを消費しないのでターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
 		if !query.CanPlayerAct(world) {
@@ -157,6 +128,10 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return &LookAroundState{}, nil },
 		}}, nil
+	case inputmapper.ActionOpenKeyHelp:
+		// ダンジョン文脈のキー一覧を開く。表示は束縛表から導出する
+		return es.Transition[w.World]{Type: es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{menuloop.NewKeyHelpState(dungeonTable)}}, nil
 	case inputmapper.ActionOpenOverworldMap:
 		// 地図は今まさにオーバーワールドにいるときだけ開く。ダンジョンやキューブ内部では
 		// 帯が現ステージにないので無視する。State 属性の isSeamless でなく現ステージで判定する
@@ -190,44 +165,31 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 
 	// 移動系アクション
 	case inputmapper.ActionMoveNorth:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUp)); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionUp)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouth:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDown)); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionDown)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveEast:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionRight)); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionRight)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveWest:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionLeft)); err != nil {
+		if err := activity.ExecuteMoveAction(world, st.moveDir(world, gc.DirectionLeft)); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionMoveNorthEast:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUpRight)); err != nil {
-			return es.Transition[w.World]{Type: es.TransNone}, err
-		}
+	// 視点回転。回してから直進すると斜めの world 方向へ動ける
+	case inputmapper.ActionRotateLeft:
+		st.three.rotate(world, 1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionMoveNorthWest:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionUpLeft)); err != nil {
-			return es.Transition[w.World]{Type: es.TransNone}, err
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionMoveSouthEast:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDownRight)); err != nil {
-			return es.Transition[w.World]{Type: es.TransNone}, err
-		}
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionMoveSouthWest:
-		if err := activity.ExecuteMoveAction(world, st.moveDir(gc.DirectionDownLeft)); err != nil {
-			return es.Transition[w.World]{Type: es.TransNone}, err
-		}
+	case inputmapper.ActionRotateRight:
+		st.three.rotate(world, -1)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionWait:
 		if err := activity.ExecuteWaitAction(world); err != nil {
@@ -402,57 +364,4 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 			}
 		}
 	})
-}
-
-// handleMoveInput は8方向移動のキー入力を処理する。移動は矢印キーのみで、英字は動詞コマンドへ空ける
-func handleMoveInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
-	// Shift押下中は斜め移動モード。2キー同時押しの斜め移動のみ受け付ける。
-	// IsKeyPressedWithRepeatは副作用があるため、Shift判定を先に行い不要な呼び出しを避ける
-	if keyboardInput.IsKeyPressed(ebiten.KeyShift) {
-		return handleShiftDiagonalInput(keyboardInput)
-	}
-
-	upPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
-	downPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
-	leftPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)
-	rightPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)
-
-	if upPressed {
-		return inputmapper.ActionMoveNorth, true
-	}
-	if downPressed {
-		return inputmapper.ActionMoveSouth, true
-	}
-	if leftPressed {
-		return inputmapper.ActionMoveWest, true
-	}
-	if rightPressed {
-		return inputmapper.ActionMoveEast, true
-	}
-
-	return "", false
-}
-
-// handleShiftDiagonalInput はShift押下中の斜め移動入力を処理する。移動は矢印キーのみを使う。
-// 縦軸のIsKeyPressedWithRepeatのみをリピートタイミングの制御に使い、横軸はIsKeyPressedで判定する。
-// 両軸のリピートをOR条件にするとリピート頻度が2倍になるため、片軸のみをドライバーにする
-func handleShiftDiagonalInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
-	upRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
-	downRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
-	leftHeld := keyboardInput.IsKeyPressed(ebiten.KeyLeft)
-	rightHeld := keyboardInput.IsKeyPressed(ebiten.KeyRight)
-
-	if upRepeat && leftHeld {
-		return inputmapper.ActionMoveNorthWest, true
-	}
-	if upRepeat && rightHeld {
-		return inputmapper.ActionMoveNorthEast, true
-	}
-	if downRepeat && leftHeld {
-		return inputmapper.ActionMoveSouthWest, true
-	}
-	if downRepeat && rightHeld {
-		return inputmapper.ActionMoveSouthEast, true
-	}
-	return "", false
 }

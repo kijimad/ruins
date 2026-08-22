@@ -34,7 +34,6 @@ type World struct {
 	ECS        *ecs.World
 	Components *gc.Components
 	Resources  *resources.Resources
-	Config     *config.Config
 	Updaters   map[string]Updater
 	Renderers  map[string]Renderer
 }
@@ -50,10 +49,10 @@ func InitWorld(c *gc.Components, cfg *config.Config) (World, error) {
 		ECS:        arkWorld,
 		Components: c,
 		Resources:  resources.InitGameResources(),
-		Config:     cfg,
 		Updaters:   make(map[string]Updater),
 		Renderers:  make(map[string]Renderer),
 	}
+	world.Resources.Config = cfg
 
 	world.InitSingleton()
 
@@ -74,9 +73,24 @@ func (world World) InitSingleton() {
 	world.Components.GameTime.Add(singleton, &gc.GameTime{})
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	// config は構築時に渡されているので、設定言語をそのまま種にする。
-	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Config.User.Language))
+	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 	world.Components.AuctionHistory.Add(singleton, gc.NewAuctionHistory())
+	world.Components.RunStats.Add(singleton, &gc.RunStats{})
 	world.Resources.SingletonEntity = singleton
+}
+
+// ResetForNewGame は前のゲームの全実体を消し、シングルトンを作り直す。
+// 新しいゲームを始める経路が呼ぶ。ロードは save 側の ECS.Reset が同じ役目を担う
+func (world World) ResetForNewGame() {
+	var clearEntities []ecs.Entity
+	clearQuery := ecs.NewUnsafeFilter(world.ECS).Query()
+	for clearQuery.Next() {
+		clearEntities = append(clearEntities, clearQuery.Entity())
+	}
+	for _, e := range clearEntities {
+		world.ECS.RemoveEntity(e)
+	}
+	world.InitSingleton()
 }
 
 // GetWorld は entities.World インターフェースを満たすためのメソッド

@@ -138,12 +138,12 @@ func recalcTileAutotile(world w.World, e ecs.Entity, g gc.GridElement, idOf func
 
 // autotileBase は "dirt_15" → ("dirt", true) を返す。サフィックスが数値でなければ false。
 func autotileBase(key string) (string, bool) {
-	i := strings.LastIndex(key, "_")
-	if i < 0 {
+	base, suffix, found := strings.CutLast(key, "_")
+	if !found {
 		return "", false
 	}
-	if _, err := strconv.Atoi(key[i+1:]); err != nil {
+	if _, err := strconv.Atoi(suffix); err != nil {
 		return "", false
 	}
-	return key[:i], true
+	return base, true
 }

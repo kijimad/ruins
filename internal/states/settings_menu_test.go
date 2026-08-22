@@ -39,23 +39,20 @@ func TestSettingsMenuState_FetchProps(t *testing.T) {
 	assert.Equal(t, wantJa, jaProps.Items[0].Value, "表示は config でなく UserSettings を引く")
 }
 
-func TestCycleLanguage_左右で循環しシングルトンと設定を更新する(t *testing.T) {
+func TestCycleLanguage_次の言語へ循環しシングルトンと設定を更新する(t *testing.T) {
 	// SaveUserConfig の書き込み先を一時ディレクトリへ隔離する。t.Setenv があるので Parallel にしない
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 
 	world := testutil.InitTestWorld(t)
 	require.Equal(t, "en", query.GetUserSettings(world).Language, "既定は en")
 
-	// SupportedLangs の並びは ja, en。en から右へ送ると ja へ回る
-	cycleLanguage(world, 1)
+	// SupportedLangs の並びは ja, en。en から送ると ja へ回る
+	cycleLanguage(world)
 	assert.Equal(t, "ja", query.GetUserSettings(world).Language, "シングルトンが ja へ切り替わる")
-	assert.Equal(t, "ja", world.Config.User.Language, "config も ja へ更新される")
+	assert.Equal(t, "ja", world.Resources.Config.User.Language, "config も ja へ更新される")
 
-	cycleLanguage(world, 1)
+	cycleLanguage(world)
 	assert.Equal(t, "en", query.GetUserSettings(world).Language, "循環して en へ戻る")
-
-	cycleLanguage(world, -1)
-	assert.Equal(t, "ja", query.GetUserSettings(world).Language, "左は逆方向に循環する")
 }
 
 func TestCurrentLanguageLabel(t *testing.T) {

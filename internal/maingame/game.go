@@ -27,15 +27,20 @@ type MainGame struct {
 
 // NewMainGame はMainGameを初期化する
 func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {
-	retroFilter, err := screeneffect.NewRetroFilter()
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize retro filter: %w", err)
+	// フィルタを切ったときはシェーダを組み立てず、素通しのパイプラインにする
+	var filters []screeneffect.Filter
+	if !world.Resources.Config.DisableScreenFilter {
+		retroFilter, err := screeneffect.NewRetroFilter()
+		if err != nil {
+			return nil, fmt.Errorf("failed to initialize retro filter: %w", err)
+		}
+		filters = append(filters, retroFilter)
 	}
 
 	return &MainGame{
 		World:        world,
 		StateMachine: stateMachine,
-		renderer:     newRenderer(screeneffect.NewPipeline(retroFilter)),
+		renderer:     newRenderer(screeneffect.NewPipeline(filters...)),
 	}, nil
 }
 
@@ -51,7 +56,7 @@ func (game *MainGame) Update() error {
 	// デバッグ表示をトグルする
 	if ebiten.IsKeyPressed(ebiten.KeyShift) && inpututil.IsKeyJustPressed(ebiten.KeyTab) {
 		// パフォーマンスモニターは攻略に関係ないのでトグルできてよい
-		game.World.Config.ShowMonitor = !game.World.Config.ShowMonitor
+		game.World.Resources.Config.ShowMonitor = !game.World.Resources.Config.ShowMonitor
 	}
 
 	if err := game.StateMachine.Update(game.World); err != nil {
@@ -72,7 +77,7 @@ func (game *MainGame) Draw(screen *ebiten.Image) {
 	game.renderer.Draw(screen, game.StateMachine.GetStates(), game.World)
 
 	// パフォーマンスモニターは最前面のデバッグ表示なので、ポスト処理の外で screen へ直に描く。
-	if game.World.Config.ShowMonitor {
+	if game.World.Resources.Config.ShowMonitor {
 		ebitenutil.DebugPrint(screen, getPerformanceInfo())
 	}
 }

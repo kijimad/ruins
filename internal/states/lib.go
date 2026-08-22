@@ -2,11 +2,10 @@ package states
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -25,11 +24,6 @@ func newMenuListTable(columnWidths []int, res resources.UIResources) *widget.Con
 		)),
 	)
 }
-
-// menuItemsPerPage は一覧1ページの表示件数。全メニュー共通。モーダルの高さに収まり
-// ログ領域へはみ出さない上限にする。テーブル行20px + ページ表示 + タブ帯 + フッターが
-// モーダル領域に収まる件数を基準にする
-const menuItemsPerPage = 18
 
 // menuRowWidth は全幅の一覧の行の総幅。全幅メニューで揃えて、画面ごとにエントリ幅がぶれないようにする。
 // 列の内訳は画面ごとに変えてよいが、全幅の一覧では合計をこの値にする。
@@ -56,6 +50,9 @@ type menuListOpts struct {
 	AlwaysIndicator bool
 	HeaderRow       []string
 	EmptyText       string
+	// ItemsPerPage は1ページの行数の上書き。0 ならタブ帯つきモーダルの実測容量。
+	// 見出しなど追加の枠部品を持つ画面は menuframe.ListCapacity で自分の容量を求めて渡す
+	ItemsPerPage int
 }
 
 // renderMenuList は一覧を共通の作法で組む唯一の入口。ページ送り・ページ表示・空行埋め・
@@ -74,8 +71,12 @@ func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []sty
 		}
 	}
 
+	perPage := opts.ItemsPerPage
+	if perPage == 0 {
+		perPage = menuframe.ListCapacity(res, false, true)
+	}
 	container := styled.NewVerticalContainer()
-	pg := pagination.New(itemIndex, len(rows), menuItemsPerPage)
+	pg := pagination.New(itemIndex, len(rows), perPage)
 	if opts.AlwaysIndicator || pg.IsEnabled() {
 		container.AddChild(newPageIndicator(pg, res))
 	}
@@ -98,13 +99,13 @@ func renderMenuList(itemIndex int, rows []menuRow, colWidths []int, aligns []sty
 		styled.NewTableRow(table, colWidths, entry.Item.Cells, aligns, &isSelected, res)
 	}
 	// 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
-	if len(rows) > menuItemsPerPage {
+	if len(rows) > perPage {
 		blank := make([]string, len(colWidths))
 		for i := range blank {
 			blank[i] = " "
 		}
 		blankCells := styled.TextCells(blank...)
-		for i := len(visible); i < menuItemsPerPage; i++ {
+		for i := len(visible); i < perPage; i++ {
 			notSelected := false
 			styled.NewTableRow(table, colWidths, blankCells, aligns, &notSelected, res)
 		}
@@ -182,22 +183,6 @@ func newPageIndicator(pg pagination.Pagination, res resources.UIResources) *widg
 		pageText = " "
 	}
 	return styled.NewPageIndicator(pageText, res)
-}
-
-// menuNavHint はメニュー共通のキー操作案内を組み立てる。全メニューのフッターに常設し、
-// どの画面でも同じキーで同じ操作ができることを示す。矢印や Enter/Esc は素の記号がフォントに
-// 無く文字化けするため FontAwesome のアイコンを使う。hasTabs が true のときタブ切替を含め、
-// extras に画面固有の案内を後ろへ足す
-func menuNavHint(world w.World, hasTabs bool, extras ...string) string {
-	parts := make([]string, 0, 4+len(extras))
-	if hasTabs {
-		parts = append(parts, consts.IconArrowLeft+consts.IconArrowRight+" "+query.T(world, "Tab"))
-	}
-	parts = append(parts, consts.IconArrowUp+consts.IconArrowDown+" "+query.T(world, "Select"))
-	parts = append(parts, consts.IconKeyEnter+" "+query.T(world, "Confirm"))
-	parts = append(parts, extras...)
-	parts = append(parts, consts.IconKeyEsc+" "+query.T(world, "Back"))
-	return strings.Join(parts, "   ")
 }
 
 // ================

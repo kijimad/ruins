@@ -10,8 +10,8 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/hooks"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -480,21 +480,23 @@ func (w *Window) createEnterPrompt() *widget.Container {
 	return container
 }
 
-// HandleInput はキーボード入力をActionに変換する
+// HandleInput はキーボード入力をActionに変換する。束縛表は設定の SkippableKeys から導出し、
+// 供給源があればそこから読むので再生ドライバでも駆動できる
 func (w *Window) HandleInput() (inputmapper.ActionID, bool) {
-	keyboardInput := input.GetSharedKeyboardInput()
+	return keybind.ReadInput(w.world, skipBindings(w.config.SkippableKeys))
+}
 
-	for _, key := range w.config.SkippableKeys {
+// skipBindings は読み飛ばしキーの一覧から束縛表を導出する。Enter だけは確定として区別する
+func skipBindings(keys []ebiten.Key) []keybind.Binding {
+	rows := make([]keybind.Binding, 0, len(keys))
+	for _, key := range keys {
+		action := inputmapper.ActionSkip
 		if key == ebiten.KeyEnter {
-			if keyboardInput.IsEnterJustPressedOnce() {
-				return inputmapper.ActionConfirm, true
-			}
-		} else if keyboardInput.IsKeyJustPressed(key) {
-			return inputmapper.ActionSkip, true
+			action = inputmapper.ActionConfirm
 		}
+		rows = append(rows, keybind.Binding{Key: key, Action: action})
 	}
-
-	return "", false
+	return rows
 }
 
 // DoAction はActionを実行する
@@ -555,8 +557,7 @@ func (w *Window) initChoiceMenu() {
 
 // handleChoiceInput はキー入力を hooks Store にディスパッチし、view を同期する
 func (w *Window) handleChoiceInput() error {
-	keyboardInput := input.GetSharedKeyboardInput()
-	action, ok := w.translateChoiceInput(keyboardInput)
+	action, ok := keybind.ReadInput(w.world, choiceBindings)
 	if !ok {
 		return nil
 	}
@@ -586,21 +587,12 @@ func (w *Window) handleChoiceInput() error {
 	}
 }
 
-// translateChoiceInput はキーボード入力を選択肢メニューのアクションに変換する
-func (w *Window) translateChoiceInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) {
-		return inputmapper.ActionMenuUp, true
-	}
-	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) {
-		return inputmapper.ActionMenuDown, true
-	}
-	if keyboardInput.IsEnterJustPressedOnce() {
-		return inputmapper.ActionMenuSelect, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
-		return inputmapper.ActionMenuCancel, true
-	}
-	return "", false
+// choiceBindings は選択肢メニューの束縛表
+var choiceBindings = []keybind.Binding{
+	{Key: ebiten.KeyArrowUp, Press: keybind.PressRepeat, Action: inputmapper.ActionMenuUp},
+	{Key: ebiten.KeyArrowDown, Press: keybind.PressRepeat, Action: inputmapper.ActionMenuDown},
+	{Key: ebiten.KeyEnter, Action: inputmapper.ActionMenuSelect},
+	{Key: ebiten.KeyEscape, Action: inputmapper.ActionMenuCancel},
 }
 
 // rebuildUI はUIを再構築する

@@ -9,8 +9,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -38,7 +38,7 @@ type CraftMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &CraftMenuState{}
-var _ menuloop.ExtraInput = &CraftMenuState{}
+var _ menuloop.KeyBindings = &CraftMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
@@ -60,13 +60,9 @@ func (st *CraftMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// ExtraInput は共通入力に加える独自キーを返す。x で選択中の詳細モーダルを開く
-func (st *CraftMenuState) ExtraInput() (inputmapper.ActionID, bool) {
-	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-		return inputmapper.ActionOpenItemDetail, true
-	}
-	return "", false
+// KeyBindings は x の詳細表示を共通入力に足す
+func (st *CraftMenuState) KeyBindings() []keybind.Binding {
+	return detailOpenBindings
 }
 
 // DoAction はActionを実行する
@@ -82,8 +78,6 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 		if err := st.craftSelected(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("craftMenu: unsupported action: %s", action)
 	}
@@ -128,7 +122,7 @@ func (st *CraftMenuState) Menu(props CraftProps) menuloop.MenuConfig {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	return menuloop.MenuConfig{Key: "craft", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "craft", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto}
 }
 
 func (st *CraftMenuState) createMenuItems(world w.World, recipeIDs []string) []craftItemData {
@@ -248,7 +242,7 @@ func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menuloop.
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
+		Footer:    keybind.HelpHint(world),
 	})
 }
 

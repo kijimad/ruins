@@ -262,12 +262,11 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 	}
 	lootCount := lootDice.Roll(metaPlan.RNG)
 
-	// 深度は生成中フロアのプランから取る。世界の CurrentStage は生成完了後に確定するため、
-	// ここで参照すると1段ずれる(遺跡進入時は地上の深度0を読んでしまう)。
-	depth := metaPlan.Depth
+	// 危険度は生成中フロアのプランから取る。
+	danger := metaPlan.Danger
 
 	for range lootCount {
-		itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, depth)
+		itemName, err := raw.SelectItemByWeight(*metaPlan.RawMaster, itemTable, metaPlan.RNG, danger)
 		if err != nil {
 			return fmt.Errorf("failed to draw item: %w", err)
 		}

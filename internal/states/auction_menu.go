@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strconv"
 
@@ -12,8 +13,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
@@ -50,7 +51,7 @@ type AuctionMenuState struct {
 }
 
 var _ es.State[w.World] = &AuctionMenuState{}
-var _ menuloop.ExtraInput = &AuctionMenuState{}
+var _ menuloop.KeyBindings = &AuctionMenuState{}
 
 // OnStart はステート開始時に画面を組む
 func (st *AuctionMenuState) OnStart(_ w.World) error {
@@ -70,13 +71,9 @@ func (st *AuctionMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// ExtraInput は x で選択中の詳細モーダルを開く
-func (st *AuctionMenuState) ExtraInput() (inputmapper.ActionID, bool) {
-	ki := input.GetSharedKeyboardInput()
-	if ki.IsKeyJustPressed(ebiten.KeyX) && !ki.IsKeyPressed(ebiten.KeyShift) {
-		return inputmapper.ActionOpenItemDetail, true
-	}
-	return "", false
+// KeyBindings は x の詳細表示を共通入力に足す
+func (st *AuctionMenuState) KeyBindings() []keybind.Binding {
+	return detailOpenBindings
 }
 
 // DoAction はActionを実行する。Enter は積む・出す、x は詳細を開く。出荷はターン経過で自動実行する
@@ -90,8 +87,6 @@ func (st *AuctionMenuState) DoAction(world w.World, action inputmapper.ActionID)
 		if err := st.selectRow(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("auctionMenu: unsupported action: %s", action)
 	}
@@ -159,7 +154,7 @@ func (st *AuctionMenuState) Menu(props AuctionProps) menuloop.MenuConfig {
 			itemCounts[i] = len(tab.Ledger)
 		}
 	}
-	return menuloop.MenuConfig{Key: "auction", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "auction", TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto}
 }
 
 // stageItems は落札済みで持ち物にある品を積むタブへ並べる。積荷へ入れるとステーションの収納へ移る。
@@ -239,8 +234,7 @@ func (st *AuctionMenuState) statusRows(world w.World) []auctionLedgerRow {
 func (st *AuctionMenuState) historyRows(world w.World) []auctionLedgerRow {
 	h := query.GetAuctionHistory(world)
 	rows := make([]auctionLedgerRow, 0, len(h.Records))
-	for i := len(h.Records) - 1; i >= 0; i-- {
-		r := h.Records[i]
+	for _, r := range slices.Backward(h.Records) {
 		rows = append(rows, auctionLedgerRow{
 			Number: r.Number, Name: r.Name, Bid: r.Bid, Ship: r.Ship, Fee: r.Fee, Net: r.Net, Turn: r.Turn, Shipped: true,
 		})
@@ -329,7 +323,7 @@ func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menul
 		TabLabels: labels,
 		TabIndex:  cursor.TabIndex,
 		Content:   st.buildActiveContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    menuNavHint(world, true, query.T(world, "x Details")),
+		Footer:    keybind.HelpHint(world),
 	})
 }
 

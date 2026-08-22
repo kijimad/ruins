@@ -3,16 +3,16 @@ package states
 import (
 	"fmt"
 	"math"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/keybind"
+	"github.com/kijimaD/ruins/internal/render3d"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -63,34 +63,20 @@ func (st *LookAroundState) OnStop(_ w.World) error { return nil }
 func (st *LookAroundState) Update(world w.World) (es.Transition[w.World], error) {
 	st.blinkCounter++
 
-	if action, ok := st.handleInput(); ok {
+	if action, ok := keybind.ReadInput(world, lookAroundBindings); ok {
 		return st.doAction(world, action)
 	}
 
 	return st.ConsumeTransition(), nil
 }
 
-// handleInput はキー入力をActionIDに変換する
-func (st *LookAroundState) handleInput() (inputmapper.ActionID, bool) {
-	keyboardInput := input.GetSharedKeyboardInput()
-
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) || keyboardInput.IsKeyJustPressed(ebiten.KeyX) {
-		return inputmapper.ActionCloseMenu, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyUp) {
-		return inputmapper.ActionMoveNorth, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyDown) {
-		return inputmapper.ActionMoveSouth, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) {
-		return inputmapper.ActionMoveWest, true
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyRight) {
-		return inputmapper.ActionMoveEast, true
-	}
-
-	return "", false
+// lookAroundBindings は見回しモードの束縛表。矢印でカーソルを動かし、Esc で閉じる
+var lookAroundBindings = []keybind.Binding{
+	{Key: ebiten.KeyEscape, Action: inputmapper.ActionCloseMenu},
+	{Key: ebiten.KeyUp, Action: inputmapper.ActionMoveNorth},
+	{Key: ebiten.KeyDown, Action: inputmapper.ActionMoveSouth},
+	{Key: ebiten.KeyLeft, Action: inputmapper.ActionMoveWest},
+	{Key: ebiten.KeyRight, Action: inputmapper.ActionMoveEast},
 }
 
 // doAction はActionIDを実行する
@@ -99,13 +85,13 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
 	case inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMoveNorth:
-		st.moveCursor(world, 0, -1)
+		st.moveCursor(world, gc.DirectionUp)
 	case inputmapper.ActionMoveSouth:
-		st.moveCursor(world, 0, 1)
+		st.moveCursor(world, gc.DirectionDown)
 	case inputmapper.ActionMoveWest:
-		st.moveCursor(world, -1, 0)
+		st.moveCursor(world, gc.DirectionLeft)
 	case inputmapper.ActionMoveEast:
-		st.moveCursor(world, 1, 0)
+		st.moveCursor(world, gc.DirectionRight)
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("unsupported action: %s", action)
 	}
@@ -113,9 +99,14 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
 	return st.ConsumeTransition(), nil
 }
 
-// moveCursor はカーソルを移動する
-func (st *LookAroundState) moveCursor(world w.World, dx, dy int) {
-	next := st.cursor.Add(consts.Coord[consts.Tile]{X: consts.Tile(dx), Y: consts.Tile(dy)})
+// moveCursor はカーソルを移動する。押した向きはカメラの水平角で回し、画面の上下左右に合わせる。
+// カメラが回転していても、右キーで画面の右にあるタイルへ動く。
+func (st *LookAroundState) moveCursor(world w.World, base gc.Direction) {
+	var yaw float64
+	if camera := query.GetPlayerCamera(world); camera != nil {
+		yaw = camera.Yaw()
+	}
+	next := st.cursor.Add(gc.RotateScreenDir(base, yaw).GetDelta())
 
 	field := query.GetCurrentStageField(world)
 	if field == nil {
@@ -130,60 +121,36 @@ func (st *LookAroundState) moveCursor(world w.World, dx, dy int) {
 // Draw はステートの描画処理
 func (st *LookAroundState) Draw(world w.World, screen *ebiten.Image) error {
 	// カーソルを描画
-	st.drawCursor(world, screen)
+	if err := st.drawCursor(world, screen); err != nil {
+		return err
+	}
 
 	// タイル情報パネルを描画
 	return st.drawInfoPanel(world, screen)
 }
 
-// カーソル画像キャッシュ。sync.Once で一度だけ初期化する
-var (
-	cursorImageCache     *ebiten.Image
-	cursorImageCacheOnce sync.Once
-)
+// cursorFrameWidth はカーソル枠の線の太さ
+const cursorFrameWidth = 3
 
-// drawCursor はカーソルを描画する
-func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
-	tileSize := int(consts.TileSize)
-	cursorPixelX := float64(int(st.cursor.X) * tileSize)
-	cursorPixelY := float64(int(st.cursor.Y) * tileSize)
-
-	// カーソル画像をキャッシュから取得または作成
-	cursorImageCacheOnce.Do(func() {
-		cursorImageCache = ebiten.NewImage(tileSize, tileSize)
-		// 枠線を描画（太さ3px、白色で目立つように）
-		cursorColor := theme.CursorLook
-		for i := range 3 {
-			// 上辺
-			for x := range tileSize {
-				cursorImageCache.Set(x, i, cursorColor)
-			}
-			// 下辺
-			for x := range tileSize {
-				cursorImageCache.Set(x, tileSize-1-i, cursorColor)
-			}
-			// 左辺
-			for y := range tileSize {
-				cursorImageCache.Set(i, y, cursorColor)
-			}
-			// 右辺
-			for y := range tileSize {
-				cursorImageCache.Set(tileSize-1-i, y, cursorColor)
-			}
-		}
-	})
-
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(cursorPixelX, cursorPixelY)
-	gs.SetTranslate(world, op)
-
-	// 点滅エフェクト: アルファ値を変化させる。アニメーション無効時は固定値
-	if !world.Config.DisableAnimation {
-		alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)
-		op.ColorScale.ScaleAlpha(float32(alpha))
+// drawCursor はカーソルを描画する。
+// タイルは透視投影で台形になるので、投影した四隅を線で結んで実際の輪郭に合わせる。
+func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) error {
+	projector, err := render3d.WorldProjector(world)
+	if err != nil {
+		return err
+	}
+	corners, ok := projector.TileCorners(st.cursor, render3d.TileTopHeight(world, st.cursor))
+	if !ok {
+		return nil
 	}
 
-	screen.DrawImage(cursorImageCache, op)
+	cursorColor := theme.CursorLook
+	// 点滅エフェクト: アルファ値を変化させる。アニメーション無効時は固定値
+	if !world.Resources.Config.DisableAnimation {
+		cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
+	}
+	hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)
+	return nil
 }
 
 // drawInfoPanel はタイル情報パネルを描画する

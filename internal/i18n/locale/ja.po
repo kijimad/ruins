@@ -35,8 +35,8 @@ msgstr "防具"
 msgid "Materials"
 msgstr "材料"
 
-msgid "x Details"
-msgstr "x 詳細"
+msgid "Details"
+msgstr "詳細"
 
 msgid "No recipes"
 msgstr "(レシピなし)"
@@ -529,6 +529,24 @@ msgstr "防具(足)"
 
 msgid "Armor (jewelry)"
 msgstr "防具(装飾)"
+
+msgid "Statistics"
+msgstr "統計"
+
+msgid "Days"
+msgstr "生存日数"
+
+msgid "Turns"
+msgstr "経過ターン"
+
+msgid "Enemies killed"
+msgstr "撃破数"
+
+msgid "Items scavenged"
+msgstr "回収数"
+
+msgid "Sales"
+msgstr "売上"
 
 msgid "You died."
 msgstr "死亡した。"
@@ -5672,3 +5690,39 @@ msgstr "手取り"
 
 msgid "Turn"
 msgstr "ターン"
+
+msgid "Menu"
+msgstr "メニュー"
+
+msgid "Interact"
+msgstr "交流"
+
+msgid "Field info"
+msgstr "視界情報"
+
+msgid "Map"
+msgstr "地図"
+
+msgid "Shoot"
+msgstr "射撃"
+
+msgid "Pick up"
+msgstr "拾う"
+
+msgid "Move"
+msgstr "移動"
+
+msgid "Wait"
+msgstr "待機"
+
+msgid "Use here"
+msgstr "足元を使う"
+
+msgid "Weapon slot"
+msgstr "武器スロット"
+
+msgid "Help"
+msgstr "ヘルプ"
+
+msgid "Key bindings"
+msgstr "キー一覧"

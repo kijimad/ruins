@@ -5,32 +5,41 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDungeon3D_rotate(t *testing.T) {
 	t.Parallel()
 
-	d := &dungeon3D{sys: gs.NewRender3DSystem()}
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	camera := query.GetPlayerCamera(world)
+	require.NotNil(t, camera)
+	d := &dungeon3D{}
 
-	d.rotate(1)
-	assert.Equal(t, 1, d.orient)
-	assert.InDelta(t, math.Pi/4, d.sys.Yaw, 1e-9)
+	d.rotate(world, 1)
+	assert.Equal(t, gc.Orient(1), camera.Orient)
+	assert.InDelta(t, math.Pi/4, camera.Yaw(), 1e-9)
 
-	d.rotate(-1)
-	assert.Equal(t, 0, d.orient)
+	d.rotate(world, -1)
+	assert.Equal(t, gc.Orient(0), camera.Orient)
 
 	// 反時計回りは環で7へ回り込む
-	d.rotate(-1)
-	assert.Equal(t, 7, d.orient)
-	assert.InDelta(t, 7*math.Pi/4, d.sys.Yaw, 1e-9)
+	d.rotate(world, -1)
+	assert.Equal(t, gc.Orient(7), camera.Orient)
+	assert.InDelta(t, 7*math.Pi/4, camera.Yaw(), 1e-9)
 
 	// 8回転で一巡して元へ戻る
 	for range 8 {
-		d.rotate(1)
+		d.rotate(world, 1)
 	}
-	assert.Equal(t, 7, d.orient)
+	assert.Equal(t, gc.Orient(7), camera.Orient)
 }
 
 func TestDungeon3D_moveDir(t *testing.T) {
@@ -38,21 +47,30 @@ func TestDungeon3D_moveDir(t *testing.T) {
 
 	// orient0: 既定カメラは南から北を見下ろす。画面の上=北で、北上のミニマップと向きが一致する。
 	// Up=北・Right=東・Left=西と、キーと地図の向きがそろうことを固定する
-	d := &dungeon3D{orient: 0}
-	assert.Equal(t, gc.DirectionUp, d.moveDir(gc.DirectionUp))
-	assert.Equal(t, gc.DirectionRight, d.moveDir(gc.DirectionRight))
-	assert.Equal(t, gc.DirectionLeft, d.moveDir(gc.DirectionLeft))
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
+	camera := query.GetPlayerCamera(world)
+	require.NotNil(t, camera)
+	d := &dungeon3D{}
+
+	assert.Equal(t, gc.DirectionUp, d.moveDir(world, gc.DirectionUp))
+	assert.Equal(t, gc.DirectionRight, d.moveDir(world, gc.DirectionRight))
+	assert.Equal(t, gc.DirectionLeft, d.moveDir(world, gc.DirectionLeft))
 
 	// orient2 は90度。カメラが回ると Up は西へ回る
-	d.orient = 2
-	assert.Equal(t, gc.DirectionLeft, d.moveDir(gc.DirectionUp))
+	camera.Orient = 2
+	assert.Equal(t, gc.DirectionLeft, d.moveDir(world, gc.DirectionUp))
 }
 
 func TestDungeonState_moveDir_delegation(t *testing.T) {
 	t.Parallel()
 
 	// 常に3Dカメラの向きへ dungeon3D で委譲する。北上カメラの既定 orient0 では Up=北・Right=東のまま
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 10, Y: 10}, "ash")
+	require.NoError(t, err)
 	st := &DungeonState{}
-	assert.Equal(t, gc.DirectionUp, st.moveDir(gc.DirectionUp))
-	assert.Equal(t, gc.DirectionRight, st.moveDir(gc.DirectionRight))
+	assert.Equal(t, gc.DirectionUp, st.moveDir(world, gc.DirectionUp))
+	assert.Equal(t, gc.DirectionRight, st.moveDir(world, gc.DirectionRight))
 }

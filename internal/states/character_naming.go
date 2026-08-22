@@ -26,7 +26,11 @@ const (
 	errorDisplayTime = 2 * time.Second
 )
 
-// CharacterNamingState はキャラクター名前入力画面のステート
+// CharacterNamingState はキャラクター名前入力画面のステート。
+//
+// 入力はテキストチャンネルの例外で、束縛表と keybind.ReadInput を通さずキーを直読みする。
+// IME の変換途中状態やカーソル編集は離散的な Action の語彙に還元できないため、
+// Action チャンネルへは統一しない。再生が必要になれば文字列を別口で注入する
 type CharacterNamingState struct {
 	es.BaseState[w.World]
 	mount  *hooks.Mount[namingProps]
@@ -98,7 +102,7 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 	}
 
 	// 入力処理
-	if action, ok := st.HandleInput(world.Config); ok {
+	if action, ok := st.HandleInput(world.Resources.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {

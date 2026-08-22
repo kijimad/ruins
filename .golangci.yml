@@ -44,10 +44,20 @@ linters:
     paths:
       - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
     rules:
-      # gosmopolitan の源泉英語化 allowlist。移行が済んだ領域から外していく。
+      # gosmopolitan の源泉英語化 allowlist
       # テストの日本語リテラルはテスト名や assert メッセージであり、源泉英語化の対象外にする
       - linters: [gosmopolitan]
         path: '_test\.go$'
+      # マップ生成の実体カタログは同じ実体名を定義・レシピ・配置の各ファイルで参照するので、
+      # 短い識別子文字列がファイルを跨いで必然的に重複する。goconst はこれを定数化候補として
+      # 集計するが、実体名は typed な参照であり定数化しても単一化しない。誤検知なので当該
+      # サブシステムでは goconst を抑制する。実体名の一元管理は別途 raw 定義で担う
+      - linters: [goconst]
+        path: 'internal/(mapplanner|overworld|dungeon)/'
+      # 束縛表の Label は msgid で、i18n 規約によりインラインの英語リテラルに保つ。定数化すると
+      # 静的な msgid 抽出から漏れる。同じラベルの行が複数並ぶのは正当なので goconst を抑制する
+      - linters: [goconst]
+        source: 'Label:\s*"'
 
   settings:
     gosmopolitan:
@@ -104,6 +114,26 @@ linters:
               desc: 標準ライブラリを使う
             - pkg: "github.com/hajimehoshi/ebiten$"
               desc: ebiten/v2を使う
+        # キー読み取り能力への import 許可制。読み取り API を持つパッケージを
+        # 使える場所を列挙し、それ以外からは新旧問わず全シンボルを塞ぐ。
+        # 入力を束縛表へ集約し、デバイス層とごく少数の例外だけが直接読む。テストは
+        # MockKeyboardInput を使うため除外する
+        keyboard_device_guard:
+          list-mode: lax
+          files:
+            - "$all"
+            - "!$test"
+            - "!**/internal/input/**"
+            - "!**/internal/keybind/**"
+            - "!**/internal/states/character_naming.go"
+            - "!**/internal/states/dungeon.go"
+            - "!**/internal/states/dungeon_3d.go"
+            - "!**/internal/maingame/game.go"
+          deny:
+            - pkg: "github.com/kijimaD/ruins/internal/input$"
+              desc: キー読み取りは keybind の束縛表を通す。例外はテキストチャンネルとカメラのみ
+            - pkg: "github.com/hajimehoshi/ebiten/v2/inpututil"
+              desc: 生のキー状態 API はデバイス層 internal/input に閉じる
         # engine はゲーム基盤。ドメインに依存させない
         engine_guard:
           list-mode: strict

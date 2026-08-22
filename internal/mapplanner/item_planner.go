@@ -11,9 +11,9 @@ import (
 // アイテム配置用の定数
 const (
 	// アイテム配置関連
-	baseItemCount     = 8 // アイテム配置の基本数
-	randomItemCount   = 5 // アイテム配置のランダム追加数（0-4の範囲）
-	itemIncreaseDepth = 5 // アイテム数増加の深度しきい値
+	baseItemCount      = 8 // アイテム配置の基本数
+	randomItemCount    = 5 // アイテム配置のランダム追加数（0-4の範囲）
+	itemIncreaseDanger = 5 // アイテム数増加の危険度しきい値
 
 	// 配置処理関連
 	maxItemPlacementAttempts = 200 // アイテム配置処理の最大試行回数
@@ -27,7 +27,7 @@ type ItemSpec struct {
 	Count int    // 個数
 }
 
-// itemGroupRef はアイテムテーブルの1エントリ。深度フィルタ後に残った参照先グループの id とテーブル重み。
+// itemGroupRef はアイテムテーブルの1エントリ。危険度フィルタ後に残った参照先グループの id とテーブル重み。
 // グループ中身の抽選は raw.SelectFromItemGroup が draw 時に行う。
 type itemGroupRef struct {
 	GroupID string
@@ -50,7 +50,7 @@ func NewItemPlanner(world w.World, plannerType PlannerType) *ItemPlanner {
 
 // PlanMeta はアイテム配置情報をMetaPlanに追加する
 func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
-	sources, err := resolveItemSources(planData.RawMaster, i.plannerType.ItemTableName, i.plannerType.Depth)
+	sources, err := resolveItemSources(planData.RawMaster, i.plannerType.ItemTableName, i.plannerType.Danger)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	total := baseItemCount + planData.RNG.IntN(randomItemCount)
-	if i.plannerType.Depth > itemIncreaseDepth {
+	if i.plannerType.Danger > itemIncreaseDanger {
 		total++
 	}
 

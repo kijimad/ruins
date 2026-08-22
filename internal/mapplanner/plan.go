@@ -68,10 +68,9 @@ func BuildChain(world w.World, width, height consts.Tile, seed uint64, plannerTy
 		chain.PlanData.RawMaster = &world.Resources.RawMaster
 	}
 
-	// 生成する階の深度を成果物 MetaPlan にも記録する。生成後に loot を撒く mapspawner は
-	// 完成した MetaPlan だけを受け取り plannerType を持たないため、深度を成果物側へ載せておく。
-	// spawnFloor が builderType.Depth に入れた生成入力をそのまま引き継ぐ。
-	chain.PlanData.Depth = plannerType.Depth
+	// 危険度を成果物 MetaPlan にも記録する。生成後に loot を撒く mapspawner は
+	// 完成した MetaPlan だけを受け取り plannerType を持たないため、危険度を成果物側へ載せておく。
+	chain.PlanData.Danger = plannerType.Danger
 
 	chain.With(NewHostileNPCPlanner(world, plannerType))
 	chain.With(NewItemPlanner(world, plannerType))

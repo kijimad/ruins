@@ -35,20 +35,11 @@ func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {
 	return Coord[WorldPixel]{X: WorldPixel(grid.X)*TileSize + half, Y: WorldPixel(grid.Y)*TileSize + half}
 }
 
-// WorldToScreen はワールドピクセル座標をカメラ変換して画面のスクリーンピクセル座標へ変換する。
-// cameraPos はカメラ中心のワールド位置、scale はズーム率、screen は画面サイズ。
-func WorldToScreen(world Coord[WorldPixel], cameraPos Coord[WorldPixel], scale float64, screenW, screenH int) Coord[ScreenPixel] {
-	return Coord[ScreenPixel]{
-		X: ScreenPixel(float64(world.X-cameraPos.X)*scale + float64(screenW)/2),
-		Y: ScreenPixel(float64(world.Y-cameraPos.Y)*scale + float64(screenH)/2),
-	}
-}
-
 // AbsTileX は東西の絶対タイル X 座標。
 //
 // 東へ進むほど無限に増える絶対軸で、帯ローカルの GridElement.X とは別物。GridElement.X は
 // 常に 0..cols*chunkW の有界。絶対と局所の取り違えを Go の型で弾くための別名型。
-// 寒波前線の東端・帯原点・到達距離スコアはこの絶対軸で扱う。
+// 寒波前線の東端・帯原点はこの絶対軸で扱う。
 // 南北はストリーミングせず高さ固定の帯なので、絶対軸は X のみで足りる。
 //
 // worldstream の帯ドライバも components の永続状態 SeamlessBand も同じ絶対軸を扱うため、

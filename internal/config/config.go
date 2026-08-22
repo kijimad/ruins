@@ -50,6 +50,10 @@ type Config struct {
 	SkipOpening bool `env:"RUINS_SKIP_OPENING"`
 	// アニメーション演出を無効化するかどうか
 	DisableAnimation bool `env:"RUINS_DISABLE_ANIMATION"`
+	// 画面のポスト処理、レトロフィルタのスキャンラインと色収差、を無効化するかどうか。
+	// VRT はこれを立てて撮る。スキャンラインは全画面の高周波パターンで、フォントの
+	// アンチエイリアスや GL 実装差をピクセル比較上で増幅し、ゴールデンの再現性を落とす
+	DisableScreenFilter bool `env:"RUINS_DISABLE_SCREEN_FILTER"`
 
 	// 乱数シード。環境変数で指定すると再現可能になる。未指定の場合は自動生成される
 	Seed uint64 `env:"RUINS_SEED"`
@@ -143,6 +147,9 @@ func (c *Config) applyProductionDefaults() {
 	if os.Getenv("RUINS_DISABLE_ANIMATION") == "" {
 		c.DisableAnimation = false
 	}
+	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
+		c.DisableScreenFilter = false
+	}
 
 	// パフォーマンス設定
 	if os.Getenv("RUINS_TARGET_FPS") == "" {
@@ -201,6 +208,9 @@ func (c *Config) applyDevelopmentDefaults() {
 	}
 	if os.Getenv("RUINS_DISABLE_ANIMATION") == "" {
 		c.DisableAnimation = false
+	}
+	if os.Getenv("RUINS_DISABLE_SCREEN_FILTER") == "" {
+		c.DisableScreenFilter = false
 	}
 
 	// パフォーマンス設定

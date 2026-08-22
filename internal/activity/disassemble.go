@@ -156,7 +156,7 @@ func (db *DisassembleBehavior) Finish(comp *gc.Activity, actor ecs.Entity, world
 	}
 
 	name := query.GetEntityName(target, world)
-	stacks, err := lifecycle.RollDisassemblyYields(world.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)
+	stacks, err := lifecycle.RollDisassemblyYields(world.Resources.Config.RNG, def, mechanicSkillValue(actor, world), grade, true)
 	if err != nil {
 		return fmt.Errorf("failed to roll disassembly yields: %w", err)
 	}

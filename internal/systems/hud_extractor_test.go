@@ -628,7 +628,7 @@ func TestExtractDebugOverlay(t *testing.T) {
 	t.Run("無効時はEnabledがfalseになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Config.ShowAIDebug = false
+		world.Resources.Config.ShowAIDebug = false
 
 		data := extractDebugOverlay(world)
 
@@ -641,11 +641,11 @@ func TestExtractDebugOverlay(t *testing.T) {
 	t.Run("有効時はAI状態と視界範囲とHP表示を反映する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Config.ShowAIDebug = true
+		world.Resources.Config.ShowAIDebug = true
 		world.Resources.SetScreenDimensions(800, 600)
 
 		camera := world.ECS.NewEntity()
-		world.Components.Camera.Add(camera, &gc.Camera{Scale: 1.0})
+		world.Components.Camera.Add(camera, &gc.Camera{Scale: 1.0, Pitch: gc.CameraDefaultPitch, Dist: gc.CameraDefaultDist})
 		world.Components.GridElement.Add(camera, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 0, Y: 0}})
 
 		soloAI := world.ECS.NewEntity()
@@ -668,8 +668,10 @@ func TestExtractDebugOverlay(t *testing.T) {
 		require.Len(t, data.AIStates, 1)
 		assert.Equal(t, "CHASING", data.AIStates[0].StateText)
 
+		// 視界円の半径は、足元から ViewDistance タイルだけ離れた位置までの画面上の距離になる。
+		// 透視投影なので、タイル数にタイルサイズを掛けた一定値にはならず既定カメラの見え方で決まる
 		require.Len(t, data.VisionRanges, 1)
-		assert.Equal(t, float32(5*consts.TileSize), data.VisionRanges[0].ScaledRadius)
+		assert.InDelta(t, 189.46, data.VisionRanges[0].ScaledRadius, 0.01)
 
 		// プレイヤーはHP表示対象から除外され、敵のみ残る
 		require.Len(t, data.HPDisplays, 1)

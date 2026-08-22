@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
@@ -47,10 +48,8 @@ func (st *ComponentDebugState) DoAction(_ w.World, action inputmapper.ActionID) 
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuSelect,
-		inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight,
-		inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
-		// Dispatchで処理される。単一タブでもタブ移動アクションは届くので握り潰す
+	case inputmapper.ActionMenuSelect:
+		// 閲覧専用画面。決定では何も起きない
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
@@ -111,7 +110,7 @@ func (st *ComponentDebugState) Fetch(world w.World) (ComponentDebugProps, error)
 
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
 func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConfig {
-	return menuloop.MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuItemsPerPage}
+	return menuloop.MenuConfig{Key: "compdbg", TabCount: 1, ItemCounts: []int{len(props.Items)}, ItemsPerPage: menuloop.ItemsPerPageAuto}
 }
 
 // ================
@@ -132,6 +131,6 @@ func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cu
 	return menuframe.NewTabScreen(res, menuframe.TabScreen{
 		Header:  fmt.Sprintf("Components total: %d", props.Total),
 		Content: container,
-		Footer:  menuNavHint(world, false),
+		Footer:  keybind.HelpHint(world),
 	})
 }

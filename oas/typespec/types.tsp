@@ -56,10 +56,10 @@ scalar DamageBonus extends integer;
 @maxValue(100)
 scalar Defense extends integer;
 
-/** 階層レベル */
+/** 危険度。経過日数から決まる */
 @minValue(0)
 @maxValue(100)
-scalar DepthLevel extends integer;
+scalar DangerLevel extends integer;
 
 /** 器用さ。クリティカル率に影響する */
 @minValue(-100)

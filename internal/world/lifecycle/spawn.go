@@ -16,8 +16,7 @@ import (
 
 // 定数定義
 const (
-	cameraNormalScale = 0.6     // カメラの通常スケール
-	fieldSpriteSheet  = "field" // オーバーワールドの地物・アイテムが使うスプライトシート名
+	fieldSpriteSheet = "field" // オーバーワールドの地物・アイテムが使うスプライトシート名
 )
 
 // エラー定義
@@ -63,10 +62,12 @@ func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs
 	entitySpec.GridElement = &gc.GridElement{Coord: pos}
 	center := consts.TileCenterToWorld(pos)
 	entitySpec.Camera = &gc.Camera{
-		Scale:   cameraNormalScale,
-		ScaleTo: cameraNormalScale,
+		Scale:   gc.CameraMinScale,
+		ScaleTo: gc.CameraMinScale,
 		Pos:     center,
 		Target:  center,
+		Pitch:   gc.CameraDefaultPitch,
+		Dist:    gc.CameraDefaultDist,
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
 	entitySpec.HealthStatus = &gc.HealthStatus{}
@@ -127,7 +128,7 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
 	// 商人は品揃えを在庫として持つ。生成経路に依らずここで積むことで、集落でも街マップの
 	// マッププランナ経由でも同じ在庫を持たせる。売買と雇用はこの在庫を出し入れする
 	if name == "merchant" {
-		if err := PopulateMerchantStock(world, npcEntity, world.Config.RNG); err != nil {
+		if err := PopulateMerchantStock(world, npcEntity, world.Resources.Config.RNG); err != nil {
 			return gc.InvalidEntity, fmt.Errorf("failed to stock merchant: %w", err)
 		}
 	}

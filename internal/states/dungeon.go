@@ -9,7 +9,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -28,6 +27,9 @@ type DungeonState struct {
 	// baseImage は下に敷く背景
 	baseImage *ebiten.Image
 	Depth     int
+	// Danger はこの遺跡の危険度。最初のフロア生成時に確定し全階で共有する。階を降りても変わらない。
+	// ゼロ値は未確定を表す。
+	Danger int
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
@@ -79,7 +81,6 @@ func NewOverworldState(planner mapplanner.PlannerType, definition *dungeon.Overw
 // State interface ================
 
 var _ es.State[w.World] = &DungeonState{}
-var _ es.ActionHandler[w.World] = &DungeonState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *DungeonState) OnPause(_ w.World) error { return nil }
@@ -180,14 +181,15 @@ func (st *DungeonState) completeSwap(world w.World) (es.Transition[w.World], err
 // OnStop はステートが停止される際に呼ばれる。
 //
 // 共存方式ではオーバーワールドと遺跡が同一 world に共存し、退避中ステージも保持するため、
-// ここでは何もしない。world を捨てるのはタイトルへ戻る・ロードのときで、MainMenuState.OnStart
-// の全 entity 削除と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。
+// ここでは何もしない。world を捨てるのは新しいゲームを始める・ロードのときで、
+// world.ResetForNewGame と save の ECS.Reset が担う。ステージ単位の破棄が要る場合は stage.Purge を呼ぶ。
 func (st *DungeonState) OnStop(_ w.World) error { return nil }
 
 // checkPlayerDeath はプレイヤーの死亡状態をチェックする。Update フローの述語
 func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	playerDead := false
 	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()
+	// 早期 break しないこと。クエリは最後まで反復してワールドロックを解放する必要がある
 	for playerDeadQuery.Next() {
 		playerDead = true
 	}
@@ -214,12 +216,11 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		}}, nil
 	}
 
-	// 入力はゲーム本体と同じ共有キーボードを通す。カメラ操作は3Dへ委譲する
-	kb := input.GetSharedKeyboardInput()
-	st.three.update(kb)
+	// カメラのポインタ操作は3Dへ委譲する。キー操作は束縛表を通して DoAction に届く
+	st.three.update(world)
 
 	// キー入力をActionに変換
-	if action, ok := st.HandleInput(world.Config); ok {
+	if action, ok := st.readAction(world); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
@@ -242,9 +243,9 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{}, err
 	}
 
-	// プレイヤー死亡チェック
+	// プレイヤー死亡チェック。死亡で run は終わり結果画面へ移る
 	if st.checkPlayerDeath(world) {
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewGameOverMessageState}}, nil
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 	}
 
 	// ステート遷移リクエストを処理
@@ -281,7 +282,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 // Draw はゲームステートの描画処理を行う。世界と HUD を screen へ描く。
 // フィールドのライティングは vision が壁遮蔽込みで計算した per-tile の暗さを
-// RenderSpriteSystem が描く。地上は時間帯の色フィルタを世界へ一様に掛ける。
+// Render3DSystem が描く。地上は時間帯の色フィルタを世界へ一様に掛ける。
 func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 	if st.baseImage != nil {
 		screen.DrawImage(st.baseImage, nil)

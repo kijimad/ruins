@@ -2,10 +2,12 @@ package systems
 
 import (
 	"image/color"
+	"math"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -118,26 +120,20 @@ type TileColorInfo = hud.TileColorInfo
 
 // extractDebugOverlay はデバッグオーバーレイデータを抽出する
 func extractDebugOverlay(world w.World) hud.DebugOverlayData {
-	if !world.Config.ShowAIDebug {
+	if !world.Resources.Config.ShowAIDebug {
 		return hud.DebugOverlayData{Enabled: false}
-	}
-
-	// カメラ情報を取得
-	var cameraPos gc.Position
-	var cameraScale float64
-	cameraQuery := ecs.NewFilter2[gc.Camera, gc.GridElement](world.ECS).Query()
-	for cameraQuery.Next() {
-		camEntity := cameraQuery.Entity()
-		gridElement := world.Components.GridElement.Get(camEntity)
-		// GridElementからワールドピクセル座標に変換
-		cameraPos = gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}
-		camera := world.Components.Camera.Get(camEntity)
-		cameraScale = camera.Scale
 	}
 
 	screenDimensions := hud.ScreenDimensions{
 		Width:  world.Resources.ScreenDimensions.Width,
 		Height: world.Resources.ScreenDimensions.Height,
+	}
+	// 世界を描くのと同じ投影を使う。デバッグ表示だけ別の変換に取り残すと、
+	// それを手本にして古い変換が新しい箇所へ広がる。
+	// このデバッグ抽出は error を返せないので、投影が組めなければ表示を諦める
+	projector, err := render3d.WorldProjector(world)
+	if err != nil {
+		return hud.DebugOverlayData{Enabled: false}
 	}
 
 	// AI状態情報と視界範囲情報を抽出
@@ -149,8 +145,10 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		gridElement := world.Components.GridElement.Get(entity)
 		solo := world.Components.SoloAI.Get(entity)
 
-		// グリッド座標をワールドピクセルへ、さらにスクリーン座標へ変換
-		screen := consts.WorldToScreen(consts.TileCenterToWorld(gridElement.Coord), cameraPos.Coord, cameraScale, screenDimensions.Width, screenDimensions.Height)
+		screen, ok := projector.BillboardTop(gridElement.Coord)
+		if !ok {
+			continue
+		}
 
 		var stateText string
 		switch solo.SubState {
@@ -170,7 +168,14 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 			StateText: stateText,
 		})
 
-		scaledRadius := float32(float64(solo.ViewDistance) * float64(consts.TileSize) * cameraScale)
+		// 視界円の半径は、足元から視界距離だけ離れたタイルまでの画面上の距離で表す
+		scaledRadius := float32(0)
+		if base, okBase := projector.TileCenter(gridElement.Coord, 0); okBase {
+			edge := gridElement.Add(consts.Coord[consts.Tile]{X: solo.ViewDistance})
+			if far, okFar := projector.TileCenter(edge, 0); okFar {
+				scaledRadius = float32(math.Abs(float64(far.X - base.X)))
+			}
+		}
 		visionRanges = append(visionRanges, hud.VisionRangeInfo{
 			Screen:       screen,
 			ScaledRadius: scaledRadius,
@@ -198,8 +203,10 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 			entityName = "Unknown"
 		}
 
-		// グリッド座標をワールドピクセルへ、さらにスクリーン座標へ変換
-		screen := consts.WorldToScreen(consts.TileCenterToWorld(gridElement.Coord), cameraPos.Coord, cameraScale, screenDimensions.Width, screenDimensions.Height)
+		screen, ok := projector.BillboardTop(gridElement.Coord)
+		if !ok {
+			continue
+		}
 
 		hpDisplays = append(hpDisplays, hud.HPDisplayInfo{
 			Screen:     screen,

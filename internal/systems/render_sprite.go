@@ -56,15 +56,8 @@ func NewRenderSpriteSystem() *RenderSpriteSystem {
 	}
 }
 
-// SetTranslate はカメラを考慮した画像配置オプションをセットする。
-// 単発描画向けの公開エントリで、内部でカメラを取得する。
-// 描画ループ内で繰り返し呼ぶ場合は取得済みカメラを渡す setTranslate を使う
-func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
-	setTranslate(world, op, getCamera(world))
-}
-
-// setTranslate は取得済みカメラを使って画像配置オプションをセットする。
-// per-sprite/per-shadow のホットループから呼ばれ、カメラ取得を1フレーム1回に抑える
+// setTranslate は真上から見下ろす2D描画の画像配置オプションをセットする。
+// 取得済みカメラを受け取り、per-sprite/per-shadow のホットループでもカメラ取得を1フレーム1回に抑える
 func setTranslate(world w.World, op *ebiten.DrawImageOptions, camera *gc.Camera) {
 	cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)
 
@@ -126,7 +119,7 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 
 	// カメラはフレーム内で不変。ここで1回だけ取得し各描画関数へ渡す。
 	// 描画するスプライト/影の数だけフィルタ生成が走るのを防ぐ
-	camera := getCamera(world)
+	camera := query.GetPlayerCamera(world)
 
 	if err := sys.renderFloorLayer(world, screen, tileRenderMap, camera); err != nil {
 		return err
@@ -407,7 +400,7 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 		screen.DrawImage(img, op)
 	}
 
-	if world.Config.ShowMapDebug {
+	if world.Resources.Config.ShowMapDebug {
 		// デバッグ用：スプライト番号表示(dirt, dwall)
 		if spriteRender.SpriteSheetName == "tile" {
 			var number string

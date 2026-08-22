@@ -22,7 +22,7 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 		return nil, "", fmt.Errorf("failed to get command table: %w", err)
 	}
 
-	weaponName, err := raw.SelectCommandByWeight(commandTable, world.Config.RNG)
+	weaponName, err := raw.SelectCommandByWeight(commandTable, world.Resources.Config.RNG)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to select weapon: %w", err)
 	}

@@ -64,3 +64,22 @@ func TestInitWorld_SingletonEntity(t *testing.T) {
 	assert.True(t, w.Components.TurnState.Has(singleton))
 	assert.True(t, w.Components.SpatialIndex.Has(singleton))
 }
+
+// TestWorld_ResetForNewGame は新しいゲームを始める前の後片付けを固定する。
+// 前のゲームの実体が消え、シングルトンが作り直されて参照が新しい実体を指す
+func TestWorld_ResetForNewGame(t *testing.T) {
+	t.Parallel()
+	gameComponents := &gc.Components{}
+	w, err := InitWorld(gameComponents, newTestConfig())
+	require.NoError(t, err)
+	oldSingleton := w.Resources.SingletonEntity
+	leftover := w.ECS.NewEntity()
+
+	w.ResetForNewGame()
+
+	assert.False(t, w.ECS.Alive(leftover), "前のゲームの実体は消える")
+	assert.False(t, w.ECS.Alive(oldSingleton), "古いシングルトンも消える")
+	singleton := w.Resources.SingletonEntity
+	require.True(t, w.ECS.Alive(singleton), "シングルトンは作り直される")
+	assert.True(t, w.Components.GameLog.Has(singleton), "シングルトンの構成が揃っている")
+}

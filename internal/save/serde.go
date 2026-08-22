@@ -96,7 +96,7 @@ func reestablishSingleton(world w.World) error {
 	// 視界計算の一時状態は serde 除外なのでロード後に再構築する
 	world.Components.VisionState.Add(singleton, gc.NewVisionState())
 	// グローバル設定は serde 除外なので config から再構築する
-	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Config.User.Language))
+	world.Components.UserSettings.Add(singleton, gc.NewUserSettings(world.Resources.Config.User.Language))
 
 	// json:"-"で除外された各ステージの探索履歴を初期化する。入場時リセット方針なので空でよい。
 	// ロック中の反復では構造変更しないため、対象を集めてから初期化する

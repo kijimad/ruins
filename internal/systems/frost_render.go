@@ -56,7 +56,7 @@ func (sys *FrostRenderSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return nil
 	}
 
-	camera := getCamera(world)
+	camera := query.GetPlayerCamera(world)
 	minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)
 
 	// 帯の範囲でクランプして帯外を塗らない

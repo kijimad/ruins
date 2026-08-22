@@ -49,7 +49,7 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	var zero consts.Coord[consts.Tile]
 	var noEntity ecs.Entity
 
-	stageSeed := world.Config.RNG.Uint64()
+	stageSeed := world.Resources.Config.RNG.Uint64()
 	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
 
 	// ビルダータイプを決定する。最終階層かつボスフロアプランナーがあればボスフロアにする
@@ -70,10 +70,14 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		builderType = st.BuilderType
 	}
 
-	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
+	// テーブル名と危険度をプランナーに渡す。エントリの解決はプランナーが行う。
+	// 危険度は最初のフロア生成時に確定して全階で共有する。階に依らず同じ。
 	builderType.EnemyTableName = def.EnemyTableName()
 	builderType.ItemTableName = def.ItemTableName()
-	builderType.Depth = depth
+	if st.Danger == 0 {
+		st.Danger = query.DangerLevelAt(world)
+	}
+	builderType.Danger = st.Danger
 
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
 	if err != nil {
@@ -223,7 +227,7 @@ func exitCube(world w.World) error {
 // だが、spawn_points を持つので Plan の到達性検証はポータルを要求せず通る。
 // 出口の戻り先 Coord の結線は入場時の runtime 処理なので enterCube が貼る。
 func spawnCubeInterior(world w.World, key gc.StageKey) error {
-	seed := world.Config.RNG.Uint64()
+	seed := world.Resources.Config.RNG.Uint64()
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, mapplanner.PlannerTypeCubeInterior)
 	if err != nil {
 		return err
