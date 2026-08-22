@@ -7,24 +7,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestStartOfTimeOfDayTurns は暦ターンから時間帯の開始位置を導けることを確認する。
+// 暦では0が夜明けの開始で、昼は500ターンから始まる
 func TestStartOfTimeOfDayTurns(t *testing.T) {
 	t.Parallel()
 
 	for _, tod := range []TimeOfDay{TimeDawn, TimeMorning, TimeDay, TimeEvening, TimeNight, TimeMidnight} {
-		gt := &GameTime{TotalTurns: StartOfTimeOfDayTurns(tod)}
-		assert.Equal(t, tod, gt.GetTimeOfDay(), "開始ターンはその時間帯を指すべき")
+		assert.Equal(t, tod, timeOfDayAt(StartOfTimeOfDayTurns(tod)), "その時間帯の開始ターンはその時間帯を指すべき")
 	}
-	// 昼は500ターンから始まる
 	assert.Equal(t, consts.Turn(500), StartOfTimeOfDayTurns(TimeDay))
 }
 
-func TestGameTime_GetTimeOfDay(t *testing.T) {
+// TestTimeOfDayAt は暦ターンから時間帯を導く純関数を確認する。暦では0が夜明け
+func TestTimeOfDayAt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name       string
-		totalTurns consts.Turn
-		expected   TimeOfDay
+		name         string
+		calendarTurn consts.Turn
+		expected     TimeOfDay
 	}{
 		{"ターン0は夜明け", 0, TimeDawn},
 		{"ターン249は夜明け", 249, TimeDawn},
@@ -45,35 +46,65 @@ func TestGameTime_GetTimeOfDay(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			gt := &GameTime{TotalTurns: tt.totalTurns}
-			assert.Equal(t, tt.expected, gt.GetTimeOfDay())
+			assert.Equal(t, tt.expected, timeOfDayAt(tt.calendarTurn))
 		})
 	}
 }
 
-func TestGameTime_GetTemperatureModifier(t *testing.T) {
+// TestDayNumberAt は暦ターンから経過日数を導く純関数を確認する。1日目から始まる
+func TestDayNumberAt(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name       string
-		totalTurns consts.Turn
-		expected   int
+		name         string
+		calendarTurn consts.Turn
+		expected     int
 	}{
-		{"夜明けは+0°C", 0, 0},
-		{"朝は+5°C", 250, 5},
-		{"昼は+10°C", 500, 10},
-		{"夕は+5°C", 750, 5},
-		{"夜は-5°C", 1000, -5},
-		{"深夜は-10°C", 1250, -10},
+		{"ターン0は1日目", 0, 1},
+		{"ターン1499は1日目", 1499, 1},
+		{"ターン1500は2日目", 1500, 2},
+		{"ターン3000は3日目", 3000, 3},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			gt := &GameTime{TotalTurns: tt.totalTurns}
-			assert.Equal(t, tt.expected, gt.GetTemperatureModifier())
+			assert.Equal(t, tt.expected, dayNumberAt(tt.calendarTurn))
 		})
 	}
+}
+
+// TestTemperatureModifier は時間帯ごとの気温修正値を確認する純関数のテスト
+func TestTemperatureModifier(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		tod      TimeOfDay
+		expected int
+	}{
+		{TimeDawn, 0},
+		{TimeMorning, 5},
+		{TimeDay, 10},
+		{TimeEvening, 5},
+		{TimeNight, -5},
+		{TimeMidnight, -10},
+	}
+
+	for _, tt := range tests {
+		assert.Equal(t, tt.expected, temperatureModifier(tt.tod), "%s の気温修正", tt.tod)
+	}
+}
+
+// TestGameTime_startsAtNoon は新規ゲームの GameTime が経過0・昼・1日目から始まることを確認する。
+// TotalTurns は経過ターンで0始まり。昼開始は時刻導出のオフセットで表すので、初期ターンを底上げしない
+func TestGameTime_startsAtNoon(t *testing.T) {
+	t.Parallel()
+
+	gt := &GameTime{} // 新規ゲームの初期値
+	assert.Equal(t, consts.Turn(0), gt.TotalTurns, "経過ターンは0始まり")
+	assert.Equal(t, TimeDay, gt.GetTimeOfDay(), "昼から始まる")
+	assert.Equal(t, 1, gt.GetDayNumber(), "1日目から始まる")
+	assert.Equal(t, 10, gt.GetTemperatureModifier(), "昼の気温修正")
 }
 
 func TestGameTime_Advance(t *testing.T) {
@@ -87,6 +118,9 @@ func TestGameTime_Advance(t *testing.T) {
 	assert.Equal(t, 2, int(gt.TotalTurns))
 }
 
+// TestGameTime_AdvanceToNextTimeOfDay は次の時間帯の開始ターンまで進むことを確認する。
+// start は経過ターン。昼開始のオフセットは turnsPerTimeOfDay の倍数なので、
+// 経過ターンを次の区切りへ丸めれば必ず時間帯境界に着く
 func TestGameTime_AdvanceToNextTimeOfDay(t *testing.T) {
 	t.Parallel()
 
@@ -94,12 +128,11 @@ func TestGameTime_AdvanceToNextTimeOfDay(t *testing.T) {
 		name      string
 		start     consts.Turn
 		wantTurns consts.Turn
-		wantTOD   TimeOfDay
 	}{
-		{"夜明けの途中から朝の開始へ", 100, 250, TimeMorning},
-		{"朝の開始からちょうど昼へ", 250, 500, TimeDay},
-		{"夕の途中から夜へ", 800, 1000, TimeNight},
-		{"深夜からは翌日の夜明けへ折り返す", 1300, 1500, TimeDawn},
+		{"区切りの途中から次の区切りへ", 100, 250},
+		{"区切りちょうどから次の区切りへ", 250, 500},
+		{"区切りの途中から次の区切りへ2", 800, 1000},
+		{"日をまたぐ区切りへ", 1300, 1500},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -107,13 +140,12 @@ func TestGameTime_AdvanceToNextTimeOfDay(t *testing.T) {
 			gt := &GameTime{TotalTurns: tt.start}
 			gt.AdvanceToNextTimeOfDay()
 			assert.Equal(t, int(tt.wantTurns), int(gt.TotalTurns))
-			assert.Equal(t, tt.wantTOD, gt.GetTimeOfDay())
 		})
 	}
 }
 
-// TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む はどのターンから呼んでも
-// 時間帯がちょうど1つ進むことを保証する。
+// TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む はどの経過ターンから呼んでも
+// 時間帯がちょうど1つ進むことを保証する。昼開始のオフセットは一定なので前後の差は変わらない
 func TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む(t *testing.T) {
 	t.Parallel()
 
@@ -124,53 +156,5 @@ func TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む(t *testing.T) {
 		after := gt.GetTimeOfDay()
 		want := TimeOfDay((int(before) + 1) % 6)
 		assert.Equal(t, want, after, "start=%d では1つ次の時間帯になるべき", start)
-	}
-}
-
-func TestGameTime_GetDayNumber(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name       string
-		totalTurns consts.Turn
-		expected   int
-	}{
-		{"ターン0は1日目", 0, 1},
-		{"ターン1499は1日目", 1499, 1},
-		{"ターン1500は2日目", 1500, 2},
-		{"ターン3000は3日目", 3000, 3},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gt := &GameTime{TotalTurns: tt.totalTurns}
-			assert.Equal(t, tt.expected, gt.GetDayNumber())
-		})
-	}
-}
-
-func TestGameTime_ElapsedTurns(t *testing.T) {
-	t.Parallel()
-
-	// 昼開始なので原点は 500。新規ゲーム直後は経過0、そこから TotalTurns の増分ぶん増える
-	assert.Equal(t, consts.Turn(500), GameStartTurns(), "昼開始の原点は500")
-
-	tests := []struct {
-		name       string
-		totalTurns consts.Turn
-		expected   int
-	}{
-		{"開始直後は経過0", GameStartTurns(), 0},
-		{"開始から10ターン", GameStartTurns() + 10, 10},
-		{"翌日昼までで1500", GameStartTurns() + 1500, 1500},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			gt := &GameTime{TotalTurns: tt.totalTurns}
-			assert.Equal(t, tt.expected, gt.ElapsedTurns())
-		})
 	}
 }

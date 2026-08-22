@@ -510,6 +510,6 @@ func seedRunStatsForShot(world w.World) {
 		s.SalesTotal = 3400
 	}
 	if gt := query.GetGameTime(world); gt != nil {
-		gt.TotalTurns = gc.GameStartTurns() + 1240
+		gt.TotalTurns = 1240
 	}
 }

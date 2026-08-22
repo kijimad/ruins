@@ -4,7 +4,6 @@ import (
 	"strings"
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -22,8 +21,8 @@ func TestRunStatsItems(t *testing.T) {
 	s.EnemiesKilled = 42
 	s.ItemsScavenged = 13
 	s.SalesTotal = 999
-	// 表示は run 開始からの経過ターン。開始原点に 5678 を足せば経過は 5678 になる
-	query.GetGameTime(world).TotalTurns = gc.GameStartTurns() + 5678
+	// TotalTurns は run 開始からの経過ターンそのもの。表示はこの値をそのまま出す
+	query.GetGameTime(world).TotalTurns = 5678
 
 	items := runStatsItems(world)
 
