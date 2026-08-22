@@ -29,6 +29,7 @@ func dungeonMenuChoices(world w.World) (string, []Choice) {
 	return "", []Choice{
 		{Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
 		{Label: query.T(world, "Character"), Run: pushChoice(NewCharacterState)},
+		{Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
 		{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)},
 		{Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}}, nil
@@ -144,6 +145,31 @@ func NewRunResultState() (es.State[w.World], error) {
 	return messageState, nil
 }
 
+// statLines は統計6項目を訳して改行連結する。結果画面と道中の統計画面で共通
+func statLines(world w.World, dist, days, turns, kills, items int, sales consts.Currency) string {
+	return query.T(world, "Distance reached: %d", dist) + "\n" +
+		query.T(world, "Days: %d", days) + "\n" +
+		query.T(world, "Turns: %d", turns) + "\n" +
+		query.T(world, "Enemies killed: %d", kills) + "\n" +
+		query.T(world, "Items scavenged: %d", items) + "\n" +
+		query.T(world, "Sales: %d", sales)
+}
+
+// runStatsFields は現在の統計を返す。距離・撃破・漁り・売上は RunStats、日数・ターンは GameTime から引く
+func runStatsFields(world w.World) (dist, days, turns, kills, items int, sales consts.Currency) {
+	if s := query.GetRunStats(world); s != nil {
+		dist = s.MaxDist
+		kills = s.EnemiesKilled
+		items = s.ItemsScavenged
+		sales = s.SalesTotal
+	}
+	if gt := query.GetGameTime(world); gt != nil {
+		days = gt.GetDayNumber()
+		turns = int(gt.TotalTurns)
+	}
+	return
+}
+
 // runResultText は結果画面の本文を、決着 RunOutcome と統計 RunStats から組む
 func runResultText(world w.World) string {
 	var dist, days, turns int
@@ -159,13 +185,26 @@ func runResultText(world w.World) string {
 		items = s.ItemsScavenged
 		sales = s.SalesTotal
 	}
-	return query.T(world, "You died.") + "\n\n" +
-		query.T(world, "Distance reached: %d", dist) + "\n" +
-		query.T(world, "Days: %d", days) + "\n" +
-		query.T(world, "Turns: %d", turns) + "\n" +
-		query.T(world, "Enemies killed: %d", kills) + "\n" +
-		query.T(world, "Items scavenged: %d", items) + "\n" +
-		query.T(world, "Sales: %d", sales)
+	return query.T(world, "You died.") + "\n\n" + statLines(world, dist, days, turns, kills, items, sales)
+}
+
+// runStatsText は道中の統計画面の本文を、現在の統計と時刻から組む
+func runStatsText(world w.World) string {
+	dist, days, turns, kills, items, sales := runStatsFields(world)
+	return query.T(world, "Statistics") + "\n\n" + statLines(world, dist, days, turns, kills, items, sales)
+}
+
+// NewRunStatsState は道中で run 統計を見る画面を作る。常時メニューから開く
+func NewRunStatsState() (es.State[w.World], error) {
+	messageState := &MessageState{}
+	messageState.build = func(world w.World) *messagedata.MessageData {
+		return messagedata.NewSystemMessage(runStatsText(world)).
+			WithChoice(query.T(world, "Close"), func(_ w.World) error {
+				messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+				return nil
+			})
+	}
+	return messageState, nil
 }
 
 // NewAllClearEventState は全ダンジョンクリア時のイベントStateを作成するファクトリー関数

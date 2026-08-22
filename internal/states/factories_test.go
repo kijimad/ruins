@@ -30,6 +30,26 @@ func TestRunResultText(t *testing.T) {
 	}
 }
 
+// TestRunStatsText は道中の統計画面の本文へ、RunStats と GameTime の各値が反映されることを確認する
+func TestRunStatsText(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	s := query.GetRunStats(world)
+	require.NotNil(t, s)
+	s.MaxDist = 1234
+	s.EnemiesKilled = 42
+	s.ItemsScavenged = 13
+	s.SalesTotal = 999
+	query.GetGameTime(world).TotalTurns = 5678
+
+	text := runStatsText(world)
+
+	for _, want := range []string{"1234", "5678", "42", "13", "999"} {
+		assert.Contains(t, text, want, "統計テキストに値 %s が含まれる", want)
+	}
+}
+
 func TestNewOpeningState(t *testing.T) {
 	t.Parallel()
 

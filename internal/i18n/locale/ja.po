@@ -533,6 +533,9 @@ msgstr "防具(装飾)"
 msgid "Distance reached: %d"
 msgstr "到達距離: %d"
 
+msgid "Statistics"
+msgstr "統計"
+
 msgid "Days: %d"
 msgstr "生存日数: %d"
 
