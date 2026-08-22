@@ -186,6 +186,7 @@ func (st *DungeonState) OnStop(_ w.World) error { return nil }
 func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	playerDead := false
 	playerDeadQuery := ecs.NewFilter2[gc.Player, gc.Dead](world.ECS).Query()
+	// 早期 break しないこと。クエリは最後まで反復してワールドロックを解放する必要がある
 	for playerDeadQuery.Next() {
 		playerDead = true
 	}
@@ -239,9 +240,9 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{}, err
 	}
 
-	// プレイヤー死亡チェック
+	// プレイヤー死亡チェック。死亡で run は終わり結果画面へ移る
 	if st.checkPlayerDeath(world) {
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewGameOverMessageState}}, nil
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 	}
 
 	// ステート遷移リクエストを処理

@@ -9,14 +9,16 @@ import (
 // TimeOfDay は時間帯を表す
 type TimeOfDay int
 
-// 時間帯定数
+// 時間帯定数。新規ゲームは昼から始まるので、経過ターンの区切り順に昼から並べる。
+// これで TotalTurns=0 が昼を無変換で指す。各時間帯は turnsPerTimeOfDay ずつ続き、
+// 深夜の次に翌日の夜明けへ折り返す。かっこ内は1周目の経過ターン範囲で、以降は1日ごとに繰り返す
 const (
-	TimeDawn     TimeOfDay = iota // 夜明け (0-249ターン)
-	TimeMorning                   // 朝 (250-499ターン)
-	TimeDay                       // 昼 (500-749ターン)
-	TimeEvening                   // 夕 (750-999ターン)
-	TimeNight                     // 夜 (1000-1249ターン)
-	TimeMidnight                  // 深夜 (1250-1499ターン)
+	TimeDay      TimeOfDay = iota // 昼 経過0-249
+	TimeEvening                   // 夕 経過250-499
+	TimeNight                     // 夜 経過500-749
+	TimeMidnight                  // 深夜 経過750-999
+	TimeDawn                      // 夜明け 経過1000-1249
+	TimeMorning                   // 朝 経過1250-1499
 )
 
 // String は時間帯名を返す
@@ -45,27 +47,31 @@ const turnsPerDay consts.Turn = 1500
 // 時間帯ごとのターン数
 const turnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン
 
+// noonOffsetFromDawn は暦の1日、夜明け始まり、における昼の位置。夜明けから朝を経て昼までの2区切り。
+// 新規ゲームは昼から始まるので、暦では1日目のこのぶんが既に過ぎている。
+// 時間帯は昼始まりの定数順で無変換に導けるが、日数は暦の夜明けで繰り上がるため、ここだけオフセットが要る。
+const noonOffsetFromDawn consts.Turn = 2 * turnsPerTimeOfDay // 500ターン
+
 // GameTime はゲーム内時間を管理する
 type GameTime struct {
-	TotalTurns consts.Turn // 経過した総ターン数
-}
-
-// StartOfTimeOfDayTurns は指定した時間帯が始まる総ターン数を返す。
-// 新規ゲームの開始時刻を特定の時間帯へ合わせるのに使う。
-func StartOfTimeOfDayTurns(t TimeOfDay) consts.Turn {
-	return turnsPerTimeOfDay * consts.Turn(t)
+	TotalTurns consts.Turn // run 開始からの経過ターン数
 }
 
 // GetTimeOfDay は現在の時間帯を返す
 func (gt *GameTime) GetTimeOfDay() TimeOfDay {
-	turnInDay := gt.TotalTurns % turnsPerDay
-	return TimeOfDay(turnInDay / turnsPerTimeOfDay)
+	return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)
+}
+
+// GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる
+func (gt *GameTime) GetDayNumber() int {
+	return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1
 }
 
 // GetTemperatureModifier は時間帯による気温修正値を返す。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
 func (gt *GameTime) GetTemperatureModifier() int {
-	switch gt.GetTimeOfDay() {
+	tod := gt.GetTimeOfDay()
+	switch tod {
 	case TimeDawn:
 		return 0 // 夜明け: +0°C
 	case TimeMorning:
@@ -79,7 +85,7 @@ func (gt *GameTime) GetTemperatureModifier() int {
 	case TimeMidnight:
 		return -10 // 深夜: -10°C
 	}
-	panic(fmt.Sprintf("unknown TimeOfDay: %d", gt.GetTimeOfDay()))
+	panic(fmt.Sprintf("unknown TimeOfDay: %d", tod))
 }
 
 // Advance はターンを進める
@@ -92,9 +98,4 @@ func (gt *GameTime) Advance() {
 // 深夜からは翌日の夜明けへ折り返す。
 func (gt *GameTime) AdvanceToNextTimeOfDay() {
 	gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay
-}
-
-// GetDayNumber は経過日数を返す（1日目から始まる）
-func (gt *GameTime) GetDayNumber() int {
-	return int(gt.TotalTurns/turnsPerDay) + 1
 }

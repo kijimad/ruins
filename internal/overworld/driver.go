@@ -124,9 +124,6 @@ func (dr *Driver) startInitialBand(world w.World) error {
 		return fmt.Errorf("starting a new overworld requires a band shape definition")
 	}
 
-	// 新規ゲームは昼から始める。時間帯は TotalTurns から導出するので昼の開始ターンに合わせる
-	query.GetGameTime(world).TotalTurns = gc.StartOfTimeOfDayTurns(gc.TimeDay)
-
 	// 帯形状はマスタ、すなわち OverworldDefinition から取る。RunSeed だけがプレイ固有
 	chunkW, chunkH, cols, rows := dr.definition.BandShape()
 	dr.band = worldstream.NewBand(chunkW, chunkH, cols, rows)

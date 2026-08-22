@@ -115,6 +115,15 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 	}
 
+	// 撃破統計: 除去する敵を run 統計へ加算する
+	if stats := query.GetRunStats(world); stats != nil {
+		for _, entity := range toDelete {
+			if world.Components.FactionEnemy.Has(entity) {
+				stats.EnemiesKilled++
+			}
+		}
+	}
+
 	// 死亡エンティティのバックパック内アイテムをフィールドにドロップする。
 	// クエリ走査中の構造変更を避けるため先に集め、フィールドへの一括移動は移動口に委ねる
 	for _, entity := range toDelete {

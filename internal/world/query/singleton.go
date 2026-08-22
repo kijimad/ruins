@@ -52,6 +52,11 @@ func GetUserSettings(world w.World) *gc.UserSettings {
 	return GetSingleton[gc.UserSettings](world, world.Components.UserSettings)
 }
 
+// GetRunStats はシングルトンから run 統計を取得する
+func GetRunStats(world w.World) *gc.RunStats {
+	return GetSingleton[gc.RunStats](world, world.Components.RunStats)
+}
+
 // T は現在の設定言語での msgid の訳を返す。現在言語は UserSettings、マスタは Resources.I18N から引く。
 // args を渡すと訳を書式として整形する。"%s攻撃力" のようにデータ値を差し込む訳に使う。
 func T(world w.World, msgid string, args ...any) string {
