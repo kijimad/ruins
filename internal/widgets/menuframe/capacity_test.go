@@ -24,7 +24,7 @@ func TestListCapacity_同じ構成では同じ結果を返す(t *testing.T) {
 		second = ListCapacity(res, true, true)
 	})
 
-	assert.Equal(t, first, second, "同じ構成をキャッシュから返すので結果が変わらないはず")
+	assert.Equal(t, first, second, "同じ構成なら何度呼んでも同じ結果になるはず")
 	assert.Positive(t, first, "1行も収まらないのは異常")
 }
 
