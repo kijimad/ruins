@@ -27,6 +27,9 @@ type DungeonState struct {
 	// baseImage は下に敷く背景
 	baseImage *ebiten.Image
 	Depth     int
+	// Danger はこの遺跡の危険度。入場時に入口のオーバーワールド位置と経過日数から確定し、
+	// 全階で共有する。階を降りても変わらない。生成する階の敵とアイテムの湧きフィルタに使う。
+	Danger int
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する

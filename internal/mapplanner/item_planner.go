@@ -13,7 +13,7 @@ const (
 	// アイテム配置関連
 	baseItemCount     = 8 // アイテム配置の基本数
 	randomItemCount   = 5 // アイテム配置のランダム追加数（0-4の範囲）
-	itemIncreaseDepth = 5 // アイテム数増加の深度しきい値
+	itemIncreaseDanger = 5 // アイテム数増加の危険度しきい値
 
 	// 配置処理関連
 	maxItemPlacementAttempts = 200 // アイテム配置処理の最大試行回数
@@ -50,7 +50,7 @@ func NewItemPlanner(world w.World, plannerType PlannerType) *ItemPlanner {
 
 // PlanMeta はアイテム配置情報をMetaPlanに追加する
 func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
-	sources, err := resolveItemSources(planData.RawMaster, i.plannerType.ItemTableName, i.plannerType.Depth)
+	sources, err := resolveItemSources(planData.RawMaster, i.plannerType.ItemTableName, i.plannerType.Danger)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	total := baseItemCount + planData.RNG.IntN(randomItemCount)
-	if i.plannerType.Depth > itemIncreaseDepth {
+	if i.plannerType.Danger > itemIncreaseDanger {
 		total++
 	}
 

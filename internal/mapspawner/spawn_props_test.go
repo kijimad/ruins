@@ -102,7 +102,7 @@ func TestSpawnProps_収納propはルートテーブルからアイテムを収�
 	world := testutil.InitTestWorld(t)
 	plan := newTestSpawnPlan(world)
 	plan.RNG = rand.New(rand.NewPCG(1, 1))
-	plan.Depth = 1
+	plan.Danger = 1
 	plan.Props = []mapplanner.PropsSpec{
 		{Coord: consts.Coord[consts.Tile]{X: 4, Y: 4}, Name: "wooden_crate"},
 	}

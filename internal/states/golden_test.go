@@ -56,7 +56,7 @@ func collectPlannerTypes() []mapplanner.PlannerType {
 			result[i].EnemyTableName = info.EnemyTableName
 			result[i].ItemTableName = info.ItemTableName
 		}
-		result[i].Depth = 1
+		result[i].Danger = 1
 	}
 	return result
 }

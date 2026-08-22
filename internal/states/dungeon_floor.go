@@ -70,10 +70,11 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 		builderType = st.BuilderType
 	}
 
-	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
+	// テーブル名と危険度をプランナーに渡す。エントリの解決はプランナーが行う。
+	// 危険度は入場時に確定した遺跡共通の値で、階層に依らず全階同一になる。
 	builderType.EnemyTableName = def.EnemyTableName()
 	builderType.ItemTableName = def.ItemTableName()
-	builderType.Depth = depth
+	builderType.Danger = st.Danger
 
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
 	if err != nil {
@@ -331,6 +332,12 @@ func (st *DungeonState) enterDungeonWith(world w.World, defName string, builderT
 	}
 	// 入口のオーバーワールド座標。swapTo 前に値でコピーする
 	fromPos := world.Components.GridElement.Get(player).Coord
+
+	// 遺跡の危険度を入場時に確定する。帯は現ステージ=オーバーワールドにあり、swapTo で
+	// 遺跡へ移ると nil になるため、ここで入口の絶対Xと経過日数から一度だけ求めて全階へ配る。
+	if band := query.GetSeamlessBand(world); band != nil {
+		st.Danger = query.DangerLevelAt(world, band.LocalToAbsX(fromPos.X))
+	}
 
 	target := gc.NewDungeonStage(defName, 1)
 	// 既にその遺跡1階にいるなら自己スワップになるので何もしない。デバッグ進入で

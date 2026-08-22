@@ -168,8 +168,8 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 	}
 	n := lootDice.Roll(rng)
 	for range n {
-		// 深度は地上の建物なので浅い loot の1を使う。廃墟テーブルは全 entry が minDepth>=1 なので深度0では
-		// 何も引けない。地上の廃屋あさりは最も浅い戦利品が出る
+		// 危険度は地上の建物なので最も浅い1を使う。廃墟テーブルは全 entry が minDanger>=1 なので
+		// 危険度0では何も引けない。地上の廃屋あさりは最も浅い戦利品が出る
 		itemName, err := raw.SelectItemByWeight(world.Resources.RawMaster, itemTable, rng, 1)
 		if err != nil {
 			return err
