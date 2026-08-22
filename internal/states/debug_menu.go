@@ -42,6 +42,17 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			return err
 		})},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
+		{Label: "Set HP to 1", Run: popAfter(func(world w.World) error {
+			player, err := query.GetPlayerEntity(world)
+			if err != nil {
+				return err
+			}
+			if !world.Components.HP.Has(player) {
+				return fmt.Errorf("cannot set HP because the player has no HP")
+			}
+			world.Components.HP.Get(player).Current = 1
+			return nil
+		})},
 		{Label: "Clear all dungeons", Run: popAfter(func(world w.World) error {
 			for _, name := range dungeon.GetAllDungeonNames() {
 				query.GetGameProgress(world).MarkDungeonCleared(name)
