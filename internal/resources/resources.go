@@ -21,7 +21,7 @@ type Resources struct {
 	UIResources      UIResources
 	RawMaster        oapi.Raws
 	I18N             i18n.Catalog   // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
-	Config           *config.Config // 実行設定。起動時に注入し、ResetForNewGame を跨いで持続する
+	Config           *config.Config // 実行設定。起動時に注入する
 	SingletonEntity  ecs.Entity     // シングルトンエンティティIDキャッシュ
 
 	// InputSource は Action の入力供給源。nil なら本番どおりキーボードから変換する。

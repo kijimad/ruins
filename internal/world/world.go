@@ -38,7 +38,7 @@ type World struct {
 	Renderers  map[string]Renderer
 }
 
-// InitWorld は初期化する。config は Resources に持たせ、ResetForNewGame を跨いで持続させる。
+// InitWorld は初期化する。config はシングルトンの初期化で読むので、構築前に渡す。
 func InitWorld(c *gc.Components, cfg *config.Config) (World, error) {
 	arkWorld := ecs.NewWorld()
 	if err := c.InitializeComponents(arkWorld); err != nil {
