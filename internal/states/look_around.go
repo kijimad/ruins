@@ -121,7 +121,9 @@ func (st *LookAroundState) moveCursor(world w.World, base gc.Direction) {
 // Draw はステートの描画処理
 func (st *LookAroundState) Draw(world w.World, screen *ebiten.Image) error {
 	// カーソルを描画
-	st.drawCursor(world, screen)
+	if err := st.drawCursor(world, screen); err != nil {
+		return err
+	}
 
 	// タイル情報パネルを描画
 	return st.drawInfoPanel(world, screen)
@@ -132,11 +134,14 @@ const cursorFrameWidth = 3
 
 // drawCursor はカーソルを描画する。
 // タイルは透視投影で台形になるので、投影した四隅を線で結んで実際の輪郭に合わせる。
-func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
-	projector := render3d.ProjectorFor(world)
+func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) error {
+	projector, err := render3d.ProjectorFor(world)
+	if err != nil {
+		return err
+	}
 	corners, ok := projector.TileCorners(st.cursor, render3d.TileTopHeight(world, st.cursor))
 	if !ok {
-		return
+		return nil
 	}
 
 	cursorColor := theme.CursorLook
@@ -145,6 +150,7 @@ func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
 		cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
 	}
 	hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)
+	return nil
 }
 
 // drawInfoPanel はタイル情報パネルを描画する

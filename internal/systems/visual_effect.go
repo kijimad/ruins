@@ -88,9 +88,11 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	}
 
 	// 投影はフレーム内で不変。ここで1回だけ組み、エンティティごとの描画へ渡す
-	projector := render3d.ProjectorFor(world)
+	projector, err := render3d.ProjectorFor(world)
+	if err != nil {
+		return err
+	}
 
-	var err error
 	drawQuery := query.ActiveFilter1[gc.VisualEffects](world).Query()
 	for drawQuery.Next() {
 		entity := drawQuery.Entity()

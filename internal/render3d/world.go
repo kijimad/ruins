@@ -1,6 +1,8 @@
 package render3d
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -11,28 +13,32 @@ import (
 // ProjectorFor は world の状態から投影を組む。画面寸法もカメラ姿勢も world から読み、呼び出し側には
 // 取らせない。寸法やカメラの取り方が呼び出し側ごとに分かれると、投影が再び2系統へ割れるためである。
 //
-// ダンジョン描画はプレイヤーの存在を前提とする。プレイヤーはカメラごと生成され、死んでも
-// 退場まで残るので、ここでカメラが無いのはプログラミングエラーとして panic する。
-func ProjectorFor(world w.World) Projector {
+// ダンジョン描画はプレイヤーの存在を前提とする。カメラやプレイヤーが無ければ投影は組めないので、
+// error を返して呼び出し側の描画をやめさせる。
+func ProjectorFor(world w.World) (Projector, error) {
 	sw, sh := world.Resources.GetScreenDimensions()
 	camera := query.GetPlayerCamera(world)
 	if camera == nil {
-		panic("render3d.ProjectorFor: プレイヤーのカメラが無い")
+		return Projector{}, fmt.Errorf("player camera not found")
 	}
-	return NewProjector(*camera, PlayerTile(world), sw, sh)
+	tile, err := PlayerTile(world)
+	if err != nil {
+		return Projector{}, err
+	}
+	return NewProjector(*camera, tile, sw, sh), nil
 }
 
 // PlayerTile はプレイヤーの立つタイルを返す。投影の注視点と、描画範囲を絞るカリングの中心が
-// 同じ位置を指すようにする。ダンジョン描画はプレイヤーの存在を前提とし、居なければ panic する。
-func PlayerTile(world w.World) consts.Coord[consts.Tile] {
+// 同じ位置を指すようにする。プレイヤーや位置が無ければ error を返す。
+func PlayerTile(world w.World) (consts.Coord[consts.Tile], error) {
 	pe, err := query.GetPlayerEntity(world)
 	if err != nil {
-		panic("render3d.PlayerTile: プレイヤーが居ない")
+		return consts.Coord[consts.Tile]{}, err
 	}
 	if !world.Components.GridElement.Has(pe) {
-		panic("render3d.PlayerTile: プレイヤーに GridElement が無い")
+		return consts.Coord[consts.Tile]{}, fmt.Errorf("player has no GridElement")
 	}
-	return world.Components.GridElement.Get(pe).Coord
+	return world.Components.GridElement.Get(pe).Coord, nil
 }
 
 // IsWallTile はそのタイルが高さのある箱として描かれるかを返す。

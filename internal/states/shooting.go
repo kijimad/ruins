@@ -197,23 +197,28 @@ func (st *ShootingState) updateTargetCache(world w.World) {
 // Draw はステートの描画処理
 func (st *ShootingState) Draw(world w.World, screen *ebiten.Image) error {
 	if len(st.enemies) > 0 {
-		st.drawTargetCursor(world, screen)
+		if err := st.drawTargetCursor(world, screen); err != nil {
+			return err
+		}
 	}
 	return st.drawShootingPanel(world, screen)
 }
 
 // drawTargetCursor は選択中の敵にカーソルを描画する
-func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
+func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) error {
 	target := st.enemies[st.targetIndex]
 	if !world.Components.GridElement.Has(target) {
-		return
+		return nil
 	}
 	targetCoord := world.Components.GridElement.Get(target).Coord
 
-	projector := render3d.ProjectorFor(world)
+	projector, err := render3d.ProjectorFor(world)
+	if err != nil {
+		return err
+	}
 	corners, ok := projector.TileCorners(targetCoord, render3d.TileTopHeight(world, targetCoord))
 	if !ok {
-		return
+		return nil
 	}
 
 	cursorColor := theme.CursorShoot
@@ -221,6 +226,7 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 		cursorColor = hud.ScaleAlpha(cursorColor, 0.6+0.4*math.Sin(float64(st.blinkCounter)*0.15))
 	}
 	hud.TileFrame(screen, corners, cursorFrameWidth, cursorColor)
+	return nil
 }
 
 // drawShootingPanel は射撃情報パネルを描画する

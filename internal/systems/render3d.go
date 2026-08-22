@@ -185,22 +185,31 @@ func avgSpriteColor(atlas *ebiten.Image, x, y, w, h float64) [3]float64 {
 
 // Draw は w.Renderer を満たす。3Dシーンを screen へ描く。
 func (sys *Render3DSystem) Draw(world w.World, screen *ebiten.Image) error {
-	quads, projector := sys.buildScene(world)
+	quads, projector, err := sys.buildScene(world)
+	if err != nil {
+		return err
+	}
 	sys.emit(screen, quads, projector)
 	return nil
 }
 
 // buildScene は投影とクアッド列を組み立てる。Draw の幾何を1箇所に集約する。
-func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Projector) {
-	projector := render3d.ProjectorFor(world)
-	center := render3d.PlayerTile(world)
+func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Projector, error) {
+	projector, err := render3d.ProjectorFor(world)
+	if err != nil {
+		return nil, render3d.Projector{}, err
+	}
+	center, err := render3d.PlayerTile(world)
+	if err != nil {
+		return nil, render3d.Projector{}, err
+	}
 	pcx, pcz := float64(center.X), float64(center.Y)
 
 	visFactor := sys.visFactorFunc(world)
 	frost := sys.frostFunc(world)
 	quads := sys.collectTiles(world, pcx, pcz, visFactor, frost)
 	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visFactor, frost)
-	return quads, projector
+	return quads, projector, nil
 }
 
 // visFactorFunc は視界に応じた減光係数を返す関数を作る。隠れタイルは ok=false。

@@ -28,7 +28,10 @@ func TestBuildScene_世界描画と重ねる側が同じ投影を使う(t *testi
 	camera.Pitch = 0.9
 
 	sys := &Render3DSystem{UseFOV: false}
-	_, projector := sys.buildScene(world)
+	_, projector, err := sys.buildScene(world)
+	require.NoError(t, err)
 
-	assert.Equal(t, render3d.ProjectorFor(world), projector, "世界描画とオーバーレイが同じ投影を使う")
+	fromWorld, err := render3d.ProjectorFor(world)
+	require.NoError(t, err)
+	assert.Equal(t, fromWorld, projector, "世界描画とオーバーレイが同じ投影を使う")
 }
