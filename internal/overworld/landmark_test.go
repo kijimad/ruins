@@ -61,17 +61,17 @@ func TestWildernessLandmark_原野の当選チャンクに小構造物が決定�
 	assert.Equal(t, a, b, "ランドマークの配置は決定的で再生成しても一致する")
 }
 
-func TestLandmarkKindAt_全種別が出現し地図分類の写像を持つ(t *testing.T) {
+func TestLandmarkPlaceType_各種別が異なる地図分類へ写る(t *testing.T) {
 	t.Parallel()
 
-	// 多数の seed と座標で種別を引き、どれも地図分類の写像を持つことを確認する。写像漏れは
-	// landmarkPlaceType が panic で示す。重み配分が4種すべてを返すことも合わせて確認する。
-	kinds := map[landmarkKind]bool{}
-	for s := uint64(1); s < 300; s++ {
-		c := consts.Coord[consts.Chunk]{X: consts.Chunk(s % 40)}
-		k := landmarkKindAt(s, c)
-		assert.NotEmpty(t, landmarkPlaceType(k), "種別 %q に地図分類の写像がある", k)
-		kinds[k] = true
+	// 全種別が地図分類の写像を持ち、かつ互いに異なることを確認する。写像漏れは landmarkPlaceType が
+	// panic で示す。exhaustive linter は case の網羅は強制するが、別々の placeType へ写ることは
+	// 保証しないので、コピペによる重複写像はここで弾く。
+	seen := map[placeType]bool{}
+	for _, k := range []landmarkKind{landmarkAbandonedHut, landmarkFarmstead, landmarkShrine, landmarkCampsite} {
+		p := landmarkPlaceType(k)
+		assert.NotEmptyf(t, p, "種別 %q に地図分類の写像がある", k)
+		assert.Falsef(t, seen[p], "種別 %q の写像 %q が他と重複している", k, p)
+		seen[p] = true
 	}
-	assert.Len(t, kinds, 4, "4種のランドマークがすべて出現する")
 }
