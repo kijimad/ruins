@@ -151,10 +151,18 @@ func TestCollectStagedItems_落札済みと未落札を集荷して明細をた�
 
 	history := GetAuctionHistory(world)
 	require.Len(t, history.Entries, 2, "受取金1件+集荷料金の請求1件")
-	assert.Equal(t, gc.AuctionEntryReceipt, history.Entries[0].Kind)
-	assert.Equal(t, consts.Currency(1000), history.Entries[0].Bid)
-	assert.Equal(t, gc.AuctionEntryInvoice, history.Entries[1].Kind)
-	assert.Equal(t, AuctionPickupFee, history.Entries[1].Amount, "集荷料金は集荷1回につき定額")
+
+	var receipt, invoice gc.AuctionEntry
+	for _, e := range history.Entries {
+		switch e.Kind {
+		case gc.AuctionEntryReceipt:
+			receipt = e
+		case gc.AuctionEntryInvoice:
+			invoice = e
+		}
+	}
+	assert.Equal(t, consts.Currency(1000), receipt.Bid)
+	assert.Equal(t, AuctionPickupFee, invoice.Amount, "集荷料金は集荷1回につき定額")
 }
 
 func TestSettleAuctionEntry(t *testing.T) {
@@ -198,6 +206,7 @@ func TestSettleAuctionEntry_受取金は所持金へ加え実績へ移す(t *tes
 	require.Len(t, history.Records, 1, "出荷実績へ1件移る")
 	assert.Equal(t, 42, history.Records[0].Turn)
 	assert.Equal(t, consts.Currency(500), history.Records[0].Net)
+	assert.Equal(t, consts.Currency(500), GetRunStats(world).SalesTotal, "受取金が売上実績へ加わる")
 }
 
 func TestSettleAuctionEntry_請求は所持金から引く(t *testing.T) {
