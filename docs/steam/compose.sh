@@ -11,23 +11,18 @@
 #
 # 依存: ImageMagick (magick)
 #
-# 注記: ロゴは logo/gen_logo.sh の完成品 logo/logo.png へ切り替える予定。現状は旧 logo.svg を
-# 参照している。背景をドット絵へ刷新する際、この compose も新パーツに合わせて作り直す。
+# 注記: 背景マスタは旧 SD ダンジョンのまま。ドット絵へ刷新する際、この compose も新パーツに
+# 合わせて調整する。ロゴは完成品 logo/logo.png を加工せず重ねる。
 
 set -euo pipefail
 
 MASTER="docs/steam/background/master_3840x2560.png"
 MASTER_VERT="docs/steam/background/master_vert_2560x3840.png"
 OUT="docs/steam/generated"
-LOGO_SVG="docs/steam/background/source/logo.svg"
+# logo/gen_logo.sh の完成品ロゴ。氷塗り・縁・影を内包するので加工せずそのまま重ねる
+LOGO_PNG="docs/steam/logo/logo.png"
 
 mkdir -p "$OUT"
-
-# SVG ロゴを一度だけ大きな透過 PNG にレンダリングする
-LOGO_PNG="docs/steam/generated/logo.png"
-magick -background none "$LOGO_SVG" \
-  -fuzz 100% -fill white -opaque black \
-  "$LOGO_PNG"
 
 # LANCZOS で縮小 → Point (NEAREST) で拡大し、ピクセルブロック感を出す
 pixelate() {
@@ -55,24 +50,16 @@ magick /tmp/steam_crop.png -modulate 60 "$OUT/page_background.png"
 echo "page_background.png (1438x810)"
 
 # --- ロゴ描画関数 ---
-# ロゴ PNG をリサイズし、影付きで背景に合成する
+# 完成品ロゴを背景に重ねる。ロゴは縁・影・氷塗りを内包するので加工しない。
+# 幅 max_w と 高さ logo_h の箱にアスペクト維持で収めてから合成する
 render_logo() {
   local w=$1 h=$2 logo_h=$3 gravity=$4 y_off=$5 output=$6
 
-  # マスター PNG からリサイズ
-  local logo_w=$(( logo_h * 3600 / 1050 ))
+  local max_w=$(( w * 82 / 100 ))
+  magick "$LOGO_PNG" -resize "${max_w}x${logo_h}" /tmp/steam_logo.png
 
-  magick "$LOGO_PNG" -resize "${logo_w}x${logo_h}" /tmp/steam_logo.png
-
-  # 影レイヤーを作成
-  magick /tmp/steam_logo.png \
-    -fuzz 100% -fill 'rgba(0,0,0,0.5)' -opaque white \
-    /tmp/steam_shadow.png
-
-  # 背景に合成: 影 → ロゴ
   magick "$output" \
     -gravity "$gravity" \
-    /tmp/steam_shadow.png -geometry "+3+$((y_off + 3))" -compose Over -composite \
     /tmp/steam_logo.png -geometry "+0+${y_off}" -compose Over -composite \
     "$output"
 }
@@ -101,10 +88,6 @@ generate_capsule() {
     fi
   else
     logo_h=$((h / 4))
-  fi
-  local max_h=$(( w * 80 / 100 * 1050 / 3600 ))
-  if [ "$logo_h" -gt "$max_h" ]; then
-    logo_h=$max_h
   fi
   # north の場合、高さの 1/10 をマージンとする
   local y_off=0
