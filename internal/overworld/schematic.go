@@ -59,7 +59,7 @@ const (
 	placeVillage         placeType = "village"          // 村
 	placeHamlet          placeType = "hamlet"           // 一軒家
 	placeDungeonEntrance placeType = "dungeon_entrance" // 遺跡入口
-	placeAbandonedHouse  placeType = "abandoned_house"  // 点在ランドマーク: 廃屋
+	placeAbandonedHut    placeType = "abandoned_hut"    // 点在ランドマーク: 廃屋
 	placeFarmstead       placeType = "farmstead"        // 点在ランドマーク: 農家跡
 	placeShrine          placeType = "shrine"           // 点在ランドマーク: 祠
 	placeCampsite        placeType = "campsite"         // 点在ランドマーク: キャンプ跡
@@ -73,7 +73,7 @@ var placeGlyphs = map[placeType]GlyphInfo{
 	placeVillage:         {'T', "Village", color.RGBA{R: 255, G: 210, B: 74, A: 255}},        // 黄
 	placeHamlet:          {'t', "Lone House", color.RGBA{R: 208, G: 168, B: 58, A: 255}},     // 濃黄
 	placeDungeonEntrance: {'>', "Ruins Entrance", color.RGBA{R: 224, G: 69, B: 58, A: 255}},  // 赤
-	placeAbandonedHouse:  {'x', "Abandoned Hut", color.RGBA{R: 150, G: 140, B: 120, A: 255}}, // 灰褐
+	placeAbandonedHut:    {'x', "Abandoned Hut", color.RGBA{R: 150, G: 140, B: 120, A: 255}}, // 灰褐
 	placeFarmstead:       {'f', "Old Farmstead", color.RGBA{R: 150, G: 160, B: 80, A: 255}},  // オリーブ
 	placeShrine:          {'s', "Shrine", color.RGBA{R: 130, G: 190, B: 175, A: 255}},        // 淡青緑
 	placeCampsite:        {'^', "Campsite", color.RGBA{R: 215, G: 150, B: 90, A: 255}},       // 橙
@@ -82,7 +82,7 @@ var placeGlyphs = map[placeType]GlyphInfo{
 
 // placeOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。
 // placeUnknown は分類漏れの保険なので凡例には含めない。
-var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placeAbandonedHouse, placeFarmstead, placeShrine, placeCampsite}
+var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placeAbandonedHut, placeFarmstead, placeShrine, placeCampsite}
 
 // LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。
 // SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。

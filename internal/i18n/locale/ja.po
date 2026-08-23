@@ -1596,8 +1596,17 @@ msgstr "一軒家"
 msgid "Ruins Entrance"
 msgstr "遺跡入口"
 
-msgid "Scattered POI"
-msgstr "点在POI"
+msgid "Abandoned Hut"
+msgstr "廃屋"
+
+msgid "Old Farmstead"
+msgstr "農家跡"
+
+msgid "Shrine"
+msgstr "祠"
+
+msgid "Campsite"
+msgstr "キャンプ跡"
 
 msgid "Unclassified"
 msgstr "未分類"

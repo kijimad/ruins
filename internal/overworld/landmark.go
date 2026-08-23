@@ -22,10 +22,10 @@ var landmarkPlacement = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
 type landmarkKind string
 
 const (
-	landmarkAbandonedHouse landmarkKind = "abandoned_house" // 廃屋。生活の跡が残る小屋
-	landmarkFarmstead      landmarkKind = "farmstead"       // 農家跡。納屋に物資の跡
-	landmarkShrine         landmarkKind = "shrine"          // 祠。石柱と蝋燭だけの露天の構造物
-	landmarkCampsite       landmarkKind = "campsite"        // キャンプ跡。誰かが夜を越した跡
+	landmarkAbandonedHut landmarkKind = "abandoned_hut" // 廃屋。生活の跡が残る小屋
+	landmarkFarmstead    landmarkKind = "farmstead"     // 農家跡。納屋に物資の跡
+	landmarkShrine       landmarkKind = "shrine"        // 祠。石柱と蝋燭だけの露天の構造物
+	landmarkCampsite     landmarkKind = "campsite"      // キャンプ跡。誰かが夜を越した跡
 )
 
 // landmarkKindAt は当選チャンクに置くランドマークの種別を返す純関数。地図の記号と生成の構造が
@@ -34,7 +34,7 @@ const (
 func landmarkKindAt(runSeed uint64, c consts.Coord[consts.Chunk]) landmarkKind {
 	switch roll := ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % 100; {
 	case roll < 30:
-		return landmarkAbandonedHouse
+		return landmarkAbandonedHut
 	case roll < 55:
 		return landmarkFarmstead
 	case roll < 75:
@@ -47,8 +47,8 @@ func landmarkKindAt(runSeed uint64, c consts.Coord[consts.Chunk]) landmarkKind {
 // landmarkPlaceType は種別を地図の表示分類へ写す。記号と凡例名は placeGlyphs が一元管理する。
 func landmarkPlaceType(k landmarkKind) placeType {
 	switch k {
-	case landmarkAbandonedHouse:
-		return placeAbandonedHouse
+	case landmarkAbandonedHut:
+		return placeAbandonedHut
 	case landmarkFarmstead:
 		return placeFarmstead
 	case landmarkShrine:
@@ -71,8 +71,9 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 	}
 
 	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y), 0))
-	// 構造物がチャンク境界をはみ出さないよう内側に収める。最大の小屋 7x5 ぶんの余地を残し、
-	// 残り範囲でずらす。小さなチャンクでも境界越えの残留を作らない
+	// 構造物がチャンク境界をはみ出さないよう内側に収める。maxHut は最大の小屋の幅 7 に壁1枚分の
+	// 余白を足した値で、原点をどこへずらしても南辺の扉と外壁が境界へ接しない。小さなチャンクでも
+	// 境界越えの残留を作らない
 	const margin, maxHut = 2, 8
 	spanX := max(1, int(g.chunkW)-2*margin-maxHut)
 	spanY := max(1, int(g.chunkH)-2*margin-maxHut)
@@ -80,8 +81,9 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 	oy := g.offsetY + consts.Tile(margin+rng.IntN(spanY))
 	origin := consts.Coord[consts.Tile]{X: ox, Y: oy}
 
-	switch landmarkKindAt(runSeed, c) {
-	case landmarkAbandonedHouse:
+	kind := landmarkKindAt(runSeed, c)
+	switch kind {
+	case landmarkAbandonedHut:
 		return drawHut(world, g, rng, origin, 6, 5, []string{"bed", "closet"})
 	case landmarkFarmstead:
 		return drawHut(world, g, rng, origin, 7, 5, []string{"barrel", "crate"})
@@ -98,7 +100,7 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 			{"bench", -1, 0},
 		})
 	}
-	panic("unknown landmarkKind: " + string(landmarkKindAt(runSeed, c)))
+	panic("unknown landmarkKind: " + string(kind))
 }
 
 // drawHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
