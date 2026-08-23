@@ -53,10 +53,8 @@ func EnsureUserConfigFile() error {
 		return nil
 	}
 	def := &Config{User: DefaultUserConfig()}
-	// 初期言語を Steam の game-language で確定する。取れなければデフォルトの en が残る。
-	// ここで具体的な言語コードを settings.toml へ焼き込むので、以後の起動は Load がファイルの
-	// 値をそのまま使う。プレイヤーは settings.toml を編集するか設定画面で言語を変えられる。
-	// steam タグ無しのビルドでは ok=false になり、開発・テスト・WASM は常に en になる。
+	// 初回のファイル生成時に Steam の game-language を焼き込み、以後の起動はこの値を使う。
+	// 取れないとき、steam タグ無しの開発・テスト・WASM も含め、デフォルトの en が残る。
 	if lang, ok := steam.GameLanguage(); ok {
 		def.User.Language = lang
 	}

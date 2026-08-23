@@ -122,7 +122,6 @@ func TestEnsureUserConfigFile_ファイルが無ければデフォルト値で�
 	require.NoError(t, err)
 	var got UserConfig
 	require.NoError(t, toml.Unmarshal(data, &got))
-	// steam タグ無しでは GameLanguage が ok=false なので、初期ファイルはデフォルトの en で作られる。
 	assert.Equal(t, DefaultUserConfig(), got)
 }
 
