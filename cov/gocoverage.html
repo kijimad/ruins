@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -537,7 +537,7 @@
 				
 				<option value="file240">github.com/kijimaD/ruins/internal/systems/animation_system.go (0.0%)</option>
 				
-				<option value="file241">github.com/kijimaD/ruins/internal/systems/auction.go (93.9%)</option>
+				<option value="file241">github.com/kijimaD/ruins/internal/systems/auction.go (97.0%)</option>
 				
 				<option value="file242">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (82.6%)</option>
 				
@@ -1604,7 +1604,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1618,7 +1618,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 </span>
         // 被ダメージで中断可能なアクティビティをキャンセルする
         <span class="cov8" title="1">if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span>{
-                <span class="cov0" title="0">CancelActivity(target, "took an attack", world)
+                <span class="cov8" title="1">CancelActivity(target, "took an attack", world)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -38464,7 +38464,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 </span>
         // 入札が来る限り延長する。来たら現在値を上げる
         <span class="cov8" title="1">if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
-                <span class="cov0" title="0">l.CurrentBid += query.AuctionRaise(world, item)
+                <span class="cov8" title="1">l.CurrentBid += query.AuctionRaise(world, item)
                 return
 </span>        }
 
