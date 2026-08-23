@@ -19,7 +19,6 @@ func TestGetAllDungeons(t *testing.T) {
 	// 全てのダンジョンが有効な設定を持っている
 	for _, d := range dungeons {
 		assert.NotEmpty(t, d.Name())
-		assert.Positive(t, d.TotalFloors())
 		assert.NotEmpty(t, d.PlannerPool())
 	}
 }
@@ -32,9 +31,8 @@ func TestGetDungeonByName(t *testing.T) {
 		def, found := GetStageDefinition("Dead forest")
 		require.True(t, found)
 		assert.Equal(t, "Dead forest", def.Name())
-		d, ok := def.(*DungeonDefinition)
+		_, ok := def.(*DungeonDefinition)
 		require.True(t, ok, "通常ダンジョンは DungeonDefinition")
-		assert.Equal(t, 20, d.TotalFloors())
 	})
 
 	t.Run("オーバーワールドは OverworldDefinition として引ける", func(t *testing.T) {
@@ -58,7 +56,6 @@ func TestDefinitions(t *testing.T) {
 	t.Run("DungeonForestの設定が正しい", func(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, "Dead forest", DungeonForest.Name())
-		assert.Equal(t, 20, DungeonForest.TotalFloors())
 		assert.Equal(t, "forest", DungeonForest.EnemyTableName())
 		assert.Equal(t, "forest", DungeonForest.ItemTableName())
 		assert.Equal(t, "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone.", DungeonForest.Description())
@@ -70,7 +67,6 @@ func TestDefinitions(t *testing.T) {
 	t.Run("DungeonCaveの設定が正しい", func(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, "Ash cave", DungeonCave.Name())
-		assert.Equal(t, 20, DungeonCave.TotalFloors())
 		assert.Equal(t, "cave", DungeonCave.EnemyTableName())
 		assert.Equal(t, "cave", DungeonCave.ItemTableName())
 		assert.Equal(t, "Frost crystals run like veins through the gray rock.\nThe deeper you go, the quieter it grows.", DungeonCave.Description())
@@ -82,7 +78,6 @@ func TestDefinitions(t *testing.T) {
 	t.Run("DungeonRuinsの設定が正しい", func(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, "Forgotten ruins", DungeonRuins.Name())
-		assert.Equal(t, 20, DungeonRuins.TotalFloors())
 		assert.Equal(t, "ruins_area", DungeonRuins.EnemyTableName())
 		assert.Equal(t, "ruins_area", DungeonRuins.ItemTableName())
 		assert.Equal(t, "An ancient city stands frozen in place.\nWho forgot what, no one remembers now.", DungeonRuins.Description())

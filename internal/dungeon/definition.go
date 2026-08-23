@@ -36,7 +36,6 @@ type DungeonDefinition struct {
 	name        string
 	description string
 	imageKey    string
-	totalFloors int
 	enemyTable  string
 	itemTable   string
 	plannerPool []PlannerWeight
@@ -54,9 +53,6 @@ func (d *DungeonDefinition) Description() string { return d.description }
 
 // ImageKey は背景画像のスプライトキーを返す
 func (d *DungeonDefinition) ImageKey() string { return d.imageKey }
-
-// TotalFloors は総階層数を返す
-func (d *DungeonDefinition) TotalFloors() int { return d.totalFloors }
 
 // EnemyTableName は敵テーブル名を返す
 func (d *DungeonDefinition) EnemyTableName() string { return d.enemyTable }
