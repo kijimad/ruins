@@ -55,7 +55,6 @@ type EntitySpec struct {
 	FactionAlly        *FactionAlly
 	FactionEnemy       *FactionEnemy
 	FactionNeutral     *FactionNeutral
-	Boss               *Boss
 	Dialog             *Dialog
 	Dead               *Dead
 	TurnBased          *TurnBased
@@ -75,7 +74,6 @@ type EntitySpec struct {
 	LastActivity       *LastActivity
 	GameLog            *GameLog
 	Dungeon            *Dungeon
-	GameProgress       *GameProgress
 	TurnState          *TurnState
 	SpatialIndex       *SpatialIndex
 	WeaponSelection    *WeaponSelection
@@ -140,7 +138,6 @@ type Components struct {
 	FactionAlly        *ecs.Map[FactionAlly]
 	FactionEnemy       *ecs.Map[FactionEnemy]
 	FactionNeutral     *ecs.Map[FactionNeutral]
-	Boss               *ecs.Map[Boss]
 	Dialog             *ecs.Map[Dialog]
 	Dead               *ecs.Map[Dead]
 	TurnBased          *ecs.Map[TurnBased]
@@ -160,7 +157,6 @@ type Components struct {
 	LastActivity       *ecs.Map[LastActivity]
 	GameLog            *ecs.Map[GameLog]
 	Dungeon            *ecs.Map[Dungeon]
-	GameProgress       *ecs.Map[GameProgress]
 	TurnState          *ecs.Map[TurnState]
 	SpatialIndex       *ecs.Map[SpatialIndex]
 	WeaponSelection    *ecs.Map[WeaponSelection]
@@ -225,7 +221,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.FactionAlly = ecs.NewMap[FactionAlly](world)
 	c.FactionEnemy = ecs.NewMap[FactionEnemy](world)
 	c.FactionNeutral = ecs.NewMap[FactionNeutral](world)
-	c.Boss = ecs.NewMap[Boss](world)
 	c.Dialog = ecs.NewMap[Dialog](world)
 	c.Dead = ecs.NewMap[Dead](world)
 	c.TurnBased = ecs.NewMap[TurnBased](world)
@@ -245,7 +240,6 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.LastActivity = ecs.NewMap[LastActivity](world)
 	c.GameLog = ecs.NewMap[GameLog](world)
 	c.Dungeon = ecs.NewMap[Dungeon](world)
-	c.GameProgress = ecs.NewMap[GameProgress](world)
 	c.TurnState = ecs.NewMap[TurnState](world)
 	c.SpatialIndex = ecs.NewMap[SpatialIndex](world)
 	c.WeaponSelection = ecs.NewMap[WeaponSelection](world)
@@ -312,7 +306,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.FactionAlly, entity, spec.FactionAlly)
 	addComp(c.FactionEnemy, entity, spec.FactionEnemy)
 	addComp(c.FactionNeutral, entity, spec.FactionNeutral)
-	addComp(c.Boss, entity, spec.Boss)
 	addComp(c.Dialog, entity, spec.Dialog)
 	addComp(c.Dead, entity, spec.Dead)
 	addComp(c.TurnBased, entity, spec.TurnBased)
@@ -332,7 +325,6 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.LastActivity, entity, spec.LastActivity)
 	addComp(c.GameLog, entity, spec.GameLog)
 	addComp(c.Dungeon, entity, spec.Dungeon)
-	addComp(c.GameProgress, entity, spec.GameProgress)
 	addComp(c.TurnState, entity, spec.TurnState)
 	addComp(c.SpatialIndex, entity, spec.SpatialIndex)
 	addComp(c.WeaponSelection, entity, spec.WeaponSelection)

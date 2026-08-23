@@ -129,47 +129,6 @@ func TestSelectPlanner(t *testing.T) {
 	})
 }
 
-func TestDungeonDefinition_BossPlanner(t *testing.T) {
-	t.Parallel()
-
-	boss := mapplanner.PlannerTypeBossFloor
-
-	t.Run("ボスプランナーがあり最終階なら取得できる", func(t *testing.T) {
-		t.Parallel()
-		def := DungeonDefinition{
-			name:        "テスト",
-			totalFloors: 20,
-			bossPlanner: &boss,
-		}
-		result, ok := def.BossPlanner(20)
-		assert.True(t, ok)
-		assert.Equal(t, boss.Name, result.Name)
-	})
-
-	t.Run("ボスプランナーがあっても最終階でなければ取得できない", func(t *testing.T) {
-		t.Parallel()
-		def := DungeonDefinition{
-			name:        "テスト",
-			totalFloors: 20,
-			bossPlanner: &boss,
-		}
-		result, ok := def.BossPlanner(19)
-		assert.False(t, ok)
-		assert.Equal(t, mapplanner.PlannerType{}, result)
-	})
-
-	t.Run("ボスプランナーが設定されていなければ最終階でも取得できない", func(t *testing.T) {
-		t.Parallel()
-		def := DungeonDefinition{
-			name:        "テスト",
-			totalFloors: 20,
-		}
-		result, ok := def.BossPlanner(20)
-		assert.False(t, ok)
-		assert.Equal(t, mapplanner.PlannerType{}, result)
-	})
-}
-
 func TestNewOverworldDefinition_フィールドを保持する(t *testing.T) {
 	t.Parallel()
 

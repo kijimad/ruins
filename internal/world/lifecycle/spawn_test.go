@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -175,38 +174,6 @@ func TestSpawnEnemyHasAI(t *testing.T) {
 	}
 
 	assert.True(t, enemyFound, "SpawnEnemyで生成されたエンティティはAIコンポーネントを持つべき")
-}
-
-func TestSpawnEnemy_WithBoss(t *testing.T) {
-	t.Parallel()
-
-	initSpriteSheets := func(world w.World) {
-		spriteSheets := make(map[string]gc.SpriteSheet)
-		spriteSheets["field"] = gc.SpriteSheet{
-			Sprites: map[string]gc.Sprite{
-				"red_ball": {Width: 32, Height: 32},
-			},
-		}
-		world.Resources.SpriteSheets = spriteSheets
-	}
-
-	t.Run("WithBossオプションでBossコンポーネントが付与される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		initSpriteSheets(world)
-		enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "fireball", WithBoss())
-		require.NoError(t, err)
-		assert.True(t, world.Components.Boss.Has(enemy), "Bossコンポーネントを持つべき")
-	})
-
-	t.Run("オプションなしではBossコンポーネントが付与されない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		initSpriteSheets(world)
-		enemy, err := SpawnEnemy(world, consts.Coord[consts.Tile]{X: 6, Y: 6}, "fireball")
-		require.NoError(t, err)
-		assert.False(t, world.Components.Boss.Has(enemy), "Bossコンポーネントを持つべきではない")
-	})
 }
 
 func TestSpawnEnemy_WithDropTable(t *testing.T) {

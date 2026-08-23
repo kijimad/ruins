@@ -131,9 +131,6 @@ type Wearable struct {
 // Player は操作対象の主人公キャラクター
 type Player struct{}
 
-// Boss はボスエンティティを示すマーカーコンポーネント
-type Boss struct{}
-
 // Profession はプレイヤーが選択した職業を保持する
 type Profession struct {
 	ID string // raw.Profession.ID に対応する

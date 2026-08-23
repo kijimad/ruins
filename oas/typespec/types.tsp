@@ -116,9 +116,6 @@ scalar InsulationCold extends integer;
 @maxValue(100)
 scalar InsulationHeat extends integer;
 
-/** ボスモンスターかどうか */
-scalar IsBoss extends boolean;
-
 /** プレイヤーキャラクターかどうか */
 scalar IsPlayer extends boolean;
 

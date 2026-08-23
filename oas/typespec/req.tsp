@@ -145,7 +145,6 @@ model Member {
   id: EntityID;
   name: EntityName;
   player?: IsPlayer;
-  isBoss: IsBoss;
   abilities: Abilities;
   spriteSheetName: SpriteSheetName;
   spriteKey: SpriteKey;

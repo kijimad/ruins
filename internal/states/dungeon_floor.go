@@ -52,11 +52,9 @@ func (st *DungeonState) spawnFloor(world w.World, depth int, def *dungeon.Dungeo
 	stageSeed := world.Resources.Config.RNG.Uint64()
 	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
 
-	// ビルダータイプを決定する。最終階層かつボスフロアプランナーがあればボスフロアにする
+	// ビルダータイプを決定する
 	var builderType mapplanner.PlannerType
-	switch bossPlanner, isBoss := def.BossPlanner(depth); {
-	case isBoss:
-		builderType = bossPlanner
+	switch {
 	case st.BuilderType.PlannerFunc == nil || st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name:
 		// BuilderType 未設定(オーバーワールドから遺跡へ入った State は帯用で BuilderType を
 		// 持たない)か Random なら、定義のプランナープールから選ぶ。ゼロ値をそのまま使うと

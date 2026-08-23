@@ -1162,9 +1162,6 @@ type InsulationCold = int
 // InsulationHeat 耐暑性能
 type InsulationHeat = int
 
-// IsBoss ボスモンスターかどうか
-type IsBoss = bool
-
 // IsPlayer プレイヤーキャラクターかどうか
 type IsPlayer = bool
 
@@ -1388,9 +1385,6 @@ type Member struct {
 
 	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
-
-	// IsBoss ボスモンスターかどうか
-	IsBoss IsBoss `json:"isBoss"`
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
@@ -1930,15 +1924,6 @@ type SaveDataEquipBonusData struct {
 // SaveDataEquipmentSlotNumber 装備スロット番号
 type SaveDataEquipmentSlotNumber = int
 
-// SaveDataEventState イベントの状態
-type SaveDataEventState struct {
-	// Active イベントがアクティブかどうか
-	Active bool `json:"active"`
-
-	// Seen イベントが表示済みかどうか
-	Seen bool `json:"seen"`
-}
-
 // SaveDataFireComponent 遠距離攻撃設定
 type SaveDataFireComponent struct {
 	// Accuracy 命中率。0で必中なし、100で必中
@@ -1988,15 +1973,6 @@ type SaveDataFloatPool struct {
 
 	// Max プール最大値 (浮動小数点)
 	Max SaveDataPoolFloatMax `json:"Max"`
-}
-
-// SaveDataGameProgress ゲーム進行状態
-type SaveDataGameProgress struct {
-	// ClearedDungeons クリア済みダンジョンのマップ。キーはダンジョン名
-	ClearedDungeons map[string]bool `json:"cleared_dungeons"`
-
-	// Events イベント状態のマップ。キーはイベント名
-	Events map[string]SaveDataEventState `json:"events"`
 }
 
 // SaveDataGridElementComponent グリッド上の位置 (タイル座標)
@@ -2342,9 +2318,6 @@ type SaveDataWeightCapacityComponent struct {
 type SaveDataWorldSaveData struct {
 	// Entities エンティティの配列。StableIDでソートされる
 	Entities []SaveDataEntitySaveData `json:"entities"`
-
-	// GameProgress ゲーム進行状態
-	GameProgress *SaveDataGameProgress `json:"game_progress,omitempty"`
 }
 
 // Sensation 感覚。命中率と回避率に影響する

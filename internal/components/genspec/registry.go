@@ -65,7 +65,6 @@ var Registry = []Def{
 	{Field: "FactionAlly"},    // 味方派閥であることを示す
 	{Field: "FactionEnemy"},   // 敵性派閥であることを示す
 	{Field: "FactionNeutral"}, // 中立派閥であることを示す
-	{Field: "Boss"},           // ボスエンティティであることを示す
 	{Field: "Dialog"},         // 会話データを保持する
 	{Field: "Dead"},           // 死亡状態であることを示す
 	{Field: "TurnBased"},      // アクションポイントを管理する
@@ -95,7 +94,6 @@ var Registry = []Def{
 	// singleton ================
 	{Field: "GameLog"},         // ゲームログストレージを保持するシングルトン
 	{Field: "Dungeon"},         // ダンジョン状態を保持するシングルトン
-	{Field: "GameProgress"},    // ゲーム進行データを保持するシングルトン
 	{Field: "TurnState"},       // ターン状態を保持するシングルトン
 	{Field: "SpatialIndex"},    // 空間インデックスを保持するシングルトン
 	{Field: "WeaponSelection"}, // 選択中の武器スロットを保持するシングルトン

@@ -61,7 +61,6 @@ func TestConnectivity_TemplatePlanners(t *testing.T) {
 		name        string
 		plannerType PlannerType
 	}{
-		{"ボスフロア", PlannerTypeBossFloor},
 		{"広場", PlannerTypeTownPlaza},
 	}
 

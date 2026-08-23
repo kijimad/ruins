@@ -6,11 +6,10 @@ import "github.com/kijimaD/ruins/internal/mapplanner"
 var (
 	// DungeonDebug はデバッグ用ダンジョン定義
 	DungeonDebug = &DungeonDefinition{
-		name:        "Debug",
-		totalFloors: 99,
-		enemyTable:  "forest",
-		itemTable:   "forest",
-		baseTemp:    10,
+		name:       "Debug",
+		enemyTable: "forest",
+		itemTable:  "forest",
+		baseTemp:   10,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
 		},
@@ -19,11 +18,10 @@ var (
 	// DungeonDebugTown は街用NPCと収納箱をテンプレートで固定配置するデバッグ用定義。
 	// 敵・アイテムテーブルを空にして、共通の敵配置プランナーを自然に空振りさせ、敵を湧かせない
 	DungeonDebugTown = &DungeonDefinition{
-		name:        "Debug town",
-		totalFloors: 1,
-		enemyTable:  "",
-		itemTable:   "",
-		baseTemp:    20,
+		name:       "Debug town",
+		enemyTable: "",
+		itemTable:  "",
+		baseTemp:   20,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeDebugTown, Weight: 1},
 		},
@@ -34,11 +32,9 @@ var (
 		name:        "Dead forest",
 		description: "Hunters once ventured into this frozen forest.\nFew returned. The cold reaches the bone.",
 		imageKey:    "forest1",
-		totalFloors: 20,
 		enemyTable:  "forest",
 		itemTable:   "forest",
 		baseTemp:    0, // 寒い
-		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeForest, Weight: 5},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 2},
@@ -51,11 +47,9 @@ var (
 		name:        "Ash cave",
 		description: "Frost crystals run like veins through the gray rock.\nThe deeper you go, the quieter it grows.",
 		imageKey:    "cave1",
-		totalFloors: 20,
 		enemyTable:  "cave",
 		itemTable:   "cave",
 		baseTemp:    5, // 寒い
-		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeCave, Weight: 6},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
@@ -76,11 +70,9 @@ var (
 		name:        "Forgotten ruins",
 		description: "An ancient city stands frozen in place.\nWho forgot what, no one remembers now.",
 		imageKey:    "city1",
-		totalFloors: 20,
 		enemyTable:  "ruins_area",
 		itemTable:   "ruins_area",
 		baseTemp:    15, // やや快適
-		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 4},
 			{PlannerType: mapplanner.PlannerTypeRuins, Weight: 3},
@@ -96,7 +88,6 @@ var (
 	DungeonCubeInterior = &DungeonDefinition{
 		name:        "Cube interior",
 		description: "Interior of the mobile base cube",
-		totalFloors: 1,
 		baseTemp:    15, // 内部はシェルター。要調整
 		// 内部のレイアウトはこの planner のテンプレート。実際の生成は enterCube の SwapTo が
 		// 同じテンプレートで行うので、この pool は spawnFloor 経由では引かれない。他の定義と形を
@@ -118,15 +109,6 @@ var allDungeons = []*DungeonDefinition{
 // オーバーワールドやデバッグなどの内部用の定義は含まない。
 func GetAllDungeons() []*DungeonDefinition {
 	return allDungeons
-}
-
-// GetAllDungeonNames は全ダンジョン名のスライスを返す
-func GetAllDungeonNames() []string {
-	names := make([]string, len(allDungeons))
-	for i := range allDungeons {
-		names[i] = allDungeons[i].Name()
-	}
-	return names
 }
 
 // internalDefinitions は選択画面に表示しない内部用の定義

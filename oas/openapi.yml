@@ -2334,9 +2334,6 @@ components:
       minimum: -100
       maximum: 100
       description: 耐暑性能
-    IsBoss:
-      type: boolean
-      description: ボスモンスターかどうか
     IsPlayer:
       type: boolean
       description: プレイヤーキャラクターかどうか
@@ -2594,7 +2591,6 @@ components:
       required:
         - id
         - name
-        - isBoss
         - abilities
         - spriteSheetName
         - spriteKey
@@ -2605,8 +2601,6 @@ components:
           $ref: '#/components/schemas/EntityName'
         player:
           $ref: '#/components/schemas/IsPlayer'
-        isBoss:
-          $ref: '#/components/schemas/IsBoss'
         abilities:
           $ref: '#/components/schemas/Abilities'
         spriteSheetName:
@@ -3373,19 +3367,6 @@ components:
       type: integer
       minimum: 0
       description: 装備スロット番号
-    SaveData.EventState:
-      type: object
-      required:
-        - active
-        - seen
-      properties:
-        active:
-          type: boolean
-          description: イベントがアクティブかどうか
-        seen:
-          type: boolean
-          description: イベントが表示済みかどうか
-      description: イベントの状態
     SaveData.FireComponent:
       type: object
       required:
@@ -3453,23 +3434,6 @@ components:
         Current:
           $ref: '#/components/schemas/SaveData.PoolFloatCurrent'
       description: 浮動小数点プール。最大値と現在値を持つ
-    SaveData.GameProgress:
-      type: object
-      required:
-        - cleared_dungeons
-        - events
-      properties:
-        cleared_dungeons:
-          type: object
-          additionalProperties:
-            type: boolean
-          description: クリア済みダンジョンのマップ。キーはダンジョン名
-        events:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/SaveData.EventState'
-          description: イベント状態のマップ。キーはイベント名
-      description: ゲーム進行状態
     SaveData.GridElementComponent:
       type: object
       required:
@@ -3952,10 +3916,6 @@ components:
           items:
             $ref: '#/components/schemas/SaveData.EntitySaveData'
           description: エンティティの配列。StableIDでソートされる
-        game_progress:
-          allOf:
-            - $ref: '#/components/schemas/SaveData.GameProgress'
-          description: ゲーム進行状態
       description: ワールド全体のセーブデータ。プレイヤーと所持品のみを保存する
     Sensation:
       type: integer

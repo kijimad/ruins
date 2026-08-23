@@ -387,7 +387,7 @@ func TestRestoreWorldFromJSON_InvalidJSON(t *testing.T) {
 	assert.Contains(t, err.Error(), "unmarshal")
 }
 
-// TestRestoreWorldFromJSON_MissingSingleton は復元データにシングルトン（GameProgress保持
+// TestRestoreWorldFromJSON_MissingSingleton は復元データにシングルトン（Dungeon保持
 // エンティティ）が無い場合にエラーを返すことを検証する。
 func TestRestoreWorldFromJSON_MissingSingleton(t *testing.T) {
 	t.Parallel()
@@ -395,8 +395,8 @@ func TestRestoreWorldFromJSON_MissingSingleton(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 
-	// シングルトンからGameProgressを取り除くと、復元時にシングルトンを特定できない
-	world.Components.GameProgress.Remove(world.Resources.SingletonEntity)
+	// シングルトンからDungeonを取り除くと、復元時にシングルトンを特定できない
+	world.Components.Dungeon.Remove(world.Resources.SingletonEntity)
 	require.NoError(t, manager.SaveWorld(world, "no_singleton"))
 
 	newWorld := testutil.InitTestWorld(t)
@@ -573,10 +573,10 @@ func TestRestoreWorldFromJSON_PreservesWorldOnFailure(t *testing.T) {
 	manager, err := NewSerializationManager(WithSaveDir(t.TempDir()))
 	require.NoError(t, err)
 
-	// 復元段階で失敗するセーブを用意する。GameProgress を外すと reestablishSingleton が
+	// 復元段階で失敗するセーブを用意する。Dungeon を外すと reestablishSingleton が
 	// シングルトンを特定できず失敗する。チェックサム・バージョンは通る
 	bad := testutil.InitTestWorld(t)
-	bad.Components.GameProgress.Remove(bad.Resources.SingletonEntity)
+	bad.Components.Dungeon.Remove(bad.Resources.SingletonEntity)
 	require.NoError(t, manager.SaveWorld(bad, "bad_slot"))
 	badJSON, err := manager.LoadWorldJSON("bad_slot")
 	require.NoError(t, err)
