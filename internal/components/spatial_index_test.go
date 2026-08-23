@@ -79,34 +79,37 @@ func TestSpatialIndex_MoveCharacter(t *testing.T) {
 	from := consts.Coord[consts.Tile]{X: 0, Y: 0}
 	to := consts.Coord[consts.Tile]{X: 1, Y: 0}
 
+	// エンティティは並列サブテストの前に直列の親で生成する。ecs.World の NewEntity は
+	// 構造変更で並列安全でないため、共有 world への生成をサブテスト内で並行して呼ばない。
+	eUnbuilt := world.NewEntity()
+	eSelf := world.NewEntity()
+	mover := world.NewEntity()
+	other := world.NewEntity()
+
 	t.Run("未構築なら何もしない", func(t *testing.T) {
 		t.Parallel()
-		e := world.NewEntity()
 		si := NewSpatialIndex()
-		si.MoveCharacter(from, to, e)
+		si.MoveCharacter(from, to, eUnbuilt)
 		assert.Nil(t, si.Characters)
 	})
 
 	t.Run("移動元の登録が自分自身なら削除して移動先へ登録する", func(t *testing.T) {
 		t.Parallel()
-		e := world.NewEntity()
 		si := &SpatialIndex{
 			Built:      true,
-			Characters: map[GridElement]ecs.Entity{{Coord: from}: e},
+			Characters: map[GridElement]ecs.Entity{{Coord: from}: eSelf},
 		}
-		si.MoveCharacter(from, to, e)
+		si.MoveCharacter(from, to, eSelf)
 
 		_, fromOK := si.Characters[GridElement{Coord: from}]
 		assert.False(t, fromOK, "移動元の登録が消える")
 		gotTo, toOK := si.Characters[GridElement{Coord: to}]
 		assert.True(t, toOK)
-		assert.Equal(t, e, gotTo)
+		assert.Equal(t, eSelf, gotTo)
 	})
 
 	t.Run("移動元の登録が別キャラなら削除せず移動先だけ登録する", func(t *testing.T) {
 		t.Parallel()
-		mover := world.NewEntity()
-		other := world.NewEntity()
 		si := &SpatialIndex{
 			Built:      true,
 			Characters: map[GridElement]ecs.Entity{{Coord: from}: other},

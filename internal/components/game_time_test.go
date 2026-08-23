@@ -179,7 +179,9 @@ func TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む(t *testing.T) {
 		before := gt.GetTimeOfDay()
 		gt.AdvanceToNextTimeOfDay()
 		after := gt.GetTimeOfDay()
-		want := TimeOfDay((int(before) + 1) % 6)
+		// 時間帯の総数は1日のターン数を時間帯あたりのターン数で割った値
+		timeOfDayCount := int(turnsPerDay / turnsPerTimeOfDay)
+		want := TimeOfDay((int(before) + 1) % timeOfDayCount)
 		assert.Equal(t, want, after, "start=%d では1つ次の時間帯になるべき", start)
 	}
 }
