@@ -17,19 +17,22 @@ import (
 
 // loadUserConfig は永続化された設定を読み込んで c.User を上書きする。
 // 保存された設定が無い場合は何もせず、呼び出し前のデフォルト値を維持する。読み取り専用。
-func (c *Config) loadUserConfig() error {
+// langDefined は toml に language フィールドが明示されていたかを返す。初期言語の解決で、
+// 既定値の en と明示された値を区別するために使う。
+func (c *Config) loadUserConfig() (langDefined bool, err error) {
 	data, ok, err := readSettings()
 	if err != nil {
-		return err
+		return false, err
 	}
 	if !ok {
-		return nil
+		return false, nil
 	}
 	// c.User を土台に復元するため、保存に含まれないフィールドはデフォルト値が残る
-	if err := toml.Unmarshal(data, &c.User); err != nil {
-		return fmt.Errorf("failed to parse config: %w", err)
+	md, err := toml.Decode(string(data), &c.User)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse config: %w", err)
 	}
-	return nil
+	return md.IsDefined("language"), nil
 }
 
 // SaveUserConfig は c.User を永続化する。オプション画面での設定変更後に呼ぶ。

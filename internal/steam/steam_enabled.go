@@ -22,3 +22,8 @@ func Init() error {
 	}
 	return nil
 }
+
+// GameLanguage は Steam でユーザが選んだ言語を対応言語コードで返す。対応表に無ければ空。
+func GameLanguage() string {
+	return normalizeSteamLang(steamworks.SteamApps().GetCurrentGameLanguage())
+}

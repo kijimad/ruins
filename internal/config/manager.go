@@ -7,6 +7,7 @@ import (
 
 	"github.com/caarlos0/env/v11"
 	"github.com/kijimaD/ruins/internal/logger"
+	"github.com/kijimaD/ruins/internal/steam"
 )
 
 // Load は環境変数から設定を読み込み、新しいConfigインスタンスを返す
@@ -27,13 +28,23 @@ func Load() (*Config, error) {
 
 	// 永続化されたユーザー設定をファイルから読み込んで上書きする。
 	// 失敗してもデフォルト値で起動を継続する。ファイルの生成は EnsureUserConfigFile が担う
-	if err := cfg.loadUserConfig(); err != nil {
+	langDefined, err := cfg.loadUserConfig()
+	if err != nil {
 		logger.New(logger.CategoryLoad).Warn("failed to load user config; continuing with defaults", "error", err)
 	}
 
 	// 環境変数で明示的に設定された値で上書きする。優先順位はデフォルト < ファイル < 環境変数
 	if err := env.Parse(cfg); err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// 初期言語を確定する。env か toml で明示されていなければ Steam の game-language を試す。
+	// steam タグ無しのビルドでは GameLanguage が空を返すので、既定の en がそのまま残る。
+	// これにより開発・テスト・WASM はロケール判定を通らず、golden がロケール依存にならない。
+	if _, envLangSet := os.LookupEnv("RUINS_LANGUAGE"); !langDefined && !envLangSet {
+		if lang := steam.GameLanguage(); lang != "" {
+			cfg.User.Language = lang
+		}
 	}
 
 	// Seedが未設定の場合はランダム値を生成
