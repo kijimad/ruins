@@ -15,6 +15,15 @@ func TestNormalizeSteamLang_対応表で内部コードへ写す(t *testing.T) {
 	assert.Empty(t, normalizeSteamLang("french"), "対応表に無い Steam 語は空を返す")
 }
 
+func TestGameLanguage_非steamビルドはokがfalse(t *testing.T) {
+	t.Parallel()
+
+	// steam タグ無しのビルドでは Steam の言語は取れない。空文字を黙って返さず ok=false で示す。
+	code, ok := GameLanguage()
+	assert.False(t, ok)
+	assert.Empty(t, code)
+}
+
 func TestSteamLangToCode_対応言語すべてに写像がある(t *testing.T) {
 	t.Parallel()
 

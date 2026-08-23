@@ -7,7 +7,7 @@ func Init() error {
 	return nil
 }
 
-// GameLanguage はsteamタグがないときは空を返す。ホスト判定はせず初期言語は既定へ落ちる
-func GameLanguage() string {
-	return ""
+// GameLanguage はsteamタグがないとき ok=false を返す。初期言語は既定へ落ちる
+func GameLanguage() (code string, ok bool) {
+	return "", false
 }
