@@ -2,7 +2,7 @@
 # マスター画像を Stable Diffusion (SD Turbo) で生成する
 #
 # 依存:
-#   pip install -r docs/steam/requirements.txt
+#   pip install -r docs/steam/background/requirements.txt
 #
 # Nix の Python では libcuda.so.1 と libstdc++.so.6 が見えないため、
 # シンボリックリンクを別ディレクトリに集めて LD_LIBRARY_PATH で指定する:
@@ -11,12 +11,19 @@
 #   ln -sf /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 /tmp/nvidia-libs/
 #   ln -sf "$(find /nix/store -name 'libstdc++.so.6' -path '*/gcc-*-lib/*' | head -1)" /tmp/nvidia-libs/
 #
+# 生成スクリプトと成果物は同じディレクトリに置く。最終的に compose が各パーツを組み合わせる。
+#
 # 使い方:
-#   LD_LIBRARY_PATH=/tmp/nvidia-libs python docs/steam/gen_master.py
+#   LD_LIBRARY_PATH=/tmp/nvidia-libs python docs/steam/background/gen_master.py
+
+import os
 
 import torch
 from diffusers import AutoPipelineForImage2Image
 from PIL import Image
+
+# スクリプトと同じディレクトリで入出力する
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 pipe = AutoPipelineForImage2Image.from_pretrained(
     "stabilityai/sd-turbo",
@@ -32,7 +39,7 @@ def pixelate(image, scale):
     small = image.resize((w // scale, h // scale), Image.LANCZOS)
     return small.resize((w, h), Image.NEAREST)
 
-img = Image.open("docs/steam/source/dungeon.jpg").convert("RGB")
+img = Image.open("source/dungeon.jpg").convert("RGB")
 
 prompt = "dark ancient stone dungeon, tall stone archway in the center leading to another dark room beyond, endless corridors receding into darkness, massive bright blue glowing crystal formations covering the walls and ceiling, large ice crystal clusters everywhere, frozen crystalline surfaces, frost and ice on stone, warm orange torch light from above contrasting with blue crystals, symmetrical composition, cold dark atmosphere, fantasy dungeon, dramatic depth, detailed, high quality"
 neg = "blurry, text, watermark, person, character, bright, overexposed, dead end, outdoor, empty walls, plain walls"
@@ -51,7 +58,7 @@ result = pipe(
 # ピクセルアート化と暗化は crop_assets.sh で各アセットサイズに応じて行う
 master = result.resize((3840, 2560), Image.LANCZOS)
 
-master.save("docs/steam/generated/master_3840x2560.png")
+master.save("master_3840x2560.png")
 print(f"Master saved: {master.size}")
 
 # 縦長カプセル用マスター (640x960)
@@ -71,5 +78,5 @@ result_v = pipe(
 ).images[0]
 
 master_v = result_v.resize((2560, 3840), Image.LANCZOS)
-master_v.save("docs/steam/generated/master_vert_2560x3840.png")
+master_v.save("master_vert_2560x3840.png")
 print(f"Master (vertical) saved: {master_v.size}")

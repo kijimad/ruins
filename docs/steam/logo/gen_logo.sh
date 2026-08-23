@@ -10,22 +10,23 @@
 #
 # 依存:
 #   - ImageMagick (magick)
-#   - docs/steam/fonts に vendored したフォント。Iceland (頭文字と本体) と
+#   - このディレクトリの fonts に vendored したフォント。Iceland (頭文字と本体) と
 #     Staatliches (副題)。いずれも SIL Open Font License。各ディレクトリの OFL.txt 参照
 #
-# 使い方: bash docs/steam/gen_logo.sh
-# 出力:
-#   docs/steam/generated/logo.png       透過・高解像のマスタ
-#   docs/steam/generated/logo_pixel.png 背景のドット絵と画素グリッドを合わせたピクセル版
+# 生成スクリプトと成果物は同じディレクトリに置く。最終的に compose がこれら各パーツを組み合わせる。
+#
+# 使い方: bash docs/steam/logo/gen_logo.sh
+# 出力 (このスクリプトと同じディレクトリ):
+#   logo.png       透過・高解像のマスタ
+#   logo_pixel.png 背景のドット絵と画素グリッドを合わせたピクセル版
 
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")"
 
-FONTS=docs/steam/fonts
+FONTS=fonts
 MAIN_FONT=$FONTS/Iceland/Iceland-Regular.ttf   # 頭文字と本体。角張った低曲率のレトロ書体
 STAAT=$FONTS/Staatliches/Staatliches-Regular.ttf
-OUT=docs/steam/generated
-mkdir -p "$OUT"
+OUT=.
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 

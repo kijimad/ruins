@@ -1,20 +1,25 @@
 #!/bin/bash
-# Steam アセット クロップスクリプト
-# マスター画像 (3840x2560) から各アセットサイズを切り出す
+# Steam アセットの最終合成。各パーツを組み合わせて配布用アセットを作る。
+# 背景マスタを各カプセルサイズへ切り出し、ロゴを重ねて generated/ へ出力する。
 #
-# 使い方: bash docs/steam/crop_assets.sh
+# パーツは各ディレクトリに生成スクリプトと成果物が同居する:
+#   - background/ 背景マスタ (gen_master.py)
+#   - logo/       ロゴ (gen_logo.sh)
+# この compose がそれらを最終アセットへ束ねる。
 #
-# 依存:
-#   - ImageMagick (magick)
-#   - Augustus フォント (assets/file/fonts/augustus/AUGUSTUS.TTF) — logo.svg のレンダリングに必要
-#     未インストールの場合: cp assets/file/fonts/augustus/AUGUSTUS.TTF ~/.fonts/ && fc-cache -f
+# 使い方: bash docs/steam/compose.sh
+#
+# 依存: ImageMagick (magick)
+#
+# 注記: ロゴは logo/gen_logo.sh の完成品 logo/logo.png へ切り替える予定。現状は旧 logo.svg を
+# 参照している。背景をドット絵へ刷新する際、この compose も新パーツに合わせて作り直す。
 
 set -euo pipefail
 
-MASTER="docs/steam/generated/master_3840x2560.png"
-MASTER_VERT="docs/steam/generated/master_vert_2560x3840.png"
+MASTER="docs/steam/background/master_3840x2560.png"
+MASTER_VERT="docs/steam/background/master_vert_2560x3840.png"
 OUT="docs/steam/generated"
-LOGO_SVG="docs/steam/source/logo.svg"
+LOGO_SVG="docs/steam/background/source/logo.svg"
 
 mkdir -p "$OUT"
 
