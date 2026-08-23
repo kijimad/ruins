@@ -37,3 +37,17 @@ func TestSteamLangToCode_対応言語すべてに写像がある(t *testing.T) {
 		assert.Truef(t, codes[l.Code], "対応言語 %q に対応する Steam 語の写像が steamLangToCode に無い", l.Code)
 	}
 }
+
+func TestSteamLangToCode_写像先はすべて対応言語である(t *testing.T) {
+	t.Parallel()
+
+	// steamLangToCode の値がすべて i18n.SupportedLangs に含まれることを固定する。
+	// 未対応コードを誤登録すると GameLanguage がそれを返し、起動時の Validate まで発覚が遅れる。
+	supported := make(map[string]bool)
+	for _, l := range i18n.SupportedLangs() {
+		supported[l.Code] = true
+	}
+	for steamLang, code := range steamLangToCode {
+		assert.Truef(t, supported[code], "steamLangToCode[%q]=%q が i18n.SupportedLangs に無い", steamLang, code)
+	}
+}
