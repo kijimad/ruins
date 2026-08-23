@@ -7,6 +7,29 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestBodyPart_String(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		bp   BodyPart
+		want string
+	}{
+		{BodyPartHead, "Head"},
+		{BodyPartTorso, "Torso"},
+		{BodyPartArms, "Arm"},
+		{BodyPartHands, "Hand"},
+		{BodyPartLegs, "Leg"},
+		{BodyPartFeet, "Foot"},
+		{BodyPartWholeBody, "Whole body"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.bp.String())
+		})
+	}
+}
+
 func TestBodyPart_String_InvalidPanic(t *testing.T) {
 	t.Parallel()
 	assert.Panics(t, func() {
@@ -87,6 +110,27 @@ func TestEquipmentType_SlotNumber(t *testing.T) {
 		t.Run(string(tt.et), func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tt.want, tt.et.SlotNumber())
+		})
+	}
+}
+
+func TestElementType_String(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		et   ElementType
+		want string
+	}{
+		{ElementTypeNone, "None"},
+		{ElementTypeFire, "Fire"},
+		{ElementTypeThunder, "Thunder"},
+		{ElementTypeChill, "Ice"},
+		{ElementTypePhoton, "Light"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.et.String())
 		})
 	}
 }

@@ -14,8 +14,9 @@ func TestStageConstructors(t *testing.T) {
 
 	assert.Equal(t, StageKey{Name: overworldStageName}, NewOverworldStage())
 	assert.Equal(t, StageKey{Name: "森の奥", Depth: 2}, NewDungeonStage("森の奥", 2))
+	assert.Equal(t, StageKey{Name: cubeInteriorStageName, Depth: 1}, NewCubeInteriorStage())
 
-	for _, k := range []StageKey{NewOverworldStage(), NewDungeonStage("森の奥", 2)} {
+	for _, k := range []StageKey{NewOverworldStage(), NewDungeonStage("森の奥", 2), NewCubeInteriorStage()} {
 		require.NoError(t, k.Validate(), "コンストラクタ生成のキーは Validate を通る: %+v", k)
 	}
 }
