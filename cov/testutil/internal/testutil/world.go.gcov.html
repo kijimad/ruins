@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-23 03:55:34</td>
+            <td class="headerValue">2026-08-23 07:59:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -161,7 +161,7 @@
 <span id="L99"><span class="lineNum">      99</span>              :         // 実ゲームでも寸法はステージ生成時に一度決まるので、ここで与える。既定は overworld・50x50、</span>
 <span id="L100"><span class="lineNum">     100</span>              :         // WithCurrentStage/WithStageLevel で上書き。</span>
 <span id="L101"><span class="lineNum">     101</span>              :         // オーバーワールド判定は帯データ SeamlessBand の有無で行うので、帯を付けない既定では</span>
-<span id="L102"><span class="lineNum">     102</span>              :         // IsOnOverworld は偽のまま。前線テストは EnsureSeamlessBand で帯を付ける。</span>
+<span id="L102"><span class="lineNum">     102</span>              :         // IsOnOverworld は偽のまま。帯を要するテストは EnsureSeamlessBand で付ける。</span>
 <span id="L103"><span class="lineNum">     103</span>              :         // query の循環 import を避けるため world.Components を直接使う</span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :         d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         d.CurrentStage = cfg.stageKey</span></span>

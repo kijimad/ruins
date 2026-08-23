@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-23 03:55:34</td>
+            <td class="headerValue">2026-08-23 07:59:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,7 +80,7 @@
 <span id="L18"><span class="lineNum">      18</span>              : //</span>
 <span id="L19"><span class="lineNum">      19</span>              : //      Player: プレイヤーの行動。入力を待つか、継続アクティビティを1ステップ進める</span>
 <span id="L20"><span class="lineNum">      20</span>              : //      AI:     敵・NPC を一括処理し、視界の再計算を要求する</span>
-<span id="L21"><span class="lineNum">      21</span>              : //      End:    AP回復・空腹・気温・寒波前線の前進・GameTime を1ターン進める</span>
+<span id="L21"><span class="lineNum">      21</span>              : //      End:    AP回復・空腹・気温・GameTime を1ターン進める</span>
 <span id="L22"><span class="lineNum">      22</span>              : //</span>
 <span id="L23"><span class="lineNum">      23</span>              : // 継続アクティビティ中(押し・休息・分解など)は例外で、fastForwardActivity が完了・中断・</span>
 <span id="L24"><span class="lineNum">      24</span>              : // 上限まで1フレーム内で複数ターンをまとめて回す。各ターンは通常と同じ3ステップを通すので、</span>
@@ -174,7 +174,7 @@
 <span id="L112"><span class="lineNum">     112</span>              :         // 空間インデックスを無効化する。次ターンで再構築される</span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC tlaBgGNC">           1 :         query.InvalidateSpatialIndex(world)</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         turnState.TurnNumber++</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         // ゲーム内時間を1ターン進める。昼夜・気温の時間修正・寒波前線の前進がこれに依存する。</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         // ゲーム内時間を1ターン進める。昼夜・気温の時間修正がこれに依存する。</span></span>
 <span id="L116"><span class="lineNum">     116</span>              :         // GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する</span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         query.GetGameTime(world).Advance()</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         return nil</span></span>

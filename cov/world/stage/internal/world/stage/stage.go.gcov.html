@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-23 03:55:34</td>
+            <td class="headerValue">2026-08-23 07:59:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -156,7 +156,7 @@
 <span id="L94"><span class="lineNum">      94</span>              : // フィールドエンティティが生じ、以降の退避で漏れる。生成側は末尾で Bind を呼び付与する。</span>
 <span id="L95"><span class="lineNum">      95</span>              : // 別の generate を実装するときも同様に付けること。</span>
 <span id="L96"><span class="lineNum">      96</span>              : //</span>
-<span id="L97"><span class="lineNum">      97</span>              : // プレイヤー配置と前線など時間派生の再導出は、遷移ごとに違うので呼び出し側が続けて行う</span>
+<span id="L97"><span class="lineNum">      97</span>              : // プレイヤー配置など遷移ごとに違う再導出は、呼び出し側が続けて行う</span>
 <span id="L98"><span class="lineNum">      98</span>              : func SwapTo(world w.World, target gc.StageKey, generate func(world w.World, key gc.StageKey) error) error {</span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         d := query.GetDungeon(world)</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         // プレイ中に湧いた未束縛のフィールドエンティティを現ステージへ回収する。</span></span>

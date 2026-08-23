@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-23 03:55:34</td>
+            <td class="headerValue">2026-08-23 07:59:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -88,7 +88,7 @@
 <span id="L26"><span class="lineNum">      26</span>              : </span>
 <span id="L27"><span class="lineNum">      27</span>              : // RemoveEntitiesInXRange は GridElement.X が [loX, hiX) にあるエンティティを削除する。</span>
 <span id="L28"><span class="lineNum">      28</span>              : //</span>
-<span id="L29"><span class="lineNum">      29</span>              : // 帯シフト時の西端チャンク破棄の原子操作で、前線に呑まれる領域を消去する。keep が true を返す</span>
+<span id="L29"><span class="lineNum">      29</span>              : // 帯シフト時の西端チャンク破棄の原子操作で、破棄対象の領域を消去する。keep が true を返す</span>
 <span id="L30"><span class="lineNum">      30</span>              : // エンティティは削除しない。プレイヤーなど残すべきものが該当する。削除した数を返す。</span>
 <span id="L31"><span class="lineNum">      31</span>              : // 反復中の削除を避けるため、対象を収集してから削除する。</span>
 <span id="L32"><span class="lineNum">      32</span>              : func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.Entity) bool) int {</span>
