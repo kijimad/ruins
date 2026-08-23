@@ -5,7 +5,7 @@ BWRAP_CMD := $(shell bwrap --dev-bind / / --tmpfs /dev/input -- true 2>/dev/null
 
 # test/bench/report/lint(deadcode) の対象Goパッケージ。除外理由は2つ:
 # - /editor-ui/: node_modulesに第三者のGo実装(flatted)が同梱される。npm管理外でビルド不能な依存が混入しうるため除外必須
-# - oapi: OpenAPI生成コード。カバレッジ母数やdeadcodeの偽陽性ノイズを避けるため除外
+# - /oapi: OpenAPI生成コード。カバレッジ母数やdeadcodeの偽陽性ノイズを避けるため除外
 GO_TEST_PKGS = $$(go list ./... | grep -v -e /editor-ui/ -e '/oapi$$')
 
 .PHONY: run
