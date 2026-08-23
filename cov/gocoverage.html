@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -407,9 +407,9 @@
 				
 				<option value="file175">github.com/kijimaD/ruins/internal/overworld/interior_furnish.go (84.5%)</option>
 				
-				<option value="file176">github.com/kijimaD/ruins/internal/overworld/loot_scatter.go (80.5%)</option>
+				<option value="file176">github.com/kijimaD/ruins/internal/overworld/landmark.go (91.0%)</option>
 				
-				<option value="file177">github.com/kijimaD/ruins/internal/overworld/poi.go (92.7%)</option>
+				<option value="file177">github.com/kijimaD/ruins/internal/overworld/loot_scatter.go (80.5%)</option>
 				
 				<option value="file178">github.com/kijimaD/ruins/internal/overworld/road.go (89.1%)</option>
 				
@@ -537,7 +537,7 @@
 				
 				<option value="file240">github.com/kijimaD/ruins/internal/systems/animation_system.go (0.0%)</option>
 				
-				<option value="file241">github.com/kijimaD/ruins/internal/systems/auction.go (97.0%)</option>
+				<option value="file241">github.com/kijimaD/ruins/internal/systems/auction.go (93.9%)</option>
 				
 				<option value="file242">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (82.6%)</option>
 				
@@ -1618,7 +1618,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 </span>
         // 被ダメージで中断可能なアクティビティをキャンセルする
         <span class="cov8" title="1">if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span>{
-                <span class="cov8" title="1">CancelActivity(target, "took an attack", world)
+                <span class="cov0" title="0">CancelActivity(target, "took an attack", world)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -1694,7 +1694,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
@@ -1761,8 +1761,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -25074,10 +25074,10 @@ type feature interface {
 
 // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
 func features() []feature {
-        // 点在POIは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に評価する。
-        // 散布は占有と道の実状態を読むため最後に評価する
+        // 点在ランドマークは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に
+        // 評価する。散布は占有と道の実状態を読むため最後に評価する
         <span class="cov8" title="1">return []feature{
-                settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessPOIFeature{},
+                settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessLandmarkFeature{},
                 roadFeature{}, openTerrainFeature{},
 </span>        }
 }
@@ -25090,7 +25090,7 @@ const (
         settlementSalt uint64 = iota + 1
         urbanSalt
         dungeonEntranceSalt
-        poiSalt
+        landmarkSalt
         scatterSalt
         outdoorLootSalt
 )
@@ -25303,6 +25303,153 @@ func populateStorageLoot(world w.World, entity ecs.Entity, propName string, rng 
 
 import (
         "fmt"
+        "math/rand/v2"
+
+        gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
+        w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/world/lifecycle"
+)
+
+// 点在ランドマークは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
+// 祠・キャンプ跡を決定的に選び、探索の単調さを崩す。今は構造と prop だけを持ち、
+// 戦利品やイベントはアイテム・イベント設計が固まってから足す。
+
+// landmarkPlacement は点在ランドマークのリージョン配置。地物の中では最も密に置く。
+var landmarkPlacement = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
+
+// landmarkKind は点在ランドマークの種別。地図の記号と実際に置く構造の両方をこの種別で決める。
+type landmarkKind string
+
+const (
+        landmarkAbandonedHut landmarkKind = "abandoned_hut" // 廃屋。生活の跡が残る小屋
+        landmarkFarmstead    landmarkKind = "farmstead"     // 農家跡。納屋に物資の跡
+        landmarkShrine       landmarkKind = "shrine"        // 祠。石柱と蝋燭だけの露天の構造物
+        landmarkCampsite     landmarkKind = "campsite"      // キャンプ跡。誰かが夜を越した跡
+)
+
+// landmarkKindAt は当選チャンクに置くランドマークの種別を返す純関数。地図の記号と生成の構造が
+// 同じ種別を引くので、俯瞰図の見た目と実体が食い違わない。settlementVillageRoll と同じく
+// (runSeed, 座標) だけで決まる。出現率は廃屋30・農家跡25・祠20・キャンプ跡25。
+func landmarkKindAt(runSeed uint64, c consts.Coord[consts.Chunk]) landmarkKind {
+        <span class="cov8" title="1">switch roll := ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y) % 100; </span>{
+        case roll &lt; 30:
+                <span class="cov8" title="1">return landmarkAbandonedHut</span>
+        case roll &lt; 55:
+                <span class="cov8" title="1">return landmarkFarmstead</span>
+        case roll &lt; 75:
+                <span class="cov8" title="1">return landmarkShrine</span>
+        default:
+                <span class="cov8" title="1">return landmarkCampsite</span>
+        }
+}
+
+// landmarkPlaceType は種別を地図の表示分類へ写す。記号と凡例名は placeGlyphs が一元管理する。
+func landmarkPlaceType(k landmarkKind) placeType {
+        <span class="cov8" title="1">switch k </span>{
+        case landmarkAbandonedHut:
+                <span class="cov8" title="1">return placeAbandonedHut</span>
+        case landmarkFarmstead:
+                <span class="cov8" title="1">return placeFarmstead</span>
+        case landmarkShrine:
+                <span class="cov8" title="1">return placeShrine</span>
+        case landmarkCampsite:
+                <span class="cov8" title="1">return placeCampsite</span>
+        }
+        <span class="cov0" title="0">panic("unknown landmarkKind: " + string(k))</span>
+}
+
+// wildernessLandmarkFeature は自然の点在ランドマークの feature 実装。
+type wildernessLandmarkFeature struct{}
+
+// place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を
+// 壊さない。地物の優先度は chunkTypeAt が一元管理するので、ランドマークは「このチャンクの種別が
+// ランドマークか」を問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済む。
+func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
+        <span class="cov8" title="1">if chunkTypeAt(runSeed, c, rows) != chunkLandmark </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+
+        <span class="cov8" title="1">rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y), 0))
+</span>        // 構造物がチャンク境界をはみ出さないよう内側に収める。maxHut は最大の小屋の幅 7 に壁1枚分の
+        // 余白を足した値で、原点をどこへずらしても外壁と南辺の扉が境界へ接しない
+        <span class="cov8" title="1">const margin, maxHut = 2, 8
+        spanX := max(1, int(g.chunkW)-2*margin-maxHut)
+        spanY := max(1, int(g.chunkH)-2*margin-maxHut)
+        ox := g.offsetX + consts.Tile(margin+rng.IntN(spanX))
+        oy := g.offsetY + consts.Tile(margin+rng.IntN(spanY))
+        origin := consts.Coord[consts.Tile]{X: ox, Y: oy}
+</span>
+        <span class="cov8" title="1">kind := landmarkKindAt(runSeed, c)
+        switch kind </span>{
+        case landmarkAbandonedHut:
+                <span class="cov8" title="1">return drawHut(world, g, rng, origin, 6, 5, []string{"bed", "closet"})</span>
+        case landmarkFarmstead:
+                <span class="cov8" title="1">return drawHut(world, g, rng, origin, 7, 5, []string{"barrel", "crate"})</span>
+        case landmarkShrine:
+                <span class="cov8" title="1">return spawnLandmarkProps(world, origin, []relSpot{
+                        {"stone_pillar", 0, 0},
+                        {"candle", -1, 1},
+                        {"candle", 1, 1},
+                })</span>
+        case landmarkCampsite:
+                <span class="cov8" title="1">return spawnLandmarkProps(world, origin, []relSpot{
+                        {"bonfire", 0, 0},
+                        {"crate", 1, 1},
+                        {"bench", -1, 0},
+                })</span>
+        }
+        <span class="cov0" title="0">panic("unknown landmarkKind: " + string(kind))</span>
+}
+
+// drawHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
+// 市街地の街区と同じ構法だが、単チャンク完結なので断片クリップは不要。
+func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], hw, hh consts.Tile, props []string) error {
+        <span class="cov8" title="1">tiles := g.tiles.get()
+        ox, oy := origin.X, origin.Y
+        door := ox + 1 + consts.Tile(rng.IntN(int(hw-2)))
+        for ly := oy; ly &lt; oy+hh; ly++ </span>{
+                <span class="cov8" title="1">for lx := ox; lx &lt; ox+hw; lx++ </span>{
+                        <span class="cov8" title="1">name := consts.TileNameFloor
+                        perimeter := lx == ox || lx == ox+hw-1 || ly == oy || ly == oy+hh-1
+                        if perimeter &amp;&amp; (ly != oy+hh-1 || lx != door) </span>{
+                                <span class="cov8" title="1">name = consts.TileNameDWall
+</span>                        }
+                        <span class="cov8" title="1">if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil </span>{
+                                <span class="cov0" title="0">return fmt.Errorf("failed to place landmark hut (x=%d, y=%d): %w", lx, ly, err)
+</span>                        }
+                }
+        }
+        <span class="cov8" title="1">for i, name := range props </span>{
+                // 屋内の北側の壁沿いへ左から順に並べる。出入口の導線と重ねない
+                <span class="cov8" title="1">pos := consts.Coord[consts.Tile]{X: ox + 1 + consts.Tile(i), Y: oy + 1}
+                if _, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y); err != nil </span>{
+                        <span class="cov0" title="0">return fmt.Errorf("failed to place landmark interior prop (%s): %w", name, err)
+</span>                }
+        }
+        // 南辺の開口に見える扉を置く。壁の切れ目だけだと原野の中の謎の壁に見えるため、
+        // 廃屋としての入口を明示する。南壁は東西に走るので向きは Vertical
+        <span class="cov8" title="1">if _, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: door, Y: oy + hh - 1}, gc.DoorOrientationVertical); err != nil </span>{
+                <span class="cov0" title="0">return fmt.Errorf("failed to place landmark hut door: %w", err)
+</span>        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// spawnLandmarkProps は露天ランドマークの prop 一式を基準座標からの相対で配置する。
+func spawnLandmarkProps(world w.World, origin consts.Coord[consts.Tile], spots []relSpot) error {
+        <span class="cov8" title="1">for _, s := range spots </span>{
+                <span class="cov8" title="1">if _, err := lifecycle.SpawnProp(world, s.name, origin.X+s.dx, origin.Y+s.dy); err != nil </span>{
+                        <span class="cov0" title="0">return fmt.Errorf("failed to place landmark prop (%s): %w", s.name, err)
+</span>                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file177" style="display: none">package overworld
+
+import (
+        "fmt"
         "math"
         "math/rand/v2"
 
@@ -25375,111 +25522,6 @@ func scatterOutdoorLoot(world w.World, runSeed uint64, c consts.Coord[consts.Chu
 </span>                        }
                 }
                 <span class="cov0" title="0">occupied[gc.GridElement{Coord: bl}] = true</span>
-        }
-        <span class="cov8" title="1">return nil</span>
-}
-</pre>
-		
-		<pre class="file" id="file177" style="display: none">package overworld
-
-import (
-        "fmt"
-        "math/rand/v2"
-
-        gc "github.com/kijimaD/ruins/internal/components"
-        "github.com/kijimaD/ruins/internal/consts"
-        w "github.com/kijimaD/ruins/internal/world"
-        "github.com/kijimaD/ruins/internal/world/lifecycle"
-)
-
-// 自然の点在POIは、集落や市街地の無い原野に小さな景色の変化を置く地物。廃屋・農家跡・
-// 祠・キャンプ跡を重み抽選し、探索の単調さを崩す。今は構造と prop だけを持ち、
-// 戦利品やイベントはアイテム・イベント設計が固まってから足す。
-
-// poiPlacement は点在POIのリージョン配置。地物の中では最も密に置く。
-var poiPlacement = Placement{Spacing: 3, Separation: 1, Salt: poiSalt}
-
-// wildernessPOIFeature は自然の点在POIの feature 実装。
-type wildernessPOIFeature struct{}
-
-// place は当選チャンクの荒れ地に小構造物を1つ置く。景色の脇役なので主役の地物には譲り、構図を
-// 壊さない。地物の優先度は chunkTypeAt が一元管理するので、POI は「このチャンクの種別が POI か」を
-// 問い合わせるだけにする。上位地物を足しても chunkTypeAt を直せば済み、POI 側の変更は要らない。
-func (wildernessPOIFeature) place(world w.World, runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk, g chunkGeom) error {
-        <span class="cov8" title="1">if chunkTypeAt(runSeed, c, rows) != chunkPOI </span>{
-                <span class="cov8" title="1">return nil
-</span>        }
-
-        <span class="cov8" title="1">rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^poiSalt, c.X, c.Y), 0))
-</span>        // 構造物がチャンク境界をはみ出さないよう内側に収める。最大の小屋 7x5 ぶんの余地を残し、
-        // 残り範囲でずらす。小さなチャンクでも境界越えの残留を作らない
-        <span class="cov8" title="1">const margin, maxHut = 2, 8
-        spanX := max(1, int(g.chunkW)-2*margin-maxHut)
-        spanY := max(1, int(g.chunkH)-2*margin-maxHut)
-        ox := g.offsetX + consts.Tile(margin+rng.IntN(spanX))
-        oy := g.offsetY + consts.Tile(margin+rng.IntN(spanY))
-        origin := consts.Coord[consts.Tile]{X: ox, Y: oy}
-</span>
-        <span class="cov8" title="1">roll := rng.IntN(100)
-        switch </span>{
-        case roll &lt; 30: // 廃屋。生活の跡が残る小屋
-                <span class="cov8" title="1">return drawHut(world, g, rng, origin, 6, 5, []string{"bed", "closet"})</span>
-        case roll &lt; 55: // 農家跡。納屋に物資の跡
-                <span class="cov8" title="1">return drawHut(world, g, rng, origin, 7, 5, []string{"barrel", "crate"})</span>
-        case roll &lt; 75: // 祠。石柱と蝋燭だけの露天の構造物
-                <span class="cov8" title="1">return spawnPOIProps(world, origin, []relSpot{
-                        {"stone_pillar", 0, 0},
-                        {"candle", -1, 1},
-                        {"candle", 1, 1},
-                })</span>
-        default: // キャンプ跡。誰かが夜を越した跡
-                <span class="cov8" title="1">return spawnPOIProps(world, origin, []relSpot{
-                        {"bonfire", 0, 0},
-                        {"crate", 1, 1},
-                        {"bench", -1, 0},
-                })</span>
-        }
-}
-
-// drawHut は外周壁・内側床・南辺出入口の小屋を置き、内装 prop を屋内へ順に配置する。
-// 市街地の街区と同じ構法だが、単チャンク完結なので断片クリップは不要。
-func drawHut(world w.World, g chunkGeom, rng *rand.Rand, origin consts.Coord[consts.Tile], hw, hh consts.Tile, props []string) error {
-        <span class="cov8" title="1">tiles := g.tiles.get()
-        ox, oy := origin.X, origin.Y
-        door := ox + 1 + consts.Tile(rng.IntN(int(hw-2)))
-        for ly := oy; ly &lt; oy+hh; ly++ </span>{
-                <span class="cov8" title="1">for lx := ox; lx &lt; ox+hw; lx++ </span>{
-                        <span class="cov8" title="1">name := consts.TileNameFloor
-                        perimeter := lx == ox || lx == ox+hw-1 || ly == oy || ly == oy+hh-1
-                        if perimeter &amp;&amp; (ly != oy+hh-1 || lx != door) </span>{
-                                <span class="cov8" title="1">name = consts.TileNameDWall
-</span>                        }
-                        <span class="cov8" title="1">if err := replaceTile(world, tiles, consts.Coord[consts.Tile]{X: lx, Y: ly}, name); err != nil </span>{
-                                <span class="cov0" title="0">return fmt.Errorf("failed to place POI hut (x=%d, y=%d): %w", lx, ly, err)
-</span>                        }
-                }
-        }
-        <span class="cov8" title="1">for i, name := range props </span>{
-                // 屋内の北側の壁沿いへ左から順に並べる。出入口の導線と重ねない
-                <span class="cov8" title="1">pos := consts.Coord[consts.Tile]{X: ox + 1 + consts.Tile(i), Y: oy + 1}
-                if _, err := lifecycle.SpawnProp(world, name, pos.X, pos.Y); err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("failed to place POI interior prop (%s): %w", name, err)
-</span>                }
-        }
-        // 南辺の開口に見える扉を置く。壁の切れ目だけだと原野の中の謎の壁に見えるため、
-        // 廃屋としての入口を明示する。南壁は東西に走るので向きは Vertical
-        <span class="cov8" title="1">if _, err := lifecycle.SpawnDoor(world, consts.Coord[consts.Tile]{X: door, Y: oy + hh - 1}, gc.DoorOrientationVertical); err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to place POI hut door: %w", err)
-</span>        }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// spawnPOIProps は露天POIの prop 一式を基準座標からの相対で配置する。
-func spawnPOIProps(world w.World, origin consts.Coord[consts.Tile], spots []relSpot) error {
-        <span class="cov8" title="1">for _, s := range spots </span>{
-                <span class="cov8" title="1">if _, err := lifecycle.SpawnProp(world, s.name, origin.X+s.dx, origin.Y+s.dy); err != nil </span>{
-                        <span class="cov0" title="0">return fmt.Errorf("failed to place POI prop (%s): %w", s.name, err)
-</span>                }
         }
         <span class="cov8" title="1">return nil</span>
 }
@@ -25713,7 +25755,7 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。
 // 開けた地形のバイオームごとにカタログを束ねる分岐点で、ここが散布の拡張口になる。砂漠など別の
 // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
-// 必要なら地面の塗りを用意する。建物・道・POI など開けていないチャンクは散布しないので default で
+// 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
 func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (scatterCatalog, bool) {
         <span class="cov8" title="1">switch chunkTypeAt(runSeed, c, rows) </span>{
@@ -25993,7 +26035,7 @@ type GlyphInfo struct {
 // 俯瞰図の記号は尺度の違う2層の語彙でできている。両者は対等な兄弟ではなく、市街地以外の粗い層と
 // 市街地の中の細かい層という入れ子の関係にある。地図はチャンクの種別に応じてどちらかの記号を1つ選ぶ。
 //   - placeType: チャンク尺度。市街地以外のチャンクを1記号で表す。荒れ地・村・一軒家・遺跡入口・
-//     点在POI。地図の表示専用で、生成には関与しない。
+//     点在ランドマークの各種別。地図の表示専用で、生成には関与しない。
 //   - facilityType: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく
 //     市街地生成の重み抽選にも使う実体のあるドメイン型で、urban.go が持つ。
 // 地図は市街地チャンクを facilityType の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は
@@ -26019,8 +26061,9 @@ var facilityOrder = []facilityType{
 
 // placeType はチャンク尺度の記号キー。市街地以外のチャンクを1記号で表す表示専用の分類で、記号と
 // 凡例名を placeGlyphs から引くために使う。生成には関与しない。chunkType とは1対1ではない。
-// chunkSettlement は村ロールで placeVillage と placeHamlet に分かれ、chunkUrban は建物尺度の
-// facilityType を使うのでここには無い。実体は文字列。%v やログで数値でなく種別名が出て読みやすい。
+// chunkSettlement は村ロールで placeVillage と placeHamlet に、chunkLandmark は種別ロールで
+// 廃屋・農家跡・祠・キャンプ跡に分かれる。chunkUrban は建物尺度の facilityType を使うのでここには
+// 無い。実体は文字列。%v やログで数値でなく種別名が出て読みやすい。
 type placeType string
 
 const (
@@ -26028,7 +26071,10 @@ const (
         placeVillage         placeType = "village"          // 村
         placeHamlet          placeType = "hamlet"           // 一軒家
         placeDungeonEntrance placeType = "dungeon_entrance" // 遺跡入口
-        placePOI             placeType = "poi"              // 点在POI
+        placeAbandonedHut    placeType = "abandoned_hut"    // 点在ランドマーク: 廃屋
+        placeFarmstead       placeType = "farmstead"        // 点在ランドマーク: 農家跡
+        placeShrine          placeType = "shrine"           // 点在ランドマーク: 祠
+        placeCampsite        placeType = "campsite"         // 点在ランドマーク: キャンプ跡
         placeUnknown         placeType = "unknown"          // 分類漏れの保険。凡例には出さない
 )
 
@@ -26039,13 +26085,16 @@ var placeGlyphs = map[placeType]GlyphInfo{
         placeVillage:         {'T', "Village", color.RGBA{R: 255, G: 210, B: 74, A: 255}},        // 黄
         placeHamlet:          {'t', "Lone House", color.RGBA{R: 208, G: 168, B: 58, A: 255}},     // 濃黄
         placeDungeonEntrance: {'&gt;', "Ruins Entrance", color.RGBA{R: 224, G: 69, B: 58, A: 255}},  // 赤
-        placePOI:             {'*', "Scattered POI", color.RGBA{R: 111, G: 191, B: 111, A: 255}}, // 緑
+        placeAbandonedHut:    {'x', "Abandoned Hut", color.RGBA{R: 150, G: 140, B: 120, A: 255}}, // 灰褐
+        placeFarmstead:       {'f', "Old Farmstead", color.RGBA{R: 150, G: 160, B: 80, A: 255}},  // オリーブ
+        placeShrine:          {'s', "Shrine", color.RGBA{R: 130, G: 190, B: 175, A: 255}},        // 淡青緑
+        placeCampsite:        {'^', "Campsite", color.RGBA{R: 215, G: 150, B: 90, A: 255}},       // 橙
         placeUnknown:         {'?', "Unclassified", color.RGBA{R: 90, G: 90, B: 90, A: 255}},     // 灰。凡例外なので実際は既定へ落ちる
 }
 
 // placeOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。
 // placeUnknown は分類漏れの保険なので凡例には含めない。
-var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placePOI}
+var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placeAbandonedHut, placeFarmstead, placeShrine, placeCampsite}
 
 // LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。
 // SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。
@@ -26083,12 +26132,12 @@ const (
         chunkSettlement      chunkType = "settlement"       // 集落。村・一軒家
         chunkUrban           chunkType = "urban"            // 市街地。建物チャンク
         chunkDungeonEntrance chunkType = "dungeon_entrance" // 遺跡入口
-        chunkPOI             chunkType = "poi"              // 自然の点在POI
+        chunkLandmark        chunkType = "landmark"         // 自然の点在ランドマーク
 )
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
-// 荒れ地を返す。優先度は市街地 &gt; 遺跡入口 &gt; 集落 &gt; 点在POI &gt; 荒れ地。地図も生成もこの分類を
-// 唯一の源にするので、地図の記号と実体が食い違わない。
+// 荒れ地を返す。優先度は市街地 &gt; 遺跡入口 &gt; 集落 &gt; 点在ランドマーク &gt; 荒れ地。地図も生成もこの
+// 分類を唯一の源にするので、地図の記号と実体が食い違わない。
 func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {
         <span class="cov8" title="1">if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok </span>{
                 <span class="cov8" title="1">return chunkUrban
@@ -26099,8 +26148,8 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk
         <span class="cov8" title="1">if settlementPlacement.At(runSeed, c, rows) </span>{
                 <span class="cov8" title="1">return chunkSettlement
 </span>        }
-        <span class="cov8" title="1">if poiPlacement.At(runSeed, c, rows) </span>{
-                <span class="cov8" title="1">return chunkPOI
+        <span class="cov8" title="1">if landmarkPlacement.At(runSeed, c, rows) </span>{
+                <span class="cov8" title="1">return chunkLandmark
 </span>        }
         <span class="cov8" title="1">return chunkWasteland</span>
 }
@@ -26110,6 +26159,8 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk
 func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {
         <span class="cov8" title="1">switch chunkTypeAt(runSeed, c, rows) </span>{
         case chunkUrban:
+                // 施設種は urbanChunkInfo が別途返す動的な値で、facilityGlyphs に無い種が来うるので
+                // ok チェックする。他の種別は placeType が局所で保証されるので直接引く
                 <span class="cov8" title="1">kind, _, _ := urbanChunkInfo(runSeed, c, rows)
                 if g, ok := facilityGlyphs[kind]; ok </span>{
                         <span class="cov8" title="1">return g.Label
@@ -26122,8 +26173,8 @@ func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk)
                         <span class="cov8" title="1">return placeGlyphs[placeVillage].Label
 </span>                }
                 <span class="cov8" title="1">return placeGlyphs[placeHamlet].Label</span>
-        case chunkPOI:
-                <span class="cov8" title="1">return placeGlyphs[placePOI].Label</span>
+        case chunkLandmark:
+                <span class="cov8" title="1">return placeGlyphs[landmarkPlaceType(landmarkKindAt(runSeed, c))].Label</span>
         case chunkWasteland:
                 <span class="cov8" title="1">return placeGlyphs[placeField].Label</span>
         }
@@ -26302,7 +26353,7 @@ import (
         "github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
-// relSpot は基準点からの相対座標に置くエンティティの定義。集落の中心や POI の原点を基準に、
+// relSpot は基準点からの相対座標に置くエンティティの定義。集落の中心やランドマークの原点を基準に、
 // NPC や prop をずらして配置するのに使う。
 type relSpot struct {
         name string
@@ -36824,16 +36875,18 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
                 vector.StrokeRect(screen, float32(x-1), float32(y-1), float32(mapCellPx+1), float32(mapCellPx+1), 2, theme.OverworldMapPlayerMarker, false)
 </span>        }
 
-        <span class="cov8" title="1">st.drawLegend(screen, drawText, originY+consts.ScreenPixel(len(st.glyphs))*mapCellPx+16)
+        <span class="cov8" title="1">st.drawLegend(screen, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.glyphs))*mapCellPx+16)
         return nil</span>
 }
 
-// drawLegend は色と種別名の対応を俯瞰図の下に並べて描く。凡例の記号と名前は overworld が
-// 唯一の源として持つので、ここで種別名を直書きしない。
-func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
-        <span class="cov8" title="1">x, y := consts.ScreenPixel(16), top
+// drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本に格子と同じ記号を重ね、
+// マップ上の1文字から凡例を引けるようにする。
+func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawGlyph func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
+        <span class="cov8" title="1">const swatch consts.ScreenPixel = 14
+        x, y := consts.ScreenPixel(16), top
         for _, g := range overworld.LegendGlyphs() </span>{
-                <span class="cov8" title="1">vector.FillRect(screen, float32(x), float32(y), 14, 14, glyphColor(g.Label), false)
+                <span class="cov8" title="1">vector.FillRect(screen, float32(x), float32(y), float32(swatch), float32(swatch), glyphColor(g.Label), false)
+                drawGlyph(string(g.Label), x+swatch/2, y+swatch/2, theme.OverworldMapGlyphText)
                 drawText(g.Name, x+20, y-2, theme.TextPrimary)
                 x += 120
                 if x &gt; 720 </span>{
@@ -38411,7 +38464,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 </span>
         // 入札が来る限り延長する。来たら現在値を上げる
         <span class="cov8" title="1">if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
-                <span class="cov8" title="1">l.CurrentBid += query.AuctionRaise(world, item)
+                <span class="cov0" title="0">l.CurrentBid += query.AuctionRaise(world, item)
                 return
 </span>        }
 

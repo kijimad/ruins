@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-23 07:59:11</td>
+            <td class="headerValue">2026-08-23 08:23:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -195,7 +195,7 @@
 <span id="L133"><span class="lineNum">     133</span>              : // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。</span>
 <span id="L134"><span class="lineNum">     134</span>              : // 開けた地形のバイオームごとにカタログを束ねる分岐点で、ここが散布の拡張口になる。砂漠など別の</span>
 <span id="L135"><span class="lineNum">     135</span>              : // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと</span>
-<span id="L136"><span class="lineNum">     136</span>              : // 必要なら地面の塗りを用意する。建物・道・POI など開けていないチャンクは散布しないので default で</span>
+<span id="L136"><span class="lineNum">     136</span>              : // 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で</span>
 <span id="L137"><span class="lineNum">     137</span>              : // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。</span>
 <span id="L138"><span class="lineNum">     138</span>              : func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (scatterCatalog, bool) {</span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC tlaBgGNC">           1 :         switch chunkTypeAt(runSeed, c, rows) {</span></span>

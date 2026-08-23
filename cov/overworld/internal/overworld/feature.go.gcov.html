@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-23 07:59:11</td>
+            <td class="headerValue">2026-08-23 08:23:23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -131,10 +131,10 @@
 <span id="L69"><span class="lineNum">      69</span>              : </span>
 <span id="L70"><span class="lineNum">      70</span>              : // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。</span>
 <span id="L71"><span class="lineNum">      71</span>              : func features() []feature {</span>
-<span id="L72"><span class="lineNum">      72</span>              :         // 点在POIは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に評価する。</span>
-<span id="L73"><span class="lineNum">      73</span>              :         // 散布は占有と道の実状態を読むため最後に評価する</span>
+<span id="L72"><span class="lineNum">      72</span>              :         // 点在ランドマークは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に</span>
+<span id="L73"><span class="lineNum">      73</span>              :         // 評価する。散布は占有と道の実状態を読むため最後に評価する</span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         return []feature{</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessPOIFeature{},</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessLandmarkFeature{},</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 roadFeature{}, openTerrainFeature{},</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L78"><span class="lineNum">      78</span>              : }</span>
@@ -147,7 +147,7 @@
 <span id="L85"><span class="lineNum">      85</span>              :         settlementSalt uint64 = iota + 1</span>
 <span id="L86"><span class="lineNum">      86</span>              :         urbanSalt</span>
 <span id="L87"><span class="lineNum">      87</span>              :         dungeonEntranceSalt</span>
-<span id="L88"><span class="lineNum">      88</span>              :         poiSalt</span>
+<span id="L88"><span class="lineNum">      88</span>              :         landmarkSalt</span>
 <span id="L89"><span class="lineNum">      89</span>              :         scatterSalt</span>
 <span id="L90"><span class="lineNum">      90</span>              :         outdoorLootSalt</span>
 <span id="L91"><span class="lineNum">      91</span>              : )</span>
