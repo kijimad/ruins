@@ -123,9 +123,6 @@ model SaveData {
 model WorldSaveData {
   /** エンティティの配列。StableIDでソートされる */
   entities: EntitySaveData[];
-
-  /** ゲーム進行状態 */
-  game_progress?: GameProgress;
 }
 
 /** 単一エンティティのセーブデータ */
@@ -144,26 +141,6 @@ model StableID {
 
   /** 世代番号。同一インデックスの再利用を区別する */
   generation: EntityGeneration;
-}
-
-// ================== ゲーム進行 ==================
-
-/** ゲーム進行状態 */
-model GameProgress {
-  /** クリア済みダンジョンのマップ。キーはダンジョン名 */
-  cleared_dungeons: Record<boolean>;
-
-  /** イベント状態のマップ。キーはイベント名 */
-  events: Record<EventState>;
-}
-
-/** イベントの状態 */
-model EventState {
-  /** イベントがアクティブかどうか */
-  active: boolean;
-
-  /** イベントが表示済みかどうか */
-  seen: boolean;
 }
 
 // ================== コンポーネントマップ ==================

@@ -65,7 +65,6 @@ func (world World) InitSingleton() {
 	world.Components.GameLog.Add(singleton, &gc.GameLog{
 		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
 	})
-	world.Components.GameProgress.Add(singleton, gc.NewGameProgress())
 	world.Components.Dungeon.Add(singleton, gc.NewDungeon())
 	world.Components.TurnState.Add(singleton, gc.NewTurnState())
 	world.Components.SpatialIndex.Add(singleton, gc.NewSpatialIndex())

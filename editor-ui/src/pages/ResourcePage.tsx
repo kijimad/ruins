@@ -159,7 +159,6 @@ const createTemplates: Record<string, Record<string, JsonValue>> = {
     commandTableName: "",
     dropTableName: "",
     factionType: "",
-    isBoss: false,
     player: false,
   },
   recipes: {

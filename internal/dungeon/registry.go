@@ -38,7 +38,6 @@ var (
 		enemyTable:  "forest",
 		itemTable:   "forest",
 		baseTemp:    0, // 寒い
-		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeForest, Weight: 5},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 2},
@@ -55,7 +54,6 @@ var (
 		enemyTable:  "cave",
 		itemTable:   "cave",
 		baseTemp:    5, // 寒い
-		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeCave, Weight: 6},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
@@ -80,7 +78,6 @@ var (
 		enemyTable:  "ruins_area",
 		itemTable:   "ruins_area",
 		baseTemp:    15, // やや快適
-		bossPlanner: &mapplanner.PlannerTypeBossFloor,
 		plannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 4},
 			{PlannerType: mapplanner.PlannerTypeRuins, Weight: 3},
@@ -118,15 +115,6 @@ var allDungeons = []*DungeonDefinition{
 // オーバーワールドやデバッグなどの内部用の定義は含まない。
 func GetAllDungeons() []*DungeonDefinition {
 	return allDungeons
-}
-
-// GetAllDungeonNames は全ダンジョン名のスライスを返す
-func GetAllDungeonNames() []string {
-	names := make([]string, len(allDungeons))
-	for i := range allDungeons {
-		names[i] = allDungeons[i].Name()
-	}
-	return names
 }
 
 // internalDefinitions は選択画面に表示しない内部用の定義

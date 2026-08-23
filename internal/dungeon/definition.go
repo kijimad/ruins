@@ -41,8 +41,6 @@ type DungeonDefinition struct {
 	itemTable   string
 	plannerPool []PlannerWeight
 	baseTemp    int
-	// bossPlanner は最終階で使うボスフロアプランナー。nil ならボスフロアなし
-	bossPlanner *mapplanner.PlannerType
 }
 
 // Name はダンジョン名を返す
@@ -68,15 +66,6 @@ func (d *DungeonDefinition) ItemTableName() string { return d.itemTable }
 
 // PlannerPool は使用するマップ種類と重みの一覧を返す。表示や検証での読み取り用。
 func (d *DungeonDefinition) PlannerPool() []PlannerWeight { return d.plannerPool }
-
-// BossPlanner は depth が最終階のときボスフロアプランナーを返す。
-// ボスフロアがない、または最終階でなければ ok=false を返す。
-func (d *DungeonDefinition) BossPlanner(depth int) (mapplanner.PlannerType, bool) {
-	if d.bossPlanner != nil && depth == d.totalFloors {
-		return *d.bossPlanner, true
-	}
-	return mapplanner.PlannerType{}, false
-}
 
 // SelectPlanner は PlannerPool から重み付き抽選で PlannerType を選ぶ。
 // プランナー抽選はフロアを生成するダンジョン固有の振る舞いなのでこの型のメソッドにする。

@@ -138,11 +138,7 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan, offsetX, offsetY co
 				return fmt.Errorf("failed to spawn neutral NPC (%d, %d): %w", x, y, err)
 			}
 		} else {
-			var opts []lifecycle.SpawnEnemyOption
-			if member.IsBoss {
-				opts = append(opts, lifecycle.WithBoss())
-			}
-			_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name, opts...)
+			_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)}, npc.Name)
 			if err != nil {
 				return fmt.Errorf("failed to spawn enemy NPC (%d, %d): %w", x, y, err)
 			}

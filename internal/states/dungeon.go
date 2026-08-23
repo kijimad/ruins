@@ -198,24 +198,6 @@ func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
-	// 全ダンジョン踏破をオーバーワールド滞在時に判定する。判定条件は帯シフトと同じ
-	// 「driver保持かつ現ステージ深度0」。SetEventActive は冪等で視聴後は再発火しないので、
-	// 毎フレーム呼んでも一度だけ発火する
-	if st.driver != nil && query.IsOnOverworld(world) {
-		gp := query.GetGameProgress(world)
-		if gp.IsAllCleared(dungeon.GetAllDungeonNames()) {
-			gp.SetEventActive(gc.EventAllCleared)
-		}
-	}
-
-	// 全クリアイベントの表示
-	if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {
-		query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			NewAllClearEventState,
-		}}, nil
-	}
-
 	// カメラのポインタ操作は3Dへ委譲する。キー操作は束縛表を通して DoAction に届く
 	st.three.update(world)
 

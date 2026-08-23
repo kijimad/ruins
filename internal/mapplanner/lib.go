@@ -468,15 +468,6 @@ var (
 		},
 	}
 
-	// PlannerTypeBossFloor はボスフロアのプランナータイプ
-	PlannerTypeBossFloor = PlannerType{
-		Name:              "Boss Floor",
-		UseFixedPortalPos: true,
-		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
-			return NewPlannerChainByTemplateType(TemplateTypeBossFloor, seed)
-		},
-	}
-
 	// PlannerTypeCubeInterior は移動拠点キューブの内部のテンプレートプランナー。壁で囲った狭い
 	// 1階層で、階段ポータルを持たない閉じた部屋。テンプレートが spawn_points を持つので Plan の
 	// 到達性検証はポータルを要求せず通る。移動拠点キューブ専用の内部で、手続きダンジョンの
@@ -512,7 +503,6 @@ var (
 		PlannerTypeOfficeBuilding,
 		PlannerTypeSmallTown,
 		PlannerTypeTownPlaza,
-		PlannerTypeBossFloor,
 	}
 
 	// debugPlannerTypes は名前指定でのみ使うデバッグ専用プランナー。ランダム選択や

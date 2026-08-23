@@ -104,17 +104,6 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 	}
 
-	// ボス撃破時の処理: クリアフラグ
-	for _, entity := range toDelete {
-		if world.Components.Boss.Has(entity) {
-			// ダンジョンクリアフラグを立てる
-			dungeonName := query.GetDungeon(world).CurrentStage.Name
-			query.GetGameProgress(world).MarkDungeonCleared(dungeonName)
-
-			logger.Debug("boss defeated: set clear flag", "dungeon", dungeonName)
-		}
-	}
-
 	// 撃破統計: 除去する敵を run 統計へ加算する
 	if stats := query.GetRunStats(world); stats != nil {
 		for _, entity := range toDelete {

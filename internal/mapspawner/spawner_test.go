@@ -73,37 +73,10 @@ func TestSpawnNPCs_敵NPCを生成する(t *testing.T) {
 
 	query := ecs.NewFilter1[gc.FactionEnemy](world.ECS).Query()
 	count := 0
-	bossCount := 0
 	for query.Next() {
 		count++
-		if world.Components.Boss.Has(query.Entity()) {
-			bossCount++
-		}
 	}
 	assert.Equal(t, 1, count, "敵NPCが1体生成される")
-	assert.Equal(t, 0, bossCount, "ボスフラグは付かない")
-}
-
-func TestSpawnNPCs_ボス敵NPCにBossコンポーネントが付く(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	plan := newTestSpawnPlan(world)
-	plan.NPCs = []mapplanner.NPCSpec{
-		{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}, Name: "frozen_hunter"},
-	}
-
-	err := spawnNPCs(world, plan, 0, 0)
-	require.NoError(t, err)
-
-	query := ecs.NewFilter1[gc.FactionEnemy](world.ECS).Query()
-	bossCount := 0
-	for query.Next() {
-		if world.Components.Boss.Has(query.Entity()) {
-			bossCount++
-		}
-	}
-	assert.Equal(t, 1, bossCount, "isBoss=trueのNPCにはBossコンポーネントが付く")
 }
 
 func TestSpawnNPCs_オフセットが座標に加算される(t *testing.T) {

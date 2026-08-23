@@ -21,11 +21,6 @@ func GetTurnState(world w.World) *gc.TurnState {
 	return GetSingleton[gc.TurnState](world, world.Components.TurnState)
 }
 
-// GetGameProgress はシングルトンエンティティからGameProgressを取得する
-func GetGameProgress(world w.World) *gc.GameProgress {
-	return GetSingleton[gc.GameProgress](world, world.Components.GameProgress)
-}
-
 // GetDungeon はシングルトンエンティティからDungeonを取得する
 // ダンジョン未開始の場合はnilを返す
 func GetDungeon(world w.World) *gc.Dungeon {

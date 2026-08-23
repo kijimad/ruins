@@ -49,12 +49,6 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			}
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 		}},
-		{Label: "Clear all dungeons", Run: popAfter(func(world w.World) error {
-			for _, name := range dungeon.GetAllDungeonNames() {
-				query.GetGameProgress(world).MarkDungeonCleared(name)
-			}
-			return nil
-		})},
 		{Label: "Start overworld", Run: func(world w.World) (es.Transition[w.World], error) {
 			return es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{newGameOverworldState(world)}}, nil
 		}},
@@ -111,7 +105,6 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			return nil
 		})},
 		Choice{Label: "Opening", Run: pushChoice(NewOpeningState)},
-		Choice{Label: "All clear event", Run: pushChoice(NewAllClearEventState)},
 		Choice{Label: "Name input", Run: pushChoice(NewCharacterNamingState)},
 		Choice{Label: "Job selection", Run: pushChoice(NewCharacterJobState("Ash"))},
 		Choice{Label: "Spawn enemy: fireball (hostile)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "fireball") })},

@@ -73,11 +73,12 @@ func deserializeWorld(world w.World, worldJSON []byte) (err error) {
 // スキップした一時コンポーネント（GameLog/SpatialIndex）を再付与し、
 // json:"-"で除外された視界マップを初期化し、Resourcesの参照を張り直す。
 func reestablishSingleton(world w.World) error {
-	// GameProgressを持つ最初のエンティティをシングルトンとする。
-	// 途中returnはワールドをロックしたまま残すため、クエリは最後まで反復する
+	// Dungeonを持つ最初のエンティティをシングルトンとする。Dungeon はシングルトン専用の
+	// 保存対象コンポーネントで、復元後も残る。途中returnはワールドをロックしたまま残すため、
+	// クエリは最後まで反復する
 	var singleton ecs.Entity
 	found := false
-	q := ecs.NewFilter1[gc.GameProgress](world.ECS).Query()
+	q := ecs.NewFilter1[gc.Dungeon](world.ECS).Query()
 	for q.Next() {
 		if !found {
 			singleton = q.Entity()
@@ -85,7 +86,7 @@ func reestablishSingleton(world w.World) error {
 		}
 	}
 	if !found {
-		return fmt.Errorf("restored data has no singleton entity that holds GameProgress")
+		return fmt.Errorf("restored data has no singleton entity that holds Dungeon")
 	}
 	world.Resources.SingletonEntity = singleton
 

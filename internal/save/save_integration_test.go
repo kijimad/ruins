@@ -123,9 +123,6 @@ func TestSaveLoadInPlace(t *testing.T) {
 	_, pErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, pErr)
 
-	// GameProgressにデータを設定
-	query.GetGameProgress(world).MarkDungeonCleared("遺跡")
-
 	sm, err := NewSerializationManager(WithSaveDir(tempDir))
 	require.NoError(t, err)
 	err = sm.SaveWorld(world, "inplace")
@@ -135,89 +132,7 @@ func TestSaveLoadInPlace(t *testing.T) {
 	err = sm.LoadWorld(world, "inplace")
 	require.NoError(t, err)
 
-	// シングルトンのGameProgressがパニックせずアクセスできることを確認
-	gp := query.GetGameProgress(world)
-	require.NotNil(t, gp, "GameProgressがnilであってはならない")
-	assert.True(t, gp.IsDungeonCleared("遺跡"))
-
 	// Dungeonは丸ごと保存で復元されるのでnilにならない
 	d := query.GetDungeon(world)
 	assert.NotNil(t, d, "Dungeonが存在する")
-}
-
-// TestSaveLoadGameProgress はGameProgressのセーブ・ロードを検証する
-func TestSaveLoadGameProgress(t *testing.T) {
-	t.Parallel()
-
-	t.Run("ダンジョンクリアフラグの保存と復元", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// プレイヤーを作成（セーブ対象のエンティティが必要）
-		_, pErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-		require.NoError(t, pErr)
-
-		// ダンジョンクリアフラグを設定
-		query.GetGameProgress(world).MarkDungeonCleared("遺跡")
-		query.GetGameProgress(world).MarkDungeonCleared("洞窟")
-
-		// JSON生成→復元のラウンドトリップ
-		sm := createTestSerializationManager(t)
-		jsonStr, err := sm.GenerateWorldJSON(world)
-		require.NoError(t, err)
-
-		newWorld := testutil.InitTestWorld(t)
-		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
-		require.NoError(t, err)
-
-		// 復元後のGameProgressを検証
-		assert.True(t, query.GetGameProgress(newWorld).IsDungeonCleared("遺跡"))
-		assert.True(t, query.GetGameProgress(newWorld).IsDungeonCleared("洞窟"))
-		assert.False(t, query.GetGameProgress(newWorld).IsDungeonCleared("森林"))
-	})
-
-	t.Run("イベント状態の保存と復元", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		_, pErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-		require.NoError(t, pErr)
-
-		// イベント状態を設定
-		query.GetGameProgress(world).SetEventActive("all_cleared")
-		query.GetGameProgress(world).MarkEventSeen("all_cleared")
-
-		sm := createTestSerializationManager(t)
-		jsonStr, err := sm.GenerateWorldJSON(world)
-		require.NoError(t, err)
-
-		newWorld := testutil.InitTestWorld(t)
-		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
-		require.NoError(t, err)
-
-		// 視聴済みイベントはIsEventUnseenがfalseになる
-		assert.False(t, query.GetGameProgress(newWorld).IsEventUnseen("all_cleared"))
-		ev := query.GetGameProgress(newWorld).Events["all_cleared"]
-		assert.True(t, ev.Active)
-		assert.True(t, ev.Seen)
-	})
-
-	t.Run("空のGameProgressの保存と復元", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		_, pErr := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-		require.NoError(t, pErr)
-
-		sm := createTestSerializationManager(t)
-		jsonStr, err := sm.GenerateWorldJSON(world)
-		require.NoError(t, err)
-
-		newWorld := testutil.InitTestWorld(t)
-		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
-		require.NoError(t, err)
-
-		assert.Empty(t, query.GetGameProgress(newWorld).ClearedDungeons)
-		assert.Empty(t, query.GetGameProgress(newWorld).Events)
-	})
 }

@@ -999,10 +999,6 @@ export interface Member {
      * プレイヤーキャラクターかどうか
      */
     'player'?: boolean;
-    /**
-     * ボスモンスターかどうか
-     */
-    'isBoss': boolean;
     'abilities': Abilities;
     /**
      * スプライトシート名
@@ -1626,19 +1622,6 @@ export interface SaveDataEquipBonusData {
     'Agility': number;
 }
 /**
- * イベントの状態
- */
-export interface SaveDataEventState {
-    /**
-     * イベントがアクティブかどうか
-     */
-    'active': boolean;
-    /**
-     * イベントが表示済みかどうか
-     */
-    'seen': boolean;
-}
-/**
  * 遠距離攻撃設定
  */
 export interface SaveDataFireComponent {
@@ -1700,19 +1683,6 @@ export interface SaveDataFloatPool {
      * プール現在値 (浮動小数点)
      */
     'Current': number;
-}
-/**
- * ゲーム進行状態
- */
-export interface SaveDataGameProgress {
-    /**
-     * クリア済みダンジョンのマップ。キーはダンジョン名
-     */
-    'cleared_dungeons': { [key: string]: boolean; };
-    /**
-     * イベント状態のマップ。キーはイベント名
-     */
-    'events': { [key: string]: SaveDataEventState; };
 }
 /**
  * グリッド上の位置 (タイル座標)
@@ -2142,10 +2112,6 @@ export interface SaveDataWorldSaveData {
      * エンティティの配列。StableIDでソートされる
      */
     'entities': Array<SaveDataEntitySaveData>;
-    /**
-     * ゲーム進行状態
-     */
-    'game_progress'?: SaveDataGameProgress;
 }
 /**
  * 遮蔽タイプ

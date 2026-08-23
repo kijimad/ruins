@@ -126,20 +126,6 @@ func NewGameOverMessageState() (es.State[w.World], error) {
 	return messageState, nil
 }
 
-// NewAllClearEventState は全ダンジョンクリア時のイベントStateを作成するファクトリー関数
-func NewAllClearEventState() (es.State[w.World], error) {
-	messageState := &MessageState{}
-
-	messageState.build = func(world w.World) *messagedata.MessageData {
-		return messagedata.NewSystemMessage(query.T(world, "You conquered all the ruins.\n\nThe ancient presence sleeping at the bottom of the great hole has finally quieted.")).
-			WithChoice(query.T(world, "Close"), func(_ w.World) error {
-				messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-				return nil
-			})
-	}
-	return messageState, nil
-}
-
 // NewSaveMenuState は手動セーブ画面を作成するファクトリー関数。
 // 固定4スロットで、主人公名とタイムスタンプを表示する。
 func NewSaveMenuState() (es.State[w.World], error) {

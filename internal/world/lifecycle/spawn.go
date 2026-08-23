@@ -137,18 +137,8 @@ func SpawnNeutralNPC(world w.World, pos consts.Coord[consts.Tile], name string) 
 	return npcEntity, nil
 }
 
-// SpawnEnemyOption はSpawnEnemyの振る舞いを変更する関数オプション
-type SpawnEnemyOption func(ecs.Entity, w.World)
-
-// WithBoss はボスコンポーネントを付与するオプション
-func WithBoss() SpawnEnemyOption {
-	return func(entity ecs.Entity, world w.World) {
-		world.Components.Boss.Add(entity, &gc.Boss{})
-	}
-}
-
 // SpawnEnemy はフィールド上に敵キャラクターを生成する
-func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts ...SpawnEnemyOption) (ecs.Entity, error) {
+func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.Entity, error) {
 	entitySpec, err := raw.NewEnemySpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return gc.InvalidEntity, fmt.Errorf("%w: %w", ErrEnemyGeneration, err)
@@ -182,10 +172,6 @@ func SpawnEnemy(world w.World, pos consts.Coord[consts.Tile], name string, opts 
 		}
 		actionPoints.AP.Current = maxAP
 		actionPoints.AP.Max = maxAP
-	}
-
-	for _, opt := range opts {
-		opt(npcEntity, world)
 	}
 
 	query.InvalidateSpatialIndex(world)
