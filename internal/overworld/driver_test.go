@@ -170,19 +170,11 @@ func TestDriver_セーブ往復で帯状態が復元される(t *testing.T) {
 	assert.Equal(t, chunkW, sb.ChunkW, "ChunkW が復元される")
 	assert.Equal(t, cols, int(sb.Cols), "Cols が復元される")
 
-	// 寒波前線の config が復元される
-	assert.True(t, sb.Front.Active, "FrontActive が復元される")
-	assert.Equal(t, frontColdWidthChunks.Tiles(chunkW), sb.Front.ColdWidth, "FrontColdWidth が復元される")
-	assert.Equal(t, frontAdvanceTurns, sb.Front.AdvanceTurns, "FrontAdvanceTurns が復元される")
-	assert.Equal(t, frontStep, sb.Front.Step, "FrontStep が復元される")
-
 	// 復元ワールドでロード用ドライバを起動 → Band が eastIndex=1 で再構築される
 	s2 := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.DungeonOverworld, nil)
 	require.NoError(t, s2.Start(world2))
 	assert.Equal(t, 1, int(s2.EastIndex()), "ロード復元で Band が eastIndex=1 で再構築される")
 	assert.Equal(t, chunkW*cols, query.GetCurrentStageField(world2).Level.TileWidth, "帯全幅の Level が保たれる")
-	assert.True(t, s2.frontCfg.AdvanceTurns == frontAdvanceTurns && s2.frontCfg.Step == frontStep,
-		"ロード復元で寒波前線 config も再構築される")
 
 	// 復元ワールドに帯タイルが存在する（serde 復元）
 	count := 0
@@ -235,38 +227,6 @@ func TestNewChunkGen_集落は種別分類と一致し帯へ束縛される(t *t
 		assert.True(t, world.Components.Interactable.Has(e), "商人は相互作用を持つ")
 	}
 	assert.True(t, merchantFound, "集落と分類されるチャンクに商人が配置される")
-}
-
-// TestDriver_前線が総ターン数で前進する は、寒波前線の現在位置が GameTime.TotalTurns から
-// 決定的に導出され、ターン経過で東へ進み、SeamlessBand.Front.EastAbsX に反映されることを固定する。
-func TestDriver_前線が総ターン数で前進する(t *testing.T) {
-	t.Parallel()
-
-	const chunkW, chunkH consts.Tile = 40, 20
-
-	world := testutil.InitTestWorld(t)
-	s := NewDriver(mapplanner.PlannerTypeOverworldField, dungeon.NewOverworldDefinition("オーバーワールド", 0, chunkW, chunkH, 3, 1), &NewGameParams{RunSeed: 1})
-	require.NoError(t, s.Start(world))
-
-	sb := query.GetSeamlessBand(world)
-	// 開始時（TotalTurns=0）は StartEast のまま。StartEast = bandOriginX(0) + chunkW = +chunkW
-	query.GetGameTime(world).TotalTurns = 0
-	s.UpdateFront(world)
-	assert.Equal(t, consts.AbsTileX(chunkW), sb.Front.EastAbsX, "0ターンは開始位置 +chunkW（西チャンク東端）")
-
-	// frontAdvanceTurns ごとに frontStep 前進する。AdvanceTurns 未満は動かない
-	query.GetGameTime(world).TotalTurns = frontAdvanceTurns - 1
-	s.UpdateFront(world)
-	assert.Equal(t, consts.AbsTileX(chunkW), sb.Front.EastAbsX, "AdvanceTurns 未満は前進しない")
-
-	query.GetGameTime(world).TotalTurns = frontAdvanceTurns
-	s.UpdateFront(world)
-	assert.Equal(t, consts.AbsTileX(chunkW)+consts.AbsTileX(frontStep), sb.Front.EastAbsX, "AdvanceTurns で 1 段前進する")
-
-	// 決定的: 同じターン数なら同じ位置
-	before := sb.Front.EastAbsX
-	s.UpdateFront(world)
-	assert.Equal(t, before, sb.Front.EastAbsX, "冪等（導出値）")
 }
 
 // TestDriver_Rowsの書き込みと正規化 は、新規開始が Rows をセーブ対象へ書き込み、

@@ -13,15 +13,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestBand_ShouldShift_ヒステリシス(t *testing.T) {
+func TestBand_ShouldShiftEast(t *testing.T) {
 	t.Parallel()
 
 	b := worldstream.NewBand(100, 60, 3, 1) // 中央チャンクは帯ローカル [100,200)
 
 	assert.False(t, b.ShouldShiftEast(199), "中央チャンク内では東シフトしない")
 	assert.True(t, b.ShouldShiftEast(200), "中央チャンクを東へ出たら東シフト")
-	assert.False(t, b.ShouldShiftWest(100), "中央チャンク西端では西シフトしない")
-	assert.True(t, b.ShouldShiftWest(99), "中央チャンクを西へ出たら西シフト")
 }
 
 // TestBand_ShiftEast は東へ1回シフトする核心動作を固定する:
@@ -95,60 +93,4 @@ func TestBand_ShiftEast(t *testing.T) {
 	// 壁配置が帯ローカル座標に対して変わったので、視界の強制再計算を要求する。
 	// 立てないと VisionSystem のレイキャストキャッシュが旧壁配置の遮蔽結果を再利用し、幽霊影が出る
 	assert.True(t, visState.ConsumePendingUpdate(), "シフト後は視界の強制再計算が要求される")
-}
-
-// TestBand_ShiftWest は西へ1回シフトする対称動作を固定する（短い寄り道の復帰）。
-func TestBand_ShiftWest(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t, testutil.WithStageLevel(gc.Level{TileWidth: 300, TileHeight: 60}))
-
-	// プレイヤーは西チャンクへ踏み込んでいる（localX=90）
-	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 90, Y: 30}, "ash")
-	require.NoError(t, err)
-	// 東端チャンク [200,300) の敵 → 破棄される
-	eastEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 250, Y: 30}, "fireball")
-	require.NoError(t, err)
-	// 西チャンク [0,100) の敵 → 残ってリベースされる
-	westEnemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 50, Y: 30}, "fireball")
-	require.NoError(t, err)
-
-	b := worldstream.NewBandAt(100, 60, 3, 1, 1) // 一度東へ進んだ状態から西へ戻る
-	require.True(t, b.ShouldShiftWest(90), "前提: 西シフト条件を満たす")
-
-	var gotCoord consts.Coord[consts.Chunk]
-	var gotOffsetX consts.Tile
-	gen := func(c consts.Coord[consts.Chunk], offsetX, _ consts.Tile) error {
-		gotCoord = c
-		gotOffsetX = offsetX
-		return nil
-	}
-
-	require.NoError(t, b.ShiftWest(world, gen))
-
-	assert.Equal(t, 0, int(b.EastIndex()), "eastIndex が1つ戻る")
-	assert.False(t, world.ECS.Alive(eastEnemy), "東端チャンクの敵は破棄される")
-	assert.Equal(t, consts.Tile(190), world.Components.GridElement.Get(player).X, "プレイヤーは東へリベースされ中央へ")
-	assert.Equal(t, consts.Tile(150), world.Components.GridElement.Get(westEnemy).X, "西敵もリベースされる")
-	assert.Equal(t, consts.Coord[consts.Chunk]{X: 0, Y: 0}, gotCoord, "新しい西端チャンクの絶対座標")
-	assert.Equal(t, consts.Tile(0), gotOffsetX, "西スラブのオフセットは0")
-}
-
-// TestBand_ShiftWest_eastIndex0はエラー は、ラン開始地点で西シフトを呼ぶと eastIndex を
-// 負にせずエラーを返すことを固定する。maybeShift のガードとは別に Band 自身が誤用を弾く。
-func TestBand_ShiftWest_eastIndex0はエラー(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	b := worldstream.NewBand(100, 60, 3, 1) // eastIndex=0
-	genCalled := false
-	gen := func(_ consts.Coord[consts.Chunk], _, _ consts.Tile) error {
-		genCalled = true
-		return nil
-	}
-
-	err := b.ShiftWest(world, gen)
-	require.Error(t, err, "eastIndex=0 での西シフトはエラー")
-	assert.Equal(t, 0, int(b.EastIndex()), "eastIndex は負にならない")
-	assert.False(t, genCalled, "生成は呼ばれない")
 }

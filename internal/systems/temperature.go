@@ -60,28 +60,7 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 
 	tileModifier := getTileTemperatureAt(world, x, y)
 
-	frostModifier := frostZoneModifier(world, x)
-
-	return baseTemp + timeModifier + tileModifier + frostModifier, nil
-}
-
-// FrostZoneTempModifier は寒波前線の極低温ゾーン内タイルの環境気温修正。生存不能な極寒を表す。
-// この値は calcTimerDelta の極寒バケット閾値（-50）を確実に下回る必要がある。両者は連動する。
-const FrostZoneTempModifier = -100
-
-// frostZoneModifier はタイル x が寒波前線の極低温ゾーン内なら極寒修正を返す。
-// 前線はオーバーワールド固有の演出。帯データは遺跡進入で退避され現ステージから外れるため、
-// 現ステージが帯データを持つか、すなわちオーバーワールドにいるかで先に gate しないと遺跡内へ
-// 寒さが漏れる。ゾーン判定は SeamlessBand のメソッドに集約している。
-func frostZoneModifier(world w.World, x consts.Tile) int {
-	if !query.IsOnOverworld(world) {
-		return 0
-	}
-	sb := *query.GetSeamlessBand(world)
-	if sb.Front.Active && sb.Front.InColdZone(sb.LocalToAbsX(x)) {
-		return FrostZoneTempModifier
-	}
-	return 0
+	return baseTemp + timeModifier + tileModifier, nil
 }
 
 // Update は健康状態のタイマーを更新する

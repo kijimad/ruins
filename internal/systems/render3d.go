@@ -106,29 +106,6 @@ func (sys *Render3DSystem) addFlatQuad(out *[]r3quad, p0, p1, p2, p3 render3d.Ve
 	})
 }
 
-// frostColorNorm は氷オーバーレイの色を 0..1 で表す。2Dの FrostRenderSystem と同じ寒色。
-var frostColorNorm = [3]float64{130.0 / 255, 205.0 / 255, 240.0 / 255}
-
-// addFrostQuad は床や壁天面へ氷を重ねる。タイルは一様な四角なので白1pxで塗りつぶす。
-func (sys *Render3DSystem) addFrostQuad(out *[]r3quad, fx, fz, topY, alpha float64) {
-	p := [4]render3d.Vec{render3d.At(fx, topY, fz), render3d.At(fx+1, topY, fz), render3d.At(fx+1, topY, fz+1), render3d.At(fx, topY, fz+1)}
-	zeroUV := [4][2]float64{{0, 0}, {0, 0}, {0, 0}, {0, 0}}
-	appendFrostQuad(out, p, zeroUV, whitePixel(), alpha)
-}
-
-// appendFrostQuad は氷クアッドを1枚積む。頂点色を氷色×alpha にプリマルチプライしアルファを渡すことで、
-// ソースオーバー合成が 2D の氷オーバーレイと同じになる。atlas と uv を受け、床・壁は白1px、ビルボードは
-// スプライトのテクスチャで貼る。スプライトで貼るとアルファでマスクされ透明な余白に氷が乗らない。
-func appendFrostQuad(out *[]r3quad, p [4]render3d.Vec, uv [4][2]float64, atlas *ebiten.Image, alpha float64) {
-	*out = append(*out, r3quad{
-		p:     p,
-		uv:    uv,
-		atlas: atlas,
-		col:   [3]float64{frostColorNorm[0] * alpha, frostColorNorm[1] * alpha, frostColorNorm[2] * alpha},
-		alpha: alpha,
-	})
-}
-
 type flatColorKey struct {
 	atlas      *ebiten.Image
 	x, y, w, h int
@@ -201,9 +178,8 @@ func (sys *Render3DSystem) buildScene(world w.World) ([]r3quad, render3d.Project
 	pcx, pcz := float64(center.X), float64(center.Y)
 
 	visFactor := sys.visFactorFunc(world)
-	frost := sys.frostFunc(world)
-	quads := sys.collectTiles(world, pcx, pcz, visFactor, frost)
-	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visFactor, frost)
+	quads := sys.collectTiles(world, pcx, pcz, visFactor)
+	quads = sys.collectBillboards(world, quads, pcx, pcz, projector.Right(), visFactor)
 	return quads, projector, nil
 }
 
@@ -232,23 +208,8 @@ func tileVisFactor(info TileRenderInfo) (bright float64, drawable, visible bool,
 	}
 }
 
-// frostFunc は寒波前線の氷を載せる判定を作る。オーバーワールドでなければ常に載せない。
-// タイル列の絶対Xから frostAlpha でアルファと可否を返す。frostAlpha は2Dの霜と共有する純関数。
-func (sys *Render3DSystem) frostFunc(world w.World) func(tileX int) (alpha float64, draw bool) {
-	if !query.IsOnOverworld(world) {
-		return func(int) (float64, bool) { return 0, false }
-	}
-	sb := *query.GetSeamlessBand(world)
-	frontEast := int(sb.Front.EastAbsX)
-	coldZoneWest := int(sb.Front.ColdZoneWest())
-	return func(tileX int) (float64, bool) {
-		a, d := frostAlpha(frontEast, coldZoneWest, int(sb.LocalToAbsX(consts.Tile(tileX))))
-		return float64(a), d
-	}
-}
-
-// collectTiles は床と壁のクアッドを集める。可視タイルには寒波前線の氷を重ねる。
-func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFactor visFunc, frost func(int) (float64, bool)) []r3quad {
+// collectTiles は床と壁のクアッドを集める。
+func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFactor visFunc) []r3quad {
 	var quads []r3quad
 	walls := render3d.WallTileSet(world)
 	tileQ := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()
@@ -264,26 +225,15 @@ func (sys *Render3DSystem) collectTiles(world w.World, pcx, pcz float64, visFact
 		if !ok {
 			continue
 		}
-		vf, vok, vis, light := visFactor(g)
+		vf, vok, _, light := visFactor(g)
 		if !vok {
 			continue
 		}
 		tint := scaleCol(light, vf) // 明るさと光源色を合わせた乗算色
-		isWall := render3d.IsWallTileEntity(world, e)
-		if isWall {
+		if render3d.IsWallTileEntity(world, e) {
 			sys.addWall(&quads, walls, g.Coord, fx, fz, atlas, ux, uy, uw, uh, tint)
 		} else {
 			sys.addQuad(&quads, render3d.At(fx, 0, fz), render3d.At(fx+1, 0, fz), render3d.At(fx+1, 0, fz+1), render3d.At(fx, 0, fz+1), atlas, ux, uy, uw, uh, tint)
-		}
-		// 霜は今見えているタイルにだけ載せる。床は地面、壁は天面の高さへ、z-fight を避け少し上へ重ねる
-		if vis {
-			if a, d := frost(int(g.X)); d {
-				topY := 0.02
-				if isWall {
-					topY = render3d.WallHeight + 0.02
-				}
-				sys.addFrostQuad(&quads, fx, fz, topY, a)
-			}
 		}
 	}
 	return quads
@@ -308,9 +258,8 @@ func (sys *Render3DSystem) addWall(out *[]r3quad, walls map[consts.Coord[consts.
 	}
 }
 
-// collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。可視かつ凍結タイルの
-// エンティティには、同じ立て板の位置へ氷を重ねる。2Dが霜をスプライトの上に載せるのと同じにする。
-func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right render3d.Vec, visFactor visFunc, frost func(int) (float64, bool)) []r3quad {
+// collectBillboards はタイル以外のエンティティをカメラ向きの立て板として積む。
+func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx, pcz float64, right render3d.Vec, visFactor visFunc) []r3quad {
 	objQ := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()
 	for objQ.Next() {
 		e := objQ.Entity()
@@ -341,13 +290,6 @@ func (sys *Render3DSystem) collectBillboards(world w.World, quads []r3quad, pcx,
 		depth := int(sr.Depth)
 		sys.addQuad(&quads, tl, tr, b1, b0, atlas, ux, uy, uw, uh, scaleCol(light, b))
 		quads[len(quads)-1].depth = depth
-		// エンティティの立て板へ氷を重ねる。スプライトのテクスチャとUVで貼り、透明な余白は氷が乗らない。
-		// 立て板と同じ depth を与え、同値時は挿入順で氷を後に、つまり手前に描く
-		if a, d := frost(int(g.X)); d {
-			uv := [4][2]float64{{ux, uy}, {ux + uw, uy}, {ux + uw, uy + uh}, {ux, uy + uh}}
-			appendFrostQuad(&quads, [4]render3d.Vec{tl, tr, b1, b0}, uv, atlas, a)
-			quads[len(quads)-1].depth = depth
-		}
 	}
 	return quads
 }
