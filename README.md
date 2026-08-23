@@ -118,7 +118,7 @@ $ make help
 | draft | [身体の不調: 少数部位の負傷と、まとめて配る手当て](docs/design/260821232324.md) | 0/11 | gamedesign, combat, item, ecs |
 | draft | [温度モデル: 前線を廃し、屋外の底冷えと屋内退避を持つ](docs/design/260822220253.md) | 0/12 | gamedesign, worldgen, ecs |
 | draft | [初期言語を Steam のロケールから決める](docs/design/260823004406.md) | 5/5 | ui, steam, save |
-| draft | [すべての地物・施設の生成を content システムに一本化する](docs/design/260823165936.md) | 0/6 | worldgen, refactor, gamedesign |
+| draft | [すべての地物・施設を役割テンプレ骨格と content スロットで生成する](docs/design/260823165936.md) | 0/9 | worldgen, refactor, gamedesign |
 
 
 ## Reference
