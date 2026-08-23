@@ -6,3 +6,8 @@ package steam
 func Init() error {
 	return nil
 }
+
+// GameLanguage はsteamタグがないとき ok=false を返す
+func GameLanguage() (code string, ok bool) {
+	return "", false
+}

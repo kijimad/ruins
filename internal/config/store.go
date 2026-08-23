@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/BurntSushi/toml"
+	"github.com/kijimaD/ruins/internal/steam"
 )
 
 // ストレージ層（設定の生バイト列の読み書き）はプラットフォームごとに実装が異なる。
@@ -52,6 +53,11 @@ func EnsureUserConfigFile() error {
 		return nil
 	}
 	def := &Config{User: DefaultUserConfig()}
+	// 初回のファイル生成時に Steam の game-language を焼き込み、以後の起動はこの値を使う。
+	// 取れないとき、steam タグ無しの開発・テスト・WASM も含め、デフォルトの en が残る。
+	if lang, ok := steam.GameLanguage(); ok {
+		def.User.Language = lang
+	}
 	return def.SaveUserConfig()
 }
 

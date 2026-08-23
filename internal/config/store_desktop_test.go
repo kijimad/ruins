@@ -143,7 +143,8 @@ func TestLoadUserConfig_保存済み設定がなければ何もしない(t *test
 	t.Setenv("XDG_CONFIG_HOME", dir)
 
 	c := &Config{User: DefaultUserConfig()}
-	require.NoError(t, c.loadUserConfig())
+	err := c.loadUserConfig()
+	require.NoError(t, err)
 	assert.Equal(t, DefaultUserConfig(), c.User)
 }
 
@@ -153,7 +154,8 @@ func TestLoadUserConfig_保存済み設定を読み込んで上書きする(t *t
 	require.NoError(t, writeSettings([]byte("window_width = 1280\n")))
 
 	c := &Config{User: DefaultUserConfig()}
-	require.NoError(t, c.loadUserConfig())
+	err := c.loadUserConfig()
+	require.NoError(t, err)
 	assert.Equal(t, 1280, c.User.WindowWidth)
 	assert.Equal(t, 720, c.User.WindowHeight) // 保存に無いフィールドはデフォルトが残る
 }
@@ -166,6 +168,26 @@ func TestLoadUserConfig_不正なTOMLはエラーを返す(t *testing.T) {
 	c := &Config{User: DefaultUserConfig()}
 	err := c.loadUserConfig()
 	assert.ErrorContains(t, err, "failed to parse config")
+}
+
+func TestLoad_設定ファイルが無ければデフォルトのenになる(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", dir)
+
+	cfg, err := Load()
+	require.NoError(t, err)
+	// EnsureUserConfigFile を通さず Load 単体では、ファイルが無いのでデフォルトの en が残る
+	assert.Equal(t, "en", cfg.User.Language)
+}
+
+func TestLoad_languageの明示指定は尊重される(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", dir)
+	require.NoError(t, writeSettings([]byte("language = \"ja\"\n")))
+
+	cfg, err := Load()
+	require.NoError(t, err)
+	assert.Equal(t, "ja", cfg.User.Language)
 }
 
 func TestLoad_RUINS_SEEDを指定すると再現可能なSeedになる(t *testing.T) {
