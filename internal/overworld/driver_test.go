@@ -119,6 +119,34 @@ func TestDriver_MaybeShift_開始点より西へはシフトしない(t *testing
 	assert.Equal(t, 0, int(s.EastIndex()), "開始点より西へはシフトしない（eastIndex は負にならない）")
 }
 
+// TestDriver_MaybeShift_東進後は西へ戻らない は、一度東へシフトした後に西端より西へ移動しても
+// 西シフトが起きず eastIndex が戻らないことを固定する。破棄済み西チャンクを再生成しない、すなわち
+// 到達最西端より西へは戻れないという左戻り不可の不変条件を、前線撤去後は帯の東進だけで保つ。
+// 将来 ShiftWest を再導入すると破れるので、その抑止線として置く。
+func TestDriver_MaybeShift_東進後は西へ戻らない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	s := NewDriver(mapplanner.PlannerTypeSmallRoom, dungeon.NewOverworldDefinition("オーバーワールド", 0, testChunkW, testChunkH, testCols, 1), &NewGameParams{RunSeed: 777})
+	require.NoError(t, s.Start(world))
+
+	player, err := query.GetPlayerEntity(world)
+	require.NoError(t, err)
+
+	// 東チャンクへ踏み込んで1回シフトさせる
+	world.Components.GridElement.Get(player).X = 2 * testChunkW
+	shifted, err := s.MaybeShift(world)
+	require.NoError(t, err)
+	require.True(t, shifted, "前提: 東へ1回シフトする")
+	require.Equal(t, 1, int(s.EastIndex()), "前提: eastIndex=1 になる")
+
+	// 帯西端より西へ移動しても西シフトは起きず eastIndex は戻らない
+	world.Components.GridElement.Get(player).X = 0
+	shifted, err = s.MaybeShift(world)
+	require.NoError(t, err)
+	assert.False(t, shifted, "西へ移動してもシフトしない")
+	assert.Equal(t, 1, int(s.EastIndex()), "到達最西端より西へは戻れない（西チャンクを再生成しない）")
+}
+
 func TestDriver_MaybeShift_中央では動かない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

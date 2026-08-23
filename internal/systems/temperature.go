@@ -203,7 +203,7 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int
 func calcTimerDelta(effectiveTemp int) float64 {
 	switch {
 	case effectiveTemp <= -50:
-		return -1.0 // 極寒。寒波前線の極低温ゾーン相当。通常環境では到達せず、居座れば急速に凍える
+		return -1.0 // 極寒。最も厳しい区分で、居座れば急速に凍える
 	case effectiveTemp <= 0:
 		return -0.5 // 非常に寒い
 	case effectiveTemp <= 10:
