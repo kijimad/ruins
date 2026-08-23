@@ -142,32 +142,42 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk
 	return chunkWasteland
 }
 
+// placeGlyph は地物種別の記号を返す。表に無ければ未分類の記号へ落とす。
+func placeGlyph(p placeType) rune {
+	if g, ok := placeGlyphs[p]; ok {
+		return g.Label
+	}
+	return placeGlyphs[placeUnknown].Label
+}
+
+// facilityGlyph は施設種別の記号を返す。表に無ければ未分類の記号へ落とす。
+func facilityGlyph(f facilityType) rune {
+	if g, ok := facilityGlyphs[f]; ok {
+		return g.Label
+	}
+	return placeGlyphs[placeUnknown].Label
+}
+
 // ChunkPlace は1チャンクの種別を1文字で返す純関数。chunkTypeAt の分類を記号へ写す。市街地は
 // 施設種別の記号、荒れ地は '.' を返す。種別を1つ足すと switch の網羅を linter が強制する。
 func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, rows) {
 	case chunkUrban:
 		kind, _, _ := urbanChunkInfo(runSeed, c, rows)
-		if g, ok := facilityGlyphs[kind]; ok {
-			return g.Label
-		}
-		return placeGlyphs[placeUnknown].Label
+		return facilityGlyph(kind)
 	case chunkDungeonEntrance:
-		return placeGlyphs[placeDungeonEntrance].Label
+		return placeGlyph(placeDungeonEntrance)
 	case chunkSettlement:
 		if settlementVillageRoll(runSeed, c) {
-			return placeGlyphs[placeVillage].Label
+			return placeGlyph(placeVillage)
 		}
-		return placeGlyphs[placeHamlet].Label
+		return placeGlyph(placeHamlet)
 	case chunkLandmark:
-		if g, ok := placeGlyphs[landmarkPlaceType(landmarkKindAt(runSeed, c))]; ok {
-			return g.Label
-		}
-		return placeGlyphs[placeUnknown].Label
+		return placeGlyph(landmarkPlaceType(landmarkKindAt(runSeed, c)))
 	case chunkWasteland:
-		return placeGlyphs[placeField].Label
+		return placeGlyph(placeField)
 	}
-	return placeGlyphs[placeUnknown].Label
+	return placeGlyph(placeUnknown)
 }
 
 // SchematicLegend は俯瞰図の文字と意味の対応表を返す。凡例をテストログや画面に添える。
