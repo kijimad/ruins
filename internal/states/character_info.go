@@ -53,11 +53,11 @@ type statusDetailRow struct {
 
 // fetchInfoTabs は能力・スキル・効果・健康・基本の読み取り専用タブを構築する
 func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []statusTabData {
-	envTemp := 0
+	ambientTemp := 0
 	if query.AliveHas(world, world.Components.GridElement, player) {
 		gridElement := world.Components.GridElement.Get(player)
-		if temp, err := systems.CalculateEnvTemperature(world, gridElement.X, gridElement.Y); err == nil {
-			envTemp = temp
+		if temp, err := systems.AmbientTemperatureAt(world, gridElement.X, gridElement.Y); err == nil {
+			ambientTemp = temp
 		}
 	}
 	professionName := ""
@@ -73,11 +73,11 @@ func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []stat
 		{ID: tabSkills, Label: query.T(world, "Skills"), Items: st.createSkillItems(world, player)},
 		{ID: tabEffects, Label: query.T(world, "Effects"), Items: st.createEffectItems(world, player)},
 		{ID: tabHealth, Label: query.T(world, "Health"), Items: st.createHealthItems(world, player)},
-		{ID: tabBasic, Label: query.T(world, "Basic"), Items: st.createBasicItems(world, player, envTemp, professionName)},
+		{ID: tabBasic, Label: query.T(world, "Basic"), Items: st.createBasicItems(world, player, ambientTemp, professionName)},
 	}
 }
 
-func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entity, envTemp int, professionName string) []statusItemData {
+func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entity, ambientTemp int, professionName string) []statusItemData {
 	items := []statusItemData{}
 
 	if professionName != "" {
@@ -96,7 +96,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
 		items = append(items, statusItemData{Label: query.T(world, "Hunger"), Value: query.T(world, hunger.GetLevel().String()), Description: query.T(world, "Hunger. High hunger hinders actions")})
 	}
 	items = append(items,
-		statusItemData{Label: query.T(world, "Ambient temperature"), Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: query.T(world, "Temperature at current location")},
+		statusItemData{Label: query.T(world, "Ambient temperature"), Value: fmt.Sprintf("%d%s", ambientTemp, consts.IconDegree), Description: query.T(world, "Temperature at current location")},
 		statusItemData{Label: query.T(world, "Time of day"), Value: query.T(world, query.GetGameTime(world).GetTimeOfDay().String()), Description: query.T(world, "Current time of day. Affects temperature outdoors")},
 	)
 	return items
