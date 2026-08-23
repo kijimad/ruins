@@ -8,7 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
-// relSpot は基準点からの相対座標に置くエンティティの定義。集落の中心や POI の原点を基準に、
+// relSpot は基準点からの相対座標に置くエンティティの定義。集落の中心やランドマークの原点を基準に、
 // NPC や prop をずらして配置するのに使う。
 type relSpot struct {
 	name string

@@ -52,7 +52,7 @@ func TestPlacements_全登録配置はSpacingがSeparationより大きい(t *tes
 		"settlement":       settlementPlacement,
 		"urban":            urbanPlacement,
 		"dungeon_entrance": dungeonEntrancePlacement,
-		"poi":              poiPlacement,
+		"landmark":         landmarkPlacement,
 	} {
 		assert.Greaterf(t, p.Spacing, p.Separation, "%s の Spacing は Separation より大きい", name)
 	}

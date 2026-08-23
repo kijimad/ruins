@@ -23,7 +23,7 @@ type GlyphInfo struct {
 // 俯瞰図の記号は尺度の違う2層の語彙でできている。両者は対等な兄弟ではなく、市街地以外の粗い層と
 // 市街地の中の細かい層という入れ子の関係にある。地図はチャンクの種別に応じてどちらかの記号を1つ選ぶ。
 //   - placeType: チャンク尺度。市街地以外のチャンクを1記号で表す。荒れ地・村・一軒家・遺跡入口・
-//     点在POI。地図の表示専用で、生成には関与しない。
+//     点在ランドマークの各種別。地図の表示専用で、生成には関与しない。
 //   - facilityType: 建物尺度。市街地チャンクの中の1建物の種別。住宅・商店・診療所など。表示だけでなく
 //     市街地生成の重み抽選にも使う実体のあるドメイン型で、urban.go が持つ。
 // 地図は市街地チャンクを facilityType の記号で、それ以外を placeType の記号で描く。凡例 LegendGlyphs は
@@ -49,8 +49,9 @@ var facilityOrder = []facilityType{
 
 // placeType はチャンク尺度の記号キー。市街地以外のチャンクを1記号で表す表示専用の分類で、記号と
 // 凡例名を placeGlyphs から引くために使う。生成には関与しない。chunkType とは1対1ではない。
-// chunkSettlement は村ロールで placeVillage と placeHamlet に分かれ、chunkUrban は建物尺度の
-// facilityType を使うのでここには無い。実体は文字列。%v やログで数値でなく種別名が出て読みやすい。
+// chunkSettlement は村ロールで placeVillage と placeHamlet に、chunkLandmark は種別ロールで
+// 廃屋・農家跡・祠・キャンプ跡に分かれる。chunkUrban は建物尺度の facilityType を使うのでここには
+// 無い。実体は文字列。%v やログで数値でなく種別名が出て読みやすい。
 type placeType string
 
 const (
@@ -58,7 +59,10 @@ const (
 	placeVillage         placeType = "village"          // 村
 	placeHamlet          placeType = "hamlet"           // 一軒家
 	placeDungeonEntrance placeType = "dungeon_entrance" // 遺跡入口
-	placePOI             placeType = "poi"              // 点在POI
+	placeAbandonedHut    placeType = "abandoned_hut"    // 点在ランドマーク: 廃屋
+	placeFarmstead       placeType = "farmstead"        // 点在ランドマーク: 農家跡
+	placeShrine          placeType = "shrine"           // 点在ランドマーク: 祠
+	placeCampsite        placeType = "campsite"         // 点在ランドマーク: キャンプ跡
 	placeUnknown         placeType = "unknown"          // 分類漏れの保険。凡例には出さない
 )
 
@@ -69,13 +73,16 @@ var placeGlyphs = map[placeType]GlyphInfo{
 	placeVillage:         {'T', "Village", color.RGBA{R: 255, G: 210, B: 74, A: 255}},        // 黄
 	placeHamlet:          {'t', "Lone House", color.RGBA{R: 208, G: 168, B: 58, A: 255}},     // 濃黄
 	placeDungeonEntrance: {'>', "Ruins Entrance", color.RGBA{R: 224, G: 69, B: 58, A: 255}},  // 赤
-	placePOI:             {'*', "Scattered POI", color.RGBA{R: 111, G: 191, B: 111, A: 255}}, // 緑
+	placeAbandonedHut:    {'x', "Abandoned Hut", color.RGBA{R: 150, G: 140, B: 120, A: 255}}, // 灰褐
+	placeFarmstead:       {'f', "Old Farmstead", color.RGBA{R: 150, G: 160, B: 80, A: 255}},  // オリーブ
+	placeShrine:          {'s', "Shrine", color.RGBA{R: 130, G: 190, B: 175, A: 255}},        // 淡青緑
+	placeCampsite:        {'^', "Campsite", color.RGBA{R: 215, G: 150, B: 90, A: 255}},       // 橙
 	placeUnknown:         {'?', "Unclassified", color.RGBA{R: 90, G: 90, B: 90, A: 255}},     // 灰。凡例外なので実際は既定へ落ちる
 }
 
 // placeOrder は凡例に出す地物種別を表示順で並べる。map は順序を持たないので順序だけ別に定義する。
 // placeUnknown は分類漏れの保険なので凡例には含めない。
-var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placePOI}
+var placeOrder = []placeType{placeField, placeVillage, placeHamlet, placeDungeonEntrance, placeAbandonedHut, placeFarmstead, placeShrine, placeCampsite}
 
 // LegendGlyphs は俯瞰図の全記号と凡例名を表示順で返す。地物レベルに続けて施設レベルを並べる。
 // SchematicLegend も UI の凡例もこれ1つを源にし、名前をあちこちに直書きしない。
@@ -113,12 +120,12 @@ const (
 	chunkSettlement      chunkType = "settlement"       // 集落。村・一軒家
 	chunkUrban           chunkType = "urban"            // 市街地。建物チャンク
 	chunkDungeonEntrance chunkType = "dungeon_entrance" // 遺跡入口
-	chunkPOI             chunkType = "poi"              // 自然の点在POI
+	chunkLandmark        chunkType = "landmark"         // 自然の点在ランドマーク
 )
 
 // chunkTypeAt は c の種別を返す純関数。全チャンクを漏れなく分類し、当たる地物が無ければ明示的に
-// 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在POI > 荒れ地。地図も生成もこの分類を
-// 唯一の源にするので、地図の記号と実体が食い違わない。
+// 荒れ地を返す。優先度は市街地 > 遺跡入口 > 集落 > 点在ランドマーク > 荒れ地。地図も生成もこの
+// 分類を唯一の源にするので、地図の記号と実体が食い違わない。
 func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) chunkType {
 	if _, _, ok := urbanChunkInfo(runSeed, c, rows); ok {
 		return chunkUrban
@@ -129,8 +136,8 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk
 	if settlementPlacement.At(runSeed, c, rows) {
 		return chunkSettlement
 	}
-	if poiPlacement.At(runSeed, c, rows) {
-		return chunkPOI
+	if landmarkPlacement.At(runSeed, c, rows) {
+		return chunkLandmark
 	}
 	return chunkWasteland
 }
@@ -140,6 +147,8 @@ func chunkTypeAt(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk
 func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) rune {
 	switch chunkTypeAt(runSeed, c, rows) {
 	case chunkUrban:
+		// 施設種は urbanChunkInfo が別途返す動的な値で、facilityGlyphs に無い種が来うるので
+		// ok チェックする。他の種別は placeType が局所で保証されるので直接引く
 		kind, _, _ := urbanChunkInfo(runSeed, c, rows)
 		if g, ok := facilityGlyphs[kind]; ok {
 			return g.Label
@@ -152,8 +161,8 @@ func ChunkPlace(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk)
 			return placeGlyphs[placeVillage].Label
 		}
 		return placeGlyphs[placeHamlet].Label
-	case chunkPOI:
-		return placeGlyphs[placePOI].Label
+	case chunkLandmark:
+		return placeGlyphs[landmarkPlaceType(landmarkKindAt(runSeed, c))].Label
 	case chunkWasteland:
 		return placeGlyphs[placeField].Label
 	}

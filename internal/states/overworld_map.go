@@ -169,16 +169,18 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 		vector.StrokeRect(screen, float32(x-1), float32(y-1), float32(mapCellPx+1), float32(mapCellPx+1), 2, theme.OverworldMapPlayerMarker, false)
 	}
 
-	st.drawLegend(screen, drawText, originY+consts.ScreenPixel(len(st.glyphs))*mapCellPx+16)
+	st.drawLegend(screen, drawText, drawCellGlyph, originY+consts.ScreenPixel(len(st.glyphs))*mapCellPx+16)
 	return nil
 }
 
-// drawLegend は色と種別名の対応を俯瞰図の下に並べて描く。凡例の記号と名前は overworld が
-// 唯一の源として持つので、ここで種別名を直書きしない。
-func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
+// drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本に格子と同じ記号を重ね、
+// マップ上の1文字から凡例を引けるようにする。
+func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawGlyph func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
+	const swatch consts.ScreenPixel = 14
 	x, y := consts.ScreenPixel(16), top
 	for _, g := range overworld.LegendGlyphs() {
-		vector.FillRect(screen, float32(x), float32(y), 14, 14, glyphColor(g.Label), false)
+		vector.FillRect(screen, float32(x), float32(y), float32(swatch), float32(swatch), glyphColor(g.Label), false)
+		drawGlyph(string(g.Label), x+swatch/2, y+swatch/2, theme.OverworldMapGlyphText)
 		drawText(g.Name, x+20, y-2, theme.TextPrimary)
 		x += 120
 		if x > 720 {

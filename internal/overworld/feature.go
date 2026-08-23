@@ -69,10 +69,10 @@ type feature interface {
 
 // features は登録済みの地物一覧。種類を増やすときはここへ実装を足す。
 func features() []feature {
-	// 点在POIは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に評価する。
-	// 散布は占有と道の実状態を読むため最後に評価する
+	// 点在ランドマークは主役の地物へ譲る判定を持つため後に、道は他の地物の上を舗装しないよう後に
+	// 評価する。散布は占有と道の実状態を読むため最後に評価する
 	return []feature{
-		settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessPOIFeature{},
+		settlementFeature{}, urbanFeature{}, dungeonEntranceFeature{}, wildernessLandmarkFeature{},
 		roadFeature{}, openTerrainFeature{},
 	}
 }
@@ -85,7 +85,7 @@ const (
 	settlementSalt uint64 = iota + 1
 	urbanSalt
 	dungeonEntranceSalt
-	poiSalt
+	landmarkSalt
 	scatterSalt
 	outdoorLootSalt
 )
