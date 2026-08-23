@@ -25,7 +25,17 @@ func (g *testHostGame) Update() error {
 			os.Exit(code)
 		}()
 	}
-	return nil
+	// テスト goroutine が積んだ ebiten 画像操作をこのフレームで実行する。ebiten の画像操作は
+	// フレーム同期の内側でのみ安全なので、RunOnGameThread がここへ寄せる。溜まっている分を
+	// すべて処理してから返す
+	for {
+		select {
+		case job := <-uiJobs:
+			job()
+		default:
+			return nil
+		}
+	}
 }
 
 func (g *testHostGame) Draw(_ *ebiten.Image) {}

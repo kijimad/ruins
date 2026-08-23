@@ -7,6 +7,7 @@
 package replay
 
 import (
+	"image"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -37,7 +38,7 @@ func PlayScenario(
 	t *testing.T,
 	buildStates func(w.World) []es.State[w.World],
 	actions []inputmapper.ActionID,
-	capture func(frame int, world w.World, screen *ebiten.Image),
+	capture func(frame int, world w.World, img *image.NRGBA),
 ) *maingame.MainGame {
 	t.Helper()
 	world := vrt.InitVRTWorld(t)
@@ -61,10 +62,10 @@ func PlayScenario(
 			if capture == nil {
 				continue
 			}
-			screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-			game.Draw(screen)
-			capture(frame, world, screen)
-			screen.Deallocate()
+			// 画像操作はゲームスレッドで行って読み取った画を capture へ渡す。capture はテスト
+			// goroutine で走るので require 等の検証を安全に行える
+			img := vrt.CaptureFrame(consts.GameWidth, consts.GameHeight, game.Draw)
+			capture(frame, world, img)
 		}
 	})
 	return game

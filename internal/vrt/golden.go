@@ -30,6 +30,31 @@ func WithUILock(fn func()) {
 	fn()
 }
 
+// uiJobs は ebiten の画像操作をゲームループの goroutine へ渡すキュー。testHostGame.Update が
+// 毎フレーム drain する。ebiten は画像操作をフレーム同期の内側でのみ安全に扱えるため、テスト
+// goroutine から直接 NewImage/Draw/ReadPixels/Deallocate を呼ぶと ebiten の描画スレッドと競合する。
+var uiJobs = make(chan func())
+
+// RunOnGameThread は fn をゲームループの goroutine で実行し、完了を待つ。ebiten の画像操作を
+// フレーム同期の内側へ寄せ、描画スレッドとのデータレースを構造的に無くす。
+//
+// fn には ebiten の画像操作だけを入れる。require や t.Fatal のような runtime.Goexit する処理を
+// 入れてはならない。Goexit はゲームループの goroutine を殺し RunGame ごと落とす。検証は呼び出し側の
+// テスト goroutine で行う。fn の panic は回収してテスト goroutine 側で再送出する。
+//
+// WithUILock 区間の中から呼ぶこと。ebitenui グローバルに触れる描画は、呼び出し側が保持する
+// ebitenuiMu で他テストと直列化される。fn の中で RunOnGameThread を再帰呼び出ししてはならない。
+func RunOnGameThread(fn func()) {
+	done := make(chan any, 1)
+	uiJobs <- func() {
+		defer func() { done <- recover() }()
+		fn()
+	}
+	if p := <-done; p != nil {
+		panic(p)
+	}
+}
+
 // readScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。解放はしない。
 // 呼び出し側が所有する画像を渡されるときはこちらを使う
 func readScreen(screen *ebiten.Image) *image.NRGBA {
@@ -57,16 +82,18 @@ func AssertContainerGolden(t *testing.T, buildFn func() *widget.Container, width
 	var img *image.NRGBA
 	WithUILock(func() {
 		root := buildFn()
-		ui := &ebitenui.UI{Container: root}
-		screen := ebiten.NewImage(width, height)
-
-		// レイアウト確定のため数フレーム回す
-		for range 3 {
-			ui.Update()
-		}
-		ui.Draw(screen)
-
-		img = captureScreen(screen)
+		// 画像操作はゲームループのスレッドで行う。widget 構築は ebitenuiMu 下のこのテスト
+		// スレッドで済ませ、描画と読み取りだけを寄せる
+		RunOnGameThread(func() {
+			ui := &ebitenui.UI{Container: root}
+			screen := ebiten.NewImage(width, height)
+			// レイアウト確定のため数フレーム回す
+			for range 3 {
+				ui.Update()
+			}
+			ui.Draw(screen)
+			img = captureScreen(screen)
+		})
 	})
 
 	pngData := encodePNG(t, img)
@@ -82,23 +109,38 @@ func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image),
 	var img *image.NRGBA
 	WithUILock(func() {
 		drawFn := setupFn()
-		screen := ebiten.NewImage(width, height)
-		drawFn(screen)
-		img = captureScreen(screen)
+		RunOnGameThread(func() {
+			screen := ebiten.NewImage(width, height)
+			drawFn(screen)
+			img = captureScreen(screen)
+		})
 	})
 
 	pngData := encodePNG(t, img)
 	assertPNGGolden(t, t.Name(), pngData)
 }
 
-// AssertFrameGolden は描画済みの screen を name のゴールデン画像 testdata/name.png と比較する。
-// 再生ドライバが各フレームで撮った画をそのまま渡す用途で、レイアウトも描画も呼び出し側が済ませている。
-// state の組み立てと駆動は replay.PlayScenario が担う。GOLDIE_UPDATE=1 で更新する。
-//
-// screen は読むだけで解放しない。所有権は渡した側にある
-func AssertFrameGolden(t *testing.T, name string, screen *ebiten.Image) {
+// AssertFrameGolden は読み取り済みの画像を name のゴールデン画像 testdata/name.png と比較する。
+// 再生ドライバが各フレームでゲームスレッド上で読み取った画をそのまま渡す用途。ebiten 画像の
+// 読み取りは PlayScenario がゲームスレッドで済ませ、このヘルパはエンコードと比較だけを行う。
+// GOLDIE_UPDATE=1 で更新する。
+func AssertFrameGolden(t *testing.T, name string, img *image.NRGBA) {
 	t.Helper()
-	assertPNGGolden(t, name, encodePNG(t, readScreen(screen)))
+	assertPNGGolden(t, name, encodePNG(t, img))
+}
+
+// CaptureFrame は width×height の画像を作り draw で描いて画素を読み取り image.NRGBA で返す。
+// NewImage・描画・ReadPixels・Deallocate をゲームループのスレッドで行い、ebiten の描画スレッドとの
+// データレースを避ける。返す画像は plain な画素データなので、比較・検証は呼び出し側のテスト
+// goroutine で安全に行える。WithUILock 区間の中から呼ぶこと。
+func CaptureFrame(width, height int, draw func(screen *ebiten.Image)) *image.NRGBA {
+	var img *image.NRGBA
+	RunOnGameThread(func() {
+		screen := ebiten.NewImage(width, height)
+		draw(screen)
+		img = captureScreen(screen)
+	})
+	return img
 }
 
 // encodePNG はimage.Imageをpngバイト列にエンコードする

@@ -2,6 +2,7 @@ package states_test
 
 import (
 	"fmt"
+	"image"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -19,7 +20,6 @@ import (
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/require"
 )
 
@@ -476,7 +476,7 @@ func TestGolden(t *testing.T) {
 					return built
 				},
 				actions,
-				func(frame int, _ w.World, screen *ebiten.Image) {
+				func(frame int, _ w.World, img *image.NRGBA) {
 					// フレーム f は steps[f] の action を適用した直後の画。カーソル移動や
 					// タブ送りは同一フレームで効くのでその手で撮る。state を push する手は
 					// 次フレームで反映されるので、末尾に待ち手を足してそこで撮る。
@@ -488,7 +488,7 @@ func TestGolden(t *testing.T) {
 					if suffix := tc.steps[frame].suffix; suffix != "" {
 						name += "_" + suffix
 					}
-					vrt.AssertFrameGolden(t, name, screen)
+					vrt.AssertFrameGolden(t, name, img)
 				},
 			)
 		})

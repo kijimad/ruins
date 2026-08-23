@@ -1,9 +1,9 @@
 package replay_test
 
 import (
+	"image"
 	"testing"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -52,9 +52,9 @@ func TestPlayScenario_captureが各フレームで呼ばれる(t *testing.T) {
 			inputmapper.ActionMenuDown,
 			inputmapper.ActionMenuUp,
 		},
-		func(frame int, _ w.World, screen *ebiten.Image) {
+		func(frame int, _ w.World, img *image.NRGBA) {
 			assert.Equal(t, frames, frame, "frame は0起点で連番")
-			assert.NotNil(t, screen, "描画先が渡る")
+			assert.NotNil(t, img, "読み取った画が渡る")
 			frames++
 		},
 	)

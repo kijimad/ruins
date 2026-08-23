@@ -44,9 +44,12 @@ func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World]) *
 		sm := SetupStateMachine(t, world, buildStates)
 		game, err := maingame.NewMainGame(world, sm)
 		require.NoError(t, err)
-		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-		game.Draw(screen)
-		out = captureScreen(screen)
+		// 画像操作はゲームループのスレッドで行い、描画スレッドとのレースを避ける
+		RunOnGameThread(func() {
+			screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+			game.Draw(screen)
+			out = captureScreen(screen)
+		})
 	})
 	return out
 }
