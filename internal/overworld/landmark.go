@@ -18,7 +18,6 @@ import (
 var landmarkPlacement = Placement{Spacing: 3, Separation: 1, Salt: landmarkSalt}
 
 // landmarkKind は点在ランドマークの種別。地図の記号と実際に置く構造の両方をこの種別で決める。
-// 実体は文字列で、%v やログに種別名がそのまま出る。
 type landmarkKind string
 
 const (
@@ -72,8 +71,7 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 
 	rng := rand.New(rand.NewPCG(ChunkSeed2D(runSeed^landmarkSalt, c.X, c.Y), 0))
 	// 構造物がチャンク境界をはみ出さないよう内側に収める。maxHut は最大の小屋の幅 7 に壁1枚分の
-	// 余白を足した値で、原点をどこへずらしても南辺の扉と外壁が境界へ接しない。小さなチャンクでも
-	// 境界越えの残留を作らない
+	// 余白を足した値で、原点をどこへずらしても外壁と南辺の扉が境界へ接しない
 	const margin, maxHut = 2, 8
 	spanX := max(1, int(g.chunkW)-2*margin-maxHut)
 	spanY := max(1, int(g.chunkH)-2*margin-maxHut)

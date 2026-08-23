@@ -173,8 +173,8 @@ func (st *OverworldMapState) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本には格子と同じ記号を重ね、
-// マップ上の1文字と凡例を対応づけられるようにする。記号と名前は overworld が唯一の源として持つ。
+// drawLegend は記号・色・種別名の対応を俯瞰図の下に並べて描く。色見本に格子と同じ記号を重ね、
+// マップ上の1文字から凡例を引けるようにする。
 func (st *OverworldMapState) drawLegend(screen *ebiten.Image, drawText func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), drawGlyph func(string, consts.ScreenPixel, consts.ScreenPixel, color.Color), top consts.ScreenPixel) {
 	const swatch consts.ScreenPixel = 14
 	x, y := consts.ScreenPixel(16), top
