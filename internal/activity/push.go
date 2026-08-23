@@ -65,8 +65,8 @@ func (pb *PushBehavior) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	if !world.Components.GridElement.Has(actor) {
 		return fmt.Errorf("pusher has no position")
 	}
-	// 押せる先はプレイヤーが行ける先に一致させる。CanMoveTo が寒波前線の破棄域や
-	// 壁を弾くので、押し専用の前線チェックは持たない
+	// 押せる先はプレイヤーが行ける先に一致させる。CanMoveTo が壁などを弾くので、
+	// 押し専用の判定は持たない
 	cubeCoord := world.Components.GridElement.Get(p.Target).Coord
 	if !CanMoveTo(world, p.Destination.Coord, cubeCoord, p.Target) {
 		return &UserError{Msg: query.T(world, "cannot push in that direction")}

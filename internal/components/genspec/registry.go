@@ -52,7 +52,7 @@ var Registry = []Def{
 	// stage ================
 	{Field: "StageBound"},       // 束縛先ステージを保持する。往復するステージの同定に使う
 	{Field: "StageField"},       // ステージごとのフィールド状態を保持する。現ステージは CurrentStage で引く
-	{Field: "SeamlessBand"},     // オーバーワールドの帯・前線の永続状態を保持する。有無がオーバーワールド判定を兼ねる
+	{Field: "SeamlessBand"},     // オーバーワールドの帯の永続状態を保持する。有無がオーバーワールド判定を兼ねる
 	{Field: "PortalConnection"}, // ポータルの行き先ステージと着地座標を保持する
 	{Field: "DungeonEntrance"},  // 遺跡入口が進入先の遺跡定義名を保持する
 	{Field: "Suspended"},        // 現ステージ以外に属し稼働しないことを示すマーカー

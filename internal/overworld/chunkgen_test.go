@@ -234,7 +234,7 @@ func TestNewChunkGen_外れチャンクには小集落が出ない(t *testing.T)
 }
 
 // TestNewChunkGen_生成は時間に依存しない は、GameTime が進んでいても同じ (runSeed, 座標) から
-// 同じチャンクが生成されることを固定する。前線など時間依存の効果は実行時オーバーレイの責務で、
+// 同じチャンクが生成されることを固定する。昼夜や気温など時間依存の効果は実行時オーバーレイの責務で、
 // 生成は座標純関数を保つ。
 func TestNewChunkGen_生成は時間に依存しない(t *testing.T) {
 	t.Parallel()

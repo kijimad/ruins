@@ -39,7 +39,7 @@ func TileCenterToWorld(grid Coord[Tile]) Coord[WorldPixel] {
 //
 // 東へ進むほど無限に増える絶対軸で、帯ローカルの GridElement.X とは別物。GridElement.X は
 // 常に 0..cols*chunkW の有界。絶対と局所の取り違えを Go の型で弾くための別名型。
-// 寒波前線の東端・帯原点はこの絶対軸で扱う。
+// 帯原点はこの絶対軸で扱う。
 // 南北はストリーミングせず高さ固定の帯なので、絶対軸は X のみで足りる。
 //
 // worldstream の帯ドライバも components の永続状態 SeamlessBand も同じ絶対軸を扱うため、

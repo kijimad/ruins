@@ -1,8 +1,6 @@
 package worldstream
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -69,15 +67,10 @@ func (b *Band) ShouldShiftEast(playerLocalX consts.Tile) bool {
 	return playerLocalX >= (b.centerSlot() + 1).Tiles(b.chunkW)
 }
 
-// ShouldShiftWest はプレイヤーが中央チャンクを西へ出たかを返す。短い寄り道からの復帰時のみ使う。
-func (b *Band) ShouldShiftWest(playerLocalX consts.Tile) bool {
-	return playerLocalX < b.centerSlot().Tiles(b.chunkW)
-}
-
 // ShiftEast は帯を東へ1チャンク進める。
 // 西端列の破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端列の生成。
 func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
-	// 1. 西端の列を全行破棄する。前線が呑む。プレイヤーは残す
+	// 1. 西端の列を全行破棄する。プレイヤーは残す
 	RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayer(world))
 	// 2. リベース。全エンティティを西へ chunkW ずらしてプレイヤーを中央へ戻す
 	TranslateAllEntities(world, -b.chunkW, 0)
@@ -89,29 +82,6 @@ func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
 	offsetX := (b.cols - 1).Tiles(b.chunkW)
 	for cy := range b.rows {
 		if err := gen(consts.Coord[consts.Chunk]{X: newChunkX, Y: cy}, offsetX, cy.Tiles(b.chunkH)); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// ShiftWest は帯を西へ1チャンク戻す。ShiftEast の対称で、短い寄り道からの復帰時のみ使う。
-//
-// eastIndex > 0 のときだけ呼ぶこと。ラン開始の eastIndex=0 より西には何も生成されておらず、
-// 戻ると eastIndex が負になる。誤用を黙って進めないよう先頭でガードしエラーにする。
-func (b *Band) ShiftWest(world w.World, gen ChunkGen) error {
-	if b.eastIndex <= 0 {
-		return fmt.Errorf("ShiftWest can only be called when eastIndex > 0: eastIndex=%d", b.eastIndex)
-	}
-	// 東端の列を全行破棄する
-	RemoveEntitiesInXRange(world, (b.cols - 1).Tiles(b.chunkW), b.Width(), KeepPlayer(world))
-	// リベース：全エンティティを東へ chunkW
-	TranslateAllEntities(world, b.chunkW, 0)
-	b.rebaseCoordMaps(world, b.chunkW)
-	// eastIndex 後退 → 新しい西端の列を全行生成・配置する
-	b.eastIndex--
-	for cy := range b.rows {
-		if err := gen(consts.Coord[consts.Chunk]{X: b.eastIndex, Y: cy}, 0, cy.Tiles(b.chunkH)); err != nil {
 			return err
 		}
 	}

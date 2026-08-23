@@ -227,7 +227,7 @@ func TestSerde_WeaponSelectionPersists(t *testing.T) {
 }
 
 // TestSerde_GameTimePersists はゲーム内時間がセーブ・ロードで復元されることを検証する。
-// TotalTurns は昼夜と寒波前線の位置を決定的に導出する元なので、往復で保たれる必要がある。
+// TotalTurns は昼夜を決定的に導出する元なので、往復で保たれる必要がある。
 func TestSerde_GameTimePersists(t *testing.T) {
 	t.Parallel()
 	testDir := t.TempDir()

@@ -259,12 +259,11 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	// BaseStateの共通処理を使用
 	transition = st.ConsumeTransition()
-	// 現ステージがオーバーワールドのときだけ前線を進め帯をシフトする。帯ドライバは
+	// 現ステージがオーバーワールドのときだけ帯をシフトする。帯ドライバは
 	// オーバーワールド State だけが持ち、現ステージ深度0がオーバーワールドを表す。遺跡へ入ると
 	// 同一 State 内で現ステージ深度が1以上へ変わり、そのあいだ帯を触らない。通常ダンジョンは
 	// driver が nil で除外される。死亡やリクエスト遷移で早期 return したフレームも触らない
 	if st.driver != nil && query.IsOnOverworld(world) && transition.Type == es.TransNone {
-		st.driver.UpdateFront(world)
 		shifted, serr := st.driver.MaybeShift(world)
 		if serr != nil {
 			return es.Transition[w.World]{}, serr

@@ -26,7 +26,7 @@ func TranslateAllEntities(world w.World, dx, dy consts.Tile) {
 
 // RemoveEntitiesInXRange は GridElement.X が [loX, hiX) にあるエンティティを削除する。
 //
-// 帯シフト時の西端チャンク破棄の原子操作で、前線に呑まれる領域を消去する。keep が true を返す
+// 帯シフト時の西端チャンク破棄の原子操作で、破棄対象の領域を消去する。keep が true を返す
 // エンティティは削除しない。プレイヤーなど残すべきものが該当する。削除した数を返す。
 // 反復中の削除を避けるため、対象を収集してから削除する。
 func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.Entity) bool) int {
