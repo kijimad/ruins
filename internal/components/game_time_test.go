@@ -161,6 +161,34 @@ func TestGameTime_GetSeasonalTemperature(t *testing.T) {
 	}
 }
 
+// TestGameTime_GetSeason は経過日数に対応する季節を確認する。1年を4等分し春開始で巡る。
+func TestGameTime_GetSeason(t *testing.T) {
+	t.Parallel()
+
+	const turnsPerDay consts.Turn = 1500
+	tests := []struct {
+		name     string
+		day      int
+		expected Season
+	}{
+		{"1日目は春", 1, SeasonSpring},
+		{"8日目も春", 8, SeasonSpring},
+		{"9日目は夏", 9, SeasonSummer},
+		{"17日目は秋", 17, SeasonAutumn},
+		{"25日目は冬", 25, SeasonWinter},
+		{"33日目は翌年の春", 33, SeasonSpring},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gt := &GameTime{TotalTurns: consts.Turn(tt.day-1) * turnsPerDay}
+			assert.Equal(t, tt.day, gt.GetDayNumber(), "前提: 当該日を指す")
+			assert.Equal(t, tt.expected, gt.GetSeason())
+		})
+	}
+}
+
 func TestGameTime_Advance(t *testing.T) {
 	t.Parallel()
 

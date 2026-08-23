@@ -87,6 +87,40 @@ func (gt *GameTime) GetSeasonalTemperature() int {
 	return int(math.Round(mid + amp*math.Sin(phase)))
 }
 
+// Season は季節を表す。1年を4等分し、春開始で春->夏->秋->冬の順に巡る。
+type Season int
+
+// 季節定数。GetSeasonalTemperature の正弦波と位相を合わせ、春=中点から上昇、夏=ピーク付近、
+// 秋=下降、冬=底付近になる。
+const (
+	SeasonSpring Season = iota // 春
+	SeasonSummer               // 夏
+	SeasonAutumn               // 秋
+	SeasonWinter               // 冬
+)
+
+// String は季節名を返す。表示側が i18n の訳を引く msgid になる。
+func (s Season) String() string {
+	switch s {
+	case SeasonSpring:
+		return "Spring"
+	case SeasonSummer:
+		return "Summer"
+	case SeasonAutumn:
+		return "Autumn"
+	case SeasonWinter:
+		return "Winter"
+	}
+	panic(fmt.Sprintf("unknown Season: %d", s))
+}
+
+// GetSeason は経過日数から現在の季節を返す。1年 daysPerYear 日を4等分し、春開始で巡る。
+func (gt *GameTime) GetSeason() Season {
+	const daysPerSeason = daysPerYear / 4
+	dayOfYear := (gt.GetDayNumber() - 1) % daysPerYear
+	return Season(dayOfYear / daysPerSeason)
+}
+
 // GetTemperatureModifier は時間帯による気温修正値を返す。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
 func (gt *GameTime) GetTemperatureModifier() int {
