@@ -99,7 +99,7 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	// 実ゲームでも寸法はステージ生成時に一度決まるので、ここで与える。既定は overworld・50x50、
 	// WithCurrentStage/WithStageLevel で上書き。
 	// オーバーワールド判定は帯データ SeamlessBand の有無で行うので、帯を付けない既定では
-	// IsOnOverworld は偽のまま。前線テストは EnsureSeamlessBand で帯を付ける。
+	// IsOnOverworld は偽のまま。帯を要するテストは EnsureSeamlessBand で付ける。
 	// query の循環 import を避けるため world.Components を直接使う
 	d := world.Components.Dungeon.Get(world.Resources.SingletonEntity)
 	d.CurrentStage = cfg.stageKey

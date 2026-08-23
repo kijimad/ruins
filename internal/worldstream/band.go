@@ -70,7 +70,7 @@ func (b *Band) ShouldShiftEast(playerLocalX consts.Tile) bool {
 // ShiftEast は帯を東へ1チャンク進める。
 // 西端列の破棄 → リベース → 座標キー Map 追従 → eastIndex 前進 → 東端列の生成。
 func (b *Band) ShiftEast(world w.World, gen ChunkGen) error {
-	// 1. 西端の列を全行破棄する。前線が呑む。プレイヤーは残す
+	// 1. 西端の列を全行破棄する。プレイヤーは残す
 	RemoveEntitiesInXRange(world, 0, b.chunkW, KeepPlayer(world))
 	// 2. リベース。全エンティティを西へ chunkW ずらしてプレイヤーを中央へ戻す
 	TranslateAllEntities(world, -b.chunkW, 0)

@@ -131,7 +131,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase, "TurnEndからPlayerTurnへ遷移するべき")
 		assert.Equal(t, initialTurnNumber+1, turnState.TurnNumber, "ターン番号が増加するべき")
 		assert.Equal(t, initialTotalTurns+1, query.GetGameTime(world).TotalTurns,
-			"ゲーム内時間も1ターン進むべき（昼夜・気温・寒波前線が依存する）")
+			"ゲーム内時間も1ターン進むべき（昼夜・気温が依存する）")
 	})
 }
 

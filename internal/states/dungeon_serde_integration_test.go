@@ -199,7 +199,7 @@ func TestPhaseG_遺跡から地上へ戻ると帯寸法と視界が復元され�
 // TestPhaseG_遺跡内で保存しロード復元しても現ステージが遺跡のまま は、遺跡内で保存したセーブを
 // ロード復元したとき、現ステージが遺跡のまま保たれ、オーバーワールドと誤判定されないことを固定する。
 // 帯データはオーバーワールドの StageField にしか無く遺跡進入で退避されるため、遺跡が現ステージのとき帯は
-// 現ステージから外れる。これにより遺跡内で前線の霜が誤って描かれることが構造的に起きない。
+// 現ステージから外れる。これにより遺跡内へオーバーワールド固有の振る舞いが漏れることが構造的に起きない。
 // 復帰先も newResumeStateFactory が DungeonState を選ぶので、オーバーワールドの Start は呼ばれない。
 func TestPhaseG_遺跡内で保存しロード復元しても現ステージが遺跡のまま(t *testing.T) {
 	t.Parallel()
@@ -221,7 +221,7 @@ func TestPhaseG_遺跡内で保存しロード復元しても現ステージが�
 	require.NoError(t, manager.LoadWorld(newWorld, "ruinsave"))
 
 	// 現ステージは帯データを持たない遺跡なので、オーバーワールドと誤判定しない。
-	// これにより遺跡内で前線の霜が誤って描かれない。
+	// これによりオーバーワールド固有の振る舞いが遺跡内へ漏れない。
 	assert.False(t, query.IsOnOverworld(newWorld), "遺跡内なので帯データを持たずオーバーワールドと誤判定しない")
 	assert.Nil(t, query.GetSeamlessBand(newWorld), "現ステージ(遺跡)は帯データを持たない")
 

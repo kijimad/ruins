@@ -18,7 +18,7 @@ import (
 //
 //	Player: プレイヤーの行動。入力を待つか、継続アクティビティを1ステップ進める
 //	AI:     敵・NPC を一括処理し、視界の再計算を要求する
-//	End:    AP回復・空腹・気温・寒波前線の前進・GameTime を1ターン進める
+//	End:    AP回復・空腹・気温・GameTime を1ターン進める
 //
 // 継続アクティビティ中(押し・休息・分解など)は例外で、fastForwardActivity が完了・中断・
 // 上限まで1フレーム内で複数ターンをまとめて回す。各ターンは通常と同じ3ステップを通すので、
@@ -112,7 +112,7 @@ func runEndPhase(world w.World, turnState *gc.TurnState) error {
 	// 空間インデックスを無効化する。次ターンで再構築される
 	query.InvalidateSpatialIndex(world)
 	turnState.TurnNumber++
-	// ゲーム内時間を1ターン進める。昼夜・気温の時間修正・寒波前線の前進がこれに依存する。
+	// ゲーム内時間を1ターン進める。昼夜・気温の時間修正がこれに依存する。
 	// GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
 	query.GetGameTime(world).Advance()
 	return nil

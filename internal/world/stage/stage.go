@@ -94,7 +94,7 @@ func Bind(world w.World, key gc.StageKey) {
 // フィールドエンティティが生じ、以降の退避で漏れる。生成側は末尾で Bind を呼び付与する。
 // 別の generate を実装するときも同様に付けること。
 //
-// プレイヤー配置と前線など時間派生の再導出は、遷移ごとに違うので呼び出し側が続けて行う
+// プレイヤー配置など遷移ごとに違う再導出は、呼び出し側が続けて行う
 func SwapTo(world w.World, target gc.StageKey, generate func(world w.World, key gc.StageKey) error) error {
 	d := query.GetDungeon(world)
 	// プレイ中に湧いた未束縛のフィールドエンティティを現ステージへ回収する。

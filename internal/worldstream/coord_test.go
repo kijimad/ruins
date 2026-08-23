@@ -27,13 +27,13 @@ func TestAbsLocalRoundTrip(t *testing.T) {
 	assert.Equal(t, consts.Tile(37), local, "絶対→ローカルで元に戻る")
 }
 
-// TestToLocal_前線を帯ローカルへ は「絶対 X の前線を帯内のローカル X に落とす」用途を固定する。
-func TestToLocal_前線を帯ローカルへ(t *testing.T) {
+// TestToLocal_絶対Xを帯ローカルへ は「絶対 X を帯内のローカル X に落とす」変換を固定する。
+func TestToLocal_絶対Xを帯ローカルへ(t *testing.T) {
 	t.Parallel()
 
 	origin := worldstream.BandOriginX(5, 100) // 帯ローカル0 = 絶対500
-	frontEast := consts.AbsTileX(540)         // 帯の40タイル目に前線がある
+	absX := consts.AbsTileX(540)              // 帯の40タイル目
 
-	assert.Equal(t, consts.Tile(40), worldstream.ToLocal(origin, frontEast),
+	assert.Equal(t, consts.Tile(40), worldstream.ToLocal(origin, absX),
 		"絶対540は帯ローカル40に写る")
 }

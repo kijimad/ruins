@@ -119,10 +119,9 @@ func TestDriver_MaybeShift_開始点より西へはシフトしない(t *testing
 	assert.Equal(t, 0, int(s.EastIndex()), "開始点より西へはシフトしない（eastIndex は負にならない）")
 }
 
-// TestDriver_MaybeShift_東進後は西へ戻らない は、一度東へシフトした後に西端より西へ移動しても
-// 西シフトが起きず eastIndex が戻らないことを固定する。破棄済み西チャンクを再生成しない、すなわち
-// 到達最西端より西へは戻れないという左戻り不可の不変条件を、前線撤去後は帯の東進だけで保つ。
-// 将来 ShiftWest を再導入すると破れるので、その抑止線として置く。
+// TestDriver_MaybeShift_東進後は西へ戻らない は、東へシフトした後に西端より西へ移動しても
+// 西シフトが起きず eastIndex が戻らないことを固定する。帯は東へのみ進み破棄済み西チャンクを
+// 再生成しないので、到達最西端より西へは戻れない。ShiftWest 再導入への抑止線を兼ねる。
 func TestDriver_MaybeShift_東進後は西へ戻らない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

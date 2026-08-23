@@ -5,7 +5,7 @@ package components
 // 現ステージの StageField は Dungeon.CurrentStage で引く。
 //
 // オーバーワールドもダンジョン階も同じ「ステージ」で、種別は持たない。違いは保有データだけにする。
-// 帯・前線データは SeamlessBand コンポーネントとしてオーバーワールドの StageField だけが持ち、
+// 帯データは SeamlessBand コンポーネントとしてオーバーワールドの StageField だけが持ち、
 // その有無が「オーバーワールドか」の判別を兼ねる。ダンジョン階の StageField は持たない。
 type StageField struct {
 	// Level は現ステージのフィールド寸法。ステージごとに保持するため、往復してもステージ固有の
