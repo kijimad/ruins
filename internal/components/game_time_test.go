@@ -7,6 +7,35 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestTimeOfDay_String(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		tod  TimeOfDay
+		want string
+	}{
+		{TimeDawn, "Dawn"},
+		{TimeMorning, "Morning"},
+		{TimeDay, "Noon"},
+		{TimeEvening, "Evening"},
+		{TimeNight, "Night"},
+		{TimeMidnight, "Midnight"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.tod.String())
+		})
+	}
+}
+
+func TestTimeOfDay_String_不正な値はpanicする(t *testing.T) {
+	t.Parallel()
+	assert.Panics(t, func() {
+		_ = TimeOfDay(99).String()
+	})
+}
+
 // TestGameTime_startsAtNoon は新規ゲームの GameTime が経過0・昼・1日目から始まることを確認する。
 // TotalTurns は経過ターンで0始まり。昼開始は startOffsetTurns が時刻導出で表す
 func TestGameTime_startsAtNoon(t *testing.T) {
@@ -150,7 +179,9 @@ func TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む(t *testing.T) {
 		before := gt.GetTimeOfDay()
 		gt.AdvanceToNextTimeOfDay()
 		after := gt.GetTimeOfDay()
-		want := TimeOfDay((int(before) + 1) % 6)
+		// 時間帯の総数は1日のターン数を時間帯あたりのターン数で割った値
+		timeOfDayCount := int(turnsPerDay / turnsPerTimeOfDay)
+		want := TimeOfDay((int(before) + 1) % timeOfDayCount)
 		assert.Equal(t, want, after, "start=%d では1つ次の時間帯になるべき", start)
 	}
 }

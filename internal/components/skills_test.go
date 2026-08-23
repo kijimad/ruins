@@ -90,6 +90,16 @@ func TestWeaponSkillID(t *testing.T) {
 	}
 }
 
+func TestHasSkillName(t *testing.T) {
+	t.Parallel()
+
+	for _, id := range AllSkillIDs {
+		assert.True(t, HasSkillName(id), "スキル %s の表示名が定義されている", id)
+	}
+
+	assert.False(t, HasSkillName("undefined_skill"))
+}
+
 func TestAllSkillIDs(t *testing.T) {
 	t.Parallel()
 
