@@ -13,8 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// coldDungeonName は基本気温0度のテスト用ダンジョン定義名。
-const coldDungeonName = "亡者の森"
+// coldDungeonName は基本気温0度のテスト用ダンジョン定義名。DungeonForest の英語 id。
+const coldDungeonName = "Dead forest"
 
 func TestGetTileTemperatureAt(t *testing.T) {
 	t.Parallel()
@@ -40,6 +40,32 @@ func TestGetTileTemperatureAt(t *testing.T) {
 		result := getTileTemperatureAt(world, 5, 5)
 		assert.Equal(t, 0, result)
 	})
+}
+
+func TestCalculateEnvTemperature_オーバーワールドは季節の世界温度を使う(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。冬の底 -30 に昼補正 +10
+	query.GetGameTime(world).TotalTurns = 24 * 1500
+	// 帯データの有無が屋外判定を兼ねる。オーバーワールドにして帯を付ける
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+
+	temp, err := CalculateEnvTemperature(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -20, temp, "屋外は季節世界温度 -30 に昼補正 +10 を足す")
+}
+
+func TestCalculateEnvTemperature_ダンジョンはステージ定義の基本気温を使う(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 同じ25日目の昼でも、屋内は季節に影響されない
+	query.GetGameTime(world).TotalTurns = 24 * 1500
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
+
+	temp, err := CalculateEnvTemperature(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, 10, temp, "屋内は基本気温 0 に昼補正 +10。世界温度による緩和は段階2")
 }
 
 func TestCalcTimerDelta(t *testing.T) {

@@ -41,8 +41,8 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 	return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat
 }
 
-// CalculateEnvTemperature は指定位置の環境気温を計算する
-// 基本気温 + タイル修正 + 時間帯修正
+// CalculateEnvTemperature は指定位置の環境気温を計算する。
+// 基本気温 + タイル修正 + 時間帯修正。オーバーワールドは屋外なので基本気温を季節の世界温度にする。
 func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 	dungeonRes := query.GetDungeon(world)
 	if dungeonRes == nil {
@@ -54,9 +54,16 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 		return 0, nil
 	}
 
-	baseTemp := def.BaseTemperature()
+	gt := query.GetGameTime(world)
 
-	timeModifier := query.GetGameTime(world).GetTemperatureModifier()
+	// オーバーワールドは屋外で、基本気温は季節の世界温度が決める。日数から導き保存しない。
+	// ダンジョンは屋内なのでステージ定義の固定値を使う。世界温度による緩和は段階2で足す。
+	baseTemp := def.BaseTemperature()
+	if query.IsOnOverworld(world) {
+		baseTemp = gt.GetSeasonalTemperature()
+	}
+
+	timeModifier := gt.GetTemperatureModifier()
 
 	tileModifier := getTileTemperatureAt(world, x, y)
 

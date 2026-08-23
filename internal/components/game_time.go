@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
 )
@@ -65,6 +66,25 @@ func (gt *GameTime) GetTimeOfDay() TimeOfDay {
 // GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる
 func (gt *GameTime) GetDayNumber() int {
 	return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1
+}
+
+// 季節による世界温度のパラメータ。トロントの気候をモデルに、夏ピークと冬底を持つ1年周期。
+// 春->夏->秋->冬で1周する。値とカーブは実プレイで調整する。
+const (
+	daysPerYear      = 32  // 季節1周の日数。この日数で春から冬まで巡り翌年の春へ戻る
+	summerPeakTemp   = 22  // 夏ピークの世界温度
+	winterTroughTemp = -30 // 冬底の世界温度。準備なしでは生存できない寒さ
+)
+
+// GetSeasonalTemperature は経過日数から季節による世界温度のベース値を返す。
+// 春開始の正弦波で、春秋が中点、夏がピーク、冬が底になる。オーバーワールドの周囲気温は
+// この季節ベースに時間帯の GetTemperatureModifier を足して決める。季節は保存せず日数から導く。
+func (gt *GameTime) GetSeasonalTemperature() int {
+	mid := float64(summerPeakTemp+winterTroughTemp) / 2
+	amp := float64(summerPeakTemp-winterTroughTemp) / 2
+	// day 1 を春の中点かつ上昇位相の起点にする。1周期で春->夏->秋->冬を巡る
+	phase := 2 * math.Pi * float64(gt.GetDayNumber()-1) / daysPerYear
+	return int(math.Round(mid + amp*math.Sin(phase)))
 }
 
 // GetTemperatureModifier は時間帯による気温修正値を返す。
