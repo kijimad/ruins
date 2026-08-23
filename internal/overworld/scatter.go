@@ -133,7 +133,7 @@ func scatterCatalogFor(zone outdoorZone) scatterCatalog {
 // scatterCatalogForChunk はチャンクの分類から散布カタログを返す。散布しないチャンクなら ok=false。
 // 開けた地形のバイオームごとにカタログを束ねる分岐点で、ここが散布の拡張口になる。砂漠など別の
 // 開けた地形を足すときは、chunkTypeAt に種別を足したうえでここへ case を1つ加え、対応するカタログと
-// 必要なら地面の塗りを用意する。建物・道・POI など開けていないチャンクは散布しないので default で
+// 必要なら地面の塗りを用意する。建物・道・ランドマークなど開けていないチャンクは散布しないので default で
 // false を返す。chunkType の一部だけを扱うので、exhaustive を強制せず default を残す。
 func scatterCatalogForChunk(runSeed uint64, c consts.Coord[consts.Chunk], rows consts.Chunk) (scatterCatalog, bool) {
 	switch chunkTypeAt(runSeed, c, rows) {
