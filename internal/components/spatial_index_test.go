@@ -78,7 +78,6 @@ func TestSpatialIndex_MoveCharacter(t *testing.T) {
 	from := consts.Coord[consts.Tile]{X: 0, Y: 0}
 	to := consts.Coord[consts.Tile]{X: 1, Y: 0}
 
-	// ecs.World の NewEntity は構造変更で並列安全でないため、ケースごとに個別の world を作る。
 	t.Run("未構築なら何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := ecs.NewWorld()
