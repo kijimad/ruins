@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">64.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">96.0&nbsp;%</td>
             <td class="headerCovTableEntry">25</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">24</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-23 01:02:22</td>
+            <td class="headerValue">2026-08-23 01:19:13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,21 +85,21 @@
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // String は時間帯名を返す</span>
 <span id="L25"><span class="lineNum">      25</span>              : func (t TimeOfDay) String() string {</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 :         switch t {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         switch t {</span></span>
 <span id="L27"><span class="lineNum">      27</span>              :         case TimeDawn:</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :                 return &quot;Dawn&quot;</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 return &quot;Dawn&quot;</span></span>
 <span id="L29"><span class="lineNum">      29</span>              :         case TimeMorning:</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                 return &quot;Morning&quot;</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 return &quot;Morning&quot;</span></span>
 <span id="L31"><span class="lineNum">      31</span>              :         case TimeDay:</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 return &quot;Noon&quot;</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return &quot;Noon&quot;</span></span>
 <span id="L33"><span class="lineNum">      33</span>              :         case TimeEvening:</span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return &quot;Evening&quot;</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 return &quot;Evening&quot;</span></span>
 <span id="L35"><span class="lineNum">      35</span>              :         case TimeNight:</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 return &quot;Night&quot;</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return &quot;Night&quot;</span></span>
 <span id="L37"><span class="lineNum">      37</span>              :         case TimeMidnight:</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 return &quot;Midnight&quot;</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 return &quot;Midnight&quot;</span></span>
 <span id="L39"><span class="lineNum">      39</span>              :         default:</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 panic(&quot;invalid TimeOfDay value&quot;)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 panic(&quot;invalid TimeOfDay value&quot;)</span></span>
 <span id="L41"><span class="lineNum">      41</span>              :         }</span>
 <span id="L42"><span class="lineNum">      42</span>              : }</span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
@@ -121,7 +121,7 @@
 <span id="L59"><span class="lineNum">      59</span>              : </span>
 <span id="L60"><span class="lineNum">      60</span>              : // GetTimeOfDay は現在の時間帯を返す</span>
 <span id="L61"><span class="lineNum">      61</span>              : func (gt *GameTime) GetTimeOfDay() TimeOfDay {</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           1 :         return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L64"><span class="lineNum">      64</span>              : </span>
 <span id="L65"><span class="lineNum">      65</span>              : // GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる</span>

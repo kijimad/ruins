@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">87.8&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">82</td>
-            <td class="headerCovTableEntry">72</td>
+            <td class="headerCovTableEntry">82</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-23 01:02:22</td>
+            <td class="headerValue">2026-08-23 01:19:13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,13 +77,13 @@
 <span id="L15"><span class="lineNum">      15</span>              : func (s Severity) String() string {</span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 :         switch s {</span></span>
 <span id="L17"><span class="lineNum">      17</span>              :         case SeverityNone:</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;&quot;</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 return &quot;&quot;</span></span>
 <span id="L19"><span class="lineNum">      19</span>              :         case SeverityMinor:</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 :                 return &quot;Minor&quot;</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return &quot;Minor&quot;</span></span>
 <span id="L21"><span class="lineNum">      21</span>              :         case SeverityMedium:</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 :                 return &quot;Medium&quot;</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 return &quot;Medium&quot;</span></span>
 <span id="L23"><span class="lineNum">      23</span>              :         case SeveritySevere:</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 :                 return &quot;Severe&quot;</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 return &quot;Severe&quot;</span></span>
 <span id="L25"><span class="lineNum">      25</span>              :         default:</span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 panic(&quot;invalid Severity value&quot;)</span></span>
 <span id="L27"><span class="lineNum">      27</span>              :         }</span>
@@ -104,21 +104,21 @@
 <span id="L42"><span class="lineNum">      42</span>              : </span>
 <span id="L43"><span class="lineNum">      43</span>              : // String はステータス種類の表示名を返す</span>
 <span id="L44"><span class="lineNum">      44</span>              : func (st StatType) String() string {</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :         switch st {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         switch st {</span></span>
 <span id="L46"><span class="lineNum">      46</span>              :         case StatVitality:</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 return &quot;Vitality&quot;</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return &quot;Vitality&quot;</span></span>
 <span id="L48"><span class="lineNum">      48</span>              :         case StatStrength:</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return &quot;Strength&quot;</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return &quot;Strength&quot;</span></span>
 <span id="L50"><span class="lineNum">      50</span>              :         case StatSensation:</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 return &quot;Sensation&quot;</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 return &quot;Sensation&quot;</span></span>
 <span id="L52"><span class="lineNum">      52</span>              :         case StatDexterity:</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 return &quot;Dexterity&quot;</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 return &quot;Dexterity&quot;</span></span>
 <span id="L54"><span class="lineNum">      54</span>              :         case StatAgility:</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                 return &quot;Agility&quot;</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 return &quot;Agility&quot;</span></span>
 <span id="L56"><span class="lineNum">      56</span>              :         case StatDefense:</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 return &quot;Defense&quot;</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return &quot;Defense&quot;</span></span>
 <span id="L58"><span class="lineNum">      58</span>              :         default:</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 return string(st)</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return string(st)</span></span>
 <span id="L60"><span class="lineNum">      60</span>              :         }</span>
 <span id="L61"><span class="lineNum">      61</span>              : }</span>
 <span id="L62"><span class="lineNum">      62</span>              : </span>
@@ -139,7 +139,7 @@
 <span id="L77"><span class="lineNum">      77</span>              : </span>
 <span id="L78"><span class="lineNum">      78</span>              : // ConditionTypeDisplayName は状態種類の表示名を返す</span>
 <span id="L79"><span class="lineNum">      79</span>              : func ConditionTypeDisplayName(ct ConditionType) string {</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC tlaBgGNC">           1 :         switch ct {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         switch ct {</span></span>
 <span id="L81"><span class="lineNum">      81</span>              :         case ConditionHypothermia:</span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 return &quot;Hypothermia&quot;</span></span>
 <span id="L83"><span class="lineNum">      83</span>              :         case ConditionHyperthermia:</span>

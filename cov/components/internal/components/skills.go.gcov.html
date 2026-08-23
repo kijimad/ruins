@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.6&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">32</td>
-            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">32</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-23 01:02:22</td>
+            <td class="headerValue">2026-08-23 01:19:13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -185,9 +185,9 @@
 <span id="L123"><span class="lineNum">     123</span>              : </span>
 <span id="L124"><span class="lineNum">     124</span>              : // HasSkillName はスキルIDの表示名が定義されているかを返す。ロード時のバリデーション用</span>
 <span id="L125"><span class="lineNum">     125</span>              : func HasSkillName(id SkillID) bool {</span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC tlaBgUNC">           0 :         _, ok := skillName[id]</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         return ok</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         _, ok := skillName[id]</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         return ok</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L129"><span class="lineNum">     129</span>              : </span>
 <span id="L130"><span class="lineNum">     130</span>              : // SkillInfo はスキルの詳細情報</span>
 <span id="L131"><span class="lineNum">     131</span>              : type SkillInfo struct {</span>
@@ -230,7 +230,7 @@
 <span id="L168"><span class="lineNum">     168</span>              : </span>
 <span id="L169"><span class="lineNum">     169</span>              : // SkillDescription はスキルIDの詳細情報を返す。未定義ならpanicする</span>
 <span id="L170"><span class="lineNum">     170</span>              : func SkillDescription(id SkillID) SkillInfo {</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC tlaBgGNC">           1 :         info, ok := skillDescription[id]</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         info, ok := skillDescription[id]</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;undefined skill ID: %q&quot;, id))</span></span>
 <span id="L174"><span class="lineNum">     174</span>              :         }</span>
