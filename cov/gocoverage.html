@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.1%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -1692,7 +1692,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
