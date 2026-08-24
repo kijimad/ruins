@@ -11,42 +11,30 @@
 #
 # 依存: ImageMagick (magick)
 #
-# 注記: 背景マスタは旧 SD ダンジョンのまま。ドット絵へ刷新する際、この compose も新パーツに
-# 合わせて調整する。ロゴは完成品 logo/logo.png を加工せず重ねる。
+# 背景は深い青の立方体が朝焼けの雪原に佇む2Dアニメ調のマットな絵。
+# 旧ダンジョン時代のドット化と強い暗化は外した。滑らかな塗りと発色を潰すため。
+# クロップとロゴ合成だけを行う。ロゴは完成品 logo/logo.png を加工せず重ねる。
 
 set -euo pipefail
 
+# マスターは横1枚だけ。縦カプセルもこの1枚をポートレートに切り出して作る。
+# 縦を別画像で作ると横と別世界になるため、単一マスターからのトリムに統一する。
 MASTER="docs/steam/background/master_3840x2560.png"
-MASTER_VERT="docs/steam/background/master_vert_2560x3840.png"
 OUT="docs/steam/generated"
 # logo/gen_logo.sh の完成品ロゴ。氷塗り・縁・影を内包するので加工せずそのまま重ねる
 LOGO_PNG="docs/steam/logo/logo.png"
 
 mkdir -p "$OUT"
 
-# LANCZOS で縮小 → Point (NEAREST) で拡大し、ピクセルブロック感を出す
-pixelate() {
-  local input=$1 w=$2 h=$3 scale=$4 output=$5
-  local sw=$((w / scale)) sh=$((h / scale))
-  magick "$input" \
-    -filter Lanczos -resize "${sw}x${sh}!" \
-    -filter Point -resize "${w}x${h}!" \
-    "$output"
-}
+# --- 大きい画像 ---
 
-# --- 大きい画像: ダンジョン背景 ---
-
-# Library Hero 3840x1240 (横長パノラマ、中央から切り出し)
-magick "$MASTER" -gravity center -crop 3840x1240+0+0 +repage /tmp/steam_crop.png
-pixelate /tmp/steam_crop.png 3840 1240 4 /tmp/steam_crop.png
-magick /tmp/steam_crop.png -modulate 60 "$OUT/library_hero.png"
+# Library Hero 3840x1240 横長パノラマ、中央から切り出し
+magick "$MASTER" -gravity center -crop 3840x1240+0+0 +repage "$OUT/library_hero.png"
 echo "library_hero.png (3840x1240)"
 
-# Page Background 1438x810 (中央クロップ → リサイズ)
+# Page Background 1438x810 中央クロップ → リサイズ
 # 比率 1438:810 = 1.776:1 → 3840x2162 からクロップ
-magick "$MASTER" -gravity center -crop 3840x2162+0+0 +repage -resize 1438x810! /tmp/steam_crop.png
-pixelate /tmp/steam_crop.png 1438 810 3 /tmp/steam_crop.png
-magick /tmp/steam_crop.png -modulate 60 "$OUT/page_background.png"
+magick "$MASTER" -gravity center -crop 3840x2162+0+0 +repage -resize 1438x810! "$OUT/page_background.png"
 echo "page_background.png (1438x810)"
 
 # --- ロゴ描画関数 ---
@@ -64,18 +52,17 @@ render_logo() {
     "$output"
 }
 
-# --- ロゴ付きカプセル: ダンジョン背景をクロップ・暗化 + ロゴ ---
+# --- ロゴ付きカプセル: マスタをクロップ・リサイズ + ロゴ ---
 
 generate_capsule() {
   local w=$1 h=$2 fname=$3
-  local crop_w=$4 crop_h=$5 scale=$6 logo_gravity=$7
-  local master_src=${8:-$MASTER}
+  local crop_w=$4 crop_h=$5 logo_gravity=$6
+  # クロップ基準と横オフセット。縦カプセルはキューブが左下にあるため左寄りに切り出す
+  local crop_gravity=${7:-center}
+  local crop_xoff=${8:-0}
 
-  magick "$master_src" -gravity center -crop "${crop_w}x${crop_h}+0+0" +repage \
-    -resize "${w}x${h}!" /tmp/steam_crop.png
-  pixelate /tmp/steam_crop.png "$w" "$h" "$scale" /tmp/steam_crop.png
-  # 暗すぎると端が黒枠に見えて Steam にリジェクトされるため、控えめに暗化する
-  magick /tmp/steam_crop.png -modulate 60 "$OUT/$fname"
+  magick "$MASTER" -gravity "$crop_gravity" -crop "${crop_w}x${crop_h}+${crop_xoff}+0" +repage \
+    -resize "${w}x${h}!" "$OUT/$fname"
 
   # 横長画像はロゴを大きめ、縦長画像は控えめ
   # 小型画像ほどロゴ比率を上げて視認性を確保する
@@ -100,21 +87,20 @@ generate_capsule() {
   echo "$fname (${w}x${h})"
 }
 
-# 各カプセルのクロップサイズはマスターからアスペクト比に合わせて計算
-# 横長はマスター (3840x2560)、縦長は縦長マスター (2560x3840) を使用する
-#                                       w    h    filename              crop_w crop_h scale gravity  master
-generate_capsule                        462  174  small_capsule.png     3840   1446   2    center
-generate_capsule                        920  430  header_capsule.png    3840   1794   3    center
-generate_capsule                        920  430  library_header.png    3840   1794   3    center
-generate_capsule                       1232  706  main_capsule.png      3840   2200   3    center
-generate_capsule                        748  896  vertical_capsule.png  2560   3066   2    north   "$MASTER_VERT"
-generate_capsule                        600  900  library_capsule.png   2560   3840   2    north   "$MASTER_VERT"
+# 各カプセルのクロップサイズはマスターのアスペクト比に合わせて計算する。
+# すべて横マスター1枚から切り出す。横長は中央、縦長は左寄り。
+# 縦長はキューブが左下にあるので上端原点から x=300 右へ寄せて切り出し、上部に空を残す。
+#                                       w    h    filename              crop_w crop_h logo_grav crop_grav crop_xoff
+generate_capsule                        462  174  small_capsule.png     3840   1446   center
+generate_capsule                        920  430  header_capsule.png    3840   1794   center
+generate_capsule                        920  430  library_header.png    3840   1794   center
+generate_capsule                       1232  706  main_capsule.png      3840   2200   center
+generate_capsule                        748  896  vertical_capsule.png  2137   2560   north     NorthWest 300
+generate_capsule                        600  900  library_capsule.png   1707   2560   north     NorthWest 300
 
 # --- ゲームタイトル用画像 960x720 ---
 # 比率 960:720 = 4:3 → 3840x2880 だがマスターは 2560 高なので 3413x2560 からクロップ
-magick "$MASTER" -gravity center -crop 3413x2560+0+0 +repage -resize 960x720! /tmp/steam_crop.png
-pixelate /tmp/steam_crop.png 960 720 3 /tmp/steam_crop.png
-magick /tmp/steam_crop.png -modulate 50 "assets/file/textures/bg/title1_.png"
+magick "$MASTER" -gravity center -crop 3413x2560+0+0 +repage -resize 960x720! "assets/file/textures/bg/title1_.png"
 render_logo 960 720 180 north 72 "assets/file/textures/bg/title1_.png"
 echo "title1_.png (960x720)"
 
