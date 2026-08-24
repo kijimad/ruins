@@ -1,0 +1,21 @@
+// SteamPipe アプリビルド定義。Makefile が @...@ を実値へ展開する。テンプレートなので直接編集しない。
+// 設計は単一ビルド・単一 depot。Linux/Windows の実行体を1つの depot に入れ、OS 別起動は
+// Steamworks の launch options で振り分ける。
+"AppBuild"
+{
+	"AppID"       "@APP_ID@"
+	"Desc"        "@DESC@"
+
+	"ContentRoot" "@CONTENT@"
+	"BuildOutput" "@OUTPUT@"
+
+	// 1 のときアップロードせず内容の検証だけ行う。make preview がここを 1 にする。
+	"Preview"     "@PREVIEW@"
+	// 名前付きブランチへ自動反映するとき指定。default は指定不可で Web で確定する。空なら反映しない。
+	"SetLive"     "@SETLIVE@"
+
+	"Depots"
+	{
+		"@DEPOT_ID@" "@DEPOT_VDF@"
+	}
+}

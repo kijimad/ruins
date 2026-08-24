@@ -1,0 +1,4 @@
+# 展開後の VDF・ステージした実行体・ログ
+.build/
+# 取得した SteamCMD 本体
+steamcmd/
