@@ -132,13 +132,11 @@ func TestCollectStagedItems_落札済みと未落札を集荷して明細をた�
 
 	station := world.ECS.NewEntity()
 
-	// 落札済みの品。受取金の明細を1件生む
 	sold := world.ECS.NewEntity()
 	world.Components.Name.Add(sold, &gc.Name{Name: "落札品"})
 	world.Components.LocationInStorage.Add(sold, &gc.LocationInStorage{Owner: station})
 	world.Components.AuctionSold.Add(sold, &gc.AuctionSold{Number: 1, Bid: 1000})
 
-	// 未落札のまま積荷にある品。明細を生まず、ただ手放される
 	unsold := world.ECS.NewEntity()
 	world.Components.LocationInStorage.Add(unsold, &gc.LocationInStorage{Owner: station})
 
