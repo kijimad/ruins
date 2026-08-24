@@ -37538,27 +37538,27 @@
   "NPCs": [
     {
       "X": 38,
-      "Y": 32,
+      "Y": 33,
       "Name": "floating_eye"
     },
     {
       "X": 37,
-      "Y": 32,
+      "Y": 33,
+      "Name": "floating_eye"
+    },
+    {
+      "X": 37,
+      "Y": 26,
+      "Name": "floating_eye"
+    },
+    {
+      "X": 39,
+      "Y": 30,
       "Name": "floating_eye"
     },
     {
       "X": 36,
       "Y": 26,
-      "Name": "floating_eye"
-    },
-    {
-      "X": 38,
-      "Y": 30,
-      "Name": "floating_eye"
-    },
-    {
-      "X": 43,
-      "Y": 31,
       "Name": "floating_eye"
     }
   ],

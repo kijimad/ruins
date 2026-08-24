@@ -568,6 +568,12 @@ func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, error) 
 	)
 }
 
+// roomTileExtent は部屋の実タイル数を返す。Rect の Width/Height は Max-Min の排他的な値だが、
+// 部屋は Min から Max まで両端を床として描画するため、実際に置けるタイル数は +1 になる
+func roomTileExtent(r gc.Rect) (w, h int) {
+	return int(r.Width()) + 1, int(r.Height()) + 1
+}
+
 // selectRoom は部屋リストから面積で重み付けして1つ選択し、部屋とそのインデックスを返す
 // 大きな部屋ほど選ばれやすくなり、配置可能タイル数に比例した自然な分布になる
 func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
@@ -576,8 +582,7 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	}
 	totalArea := 0
 	for _, r := range bm.Rooms {
-		w := int(r.Width())
-		h := int(r.Height())
+		w, h := roomTileExtent(r)
 		if w > 0 && h > 0 {
 			totalArea += w * h
 		}
@@ -589,8 +594,7 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	roll := bm.RNG.IntN(totalArea)
 	cumulative := 0
 	for i, r := range bm.Rooms {
-		w := int(r.Width())
-		h := int(r.Height())
+		w, h := roomTileExtent(r)
 		if w > 0 && h > 0 {
 			cumulative += w * h
 		}
@@ -605,8 +609,7 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
 // maxAttemptsを超えても見つからない場合はfalseを返す
 func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
-	rw := int(room.Width())
-	rh := int(room.Height())
+	rw, rh := roomTileExtent(room)
 	if rw <= 0 || rh <= 0 {
 		return 0, 0, false
 	}
@@ -628,7 +631,8 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 		dy := bm.RNG.IntN(radius*2+1) - radius
 		tx := consts.Tile(int(centerX) + dx)
 		ty := consts.Tile(int(centerY) + dy)
-		if tx < room.Min.X || tx >= room.Max.X || ty < room.Min.Y || ty >= room.Max.Y {
+		// Max は部屋の最終タイル添字で、その列・行も床なので範囲は Max を含む
+		if tx < room.Min.X || tx > room.Max.X || ty < room.Min.Y || ty > room.Max.Y {
 			continue
 		}
 		if bm.IsSpawnableTile(world, tx, ty) {
@@ -654,7 +658,8 @@ func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 // isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する
 func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
 	for _, room := range bm.Rooms {
-		if x >= room.Min.X && x < room.Max.X && y >= room.Min.Y && y < room.Max.Y {
+		// Max は部屋の最終タイル添字で、その列・行も部屋内なので Max を含めて判定する
+		if x >= room.Min.X && x <= room.Max.X && y >= room.Min.Y && y <= room.Max.Y {
 			return true
 		}
 	}
