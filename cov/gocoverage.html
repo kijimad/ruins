@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -535,7 +535,7 @@
 				
 				<option value="file239">github.com/kijimaD/ruins/internal/systems/animation_system.go (0.0%)</option>
 				
-				<option value="file240">github.com/kijimaD/ruins/internal/systems/auction.go (93.9%)</option>
+				<option value="file240">github.com/kijimaD/ruins/internal/systems/auction.go (97.0%)</option>
 				
 				<option value="file241">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (82.6%)</option>
 				
@@ -665,17 +665,17 @@
 				
 				<option value="file304">github.com/kijimaD/ruins/internal/world/query/attack.go (87.5%)</option>
 				
-				<option value="file305">github.com/kijimaD/ruins/internal/world/query/auction.go (0.0%)</option>
+				<option value="file305">github.com/kijimaD/ruins/internal/world/query/auction.go (98.0%)</option>
 				
 				<option value="file306">github.com/kijimaD/ruins/internal/world/query/cube.go (100.0%)</option>
 				
 				<option value="file307">github.com/kijimaD/ruins/internal/world/query/currency.go (94.1%)</option>
 				
-				<option value="file308">github.com/kijimaD/ruins/internal/world/query/danger.go (75.0%)</option>
+				<option value="file308">github.com/kijimaD/ruins/internal/world/query/danger.go (100.0%)</option>
 				
 				<option value="file309">github.com/kijimaD/ruins/internal/world/query/enemy.go (95.2%)</option>
 				
-				<option value="file310">github.com/kijimaD/ruins/internal/world/query/equipment.go (54.3%)</option>
+				<option value="file310">github.com/kijimaD/ruins/internal/world/query/equipment.go (57.1%)</option>
 				
 				<option value="file311">github.com/kijimaD/ruins/internal/world/query/faction.go (100.0%)</option>
 				
@@ -685,19 +685,19 @@
 				
 				<option value="file314">github.com/kijimaD/ruins/internal/world/query/location.go (100.0%)</option>
 				
-				<option value="file315">github.com/kijimaD/ruins/internal/world/query/name.go (20.0%)</option>
+				<option value="file315">github.com/kijimaD/ruins/internal/world/query/name.go (90.0%)</option>
 				
 				<option value="file316">github.com/kijimaD/ruins/internal/world/query/nearest.go (94.1%)</option>
 				
-				<option value="file317">github.com/kijimaD/ruins/internal/world/query/query.go (78.7%)</option>
+				<option value="file317">github.com/kijimaD/ruins/internal/world/query/query.go (100.0%)</option>
 				
 				<option value="file318">github.com/kijimaD/ruins/internal/world/query/shop.go (100.0%)</option>
 				
-				<option value="file319">github.com/kijimaD/ruins/internal/world/query/singleton.go (78.9%)</option>
+				<option value="file319">github.com/kijimaD/ruins/internal/world/query/singleton.go (89.0%)</option>
 				
 				<option value="file320">github.com/kijimaD/ruins/internal/world/query/sort.go (90.9%)</option>
 				
-				<option value="file321">github.com/kijimaD/ruins/internal/world/query/stackkey.go (95.5%)</option>
+				<option value="file321">github.com/kijimaD/ruins/internal/world/query/stackkey.go (96.6%)</option>
 				
 				<option value="file322">github.com/kijimaD/ruins/internal/world/query/turn.go (96.8%)</option>
 				
@@ -1602,7 +1602,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1692,7 +1692,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
@@ -1759,8 +1759,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -38376,7 +38376,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 </span>
         // 入札が来る限り延長する。来たら現在値を上げる
         <span class="cov8" title="1">if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
-                <span class="cov0" title="0">l.CurrentBid += query.AuctionRaise(world, item)
+                <span class="cov8" title="1">l.CurrentBid += query.AuctionRaise(world, item)
                 return
 </span>        }
 
@@ -48093,14 +48093,14 @@ const (
 
 // AuctionOpeningBid は開始入札額を返す。基準価値に分散を掛けた控えめな額から競売が始まる。
 func AuctionOpeningBid(world w.World, item ecs.Entity) consts.Currency {
-        <span class="cov0" title="0">base := GetItemValue(world, item)
+        <span class="cov8" title="1">base := GetItemValue(world, item)
         variance := 0.8 + world.Resources.Config.RNG.Float64()*0.4
         return consts.Currency(float64(base) * auctionOpeningMult * variance)
 </span>}
 
 // AuctionRaise は1回の入札での上げ幅を返す。入札が来るたびこの額だけ現在値が上がる。
 func AuctionRaise(world w.World, item ecs.Entity) consts.Currency {
-        <span class="cov0" title="0">base := GetItemValue(world, item)
+        <span class="cov8" title="1">base := GetItemValue(world, item)
         variance := 0.8 + world.Resources.Config.RNG.Float64()*0.4
         raise := max(consts.Currency(float64(base)*auctionRaiseMult*variance), 1)
         return raise
@@ -48108,24 +48108,24 @@ func AuctionRaise(world w.World, item ecs.Entity) consts.Currency {
 
 // AuctionShippingCost は発送料を返す。重量に比例するので、重い安物は手取りを食う。
 func AuctionShippingCost(world w.World, item ecs.Entity) consts.Currency {
-        <span class="cov0" title="0">weightKg := float64(GetEntityWeight(world, item)) / float64(consts.MilligramPerKg)
+        <span class="cov8" title="1">weightKg := float64(GetEntityWeight(world, item)) / float64(consts.MilligramPerKg)
         return consts.Currency(weightKg * auctionShipRatePerKg)
 </span>}
 
 // AuctionFee は手数料を返す。落札額に比例する。
 func AuctionFee(bid consts.Currency) consts.Currency {
-        <span class="cov0" title="0">return consts.Currency(float64(bid) * auctionFeeRate)
+        <span class="cov8" title="1">return consts.Currency(float64(bid) * auctionFeeRate)
 </span>}
 
 // GetAuctionHistory は出荷実績の履歴シングルトンを取得する。
 func GetAuctionHistory(world w.World) *gc.AuctionHistory {
-        <span class="cov0" title="0">return GetSingleton[gc.AuctionHistory](world, world.Components.AuctionHistory)
+        <span class="cov8" title="1">return GetSingleton[gc.AuctionHistory](world, world.Components.AuctionHistory)
 </span>}
 
 // StartAuctionListing はタグを貼って出品を始める。連番を採番し開始入札で AuctionListing を付ける。
 // 採番した番号を返す。以後この番号でその出品を指す。
 func StartAuctionListing(world w.World, item ecs.Entity, now int) int {
-        <span class="cov0" title="0">history := GetAuctionHistory(world)
+        <span class="cov8" title="1">history := GetAuctionHistory(world)
         history.NextNumber++
         number := history.NextNumber
         world.Components.AuctionListing.Add(item, &amp;gc.AuctionListing{
@@ -48143,16 +48143,16 @@ func StartAuctionListing(world w.World, item ecs.Entity, now int) int {
 // 集荷した総件数と、受取金の明細を発生させた件数を返す。
 func CollectStagedItems(world w.World, station ecs.Entity) (collected, receipts int) {
         // GetStorageItems は確定したスライスを返すので、反復中に削除してよい
-        <span class="cov0" title="0">items := GetStorageItems(world, station)
+        <span class="cov8" title="1">items := GetStorageItems(world, station)
         if len(items) == 0 </span>{
-                <span class="cov0" title="0">return 0, 0
+                <span class="cov8" title="1">return 0, 0
 </span>        }
         // 明細を一旦ためる。履歴シングルトンへの追記は品の削除が終わってから行う。
         // エンティティ削除で Get のポインタが無効化されうるので、構造変更を跨いで history を保持しない
-        <span class="cov0" title="0">var entries []gc.AuctionEntry
+        <span class="cov8" title="1">var entries []gc.AuctionEntry
         for _, item := range items </span>{
-                <span class="cov0" title="0">if world.Components.AuctionSold.Has(item) </span>{
-                        <span class="cov0" title="0">sold := world.Components.AuctionSold.Get(item)
+                <span class="cov8" title="1">if world.Components.AuctionSold.Has(item) </span>{
+                        <span class="cov8" title="1">sold := world.Components.AuctionSold.Get(item)
                         bid := sold.Bid
                         ship := AuctionShippingCost(world, item)
                         fee := AuctionFee(bid)
@@ -48163,11 +48163,11 @@ func CollectStagedItems(world w.World, station ecs.Entity) (collected, receipts 
                         receipts++
 </span>                }
                 // 落札済みでない品は明細を生まず、ただ手放される
-                <span class="cov0" title="0">world.ECS.RemoveEntity(item)
+                <span class="cov8" title="1">world.ECS.RemoveEntity(item)
                 collected++</span>
         }
         // 集荷料金の請求を1件立てる。品ごとの配送料や手数料とは別立て
-        <span class="cov0" title="0">entries = append(entries, gc.AuctionEntry{
+        <span class="cov8" title="1">entries = append(entries, gc.AuctionEntry{
                 Kind: gc.AuctionEntryInvoice, Name: pickupInvoiceName, Amount: AuctionPickupFee,
         })
         history := GetAuctionHistory(world)
@@ -48181,29 +48181,29 @@ const pickupInvoiceName = "Pickup fee"
 // SettleAuctionEntry は金銭タブの明細1件を精算する。受取金は所持金へ加え、請求は所持金から引く。
 // 精算した受取金は出荷実績として履歴へ移す。精算した明細と、精算できたかを返す。
 func SettleAuctionEntry(world w.World, player ecs.Entity, index, now int) (gc.AuctionEntry, bool) {
-        <span class="cov0" title="0">history := GetAuctionHistory(world)
+        <span class="cov8" title="1">history := GetAuctionHistory(world)
         if index &lt; 0 || index &gt;= len(history.Entries) </span>{
-                <span class="cov0" title="0">return gc.AuctionEntry{}, false
+                <span class="cov8" title="1">return gc.AuctionEntry{}, false
 </span>        }
-        <span class="cov0" title="0">e := history.Entries[index]
+        <span class="cov8" title="1">e := history.Entries[index]
         switch e.Kind </span>{
         case gc.AuctionEntryReceipt:
-                <span class="cov0" title="0">if err := AddCurrency(world, player, e.Amount); err != nil </span>{
-                        <span class="cov0" title="0">return gc.AuctionEntry{}, false
+                <span class="cov8" title="1">if err := AddCurrency(world, player, e.Amount); err != nil </span>{
+                        <span class="cov8" title="1">return gc.AuctionEntry{}, false
 </span>                }
-                <span class="cov0" title="0">history.Records = append(history.Records, gc.AuctionRecord{
+                <span class="cov8" title="1">history.Records = append(history.Records, gc.AuctionRecord{
                         Number: e.Number, Name: e.Name, Bid: e.Bid, Ship: e.Ship, Fee: e.Fee, Net: e.Amount, Turn: now,
                 })
 </span>                // 売上統計: 受取金を run 統計へ加算する
-                <span class="cov0" title="0">if s := GetRunStats(world); s != nil </span>{
-                        <span class="cov0" title="0">s.SalesTotal += e.Amount
+                <span class="cov8" title="1">if s := GetRunStats(world); s != nil </span>{
+                        <span class="cov8" title="1">s.SalesTotal += e.Amount
 </span>                }
         case gc.AuctionEntryInvoice:
-                <span class="cov0" title="0">if err := AddCurrency(world, player, -e.Amount); err != nil </span>{
+                <span class="cov8" title="1">if err := AddCurrency(world, player, -e.Amount); err != nil </span>{
                         <span class="cov0" title="0">return gc.AuctionEntry{}, false
 </span>                }
         }
-        <span class="cov0" title="0">history.Entries = append(history.Entries[:index], history.Entries[index+1:]...)
+        <span class="cov8" title="1">history.Entries = append(history.Entries[:index], history.Entries[index+1:]...)
         return e, true</span>
 }
 </pre>
@@ -48328,7 +48328,7 @@ func dangerLevel(days int) int {
 
 // DangerLevelAt は world から経過日数を引いて危険度を返す。
 func DangerLevelAt(world w.World) int {
-        <span class="cov0" title="0">return dangerLevel(GetGameTime(world).GetDayNumber())
+        <span class="cov8" title="1">return dangerLevel(GetGameTime(world).GetDayNumber())
 </span>}
 </pre>
 		
@@ -48436,7 +48436,7 @@ import (
 
 // IsWeapon はエンティティが武器かを返す。近接または射撃のいずれかを持てば武器とみなす。
 func IsWeapon(world w.World, entity ecs.Entity) bool {
-        <span class="cov0" title="0">return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
+        <span class="cov8" title="1">return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)
 </span>}
 
 // GetWeapons は武器一覧を取得する（スロット1〜5）
@@ -48742,23 +48742,23 @@ func GetEntityName(entity ecs.Entity, world w.World) string {
 // GetEntityID はエンティティの同定キーを返す。raw 定義やレシピ参照との照合に使う。
 // 表示名ではなく英語の id を返す。RawID コンポーネントを持たなければ空文字を返す
 func GetEntityID(entity ecs.Entity, world w.World) string {
-        <span class="cov0" title="0">if !world.ECS.Alive(entity) || !world.Components.RawID.Has(entity) </span>{
-                <span class="cov0" title="0">return ""
+        <span class="cov8" title="1">if !world.ECS.Alive(entity) || !world.Components.RawID.Has(entity) </span>{
+                <span class="cov8" title="1">return ""
 </span>        }
-        <span class="cov0" title="0">return world.Components.RawID.Get(entity).ID</span>
+        <span class="cov8" title="1">return world.Components.RawID.Get(entity).ID</span>
 }
 
 // NameMarkup はエンティティ種別に応じたタグで名前を包んだマークアップ文字列を返す。
 // Player=&lt;player&gt;、NPC=&lt;npc&gt;、その他は裸のテキスト。gamelog.Markup へ書式の引数として渡す。
 // 名前の色は実行時の種別で決まるため、書式文字列でなくここでタグ付けする
 func NameMarkup(entity ecs.Entity, name string, world w.World) string {
-        <span class="cov0" title="0">switch </span>{
+        <span class="cov8" title="1">switch </span>{
         case world.Components.Player.Has(entity):
-                <span class="cov0" title="0">return gamelog.Tag("player", name)</span>
+                <span class="cov8" title="1">return gamelog.Tag("player", name)</span>
         case world.Components.SoloAI.Has(entity):
-                <span class="cov0" title="0">return gamelog.Tag("npc", name)</span>
+                <span class="cov8" title="1">return gamelog.Tag("npc", name)</span>
         default:
-                <span class="cov0" title="0">return name</span>
+                <span class="cov8" title="1">return name</span>
         }
 }
 </pre>
@@ -48920,13 +48920,13 @@ func IsPickable(entity ecs.Entity, world w.World) bool {
 // 「どのタイルを拾うか」から「どのエンティティを拾うか」へ解決するのに使う。
 // タイル上のエンティティ列挙は共通の GetEntitiesAt に委ね、拾得可否だけを重ねる。
 func PickablesAt(world w.World, tile consts.Coord[consts.Tile]) []ecs.Entity {
-        <span class="cov0" title="0">var result []ecs.Entity
+        <span class="cov8" title="1">var result []ecs.Entity
         for _, entity := range GetEntitiesAt(world, tile.X, tile.Y) </span>{
-                <span class="cov0" title="0">if IsPickable(entity, world) </span>{
-                        <span class="cov0" title="0">result = append(result, entity)
+                <span class="cov8" title="1">if IsPickable(entity, world) </span>{
+                        <span class="cov8" title="1">result = append(result, entity)
 </span>                }
         }
-        <span class="cov0" title="0">return result</span>
+        <span class="cov8" title="1">return result</span>
 }
 
 // IsInActivationRange はプレイヤーがトリガーの発動範囲内にいるかを判定する
@@ -48959,12 +48959,12 @@ func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {
 // GetPlayerCamera はカメラを返す。存在しなければ nil を返す。
 // カメラはワールドに1つだけ存在する前提で、視点を読む側の定型をここへ集約する。
 func GetPlayerCamera(world w.World) *gc.Camera {
-        <span class="cov0" title="0">var camera *gc.Camera
+        <span class="cov8" title="1">var camera *gc.Camera
         cameraQuery := ecs.NewFilter1[gc.Camera](world.ECS).Query()
         for cameraQuery.Next() </span>{
-                <span class="cov0" title="0">camera = world.Components.Camera.Get(cameraQuery.Entity())
+                <span class="cov8" title="1">camera = world.Components.Camera.Get(cameraQuery.Entity())
 </span>        }
-        <span class="cov0" title="0">return camera</span>
+        <span class="cov8" title="1">return camera</span>
 }
 </pre>
 		
@@ -49075,7 +49075,7 @@ func GetUserSettings(world w.World) *gc.UserSettings {
 
 // GetRunStats はシングルトンから run 統計を取得する
 func GetRunStats(world w.World) *gc.RunStats {
-        <span class="cov0" title="0">return GetSingleton[gc.RunStats](world, world.Components.RunStats)
+        <span class="cov8" title="1">return GetSingleton[gc.RunStats](world, world.Components.RunStats)
 </span>}
 
 // T は現在の設定言語での msgid の訳を返す。現在言語は UserSettings、マスタは Resources.I18N から引く。
@@ -49114,7 +49114,7 @@ func ensureStageFieldEntity(world w.World, key gc.StageKey) ecs.Entity {
         <span class="cov8" title="1">if e, ok := stageFieldEntity(world, key); ok </span>{
                 <span class="cov8" title="1">return e
 </span>        }
-        <span class="cov0" title="0">e := world.ECS.NewEntity()
+        <span class="cov8" title="1">e := world.ECS.NewEntity()
         world.Components.StageBound.Add(e, &amp;gc.StageBound{Key: key})
         world.Components.StageField.Add(e, gc.NewStageField())
         return e</span>
@@ -49124,14 +49124,14 @@ func ensureStageFieldEntity(world w.World, key gc.StageKey) ecs.Entity {
 // ステージ生成時に呼び、そのステージのフィールド寸法などを書き込む。
 // StageBound を直接付けるため、生成物を束縛する stage.Bind の対象からは外れる。
 func EnsureStageField(world w.World, key gc.StageKey) *gc.StageField {
-        <span class="cov0" title="0">return world.Components.StageField.Get(ensureStageFieldEntity(world, key))
+        <span class="cov8" title="1">return world.Components.StageField.Get(ensureStageFieldEntity(world, key))
 </span>}
 
 // GetCurrentStageField は現ステージの StageField を返す。未生成なら nil。
 func GetCurrentStageField(world w.World) *gc.StageField {
         <span class="cov8" title="1">e, ok := currentStageEntity(world)
         if !ok </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
         <span class="cov8" title="1">return world.Components.StageField.Get(e)</span>
 }
@@ -49139,11 +49139,11 @@ func GetCurrentStageField(world w.World) *gc.StageField {
 // GetSeamlessBand は現ステージが持つ帯の永続状態を返す。持たなければ nil。
 // nil はオーバーワールドでないことを意味する。
 func GetSeamlessBand(world w.World) *gc.SeamlessBand {
-        <span class="cov0" title="0">e, ok := currentStageEntity(world)
+        <span class="cov8" title="1">e, ok := currentStageEntity(world)
         if !ok || !world.Components.SeamlessBand.Has(e) </span>{
-                <span class="cov0" title="0">return nil
+                <span class="cov8" title="1">return nil
 </span>        }
-        <span class="cov0" title="0">return world.Components.SeamlessBand.Get(e)</span>
+        <span class="cov8" title="1">return world.Components.SeamlessBand.Get(e)</span>
 }
 
 // EnsureSeamlessBand は現ステージの StageField エンティティに帯の永続状態を確保して返す。
@@ -49445,7 +49445,7 @@ func BackpackStacks(world w.World, owner ecs.Entity) []Stack {
 
 // StorageStacks は storage の中身を、表示順に並べたスタックの列で返す。BackpackStacks と対
 func StorageStacks(world w.World, storage ecs.Entity) []Stack {
-        <span class="cov0" title="0">return GroupStacks(world, SortEntities(world, GetStorageItems(world, storage)))
+        <span class="cov8" title="1">return GroupStacks(world, SortEntities(world, GetStorageItems(world, storage)))
 </span>}
 
 // StackMembers は entity と同じ所有者かつ同じ位置種別にある、同一スタックのエンティティを返す。

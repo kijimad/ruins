@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">45.5&nbsp;%</td>
+            <td class="headerCovTableEntryLo">51.5&nbsp;%</td>
             <td class="headerCovTableEntry">33</td>
-            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">17</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-24 00:54:14</td>
+            <td class="headerValue">2026-08-24 16:40:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,13 +72,13 @@
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // IsWeapon はエンティティが武器かを返す。近接または射撃のいずれかを持てば武器とみなす。</span>
 <span id="L12"><span class="lineNum">      12</span>              : func IsWeapon(world w.World, entity ecs.Entity) bool {</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC tlaBgUNC">           0 :         return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 :         return world.Components.Melee.Has(entity) || world.Components.Fire.Has(entity)</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // GetWeapons は武器一覧を取得する（スロット1〜5）</span>
 <span id="L17"><span class="lineNum">      17</span>              : // 必ず長さ5のスライスを返す</span>
 <span id="L18"><span class="lineNum">      18</span>              : func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         weapons := make([]*ecs.Entity, 5)</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         weapons := make([]*ecs.Entity, 5)</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         weaponsQuery := ecs.NewFilter1[gc.LocationEquipped](world.ECS).Query()</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         for weaponsQuery.Next() {</span></span>
