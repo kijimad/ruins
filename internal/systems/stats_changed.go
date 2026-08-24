@@ -117,7 +117,16 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 		abils.Agility.Total = abils.Agility.Base + abils.Agility.Modifier
 		abils.Defense.Total = abils.Defense.Base + abils.Defense.Modifier
 
-		// スキル効果倍率を再計算する。能力値変更後に行う
+		// HP/Poolsを更新。abils を使うので、CharModifiers の Upsert による構造変更で
+		// abils ポインタが無効化される前に行う
+		if world.Components.HP.Has(entity) {
+			hp := world.Components.HP.Get(entity)
+			hp.Max = maxHP(abils)
+			hp.Current = min(hp.Max, hp.Current)
+		}
+
+		// スキル効果倍率を再計算する。能力値変更後に行う。CharModifiers の Add は構造変更で
+		// abils ポインタを無効化するので、abils を使う処理はこれより前に済ませる
 		if world.Components.Skills.Has(entity) {
 			skills := world.Components.Skills.Get(entity)
 			var hs *gc.HealthStatus
@@ -128,13 +137,6 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			if err := gc.Upsert(world.ECS, world.Components.CharModifiers, entity, effects); err != nil {
 				return err
 			}
-		}
-
-		// HP/Poolsを更新
-		if world.Components.HP.Has(entity) {
-			hp := world.Components.HP.Get(entity)
-			hp.Max = maxHP(abils)
-			hp.Current = min(hp.Max, hp.Current)
 		}
 		if world.Components.WeightCapacity.Has(entity) {
 			// 所持重量を再計算する。力が変化した場合に最大重量が変わるので
