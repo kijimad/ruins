@@ -1,0 +1,14 @@
+// Windows 用 depot。ContentRoot はこのファイルからの相対。中身は Windows 実行体1つ。
+// TODO: DepotID を Steamworks で作成した Windows 用 depot ID に置き換える。
+"DepotBuild"
+{
+	"DepotID"     "4791812"
+	"ContentRoot" "content-windows"
+
+	"FileMapping"
+	{
+		"LocalPath" "*"
+		"DepotPath" "."
+		"Recursive" "1"
+	}
+}

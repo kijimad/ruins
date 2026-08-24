@@ -12,14 +12,23 @@ OS 別に depot を2つに分け、各OSは自分のぶんだけダウンロー�
 
 ## 構成
 
-- `app_build.vdf.in` / `depot_build.vdf.in`: SteamPipe 定義のテンプレート。`@...@` を Makefile が実値へ展開する。秘匿値をコミットしないためテンプレートにしている。depot テンプレートは Linux/Windows で使い回す
+VDF は静的にコミットしてある。**App ID と depot ID は公開値なので直書きしてよい**。ストアURLや
+SteamDB で誰でも見える値で、秘匿すべきは Steam アカウントのパスワードと 2FA だけ。それは
+steamcmd の `config.vdf` が持つ。パスは VDF ファイルからの相対で書くので置換は要らない。
+
+- `app_build.vdf`: アプリビルド定義。App ID と2つの depot を参照する
+- `depot_linux.vdf` / `depot_windows.vdf`: OS 別の depot 定義。ContentRoot は相対
 - `Makefile`: 取得・ログイン・ステージ・アップロードのターゲット
-- `.build/`: 展開後の VDF、OS 別にステージした実行体、ログの置き場。gitignore 済み
+- `content-linux/` `content-windows/`: ステージした実行体の置き場。gitignore 済み
+- `.build_output/`: SteamPipe のログ・マニフェスト・キャッシュ。gitignore 済み
 - `steamcmd/`: 取得した SteamCMD。gitignore 済み
 
 Linux depot には `bin/ruins_linux_amd64_steam`、Windows depot には `bin/ruins_windows_amd64_steam.exe`
 だけを入れる。資産は go:embed でバイナリに焼かれるので depot に別途置かない。
 depot ごとの OS 割当は Steamworks の depot 設定で行い、OS 別の起動は launch options で振り分ける。
+
+App ID や depot ID を変えるときは VDF を直接編集する。Windows depot ID は `depot_windows.vdf` と
+`app_build.vdf` の TODO を差し替える。
 
 ## 使い方
 
@@ -33,15 +42,15 @@ make steamcmd
 make login STEAM_USER=<steamアカウント名>
 
 # 3. まずドライランで内容を検証する。アップロードしない
-make preview APP_ID=<AppID> DEPOT_LINUX=<LinuxDepotID> DEPOT_WINDOWS=<WindowsDepotID> STEAM_USER=<アカウント>
+make preview STEAM_USER=<アカウント>
 
 # 4. アップロードする
-make upload APP_ID=<AppID> DEPOT_LINUX=<LinuxDepotID> DEPOT_WINDOWS=<WindowsDepotID> STEAM_USER=<アカウント>
+make upload STEAM_USER=<アカウント>
 ```
 
 アップロード後、`default` ブランチへ反映するのは partner サイトの Builds ページで確定する。
-名前付きブランチへ自動反映するときは `BRANCH=beta` を渡す。`default` は VDF の `SetLive` では
-指定できない。
+`default` は VDF の `SetLive` では指定できない。名前付きブランチへ自動反映したいときは
+`app_build.vdf` に `"SetLive" "beta"` を足す。
 
 ## Steam Guard / CI
 
