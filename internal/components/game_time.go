@@ -68,30 +68,27 @@ func (gt *GameTime) GetDayNumber() int {
 	return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1
 }
 
-// 季節による世界温度のパラメータ。トロントの気候をモデルに、夏ピークと冬底を持つ1年周期。
-// 春->夏->秋->冬で1周する。値とカーブは実プレイで調整する。
+// 季節による世界温度のパラメータ。夏ピークと冬底を持つ1年周期で、値は実プレイで調整する。
 const (
-	daysPerYear      = 32  // 季節1周の日数。この日数で春から冬まで巡り翌年の春へ戻る
+	daysPerYear      = 32  // 季節1周の日数
 	summerPeakTemp   = 22  // 夏ピークの世界温度
 	winterTroughTemp = -30 // 冬底の世界温度。準備なしでは生存できない寒さ
 )
 
 // GetSeasonalTemperature は経過日数から季節による世界温度のベース値を返す。
-// 春開始の正弦波で、春秋が中点、夏がピーク、冬が底になる。オーバーワールドの周囲気温は
-// この季節ベースに時間帯の GetTemperatureModifier を足して決める。季節は保存せず日数から導く。
+// 春開始の正弦波で、春秋が中点、夏がピーク、冬が底になる。季節は保存せず日数から導く。
 func (gt *GameTime) GetSeasonalTemperature() int {
 	mid := float64(summerPeakTemp+winterTroughTemp) / 2
 	amp := float64(summerPeakTemp-winterTroughTemp) / 2
-	// day 1 を春の中点かつ上昇位相の起点にする。1周期で春->夏->秋->冬を巡る
+	// day 1 を春の中点かつ上昇位相の起点にする
 	phase := 2 * math.Pi * float64(gt.GetDayNumber()-1) / daysPerYear
 	return int(math.Round(mid + amp*math.Sin(phase)))
 }
 
-// Season は季節を表す。1年を4等分し、春開始で春->夏->秋->冬の順に巡る。
+// Season は季節を表す。1年を4等分し、春開始で巡る。
 type Season int
 
-// 季節定数。GetSeasonalTemperature の正弦波と位相を合わせ、春=中点から上昇、夏=ピーク付近、
-// 秋=下降、冬=底付近になる。
+// 季節定数。GetSeasonalTemperature の正弦波と位相を合わせる。
 const (
 	SeasonSpring Season = iota // 春
 	SeasonSummer               // 夏
@@ -114,7 +111,7 @@ func (s Season) String() string {
 	panic(fmt.Sprintf("unknown Season: %d", s))
 }
 
-// GetSeason は経過日数から現在の季節を返す。1年 daysPerYear 日を4等分し、春開始で巡る。
+// GetSeason は経過日数から現在の季節を返す。
 func (gt *GameTime) GetSeason() Season {
 	const daysPerSeason = daysPerYear / 4
 	dayOfYear := (gt.GetDayNumber() - 1) % daysPerYear

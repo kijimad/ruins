@@ -60,18 +60,17 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	}
 
 	gt := query.GetGameTime(world)
-	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる。日数と時刻から導き保存しない
+	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
 	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
 
 	tileModifier := getTileTemperatureAt(world, x, y)
 
 	if query.IsOnOverworld(world) {
-		// 屋外は世界温度がそのまま効く
 		return worldTemp + tileModifier, nil
 	}
 
-	// 屋内は世界温度の影響を緩和して受け、ステージの基本気温ぶん暖かい床を保つ。
-	// 世界が寒いほどダンジョンも寒くなるが、屋外ほど厳しくならず寒さの逆転も起きない
+	// 屋内は世界温度の影響を緩和して受ける。世界が寒いほどダンジョンも寒くなるが、
+	// 屋外ほど厳しくならず寒さの逆転も起きない
 	return def.BaseTemperature() + worldTemp/dungeonWorldInfluenceDivisor + tileModifier, nil
 }
 

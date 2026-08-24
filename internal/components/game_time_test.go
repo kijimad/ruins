@@ -134,7 +134,7 @@ func TestGameTime_GetTemperatureModifier(t *testing.T) {
 }
 
 // TestGameTime_GetSeasonalTemperature は経過日数に対応する季節の世界温度ベースを確認する。
-// 春開始の正弦波で、春秋が中点、夏がピーク、冬が底になる。TotalTurns=(日-1)*1500 で当該日の始まりを指す。
+// TotalTurns=(日-1)*1500 で当該日の始まりを指す。
 func TestGameTime_GetSeasonalTemperature(t *testing.T) {
 	t.Parallel()
 
@@ -161,7 +161,7 @@ func TestGameTime_GetSeasonalTemperature(t *testing.T) {
 	}
 }
 
-// TestGameTime_GetSeason は経過日数に対応する季節を確認する。1年を4等分し春開始で巡る。
+// TestGameTime_GetSeason は経過日数に対応する季節を確認する。
 func TestGameTime_GetSeason(t *testing.T) {
 	t.Parallel()
 
