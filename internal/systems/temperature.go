@@ -113,7 +113,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		hasChange := updateTemperatureConditions(world, hs, ambientTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
 
 		// 周囲の熱源で低体温を回復する。周囲気温とは別に効き、屋内外で回復量は同じ
-		warmth := heatSourceWarmthAt(world, gridElement.Coord)
+		warmth := heatSourceWarmthAt(world, gridElement.X, gridElement.Y)
 		if applyHeatSourceRecovery(world, hs, warmth, isPlayer) {
 			hasChange = true
 		}
@@ -169,9 +169,10 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 	return modifier
 }
 
-// heatSourceWarmthAt は座標のチェビシェフ半径内にある全熱源の Warmth 合計を返す。
+// heatSourceWarmthAt はタイル座標のチェビシェフ半径内にある全熱源の Warmth 合計を返す。
 // 半径内なら固定量、半径外なら効かない離散。複数の熱源は加算する
-func heatSourceWarmthAt(world w.World, at consts.Coord[consts.Tile]) float64 {
+func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
+	at := consts.Coord[consts.Tile]{X: x, Y: y}
 	var warmth float64
 	heatQuery := query.ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()
 	for heatQuery.Next() {
@@ -198,11 +199,13 @@ func applyHeatSourceRecovery(world w.World, hs *gc.HealthStatus, warmth float64,
 	}
 
 	change := partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -warmth)
-	updateConditionEffects(partHealth)
-
 	if change.Prev == change.Current {
 		return false
 	}
+
+	// Severity が変わったときだけ効果を再計算する。効果は Severity にのみ依存するので、
+	// タイマーが動いても Severity が変わらなければ再計算は要らない
+	updateConditionEffects(partHealth)
 	if isPlayer {
 		logTemperatureChange(world, change.CondType, change.Current, change.Prev)
 	}
