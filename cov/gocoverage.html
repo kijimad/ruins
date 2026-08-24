@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -151,7 +151,7 @@
 				
 				<option value="file47">github.com/kijimaD/ruins/internal/components/field.go (97.6%)</option>
 				
-				<option value="file48">github.com/kijimaD/ruins/internal/components/game_time.go (95.2%)</option>
+				<option value="file48">github.com/kijimaD/ruins/internal/components/game_time.go (81.6%)</option>
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/components/health_status.go (100.0%)</option>
 				
@@ -469,7 +469,7 @@
 				
 				<option value="file206">github.com/kijimaD/ruins/internal/states/character_equip_overlay.go (77.3%)</option>
 				
-				<option value="file207">github.com/kijimaD/ruins/internal/states/character_info.go (95.0%)</option>
+				<option value="file207">github.com/kijimaD/ruins/internal/states/character_info.go (94.8%)</option>
 				
 				<option value="file208">github.com/kijimaD/ruins/internal/states/character_job.go (67.1%)</option>
 				
@@ -517,7 +517,7 @@
 				
 				<option value="file230">github.com/kijimaD/ruins/internal/states/persistent_message_state.go (43.8%)</option>
 				
-				<option value="file231">github.com/kijimaD/ruins/internal/states/run_stats_state.go (78.8%)</option>
+				<option value="file231">github.com/kijimaD/ruins/internal/states/run_stats_state.go (82.4%)</option>
 				
 				<option value="file232">github.com/kijimaD/ruins/internal/states/settings_menu.go (86.0%)</option>
 				
@@ -535,7 +535,7 @@
 				
 				<option value="file239">github.com/kijimaD/ruins/internal/systems/animation_system.go (0.0%)</option>
 				
-				<option value="file240">github.com/kijimaD/ruins/internal/systems/auction.go (97.0%)</option>
+				<option value="file240">github.com/kijimaD/ruins/internal/systems/auction.go (93.9%)</option>
 				
 				<option value="file241">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (82.6%)</option>
 				
@@ -557,7 +557,7 @@
 				
 				<option value="file250">github.com/kijimaD/ruins/internal/systems/stats_changed.go (94.1%)</option>
 				
-				<option value="file251">github.com/kijimaD/ruins/internal/systems/temperature.go (81.5%)</option>
+				<option value="file251">github.com/kijimaD/ruins/internal/systems/temperature.go (88.7%)</option>
 				
 				<option value="file252">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.6%)</option>
 				
@@ -1602,7 +1602,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1692,7 +1692,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
@@ -1759,8 +1759,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -9331,6 +9331,7 @@ func SnapWorldVec(wx, wy float64) Direction {
 
 import (
         "fmt"
+        "math"
 
         "github.com/kijimaD/ruins/internal/consts"
 )
@@ -9394,6 +9395,56 @@ func (gt *GameTime) GetTimeOfDay() TimeOfDay {
 // GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる
 func (gt *GameTime) GetDayNumber() int {
         <span class="cov8" title="1">return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1
+</span>}
+
+// 季節による世界温度のパラメータ。夏ピークと冬底を持つ1年周期で、値は実プレイで調整する。
+const (
+        daysPerYear      = 32  // 季節1周の日数
+        summerPeakTemp   = 22  // 夏ピークの世界温度
+        winterTroughTemp = -30 // 冬底の世界温度。準備なしでは生存できない寒さ
+)
+
+// GetSeasonalTemperature は経過日数から季節による世界温度のベース値を返す。
+// 春開始の正弦波で、春秋が中点、夏がピーク、冬が底になる。季節は保存せず日数から導く。
+func (gt *GameTime) GetSeasonalTemperature() int {
+        <span class="cov8" title="1">mid := float64(summerPeakTemp+winterTroughTemp) / 2
+        amp := float64(summerPeakTemp-winterTroughTemp) / 2
+</span>        // day 1 を春の中点かつ上昇位相の起点にする
+        <span class="cov8" title="1">phase := 2 * math.Pi * float64(gt.GetDayNumber()-1) / daysPerYear
+        return int(math.Round(mid + amp*math.Sin(phase)))
+</span>}
+
+// Season は季節を表す。1年を4等分し、春開始で巡る。
+type Season int
+
+// 季節定数。GetSeasonalTemperature の正弦波と位相を合わせる。
+const (
+        SeasonSpring Season = iota // 春
+        SeasonSummer               // 夏
+        SeasonAutumn               // 秋
+        SeasonWinter               // 冬
+)
+
+// String は季節名を返す。表示側が i18n の訳を引く msgid になる。
+func (s Season) String() string {
+        <span class="cov0" title="0">switch s </span>{
+        case SeasonSpring:
+                <span class="cov0" title="0">return "Spring"</span>
+        case SeasonSummer:
+                <span class="cov0" title="0">return "Summer"</span>
+        case SeasonAutumn:
+                <span class="cov0" title="0">return "Autumn"</span>
+        case SeasonWinter:
+                <span class="cov0" title="0">return "Winter"</span>
+        }
+        <span class="cov0" title="0">panic(fmt.Sprintf("unknown Season: %d", s))</span>
+}
+
+// GetSeason は経過日数から現在の季節を返す。
+func (gt *GameTime) GetSeason() Season {
+        <span class="cov8" title="1">const daysPerSeason = daysPerYear / 4
+        dayOfYear := (gt.GetDayNumber() - 1) % daysPerYear
+        return Season(dayOfYear / daysPerSeason)
 </span>}
 
 // GetTemperatureModifier は時間帯による気温修正値を返す。
@@ -31130,10 +31181,8 @@ import (
 
         "github.com/ebitenui/ebitenui/widget"
         gc "github.com/kijimaD/ruins/internal/components"
-        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/raw"
         "github.com/kijimaD/ruins/internal/resources"
-        "github.com/kijimaD/ruins/internal/systems"
         "github.com/kijimaD/ruins/internal/widgets/menuframe"
         "github.com/kijimaD/ruins/internal/widgets/styled"
         w "github.com/kijimaD/ruins/internal/world"
@@ -31177,13 +31226,6 @@ type statusDetailRow struct {
 
 // fetchInfoTabs は能力・スキル・効果・健康・基本の読み取り専用タブを構築する
 func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []statusTabData {
-        <span class="cov8" title="1">envTemp := 0
-        if query.AliveHas(world, world.Components.GridElement, player) </span>{
-                <span class="cov8" title="1">gridElement := world.Components.GridElement.Get(player)
-                if temp, err := systems.CalculateEnvTemperature(world, gridElement.X, gridElement.Y); err == nil </span>{
-                        <span class="cov8" title="1">envTemp = temp
-</span>                }
-        }
         <span class="cov8" title="1">professionName := ""
         if query.AliveHas(world, world.Components.Profession, player) </span>{
                 <span class="cov8" title="1">profComp := world.Components.Profession.Get(player)
@@ -31197,11 +31239,11 @@ func (st *CharacterState) fetchInfoTabs(world w.World, player ecs.Entity) []stat
                 {ID: tabSkills, Label: query.T(world, "Skills"), Items: st.createSkillItems(world, player)},
                 {ID: tabEffects, Label: query.T(world, "Effects"), Items: st.createEffectItems(world, player)},
                 {ID: tabHealth, Label: query.T(world, "Health"), Items: st.createHealthItems(world, player)},
-                {ID: tabBasic, Label: query.T(world, "Basic"), Items: st.createBasicItems(world, player, envTemp, professionName)},
+                {ID: tabBasic, Label: query.T(world, "Basic"), Items: st.createBasicItems(world, player, professionName)},
 </span>        }
 }
 
-func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entity, envTemp int, professionName string) []statusItemData {
+func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entity, professionName string) []statusItemData {
         <span class="cov8" title="1">items := []statusItemData{}
 </span>
         <span class="cov8" title="1">if professionName != "" </span>{
@@ -31219,11 +31261,7 @@ func (st *CharacterState) createBasicItems(world w.World, playerEntity ecs.Entit
                 <span class="cov8" title="1">hunger := world.Components.Hunger.Get(playerEntity)
                 items = append(items, statusItemData{Label: query.T(world, "Hunger"), Value: query.T(world, hunger.GetLevel().String()), Description: query.T(world, "Hunger. High hunger hinders actions")})
 </span>        }
-        <span class="cov8" title="1">items = append(items,
-                statusItemData{Label: query.T(world, "Ambient temperature"), Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: query.T(world, "Temperature at current location")},
-                statusItemData{Label: query.T(world, "Time of day"), Value: query.T(world, query.GetGameTime(world).GetTimeOfDay().String()), Description: query.T(world, "Current time of day. Affects temperature outdoors")},
-        )
-        return items</span>
+        <span class="cov8" title="1">return items</span>
 }
 
 func (st *CharacterState) createAbilityItems(world w.World, playerEntity ecs.Entity) []statusItemData {
@@ -36830,6 +36868,7 @@ import (
         "github.com/kijimaD/ruins/internal/keybind"
         "github.com/kijimaD/ruins/internal/menuloop"
         "github.com/kijimaD/ruins/internal/resources"
+        "github.com/kijimaD/ruins/internal/systems"
         "github.com/kijimaD/ruins/internal/widgets/menuframe"
         "github.com/kijimaD/ruins/internal/widgets/styled"
         w "github.com/kijimaD/ruins/internal/world"
@@ -36853,6 +36892,12 @@ type RunStatsState struct {
 
 // RunStatsProps は統計画面の表示 props
 type RunStatsProps struct {
+        Tabs []statsTab
+}
+
+// statsTab は統計画面の1タブ。見出しと2列テーブルの行を持つ
+type statsTab struct {
+        Label string
         Items []statusItemData
 }
 
@@ -36907,25 +36952,42 @@ func (st *RunStatsState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
         }
 }
 
-// Fetch は表示する統計行を組む
+// Fetch は表示するタブと統計行を組む。統計と環境の2タブを持つ
 func (st *RunStatsState) Fetch(world w.World) (RunStatsProps, error) {
-        <span class="cov8" title="1">return RunStatsProps{Items: runStatsItems(world)}, nil
+        <span class="cov8" title="1">return RunStatsProps{Tabs: []statsTab{
+                {Label: query.T(world, "Summary"), Items: runStatsItems(world)},
+                {Label: query.T(world, "Environment"), Items: environmentItems(world)},
+        }}, nil
 </span>}
 
-// Menu は単一タブの読み取り専用構成を返す。見出し行が無いのでスキップは不要
+// Menu は読み取り専用のタブ構成を返す。見出し行が無いのでスキップは不要
 func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
-        <span class="cov8" title="1">return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: 1, ItemCounts: []int{len(props.Items)}}
-</span>}
+        <span class="cov8" title="1">itemCounts := make([]int, len(props.Tabs))
+        for i, tab := range props.Tabs </span>{
+                <span class="cov8" title="1">itemCounts[i] = len(tab.Items)
+</span>        }
+        <span class="cov8" title="1">return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}</span>
+}
 
-// View は見出しと統計テーブルを menuframe のタブ画面枠へ組む。ラベルの訳のみ world から引く
+// View は見出しとタブ帯と現在タブのテーブルを menuframe のタブ画面枠へ組む。ラベルの訳のみ world から引く
 func (st *RunStatsState) View(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-        <span class="cov8" title="1">content := buildStatsTable(world, props.Items, cursor.ItemIndex, res)
+        <span class="cov8" title="1">labels := make([]string, len(props.Tabs))
+        for i, tab := range props.Tabs </span>{
+                <span class="cov8" title="1">labels[i] = tab.Label
+</span>        }
+        <span class="cov8" title="1">tabIndex := cursor.TabIndex
+        if tabIndex &gt;= len(props.Tabs) </span>{
+                <span class="cov0" title="0">tabIndex = 0
+</span>        }
+        <span class="cov8" title="1">content := buildStatsTable(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
         return menuframe.NewTabScreen(res, menuframe.TabScreen{
-                Header:  query.T(world, st.headerMsgid),
-                Content: content,
-                Footer:  keybind.HelpHint(world),
-        })
-</span>}
+                Header:    query.T(world, st.headerMsgid),
+                TabLabels: labels,
+                TabIndex:  tabIndex,
+                Content:   content,
+                Footer:    keybind.HelpHint(world),
+        })</span>
+}
 
 // buildStatsTable は統計を Label と Value の2列テーブルに組む。ラベルが長いので
 // character 情報タブより広い列幅を取り、値は右寄せの数値にする
@@ -36939,7 +37001,7 @@ func buildStatsTable(world w.World, items []statusItemData, itemIndex int, res r
         <span class="cov8" title="1">return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{
                 AlwaysIndicator: true,
                 EmptyText:       query.T(world, "No entries"),
-                ItemsPerPage:    menuframe.ListCapacity(res, true, false),
+                ItemsPerPage:    menuframe.ListCapacity(res, true, true),
         }, res)</span>
 }
 
@@ -36968,6 +37030,29 @@ func runStatsFields(world w.World) (days, turns, kills, items int, sales consts.
                 turns = int(gt.TotalTurns)
 </span>        }
         <span class="cov8" title="1">return</span>
+}
+
+// environmentItems は現在地の環境情報をテーブル行に組む。周囲気温・時間帯・季節。
+// 周囲気温はプレイヤーの位置から引く。プレイヤーが居ない、または座標を持たないときは0にする
+func environmentItems(world w.World) []statusItemData {
+        <span class="cov8" title="1">gt := query.GetGameTime(world)
+        if gt == nil </span>{
+                <span class="cov0" title="0">return nil
+</span>        }
+
+        <span class="cov8" title="1">ambient := 0
+        if player, err := query.GetPlayerEntity(world); err == nil &amp;&amp; query.AliveHas(world, world.Components.GridElement, player) </span>{
+                <span class="cov8" title="1">g := world.Components.GridElement.Get(player)
+                if temp, terr := systems.AmbientTemperatureAt(world, g.X, g.Y); terr == nil </span>{
+                        <span class="cov8" title="1">ambient = temp
+</span>                }
+        }
+
+        <span class="cov8" title="1">return []statusItemData{
+                {Label: query.T(world, "Ambient temperature"), Value: fmt.Sprintf("%d%s", ambient, consts.IconDegree)},
+                {Label: query.T(world, "Time of day"), Value: query.T(world, gt.GetTimeOfDay().String())},
+                {Label: query.T(world, "Season"), Value: query.T(world, gt.GetSeason().String())},
+</span>        }
 }
 </pre>
 		
@@ -38291,7 +38376,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 </span>
         // 入札が来る限り延長する。来たら現在値を上げる
         <span class="cov8" title="1">if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
-                <span class="cov8" title="1">l.CurrentBid += query.AuctionRaise(world, item)
+                <span class="cov0" title="0">l.CurrentBid += query.AuctionRaise(world, item)
                 return
 </span>        }
 
@@ -40358,26 +40443,38 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
         <span class="cov8" title="1">return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat
 </span>}
 
-// CalculateEnvTemperature は指定位置の環境気温を計算する
-// 基本気温 + タイル修正 + 時間帯修正
-func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
+// dungeonWorldInfluenceDivisor はダンジョンの周囲気温が世界温度から受ける影響の減衰。
+// 屋内なので屋外の世界温度をそのままでなく割って受け、揺れを和らげる。値は実プレイで調整する。
+const dungeonWorldInfluenceDivisor = 2
+
+// AmbientTemperatureAt はタイルの周囲気温を返す。オーバーワールドは屋外なので季節の世界温度
+// そのもの、ダンジョンは屋内なのでステージの基本気温に世界温度の影響を緩和して足した値。
+// どちらもタイルの熱源補正を足す。屋内外はステージ種別で決まり、タイルごとの判定はしない。
+func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
         <span class="cov8" title="1">dungeonRes := query.GetDungeon(world)
         if dungeonRes == nil </span>{
                 <span class="cov0" title="0">return 0, errors.New("dungeon resource is not set")
 </span>        }
 
-        <span class="cov8" title="1">def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)
-        if !ok </span>{
-                <span class="cov8" title="1">return 0, nil
+        <span class="cov8" title="1">gt := query.GetGameTime(world)
+</span>        // 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
+        <span class="cov8" title="1">worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
+        tileModifier := getTileTemperatureAt(world, x, y)
+</span>
+        // 屋外はステージの基本気温を使わないので、定義を引く前に返す
+        <span class="cov8" title="1">if query.IsOnOverworld(world) </span>{
+                <span class="cov8" title="1">return worldTemp + tileModifier, nil
 </span>        }
 
-        <span class="cov0" title="0">baseTemp := def.BaseTemperature()
-</span>
-        <span class="cov0" title="0">timeModifier := query.GetGameTime(world).GetTemperatureModifier()
-</span>
-        <span class="cov0" title="0">tileModifier := getTileTemperatureAt(world, x, y)
-</span>
-        <span class="cov0" title="0">return baseTemp + timeModifier + tileModifier, nil</span>
+        // 屋内はステージの基本気温が要る。定義が無ければ判定できないので0を返す
+        <span class="cov8" title="1">def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)
+        if !ok </span>{
+                <span class="cov0" title="0">return 0, nil
+</span>        }
+
+        // 世界温度の影響を緩和して受ける。世界が寒いほどダンジョンも寒くなるが、
+        // 屋外ほど厳しくならず寒さの逆転も起きない
+        <span class="cov8" title="1">return def.BaseTemperature() + worldTemp/dungeonWorldInfluenceDivisor + tileModifier, nil</span>
 }
 
 // Update は健康状態のタイマーを更新する
@@ -40394,8 +40491,8 @@ func (sys *TemperatureSystem) Update(world w.World) error {
                 hs := world.Components.HealthStatus.Get(entity)
                 gridElement := world.Components.GridElement.Get(entity)
 </span>
-                // 環境気温を計算
-                <span class="cov8" title="1">envTemp, err := CalculateEnvTemperature(world, gridElement.X, gridElement.Y)
+                // 周囲気温を計算
+                <span class="cov8" title="1">ambientTemp, err := AmbientTemperatureAt(world, gridElement.X, gridElement.Y)
                 if err != nil </span>{
                         <span class="cov0" title="0">continue</span>
                 }
@@ -40414,7 +40511,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 </span>                }
 
                 // 各部位の健康状態を更新
-                <span class="cov8" title="1">hasChange := updateTemperatureConditions(world, hs, envTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
+                <span class="cov8" title="1">hasChange := updateTemperatureConditions(world, hs, ambientTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
 </span>
                 // プレイヤーで状態変化があれば属性を再計算
                 <span class="cov8" title="1">if isPlayer &amp;&amp; hasChange </span>{
@@ -40472,14 +40569,14 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
 // - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
+func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, ambientTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
         <span class="cov8" title="1">hasChange := false
         partHealth := &amp;hs.Parts[gc.BodyPartWholeBody]
 </span>
         // 耐寒を適用した有効温度（寒さ判定用）: 耐寒が高いほど暖かく感じる
-        <span class="cov8" title="1">effectiveTempCold := envTemp + insulation.Cold
+        <span class="cov8" title="1">effectiveTempCold := ambientTemp + insulation.Cold
 </span>        // 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
-        <span class="cov8" title="1">effectiveTempHeat := envTemp - insulation.Heat
+        <span class="cov8" title="1">effectiveTempHeat := ambientTemp - insulation.Heat
 </span>
         <span class="cov8" title="1">coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(effectiveTempCold))
         heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(effectiveTempHeat))
