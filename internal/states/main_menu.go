@@ -180,11 +180,12 @@ func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menuloop.Se
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 		)),
 		widget.ContainerOpts.WidgetOpts(
+			// タイトルはロゴを画面中央に大きく置くので、メニューは下へ寄せて中央を空ける
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionStart,
+				VerticalPosition:   widget.AnchorLayoutPositionEnd,
 				Padding: &widget.Insets{
-					Top: 400,
+					Bottom: 130,
 				},
 			}),
 		),

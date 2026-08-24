@@ -101,9 +101,17 @@ generate_capsule                        748  896  vertical_capsule.png  2137   2
 generate_capsule                        600  900  library_capsule.png   1707   2560   north
 
 # --- ゲームタイトル用画像 960x720 ---
-# 比率 960:720 = 4:3 → 3840x2880 だがマスターは 2560 高なので 3413x2560 からクロップ
-magick "$MASTER" -gravity center -crop 3413x2560+0+0 +repage -resize 960x720! "assets/file/textures/bg/title1_.png"
-render_logo 960 720 180 north 72 "assets/file/textures/bg/title1_.png"
+# 販促キーアートはメニューUIと競合するので、in-game のタイトル背景は黒地にロゴだけにする。
+# メニュー操作の可読性を最優先する。色は寒色に寄せた近黒。
+# 背景はストアと同じキーアート。比率 960:720 = 4:3 → マスターは 2560 高なので 3413x2560 からクロップ。
+magick "$MASTER" -gravity center -crop 3413x2560+0+0 +repage -resize 960x720! /tmp/title_bg.png
+# 下部にダークグラデのスクリムを敷く。キューブ下半分を暗がりへ沈め、下のメニュー域の可読性を確保し
+# キューブとメニューの競合を抑える。上部はロゴ・キューブ上部・空が見える。
+magick /tmp/title_bg.png \
+  \( -size 960x720 gradient:none-'#060a14' \) -compose over -composite \
+  "assets/file/textures/bg/title1_.png"
+# Dark Souls 3 のタイトルのように、ロゴを画面中央へ大きく置く。メニューは下へ退く。
+render_logo 960 720 300 center -40 "assets/file/textures/bg/title1_.png"
 echo "title1_.png (960x720)"
 
 # --- Library Logo: 透明背景 + ロゴ ---
