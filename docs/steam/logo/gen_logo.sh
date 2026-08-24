@@ -33,7 +33,7 @@ trap 'rm -rf "$TMP"' EXIT
 # --- パラメータ。ここだけ変えれば見た目を振れる ---
 INITIAL="C"                          # 大きな頭文字
 REST="OLDWARD"                       # 残りの文字
-SUBTITLE="A ROGUELIKE OF NO RETURN"  # 副題
+SUBTITLE="NO WARMTH, NO RETURN"      # 副題
 PT_BIG=320                           # 頭文字の点サイズ
 PT_REST=160                          # 残りの点サイズ。頭文字の半分
 KERN_REST=4                          # 残りの字間
