@@ -532,3 +532,74 @@ func TestLogTemperatureChange(t *testing.T) {
 		assert.Empty(t, msg)
 	})
 }
+
+func TestHeatSourceWarmthAt_半径内を加算し半径外は無視する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	addHeatSource := func(x, y, radius consts.Tile, warmth float64) {
+		e := world.ECS.NewEntity()
+		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: radius, Warmth: warmth})
+	}
+	addHeatSource(5, 5, 1, 0.5)   // 半径1
+	addHeatSource(6, 6, 2, 0.3)   // (5,5) から距離1で半径2内
+	addHeatSource(20, 20, 1, 9.9) // 遠く、どの検証点からも圏外
+
+	// (5,5): 自身の熱源が距離0、隣の熱源が距離1。両方内で加算する
+	assert.InDelta(t, 0.8, heatSourceWarmthAt(world, consts.Coord[consts.Tile]{X: 5, Y: 5}), 1e-9)
+	// (7,7): (5,5)からチェビシェフ距離2で半径1外、(6,6)から距離1で半径2内。0.3のみ
+	assert.InDelta(t, 0.3, heatSourceWarmthAt(world, consts.Coord[consts.Tile]{X: 7, Y: 7}), 1e-9)
+	// (0,0): どの熱源からも圏外
+	assert.InDelta(t, 0.0, heatSourceWarmthAt(world, consts.Coord[consts.Tile]{X: 0, Y: 0}), 1e-9)
+}
+
+func TestApplyHeatSourceRecovery_低体温を回復する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	hs := &gc.HealthStatus{}
+	part := &hs.Parts[gc.BodyPartWholeBody]
+	part.UpdateConditionTimer(gc.ConditionHypothermia, 50)
+
+	// 回復量0は何もしない
+	assert.False(t, applyHeatSourceRecovery(world, hs, 0, false))
+	assert.InDelta(t, 50.0, part.GetCondition(gc.ConditionHypothermia).Timer, 1e-9)
+
+	// 回復量0.5でタイマーが下がる
+	applyHeatSourceRecovery(world, hs, 0.5, false)
+	assert.InDelta(t, 49.5, part.GetCondition(gc.ConditionHypothermia).Timer, 1e-9)
+}
+
+func TestApplyHeatSourceRecovery_低体温がなければ状態を作らない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	hs := &gc.HealthStatus{}
+	assert.False(t, applyHeatSourceRecovery(world, hs, 0.5, false))
+	assert.Nil(t, hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia), "回復対象がなければ低体温を作らない")
+}
+
+func TestTemperatureSystem_Update_熱源のそばは低体温の進行が緩む(t *testing.T) {
+	t.Parallel()
+
+	run := func(withBonfire bool) float64 {
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		// 先に低体温を進めておき、熱源の回復が効く余地を作る
+		part := &world.Components.HealthStatus.Get(player).Parts[gc.BodyPartWholeBody]
+		part.UpdateConditionTimer(gc.ConditionHypothermia, 50)
+		if withBonfire {
+			// プレイヤーの隣に焚き火。raw の heatSource から熱源になる
+			_, err := lifecycle.SpawnProp(world, "bonfire", 6, 5)
+			require.NoError(t, err)
+		}
+		sys := &TemperatureSystem{}
+		require.NoError(t, sys.Update(world))
+		return world.Components.HealthStatus.Get(player).Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia).Timer
+	}
+
+	assert.Less(t, run(true), run(false), "熱源のそばは低体温タイマーの進行が緩む")
+}

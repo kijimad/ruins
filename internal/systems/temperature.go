@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -111,6 +112,12 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		// 各部位の健康状態を更新
 		hasChange := updateTemperatureConditions(world, hs, ambientTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
 
+		// 周囲の熱源で低体温を回復する。周囲気温とは別に効き、屋内外で回復量は同じ
+		warmth := heatSourceWarmthAt(world, gridElement.Coord)
+		if applyHeatSourceRecovery(world, hs, warmth, isPlayer) {
+			hasChange = true
+		}
+
 		// プレイヤーで状態変化があれば属性を再計算
 		if isPlayer && hasChange {
 			toMark = append(toMark, entity)
@@ -160,6 +167,46 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 		}
 	}
 	return modifier
+}
+
+// heatSourceWarmthAt は座標のチェビシェフ半径内にある全熱源の Warmth 合計を返す。
+// 半径内なら固定量、半径外なら効かない離散。複数の熱源は加算する
+func heatSourceWarmthAt(world w.World, at consts.Coord[consts.Tile]) float64 {
+	var warmth float64
+	heatQuery := query.ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()
+	for heatQuery.Next() {
+		entity := heatQuery.Entity()
+		src := world.Components.HeatSource.Get(entity)
+		grid := world.Components.GridElement.Get(entity)
+		if geometry.ChebyshevDistance(at, grid.Coord) <= int(src.Radius) {
+			warmth += src.Warmth
+		}
+	}
+	return warmth
+}
+
+// applyHeatSourceRecovery は熱源の Warmth ぶん全身の低体温タイマーを下げる。
+// 周囲気温由来の悪化とは別に効く。低体温が無ければ回復するものが無いので何もしない。
+// Severity が変わればプレイヤーはログを出し、true を返す
+func applyHeatSourceRecovery(world w.World, hs *gc.HealthStatus, warmth float64, isPlayer bool) bool {
+	if warmth <= 0 {
+		return false
+	}
+	partHealth := &hs.Parts[gc.BodyPartWholeBody]
+	if partHealth.GetCondition(gc.ConditionHypothermia) == nil {
+		return false
+	}
+
+	change := partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -warmth)
+	updateConditionEffects(partHealth)
+
+	if change.Prev == change.Current {
+		return false
+	}
+	if isPlayer {
+		logTemperatureChange(world, change.CondType, change.Current, change.Prev)
+	}
+	return true
 }
 
 // updateTemperatureConditions は環境気温から全身の体温状態タイマーを更新する。

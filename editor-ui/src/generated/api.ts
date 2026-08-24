@@ -781,6 +781,19 @@ export type HealingValueType = typeof HealingValueType[keyof typeof HealingValue
 
 
 /**
+ * 熱源設定。近接するキャラの低体温を毎ターン回復する
+ */
+export interface HeatSource {
+    /**
+     * 熱の到達半径。チェビシェフ距離、タイル単位
+     */
+    'radius': number;
+    /**
+     * 熱源が毎ターン下げる低体温タイマーの量
+     */
+    'warmth': number;
+}
+/**
  * アイテム
  */
 export interface Item {
@@ -1200,6 +1213,10 @@ export interface Prop {
     'hp'?: number;
     'lightSource'?: LightSource;
     /**
+     * 熱源。近接するキャラの低体温を毎ターン回復する
+     */
+    'heatSource'?: HeatSource;
+    /**
      * 扉ローデータ
      */
     'door'?: object;
@@ -1509,6 +1526,10 @@ export interface SaveDataComponentsMap {
      */
     'LightSource'?: SaveDataLightSourceComponent;
     /**
+     * 熱源設定
+     */
+    'HeatSource'?: SaveDataHeatSourceComponent;
+    /**
      * 防具設定
      */
     'Wearable'?: SaveDataWearableComponent;
@@ -1770,6 +1791,19 @@ export interface SaveDataHealthStatusComponent {
      * 部位ごとの健康情報の配列
      */
     'Parts': Array<SaveDataBodyPartHealth>;
+}
+/**
+ * 熱源設定
+ */
+export interface SaveDataHeatSourceComponent {
+    /**
+     * 熱の到達半径。チェビシェフ距離、タイル単位
+     */
+    'Radius': number;
+    /**
+     * 毎ターン下げる低体温タイマーの量
+     */
+    'Warmth': number;
 }
 /**
  * ダメージ効果

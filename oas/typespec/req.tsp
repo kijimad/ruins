@@ -135,6 +135,12 @@ model LightSource {
   enabled: LightEnabled;
 }
 
+/** 熱源設定。近接するキャラの低体温を毎ターン回復する */
+model HeatSource {
+  radius: HeatRadius;
+  warmth: HeatWarmth;
+}
+
 /** 会話データ */
 model Dialog {
   messageKey: MessageKey;
@@ -329,6 +335,8 @@ model Prop {
   passCost?: PassCost;
   hp?: HitPoints;
   lightSource?: LightSource;
+  /** 熱源。近接するキャラの低体温を毎ターン回復する */
+  heatSource?: HeatSource;
   door?: DoorRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;

@@ -196,6 +196,9 @@ model ComponentsMap {
   /** 光源設定 */
   LightSource?: LightSourceComponent;
 
+  /** 熱源設定 */
+  HeatSource?: HeatSourceComponent;
+
   /** 防具設定 */
   Wearable?: WearableComponent;
 
@@ -348,6 +351,15 @@ model LightSourceComponent {
 
   /** 有効/無効 */
   Enabled: RuinsEditorApi.LightEnabled;
+}
+
+/** 熱源設定 */
+model HeatSourceComponent {
+  /** 熱の到達半径。チェビシェフ距離、タイル単位 */
+  Radius: RuinsEditorApi.HeatRadius;
+
+  /** 毎ターン下げる低体温タイマーの量 */
+  Warmth: RuinsEditorApi.HeatWarmth;
 }
 
 /** RGBA色。各チャネル0-255 */
