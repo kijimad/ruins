@@ -1,12 +1,14 @@
 # Steam へのビルドアップロード。SteamCMD + SteamPipe を Linux CLI から回す。
-# 設計は単一ビルド・単一 depot。docs/design/260823004406.md を参照。
+# OS 別に depot を2つに分ける。各OSは自分のぶんだけダウンロードする。
 #
 # 必須の変数。Steamworks で発行された値を渡す:
-#   APP_ID      アプリID
-#   DEPOT_ID    depot ID
-#   STEAM_USER  アップロード用 Steam アカウント名
+#   APP_ID         アプリID
+#   DEPOT_LINUX    Linux 用 depot ID
+#   DEPOT_WINDOWS  Windows 用 depot ID
+#   STEAM_USER     アップロード用 Steam アカウント名
 # 例:
-#   make -C docs/steam/upload upload APP_ID=1234560 DEPOT_ID=1234561 STEAM_USER=mybuilder
+#   make -C docs/steam/upload upload \
+#     APP_ID=4791810 DEPOT_LINUX=4791811 DEPOT_WINDOWS=4791812 STEAM_USER=mybuilder
 #
 # 初回だけ `make login` で対話ログインし Steam Guard を通す。以降トークンが
 # SteamCMD の config.vdf にキャッシュされる。CI では config.vdf を秘匿保存して配置する。
@@ -20,20 +22,23 @@ ROOT  := $(abspath $(HERE)/../../..)
 # SteamCMD 実行体。無ければ make steamcmd で取得する
 STEAMCMD ?= $(HERE)/steamcmd/steamcmd.sh
 
-APP_ID     ?=
-DEPOT_ID   ?=
-STEAM_USER ?=
+APP_ID        ?=
+DEPOT_LINUX   ?=
+DEPOT_WINDOWS ?=
+STEAM_USER    ?=
 # 名前付きブランチへ自動反映するとき指定。default は指定不可で Web で確定する
-BRANCH     ?=
-DESC       ?= CLI build $(shell date +%Y-%m-%dT%H:%M:%S)
+BRANCH        ?=
+DESC          ?= CLI build $(shell date +%Y-%m-%dT%H:%M:%S)
 # make preview が 1 に上書きしてドライランにする
-PREVIEW    ?= 0
+PREVIEW       ?= 0
 
-BUILD   := $(HERE)/.build
-CONTENT := $(BUILD)/content
-OUTPUT  := $(BUILD)/output
-APP_VDF   := $(BUILD)/app_build.vdf
-DEPOT_VDF := $(BUILD)/depot_build.vdf
+BUILD           := $(HERE)/.build
+CONTENT_LINUX   := $(BUILD)/content-linux
+CONTENT_WINDOWS := $(BUILD)/content-windows
+OUTPUT          := $(BUILD)/output
+APP_VDF           := $(BUILD)/app_build.vdf
+DEPOT_LINUX_VDF   := $(BUILD)/depot_linux.vdf
+DEPOT_WINDOWS_VDF := $(BUILD)/depot_windows.vdf
 
 .DEFAULT_GOAL := help
 
@@ -56,30 +61,34 @@ login: ## 初回の対話ログイン。Steam Guard を通しトークンをキ�
 	$(STEAMCMD) +login $(STEAM_USER) +quit
 
 .PHONY: stage
-stage: ## Steam 向けにビルドし content/ へ配置する。root の build-steam に委譲する
+stage: ## Steam 向けにビルドし OS 別 content へ配置する。root の build-steam に委譲する
 	$(MAKE) -C $(ROOT) build-steam
-	@rm -rf $(CONTENT) && mkdir -p $(CONTENT)
-	@cp $(ROOT)/bin/ruins_linux_amd64_steam       $(CONTENT)/
-	@cp $(ROOT)/bin/ruins_windows_amd64_steam.exe $(CONTENT)/
-	@echo "staged:"; ls -l $(CONTENT)
+	@rm -rf $(CONTENT_LINUX) $(CONTENT_WINDOWS)
+	@mkdir -p $(CONTENT_LINUX) $(CONTENT_WINDOWS)
+	@cp $(ROOT)/bin/ruins_linux_amd64_steam       $(CONTENT_LINUX)/
+	@cp $(ROOT)/bin/ruins_windows_amd64_steam.exe $(CONTENT_WINDOWS)/
+	@echo "staged linux:";   ls -l $(CONTENT_LINUX)
+	@echo "staged windows:"; ls -l $(CONTENT_WINDOWS)
 
 .PHONY: render
 render: ## VDF テンプレートを実値へ展開する
 	@mkdir -p $(BUILD)
-	@sed -e 's#@DEPOT_ID@#$(DEPOT_ID)#g' -e 's#@CONTENT@#$(CONTENT)#g' \
-	     $(HERE)/depot_build.vdf.in > $(DEPOT_VDF)
-	@sed -e 's#@APP_ID@#$(APP_ID)#g' -e 's#@DEPOT_ID@#$(DEPOT_ID)#g' \
-	     -e 's#@CONTENT@#$(CONTENT)#g' -e 's#@OUTPUT@#$(OUTPUT)#g' \
-	     -e 's#@DESC@#$(DESC)#g' -e 's#@SETLIVE@#$(BRANCH)#g' \
-	     -e 's#@PREVIEW@#$(PREVIEW)#g' -e 's#@DEPOT_VDF@#$(DEPOT_VDF)#g' \
+	@sed -e 's#@DEPOT_ID@#$(DEPOT_LINUX)#g'   -e 's#@CONTENT@#$(CONTENT_LINUX)#g'   $(HERE)/depot_build.vdf.in > $(DEPOT_LINUX_VDF)
+	@sed -e 's#@DEPOT_ID@#$(DEPOT_WINDOWS)#g' -e 's#@CONTENT@#$(CONTENT_WINDOWS)#g' $(HERE)/depot_build.vdf.in > $(DEPOT_WINDOWS_VDF)
+	@sed -e 's#@APP_ID@#$(APP_ID)#g' \
+	     -e 's#@DEPOT_LINUX@#$(DEPOT_LINUX)#g'     -e 's#@DEPOT_LINUX_VDF@#$(DEPOT_LINUX_VDF)#g' \
+	     -e 's#@DEPOT_WINDOWS@#$(DEPOT_WINDOWS)#g' -e 's#@DEPOT_WINDOWS_VDF@#$(DEPOT_WINDOWS_VDF)#g' \
+	     -e 's#@CONTENT_ROOT@#$(BUILD)#g' -e 's#@OUTPUT@#$(OUTPUT)#g' \
+	     -e 's#@DESC@#$(DESC)#g' -e 's#@SETLIVE@#$(BRANCH)#g' -e 's#@PREVIEW@#$(PREVIEW)#g' \
 	     $(HERE)/app_build.vdf.in > $(APP_VDF)
 	@echo "rendered: $(APP_VDF)"
 
 .PHONY: check-vars
 check-vars:
-	@test -n "$(APP_ID)"     || { echo "APP_ID を指定する";   exit 1; }
-	@test -n "$(DEPOT_ID)"   || { echo "DEPOT_ID を指定する"; exit 1; }
-	@test -n "$(STEAM_USER)" || { echo "STEAM_USER を指定する"; exit 1; }
+	@test -n "$(APP_ID)"        || { echo "APP_ID を指定する";        exit 1; }
+	@test -n "$(DEPOT_LINUX)"   || { echo "DEPOT_LINUX を指定する";   exit 1; }
+	@test -n "$(DEPOT_WINDOWS)" || { echo "DEPOT_WINDOWS を指定する"; exit 1; }
+	@test -n "$(STEAM_USER)"    || { echo "STEAM_USER を指定する";    exit 1; }
 
 .PHONY: preview
 preview: PREVIEW := 1

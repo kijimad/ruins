@@ -1,5 +1,5 @@
 // SteamPipe depot 定義。Makefile が @...@ を実値へ展開する。テンプレートなので直接編集しない。
-// content/ 配下すべてを depot 直下へ写す。中身は Linux/Windows の2実行体。
+// Linux/Windows で使い回す。content 配下すべてを depot 直下へ写す。中身は OS 別の実行体1つ。
 "DepotBuild"
 {
 	"DepotID"     "@DEPOT_ID@"

@@ -1,25 +1,25 @@
 # Steam アップロード
 
 SteamCMD + SteamPipe で Steam へビルドをアップロードする。Linux CLI から完結する。
-設計は単一ビルド・単一 depot。詳細は `docs/design/260823004406.md`。
+OS 別に depot を2つに分け、各OSは自分のぶんだけダウンロードする。
 
 ## 前提
 
-- Steamworks で発行された **App ID** と **depot ID**
+- Steamworks で発行された **App ID** と **OS 別の depot ID2つ**。Linux 用と Windows 用
 - アップロード用の Steam アカウント。専用のビルド用アカウントを推奨する
 - `docker` が動くこと。ビルド段は root の `make build-steam` に委譲する
 - `curl` と `tar`
 
 ## 構成
 
-- `app_build.vdf.in` / `depot_build.vdf.in`: SteamPipe 定義のテンプレート。`@...@` を Makefile が実値へ展開する。秘匿値をコミットしないためテンプレートにしている
+- `app_build.vdf.in` / `depot_build.vdf.in`: SteamPipe 定義のテンプレート。`@...@` を Makefile が実値へ展開する。秘匿値をコミットしないためテンプレートにしている。depot テンプレートは Linux/Windows で使い回す
 - `Makefile`: 取得・ログイン・ステージ・アップロードのターゲット
-- `.build/`: 展開後の VDF、ステージした実行体、ログの置き場。gitignore 済み
+- `.build/`: 展開後の VDF、OS 別にステージした実行体、ログの置き場。gitignore 済み
 - `steamcmd/`: 取得した SteamCMD。gitignore 済み
 
-depot の中身は `bin/ruins_linux_amd64_steam` と `bin/ruins_windows_amd64_steam.exe` の2実行体だけ。
-資産は go:embed でバイナリに焼かれるので depot に別途置かない。OS 別の起動は Steamworks の
-launch options で振り分ける。
+Linux depot には `bin/ruins_linux_amd64_steam`、Windows depot には `bin/ruins_windows_amd64_steam.exe`
+だけを入れる。資産は go:embed でバイナリに焼かれるので depot に別途置かない。
+depot ごとの OS 割当は Steamworks の depot 設定で行い、OS 別の起動は launch options で振り分ける。
 
 ## 使い方
 
@@ -30,13 +30,13 @@ cd docs/steam/upload
 make steamcmd
 
 # 2. 初回の対話ログイン。Steam Guard を通しトークンをキャッシュする
-make login STEAM_USER=<ビルド用アカウント>
+make login STEAM_USER=<steamアカウント名>
 
 # 3. まずドライランで内容を検証する。アップロードしない
-make preview APP_ID=<AppID> DEPOT_ID=<DepotID> STEAM_USER=<アカウント>
+make preview APP_ID=<AppID> DEPOT_LINUX=<LinuxDepotID> DEPOT_WINDOWS=<WindowsDepotID> STEAM_USER=<アカウント>
 
 # 4. アップロードする
-make upload APP_ID=<AppID> DEPOT_ID=<DepotID> STEAM_USER=<アカウント>
+make upload APP_ID=<AppID> DEPOT_LINUX=<LinuxDepotID> DEPOT_WINDOWS=<WindowsDepotID> STEAM_USER=<アカウント>
 ```
 
 アップロード後、`default` ブランチへ反映するのは partner サイトの Builds ページで確定する。
