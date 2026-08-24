@@ -7,7 +7,7 @@ require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/ebitenui/ebitenui v0.7.3
 	github.com/getkin/kin-openapi v0.147.0
-	github.com/hajimehoshi/ebiten/v2 v2.9.9
+	github.com/hajimehoshi/ebiten/v2 v2.9.10
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/mlange-42/ark v0.8.3
