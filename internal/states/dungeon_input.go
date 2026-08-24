@@ -96,7 +96,7 @@ func (st *DungeonState) moveDir(world w.World, base gc.Direction) gc.Direction {
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot, inputmapper.ActionPickup,
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot,
 		inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList,
 		inputmapper.ActionRotateLeft, inputmapper.ActionRotateRight:
 		// UI系と視点操作はターンを消費しないのでターンチェック不要
