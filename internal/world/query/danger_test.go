@@ -42,7 +42,6 @@ func TestDangerLevelAt_worldのゲーム内時間から危険度を求める(t *
 
 	assert.Equal(t, 1, DangerLevelAt(world), "初期状態は1日目で危険度1")
 
-	// 2500ターン経過は3日目。dangerLevel(3) = 1 + 3/dangerDaysPerLevel = 2
 	GetGameTime(world).TotalTurns = 2500
 	assert.Equal(t, 2, DangerLevelAt(world), "3日目は危険度2")
 }

@@ -22,7 +22,6 @@ func TestAuctionShippingCost_重量に比例した送料を返す(t *testing.T) 
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// 2kgの品。1kgあたり25なので送料は50
 	item := world.ECS.NewEntity()
 	world.Components.Weight.Add(item, &gc.Weight{Milligram: consts.Milligram(2 * consts.MilligramPerKg)})
 
@@ -44,7 +43,6 @@ func TestAuctionOpeningBid_基準価値の分散範囲内に収まる(t *testing
 	item := world.ECS.NewEntity()
 	world.Components.Value.Add(item, &gc.Value{Value: 1000})
 
-	// 基準価値1000 * 0.4 = 400。分散は0.8〜1.2倍なので320〜480に収まる
 	for range 20 {
 		bid := AuctionOpeningBid(world, item)
 		assert.GreaterOrEqual(t, bid, consts.Currency(320))
@@ -61,7 +59,6 @@ func TestAuctionRaise(t *testing.T) {
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 1000})
 
-		// 基準価値1000 * 0.15 = 150。分散は0.8〜1.2倍なので120〜180に収まる
 		for range 20 {
 			raise := AuctionRaise(world, item)
 			assert.GreaterOrEqual(t, raise, consts.Currency(120))
