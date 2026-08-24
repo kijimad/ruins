@@ -119,6 +119,7 @@ $ make help
 | draft | [温度モデル: 前線を廃し、屋外の底冷えと屋内退避を持つ](docs/design/260822220253.md) | 0/12 | gamedesign, worldgen, ecs |
 | draft | [初期言語を Steam のロケールから決める](docs/design/260823004406.md) | 5/5 | ui, steam, save |
 | draft | [すべての地物・施設を役割テンプレ骨格と content スロットで生成する](docs/design/260823165936.md) | 0/8 | worldgen, refactor, gamedesign |
+| draft | [コード監査: worldgen・Ark stale pointer・serde 2026-08-24](docs/design/260824001220.md) | 0/5 | worldgen, ecs, save |
 
 
 ## Reference
