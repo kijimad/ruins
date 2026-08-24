@@ -80,8 +80,18 @@ Ow=$(identify -format %w "$TMP/OW.png"); Oh=$(identify -format %h "$TMP/OW.png")
 # 下線は OLDWARD の幅ぶん引き、右へ尖らせて方向性を出す
 LINE_LEN=$Ow
 
-# 副題。下線の長さに収める。超える場合だけ幅を詰める
-magick -background none -fill "$SUB_COLOR" -font "$STAAT" -kerning 14 -pointsize "$SUB_PT" label:"$SUBTITLE" "$TMP/tag.png"
+# 副題。淡い寒色のままだと明るい背景で埋もれるので、本体と同じく細い濃紺の縁と薄影を付ける。
+# 小さい文字なので縁は細めの Disk:2 に留める。潰れを避ける。
+magick -background none -fill "$SUB_COLOR" -font "$STAAT" -kerning 14 -pointsize "$SUB_PT" label:"$SUBTITLE" "$TMP/subtxt.png"
+magick "$TMP/subtxt.png" -bordercolor none -border 8 "$TMP/subtxt.png"
+subsz=$(identify -format '%wx%h' "$TMP/subtxt.png")
+magick "$TMP/subtxt.png" -alpha extract "$TMP/suba.png"
+magick -size "$subsz" xc:"$OUTLINE" \( "$TMP/suba.png" -morphology Dilate Disk:2 \) -compose CopyOpacity -composite "$TMP/subk.png"
+magick -size "$subsz" xc:"$SHADOW" \( "$TMP/suba.png" -morphology Dilate Disk:1 -blur 0x2 \) -compose CopyOpacity -composite "$TMP/subs.png"
+magick -size "$subsz" xc:none \
+  \( "$TMP/subs.png" \) -gravity center -geometry +0+2 -compose Over -composite \
+  \( "$TMP/subk.png" \) -compose Over -composite \
+  \( "$TMP/subtxt.png" \) -compose Over -composite -trim +repage "$TMP/tag.png"
 Tw=$(identify -format %w "$TMP/tag.png")
 if [ "$Tw" -gt "$LINE_LEN" ]; then
   magick "$TMP/tag.png" -resize "${LINE_LEN}x" "$TMP/tag.png"
