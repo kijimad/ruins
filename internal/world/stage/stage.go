@@ -3,6 +3,7 @@ package stage
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -52,7 +53,11 @@ func exists(world w.World, key gc.StageKey) bool {
 // 特定ステージだけの破棄に使う。遺跡からオーバーワールドへ戻る際など、
 // 一部ステージだけを捨て、残りを共存させたまま離脱するときに呼ぶ
 func Purge(world w.World, key gc.StageKey) {
-	for _, e := range BoundEntities(world, key) {
+	bound := BoundEntities(world, key)
+	// 消える所有者の収納在庫も道連れにする。在庫は GridElement も StageBound も持たず
+	// この走査に載らないため、所有者だけ消すと死んだ所有者を指す孤児になり serde で蓄積する
+	lifecycle.RemoveOwnedStorage(world, bound)
+	for _, e := range bound {
 		if world.ECS.Alive(e) {
 			world.ECS.RemoveEntity(e)
 		}
