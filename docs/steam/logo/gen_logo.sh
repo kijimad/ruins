@@ -46,9 +46,11 @@ SUB_COLOR='#c7d8e8'                  # 副題。淡い寒色
 PIXEL_BLOCK=5                        # ピクセル1ブロックのpx。背景に合わせる
 PIXEL_COLORS=44                      # ピクセル版のパレット数
 GAP=6                                # 頭文字と残りの間隔。詰めて右の空きを消す
-LINE_THICK=24                        # 下線の太さ。左端の高さ
-LINE_GAP=4                           # OLDWARD 下端と下線の間隔。小さいほど近づく
+LINE_THICK=24                        # 帯の太さ。左端の高さ
+LINE_GAP=4                           # OLDWARD 下端と帯の間隔。小さいほど近づく
+LINE_SLANT=22                        # 帯の両端の斜めカット量。上辺を右へずらす横せん断
 SUB_PT=30                            # 副題の点サイズ。小さめに抑える
+SUB_GAP=10                           # 帯の下端と副題の間隔。重なりを避ける
 
 # 氷処理した1語を作る。引数: text point kern outlineDiskRadius outPath
 treat() {
@@ -99,20 +101,29 @@ if [ "$Tw" -gt "$LINE_LEN" ]; then
 fi
 Th=$(identify -format %h "$TMP/tag.png")
 
-# レイアウト計算。頭文字の右へ間隔GAPで残りを上寄せ、その下に下線、さらに下に副題
+# レイアウト計算。頭文字の右へ間隔GAPで残りを上寄せ、その下に帯、さらに下に副題
 XOW=$((Cw + GAP))
 LINE_Y=$((Oh + LINE_GAP))
-# 副題の下端を頭文字 C の下端に完全に合わせる。C は影を持ち Ch に影ぶんが含まれるので、
-# 影を除いた縁つき C の実高 Cbot を測り、そこへ副題の下端を揃える。Disk:8 は C の縁と一致させる
-Cbot=$(magick -background none -fill white -font "$MAIN_FONT" -pointsize "$PT_BIG" label:"$INITIAL" -alpha extract -morphology Dilate Disk:8 -trim +repage -format %h info:)
-TAG_Y=$((Cbot - Th))
+# 副題は帯の下端より下へ置き、帯と重ならないようにする。帯の最下点は左端の LINE_Y+LINE_THICK。
+TAG_Y=$((LINE_Y + LINE_THICK + SUB_GAP))
 CANVAS_W=$((XOW + LINE_LEN + 40))
+# 副題が C の下端を超えるならキャンバスを下へ伸ばす。超えなければ C の高さのまま
 CANVAS_H=$Ch
+if [ $((TAG_Y + Th + 4)) -gt "$CANVAS_H" ]; then
+  CANVAS_H=$((TAG_Y + Th + 4))
+fi
 
-# 下線は矩形のまま、右へ向かって透明度を落として方向を出す。左が不透明、右端で透明
-magick -size "${LINE_LEN}x${LINE_THICK}" xc:"$LINE_COLOR" \
-  \( -size "${LINE_LEN}x${LINE_THICK}" xc: -sparse-color barycentric "0,0 white ${LINE_LEN},0 black" \) \
-  -compose CopyOpacity -composite "$TMP/line.png"
+# 帯は水平のまま両端を斜めにカットした平行四辺形。上下辺は水平、左右辺が「/」に斜め。
+# 上辺を下辺より右へ LINE_SLANT ずらす横せん断で作る。スピードストライプ状の動きを出す。
+# さらに右へ向かって透明度を落とし方向を出す。左が不透明、右端で透明。
+# 透明化はポリゴンのアルファに横グラデを乗算して行う。CopyOpacity で全面置換すると外側の三角も出るため。
+LW=$((LINE_LEN + LINE_SLANT))
+magick -size "${LW}x${LINE_THICK}" xc:none -fill "$LINE_COLOR" \
+  -draw "polygon 0,${LINE_THICK} ${LINE_SLANT},0 ${LW},0 ${LINE_LEN},${LINE_THICK}" "$TMP/pg.png"
+magick "$TMP/pg.png" -alpha extract "$TMP/pga.png"
+magick -size "${LW}x${LINE_THICK}" xc: -sparse-color barycentric "0,0 white ${LW},0 black" "$TMP/grad.png"
+magick "$TMP/pga.png" "$TMP/grad.png" -compose Multiply -composite "$TMP/newa.png"
+magick "$TMP/pg.png" "$TMP/newa.png" -compose CopyOpacity -composite "$TMP/line.png"
 
 magick -size "${CANVAS_W}x${CANVAS_H}" xc:none \
   \( "$TMP/C.png" \)  -gravity NorthWest -geometry +0+0 -compose Over -composite \
