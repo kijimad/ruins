@@ -90,15 +90,15 @@ generate_capsule() {
 }
 
 # 各カプセルのクロップサイズはマスターのアスペクト比に合わせて計算する。
-# すべて横マスター1枚から切り出す。横長は中央、縦長は左寄り。
-# 縦長はキューブが左下にあるので上端原点から x=300 右へ寄せて切り出し、上部に空を残す。
-#                                       w    h    filename              crop_w crop_h logo_grav crop_grav crop_xoff
+# すべて横マスター1枚から中央で切り出す。キューブがマスター中央にあるので、縦長も中央クロップで
+# キューブが真ん中に来る。
+#                                       w    h    filename              crop_w crop_h logo_grav
 generate_capsule                        462  174  small_capsule.png     3840   1446   center
 generate_capsule                        920  430  header_capsule.png    3840   1794   center
 generate_capsule                        920  430  library_header.png    3840   1794   center
 generate_capsule                       1232  706  main_capsule.png      3840   2200   center
-generate_capsule                        748  896  vertical_capsule.png  2137   2560   north     NorthWest 300
-generate_capsule                        600  900  library_capsule.png   1707   2560   north     NorthWest 300
+generate_capsule                        748  896  vertical_capsule.png  2137   2560   north
+generate_capsule                        600  900  library_capsule.png   1707   2560   north
 
 # --- ゲームタイトル用画像 960x720 ---
 # 比率 960:720 = 4:3 → 3840x2880 だがマスターは 2560 高なので 3413x2560 からクロップ

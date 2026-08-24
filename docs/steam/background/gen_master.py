@@ -123,7 +123,8 @@ base = txt(
 ).images[0]
 free(txt)
 
-# --- 2段目: Ghibli img2img で2Dアニメ塗りへ。SD1.5 なので小さめ 832x554 で回す ---
+# --- 2段目: Ghibli img2img で2Dアニメ塗りへ。1152x768 で回して解像感を稼ぐ。
+# ベースと同じ幅にすると 3840 への拡大率が下がり、縦カプセルの切り出しも締まる ---
 ghibli = AutoPipelineForImage2Image.from_pretrained(
     GHIBLI, torch_dtype=torch.float16, safety_checker=None
 )
@@ -132,7 +133,7 @@ ghibli.enable_attention_slicing()
 g = torch.Generator(device="cpu").manual_seed(128)
 anime = ghibli(
     prompt=ANIME_PROMPT, negative_prompt=ANIME_NEG,
-    image=base.resize((832, 554), Image.LANCZOS),
+    image=base.resize((1152, 768), Image.LANCZOS),
     strength=0.34, guidance_scale=8.5, num_inference_steps=32, generator=g,
 ).images[0]
 free(ghibli)
