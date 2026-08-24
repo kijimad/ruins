@@ -15,8 +15,7 @@
 
 	"Depots"
 	{
-		"4791811" "depot_linux.vdf"
-		// TODO: Steamworks で作成した Windows 用 depot ID に置き換える
-		"4791812" "depot_windows.vdf"
+		"4791812" "depot_linux.vdf"
+		"4791813" "depot_windows.vdf"
 	}
 }
