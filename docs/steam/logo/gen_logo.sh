@@ -17,8 +17,7 @@
 #
 # 使い方: bash docs/steam/logo/gen_logo.sh
 # 出力 (このスクリプトと同じディレクトリ):
-#   logo.png       透過・高解像のマスタ
-#   logo_pixel.png 背景のドット絵と画素グリッドを合わせたピクセル版
+#   logo.png 透過・高解像のマスタ
 
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -43,8 +42,6 @@ OUTLINE='#0d1a2e'                    # 濃紺の縁
 SHADOW='#03060d'                     # 影
 LINE_COLOR='#a6e2f2'                 # ライン。氷シアン
 SUB_COLOR='#c7d8e8'                  # 副題。淡い寒色
-PIXEL_BLOCK=5                        # ピクセル1ブロックのpx。背景に合わせる
-PIXEL_COLORS=44                      # ピクセル版のパレット数
 GAP=6                                # 頭文字と残りの間隔。詰めて右の空きを消す
 LINE_THICK=24                        # 帯の太さ。左端の高さ
 LINE_GAP=4                           # OLDWARD 下端と帯の間隔。小さいほど近づく
@@ -132,10 +129,5 @@ magick -size "${CANVAS_W}x${CANVAS_H}" xc:none \
   \( "$TMP/tag.png" \) -gravity NorthWest -geometry +${XOW}+${TAG_Y} -compose Over -composite \
   -trim +repage "$OUT/logo.png"
 
-# ドット絵化。縮小 → パレット量子化 → 最近傍で拡大し、背景の画素グリッドに合わせる
-FW=$(identify -format %w "$OUT/logo.png")
-magick "$OUT/logo.png" -filter Box -resize $((FW / PIXEL_BLOCK))x -colors "$PIXEL_COLORS" -filter Point -resize "${FW}x" "$OUT/logo_pixel.png"
-
-echo "logo.png       $(identify -format '%wx%h' "$OUT/logo.png")"
-echo "logo_pixel.png $(identify -format '%wx%h' "$OUT/logo_pixel.png")"
+echo "logo.png $(identify -format '%wx%h' "$OUT/logo.png")"
 echo "written to $OUT/"

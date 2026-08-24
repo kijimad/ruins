@@ -46,7 +46,9 @@ render_logo() {
   local max_w=$(( w * 82 / 100 ))
   magick "$LOGO_PNG" -resize "${max_w}x${logo_h}" /tmp/steam_logo.png
 
-  magick "$output" \
+  # 宛先を先に sRGB へ昇格してから合成する。library_logo は透明ベース xc:none が
+  # Gray 色空間で作られ、そのまま合成するとロゴの青が Gray 空間に落ちて失われるため。
+  magick "$output" -colorspace sRGB \
     -gravity "$gravity" \
     /tmp/steam_logo.png -geometry "+0+${y_off}" -compose Over -composite \
     "$output"
