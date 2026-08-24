@@ -166,3 +166,47 @@ func TestGetEntitiesAt(t *testing.T) {
 	empty := GetEntitiesAt(world, consts.Tile(99), consts.Tile(99))
 	assert.Empty(t, empty)
 }
+
+func TestPickablesAt_拾得可能なエンティティだけを返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	tile := consts.Coord[consts.Tile]{X: 3, Y: 4}
+
+	pickable := world.ECS.NewEntity()
+	world.Components.GridElement.Add(pickable, &gc.GridElement{Coord: tile})
+	world.Components.LocationOnField.Add(pickable, &gc.LocationOnField{})
+
+	fixedProp := world.ECS.NewEntity()
+	world.Components.GridElement.Add(fixedProp, &gc.GridElement{Coord: tile})
+	world.Components.LocationOnField.Add(fixedProp, &gc.LocationOnField{})
+	world.Components.Fixed.Add(fixedProp, &gc.Fixed{})
+
+	otherTile := world.ECS.NewEntity()
+	world.Components.GridElement.Add(otherTile, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 9, Y: 9}})
+	world.Components.LocationOnField.Add(otherTile, &gc.LocationOnField{})
+
+	result := PickablesAt(world, tile)
+
+	require.Len(t, result, 1, "同タイルの拾得可能な1件だけ")
+	assert.Equal(t, pickable, result[0])
+}
+
+func TestGetPlayerCamera(t *testing.T) {
+	t.Parallel()
+
+	t.Run("カメラが存在すれば返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		camEntity := world.ECS.NewEntity()
+		world.Components.Camera.Add(camEntity, &gc.Camera{})
+
+		assert.NotNil(t, GetPlayerCamera(world))
+	})
+
+	t.Run("カメラが無ければnil", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		assert.Nil(t, GetPlayerCamera(world))
+	})
+}
