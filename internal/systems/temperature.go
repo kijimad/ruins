@@ -54,22 +54,23 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 		return 0, errors.New("dungeon resource is not set")
 	}
 
+	gt := query.GetGameTime(world)
+	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
+	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
+	tileModifier := getTileTemperatureAt(world, x, y)
+
+	// 屋外はステージの基本気温を使わないので、定義を引く前に返す
+	if query.IsOnOverworld(world) {
+		return worldTemp + tileModifier, nil
+	}
+
+	// 屋内はステージの基本気温が要る。定義が無ければ判定できないので0を返す
 	def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)
 	if !ok {
 		return 0, nil
 	}
 
-	gt := query.GetGameTime(world)
-	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
-	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
-
-	tileModifier := getTileTemperatureAt(world, x, y)
-
-	if query.IsOnOverworld(world) {
-		return worldTemp + tileModifier, nil
-	}
-
-	// 屋内は世界温度の影響を緩和して受ける。世界が寒いほどダンジョンも寒くなるが、
+	// 世界温度の影響を緩和して受ける。世界が寒いほどダンジョンも寒くなるが、
 	// 屋外ほど厳しくならず寒さの逆転も起きない
 	return def.BaseTemperature() + worldTemp/dungeonWorldInfluenceDivisor + tileModifier, nil
 }

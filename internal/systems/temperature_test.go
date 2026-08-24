@@ -56,6 +56,20 @@ func TestAmbientTemperatureAt_オーバーワールドは季節の世界温度�
 	assert.Equal(t, -20, temp, "屋外は季節世界温度 -30 に昼補正 +10 を足す")
 }
 
+func TestAmbientTemperatureAt_屋外はステージ定義が無くても世界温度を返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。世界温度 = -30 + 10 = -20
+	query.GetGameTime(world).TotalTurns = 24 * 1500
+	// 定義が登録されていない屋外ステージ。帯を付けて屋外と判定させる
+	query.GetDungeon(world).CurrentStage = gc.StageKey{Name: "未登録の屋外"}
+	query.EnsureSeamlessBand(world)
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -20, temp, "屋外はステージ定義に依らず世界温度そのものを返す")
+}
+
 func TestAmbientTemperatureAt_ダンジョンは世界温度を緩和して受ける(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
