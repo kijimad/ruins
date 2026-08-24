@@ -227,14 +227,11 @@ msgstr "空腹度。高いと行動に支障が出る"
 msgid "Ambient temperature"
 msgstr "環境気温"
 
-msgid "Temperature at current location"
-msgstr "現在地の気温"
-
 msgid "Time of day"
 msgstr "時間帯"
 
-msgid "Current time of day. Affects temperature outdoors"
-msgstr "現在の時間帯。屋外では気温に影響する"
+msgid "Season"
+msgstr "季節"
 
 msgid "Vitality. Affects max HP and SP"
 msgstr "体力。HPとSPの最大値に影響する"
@@ -532,6 +529,12 @@ msgstr "防具(装飾)"
 
 msgid "Statistics"
 msgstr "統計"
+
+msgid "Summary"
+msgstr "概要"
+
+msgid "Environment"
+msgstr "環境"
 
 msgid "Days"
 msgstr "生存日数"
@@ -907,6 +910,18 @@ msgstr "夕"
 
 msgid "Night"
 msgstr "夜"
+
+msgid "Spring"
+msgstr "春"
+
+msgid "Summer"
+msgstr "夏"
+
+msgid "Autumn"
+msgstr "秋"
+
+msgid "Winter"
+msgstr "冬"
 
 msgid "Full"
 msgstr "満腹"

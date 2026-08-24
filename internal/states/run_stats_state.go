@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -35,6 +36,12 @@ type RunStatsState struct {
 
 // RunStatsProps は統計画面の表示 props
 type RunStatsProps struct {
+	Tabs []statsTab
+}
+
+// statsTab は統計画面の1タブ。見出しと2列テーブルの行を持つ
+type statsTab struct {
+	Label string
 	Items []statusItemData
 }
 
@@ -89,23 +96,40 @@ func (st *RunStatsState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tr
 	}
 }
 
-// Fetch は表示する統計行を組む
+// Fetch は表示するタブと統計行を組む。統計と環境の2タブを持つ
 func (st *RunStatsState) Fetch(world w.World) (RunStatsProps, error) {
-	return RunStatsProps{Items: runStatsItems(world)}, nil
+	return RunStatsProps{Tabs: []statsTab{
+		{Label: query.T(world, "Summary"), Items: runStatsItems(world)},
+		{Label: query.T(world, "Environment"), Items: environmentItems(world)},
+	}}, nil
 }
 
-// Menu は単一タブの読み取り専用構成を返す。見出し行が無いのでスキップは不要
+// Menu は読み取り専用のタブ構成を返す。見出し行が無いのでスキップは不要
 func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
-	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: 1, ItemCounts: []int{len(props.Items)}}
+	itemCounts := make([]int, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		itemCounts[i] = len(tab.Items)
+	}
+	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}
 }
 
-// View は見出しと統計テーブルを menuframe のタブ画面枠へ組む。ラベルの訳のみ world から引く
+// View は見出しとタブ帯と現在タブのテーブルを menuframe のタブ画面枠へ組む。ラベルの訳のみ world から引く
 func (st *RunStatsState) View(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	content := buildStatsTable(world, props.Items, cursor.ItemIndex, res)
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
+	tabIndex := cursor.TabIndex
+	if tabIndex >= len(props.Tabs) {
+		tabIndex = 0
+	}
+	content := buildStatsTable(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
 	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		Header:  query.T(world, st.headerMsgid),
-		Content: content,
-		Footer:  keybind.HelpHint(world),
+		Header:    query.T(world, st.headerMsgid),
+		TabLabels: labels,
+		TabIndex:  tabIndex,
+		Content:   content,
+		Footer:    keybind.HelpHint(world),
 	})
 }
 
@@ -121,7 +145,7 @@ func buildStatsTable(world w.World, items []statusItemData, itemIndex int, res r
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{
 		AlwaysIndicator: true,
 		EmptyText:       query.T(world, "No entries"),
-		ItemsPerPage:    menuframe.ListCapacity(res, true, false),
+		ItemsPerPage:    menuframe.ListCapacity(res, true, true),
 	}, res)
 }
 
@@ -150,4 +174,27 @@ func runStatsFields(world w.World) (days, turns, kills, items int, sales consts.
 		turns = int(gt.TotalTurns)
 	}
 	return
+}
+
+// environmentItems は現在地の環境情報をテーブル行に組む。周囲気温・時間帯・季節。
+// 周囲気温はプレイヤーの位置から引く。プレイヤーが居ない、または座標を持たないときは0にする
+func environmentItems(world w.World) []statusItemData {
+	gt := query.GetGameTime(world)
+	if gt == nil {
+		return nil
+	}
+
+	ambient := 0
+	if player, err := query.GetPlayerEntity(world); err == nil && query.AliveHas(world, world.Components.GridElement, player) {
+		g := world.Components.GridElement.Get(player)
+		if temp, terr := systems.AmbientTemperatureAt(world, g.X, g.Y); terr == nil {
+			ambient = temp
+		}
+	}
+
+	return []statusItemData{
+		{Label: query.T(world, "Ambient temperature"), Value: fmt.Sprintf("%d%s", ambient, consts.IconDegree)},
+		{Label: query.T(world, "Time of day"), Value: query.T(world, gt.GetTimeOfDay().String())},
+		{Label: query.T(world, "Season"), Value: query.T(world, gt.GetSeason().String())},
+	}
 }
