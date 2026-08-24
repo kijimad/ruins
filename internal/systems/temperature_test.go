@@ -13,8 +13,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// coldDungeonName は基本気温0度のテスト用ダンジョン定義名。
-const coldDungeonName = "亡者の森"
+// coldDungeonName は基本気温0度のテスト用ダンジョン定義名。DungeonForest の英語 id。
+const coldDungeonName = "Dead forest"
 
 func TestGetTileTemperatureAt(t *testing.T) {
 	t.Parallel()
@@ -40,6 +40,72 @@ func TestGetTileTemperatureAt(t *testing.T) {
 		result := getTileTemperatureAt(world, 5, 5)
 		assert.Equal(t, 0, result)
 	})
+}
+
+func TestAmbientTemperatureAt_オーバーワールドは季節の世界温度そのもの(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。冬の底 -30 に昼補正 +10
+	query.GetGameTime(world).TotalTurns = 24 * 1500
+	// 帯データの有無が屋外判定を兼ねる。オーバーワールドにして帯を付ける
+	query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+	query.EnsureSeamlessBand(world)
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -20, temp, "屋外は季節世界温度 -30 に昼補正 +10 を足す")
+}
+
+func TestAmbientTemperatureAt_屋外はステージ定義が無くても世界温度を返す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。世界温度 = -30 + 10 = -20
+	query.GetGameTime(world).TotalTurns = 24 * 1500
+	// 定義が登録されていない屋外ステージ。帯を付けて屋外と判定させる
+	query.GetDungeon(world).CurrentStage = gc.StageKey{Name: "未登録の屋外"}
+	query.EnsureSeamlessBand(world)
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -20, temp, "屋外はステージ定義に依らず世界温度そのものを返す")
+}
+
+func TestAmbientTemperatureAt_ダンジョンは世界温度を緩和して受ける(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	// 25日目の昼。世界温度 = -30 + 10 = -20。屋内は基本気温0に世界温度の半分を足す
+	query.GetGameTime(world).TotalTurns = 24 * 1500
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
+
+	temp, err := AmbientTemperatureAt(world, 0, 0)
+	require.NoError(t, err)
+	assert.Equal(t, -10, temp, "屋内は基本気温 0 に世界温度 -20 の半分 -10 を足す")
+}
+
+func TestAmbientTemperatureAt_冬の屋内は屋外より暖かい(t *testing.T) {
+	t.Parallel()
+	// 冬の底の同じ時刻で、屋内と屋外の周囲気温を比べる。屋内が屋外より暖かく寒さの逆転がない
+	const winterNoon consts.Turn = 24 * 1500
+
+	outdoor := func() int {
+		world := testutil.InitTestWorld(t)
+		query.GetGameTime(world).TotalTurns = winterNoon
+		query.GetDungeon(world).CurrentStage = gc.NewOverworldStage()
+		query.EnsureSeamlessBand(world)
+		temp, err := AmbientTemperatureAt(world, 0, 0)
+		require.NoError(t, err)
+		return temp
+	}()
+	indoor := func() int {
+		world := testutil.InitTestWorld(t)
+		query.GetGameTime(world).TotalTurns = winterNoon
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
+		temp, err := AmbientTemperatureAt(world, 0, 0)
+		require.NoError(t, err)
+		return temp
+	}()
+
+	assert.Greater(t, indoor, outdoor, "冬でも屋内は屋外より暖かい退避先になる")
 }
 
 func TestCalcTimerDelta(t *testing.T) {

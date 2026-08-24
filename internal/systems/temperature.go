@@ -41,26 +41,38 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 	return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat
 }
 
-// CalculateEnvTemperature は指定位置の環境気温を計算する
-// 基本気温 + タイル修正 + 時間帯修正
-func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
+// dungeonWorldInfluenceDivisor はダンジョンの周囲気温が世界温度から受ける影響の減衰。
+// 屋内なので屋外の世界温度をそのままでなく割って受け、揺れを和らげる。値は実プレイで調整する。
+const dungeonWorldInfluenceDivisor = 2
+
+// AmbientTemperatureAt はタイルの周囲気温を返す。オーバーワールドは屋外なので季節の世界温度
+// そのもの、ダンジョンは屋内なのでステージの基本気温に世界温度の影響を緩和して足した値。
+// どちらもタイルの熱源補正を足す。屋内外はステージ種別で決まり、タイルごとの判定はしない。
+func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	dungeonRes := query.GetDungeon(world)
 	if dungeonRes == nil {
 		return 0, errors.New("dungeon resource is not set")
 	}
 
+	gt := query.GetGameTime(world)
+	// 屋外の世界温度。季節ベースに時間帯の揺れを重ねる
+	worldTemp := gt.GetSeasonalTemperature() + gt.GetTemperatureModifier()
+	tileModifier := getTileTemperatureAt(world, x, y)
+
+	// 屋外はステージの基本気温を使わないので、定義を引く前に返す
+	if query.IsOnOverworld(world) {
+		return worldTemp + tileModifier, nil
+	}
+
+	// 屋内はステージの基本気温が要る。定義が無ければ判定できないので0を返す
 	def, ok := dungeon.GetStageDefinition(dungeonRes.CurrentStage.Name)
 	if !ok {
 		return 0, nil
 	}
 
-	baseTemp := def.BaseTemperature()
-
-	timeModifier := query.GetGameTime(world).GetTemperatureModifier()
-
-	tileModifier := getTileTemperatureAt(world, x, y)
-
-	return baseTemp + timeModifier + tileModifier, nil
+	// 世界温度の影響を緩和して受ける。世界が寒いほどダンジョンも寒くなるが、
+	// 屋外ほど厳しくならず寒さの逆転も起きない
+	return def.BaseTemperature() + worldTemp/dungeonWorldInfluenceDivisor + tileModifier, nil
 }
 
 // Update は健康状態のタイマーを更新する
@@ -77,8 +89,8 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		hs := world.Components.HealthStatus.Get(entity)
 		gridElement := world.Components.GridElement.Get(entity)
 
-		// 環境気温を計算
-		envTemp, err := CalculateEnvTemperature(world, gridElement.X, gridElement.Y)
+		// 周囲気温を計算
+		ambientTemp, err := AmbientTemperatureAt(world, gridElement.X, gridElement.Y)
 		if err != nil {
 			continue
 		}
@@ -97,7 +109,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		}
 
 		// 各部位の健康状態を更新
-		hasChange := updateTemperatureConditions(world, hs, envTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
+		hasChange := updateTemperatureConditions(world, hs, ambientTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
 
 		// プレイヤーで状態変化があれば属性を再計算
 		if isPlayer && hasChange {
@@ -155,14 +167,14 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
 // - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
+func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, ambientTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
 	hasChange := false
 	partHealth := &hs.Parts[gc.BodyPartWholeBody]
 
 	// 耐寒を適用した有効温度（寒さ判定用）: 耐寒が高いほど暖かく感じる
-	effectiveTempCold := envTemp + insulation.Cold
+	effectiveTempCold := ambientTemp + insulation.Cold
 	// 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
-	effectiveTempHeat := envTemp - insulation.Heat
+	effectiveTempHeat := ambientTemp - insulation.Heat
 
 	coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(effectiveTempCold))
 	heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(effectiveTempHeat))

@@ -153,6 +153,7 @@ func TestGolden(t *testing.T) {
 			},
 			steps: []replayStep{
 				{shot: true, suffix: "Table"},
+				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Environment"}, // 環境タブ。気温・時間帯・季節
 			},
 		},
 		{

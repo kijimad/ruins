@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
 )
@@ -65,6 +66,56 @@ func (gt *GameTime) GetTimeOfDay() TimeOfDay {
 // GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる
 func (gt *GameTime) GetDayNumber() int {
 	return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1
+}
+
+// 季節による世界温度のパラメータ。夏ピークと冬底を持つ1年周期で、値は実プレイで調整する。
+const (
+	daysPerYear      = 32  // 季節1周の日数
+	summerPeakTemp   = 22  // 夏ピークの世界温度
+	winterTroughTemp = -30 // 冬底の世界温度。準備なしでは生存できない寒さ
+)
+
+// GetSeasonalTemperature は経過日数から季節による世界温度のベース値を返す。
+// 春開始の正弦波で、春秋が中点、夏がピーク、冬が底になる。季節は保存せず日数から導く。
+func (gt *GameTime) GetSeasonalTemperature() int {
+	mid := float64(summerPeakTemp+winterTroughTemp) / 2
+	amp := float64(summerPeakTemp-winterTroughTemp) / 2
+	// day 1 を春の中点かつ上昇位相の起点にする
+	phase := 2 * math.Pi * float64(gt.GetDayNumber()-1) / daysPerYear
+	return int(math.Round(mid + amp*math.Sin(phase)))
+}
+
+// Season は季節を表す。1年を4等分し、春開始で巡る。
+type Season int
+
+// 季節定数。GetSeasonalTemperature の正弦波と位相を合わせる。
+const (
+	SeasonSpring Season = iota // 春
+	SeasonSummer               // 夏
+	SeasonAutumn               // 秋
+	SeasonWinter               // 冬
+)
+
+// String は季節名を返す。表示側が i18n の訳を引く msgid になる。
+func (s Season) String() string {
+	switch s {
+	case SeasonSpring:
+		return "Spring"
+	case SeasonSummer:
+		return "Summer"
+	case SeasonAutumn:
+		return "Autumn"
+	case SeasonWinter:
+		return "Winter"
+	}
+	panic(fmt.Sprintf("unknown Season: %d", s))
+}
+
+// GetSeason は経過日数から現在の季節を返す。
+func (gt *GameTime) GetSeason() Season {
+	const daysPerSeason = daysPerYear / 4
+	dayOfYear := (gt.GetDayNumber() - 1) % daysPerYear
+	return Season(dayOfYear / daysPerSeason)
 }
 
 // GetTemperatureModifier は時間帯による気温修正値を返す。
