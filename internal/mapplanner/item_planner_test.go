@@ -228,7 +228,6 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		inRoomCount := 0
 		for _, item := range chain.PlanData.Items {
 			for _, room := range chain.PlanData.Rooms {
-				// Max は部屋の最終タイル添字で、その列・行も部屋内なので Max を含めて判定する
 				if item.X >= room.Min.X && item.X <= room.Max.X &&
 					item.Y >= room.Min.Y && item.Y <= room.Max.Y {
 					inRoomCount++

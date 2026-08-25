@@ -147,7 +147,6 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		for _, npc := range chain.PlanData.NPCs {
 			inRoom := false
 			for _, room := range chain.PlanData.Rooms {
-				// Max は部屋の最終タイル添字で、その列・行も部屋内なので Max を含めて判定する
 				if npc.X >= room.Min.X && npc.X <= room.Max.X &&
 					npc.Y >= room.Min.Y && npc.Y <= room.Max.Y {
 					inRoom = true
@@ -224,7 +223,6 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		for _, room := range chain.PlanData.Rooms {
 			species := map[string]bool{}
 			for _, npc := range chain.PlanData.NPCs {
-				// Max は部屋の最終タイル添字で、その列・行も部屋内なので Max を含めて判定する
 				if npc.X >= room.Min.X && npc.X <= room.Max.X &&
 					npc.Y >= room.Min.Y && npc.Y <= room.Max.Y {
 					species[npc.Name] = true

@@ -627,7 +627,6 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 		dy := bm.RNG.IntN(radius*2+1) - radius
 		tx := consts.Tile(int(centerX) + dx)
 		ty := consts.Tile(int(centerY) + dy)
-		// Max は部屋の最終タイル添字で、その列・行も床なので範囲は Max を含む
 		if tx < room.Min.X || tx > room.Max.X || ty < room.Min.Y || ty > room.Max.Y {
 			continue
 		}
@@ -654,7 +653,6 @@ func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 // isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する
 func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
 	for _, room := range bm.Rooms {
-		// Max は部屋の最終タイル添字で、その列・行も部屋内なので Max を含めて判定する
 		if x >= room.Min.X && x <= room.Max.X && y >= room.Min.Y && y <= room.Max.Y {
 			return true
 		}
