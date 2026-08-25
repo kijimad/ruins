@@ -23,6 +23,7 @@ type GameInfoData struct {
 	PlayerMaxHP       int              // プレイヤーの最大HP
 	PlayerWeight      consts.Milligram // プレイヤーの現在所持重量
 	PlayerMaxWeight   consts.Milligram // プレイヤーの所持可能重量
+	TempArrow         TemperatureArrow // 体温変化の矢印。HP バーの左に出す
 	MessageAreaHeight int              // メッセージエリアの高さ（ステータス表示位置計算用）
 	ScreenDimensions  ScreenDimensions // 画面サイズ。階層表示位置計算用
 }

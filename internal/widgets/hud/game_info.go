@@ -11,6 +11,17 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
+// TemperatureArrow は体温の変化方向を示す矢印。HP バーの左に出す。
+// 温まると赤の上向き、冷えると青の下向き、一定は灰の右向き。色の濃さが変化の速さ
+type TemperatureArrow struct {
+	Visible bool
+	Glyph   string
+	Color   color.RGBA
+}
+
+// tempArrowSlotW は HP バーの左に確保する体温矢印のスロット幅
+const tempArrowSlotW = 22.0
+
 // GameInfo はHUDの基本ゲーム情報エリア
 type GameInfo struct {
 	bodyFace    text.Face
@@ -39,6 +50,9 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
 	if !info.enabled {
 		return
 	}
+
+	// 体温変化の矢印（HP バーの左）
+	info.drawTemperatureArrow(screen, data.TempArrow)
 
 	// HP情報
 	info.drawHealthBar(screen, data.PlayerHP, data.PlayerMaxHP)
@@ -76,8 +90,17 @@ const (
 )
 
 // drawHealthBar はプレイヤーの体力ゲージを描画する
+// drawTemperatureArrow は体温変化の矢印を HP バーの左に描く
+func (info *GameInfo) drawTemperatureArrow(screen *ebiten.Image, arrow TemperatureArrow) {
+	if !arrow.Visible {
+		return
+	}
+	drawOutlinedText(screen, arrow.Glyph, info.bodyFace, gaugeBaseX, gaugeBaseY, arrow.Color)
+}
+
 func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) {
-	x := gaugeBaseX
+	// 矢印スロットぶん右へ寄せる
+	x := gaugeBaseX + tempArrowSlotW
 	y := gaugeBaseY
 
 	// HP比率を計算

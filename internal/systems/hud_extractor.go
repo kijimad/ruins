@@ -44,6 +44,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP int
 	var playerWeight, playerMaxWeight consts.Milligram
+	var tempArrow hud.TemperatureArrow
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
@@ -53,6 +54,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		playerMaxHP = hp.Max
 		playerWeight = cw.Current
 		playerMaxWeight = cw.Max
+		tempArrow = temperatureArrow(world, entity)
 	}
 
 	// 画面サイズを取得
@@ -68,6 +70,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		PlayerMaxHP:       playerMaxHP,
 		PlayerWeight:      playerWeight,
 		PlayerMaxWeight:   playerMaxWeight,
+		TempArrow:         tempArrow,
 		MessageAreaHeight: messageAreaHeight,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
@@ -378,10 +381,10 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 		}
 	}
 
-	// プレイヤーの体温トレンド。低体温か高体温の状態があるときだけ出す
-	trendQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
-	for trendQuery.Next() {
-		if badge, ok := temperatureTrendBadge(world, trendQuery.Entity()); ok {
+	// プレイヤーの体温状態。低体温か高体温の状態があるときだけ出す。変化の向きは矢印が別に担う
+	tempQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
+	for tempQuery.Next() {
+		if badge, ok := temperatureStateBadge(world, tempQuery.Entity()); ok {
 			badges = append(badges, badge)
 		}
 	}
@@ -407,15 +410,32 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 // temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界
 const temperatureSteadyThreshold = 0.1
 
-// temperatureTrendBadge はプレイヤーの体温トレンドバッジを返す。低体温か高体温の状態が
-// あるときだけ ok=true。矢印が変化の向き、色が寒暖と変化の速さを表す
-func temperatureTrendBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
+// temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温か高体温の状態があるとき ok=true。
+// 表示名で状態と重症度を、色で寒暖を示す。変化の向きは矢印が別に担う
+func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
 	hs := world.Components.HealthStatus.Get(entity)
 	part := &hs.Parts[gc.BodyPartWholeBody]
 	cold := part.GetCondition(gc.ConditionHypothermia)
 	hot := part.GetCondition(gc.ConditionHyperthermia)
-	if cold == nil && hot == nil {
+	switch {
+	case hot != nil && (cold == nil || hot.Timer >= cold.Timer):
+		return hud.StatusBadge{Text: hot.DisplayName(), Color: color.RGBA{230, 90, 60, 255}}, true
+	case cold != nil:
+		return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true
+	default:
 		return hud.StatusBadge{}, false
+	}
+}
+
+// temperatureArrow はプレイヤーの体温変化の矢印を返す。低体温か高体温の状態があるときだけ Visible。
+// 温まると赤の上向き、冷えると青の下向き、一定は灰の右向き。色の濃さが変化の速さ
+func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
+	if !world.Components.HealthStatus.Has(entity) {
+		return hud.TemperatureArrow{}
+	}
+	part := &world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartWholeBody]
+	if part.GetCondition(gc.ConditionHypothermia) == nil && part.GetCondition(gc.ConditionHyperthermia) == nil {
+		return hud.TemperatureArrow{}
 	}
 
 	var delta float64
@@ -423,35 +443,27 @@ func temperatureTrendBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, b
 		delta = world.Components.TemperatureTrend.Get(entity).Delta
 	}
 
-	var arrow string
+	glyph := consts.IconArrowRight
 	switch {
 	case delta > temperatureSteadyThreshold:
-		arrow = consts.IconArrowUp
+		glyph = consts.IconArrowUp
 	case delta < -temperatureSteadyThreshold:
-		arrow = consts.IconArrowDown
-	default:
-		arrow = consts.IconArrowRight
+		glyph = consts.IconArrowDown
 	}
-
-	// 寒暖の色は効いている状態で決める。両方あればタイマーの重い方
-	hotHue := hot != nil && (cold == nil || hot.Timer >= cold.Timer)
-	return hud.StatusBadge{
-		Text:  consts.IconDegree + arrow,
-		Color: temperatureTrendColor(delta, hotHue),
-	}, true
+	return hud.TemperatureArrow{Visible: true, Glyph: glyph, Color: temperatureDirectionColor(delta)}
 }
 
-// temperatureTrendColor は体温トレンドの色を返す。一定は無彩、変化中は寒色か暖色を
-// 変化の速さで濃くする
-func temperatureTrendColor(delta float64, hot bool) color.RGBA {
+// temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は灰。
+// 変化が速いほど濃い
+func temperatureDirectionColor(delta float64) color.RGBA {
 	if delta > -temperatureSteadyThreshold && delta < temperatureSteadyThreshold {
 		return color.RGBA{160, 160, 160, 255}
 	}
 	intensity := math.Min(math.Abs(delta), 1.0)
-	if hot {
-		return lerpRGBA(color.RGBA{255, 190, 120, 255}, color.RGBA{225, 60, 40, 255}, intensity)
+	if delta > 0 {
+		return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
 	}
-	return lerpRGBA(color.RGBA{130, 175, 255, 255}, color.RGBA{30, 80, 220, 255}, intensity)
+	return lerpRGBA(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)
 }
 
 // lerpRGBA は2色を t (0..1) で線形補間する

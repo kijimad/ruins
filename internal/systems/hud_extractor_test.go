@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/mlange-42/ark/ecs"
 
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -702,28 +703,64 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 	assert.Equal(t, 800, data.MinimapData.ScreenDimensions.Width)
 }
 
-func TestTemperatureTrendBadge_冷えると下向きの寒色バッジ(t *testing.T) {
-	t.Parallel()
+// newColdPlayer は低体温状態のプレイヤーを作り、体温変化 delta を与える
+func newColdPlayer(t *testing.T, delta float64) (w.World, ecs.Entity) {
+	t.Helper()
 	world := testutil.InitTestWorld(t)
 	e := world.ECS.NewEntity()
 	world.Components.Player.Add(e, &gc.Player{})
 	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
 	world.Components.HealthStatus.Get(e).Parts[gc.BodyPartWholeBody].UpdateConditionTimer(gc.ConditionHypothermia, 40)
-	world.Components.TemperatureTrend.Add(e, &gc.TemperatureTrend{Delta: -0.5})
-
-	badge, ok := temperatureTrendBadge(world, e)
-	require.True(t, ok, "体温状態があればバッジを出す")
-	assert.Equal(t, consts.IconDegree+consts.IconArrowDown, badge.Text, "冷えるので下矢印")
-	assert.Greater(t, badge.Color.B, badge.Color.R, "低体温は寒色で青が強い")
+	world.Components.TemperatureTrend.Add(e, &gc.TemperatureTrend{Delta: delta})
+	return world, e
 }
 
-func TestTemperatureTrendBadge_快適時は出さない(t *testing.T) {
+func TestTemperatureArrow_冷えると青の下向き(t *testing.T) {
+	t.Parallel()
+	world, e := newColdPlayer(t, -0.5)
+
+	arrow := temperatureArrow(world, e)
+	require.True(t, arrow.Visible, "体温状態があれば矢印を出す")
+	assert.Equal(t, consts.IconArrowDown, arrow.Glyph, "冷えるので下向き")
+	assert.Greater(t, arrow.Color.B, arrow.Color.R, "冷える向きは青が強い")
+}
+
+func TestTemperatureArrow_温まると赤の上向き(t *testing.T) {
+	t.Parallel()
+	world, e := newColdPlayer(t, 0.5)
+
+	arrow := temperatureArrow(world, e)
+	require.True(t, arrow.Visible)
+	assert.Equal(t, consts.IconArrowUp, arrow.Glyph, "温まるので上向き")
+	assert.Greater(t, arrow.Color.R, arrow.Color.B, "温まる向きは赤が強い")
+}
+
+func TestTemperatureArrow_快適時は出さない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	e := world.ECS.NewEntity()
 	world.Components.Player.Add(e, &gc.Player{})
 	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
 
-	_, ok := temperatureTrendBadge(world, e)
+	assert.False(t, temperatureArrow(world, e).Visible, "体温状態が無ければ矢印を出さない")
+}
+
+func TestTemperatureStateBadge_低体温は寒色バッジ(t *testing.T) {
+	t.Parallel()
+	world, e := newColdPlayer(t, -0.5)
+
+	badge, ok := temperatureStateBadge(world, e)
+	require.True(t, ok, "体温状態があればバッジを出す")
+	assert.Greater(t, badge.Color.B, badge.Color.R, "低体温は寒色")
+}
+
+func TestTemperatureStateBadge_快適時は出さない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	e := world.ECS.NewEntity()
+	world.Components.Player.Add(e, &gc.Player{})
+	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
+
+	_, ok := temperatureStateBadge(world, e)
 	assert.False(t, ok, "体温状態が無ければバッジを出さない")
 }
