@@ -569,7 +569,7 @@
 				
 				<option value="file256">github.com/kijimaD/ruins/internal/testutil/world.go (0.0%)</option>
 				
-				<option value="file257">github.com/kijimaD/ruins/internal/vrt/golden.go (3.7%)</option>
+				<option value="file257">github.com/kijimaD/ruins/internal/vrt/golden.go (30.3%)</option>
 				
 				<option value="file258">github.com/kijimaD/ruins/internal/vrt/replay/replay.go (95.3%)</option>
 				
@@ -653,7 +653,7 @@
 				
 				<option value="file298">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (75.0%)</option>
 				
-				<option value="file299">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (88.1%)</option>
+				<option value="file299">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (88.5%)</option>
 				
 				<option value="file300">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.4%)</option>
 				
@@ -42064,11 +42064,11 @@ func assertPNGGolden(t *testing.T, name string, pngData []byte) {
 
 // isGoldieUpdate は GOLDIE_UPDATE が有効かどうかを返す
 func isGoldieUpdate() bool {
-        <span class="cov0" title="0">switch os.Getenv("GOLDIE_UPDATE") </span>{
+        <span class="cov8" title="1">switch os.Getenv("GOLDIE_UPDATE") </span>{
         case "1", "true", "t":
-                <span class="cov0" title="0">return true</span>
+                <span class="cov8" title="1">return true</span>
         default:
-                <span class="cov0" title="0">return false</span>
+                <span class="cov8" title="1">return false</span>
         }
 }
 
@@ -42093,51 +42093,51 @@ const channelTolerance16 = 16 * 0x101
 
 // absDiffU32 は2値の差の絶対値を返す
 func absDiffU32(a, b uint32) uint32 {
-        <span class="cov0" title="0">if a &gt; b </span>{
-                <span class="cov0" title="0">return a - b
+        <span class="cov8" title="1">if a &gt; b </span>{
+                <span class="cov8" title="1">return a - b
 </span>        }
-        <span class="cov0" title="0">return b - a</span>
+        <span class="cov8" title="1">return b - a</span>
 }
 
 // pngPixelEqualFn は2つのPNGバイト列をピクセル単位で比較する。
 // toleranceRatio で許容する差分ピクセル比率を、channelTolerance16 で1画素内の許容振幅を指定する。
 // どのチャンネルも許容振幅以内なら同一画素とみなし、振幅を超えた画素数が比率を超えたら不一致とする
 func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {
-        <span class="cov0" title="0">return func(actual, expected []byte) bool </span>{
-                <span class="cov0" title="0">actualImg, err := png.Decode(bytes.NewReader(actual))
+        <span class="cov8" title="1">return func(actual, expected []byte) bool </span>{
+                <span class="cov8" title="1">actualImg, err := png.Decode(bytes.NewReader(actual))
                 if err != nil </span>{
-                        <span class="cov0" title="0">return false
+                        <span class="cov8" title="1">return false
 </span>                }
-                <span class="cov0" title="0">expectedImg, err := png.Decode(bytes.NewReader(expected))
+                <span class="cov8" title="1">expectedImg, err := png.Decode(bytes.NewReader(expected))
                 if err != nil </span>{
-                        <span class="cov0" title="0">return false
+                        <span class="cov8" title="1">return false
 </span>                }
 
-                <span class="cov0" title="0">eb := expectedImg.Bounds()
+                <span class="cov8" title="1">eb := expectedImg.Bounds()
                 ab := actualImg.Bounds()
                 if eb.Dx() != ab.Dx() || eb.Dy() != ab.Dy() </span>{
-                        <span class="cov0" title="0">return false
+                        <span class="cov8" title="1">return false
 </span>                }
 
-                <span class="cov0" title="0">totalPixels := eb.Dx() * eb.Dy()
+                <span class="cov8" title="1">totalPixels := eb.Dx() * eb.Dy()
                 maxAllowed := int(float64(totalPixels) * toleranceRatio)
                 diffCount := 0
                 for y := eb.Min.Y; y &lt; eb.Max.Y; y++ </span>{
-                        <span class="cov0" title="0">for x := eb.Min.X; x &lt; eb.Max.X; x++ </span>{
-                                <span class="cov0" title="0">er, eg, ebl, ea := expectedImg.At(x, y).RGBA()
+                        <span class="cov8" title="1">for x := eb.Min.X; x &lt; eb.Max.X; x++ </span>{
+                                <span class="cov8" title="1">er, eg, ebl, ea := expectedImg.At(x, y).RGBA()
                                 ar, ag, abl, aa := actualImg.At(x, y).RGBA()
                                 if absDiffU32(er, ar) &gt; channelTolerance16 ||
                                         absDiffU32(eg, ag) &gt; channelTolerance16 ||
                                         absDiffU32(ebl, abl) &gt; channelTolerance16 ||
                                         absDiffU32(ea, aa) &gt; channelTolerance16 </span>{
-                                        <span class="cov0" title="0">diffCount++
+                                        <span class="cov8" title="1">diffCount++
                                         if diffCount &gt; maxAllowed </span>{
-                                                <span class="cov0" title="0">return false
+                                                <span class="cov8" title="1">return false
 </span>                                        }
                                 }
                         }
                 }
-                <span class="cov0" title="0">return true</span>
+                <span class="cov8" title="1">return true</span>
         }
 }
 </pre>
@@ -47381,7 +47381,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov0" title="0">return 1
+                <span class="cov8" title="1">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }

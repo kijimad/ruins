@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">4.3&nbsp;%</td>
+            <td class="headerCovTableEntryLo">35.9&nbsp;%</td>
             <td class="headerCovTableEntry">117</td>
-            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">42</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-24 23:12:07</td>
+            <td class="headerValue">2026-08-25 10:32:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -235,17 +235,17 @@
 <span id="L173"><span class="lineNum">     173</span>              : </span>
 <span id="L174"><span class="lineNum">     174</span>              : // isGoldieUpdate は GOLDIE_UPDATE が有効かどうかを返す</span>
 <span id="L175"><span class="lineNum">     175</span>              : func isGoldieUpdate() bool {</span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         switch os.Getenv(&quot;GOLDIE_UPDATE&quot;) {</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC tlaBgGNC">           1 :         switch os.Getenv(&quot;GOLDIE_UPDATE&quot;) {</span></span>
 <span id="L177"><span class="lineNum">     177</span>              :         case &quot;1&quot;, &quot;true&quot;, &quot;t&quot;:</span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 return true</span></span>
 <span id="L179"><span class="lineNum">     179</span>              :         default:</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L181"><span class="lineNum">     181</span>              :         }</span>
 <span id="L182"><span class="lineNum">     182</span>              : }</span>
 <span id="L183"><span class="lineNum">     183</span>              : </span>
 <span id="L184"><span class="lineNum">     184</span>              : // newGoldie はgoldieインスタンスを生成する。サフィックスを.pngにして画像ファイルとして扱う</span>
 <span id="L185"><span class="lineNum">     185</span>              : func newGoldie(t *testing.T, opts ...goldie.Option) *goldie.Goldie {</span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         t.Helper()</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC tlaBgUNC">           0 :         t.Helper()</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         all := make([]goldie.Option, 0, 1+len(opts))</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         all = append(all, goldie.WithNameSuffix(&quot;.png&quot;))</span></span>
 <span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         all = append(all, opts...)</span></span>
@@ -264,51 +264,51 @@
 <span id="L202"><span class="lineNum">     202</span>              : </span>
 <span id="L203"><span class="lineNum">     203</span>              : // absDiffU32 は2値の差の絶対値を返す</span>
 <span id="L204"><span class="lineNum">     204</span>              : func absDiffU32(a, b uint32) uint32 {</span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         if a &gt; b {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 return a - b</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :         return b - a</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">           1 :         if a &gt; b {</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 return a - b</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         return b - a</span></span>
 <span id="L209"><span class="lineNum">     209</span>              : }</span>
 <span id="L210"><span class="lineNum">     210</span>              : </span>
 <span id="L211"><span class="lineNum">     211</span>              : // pngPixelEqualFn は2つのPNGバイト列をピクセル単位で比較する。</span>
 <span id="L212"><span class="lineNum">     212</span>              : // toleranceRatio で許容する差分ピクセル比率を、channelTolerance16 で1画素内の許容振幅を指定する。</span>
 <span id="L213"><span class="lineNum">     213</span>              : // どのチャンネルも許容振幅以内なら同一画素とみなし、振幅を超えた画素数が比率を超えたら不一致とする</span>
 <span id="L214"><span class="lineNum">     214</span>              : func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {</span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :         return func(actual, expected []byte) bool {</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                 actualImg, err := png.Decode(bytes.NewReader(actual))</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                         return false</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                 expectedImg, err := png.Decode(bytes.NewReader(expected))</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                         return false</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         return func(actual, expected []byte) bool {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 actualImg, err := png.Decode(bytes.NewReader(actual))</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                         return false</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 expectedImg, err := png.Decode(bytes.NewReader(expected))</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                         return false</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L224"><span class="lineNum">     224</span>              : </span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                 eb := expectedImg.Bounds()</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 ab := actualImg.Bounds()</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                 if eb.Dx() != ab.Dx() || eb.Dy() != ab.Dy() {</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                         return false</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 eb := expectedImg.Bounds()</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 ab := actualImg.Bounds()</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 if eb.Dx() != ab.Dx() || eb.Dy() != ab.Dy() {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                         return false</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L230"><span class="lineNum">     230</span>              : </span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                 totalPixels := eb.Dx() * eb.Dy()</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 maxAllowed := int(float64(totalPixels) * toleranceRatio)</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 diffCount := 0</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 for y := eb.Min.Y; y &lt; eb.Max.Y; y++ {</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                         for x := eb.Min.X; x &lt; eb.Max.X; x++ {</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                                 er, eg, ebl, ea := expectedImg.At(x, y).RGBA()</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                                 ar, ag, abl, aa := actualImg.At(x, y).RGBA()</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                                 if absDiffU32(er, ar) &gt; channelTolerance16 ||</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                                         absDiffU32(eg, ag) &gt; channelTolerance16 ||</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                                         absDiffU32(ebl, abl) &gt; channelTolerance16 ||</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                                         absDiffU32(ea, aa) &gt; channelTolerance16 {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                                         diffCount++</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                                         if diffCount &gt; maxAllowed {</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                                                 return false</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                                         }</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 totalPixels := eb.Dx() * eb.Dy()</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                 maxAllowed := int(float64(totalPixels) * toleranceRatio)</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                 diffCount := 0</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 for y := eb.Min.Y; y &lt; eb.Max.Y; y++ {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                         for x := eb.Min.X; x &lt; eb.Max.X; x++ {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                                 er, eg, ebl, ea := expectedImg.At(x, y).RGBA()</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                                 ar, ag, abl, aa := actualImg.At(x, y).RGBA()</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                                 if absDiffU32(er, ar) &gt; channelTolerance16 ||</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                                         absDiffU32(eg, ag) &gt; channelTolerance16 ||</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                                         absDiffU32(ebl, abl) &gt; channelTolerance16 ||</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                                         absDiffU32(ea, aa) &gt; channelTolerance16 {</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                                         diffCount++</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                                         if diffCount &gt; maxAllowed {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                                                 return false</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                                         }</span></span>
 <span id="L246"><span class="lineNum">     246</span>              :                                 }</span>
 <span id="L247"><span class="lineNum">     247</span>              :                         }</span>
 <span id="L248"><span class="lineNum">     248</span>              :                 }</span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                 return true</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 return true</span></span>
 <span id="L250"><span class="lineNum">     250</span>              :         }</span>
 <span id="L251"><span class="lineNum">     251</span>              : }</span>
         </pre>
