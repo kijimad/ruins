@@ -249,3 +249,31 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 
 	return nil
 }
+
+// RemoveOwnedStorage は owners のいずれかが所有する収納内の実体を削除する。
+// 収納在庫は GridElement を持たず、座標カリングやステージ束縛の走査に載らない。所有者を
+// 消すときに一緒に消さないと、死んだ所有者を指す孤児として world に残り serde で蓄積する。
+// 反復中の削除を避け、収集してから削除する
+func RemoveOwnedStorage(world w.World, owners []ecs.Entity) {
+	if len(owners) == 0 {
+		return
+	}
+	ownerSet := make(map[ecs.Entity]bool, len(owners))
+	for _, o := range owners {
+		ownerSet[o] = true
+	}
+
+	var toRemove []ecs.Entity
+	q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
+	for q.Next() {
+		entity := q.Entity()
+		if ownerSet[world.Components.LocationInStorage.Get(entity).Owner] {
+			toRemove = append(toRemove, entity)
+		}
+	}
+	for _, entity := range toRemove {
+		if world.ECS.Alive(entity) {
+			world.ECS.RemoveEntity(entity)
+		}
+	}
+}

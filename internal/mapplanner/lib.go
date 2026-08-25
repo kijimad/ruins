@@ -576,12 +576,13 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	}
 	totalArea := 0
 	for _, r := range bm.Rooms {
-		w := int(r.Width())
-		h := int(r.Height())
+		w, h := int(r.Width()), int(r.Height())
 		if w > 0 && h > 0 {
 			totalArea += w * h
 		}
 	}
+	// 全部屋が退化して面積0のときの保険。Width/Height は正常な部屋なら必ず1以上を返すので
+	// 通常は到達しない。均等抽選で1つ返し、呼び出し側の spawn 試行に委ねる
 	if totalArea == 0 {
 		idx := bm.RNG.IntN(len(bm.Rooms))
 		return bm.Rooms[idx], idx, true
@@ -589,8 +590,7 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	roll := bm.RNG.IntN(totalArea)
 	cumulative := 0
 	for i, r := range bm.Rooms {
-		w := int(r.Width())
-		h := int(r.Height())
+		w, h := int(r.Width()), int(r.Height())
 		if w > 0 && h > 0 {
 			cumulative += w * h
 		}
@@ -605,8 +605,7 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
 // maxAttemptsを超えても見つからない場合はfalseを返す
 func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
-	rw := int(room.Width())
-	rh := int(room.Height())
+	rw, rh := int(room.Width()), int(room.Height())
 	if rw <= 0 || rh <= 0 {
 		return 0, 0, false
 	}
@@ -628,7 +627,7 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
 		dy := bm.RNG.IntN(radius*2+1) - radius
 		tx := consts.Tile(int(centerX) + dx)
 		ty := consts.Tile(int(centerY) + dy)
-		if tx < room.Min.X || tx >= room.Max.X || ty < room.Min.Y || ty >= room.Max.Y {
+		if tx < room.Min.X || tx > room.Max.X || ty < room.Min.Y || ty > room.Max.Y {
 			continue
 		}
 		if bm.IsSpawnableTile(world, tx, ty) {
@@ -654,7 +653,7 @@ func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 // isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する
 func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
 	for _, room := range bm.Rooms {
-		if x >= room.Min.X && x < room.Max.X && y >= room.Min.Y && y < room.Max.Y {
+		if x >= room.Min.X && x <= room.Max.X && y >= room.Min.Y && y <= room.Max.Y {
 			return true
 		}
 	}

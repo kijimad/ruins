@@ -68,12 +68,12 @@ func TestRect_Width(t *testing.T) {
 	t.Parallel()
 
 	r := &Rect{Min: consts.Coord[consts.Tile]{X: 2, Y: 0}, Max: consts.Coord[consts.Tile]{X: 10, Y: 0}}
-	assert.Equal(t, consts.Tile(8), r.Width())
+	assert.Equal(t, consts.Tile(9), r.Width())
 }
 
 func TestRect_Height(t *testing.T) {
 	t.Parallel()
 
 	r := &Rect{Min: consts.Coord[consts.Tile]{X: 0, Y: 3}, Max: consts.Coord[consts.Tile]{X: 0, Y: 9}}
-	assert.Equal(t, consts.Tile(6), r.Height())
+	assert.Equal(t, consts.Tile(7), r.Height())
 }

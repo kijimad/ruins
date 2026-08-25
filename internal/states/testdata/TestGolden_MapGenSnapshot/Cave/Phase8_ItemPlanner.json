@@ -37528,71 +37528,71 @@
     },
     {
       "X": 29,
-      "Y": 48,
+      "Y": 49,
       "Name": "slime"
     },
     {
       "X": 27,
-      "Y": 48,
+      "Y": 49,
       "Name": "slime"
     },
     {
-      "X": 47,
+      "X": 48,
       "Y": 36,
       "Name": "slime"
     },
     {
-      "X": 46,
+      "X": 47,
       "Y": 35,
       "Name": "slime"
     },
     {
-      "X": 24,
-      "Y": 46,
+      "X": 25,
+      "Y": 47,
       "Name": "slime"
     }
   ],
   "Items": [
     {
       "X": 1,
-      "Y": 44,
+      "Y": 45,
       "Name": "pickaxe",
       "Count": 1
     },
     {
-      "X": 16,
-      "Y": 11,
+      "X": 31,
+      "Y": 24,
       "Name": "chef_hat",
       "Count": 1
     },
     {
-      "X": 35,
-      "Y": 22,
-      "Name": "popcorn",
+      "X": 40,
+      "Y": 36,
+      "Name": "yellow_herb",
       "Count": 1
     },
     {
-      "X": 9,
-      "Y": 26,
-      "Name": "nunchaku",
+      "X": 23,
+      "Y": 34,
+      "Name": "broccoli",
       "Count": 1
     },
     {
-      "X": 14,
-      "Y": 32,
-      "Name": "bread",
-      "Count": 2
+      "X": 10,
+      "Y": 34,
+      "Name": "shrimp",
+      "Count": 1
     },
     {
       "X": 13,
-      "Y": 48,
-      "Name": "antidote",
+      "Y": 0,
+      "Name": "pancake",
       "Count": 1
     },
     {
-      "X": 38,
+      "X": 39,
       "Y": 21,
-      "Name": "green_herb",
+      "Name": "ramen",
       "Count": 1
     },
     {
@@ -37602,9 +37602,15 @@
       "Count": 1
     },
     {
-      "X": 44,
+      "X": 45,
       "Y": 3,
       "Name": "yellow_herb",
+      "Count": 1
+    },
+    {
+      "X": 38,
+      "Y": 23,
+      "Name": "chef_hat",
       "Count": 1
     }
   ],

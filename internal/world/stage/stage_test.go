@@ -220,3 +220,22 @@ func TestSwapTo_探索履歴をリセットする(t *testing.T) {
 	}))
 	assert.Empty(t, query.GetCurrentStageField(world).ExploredTiles, "swap で現ステージの探索履歴は空になる")
 }
+
+// TestPurge_所有者と一緒に収納在庫も消す は、Purge が消す所有者の収納在庫を道連れにする
+// ことを固定する。在庫は GridElement も StageBound も持たず所有者だけで紐づくため、
+// 一緒に消さないと死んだ所有者を指す孤児として world に残り serde で蓄積する
+func TestPurge_所有者と一緒に収納在庫も消す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	key := gc.NewOverworldStage()
+
+	merchant := world.ECS.NewEntity()
+	world.Components.StageBound.Add(merchant, &gc.StageBound{Key: key})
+	item := world.ECS.NewEntity()
+	world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: merchant})
+
+	Purge(world, key)
+
+	assert.False(t, world.ECS.Alive(merchant), "所有者は消える")
+	assert.False(t, world.ECS.Alive(item), "所有者の収納在庫も道連れに消える")
+}
