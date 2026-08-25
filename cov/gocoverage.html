@@ -99,7 +99,7 @@
 				
 				<option value="file21">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
 				
-				<option value="file22">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
+				<option value="file22">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.0%)</option>
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/processor.go (91.4%)</option>
 				
@@ -5209,7 +5209,7 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {
 </span>
         <span class="cov8" title="1">target := rp.findNearestHostile(world, entity)
         if target == nil </span>{
-                <span class="cov8" title="1">return rp.planDrivingAction(world, entity, solo, grid)
+                <span class="cov0" title="0">return rp.planDrivingAction(world, entity, solo, grid)
 </span>        }
 
         <span class="cov8" title="1">turnNumber := query.GetTurnState(world).TurnNumber
