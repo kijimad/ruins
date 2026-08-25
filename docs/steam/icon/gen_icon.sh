@@ -14,8 +14,8 @@ cd "$(dirname "$0")"
 
 # --- gen_logo.sh と同一の設定 ---
 MAIN_FONT=../logo/fonts/Iceland/Iceland-Regular.ttf  # 頭文字。角張った低曲率のレトロ書体
-FILL_TOP='#f6fbff'   # 氷グラデの上。雪の白
-FILL_BOT='#8aabce'   # 氷グラデの下。鋼の青
+FILL_TOP='#e3e5ea'   # 単色オフホワイト。ほんの少し灰味。ロゴと同色
+FILL_BOT='#e3e5ea'   # 単色オフホワイト。ほんの少し灰味。ロゴと同色
 OUTLINE='#0d1a2e'    # 濃紺の縁
 SHADOW='#03060d'     # 影
 PT=420               # 頭文字の点サイズ。高解像で描いてから縮める
