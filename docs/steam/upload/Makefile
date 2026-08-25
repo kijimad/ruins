@@ -46,8 +46,7 @@ steamcmd: ## SteamCMD を取得する
 	@echo "steamcmd: $(STEAMCMD)"
 
 .PHONY: login
-login: ## 初回の対話ログイン。Steam Guard を通しトークンをキャッシュする
-	@test -n "$(STEAM_USER)" || { echo "STEAM_USER を指定する"; exit 1; }
+login: check-user ## 初回の対話ログイン。Steam Guard を通しトークンをキャッシュする
 	$(STEAMCMD) +login $(STEAM_USER) +quit
 
 .PHONY: stage
@@ -74,7 +73,3 @@ preview: check-user stage ## アップロードせず内容だけ検証する。
 upload: check-user stage ## 実際にアップロードする。default 反映は Web で確定する
 	$(STEAMCMD) +login $(STEAM_USER) +run_app_build $(APP_VDF) +quit
 	@echo "アップロード完了。default へ上げるには partner サイトの Builds ページで確定する"
-
-.PHONY: clean
-clean: ## 生成物を消す
-	rm -rf $(CONTENT_LINUX) $(CONTENT_WINDOWS) $(BUILD_OUTPUT) $(PREVIEW_VDF)
