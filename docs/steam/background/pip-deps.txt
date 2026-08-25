@@ -1,0 +1,10 @@
+# pip の -r で読む依存表。requirements.txt だと Dependabot が pin にアラートを出すので改名した。
+# CUDA 12.1 用。環境に合わせて cu118, cu124 等に変更すること。
+# 各バージョンは RTX 3050 6GB でマスター生成を実際に通した確認済みの組。
+# torch 2.4.1 と pillow 12 / accelerate 1.14 の新旧差は本スクリプトの用途では問題なく動く。
+--index-url https://download.pytorch.org/whl/cu121
+torch==2.4.1
+diffusers==0.30.3
+transformers==4.44.2
+accelerate==1.14.0
+pillow==12.3.0
