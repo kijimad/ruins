@@ -80,9 +80,9 @@ magick -size "$subsz" xc:none \
 Tw=$(identify -format %w "$TMP/tag.png")
 if [ "$Tw" -gt "$LINE_LEN" ]; then
   magick "$TMP/tag.png" -resize "${LINE_LEN}x" "$TMP/tag.png"
-  Tw=$(identify -format %w "$TMP/tag.png")
 fi
-Th=$(identify -format %h "$TMP/tag.png")
+# リサイズ確定後に幅高さをまとめて取る
+read -r Tw Th <<< "$(identify -format '%w %h' "$TMP/tag.png")"
 
 # レイアウト計算。頭文字の右へ間隔GAPで残りを上寄せ、その下に帯、さらに下に副題
 XOW=$((Cw + GAP))
