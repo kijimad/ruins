@@ -313,7 +313,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 
 }
 
-func TestStatsChangedSystem_同アーキタイプ複数体でHPが取り違わらない(t *testing.T) {
+func TestStatsChangedSystem_同アーキタイプ複数体でHPを取り違えない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
