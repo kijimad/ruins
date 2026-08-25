@@ -152,6 +152,8 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 				updateErr = err
 				continue
 			}
+			// CharModifiers の Upsert より後に取得するので、構造変更後の新しい領域を指す。
+			// 構造変更前に取得したポインタを使い回さない限り安全
 			turnBased := world.Components.TurnBased.Get(entity)
 
 			// 最大APを更新

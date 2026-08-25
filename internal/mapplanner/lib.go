@@ -587,6 +587,8 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 			totalArea += w * h
 		}
 	}
+	// 全部屋が退化して面積0のときの保険。roomTileExtent は正常な部屋なら必ず1以上を返すので
+	// 通常は到達しない。均等抽選で1つ返し、呼び出し側の spawn 試行に委ねる
 	if totalArea == 0 {
 		idx := bm.RNG.IntN(len(bm.Rooms))
 		return bm.Rooms[idx], idx, true
