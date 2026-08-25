@@ -1,56 +1,19 @@
 #!/usr/bin/env python3
-# 背景マスター画像を決定的に生成する。横1枚だけ作る。
-# 縦カプセルは compose がこの横マスターをポートレートに切り出して作るので、縦は生成しない。
+# 背景マスターを決定的に生成する。横1枚だけ作り、縦カプセルは compose が横から切り出す。
+# 全段シード固定で再現可能。
+#   1. SDXL txt2img でベース          seed 91
+#   2. Ghibli img2img で2Dアニメ塗り   seed 128
+#   3. PIL で色補正し 3840x2560 へ拡大
 #
-# 絵柄は、深い青のマットな立方体が朝焼けの雪原に佇み、地平から昇る陽で手前へ1本の長い影が
-# 伸びる2Dアニメ調のマット絵。参照はエヴァのラミエル。青は主役、面は不透明マットで直線の角。
-#
-# 生成は3段の連鎖。全段シード固定なので、モデルとパラメータが同じなら毎回同じ絵が出る。
-#   1. SDXL txt2img でベースを描く          seed 91
-#      影が1本になるシードを選んである。2股・分裂をネガティブで弾く
-#   2. Ghibli img2img で2Dアニメ塗りへ変換   seed 128
-#      img2img なのでキューブが落ちない。低strengthで足元の綿雪化を防ぐ
-#   3. 色補正で雪を白く寄せ寒色に整える
-# 最後に LANCZOS でマスター寸法へ伸ばす。
-#
-# ============================================================================
-# 背景生成の環境構築と実行手順
-# ============================================================================
-# GPU は RTX 3050 6GB を前提とする。torch は CUDA 12.1 版を pip の wheel で入れる。
-# nix は Python インタプリタの供給だけに使い、torch 本体は nix パッケージにしない。
-# このユーザーは nix の trusted-user でないため cachix を引けず、cudaSupport 付き
-# torch を nix でビルドすると全てソースビルドになり非現実的なため。
-#
-# 重要な前提。venv とモデルキャッシュはスクラッチパッドや /tmp に置かない。
-# それらはセッションごとに消える。モデルは数GBあり再取得が重い。
-# よってモデルキャッシュは HF_HOME=~/.cache/huggingface に固定し、venv も
-# 消えない作業ディレクトリに作る。
-#
-# --- 1. torch cu121 の wheel が要求する Python 3.12 を nix で用意する ---
+# 環境: RTX 3050 6GB。torch は cu121 の wheel。nix は python3.12 の供給だけに使う。
+# モデルキャッシュは HF_HOME=~/.cache/huggingface に固定する。
 #   P312=$(nix build --no-link --print-out-paths nixpkgs#python312)/bin/python3.12
-#
-# --- 2. venv を作り依存を入れる。cu121 の index は requirements.txt 冒頭に書いてある ---
 #   "$P312" -m venv sdvenv
-#   ./sdvenv/bin/python -m pip install --upgrade pip
-#   ./sdvenv/bin/python -m pip install \
-#     --extra-index-url https://pypi.org/simple \
-#     -r docs/steam/background/requirements.txt
-#
-# --- 3. nix の Python から見えない共有ライブラリを集めて LD_LIBRARY_PATH で渡す ---
-# libcuda.so.1 と libnvidia-ml.so.1 はシステム側、libstdc++.so.6 は nix の gcc から取る。
+#   ./sdvenv/bin/python -m pip install --extra-index-url https://pypi.org/simple -r docs/steam/background/requirements.txt
 #   mkdir -p /tmp/nvidia-libs
-#   ln -sf /usr/lib/x86_64-linux-gnu/libcuda.so.1 /tmp/nvidia-libs/
-#   ln -sf /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 /tmp/nvidia-libs/
-#   ln -sf "$(find /nix/store -name 'libstdc++.so.6' | grep -E 'gcc.*lib' | head -1)" /tmp/nvidia-libs/
-#
-# --- 4. 実行する。LD_LIBRARY_PATH と HF_HOME を必ず渡す ---
-#   LD_LIBRARY_PATH=/tmp/nvidia-libs HF_HOME="$HOME/.cache/huggingface" \
-#     ./sdvenv/bin/python docs/steam/background/gen_master.py
-#
-# 動作確認は次の一行で torch と CUDA を見る。cuda True が出れば準備完了。
-#   LD_LIBRARY_PATH=/tmp/nvidia-libs ./sdvenv/bin/python -c \
-#     "import torch; print(torch.__version__, torch.cuda.is_available())"
-# ============================================================================
+#   ln -sf /usr/lib/x86_64-linux-gnu/libcuda.so.1 /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 /tmp/nvidia-libs/
+#   ln -sf "$(find /nix/store -name libstdc++.so.6 | grep -E 'gcc.*lib' | head -1)" /tmp/nvidia-libs/
+#   LD_LIBRARY_PATH=/tmp/nvidia-libs HF_HOME=~/.cache/huggingface ./sdvenv/bin/python docs/steam/background/gen_master.py
 
 import gc
 import os
@@ -123,8 +86,7 @@ base = txt(
 ).images[0]
 free(txt)
 
-# --- 2段目: Ghibli img2img で2Dアニメ塗りへ。1152x768 で回して解像感を稼ぐ。
-# ベースと同じ幅にすると 3840 への拡大率が下がり、縦カプセルの切り出しも締まる ---
+# --- 2段目: Ghibli img2img で2Dアニメ塗りへ。1152x768 で回して解像感を稼ぐ ---
 ghibli = AutoPipelineForImage2Image.from_pretrained(
     GHIBLI, torch_dtype=torch.float16, safety_checker=None
 )

@@ -1,13 +1,8 @@
 #!/bin/bash
-# Steam の Client Icon を決定的に生成する。ライブラリのリスト表示や通知でタイトル横に出る小アイコン。
-# ロゴと同じ設定で頭文字 C を描き、正方形の寒色暗背景に置く。単一の文字は 16px でも読め、
-# ロゴと完全に一貫する。氷グラデ・濃紺縁・影は gen_logo.sh と同一。
-#
+# Steam の Client Icon を決定的に生成する。ライブラリ等でタイトル横に出る小アイコン。
+# ロゴと同じ設定で頭文字 C を描き、正方形の寒色暗背景に置く。単一の文字は 16px でも読める。
 # 依存: ImageMagick と logo/fonts の Iceland 書体
-# 出力 (このスクリプトと同じディレクトリ):
-#   icon.png     512x512。Steam の Client Icon はこれを使う
-#   icon_256.png 256x256
-#   icon.ico     16/24/32/48/256 のマルチサイズ。Windows 用
+# 出力: icon.png(512, Steam 用) / icon_256.png / icon.ico(16〜256 マルチサイズ, Windows 用)
 
 set -euo pipefail
 cd "$(dirname "$0")"

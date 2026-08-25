@@ -1,27 +1,14 @@
 #!/bin/bash
-# Steam アセットの最終合成。各パーツを組み合わせて配布用アセットを作る。
-# 背景マスタを各カプセルサイズへ切り出し、ロゴを重ねて generated/ へ出力する。
-#
-# パーツは各ディレクトリに生成スクリプトと成果物が同居する:
-#   - background/ 背景マスタ (gen_master.py)
-#   - logo/       ロゴ (gen_logo.sh)
-# この compose がそれらを最終アセットへ束ねる。
-#
-# 使い方: bash docs/steam/compose.sh
-#
-# 依存: ImageMagick (magick)
-#
-# 背景は深い青の立方体が朝焼けの雪原に佇む2Dアニメ調のマットな絵。
-# 旧ダンジョン時代のドット化と強い暗化は外した。滑らかな塗りと発色を潰すため。
-# クロップとロゴ合成だけを行う。ロゴは完成品 logo/logo.png を加工せず重ねる。
+# Steam アセットの最終合成。背景マスタを各カプセルサイズへ切り出し、ロゴを重ねて generated/ へ出す。
+# パーツは各ディレクトリに同居する: background/(gen_master.py) と logo/(gen_logo.sh)。
+# 使い方: bash docs/steam/compose.sh  依存: ImageMagick
 
 set -euo pipefail
 
-# マスターは横1枚だけ。縦カプセルもこの1枚をポートレートに切り出して作る。
-# 縦を別画像で作ると横と別世界になるため、単一マスターからのトリムに統一する。
+# マスターは横1枚だけ。縦カプセルもこの1枚をポートレートに切り出す。
 MASTER="docs/steam/background/master_3840x2560.png"
 OUT="docs/steam/generated"
-# logo/gen_logo.sh の完成品ロゴ。氷塗り・縁・影を内包するので加工せずそのまま重ねる
+# 完成品ロゴ。縁・影を内包するので加工せずそのまま重ねる
 LOGO_PNG="docs/steam/logo/logo.png"
 
 mkdir -p "$OUT"
@@ -46,8 +33,7 @@ render_logo() {
   local max_w=$(( w * 82 / 100 ))
   magick "$LOGO_PNG" -resize "${max_w}x${logo_h}" /tmp/steam_logo.png
 
-  # 宛先を先に sRGB へ昇格してから合成する。library_logo は透明ベース xc:none が
-  # Gray 色空間で作られ、そのまま合成するとロゴの青が Gray 空間に落ちて失われるため。
+  # 宛先を sRGB へ昇格してから合成する。透明ベース xc:none が Gray になり色が落ちるのを防ぐ
   magick "$output" -colorspace sRGB \
     -gravity "$gravity" \
     /tmp/steam_logo.png -geometry "+0+${y_off}" -compose Over -composite \

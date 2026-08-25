@@ -1,23 +1,8 @@
 #!/bin/bash
-# Coldward のロゴを決定的に生成する。
-#
-# 構造:
-#   - 頭文字 C を大きく
-#   - 残りの OLDWARD をその半分の高さで上寄せに1行
-#   - 下にライン + 小さな副題
-# 各要素をトリムして実寸から座標を計算するので、点サイズ・色・字間を変えても
-# 同じ手順で再現的に組み直せる。手で1pxずつ置く工程を持たない。
-#
-# 依存:
-#   - ImageMagick (magick)
-#   - このディレクトリの fonts に vendored したフォント。Iceland (頭文字と本体) と
-#     Staatliches (副題)。いずれも SIL Open Font License。各ディレクトリの OFL.txt 参照
-#
-# 生成スクリプトと成果物は同じディレクトリに置く。最終的に compose がこれら各パーツを組み合わせる。
-#
-# 使い方: bash docs/steam/logo/gen_logo.sh
-# 出力 (このスクリプトと同じディレクトリ):
-#   logo.png 透過・高解像のマスタ
+# Coldward のロゴを決定的に生成する。頭文字 C を大きく、OLDWARD を半分の高さで、下に帯と副題。
+# 各要素をトリムして実寸から座標を計算するので、点サイズ・色・字間を変えても再現的に組み直せる。
+# 依存: ImageMagick と fonts の Iceland/Staatliches。いずれも SIL OFL、各 OFL.txt 参照。
+# 使い方: bash docs/steam/logo/gen_logo.sh  出力: logo.png 透過・高解像
 
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -36,8 +21,8 @@ SUBTITLE="NO WARMTH, NO RETURN"      # 副題
 PT_BIG=320                           # 頭文字の点サイズ
 PT_REST=160                          # 残りの点サイズ。頭文字の半分
 KERN_REST=4                          # 残りの字間
-FILL_TOP='#e3e5ea'                   # 単色オフホワイト。ほんの少し灰味。上下同色でフラットな塗り
-FILL_BOT='#e3e5ea'                   # 単色オフホワイト。ほんの少し灰味。上下同色でフラットな塗り
+FILL_TOP='#e3e5ea'                   # 塗り。上下同色でフラットなオフホワイト
+FILL_BOT='#e3e5ea'                   # 同上
 OUTLINE='#0d1a2e'                    # 濃紺の縁
 SHADOW='#03060d'                     # 影
 LINE_COLOR='#a6e2f2'                 # ライン。氷シアン
