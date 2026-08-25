@@ -25,11 +25,6 @@ BUILD_OUTPUT    := $(HERE)/.build_output
 
 .DEFAULT_GOAL := help
 
-.PHONY: help
-help: ## ターゲット一覧を表示する
-	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
-	  | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
-
 .PHONY: steamcmd
 steamcmd: ## SteamCMD を取得する
 	@mkdir -p $(HERE)/steamcmd
@@ -66,3 +61,12 @@ preview: check-user stage ## アップロードせず内容だけ検証する。
 upload: check-user stage ## 実際にアップロードする。default 反映は Web で確定する
 	$(STEAMCMD) +login $(STEAM_USER) +run_app_build $(APP_VDF) +quit
 	@echo "アップロード完了。default へ上げるには partner サイトの Builds ページで確定する"
+
+.PHONY: clean
+clean: ## 生成物を消す
+	rm -rf $(CONTENT_LINUX) $(CONTENT_WINDOWS) $(BUILD_OUTPUT) $(PREVIEW_VDF)
+
+.PHONY: help
+help: ## ターゲット一覧を表示する
+	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
+	  | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
