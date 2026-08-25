@@ -1,17 +1,10 @@
 # Steam へのビルドアップロード。SteamCMD + SteamPipe を Linux CLI から回す。
-# VDF は静的にコミットしてある。App ID / depot ID は公開値なので直書きでよい。
-# 秘匿すべきは Steam アカウントと 2FA だけで、それは steamcmd の config.vdf が持つ。
+# 手順・VDF 構成・CI での config.vdf の扱いは README.md を参照する。
 #
 # 必須の変数:
 #   STEAM_USER  アップロード用 Steam アカウント名
 # 例:
 #   make -C docs/steam/upload upload STEAM_USER=mybuilder
-#
-# App ID / depot ID を変えるときは VDF を直接編集する。depot ID は depot_linux.vdf と
-# depot_windows.vdf、および app_build.vdf の Depots ブロックに直書きしてある。
-#
-# 初回だけ `make login` で対話ログインし Steam Guard を通す。以降トークンが
-# SteamCMD の config.vdf にキャッシュされる。CI では config.vdf を秘匿保存して配置する。
 #
 # 依存: curl, tar, sed。ビルド段は docker を使う root の build-steam に委譲する。
 
