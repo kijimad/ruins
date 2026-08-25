@@ -39,14 +39,18 @@ func newSpecWorld(t *testing.T) (w.World, *widget.Container) {
 	t.Helper()
 	world := testutil.InitTestWorld(t)
 	world.Resources.UIResources = vrt.SharedUIResources(t)
-	root := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(widget.RowLayoutOpts.Direction(widget.DirectionVertical))),
-	)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	var root *widget.Container
+	vrt.WithUILock(func() {
+		root = widget.NewContainer(
+			widget.ContainerOpts.Layout(widget.NewRowLayout(widget.RowLayoutOpts.Direction(widget.DirectionVertical))),
+		)
+	})
 	return world, root
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -55,7 +59,10 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 		Element: gc.ElementTypeFire, AttackCategory: gc.AttackSword, Cost: 100,
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, query.T(world, gc.AttackSword.Label), "武器種別ラベルが表示される")
@@ -66,8 +73,8 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	assert.Contains(t, labels, query.T(world, gc.ElementTypeFire.String()), "属性名が表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -76,14 +83,17 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackFist, Cost: 50,
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.NotContains(t, labels, "Element", "無属性の場合は属性行が表示されない")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -94,7 +104,10 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 		Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Optimal range", "適正射程ラベルが表示される")
@@ -105,8 +118,8 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 	assert.Contains(t, labels, "20", "リロード工数が表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -116,15 +129,18 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 		MagazineSize: 0,
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.NotContains(t, labels, "Magazine", "マガジンサイズが0の場合は弾数行が表示されない")
 	assert.NotContains(t, labels, "Reload", "マガジンサイズが0の場合は装填行が表示されない")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -139,7 +155,10 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 		},
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "+15", "防御力が符号付きで表示される")
@@ -154,8 +173,8 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 	assert.NotContains(t, labels, "Sensation", "ゼロの装備ボーナスは表示されない")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -164,42 +183,51 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 		EquipmentCategory: gc.EquipmentHead,
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.NotContains(t, labels, "Cold resist", "耐寒0の場合は行が表示されない")
 	assert.NotContains(t, labels, "Heat resist", "耐熱0の場合は行が表示されない")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 42})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Vitality", "回復量ラベルが表示される")
 	assert.Contains(t, labels, "42", "絶対量がそのまま表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_回復量は割合指定ならパーセントで表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: gc.HealRatio, Amount: 0.3})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "30%", "割合が百分率表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -207,14 +235,17 @@ func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する
 	const unknownKind = gc.HealAmountKind(99)
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: unknownKind, Amount: 10})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "-", "未知の種別はハイフン表示にフォールバックする")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -222,7 +253,10 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 	world.Components.Value.Add(e, &gc.Value{Value: 1200})
 	world.Components.Weight.Add(e, &gc.Weight{})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Nutrition", "栄養ラベルが表示される")
@@ -232,8 +266,8 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 	assert.Contains(t, labels, "Weight", "重量ラベルが表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -246,7 +280,10 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 		},
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Book", "本ヘッダーが表示される")
@@ -257,8 +294,8 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 	assert.Contains(t, labels, "30%", "現在工数から進捗率が計算される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -266,7 +303,10 @@ func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T)
 		Effort: gc.IntPool{Current: 0, Max: 0},
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Book", "本ヘッダーは表示される")
@@ -274,8 +314,8 @@ func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T)
 	assert.NotContains(t, labels, "Skill", "スキル効果未設定の場合はスキル行が表示されない")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の性能を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	spec := gc.EntitySpec{
@@ -285,7 +325,10 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 		},
 	}
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRowsFromSpec(world, spec), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRowsFromSpec(world, spec), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, query.T(world, gc.AttackSpear.Label), "武器種別ラベルが表示される")
@@ -293,8 +336,8 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 	assert.Contains(t, labels, query.T(world, gc.ElementTypeThunder.String()), "属性名が表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestSpecRows_能力値の全項目を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -307,7 +350,10 @@ func TestSpecRows_能力値の全項目を表示する(t *testing.T) {
 		Defense:   gc.Ability{Base: 15},
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Vitality", "体力ラベルが表示される")
@@ -324,8 +370,8 @@ func TestSpecRows_能力値の全項目を表示する(t *testing.T) {
 	assert.Contains(t, labels, "15", "防御の値が表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestSpecRows_出品中のオークション情報を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -334,7 +380,10 @@ func TestSpecRows_出品中のオークション情報を表示する(t *testing
 		CurrentBid: 1500,
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Auction", "オークション見出しが表示される")
@@ -343,8 +392,8 @@ func TestSpecRows_出品中のオークション情報を表示する(t *testing
 	assert.Contains(t, labels, consts.Currency(1500).String(), "現在入札額が表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestSpecRows_落札済みのオークション情報を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -354,7 +403,10 @@ func TestSpecRows_落札済みのオークション情報を表示する(t *test
 		DueTurn: 42,
 	})
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Auction", "オークション見出しが表示される")
@@ -364,8 +416,8 @@ func TestSpecRows_落札済みのオークション情報を表示する(t *test
 	assert.Contains(t, labels, "42", "出荷期限ターンが表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestSpecRows_腐敗が進んだ食料は劣化段階を表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	e := world.ECS.NewEntity()
@@ -376,15 +428,18 @@ func TestSpecRows_腐敗が進んだ食料は劣化段階を表示する(t *test
 	// EffectiveRot = RotAccrued + (now-RotUpdatedTurn)*rate が RotAccrued と一致するよう now=0 を明示する
 	query.GetGameTime(world).TotalTurns = 0
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Freshness", "鮮度ラベルが表示される")
 	assert.Contains(t, labels, "Stale", "累積劣化量が1段階を超えると劣化段階が表示される")
 }
 
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポーネントを同時に表示する(t *testing.T) {
+	t.Parallel()
 	world, root := newSpecWorld(t)
 
 	spec := gc.EntitySpec{
@@ -407,7 +462,10 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 		Weight: &gc.Weight{},
 	}
 
-	entityspec.RenderSpecRows(root, entityspec.SpecRowsFromSpec(world, spec), world.Resources.UIResources)
+	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
+	vrt.WithUILock(func() {
+		entityspec.RenderSpecRows(root, entityspec.SpecRowsFromSpec(world, spec), world.Resources.UIResources)
+	})
 	labels := collectLabels(root)
 
 	assert.Contains(t, labels, "Magazine", "Fire由来の弾数行が表示される")
