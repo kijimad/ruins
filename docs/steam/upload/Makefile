@@ -7,8 +7,8 @@
 # 例:
 #   make -C docs/steam/upload upload STEAM_USER=mybuilder
 #
-# App ID / depot ID を変えるときは VDF を直接編集する。Windows depot ID は depot_windows.vdf
-# と app_build.vdf の TODO を差し替える。
+# App ID / depot ID を変えるときは VDF を直接編集する。depot ID は depot_linux.vdf と
+# depot_windows.vdf、および app_build.vdf の Depots ブロックに直書きしてある。
 #
 # 初回だけ `make login` で対話ログインし Steam Guard を通す。以降トークンが
 # SteamCMD の config.vdf にキャッシュされる。CI では config.vdf を秘匿保存して配置する。
@@ -27,6 +27,8 @@ APP_VDF         := $(HERE)/app_build.vdf
 PREVIEW_VDF     := $(HERE)/.app_build.preview.vdf
 CONTENT_LINUX   := $(HERE)/content-linux
 CONTENT_WINDOWS := $(HERE)/content-windows
+# app_build.vdf の "BuildOutput" と一致させる。SteamPipe のログ・キャッシュ置き場
+BUILD_OUTPUT    := $(HERE)/.build_output
 
 .DEFAULT_GOAL := help
 
@@ -65,7 +67,7 @@ check-user:
 .PHONY: preview
 preview: check-user stage ## アップロードせず内容だけ検証する。ドライラン
 	@# Preview を 1 にした一時 VDF を作る。相対パスを保つため VDF と同じディレクトリへ置く
-	@sed 's/"Preview"     "0"/"Preview"     "1"/' $(APP_VDF) > $(PREVIEW_VDF)
+	@sed -E 's/"Preview"[[:space:]]+"0"/"Preview"     "1"/' $(APP_VDF) > $(PREVIEW_VDF)
 	$(STEAMCMD) +login $(STEAM_USER) +run_app_build $(PREVIEW_VDF) +quit
 
 .PHONY: upload
@@ -75,4 +77,4 @@ upload: check-user stage ## 実際にアップロードする。default 反映�
 
 .PHONY: clean
 clean: ## 生成物を消す
-	rm -rf $(CONTENT_LINUX) $(CONTENT_WINDOWS) $(HERE)/.build_output $(PREVIEW_VDF)
+	rm -rf $(CONTENT_LINUX) $(CONTENT_WINDOWS) $(BUILD_OUTPUT) $(PREVIEW_VDF)

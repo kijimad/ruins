@@ -27,8 +27,8 @@ Linux depot には `bin/ruins_linux_amd64_steam`、Windows depot には `bin/rui
 だけを入れる。資産は go:embed でバイナリに焼かれるので depot に別途置かない。
 depot ごとの OS 割当は Steamworks の depot 設定で行い、OS 別の起動は launch options で振り分ける。
 
-App ID や depot ID を変えるときは VDF を直接編集する。Windows depot ID は `depot_windows.vdf` と
-`app_build.vdf` の TODO を差し替える。
+App ID や depot ID を変えるときは VDF を直接編集する。depot ID は `depot_linux.vdf` と
+`depot_windows.vdf`、および `app_build.vdf` の `Depots` ブロックに直書きしてある。
 
 ## 使い方
 
@@ -54,7 +54,8 @@ make upload STEAM_USER=<アカウント>
 
 ## Steam Guard / CI
 
-- 初回 `make login` でトークンが SteamCMD の `config/config.vdf` にキャッシュされる。以降パスワード不要
+- 初回 `make login` はパスワードを対話プロンプトで入力する。コマンドライン引数や環境変数では渡さない。シェル履歴やプロセス一覧にパスワードを残さないための設計
+- 入力後トークンが SteamCMD の `config/config.vdf` にキャッシュされる。以降パスワード不要
 - CI ではこの `config.vdf` を秘匿保存し、ジョブ内で SteamCMD の `config/` へ配置してから
   `make upload` する。GitHub Actions なら `game-ci/steam-deploy` がこの方式をラップしている
 - ログインがブロックされたら SteamCMD 対話中に Steam Guard コードを入力する
