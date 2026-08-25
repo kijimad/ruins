@@ -1,3 +1,4 @@
+# pip の -r で読む依存表。requirements.txt だと Dependabot が pin にアラートを出すので改名した。
 # CUDA 12.1 用。環境に合わせて cu118, cu124 等に変更すること
 --index-url https://download.pytorch.org/whl/cu121
 torch==2.4.1
