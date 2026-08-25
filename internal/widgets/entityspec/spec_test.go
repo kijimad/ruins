@@ -373,6 +373,8 @@ func TestSpecRows_腐敗が進んだ食料は劣化段階を表示する(t *test
 		RotAccrued:  150,
 		StageLength: 100,
 	})
+	// EffectiveRot = RotAccrued + (now-RotUpdatedTurn)*rate が RotAccrued と一致するよう now=0 を明示する
+	query.GetGameTime(world).TotalTurns = 0
 
 	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
 	labels := collectLabels(root)
