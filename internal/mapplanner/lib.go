@@ -568,12 +568,6 @@ func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, error) 
 	)
 }
 
-// roomTileExtent は部屋の実タイル数を返す。Rect の Width/Height は Max-Min の排他的な値だが、
-// 部屋は Min から Max まで両端を床として描画するため、実際に置けるタイル数は +1 になる
-func roomTileExtent(r gc.Rect) (w, h int) {
-	return int(r.Width()) + 1, int(r.Height()) + 1
-}
-
 // selectRoom は部屋リストから面積で重み付けして1つ選択し、部屋とそのインデックスを返す
 // 大きな部屋ほど選ばれやすくなり、配置可能タイル数に比例した自然な分布になる
 func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
@@ -582,12 +576,12 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	}
 	totalArea := 0
 	for _, r := range bm.Rooms {
-		w, h := roomTileExtent(r)
+		w, h := int(r.Width()), int(r.Height())
 		if w > 0 && h > 0 {
 			totalArea += w * h
 		}
 	}
-	// 全部屋が退化して面積0のときの保険。roomTileExtent は正常な部屋なら必ず1以上を返すので
+	// 全部屋が退化して面積0のときの保険。Width/Height は正常な部屋なら必ず1以上を返すので
 	// 通常は到達しない。均等抽選で1つ返し、呼び出し側の spawn 試行に委ねる
 	if totalArea == 0 {
 		idx := bm.RNG.IntN(len(bm.Rooms))
@@ -596,7 +590,7 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	roll := bm.RNG.IntN(totalArea)
 	cumulative := 0
 	for i, r := range bm.Rooms {
-		w, h := roomTileExtent(r)
+		w, h := int(r.Width()), int(r.Height())
 		if w > 0 && h > 0 {
 			cumulative += w * h
 		}
@@ -611,7 +605,7 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
 // maxAttemptsを超えても見つからない場合はfalseを返す
 func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
-	rw, rh := roomTileExtent(room)
+	rw, rh := int(room.Width()), int(room.Height())
 	if rw <= 0 || rh <= 0 {
 		return 0, 0, false
 	}
