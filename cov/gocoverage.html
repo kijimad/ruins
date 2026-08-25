@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -1692,7 +1692,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
@@ -1765,8 +1765,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -36147,8 +36147,8 @@ func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menuloop.Se
                 widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
         )
 </span>
+        // タイトルは選択肢を背景へ浮かせる。パネル背景を付けず透明にし、下部スクリムで可読性を担保する。
         <span class="cov8" title="1">menuContainer := styled.NewVerticalContainer(
-                widget.ContainerOpts.BackgroundImage(res.Panel.Image),
                 widget.ContainerOpts.WidgetOpts(
                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{
                                 Stretch: true,
@@ -36194,11 +36194,13 @@ func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menuloop.Se
                         widget.RowLayoutOpts.Direction(widget.DirectionVertical),
                 )),
                 widget.ContainerOpts.WidgetOpts(
+                        // シネマ配置。ロゴは背景左上、メニューは左下へ左寄せで置き、右のキューブを主役に残す
                         widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-                                HorizontalPosition: widget.AnchorLayoutPositionCenter,
-                                VerticalPosition:   widget.AnchorLayoutPositionStart,
+                                HorizontalPosition: widget.AnchorLayoutPositionStart,
+                                VerticalPosition:   widget.AnchorLayoutPositionEnd,
                                 Padding: &amp;widget.Insets{
-                                        Top: 400,
+                                        Left:   64,
+                                        Bottom: 72,
                                 },
                         }),
                 ),
