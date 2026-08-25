@@ -5,11 +5,20 @@
 
 set -euo pipefail
 
+# 一時ファイルは専用ディレクトリに集約し、終了時に自動で消す。/tmp 直下へのハードコードは
+# 並列実行や複数端末で上書き競合するため使わない。
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
 # マスターは横1枚だけ。縦カプセルもこの1枚をポートレートに切り出す。
 MASTER="docs/steam/background/master_3840x2560.png"
 OUT="docs/steam/generated"
 # 完成品ロゴ。縁・影を内包するので加工せずそのまま重ねる
 LOGO_PNG="docs/steam/logo/logo.png"
+
+# 入力が無ければ magick のエラーを待たず、先に何を実行すべきか示して止める
+[ -f "$MASTER" ] || { echo "ERROR: $MASTER が無い。先に background/gen_master.py を実行する" >&2; exit 1; }
+[ -f "$LOGO_PNG" ] || { echo "ERROR: $LOGO_PNG が無い。先に logo/gen_logo.sh を実行する" >&2; exit 1; }
 
 mkdir -p "$OUT"
 
@@ -31,13 +40,15 @@ render_logo() {
   local w=$1 h=$2 logo_h=$3 gravity=$4 y_off=$5 output=$6
 
   local max_w=$(( w * 82 / 100 ))
-  magick "$LOGO_PNG" -resize "${max_w}x${logo_h}" /tmp/steam_logo.png
+  magick "$LOGO_PNG" -resize "${max_w}x${logo_h}" "$TMP/logo.png"
 
-  # 宛先を sRGB へ昇格してから合成する。透明ベース xc:none が Gray になり色が落ちるのを防ぐ
+  # 宛先を sRGB へ昇格してから合成する。透明ベース xc:none が Gray になり色が落ちるのを防ぐ。
+  # 入力と出力を同一ファイルにせず中間へ書いてから置き換える。読み書き競合を避ける
   magick "$output" -colorspace sRGB \
     -gravity "$gravity" \
-    /tmp/steam_logo.png -geometry "+0+${y_off}" -compose Over -composite \
-    "$output"
+    "$TMP/logo.png" -geometry "+0+${y_off}" -compose Over -composite \
+    "$TMP/merged.png"
+  mv "$TMP/merged.png" "$output"
 }
 
 # --- ロゴ付きカプセル: マスタをクロップ・リサイズ + ロゴ ---
@@ -78,7 +89,7 @@ generate_capsule() {
 # 各カプセルのクロップサイズはマスターのアスペクト比に合わせて計算する。
 # すべて横マスター1枚から中央で切り出す。キューブがマスター中央にあるので、縦長も中央クロップで
 # キューブが真ん中に来る。
-#                                       w    h    filename              crop_w crop_h logo_grav
+#                                       w    h    filename              crop_w crop_h logo_gravity
 generate_capsule                        462  174  small_capsule.png     3840   1446   center
 generate_capsule                        920  430  header_capsule.png    3840   1794   center
 generate_capsule                        920  430  library_header.png    3840   1794   center
@@ -89,15 +100,17 @@ generate_capsule                        600  900  library_capsule.png   1707   2
 # --- ゲームタイトル用画像 960x720 ---
 # シネマ配置。ロゴを左上、メニューは左下(ゲーム側で描画)に置き、主役のキューブを右に残す。
 # 背景はストアと同じキーアートを、キューブが右へ来るようズームして切り出す。
-magick "$MASTER" -crop 2400x1800+240+680 +repage -resize 960x720! /tmp/title_bg.png
+magick "$MASTER" -crop 2400x1800+240+680 +repage -resize 960x720! "$TMP/title_bg.png"
 # 下部と左にダークグラデのスクリムを敷く。左下のメニュー域を暗くして可読性を確保する。
-magick /tmp/title_bg.png \
+TITLE_OUT="assets/file/textures/bg/title1_.png"
+magick "$TMP/title_bg.png" \
   \( -size 960x720 gradient:none-'#060a14' \) -compose over -composite \
   \( -size 720x960 gradient:'#060a1466'-none -rotate 90 \) -compose over -composite \
-  "assets/file/textures/bg/title1_.png"
+  "$TITLE_OUT"
 # ロゴを左上へ。幅は画面の約55%。メニューは main_menu.go が左下へ左寄せで描く。
-magick "$LOGO_PNG" -resize 500x /tmp/title_logo.png
-magick "assets/file/textures/bg/title1_.png" /tmp/title_logo.png -gravity NorthWest -geometry +48+56 -compose over -composite "assets/file/textures/bg/title1_.png"
+magick "$LOGO_PNG" -resize 500x "$TMP/title_logo.png"
+magick "$TITLE_OUT" "$TMP/title_logo.png" -gravity NorthWest -geometry +48+56 -compose over -composite "$TMP/title_merged.png"
+mv "$TMP/title_merged.png" "$TITLE_OUT"
 echo "title1_.png (960x720)"
 
 # --- Library Logo: 透明背景 + ロゴ ---

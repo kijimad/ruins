@@ -88,6 +88,8 @@ base = txt(
 free(txt)
 
 # --- 2段目: Ghibli img2img で2Dアニメ塗りへ。1152x768 で回して解像感を稼ぐ ---
+# safety_checker は無効化する。SD 1.5 ベースの本モデルでは誤検知で黒画像を返すことがあり、
+# 生成する雪原とキューブに不適切表現は無いため外して問題ない。
 ghibli = AutoPipelineForImage2Image.from_pretrained(
     GHIBLI, torch_dtype=torch.float16, safety_checker=None
 )
