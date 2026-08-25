@@ -6,14 +6,15 @@
 #   3. PIL で色補正し 3840x2560 へ拡大
 #
 # 環境: RTX 3050 6GB。torch は cu121 の wheel。python3.12 は docs/steam/shell.nix が供給する。
-# モデルキャッシュは HF_HOME=~/.cache/huggingface に固定する。
-#   nix-shell docs/steam/shell.nix
+# venv とモデルキャッシュはこのディレクトリに作る。片付けは rm -rf sdvenv hf-cache。
+#   cd docs/steam/background
+#   nix-shell ../shell.nix
 #   python3.12 -m venv sdvenv
-#   ./sdvenv/bin/python -m pip install --extra-index-url https://pypi.org/simple -r docs/steam/background/pip-deps.txt
+#   ./sdvenv/bin/python -m pip install --extra-index-url https://pypi.org/simple -r pip-deps.txt
 #   mkdir -p /tmp/nvidia-libs
 #   ln -sf /usr/lib/x86_64-linux-gnu/libcuda.so.1 /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 /tmp/nvidia-libs/
 #   ln -sf "$(find /nix/store -name libstdc++.so.6 | grep -E 'gcc.*lib' | head -1)" /tmp/nvidia-libs/
-#   LD_LIBRARY_PATH=/tmp/nvidia-libs HF_HOME=~/.cache/huggingface ./sdvenv/bin/python docs/steam/background/gen_master.py
+#   LD_LIBRARY_PATH=/tmp/nvidia-libs HF_HOME=./hf-cache ./sdvenv/bin/python gen_master.py
 
 import gc
 import os
