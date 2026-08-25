@@ -701,3 +701,29 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 	require.Len(t, data.WeaponSlotsData.Slots, 5)
 	assert.Equal(t, 800, data.MinimapData.ScreenDimensions.Width)
 }
+
+func TestTemperatureTrendBadge_冷えると下向きの寒色バッジ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	e := world.ECS.NewEntity()
+	world.Components.Player.Add(e, &gc.Player{})
+	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
+	world.Components.HealthStatus.Get(e).Parts[gc.BodyPartWholeBody].UpdateConditionTimer(gc.ConditionHypothermia, 40)
+	world.Components.TemperatureTrend.Add(e, &gc.TemperatureTrend{Delta: -0.5})
+
+	badge, ok := temperatureTrendBadge(world, e)
+	require.True(t, ok, "体温状態があればバッジを出す")
+	assert.Equal(t, consts.IconDegree+consts.IconArrowDown, badge.Text, "冷えるので下矢印")
+	assert.Greater(t, badge.Color.B, badge.Color.R, "低体温は寒色で青が強い")
+}
+
+func TestTemperatureTrendBadge_快適時は出さない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	e := world.ECS.NewEntity()
+	world.Components.Player.Add(e, &gc.Player{})
+	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
+
+	_, ok := temperatureTrendBadge(world, e)
+	assert.False(t, ok, "体温状態が無ければバッジを出さない")
+}

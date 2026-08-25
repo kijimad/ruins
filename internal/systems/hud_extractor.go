@@ -378,6 +378,14 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 		}
 	}
 
+	// プレイヤーの体温トレンド。低体温か高体温の状態があるときだけ出す
+	trendQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
+	for trendQuery.Next() {
+		if badge, ok := temperatureTrendBadge(world, trendQuery.Entity()); ok {
+			badges = append(badges, badge)
+		}
+	}
+
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
@@ -396,6 +404,62 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 }
 
 // getHungerBadgeColor は空腹度に応じたバッジ色を返す
+// temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界
+const temperatureSteadyThreshold = 0.1
+
+// temperatureTrendBadge はプレイヤーの体温トレンドバッジを返す。低体温か高体温の状態が
+// あるときだけ ok=true。矢印が変化の向き、色が寒暖と変化の速さを表す
+func temperatureTrendBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
+	hs := world.Components.HealthStatus.Get(entity)
+	part := &hs.Parts[gc.BodyPartWholeBody]
+	cold := part.GetCondition(gc.ConditionHypothermia)
+	hot := part.GetCondition(gc.ConditionHyperthermia)
+	if cold == nil && hot == nil {
+		return hud.StatusBadge{}, false
+	}
+
+	var delta float64
+	if world.Components.TemperatureTrend.Has(entity) {
+		delta = world.Components.TemperatureTrend.Get(entity).Delta
+	}
+
+	var arrow string
+	switch {
+	case delta > temperatureSteadyThreshold:
+		arrow = consts.IconArrowUp
+	case delta < -temperatureSteadyThreshold:
+		arrow = consts.IconArrowDown
+	default:
+		arrow = consts.IconArrowRight
+	}
+
+	// 寒暖の色は効いている状態で決める。両方あればタイマーの重い方
+	hotHue := hot != nil && (cold == nil || hot.Timer >= cold.Timer)
+	return hud.StatusBadge{
+		Text:  consts.IconDegree + arrow,
+		Color: temperatureTrendColor(delta, hotHue),
+	}, true
+}
+
+// temperatureTrendColor は体温トレンドの色を返す。一定は無彩、変化中は寒色か暖色を
+// 変化の速さで濃くする
+func temperatureTrendColor(delta float64, hot bool) color.RGBA {
+	if delta > -temperatureSteadyThreshold && delta < temperatureSteadyThreshold {
+		return color.RGBA{160, 160, 160, 255}
+	}
+	intensity := math.Min(math.Abs(delta), 1.0)
+	if hot {
+		return lerpRGBA(color.RGBA{255, 190, 120, 255}, color.RGBA{225, 60, 40, 255}, intensity)
+	}
+	return lerpRGBA(color.RGBA{130, 175, 255, 255}, color.RGBA{30, 80, 220, 255}, intensity)
+}
+
+// lerpRGBA は2色を t (0..1) で線形補間する
+func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {
+	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
+	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
+}
+
 func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {
 	switch level {
 	case gc.HungerSatiated:

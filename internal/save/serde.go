@@ -37,6 +37,7 @@ func skipComponents() []ecs.Comp {
 		ecs.C[gc.Position](),           // GridElementから毎フレーム算出
 		ecs.C[gc.StateChangeRequest](), // イベント・毎ターン消費
 		ecs.C[gc.StatsChanged](),       // ダーティフラグ
+		ecs.C[gc.TemperatureTrend](),   // 体温トレンド。毎ターン再計算する一時状態
 		ecs.C[gc.WeightDirty](),        // ダーティフラグ
 		ecs.C[gc.Dead](),               // 一時・毎ターン掃除
 		ecs.C[gc.Activity](),           // 実行中アクティビティ・毎ターン変動

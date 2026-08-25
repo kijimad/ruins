@@ -76,6 +76,7 @@ var Registry = []Def{
 	// event ================
 	{Field: "StateChangeRequest"}, // ステート遷移リクエストを運ぶ
 	{Field: "StatsChanged"},       // ステータス再計算が必要なことを示すダーティフラグ
+	{Field: "TemperatureTrend"},   // 体温の1ターンあたりの変化。HUD のトレンド表示が読む一時状態
 	{Field: "WeightDirty"},        // 重量再計算が必要なことを示すダーティフラグ
 	{Field: "ProvidesHealing"},    // HP回復の性質を保持する
 	{Field: "ProvidesNutrition"},  // 空腹度回復の性質を保持する

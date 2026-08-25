@@ -605,3 +605,17 @@ func TestTemperatureSystem_Update_熱源のそばは低体温の進行が緩む(
 	without := run(false)
 	assert.Less(t, withFire, without, "熱源のそばは低体温タイマーの進行が緩む")
 }
+
+func TestTemperatureSystem_Update_体温トレンドを記録する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
+	require.NoError(t, err)
+
+	sys := &TemperatureSystem{}
+	require.NoError(t, sys.Update(world))
+
+	require.True(t, world.Components.TemperatureTrend.Has(player), "プレイヤーに体温トレンドが記録される")
+	assert.Negative(t, world.Components.TemperatureTrend.Get(player).Delta, "寒い環境では体温が下降する")
+}

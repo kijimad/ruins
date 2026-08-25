@@ -64,6 +64,7 @@ type EntitySpec struct {
 	CharModifiers      *CharModifiers
 	StateChangeRequest *StateChangeRequest
 	StatsChanged       *StatsChanged
+	TemperatureTrend   *TemperatureTrend
 	WeightDirty        *WeightDirty
 	ProvidesHealing    *ProvidesHealing
 	ProvidesNutrition  *ProvidesNutrition
@@ -148,6 +149,7 @@ type Components struct {
 	CharModifiers      *ecs.Map[CharModifiers]
 	StateChangeRequest *ecs.Map[StateChangeRequest]
 	StatsChanged       *ecs.Map[StatsChanged]
+	TemperatureTrend   *ecs.Map[TemperatureTrend]
 	WeightDirty        *ecs.Map[WeightDirty]
 	ProvidesHealing    *ecs.Map[ProvidesHealing]
 	ProvidesNutrition  *ecs.Map[ProvidesNutrition]
@@ -232,6 +234,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.CharModifiers = ecs.NewMap[CharModifiers](world)
 	c.StateChangeRequest = ecs.NewMap[StateChangeRequest](world)
 	c.StatsChanged = ecs.NewMap[StatsChanged](world)
+	c.TemperatureTrend = ecs.NewMap[TemperatureTrend](world)
 	c.WeightDirty = ecs.NewMap[WeightDirty](world)
 	c.ProvidesHealing = ecs.NewMap[ProvidesHealing](world)
 	c.ProvidesNutrition = ecs.NewMap[ProvidesNutrition](world)
@@ -318,6 +321,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.CharModifiers, entity, spec.CharModifiers)
 	addComp(c.StateChangeRequest, entity, spec.StateChangeRequest)
 	addComp(c.StatsChanged, entity, spec.StatsChanged)
+	addComp(c.TemperatureTrend, entity, spec.TemperatureTrend)
 	addComp(c.WeightDirty, entity, spec.WeightDirty)
 	addComp(c.ProvidesHealing, entity, spec.ProvidesHealing)
 	addComp(c.ProvidesNutrition, entity, spec.ProvidesNutrition)
