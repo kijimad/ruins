@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-25 12:45:37</td>
+            <td class="headerValue">2026-08-25 14:51:38</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -177,8 +177,8 @@
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 startY := int(room.Min.Y) + spacing</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L117"><span class="lineNum">     117</span>              :                 // 規則的に柱を配置</span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 for x := startX; x &lt; int(room.Max.X); x += spacing + 1 {</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                         for y := startY; y &lt; int(room.Max.Y); y += spacing + 1 {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 for x := startX; x &lt;= int(room.Max.X); x += spacing + 1 {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                         for y := startY; y &lt;= int(room.Max.Y); y += spacing + 1 {</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                                 idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                                 planData.Tiles[idx] = planData.GetTile(consts.TileNameWall)</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                         }</span></span>

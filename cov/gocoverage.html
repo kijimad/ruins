@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -99,7 +99,7 @@
 				
 				<option value="file21">github.com/kijimaD/ruins/internal/aiinput/planner.go (89.7%)</option>
 				
-				<option value="file22">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.0%)</option>
+				<option value="file22">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (95.4%)</option>
 				
 				<option value="file23">github.com/kijimaD/ruins/internal/aiinput/processor.go (91.4%)</option>
 				
@@ -347,7 +347,7 @@
 				
 				<option value="file145">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (64.1%)</option>
 				
-				<option value="file146">github.com/kijimaD/ruins/internal/mapplanner/lib.go (82.4%)</option>
+				<option value="file146">github.com/kijimaD/ruins/internal/mapplanner/lib.go (81.7%)</option>
 				
 				<option value="file147">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
@@ -357,7 +357,7 @@
 				
 				<option value="file150">github.com/kijimaD/ruins/internal/mapplanner/plan.go (88.5%)</option>
 				
-				<option value="file151">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (75.7%)</option>
+				<option value="file151">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (78.4%)</option>
 				
 				<option value="file152">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -497,7 +497,7 @@
 				
 				<option value="file220">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (85.2%)</option>
 				
-				<option value="file221">github.com/kijimaD/ruins/internal/states/dungeon_input.go (23.6%)</option>
+				<option value="file221">github.com/kijimaD/ruins/internal/states/dungeon_input.go (24.3%)</option>
 				
 				<option value="file222">github.com/kijimaD/ruins/internal/states/factories.go (63.6%)</option>
 				
@@ -649,7 +649,7 @@
 				
 				<option value="file296">github.com/kijimaD/ruins/internal/world/lifecycle/inventory.go (74.5%)</option>
 				
-				<option value="file297">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (94.6%)</option>
+				<option value="file297">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (85.4%)</option>
 				
 				<option value="file298">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (75.0%)</option>
 				
@@ -1692,7 +1692,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
@@ -1765,8 +1765,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
         case critical:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to score a critical hit on %s and dealt %s damage!", attackerMarkup, methodName, targetMarkup, damageStr))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s scored a critical hit on %s and dealt %s damage!", attackerMarkup, targetMarkup, damageStr))
 </span>                }
@@ -5209,7 +5209,7 @@ func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) *gc.Activity {
 </span>
         <span class="cov8" title="1">target := rp.findNearestHostile(world, entity)
         if target == nil </span>{
-                <span class="cov0" title="0">return rp.planDrivingAction(world, entity, solo, grid)
+                <span class="cov8" title="1">return rp.planDrivingAction(world, entity, solo, grid)
 </span>        }
 
         <span class="cov8" title="1">turnNumber := query.GetTurnState(world).TurnNumber
@@ -9186,11 +9186,11 @@ func (r *Rect) Center() (consts.Tile, consts.Tile) {
         return x, y
 </span>}
 
-// Width は矩形の幅を返す。Max と Min の X 差。
-func (r *Rect) Width() consts.Tile { <span class="cov8" title="1">return r.Max.X - r.Min.X }</span>
+// Width は矩形の幅をタイル数で返す。Min と Max は両端を含む閉区間なので Max-Min+1。
+func (r *Rect) Width() consts.Tile { <span class="cov8" title="1">return r.Max.X - r.Min.X + 1 }</span>
 
-// Height は矩形の高さを返す。Max と Min の Y 差。
-func (r *Rect) Height() consts.Tile { <span class="cov8" title="1">return r.Max.Y - r.Min.Y }</span>
+// Height は矩形の高さをタイル数で返す。Min と Max は両端を含む閉区間なので Max-Min+1。
+func (r *Rect) Height() consts.Tile { <span class="cov8" title="1">return r.Max.Y - r.Min.Y + 1 }</span>
 
 // Tile はタイルエンティティであることを示すタグコンポーネント
 type Tile struct{}
@@ -15935,8 +15935,8 @@ func (b BigRoomDraw) applyPillars(planData *MetaPlan) {
                 startY := int(room.Min.Y) + spacing
 </span>
                 // 規則的に柱を配置
-                <span class="cov8" title="1">for x := startX; x &lt; int(room.Max.X); x += spacing + 1 </span>{
-                        <span class="cov8" title="1">for y := startY; y &lt; int(room.Max.Y); y += spacing + 1 </span>{
+                <span class="cov8" title="1">for x := startX; x &lt;= int(room.Max.X); x += spacing + 1 </span>{
+                        <span class="cov8" title="1">for y := startY; y &lt;= int(room.Max.Y); y += spacing + 1 </span>{
                                 <span class="cov8" title="1">idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
                                 planData.Tiles[idx] = planData.GetTile(consts.TileNameWall)
 </span>                        }
@@ -20515,7 +20515,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
         <span class="cov8" title="1">if bm.existPlannedEntityOnTile(pos) </span>{
-                <span class="cov8" title="1">return false
+                <span class="cov0" title="0">return false
 </span>        }
 
         <span class="cov8" title="1">return true</span>
@@ -21016,12 +21016,13 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 </span>        }
         <span class="cov8" title="1">totalArea := 0
         for _, r := range bm.Rooms </span>{
-                <span class="cov8" title="1">w := int(r.Width())
-                h := int(r.Height())
+                <span class="cov8" title="1">w, h := int(r.Width()), int(r.Height())
                 if w &gt; 0 &amp;&amp; h &gt; 0 </span>{
                         <span class="cov8" title="1">totalArea += w * h
 </span>                }
         }
+        // 全部屋が退化して面積0のときの保険。Width/Height は正常な部屋なら必ず1以上を返すので
+        // 通常は到達しない。均等抽選で1つ返し、呼び出し側の spawn 試行に委ねる
         <span class="cov8" title="1">if totalArea == 0 </span>{
                 <span class="cov0" title="0">idx := bm.RNG.IntN(len(bm.Rooms))
                 return bm.Rooms[idx], idx, true
@@ -21029,8 +21030,7 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
         <span class="cov8" title="1">roll := bm.RNG.IntN(totalArea)
         cumulative := 0
         for i, r := range bm.Rooms </span>{
-                <span class="cov8" title="1">w := int(r.Width())
-                h := int(r.Height())
+                <span class="cov8" title="1">w, h := int(r.Width()), int(r.Height())
                 if w &gt; 0 &amp;&amp; h &gt; 0 </span>{
                         <span class="cov8" title="1">cumulative += w * h
 </span>                }
@@ -21045,8 +21045,7 @@ func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
 // maxAttemptsを超えても見つからない場合はfalseを返す
 func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
-        <span class="cov8" title="1">rw := int(room.Width())
-        rh := int(room.Height())
+        <span class="cov8" title="1">rw, rh := int(room.Width()), int(room.Height())
         if rw &lt;= 0 || rh &lt;= 0 </span>{
                 <span class="cov0" title="0">return 0, 0, false
 </span>        }
@@ -21068,7 +21067,7 @@ func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int,
                 dy := bm.RNG.IntN(radius*2+1) - radius
                 tx := consts.Tile(int(centerX) + dx)
                 ty := consts.Tile(int(centerY) + dy)
-                if tx &lt; room.Min.X || tx &gt;= room.Max.X || ty &lt; room.Min.Y || ty &gt;= room.Max.Y </span>{
+                if tx &lt; room.Min.X || tx &gt; room.Max.X || ty &lt; room.Min.Y || ty &gt; room.Max.Y </span>{
                         <span class="cov0" title="0">continue</span>
                 }
                 <span class="cov0" title="0">if bm.IsSpawnableTile(world, tx, ty) </span>{
@@ -21094,7 +21093,7 @@ func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 // isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する
 func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
         <span class="cov8" title="1">for _, room := range bm.Rooms </span>{
-                <span class="cov8" title="1">if x &gt;= room.Min.X &amp;&amp; x &lt; room.Max.X &amp;&amp; y &gt;= room.Min.Y &amp;&amp; y &lt; room.Max.Y </span>{
+                <span class="cov8" title="1">if x &gt;= room.Min.X &amp;&amp; x &lt;= room.Max.X &amp;&amp; y &gt;= room.Min.Y &amp;&amp; y &lt;= room.Max.Y </span>{
                         <span class="cov8" title="1">return true
 </span>                }
         }
@@ -21675,7 +21674,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[consts.Tile], maxA
                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;
                                 planData.isInAnyRoom(x, y) &amp;&amp;
                                 pf.IsReachable(playerPos, consts.Coord[consts.Tile]{X: x, Y: y}) </span>{
-                                <span class="cov0" title="0">return x, y, true
+                                <span class="cov8" title="1">return x, y, true
 </span>                        }
                 }
                 <span class="cov8" title="1">return 0, 0, false</span>
@@ -21952,8 +21951,8 @@ func (r RuinsDraw) drawRuinedBuilding(planData *MetaPlan, building gc.Rect) {
 
 // addInteriorWalls は建物内部に仕切り壁を追加する
 func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
-        <span class="cov8" title="1">buildingWidth := int(building.Width() + 1)
-        buildingHeight := int(building.Height() + 1)
+        <span class="cov8" title="1">buildingWidth := int(building.Width())
+        buildingHeight := int(building.Height())
 </span>
         // 建物が十分大きい場合のみ内部の仕切りを作成
         <span class="cov8" title="1">if buildingWidth &gt;= 10 &amp;&amp; buildingHeight &gt;= 8 </span>{
@@ -34414,7 +34413,7 @@ func (st *DungeonState) moveDir(world w.World, base gc.Direction) gc.Direction {
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
         // UI系アクションは常に実行可能
         <span class="cov8" title="1">switch action </span>{
-        case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot, inputmapper.ActionPickup,
+        case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionOpenOverworldMap, inputmapper.ActionOpenKeyHelp, inputmapper.ActionShoot,
                 inputmapper.ActionVerbExamine, inputmapper.ActionVerbPlace, inputmapper.ActionVerbConsume, inputmapper.ActionVerbRead, inputmapper.ActionVerbUse, inputmapper.ActionVerbThrow, inputmapper.ActionVerbList,
                 inputmapper.ActionRotateLeft, inputmapper.ActionRotateRight:<span class="cov8" title="1"></span>
                 // UI系と視点操作はターンを消費しないのでターンチェック不要
@@ -34425,7 +34424,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 </span>                }
                 // プレイヤーが継続アクション中は新しいアクションを受け付けない
                 <span class="cov8" title="1">if playerEntity, err := query.GetPlayerEntity(world); err == nil &amp;&amp; query.HasActivity(world, playerEntity) </span>{
-                        <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}, nil
+                        <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransNone}, nil
 </span>                }
         }
 
@@ -40348,7 +40347,16 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
                 abils.Agility.Total = abils.Agility.Base + abils.Agility.Modifier
                 abils.Defense.Total = abils.Defense.Base + abils.Defense.Modifier
 </span>
-                // スキル効果倍率を再計算する。能力値変更後に行う
+                // HP/Poolsを更新。abils を使うので、CharModifiers の Upsert による構造変更で
+                // abils ポインタが無効化される前に行う
+                <span class="cov8" title="1">if world.Components.HP.Has(entity) </span>{
+                        <span class="cov8" title="1">hp := world.Components.HP.Get(entity)
+                        hp.Max = maxHP(abils)
+                        hp.Current = min(hp.Max, hp.Current)
+</span>                }
+
+                // スキル効果倍率を再計算する。能力値変更後に行う。CharModifiers の Add は構造変更で
+                // abils ポインタを無効化するので、abils を使う処理はこれより前に済ませる
                 <span class="cov8" title="1">if world.Components.Skills.Has(entity) </span>{
                         <span class="cov8" title="1">skills := world.Components.Skills.Get(entity)
                         var hs *gc.HealthStatus
@@ -40360,13 +40368,6 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
                                 <span class="cov0" title="0">return err
 </span>                        }
                 }
-
-                // HP/Poolsを更新
-                <span class="cov8" title="1">if world.Components.HP.Has(entity) </span>{
-                        <span class="cov8" title="1">hp := world.Components.HP.Get(entity)
-                        hp.Max = maxHP(abils)
-                        hp.Current = min(hp.Max, hp.Current)
-</span>                }
                 <span class="cov8" title="1">if world.Components.WeightCapacity.Has(entity) </span>{
                         // 所持重量を再計算する。力が変化した場合に最大重量が変わるので
                         <span class="cov8" title="1">if !world.Components.WeightDirty.Has(entity) </span>{
@@ -40381,6 +40382,8 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
                                 <span class="cov0" title="0">updateErr = err
                                 continue</span>
                         }
+                        // CharModifiers の Upsert より後に取得するので、構造変更後の新しい領域を指す。
+                        // 構造変更前に取得したポインタを使い回さない限り安全
                         <span class="cov8" title="1">turnBased := world.Components.TurnBased.Get(entity)
 </span>
                         // 最大APを更新
@@ -47310,6 +47313,34 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 </span>
         <span class="cov8" title="1">return nil</span>
 }
+
+// RemoveOwnedStorage は owners のいずれかが所有する収納内の実体を削除する。
+// 収納在庫は GridElement を持たず、座標カリングやステージ束縛の走査に載らない。所有者を
+// 消すときに一緒に消さないと、死んだ所有者を指す孤児として world に残り serde で蓄積する。
+// 反復中の削除を避け、収集してから削除する
+func RemoveOwnedStorage(world w.World, owners []ecs.Entity) {
+        <span class="cov0" title="0">if len(owners) == 0 </span>{
+                <span class="cov0" title="0">return
+</span>        }
+        <span class="cov0" title="0">ownerSet := make(map[ecs.Entity]bool, len(owners))
+        for _, o := range owners </span>{
+                <span class="cov0" title="0">ownerSet[o] = true
+</span>        }
+
+        <span class="cov0" title="0">var toRemove []ecs.Entity
+        q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
+        for q.Next() </span>{
+                <span class="cov0" title="0">entity := q.Entity()
+                if ownerSet[world.Components.LocationInStorage.Get(entity).Owner] </span>{
+                        <span class="cov0" title="0">toRemove = append(toRemove, entity)
+</span>                }
+        }
+        <span class="cov0" title="0">for _, entity := range toRemove </span>{
+                <span class="cov0" title="0">if world.ECS.Alive(entity) </span>{
+                        <span class="cov0" title="0">world.ECS.RemoveEntity(entity)
+</span>                }
+        }
+}
 </pre>
 		
 		<pre class="file" id="file298" style="display: none">package lifecycle
@@ -49827,6 +49858,7 @@ func calculateOwnedWeight(world w.World, entity ecs.Entity) consts.Milligram {
 import (
         gc "github.com/kijimaD/ruins/internal/components"
         w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
 )
@@ -49876,7 +49908,11 @@ func exists(world w.World, key gc.StageKey) bool {
 // 特定ステージだけの破棄に使う。遺跡からオーバーワールドへ戻る際など、
 // 一部ステージだけを捨て、残りを共存させたまま離脱するときに呼ぶ
 func Purge(world w.World, key gc.StageKey) {
-        <span class="cov8" title="1">for _, e := range BoundEntities(world, key) </span>{
+        <span class="cov8" title="1">bound := BoundEntities(world, key)
+</span>        // 消える所有者の収納在庫も道連れにする。在庫は GridElement も StageBound も持たず
+        // この走査に載らないため、所有者だけ消すと死んだ所有者を指す孤児になり serde で蓄積する
+        <span class="cov8" title="1">lifecycle.RemoveOwnedStorage(world, bound)
+        for _, e := range bound </span>{
                 <span class="cov8" title="1">if world.ECS.Alive(e) </span>{
                         <span class="cov8" title="1">world.ECS.RemoveEntity(e)
 </span>                }
@@ -50207,6 +50243,7 @@ import (
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
 
         "github.com/mlange-42/ark/ecs"
@@ -50249,7 +50286,7 @@ func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.E
         }
         // 消える所有者の収納在庫も道連れにする。商人の在庫は GridElement を持たず座標カリングでは
         // 拾われないため、所有者を消すときに一緒に消さないと死んだ所有者を指す孤児になり、serde で保存され蓄積する
-        <span class="cov8" title="1">removeOwnedStorage(world, toRemove)
+        <span class="cov8" title="1">lifecycle.RemoveOwnedStorage(world, toRemove)
 </span>
         <span class="cov8" title="1">for _, entity := range toRemove </span>{
                 <span class="cov8" title="1">if world.ECS.Alive(entity) </span>{
@@ -50257,32 +50294,6 @@ func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.E
 </span>                }
         }
         <span class="cov8" title="1">return len(toRemove)</span>
-}
-
-// removeOwnedStorage は owners のいずれかが所有する収納内の実体を削除する。
-// 所有者集合を1つ作り LocationInStorage を1パスで掃く。反復中の削除を避け、収集してから削除する
-func removeOwnedStorage(world w.World, owners []ecs.Entity) {
-        <span class="cov8" title="1">if len(owners) == 0 </span>{
-                <span class="cov8" title="1">return
-</span>        }
-        <span class="cov8" title="1">ownerSet := make(map[ecs.Entity]bool, len(owners))
-        for _, o := range owners </span>{
-                <span class="cov8" title="1">ownerSet[o] = true
-</span>        }
-
-        <span class="cov8" title="1">var toRemove []ecs.Entity
-        q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
-        for q.Next() </span>{
-                <span class="cov8" title="1">entity := q.Entity()
-                if ownerSet[world.Components.LocationInStorage.Get(entity).Owner] </span>{
-                        <span class="cov8" title="1">toRemove = append(toRemove, entity)
-</span>                }
-        }
-        <span class="cov8" title="1">for _, entity := range toRemove </span>{
-                <span class="cov8" title="1">if world.ECS.Alive(entity) </span>{
-                        <span class="cov8" title="1">world.ECS.RemoveEntity(entity)
-</span>                }
-        }
 }
 
 // KeepPlayer は「プレイヤーは残す」keep 述語を返す。

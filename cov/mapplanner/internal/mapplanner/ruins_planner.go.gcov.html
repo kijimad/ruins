@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-25 12:45:37</td>
+            <td class="headerValue">2026-08-25 14:51:38</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -153,8 +153,8 @@
 <span id="L91"><span class="lineNum">      91</span>              : </span>
 <span id="L92"><span class="lineNum">      92</span>              : // addInteriorWalls は建物内部に仕切り壁を追加する</span>
 <span id="L93"><span class="lineNum">      93</span>              : func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         buildingWidth := int(building.Width() + 1)</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         buildingHeight := int(building.Height() + 1)</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         buildingWidth := int(building.Width())</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         buildingHeight := int(building.Height())</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L97"><span class="lineNum">      97</span>              :         // 建物が十分大きい場合のみ内部の仕切りを作成</span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         if buildingWidth &gt;= 10 &amp;&amp; buildingHeight &gt;= 8 {</span></span>
