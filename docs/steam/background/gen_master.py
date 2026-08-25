@@ -5,10 +5,10 @@
 #   2. Ghibli img2img で2Dアニメ塗り   seed 128
 #   3. PIL で色補正し 3840x2560 へ拡大
 #
-# 環境: RTX 3050 6GB。torch は cu121 の wheel。nix は python3.12 の供給だけに使う。
+# 環境: RTX 3050 6GB。torch は cu121 の wheel。python3.12 は docs/steam/shell.nix が供給する。
 # モデルキャッシュは HF_HOME=~/.cache/huggingface に固定する。
-#   P312=$(nix build --no-link --print-out-paths nixpkgs#python312)/bin/python3.12
-#   "$P312" -m venv sdvenv
+#   nix-shell docs/steam/shell.nix
+#   python3.12 -m venv sdvenv
 #   ./sdvenv/bin/python -m pip install --extra-index-url https://pypi.org/simple -r docs/steam/background/pip-deps.txt
 #   mkdir -p /tmp/nvidia-libs
 #   ln -sf /usr/lib/x86_64-linux-gnu/libcuda.so.1 /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 /tmp/nvidia-libs/

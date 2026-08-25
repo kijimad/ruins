@@ -2,6 +2,16 @@
 
 ref: https://partner.steamgames.com/doc/store/assets/standard
 
+## 環境
+
+生成ツールは `shell.nix` にまとめてある。`nix-shell docs/steam/shell.nix` で ImageMagick と
+Python 3.12 が PATH に載る。この中で以下を実行する。
+
+- `bash docs/steam/logo/gen_logo.sh` ロゴ
+- `bash docs/steam/icon/gen_icon.sh` Client Icon
+- `bash docs/steam/compose.sh` カプセル一式
+- `docs/steam/background/gen_master.py` 背景マスタ。venv を作り pip-deps.txt を入れて動かす。詳細はスクリプト冒頭
+
 ## 共通ルール
 
 - 画像端まで隙間なくアートワークで埋める。黒枠・余白は不可

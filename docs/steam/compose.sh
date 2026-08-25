@@ -1,7 +1,7 @@
 #!/bin/bash
 # Steam アセットの最終合成。背景マスタを各カプセルサイズへ切り出し、ロゴを重ねて generated/ へ出す。
 # パーツは各ディレクトリに同居する: background/(gen_master.py) と logo/(gen_logo.sh)。
-# 使い方: bash docs/steam/compose.sh  依存: ImageMagick
+# 使い方: nix-shell docs/steam/shell.nix 内で bash docs/steam/compose.sh  依存: ImageMagick
 
 set -euo pipefail
 
