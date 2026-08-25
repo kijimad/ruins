@@ -1,3 +1,3 @@
-# gen_master.py の実行時に作る venv とモデルキャッシュ。片付けは rm -rf sdvenv hf-cache。
+# gen_master.py の実行時に作る venv とモデルキャッシュ
 sdvenv/
 hf-cache/
