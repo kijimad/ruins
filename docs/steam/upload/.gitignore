@@ -1,0 +1,9 @@
+# ステージした実行体
+content-linux/
+content-windows/
+# SteamPipe のログ・マニフェスト・キャッシュ
+.build_output/
+# preview 用の一時 VDF
+.app_build.preview.vdf
+# 取得した SteamCMD 本体
+steamcmd/
