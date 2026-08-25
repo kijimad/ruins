@@ -721,7 +721,7 @@ func TestTemperatureArrow_冷えると青の下向き(t *testing.T) {
 
 	arrow := temperatureArrow(world, e)
 	require.True(t, arrow.Visible, "体温状態があれば矢印を出す")
-	assert.Equal(t, consts.IconArrowDown, arrow.Glyph, "冷えるので下向き")
+	assert.Equal(t, hud.TempDirectionDown, arrow.Direction, "冷えるので下向き")
 	assert.Greater(t, arrow.Color.B, arrow.Color.R, "冷える向きは青が強い")
 }
 
@@ -731,7 +731,7 @@ func TestTemperatureArrow_温まると赤の上向き(t *testing.T) {
 
 	arrow := temperatureArrow(world, e)
 	require.True(t, arrow.Visible)
-	assert.Equal(t, consts.IconArrowUp, arrow.Glyph, "温まるので上向き")
+	assert.Equal(t, hud.TempDirectionUp, arrow.Direction, "温まるので上向き")
 	assert.Greater(t, arrow.Color.R, arrow.Color.B, "温まる向きは赤が強い")
 }
 

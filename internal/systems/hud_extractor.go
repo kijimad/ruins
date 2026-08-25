@@ -443,14 +443,14 @@ func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
 		delta = world.Components.TemperatureTrend.Get(entity).Delta
 	}
 
-	glyph := consts.IconArrowRight
+	dir := hud.TempDirectionSteady
 	switch {
 	case delta > temperatureSteadyThreshold:
-		glyph = consts.IconArrowUp
+		dir = hud.TempDirectionUp
 	case delta < -temperatureSteadyThreshold:
-		glyph = consts.IconArrowDown
+		dir = hud.TempDirectionDown
 	}
-	return hud.TemperatureArrow{Visible: true, Glyph: glyph, Color: temperatureDirectionColor(delta)}
+	return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(delta)}
 }
 
 // temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は灰。
