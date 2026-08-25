@@ -294,6 +294,94 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 }
 
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
+func TestSpecRows_能力値の全項目を表示する(t *testing.T) {
+	world, root := newSpecWorld(t)
+
+	e := world.ECS.NewEntity()
+	world.Components.Abilities.Add(e, &gc.Abilities{
+		Vitality:  gc.Ability{Base: 10},
+		Strength:  gc.Ability{Base: 11},
+		Sensation: gc.Ability{Base: 12},
+		Dexterity: gc.Ability{Base: 13},
+		Agility:   gc.Ability{Base: 14},
+		Defense:   gc.Ability{Base: 15},
+	})
+
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	labels := collectLabels(root)
+
+	assert.Contains(t, labels, "Vitality", "体力ラベルが表示される")
+	assert.Contains(t, labels, "10", "体力の値が表示される")
+	assert.Contains(t, labels, "Strength", "筋力ラベルが表示される")
+	assert.Contains(t, labels, "11", "筋力の値が表示される")
+	assert.Contains(t, labels, "Sensation", "感覚ラベルが表示される")
+	assert.Contains(t, labels, "12", "感覚の値が表示される")
+	assert.Contains(t, labels, "Dexterity", "器用ラベルが表示される")
+	assert.Contains(t, labels, "13", "器用の値が表示される")
+	assert.Contains(t, labels, "Agility", "敏捷ラベルが表示される")
+	assert.Contains(t, labels, "14", "敏捷の値が表示される")
+	assert.Contains(t, labels, "Defense", "防御ラベルが表示される")
+	assert.Contains(t, labels, "15", "防御の値が表示される")
+}
+
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
+func TestSpecRows_出品中のオークション情報を表示する(t *testing.T) {
+	world, root := newSpecWorld(t)
+
+	e := world.ECS.NewEntity()
+	world.Components.AuctionListing.Add(e, &gc.AuctionListing{
+		Number:     7,
+		CurrentBid: 1500,
+	})
+
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	labels := collectLabels(root)
+
+	assert.Contains(t, labels, "Auction", "オークション見出しが表示される")
+	assert.Contains(t, labels, "#7", "出品番号が表示される")
+	assert.Contains(t, labels, "Bidding", "入札中ステータスが表示される")
+	assert.Contains(t, labels, consts.Currency(1500).String(), "現在入札額が表示される")
+}
+
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
+func TestSpecRows_落札済みのオークション情報を表示する(t *testing.T) {
+	world, root := newSpecWorld(t)
+
+	e := world.ECS.NewEntity()
+	world.Components.AuctionSold.Add(e, &gc.AuctionSold{
+		Number:  9,
+		Bid:     2000,
+		DueTurn: 42,
+	})
+
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	labels := collectLabels(root)
+
+	assert.Contains(t, labels, "Auction", "オークション見出しが表示される")
+	assert.Contains(t, labels, "#9", "出品番号が表示される")
+	assert.Contains(t, labels, "Won", "落札済みステータスが表示される")
+	assert.Contains(t, labels, consts.Currency(2000).String(), "落札額が表示される")
+	assert.Contains(t, labels, "42", "出荷期限ターンが表示される")
+}
+
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
+func TestSpecRows_腐敗が進んだ食料は劣化段階を表示する(t *testing.T) {
+	world, root := newSpecWorld(t)
+
+	e := world.ECS.NewEntity()
+	world.Components.Perishable.Add(e, &gc.Perishable{
+		RotAccrued:  150,
+		StageLength: 100,
+	})
+
+	entityspec.RenderSpecRows(root, entityspec.SpecRows(world, e), world.Resources.UIResources)
+	labels := collectLabels(root)
+
+	assert.Contains(t, labels, "Freshness", "鮮度ラベルが表示される")
+	assert.Contains(t, labels, "Stale", "累積劣化量が1段階を超えると劣化段階が表示される")
+}
+
+//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポーネントを同時に表示する(t *testing.T) {
 	world, root := newSpecWorld(t)
 
