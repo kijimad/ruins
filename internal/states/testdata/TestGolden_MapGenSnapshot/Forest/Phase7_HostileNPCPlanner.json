@@ -37557,34 +37557,34 @@
   "Corridors": [],
   "NPCs": [
     {
-      "X": 19,
+      "X": 17,
       "Y": 22,
       "Name": "butterfly"
     },
     {
-      "X": 17,
+      "X": 21,
       "Y": 24,
       "Name": "butterfly"
     },
     {
-      "X": 14,
-      "Y": 20,
-      "Name": "butterfly"
-    },
-    {
       "X": 22,
-      "Y": 35,
-      "Name": "butterfly"
-    },
-    {
-      "X": 42,
-      "Y": 32,
+      "Y": 36,
       "Name": "pink_slime"
     },
     {
-      "X": 9,
-      "Y": 33,
-      "Name": "giant_bee"
+      "X": 24,
+      "Y": 37,
+      "Name": "pink_slime"
+    },
+    {
+      "X": 21,
+      "Y": 37,
+      "Name": "pink_slime"
+    },
+    {
+      "X": 38,
+      "Y": 32,
+      "Name": "butterfly"
     }
   ],
   "Items": [],

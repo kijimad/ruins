@@ -38601,34 +38601,34 @@
   ],
   "NPCs": [
     {
-      "X": 23,
+      "X": 24,
       "Y": 11,
       "Name": "pink_slime"
     },
     {
       "X": 44,
-      "Y": 28,
-      "Name": "butterfly"
-    },
-    {
-      "X": 44,
-      "Y": 29,
-      "Name": "butterfly"
-    },
-    {
-      "X": 42,
-      "Y": 29,
-      "Name": "butterfly"
-    },
-    {
-      "X": 42,
       "Y": 27,
       "Name": "butterfly"
     },
     {
-      "X": 43,
-      "Y": 28,
+      "X": 45,
+      "Y": 30,
       "Name": "butterfly"
+    },
+    {
+      "X": 42,
+      "Y": 29,
+      "Name": "butterfly"
+    },
+    {
+      "X": 43,
+      "Y": 30,
+      "Name": "butterfly"
+    },
+    {
+      "X": 16,
+      "Y": 7,
+      "Name": "giant_bee"
     }
   ],
   "Items": [],

@@ -2,6 +2,11 @@
 
 ref: https://partner.steamgames.com/doc/store/assets/standard
 
+## 環境
+
+生成ツールは `shell.nix` にまとめてある。`nix-shell docs/steam/shell.nix` で ImageMagick と
+Python 3.12 が PATH に載る。この中でスクリプトを実行する。
+
 ## 共通ルール
 
 - 画像端まで隙間なくアートワークで埋める。黒枠・余白は不可
