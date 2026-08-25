@@ -9,6 +9,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -310,4 +311,30 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		assert.Greater(t, hp.Max, initialHP, "装備追加でHP.Maxが増加するべき")
 	})
 
+}
+
+func TestStatsChangedSystem_同アーキタイプ複数体でHPを取り違えない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// 同一コンポーネント構成のエンティティを並べる。Skills を持つので Update が
+	// CharModifiers を Add し、アーキタイプ移動の構造変更が起きる。構造変更後に
+	// abils を読むと別エンティティの値を拾いうるため、各自の Vitality で HP が
+	// 決まることを固定する
+	mk := func(vit int) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.Abilities.Add(e, &gc.Abilities{Vitality: gc.Ability{Base: vit, Total: vit}})
+		world.Components.Skills.Add(e, gc.NewSkills())
+		world.Components.HP.Add(e, &gc.HP{Current: 1, Max: 1})
+		world.Components.StatsChanged.Add(e, &gc.StatsChanged{})
+		return e
+	}
+	e1 := mk(10)
+	e2 := mk(20)
+
+	sys := &StatsChangedSystem{}
+	require.NoError(t, sys.Update(world))
+
+	assert.Equal(t, 30+10*8, world.Components.HP.Get(e1).Max, "e1 は自分の Vitality で HP が決まる")
+	assert.Equal(t, 30+20*8, world.Components.HP.Get(e2).Max, "e2 は自分の Vitality で HP が決まる")
 }

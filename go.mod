@@ -6,18 +6,18 @@ require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/ebitenui/ebitenui v0.7.3
-	github.com/getkin/kin-openapi v0.146.0
-	github.com/hajimehoshi/ebiten/v2 v2.9.9
+	github.com/getkin/kin-openapi v0.147.0
+	github.com/hajimehoshi/ebiten/v2 v2.9.10
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
 	github.com/leonelquinteros/gotext v1.7.2
 	github.com/mlange-42/ark v0.8.3
 	github.com/mlange-42/ark-serde v0.3.2
-	github.com/oapi-codegen/runtime v1.6.0
+	github.com/oapi-codegen/runtime v1.7.0
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/profile v1.7.0
 	github.com/sebdah/goldie/v2 v2.8.0
-	github.com/stretchr/testify v1.12.0
-	github.com/urfave/cli/v3 v3.10.1
+	github.com/stretchr/testify v1.12.1
+	github.com/urfave/cli/v3 v3.11.0
 	golang.org/x/image v0.45.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -56,6 +56,7 @@ require (
 	github.com/termie/go-shutil v0.0.0-20140729215957-bcacb06fecae // indirect
 	github.com/ulikunitz/xz v0.5.14 // indirect
 	github.com/zimmski/osutil v1.6.1 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/exp v0.0.0-20260611194520-c48552f49976 // indirect
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/perf v0.0.0-20260709024250-82a0b07e230d // indirect

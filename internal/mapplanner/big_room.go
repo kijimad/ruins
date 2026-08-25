@@ -115,8 +115,8 @@ func (b BigRoomDraw) applyPillars(planData *MetaPlan) {
 		startY := int(room.Min.Y) + spacing
 
 		// 規則的に柱を配置
-		for x := startX; x < int(room.Max.X); x += spacing + 1 {
-			for y := startY; y < int(room.Max.Y); y += spacing + 1 {
+		for x := startX; x <= int(room.Max.X); x += spacing + 1 {
+			for y := startY; y <= int(room.Max.Y); y += spacing + 1 {
 				idx := planData.Level.CoordToIndex(consts.Coord[consts.Tile]{X: consts.Tile(x), Y: consts.Tile(y)})
 				planData.Tiles[idx] = planData.GetTile(consts.TileNameWall)
 			}

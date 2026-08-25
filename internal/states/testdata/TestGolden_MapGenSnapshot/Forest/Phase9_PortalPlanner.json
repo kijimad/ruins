@@ -37557,84 +37557,90 @@
   "Corridors": [],
   "NPCs": [
     {
-      "X": 19,
+      "X": 17,
       "Y": 22,
       "Name": "butterfly"
     },
     {
-      "X": 17,
+      "X": 21,
       "Y": 24,
       "Name": "butterfly"
     },
     {
-      "X": 14,
-      "Y": 20,
-      "Name": "butterfly"
-    },
-    {
       "X": 22,
-      "Y": 35,
-      "Name": "butterfly"
-    },
-    {
-      "X": 42,
-      "Y": 32,
+      "Y": 36,
       "Name": "pink_slime"
     },
     {
-      "X": 9,
-      "Y": 33,
-      "Name": "giant_bee"
+      "X": 24,
+      "Y": 37,
+      "Name": "pink_slime"
+    },
+    {
+      "X": 21,
+      "Y": 37,
+      "Name": "pink_slime"
+    },
+    {
+      "X": 38,
+      "Y": 32,
+      "Name": "butterfly"
     }
   ],
   "Items": [
     {
-      "X": 8,
-      "Y": 35,
+      "X": 41,
+      "Y": 34,
+      "Name": "antidote",
+      "Count": 1
+    },
+    {
+      "X": 38,
+      "Y": 34,
+      "Name": "pancake",
+      "Count": 1
+    },
+    {
+      "X": 38,
+      "Y": 30,
+      "Name": "screwdriver",
+      "Count": 1
+    },
+    {
+      "X": 18,
+      "Y": 25,
+      "Name": "healing_potion",
+      "Count": 1
+    },
+    {
+      "X": 38,
+      "Y": 28,
       "Name": "green_herb",
       "Count": 1
     },
     {
       "X": 42,
+      "Y": 34,
+      "Name": "antidote",
+      "Count": 1
+    },
+    {
+      "X": 44,
       "Y": 28,
-      "Name": "utility_knife",
+      "Name": "pickaxe",
       "Count": 1
-    },
-    {
-      "X": 9,
-      "Y": 35,
-      "Name": "healing_potion",
-      "Count": 1
-    },
-    {
-      "X": 25,
-      "Y": 35,
-      "Name": "watermelon",
-      "Count": 1
-    },
-    {
-      "X": 39,
-      "Y": 30,
-      "Name": "healing_potion",
-      "Count": 1
-    },
-    {
-      "X": 39,
-      "Y": 31,
-      "Name": "ramen",
-      "Count": 1
-    },
-    {
-      "X": 19,
-      "Y": 24,
-      "Name": "healing_potion",
-      "Count": 2
     },
     {
       "X": 41,
-      "Y": 33,
-      "Name": "antidote",
+      "Y": 30,
+      "Name": "pumpkin",
       "Count": 1
+    },
+    {
+      "X": 24,
+      "Y": 36,
+      "Name": "cola",
+      "Count": 2
     }
   ],
   "Props": [],

@@ -1,0 +1,13 @@
+// Windows 用 depot。ContentRoot はこのファイルからの相対。中身は Windows 実行体1つ。
+"DepotBuild"
+{
+	"DepotID"     "4791813"
+	"ContentRoot" "content-windows"
+
+	"FileMapping"
+	{
+		"LocalPath" "*"
+		"DepotPath" "."
+		"Recursive" "1"
+	}
+}

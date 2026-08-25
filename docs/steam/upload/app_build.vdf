@@ -1,0 +1,21 @@
+// SteamPipe アプリビルド定義。App ID と depot ID は公開値なので直書きしてコミットする。
+// 秘匿すべきは Steam アカウントのパスワードと 2FA だけで、それは steamcmd の config.vdf が持つ。
+// パスは全て、このファイルからの相対で書く。実行体は Makefile が content-* へ配置する。
+// OS 別に depot を2つに分ける。depot ごとの OS 割当は Steamworks の depot 設定で行う。
+"AppBuild"
+{
+	"AppID"       "4791810"
+	"Desc"        "Coldward CLI build"
+
+	"ContentRoot" "."
+	"BuildOutput" ".build_output"
+
+	// 1 でアップロードせず検証だけ。make preview が Preview を 1 にした一時 VDF を作って使う。
+	"Preview"     "0"
+
+	"Depots"
+	{
+		"4791812" "depot_linux.vdf"
+		"4791813" "depot_windows.vdf"
+	}
+}

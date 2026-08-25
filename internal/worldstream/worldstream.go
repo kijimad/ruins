@@ -4,6 +4,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 
 	"github.com/mlange-42/ark/ecs"
@@ -46,7 +47,7 @@ func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.E
 	}
 	// 消える所有者の収納在庫も道連れにする。商人の在庫は GridElement を持たず座標カリングでは
 	// 拾われないため、所有者を消すときに一緒に消さないと死んだ所有者を指す孤児になり、serde で保存され蓄積する
-	removeOwnedStorage(world, toRemove)
+	lifecycle.RemoveOwnedStorage(world, toRemove)
 
 	for _, entity := range toRemove {
 		if world.ECS.Alive(entity) {
@@ -54,32 +55,6 @@ func RemoveEntitiesInXRange(world w.World, loX, hiX consts.Tile, keep func(ecs.E
 		}
 	}
 	return len(toRemove)
-}
-
-// removeOwnedStorage は owners のいずれかが所有する収納内の実体を削除する。
-// 所有者集合を1つ作り LocationInStorage を1パスで掃く。反復中の削除を避け、収集してから削除する
-func removeOwnedStorage(world w.World, owners []ecs.Entity) {
-	if len(owners) == 0 {
-		return
-	}
-	ownerSet := make(map[ecs.Entity]bool, len(owners))
-	for _, o := range owners {
-		ownerSet[o] = true
-	}
-
-	var toRemove []ecs.Entity
-	q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
-	for q.Next() {
-		entity := q.Entity()
-		if ownerSet[world.Components.LocationInStorage.Get(entity).Owner] {
-			toRemove = append(toRemove, entity)
-		}
-	}
-	for _, entity := range toRemove {
-		if world.ECS.Alive(entity) {
-			world.ECS.RemoveEntity(entity)
-		}
-	}
 }
 
 // KeepPlayer は「プレイヤーは残す」keep 述語を返す。

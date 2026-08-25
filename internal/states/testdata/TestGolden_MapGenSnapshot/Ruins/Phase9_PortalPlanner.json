@@ -37538,77 +37538,95 @@
   "NPCs": [
     {
       "X": 38,
-      "Y": 32,
+      "Y": 33,
       "Name": "floating_eye"
     },
     {
       "X": 37,
-      "Y": 32,
+      "Y": 33,
+      "Name": "floating_eye"
+    },
+    {
+      "X": 37,
+      "Y": 26,
+      "Name": "floating_eye"
+    },
+    {
+      "X": 39,
+      "Y": 30,
       "Name": "floating_eye"
     },
     {
       "X": 36,
       "Y": 26,
-      "Name": "floating_eye"
-    },
-    {
-      "X": 38,
-      "Y": 30,
-      "Name": "floating_eye"
-    },
-    {
-      "X": 43,
-      "Y": 31,
       "Name": "floating_eye"
     }
   ],
   "Items": [
     {
-      "X": 22,
-      "Y": 22,
-      "Name": "green_clothes",
-      "Count": 1
-    },
-    {
-      "X": 21,
-      "Y": 26,
-      "Name": "white_leggings",
-      "Count": 1
-    },
-    {
-      "X": 17,
-      "Y": 26,
-      "Name": "green_herb",
+      "X": 37,
+      "Y": 27,
+      "Name": "cheese",
       "Count": 1
     },
     {
       "X": 38,
-      "Y": 33,
-      "Name": "yellow_herb",
-      "Count": 1
-    },
-    {
-      "X": 44,
-      "Y": 34,
-      "Name": "cookie",
-      "Count": 1
-    },
-    {
-      "X": 16,
-      "Y": 18,
+      "Y": 27,
       "Name": "healing_potion",
-      "Count": 2
+      "Count": 1
     },
     {
-      "X": 12,
-      "Y": 19,
+      "X": 41,
+      "Y": 28,
+      "Name": "healing_potion",
+      "Count": 1
+    },
+    {
+      "X": 13,
+      "Y": 18,
       "Name": "smoothie",
       "Count": 1
     },
     {
-      "X": 36,
-      "Y": 29,
+      "X": 21,
+      "Y": 23,
       "Name": "healing_potion",
+      "Count": 1
+    },
+    {
+      "X": 43,
+      "Y": 26,
+      "Name": "healing_potion",
+      "Count": 1
+    },
+    {
+      "X": 40,
+      "Y": 33,
+      "Name": "green_clothes",
+      "Count": 1
+    },
+    {
+      "X": 19,
+      "Y": 23,
+      "Name": "popcorn",
+      "Count": 2
+    },
+    {
+      "X": 19,
+      "Y": 26,
+      "Name": "antidote",
+      "Count": 1
+    },
+    {
+      "X": 46,
+      "Y": 31,
+      "Name": "fork",
+      "Count": 1
+    },
+    {
+      "X": 42,
+      "Y": 25,
+      "Name": "bread",
       "Count": 1
     }
   ],
@@ -37616,8 +37634,8 @@
   "Doors": [],
   "NextPortals": [
     {
-      "X": 23,
-      "Y": 26
+      "X": 38,
+      "Y": 29
     }
   ],
   "SpawnPoints": null

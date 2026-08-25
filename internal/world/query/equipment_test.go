@@ -12,6 +12,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestIsWeapon(t *testing.T) {
+	t.Parallel()
+
+	t.Run("近接コンポーネントを持てば武器", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		e := world.ECS.NewEntity()
+		world.Components.Melee.Add(e, &gc.Melee{Accuracy: 80, Damage: 5})
+		assert.True(t, query.IsWeapon(world, e))
+	})
+
+	t.Run("射撃コンポーネントを持てば武器", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		e := world.ECS.NewEntity()
+		world.Components.Fire.Add(e, &gc.Fire{Accuracy: 80, Damage: 5})
+		assert.True(t, query.IsWeapon(world, e))
+	})
+
+	t.Run("どちらも持たなければ武器でない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		e := world.ECS.NewEntity()
+		assert.False(t, query.IsWeapon(world, e))
+	})
+}
+
 func TestGetWeapons_Empty(t *testing.T) {
 	t.Parallel()
 

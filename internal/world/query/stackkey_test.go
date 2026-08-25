@@ -252,6 +252,33 @@ func TestBackpackStacks_収集と整列と束ねを1口で行う(t *testing.T) {
 	assert.Equal(t, 2, stacks[1].Count, "同一スタックは束ねられる")
 }
 
+// TestStorageStacks_収集と整列と束ねを1口で行う は BackpackStacks の収納版であることを固定する。
+func TestStorageStacks_収集と整列と束ねを1口で行う(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	storage := world.ECS.NewEntity()
+	otherStorage := world.ECS.NewEntity()
+	mk := func(s ecs.Entity, id string, name string) {
+		e := world.ECS.NewEntity()
+		world.Components.RawID.Add(e, &gc.RawID{ID: id})
+		world.Components.Name.Add(e, &gc.Name{Name: name})
+		world.Components.LocationInStorage.Add(e, &gc.LocationInStorage{Owner: s})
+	}
+	mk(storage, "zebra", "Zebra")
+	mk(storage, "zebra", "Zebra")
+	mk(storage, "alpha", "Alpha")
+	mk(otherStorage, "alpha", "Alpha")
+
+	stacks := StorageStacks(world, storage)
+
+	require.Len(t, stacks, 2, "この収納の2品種だけが束になる")
+	assert.Equal(t, "Alpha", world.Components.Name.Get(stacks[0].Rep).Name, "名前順で並ぶ")
+	assert.Equal(t, 1, stacks[0].Count)
+	assert.Equal(t, "Zebra", world.Components.Name.Get(stacks[1].Rep).Name)
+	assert.Equal(t, 2, stacks[1].Count, "同一スタックは束ねられる")
+}
+
 func TestGroupStacks_同一性キーで束ね初出順を保つ(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

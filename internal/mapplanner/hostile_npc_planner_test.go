@@ -147,8 +147,8 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		for _, npc := range chain.PlanData.NPCs {
 			inRoom := false
 			for _, room := range chain.PlanData.Rooms {
-				if npc.X >= room.Min.X && npc.X < room.Max.X &&
-					npc.Y >= room.Min.Y && npc.Y < room.Max.Y {
+				if npc.X >= room.Min.X && npc.X <= room.Max.X &&
+					npc.Y >= room.Min.Y && npc.Y <= room.Max.Y {
 					inRoom = true
 					break
 				}
@@ -223,8 +223,8 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		for _, room := range chain.PlanData.Rooms {
 			species := map[string]bool{}
 			for _, npc := range chain.PlanData.NPCs {
-				if npc.X >= room.Min.X && npc.X < room.Max.X &&
-					npc.Y >= room.Min.Y && npc.Y < room.Max.Y {
+				if npc.X >= room.Min.X && npc.X <= room.Max.X &&
+					npc.Y >= room.Min.Y && npc.Y <= room.Max.Y {
 					species[npc.Name] = true
 				}
 			}
