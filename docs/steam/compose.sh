@@ -101,17 +101,17 @@ generate_capsule                        748  896  vertical_capsule.png  2137   2
 generate_capsule                        600  900  library_capsule.png   1707   2560   north
 
 # --- ゲームタイトル用画像 960x720 ---
-# 販促キーアートはメニューUIと競合するので、in-game のタイトル背景は黒地にロゴだけにする。
-# メニュー操作の可読性を最優先する。色は寒色に寄せた近黒。
-# 背景はストアと同じキーアート。比率 960:720 = 4:3 → マスターは 2560 高なので 3413x2560 からクロップ。
-magick "$MASTER" -gravity center -crop 3413x2560+0+0 +repage -resize 960x720! /tmp/title_bg.png
-# 下部にダークグラデのスクリムを敷く。キューブ下半分を暗がりへ沈め、下のメニュー域の可読性を確保し
-# キューブとメニューの競合を抑える。上部はロゴ・キューブ上部・空が見える。
+# シネマ配置。ロゴを左上、メニューは左下(ゲーム側で描画)に置き、主役のキューブを右に残す。
+# 背景はストアと同じキーアートを、キューブが右へ来るようズームして切り出す。
+magick "$MASTER" -crop 2400x1800+240+680 +repage -resize 960x720! /tmp/title_bg.png
+# 下部と左にダークグラデのスクリムを敷く。左下のメニュー域を暗くして可読性を確保する。
 magick /tmp/title_bg.png \
   \( -size 960x720 gradient:none-'#060a14' \) -compose over -composite \
+  \( -size 720x960 gradient:'#060a1466'-none -rotate 90 \) -compose over -composite \
   "assets/file/textures/bg/title1_.png"
-# Dark Souls 3 のタイトルのように、ロゴを画面中央へ大きく置く。メニューは下へ退く。
-render_logo 960 720 300 center -40 "assets/file/textures/bg/title1_.png"
+# ロゴを左上へ。幅は画面の約55%。メニューは main_menu.go が左下へ左寄せで描く。
+magick "$LOGO_PNG" -resize 500x /tmp/title_logo.png
+magick "assets/file/textures/bg/title1_.png" /tmp/title_logo.png -gravity NorthWest -geometry +48+56 -compose over -composite "assets/file/textures/bg/title1_.png"
 echo "title1_.png (960x720)"
 
 # --- Library Logo: 透明背景 + ロゴ ---

@@ -133,8 +133,8 @@ func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menuloop.Se
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
+	// タイトルは選択肢を背景へ浮かせる。パネル背景を付けず透明にし、下部スクリムで可読性を担保する。
 	menuContainer := styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Stretch: true,
@@ -180,12 +180,13 @@ func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menuloop.Se
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 		)),
 		widget.ContainerOpts.WidgetOpts(
-			// タイトルはロゴを画面中央に大きく置くので、メニューは下へ寄せて中央を空ける
+			// シネマ配置。ロゴは背景左上、メニューは左下へ左寄せで置き、右のキューブを主役に残す
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
+				HorizontalPosition: widget.AnchorLayoutPositionStart,
 				VerticalPosition:   widget.AnchorLayoutPositionEnd,
 				Padding: &widget.Insets{
-					Bottom: 130,
+					Left:   64,
+					Bottom: 72,
 				},
 			}),
 		),
