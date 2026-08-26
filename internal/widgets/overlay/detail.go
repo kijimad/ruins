@@ -122,5 +122,5 @@ func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) ui.Widget {
 	if !ok {
 		return nil
 	}
-	return buildDetailUI(world.Resources.UIResources.Text.BodyFace, rect, content.Name, content.Desc, content.Rows, d.page)
+	return buildDetailUI(world.Resources.UIResources, rect, content.Name, content.Desc, content.Rows, d.page)
 }

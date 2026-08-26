@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
@@ -60,7 +61,8 @@ func TestDetailPageCount_実体の性能行数からページ数を算出する(
 }
 
 // buildDetailUI は internal/ui のツリーを組むだけでグローバル状態に触れないので、フェイス無し・
-// ロック無しで検証できる。フェイスを nil にすると WrapText は測定せず desc を1行で返す。
+// ロック無しで検証できる。Text は参照するので空の実体を渡す。フェイスが nil なら WrapText は
+// 測定せず desc を1行で返す。
 func TestBuildDetailUI_説明は最終ページにだけ表示する(t *testing.T) {
 	t.Parallel()
 	rows := make([]entityspec.SpecRow, 15)
@@ -68,8 +70,8 @@ func TestBuildDetailUI_説明は最終ページにだけ表示する(t *testing.
 		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	firstPage := buildDetailUI(nil, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0)
-	lastPage := buildDetailUI(nil, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1)
+	firstPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0)
+	lastPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1)
 
 	firstLabels := ui.CollectLabels(firstPage)
 	lastLabels := ui.CollectLabels(lastPage)
@@ -89,8 +91,8 @@ func TestBuildDetailUI_ページ番号は範囲外を先頭と末尾にクラン
 		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	negative := buildDetailUI(nil, image.Rect(0, 0, 400, 400), "", "", rows, -1)
-	overflow := buildDetailUI(nil, image.Rect(0, 0, 400, 400), "", "", rows, 99)
+	negative := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "", "", rows, -1)
+	overflow := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "", "", rows, 99)
 
 	require.NotNil(t, negative)
 	require.NotNil(t, overflow)
