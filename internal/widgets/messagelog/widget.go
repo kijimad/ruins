@@ -1,11 +1,12 @@
 package messagelog
 
 import (
-	"github.com/ebitenui/ebitenui"
-	euiwidget "github.com/ebitenui/ebitenui/widget"
+	"image"
+
 	"github.com/hajimehoshi/ebiten/v2"
+	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -28,12 +29,16 @@ type WidgetConfig struct {
 	Padding    Insets // 内部パディング
 }
 
-// Widget はメッセージログ表示ウィジェット
+// Widget はメッセージログ表示ウィジェット。
+//
+// 各エントリを1行とし、行内の色付きフラグメントを水平に連ねて描く。描画は internal/ui の
+// ツリーで組むので ebitenui のグローバル状態に触れない。フラグメント幅はフェイスの測定で決める
 type Widget struct {
-	ui        *ebitenui.UI
-	lastCount int
-	config    WidgetConfig
-	world     w.World
+	config      WidgetConfig
+	world       w.World
+	entries     []gamelog.LogEntry
+	lastVersion int
+	loaded      bool
 }
 
 // NewWidget は新しいMessageLogWidgetを作成する
@@ -46,150 +51,80 @@ func NewWidget(config WidgetConfig, world w.World) *Widget {
 
 // Update はウィジェットを更新する
 func (widget *Widget) Update() {
-	if widget.ui == nil {
-		widget.initUI()
-		return
-	}
-
-	// ログメッセージが更新されている場合はUIを再構築
-	widget.updateUI()
-
-	// UIを更新
-	widget.ui.Update()
+	widget.refresh()
 }
 
 // Draw はウィジェットを指定位置に描画する
 func (widget *Widget) Draw(screen *ebiten.Image, x, y, width, height int) {
-	if widget.ui == nil {
-		return
-	}
-
 	// モーダルなど別 state が前面にある間、このウィジェットを所有する state は Update されない。
 	// それでも最新ログを映すため、描画時にも取り込みを行う。version 一致時は即座に戻るため軽量
-	widget.updateUI()
+	widget.refresh()
 
-	// オフスクリーン作成
-	if width > 0 && height > 0 {
-		offscreen := ebiten.NewImage(width, height)
-		widget.ui.Draw(offscreen)
-
-		// 描画位置を調整
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(x), float64(y))
-		screen.DrawImage(offscreen, op)
+	if width <= 0 || height <= 0 {
+		return
 	}
+
+	offscreen := ebiten.NewImage(width, height)
+	widget.buildTree(width, height).Draw(ui.NewEbitenCanvas(offscreen))
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(x), float64(y))
+	screen.DrawImage(offscreen, op)
 }
 
-// initUI は初期UIを作成する
-func (widget *Widget) initUI() {
+// refresh はログのバージョンが変わったときだけ最新エントリを取り込む
+func (widget *Widget) refresh() {
 	store := query.GetGameLog(widget.world)
 	if store == nil {
 		return
 	}
-
-	// 色付きログエントリを取得
-	entries := store.GetRecentEntries(widget.config.MaxLines)
-
-	// 色付きログエントリ用のコンテナを作成
-	logContainer := widget.createColoredLogContainer(entries)
-
-	// UIを初期化
-	widget.ui = &ebitenui.UI{Container: logContainer}
-
-	// 初期バージョンを設定
-	widget.lastCount = store.Version()
-}
-
-// updateUI はログメッセージが更新された場合にUIを再構築する
-func (widget *Widget) updateUI() {
-	store := query.GetGameLog(widget.world)
-	if store == nil {
+	version := store.Version()
+	if widget.loaded && version == widget.lastVersion {
 		return
 	}
-
-	currentVersion := store.Version()
-
-	// バージョンが変わっていない場合は更新不要
-	if currentVersion == widget.lastCount {
-		return
-	}
-
-	// 色付きログエントリを取得
-	entries := store.GetRecentEntries(widget.config.MaxLines)
-
-	// 色付きログエントリ用のコンテナを作成
-	logContainer := widget.createColoredLogContainer(entries)
-
-	// UIを更新
-	widget.ui.Container = logContainer
-
-	// バージョンを更新
-	widget.lastCount = currentVersion
+	widget.entries = store.GetRecentEntries(widget.config.MaxLines)
+	widget.lastVersion = version
+	widget.loaded = true
 }
 
-// createColoredLogContainer は色付きログエントリ用のコンテナを作成
-func (widget *Widget) createColoredLogContainer(entries []gamelog.LogEntry) *euiwidget.Container {
-	// ログ用コンテナを作成（縦並び）
-	logContainer := euiwidget.NewContainer(
-		euiwidget.ContainerOpts.Layout(
-			euiwidget.NewRowLayout(
-				euiwidget.RowLayoutOpts.Direction(euiwidget.DirectionVertical),
-				euiwidget.RowLayoutOpts.Spacing(widget.config.Spacing),
-				euiwidget.RowLayoutOpts.Padding(&euiwidget.Insets{
-					Top:    widget.config.Padding.Top,
-					Bottom: widget.config.Padding.Bottom,
-					Left:   widget.config.Padding.Left,
-					Right:  widget.config.Padding.Right,
-				}),
-			),
-		),
-	)
+// buildTree はエントリ列を internal/ui のツリーへ組む。
+// 各行を Padding.Top から LineHeight+Spacing 刻みで下へ、行内フラグメントは測定幅ぶん右へ並べる
+func (widget *Widget) buildTree(width, height int) ui.Widget {
+	res := widget.world.Resources.UIResources
+	face := res.Text.BodyFace
 
-	// 各エントリを処理
-	for _, entry := range entries {
+	var children []ui.Widget
+	x0 := widget.config.Padding.Left
+	y := widget.config.Padding.Top
+
+	visible := 0
+	for _, entry := range widget.entries {
 		if entry.IsEmpty() {
 			continue
 		}
-
-		// エントリ内の複数フラグメントを水平に並べるコンテナ
-		entryContainer := euiwidget.NewContainer(
-			euiwidget.ContainerOpts.Layout(
-				euiwidget.NewRowLayout(
-					euiwidget.RowLayoutOpts.Direction(euiwidget.DirectionHorizontal),
-					euiwidget.RowLayoutOpts.Spacing(0),                   // フラグメント間のスペースなし
-					euiwidget.RowLayoutOpts.Padding(&euiwidget.Insets{}), // パディングなし
-				),
-			),
-			euiwidget.ContainerOpts.WidgetOpts(
-				euiwidget.WidgetOpts.LayoutData(euiwidget.RowLayoutData{
-					Stretch: false, // コンテナ自体も伸ばさない
-				}),
-			),
-		)
-
-		// 各フラグメントを色付きテキストとして追加
+		x := x0
 		for _, fragment := range entry.Fragments {
 			if fragment.Text == "" {
 				continue
 			}
-
-			// 文字数分だけのサイズのフラグメント専用テキストを使用
-			fragmentWidget := styled.NewFragmentText(
-				fragment.Text,
-				fragment.Color, // フラグメント固有の色を使用
-				widget.world.Resources.UIResources,
-			)
-			entryContainer.AddChild(fragmentWidget)
+			t := ui.NewText(fragment.Text, face, fragment.Color)
+			t.Layout(image.Rect(x, y, width, y+widget.config.LineHeight))
+			children = append(children, t)
+			adv, _ := text.Measure(fragment.Text, face, 0)
+			x += int(adv)
 		}
-
-		logContainer.AddChild(entryContainer)
+		visible++
+		y += widget.config.LineHeight + widget.config.Spacing
 	}
 
-	// エントリがない場合
-	if len(entries) == 0 {
-		placeholderWidget := styled.NewFragmentText(query.T(widget.world, "No log messages"), theme.TextSecondary, widget.world.Resources.UIResources)
-		logContainer.AddChild(placeholderWidget)
+	// エントリが無いときは案内文を出す
+	if visible == 0 {
+		t := ui.NewText(query.T(widget.world, "No log messages"), face, theme.TextSecondary)
+		t.Layout(image.Rect(x0, widget.config.Padding.Top, width, widget.config.Padding.Top+widget.config.LineHeight))
+		children = append(children, t)
 	}
 
-	return logContainer
+	root := ui.NewGroup(children...)
+	root.Layout(image.Rect(0, 0, width, height))
+	return root
 }
