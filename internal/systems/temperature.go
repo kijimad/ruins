@@ -162,7 +162,7 @@ func temperatureNetDelta(world w.World, entity ecs.Entity) float64 {
 	coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(ambientTemp + insulation.Cold))
 	heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(ambientTemp - insulation.Heat))
 
-	// 低体温タイマーの変化。悪化が正。自然回復は状態があるときだけ効く
+	// 低体温タイマーの変化量。悪化で正、回復で負。自然回復は状態があるときだけ効く
 	var coldChange float64
 	switch {
 	case coldDelta < 0:
@@ -175,7 +175,7 @@ func temperatureNetDelta(world w.World, entity ecs.Entity) float64 {
 		coldChange -= heatSourceWarmthAt(world, grid.X, grid.Y)
 	}
 
-	// 高体温タイマーの変化。悪化が正
+	// 高体温タイマーの変化量。悪化で正、回復で負
 	var heatChange float64
 	switch {
 	case heatDelta > 0:

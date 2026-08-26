@@ -406,7 +406,6 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 	}
 }
 
-// getHungerBadgeColor は空腹度に応じたバッジ色を返す
 // temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界
 const temperatureSteadyThreshold = 0.1
 
@@ -466,6 +465,7 @@ func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {
 	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
 }
 
+// getHungerBadgeColor は空腹度に応じたバッジ色を返す
 func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {
 	switch level {
 	case gc.HungerSatiated:
