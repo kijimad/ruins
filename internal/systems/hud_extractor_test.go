@@ -742,14 +742,26 @@ func TestTemperatureArrow_熱源のそばでは赤の上向き(t *testing.T) {
 	assert.Greater(t, arrow.Color.R, arrow.Color.B, "温まる向きは赤が強い")
 }
 
-func TestTemperatureArrow_快適時は出さない(t *testing.T) {
+func TestTemperatureArrow_快適で状態も無ければ出さない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	e := world.ECS.NewEntity()
 	world.Components.Player.Add(e, &gc.Player{})
 	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
 
-	assert.False(t, temperatureArrow(world, e).Visible, "体温状態が無ければ矢印を出さない")
+	assert.False(t, temperatureArrow(world, e).Visible, "快適で体温状態も無ければ矢印を出さない")
+}
+
+func TestTemperatureArrow_状態が無くても寒い環境なら早期警告を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Dead forest", 1)
+	e, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	arrow := temperatureArrow(world, e)
+	require.True(t, arrow.Visible, "環境が冷やす向きなら状態の確定前から矢印を出す")
+	assert.Equal(t, hud.TempDirectionDown, arrow.Direction, "冷える向き")
 }
 
 func TestTemperatureStateBadge_低体温は寒色バッジ(t *testing.T) {
