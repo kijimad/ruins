@@ -120,7 +120,7 @@ $ make help
 | draft | [身体の不調: 少数部位の負傷と、まとめて配る手当て](docs/design/260821232324.md) | 0/11 | gamedesign, combat, item, ecs |
 | draft | [初期言語を Steam のロケールから決める](docs/design/260823004406.md) | 5/5 | ui, steam, save |
 | draft | [すべての地物・施設を役割テンプレ骨格と content スロットで生成する](docs/design/260823165936.md) | 0/8 | worldgen, refactor, gamedesign |
-| draft | [並列テストの ebitenui 競合を源で断つ: フォークして競合グローバルをスレッドセーフ化する](docs/design/260826085919.md) | 0/8（見送り1） | ci, ui |
+| draft | [並列テストの UI 競合を源で断つ: 状態をインスタンス所有にする](docs/design/260826085919.md) | 0/7（見送り2） | ci, ui |
 
 
 ## Reference
