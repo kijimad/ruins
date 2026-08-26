@@ -16,8 +16,12 @@ import (
 )
 
 const (
-	// panelScreenRowH は簡易メニューの行高。コマンドメニュー向けに行間を空ける。
-	panelScreenRowH = 26
+	// tabScreenRowH はタブ画面の一覧行の高さ。詰まった表として元の ebitenui の行密度に合わせる。
+	// menuframe.capacityRowH と同じ値。ページ件数の計算と描画の行高を揃える。
+	tabScreenRowH = 21
+	// panelScreenRowH はパネル画面の行の高さ。コマンドメニュー向けに行間を空ける。
+	// 元の renderMenuList の Spaced に相当する。
+	panelScreenRowH = 30
 	// panelScreenPad はパネルの内側余白。
 	panelScreenPad = 12
 )
@@ -44,9 +48,14 @@ func buildPanelScreenUI(world w.World, res resources.UIResources, title string, 
 	panelH := len(items)*panelScreenRowH + panelScreenPad*2
 	panel := panelBackground(ui.Panel(ui.BoxStyle{}, panelScreenRowH, items...), res).SetPadding(panelScreenPad)
 
-	rect := menuframe.CenterWindowRect(world)
-	x := rect.Min.X + (rect.Dx()-panelW)/2
-	y := max(rect.Min.Y+(rect.Dy()-panelH)/2, rect.Min.Y)
+	// 横は画面中央。縦はログ手前までの領域に中央寄せする。少ないパネルはこの中心に収まる。
+	// 項目が多く領域より背が高いパネルは中央寄せのまま上端が外へはみ出し、先頭のタイトル行が
+	// 画面外へクリップされる。元の AnchorLayout 中央寄せと同じ振る舞い。ページ表示行が可視の上端に来る。
+	crect := menuframe.CenterWindowRect(world)
+	top := theme.Space3
+	bottom := menuframe.ModalRect(world).Max.Y
+	x := crect.Min.X + (crect.Dx()-panelW)/2
+	y := top + ((bottom-top)-panelH)/2
 	panel.Layout(image.Rect(x, y, x+panelW, y+panelH))
 	return panel
 }
@@ -78,7 +87,7 @@ func tabBarUI(labels []string, selected int, totalWidth int, face text.Face, sel
 
 // panelSelCell は子を金色の選択バーの上に置くセルを返す。選択タブの強調に使う。
 func panelSelCell(child ui.Widget, selBar *resources.NineSliceTex) *ui.Container {
-	cell := ui.VBox(panelScreenRowH, child)
+	cell := ui.VBox(tabScreenRowH, child)
 	if selBar != nil {
 		cell.SetBackgroundNineSlice(selBar.Image, selBar.BX, selBar.BY)
 	}
@@ -105,14 +114,14 @@ func buildTabScreenUI(world w.World, res resources.UIResources, header string, t
 
 	// フッタは下端へ寄せる。内容の下を空行で埋め、最下段にフッタを置く
 	if footer != "" {
-		capacity := (rect.Dy() - panelScreenPad*2) / panelScreenRowH
+		capacity := (rect.Dy() - panelScreenPad*2) / tabScreenRowH
 		for len(items) < capacity-1 {
 			items = append(items, ui.NewText(" ", face, theme.TextPrimary))
 		}
 		items = append(items, ui.NewText(footer, face, theme.TextSecondary))
 	}
 
-	panel := panelBackground(ui.Panel(ui.BoxStyle{}, panelScreenRowH, items...), res).SetPadding(panelScreenPad)
+	panel := panelBackground(ui.Panel(ui.BoxStyle{}, tabScreenRowH, items...), res).SetPadding(panelScreenPad)
 	panel.Layout(rect)
 	return panel
 }
@@ -151,10 +160,11 @@ func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []s
 		if pageText == "" {
 			pageText = " "
 		}
-		ind := ui.NewText(pageText, face, theme.TextSecondary)
-		ind.Align = ui.AlignCenter
+		ind := ui.NewText(pageText, res.Text.SmallFace, theme.TextPrimary)
+		ind.Align = ui.AlignRight
 		ind.VCenter = true
-		items = append(items, ui.Row([]int{sumWidths(colWidths)}, ind))
+		// 右端に少し余白を空ける。元の NewPageIndicator と同じ右寄せ
+		items = append(items, ui.Row([]int{sumWidths(colWidths) - theme.Space3}, ind))
 	}
 	if opts.HeaderRow != nil {
 		items = append(items, headerRowUI(opts.HeaderRow, colWidths, face))
