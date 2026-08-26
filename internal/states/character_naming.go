@@ -229,9 +229,6 @@ func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {
 // buildUI
 // ================
 
-// namingInputStyle は名前入力枠の背景と枠。メニューのパネルと同じ意匠にそろえる
-var namingInputStyle = ui.BoxStyle{Fill: theme.WindowBackground, Border: theme.PanelHighlight, BorderWidth: 1}
-
 // buildUI は名前入力画面を internal/ui のツリーとして組む。
 // タイトル・入力枠・エラー・ヒントを画面中央へ縦に並べる。入力枠には現在名とキャレットを描く
 func (st *CharacterNamingState) buildUI(world w.World) ui.Widget {
@@ -271,9 +268,13 @@ func (st *CharacterNamingState) buildUI(world w.World) ui.Widget {
 	children = append(children, title)
 	y += titleH + gap
 
-	inputBox := ui.Panel(namingInputStyle, inputH, content).SetPadding(8)
-	inputBox.Layout(image.Rect(x, y, x+boxW, y+inputH))
-	children = append(children, inputBox)
+	inputRect := image.Rect(x, y, x+boxW, y+inputH)
+	inputBG := ui.NewNineSlice(res.InputBG.Image, res.InputBG.BX, res.InputBG.BY)
+	inputBG.Layout(inputRect)
+	children = append(children, inputBG)
+	// 中身は枠の左に余白を取り、縦は中央寄せにする
+	content.Layout(image.Rect(x+10, y+(inputH-lineH)/2, x+boxW-10, y+inputH))
+	children = append(children, content)
 	y += inputH + gap
 
 	if props.ErrorMessage != "" {

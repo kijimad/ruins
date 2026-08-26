@@ -45,3 +45,37 @@ func (e *EbitenCanvas) DrawImage(pos image.Point, img *ebiten.Image) {
 	op.GeoM.Translate(float64(pos.X), float64(pos.Y))
 	e.screen.DrawImage(img, op)
 }
+
+// DrawNineSlice は EbitenCanvas を実装する。ソースを縦横3分割し、四隅は原寸、辺は片方向、
+// 中央は両方向へ伸ばして9セルを dst へ描く。ebitenui の NineSlice と同じ分割規則にそろえる。
+func (e *EbitenCanvas) DrawNineSlice(dst image.Rectangle, img *ebiten.Image, bx, by [3]int) {
+	if img == nil {
+		return
+	}
+	// ソースの分割境界
+	sx := [4]int{0, bx[0], bx[0] + bx[1], bx[0] + bx[1] + bx[2]}
+	sy := [4]int{0, by[0], by[0] + by[1], by[0] + by[1] + by[2]}
+	// dst の分割境界。四隅は原寸、中央は残りを埋める
+	midW := max(dst.Dx()-bx[0]-bx[2], 0)
+	midH := max(dst.Dy()-by[0]-by[2], 0)
+	dx := [4]int{dst.Min.X, dst.Min.X + bx[0], dst.Min.X + bx[0] + midW, dst.Max.X}
+	dy := [4]int{dst.Min.Y, dst.Min.Y + by[0], dst.Min.Y + by[0] + midH, dst.Max.Y}
+
+	for r := range 3 {
+		for c := range 3 {
+			sw, sh := sx[c+1]-sx[c], sy[r+1]-sy[r]
+			dw, dh := dx[c+1]-dx[c], dy[r+1]-dy[r]
+			if sw <= 0 || sh <= 0 || dw <= 0 || dh <= 0 {
+				continue
+			}
+			sub, ok := img.SubImage(image.Rect(sx[c], sy[r], sx[c+1], sy[r+1])).(*ebiten.Image)
+			if !ok {
+				continue
+			}
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Scale(float64(dw)/float64(sw), float64(dh)/float64(sh))
+			op.GeoM.Translate(float64(dx[c]), float64(dy[r]))
+			e.screen.DrawImage(sub, op)
+		}
+	}
+}

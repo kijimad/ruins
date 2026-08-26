@@ -100,6 +100,33 @@ func (g *Graphic) Draw(cv Canvas) {
 // Children は Graphic を実装する。子は持たない。
 func (g *Graphic) Children() []Widget { return nil }
 
+// NineSlice はテクスチャを9スライスで矩形いっぱいに引き伸ばして描くウィジェット。
+// 枠付きの背景、窓・タイトルバー・入力枠・選択バー、に使う。BX・BY はソースの左中右・上中下の幅。
+type NineSlice struct {
+	base
+	Image *ebiten.Image
+	BX    [3]int
+	BY    [3]int
+}
+
+// NewNineSlice はテクスチャとスライス幅から NineSlice を作る。
+func NewNineSlice(img *ebiten.Image, bx, by [3]int) *NineSlice {
+	return &NineSlice{Image: img, BX: bx, BY: by}
+}
+
+// Layout は NineSlice を実装する。
+func (n *NineSlice) Layout(b image.Rectangle) { n.rect = b }
+
+// Draw は NineSlice を実装する。
+func (n *NineSlice) Draw(cv Canvas) {
+	if n.Image != nil {
+		cv.DrawNineSlice(n.rect, n.Image, n.BX, n.BY)
+	}
+}
+
+// Children は NineSlice を実装する。子は持たない。
+func (n *NineSlice) Children() []Widget { return nil }
+
 // Group は配置済みの子をそのまま束ねて描く。子の矩形は各自が確定済みで、Group は再配置しない。
 // 自前の絶対配置レイアウトを組むときに使う。
 type Group struct {

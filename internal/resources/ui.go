@@ -14,7 +14,21 @@ type UIResources struct {
 	GradientLine *ebiten.Image
 	GaugeFill    *ebiten.Image
 
+	// 9スライスで描く UI テクスチャ。窓・タイトルバー・入力枠・選択バーの背景に使う。
+	// plain な *ebiten.Image なので外部ライブラリに依存しない
+	WindowBG     *NineSliceTex
+	TitleBar     *NineSliceTex
+	InputBG      *NineSliceTex
+	SelectionBar *NineSliceTex
+
 	Text *TextResources
+}
+
+// NineSliceTex は9スライス描画のためのテクスチャと分割幅。BX・BY はソースの左中右・上中下の幅。
+type NineSliceTex struct {
+	Image *ebiten.Image
+	BX    [3]int
+	BY    [3]int
 }
 
 // TextResources はテキスト描画に使うフェイス一式を管理する
@@ -45,11 +59,37 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		return UIResources{}, err
 	}
 
+	// 窓・タイトルバー・選択バーは中央サイズから対称に分割する。ebitenui 時代の
+	// loadImageNineSlice と同じ中央サイズにそろえ、見た目を保つ
+	windowBG, err := newNineSliceTex("assets/graphics/list-idle-trans.png", 40, 40)
+	if err != nil {
+		return UIResources{}, err
+	}
+	titleBar, err := newNineSliceTex("assets/graphics/titlebar-idle.png", 40, 24)
+	if err != nil {
+		return UIResources{}, err
+	}
+	selectionBar, err := newNineSliceTex("assets/graphics/selection-bar.png", 56, 10)
+	if err != nil {
+		return UIResources{}, err
+	}
+	// 入力枠は左右非対称の分割。ebitenui 時代の {9,14,6} をそのまま使う
+	inputImg, err := newImageFromFile("assets/graphics/text-input-idle.png")
+	if err != nil {
+		return UIResources{}, err
+	}
+	inputBG := &NineSliceTex{Image: inputImg, BX: [3]int{9, 14, 6}, BY: [3]int{9, 14, 6}}
+
 	return UIResources{
 		Fonts: fonts,
 
 		GradientLine: gradientLine,
 		GaugeFill:    gaugeFill,
+
+		WindowBG:     windowBG,
+		TitleBar:     titleBar,
+		InputBG:      inputBG,
+		SelectionBar: selectionBar,
 
 		Text: &TextResources{
 			SmallFace:      fonts.smallFace,

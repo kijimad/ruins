@@ -22,3 +22,18 @@ func newImageFromFile(path string) (*ebiten.Image, error) {
 	i, _, err := ebitenutil.NewImageFromReader(f)
 	return i, err
 }
+
+// newNineSliceTex はテクスチャを読み込み、中央サイズから9スライスの分割幅を導いて返す。
+// 両端の幅は画像サイズと中央サイズの差を半分ずつに割り、端数は右下側へ寄せる
+func newNineSliceTex(path string, centerW, centerH int) (*NineSliceTex, error) {
+	img, err := newImageFromFile(path)
+	if err != nil {
+		return nil, err
+	}
+	w, h := img.Bounds().Dx(), img.Bounds().Dy()
+	return &NineSliceTex{
+		Image: img,
+		BX:    [3]int{(w - centerW) / 2, centerW, w - (w-centerW)/2 - centerW},
+		BY:    [3]int{(h - centerH) / 2, centerH, h - (h-centerH)/2 - centerH},
+	}, nil
+}

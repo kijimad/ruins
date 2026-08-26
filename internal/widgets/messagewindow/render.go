@@ -7,19 +7,11 @@ import (
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
-
-// windowFrameStyle はメッセージウィンドウの枠。背景と細い枠線を描く。
-var windowFrameStyle = ui.BoxStyle{Fill: theme.WindowBackground, Border: theme.WindowBorder, BorderWidth: 2}
-
-// titleBarStyle は話者名を載せるタイトルバーの帯。本体より暗くしてヘッダと分かる。
-var titleBarStyle = ui.BoxStyle{Fill: color.RGBA{R: 15, G: 15, B: 20, A: 255}}
-
-// choiceHighlightStyle は選択中の選択肢やプロンプトの背景強調。
-var choiceHighlightStyle = ui.BoxStyle{Fill: theme.ChoiceSelectedBg}
 
 const (
 	titleBarHeight = 40 // タイトルバーの高さ
@@ -45,15 +37,15 @@ func (win *Window) buildTree() ui.Widget {
 
 	var children []ui.Widget
 
-	frame := ui.Panel(windowFrameStyle, size.Height)
+	frame := ui.NewNineSlice(res.WindowBG.Image, res.WindowBG.BX, res.WindowBG.BY)
 	frame.Layout(rect)
 	children = append(children, frame)
 
 	// タイトルバー
 	contentTop := rect.Min.Y
 	if win.content.SpeakerName != "" {
-		bar := ui.Panel(titleBarStyle, titleBarHeight)
-		bar.Layout(image.Rect(rect.Min.X+2, rect.Min.Y+2, rect.Max.X-2, rect.Min.Y+titleBarHeight))
+		bar := ui.NewNineSlice(res.TitleBar.Image, res.TitleBar.BX, res.TitleBar.BY)
+		bar.Layout(image.Rect(rect.Min.X, rect.Min.Y, rect.Max.X, rect.Min.Y+titleBarHeight))
 		children = append(children, bar)
 		name := ui.NewText(win.content.SpeakerName, res.Text.SmallFace, theme.TextPrimary)
 		name.Align = ui.AlignCenter
@@ -83,7 +75,7 @@ func (win *Window) buildTree() ui.Widget {
 	} else {
 		promptY := rect.Max.Y - theme.Space5 - choiceRowH
 		cx := (rect.Min.X + rect.Max.X) / 2
-		children = append(children, choiceRowWidgets(item{Label: "Enter"}, true, cx, promptY, padL, padR, res.Text.BodyFace)...)
+		children = append(children, choiceRowWidgets(item{Label: "Enter"}, true, cx, promptY, padL, padR, res.Text.BodyFace, res.SelectionBar)...)
 	}
 
 	root := ui.NewGroup(children...)
@@ -161,7 +153,7 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 	items, indices := getVisibleItems(config, state)
 	for i, it := range items {
 		focused := indices[i] == state.ItemIndex
-		children = append(children, choiceRowWidgets(it, focused, cx, yy, padL, padR, face)...)
+		children = append(children, choiceRowWidgets(it, focused, cx, yy, padL, padR, face, res.SelectionBar)...)
 		yy += choiceRowH
 	}
 
@@ -172,7 +164,7 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 
 // choiceRowWidgets は選択肢1行分のウィジェットを返す。ラベルは中央寄せ、追加ラベルは右寄せ。
 // 選択中は文字を明るくし、中央に背景帯を敷く
-func choiceRowWidgets(it item, focused bool, cx, y, padL, padR int, face text.Face) []ui.Widget {
+func choiceRowWidgets(it item, focused bool, cx, y, padL, padR int, face text.Face, selBar *resources.NineSliceTex) []ui.Widget {
 	var out []ui.Widget
 	labelW, textH := measure(it.Label, face)
 	off := (choiceRowH - textH) / 2
@@ -182,7 +174,7 @@ func choiceRowWidgets(it item, focused bool, cx, y, padL, padR int, face text.Fa
 		textColor = theme.TextSelected
 		hw := labelW + 2*theme.Space5
 		hx := cx - hw/2
-		hl := ui.Panel(choiceHighlightStyle, choiceRowH)
+		hl := ui.NewNineSlice(selBar.Image, selBar.BX, selBar.BY)
 		hl.Layout(image.Rect(hx, y, hx+hw, y+choiceRowH))
 		out = append(out, hl)
 	}
