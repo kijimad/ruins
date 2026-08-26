@@ -4,11 +4,14 @@ import (
 	"image"
 	"image/color"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
@@ -18,6 +21,21 @@ import (
 // EbitenCanvas の実描画に ebiten の実行状態が要るため必要。
 func TestMain(m *testing.M) {
 	os.Exit(vrt.RunTestMain(m))
+}
+
+// isolatedResources は独自のフォントソースを持つ UIResources を新しく作る。
+// vrt.SharedUIResources と違い sync.Once で共有しないので、フェイスのグリフキャッシュが
+// このインスタンスに独立する。text/v2 は GoTextFaceSource 内に可変キャッシュを持ち、
+// 共有フェイスを並行描画すると競合する。フェイスをインスタンスが所有すれば共有が無くなり、
+// ロック無しで並列に実描画できる。これは ebitenui のグローバル問題と同じ「共有可変状態」の話で、
+// 解も同じインスタンス所有になる。
+func isolatedResources(t *testing.T) resources.UIResources {
+	t.Helper()
+	fonts, err := loader.LoadFonts()
+	require.NoError(t, err)
+	res, err := loader.LoadUIResources(fonts)
+	require.NoError(t, err)
+	return res
 }
 
 // countOpaque は screen 内の不透明画素を数える。実描画が起きたかの判定に使う。
@@ -54,18 +72,28 @@ func buildRealPanel(res resources.UIResources) *ui.Container {
 	return ui.Panel(style, 20, items...)
 }
 
-// TestEbitenCanvas_実フォントで描くと非空になる は EbitenCanvas が実フォントで実際に
-// 描くことを確かめるスモークテスト。背景・枠・テキストを描き、不透明画素が出れば描画が起きている。
-//
-// このテストは実テキストを描く唯一のテストなので t.Parallel でも安全に単独で走る。
-// ただし複数のテストが共有フェイスで実テキストを並行描画すると text/v2 のフォントキャッシュ
-// GoTextFaceSource の内部キャッシュが競合する。これは UI ツールキットと無関係の text/v2 由来の制約で、
-// 本番は描画ゴルーチンが1つなので無害。並行して実描画する pixel-golden を増やすときは、
-// フェイスをテストごとに分けるか描画を直列化する。構築・レイアウト・ロジックの検証は
-// フェイスに触れない fake canvas で行い、そちらは完全に並列でよい。
+// drawRealPanel は独自フェイスで1枚描き、不透明画素数を返す。
+func drawRealPanel(res resources.UIResources) int {
+	screen := ebiten.NewImage(220, 100)
+	cv := ui.NewEbitenCanvas(screen)
+	u := ui.New(buildRealPanel(res))
+	u.Layout(image.Rect(0, 0, 220, 100))
+	u.Draw(cv)
+	b := screen.Bounds()
+	pix := make([]byte, b.Dx()*b.Dy()*4)
+	screen.ReadPixels(pix)
+	n := 0
+	for i := 3; i < len(pix); i += 4 {
+		if pix[i] > 0 {
+			n++
+		}
+	}
+	return n
+}
+
 func TestEbitenCanvas_実フォントで描くと非空になる(t *testing.T) {
 	t.Parallel()
-	res := vrt.SharedUIResources(t)
+	res := isolatedResources(t)
 
 	screen := ebiten.NewImage(220, 100)
 	cv := ui.NewEbitenCanvas(screen)
@@ -74,4 +102,32 @@ func TestEbitenCanvas_実フォントで描くと非空になる(t *testing.T) {
 	u.Draw(cv)
 
 	require.Positive(t, countOpaque(t, screen), "背景とテキストが描かれれば不透明画素が出る")
+}
+
+// TestEbitenCanvas_フェイスをインスタンス所有にすれば並列描画も競合しない は、各ゴルーチンが
+// 独自フェイスを持てば実描画も並列でロック無しに競合しないことを確かめる。
+// 独立フェイスは require を含むので、ゴルーチン起動前にテストゴルーチンで作っておく。
+func TestEbitenCanvas_フェイスをインスタンス所有にすれば並列描画も競合しない(t *testing.T) {
+	t.Parallel()
+	const workers = 8
+
+	resList := make([]resources.UIResources, workers)
+	for i := range resList {
+		resList[i] = isolatedResources(t)
+	}
+
+	var wg sync.WaitGroup
+	counts := make([]int, workers)
+	for w := range workers {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			counts[id] = drawRealPanel(resList[id])
+		}(w)
+	}
+	wg.Wait()
+
+	for id, c := range counts {
+		assert.Positive(t, c, "ゴルーチン %d の描画が非空", id)
+	}
 }
