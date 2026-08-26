@@ -174,8 +174,7 @@ func TestDetailRenderOverlay_対象が無ければnilを返す(t *testing.T) {
 
 func TestDetailRenderOverlay_対象があれば名前とページ位置を表示する(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	world.Resources.UIResources = vrt.LoadTestUIResources(t)
+	world := vrt.InitUIWorld(t)
 	d := NewDetail(func(_ w.World) (DetailContent, bool) {
 		return DetailContent{Name: "回復薬", Rows: []entityspec.SpecRow{{Label: "効果", Value: "10"}}}, true
 	})

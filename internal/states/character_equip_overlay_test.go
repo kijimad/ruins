@@ -120,9 +120,9 @@ func TestCharacterEquipOverlay_候補が無ければ何もしない(t *testing.T
 func TestGolden_EquipSelect(t *testing.T) {
 	t.Parallel()
 
-	// InitVRTWorld は SpriteSheets 込みの完全な world を作る。アイコン解決にテクスチャが要る
+	// InitVRTWorld は SpriteSheets 込みの完全な world を作る。アイコン解決にテクスチャが要る。
+	// フェイスは InitVRTWorld が既にテストごと独立で持つので上書きしない
 	world := vrt.InitVRTWorld(t)
-	world.Resources.UIResources = vrt.LoadTestUIResources(t)
 	sword, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 	gun, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)

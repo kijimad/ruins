@@ -6,6 +6,8 @@ import (
 
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/require"
 )
 
@@ -30,4 +32,16 @@ func LoadTestUIResources(t *testing.T) resources.UIResources {
 	uir, err := loader.LoadUIResources(fonts)
 	require.NoError(t, err)
 	return uir
+}
+
+// InitUIWorld は widget や画面の描画テスト用の world を返す。UI を描くテストはこれ1つを使う。
+//
+// ECS シングルトン、GameLog など、は testutil.InitTestWorld が用意し、フォントフェイスは
+// LoadTestUIResources がテストごとに独立所有で足す。フルゲームを構築する重い InitVRTWorld は、
+// 実プレイどおりフルフレームを駆動する states の golden_replay だけに使う。
+func InitUIWorld(t *testing.T) w.World {
+	t.Helper()
+	world := testutil.InitTestWorld(t)
+	world.Resources.UIResources = LoadTestUIResources(t)
+	return world
 }
