@@ -31,8 +31,9 @@ func panelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
 	return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
 }
 
-// buildPanelScreenUI は見出し・内容行・フッタを1枚のパネルへ縦に並べ、画面中央に配置して返す。
-// 項目数相応の小さなパネル。背景はパネルテクスチャを敷く。内容は renderMenuListUI が返す行をそのまま渡す。
+// buildPanelScreenUI は見出し・内容行・フッタを1枚のパネルへ縦に並べ、上端を固定して配置して返す。
+// 背景はパネルテクスチャを敷く。内容は renderMenuListUI が返す行をそのまま渡す。
+// 上端固定により、項目数が違ってもタイトル・ページ表示・先頭項目が常に同じ位置に来る。
 func buildPanelScreenUI(world w.World, res resources.UIResources, title string, content []ui.Widget, footer string) ui.Widget {
 	face := res.Text.BodyFace
 	items := make([]ui.Widget, 0, len(content)+2)
@@ -48,14 +49,11 @@ func buildPanelScreenUI(world w.World, res resources.UIResources, title string, 
 	panelH := len(items)*panelScreenRowH + panelScreenPad*2
 	panel := panelBackground(ui.Panel(ui.BoxStyle{}, panelScreenRowH, items...), res).SetPadding(panelScreenPad)
 
-	// 横は画面中央。縦はログ手前までの領域に中央寄せする。少ないパネルはこの中心に収まる。
-	// 項目が多く領域より背が高いパネルは中央寄せのまま上端が外へはみ出し、先頭のタイトル行が
-	// 画面外へクリップされる。元の AnchorLayout 中央寄せと同じ振る舞い。ページ表示行が可視の上端に来る。
+	// 横は画面中央、縦は上端を固定する。項目数が違ってもパネルの開始位置がそろい、メニュー間で
+	// タイトル・ページ表示・先頭項目の位置がずれない。全パネルを同じ規則で置く。
 	crect := menuframe.CenterWindowRect(world)
-	top := theme.Space3
-	bottom := menuframe.ModalRect(world).Max.Y
 	x := crect.Min.X + (crect.Dx()-panelW)/2
-	y := top + ((bottom-top)-panelH)/2
+	y := crect.Min.Y
 	panel.Layout(image.Rect(x, y, x+panelW, y+panelH))
 	return panel
 }
