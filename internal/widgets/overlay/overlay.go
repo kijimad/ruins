@@ -3,7 +3,6 @@ package overlay
 import (
 	"image"
 
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -17,12 +16,6 @@ type Layer interface {
 	Active() bool
 	// HandleInput は表示中のキー入力を処理する。Screen は毎フレーム再構築するので dirty は返さない
 	HandleInput(world w.World) error
-}
-
-// WindowRenderer は自身を ebitenui のウィンドウとして描く overlay。Screen は本体の UI にこの窓を載せる。
-// 対象が無ければ nil を返す。
-type WindowRenderer interface {
-	Window(world w.World, rect image.Rectangle) *widget.Window
 }
 
 // ScreenRenderer は自身を internal/ui のツリーとして描く overlay。Screen は本体を描いたあと、
