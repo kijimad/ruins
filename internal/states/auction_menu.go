@@ -317,12 +317,12 @@ func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor men
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	content := st.buildActiveUI(world, props, cursor.TabIndex, cursor.ItemIndex, res)
+	content := st.buildActiveUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
 	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
 }
 
 // buildActiveUI は buildActiveContainer の internal/ui 版。タブ種別で中身を振り分ける。
-func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) []ui.Widget {
 	if tabIndex >= len(props.Tabs) {
 		return nil
 	}
@@ -343,7 +343,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		}
 		return renderMenuListUI(itemIndex, rows, []int{200, 90, 110},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			menuListOpts{AlwaysIndicator: true, EmptyText: empty}, res)
+			menuListOpts{AlwaysIndicator: true, EmptyText: empty, ItemsPerPage: perPage}, res)
 	case auctionTabFinance:
 		rows := make([]menuRow, len(tab.Entries))
 		for i, e := range tab.Entries {
@@ -359,7 +359,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		}
 		return renderMenuListUI(itemIndex, rows, []int{200, 80, 120},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No bills or receipts.")}, res)
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No bills or receipts."), ItemsPerPage: perPage}, res)
 	case auctionTabHistory:
 		rows := make([]menuRow, len(tab.Ledger))
 		for i, r := range tab.Ledger {
@@ -367,7 +367,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		}
 		return renderMenuListUI(itemIndex, rows, []int{50, 200, 120},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No shipments yet.")}, res)
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No shipments yet."), ItemsPerPage: perPage}, res)
 	default:
 		rows := make([]menuRow, len(tab.Ledger))
 		for i, r := range tab.Ledger {
@@ -379,7 +379,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		}
 		return renderMenuListUI(itemIndex, rows, []int{50, 170, 70, 110},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No deals in progress.")}, res)
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No deals in progress."), ItemsPerPage: perPage}, res)
 	}
 }
 

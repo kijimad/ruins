@@ -33,6 +33,9 @@ func (c *recordCanvas) DrawImage(p image.Point, _ *ebiten.Image) { c.images = ap
 func (c *recordCanvas) DrawImageRect(dst image.Rectangle, _ *ebiten.Image) {
 	c.images = append(c.images, dst.Min)
 }
+func (c *recordCanvas) DrawImageTintedRect(dst image.Rectangle, _ *ebiten.Image, _ color.Color) {
+	c.images = append(c.images, dst.Min)
+}
 func (c *recordCanvas) DrawNineSlice(dst image.Rectangle, _ *ebiten.Image, _, _ [3]int) {
 	c.images = append(c.images, dst.Min)
 }

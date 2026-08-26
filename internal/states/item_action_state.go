@@ -406,12 +406,12 @@ func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor m
 			labels[i] = tab.Label
 		}
 	}
-	content := st.buildItemListUI(world, props, cursor.TabIndex, cursor.ItemIndex, res)
+	content := st.buildItemListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
 	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
 }
 
 // buildItemListUI は buildItemList の internal/ui 版。
-func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) []ui.Widget {
 	if tabIndex >= len(props.Tabs) {
 		return nil
 	}
@@ -421,7 +421,7 @@ func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps,
 	for i, it := range items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items"), ItemsPerPage: perPage}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

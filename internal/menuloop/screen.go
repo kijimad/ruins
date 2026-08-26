@@ -21,10 +21,13 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// Selection は描画に要るカーソル位置。どのタブのどの行を強調するかを表す
+// Selection は描画に要るカーソル位置。どのタブのどの行を強調するかを表す。
+// PageSize は解決済みの1ページ件数。ItemsPerPageAuto を使う画面の描画が、カーソルと同じ
+// ページ件数でページ送りできるよう渡す。0 はページ送りなし
 type Selection struct {
 	TabIndex  int
 	ItemIndex int
+	PageSize  int
 }
 
 // ItemsPerPageAuto は ItemsPerPage に、タブ帯つきモーダルの1ページへ収まる実測行数を
@@ -221,7 +224,7 @@ func (s *Screen[P]) SetTab(tab int) {
 func (s *Screen[P]) resolveConfig(world w.World, cfg MenuConfig) MenuConfig {
 	if cfg.ItemsPerPage == ItemsPerPageAuto {
 		if s.pageSize == 0 {
-			s.pageSize = menuframe.ListCapacity(world.Resources.UIResources, false, true)
+			s.pageSize = menuframe.ListCapacity(world, false, true)
 		}
 		cfg.ItemsPerPage = s.pageSize
 	}
@@ -251,7 +254,7 @@ func (s *Screen[P]) selection(cfg MenuConfig) Selection {
 		return Selection{}
 	}
 	ms, _ := hooks.GetState[hooks.TabMenuState](s.mount, cfg.Key)
-	return Selection{TabIndex: ms.TabIndex, ItemIndex: ms.ItemIndex}
+	return Selection{TabIndex: ms.TabIndex, ItemIndex: ms.ItemIndex, PageSize: cfg.ItemsPerPage}
 }
 
 // Draw は保持中の UI を描き、その上に ScreenRenderer な overlay を重ねる。

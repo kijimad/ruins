@@ -174,7 +174,9 @@ type Container struct {
 	bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。パネルや選択行に使う
 	bgBX     [3]int
 	bgBY     [3]int
-	pad      int // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く
+	lineImg  *ebiten.Image // 非 nil なら下端に敷く区切り線のテクスチャ。横グラデを行幅へ伸ばす
+	lineTint color.Color   // 区切り線の色。テクスチャに掛ける
+	pad      int           // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く
 	children []Widget
 }
 
@@ -195,6 +197,14 @@ func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Co
 	c.bgImage = img
 	c.bgBX = bx
 	c.bgBY = by
+	return c
+}
+
+// SetBottomLine は下端に区切り線のテクスチャを敷く。横グラデを行幅へ伸ばし tint で着色する。
+// 一覧行の下線に使う。
+func (c *Container) SetBottomLine(img *ebiten.Image, tint color.Color) *Container {
+	c.lineImg = img
+	c.lineTint = tint
 	return c
 }
 
@@ -257,6 +267,10 @@ func (c *Container) Draw(cv Canvas) {
 	}
 	for _, ch := range c.children {
 		ch.Draw(cv)
+	}
+	if c.lineImg != nil {
+		h := c.lineImg.Bounds().Dy()
+		cv.DrawImageTintedRect(image.Rect(c.rect.Min.X, c.rect.Max.Y-h, c.rect.Max.X, c.rect.Max.Y), c.lineImg, c.lineTint)
 	}
 }
 

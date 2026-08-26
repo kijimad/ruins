@@ -58,12 +58,29 @@ func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
 		return
 	}
 	scale := math.Min(math.Min(float64(dst.Dx())/float64(iw), float64(dst.Dy())/float64(ih)), 1)
-	dw, dh := float64(iw)*scale, float64(ih)*scale
-	ox := float64(dst.Min.X) + (float64(dst.Dx())-dw)/2
+	dh := float64(ih) * scale
+	// 左寄せ・縦中央。アイコンとキーキャップを列の左に揃え、行の高さの中央へ置く
+	ox := float64(dst.Min.X)
 	oy := float64(dst.Min.Y) + (float64(dst.Dy())-dh)/2
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(scale, scale)
 	op.GeoM.Translate(ox, oy)
+	e.screen.DrawImage(img, op)
+}
+
+// DrawImageTintedRect は EbitenCanvas を実装する。img を dst いっぱいに引き伸ばし tint を掛けて描く。
+func (e *EbitenCanvas) DrawImageTintedRect(dst image.Rectangle, img *ebiten.Image, tint color.Color) {
+	if img == nil {
+		return
+	}
+	b := img.Bounds()
+	if b.Dx() <= 0 || b.Dy() <= 0 || dst.Dx() <= 0 || dst.Dy() <= 0 {
+		return
+	}
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(float64(dst.Dx())/float64(b.Dx()), float64(dst.Dy())/float64(b.Dy()))
+	op.GeoM.Translate(float64(dst.Min.X), float64(dst.Min.Y))
+	op.ColorScale.ScaleWithColor(tint)
 	e.screen.DrawImage(img, op)
 }
 

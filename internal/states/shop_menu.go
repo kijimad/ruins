@@ -241,12 +241,12 @@ func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	content := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res)
+	content := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
 	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
 }
 
 // buildItemListUI は buildItemContainer の internal/ui 版。
-func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) []ui.Widget {
 	if tabIndex >= len(tabs) {
 		return nil
 	}
@@ -261,5 +261,5 @@ func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabI
 	if currentTab.ID == shopSellTabID {
 		emptyText = query.T(world, "No items to sell")
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText, ItemsPerPage: perPage}, res)
 }

@@ -196,12 +196,12 @@ func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor men
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	content := st.buildActiveListUI(world, props, cursor.TabIndex, cursor.ItemIndex, res)
+	content := st.buildActiveListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
 	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
 }
 
 // buildActiveListUI は buildActiveListContainer の internal/ui 版。アイコン付きの1カラム一覧を返す。
-func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps, tabIndex, itemIndex, perPage int, res resources.UIResources) []ui.Widget {
 	if tabIndex >= len(props.Tabs) {
 		return nil
 	}
@@ -211,7 +211,7 @@ func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps,
 	for i, it := range currentTab.Items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items"), ItemsPerPage: perPage}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

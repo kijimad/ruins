@@ -276,5 +276,5 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 		}
 		rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }

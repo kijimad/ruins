@@ -165,7 +165,7 @@ func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []s
 			items = append(items, headerRowUI(cellTexts(entry.Item.Cells), colWidths, face))
 			continue
 		}
-		items = append(items, dataRowUI(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), face, res.SelectionBar))
+		items = append(items, dataRowUI(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), face, res))
 	}
 	// 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
 	if len(rows) > perPage {
@@ -192,7 +192,8 @@ func headerRowUI(texts []string, colWidths []int, face text.Face) *ui.Container 
 }
 
 // dataRowUI はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。アイコンセルは画像で描く。
-func dataRowUI(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, selBar *resources.NineSliceTex) *ui.Container {
+func dataRowUI(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, res resources.UIResources) *ui.Container {
+	selBar := res.SelectionBar
 	// 非選択は暗く、選択は明るく。元の NewTableRow と同じ色分けでカーソル位置を際立たせる
 	var textColor color.Color = theme.TextSecondary
 	if selected {
@@ -214,6 +215,11 @@ func dataRowUI(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, 
 	row := ui.Row(colWidths, cellWidgets...)
 	if selected && selBar != nil {
 		row.SetBackgroundNineSlice(selBar.Image, selBar.BX, selBar.BY)
+	}
+	// 行の下にグラデーションの区切り線を敷く。元の NewTableRow と同じ意匠。
+	// RowDivider は非乗算済みの値なので NRGBA として色を掛ける
+	if res.GradientLine != nil {
+		row.SetBottomLine(res.GradientLine, color.NRGBA(theme.RowDivider))
 	}
 	return row
 }

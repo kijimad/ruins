@@ -158,6 +158,6 @@ func TestShopMenuState_buildItemListUI_商品ありで行を組む(t *testing.T)
 	tabs := []shopTabData{{ID: "sell", Items: []shopItemData{{Entity: e, Price: 10}}}}
 	st := &ShopMenuState{}
 
-	items := st.buildItemListUI(world, tabs, 0, 0, world.Resources.UIResources)
+	items := st.buildItemListUI(world, tabs, 0, 0, 10, world.Resources.UIResources)
 	assert.NotEmpty(t, items, "商品ありで行が組まれる")
 }

@@ -137,7 +137,7 @@ func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res
 	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{
 		AlwaysIndicator: true,
 		EmptyText:       query.T(world, "No entries"),
-		ItemsPerPage:    menuframe.ListCapacity(res, true, true),
+		ItemsPerPage:    menuframe.ListCapacity(world, true, true),
 	}, res)
 }
 

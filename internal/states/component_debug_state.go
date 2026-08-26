@@ -124,6 +124,6 @@ func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, 
 	for i, it := range props.Items {
 		rows[i] = menuRow{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}
 	}
-	content := renderMenuListUI(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
+	content := renderMenuListUI(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, ItemsPerPage: cursor.PageSize}, res)
 	return buildTabScreenUI(world, res, fmt.Sprintf("Components total: %d", props.Total), nil, 0, content, keybind.HelpHint(world))
 }

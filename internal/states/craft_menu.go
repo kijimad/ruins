@@ -235,12 +235,12 @@ func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloo
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	content := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res)
+	content := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
 	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
 }
 
 // buildItemListUI は buildItemContainer の internal/ui 版。
-func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) []ui.Widget {
 	if tabIndex >= len(tabs) {
 		return nil
 	}
@@ -255,7 +255,7 @@ func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, ta
 		}
 		rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes"), ItemsPerPage: perPage}, res)
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
