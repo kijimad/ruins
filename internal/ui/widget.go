@@ -126,6 +126,12 @@ func (c *Container) SetPadding(pad int) *Container {
 	return c
 }
 
+// SetStyle は背景の塗りと枠を設定する。選択行の強調などに使う。
+func (c *Container) SetStyle(s BoxStyle) *Container {
+	c.style = s
+	return c
+}
+
 // Layout は Container を実装する。余白を除いた内側で主軸方向へ sizes ぶんずつ子を並べ、
 // 交差軸は内側いっぱいに広げる。
 func (c *Container) Layout(b image.Rectangle) {
