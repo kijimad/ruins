@@ -110,19 +110,28 @@ const (
 	Horizontal
 )
 
-// Container は子を主軸方向に並べる入れ物。背景の塗りと枠を持てる。
+// Container は子を主軸方向に並べる入れ物。背景の塗りと枠、内側余白を持てる。
 type Container struct {
 	base
 	dir      Dir
 	sizes    []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅
 	style    BoxStyle
+	pad      int // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く
 	children []Widget
 }
 
-// Layout は Container を実装する。主軸方向へ sizes ぶんずつ子を並べ、交差軸は矩形いっぱいに広げる。
+// SetPadding は内側余白を設定する。子を余白ぶん内側へ寄せる。
+func (c *Container) SetPadding(pad int) *Container {
+	c.pad = pad
+	return c
+}
+
+// Layout は Container を実装する。余白を除いた内側で主軸方向へ sizes ぶんずつ子を並べ、
+// 交差軸は内側いっぱいに広げる。
 func (c *Container) Layout(b image.Rectangle) {
 	c.rect = b
-	pos := b.Min
+	inner := image.Rect(b.Min.X+c.pad, b.Min.Y+c.pad, b.Max.X-c.pad, b.Max.Y-c.pad)
+	pos := inner.Min
 	for i, ch := range c.children {
 		size := 0
 		if i < len(c.sizes) {
@@ -130,10 +139,10 @@ func (c *Container) Layout(b image.Rectangle) {
 		}
 		var cell image.Rectangle
 		if c.dir == Vertical {
-			cell = image.Rect(b.Min.X, pos.Y, b.Max.X, pos.Y+size)
+			cell = image.Rect(inner.Min.X, pos.Y, inner.Max.X, pos.Y+size)
 			pos.Y += size
 		} else {
-			cell = image.Rect(pos.X, b.Min.Y, pos.X+size, b.Max.Y)
+			cell = image.Rect(pos.X, inner.Min.Y, pos.X+size, inner.Max.Y)
 			pos.X += size
 		}
 		ch.Layout(cell)

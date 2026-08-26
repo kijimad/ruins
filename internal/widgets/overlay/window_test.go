@@ -6,37 +6,18 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ebitenui/ebitenui/widget"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// TestMain はebitenグラフィックスコンテキスト内で全テストを実行する。
-// UIResources のロードや widget.Window の生成が ebiten の実行状態に依存するため必要
+// TestMain はebitenの実行状態に依存するテストのためコンテキスト内で全テストを実行する。
 func TestMain(m *testing.M) {
 	os.Exit(vrt.RunTestMain(m))
-}
-
-// collectLabels はwidget.Containerer以下のwidget.Text.Labelを再帰的に集める
-func collectLabels(c widget.Containerer) []string {
-	container, ok := c.(*widget.Container)
-	if !ok || container == nil {
-		return nil
-	}
-	var labels []string
-	for _, child := range container.Children() {
-		switch v := child.(type) {
-		case *widget.Text:
-			labels = append(labels, v.Label)
-		case *widget.Container:
-			labels = append(labels, collectLabels(v)...)
-		}
-	}
-	return labels
 }
 
 func TestDetailPageCount(t *testing.T) {
@@ -78,26 +59,20 @@ func TestDetailPageCount_実体の性能行数からページ数を算出する(
 	assert.Equal(t, 1, DetailPageCount(world, withAbilities), "Abilitiesの6行は1ページに収まる")
 }
 
-func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *testing.T) {
+// buildDetailUI は internal/ui のツリーを組むだけで ebitenui に触れないので、フェイス無し・
+// ロック無しで検証できる。フェイスを nil にすると WrapText は測定せず desc を1行で返す。
+func TestBuildDetailUI_説明は最終ページにだけ表示する(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	world.Resources.UIResources = vrt.SharedUIResources(t)
 	rows := make([]entityspec.SpecRow, 15)
 	for i := range rows {
 		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
-	var firstPage, lastPage *widget.Window
-	vrt.WithUILock(func() {
-		firstPage = buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0)
-		lastPage = buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1)
-	})
+	firstPage := buildDetailUI(nil, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0)
+	lastPage := buildDetailUI(nil, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1)
 
-	require.NotNil(t, firstPage)
-	require.NotNil(t, lastPage)
-	firstLabels := collectLabels(firstPage.Contents)
-	lastLabels := collectLabels(lastPage.Contents)
+	firstLabels := ui.CollectLabels(firstPage)
+	lastLabels := ui.CollectLabels(lastPage)
 	assert.NotContains(t, firstLabels, "説明文", "最終ページ以外には説明を出さない")
 	assert.Contains(t, lastLabels, "説明文", "最終ページには説明を出す")
 	assert.Contains(t, firstLabels, "項目00")
@@ -107,24 +82,18 @@ func TestBuildDetailFromRows_説明は最終ページにだけ表示する(t *te
 	assert.Contains(t, lastLabels, "2/2")
 }
 
-func TestBuildDetailFromRows_ページ番号は範囲外を先頭と末尾にクランプする(t *testing.T) {
+func TestBuildDetailUI_ページ番号は範囲外を先頭と末尾にクランプする(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	world.Resources.UIResources = vrt.SharedUIResources(t)
 	rows := make([]entityspec.SpecRow, 15)
 	for i := range rows {
 		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
-	var negative, overflow *widget.Window
-	vrt.WithUILock(func() {
-		negative = buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "", "", rows, -1)
-		overflow = buildDetailFromRows(world, image.Rect(0, 0, 400, 400), "", "", rows, 99)
-	})
+	negative := buildDetailUI(nil, image.Rect(0, 0, 400, 400), "", "", rows, -1)
+	overflow := buildDetailUI(nil, image.Rect(0, 0, 400, 400), "", "", rows, 99)
 
 	require.NotNil(t, negative)
 	require.NotNil(t, overflow)
-	assert.Contains(t, collectLabels(negative.Contents), "1/2", "負のページは先頭にクランプする")
-	assert.Contains(t, collectLabels(overflow.Contents), "2/2", "範囲外の大きいページは末尾にクランプする")
+	assert.Contains(t, ui.CollectLabels(negative), "1/2", "負のページは先頭にクランプする")
+	assert.Contains(t, ui.CollectLabels(overflow), "2/2", "範囲外の大きいページは末尾にクランプする")
 }

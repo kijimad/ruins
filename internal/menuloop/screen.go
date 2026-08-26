@@ -16,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -75,13 +76,14 @@ type Screen[P any] struct {
 	model Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
 	// table はこの画面のキー束縛。state 固有の断片と共通表を構築時に1枚へ合成済みで、
 	// 実行時に表を重ねる階層は無い。重なりは MustMerge が構築時に拒否する
-	table         []keybind.Binding
-	mount         *hooks.Mount[P]
-	widget        *ebitenui.UI
-	overlays      []overlay.Layer
-	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
-	seeded        bool      // 初期タブへ寄せたか
-	pageSize      int       // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
+	table           []keybind.Binding
+	mount           *hooks.Mount[P]
+	widget          *ebitenui.UI
+	overlays        []overlay.Layer
+	pendingOverlays []ui.Widget // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる
+	lastSelection   Selection   // 直近フレームで確定したカーソル位置。DoAction から参照する
+	seeded          bool        // 初期タブへ寄せたか
+	pageSize        int         // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
@@ -180,12 +182,23 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	dirty := s.widget == nil || overlayInvolved || changed
 	if dirty {
 		s.widget = m.View(world, props, sel, world.Resources.UIResources)
+		s.pendingOverlays = s.pendingOverlays[:0]
+		rect := menuframe.CenterWindowRect(world)
 		// overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、
 		// 描画は逆順に重ね、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に
-		// 隠れて操作不能になるのを防ぐ
+		// 隠れて操作不能になるのを防ぐ。描画手段は overlay ごとに2系統。ebitenui 窓は本体UIへ載せ、
+		// internal/ui ツリーは Draw で本体の上へ重ねる
 		for _, ov := range slices.Backward(s.overlays) {
-			if ov.Active() {
-				if win := ov.Window(world, menuframe.CenterWindowRect(world)); win != nil {
+			if !ov.Active() {
+				continue
+			}
+			switch r := ov.(type) {
+			case overlay.ScreenRenderer:
+				if tree := r.RenderOverlay(world, rect); tree != nil {
+					s.pendingOverlays = append(s.pendingOverlays, tree)
+				}
+			case overlay.WindowRenderer:
+				if win := r.Window(world, rect); win != nil {
 					s.widget.AddWindow(win)
 				}
 			}
@@ -248,9 +261,13 @@ func (s *Screen[P]) selection(cfg MenuConfig) Selection {
 	return Selection{TabIndex: ms.TabIndex, ItemIndex: ms.ItemIndex}
 }
 
-// Draw は保持中の UI を描く。各 state の Draw はこれへ委譲する
+// Draw は保持中の UI を描き、その上に ScreenRenderer な overlay を重ねる。
+// 各 state の Draw はこれへ委譲する
 func (s *Screen[P]) Draw(screen *ebiten.Image) {
 	if s.widget != nil {
 		s.widget.Draw(screen)
+	}
+	for _, tree := range s.pendingOverlays {
+		tree.Draw(ui.NewEbitenCanvas(screen))
 	}
 }

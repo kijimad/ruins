@@ -17,12 +17,13 @@ const specPanelRowH = 18
 // specLabelColor はラベルと見出しの色。
 var specLabelColor color.Color = color.White
 
-// BuildSpecPanel は SpecRow の並びから internal/ui の保持型ツリーを組む。
-// RenderSpecRows の ebitenui 版に対応する自前 UI 版。ラベルは左寄せ、値は右寄せで描く。
-// 見出し行はラベルのみを2列ぶんの幅で描き、色付き行は値をその色で描く。
-// 必要なのは本文フェイスだけなのでそれだけを受け取る。パッケージグローバルの可変状態に
-// 触れないので、複数の UI を並行に組んでも競合しない。
-func BuildSpecPanel(rows []SpecRow, face text.Face) *ui.Container {
+// SpecPanelRowH は spec パネル1行の高さ。モーダル側が name や desc を同じ行高で並べるのに使う。
+const SpecPanelRowH = specPanelRowH
+
+// SpecRowWidgets は SpecRow の並びを internal/ui の行ウィジェット列にする。
+// ラベルは左寄せ、値は右寄せ。見出し行はラベルのみを2列ぶんの幅で描き、色付き行は値をその色で描く。
+// モーダルはこの列に name や desc の行を足して1枚のパネルに組む。
+func SpecRowWidgets(rows []SpecRow, face text.Face) []ui.Widget {
 	items := make([]ui.Widget, 0, len(rows))
 	for _, r := range rows {
 		if r.Header {
@@ -38,5 +39,12 @@ func BuildSpecPanel(rows []SpecRow, face text.Face) *ui.Container {
 		value.Align = ui.AlignRight
 		items = append(items, ui.Row(specPanelCols, ui.NewText(r.Label, face, specLabelColor), value))
 	}
-	return ui.VBox(specPanelRowH, items...)
+	return items
+}
+
+// BuildSpecPanel は SpecRow の並びから internal/ui の保持型ツリーを組む。
+// RenderSpecRows の ebitenui 版に対応する自前 UI 版。必要なのは本文フェイスだけなのでそれだけを受け取る。
+// パッケージグローバルの可変状態に触れないので、複数の UI を並行に組んでも競合しない。
+func BuildSpecPanel(rows []SpecRow, face text.Face) *ui.Container {
+	return ui.VBox(specPanelRowH, SpecRowWidgets(rows, face)...)
 }
