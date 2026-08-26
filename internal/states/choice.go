@@ -11,10 +11,13 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 )
+
+var _ menuloop.UIView[ChoiceProps] = &ChoiceMenuState{}
 
 // Choice は選択メニューの1項目。Run が選択時の実行で、戻り値のステート遷移で
 // 画面を閉じる、別画面へ進む、などを表す。Header が真の行はカーソルが止まらない見出し
@@ -106,6 +109,18 @@ func (st *ChoiceMenuState) View(world w.World, props ChoiceProps, cursor menuloo
 	// メインメニューと先頭位置・行間を揃える
 	list := renderMenuList(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
 	return menuframe.NewPanelScreen(res, props.Title, list, keybind.HelpHint(world))
+}
+
+// ViewUI は View の internal/ui 版。選択肢の一覧を中央パネルに自前 UI で組む。
+// Screen はこちらを使い、本体を ebitenui なしで描く。
+func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	rows := make([]menuRow, len(props.Choices))
+	for i, c := range props.Choices {
+		rows[i] = menuRow{Cells: styled.TextCells(c.Label), Header: c.Header}
+	}
+	perPage := menuframe.ListCapacity(res, false, true)
+	list := renderMenuListUI(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true, ItemsPerPage: perPage}, res.Text.BodyFace)
+	return buildPanelScreenUI(world, res, props.Title, list, keybind.HelpHint(world))
 }
 
 // pushChoice は指定ファクトリの state を push する Choice.Run を返す。選択メニューの共通部品

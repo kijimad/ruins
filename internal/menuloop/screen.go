@@ -60,6 +60,13 @@ type Model[P any] interface {
 	View(world w.World, props P, cursor Selection, res resources.UIResources) *ebitenui.UI
 }
 
+// UIView は本体を internal/ui のツリーで描く state が満たす任意契約。実装すると Screen は
+// ebitenui の View でなくこちらを使い、本体を自前 UI で描く。移行途中は View も実装して
+// Model 契約を満たしておく。ViewUI は画面へ配置済みのツリーを返す。
+type UIView[P any] interface {
+	ViewUI(world w.World, props P, cursor Selection, res resources.UIResources) ui.Widget
+}
+
 // KeyBindings は共通キーに加える独自キーを持つ state が満たす任意契約。キーと Action の
 // 対応を表で返すだけで、キー読み取りの実行は keybind が担う。表は NewScreen が共通表と
 // 1枚に合成し、共通キーとの重なりは構築時に拒否される。
@@ -79,6 +86,7 @@ type Screen[P any] struct {
 	table           []keybind.Binding
 	mount           *hooks.Mount[P]
 	widget          *ebitenui.UI
+	bodyTree        ui.Widget // UIView な state の本体ツリー。非 nil なら ebitenui の widget でなくこれを描く
 	overlays        []overlay.Layer
 	pendingOverlays []ui.Widget // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる
 	lastSelection   Selection   // 直近フレームで確定したカーソル位置。DoAction から参照する
@@ -181,7 +189,15 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	overlayInvolved := ovBefore != nil || s.activeOverlay() != nil
 	dirty := s.widget == nil || overlayInvolved || changed
 	if dirty {
-		s.widget = m.View(world, props, sel, world.Resources.UIResources)
+		// 本体は2系統。UIView を実装する state は internal/ui で描き、ebitenui は使わない。
+		// それ以外は従来どおり ebitenui の View を組む
+		if uiv, ok := m.(UIView[P]); ok {
+			s.bodyTree = uiv.ViewUI(world, props, sel, world.Resources.UIResources)
+			s.widget = nil
+		} else {
+			s.bodyTree = nil
+			s.widget = m.View(world, props, sel, world.Resources.UIResources)
+		}
 		s.pendingOverlays = s.pendingOverlays[:0]
 		rect := menuframe.CenterWindowRect(world)
 		// overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、
@@ -198,15 +214,21 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 					s.pendingOverlays = append(s.pendingOverlays, tree)
 				}
 			case overlay.WindowRenderer:
-				if win := r.Window(world, rect); win != nil {
-					s.widget.AddWindow(win)
+				// ebitenui 窓は ebitenui 本体にしか載せられない。UIView な本体には現状 window 系
+				// overlay を持つ画面が無いので nil のときは載せない
+				if s.widget != nil {
+					if win := r.Window(world, rect); win != nil {
+						s.widget.AddWindow(win)
+					}
 				}
 			}
 		}
 	}
 
 	s.lastSelection = sel
-	s.widget.Update()
+	if s.widget != nil {
+		s.widget.Update()
+	}
 	return m.ConsumeTransition(), nil
 }
 
@@ -264,7 +286,10 @@ func (s *Screen[P]) selection(cfg MenuConfig) Selection {
 // Draw は保持中の UI を描き、その上に ScreenRenderer な overlay を重ねる。
 // 各 state の Draw はこれへ委譲する
 func (s *Screen[P]) Draw(screen *ebiten.Image) {
-	if s.widget != nil {
+	switch {
+	case s.bodyTree != nil:
+		s.bodyTree.Draw(ui.NewEbitenCanvas(screen))
+	case s.widget != nil:
 		s.widget.Draw(screen)
 	}
 	for _, tree := range s.pendingOverlays {
