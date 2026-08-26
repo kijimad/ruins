@@ -742,14 +742,17 @@ func TestTemperatureArrow_熱源のそばでは赤の上向き(t *testing.T) {
 	assert.Greater(t, arrow.Color.R, arrow.Color.B, "温まる向きは赤が強い")
 }
 
-func TestTemperatureArrow_快適で状態も無ければ出さない(t *testing.T) {
+func TestTemperatureArrow_快適時は黄色の右向きを常時出す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	e := world.ECS.NewEntity()
 	world.Components.Player.Add(e, &gc.Player{})
 	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
 
-	assert.False(t, temperatureArrow(world, e).Visible, "快適で体温状態も無ければ矢印を出さない")
+	arrow := temperatureArrow(world, e)
+	require.True(t, arrow.Visible, "矢印は常時出す")
+	assert.Equal(t, hud.TempDirectionSteady, arrow.Direction, "変化が無ければ一定")
+	assert.Equal(t, color.RGBA{255, 200, 0, 255}, arrow.Color, "一定は黄色")
 }
 
 func TestTemperatureArrow_状態が無くても寒い環境なら早期警告を出す(t *testing.T) {
