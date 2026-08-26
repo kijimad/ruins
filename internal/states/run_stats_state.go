@@ -3,8 +3,6 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -114,26 +112,6 @@ func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}
 }
 
-// View は見出しとタブ帯と現在タブのテーブルを menuframe のタブ画面枠へ組む。ラベルの訳のみ world から引く
-func (st *RunStatsState) View(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	labels := make([]string, len(props.Tabs))
-	for i, tab := range props.Tabs {
-		labels[i] = tab.Label
-	}
-	tabIndex := cursor.TabIndex
-	if tabIndex >= len(props.Tabs) {
-		tabIndex = 0
-	}
-	content := buildStatsTable(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		Header:    query.T(world, st.headerMsgid),
-		TabLabels: labels,
-		TabIndex:  tabIndex,
-		Content:   content,
-		Footer:    keybind.HelpHint(world),
-	})
-}
-
 // ViewUI は View の internal/ui 版。タブ帯つきのステータス表を自前 UI で組む。
 func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
@@ -161,22 +139,6 @@ func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res
 		EmptyText:       query.T(world, "No entries"),
 		ItemsPerPage:    menuframe.ListCapacity(res, true, true),
 	}, res.Text.BodyFace)
-}
-
-// buildStatsTable は統計を Label と Value の2列テーブルに組む。ラベルが長いので
-// character 情報タブより広い列幅を取り、値は右寄せの数値にする
-func buildStatsTable(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) *widget.Container {
-	columnWidths := []int{180, 90}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-	rows := make([]menuRow, len(items))
-	for i, it := range items {
-		rows[i] = menuRow{Cells: styled.TextCells(it.Label, it.Value)}
-	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{
-		AlwaysIndicator: true,
-		EmptyText:       query.T(world, "No entries"),
-		ItemsPerPage:    menuframe.ListCapacity(res, true, true),
-	}, res)
 }
 
 // runStatsItems は run 統計をテーブル行に組む。結果画面と道中の統計画面で共通。

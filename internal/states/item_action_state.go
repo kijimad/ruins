@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -17,7 +15,6 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
-	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -390,26 +387,6 @@ func newItemActionEntry(world w.World, stack query.Stack) itemRowData {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
-	labels := make([]string, len(props.Tabs))
-	for i, tab := range props.Tabs {
-		if tab.Key != "" {
-			labels[i] = fmt.Sprintf("%s(%s)", tab.Label, tab.Key)
-		} else {
-			labels[i] = tab.Label
-		}
-	}
-	// タイトルは置かず、タブ帯から始める。詳細は x のモーダルで見る
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		TabLabels: labels,
-		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemList(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    keybind.HelpHint(world),
-	})
-}
-
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
 func (st *ItemActionState) Menu(props ItemActionProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
@@ -417,19 +394,6 @@ func (st *ItemActionState) Menu(props ItemActionProps) menuloop.MenuConfig {
 		itemCounts[i] = len(tab.Items)
 	}
 	return menuloop.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto, InitialTab: verbTabIndex(st.initialVerb)}
-}
-
-func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	if tabIndex >= len(props.Tabs) {
-		return styled.NewVerticalContainer()
-	}
-	items := props.Tabs[tabIndex].Items
-	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
-	rows := make([]menuRow, len(items))
-	for i, it := range items {
-		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
-	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
 }
 
 // ViewUI は View の internal/ui 版。動詞タブとアイコン付きアイテム一覧を自前 UI で組む。

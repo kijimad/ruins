@@ -1,8 +1,6 @@
 package states
 
 import (
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
@@ -13,51 +11,6 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
-
-// View は人物画面のタブ本体を props と選択位置から組み立てる描画。ラベルの訳のみ world から引く。
-// 詳細や装備選択のオーバーレイ窓は Screen が重ねる。menuloop.Model の View 部にあたる
-func (st *CharacterState) View(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// 見出しは対象キャラ名
-	header := props.TargetName
-
-	// コンテンツは現在タブの中身。装備は編集可能、以降は読み取り専用の情報タブ
-	var content *widget.Container
-	if charTabAt(cursor.TabIndex) == charTabEquip {
-		content = buildEquipList(world, props.EquipSlots, cursor.ItemIndex, res)
-	} else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
-		content = buildInfoTable(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)
-	} else {
-		content = widget.NewContainer()
-	}
-
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		Header:    header,
-		TabLabels: characterTabLabels(world),
-		TabIndex:  cursor.TabIndex,
-		Content:   content,
-		Footer:    keybind.HelpHint(world),
-	})
-}
-
-// buildEquipList は装備タブの一覧を組み立てる。スロット名、装備アイコン、装備名を左に並べ、
-// 右端に装備の重量を表示する。名前列を幅0で伸ばし、重量列を右端へ寄せて情報タブの値と揃える。
-// 未装備はアイコン・名前・重量を空欄にする。アイコンは装備名の左に置く
-func buildEquipList(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
-	columnWidths := []int{150, itemIconColumnWidth, 0, 90}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
-	rows := make([]menuRow, len(slots))
-	for i, slot := range slots {
-		var icon *ebiten.Image
-		weight := ""
-		if slot.Entity != nil {
-			icon, _ = resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(*slot.Entity))
-			weight = query.GetEntityWeight(world, *slot.Entity).KgString()
-		}
-		rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName), styled.TextCell(weight)}}
-	}
-	// 人物画面は見出しとタブ帯の両方を持つので、その構成での実測容量を使う
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)
-}
 
 // ViewUI は View の internal/ui 版。人物画面のタブ本体を自前 UI で組む。
 // 装備選択の入れ子モーダルは equip overlay が ScreenRenderer として本体の上へ重ねる。

@@ -3,7 +3,6 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -14,7 +13,6 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/ui"
-	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -237,21 +235,6 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // ================
 // View
 // ================
-
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
-	labels := make([]string, len(props.Tabs))
-	for i, tab := range props.Tabs {
-		labels[i] = tab.Label
-	}
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		TabLabels: labels,
-		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    keybind.HelpHint(world),
-	})
-}
 
 func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	if tabIndex >= len(tabs) {

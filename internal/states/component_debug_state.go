@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -13,7 +12,6 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
-	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -117,24 +115,6 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConf
 // ================
 // view
 // ================
-
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	columnWidths := []int{260, 80}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-	rows := make([]menuRow, len(props.Items))
-	for i, it := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}
-	}
-	container := renderMenuList(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res)
-
-	// in-game モーダルの共通骨組みに揃える。見出しは合計数、下部にキー案内を常設する
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		Header:  fmt.Sprintf("Components total: %d", props.Total),
-		Content: container,
-		Footer:  keybind.HelpHint(world),
-	})
-}
 
 // ViewUI は View の internal/ui 版。コンポーネント数の2列表をタブ帯なしのモーダルに組む。
 func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {

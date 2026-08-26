@@ -3,10 +3,7 @@ package states
 import (
 	"fmt"
 	"image"
-	"strings"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -126,80 +123,6 @@ func (st *MainMenuState) handleSelection(world w.World) (es.Transition[w.World],
 // ================
 // View
 // ================
-
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	itemIndex := cursor.ItemIndex
-
-	rootContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
-
-	// タイトルは選択肢を背景へ浮かせる。パネル背景を付けず透明にし、下部スクリムで可読性を担保する。
-	menuContainer := styled.NewVerticalContainer(
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Stretch: true,
-			}),
-			widget.WidgetOpts.MinSize(200, 0),
-		),
-	)
-	// 行は共通ヘルパで組み、縦幅・行間・幅を他メニューと揃える
-	rows := make([]menuRow, len(props.Items))
-	for i, item := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(item.Label)}
-	}
-	menuContainer.AddChild(renderMenuList(itemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res))
-
-	// バージョン表示テキストを作成
-	versionInfo := []string{}
-	if consts.AppVersion != "v0.0.0" {
-		versionInfo = append(versionInfo, consts.AppVersion)
-	}
-	if consts.AppCommit != "0000000" {
-		versionInfo = append(versionInfo, consts.AppCommit)
-	}
-	if consts.AppDate != "0000-00-00" {
-		versionInfo = append(versionInfo, consts.AppDate)
-	}
-	versionText := widget.NewText(
-		widget.TextOpts.Text(strings.Join(versionInfo, "\n"), &res.Text.SmallFace, theme.TextAccent),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionEnd,
-				VerticalPosition:   widget.AnchorLayoutPositionEnd,
-				Padding: &widget.Insets{
-					Right:  theme.Space6,
-					Bottom: theme.Space6,
-				},
-			}),
-		),
-	)
-
-	// ラッパーコンテナを作成
-	wrapperContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-		)),
-		widget.ContainerOpts.WidgetOpts(
-			// シネマ配置。ロゴは背景左上、メニューは左下へ左寄せで置き、右のキューブを主役に残す
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionStart,
-				VerticalPosition:   widget.AnchorLayoutPositionEnd,
-				Padding: &widget.Insets{
-					Left:   64,
-					Bottom: 72,
-				},
-			}),
-		),
-	)
-
-	wrapperContainer.AddChild(menuContainer)
-	rootContainer.AddChild(wrapperContainer)
-	rootContainer.AddChild(versionText)
-
-	return &ebitenui.UI{Container: rootContainer}
-}
 
 // ViewUI は View の internal/ui 版。メニューを左下へ左寄せで置き、バージョンを右下へ置く。
 // パネル背景は付けず、タイトル背景を透かす。Screen が本体を internal/ui で描く。

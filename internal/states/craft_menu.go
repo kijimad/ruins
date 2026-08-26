@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -16,7 +14,6 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
-	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -231,41 +228,6 @@ func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 // ================
 // View
 // ================
-
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る
-	labels := make([]string, len(props.Tabs))
-	for i, tab := range props.Tabs {
-		labels[i] = tab.Label
-	}
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		TabLabels: labels,
-		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    keybind.HelpHint(world),
-	})
-}
-
-func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	if tabIndex >= len(tabs) {
-		return styled.NewVerticalContainer()
-	}
-
-	currentTab := tabs[tabIndex]
-	// 先頭に印の列を置き、合成できるレシピにはチェック、できないレシピにはバツを付ける。名前の開始位置は揃える
-	columnWidths := []int{20, 320}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
-	rows := make([]menuRow, len(currentTab.Items))
-	for i, it := range currentTab.Items {
-		mark := consts.IconClose
-		if it.CanCraft {
-			mark = consts.IconCheck
-		}
-		rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}
-	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res)
-}
 
 // ViewUI は View の internal/ui 版。カテゴリタブと合成可否印つきレシピ一覧を自前 UI で組む。
 func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {

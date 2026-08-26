@@ -3,7 +3,6 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -94,19 +93,6 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 		skips[i] = c.Header
 	}
 	return menuloop.MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuloop.ItemsPerPageAuto, Skips: [][]bool{skips}}
-}
-
-// View は選択肢の1カラム一覧を中央パネルに組む純粋描画。メインメニューやセーブロードと同じ簡易メニューの
-// 見た目に揃え、エントリ数相応の大きさに縮む。多いときはページ送りしてはみ出さない
-func (st *ChoiceMenuState) View(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	rows := make([]menuRow, len(props.Choices))
-	for i, c := range props.Choices {
-		rows[i] = menuRow{Cells: styled.TextCells(c.Label), Header: c.Header}
-	}
-	// 単一タブのコマンドメニューなので行間を空け、ページ表示は複数ページのときだけ出す。
-	// メインメニューと先頭位置・行間を揃える
-	list := renderMenuList(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
-	return menuframe.NewPanelScreen(res, props.Title, list, keybind.HelpHint(world))
 }
 
 // ViewUI は View の internal/ui 版。選択肢の一覧を中央パネルに自前 UI で組む。
