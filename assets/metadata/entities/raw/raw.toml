@@ -13208,8 +13208,8 @@ g = 150
 r = 255
 
 [props.heatSource]
-radius = 1
-warmth = 0.5
+radius = 2
+warmth = 0.75
 
 [[props]]
 blockPass = true

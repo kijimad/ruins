@@ -533,7 +533,7 @@ func TestLogTemperatureChange(t *testing.T) {
 	})
 }
 
-func TestHeatSourceWarmthAt_半径内を加算し半径外は無視する(t *testing.T) {
+func TestHeatSourceWarmthAt_距離に応じて減衰し半径外は無視する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -542,16 +542,30 @@ func TestHeatSourceWarmthAt_半径内を加算し半径外は無視する(t *tes
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 		world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: radius, Warmth: warmth})
 	}
-	addHeatSource(5, 5, 1, 0.5)   // 半径1
-	addHeatSource(6, 6, 2, 0.3)   // (5,5) から距離1で半径2内
+	addHeatSource(5, 5, 2, 0.6)   // 半径2
 	addHeatSource(20, 20, 1, 9.9) // 遠く、どの検証点からも圏外
 
-	// (5,5): 自身の熱源が距離0、隣の熱源が距離1。両方内で加算する
-	assert.InDelta(t, 0.8, heatSourceWarmthAt(world, 5, 5), 1e-9)
-	// (7,7): (5,5)からチェビシェフ距離2で半径1外、(6,6)から距離1で半径2内。0.3のみ
-	assert.InDelta(t, 0.3, heatSourceWarmthAt(world, 7, 7), 1e-9)
-	// (0,0): どの熱源からも圏外
-	assert.InDelta(t, 0.0, heatSourceWarmthAt(world, 0, 0), 1e-9)
+	// 源泉は満額、距離1は 2/3、距離2は 1/3 と線形に減衰する
+	assert.InDelta(t, 0.6, heatSourceWarmthAt(world, 5, 5), 1e-9)
+	assert.InDelta(t, 0.4, heatSourceWarmthAt(world, 6, 5), 1e-9)
+	assert.InDelta(t, 0.2, heatSourceWarmthAt(world, 7, 5), 1e-9)
+	// 半径外は0
+	assert.InDelta(t, 0.0, heatSourceWarmthAt(world, 8, 5), 1e-9)
+}
+
+func TestHeatSourceWarmthAt_複数の熱源を加算する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	addHeatSource := func(x, y, radius consts.Tile, warmth float64) {
+		e := world.ECS.NewEntity()
+		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: radius, Warmth: warmth})
+	}
+	addHeatSource(5, 5, 1, 0.5) // (5,5) で距離0の満額 0.5
+	addHeatSource(6, 6, 2, 0.3) // (5,5) から距離1で 0.3*2/3 = 0.2
+
+	assert.InDelta(t, 0.7, heatSourceWarmthAt(world, 5, 5), 1e-9)
 }
 
 func TestApplyHeatSourceRecovery_低体温を回復する(t *testing.T) {

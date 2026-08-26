@@ -224,8 +224,9 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 	return modifier
 }
 
-// heatSourceWarmthAt はタイル座標のチェビシェフ半径内にある全熱源の Warmth 合計を返す。
-// 半径内なら固定量、半径外なら効かない離散。複数の熱源は加算する
+// heatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。
+// 各熱源はチェビシェフ距離に応じて線形に減衰し、源泉で Warmth 満額、半径の縁で最小、
+// 半径外で0になる。近いほど暖かい。複数の熱源は加算する
 func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 	at := consts.Coord[consts.Tile]{X: x, Y: y}
 	var warmth float64
@@ -234,8 +235,9 @@ func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 		entity := heatQuery.Entity()
 		src := world.Components.HeatSource.Get(entity)
 		grid := world.Components.GridElement.Get(entity)
-		if geometry.ChebyshevDistance(at, grid.Coord) <= int(src.Radius) {
-			warmth += src.Warmth
+		if d := geometry.ChebyshevDistance(at, grid.Coord); d <= int(src.Radius) {
+			reach := int(src.Radius) + 1
+			warmth += src.Warmth * float64(reach-d) / float64(reach)
 		}
 	}
 	return warmth
