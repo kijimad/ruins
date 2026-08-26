@@ -111,8 +111,8 @@ func panelSelCell(child ui.Widget, selBar *resources.NineSliceTex) *ui.Container
 }
 
 // buildTabScreenUI は見出し・タブ帯・内容行・フッタを1枚のモーダルに縦へ並べて返す。
-// NewTabScreen の internal/ui 版。モーダルは中央固定枠いっぱいに広げる。タブ帯と一覧の間、
-// および一覧とフッタの間に一行の余白を空ける。フッタは一覧の直下に置き、下端へは押し込まない。
+// NewTabScreen の internal/ui 版。モーダルは中央固定枠いっぱいに広げる。タブ帯と一覧の間に
+// 一行の余白を空ける。フッタは常に下端へ固定し、内容の量によらずヘルプの位置がぶれないようにする。
 // ページ表示はフッタ行の右端に置く。
 func buildTabScreenUI(world w.World, res resources.UIResources, header string, tabLabels []string, tabIndex int, content []ui.Widget, footer, pager string) ui.Widget {
 	face := res.Text.BodyFace
@@ -134,9 +134,12 @@ func buildTabScreenUI(world w.World, res resources.UIResources, header string, t
 	}
 	items = append(items, content...)
 
-	// フッタは一覧の一行下に置く。下端へ押し込まず、最後のエントリの近くに置く
+	// フッタは下端へ寄せる。内容の下を空行で埋め、最下段にフッタ行を置く。ヘルプの位置を固定する
 	if footer != "" || pager != "" {
-		items = append(items, ui.NewText(" ", face, theme.TextPrimary))
+		capacity := (rect.Dy() - panelScreenPad*2) / tabScreenRowH
+		for len(items) < capacity-1 {
+			items = append(items, ui.NewText(" ", face, theme.TextPrimary))
+		}
 		items = append(items, footerRowUI(footer, pager, res))
 	}
 
