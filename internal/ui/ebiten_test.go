@@ -23,18 +23,44 @@ func TestMain(m *testing.M) {
 	os.Exit(vrt.RunTestMain(m))
 }
 
-// isolatedResources は独自のフォントソースを持つ UIResources を新しく作る。
-// vrt.SharedUIResources と違い sync.Once で共有しないので、フェイスのグリフキャッシュが
-// このインスタンスに独立する。text/v2 は GoTextFaceSource 内に可変キャッシュを持ち、
-// 共有フェイスを並行描画すると競合する。フェイスをインスタンスが所有すれば共有が無くなり、
-// ロック無しで並列に実描画できる。これは ebitenui のグローバル問題と同じ「共有可変状態」の話で、
-// 解も同じインスタンス所有になる。
-func isolatedResources(t *testing.T) resources.UIResources {
-	t.Helper()
+// facePool は独立したフォントフェイスを再利用するプール。
+//
+// text/v2 は GoTextFaceSource 内に可変キャッシュを持ち、共有フェイスを並行描画すると競合する。
+// フェイスをインスタンスが所有すれば共有が無くなり、ロック無しで並列に実描画できる。
+// ただし独立フェイスを都度作るとフォント再パースのコストが乗る。プールは Get した借り手へ
+// フェイスを排他所有で渡し Put で返すので、同時に走る借り手は必ず別フェイスを掴んで独立し、
+// 使い終わったフェイスは次の借り手がウォームキャッシュのまま再利用する。プールは実際の並列度ぶん
+// だけ遅延生成される。独立性と速度が両立する。
+// これは ebitenui のグローバル問題と同じ共有可変状態の話で、解も同じインスタンス所有になる。
+// プールにはポインタを入れる。値を入れると Put でインタフェースへボクシングされ割り当てが増える。
+var facePool = sync.Pool{New: func() any { return mustLoadResources() }}
+
+// loadMu はリソース読み込みを直列化する。loader.LoadUIResources は共有状態を持ち並行安全でない。
+// 本番は起動時に1回だけ読むので無害だが、プールが複数ゴルーチンから同時に補充すると競合する。
+// 読み込みは一度きりの setup なのでここを直列化しても実描画の並列は損なわない。
+var loadMu sync.Mutex
+
+// mustLoadResources は独自フォントソースの UIResources を新しく作る。プールの補充に使う。
+func mustLoadResources() *resources.UIResources {
+	loadMu.Lock()
+	defer loadMu.Unlock()
 	fonts, err := loader.LoadFonts()
-	require.NoError(t, err)
+	if err != nil {
+		panic(err)
+	}
 	res, err := loader.LoadUIResources(fonts)
-	require.NoError(t, err)
+	if err != nil {
+		panic(err)
+	}
+	return &res
+}
+
+// borrowRes はプールから独立フェイスを1つ借りる。ゴルーチンからも呼ぶので require でなく panic で確定する。
+func borrowRes() *resources.UIResources {
+	res, ok := facePool.Get().(*resources.UIResources)
+	if !ok {
+		panic("facePool: 想定外の型")
+	}
 	return res
 }
 
@@ -93,11 +119,12 @@ func drawRealPanel(res resources.UIResources) int {
 
 func TestEbitenCanvas_実フォントで描くと非空になる(t *testing.T) {
 	t.Parallel()
-	res := isolatedResources(t)
+	res := borrowRes()
+	defer facePool.Put(res)
 
 	screen := ebiten.NewImage(220, 100)
 	cv := ui.NewEbitenCanvas(screen)
-	u := ui.New(buildRealPanel(res))
+	u := ui.New(buildRealPanel(*res))
 	u.Layout(image.Rect(0, 0, 220, 100))
 	u.Draw(cv)
 
@@ -105,16 +132,10 @@ func TestEbitenCanvas_実フォントで描くと非空になる(t *testing.T) {
 }
 
 // TestEbitenCanvas_フェイスをインスタンス所有にすれば並列描画も競合しない は、各ゴルーチンが
-// 独自フェイスを持てば実描画も並列でロック無しに競合しないことを確かめる。
-// 独立フェイスは require を含むので、ゴルーチン起動前にテストゴルーチンで作っておく。
+// プールから独立フェイスを借りて実描画すれば、並列でもロック無しに競合しないことを確かめる。
 func TestEbitenCanvas_フェイスをインスタンス所有にすれば並列描画も競合しない(t *testing.T) {
 	t.Parallel()
 	const workers = 8
-
-	resList := make([]resources.UIResources, workers)
-	for i := range resList {
-		resList[i] = isolatedResources(t)
-	}
 
 	var wg sync.WaitGroup
 	counts := make([]int, workers)
@@ -122,7 +143,9 @@ func TestEbitenCanvas_フェイスをインスタンス所有にすれば並列�
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
-			counts[id] = drawRealPanel(resList[id])
+			res := borrowRes()
+			defer facePool.Put(res)
+			counts[id] = drawRealPanel(*res)
 		}(w)
 	}
 	wg.Wait()
