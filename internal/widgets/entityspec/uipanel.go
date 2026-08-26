@@ -43,7 +43,7 @@ func SpecRowWidgets(rows []SpecRow, face text.Face) []ui.Widget {
 }
 
 // BuildSpecPanel は SpecRow の並びから internal/ui の保持型ツリーを組む。
-// RenderSpecRows の ebitenui 版に対応する自前 UI 版。必要なのは本文フェイスだけなのでそれだけを受け取る。
+// 必要なのは本文フェイスだけなのでそれだけを受け取る。
 // パッケージグローバルの可変状態に触れないので、複数の UI を並行に組んでも競合しない。
 func BuildSpecPanel(rows []SpecRow, face text.Face) *ui.Container {
 	return ui.VBox(specPanelRowH, SpecRowWidgets(rows, face)...)

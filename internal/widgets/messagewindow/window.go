@@ -14,7 +14,7 @@ import (
 
 // Window はメッセージウィンドウを表す。
 //
-// 描画は internal/ui のツリーで組むので ebitenui のグローバル状態に触れない。UI は保持せず
+// 描画は internal/ui のツリーで組み、グローバル可変状態に触れない。UI は保持せず
 // 毎フレーム buildTree で組み直す。フォーカスやページの差分追跡は不要で、現在の状態から都度描く
 type Window struct {
 	config      windowConfig

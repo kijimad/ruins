@@ -70,8 +70,8 @@ type KeyBindings interface {
 
 // Screen はメニューの UI ランタイム。mount・widget と overlay を保持し、毎フレームの
 // 手順を回す。state は構造体にこれをポインタで持ち、Update と Draw を委譲する。
-// widget は ebitenui を retained として扱い、props・カーソル・overlay が変わったフレームだけ組み直す。
-// 変化が無ければ前フレームのツリーを再利用する
+// widget は internal/ui のツリーを retained として扱い、props・カーソル・overlay が変わった
+// フレームだけ組み直す。変化が無ければ前フレームのツリーを再利用する
 type Screen[P any] struct {
 	model Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
 	// table はこの画面のキー束縛。state 固有の断片と共通表を構築時に1枚へ合成済みで、

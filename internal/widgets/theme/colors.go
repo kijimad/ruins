@@ -53,7 +53,7 @@ var (
 	Overlay = color.RGBA{R: 0, G: 0, B: 0, A: 200}
 	// ScreenBackground は画面クリア用の背景色
 	ScreenBackground = color.RGBA{R: 30, G: 30, B: 30, A: 255}
-	// Transparent は完全透明色。ebitenuiの透明背景に使用する
+	// Transparent は完全透明色。背景を敷かない箇所に使う
 	Transparent = color.NRGBA{}
 )
 

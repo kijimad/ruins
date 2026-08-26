@@ -290,7 +290,6 @@ func TestScreen_dirtyGateは変化時だけViewを組み直す(t *testing.T) {
 	screen := NewScreen[int](model)
 	world := w.World{Resources: &resources.Resources{}}
 
-	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
 	_, err := screen.Update(world)
 	require.NoError(t, err)
 	assert.Equal(t, 1, model.viewCount, "初回は必ず組む")

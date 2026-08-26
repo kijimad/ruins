@@ -12,7 +12,7 @@ import (
 
 // TestGolden_UISpecPanel は internal/ui で組んだスペックパネルの実ピクセルを golden で固定する。
 // EbitenCanvas で実フォント描画し、testdata/TestGolden_UISpecPanel.png と比較する。
-// フェイスはプールから借りて独立させるので、WithUILock 無し・t.Parallel で回せる。
+// フェイスはプールから借りて独立させるので、ロック無し・t.Parallel で回せる。
 // これで自前 UI の実画面が VRT の golden 流儀に載ることを確かめ、画面移行のパターンを確立する。
 func TestGolden_UISpecPanel(t *testing.T) {
 	t.Parallel()

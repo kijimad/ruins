@@ -95,8 +95,8 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: "choice", TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuloop.ItemsPerPageAuto, Skips: [][]bool{skips}}
 }
 
-// ViewUI は View の internal/ui 版。選択肢の一覧を中央パネルに自前 UI で組む。
-// Screen はこちらを使い、本体を ebitenui なしで描く。
+// ViewUI は選択肢の一覧を中央パネルに internal/ui のツリーで組んで返す。
+// Screen はこれを EbitenCanvas で本体として描く。
 func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	rows := make([]menuRow, len(props.Choices))
 	for i, c := range props.Choices {

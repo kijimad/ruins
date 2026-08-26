@@ -32,7 +32,7 @@ type WidgetConfig struct {
 // Widget はメッセージログ表示ウィジェット。
 //
 // 各エントリを1行とし、行内の色付きフラグメントを水平に連ねて描く。描画は internal/ui の
-// ツリーで組むので ebitenui のグローバル状態に触れない。フラグメント幅はフェイスの測定で決める
+// ツリーで組み、グローバル可変状態に触れない。フラグメント幅はフェイスの測定で決める
 type Widget struct {
 	config      WidgetConfig
 	world       w.World
