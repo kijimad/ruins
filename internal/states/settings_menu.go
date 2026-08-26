@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -29,6 +30,7 @@ type SettingsMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &SettingsMenuState{}
+var _ menuloop.UIView[SettingsMenuProps] = &SettingsMenuState{}
 
 // OnStart はステート開始時の処理を行う。メインメニューの上に重なるためワールドは操作しない
 func (st *SettingsMenuState) OnStart(_ w.World) error {
@@ -219,4 +221,14 @@ func (st *SettingsMenuState) View(world w.World, props SettingsMenuProps, cursor
 	)
 	rootContainer.AddChild(menuContainer)
 	return &ebitenui.UI{Container: rootContainer}
+}
+
+// ViewUI は View の internal/ui 版。設定項目の2列表を中央パネルに自前 UI で組む。
+func (st *SettingsMenuState) ViewUI(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	rows := make([]menuRow, len(props.Items))
+	for i, item := range props.Items {
+		rows[i] = menuRow{Cells: styled.TextCells(item.Label, item.Value)}
+	}
+	content := renderMenuListUI(cursor.ItemIndex, rows, []int{240, 100}, []styled.TextAlign{styled.AlignLeft, styled.AlignRight}, menuListOpts{Spaced: true}, res.Text.BodyFace)
+	return buildPanelScreenUI(world, res, query.T(world, "Settings"), content, keybind.HelpHint(world))
 }
