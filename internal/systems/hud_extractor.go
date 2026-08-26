@@ -381,7 +381,7 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 		}
 	}
 
-	// プレイヤーの体温状態。低体温か高体温の状態があるときだけ出す。変化の向きは矢印が別に担う
+	// プレイヤーの体温状態バッジ
 	tempQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
 	for tempQuery.Next() {
 		if badge, ok := temperatureStateBadge(world, tempQuery.Entity()); ok {

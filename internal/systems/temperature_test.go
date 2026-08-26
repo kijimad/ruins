@@ -542,14 +542,13 @@ func TestHeatSourceWarmthAt_距離に応じて減衰し半径外は無視する(
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 		world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: radius, Warmth: warmth})
 	}
-	addHeatSource(5, 5, 2, 0.6)   // 半径2
+	addHeatSource(5, 5, 2, 0.6)
 	addHeatSource(20, 20, 1, 9.9) // 遠く、どの検証点からも圏外
 
 	// 源泉は満額、距離1は 2/3、距離2は 1/3 と線形に減衰する
 	assert.InDelta(t, 0.6, heatSourceWarmthAt(world, 5, 5), 1e-9)
 	assert.InDelta(t, 0.4, heatSourceWarmthAt(world, 6, 5), 1e-9)
 	assert.InDelta(t, 0.2, heatSourceWarmthAt(world, 7, 5), 1e-9)
-	// 半径外は0
 	assert.InDelta(t, 0.0, heatSourceWarmthAt(world, 8, 5), 1e-9)
 }
 
@@ -562,8 +561,8 @@ func TestHeatSourceWarmthAt_複数の熱源を加算する(t *testing.T) {
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 		world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: radius, Warmth: warmth})
 	}
-	addHeatSource(5, 5, 1, 0.5) // (5,5) で距離0の満額 0.5
-	addHeatSource(6, 6, 2, 0.3) // (5,5) から距離1で 0.3*2/3 = 0.2
+	addHeatSource(5, 5, 1, 0.5)
+	addHeatSource(6, 6, 2, 0.3)
 
 	assert.InDelta(t, 0.7, heatSourceWarmthAt(world, 5, 5), 1e-9)
 }

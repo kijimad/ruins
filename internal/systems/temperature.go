@@ -115,7 +115,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		// 各部位の健康状態を更新
 		hasChange := updateTemperatureConditions(world, hs, ambientTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
 
-		// 周囲の熱源で低体温を回復する。周囲気温とは別に効き、屋内外で回復量は同じ
+		// 周囲の熱源で低体温を回復する
 		warmth := heatSourceWarmthAt(world, gridElement.X, gridElement.Y)
 		if applyHeatSourceRecovery(world, hs, warmth, isPlayer) {
 			hasChange = true
@@ -137,8 +137,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 }
 
 // temperatureNetDelta は現在地の環境から1ターンに起きる全身の体温変化を導出する。温まる向きが正。
-// updateTemperatureConditions と applyHeatSourceRecovery が適用する変化量の見積もりで、
-// 保存した実測ではなく現在の世界状態だけから計算する。HUD のトレンド矢印が読む。
+// updateTemperatureConditions と applyHeatSourceRecovery が適用する変化量の見積もりで、HUD のトレンド矢印が読む。
 // タイマーの上下限クランプは考慮しないので、張り付いている間も環境圧力の向きを示す
 func temperatureNetDelta(world w.World, entity ecs.Entity) float64 {
 	if !world.Components.HealthStatus.Has(entity) || !world.Components.GridElement.Has(entity) {
@@ -225,8 +224,7 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 }
 
 // heatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。
-// 各熱源はチェビシェフ距離に応じて線形に減衰し、源泉で Warmth 満額、半径の縁で最小、
-// 半径外で0になる。近いほど暖かい。複数の熱源は加算する
+// 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する
 func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 	at := consts.Coord[consts.Tile]{X: x, Y: y}
 	var warmth float64

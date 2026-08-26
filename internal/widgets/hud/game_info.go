@@ -31,7 +31,7 @@ type TemperatureArrow struct {
 	Color     color.RGBA
 }
 
-// 体温矢印の寸法。フォントグリフではなくベクター三角形で描くので大きさを自由に決められる
+// 体温矢印の寸法
 const (
 	tempArrowSlotW = 26.0 // HP バーの左に確保するスロット幅
 	tempArrowW     = 16.0 // 三角形の幅
@@ -67,7 +67,6 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
 		return
 	}
 
-	// 体温変化の矢印（HP バーの左）
 	info.drawTemperatureArrow(screen, data.TempArrow)
 
 	// HP情報
@@ -138,7 +137,6 @@ func (info *GameInfo) drawTemperatureArrow(screen *ebiten.Image, arrow Temperatu
 		pts = [3][2]float32{{right, cy}, {left, top}, {left, bottom}}
 	}
 
-	// 縁取りを先に8方向へずらして描き、上に本体色を重ねる
 	for _, o := range arrowOutlineOffsets {
 		fillTriangle(screen, offsetTriangle(pts, o[0], o[1]), theme.HUDTextOutline)
 	}
