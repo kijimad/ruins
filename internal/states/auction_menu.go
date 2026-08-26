@@ -17,6 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -51,6 +52,7 @@ type AuctionMenuState struct {
 }
 
 var _ es.State[w.World] = &AuctionMenuState{}
+var _ menuloop.UIView[AuctionProps] = &AuctionMenuState{}
 var _ menuloop.KeyBindings = &AuctionMenuState{}
 
 // OnStart はステート開始時に画面を組む
@@ -325,6 +327,79 @@ func (st *AuctionMenuState) View(world w.World, props AuctionProps, cursor menul
 		Content:   st.buildActiveContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
 		Footer:    keybind.HelpHint(world),
 	})
+}
+
+// ViewUI は View の internal/ui 版。オークションの各タブを自前 UI で組む。
+func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
+	content := st.buildActiveUI(world, props, cursor.TabIndex, cursor.ItemIndex, res)
+	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
+}
+
+// buildActiveUI は buildActiveContainer の internal/ui 版。タブ種別で中身を振り分ける。
+func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+	if tabIndex >= len(props.Tabs) {
+		return nil
+	}
+	tab := props.Tabs[tabIndex]
+	face := res.Text.BodyFace
+	switch tab.ID {
+	case auctionTabShip, auctionTabPending:
+		rows := make([]menuRow, len(tab.Items))
+		for i, it := range tab.Items {
+			value := ""
+			if it.HasValue {
+				value = it.Value.String()
+			}
+			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value)}}
+		}
+		empty := query.T(world, "No items to ship.")
+		if tab.ID == auctionTabPending {
+			empty = query.T(world, "Nothing awaiting pickup.")
+		}
+		return renderMenuListUI(itemIndex, rows, []int{200, 90, 110},
+			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+			menuListOpts{AlwaysIndicator: true, EmptyText: empty}, face)
+	case auctionTabFinance:
+		rows := make([]menuRow, len(tab.Entries))
+		for i, e := range tab.Entries {
+			kind := query.T(world, "Receipt")
+			name := e.Name
+			amount := e.Amount.String()
+			if e.Kind == gc.AuctionEntryInvoice {
+				kind = query.T(world, "Invoice")
+				name = query.T(world, e.Name)
+				amount = (-e.Amount).String()
+			}
+			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount)}}
+		}
+		return renderMenuListUI(itemIndex, rows, []int{200, 80, 120},
+			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No bills or receipts.")}, face)
+	case auctionTabHistory:
+		rows := make([]menuRow, len(tab.Ledger))
+		for i, r := range tab.Ledger {
+			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(r.Bid.String())}}
+		}
+		return renderMenuListUI(itemIndex, rows, []int{50, 200, 120},
+			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No shipments yet.")}, face)
+	default:
+		rows := make([]menuRow, len(tab.Ledger))
+		for i, r := range tab.Ledger {
+			status := query.T(world, "Won")
+			if r.Ongoing {
+				status = query.T(world, "Bidding")
+			}
+			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(status), styled.TextCell(r.Bid.String())}}
+		}
+		return renderMenuListUI(itemIndex, rows, []int{50, 170, 70, 110},
+			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No deals in progress.")}, face)
+	}
 }
 
 // detailContent は x で開く詳細の内容を返す。積む・出荷タブは品の詳細、状況タブは台帳の内訳

@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -35,6 +36,10 @@ type ShopMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}
+var _ menuloop.UIView[ShopProps] = &ShopMenuState{}
+
+// shopSellTabID は売却タブの識別子。空表示の文言分岐に使う。
+const shopSellTabID = "sell"
 var _ menuloop.KeyBindings = &ShopMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
@@ -122,7 +127,7 @@ func (st *ShopMenuState) Fetch(world w.World) (ShopProps, error) {
 	return ShopProps{
 		Tabs: []shopTabData{
 			{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, player, currency)},
-			{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
+			{ID: shopSellTabID, Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
 		},
 	}, nil
 }
@@ -266,8 +271,37 @@ func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, t
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Price.String(), total.KgString())
 	}
 	emptyText := query.T(world, "No goods")
-	if currentTab.ID == "sell" {
+	if currentTab.ID == shopSellTabID {
 		emptyText = query.T(world, "No items to sell")
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
+}
+
+// ViewUI は View の internal/ui 版。購入・売却タブとアイコン付き商品一覧を自前 UI で組む。
+func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
+	content := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res)
+	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
+}
+
+// buildItemListUI は buildItemContainer の internal/ui 版。
+func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+	if tabIndex >= len(tabs) {
+		return nil
+	}
+	currentTab := tabs[tabIndex]
+	columnWidths, aligns := itemMenuColumns(0, menuColumn{Width: 80, Align: styled.AlignRight}, menuColumn{Width: 90, Align: styled.AlignRight})
+	rows := make([]menuRow, len(currentTab.Items))
+	for i, it := range currentTab.Items {
+		total := query.GetEntityWeight(world, it.Entity) * consts.Milligram(it.Count)
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Price.String(), total.KgString())
+	}
+	emptyText := query.T(world, "No goods")
+	if currentTab.ID == shopSellTabID {
+		emptyText = query.T(world, "No items to sell")
+	}
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res.Text.BodyFace)
 }

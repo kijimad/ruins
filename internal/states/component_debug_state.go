@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -25,6 +26,7 @@ type ComponentDebugState struct {
 }
 
 var _ es.State[w.World] = &ComponentDebugState{}
+var _ menuloop.UIView[ComponentDebugProps] = &ComponentDebugState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ComponentDebugState) OnStart(_ w.World) error {
@@ -133,4 +135,16 @@ func (st *ComponentDebugState) View(world w.World, props ComponentDebugProps, cu
 		Content: container,
 		Footer:  keybind.HelpHint(world),
 	})
+}
+
+// ViewUI は View の internal/ui 版。コンポーネント数の2列表をタブ帯なしのモーダルに組む。
+func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	columnWidths := []int{260, 80}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	rows := make([]menuRow, len(props.Items))
+	for i, it := range props.Items {
+		rows[i] = menuRow{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}
+	}
+	content := renderMenuListUI(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true}, res.Text.BodyFace)
+	return buildTabScreenUI(world, res, fmt.Sprintf("Components total: %d", props.Total), nil, 0, content, keybind.HelpHint(world))
 }

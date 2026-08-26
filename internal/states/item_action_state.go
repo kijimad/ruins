@@ -16,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -223,6 +224,7 @@ type ItemActionState struct {
 }
 
 var _ es.State[w.World] = &ItemActionState{}
+var _ menuloop.UIView[ItemActionProps] = &ItemActionState{}
 var _ menuloop.KeyBindings = &ItemActionState{}
 
 // NewItemActionState は動詞タブ画面を initial のタブで開くファクトリを返す
@@ -429,6 +431,34 @@ func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, t
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
+}
+
+// ViewUI は View の internal/ui 版。動詞タブとアイコン付きアイテム一覧を自前 UI で組む。
+func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		if tab.Key != "" {
+			labels[i] = fmt.Sprintf("%s(%s)", tab.Label, tab.Key)
+		} else {
+			labels[i] = tab.Label
+		}
+	}
+	content := st.buildItemListUI(world, props, cursor.TabIndex, cursor.ItemIndex, res)
+	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
+}
+
+// buildItemListUI は buildItemList の internal/ui 版。
+func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+	if tabIndex >= len(props.Tabs) {
+		return nil
+	}
+	items := props.Tabs[tabIndex].Items
+	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
+	rows := make([]menuRow, len(items))
+	for i, it := range items {
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
+	}
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res.Text.BodyFace)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

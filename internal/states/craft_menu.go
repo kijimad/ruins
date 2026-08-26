@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -38,6 +39,7 @@ type CraftMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &CraftMenuState{}
+var _ menuloop.UIView[CraftProps] = &CraftMenuState{}
 var _ menuloop.KeyBindings = &CraftMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
@@ -264,6 +266,35 @@ func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData,
 		rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}
 	}
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res)
+}
+
+// ViewUI は View の internal/ui 版。カテゴリタブと合成可否印つきレシピ一覧を自前 UI で組む。
+func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
+	content := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res)
+	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
+}
+
+// buildItemListUI は buildItemContainer の internal/ui 版。
+func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+	if tabIndex >= len(tabs) {
+		return nil
+	}
+	currentTab := tabs[tabIndex]
+	columnWidths := []int{20, 320}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
+	rows := make([]menuRow, len(currentTab.Items))
+	for i, it := range currentTab.Items {
+		mark := consts.IconClose
+		if it.CanCraft {
+			mark = consts.IconCheck
+		}
+		rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}
+	}
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res.Text.BodyFace)
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点
