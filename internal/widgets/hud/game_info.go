@@ -24,7 +24,7 @@ const (
 )
 
 // TemperatureArrow は体温の変化方向を示す矢印。HP バーの左に出す。
-// 温まると赤の上向き、冷えると青の下向き、一定は灰の右向き。色の濃さが変化の速さ
+// 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ
 type TemperatureArrow struct {
 	Visible   bool
 	Direction TempDirection

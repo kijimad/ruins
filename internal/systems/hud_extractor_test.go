@@ -764,6 +764,11 @@ func TestTemperatureArrow_状態が無くても寒い環境なら早期警告を
 	assert.Equal(t, hud.TempDirectionDown, arrow.Direction, "冷える向き")
 }
 
+func TestTemperatureDirectionColor_一定は黄色(t *testing.T) {
+	t.Parallel()
+	assert.Equal(t, color.RGBA{255, 200, 0, 255}, temperatureDirectionColor(0))
+}
+
 func TestTemperatureStateBadge_低体温は寒色バッジ(t *testing.T) {
 	t.Parallel()
 	world, e := newColdPlayer(t)

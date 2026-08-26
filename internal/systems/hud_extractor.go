@@ -428,7 +428,7 @@ func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, b
 }
 
 // temperatureArrow はプレイヤーの体温変化の矢印を返す。快適で体温状態も無いときだけ隠す。
-// 温まると赤の上向き、冷えると青の下向き、一定は灰の右向き。色の濃さが変化の速さ。
+// 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ。
 // 変化は現在地の環境から導出するので、寒暖の環境や熱源タイルへ入った瞬間に反映される。
 // 状態が確定する前から環境圧力の早期警告として出す
 func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
@@ -453,11 +453,11 @@ func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
 	return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(delta)}
 }
 
-// temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は灰。
+// temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は黄。
 // 変化が速いほど濃い
 func temperatureDirectionColor(delta float64) color.RGBA {
 	if delta > -temperatureSteadyThreshold && delta < temperatureSteadyThreshold {
-		return color.RGBA{160, 160, 160, 255}
+		return color.RGBA{255, 200, 0, 255}
 	}
 	intensity := math.Min(math.Abs(delta), 1.0)
 	if delta > 0 {
