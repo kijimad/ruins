@@ -1,13 +1,13 @@
 package states
 
 import (
-	"image"
 	"testing"
 
-	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -129,9 +129,8 @@ func TestGolden_EquipSelect(t *testing.T) {
 	require.NoError(t, err)
 
 	props := charEquipProps{Items: []ecs.Entity{sword, gun}, SlotNumber: gc.SlotWeapon1}
-	vrt.AssertContainerGolden(t, func() *widget.Container {
-		win := buildEquipSelectWindow(world, props, 0, image.Rect(0, 0, 400, 300), world.Resources.UIResources)
-		content, _ := win.Contents.(*widget.Container)
-		return content
-	}, 400, 300)
+	tree := buildEquipSelectUI(world, props, 0, world.Resources.UIResources)
+	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+	tree.Draw(ui.NewEbitenCanvas(screen))
+	vrt.AssertFrameGolden(t, "TestGolden_EquipSelect", screen)
 }

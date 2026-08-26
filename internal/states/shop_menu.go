@@ -40,6 +40,7 @@ var _ menuloop.UIView[ShopProps] = &ShopMenuState{}
 
 // shopSellTabID は売却タブの識別子。空表示の文言分岐に使う。
 const shopSellTabID = "sell"
+
 var _ menuloop.KeyBindings = &ShopMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる

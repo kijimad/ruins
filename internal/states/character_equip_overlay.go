@@ -3,12 +3,14 @@ package states
 import (
 	"image"
 
-	"github.com/ebitenui/ebitenui/widget"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
+	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -25,6 +27,7 @@ type characterEquipOverlay struct {
 }
 
 var _ overlay.Layer = (*characterEquipOverlay)(nil)
+var _ overlay.ScreenRenderer = (*characterEquipOverlay)(nil)
 
 // newCharacterEquipOverlay は共有の詳細モーダルを参照する装備選択 overlay を作る
 func newCharacterEquipOverlay(detail *overlay.Detail) characterEquipOverlay {
@@ -108,12 +111,25 @@ func (o *characterEquipOverlay) execute(world w.World) error {
 	return nil
 }
 
-// Window は装備候補のサブウィンドウを rect の位置へ組む
-func (o *characterEquipOverlay) Window(world w.World, rect image.Rectangle) *widget.Window {
+// RenderOverlay は装備候補のモーダルを internal/ui のツリーへ組む。Screen が本体の上へ重ねる。
+func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) ui.Widget {
 	if !o.active {
 		return nil
 	}
 	props := o.mount.GetProps()
 	ms, _ := hooks.GetState[hooks.TabMenuState](o.mount, "char_equip")
-	return buildEquipSelectWindow(world, props, ms.ItemIndex, rect, world.Resources.UIResources)
+	return buildEquipSelectUI(world, props, ms.ItemIndex, world.Resources.UIResources)
+}
+
+// buildEquipSelectUI は装備候補のモーダルを internal/ui で組む。アイコン付き候補一覧を中央パネルに置く。
+func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) ui.Widget {
+	rows := make([]menuRow, len(props.Items))
+	for i, entity := range props.Items {
+		icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(entity))
+		rows[i] = menuRow{Cells: []styled.Cell{styled.IconCell(icon), styled.TextCell(query.GetEntityName(entity, world))}}
+	}
+	list := renderMenuListUI(selectedIndex, rows, []int{itemIconColumnWidth, 240},
+		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft},
+		menuListOpts{EmptyText: query.T(world, "Nothing to equip")}, res.Text.BodyFace)
+	return buildPanelScreenUI(world, res, query.T(world, "Choose equipment"), list, "")
 }

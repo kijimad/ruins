@@ -92,6 +92,7 @@ type CharacterState struct {
 }
 
 var _ es.State[w.World] = &CharacterState{}
+var _ menuloop.UIView[CharacterProps] = &CharacterState{}
 var _ menuloop.KeyBindings = &CharacterState{}
 
 // OnStart はステートが開始される際に呼ばれる

@@ -8,6 +8,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -279,4 +280,31 @@ func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resourc
 	}
 	// この画面は見出しとタブ帯の両方が縦を食うので、その構成での実測容量を使う
 	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)
+}
+
+// buildInfoTableUI は buildInfoTable の internal/ui 版。情報タブの表を行ウィジェット列で返す。
+func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) []ui.Widget {
+	hasModifier := tab.ID == tabAbilities
+	var columnWidths []int
+	var aligns []styled.TextAlign
+	if hasModifier {
+		columnWidths = []int{100, 60, 60}
+		aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+	} else {
+		columnWidths = []int{100, 60}
+		aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	}
+	rows := make([]menuRow, len(tab.Items))
+	for i, it := range tab.Items {
+		cells := make([]string, len(columnWidths))
+		cells[0] = it.Label
+		if !it.IsHeader {
+			cells[1] = it.Value
+			if hasModifier {
+				cells[2] = it.Modifier
+			}
+		}
+		rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}
+	}
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res.Text.BodyFace)
 }
