@@ -1,8 +1,6 @@
-// Package menuframe は画面レベルの UI 足場を組み立てる。
+// Package menuframe は画面レベルの UI 足場の寸法を与える。
 //
-// タブ付きモーダル NewTabScreen、内容サイズに縮む小パネル NewPanelScreen、
-// それらがログ領域と重ならないための基準を与える logTopY・CenterWindowRect を持つ。
-//
-// 入力データは states の Fetch が用意し、本パッケージはその見た目の器だけを組む。
-// ゲーム世界の直描きには関わらない。
+// モーダルの中央配置 CenterWindowRect、ログ領域を避ける基準 logTopY、
+// 一覧が1ページに収められる行数 ListCapacity を持つ。
+// 実際の描画は states の ViewUI が internal/ui で組む。本パッケージは寸法だけを担う。
 package menuframe

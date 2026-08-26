@@ -9,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
-	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
@@ -88,10 +87,8 @@ func TestScreen_Props_更新後の値を返す(t *testing.T) {
 	screen := NewScreen[int](model)
 	world := w.World{Resources: &resources.Resources{}}
 
-	vrt.WithUILock(func() {
-		_, err := screen.Update(world)
-		require.NoError(t, err)
-	})
+	_, err := screen.Update(world)
+	require.NoError(t, err)
 
 	assert.Equal(t, 5, screen.Props())
 }
@@ -117,15 +114,13 @@ func TestScreen_SetTab(t *testing.T) {
 
 			// UseTabMenu で初期状態を登録してから SetTab で動かし、
 			// 次の Update で選択位置に反映されたことを Selection 経由で確認する
-			vrt.WithUILock(func() {
-				_, err := screen.Update(world)
-				require.NoError(t, err)
+			_, err := screen.Update(world)
+			require.NoError(t, err)
 
-				screen.SetTab(tt.tab)
+			screen.SetTab(tt.tab)
 
-				_, err = screen.Update(world)
-				require.NoError(t, err)
-			})
+			_, err = screen.Update(world)
+			require.NoError(t, err)
 
 			assert.Equal(t, tt.wantTab, screen.Selection().TabIndex)
 		})
@@ -171,13 +166,11 @@ func TestScreen_Draw(t *testing.T) {
 		screen := NewScreen[int](model)
 		world := w.World{Resources: &resources.Resources{}}
 
-		vrt.WithUILock(func() {
-			_, err := screen.Update(world)
-			require.NoError(t, err)
+		_, err := screen.Update(world)
+		require.NoError(t, err)
 
-			assert.NotPanics(t, func() {
-				screen.Draw(ebiten.NewImage(10, 10))
-			})
+		assert.NotPanics(t, func() {
+			screen.Draw(ebiten.NewImage(10, 10))
 		})
 	})
 }
@@ -217,10 +210,8 @@ func TestScreen_Update_overlay(t *testing.T) {
 		screen := NewScreen[int](model, ov)
 		world := w.World{Resources: &resources.Resources{}}
 
-		vrt.WithUILock(func() {
-			_, err := screen.Update(world)
-			require.NoError(t, err)
-		})
+		_, err := screen.Update(world)
+		require.NoError(t, err)
 
 		assert.Equal(t, 1, ov.handleInputCalls)
 		assert.Equal(t, 0, model.doActionCalls)
@@ -235,9 +226,7 @@ func TestScreen_Update_overlay(t *testing.T) {
 		world := w.World{Resources: &resources.Resources{}}
 
 		var err error
-		vrt.WithUILock(func() {
-			_, err = screen.Update(world)
-		})
+		_, err = screen.Update(world)
 
 		require.ErrorIs(t, err, wantErr)
 		assert.Equal(t, 1, ov.handleInputCalls, "HandleInput は呼ばれてからエラーが伝播する")
@@ -264,9 +253,7 @@ func TestScreen_Update_DoAction(t *testing.T) {
 
 		var got es.Transition[w.World]
 		var err error
-		vrt.WithUILock(func() {
-			got, err = screen.Update(world)
-		})
+		got, err = screen.Update(world)
 
 		require.NoError(t, err)
 		assert.Equal(t, wantTrans, got)
@@ -288,9 +275,7 @@ func TestScreen_Update_DoAction(t *testing.T) {
 		}}
 
 		var err error
-		vrt.WithUILock(func() {
-			_, err = screen.Update(world)
-		})
+		_, err = screen.Update(world)
 
 		require.ErrorIs(t, err, wantErr)
 		assert.Equal(t, 1, model.doActionCalls)
@@ -306,24 +291,22 @@ func TestScreen_dirtyGateは変化時だけViewを組み直す(t *testing.T) {
 	world := w.World{Resources: &resources.Resources{}}
 
 	// widget 生成は ebitenui のグローバル状態に触れるのでロックで直列化する
-	vrt.WithUILock(func() {
-		_, err := screen.Update(world)
-		require.NoError(t, err)
-		assert.Equal(t, 1, model.viewCount, "初回は必ず組む")
+	_, err := screen.Update(world)
+	require.NoError(t, err)
+	assert.Equal(t, 1, model.viewCount, "初回は必ず組む")
 
-		_, err = screen.Update(world)
-		require.NoError(t, err)
-		assert.Equal(t, 1, model.viewCount, "props もカーソルも不変なら再構築しない")
+	_, err = screen.Update(world)
+	require.NoError(t, err)
+	assert.Equal(t, 1, model.viewCount, "props もカーソルも不変なら再構築しない")
 
-		model.props = 2
-		_, err = screen.Update(world)
-		require.NoError(t, err)
-		assert.Equal(t, 2, model.viewCount, "props が変われば再構築する")
+	model.props = 2
+	_, err = screen.Update(world)
+	require.NoError(t, err)
+	assert.Equal(t, 2, model.viewCount, "props が変われば再構築する")
 
-		_, err = screen.Update(world)
-		require.NoError(t, err)
-		assert.Equal(t, 2, model.viewCount, "再び不変なら据え置く")
-	})
+	_, err = screen.Update(world)
+	require.NoError(t, err)
+	assert.Equal(t, 2, model.viewCount, "再び不変なら据え置く")
 }
 
 // TestScreen_Update_移動系はDispatchだけでDoActionを呼ばない は入力ゲートの振り分けを固定する。
@@ -337,11 +320,9 @@ func TestScreen_Update_移動系はDispatchだけでDoActionを呼ばない(t *t
 	}}
 
 	var err error
-	vrt.WithUILock(func() {
-		_, err = screen.Update(world)
-		require.NoError(t, err)
-		_, err = screen.Update(world)
-	})
+	_, err = screen.Update(world)
+	require.NoError(t, err)
+	_, err = screen.Update(world)
 
 	require.NoError(t, err)
 	assert.Equal(t, 0, model.doActionCalls, "移動系は DoAction に届かない")

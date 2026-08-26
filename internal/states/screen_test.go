@@ -36,7 +36,7 @@ func TestScreen_ChoiceMenu_選択で先頭のRunが走りその遷移を返す(t
 	require.NoError(t, st.OnStart(world))
 	// Update で props と選択位置が確定し、先頭にカーソルが載る
 	var err error
-	vrt.WithUILock(func() { _, err = st.Update(world) })
+	_, err = st.Update(world)
 	require.NoError(t, err)
 
 	tr, err := st.DoAction(world, inputmapper.ActionMenuSelect)
@@ -67,13 +67,11 @@ func TestScreen_ChoiceMenu_UpdateとDrawが通る(t *testing.T) {
 	require.NoError(t, st.OnStart(world))
 	// Update と Draw が描画までパニックせず通ることを確認する
 	var err error
-	vrt.WithUILock(func() {
-		if _, err = st.Update(world); err != nil {
-			return
-		}
-		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-		err = st.Draw(world, screen)
-	})
+	if _, err = st.Update(world); err != nil {
+		return
+	}
+	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+	err = st.Draw(world, screen)
 	require.NoError(t, err)
 }
 
@@ -92,7 +90,7 @@ func TestScreen_ChoiceMenu_見出し行はカーソルが飛ばされる(t *test
 	})
 	require.NoError(t, st.OnStart(world))
 	var err error
-	vrt.WithUILock(func() { _, err = st.Update(world) })
+	_, err = st.Update(world)
 	require.NoError(t, err)
 
 	// 先頭は見出し行なのでカーソルは実行行へ飛ばされ、選択で Run が走る
