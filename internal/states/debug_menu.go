@@ -104,8 +104,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			query.GetVisionState(world).RequestUpdate()
 			return nil
 		})},
-		Choice{Label: "Advance season (world temperature)", Run: popAfter(func(world w.World) error {
-			// 次の季節へ進めて世界温度を切り替える。体温や熱源の挙動を寒暖両極で試すのに使う
+		Choice{Label: "Advance season", Run: popAfter(func(world w.World) error {
 			query.GetGameTime(world).AdvanceToNextSeason()
 			return nil
 		})},
