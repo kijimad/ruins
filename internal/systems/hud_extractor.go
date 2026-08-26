@@ -428,7 +428,8 @@ func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, b
 }
 
 // temperatureArrow はプレイヤーの体温変化の矢印を返す。低体温か高体温の状態があるときだけ Visible。
-// 温まると赤の上向き、冷えると青の下向き、一定は灰の右向き。色の濃さが変化の速さ
+// 温まると赤の上向き、冷えると青の下向き、一定は灰の右向き。色の濃さが変化の速さ。
+// 変化は現在地の環境から導出するので、熱源タイルへ入った瞬間に反転する
 func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
 	if !world.Components.HealthStatus.Has(entity) {
 		return hud.TemperatureArrow{}
@@ -438,10 +439,7 @@ func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
 		return hud.TemperatureArrow{}
 	}
 
-	var delta float64
-	if world.Components.TemperatureTrend.Has(entity) {
-		delta = world.Components.TemperatureTrend.Get(entity).Delta
-	}
+	delta := temperatureNetDelta(world, entity)
 
 	dir := hud.TempDirectionSteady
 	switch {

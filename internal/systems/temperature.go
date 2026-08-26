@@ -46,6 +46,9 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 // 屋内なので屋外の世界温度をそのままでなく割って受け、揺れを和らげる。値は実プレイで調整する。
 const dungeonWorldInfluenceDivisor = 2
 
+// naturalRecoveryPerTurn は悪化方向でないときに体温状態タイマーが1ターンで下がる量
+const naturalRecoveryPerTurn = 0.25
+
 // AmbientTemperatureAt はタイルの周囲気温を返す。オーバーワールドは屋外なので季節の世界温度
 // そのもの、ダンジョンは屋内なのでステージの基本気温に世界温度の影響を緩和して足した値。
 // どちらもタイルの熱源補正を足す。屋内外はステージ種別で決まり、タイルごとの判定はしない。
@@ -84,10 +87,6 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 	// HealthStatusとGridElementを持つエンティティを処理。
 	var toMark []ecs.Entity
-	// プレイヤーの体温トレンドはループ後に書き込む。クエリ反復中の構造変更を避ける
-	var trendPlayer ecs.Entity
-	var trendDelta float64
-	haveTrend := false
 	healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
@@ -113,14 +112,6 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 			heatProgressPct = mods.HeatProgress
 		}
 
-		// プレイヤーの体温トレンドは低体温・高体温タイマーの更新前後の差から取る
-		partHealth := &hs.Parts[gc.BodyPartWholeBody]
-		var coldBefore, heatBefore float64
-		if isPlayer {
-			coldBefore = conditionTimer(partHealth, gc.ConditionHypothermia)
-			heatBefore = conditionTimer(partHealth, gc.ConditionHyperthermia)
-		}
-
 		// 各部位の健康状態を更新
 		hasChange := updateTemperatureConditions(world, hs, ambientTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
 
@@ -130,19 +121,9 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 			hasChange = true
 		}
 
-		if isPlayer {
-			// 温まる方向を正にする。高体温タイマーの増加は暑くなる、低体温タイマーの増加は寒くなる。
-			// 熱源の回復も含めた最終的な変化を見るため、回復処理の後に差を取る
-			coldAfter := conditionTimer(partHealth, gc.ConditionHypothermia)
-			heatAfter := conditionTimer(partHealth, gc.ConditionHyperthermia)
-			trendDelta = (heatAfter - heatBefore) - (coldAfter - coldBefore)
-			trendPlayer = entity
-			haveTrend = true
-
-			// 状態変化があれば属性を再計算
-			if hasChange {
-				toMark = append(toMark, entity)
-			}
+		// 状態変化があれば属性を再計算
+		if isPlayer && hasChange {
+			toMark = append(toMark, entity)
 		}
 	}
 
@@ -152,22 +133,59 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		}
 	}
 
-	// クエリ反復の外でトレンドを書き込む。初回は付与、以降は値の更新になる
-	if haveTrend {
-		if err := gc.Upsert(world.ECS, world.Components.TemperatureTrend, trendPlayer, &gc.TemperatureTrend{Delta: trendDelta}); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
-// conditionTimer は全身部位の指定状態の Timer を返す。状態が無ければ0
-func conditionTimer(part *gc.BodyPartHealth, condType gc.ConditionType) float64 {
-	if c := part.GetCondition(condType); c != nil {
-		return c.Timer
+// temperatureNetDelta は現在地の環境から1ターンに起きる全身の体温変化を導出する。温まる向きが正。
+// updateTemperatureConditions と applyHeatSourceRecovery が適用する変化量の見積もりで、
+// 保存した実測ではなく現在の世界状態だけから計算する。HUD のトレンド矢印が読む。
+// タイマーの上下限クランプは考慮しないので、張り付いている間も環境圧力の向きを示す
+func temperatureNetDelta(world w.World, entity ecs.Entity) float64 {
+	if !world.Components.HealthStatus.Has(entity) || !world.Components.GridElement.Has(entity) {
+		return 0
 	}
-	return 0
+	grid := world.Components.GridElement.Get(entity)
+	ambientTemp, err := AmbientTemperatureAt(world, grid.X, grid.Y)
+	if err != nil {
+		return 0
+	}
+	insulation := CalculateEquippedInsulation(world, entity)
+	coldProgressPct, heatProgressPct := consts.PercentBase, consts.PercentBase
+	if world.Components.CharModifiers.Has(entity) {
+		mods := world.Components.CharModifiers.Get(entity)
+		coldProgressPct = mods.ColdProgress
+		heatProgressPct = mods.HeatProgress
+	}
+	part := &world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartWholeBody]
+	hasCold := part.GetCondition(gc.ConditionHypothermia) != nil
+	hasHeat := part.GetCondition(gc.ConditionHyperthermia) != nil
+
+	coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(ambientTemp + insulation.Cold))
+	heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(ambientTemp - insulation.Heat))
+
+	// 低体温タイマーの変化。悪化が正。自然回復は状態があるときだけ効く
+	var coldChange float64
+	switch {
+	case coldDelta < 0:
+		coldChange = -coldDelta
+	case hasCold:
+		coldChange = -naturalRecoveryPerTurn
+	}
+	// 熱源回復は applyHeatSourceRecovery と同じ条件で効く
+	if hasCold {
+		coldChange -= heatSourceWarmthAt(world, grid.X, grid.Y)
+	}
+
+	// 高体温タイマーの変化。悪化が正
+	var heatChange float64
+	switch {
+	case heatDelta > 0:
+		heatChange = heatDelta
+	case hasHeat:
+		heatChange = -naturalRecoveryPerTurn
+	}
+
+	return heatChange - coldChange
 }
 
 // CalculateEquippedInsulation はエンティティの装備から全身の断熱値を計算する。
@@ -272,14 +290,14 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, ambientTemp
 	if coldDelta < 0 {
 		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -coldDelta))
 	} else {
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -0.25))
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -naturalRecoveryPerTurn))
 	}
 
 	// 高体温の処理（暑さ判定）
 	if heatDelta > 0 {
 		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, heatDelta))
 	} else {
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -0.25))
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -naturalRecoveryPerTurn))
 	}
 
 	for _, change := range changes {

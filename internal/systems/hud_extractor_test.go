@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/mlange-42/ark/ecs"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -703,21 +704,21 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 	assert.Equal(t, 800, data.MinimapData.ScreenDimensions.Width)
 }
 
-// newColdPlayer は低体温状態のプレイヤーを作り、体温変化 delta を与える
-func newColdPlayer(t *testing.T, delta float64) (w.World, ecs.Entity) {
+// newColdPlayer は基本気温0度のダンジョンに低体温状態のプレイヤーを作る。
+// 矢印の向きは環境から導出されるので、この時点では冷える向きになる
+func newColdPlayer(t *testing.T) (w.World, ecs.Entity) {
 	t.Helper()
 	world := testutil.InitTestWorld(t)
-	e := world.ECS.NewEntity()
-	world.Components.Player.Add(e, &gc.Player{})
-	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Dead forest", 1)
+	e, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
 	world.Components.HealthStatus.Get(e).Parts[gc.BodyPartWholeBody].UpdateConditionTimer(gc.ConditionHypothermia, 40)
-	world.Components.TemperatureTrend.Add(e, &gc.TemperatureTrend{Delta: delta})
 	return world, e
 }
 
 func TestTemperatureArrow_冷えると青の下向き(t *testing.T) {
 	t.Parallel()
-	world, e := newColdPlayer(t, -0.5)
+	world, e := newColdPlayer(t)
 
 	arrow := temperatureArrow(world, e)
 	require.True(t, arrow.Visible, "体温状態があれば矢印を出す")
@@ -725,9 +726,15 @@ func TestTemperatureArrow_冷えると青の下向き(t *testing.T) {
 	assert.Greater(t, arrow.Color.B, arrow.Color.R, "冷える向きは青が強い")
 }
 
-func TestTemperatureArrow_温まると赤の上向き(t *testing.T) {
+func TestTemperatureArrow_熱源のそばでは赤の上向き(t *testing.T) {
 	t.Parallel()
-	world, e := newColdPlayer(t, 0.5)
+	world, e := newColdPlayer(t)
+
+	// 環境の冷えを上回る暖かさになるよう焚き火を2つ隣接させる
+	_, err := lifecycle.SpawnProp(world, "bonfire", 6, 5)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "bonfire", 4, 5)
+	require.NoError(t, err)
 
 	arrow := temperatureArrow(world, e)
 	require.True(t, arrow.Visible)
@@ -747,7 +754,7 @@ func TestTemperatureArrow_快適時は出さない(t *testing.T) {
 
 func TestTemperatureStateBadge_低体温は寒色バッジ(t *testing.T) {
 	t.Parallel()
-	world, e := newColdPlayer(t, -0.5)
+	world, e := newColdPlayer(t)
 
 	badge, ok := temperatureStateBadge(world, e)
 	require.True(t, ok, "体温状態があればバッジを出す")

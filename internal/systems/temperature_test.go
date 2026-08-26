@@ -606,16 +606,32 @@ func TestTemperatureSystem_Update_熱源のそばは低体温の進行が緩む(
 	assert.Less(t, withFire, without, "熱源のそばは低体温タイマーの進行が緩む")
 }
 
-func TestTemperatureSystem_Update_体温トレンドを記録する(t *testing.T) {
+func TestTemperatureNetDelta_寒い環境では負になる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 0, Y: 0}, "ash")
 	require.NoError(t, err)
 
-	sys := &TemperatureSystem{}
-	require.NoError(t, sys.Update(world))
+	assert.Negative(t, temperatureNetDelta(world, player), "寒い環境では体温が下降する")
+}
 
-	require.True(t, world.Components.TemperatureTrend.Has(player), "プレイヤーに体温トレンドが記録される")
-	assert.Negative(t, world.Components.TemperatureTrend.Get(player).Delta, "寒い環境では体温が下降する")
+func TestTemperatureNetDelta_低体温で熱源のそばなら正になる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(coldDungeonName, 1)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	// 低体温状態にして熱源回復が効く条件を作る
+	part := &world.Components.HealthStatus.Get(player).Parts[gc.BodyPartWholeBody]
+	part.UpdateConditionTimer(gc.ConditionHypothermia, 50)
+
+	// 環境の冷えを上回る暖かさになるよう焚き火を2つ隣接させる
+	_, err = lifecycle.SpawnProp(world, "bonfire", 6, 5)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "bonfire", 4, 5)
+	require.NoError(t, err)
+
+	assert.Positive(t, temperatureNetDelta(world, player), "熱源の暖かさが冷えを上回れば体温が上昇する")
 }
