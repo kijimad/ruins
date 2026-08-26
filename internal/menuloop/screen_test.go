@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
@@ -85,6 +86,17 @@ func (o *testOverlay) HandleInput(_ w.World) error {
 func (o *testOverlay) Window(_ w.World, _ image.Rectangle) *widget.Window { return o.window }
 
 var _ overlay.Layer = (*testOverlay)(nil)
+
+// keyBindModel は KeyBindings を実装する flexModel 派生。NewScreen が独自キーを
+// 共通表と合成することの検証に使う
+type keyBindModel struct {
+	flexModel
+	bindings []keybind.Binding
+}
+
+func (m *keyBindModel) KeyBindings() []keybind.Binding { return m.bindings }
+
+var _ KeyBindings = (*keyBindModel)(nil)
 
 // TestScreen_Props_更新後の値を返す は Props が mount 経由の現在値を読めることを固定する
 func TestScreen_Props_更新後の値を返す(t *testing.T) {
@@ -372,4 +384,50 @@ func TestScreen_Update_移動系はDispatchだけでDoActionを呼ばない(t *t
 	require.NoError(t, err)
 	assert.Equal(t, 0, model.doActionCalls, "移動系は DoAction に届かない")
 	assert.Equal(t, 1, screen.Selection().ItemIndex, "Dispatch でカーソルが1つ下がる")
+}
+
+// TestNewScreen_KeyBindingsを実装するmodelは独自キーを共通表に合成する は model 固有の
+// キー束縛が keybind.MenuCommon と1枚に合成されて Screen の表に入ることを固定する
+func TestNewScreen_KeyBindingsを実装するmodelは独自キーを共通表に合成する(t *testing.T) {
+	t.Parallel()
+	custom := keybind.Binding{Key: ebiten.KeyF1, Action: inputmapper.ActionUseItem, Label: "Use"}
+	model := &keyBindModel{bindings: []keybind.Binding{custom}}
+
+	screen := NewScreen[int](model)
+
+	assert.Contains(t, screen.table, custom)
+	assert.Len(t, screen.table, len(keybind.MenuCommon)+1)
+}
+
+// TestNewScreen_KeyBindingsを実装しないmodelは共通表のみを持つ は KeyBindings 未実装の
+// model が共通表だけをそのまま持つことを固定する
+func TestNewScreen_KeyBindingsを実装しないmodelは共通表のみを持つ(t *testing.T) {
+	t.Parallel()
+	model := &flexModel{menu: MenuConfig{Key: "nokeybind"}}
+
+	screen := NewScreen[int](model)
+
+	assert.Equal(t, keybind.MenuCommon, screen.table)
+}
+
+// TestScreen_dispatch_ActionOpenKeyHelpはキー一覧画面をpushする は ? の共通キーが
+// DoAction を経由せず KeyHelpState を push することを固定する
+func TestScreen_dispatch_ActionOpenKeyHelpはキー一覧画面をpushする(t *testing.T) {
+	t.Parallel()
+	model := &flexModel{menu: MenuConfig{Key: "keyhelp"}}
+	screen := NewScreen[int](model)
+	world := w.World{Resources: &resources.Resources{}}
+
+	tr, err := screen.dispatch(world, inputmapper.ActionOpenKeyHelp)
+
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPush, tr.Type)
+	assert.Equal(t, 0, model.doActionCalls, "キー一覧ヘルプは DoAction に届かない")
+	require.Len(t, tr.NewStateFuncs, 1)
+
+	state, err := tr.NewStateFuncs[0]()
+	require.NoError(t, err)
+	helpState, ok := state.(*KeyHelpState)
+	require.True(t, ok)
+	assert.Equal(t, screen.table, helpState.table, "この画面が合成した表がそのままヘルプへ渡る")
 }
