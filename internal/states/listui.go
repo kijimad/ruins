@@ -24,6 +24,8 @@ const (
 	panelScreenRowH = 30
 	// panelScreenPad はパネルの内側余白。
 	panelScreenPad = 12
+	// footerPagerWidth はフッタ右端のページ表示列の幅。数字を右寄せで収める。
+	footerPagerWidth = 60
 )
 
 // panelBackground はパネル背景のテクスチャを敷く。ebitenui 時代の res.Panel.Image と同じ意匠。
@@ -31,18 +33,34 @@ func panelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
 	return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
 }
 
+// footerRowUI はフッタ行を組む。左にヘルプ、右端にページ表示を並べる。
+// ヘルプ列を0幅で伸ばして余りを埋め、ページ表示を右へ寄せる。末尾に余白列を置いて右端を空ける。
+// pager が空ならページ表示は出ない。
+func footerRowUI(footer, pager string, res resources.UIResources) *ui.Container {
+	face := res.Text.SmallFace
+	help := ui.NewText(footer, face, theme.TextSecondary)
+	help.VCenter = true
+	pg := ui.NewText(pager, face, theme.TextPrimary)
+	pg.Align = ui.AlignRight
+	pg.VCenter = true
+	gap := ui.NewText("", face, theme.TextSecondary)
+	return ui.Row([]int{0, footerPagerWidth, theme.Space3}, help, pg, gap)
+}
+
 // buildPanelScreenUI は見出し・内容行・フッタを1枚のパネルへ縦に並べ、上端を固定して配置して返す。
-// 背景はパネルテクスチャを敷く。内容は renderMenuListUI が返す行をそのまま渡す。
-// 上端固定により、項目数が違ってもタイトル・ページ表示・先頭項目が常に同じ位置に来る。
-func buildPanelScreenUI(world w.World, res resources.UIResources, title string, content []ui.Widget, footer string) ui.Widget {
+// 背景はパネルテクスチャを敷く。内容は renderMenuListUI が返す行をそのまま渡す。ページ表示は
+// フッタ行の右端に置く。上端固定により、項目数が違ってもタイトル・先頭項目が常に同じ位置に来る。
+func buildPanelScreenUI(world w.World, res resources.UIResources, title string, content []ui.Widget, footer, pager string) ui.Widget {
 	face := res.Text.BodyFace
-	items := make([]ui.Widget, 0, len(content)+2)
+	items := make([]ui.Widget, 0, len(content)+3)
 	if title != "" {
 		items = append(items, ui.NewText(title, face, theme.TextPrimary))
 	}
 	items = append(items, content...)
-	if footer != "" {
-		items = append(items, ui.NewText(footer, face, theme.TextSecondary))
+	if footer != "" || pager != "" {
+		// フッタは内容から一行空けて置く。元のパネルと同じく内容と離す。
+		items = append(items, ui.NewText(" ", face, theme.TextPrimary))
+		items = append(items, footerRowUI(footer, pager, res))
 	}
 
 	panelW := menuRowWidth + panelScreenPad*2
@@ -94,7 +112,8 @@ func panelSelCell(child ui.Widget, selBar *resources.NineSliceTex) *ui.Container
 
 // buildTabScreenUI は見出し・タブ帯・内容行・フッタを1枚のモーダルに縦へ並べて返す。
 // NewTabScreen の internal/ui 版。モーダルは中央固定枠いっぱいに広げ、フッタは空行で下端へ寄せる。
-func buildTabScreenUI(world w.World, res resources.UIResources, header string, tabLabels []string, tabIndex int, content []ui.Widget, footer string) ui.Widget {
+// ページ表示はフッタ行の右端に置く。
+func buildTabScreenUI(world w.World, res resources.UIResources, header string, tabLabels []string, tabIndex int, content []ui.Widget, footer, pager string) ui.Widget {
 	face := res.Text.BodyFace
 	rect := menuframe.ModalRect(world)
 	innerW := rect.Dx() - panelScreenPad*2
@@ -110,13 +129,13 @@ func buildTabScreenUI(world w.World, res resources.UIResources, header string, t
 	}
 	items = append(items, content...)
 
-	// フッタは下端へ寄せる。内容の下を空行で埋め、最下段にフッタを置く
-	if footer != "" {
+	// フッタは下端へ寄せる。内容の下を空行で埋め、最下段にフッタ行を置く
+	if footer != "" || pager != "" {
 		capacity := (rect.Dy() - panelScreenPad*2) / tabScreenRowH
 		for len(items) < capacity-1 {
 			items = append(items, ui.NewText(" ", face, theme.TextPrimary))
 		}
-		items = append(items, ui.NewText(footer, face, theme.TextSecondary))
+		items = append(items, footerRowUI(footer, pager, res))
 	}
 
 	panel := panelBackground(ui.Panel(ui.BoxStyle{}, tabScreenRowH, items...), res).SetPadding(panelScreenPad)
@@ -132,19 +151,11 @@ func toUIAlign(a styled.TextAlign) ui.Align {
 	return ui.AlignLeft
 }
 
-// sumWidths は列幅の合計を返す。ページ表示行を全幅で置くのに使う。
-func sumWidths(colWidths []int) int {
-	total := 0
-	for _, wdt := range colWidths {
-		total += wdt
-	}
-	return total
-}
-
-// renderMenuListUI は renderMenuList の internal/ui 版。行データからページ送り・ページ表示・
-// 見出し・選択強調・空行埋めを備えた行ウィジェット列を返す。呼び出し側はこれをパネルに並べる。
+// renderMenuListUI は renderMenuList の internal/ui 版。行データから見出し・選択強調・空行埋めを
+// 備えた行ウィジェット列と、フッタ右端へ出すページ表示文字列を返す。ページ表示は複数ページのとき
+// だけ非空になる。呼び出し側は行をパネルに並べ、ページ表示を画面ビルダのフッタへ渡す。
 // 1ページの件数は呼び出し側が opts.ItemsPerPage に解決して渡す。0 なら全行を1ページに収める。
-func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) []ui.Widget {
+func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) ([]ui.Widget, string) {
 	face := res.Text.BodyFace
 	perPage := opts.ItemsPerPage
 	if perPage <= 0 {
@@ -153,17 +164,6 @@ func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []s
 	pg := pagination.New(itemIndex, len(rows), perPage)
 
 	var items []ui.Widget
-	if opts.AlwaysIndicator || pg.IsEnabled() {
-		pageText := pg.GetPageText()
-		if pageText == "" {
-			pageText = " "
-		}
-		ind := ui.NewText(pageText, res.Text.SmallFace, theme.TextPrimary)
-		ind.Align = ui.AlignRight
-		ind.VCenter = true
-		// 右端に少し余白を空ける。元の NewPageIndicator と同じ右寄せ
-		items = append(items, ui.Row([]int{sumWidths(colWidths) - theme.Space3}, ind))
-	}
 	if opts.HeaderRow != nil {
 		items = append(items, headerRowUI(opts.HeaderRow, colWidths, face))
 	}
@@ -185,7 +185,7 @@ func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []s
 	if len(rows) == 0 && opts.EmptyText != "" {
 		items = append(items, ui.NewText(opts.EmptyText, face, theme.TextSecondary))
 	}
-	return items
+	return items, pg.GetPageText()
 }
 
 // headerRowUI は見出し行を組む。カーソルは止まらず、補助色で描く。

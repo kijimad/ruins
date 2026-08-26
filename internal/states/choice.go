@@ -103,10 +103,9 @@ func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menul
 		rows[i] = menuRow{Cells: styled.TextCells(c.Label), Header: c.Header}
 	}
 	perPage := menuframe.ListCapacity(world, false, true)
-	// AlwaysIndicator で1ページでもページ表示行を確保する。ページが増えても項目の開始位置がずれない。
-	// 他の一覧メニューと同じ扱いにそろえる。
-	list := renderMenuListUI(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true, AlwaysIndicator: true, ItemsPerPage: perPage}, res)
-	return buildPanelScreenUI(world, res, props.Title, list, keybind.HelpHint(world))
+	// ページ表示はフッタ行の右端に出す。1ページのメニューは内容を上端から並べる。
+	list, pager := renderMenuListUI(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true, ItemsPerPage: perPage}, res)
+	return buildPanelScreenUI(world, res, props.Title, list, keybind.HelpHint(world), pager)
 }
 
 // pushChoice は指定ファクトリの state を push する Choice.Run を返す。選択メニューの共通部品

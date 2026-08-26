@@ -252,8 +252,8 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 	return rows
 }
 
-// buildInfoTableUI は buildInfoTable の internal/ui 版。情報タブの表を行ウィジェット列で返す。
-func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) []ui.Widget {
+// buildInfoTableUI は buildInfoTable の internal/ui 版。情報タブの表とフッタ右端のページ表示を返す。
+func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	hasModifier := tab.ID == tabAbilities
 	var columnWidths []int
 	var aligns []styled.TextAlign
@@ -276,5 +276,5 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 		}
 		rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }

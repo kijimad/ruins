@@ -25,14 +25,12 @@ type menuRow struct {
 }
 
 // menuListOpts は一覧描画の方針。Spaced はコマンドメニュー向けに行間を空けるか、
-// AlwaysIndicator は1ページでもページ表示行を確保しタブ切替で開始位置を揃えるか、
 // HeaderRow は表の先頭に置く列見出し、選択やページ送りの対象には含めない、
-// EmptyText は行が無いときに表の下へ出す説明
+// EmptyText は行が無いときに表の下へ出す説明。ページ表示はフッタ右端に出すので一覧側では扱わない
 type menuListOpts struct {
-	Spaced          bool
-	AlwaysIndicator bool
-	HeaderRow       []string
-	EmptyText       string
+	Spaced    bool
+	HeaderRow []string
+	EmptyText string
 	// ItemsPerPage は1ページの行数の上書き。0 ならタブ帯つきモーダルの実測容量。
 	// 見出しなど追加の枠部品を持つ画面は menuframe.ListCapacity で自分の容量を求めて渡す
 	ItemsPerPage int

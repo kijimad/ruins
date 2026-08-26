@@ -241,14 +241,14 @@ func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	content := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
-	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
+	content, pager := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
+	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildItemListUI は buildItemContainer の internal/ui 版。
-func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) []ui.Widget {
+// buildItemListUI は buildItemContainer の internal/ui 版。行列とフッタ右端のページ表示を返す。
+func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(tabs) {
-		return nil
+		return nil, ""
 	}
 	currentTab := tabs[tabIndex]
 	columnWidths, aligns := itemMenuColumns(0, menuColumn{Width: 80, Align: styled.AlignRight}, menuColumn{Width: 90, Align: styled.AlignRight})
@@ -261,5 +261,5 @@ func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabI
 	if currentTab.ID == shopSellTabID {
 		emptyText = query.T(world, "No items to sell")
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText, ItemsPerPage: perPage}, res)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{EmptyText: emptyText, ItemsPerPage: perPage}, res)
 }

@@ -406,14 +406,14 @@ func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor m
 			labels[i] = tab.Label
 		}
 	}
-	content := st.buildItemListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
-	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
+	content, pager := st.buildItemListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
+	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildItemListUI は buildItemList の internal/ui 版。
-func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) []ui.Widget {
+// buildItemListUI は buildItemList の internal/ui 版。行列とフッタ右端のページ表示を返す。
+func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(props.Tabs) {
-		return nil
+		return nil, ""
 	}
 	items := props.Tabs[tabIndex].Items
 	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
@@ -421,7 +421,7 @@ func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps,
 	for i, it := range items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items"), ItemsPerPage: perPage}, res)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{EmptyText: query.T(world, "No matching items"), ItemsPerPage: perPage}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

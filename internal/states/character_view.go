@@ -16,16 +16,17 @@ import (
 // 装備選択の入れ子モーダルは equip overlay が ScreenRenderer として本体の上へ重ねる。
 func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	var content []ui.Widget
+	var pager string
 	if charTabAt(cursor.TabIndex) == charTabEquip {
-		content = buildEquipListUI(world, props.EquipSlots, cursor.ItemIndex, res)
+		content, pager = buildEquipListUI(world, props.EquipSlots, cursor.ItemIndex, res)
 	} else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
-		content = buildInfoTableUI(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)
+		content, pager = buildInfoTableUI(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)
 	}
-	return buildTabScreenUI(world, res, props.TargetName, characterTabLabels(world), cursor.TabIndex, content, keybind.HelpHint(world))
+	return buildTabScreenUI(world, res, props.TargetName, characterTabLabels(world), cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildEquipListUI は buildEquipList の internal/ui 版。スロット名・アイコン・装備名・重量の4列を返す。
-func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) []ui.Widget {
+// buildEquipListUI は buildEquipList の internal/ui 版。装備4列とフッタ右端のページ表示を返す。
+func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	columnWidths := []int{130, itemIconColumnWidth, 140, 70}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(slots))
@@ -38,5 +39,5 @@ func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res r
 		}
 		rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName), styled.TextCell(weight)}}
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }

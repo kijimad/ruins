@@ -122,12 +122,12 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 	if tabIndex >= len(props.Tabs) {
 		tabIndex = 0
 	}
-	content := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
-	return buildTabScreenUI(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world))
+	content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
+	return buildTabScreenUI(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildStatsTableUI は buildStatsTable の internal/ui 版。ラベル左・値右の2列表を行ウィジェット列で返す。
-func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) []ui.Widget {
+// buildStatsTableUI は buildStatsTable の internal/ui 版。ラベル左・値右の2列表とフッタ右端のページ表示を返す。
+func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	columnWidths := []int{180, 90}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 	rows := make([]menuRow, len(items))
@@ -135,9 +135,8 @@ func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res
 		rows[i] = menuRow{Cells: styled.TextCells(it.Label, it.Value)}
 	}
 	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{
-		AlwaysIndicator: true,
-		EmptyText:       query.T(world, "No entries"),
-		ItemsPerPage:    menuframe.ListCapacity(world, true, true),
+		EmptyText:    query.T(world, "No entries"),
+		ItemsPerPage: menuframe.ListCapacity(world, true, true),
 	}, res)
 }
 
