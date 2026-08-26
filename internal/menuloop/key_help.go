@@ -1,17 +1,17 @@
 package menuloop
 
 import (
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
+	"image"
+
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -23,8 +23,8 @@ import (
 // メニュー外の画面は自分の DoAction から push する
 type KeyHelpState struct {
 	es.BaseState[w.World]
-	table  []keybind.Binding
-	widget *ebitenui.UI
+	table []keybind.Binding
+	body  ui.Widget
 }
 
 var _ es.State[w.World] = &KeyHelpState{}
@@ -53,13 +53,31 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 	if !hasEscapeLabel(st.table) {
 		entries = append(entries, keybind.HintEntries(world, keyHelpBindings)...)
 	}
-	// NewTableContainer は幅いっぱいへ伸びる縦並びで、パネル内で行が全幅を使える
-	list := styled.NewTableContainer(nil, res)
+
+	const (
+		rowH      = 24
+		keyColW   = 130
+		labelColW = 230
+		pad       = 12
+	)
+	face := res.Text.BodyFace
+	items := make([]ui.Widget, 0, len(entries)+1)
+	items = append(items, ui.NewText(query.T(world, "Key bindings"), face, theme.TextPrimary))
 	for _, e := range entries {
-		list.AddChild(keyHelpRow(e, res))
-		list.AddChild(styled.NewGradientLine(res.GradientLine, theme.RowDivider, 1))
+		label := ui.NewText(e.Label, face, theme.TextPrimary)
+		label.Align = ui.AlignRight
+		items = append(items, ui.Row([]int{keyColW, labelColW}, ui.NewGraphic(renderKeycaps(e.Tokens, res)), label))
 	}
-	st.widget = menuframe.NewPanelScreen(res, query.T(world, "Key bindings"), list, "")
+
+	style := ui.BoxStyle{Fill: theme.WindowBackground, Border: theme.PanelHighlight, BorderWidth: 1}
+	panel := ui.Panel(style, rowH, items...).SetPadding(pad)
+	rect := menuframe.CenterWindowRect(world)
+	panelW := keyColW + labelColW + pad*2
+	panelH := len(items)*rowH + pad*2
+	x := rect.Min.X + (rect.Dx()-panelW)/2
+	y := max(rect.Min.Y+(rect.Dy()-panelH)/2, rect.Min.Y)
+	panel.Layout(image.Rect(x, y, x+panelW, y+panelH))
+	st.body = panel
 	return nil
 }
 
@@ -70,33 +88,6 @@ func hasEscapeLabel(table []keybind.Binding) bool {
 		}
 	}
 	return false
-}
-
-// keyHelpRow はキー一覧の1行を組む。左にキーキャップの粒、右寄せにラベルを置く
-func keyHelpRow(e keybind.HintEntry, res resources.UIResources) *widget.Container {
-	row := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(2),
-			widget.GridLayoutOpts.Spacing(theme.Space3, 0),
-			// stretch 列は preferred 幅 0 として扱われるため、キー列でなくラベル列を伸ばす。
-			// キー列を伸縮にすると、パネルが preferred 幅で組まれる文脈で 0 に潰れる。
-			// 行数が多い文脈でもパネルが画面へ収まるよう、行自体は上下 padding を持たない
-			widget.GridLayoutOpts.Stretch([]bool{false, true}, []bool{false}),
-		)),
-		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{Stretch: true})),
-	)
-
-	row.AddChild(widget.NewGraphic(widget.GraphicOpts.Image(renderKeycaps(e.Tokens, res))))
-
-	label := widget.NewText(
-		widget.TextOpts.Text(e.Label, &res.Text.BodyFace, theme.TextPrimary),
-		widget.TextOpts.Position(widget.TextPositionEnd, widget.TextPositionCenter),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.GridLayoutData{HorizontalPosition: widget.GridLayoutPositionEnd}),
-		),
-	)
-	row.AddChild(label)
-	return row
 }
 
 // renderKeycaps はキーの粒の並びを1枚の画像へ描く。全トークンへ一律に角丸の箱を敷き、
@@ -169,12 +160,11 @@ func (st *KeyHelpState) Update(world w.World) (es.Transition[w.World], error) {
 	if action, ok := keybind.ReadInput(world, keyHelpBindings); ok && action == inputmapper.ActionCloseMenu {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
-	st.widget.Update()
 	return st.ConsumeTransition(), nil
 }
 
 // Draw は保持中の一覧を描く
 func (st *KeyHelpState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.widget.Draw(screen)
+	st.body.Draw(ui.NewEbitenCanvas(screen))
 	return nil
 }
