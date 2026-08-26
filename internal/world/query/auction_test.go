@@ -52,10 +52,13 @@ func TestAuctionOpeningBid_基準価値の分散範囲内に収まる(t *testing
 
 func TestAuctionRaise(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
+
+	// ECS のエンティティ生成とコンポーネント追加は並行安全でないので、
+	// 並列サブテストは共有 world を持たず各自で world を作る
 
 	t.Run("基準価値が大きい場合は分散範囲内", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 1000})
 
@@ -68,6 +71,7 @@ func TestAuctionRaise(t *testing.T) {
 
 	t.Run("基準価値が0でも最低1を保証する", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		item := world.ECS.NewEntity()
 
 		raise := AuctionRaise(world, item)
