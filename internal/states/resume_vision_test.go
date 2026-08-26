@@ -25,7 +25,7 @@ func TestDungeonResume_視界を強制再計算する(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	// OnStart は通常ダンジョンではタイトルエフェクトで UI リソースに触れるので用意する
-	world.Resources.UIResources = vrt.SharedUIResources(t)
+	world.Resources.UIResources = vrt.LoadTestUIResources(t)
 	// ロード直後を模す。現ステージは通常ダンジョンで、視界フラグは未設定
 	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 3)
 	query.GetVisionState(world).ConsumePendingUpdate()

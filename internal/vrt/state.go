@@ -33,26 +33,20 @@ func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []by
 
 // renderStates は world を作りステートを構築し、本番の MainGame.Draw で screen へ描いて NRGBA を返す。
 //
-// 構築も描画も ebitenui のグローバル状態に触れるため WithUILock で直列化する。InitVRTWorld も内部で
-// ロックを取り WithUILock は非再入なので、区間を2つに分ける。
+// world は自前の独立フェイスを持つので、描画は共有無しにロック無しで並列に走れる。
 func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
 	t.Helper()
 	world := InitVRTWorld(t)
 
-	var out *image.NRGBA
-	WithUILock(func() {
-		sm := SetupStateMachine(t, world, buildStates)
-		game, err := maingame.NewMainGame(world, sm)
-		require.NoError(t, err)
-		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-		game.Draw(screen)
-		out = captureScreen(screen)
-	})
-	return out
+	sm := SetupStateMachine(t, world, buildStates)
+	game, err := maingame.NewMainGame(world, sm)
+	require.NoError(t, err)
+	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+	game.Draw(screen)
+	return captureScreen(screen)
 }
 
 // SetupStateMachine はステートを構築しレイアウト確定までフレームを回す。
-// ebitenui グローバルに触れるため WithUILock 区間から呼ぶ。
 func SetupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []es.State[w.World]) es.StateMachine[w.World] {
 	t.Helper()
 	states := buildStates(world)
@@ -75,44 +69,42 @@ func SetupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []
 
 // InitVRTWorld はVRT用のワールドを固定シードで初期化する。テスト・ベンチ双方で使えるよう testing.TB を受ける。
 //
-// maingame.InitWorld が ebitenui のグローバルな NineSlice キャッシュを触るため WithUILock で直列化する。
-// 触らないと並列テストの初期化と描画が競合して data race になる。
+// maingame.InitWorld はフォント読み込みなど並行安全でない構築を含むため loadMu で直列化する。
+// 構築後の world は自前の独立フェイスを持つので、以降の設定と描画はロック無しで並列に走れる。
 func InitVRTWorld(tb testing.TB) w.World {
 	tb.Helper()
 
-	var world w.World
-	WithUILock(func() {
-		cfg := &config.Config{Profile: config.ProfileDevelopment}
-		cfg.ApplyProfileDefaults()
-		cfg.LogLevel = "ignore"
-		cfg.Seed = 12345
-		cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
-		cfg.DisableAnimation = true
-		// ポスト処理を切って撮る。スキャンラインの高周波パターンが無くなり、golden の
-		// 差分がUIの実変化だけを映すようになる。トレランスを絞れる
-		cfg.DisableScreenFilter = true
-		require.NoError(tb, cfg.Validate())
+	cfg := &config.Config{Profile: config.ProfileDevelopment}
+	cfg.ApplyProfileDefaults()
+	cfg.LogLevel = "ignore"
+	cfg.Seed = 12345
+	cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
+	cfg.DisableAnimation = true
+	// ポスト処理を切って撮る。スキャンラインの高周波パターンが無くなり、golden の
+	// 差分がUIの実変化だけを映すようになる。トレランスを絞れる
+	cfg.DisableScreenFilter = true
+	require.NoError(tb, cfg.Validate())
 
-		w2, err := maingame.InitWorld(cfg)
-		require.NoError(tb, err)
-		world = w2
+	loadMu.Lock()
+	world, err := maingame.InitWorld(cfg)
+	loadMu.Unlock()
+	require.NoError(tb, err)
 
-		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
-		require.NoError(tb, err)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(tb, err)
 
-		professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
-		if len(professions) > 0 {
-			require.NoError(tb, gameaction.ApplyProfession(world, player, professions[0]))
+	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
+	if len(professions) > 0 {
+		require.NoError(tb, gameaction.ApplyProfession(world, player, professions[0]))
+	}
+
+	for _, updater := range []w.Updater{
+		&gs.StatsChangedSystem{},
+		&gs.WeightDirtySystem{},
+	} {
+		if sys, ok := world.Updaters[updater.String()]; ok {
+			require.NoError(tb, sys.Update(world))
 		}
-
-		for _, updater := range []w.Updater{
-			&gs.StatsChangedSystem{},
-			&gs.WeightDirtySystem{},
-		} {
-			if sys, ok := world.Updaters[updater.String()]; ok {
-				require.NoError(tb, sys.Update(world))
-			}
-		}
-	})
+	}
 	return world
 }

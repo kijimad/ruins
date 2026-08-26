@@ -122,7 +122,7 @@ func TestGolden_EquipSelect(t *testing.T) {
 
 	// InitVRTWorld は SpriteSheets 込みの完全な world を作る。アイコン解決にテクスチャが要る
 	world := vrt.InitVRTWorld(t)
-	world.Resources.UIResources = vrt.SharedUIResources(t)
+	world.Resources.UIResources = vrt.LoadTestUIResources(t)
 	sword, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 	gun, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)

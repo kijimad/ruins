@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 
 func TestListCapacity_同じ構成では同じ結果を返す(t *testing.T) {
 	t.Parallel()
-	res := vrt.SharedUIResources(t)
+	res := vrt.LoadTestUIResources(t)
 
 	var first, second int
 	first = ListCapacity(res, true, true)
@@ -28,7 +28,7 @@ func TestListCapacity_同じ構成では同じ結果を返す(t *testing.T) {
 
 func TestListCapacity_見出しとタブ帯が増えると収まる行数が減る(t *testing.T) {
 	t.Parallel()
-	res := vrt.SharedUIResources(t)
+	res := vrt.LoadTestUIResources(t)
 
 	var bare, headerOnly, headerAndTabs int
 	bare = ListCapacity(res, false, false)

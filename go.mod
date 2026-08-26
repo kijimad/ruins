@@ -5,7 +5,6 @@ go 1.27.0
 require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/caarlos0/env/v11 v11.4.1
-	github.com/ebitenui/ebitenui v0.7.3
 	github.com/getkin/kin-openapi v0.147.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.10
 	github.com/hajimehoshi/go-steamworks v0.0.0-20251207152439-f178e387e2a4
@@ -32,7 +31,6 @@ require (
 	github.com/ebitengine/purego v0.9.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/fgprof v0.9.3 // indirect
-	github.com/frustra/bbcode v0.0.0-20201127003707-6ef347fbe1c8 // indirect
 	github.com/go-openapi/jsonpointer v0.22.5 // indirect
 	github.com/go-openapi/swag/jsonname v0.25.5 // indirect
 	github.com/go-text/typesetting v0.3.0 // indirect
@@ -57,7 +55,6 @@ require (
 	github.com/ulikunitz/xz v0.5.14 // indirect
 	github.com/zimmski/osutil v1.6.1 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/exp v0.0.0-20260611194520-c48552f49976 // indirect
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/perf v0.0.0-20260709024250-82a0b07e230d // indirect
 	golang.org/x/sync v0.22.0 // indirect

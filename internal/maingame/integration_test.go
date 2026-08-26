@@ -18,7 +18,7 @@ import (
 
 // TestGameInitializationIntegration はゲーム初期化の統合テスト
 //
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
+//nolint:paralleltest // InitWorld のフォント読み込みが並行安全でないため t.Parallel は使わない
 func TestGameInitializationIntegration(t *testing.T) {
 	t.Run("完全なゲーム初期化フロー", func(t *testing.T) {
 		// 1. ワールドの初期化
@@ -55,7 +55,7 @@ func TestGameInitializationIntegration(t *testing.T) {
 
 // TestMainGameLifecycle はMainGameのライフサイクル統合テスト
 //
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
+//nolint:paralleltest // InitWorld のフォント読み込みが並行安全でないため t.Parallel は使わない
 func TestMainGameLifecycle(t *testing.T) {
 	t.Run("ゲームループの基本動作", func(t *testing.T) {
 		// 完全なワールドを使用（テスト用の最小限ワールドではUIリソースが不足）
@@ -127,7 +127,7 @@ func TestMainGameLifecycle(t *testing.T) {
 
 // TestResourceIntegration はリソース統合テスト
 //
-//nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
+//nolint:paralleltest // InitWorld のフォント読み込みが並行安全でないため t.Parallel は使わない
 func TestResourceIntegration(t *testing.T) {
 	t.Run("全リソースタイプの読み込み確認", func(t *testing.T) {
 		cfg := &config.Config{Profile: config.ProfileDevelopment}

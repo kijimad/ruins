@@ -149,7 +149,7 @@ func TestShopMenuState_buildItemListUI_商品ありで行を組む(t *testing.T)
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Resources.UIResources = vrt.SharedUIResources(t)
+	world.Resources.UIResources = vrt.LoadTestUIResources(t)
 
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)

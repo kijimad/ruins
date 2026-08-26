@@ -175,13 +175,13 @@ func TestDetailRenderOverlay_対象が無ければnilを返す(t *testing.T) {
 func TestDetailRenderOverlay_対象があれば名前とページ位置を表示する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	world.Resources.UIResources = vrt.SharedUIResources(t)
+	world.Resources.UIResources = vrt.LoadTestUIResources(t)
 	d := NewDetail(func(_ w.World) (DetailContent, bool) {
 		return DetailContent{Name: "回復薬", Rows: []entityspec.SpecRow{{Label: "効果", Value: "10"}}}, true
 	})
 	d.Open(world)
 
-	// internal/ui のツリーを組むだけ。ebitenui に触れないので WithUILock は要らない
+	// internal/ui のツリーを組むだけ。独立フェイスなのでロックは要らない
 	tree := d.RenderOverlay(world, image.Rect(0, 0, 400, 400))
 
 	require.NotNil(t, tree)

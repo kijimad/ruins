@@ -7,28 +7,12 @@ import (
 	"image/png"
 	"math"
 	"os"
-	"sync"
 	"testing"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/require"
 )
-
-// ebitenuiMu は ebitenui のグローバル状態、遅延イベントキュー・入力ハンドラ・NineSlice キャッシュ等が
-// 並行アクセス安全でないため、それに触れる処理を直列化する。widget 生成、AddChild が遅延イベント
-// キューへ append する、World 初期化、NineSlice キャッシュ、描画のいずれもこのグローバル状態に触れる。
-var ebitenuiMu sync.Mutex
-
-// WithUILock は ebitenuiMu を取得して fn を実行する。ebitenui のグローバル状態に触れる
-// 生成・初期化・描画をこのヘルパに通し、ロックを取る箇所を1つに集約する。
-func WithUILock(fn func()) {
-	ebitenuiMu.Lock()
-	defer ebitenuiMu.Unlock()
-	fn()
-}
 
 // readScreen はebiten.Imageのピクセルデータを読み取りimage.NRGBAとして返す。解放はしない。
 // 呼び出し側が所有する画像を渡されるときはこちらを使う
@@ -47,45 +31,16 @@ func captureScreen(screen *ebiten.Image) *image.NRGBA {
 	return img
 }
 
-// AssertContainerGolden は buildFn が返す widget.Container を描画し、ゴールデン画像と比較する。
-// Container を ebitenui.UI に載せてレイアウト・描画までヘルパが行う。宣言的な widget ツリー
-// （メニュー・タブ等）のテストに使う。自前で screen に描くものは AssertScreenGolden。
-// GOLDIE_UPDATE=1 で実行するとゴールデン画像を更新する
-func AssertContainerGolden(t *testing.T, buildFn func() *widget.Container, width, height int) {
-	t.Helper()
-
-	var img *image.NRGBA
-	WithUILock(func() {
-		root := buildFn()
-		ui := &ebitenui.UI{Container: root}
-		screen := ebiten.NewImage(width, height)
-
-		// レイアウト確定のため数フレーム回す
-		for range 3 {
-			ui.Update()
-		}
-		ui.Draw(screen)
-
-		img = captureScreen(screen)
-	})
-
-	pngData := encodePNG(t, img)
-	assertPNGGolden(t, t.Name(), pngData)
-}
-
 // AssertScreenGolden は setupFn が返す描画関数で自前で ebiten.Image に描き、ゴールデン画像と比較する。
-// レイアウト・描画は呼び出し側が制御する。messagelog・HUD など ebitenui.UI を内包する、または明示座標で
-// Draw するコンポーネントに使う。widget.Container を渡すだけのものは AssertContainerGolden。
+// レイアウト・描画は呼び出し側が制御する。messagelog・HUD など明示座標で Draw するコンポーネントに使う。
+// world ごとに独立したフェイスで描くのでロックは要らない。
 func AssertScreenGolden(t *testing.T, setupFn func() func(screen *ebiten.Image), width, height int) {
 	t.Helper()
 
-	var img *image.NRGBA
-	WithUILock(func() {
-		drawFn := setupFn()
-		screen := ebiten.NewImage(width, height)
-		drawFn(screen)
-		img = captureScreen(screen)
-	})
+	drawFn := setupFn()
+	screen := ebiten.NewImage(width, height)
+	drawFn(screen)
+	img := captureScreen(screen)
 
 	pngData := encodePNG(t, img)
 	assertPNGGolden(t, t.Name(), pngData)
