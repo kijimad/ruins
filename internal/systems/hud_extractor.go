@@ -447,36 +447,23 @@ func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
 	return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(delta)}
 }
 
-// 体温変化の段階しきい値。calcTimerDelta の離散値 0.25 / 0.5 / 1.0 の中間で切る
-const (
-	temperatureLevel2Threshold = 0.375
-	temperatureLevel3Threshold = 0.75
-)
-
-// 体温変化の段階パレット。弱・中・強の順で濃くなる
-var (
-	temperatureWarmColors = [3]color.RGBA{{255, 170, 120, 255}, {240, 110, 70, 255}, {230, 50, 40, 255}}
-	temperatureCoolColors = [3]color.RGBA{{150, 190, 255, 255}, {90, 140, 240, 255}, {40, 90, 230, 255}}
-)
-
-// temperatureDirectionColor は変化の向きと大きさの色を返す。温まると赤、冷えると青、一定は黄。
-// 変化の大きさで弱・中・強の3段階に濃くなる
+// temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は黄。
+// 変化が速いほど濃い
 func temperatureDirectionColor(delta float64) color.RGBA {
-	abs := math.Abs(delta)
-	if abs <= temperatureSteadyThreshold {
+	if delta > -temperatureSteadyThreshold && delta < temperatureSteadyThreshold {
 		return color.RGBA{255, 200, 0, 255}
 	}
-	level := 0
-	switch {
-	case abs > temperatureLevel3Threshold:
-		level = 2
-	case abs > temperatureLevel2Threshold:
-		level = 1
-	}
+	intensity := math.Min(math.Abs(delta), 1.0)
 	if delta > 0 {
-		return temperatureWarmColors[level]
+		return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
 	}
-	return temperatureCoolColors[level]
+	return lerpRGBA(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)
+}
+
+// lerpRGBA は2色を t (0..1) で線形補間する
+func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {
+	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
+	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
 }
 
 func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {

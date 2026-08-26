@@ -772,26 +772,15 @@ func TestTemperatureDirectionColor_一定は黄色(t *testing.T) {
 	assert.Equal(t, color.RGBA{255, 200, 0, 255}, temperatureDirectionColor(0))
 }
 
-func TestTemperatureDirectionColor(t *testing.T) {
+func TestTemperatureDirectionColor_変化が速いほど濃くなる(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
-		name     string
-		delta    float64
-		expected color.RGBA
-	}{
-		{"緩く温まると弱の赤", 0.25, color.RGBA{255, 170, 120, 255}},
-		{"温まると中の赤", 0.5, color.RGBA{240, 110, 70, 255}},
-		{"急に温まると強の赤", 1.0, color.RGBA{230, 50, 40, 255}},
-		{"緩く冷えると弱の青", -0.25, color.RGBA{150, 190, 255, 255}},
-		{"冷えると中の青", -0.5, color.RGBA{90, 140, 240, 255}},
-		{"急に冷えると強の青", -1.0, color.RGBA{40, 90, 230, 255}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.expected, temperatureDirectionColor(tt.delta))
-		})
-	}
+	slow := temperatureDirectionColor(0.25)
+	fast := temperatureDirectionColor(1.0)
+	assert.Greater(t, slow.G, fast.G, "温まる向きは速いほど濃い赤になる")
+
+	slowCool := temperatureDirectionColor(-0.25)
+	fastCool := temperatureDirectionColor(-1.0)
+	assert.Greater(t, slowCool.R, fastCool.R, "冷える向きは速いほど濃い青になる")
 }
 
 func TestTemperatureStateBadge_低体温は寒色バッジ(t *testing.T) {
