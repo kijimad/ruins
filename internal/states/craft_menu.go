@@ -39,7 +39,6 @@ type CraftMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &CraftMenuState{}
-var _ menuloop.UIView[CraftProps] = &CraftMenuState{}
 var _ menuloop.KeyBindings = &CraftMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる

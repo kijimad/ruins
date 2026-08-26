@@ -36,7 +36,6 @@ type ShopMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}
-var _ menuloop.UIView[ShopProps] = &ShopMenuState{}
 
 // shopSellTabID は売却タブの識別子。空表示の文言分岐に使う。
 const shopSellTabID = "sell"

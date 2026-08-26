@@ -2,15 +2,13 @@ package menuloop
 
 import (
 	"errors"
-	"image"
 	"testing"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -35,9 +33,9 @@ func (m *dirtyTestModel) Fetch(_ w.World) (int, error) { return m.props, nil }
 
 func (m *dirtyTestModel) Menu(_ int) MenuConfig { return MenuConfig{Key: "test", TabCount: 0} }
 
-func (m *dirtyTestModel) View(_ w.World, _ int, _ Selection, _ resources.UIResources) *ebitenui.UI {
+func (m *dirtyTestModel) ViewUI(_ w.World, _ int, _ Selection, _ resources.UIResources) ui.Widget {
 	m.viewCount++
-	return &ebitenui.UI{Container: widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))}
+	return ui.NewGroup()
 }
 
 // flexModel は DoAction の挙動を差し替えられる Model[int] のテストダブル。
@@ -63,8 +61,8 @@ func (m *flexModel) Fetch(_ w.World) (int, error) { return m.props, nil }
 
 func (m *flexModel) Menu(_ int) MenuConfig { return m.menu }
 
-func (m *flexModel) View(_ w.World, _ int, _ Selection, _ resources.UIResources) *ebitenui.UI {
-	return &ebitenui.UI{Container: widget.NewContainer(widget.ContainerOpts.Layout(widget.NewAnchorLayout()))}
+func (m *flexModel) ViewUI(_ w.World, _ int, _ Selection, _ resources.UIResources) ui.Widget {
+	return ui.NewGroup()
 }
 
 // testOverlay は overlay.Layer のテストダブル。Active・HandleInput の呼び出しを観測する
@@ -72,7 +70,6 @@ type testOverlay struct {
 	active           bool
 	handleInputErr   error
 	handleInputCalls int
-	window           *widget.Window
 }
 
 func (o *testOverlay) Active() bool { return o.active }
@@ -81,8 +78,6 @@ func (o *testOverlay) HandleInput(_ w.World) error {
 	o.handleInputCalls++
 	return o.handleInputErr
 }
-
-func (o *testOverlay) Window(_ w.World, _ image.Rectangle) *widget.Window { return o.window }
 
 var _ overlay.Layer = (*testOverlay)(nil)
 
@@ -247,27 +242,6 @@ func TestScreen_Update_overlay(t *testing.T) {
 		require.ErrorIs(t, err, wantErr)
 		assert.Equal(t, 1, ov.handleInputCalls, "HandleInput は呼ばれてからエラーが伝播する")
 	})
-}
-
-// TestScreen_Update_ActiveなoverlayのWindowをUIへ追加する は Window が非 nil を返す overlay の
-// 窓が widget.UI に実際に追加されることを固定する
-func TestScreen_Update_ActiveなoverlayのWindowをUIへ追加する(t *testing.T) {
-	t.Parallel()
-	model := &flexModel{menu: MenuConfig{Key: "ovwindow"}}
-	var win *widget.Window
-	var screen *Screen[int]
-	world := w.World{Resources: &resources.Resources{}}
-
-	vrt.WithUILock(func() {
-		win = widget.NewWindow(widget.WindowOpts.Contents(widget.NewContainer()))
-		ov := &testOverlay{active: true, window: win}
-		screen = NewScreen[int](model, ov)
-
-		_, err := screen.Update(world)
-		require.NoError(t, err)
-	})
-
-	assert.True(t, screen.widget.IsWindowOpen(win))
 }
 
 // TestScreen_Update_DoAction は DoAction の遷移・エラーがそのまま返ることを固定する

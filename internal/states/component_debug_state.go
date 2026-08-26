@@ -26,7 +26,6 @@ type ComponentDebugState struct {
 }
 
 var _ es.State[w.World] = &ComponentDebugState{}
-var _ menuloop.UIView[ComponentDebugProps] = &ComponentDebugState{}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *ComponentDebugState) OnStart(_ w.World) error {

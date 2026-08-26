@@ -47,7 +47,6 @@ func NewCharacterJobState(playerName string) es.StateFactory[w.World] {
 // State interface ================
 
 var _ es.State[w.World] = &CharacterJobState{}
-var _ menuloop.UIView[JobMenuProps] = &CharacterJobState{}
 
 // OnStart はステート開始時の処理を行う
 func (st *CharacterJobState) OnStart(_ w.World) error {

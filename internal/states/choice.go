@@ -17,8 +17,6 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-var _ menuloop.UIView[ChoiceProps] = &ChoiceMenuState{}
-
 // Choice は選択メニューの1項目。Run が選択時の実行で、戻り値のステート遷移で
 // 画面を閉じる、別画面へ進む、などを表す。Header が真の行はカーソルが止まらない見出し
 type Choice struct {

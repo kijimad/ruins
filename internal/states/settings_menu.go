@@ -30,7 +30,6 @@ type SettingsMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &SettingsMenuState{}
-var _ menuloop.UIView[SettingsMenuProps] = &SettingsMenuState{}
 
 // OnStart はステート開始時の処理を行う。メインメニューの上に重なるためワールドは操作しない
 func (st *SettingsMenuState) OnStart(_ w.World) error {

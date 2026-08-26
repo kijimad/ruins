@@ -52,7 +52,6 @@ type AuctionMenuState struct {
 }
 
 var _ es.State[w.World] = &AuctionMenuState{}
-var _ menuloop.UIView[AuctionProps] = &AuctionMenuState{}
 var _ menuloop.KeyBindings = &AuctionMenuState{}
 
 // OnStart はステート開始時に画面を組む

@@ -29,7 +29,6 @@ type MainMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &MainMenuState{}
-var _ menuloop.UIView[MainMenuProps] = &MainMenuState{}
 
 // OnStart はステート開始時の処理を行う。world には触れない。
 // 前のゲームの後片付けは新しいゲームを始める側が world.ResetForNewGame で行う

@@ -224,7 +224,6 @@ type ItemActionState struct {
 }
 
 var _ es.State[w.World] = &ItemActionState{}
-var _ menuloop.UIView[ItemActionProps] = &ItemActionState{}
 var _ menuloop.KeyBindings = &ItemActionState{}
 
 // NewItemActionState は動詞タブ画面を initial のタブで開くファクトリを返す

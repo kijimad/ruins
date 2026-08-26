@@ -44,7 +44,6 @@ type StorageMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &StorageMenuState{}
-var _ menuloop.UIView[StorageProps] = &StorageMenuState{}
 var _ menuloop.KeyBindings = &StorageMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる

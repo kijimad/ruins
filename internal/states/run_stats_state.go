@@ -47,7 +47,6 @@ type statsTab struct {
 }
 
 var _ es.State[w.World] = &RunStatsState{}
-var _ menuloop.UIView[RunStatsProps] = &RunStatsState{}
 
 // NewRunStatsState は道中で run 統計を見る画面を作る。常時メニューから開き、閉じると元へ戻る
 func NewRunStatsState() (es.State[w.World], error) {
