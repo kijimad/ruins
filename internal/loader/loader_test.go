@@ -113,12 +113,9 @@ func TestLoadUIResources_正常にUIリソースを構築できる(t *testing.T)
 
 	require.NoError(t, err)
 	assert.NotNil(t, ui.Fonts)
-	assert.NotNil(t, ui.Background)
-	assert.NotNil(t, ui.Button)
-	assert.NotNil(t, ui.Label)
-	assert.NotNil(t, ui.Checkbox)
-	assert.NotNil(t, ui.ComboButton)
-	assert.NotNil(t, ui.List)
+	assert.NotNil(t, ui.GradientLine)
+	assert.NotNil(t, ui.GaugeFill)
+	assert.NotNil(t, ui.Text)
 }
 
 func TestBuildFaces_フォントマップからFaceマップを構築できる(t *testing.T) {
