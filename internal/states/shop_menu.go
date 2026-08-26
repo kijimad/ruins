@@ -3,7 +3,6 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -235,30 +234,6 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // ================
 // View
 // ================
-
-func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	if tabIndex >= len(tabs) {
-		return styled.NewVerticalContainer()
-	}
-
-	currentTab := tabs[tabIndex]
-	// アイコン、名前+個数、価格、重さの4列。名前を伸縮させ、価格・重さを右側にまとめる。
-	// 重さは最も重い値、15.00kg 相当、が収まる幅を固定で取り、値の桁数で価格位置がぶれないようにする。
-	// 売却の個数は名前に x個数 として添える。性能は x の詳細モーダルで見る
-	columnWidths, aligns := itemMenuColumns(0, menuColumn{Width: 80, Align: styled.AlignRight}, menuColumn{Width: 90, Align: styled.AlignRight})
-	rows := make([]menuRow, len(currentTab.Items))
-	for i, it := range currentTab.Items {
-		// 名前・重量・アイコンは実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している。
-		// 1行は1スタックなので、重量は額と同じく個数分の合計にし、行内の値の粒度を揃える
-		total := query.GetEntityWeight(world, it.Entity) * consts.Milligram(it.Count)
-		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Price.String(), total.KgString())
-	}
-	emptyText := query.T(world, "No goods")
-	if currentTab.ID == shopSellTabID {
-		emptyText = query.T(world, "No items to sell")
-	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
-}
 
 // ViewUI は View の internal/ui 版。購入・売却タブとアイコン付き商品一覧を自前 UI で組む。
 func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {

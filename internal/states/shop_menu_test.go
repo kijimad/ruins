@@ -143,11 +143,9 @@ func TestNewShopMenuState(t *testing.T) {
 	assert.True(t, ok, "ShopMenuState型である")
 }
 
-// TestShopMenuState_buildItemContainer_商品ありでpanicしない は、売買メニューが商品を
-// 1件以上持つとき列数不整合で落ちないことを固定する。行のセル数が列幅数と合わないと
-// renderMenuList が panic する。golden は既定タブが空で行に到達せず覆えないため、
-// 実体を直接渡してこの経路を覆う。
-func TestShopMenuState_buildItemContainer_商品ありでpanicしない(t *testing.T) {
+// TestShopMenuState_buildItemListUI_商品ありで行を組む は、売買メニューが商品を1件以上持つとき
+// 行が組まれることを固定する。golden は既定タブが空で行に到達せず覆えないため、実体を直接渡す。
+func TestShopMenuState_buildItemListUI_商品ありで行を組む(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -161,9 +159,6 @@ func TestShopMenuState_buildItemContainer_商品ありでpanicしない(t *testi
 	tabs := []shopTabData{{ID: "sell", Items: []shopItemData{{Entity: e, Price: 10}}}}
 	st := &ShopMenuState{}
 
-	assert.NotPanics(t, func() {
-		vrt.WithUILock(func() {
-			_ = st.buildItemContainer(world, tabs, 0, 0, world.Resources.UIResources)
-		})
-	})
+	items := st.buildItemListUI(world, tabs, 0, 0, world.Resources.UIResources)
+	assert.NotEmpty(t, items, "商品ありで行が組まれる")
 }
