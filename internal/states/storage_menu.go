@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -43,6 +44,7 @@ type StorageMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &StorageMenuState{}
+var _ menuloop.UIView[StorageProps] = &StorageMenuState{}
 var _ menuloop.KeyBindings = &StorageMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
@@ -204,6 +206,31 @@ func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menul
 		Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
 		Footer:    keybind.HelpHint(world),
 	})
+}
+
+// ViewUI は View の internal/ui 版。カテゴリタブとアイコン付きアイテム一覧を自前 UI で組む。
+// 詳細モーダルは ScreenRenderer として Screen が本体の上へ重ねる。
+func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
+	content := st.buildActiveListUI(world, props, cursor.TabIndex, cursor.ItemIndex, res)
+	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world))
+}
+
+// buildActiveListUI は buildActiveListContainer の internal/ui 版。アイコン付きの1カラム一覧を返す。
+func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) []ui.Widget {
+	if tabIndex >= len(props.Tabs) {
+		return nil
+	}
+	currentTab := props.Tabs[tabIndex]
+	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
+	rows := make([]menuRow, len(currentTab.Items))
+	for i, it := range currentTab.Items {
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
+	}
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res.Text.BodyFace)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
