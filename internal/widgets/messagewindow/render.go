@@ -3,20 +3,22 @@ package messagewindow
 import (
 	"image"
 	"image/color"
-	"strings"
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
 const (
-	titleBarHeight = 40 // タイトルバーの高さ
-	choiceRowH     = 34 // 選択肢1行の高さ
-	pageRowH       = 24 // ページ表示の高さ
+	titleBarHeight = 40           // タイトルバーの高さ
+	choiceRowH     = 26           // 選択肢1行の高さ。本文 + 上下パディング + 区切り線
+	choiceTopPad   = 0            // 選択肢一覧の上パディング
+	choicePadL     = theme.Space3 // 選択肢の左パディング
+	choiceLabelGap = theme.Space2 // ラベルと追加ラベルの間隔
+	pageRowH       = 24           // ページ表示の高さ
+	choiceMinWidth = 120          // 選択肢の塊の最小幅
 )
 
 // measure はフェイスでの文字列の幅と高さを返す。水平フローの送り幅と縦中央寄せに使う
@@ -62,20 +64,30 @@ func (win *Window) buildTree() ui.Widget {
 		children = append(children, win.segmentedLineWidgets(padL, padR, contentTop+theme.Space6, res.Text.BodyFace)...)
 	}
 
-	// 選択肢またはEnterプロンプトを下端寄りに置く
+	// 選択肢またはEnterプロンプトを下端寄りに置く。一覧は自然幅の塊を中央へ寄せる
+	cx := (rect.Min.X + rect.Max.X) / 2
 	if win.hasChoices {
 		items, _ := getVisibleItems(win.choiceConfig, win.choiceState)
-		blockH := len(items)*choiceRowH + theme.Space2
+		blockH := choiceTopPad + len(items)*choiceRowH
 		if pageIndicatorText(win.choiceConfig, win.choiceState) != "" {
 			blockH += pageRowH
 		}
 		blockTop := rect.Max.Y - theme.Space5 - blockH
-		choiceRect := image.Rect(rect.Min.X, blockTop, rect.Max.X, rect.Max.Y-theme.Space5)
+		cw := choiceBlockWidth(win.choiceConfig, win.choiceState, win.world)
+		choiceRect := image.Rect(cx-cw/2, blockTop, cx-cw/2+cw, rect.Max.Y-theme.Space5)
 		children = append(children, renderChoiceList(win.choiceConfig, win.choiceState, win.world, choiceRect))
 	} else {
-		promptY := rect.Max.Y - theme.Space5 - choiceRowH
-		cx := (rect.Min.X + rect.Max.X) / 2
-		children = append(children, choiceRowWidgets(item{Label: "Enter"}, true, cx, promptY, padL, padR, res.Text.BodyFace, res.SelectionBar)...)
+		lw, th := measure("Enter", res.Text.BodyFace)
+		cw := choicePadL*2 + lw
+		bx := cx - cw/2
+		py := rect.Max.Y - theme.Space5 - choiceRowH
+		hl := ui.NewNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
+		hl.Layout(image.Rect(bx, py, bx+cw, py+choiceRowH))
+		children = append(children, hl)
+		prompt := ui.NewText("Enter", res.Text.BodyFace, theme.TextPrimary)
+		prompt.Align = ui.AlignCenter
+		prompt.Layout(image.Rect(bx, py+(choiceRowH-th)/2, bx+cw, py+choiceRowH))
+		children = append(children, prompt)
 	}
 
 	root := ui.NewGroup(children...)
@@ -136,9 +148,6 @@ func lineIsBlank(line []messagedata.TextSegment) bool {
 func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect image.Rectangle) ui.Widget {
 	res := world.Resources.UIResources
 	face := res.Text.BodyFace
-	padL := rect.Min.X + theme.Space4
-	padR := rect.Max.X - theme.Space4
-	cx := (rect.Min.X + rect.Max.X) / 2
 
 	var children []ui.Widget
 	yy := rect.Min.Y
@@ -149,11 +158,45 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 		children = append(children, pi)
 		yy += pageRowH
 	}
+	yy += choiceTopPad
 
 	items, indices := getVisibleItems(config, state)
 	for i, it := range items {
 		focused := indices[i] == state.ItemIndex
-		children = append(children, choiceRowWidgets(it, focused, cx, yy, padL, padR, face, res.SelectionBar)...)
+		_, textH := measure(it.Label, face)
+		off := (choiceRowH - textH) / 2
+
+		// 選択中は行いっぱいに金色の選択バーを敷く
+		if focused {
+			hl := ui.NewNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
+			hl.Layout(image.Rect(rect.Min.X, yy, rect.Max.X, yy+choiceRowH))
+			children = append(children, hl)
+		}
+
+		col := theme.TextSecondary
+		if focused {
+			col = theme.TextSelected
+		}
+		// ラベルは左寄せ。追加ラベルはラベルの右に間隔を空けて連ねる
+		x := rect.Min.X + choicePadL
+		lbl := ui.NewText(it.Label, face, col)
+		lbl.Layout(image.Rect(x, yy+off, rect.Max.X, yy+choiceRowH))
+		children = append(children, lbl)
+		lw, _ := measure(it.Label, face)
+		x += lw
+		for _, a := range it.AdditionalLabels {
+			x += choiceLabelGap
+			at := ui.NewText(a, face, col)
+			at.Layout(image.Rect(x, yy+off, rect.Max.X, yy+choiceRowH))
+			children = append(children, at)
+			aw, _ := measure(a, face)
+			x += aw
+		}
+
+		// 行の下に薄白の区切り線を敷く
+		dv := ui.Panel(ui.BoxStyle{Fill: theme.RowDivider}, 1)
+		dv.Layout(image.Rect(rect.Min.X, yy+choiceRowH-1, rect.Max.X, yy+choiceRowH))
+		children = append(children, dv)
 		yy += choiceRowH
 	}
 
@@ -162,33 +205,26 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 	return root
 }
 
-// choiceRowWidgets は選択肢1行分のウィジェットを返す。ラベルは中央寄せ、追加ラベルは右寄せ。
-// 選択中は文字を明るくし、中央に背景帯を敷く
-func choiceRowWidgets(it item, focused bool, cx, y, padL, padR int, face text.Face, selBar *resources.NineSliceTex) []ui.Widget {
-	var out []ui.Widget
-	labelW, textH := measure(it.Label, face)
-	off := (choiceRowH - textH) / 2
-
-	textColor := theme.TextSecondary
-	if focused {
-		textColor = theme.TextSelected
-		hw := labelW + 2*theme.Space5
-		hx := cx - hw/2
-		hl := ui.NewNineSlice(selBar.Image, selBar.BX, selBar.BY)
-		hl.Layout(image.Rect(hx, y, hx+hw, y+choiceRowH))
-		out = append(out, hl)
+// choiceBlockWidth は選択肢一覧の自然幅を返す。窓では中央寄せ、テストでは左寄せの塊の幅に使う。
+// 各項目のラベルと追加ラベルの合計に左右パディングを足し、最大を採る
+func choiceBlockWidth(config tabMenuConfig, state viewState, world w.World) int {
+	res := world.Resources.UIResources
+	face := res.Text.BodyFace
+	items, _ := getVisibleItems(config, state)
+	maxW := 0
+	for _, it := range items {
+		lw, _ := measure(it.Label, face)
+		w := choicePadL*2 + lw
+		for _, a := range it.AdditionalLabels {
+			aw, _ := measure(a, face)
+			w += choiceLabelGap + aw
+		}
+		if w > maxW {
+			maxW = w
+		}
 	}
-
-	if len(it.AdditionalLabels) > 0 {
-		add := ui.NewText(strings.Join(it.AdditionalLabels, "  "), face, theme.TextSecondary)
-		add.Align = ui.AlignRight
-		add.Layout(image.Rect(padL, y+off, padR, y+choiceRowH))
-		out = append(out, add)
+	if maxW < choiceMinWidth {
+		maxW = choiceMinWidth
 	}
-
-	lbl := ui.NewText(it.Label, face, textColor)
-	lbl.Align = ui.AlignCenter
-	lbl.Layout(image.Rect(padL, y+off, padR, y+choiceRowH))
-	out = append(out, lbl)
-	return out
+	return maxW
 }

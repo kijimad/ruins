@@ -20,7 +20,9 @@ func TestMain(m *testing.M) {
 func assertChoiceGolden(t *testing.T, config tabMenuConfig, state viewState, world w.World, width, height int) {
 	t.Helper()
 	vrt.AssertScreenGolden(t, func() func(*ebiten.Image) {
-		tree := renderChoiceList(config, state, world, image.Rect(0, 0, width, height))
+		// 元は自然幅のコンテナを左上へ描いていた。選択バーと区切り線はその幅いっぱいに伸びる
+		cw := min(choiceBlockWidth(config, state, world), width)
+		tree := renderChoiceList(config, state, world, image.Rect(0, 0, cw, height))
 		return func(screen *ebiten.Image) {
 			tree.Draw(ui.NewEbitenCanvas(screen))
 		}
