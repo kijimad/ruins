@@ -52,6 +52,56 @@ func buildPanelScreenUI(world w.World, res resources.UIResources, title string, 
 // menuSelectedStyle は選択行の強調。背景を敷いてカーソル位置を示す。
 var menuSelectedStyle = ui.BoxStyle{Fill: theme.PanelHighlight}
 
+// tabBarUI はタブ帯を組む。ラベルを等幅で横に並べ、選択中のタブを主色、他を補助色で描く。
+func tabBarUI(labels []string, selected int, totalWidth int, face text.Face) *ui.Container {
+	n := len(labels)
+	widths := make([]int, n)
+	cells := make([]ui.Widget, n)
+	for i, label := range labels {
+		widths[i] = totalWidth / n
+		var clr color.Color = theme.TextSecondary
+		if i == selected {
+			clr = theme.TextPrimary
+		}
+		t := ui.NewText(label, face, clr)
+		t.Align = ui.AlignCenter
+		cells[i] = t
+	}
+	return ui.Row(widths, cells...)
+}
+
+// buildTabScreenUI は見出し・タブ帯・内容行・フッタを1枚のモーダルに縦へ並べて返す。
+// NewTabScreen の internal/ui 版。モーダルは中央固定枠いっぱいに広げ、フッタは空行で下端へ寄せる。
+func buildTabScreenUI(world w.World, res resources.UIResources, header string, tabLabels []string, tabIndex int, content []ui.Widget, footer string) ui.Widget {
+	face := res.Text.BodyFace
+	rect := menuframe.CenterWindowRect(world)
+	innerW := rect.Dx() - panelScreenPad*2
+
+	var items []ui.Widget
+	if header != "" {
+		h := ui.NewText(header, face, theme.TextPrimary)
+		h.Align = ui.AlignCenter
+		items = append(items, ui.Row([]int{innerW}, h))
+	}
+	if len(tabLabels) > 0 {
+		items = append(items, tabBarUI(tabLabels, tabIndex, innerW, face))
+	}
+	items = append(items, content...)
+
+	// フッタは下端へ寄せる。内容の下を空行で埋め、最下段にフッタを置く
+	if footer != "" {
+		capacity := (rect.Dy() - panelScreenPad*2) / panelScreenRowH
+		for len(items) < capacity-1 {
+			items = append(items, ui.NewText(" ", face, theme.TextPrimary))
+		}
+		items = append(items, ui.NewText(footer, face, theme.TextSecondary))
+	}
+
+	panel := ui.Panel(panelScreenStyle, panelScreenRowH, items...).SetPadding(panelScreenPad)
+	panel.Layout(rect)
+	return panel
+}
+
 // toUIAlign は styled のそろえを internal/ui のそろえへ写す。
 func toUIAlign(a styled.TextAlign) ui.Align {
 	if a == styled.AlignRight {
@@ -105,6 +155,10 @@ func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []s
 		for i := len(visible); i < perPage; i++ {
 			items = append(items, blankRowUI(colWidths, face))
 		}
+	}
+	// 行が無いときの空表示を一覧側で持つ。各メニューが同じ後処理を書かずに済む
+	if len(rows) == 0 && opts.EmptyText != "" {
+		items = append(items, ui.NewText(opts.EmptyText, face, theme.TextSecondary))
 	}
 	return items
 }

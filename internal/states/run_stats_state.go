@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -46,6 +47,7 @@ type statsTab struct {
 }
 
 var _ es.State[w.World] = &RunStatsState{}
+var _ menuloop.UIView[RunStatsProps] = &RunStatsState{}
 
 // NewRunStatsState は道中で run 統計を見る画面を作る。常時メニューから開き、閉じると元へ戻る
 func NewRunStatsState() (es.State[w.World], error) {
@@ -131,6 +133,35 @@ func (st *RunStatsState) View(world w.World, props RunStatsProps, cursor menuloo
 		Content:   content,
 		Footer:    keybind.HelpHint(world),
 	})
+}
+
+// ViewUI は View の internal/ui 版。タブ帯つきのステータス表を自前 UI で組む。
+func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		labels[i] = tab.Label
+	}
+	tabIndex := cursor.TabIndex
+	if tabIndex >= len(props.Tabs) {
+		tabIndex = 0
+	}
+	content := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
+	return buildTabScreenUI(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world))
+}
+
+// buildStatsTableUI は buildStatsTable の internal/ui 版。ラベル左・値右の2列表を行ウィジェット列で返す。
+func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) []ui.Widget {
+	columnWidths := []int{180, 90}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	rows := make([]menuRow, len(items))
+	for i, it := range items {
+		rows[i] = menuRow{Cells: styled.TextCells(it.Label, it.Value)}
+	}
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{
+		AlwaysIndicator: true,
+		EmptyText:       query.T(world, "No entries"),
+		ItemsPerPage:    menuframe.ListCapacity(res, true, true),
+	}, res.Text.BodyFace)
 }
 
 // buildStatsTable は統計を Label と Value の2列テーブルに組む。ラベルが長いので
