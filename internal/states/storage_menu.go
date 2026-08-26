@@ -211,7 +211,7 @@ func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps,
 	for i, it := range currentTab.Items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res.Text.BodyFace)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

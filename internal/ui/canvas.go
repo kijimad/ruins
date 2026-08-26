@@ -20,6 +20,9 @@ type Canvas interface {
 	DrawText(pos image.Point, s string, face text.Face, c color.Color)
 	// DrawImage は pos を左上として画像を描く。
 	DrawImage(pos image.Point, img *ebiten.Image)
+	// DrawImageRect は img を dst に収まるよう縦横比を保って縮小し、拡大はせず、中央へ寄せて描く。
+	// 一覧のアイコンを行の高さへ合わせて中央に置くのに使う。
+	DrawImageRect(dst image.Rectangle, img *ebiten.Image)
 	// DrawNineSlice は img を9スライスで dst いっぱいに引き伸ばして描く。四隅は原寸、辺は片方向、
 	// 中央は両方向へ伸びる。bx・by はソースの左中右・上中下の各スライス幅。枠付き背景に使う。
 	DrawNineSlice(dst image.Rectangle, img *ebiten.Image, bx, by [3]int)

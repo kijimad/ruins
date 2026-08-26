@@ -14,9 +14,10 @@ type UIResources struct {
 	GradientLine *ebiten.Image
 	GaugeFill    *ebiten.Image
 
-	// 9スライスで描く UI テクスチャ。窓・タイトルバー・入力枠・選択バーの背景に使う。
+	// 9スライスで描く UI テクスチャ。窓・タイトルバー・入力枠・選択バー・パネルの背景に使う。
 	// plain な *ebiten.Image なので外部ライブラリに依存しない
 	WindowBG     *NineSliceTex
+	PanelBG      *NineSliceTex
 	TitleBar     *NineSliceTex
 	InputBG      *NineSliceTex
 	SelectionBar *NineSliceTex
@@ -65,6 +66,10 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 	if err != nil {
 		return UIResources{}, err
 	}
+	panelBG, err := newNineSliceTex("assets/graphics/panel-idle.png", 40, 40)
+	if err != nil {
+		return UIResources{}, err
+	}
 	titleBar, err := newNineSliceTex("assets/graphics/titlebar-idle.png", 40, 24)
 	if err != nil {
 		return UIResources{}, err
@@ -87,6 +92,7 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		GaugeFill:    gaugeFill,
 
 		WindowBG:     windowBG,
+		PanelBG:      panelBG,
 		TitleBar:     titleBar,
 		InputBG:      inputBG,
 		SelectionBar: selectionBar,

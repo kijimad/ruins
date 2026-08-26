@@ -3,6 +3,7 @@ package ui
 import (
 	"image"
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -43,6 +44,26 @@ func (e *EbitenCanvas) DrawText(pos image.Point, s string, face text.Face, c col
 func (e *EbitenCanvas) DrawImage(pos image.Point, img *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(pos.X), float64(pos.Y))
+	e.screen.DrawImage(img, op)
+}
+
+// DrawImageRect は EbitenCanvas を実装する。dst に収まるよう縦横比を保って縮小し、中央へ寄せて描く。
+func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
+	if img == nil {
+		return
+	}
+	b := img.Bounds()
+	iw, ih := b.Dx(), b.Dy()
+	if iw <= 0 || ih <= 0 || dst.Dx() <= 0 || dst.Dy() <= 0 {
+		return
+	}
+	scale := math.Min(math.Min(float64(dst.Dx())/float64(iw), float64(dst.Dy())/float64(ih)), 1)
+	dw, dh := float64(iw)*scale, float64(ih)*scale
+	ox := float64(dst.Min.X) + (float64(dst.Dx())-dw)/2
+	oy := float64(dst.Min.Y) + (float64(dst.Dy())-dh)/2
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(scale, scale)
+	op.GeoM.Translate(ox, oy)
 	e.screen.DrawImage(img, op)
 }
 

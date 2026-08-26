@@ -138,7 +138,7 @@ func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res
 		AlwaysIndicator: true,
 		EmptyText:       query.T(world, "No entries"),
 		ItemsPerPage:    menuframe.ListCapacity(res, true, true),
-	}, res.Text.BodyFace)
+	}, res)
 }
 
 // runStatsItems は run 統計をテーブル行に組む。結果画面と道中の統計画面で共通。

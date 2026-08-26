@@ -164,13 +164,13 @@ func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor me
 	for i := range props.Items {
 		rows[i] = menuRow{Cells: styled.TextCells(query.T(world, props.Items[i].Profession.Name))}
 	}
-	listRows := renderMenuListUI(itemIndex, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, face)
+	listRows := renderMenuListUI(itemIndex, rows, []int{160}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
 	list := ui.VBox(panelScreenRowH, listRows...)
 	list.Layout(image.Rect(40, 80, 40+180, sd.Height-72))
 	children = append(children, list)
 
 	detailRows := buildJobDetailRowsUI(world, props, itemIndex, face)
-	detail := ui.Panel(panelScreenStyle, panelScreenRowH, detailRows...).SetPadding(panelScreenPad)
+	detail := panelBackground(ui.Panel(ui.BoxStyle{}, panelScreenRowH, detailRows...), res).SetPadding(panelScreenPad)
 	detail.Layout(image.Rect(240, 80, sd.Width-40, sd.Height-72))
 	children = append(children, detail)
 

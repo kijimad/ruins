@@ -5,6 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/resources"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/kijimaD/ruins/internal/ui"
@@ -29,7 +31,7 @@ func TestRenderMenuListUI_単一ページは見出しと行を並べる(t *testi
 		{Cells: styled.TextCells("項目A")},
 		{Cells: styled.TextCells("項目B")},
 	}
-	items := renderMenuListUI(1, rows, []int{200}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{ItemsPerPage: 10}, nil)
+	items := renderMenuListUI(1, rows, []int{200}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
 	labels := labelsOf(items)
 
 	assert.Contains(t, labels, "見出し", "見出し行が出る")
@@ -43,7 +45,7 @@ func TestRenderMenuListUI_多数行はページ送りし空行で高さを保つ
 	for i := range rows {
 		rows[i] = menuRow{Cells: styled.TextCells(fmt.Sprintf("Item %d", i+1))}
 	}
-	items := renderMenuListUI(0, rows, []int{200}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{ItemsPerPage: 10}, nil)
+	items := renderMenuListUI(0, rows, []int{200}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
 	labels := labelsOf(items)
 
 	assert.Contains(t, labels, "Item 1", "先頭ページの先頭が出る")

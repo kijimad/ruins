@@ -22,11 +22,13 @@ const (
 	panelScreenPad = 12
 )
 
-// panelScreenStyle は簡易メニューのパネルの背景と枠。
-var panelScreenStyle = ui.BoxStyle{Fill: theme.WindowBackground, Border: theme.PanelHighlight, BorderWidth: 1}
+// panelBackground はパネル背景のテクスチャを敷く。ebitenui 時代の res.Panel.Image と同じ意匠。
+func panelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
+	return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+}
 
 // buildPanelScreenUI は見出し・内容行・フッタを1枚のパネルへ縦に並べ、画面中央に配置して返す。
-// NewPanelScreen の internal/ui 版。内容は renderMenuListUI が返す行をそのまま渡す。
+// 項目数相応の小さなパネル。背景はパネルテクスチャを敷く。内容は renderMenuListUI が返す行をそのまま渡す。
 func buildPanelScreenUI(world w.World, res resources.UIResources, title string, content []ui.Widget, footer string) ui.Widget {
 	face := res.Text.BodyFace
 	items := make([]ui.Widget, 0, len(content)+2)
@@ -40,7 +42,7 @@ func buildPanelScreenUI(world w.World, res resources.UIResources, title string, 
 
 	panelW := menuRowWidth + panelScreenPad*2
 	panelH := len(items)*panelScreenRowH + panelScreenPad*2
-	panel := ui.Panel(panelScreenStyle, panelScreenRowH, items...).SetPadding(panelScreenPad)
+	panel := panelBackground(ui.Panel(ui.BoxStyle{}, panelScreenRowH, items...), res).SetPadding(panelScreenPad)
 
 	rect := menuframe.CenterWindowRect(world)
 	x := rect.Min.X + (rect.Dx()-panelW)/2
@@ -49,32 +51,45 @@ func buildPanelScreenUI(world w.World, res resources.UIResources, title string, 
 	return panel
 }
 
-// menuSelectedStyle は選択行の強調。背景を敷いてカーソル位置を示す。
-var menuSelectedStyle = ui.BoxStyle{Fill: theme.PanelHighlight}
-
-// tabBarUI はタブ帯を組む。ラベルを等幅で横に並べ、選択中のタブを主色、他を補助色で描く。
-func tabBarUI(labels []string, selected int, totalWidth int, face text.Face) *ui.Container {
+// tabBarUI はタブ帯を組む。ラベルを等幅で横に並べ、選択中のタブは金色の選択バーを敷き主色で、
+// 他は補助色で描く。ebitenui 時代の NewTabBar と同じ意匠。
+func tabBarUI(labels []string, selected int, totalWidth int, face text.Face, selBar *resources.NineSliceTex) *ui.Container {
 	n := len(labels)
 	widths := make([]int, n)
 	cells := make([]ui.Widget, n)
 	for i, label := range labels {
 		widths[i] = totalWidth / n
-		var clr color.Color = theme.TextSecondary
+		clr := theme.TextSecondary
 		if i == selected {
-			clr = theme.TextPrimary
+			clr = theme.TextSelected
 		}
 		t := ui.NewText(label, face, clr)
 		t.Align = ui.AlignCenter
-		cells[i] = t
+		t.VCenter = true
+		if i == selected {
+			// 選択タブは金色の選択バーを敷いたセルにする
+			cells[i] = panelSelCell(t, selBar)
+		} else {
+			cells[i] = t
+		}
 	}
 	return ui.Row(widths, cells...)
+}
+
+// panelSelCell は子を金色の選択バーの上に置くセルを返す。選択タブの強調に使う。
+func panelSelCell(child ui.Widget, selBar *resources.NineSliceTex) *ui.Container {
+	cell := ui.VBox(panelScreenRowH, child)
+	if selBar != nil {
+		cell.SetBackgroundNineSlice(selBar.Image, selBar.BX, selBar.BY)
+	}
+	return cell
 }
 
 // buildTabScreenUI は見出し・タブ帯・内容行・フッタを1枚のモーダルに縦へ並べて返す。
 // NewTabScreen の internal/ui 版。モーダルは中央固定枠いっぱいに広げ、フッタは空行で下端へ寄せる。
 func buildTabScreenUI(world w.World, res resources.UIResources, header string, tabLabels []string, tabIndex int, content []ui.Widget, footer string) ui.Widget {
 	face := res.Text.BodyFace
-	rect := menuframe.CenterWindowRect(world)
+	rect := menuframe.ModalRect(world)
 	innerW := rect.Dx() - panelScreenPad*2
 
 	var items []ui.Widget
@@ -84,7 +99,7 @@ func buildTabScreenUI(world w.World, res resources.UIResources, header string, t
 		items = append(items, ui.Row([]int{innerW}, h))
 	}
 	if len(tabLabels) > 0 {
-		items = append(items, tabBarUI(tabLabels, tabIndex, innerW, face))
+		items = append(items, tabBarUI(tabLabels, tabIndex, innerW, face, res.SelectionBar))
 	}
 	items = append(items, content...)
 
@@ -97,7 +112,7 @@ func buildTabScreenUI(world w.World, res resources.UIResources, header string, t
 		items = append(items, ui.NewText(footer, face, theme.TextSecondary))
 	}
 
-	panel := ui.Panel(panelScreenStyle, panelScreenRowH, items...).SetPadding(panelScreenPad)
+	panel := panelBackground(ui.Panel(ui.BoxStyle{}, panelScreenRowH, items...), res).SetPadding(panelScreenPad)
 	panel.Layout(rect)
 	return panel
 }
@@ -122,7 +137,8 @@ func sumWidths(colWidths []int) int {
 // renderMenuListUI は renderMenuList の internal/ui 版。行データからページ送り・ページ表示・
 // 見出し・選択強調・空行埋めを備えた行ウィジェット列を返す。呼び出し側はこれをパネルに並べる。
 // 1ページの件数は呼び出し側が opts.ItemsPerPage に解決して渡す。0 なら全行を1ページに収める。
-func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, face text.Face) []ui.Widget {
+func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) []ui.Widget {
+	face := res.Text.BodyFace
 	perPage := opts.ItemsPerPage
 	if perPage <= 0 {
 		perPage = max(len(rows), 1)
@@ -137,6 +153,7 @@ func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []s
 		}
 		ind := ui.NewText(pageText, face, theme.TextSecondary)
 		ind.Align = ui.AlignCenter
+		ind.VCenter = true
 		items = append(items, ui.Row([]int{sumWidths(colWidths)}, ind))
 	}
 	if opts.HeaderRow != nil {
@@ -148,7 +165,7 @@ func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []s
 			items = append(items, headerRowUI(cellTexts(entry.Item.Cells), colWidths, face))
 			continue
 		}
-		items = append(items, dataRowUI(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), face))
+		items = append(items, dataRowUI(entry.Item.Cells, colWidths, aligns, pg.IsSelectedInPage(entry.Index), face, res.SelectionBar))
 	}
 	// 複数ページの画面は各ページを1ページ件数ぶんの空行で埋め、ページを繰っても高さを一定にする
 	if len(rows) > perPage {
@@ -167,13 +184,15 @@ func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []s
 func headerRowUI(texts []string, colWidths []int, face text.Face) *ui.Container {
 	cells := make([]ui.Widget, len(texts))
 	for i, s := range texts {
-		cells[i] = ui.NewText(s, face, theme.TextSecondary)
+		t := ui.NewText(s, face, theme.TextSecondary)
+		t.VCenter = true
+		cells[i] = t
 	}
 	return ui.Row(colWidths, cells...)
 }
 
-// dataRowUI はデータ行を組む。選択中なら背景を敷き文字色を選択色にする。アイコンセルは画像で描く。
-func dataRowUI(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face) *ui.Container {
+// dataRowUI はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。アイコンセルは画像で描く。
+func dataRowUI(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, selBar *resources.NineSliceTex) *ui.Container {
 	var textColor color.Color = theme.TextPrimary
 	if selected {
 		textColor = theme.TextSelected
@@ -185,14 +204,15 @@ func dataRowUI(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, 
 			continue
 		}
 		t := ui.NewText(c.Text, face, textColor)
+		t.VCenter = true
 		if i < len(aligns) {
 			t.Align = toUIAlign(aligns[i])
 		}
 		cellWidgets[i] = t
 	}
 	row := ui.Row(colWidths, cellWidgets...)
-	if selected {
-		row.SetStyle(menuSelectedStyle)
+	if selected && selBar != nil {
+		row.SetBackgroundNineSlice(selBar.Image, selBar.BX, selBar.BY)
 	}
 	return row
 }

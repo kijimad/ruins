@@ -40,16 +40,17 @@ const (
 	AlignCenter
 )
 
-// Text は1行のラベル。既定は左寄せで、Align で右寄せや中央寄せにできる。
+// Text は1行のラベル。既定は左上寄せで、Align で右寄せや中央寄せに、VCenter で縦中央にできる。
 type Text struct {
 	base
-	Value string
-	Face  text.Face
-	Color color.Color
-	Align Align
+	Value   string
+	Face    text.Face
+	Color   color.Color
+	Align   Align
+	VCenter bool // 真なら矩形内で縦中央へ寄せる。行高が本文より高い一覧行でアイコンや強調とそろえる
 }
 
-// NewText は左寄せのラベルを作る。
+// NewText は左上寄せのラベルを作る。
 func NewText(value string, face text.Face, c color.Color) *Text {
 	return &Text{Value: value, Face: face, Color: c}
 }
@@ -57,22 +58,25 @@ func NewText(value string, face text.Face, c color.Color) *Text {
 // Layout は Text を実装する。
 func (t *Text) Layout(b image.Rectangle) { t.rect = b }
 
-// Draw は Text を実装する。Align に応じて矩形内での横位置を決める。
-// 幅の測定にフェイスが要るので、フェイスが無ければ左寄せにフォールバックする。
+// Draw は Text を実装する。Align に応じて矩形内での横位置、VCenter に応じて縦位置を決める。
+// 幅・高さの測定にフェイスが要るので、フェイスが無ければ左上寄せにフォールバックする。
 func (t *Text) Draw(cv Canvas) {
-	x := t.rect.Min.X
-	if t.Align != AlignLeft && t.Face != nil {
-		width, _ := text.Measure(t.Value, t.Face, 0)
+	x, y := t.rect.Min.X, t.rect.Min.Y
+	if t.Face != nil {
+		width, height := text.Measure(t.Value, t.Face, 0)
 		switch t.Align {
 		case AlignLeft:
-			// 左寄せは x をそのまま。外側の条件でここには来ない
+			// 左寄せは x をそのまま
 		case AlignRight:
 			x = t.rect.Max.X - int(width)
 		case AlignCenter:
 			x = t.rect.Min.X + (t.rect.Dx()-int(width))/2
 		}
+		if t.VCenter {
+			y = t.rect.Min.Y + (t.rect.Dy()-int(height))/2
+		}
 	}
-	cv.DrawText(image.Pt(x, t.rect.Min.Y), t.Value, t.Face, t.Color)
+	cv.DrawText(image.Pt(x, y), t.Value, t.Face, t.Color)
 }
 
 // Children は Text を実装する。子は持たない。
@@ -90,10 +94,11 @@ func NewGraphic(img *ebiten.Image) *Graphic { return &Graphic{Image: img} }
 // Layout は Graphic を実装する。
 func (g *Graphic) Layout(b image.Rectangle) { g.rect = b }
 
-// Draw は Graphic を実装する。
+// Draw は Graphic を実装する。矩形に収まるよう縮小し中央へ寄せて描く。一覧のアイコンを
+// 行の高さへ合わせ、文字と縦位置をそろえる。
 func (g *Graphic) Draw(cv Canvas) {
 	if g.Image != nil {
-		cv.DrawImage(g.rect.Min, g.Image)
+		cv.DrawImageRect(g.rect, g.Image)
 	}
 }
 
@@ -160,12 +165,15 @@ const (
 	Horizontal
 )
 
-// Container は子を主軸方向に並べる入れ物。背景の塗りと枠、内側余白を持てる。
+// Container は子を主軸方向に並べる入れ物。背景の塗りと枠、テクスチャ背景、内側余白を持てる。
 type Container struct {
 	base
 	dir      Dir
 	sizes    []int // 主軸方向の各子のサイズ。Vertical は高さ、Horizontal は幅
 	style    BoxStyle
+	bgImage  *ebiten.Image // 9スライスで敷くテクスチャ背景。パネルや選択行に使う
+	bgBX     [3]int
+	bgBY     [3]int
 	pad      int // 内側余白。子はこのぶん内側へ寄せる。背景と枠は矩形いっぱいに描く
 	children []Widget
 }
@@ -182,11 +190,39 @@ func (c *Container) SetStyle(s BoxStyle) *Container {
 	return c
 }
 
+// SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。パネルや選択行の意匠に使う。
+func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Container {
+	c.bgImage = img
+	c.bgBX = bx
+	c.bgBY = by
+	return c
+}
+
 // Layout は Container を実装する。余白を除いた内側で主軸方向へ sizes ぶんずつ子を並べ、
-// 交差軸は内側いっぱいに広げる。
+// 交差軸は内側いっぱいに広げる。横並びで内側が sizes の合計より広いときは、0幅の列、
+// 無ければ最後の列、を余った幅ぶん伸ばして内側を埋める。名前列を伸ばし右の数値列を右端へ寄せる用途。
 func (c *Container) Layout(b image.Rectangle) {
 	c.rect = b
 	inner := image.Rect(b.Min.X+c.pad, b.Min.Y+c.pad, b.Max.X-c.pad, b.Max.Y-c.pad)
+
+	stretchIdx, extra := -1, 0
+	if c.dir == Horizontal {
+		total := 0
+		for _, s := range c.sizes {
+			total += s
+		}
+		for i, s := range c.sizes {
+			if s == 0 {
+				stretchIdx = i
+				break
+			}
+		}
+		if stretchIdx == -1 && len(c.children) > 0 {
+			stretchIdx = len(c.children) - 1
+		}
+		extra = max(inner.Dx()-total, 0)
+	}
+
 	pos := inner.Min
 	for i, ch := range c.children {
 		size := 0
@@ -198,6 +234,9 @@ func (c *Container) Layout(b image.Rectangle) {
 			cell = image.Rect(inner.Min.X, pos.Y, inner.Max.X, pos.Y+size)
 			pos.Y += size
 		} else {
+			if i == stretchIdx {
+				size += extra
+			}
 			cell = image.Rect(pos.X, inner.Min.Y, pos.X+size, inner.Max.Y)
 			pos.X += size
 		}
@@ -205,8 +244,11 @@ func (c *Container) Layout(b image.Rectangle) {
 	}
 }
 
-// Draw は Container を実装する。背景を描いてから子を描く。
+// Draw は Container を実装する。テクスチャ背景、塗り、枠の順に敷いてから子を描く。
 func (c *Container) Draw(cv Canvas) {
+	if c.bgImage != nil {
+		cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)
+	}
 	if c.style.Fill != nil {
 		cv.FillRect(c.rect, c.style.Fill)
 	}

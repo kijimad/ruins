@@ -255,7 +255,7 @@ func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, ta
 		}
 		rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res.Text.BodyFace)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res)
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点

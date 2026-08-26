@@ -421,7 +421,7 @@ func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps,
 	for i, it := range items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res.Text.BodyFace)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

@@ -261,5 +261,5 @@ func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabI
 	if currentTab.ID == shopSellTabID {
 		emptyText = query.T(world, "No items to sell")
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res.Text.BodyFace)
+	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
 }

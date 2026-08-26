@@ -327,7 +327,6 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		return nil
 	}
 	tab := props.Tabs[tabIndex]
-	face := res.Text.BodyFace
 	switch tab.ID {
 	case auctionTabShip, auctionTabPending:
 		rows := make([]menuRow, len(tab.Items))
@@ -344,7 +343,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		}
 		return renderMenuListUI(itemIndex, rows, []int{200, 90, 110},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			menuListOpts{AlwaysIndicator: true, EmptyText: empty}, face)
+			menuListOpts{AlwaysIndicator: true, EmptyText: empty}, res)
 	case auctionTabFinance:
 		rows := make([]menuRow, len(tab.Entries))
 		for i, e := range tab.Entries {
@@ -360,7 +359,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		}
 		return renderMenuListUI(itemIndex, rows, []int{200, 80, 120},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No bills or receipts.")}, face)
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No bills or receipts.")}, res)
 	case auctionTabHistory:
 		rows := make([]menuRow, len(tab.Ledger))
 		for i, r := range tab.Ledger {
@@ -368,7 +367,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		}
 		return renderMenuListUI(itemIndex, rows, []int{50, 200, 120},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No shipments yet.")}, face)
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No shipments yet.")}, res)
 	default:
 		rows := make([]menuRow, len(tab.Ledger))
 		for i, r := range tab.Ledger {
@@ -380,7 +379,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		}
 		return renderMenuListUI(itemIndex, rows, []int{50, 170, 70, 110},
 			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
-			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No deals in progress.")}, face)
+			menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No deals in progress.")}, res)
 	}
 }
 

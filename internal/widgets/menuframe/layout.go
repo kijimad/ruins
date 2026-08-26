@@ -15,6 +15,15 @@ func logTopY(screenHeight int) int {
 	return screenHeight - logHeight - theme.Space3
 }
 
+// ModalRect は大きめモーダル、タブ画面など、の矩形を返す。画面をひと回り小さくし、ログ領域の
+// 手前で止める。左右は 96、上は 48 空け、下はログ予約ぶんを空ける。データ一覧を広く見せる。
+func ModalRect(world w.World) image.Rectangle {
+	sw := world.Resources.ScreenDimensions.Width
+	sh := world.Resources.ScreenDimensions.Height
+	logReserve := sh - logTopY(sh) + theme.Space3
+	return image.Rect(96, 48, sw-96, sh-logReserve)
+}
+
 // CenterWindowRect はゲームワールドの画面サイズから、ログ上端より上に収まる中央のウィンドウ矩形を返す。
 // overlay の小窓を置く共通の位置で、画面ごとに位置合わせをしなくてよいようにする
 func CenterWindowRect(world w.World) image.Rectangle {

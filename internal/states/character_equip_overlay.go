@@ -130,6 +130,6 @@ func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, 
 	}
 	list := renderMenuListUI(selectedIndex, rows, []int{itemIconColumnWidth, 240},
 		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft},
-		menuListOpts{EmptyText: query.T(world, "Nothing to equip")}, res.Text.BodyFace)
+		menuListOpts{EmptyText: query.T(world, "Nothing to equip")}, res)
 	return buildPanelScreenUI(world, res, query.T(world, "Choose equipment"), list, "")
 }

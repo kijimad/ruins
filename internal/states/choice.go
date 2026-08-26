@@ -103,7 +103,7 @@ func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menul
 		rows[i] = menuRow{Cells: styled.TextCells(c.Label), Header: c.Header}
 	}
 	perPage := menuframe.ListCapacity(res, false, true)
-	list := renderMenuListUI(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true, ItemsPerPage: perPage}, res.Text.BodyFace)
+	list := renderMenuListUI(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true, ItemsPerPage: perPage}, res)
 	return buildPanelScreenUI(world, res, props.Title, list, keybind.HelpHint(world))
 }
 
