@@ -28,15 +28,28 @@ type base struct {
 // Bounds は確定済みの矩形を返す。
 func (b *base) Bounds() image.Rectangle { return b.rect }
 
-// Text は1行のラベル。
+// Align はテキストの横方向の寄せ。
+type Align int
+
+const (
+	// AlignLeft は矩形の左端に寄せる。既定。
+	AlignLeft Align = iota
+	// AlignRight は矩形の右端に寄せる。
+	AlignRight
+	// AlignCenter は矩形の中央に寄せる。
+	AlignCenter
+)
+
+// Text は1行のラベル。既定は左寄せで、Align で右寄せや中央寄せにできる。
 type Text struct {
 	base
 	Value string
 	Face  text.Face
 	Color color.Color
+	Align Align
 }
 
-// NewText はラベルを作る。
+// NewText は左寄せのラベルを作る。
 func NewText(value string, face text.Face, c color.Color) *Text {
 	return &Text{Value: value, Face: face, Color: c}
 }
@@ -44,8 +57,23 @@ func NewText(value string, face text.Face, c color.Color) *Text {
 // Layout は Text を実装する。
 func (t *Text) Layout(b image.Rectangle) { t.rect = b }
 
-// Draw は Text を実装する。
-func (t *Text) Draw(cv Canvas) { cv.DrawText(t.rect.Min, t.Value, t.Face, t.Color) }
+// Draw は Text を実装する。Align に応じて矩形内での横位置を決める。
+// 幅の測定にフェイスが要るので、フェイスが無ければ左寄せにフォールバックする。
+func (t *Text) Draw(cv Canvas) {
+	x := t.rect.Min.X
+	if t.Align != AlignLeft && t.Face != nil {
+		width, _ := text.Measure(t.Value, t.Face, 0)
+		switch t.Align {
+		case AlignLeft:
+			// 左寄せは x をそのまま。外側の条件でここには来ない
+		case AlignRight:
+			x = t.rect.Max.X - int(width)
+		case AlignCenter:
+			x = t.rect.Min.X + (t.rect.Dx()-int(width))/2
+		}
+	}
+	cv.DrawText(image.Pt(x, t.rect.Min.Y), t.Value, t.Face, t.Color)
+}
 
 // Children は Text を実装する。子は持たない。
 func (t *Text) Children() []Widget { return nil }

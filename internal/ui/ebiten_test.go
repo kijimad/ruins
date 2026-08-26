@@ -91,8 +91,10 @@ func buildRealPanel(res resources.UIResources) *ui.Container {
 	}
 	items := make([]ui.Widget, 0, len(rows))
 	for _, r := range rows {
-		items = append(items,
-			ui.Row(cols, ui.NewText(r.label, face, white), ui.NewText(r.value, face, white)))
+		// ラベルは左寄せ、値は右寄せ。実 spec パネルの specTableAligns に合わせる
+		val := ui.NewText(r.value, face, white)
+		val.Align = ui.AlignRight
+		items = append(items, ui.Row(cols, ui.NewText(r.label, face, white), val))
 	}
 	style := ui.BoxStyle{Fill: color.Gray{Y: 30}, Border: color.White, BorderWidth: 1}
 	return ui.Panel(style, 20, items...)
