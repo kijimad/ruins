@@ -193,7 +193,8 @@ func headerRowUI(texts []string, colWidths []int, face text.Face) *ui.Container 
 
 // dataRowUI はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。アイコンセルは画像で描く。
 func dataRowUI(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, selBar *resources.NineSliceTex) *ui.Container {
-	var textColor color.Color = theme.TextPrimary
+	// 非選択は暗く、選択は明るく。元の NewTableRow と同じ色分けでカーソル位置を際立たせる
+	var textColor color.Color = theme.TextSecondary
 	if selected {
 		textColor = theme.TextSelected
 	}
