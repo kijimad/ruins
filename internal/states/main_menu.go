@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"image"
 	"strings"
 
 	"github.com/ebitenui/ebitenui"
@@ -12,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -27,6 +29,7 @@ type MainMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &MainMenuState{}
+var _ menuloop.UIView[MainMenuProps] = &MainMenuState{}
 
 // OnStart はステート開始時の処理を行う。world には触れない。
 // 前のゲームの後片付けは新しいゲームを始める側が world.ResetForNewGame で行う
@@ -197,4 +200,44 @@ func (st *MainMenuState) View(_ w.World, props MainMenuProps, cursor menuloop.Se
 	rootContainer.AddChild(versionText)
 
 	return &ebitenui.UI{Container: rootContainer}
+}
+
+// ViewUI は View の internal/ui 版。メニューを左下へ左寄せで置き、バージョンを右下へ置く。
+// パネル背景は付けず、タイトル背景を透かす。Screen が本体を internal/ui で描く。
+func (st *MainMenuState) ViewUI(world w.World, props MainMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	sd := world.Resources.ScreenDimensions
+
+	rows := make([]menuRow, len(props.Items))
+	for i, item := range props.Items {
+		rows[i] = menuRow{Cells: styled.TextCells(item.Label)}
+	}
+	listRows := renderMenuListUI(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res.Text.BodyFace)
+	menu := ui.VBox(panelScreenRowH, listRows...)
+	menuH := len(listRows) * panelScreenRowH
+	menu.Layout(image.Rect(64, sd.Height-72-menuH, 64+menuRowWidth, sd.Height-72))
+
+	var lines []string
+	if consts.AppVersion != "v0.0.0" {
+		lines = append(lines, consts.AppVersion)
+	}
+	if consts.AppCommit != "0000000" {
+		lines = append(lines, consts.AppCommit)
+	}
+	if consts.AppDate != "0000-00-00" {
+		lines = append(lines, consts.AppDate)
+	}
+	children := make([]ui.Widget, 0, 1+len(lines))
+	children = append(children, menu)
+	const versionRowH = 16
+	for i, line := range lines {
+		t := ui.NewText(line, res.Text.SmallFace, theme.TextAccent)
+		t.Align = ui.AlignRight
+		y := sd.Height - versionRowH*(len(lines)-i) - 8
+		t.Layout(image.Rect(sd.Width-240, y, sd.Width-8, y+versionRowH))
+		children = append(children, t)
+	}
+
+	root := ui.NewGroup(children...)
+	root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
+	return root
 }

@@ -100,6 +100,29 @@ func (g *Graphic) Draw(cv Canvas) {
 // Children は Graphic を実装する。子は持たない。
 func (g *Graphic) Children() []Widget { return nil }
 
+// Group は配置済みの子をそのまま束ねて描く。子の矩形は各自が確定済みで、Group は再配置しない。
+// 自前の絶対配置レイアウトを組むときに使う。
+type Group struct {
+	base
+	children []Widget
+}
+
+// NewGroup は配置済みの子を束ねる。子は呼び出し側が Layout 済みにしておく。
+func NewGroup(children ...Widget) *Group { return &Group{children: children} }
+
+// Layout は Group を実装する。子は再配置しない。
+func (g *Group) Layout(b image.Rectangle) { g.rect = b }
+
+// Draw は Group を実装する。子を順に描く。
+func (g *Group) Draw(cv Canvas) {
+	for _, c := range g.children {
+		c.Draw(cv)
+	}
+}
+
+// Children は Group を実装する。
+func (g *Group) Children() []Widget { return g.children }
+
 // Dir はコンテナの主軸方向。
 type Dir int
 
