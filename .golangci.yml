@@ -114,6 +114,17 @@ linters:
               desc: 標準ライブラリを使う
             - pkg: "github.com/hajimehoshi/ebiten$"
               desc: ebiten/v2を使う
+        # 画面層はレイアウトエンジンを直接使わない。レイアウトは widgets の部品と
+        # facade が持ち、画面はデータ・列の宣言・文言・配置だけを書く。プリミティブ実体は
+        # internal 可視性で遮断済みだが、furex は通常の依存なので import 規則で塞ぐ
+        screen_layer_guard:
+          list-mode: lax
+          files:
+            - "**/internal/states/**"
+            - "**/internal/menuloop/**"
+          deny:
+            - pkg: "github.com/yohamta/furex"
+              desc: レイアウトエンジンは widgets の部品が使う。画面は menuframe の部品を使う
         # キー読み取り能力への import 許可制。読み取り API を持つパッケージを
         # 使える場所を列挙し、それ以外からは新旧問わず全シンボルを塞ぐ。
         # 入力を束縛表へ集約し、デバイス層とごく少数の例外だけが直接読む。テストは
