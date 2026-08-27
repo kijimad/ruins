@@ -88,6 +88,8 @@ const (
 	bodyTempMin = -5.0
 	// bodyTempMax はオフセットの上限クランプ
 	bodyTempMax = 5.0
+	// bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
+	bodyTempHomeostasisPerTurn = 0.1
 )
 
 // Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める
@@ -162,7 +164,7 @@ func bodyTempRate(world w.World, entity ecs.Entity) float64 {
 	}
 	// 外因が無ければ恒常性で平熱へ戻る
 	if rate == 0 && offset != 0 {
-		step := math.Min(naturalRecoveryPerTurn, math.Abs(offset))
+		step := math.Min(bodyTempHomeostasisPerTurn, math.Abs(offset))
 		if offset > 0 {
 			return -step
 		}
@@ -281,11 +283,11 @@ func timerProgress(excess float64) float64 {
 func calcBodyTempRate(effectiveTemp int) float64 {
 	switch {
 	case effectiveTemp <= -50:
-		return -1.0 // 極寒。最も厳しい区分で、居座れば急速に凍える
+		return -0.5 // 極寒。最も厳しい区分で、居座れば急速に凍える
 	case effectiveTemp <= 0:
-		return -0.5 // 非常に寒い
+		return -0.2 // 非常に寒い
 	case effectiveTemp <= 10:
-		return -0.25 // 寒い
+		return -0.1 // 寒い
 	case effectiveTemp <= 15:
 		return 0 // やや寒い（現状維持）
 	case effectiveTemp <= 25:
@@ -293,9 +295,9 @@ func calcBodyTempRate(effectiveTemp int) float64 {
 	case effectiveTemp <= 30:
 		return 0 // やや暑い（現状維持）
 	case effectiveTemp <= 35:
-		return 0.25 // 暑い
+		return 0.1 // 暑い
 	default:
-		return 0.5 // 非常に暑い
+		return 0.2 // 非常に暑い
 	}
 }
 

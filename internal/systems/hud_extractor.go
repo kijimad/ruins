@@ -416,7 +416,10 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 }
 
 // temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界
-const temperatureSteadyThreshold = 0.1
+const temperatureSteadyThreshold = 0.05
+
+// temperatureIntensityMax は矢印の色が最も濃くなる変化量
+const temperatureIntensityMax = 0.5
 
 // temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温か高体温の状態があるとき ok=true。
 // 表示名で状態と重症度を、色で寒暖を示す。変化の向きは矢印が別に担う
@@ -461,7 +464,7 @@ func temperatureDirectionColor(delta float64) color.RGBA {
 	if delta > -temperatureSteadyThreshold && delta < temperatureSteadyThreshold {
 		return color.RGBA{255, 200, 0, 255}
 	}
-	intensity := math.Min(math.Abs(delta), 1.0)
+	intensity := math.Min(math.Abs(delta)/temperatureIntensityMax, 1.0)
 	if delta > 0 {
 		return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
 	}

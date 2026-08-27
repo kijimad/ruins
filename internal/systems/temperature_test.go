@@ -116,22 +116,22 @@ func TestCalcBodyTempRate(t *testing.T) {
 		effectiveTemp int
 		expected      float64
 	}{
-		{"極寒(-50度以下)", -100, -1.0},
-		{"極寒(-50度)", -50, -1.0},
-		{"非常に寒い(-49度)", -49, -0.5},
-		{"非常に寒い(0度以下)", -10, -0.5},
-		{"非常に寒い(0度)", 0, -0.5},
-		{"寒い(1-10度)", 5, -0.25},
-		{"寒い(10度)", 10, -0.25},
+		{"極寒(-50度以下)", -100, -0.5},
+		{"極寒(-50度)", -50, -0.5},
+		{"非常に寒い(-49度)", -49, -0.2},
+		{"非常に寒い(0度以下)", -10, -0.2},
+		{"非常に寒い(0度)", 0, -0.2},
+		{"寒い(1-10度)", 5, -0.1},
+		{"寒い(10度)", 10, -0.1},
 		{"やや寒い(11-15度)", 12, 0},
 		{"やや寒い(15度)", 15, 0},
 		{"快適(16-25度)", 20, 0},
 		{"快適(25度)", 25, 0},
 		{"やや暑い(26-30度)", 28, 0},
 		{"やや暑い(30度)", 30, 0},
-		{"暑い(31-35度)", 33, 0.25},
-		{"暑い(35度)", 35, 0.25},
-		{"非常に暑い(36度以上)", 40, 0.5},
+		{"暑い(31-35度)", 33, 0.1},
+		{"暑い(35度)", 35, 0.1},
+		{"非常に暑い(36度以上)", 40, 0.2},
 	}
 
 	for _, tt := range tests {
@@ -639,11 +639,11 @@ func TestBodyTempRate_外因が無ければ平熱へ戻る(t *testing.T) {
 	hs := world.Components.HealthStatus.Get(player)
 
 	hs.BodyTempOffset = -1.0
-	assert.InDelta(t, 0.25, bodyTempRate(world, player), 1e-9, "冷えていれば平熱へ向けて上がる")
+	assert.InDelta(t, 0.1, bodyTempRate(world, player), 1e-9, "冷えていれば平熱へ向けて上がる")
 
 	hs.BodyTempOffset = 1.0
-	assert.InDelta(t, -0.25, bodyTempRate(world, player), 1e-9, "火照っていれば平熱へ向けて下がる")
+	assert.InDelta(t, -0.1, bodyTempRate(world, player), 1e-9, "火照っていれば平熱へ向けて下がる")
 
-	hs.BodyTempOffset = -0.1
-	assert.InDelta(t, 0.1, bodyTempRate(world, player), 1e-9, "残りが小さければ平熱ちょうどで止まる")
+	hs.BodyTempOffset = -0.05
+	assert.InDelta(t, 0.05, bodyTempRate(world, player), 1e-9, "残りが小さければ平熱ちょうどで止まる")
 }
