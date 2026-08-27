@@ -54,14 +54,21 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 		entries = append(entries, keybind.HintEntries(world, keyHelpBindings)...)
 	}
 
-	// keyColW はキーキャップ列の幅。説明列は残り幅を伸ばし、文字列の列の規約どおり左寄せにする
-	const keyColW = 130
+	// キーキャップ列の幅は最長のキーキャップ並びの実測から導く。px を直接決めず、
+	// キー表記が変わっても列幅が内容へ追随する。説明列は残り幅を伸ばして左寄せにする
+	caps := make([]*ebiten.Image, len(entries))
+	keyColW := 0
+	for i, e := range entries {
+		caps[i] = renderKeycaps(e.Tokens, res)
+		keyColW = max(keyColW, caps[i].Bounds().Dx())
+	}
+	keyColW += theme.Space3 // 説明列との間隔
 	face := res.Text.BodyFace
 	content := make([]ui.Widget, 0, len(entries))
-	for _, e := range entries {
+	for i, e := range entries {
 		label := ui.NewText(e.Label, face, theme.TextPrimary)
 		label.VCenter = true
-		content = append(content, ui.Row([]int{keyColW, 0}, ui.NewGraphic(renderKeycaps(e.Tokens, res)), label))
+		content = append(content, ui.Row([]int{keyColW, 0}, ui.NewGraphic(caps[i]), label))
 	}
 	st.body = menuframe.TabScreen(world, res, query.T(world, "Key bindings"), nil, 0, content, "", "")
 	return nil
