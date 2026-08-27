@@ -255,11 +255,6 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 
 func TestListSaves(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	entity := world.ECS.NewEntity()
-	world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
-	world.Components.Player.Add(entity, &gc.Player{})
 
 	t.Run("空の場合は空リストを返す", func(t *testing.T) {
 		t.Parallel()
@@ -273,6 +268,11 @@ func TestListSaves(t *testing.T) {
 
 	t.Run("手動セーブとオートセーブを区別して一覧する", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		entity := world.ECS.NewEntity()
+		world.Components.Name.Add(entity, &gc.Name{Name: "Ash"})
+		world.Components.Player.Add(entity, &gc.Player{})
+
 		dir := t.TempDir()
 		m, err := NewSerializationManager(WithSaveDir(dir))
 		require.NoError(t, err)

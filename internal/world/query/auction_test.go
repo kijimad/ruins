@@ -164,19 +164,23 @@ func TestCollectStagedItems_落札済みと未落札を集荷して明細をた�
 
 func TestSettleAuctionEntry(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	player := world.ECS.NewEntity()
-	world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
 
 	t.Run("負のインデックス", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
+
 		_, ok := SettleAuctionEntry(world, player, -1, 0)
 		assert.False(t, ok)
 	})
 
 	t.Run("要素数以上のインデックス", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		world.Components.Wallet.Add(player, &gc.Wallet{Currency: 0})
+
 		_, ok := SettleAuctionEntry(world, player, 0, 0)
 		assert.False(t, ok, "明細が空なので0番目も範囲外")
 	})
