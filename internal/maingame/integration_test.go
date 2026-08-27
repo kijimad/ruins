@@ -17,10 +17,10 @@ import (
 )
 
 // TestGameInitializationIntegration はゲーム初期化の統合テスト
-//
-//nolint:paralleltest // InitWorld のフォント読み込みが並行安全でないため t.Parallel は使わない
 func TestGameInitializationIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("完全なゲーム初期化フロー", func(t *testing.T) {
+		t.Parallel()
 		// 1. ワールドの初期化
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
@@ -41,6 +41,7 @@ func TestGameInitializationIntegration(t *testing.T) {
 	})
 
 	t.Run("部分的な初期化テスト", func(t *testing.T) {
+		t.Parallel()
 		// 最小限のリソースでの初期化テスト
 		world := testutil.InitTestWorld(t)
 
@@ -54,10 +55,10 @@ func TestGameInitializationIntegration(t *testing.T) {
 }
 
 // TestMainGameLifecycle はMainGameのライフサイクル統合テスト
-//
-//nolint:paralleltest // InitWorld のフォント読み込みが並行安全でないため t.Parallel は使わない
 func TestMainGameLifecycle(t *testing.T) {
+	t.Parallel()
 	t.Run("ゲームループの基本動作", func(t *testing.T) {
+		t.Parallel()
 		// 完全なワールドを使用（テスト用の最小限ワールドではUIリソースが不足）
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
@@ -87,6 +88,7 @@ func TestMainGameLifecycle(t *testing.T) {
 	})
 
 	t.Run("状態遷移の動作確認", func(t *testing.T) {
+		t.Parallel()
 		// 完全なワールドを使用
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
@@ -126,10 +128,10 @@ func TestMainGameLifecycle(t *testing.T) {
 }
 
 // TestResourceIntegration はリソース統合テスト
-//
-//nolint:paralleltest // InitWorld のフォント読み込みが並行安全でないため t.Parallel は使わない
 func TestResourceIntegration(t *testing.T) {
+	t.Parallel()
 	t.Run("全リソースタイプの読み込み確認", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
@@ -164,6 +166,7 @@ func TestResourceIntegration(t *testing.T) {
 	})
 
 	t.Run("リソースの整合性確認", func(t *testing.T) {
+		t.Parallel()
 		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
