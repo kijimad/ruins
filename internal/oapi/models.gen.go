@@ -1547,7 +1547,7 @@ type Prop struct {
 	// Door 扉ローデータ
 	Door *DoorRaw `json:"door,omitempty"`
 
-	// HeatSource 熱源。近接するキャラの低体温を毎ターン回復する
+	// HeatSource 熱源設定。近接するキャラの低体温を毎ターン回復する
 	HeatSource *HeatSource `json:"heatSource,omitempty"`
 
 	// Hp 耐久値。設定すると破壊可能になる

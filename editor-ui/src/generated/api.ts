@@ -1212,9 +1212,6 @@ export interface Prop {
      */
     'hp'?: number;
     'lightSource'?: LightSource;
-    /**
-     * 熱源。近接するキャラの低体温を毎ターン回復する
-     */
     'heatSource'?: HeatSource;
     /**
      * 扉ローデータ

@@ -335,7 +335,6 @@ model Prop {
   passCost?: PassCost;
   hp?: HitPoints;
   lightSource?: LightSource;
-  /** 熱源。近接するキャラの低体温を毎ターン回復する */
   heatSource?: HeatSource;
   door?: DoorRaw;
   warpNextTrigger?: WarpNextTriggerRaw;

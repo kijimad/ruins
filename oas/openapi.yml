@@ -2865,9 +2865,7 @@ components:
         lightSource:
           $ref: '#/components/schemas/LightSource'
         heatSource:
-          allOf:
-            - $ref: '#/components/schemas/HeatSource'
-          description: 熱源。近接するキャラの低体温を毎ターン回復する
+          $ref: '#/components/schemas/HeatSource'
         door:
           $ref: '#/components/schemas/DoorRaw'
         warpNextTrigger:
