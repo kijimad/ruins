@@ -2049,6 +2049,9 @@ type SaveDataHealthCondition struct {
 
 // SaveDataHealthStatusComponent 部位ごとの健康状態
 type SaveDataHealthStatusComponent struct {
+	// BodyTempOffset 平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く。無ければ平熱
+	BodyTempOffset *float64 `json:"BodyTempOffset,omitempty"`
+
 	// Parts 部位ごとの健康情報の配列
 	Parts []SaveDataBodyPartHealth `json:"Parts"`
 }

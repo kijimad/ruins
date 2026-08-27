@@ -576,6 +576,9 @@ model CommandTableComponent {
 model HealthStatusComponent {
   /** 部位ごとの健康情報の配列 */
   Parts: BodyPartHealth[];
+
+  /** 平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く。無ければ平熱 */
+  BodyTempOffset?: float64;
 }
 
 /** 1つの部位の健康状態 */
