@@ -114,17 +114,55 @@ linters:
               desc: 標準ライブラリを使う
             - pkg: "github.com/hajimehoshi/ebiten$"
               desc: ebiten/v2を使う
-        # 画面層はレイアウトエンジンを直接使わない。レイアウトは widgets の部品と
-        # facade が持ち、画面はデータ・列の宣言・文言・配置だけを書く。プリミティブ実体は
-        # internal 可視性で遮断済みだが、furex は通常の依存なので import 規則で塞ぐ
-        screen_layer_guard:
+        # レイアウトエンジンの接続点は UI プリミティブ実体の1箇所に限る。画面はもちろん、
+        # widgets の部品も直接は使わない。プリミティブ実体は internal 可視性で画面から
+        # 遮断済みだが、furex は通常の依存なので import 規則で封じ込める
+        layout_engine_guard:
           list-mode: lax
           files:
-            - "**/internal/states/**"
-            - "**/internal/menuloop/**"
+            - "$all"
+            - "!**/internal/widgets/internal/ui/**"
           deny:
             - pkg: "github.com/yohamta/furex"
-              desc: レイアウトエンジンは widgets の部品が使う。画面は menuframe の部品を使う
+              desc: レイアウトエンジンは widgets/internal/ui だけが使う。部品と画面は Container・FlexColumn を使う
+        # UI の基盤層の依存辺を層図どおりに固定する。theme は依存ゼロ、styled は theme のみ、
+        # 画面向けファサードはプリミティブ実体の再輸出のみ。層の全体像は
+        # internal/widgets/menuframe のパッケージコメントを参照
+        ui_theme_guard:
+          list-mode: strict
+          files:
+            - "**/internal/widgets/theme/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+        ui_styled_guard:
+          list-mode: strict
+          files:
+            - "**/internal/widgets/styled/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+            - "github.com/hajimehoshi/ebiten/v2"
+            - "github.com/kijimaD/ruins/internal/widgets/theme"
+        ui_facade_guard:
+          list-mode: strict
+          files:
+            - "**/internal/widgets/ui/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+            - "github.com/hajimehoshi/ebiten/v2"
+            - "github.com/kijimaD/ruins/internal/widgets/internal/ui"
+        ui_core_guard:
+          list-mode: strict
+          files:
+            - "**/internal/widgets/internal/ui/**"
+            - "!$test"
+          allow:
+            - "$gostd"
+            - "github.com/hajimehoshi/ebiten/v2"
+            - "github.com/yohamta/furex"
+            - "github.com/go-text/typesetting"
         # キー読み取り能力への import 許可制。読み取り API を持つパッケージを
         # 使える場所を列挙し、それ以外からは新旧問わず全シンボルを塞ぐ。
         # 入力を束縛表へ集約し、デバイス層とごく少数の例外だけが直接読む。テストは
