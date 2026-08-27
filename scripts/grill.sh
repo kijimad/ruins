@@ -1,6 +1,9 @@
 #!/bin/bash
 # 全テストを時間予算いっぱい反復実行し、フレーキーテストを炙り出す。
-# 呼び出しは make grill から。xvfb と bwrap は make 側で被せ、全ラウンドを1つの X セッションで回す。
+# 呼び出しは make grill から。bwrap は make 側で被せる。
+# xvfb はラウンドごとに起動する。長時間を1本の X セッションに依存すると、
+# サーバが死んだとき残り全ラウンドが巻き添えになるため。逐次起動なので
+# セッション2本立ちの初期化問題は起きない。
 #
 # ラウンドごとに条件を振る:
 #   - シャッフル順は毎ラウンド変わる。seed はログに残るので -shuffle=<seed> で再現できる
@@ -36,9 +39,12 @@ while [ "$(date +%s)" -lt "$deadline" ]; do
 
 	echo "$tag: race=${race:-off} GOMAXPROCS=$procs"
 	# shellcheck disable=SC2086
-	if GOMAXPROCS=$procs go test $race -shuffle=on -count=1 -timeout=60m -json $pkgs \
+	if GOMAXPROCS=$procs xvfb-run -a go test $race -shuffle=on -count=1 -timeout=60m -json $pkgs \
 		>"$logdir/$tag.json" 2>"$logdir/$tag.stderr"; then
 		rm -f "$logdir/$tag.stderr"
+	elif grep -q "Failed to open display" "$logdir/$tag.json" "$logdir/$tag.stderr"; then
+		# X サーバの起動失敗はテスト失敗ではない。次ラウンドで新しいサーバを立てて続行する
+		echo "$tag: FAIL (X ディスプレイ異常。テスト失敗ではない)"
 	else
 		echo "$tag: FAIL"
 	fi
@@ -46,8 +52,14 @@ done
 
 echo "== grill 結果: ${round}ラウンド =="
 if command -v jq >/dev/null; then
-	jq -r 'select(.Action == "fail" and .Test != null) | .Package + " " + .Test' \
-		"$logdir"/round-*.json 2>/dev/null | sort | uniq -c | sort -rn | tee "$logdir/summary.txt"
+	{
+		echo "-- テスト単位の失敗 --"
+		jq -r 'select(.Action == "fail" and .Test != null) | .Package + " " + .Test' \
+			"$logdir"/round-*.json 2>/dev/null | sort | uniq -c | sort -rn
+		echo "-- パッケージ単位の失敗。ビルド失敗や環境異常が混ざる --"
+		jq -r 'select(.Action == "fail" and .Test == null) | .Package' \
+			"$logdir"/round-*.json 2>/dev/null | sort | uniq -c | sort -rn | head -20
+	} | tee "$logdir/summary.txt"
 else
 	grep -l '"Action":"fail"' "$logdir"/round-*.json | tee "$logdir/summary.txt"
 fi

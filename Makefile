@@ -39,8 +39,9 @@ grill-branch: ## ブランチで変更したテストを反復実行してフレ
 
 .PHONY: grill
 grill: ## 全テストを時間予算いっぱい反復してフレーキーを検査する
+	# xvfb はスクリプトがラウンドごとに起動する。長時間の単一セッションは X 死で全滅するため
 	RUINS_LOG_LEVEL=ignore \
-	$(BWRAP_CMD) xvfb-run -a scripts/grill.sh
+	$(BWRAP_CMD) scripts/grill.sh
 
 .PHONY: bench
 bench: ## ベンチマークを全て実行する
