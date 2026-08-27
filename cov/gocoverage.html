@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -151,7 +151,7 @@
 				
 				<option value="file47">github.com/kijimaD/ruins/internal/components/field.go (97.6%)</option>
 				
-				<option value="file48">github.com/kijimaD/ruins/internal/components/game_time.go (81.6%)</option>
+				<option value="file48">github.com/kijimaD/ruins/internal/components/game_time.go (82.1%)</option>
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/components/health_status.go (100.0%)</option>
 				
@@ -425,7 +425,7 @@
 				
 				<option value="file184">github.com/kijimaD/ruins/internal/raw/item_group.go (91.9%)</option>
 				
-				<option value="file185">github.com/kijimaD/ruins/internal/raw/raw.go (94.1%)</option>
+				<option value="file185">github.com/kijimaD/ruins/internal/raw/raw.go (93.9%)</option>
 				
 				<option value="file186">github.com/kijimaD/ruins/internal/raw/validate.go (90.4%)</option>
 				
@@ -487,7 +487,7 @@
 				
 				<option value="file215">github.com/kijimaD/ruins/internal/states/cube_panel.go (85.7%)</option>
 				
-				<option value="file216">github.com/kijimaD/ruins/internal/states/debug_menu.go (10.3%)</option>
+				<option value="file216">github.com/kijimaD/ruins/internal/states/debug_menu.go (10.0%)</option>
 				
 				<option value="file217">github.com/kijimaD/ruins/internal/states/demo_start.go (65.5%)</option>
 				
@@ -545,7 +545,7 @@
 				
 				<option value="file244">github.com/kijimaD/ruins/internal/systems/helper.go (0.0%)</option>
 				
-				<option value="file245">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (95.3%)</option>
+				<option value="file245">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (95.0%)</option>
 				
 				<option value="file246">github.com/kijimaD/ruins/internal/systems/hud_rendering.go (0.0%)</option>
 				
@@ -557,7 +557,7 @@
 				
 				<option value="file250">github.com/kijimaD/ruins/internal/systems/stats_changed.go (94.1%)</option>
 				
-				<option value="file251">github.com/kijimaD/ruins/internal/systems/temperature.go (88.7%)</option>
+				<option value="file251">github.com/kijimaD/ruins/internal/systems/temperature.go (88.3%)</option>
 				
 				<option value="file252">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.6%)</option>
 				
@@ -1602,7 +1602,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -8344,6 +8344,7 @@ type EntitySpec struct {
         Interactable       *Interactable
         VisualEffects      *VisualEffects
         TileTemperature    *TileTemperature
+        HeatSource         *HeatSource
         StageBound         *StageBound
         StageField         *StageField
         SeamlessBand       *SeamlessBand
@@ -8427,6 +8428,7 @@ type Components struct {
         Interactable       *ecs.Map[Interactable]
         VisualEffects      *ecs.Map[VisualEffects]
         TileTemperature    *ecs.Map[TileTemperature]
+        HeatSource         *ecs.Map[HeatSource]
         StageBound         *ecs.Map[StageBound]
         StageField         *ecs.Map[StageField]
         SeamlessBand       *ecs.Map[SeamlessBand]
@@ -8510,6 +8512,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
         c.Interactable = ecs.NewMap[Interactable](world)
         c.VisualEffects = ecs.NewMap[VisualEffects](world)
         c.TileTemperature = ecs.NewMap[TileTemperature](world)
+        c.HeatSource = ecs.NewMap[HeatSource](world)
         c.StageBound = ecs.NewMap[StageBound](world)
         c.StageField = ecs.NewMap[StageField](world)
         c.SeamlessBand = ecs.NewMap[SeamlessBand](world)
@@ -8595,6 +8598,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
         addComp(c.Interactable, entity, spec.Interactable)
         addComp(c.VisualEffects, entity, spec.VisualEffects)
         addComp(c.TileTemperature, entity, spec.TileTemperature)
+        addComp(c.HeatSource, entity, spec.HeatSource)
         addComp(c.StageBound, entity, spec.StageBound)
         addComp(c.StageField, entity, spec.StageField)
         addComp(c.SeamlessBand, entity, spec.SeamlessBand)
@@ -9479,6 +9483,15 @@ func (gt *GameTime) Advance() {
 func (gt *GameTime) AdvanceToNextTimeOfDay() {
         <span class="cov8" title="1">gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay
 </span>}
+
+// turnsPerSeason は1季節ぶんのターン数
+const turnsPerSeason consts.Turn = consts.Turn(daysPerYear/4) * turnsPerDay
+
+// AdvanceToNextSeason は次の季節の開始まで進める。季節による世界温度を切り替える。
+// 冬からは翌年の春へ折り返す
+func (gt *GameTime) AdvanceToNextSeason() {
+        <span class="cov8" title="1">gt.TotalTurns = (gt.TotalTurns/turnsPerSeason + 1) * turnsPerSeason
+</span>}
 </pre>
 		
 		<pre class="file" id="file49" style="display: none">package components
@@ -9702,6 +9715,8 @@ func (bph *BodyPartHealth) UpdateConditionTimer(condType ConditionType, delta fl
 // HealthStatus は部位ごとの健康状態を管理するコンポーネント
 type HealthStatus struct {
         Parts [BodyPartCount]BodyPartHealth
+        // BodyTempOffset は平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く。
+        BodyTempOffset float64
 }
 
 // GetStatModifier は指定したステータスへの合計修正値を返す
@@ -26964,6 +26979,17 @@ func toGCLightSource(ls *oapi.LightSource) *gc.LightSource {
 </span>        }
 }
 
+// toGCHeatSource はoapi.HeatSourceからgc.HeatSourceに変換する
+func toGCHeatSource(hs *oapi.HeatSource) *gc.HeatSource {
+        <span class="cov8" title="1">if hs == nil </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+        <span class="cov0" title="0">return &amp;gc.HeatSource{
+                Radius: consts.Tile(hs.Radius),
+                Warmth: hs.Warmth,
+</span>        }
+}
+
 // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
 // enum値の妥当性はOpenAPIスキーマで検証済み
 func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.TargetType {
@@ -27517,6 +27543,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 </span>        }
 
         <span class="cov8" title="1">entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
+        entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)
 </span>
         <span class="cov8" title="1">if propRaw.Door != nil </span>{
                 <span class="cov8" title="1">entitySpec.Door = &amp;gc.Door{
@@ -33271,6 +33298,10 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
                         query.GetVisionState(world).RequestUpdate()
                         return nil
 </span>                })},
+                Choice{Label: "Advance season", Run: popAfter(func(world w.World) error {
+                        <span class="cov0" title="0">query.GetGameTime(world).AdvanceToNextSeason()
+                        return nil
+</span>                })},
                 Choice{Label: "Opening", Run: pushChoice(NewOpeningState)},
                 Choice{Label: "Name input", Run: pushChoice(NewCharacterNamingState)},
                 Choice{Label: "Job selection", Run: pushChoice(NewCharacterJobState("Ash"))},
@@ -38833,6 +38864,9 @@ func extractGameInfo(world w.World) hud.GameInfoData {
         // プレイヤー情報を抽出する
         <span class="cov8" title="1">var playerHP, playerMaxHP int
         var playerWeight, playerMaxWeight consts.Milligram
+        var tempArrow hud.TemperatureArrow
+        var bodyTempRatio float64
+        var bodyTempVisible bool
         playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
         for playerQuery.Next() </span>{
                 <span class="cov8" title="1">entity := playerQuery.Entity()
@@ -38842,7 +38876,14 @@ func extractGameInfo(world w.World) hud.GameInfoData {
                 playerMaxHP = hp.Max
                 playerWeight = cw.Current
                 playerMaxWeight = cw.Max
-</span>        }
+                tempArrow = temperatureArrow(world, entity)
+                if world.Components.HealthStatus.Has(entity) </span>{
+                        // セーブ由来のオフセットはクランプ幅の外でありうるので、割合を 0..1 に収める
+                        <span class="cov8" title="1">offset := world.Components.HealthStatus.Get(entity).BodyTempOffset
+                        bodyTempRatio = math.Max(0, math.Min(1, (offset-bodyTempMin)/(bodyTempMax-bodyTempMin)))
+                        bodyTempVisible = true
+</span>                }
+        }
 
         // 画面サイズを取得
         <span class="cov8" title="1">screenWidth, screenHeight := world.Resources.GetScreenDimensions()
@@ -38857,6 +38898,9 @@ func extractGameInfo(world w.World) hud.GameInfoData {
                 PlayerMaxHP:       playerMaxHP,
                 PlayerWeight:      playerWeight,
                 PlayerMaxWeight:   playerMaxWeight,
+                TempArrow:         tempArrow,
+                BodyTempRatio:     bodyTempRatio,
+                BodyTempVisible:   bodyTempVisible,
                 MessageAreaHeight: messageAreaHeight,
                 ScreenDimensions: hud.ScreenDimensions{
                         Width:  screenWidth,
@@ -39167,6 +39211,14 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
                 }
         }
 
+        // プレイヤーの体温状態バッジ
+        <span class="cov8" title="1">tempQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
+        for tempQuery.Next() </span>{
+                <span class="cov0" title="0">if badge, ok := temperatureStateBadge(world, tempQuery.Entity()); ok </span>{
+                        <span class="cov0" title="0">badges = append(badges, badge)
+</span>                }
+        }
+
         // 画面サイズを取得
         <span class="cov8" title="1">screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 </span>
@@ -39182,6 +39234,68 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
                         Height: screenHeight,
                 },
 </span>        }
+}
+
+// temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界
+const temperatureSteadyThreshold = 0.05
+
+// temperatureIntensityMax は矢印の色が最も濃くなる変化量
+const temperatureIntensityMax = 0.5
+
+// temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温か高体温の状態があるとき ok=true。
+// 表示名で状態と重症度を、色で寒暖を示す。変化の向きは矢印が別に担う
+func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
+        <span class="cov8" title="1">hs := world.Components.HealthStatus.Get(entity)
+        part := &amp;hs.Parts[gc.BodyPartWholeBody]
+        cold := part.GetCondition(gc.ConditionHypothermia)
+        hot := part.GetCondition(gc.ConditionHyperthermia)
+        switch </span>{
+        case hot != nil &amp;&amp; (cold == nil || hot.Timer &gt;= cold.Timer):
+                <span class="cov0" title="0">return hud.StatusBadge{Text: hot.DisplayName(), Color: color.RGBA{230, 90, 60, 255}}, true</span>
+        case cold != nil:
+                <span class="cov8" title="1">return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true</span>
+        default:
+                <span class="cov8" title="1">return hud.StatusBadge{}, false</span>
+        }
+}
+
+// temperatureArrow はプレイヤーの体温変化の矢印を返す。HealthStatus を持つ間は常時出す。
+// 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ。
+// 変化は実処理と同じ bodyTempRate を読むので、環境が変われば即座に反映される
+func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
+        <span class="cov8" title="1">if !world.Components.HealthStatus.Has(entity) </span>{
+                <span class="cov8" title="1">return hud.TemperatureArrow{}
+</span>        }
+
+        <span class="cov8" title="1">delta := bodyTempRate(world, entity)
+</span>
+        <span class="cov8" title="1">dir := hud.TempDirectionSteady
+        switch </span>{
+        case delta &gt; temperatureSteadyThreshold:
+                <span class="cov8" title="1">dir = hud.TempDirectionUp</span>
+        case delta &lt; -temperatureSteadyThreshold:
+                <span class="cov8" title="1">dir = hud.TempDirectionDown</span>
+        }
+        <span class="cov8" title="1">return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(dir, delta)}</span>
+}
+
+// temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は黄。
+// 変化が速いほど濃い。向きの判定は呼び出し側と共有し、横矢印が必ず黄になるようにする
+func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA {
+        <span class="cov8" title="1">if dir == hud.TempDirectionSteady </span>{
+                <span class="cov8" title="1">return color.RGBA{255, 200, 0, 255}
+</span>        }
+        <span class="cov8" title="1">intensity := math.Min(math.Abs(delta)/temperatureIntensityMax, 1.0)
+        if dir == hud.TempDirectionUp </span>{
+                <span class="cov8" title="1">return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
+</span>        }
+        <span class="cov8" title="1">return lerpRGBA(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)</span>
+}
+
+// lerpRGBA は2色を t (0..1) で線形補間する
+func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {
+        <span class="cov8" title="1">lerp := func(x, y uint8) uint8 </span>{ <span class="cov8" title="1">return uint8(float64(x) + (float64(y)-float64(x))*t) }</span>
+        <span class="cov8" title="1">return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}</span>
 }
 
 // getHungerBadgeColor は空腹度に応じたバッジ色を返す
@@ -40409,11 +40523,13 @@ func maxHP(abils *gc.Abilities) int {
 
 import (
         "errors"
+        "math"
 
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/dungeon"
         "github.com/kijimaD/ruins/internal/gamelog"
+        "github.com/kijimaD/ruins/internal/geometry"
         w "github.com/kijimaD/ruins/internal/world"
 
         "github.com/kijimaD/ruins/internal/world/query"
@@ -40452,6 +40568,9 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 // 屋内なので屋外の世界温度をそのままでなく割って受け、揺れを和らげる。値は実プレイで調整する。
 const dungeonWorldInfluenceDivisor = 2
 
+// naturalRecoveryPerTurn は悪化方向でないときに体温状態タイマーが1ターンで下がる量
+const naturalRecoveryPerTurn = 0.25
+
 // AmbientTemperatureAt はタイルの周囲気温を返す。オーバーワールドは屋外なので季節の世界温度
 // そのもの、ダンジョンは屋内なのでステージの基本気温に世界温度の影響を緩和して足した値。
 // どちらもタイルの熱源補正を足す。屋内外はステージ種別で決まり、タイルごとの判定はしない。
@@ -40482,7 +40601,19 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
         <span class="cov8" title="1">return def.BaseTemperature() + worldTemp/dungeonWorldInfluenceDivisor + tileModifier, nil</span>
 }
 
-// Update は健康状態のタイマーを更新する
+// 体温の定数。値は実プレイで調整する
+const (
+        // bodyTempBand は平熱からこの範囲内を正常帯とみなす。外れるとタイマーが進む
+        bodyTempBand = 2.0
+        // bodyTempMin はオフセットの下限クランプ
+        bodyTempMin = -5.0
+        // bodyTempMax はオフセットの上限クランプ
+        bodyTempMax = 5.0
+        // bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
+        bodyTempHomeostasisPerTurn = 0.1
+)
+
+// Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める
 func (sys *TemperatureSystem) Update(world w.World) error {
         <span class="cov8" title="1">if query.GetDungeon(world) == nil </span>{
                 <span class="cov8" title="1">return errors.New("dungeon resource is not set")
@@ -40494,20 +40625,14 @@ func (sys *TemperatureSystem) Update(world w.World) error {
         for healthQuery.Next() </span>{
                 <span class="cov8" title="1">entity := healthQuery.Entity()
                 hs := world.Components.HealthStatus.Get(entity)
-                gridElement := world.Components.GridElement.Get(entity)
 </span>
-                // 周囲気温を計算
-                <span class="cov8" title="1">ambientTemp, err := AmbientTemperatureAt(world, gridElement.X, gridElement.Y)
-                if err != nil </span>{
-                        <span class="cov0" title="0">continue</span>
-                }
-
-                // 装備から断熱値を計算する
-                <span class="cov8" title="1">insulation := CalculateEquippedInsulation(world, entity)
+                // 体温を環境レートぶん動かす
+                <span class="cov8" title="1">rate := bodyTempRate(world, entity)
+                hs.BodyTempOffset = math.Max(bodyTempMin, math.Min(bodyTempMax, hs.BodyTempOffset+rate))
 </span>
                 <span class="cov8" title="1">isPlayer := world.Components.Player.Has(entity)
 </span>
-                // 体温進行倍率を取得する
+                // 体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける
                 <span class="cov8" title="1">coldProgressPct, heatProgressPct := consts.PercentBase, consts.PercentBase
                 if world.Components.CharModifiers.Has(entity) </span>{
                         <span class="cov8" title="1">mods := world.Components.CharModifiers.Get(entity)
@@ -40515,10 +40640,10 @@ func (sys *TemperatureSystem) Update(world w.World) error {
                         heatProgressPct = mods.HeatProgress
 </span>                }
 
-                // 各部位の健康状態を更新
-                <span class="cov8" title="1">hasChange := updateTemperatureConditions(world, hs, ambientTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
+                // 体温の帯判定から健康状態を更新
+                <span class="cov8" title="1">hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct, heatProgressPct)
 </span>
-                // プレイヤーで状態変化があれば属性を再計算
+                // 状態変化があれば属性を再計算
                 <span class="cov8" title="1">if isPlayer &amp;&amp; hasChange </span>{
                         <span class="cov0" title="0">toMark = append(toMark, entity)
 </span>                }
@@ -40531,6 +40656,42 @@ func (sys *TemperatureSystem) Update(world w.World) error {
         }
 
         <span class="cov8" title="1">return nil</span>
+}
+
+// bodyTempRate は現在地の環境が1ターンに動かす体温の変化量を返す。温まる向きが正。
+// Update の適用と HUD のトレンド矢印が同じこの関数を読む
+func bodyTempRate(world w.World, entity ecs.Entity) float64 {
+        <span class="cov8" title="1">if !world.Components.HealthStatus.Has(entity) || !world.Components.GridElement.Has(entity) </span>{
+                <span class="cov8" title="1">return 0
+</span>        }
+        <span class="cov8" title="1">grid := world.Components.GridElement.Get(entity)
+        ambientTemp, err := AmbientTemperatureAt(world, grid.X, grid.Y)
+        if err != nil </span>{
+                <span class="cov0" title="0">return 0
+</span>        }
+        <span class="cov8" title="1">insulation := CalculateEquippedInsulation(world, entity)
+        offset := world.Components.HealthStatus.Get(entity).BodyTempOffset
+</span>
+        <span class="cov8" title="1">var rate float64
+        if cold := calcBodyTempRate(ambientTemp + insulation.Cold); cold &lt; 0 </span>{
+                <span class="cov8" title="1">rate += cold
+</span>        }
+        <span class="cov8" title="1">if heat := calcBodyTempRate(ambientTemp - insulation.Heat); heat &gt; 0 </span>{
+                <span class="cov0" title="0">rate += heat
+</span>        }
+        // 熱源は冷えた体だけを温める。平熱以上では効かせず、焚き火の常用で高体温にならない
+        <span class="cov8" title="1">if offset &lt; 0 </span>{
+                <span class="cov8" title="1">rate += heatSourceWarmthAt(world, grid.X, grid.Y)
+</span>        }
+        // 外因が無ければ恒常性で平熱へ戻る
+        <span class="cov8" title="1">if rate == 0 &amp;&amp; offset != 0 </span>{
+                <span class="cov8" title="1">step := math.Min(bodyTempHomeostasisPerTurn, math.Abs(offset))
+                if offset &gt; 0 </span>{
+                        <span class="cov8" title="1">return -step
+</span>                }
+                <span class="cov8" title="1">return step</span>
+        }
+        <span class="cov8" title="1">return rate</span>
 }
 
 // CalculateEquippedInsulation はエンティティの装備から全身の断熱値を計算する。
@@ -40569,38 +40730,53 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
         <span class="cov8" title="1">return modifier</span>
 }
 
-// updateTemperatureConditions は環境気温から全身の体温状態タイマーを更新する。
-// - 断熱値は装備全体の合算値を使う。
+// heatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。
+// 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する
+func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
+        <span class="cov8" title="1">at := consts.Coord[consts.Tile]{X: x, Y: y}
+        var warmth float64
+        heatQuery := query.ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()
+        for heatQuery.Next() </span>{
+                <span class="cov8" title="1">entity := heatQuery.Entity()
+                src := world.Components.HeatSource.Get(entity)
+                grid := world.Components.GridElement.Get(entity)
+                if d := geometry.ChebyshevDistance(at, grid.Coord); d &lt;= int(src.Radius) </span>{
+                        <span class="cov8" title="1">reach := int(src.Radius) + 1
+                        warmth += src.Warmth * float64(reach-d) / float64(reach)
+</span>                }
+        }
+        <span class="cov8" title="1">return warmth</span>
+}
+
+// updateTemperatureConditions は体温の正常帯判定から全身の体温状態タイマーを更新する。
+// - 帯の外では超過に応じてタイマーが進み、帯の中では自然回復する。
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
 // - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, ambientTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
+func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
         <span class="cov8" title="1">hasChange := false
         partHealth := &amp;hs.Parts[gc.BodyPartWholeBody]
-</span>
-        // 耐寒を適用した有効温度（寒さ判定用）: 耐寒が高いほど暖かく感じる
-        <span class="cov8" title="1">effectiveTempCold := ambientTemp + insulation.Cold
-</span>        // 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
-        <span class="cov8" title="1">effectiveTempHeat := ambientTemp - insulation.Heat
-</span>
-        <span class="cov8" title="1">coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(effectiveTempCold))
-        heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(effectiveTempHeat))
+        offset := hs.BodyTempOffset
 </span>
         <span class="cov8" title="1">var changes []gc.SeverityChange
 </span>
-        // 低体温の処理（寒さ判定）
-        <span class="cov8" title="1">if coldDelta &lt; 0 </span>{
-                <span class="cov8" title="1">changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -coldDelta))
-</span>        } else {
-                <span class="cov8" title="1">changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -0.25))
-</span>        }
+        // 低体温の処理
+        <span class="cov8" title="1">switch </span>{
+        case offset &lt; -bodyTempBand:
+                <span class="cov8" title="1">delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempBand))
+                changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, delta))</span>
+        case partHealth.GetCondition(gc.ConditionHypothermia) != nil:
+                <span class="cov8" title="1">changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -naturalRecoveryPerTurn))</span>
+        }
 
-        // 高体温の処理（暑さ判定）
-        <span class="cov8" title="1">if heatDelta &gt; 0 </span>{
-                <span class="cov8" title="1">changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, heatDelta))
-</span>        } else {
-                <span class="cov8" title="1">changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -0.25))
-</span>        }
+        // 高体温の処理
+        <span class="cov8" title="1">switch </span>{
+        case offset &gt; bodyTempBand:
+                <span class="cov8" title="1">delta := heatProgressPct.ApplyFloat(timerProgress(offset - bodyTempBand))
+                changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, delta))</span>
+        case partHealth.GetCondition(gc.ConditionHyperthermia) != nil:
+                <span class="cov0" title="0">changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -naturalRecoveryPerTurn))</span>
+        }
 
         <span class="cov8" title="1">for _, change := range changes </span>{
                 <span class="cov8" title="1">if change.Prev != change.Current </span>{
@@ -40617,16 +40793,22 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, ambientTemp
         <span class="cov8" title="1">return hasChange</span>
 }
 
-// calcTimerDelta は有効温度からタイマー変化量を計算する
-// 負の値は低体温方向、正の値は高体温方向
-func calcTimerDelta(effectiveTemp int) float64 {
+// timerProgress は正常帯からの超過 excess °C に応じたタイマー進行量を返す。
+// 帯の縁で 0.25、超過1°Cごとに +0.25、上限 1.0
+func timerProgress(excess float64) float64 {
+        <span class="cov8" title="1">return math.Min(naturalRecoveryPerTurn+0.25*excess, 1.0)
+</span>}
+
+// calcBodyTempRate は有効温度から体温の変化量を計算する
+// 負の値は冷える方向、正の値は温まる方向
+func calcBodyTempRate(effectiveTemp int) float64 {
         <span class="cov8" title="1">switch </span>{
         case effectiveTemp &lt;= -50:
-                <span class="cov8" title="1">return -1.0</span> // 極寒。最も厳しい区分で、居座れば急速に凍える
+                <span class="cov8" title="1">return -0.5</span> // 極寒。最も厳しい区分で、居座れば急速に凍える
         case effectiveTemp &lt;= 0:
-                <span class="cov8" title="1">return -0.5</span> // 非常に寒い
+                <span class="cov8" title="1">return -0.2</span> // 非常に寒い
         case effectiveTemp &lt;= 10:
-                <span class="cov8" title="1">return -0.25</span> // 寒い
+                <span class="cov8" title="1">return -0.1</span> // 寒い
         case effectiveTemp &lt;= 15:
                 <span class="cov8" title="1">return 0</span> // やや寒い（現状維持）
         case effectiveTemp &lt;= 25:
@@ -40634,9 +40816,9 @@ func calcTimerDelta(effectiveTemp int) float64 {
         case effectiveTemp &lt;= 30:
                 <span class="cov8" title="1">return 0</span> // やや暑い（現状維持）
         case effectiveTemp &lt;= 35:
-                <span class="cov8" title="1">return 0.25</span> // 暑い
+                <span class="cov8" title="1">return 0.1</span> // 暑い
         default:
-                <span class="cov8" title="1">return 0.5</span> // 非常に暑い
+                <span class="cov8" title="1">return 0.2</span> // 非常に暑い
         }
 }
 
@@ -42910,6 +43092,33 @@ import (
         w "github.com/kijimaD/ruins/internal/world"
 )
 
+// TempDirection は体温変化の向き
+type TempDirection string
+
+const (
+        // TempDirectionSteady は変化がほぼ無い状態
+        TempDirectionSteady TempDirection = "steady"
+        // TempDirectionUp は温まっている状態
+        TempDirectionUp TempDirection = "up"
+        // TempDirectionDown は冷えている状態
+        TempDirectionDown TempDirection = "down"
+)
+
+// TemperatureArrow は体温の変化方向を示す矢印。HP バーの左に出す。
+// 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ
+type TemperatureArrow struct {
+        Visible   bool
+        Direction TempDirection
+        Color     color.RGBA
+}
+
+// 体温矢印の寸法
+const (
+        tempArrowSlotW = 26.0 // HP バーの左に確保するスロット幅
+        tempArrowW     = 16.0 // 三角形の幅
+        tempArrowH     = 16.0 // 三角形の高さ
+)
+
 // GameInfo はHUDの基本ゲーム情報エリア
 type GameInfo struct {
         bodyFace    text.Face
@@ -42939,8 +43148,13 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
                 <span class="cov0" title="0">return
 </span>        }
 
+        <span class="cov0" title="0">info.drawTemperatureArrow(screen, data.TempArrow)
+</span>
         // HP情報
         <span class="cov0" title="0">info.drawHealthBar(screen, data.PlayerHP, data.PlayerMaxHP)
+</span>
+        // 体温数値
+        <span class="cov0" title="0">info.drawBodyTemperature(screen, data)
 </span>
         // 所持重量表示（右下）
         <span class="cov0" title="0">info.drawWeightDisplay(screen, data)
@@ -42974,9 +43188,96 @@ const (
         gaugeSpacing    = 4.0                            // ゲージ間の間隔
 )
 
+// arrowOutlineOffsets は三角形の縁取りを描く8方向のオフセット。OutlinedText と同じ考え方
+var arrowOutlineOffsets = [8][2]float32{
+        {-1, -1}, {0, -1}, {1, -1},
+        {-1, 0}, {1, 0},
+        {-1, 1}, {0, 1}, {1, 1},
+}
+
+// drawTemperatureArrow は体温変化の矢印を HP バーの左にベクター三角形で描く。
+// 温まると上向き、冷えると下向き、一定は右向き。多様な背景でも読めるよう縁取りを重ねる
+func (info *GameInfo) drawTemperatureArrow(screen *ebiten.Image, arrow TemperatureArrow) {
+        <span class="cov0" title="0">if !arrow.Visible </span>{
+                <span class="cov0" title="0">return
+</span>        }
+
+        // HP ゲージの縦中心にそろえる
+        <span class="cov0" title="0">left := float32(gaugeBaseX)
+        cy := float32(gaugeBaseY) + float32(gaugeHeight)/2
+        top := cy - tempArrowH/2
+        bottom := cy + tempArrowH/2
+        midX := left + tempArrowW/2
+        right := left + tempArrowW
+</span>
+        <span class="cov0" title="0">var pts [3][2]float32
+        switch arrow.Direction </span>{
+        case TempDirectionUp:
+                <span class="cov0" title="0">pts = [3][2]float32{{midX, top}, {left, bottom}, {right, bottom}}</span>
+        case TempDirectionDown:
+                <span class="cov0" title="0">pts = [3][2]float32{{midX, bottom}, {left, top}, {right, top}}</span>
+        default:
+                // 一定は右向き
+                <span class="cov0" title="0">pts = [3][2]float32{{right, cy}, {left, top}, {left, bottom}}</span>
+        }
+
+        <span class="cov0" title="0">for _, o := range arrowOutlineOffsets </span>{
+                <span class="cov0" title="0">fillTriangle(screen, offsetTriangle(pts, o[0], o[1]), theme.HUDTextOutline)
+</span>        }
+        <span class="cov0" title="0">fillTriangle(screen, pts, arrow.Color)</span>
+}
+
+// offsetTriangle は三角形の全頂点を平行移動した新しい三角形を返す
+func offsetTriangle(pts [3][2]float32, dx, dy float32) [3][2]float32 {
+        <span class="cov0" title="0">for i := range pts </span>{
+                <span class="cov0" title="0">pts[i][0] += dx
+                pts[i][1] += dy
+</span>        }
+        <span class="cov0" title="0">return pts</span>
+}
+
+// fillTriangle は3頂点の塗り三角形を描く
+func fillTriangle(screen *ebiten.Image, pts [3][2]float32, clr color.Color) {
+        <span class="cov0" title="0">var p vector.Path
+        p.MoveTo(pts[0][0], pts[0][1])
+        p.LineTo(pts[1][0], pts[1][1])
+        p.LineTo(pts[2][0], pts[2][1])
+        p.Close()
+        op := &amp;vector.DrawPathOptions{AntiAlias: true}
+        op.ColorScale.ScaleWithColor(clr)
+        vector.FillPath(screen, &amp;p, nil, op)
+</span>}
+
 // drawHealthBar はプレイヤーの体力ゲージを描画する
+
+// drawBodyTemperature は体温ゲージを HP ゲージの下に描く。中央が平熱で、左へ冷え、右へ火照る
+func (info *GameInfo) drawBodyTemperature(screen *ebiten.Image, data GameInfoData) {
+        <span class="cov0" title="0">if !data.BodyTempVisible </span>{
+                <span class="cov0" title="0">return
+</span>        }
+        <span class="cov0" title="0">x := gaugeBaseX + tempArrowSlotW
+        y := gaugeBaseY + gaugeHeight + gaugeSpacing
+        info.drawGaugeBar(screen, x, y, gaugeWidth, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio), theme.HUDGaugeBorder)</span>
+}
+
+// bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青、火照るほど赤へ寄る
+func bodyTempFillColor(ratio float64) color.RGBA {
+        <span class="cov0" title="0">neutral := color.RGBA{235, 235, 235, 255}
+        if ratio &lt; 0.5 </span>{
+                <span class="cov0" title="0">return lerpTempColor(neutral, color.RGBA{40, 90, 230, 255}, (0.5-ratio)*2)
+</span>        }
+        <span class="cov0" title="0">return lerpTempColor(neutral, color.RGBA{230, 50, 40, 255}, (ratio-0.5)*2)</span>
+}
+
+// lerpTempColor は2色を t (0..1) で線形補間する
+func lerpTempColor(a, b color.RGBA, t float64) color.RGBA {
+        <span class="cov0" title="0">lerp := func(x, y uint8) uint8 </span>{ <span class="cov0" title="0">return uint8(float64(x) + (float64(y)-float64(x))*t) }</span>
+        <span class="cov0" title="0">return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}</span>
+}
+
 func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) {
-        <span class="cov0" title="0">x := gaugeBaseX
+        // 矢印スロットぶん右へ寄せる
+        <span class="cov0" title="0">x := gaugeBaseX + tempArrowSlotW
         y := gaugeBaseY
 </span>
         // HP比率を計算

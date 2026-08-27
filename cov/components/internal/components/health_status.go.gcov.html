@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-26 16:53:41</td>
+            <td class="headerValue">2026-08-27 15:46:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -281,22 +281,24 @@
 <span id="L219"><span class="lineNum">     219</span>              : // HealthStatus は部位ごとの健康状態を管理するコンポーネント</span>
 <span id="L220"><span class="lineNum">     220</span>              : type HealthStatus struct {</span>
 <span id="L221"><span class="lineNum">     221</span>              :         Parts [BodyPartCount]BodyPartHealth</span>
-<span id="L222"><span class="lineNum">     222</span>              : }</span>
-<span id="L223"><span class="lineNum">     223</span>              : </span>
-<span id="L224"><span class="lineNum">     224</span>              : // GetStatModifier は指定したステータスへの合計修正値を返す</span>
-<span id="L225"><span class="lineNum">     225</span>              : func (hs *HealthStatus) GetStatModifier(stat StatType) int {</span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         total := 0</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         for _, partHealth := range hs.Parts {</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 for _, cond := range partHealth.Conditions {</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                         for _, effect := range cond.Effects {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                                 if effect.Stat == stat {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                                         total += effect.Value</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L233"><span class="lineNum">     233</span>              :                         }</span>
-<span id="L234"><span class="lineNum">     234</span>              :                 }</span>
-<span id="L235"><span class="lineNum">     235</span>              :         }</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         return total</span></span>
-<span id="L237"><span class="lineNum">     237</span>              : }</span>
+<span id="L222"><span class="lineNum">     222</span>              :         // BodyTempOffset は平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く。</span>
+<span id="L223"><span class="lineNum">     223</span>              :         BodyTempOffset float64</span>
+<span id="L224"><span class="lineNum">     224</span>              : }</span>
+<span id="L225"><span class="lineNum">     225</span>              : </span>
+<span id="L226"><span class="lineNum">     226</span>              : // GetStatModifier は指定したステータスへの合計修正値を返す</span>
+<span id="L227"><span class="lineNum">     227</span>              : func (hs *HealthStatus) GetStatModifier(stat StatType) int {</span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         total := 0</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         for _, partHealth := range hs.Parts {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 for _, cond := range partHealth.Conditions {</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                         for _, effect := range cond.Effects {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :                                 if effect.Stat == stat {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :                                         total += effect.Value</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L235"><span class="lineNum">     235</span>              :                         }</span>
+<span id="L236"><span class="lineNum">     236</span>              :                 }</span>
+<span id="L237"><span class="lineNum">     237</span>              :         }</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         return total</span></span>
+<span id="L239"><span class="lineNum">     239</span>              : }</span>
         </pre>
               </td>
             </tr>

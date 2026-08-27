@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">11.8&nbsp;%</td>
-            <td class="headerCovTableEntry">102</td>
+            <td class="headerCovTableEntryLo">11.4&nbsp;%</td>
+            <td class="headerCovTableEntry">105</td>
             <td class="headerCovTableEntry">12</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-26 16:53:41</td>
+            <td class="headerValue">2026-08-27 15:46:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -166,88 +166,92 @@
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                         query.GetVisionState(world).RequestUpdate()</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                 })},</span></span>
-<span id="L107"><span class="lineNum">     107</span>              :                 Choice{Label: &quot;Opening&quot;, Run: pushChoice(NewOpeningState)},</span>
-<span id="L108"><span class="lineNum">     108</span>              :                 Choice{Label: &quot;Name input&quot;, Run: pushChoice(NewCharacterNamingState)},</span>
-<span id="L109"><span class="lineNum">     109</span>              :                 Choice{Label: &quot;Job selection&quot;, Run: pushChoice(NewCharacterJobState(&quot;Ash&quot;))},</span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: fireball (hostile)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;fireball&quot;) })},</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: moss turtle (neutral)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;moss_turtle&quot;) })},</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: rat (cowardly)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;rat&quot;) })},</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: iron sentinel (stationary)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;iron_sentinel&quot;) })},</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: poison spider (wallHug)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;poison_spider&quot;) })},</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: slime (swarm)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;slime&quot;) })},</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: skeleton soldier (patrol)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;skeleton_soldier&quot;) })},</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: stray dog (territorial)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;stray_dog&quot;) })},</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn prop: moving_stone (PassCost)&quot;, Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, &quot;moving_stone&quot;) })},</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn prop: bonfire (light source)&quot;, Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, &quot;bonfire&quot;) })},</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn prop: barrel (destructible)&quot;, Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, &quot;barrel&quot;) })},</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn prop: construction_sign (impassable)&quot;, Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, &quot;construction_sign&quot;) })},</span></span>
-<span id="L122"><span class="lineNum">     122</span>              :                 Choice{Label: &quot;Spawn prop: wooden crate (storage, with items)&quot;, Run: stayAfter(spawnStorageWithItems)},</span>
-<span id="L123"><span class="lineNum">     123</span>              :                 Choice{Label: &quot;Component list&quot;, Run: pushChoice(NewComponentDebugState)},</span>
-<span id="L124"><span class="lineNum">     124</span>              :                 Choice{Label: &quot;Close&quot;, Run: func(_ w.World) (es.Transition[w.World], error) {</span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 }},</span></span>
-<span id="L127"><span class="lineNum">     127</span>              :         )</span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC tlaBgGNC">           1 :         return &quot;&quot;, choices</span></span>
-<span id="L129"><span class="lineNum">     129</span>              : }</span>
-<span id="L130"><span class="lineNum">     130</span>              : </span>
-<span id="L131"><span class="lineNum">     131</span>              : // playerGridElement はプレイヤーの GridElement を返す。位置を持たない文脈ではエラーにする。</span>
-<span id="L132"><span class="lineNum">     132</span>              : // GridElement 不在の Get は Ark で panic するため、デバッグスポーンの前に弾く</span>
-<span id="L133"><span class="lineNum">     133</span>              : func playerGridElement(world w.World) (*gc.GridElement, error) {</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC tlaBgUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         if !world.Components.GridElement.Has(player) {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;cannot spawn because the player has no position&quot;)</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         return world.Components.GridElement.Get(player), nil</span></span>
-<span id="L142"><span class="lineNum">     142</span>              : }</span>
-<span id="L143"><span class="lineNum">     143</span>              : </span>
-<span id="L144"><span class="lineNum">     144</span>              : func spawnPropNearPlayer(world w.World, name string) error {</span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         playerGrid, err := playerGridElement(world)</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         _, err = lifecycle.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         return err</span></span>
-<span id="L151"><span class="lineNum">     151</span>              : }</span>
-<span id="L152"><span class="lineNum">     152</span>              : </span>
-<span id="L153"><span class="lineNum">     153</span>              : // spawnStorageWithItems はプレイヤーの隣にアイテム入り木箱をスポーンする</span>
-<span id="L154"><span class="lineNum">     154</span>              : func spawnStorageWithItems(world w.World) error {</span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         playerGrid, err := playerGridElement(world)</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         storageEntity, err := lifecycle.SpawnProp(world, &quot;wooden_crate&quot;, playerGrid.X+2, playerGrid.Y)</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :                 Choice{Label: &quot;Advance season&quot;, Run: popAfter(func(world w.World) error {</span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                         query.GetGameTime(world).AdvanceToNextSeason()</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :                 })},</span></span>
+<span id="L111"><span class="lineNum">     111</span>              :                 Choice{Label: &quot;Opening&quot;, Run: pushChoice(NewOpeningState)},</span>
+<span id="L112"><span class="lineNum">     112</span>              :                 Choice{Label: &quot;Name input&quot;, Run: pushChoice(NewCharacterNamingState)},</span>
+<span id="L113"><span class="lineNum">     113</span>              :                 Choice{Label: &quot;Job selection&quot;, Run: pushChoice(NewCharacterJobState(&quot;Ash&quot;))},</span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: fireball (hostile)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;fireball&quot;) })},</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: moss turtle (neutral)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;moss_turtle&quot;) })},</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: rat (cowardly)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;rat&quot;) })},</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: iron sentinel (stationary)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;iron_sentinel&quot;) })},</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: poison spider (wallHug)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;poison_spider&quot;) })},</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: slime (swarm)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;slime&quot;) })},</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: skeleton soldier (patrol)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;skeleton_soldier&quot;) })},</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn enemy: stray dog (territorial)&quot;, Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, &quot;stray_dog&quot;) })},</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn prop: moving_stone (PassCost)&quot;, Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, &quot;moving_stone&quot;) })},</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn prop: bonfire (light source)&quot;, Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, &quot;bonfire&quot;) })},</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn prop: barrel (destructible)&quot;, Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, &quot;barrel&quot;) })},</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 Choice{Label: &quot;Spawn prop: construction_sign (impassable)&quot;, Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, &quot;construction_sign&quot;) })},</span></span>
+<span id="L126"><span class="lineNum">     126</span>              :                 Choice{Label: &quot;Spawn prop: wooden crate (storage, with items)&quot;, Run: stayAfter(spawnStorageWithItems)},</span>
+<span id="L127"><span class="lineNum">     127</span>              :                 Choice{Label: &quot;Component list&quot;, Run: pushChoice(NewComponentDebugState)},</span>
+<span id="L128"><span class="lineNum">     128</span>              :                 Choice{Label: &quot;Close&quot;, Run: func(_ w.World) (es.Transition[w.World], error) {</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 }},</span></span>
+<span id="L131"><span class="lineNum">     131</span>              :         )</span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC tlaBgGNC">           1 :         return &quot;&quot;, choices</span></span>
+<span id="L133"><span class="lineNum">     133</span>              : }</span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span>              : // playerGridElement はプレイヤーの GridElement を返す。位置を持たない文脈ではエラーにする。</span>
+<span id="L136"><span class="lineNum">     136</span>              : // GridElement 不在の Get は Ark で panic するため、デバッグスポーンの前に弾く</span>
+<span id="L137"><span class="lineNum">     137</span>              : func playerGridElement(world w.World) (*gc.GridElement, error) {</span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC tlaBgUNC">           0 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         if !world.Components.GridElement.Has(player) {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;cannot spawn because the player has no position&quot;)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         return world.Components.GridElement.Get(player), nil</span></span>
+<span id="L146"><span class="lineNum">     146</span>              : }</span>
+<span id="L147"><span class="lineNum">     147</span>              : </span>
+<span id="L148"><span class="lineNum">     148</span>              : func spawnPropNearPlayer(world w.World, name string) error {</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         playerGrid, err := playerGridElement(world)</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         _, err = lifecycle.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         return err</span></span>
+<span id="L155"><span class="lineNum">     155</span>              : }</span>
+<span id="L156"><span class="lineNum">     156</span>              : </span>
+<span id="L157"><span class="lineNum">     157</span>              : // spawnStorageWithItems はプレイヤーの隣にアイテム入り木箱をスポーンする</span>
+<span id="L158"><span class="lineNum">     158</span>              : func spawnStorageWithItems(world w.World) error {</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         playerGrid, err := playerGridElement(world)</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L163"><span class="lineNum">     163</span>              : </span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         items := []struct {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 name  string</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :                 count int</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         }{</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                 {&quot;healing_potion&quot;, 3},</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                 {&quot;grenade&quot;, 1},</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 {&quot;torch&quot;, 1},</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         for _, item := range items {</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 if _, err := lifecycle.SpawnStorageItem(world, item.name, item.count, storageEntity); err != nil {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;failed to spawn storage item: %w&quot;, err)</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L176"><span class="lineNum">     176</span>              :         }</span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L178"><span class="lineNum">     178</span>              : }</span>
-<span id="L179"><span class="lineNum">     179</span>              : </span>
-<span id="L180"><span class="lineNum">     180</span>              : // spawnEnemyNearPlayer はプレイヤーから少し離れた位置に敵をスポーンする</span>
-<span id="L181"><span class="lineNum">     181</span>              : func spawnEnemyNearPlayer(world w.World, name string) error {</span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         playerGrid, err := playerGridElement(world)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         _, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: playerGrid.X + 8, Y: playerGrid.Y}, name)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         return err</span></span>
-<span id="L188"><span class="lineNum">     188</span>              : }</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         storageEntity, err := lifecycle.SpawnProp(world, &quot;wooden_crate&quot;, playerGrid.X+2, playerGrid.Y)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         items := []struct {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                 name  string</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 count int</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }{</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :                 {&quot;healing_potion&quot;, 3},</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 {&quot;grenade&quot;, 1},</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 {&quot;torch&quot;, 1},</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         for _, item := range items {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                 if _, err := lifecycle.SpawnStorageItem(world, item.name, item.count, storageEntity); err != nil {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;failed to spawn storage item: %w&quot;, err)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L180"><span class="lineNum">     180</span>              :         }</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : }</span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span>              : // spawnEnemyNearPlayer はプレイヤーから少し離れた位置に敵をスポーンする</span>
+<span id="L185"><span class="lineNum">     185</span>              : func spawnEnemyNearPlayer(world w.World, name string) error {</span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         playerGrid, err := playerGridElement(world)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         _, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: playerGrid.X + 8, Y: playerGrid.Y}, name)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         return err</span></span>
+<span id="L192"><span class="lineNum">     192</span>              : }</span>
         </pre>
               </td>
             </tr>

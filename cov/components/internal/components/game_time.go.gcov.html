@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">82.9&nbsp;%</td>
-            <td class="headerCovTableEntry">41</td>
-            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryMed">83.7&nbsp;%</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntry">36</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-26 16:53:41</td>
+            <td class="headerValue">2026-08-27 15:46:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -212,6 +212,15 @@
 <span id="L150"><span class="lineNum">     150</span>              : func (gt *GameTime) AdvanceToNextTimeOfDay() {</span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span>              : // turnsPerSeason は1季節ぶんのターン数</span>
+<span id="L155"><span class="lineNum">     155</span>              : const turnsPerSeason consts.Turn = consts.Turn(daysPerYear/4) * turnsPerDay</span>
+<span id="L156"><span class="lineNum">     156</span>              : </span>
+<span id="L157"><span class="lineNum">     157</span>              : // AdvanceToNextSeason は次の季節の開始まで進める。季節による世界温度を切り替える。</span>
+<span id="L158"><span class="lineNum">     158</span>              : // 冬からは翌年の春へ折り返す</span>
+<span id="L159"><span class="lineNum">     159</span>              : func (gt *GameTime) AdvanceToNextSeason() {</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         gt.TotalTurns = (gt.TotalTurns/turnsPerSeason + 1) * turnsPerSeason</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
