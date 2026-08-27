@@ -455,17 +455,17 @@ func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
 	case delta < -temperatureSteadyThreshold:
 		dir = hud.TempDirectionDown
 	}
-	return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(delta)}
+	return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(dir, delta)}
 }
 
 // temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は黄。
-// 変化が速いほど濃い
-func temperatureDirectionColor(delta float64) color.RGBA {
-	if delta > -temperatureSteadyThreshold && delta < temperatureSteadyThreshold {
+// 変化が速いほど濃い。向きの判定は呼び出し側と共有し、横矢印が必ず黄になるようにする
+func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA {
+	if dir == hud.TempDirectionSteady {
 		return color.RGBA{255, 200, 0, 255}
 	}
 	intensity := math.Min(math.Abs(delta)/temperatureIntensityMax, 1.0)
-	if delta > 0 {
+	if dir == hud.TempDirectionUp {
 		return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
 	}
 	return lerpRGBA(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)

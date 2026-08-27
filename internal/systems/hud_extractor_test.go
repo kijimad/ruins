@@ -779,19 +779,23 @@ func TestTemperatureArrow_状態が無くても寒い環境なら早期警告を
 	assert.Equal(t, hud.TempDirectionDown, arrow.Direction, "冷える向き")
 }
 
-func TestTemperatureDirectionColor_一定は黄色(t *testing.T) {
+func TestTemperatureArrow_境界の変化量でも横矢印は黄色(t *testing.T) {
 	t.Parallel()
-	assert.Equal(t, color.RGBA{255, 200, 0, 255}, temperatureDirectionColor(0))
+	// 恒常性の最終ステップなどで一定判定の境界値ちょうどになっても、横矢印が青や赤にならない
+	yellow := color.RGBA{255, 200, 0, 255}
+	assert.Equal(t, yellow, temperatureDirectionColor(hud.TempDirectionSteady, 0))
+	assert.Equal(t, yellow, temperatureDirectionColor(hud.TempDirectionSteady, -temperatureSteadyThreshold))
+	assert.Equal(t, yellow, temperatureDirectionColor(hud.TempDirectionSteady, temperatureSteadyThreshold))
 }
 
 func TestTemperatureDirectionColor_変化が速いほど濃くなる(t *testing.T) {
 	t.Parallel()
-	slow := temperatureDirectionColor(0.25)
-	fast := temperatureDirectionColor(1.0)
+	slow := temperatureDirectionColor(hud.TempDirectionUp, 0.25)
+	fast := temperatureDirectionColor(hud.TempDirectionUp, 1.0)
 	assert.Greater(t, slow.G, fast.G, "温まる向きは速いほど濃い赤になる")
 
-	slowCool := temperatureDirectionColor(-0.25)
-	fastCool := temperatureDirectionColor(-1.0)
+	slowCool := temperatureDirectionColor(hud.TempDirectionDown, -0.25)
+	fastCool := temperatureDirectionColor(hud.TempDirectionDown, -1.0)
 	assert.Greater(t, slowCool.R, fastCool.R, "冷える向きは速いほど濃い青になる")
 }
 
