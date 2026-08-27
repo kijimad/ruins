@@ -1,8 +1,6 @@
 package menuloop
 
 import (
-	"image"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -43,8 +41,10 @@ var keyHelpBindings = []keybind.Binding{
 }
 
 // OnStart は一覧の UI を組む。束縛表は state の寿命の間変わらないので1度だけ組めばよい。
-// キーを左寄せ、説明を右寄せの2列で揃える。キーは1粒ずつ描き、箱を持たないグリフには
-// 白い箱を敷いて、全キーを白背景に黒グリフのキーキャップで統一する
+// キー列の隣に説明を左寄せで並べ、キーと説明の対応を読み取りやすくする。キーは1粒ずつ描き、
+// 箱を持たないグリフには白い箱を敷いて、全キーを白背景に黒グリフのキーキャップで統一する。
+// 枠・行高・余白・配置は密な一覧の標準部品 menuframe.TabScreen の既定に従う。
+// 項目数が多くてもログ領域に被らず収まる
 func (st *KeyHelpState) OnStart(world w.World) error {
 	res := world.Resources.UIResources
 	entries := keybind.HintEntries(world, st.table)
@@ -54,30 +54,16 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 		entries = append(entries, keybind.HintEntries(world, keyHelpBindings)...)
 	}
 
-	const (
-		rowH      = 24
-		keyColW   = 130
-		labelColW = 230
-		pad       = 12
-	)
+	// keyColW はキーキャップ列の幅。説明列は残り幅を伸ばし、文字列の列の規約どおり左寄せにする
+	const keyColW = 130
 	face := res.Text.BodyFace
-	items := make([]ui.Widget, 0, len(entries)+1)
-	items = append(items, ui.NewText(query.T(world, "Key bindings"), face, theme.TextPrimary))
+	content := make([]ui.Widget, 0, len(entries))
 	for _, e := range entries {
 		label := ui.NewText(e.Label, face, theme.TextPrimary)
-		label.Align = ui.AlignRight
-		items = append(items, ui.Row([]int{keyColW, labelColW}, ui.NewGraphic(renderKeycaps(e.Tokens, res)), label))
+		label.VCenter = true
+		content = append(content, ui.Row([]int{keyColW, 0}, ui.NewGraphic(renderKeycaps(e.Tokens, res)), label))
 	}
-
-	style := ui.BoxStyle{Fill: theme.WindowBackground, Border: theme.PanelHighlight, BorderWidth: 1}
-	panel := ui.Panel(style, rowH, items...).SetPadding(pad)
-	rect := menuframe.CenterWindowRect(world)
-	panelW := keyColW + labelColW + pad*2
-	panelH := len(items)*rowH + pad*2
-	x := rect.Min.X + (rect.Dx()-panelW)/2
-	y := max(rect.Min.Y+(rect.Dy()-panelH)/2, rect.Min.Y)
-	panel.Layout(image.Rect(x, y, x+panelW, y+panelH))
-	st.body = panel
+	st.body = menuframe.TabScreen(world, res, query.T(world, "Key bindings"), nil, 0, content, "", "")
 	return nil
 }
 
@@ -95,8 +81,11 @@ func hasEscapeLabel(table []keybind.Binding) bool {
 // face 1つで描ける。
 // widget の入れ子で組むと preferred 幅の計算で潰れるため、画像にして寸法を確定させる
 func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
-	const height = 20
-	const chipPad = 4
+	// 箱の高さは一覧アイコンの正方と同じにして、行内の見た目の粒を揃える
+	const height = theme.MenuIconW
+	// 箱内の左右余白とチップ間の間隔は最小間隔で統一する
+	const chipPad = theme.Space2
+	// 角丸の半径。キーキャップの箱の意匠
 	const radius = 4
 
 	type keycap struct {

@@ -135,7 +135,7 @@ func (st *MainMenuState) ViewUI(world w.World, props MainMenuProps, cursor menul
 		rows[i] = menuframe.Row{Cells: styled.TextCells(item.Label)}
 	}
 	// メインメニューは単一ページで独自レイアウト。ページ表示は使わないので捨てる
-	listRows, _ := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Name(theme.MenuRowWidth)), menuframe.ListOpts{Spaced: true}, res)
+	listRows, _ := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Name(theme.MenuRowWidth)), menuframe.ListOpts{}, res)
 	menu := ui.VBox(theme.MenuPanelRowH, listRows...)
 	menuH := len(listRows) * theme.MenuPanelRowH
 	menu.Layout(image.Rect(64, sd.Height-72-menuH, 64+theme.MenuRowWidth, sd.Height-72))

@@ -19,11 +19,10 @@ type Row struct {
 	Header bool
 }
 
-// ListOpts は一覧描画の方針。Spaced はコマンドメニュー向けに行間を空けるか、
-// HeaderRow は表の先頭に置く列見出し、選択やページ送りの対象には含めない、
-// EmptyText は行が無いときに表の下へ出す説明。ページ表示はフッタ右端に出すので一覧側では扱わない。
+// ListOpts は一覧描画の方針。HeaderRow は表の先頭に置く列見出し、選択やページ送りの対象には
+// 含めない、EmptyText は行が無いときに表の下へ出す説明。ページ表示はフッタ右端に出すので
+// 一覧側では扱わない。行の高さと間隔は並べる先の TabScreen・PanelScreen が決める。
 type ListOpts struct {
-	Spaced    bool
 	HeaderRow []string
 	EmptyText string
 	// ItemsPerPage は1ページの行数の上書き。0 なら全行を1ページに収める。
