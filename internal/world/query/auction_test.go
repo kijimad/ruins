@@ -52,10 +52,11 @@ func TestAuctionOpeningBid_基準価値の分散範囲内に収まる(t *testing
 
 func TestAuctionRaise(t *testing.T) {
 	t.Parallel()
-	world := testutil.InitTestWorld(t)
 
+	// Ark の world は並行安全でないので、並列サブテストごとに自前の world を作る
 	t.Run("基準価値が大きい場合は分散範囲内", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		item := world.ECS.NewEntity()
 		world.Components.Value.Add(item, &gc.Value{Value: 1000})
 
@@ -68,6 +69,7 @@ func TestAuctionRaise(t *testing.T) {
 
 	t.Run("基準価値が0でも最低1を保証する", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		item := world.ECS.NewEntity()
 
 		raise := AuctionRaise(world, item)
