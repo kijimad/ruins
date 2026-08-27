@@ -251,7 +251,7 @@ func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabI
 		return nil, ""
 	}
 	currentTab := tabs[tabIndex]
-	columnWidths, aligns := itemMenuColumns(0, menuColumn{Width: 80, Align: styled.AlignRight}, menuColumn{Width: 90, Align: styled.AlignRight})
+	cols := itemMenuColumns(0, styled.Num(80), styled.Num(90))
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
 		total := query.GetEntityWeight(world, it.Entity) * consts.Milligram(it.Count)
@@ -261,5 +261,5 @@ func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabI
 	if currentTab.ID == shopSellTabID {
 		emptyText = query.T(world, "No items to sell")
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{EmptyText: emptyText, ItemsPerPage: perPage}, res)
+	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: emptyText, ItemsPerPage: perPage}, res)
 }

@@ -118,12 +118,11 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConf
 
 // ViewUI は View の internal/ui 版。コンポーネント数の2列表をタブ帯なしのモーダルに組む。
 func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
-	columnWidths := []int{260, 80}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	cols := styled.Cols(styled.Name(260), styled.Num(80))
 	rows := make([]menuRow, len(props.Items))
 	for i, it := range props.Items {
 		rows[i] = menuRow{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}
 	}
-	content, pager := renderMenuListUI(cursor.ItemIndex, rows, columnWidths, aligns, menuListOpts{ItemsPerPage: cursor.PageSize}, res)
+	content, pager := renderMenuListUI(cursor.ItemIndex, rows, cols, menuListOpts{ItemsPerPage: cursor.PageSize}, res)
 	return buildTabScreenUI(world, res, fmt.Sprintf("Components total: %d", props.Total), nil, 0, content, keybind.HelpHint(world), pager)
 }

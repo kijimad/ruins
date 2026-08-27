@@ -342,8 +342,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		if tab.ID == auctionTabPending {
 			empty = query.T(world, "Nothing awaiting pickup.")
 		}
-		return renderMenuListUI(itemIndex, rows, []int{200, 90, 110},
-			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+		return renderMenuListUI(itemIndex, rows, styled.Cols(styled.Name(200), styled.Name(90), styled.Num(110)),
 			menuListOpts{EmptyText: empty, ItemsPerPage: perPage}, res)
 	case auctionTabFinance:
 		rows := make([]menuRow, len(tab.Entries))
@@ -358,16 +357,14 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 			}
 			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount)}}
 		}
-		return renderMenuListUI(itemIndex, rows, []int{200, 80, 120},
-			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+		return renderMenuListUI(itemIndex, rows, styled.Cols(styled.Name(200), styled.Name(80), styled.Num(120)),
 			menuListOpts{EmptyText: query.T(world, "No bills or receipts."), ItemsPerPage: perPage}, res)
 	case auctionTabHistory:
 		rows := make([]menuRow, len(tab.Ledger))
 		for i, r := range tab.Ledger {
 			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(r.Bid.String())}}
 		}
-		return renderMenuListUI(itemIndex, rows, []int{50, 200, 120},
-			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+		return renderMenuListUI(itemIndex, rows, styled.Cols(styled.Name(50), styled.Name(200), styled.Num(120)),
 			menuListOpts{EmptyText: query.T(world, "No shipments yet."), ItemsPerPage: perPage}, res)
 	default:
 		rows := make([]menuRow, len(tab.Ledger))
@@ -378,8 +375,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 			}
 			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(status), styled.TextCell(r.Bid.String())}}
 		}
-		return renderMenuListUI(itemIndex, rows, []int{50, 170, 70, 110},
-			[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight},
+		return renderMenuListUI(itemIndex, rows, styled.Cols(styled.Name(50), styled.Name(170), styled.Name(70), styled.Num(110)),
 			menuListOpts{EmptyText: query.T(world, "No deals in progress."), ItemsPerPage: perPage}, res)
 	}
 }

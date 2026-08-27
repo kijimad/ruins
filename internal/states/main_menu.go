@@ -134,10 +134,10 @@ func (st *MainMenuState) ViewUI(world w.World, props MainMenuProps, cursor menul
 		rows[i] = menuRow{Cells: styled.TextCells(item.Label)}
 	}
 	// メインメニューは単一ページで独自レイアウト。ページ表示は使わないので捨てる
-	listRows, _ := renderMenuListUI(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true}, res)
-	menu := ui.VBox(panelScreenRowH, listRows...)
-	menuH := len(listRows) * panelScreenRowH
-	menu.Layout(image.Rect(64, sd.Height-72-menuH, 64+menuRowWidth, sd.Height-72))
+	listRows, _ := renderMenuListUI(cursor.ItemIndex, rows, styled.Cols(styled.Name(theme.MenuRowWidth)), menuListOpts{Spaced: true}, res)
+	menu := ui.VBox(theme.MenuPanelRowH, listRows...)
+	menuH := len(listRows) * theme.MenuPanelRowH
+	menu.Layout(image.Rect(64, sd.Height-72-menuH, 64+theme.MenuRowWidth, sd.Height-72))
 
 	var lines []string
 	if consts.AppVersion != "v0.0.0" {

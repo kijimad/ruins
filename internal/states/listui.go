@@ -15,19 +15,6 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-const (
-	// tabScreenRowH はタブ画面の一覧行の高さ。詰まった表として元の ebitenui の行密度に合わせる。
-	// menuframe.capacityRowH と同じ値。ページ件数の計算と描画の行高を揃える。
-	tabScreenRowH = 21
-	// panelScreenRowH はパネル画面の行の高さ。コマンドメニュー向けに行間を空ける。
-	// 元の renderMenuList の Spaced に相当する。
-	panelScreenRowH = 30
-	// panelScreenPad はパネルの内側余白。
-	panelScreenPad = 12
-	// footerPagerWidth はフッタ右端のページ表示列の幅。数字を右寄せで収める。
-	footerPagerWidth = 60
-)
-
 // panelBackground はパネル背景のテクスチャを敷く。ebitenui 時代の res.Panel.Image と同じ意匠。
 func panelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
 	return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
@@ -44,7 +31,7 @@ func footerRowUI(footer, pager string, res resources.UIResources) *ui.Container 
 	pg.Align = ui.AlignRight
 	pg.VCenter = true
 	gap := ui.NewText("", face, theme.TextSecondary)
-	return ui.Row([]int{0, footerPagerWidth, theme.Space3}, help, pg, gap)
+	return ui.Row([]int{0, theme.MenuPagerW, theme.Space3}, help, pg, gap)
 }
 
 // buildPanelScreenUI は見出し・内容行・フッタを1枚のパネルへ縦に並べ、上端を固定して配置して返す。
@@ -63,9 +50,9 @@ func buildPanelScreenUI(world w.World, res resources.UIResources, title string, 
 		items = append(items, footerRowUI(footer, pager, res))
 	}
 
-	panelW := menuRowWidth + panelScreenPad*2
-	panelH := len(items)*panelScreenRowH + panelScreenPad*2
-	panel := panelBackground(ui.Panel(ui.BoxStyle{}, panelScreenRowH, items...), res).SetPadding(panelScreenPad)
+	panelW := theme.MenuRowWidth + theme.MenuPad*2
+	panelH := len(items)*theme.MenuPanelRowH + theme.MenuPad*2
+	panel := panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, items...), res).SetPadding(theme.MenuPad)
 
 	// 横は画面中央、縦は上端を固定する。項目数が違ってもパネルの開始位置がそろい、メニュー間で
 	// タイトル・ページ表示・先頭項目の位置がずれない。全パネルを同じ規則で置く。
@@ -103,7 +90,7 @@ func tabBarUI(labels []string, selected int, totalWidth int, face text.Face, sel
 
 // panelSelCell は子を金色の選択バーの上に置くセルを返す。選択タブの強調に使う。
 func panelSelCell(child ui.Widget, selBar *resources.NineSliceTex) *ui.Container {
-	cell := ui.VBox(tabScreenRowH, child)
+	cell := ui.VBox(theme.MenuTabRowH, child)
 	if selBar != nil {
 		cell.SetBackgroundNineSlice(selBar.Image, selBar.BX, selBar.BY)
 	}
@@ -117,7 +104,7 @@ func panelSelCell(child ui.Widget, selBar *resources.NineSliceTex) *ui.Container
 func buildTabScreenUI(world w.World, res resources.UIResources, header string, tabLabels []string, tabIndex int, content []ui.Widget, footer, pager string) ui.Widget {
 	face := res.Text.BodyFace
 	rect := menuframe.ModalRect(world)
-	innerW := rect.Dx() - panelScreenPad*2
+	innerW := rect.Dx() - theme.MenuPad*2
 
 	var items []ui.Widget
 	if header != "" {
@@ -136,14 +123,14 @@ func buildTabScreenUI(world w.World, res resources.UIResources, header string, t
 
 	// フッタは下端へ寄せる。内容の下を空行で埋め、最下段にフッタ行を置く。ヘルプの位置を固定する
 	if footer != "" || pager != "" {
-		capacity := (rect.Dy() - panelScreenPad*2) / tabScreenRowH
+		capacity := (rect.Dy() - theme.MenuPad*2) / theme.MenuTabRowH
 		for len(items) < capacity-1 {
 			items = append(items, ui.NewText(" ", face, theme.TextPrimary))
 		}
 		items = append(items, footerRowUI(footer, pager, res))
 	}
 
-	panel := panelBackground(ui.Panel(ui.BoxStyle{}, tabScreenRowH, items...), res).SetPadding(panelScreenPad)
+	panel := panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuTabRowH, items...), res).SetPadding(theme.MenuPad)
 	panel.Layout(rect)
 	return panel
 }
@@ -160,8 +147,10 @@ func toUIAlign(a styled.TextAlign) ui.Align {
 // 備えた行ウィジェット列と、フッタ右端へ出すページ表示文字列を返す。ページ表示は複数ページのとき
 // だけ非空になる。呼び出し側は行をパネルに並べ、ページ表示を画面ビルダのフッタへ渡す。
 // 1ページの件数は呼び出し側が opts.ItemsPerPage に解決して渡す。0 なら全行を1ページに収める。
-func renderMenuListUI(itemIndex int, rows []menuRow, colWidths []int, aligns []styled.TextAlign, opts menuListOpts, res resources.UIResources) ([]ui.Widget, string) {
+func renderMenuListUI(itemIndex int, rows []menuRow, cols []styled.Col, opts menuListOpts, res resources.UIResources) ([]ui.Widget, string) {
 	face := res.Text.BodyFace
+	colWidths := styled.Widths(cols)
+	aligns := styled.Aligns(cols)
 	perPage := opts.ItemsPerPage
 	if perPage <= 0 {
 		perPage = max(len(rows), 1)

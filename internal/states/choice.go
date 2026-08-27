@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -104,7 +105,7 @@ func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menul
 	}
 	perPage := menuframe.ListCapacity(world, false, true)
 	// ページ表示はフッタ行の右端に出す。1ページのメニューは内容を上端から並べる。
-	list, pager := renderMenuListUI(cursor.ItemIndex, rows, []int{menuRowWidth}, []styled.TextAlign{styled.AlignLeft}, menuListOpts{Spaced: true, ItemsPerPage: perPage}, res)
+	list, pager := renderMenuListUI(cursor.ItemIndex, rows, styled.Cols(styled.Name(theme.MenuRowWidth)), menuListOpts{Spaced: true, ItemsPerPage: perPage}, res)
 	return buildPanelScreenUI(world, res, props.Title, list, keybind.HelpHint(world), pager)
 }
 

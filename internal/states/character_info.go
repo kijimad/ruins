@@ -255,18 +255,14 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 // buildInfoTableUI は buildInfoTable の internal/ui 版。情報タブの表とフッタ右端のページ表示を返す。
 func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	hasModifier := tab.ID == tabAbilities
-	var columnWidths []int
-	var aligns []styled.TextAlign
+	// 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ
+	cols := styled.Cols(styled.Name(100), styled.Num(60))
 	if hasModifier {
-		columnWidths = []int{100, 60, 60}
-		aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
-	} else {
-		columnWidths = []int{100, 60}
-		aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+		cols = styled.Cols(styled.Name(100), styled.Num(60), styled.Num(60))
 	}
 	rows := make([]menuRow, len(tab.Items))
 	for i, it := range tab.Items {
-		cells := make([]string, len(columnWidths))
+		cells := make([]string, len(cols))
 		cells[0] = it.Label
 		if !it.IsHeader {
 			cells[1] = it.Value
@@ -276,5 +272,5 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 		}
 		rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
+	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }

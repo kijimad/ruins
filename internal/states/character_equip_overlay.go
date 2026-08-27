@@ -128,8 +128,7 @@ func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, 
 		icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(entity))
 		rows[i] = menuRow{Cells: []styled.Cell{styled.IconCell(icon), styled.TextCell(query.GetEntityName(entity, world))}}
 	}
-	list, pager := renderMenuListUI(selectedIndex, rows, []int{itemIconColumnWidth, 240},
-		[]styled.TextAlign{styled.AlignLeft, styled.AlignLeft},
+	list, pager := renderMenuListUI(selectedIndex, rows, styled.Cols(styled.Icon(), styled.Name(240)),
 		menuListOpts{EmptyText: query.T(world, "Nothing to equip")}, res)
 	return buildPanelScreenUI(world, res, query.T(world, "Choose equipment"), list, "", pager)
 }

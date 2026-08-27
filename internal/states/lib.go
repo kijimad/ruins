@@ -8,15 +8,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// menuRowWidth は全幅の一覧の行の総幅。全幅メニューで揃えて、画面ごとにエントリ幅がぶれないようにする。
-// 列の内訳は画面ごとに変えてよいが、全幅の一覧では合計をこの値にする。
-// 分割レイアウト内の小さい一覧、能力タブや職業一覧、は独自の幅にするのでこの限りでない
-const menuRowWidth = 340
-
-// itemIconColumnWidth はアイテム一覧のアイコン列の幅。テーブル行高と同じ正方にしてアイコンを収める。
-// 行高 styled.tableRowHeight は 20 で、アイコンもその大きさへ縮小して描く
-const itemIconColumnWidth = 20
-
 // menuRow は一覧の1行。Cells は各列のセルで、アイコンと文字列が混ざってよい。
 // Header が真なら見出し行でカーソルが止まらない
 type menuRow struct {
@@ -56,25 +47,11 @@ type itemRowData struct {
 	Desc   string
 }
 
-// menuColumn は一覧の1列の幅と揃え。アイテムメニュー固有の trailing 列の指定に使う
-type menuColumn struct {
-	Width int
-	Align styled.TextAlign
-}
-
 // itemMenuColumns は アイコン列と名前列の共通の先頭2列に、メニュー固有の trailing 列を足した
-// 列幅と揃えを返す。アイコン列は行高と同じ正方、名前列は nameWidth で左揃え。
-// これで対象メニュー間でアイコンと名前の見た目が揃う
-func itemMenuColumns(nameWidth int, trailing ...menuColumn) ([]int, []styled.TextAlign) {
-	colWidths := make([]int, 0, 2+len(trailing))
-	aligns := make([]styled.TextAlign, 0, 2+len(trailing))
-	colWidths = append(colWidths, itemIconColumnWidth, nameWidth)
-	aligns = append(aligns, styled.AlignLeft, styled.AlignLeft)
-	for _, c := range trailing {
-		colWidths = append(colWidths, c.Width)
-		aligns = append(aligns, c.Align)
-	}
-	return colWidths, aligns
+// 列定義を返す。アイコン列と名前列を揃え、対象メニュー間でアイコンと名前の見た目を統一する。
+// trailing は数値列など画面ごとの追加列を意味的に渡す
+func itemMenuColumns(nameWidth int, trailing ...styled.Col) []styled.Col {
+	return append([]styled.Col{styled.Icon(), styled.Name(nameWidth)}, trailing...)
 }
 
 // itemMenuRow は アイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、

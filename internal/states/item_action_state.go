@@ -416,12 +416,12 @@ func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps,
 		return nil, ""
 	}
 	items := props.Tabs[tabIndex].Items
-	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
+	cols := itemMenuColumns(260, styled.Num(80))
 	rows := make([]menuRow, len(items))
 	for i, it := range items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{EmptyText: query.T(world, "No matching items"), ItemsPerPage: perPage}, res)
+	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: query.T(world, "No matching items"), ItemsPerPage: perPage}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

@@ -27,8 +27,7 @@ func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor men
 
 // buildEquipListUI は buildEquipList の internal/ui 版。装備4列とフッタ右端のページ表示を返す。
 func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
-	columnWidths := []int{130, itemIconColumnWidth, 140, 70}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
+	cols := styled.Cols(styled.Name(130), styled.Icon(), styled.Name(140), styled.Num(70))
 	rows := make([]menuRow, len(slots))
 	for i, slot := range slots {
 		var icon *ebiten.Image
@@ -39,5 +38,5 @@ func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res r
 		}
 		rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName), styled.TextCell(weight)}}
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
+	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }

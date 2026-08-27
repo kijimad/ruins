@@ -206,12 +206,12 @@ func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps,
 		return nil, ""
 	}
 	currentTab := props.Tabs[tabIndex]
-	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
+	cols := itemMenuColumns(260, styled.Num(80))
 	rows := make([]menuRow, len(currentTab.Items))
 	for i, it := range currentTab.Items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{EmptyText: query.T(world, "No items"), ItemsPerPage: perPage}, res)
+	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: query.T(world, "No items"), ItemsPerPage: perPage}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

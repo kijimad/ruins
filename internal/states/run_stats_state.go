@@ -128,13 +128,12 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 
 // buildStatsTableUI は buildStatsTable の internal/ui 版。ラベル左・値右の2列表とフッタ右端のページ表示を返す。
 func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
-	columnWidths := []int{180, 90}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	cols := styled.Cols(styled.Name(180), styled.Num(90))
 	rows := make([]menuRow, len(items))
 	for i, it := range items {
 		rows[i] = menuRow{Cells: styled.TextCells(it.Label, it.Value)}
 	}
-	return renderMenuListUI(itemIndex, rows, columnWidths, aligns, menuListOpts{
+	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{
 		EmptyText:    query.T(world, "No entries"),
 		ItemsPerPage: menuframe.ListCapacity(world, true, true),
 	}, res)
