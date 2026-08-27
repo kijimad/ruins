@@ -24,6 +24,8 @@ type GameInfoData struct {
 	PlayerWeight      consts.Milligram // プレイヤーの現在所持重量
 	PlayerMaxWeight   consts.Milligram // プレイヤーの所持可能重量
 	TempArrow         TemperatureArrow // 体温変化の矢印。HP バーの左に出す
+	BodyTempRatio     float64          // 体温ゲージの割合。0..1 で 0.5 が平熱
+	BodyTempVisible   bool             // 体温ゲージを表示するか
 	MessageAreaHeight int              // メッセージエリアの高さ（ステータス表示位置計算用）
 	ScreenDimensions  ScreenDimensions // 画面サイズ。階層表示位置計算用
 }

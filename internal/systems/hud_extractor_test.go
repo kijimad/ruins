@@ -704,7 +704,7 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 	assert.Equal(t, 800, data.MinimapData.ScreenDimensions.Width)
 }
 
-// newColdPlayer は基本気温0度のダンジョンに低体温状態のプレイヤーを作る。
+// newColdPlayer は基本気温0度のダンジョンに体が冷えた低体温状態のプレイヤーを作る。
 // 矢印の向きは環境から導出されるので、この時点では冷える向きになる
 func newColdPlayer(t *testing.T) (w.World, ecs.Entity) {
 	t.Helper()
@@ -712,8 +712,20 @@ func newColdPlayer(t *testing.T) (w.World, ecs.Entity) {
 	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Dead forest", 1)
 	e, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	world.Components.HealthStatus.Get(e).Parts[gc.BodyPartWholeBody].UpdateConditionTimer(gc.ConditionHypothermia, 40)
+	hs := world.Components.HealthStatus.Get(e)
+	hs.BodyTempOffset = -3.0
+	hs.Parts[gc.BodyPartWholeBody].UpdateConditionTimer(gc.ConditionHypothermia, 40)
 	return world, e
+}
+
+func TestExtractGameInfo_体温ゲージの割合を返す(t *testing.T) {
+	t.Parallel()
+	world, _ := newColdPlayer(t)
+
+	info := extractGameInfo(world)
+
+	require.True(t, info.BodyTempVisible)
+	assert.InDelta(t, 0.2, info.BodyTempRatio, 1e-9, "オフセット-3はクランプ幅-5..+5の 0.2 に写る")
 }
 
 func TestTemperatureArrow_冷えると青の下向き(t *testing.T) {

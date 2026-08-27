@@ -2,6 +2,7 @@ package systems
 
 import (
 	"errors"
+	"math"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -79,7 +80,17 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	return def.BaseTemperature() + worldTemp/dungeonWorldInfluenceDivisor + tileModifier, nil
 }
 
-// Update は健康状態のタイマーを更新する
+// 体温の定数。値は実プレイで調整する
+const (
+	// bodyTempBand は平熱からこの範囲内を正常帯とみなす。外れるとタイマーが進む
+	bodyTempBand = 2.0
+	// bodyTempMin はオフセットの下限クランプ
+	bodyTempMin = -5.0
+	// bodyTempMax はオフセットの上限クランプ
+	bodyTempMax = 5.0
+)
+
+// Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める
 func (sys *TemperatureSystem) Update(world w.World) error {
 	if query.GetDungeon(world) == nil {
 		return errors.New("dungeon resource is not set")
@@ -91,20 +102,14 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
 		hs := world.Components.HealthStatus.Get(entity)
-		gridElement := world.Components.GridElement.Get(entity)
 
-		// 周囲気温を計算
-		ambientTemp, err := AmbientTemperatureAt(world, gridElement.X, gridElement.Y)
-		if err != nil {
-			continue
-		}
-
-		// 装備から断熱値を計算する
-		insulation := CalculateEquippedInsulation(world, entity)
+		// 体温を環境レートぶん動かす
+		rate := bodyTempRate(world, entity)
+		hs.BodyTempOffset = math.Max(bodyTempMin, math.Min(bodyTempMax, hs.BodyTempOffset+rate))
 
 		isPlayer := world.Components.Player.Has(entity)
 
-		// 体温進行倍率を取得する
+		// 体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける
 		coldProgressPct, heatProgressPct := consts.PercentBase, consts.PercentBase
 		if world.Components.CharModifiers.Has(entity) {
 			mods := world.Components.CharModifiers.Get(entity)
@@ -112,14 +117,8 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 			heatProgressPct = mods.HeatProgress
 		}
 
-		// 各部位の健康状態を更新
-		hasChange := updateTemperatureConditions(world, hs, ambientTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
-
-		// 周囲の熱源で低体温を回復する
-		warmth := heatSourceWarmthAt(world, gridElement.X, gridElement.Y)
-		if applyHeatSourceRecovery(world, hs, warmth, isPlayer) {
-			hasChange = true
-		}
+		// 体温の帯判定から健康状態を更新
+		hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct, heatProgressPct)
 
 		// 状態変化があれば属性を再計算
 		if isPlayer && hasChange {
@@ -136,10 +135,9 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 	return nil
 }
 
-// temperatureNetDelta は現在地の環境から1ターンに起きる全身の体温変化を導出する。温まる向きが正。
-// updateTemperatureConditions と applyHeatSourceRecovery が適用する変化量の見積もりで、HUD のトレンド矢印が読む。
-// タイマーの上下限クランプは考慮しないので、張り付いている間も環境圧力の向きを示す
-func temperatureNetDelta(world w.World, entity ecs.Entity) float64 {
+// bodyTempRate は現在地の環境が1ターンに動かす体温の変化量を返す。温まる向きが正。
+// Update の適用と HUD のトレンド矢印が同じこの関数を読む
+func bodyTempRate(world w.World, entity ecs.Entity) float64 {
 	if !world.Components.HealthStatus.Has(entity) || !world.Components.GridElement.Has(entity) {
 		return 0
 	}
@@ -149,42 +147,28 @@ func temperatureNetDelta(world w.World, entity ecs.Entity) float64 {
 		return 0
 	}
 	insulation := CalculateEquippedInsulation(world, entity)
-	coldProgressPct, heatProgressPct := consts.PercentBase, consts.PercentBase
-	if world.Components.CharModifiers.Has(entity) {
-		mods := world.Components.CharModifiers.Get(entity)
-		coldProgressPct = mods.ColdProgress
-		heatProgressPct = mods.HeatProgress
-	}
-	part := &world.Components.HealthStatus.Get(entity).Parts[gc.BodyPartWholeBody]
-	hasCold := part.GetCondition(gc.ConditionHypothermia) != nil
-	hasHeat := part.GetCondition(gc.ConditionHyperthermia) != nil
+	offset := world.Components.HealthStatus.Get(entity).BodyTempOffset
 
-	coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(ambientTemp + insulation.Cold))
-	heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(ambientTemp - insulation.Heat))
-
-	// 低体温タイマーの変化量。悪化で正、回復で負。自然回復は状態があるときだけ効く
-	var coldChange float64
-	switch {
-	case coldDelta < 0:
-		coldChange = -coldDelta
-	case hasCold:
-		coldChange = -naturalRecoveryPerTurn
+	var rate float64
+	if cold := calcBodyTempRate(ambientTemp + insulation.Cold); cold < 0 {
+		rate += cold
 	}
-	// 熱源回復は applyHeatSourceRecovery と同じ条件で効く
-	if hasCold {
-		coldChange -= heatSourceWarmthAt(world, grid.X, grid.Y)
+	if heat := calcBodyTempRate(ambientTemp - insulation.Heat); heat > 0 {
+		rate += heat
 	}
-
-	// 高体温タイマーの変化量。悪化で正、回復で負
-	var heatChange float64
-	switch {
-	case heatDelta > 0:
-		heatChange = heatDelta
-	case hasHeat:
-		heatChange = -naturalRecoveryPerTurn
+	// 熱源は冷えた体だけを温める。平熱以上では効かせず、焚き火の常用で高体温にならない
+	if offset < 0 {
+		rate += heatSourceWarmthAt(world, grid.X, grid.Y)
 	}
-
-	return heatChange - coldChange
+	// 外因が無ければ恒常性で平熱へ戻る
+	if rate == 0 && offset != 0 {
+		step := math.Min(naturalRecoveryPerTurn, math.Abs(offset))
+		if offset > 0 {
+			return -step
+		}
+		return step
+	}
+	return rate
 }
 
 // CalculateEquippedInsulation はエンティティの装備から全身の断熱値を計算する。
@@ -241,62 +225,33 @@ func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 	return warmth
 }
 
-// applyHeatSourceRecovery は熱源の Warmth ぶん全身の低体温タイマーを下げる。
-// 周囲気温由来の悪化とは別に効く。低体温が無ければ回復するものが無いので何もしない。
-// Severity が変わればプレイヤーはログを出し、true を返す
-func applyHeatSourceRecovery(world w.World, hs *gc.HealthStatus, warmth float64, isPlayer bool) bool {
-	if warmth <= 0 {
-		return false
-	}
-	partHealth := &hs.Parts[gc.BodyPartWholeBody]
-	if partHealth.GetCondition(gc.ConditionHypothermia) == nil {
-		return false
-	}
-
-	change := partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -warmth)
-	if change.Prev == change.Current {
-		return false
-	}
-
-	// Severity が変わったときだけ効果を再計算する。効果は Severity にのみ依存するので、
-	// タイマーが動いても Severity が変わらなければ再計算は要らない
-	updateConditionEffects(partHealth)
-	if isPlayer {
-		logTemperatureChange(world, change.CondType, change.Current, change.Prev)
-	}
-	return true
-}
-
-// updateTemperatureConditions は環境気温から全身の体温状態タイマーを更新する。
-// - 断熱値は装備全体の合算値を使う。
+// updateTemperatureConditions は体温の正常帯判定から全身の体温状態タイマーを更新する。
+// - 帯の外では超過に応じてタイマーが進み、帯の中では自然回復する。
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
 // - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, ambientTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
+func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
 	hasChange := false
 	partHealth := &hs.Parts[gc.BodyPartWholeBody]
-
-	// 耐寒を適用した有効温度（寒さ判定用）: 耐寒が高いほど暖かく感じる
-	effectiveTempCold := ambientTemp + insulation.Cold
-	// 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
-	effectiveTempHeat := ambientTemp - insulation.Heat
-
-	coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(effectiveTempCold))
-	heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(effectiveTempHeat))
+	offset := hs.BodyTempOffset
 
 	var changes []gc.SeverityChange
 
-	// 低体温の処理（寒さ判定）
-	if coldDelta < 0 {
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -coldDelta))
-	} else {
+	// 低体温の処理
+	switch {
+	case offset < -bodyTempBand:
+		delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempBand))
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, delta))
+	case partHealth.GetCondition(gc.ConditionHypothermia) != nil:
 		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -naturalRecoveryPerTurn))
 	}
 
-	// 高体温の処理（暑さ判定）
-	if heatDelta > 0 {
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, heatDelta))
-	} else {
+	// 高体温の処理
+	switch {
+	case offset > bodyTempBand:
+		delta := heatProgressPct.ApplyFloat(timerProgress(offset - bodyTempBand))
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, delta))
+	case partHealth.GetCondition(gc.ConditionHyperthermia) != nil:
 		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -naturalRecoveryPerTurn))
 	}
 
@@ -315,9 +270,15 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, ambientTemp
 	return hasChange
 }
 
-// calcTimerDelta は有効温度からタイマー変化量を計算する
-// 負の値は低体温方向、正の値は高体温方向
-func calcTimerDelta(effectiveTemp int) float64 {
+// timerProgress は正常帯からの超過 excess °C に応じたタイマー進行量を返す。
+// 帯の縁で 0.25、超過1°Cごとに +0.25、上限 1.0
+func timerProgress(excess float64) float64 {
+	return math.Min(naturalRecoveryPerTurn+0.25*excess, 1.0)
+}
+
+// calcBodyTempRate は有効温度から体温の変化量を計算する
+// 負の値は冷える方向、正の値は温まる方向
+func calcBodyTempRate(effectiveTemp int) float64 {
 	switch {
 	case effectiveTemp <= -50:
 		return -1.0 // 極寒。最も厳しい区分で、居座れば急速に凍える

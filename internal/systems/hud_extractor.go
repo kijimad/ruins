@@ -45,6 +45,8 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	var playerHP, playerMaxHP int
 	var playerWeight, playerMaxWeight consts.Milligram
 	var tempArrow hud.TemperatureArrow
+	var bodyTempRatio float64
+	var bodyTempVisible bool
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
@@ -55,6 +57,11 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		playerWeight = cw.Current
 		playerMaxWeight = cw.Max
 		tempArrow = temperatureArrow(world, entity)
+		if world.Components.HealthStatus.Has(entity) {
+			offset := world.Components.HealthStatus.Get(entity).BodyTempOffset
+			bodyTempRatio = (offset - bodyTempMin) / (bodyTempMax - bodyTempMin)
+			bodyTempVisible = true
+		}
 	}
 
 	// 画面サイズを取得
@@ -71,6 +78,8 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		PlayerWeight:      playerWeight,
 		PlayerMaxWeight:   playerMaxWeight,
 		TempArrow:         tempArrow,
+		BodyTempRatio:     bodyTempRatio,
+		BodyTempVisible:   bodyTempVisible,
 		MessageAreaHeight: messageAreaHeight,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
@@ -428,13 +437,13 @@ func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, b
 
 // temperatureArrow はプレイヤーの体温変化の矢印を返す。HealthStatus を持つ間は常時出す。
 // 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ。
-// 変化は現在地の環境から導出するので、寒暖の環境や熱源タイルへ入った瞬間に反映される
+// 変化は実処理と同じ bodyTempRate を読むので、環境が変われば即座に反映される
 func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
 	if !world.Components.HealthStatus.Has(entity) {
 		return hud.TemperatureArrow{}
 	}
 
-	delta := temperatureNetDelta(world, entity)
+	delta := bodyTempRate(world, entity)
 
 	dir := hud.TempDirectionSteady
 	switch {

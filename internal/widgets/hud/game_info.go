@@ -72,6 +72,9 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
 	// HP情報
 	info.drawHealthBar(screen, data.PlayerHP, data.PlayerMaxHP)
 
+	// 体温数値
+	info.drawBodyTemperature(screen, data)
+
 	// 所持重量表示（右下）
 	info.drawWeightDisplay(screen, data)
 
@@ -165,6 +168,31 @@ func fillTriangle(screen *ebiten.Image, pts [3][2]float32, clr color.Color) {
 }
 
 // drawHealthBar はプレイヤーの体力ゲージを描画する
+
+// drawBodyTemperature は体温ゲージを HP ゲージの下に描く。中央が平熱で、左へ冷え、右へ火照る
+func (info *GameInfo) drawBodyTemperature(screen *ebiten.Image, data GameInfoData) {
+	if !data.BodyTempVisible {
+		return
+	}
+	x := gaugeBaseX + tempArrowSlotW
+	y := gaugeBaseY + gaugeHeight + gaugeSpacing
+	info.drawGaugeBar(screen, x, y, gaugeWidth, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio), theme.HUDGaugeBorder)
+}
+
+// bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青、火照るほど赤へ寄る
+func bodyTempFillColor(ratio float64) color.RGBA {
+	neutral := color.RGBA{235, 235, 235, 255}
+	if ratio < 0.5 {
+		return lerpTempColor(neutral, color.RGBA{40, 90, 230, 255}, (0.5-ratio)*2)
+	}
+	return lerpTempColor(neutral, color.RGBA{230, 50, 40, 255}, (ratio-0.5)*2)
+}
+
+// lerpTempColor は2色を t (0..1) で線形補間する
+func lerpTempColor(a, b color.RGBA, t float64) color.RGBA {
+	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
+	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
+}
 
 func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) {
 	// 矢印スロットぶん右へ寄せる
