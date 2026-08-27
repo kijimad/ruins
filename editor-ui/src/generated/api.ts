@@ -1789,9 +1789,9 @@ export interface SaveDataHealthStatusComponent {
      */
     'Parts': Array<SaveDataBodyPartHealth>;
     /**
-     * 平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く。無ければ平熱
+     * 平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く
      */
-    'BodyTempOffset'?: number;
+    'BodyTempOffset': number;
 }
 /**
  * 熱源設定

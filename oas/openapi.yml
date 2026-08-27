@@ -3538,6 +3538,7 @@ components:
       type: object
       required:
         - Parts
+        - BodyTempOffset
       properties:
         Parts:
           type: array
@@ -3547,7 +3548,7 @@ components:
         BodyTempOffset:
           type: number
           format: double
-          description: 平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く。無ければ平熱
+          description: 平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く
       description: 部位ごとの健康状態
     SaveData.HeatSourceComponent:
       type: object
