@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/yohamta/furex/v2"
 )
 
 // Widget は保持型 UI ツリーの要素。
@@ -208,52 +209,60 @@ func (c *Container) SetBottomLine(img *ebiten.Image, tint color.Color) *Containe
 	return c
 }
 
-// Layout は Container を実装する。余白を除いた内側で主軸方向へ sizes ぶんずつ子を並べ、
-// 交差軸は内側いっぱいに広げる。横並びで内側が sizes の合計より広いときは、0幅の列、
-// 無ければ最後の列、を余った幅ぶん伸ばして内側を埋める。名前列を伸ばし右の数値列を右端へ寄せる用途。
+// Layout は Container を実装する。余白を除いた内側に、furex の flexbox で子を並べる。
+// 縦は sizes の固定高で積む。横は sizes の固定幅で並べ、0 幅の最初の列、無ければ末尾の列が
+// flex-grow で余り幅を吸収して内側を埋める。名前列を伸ばし右の数値列を右端へ寄せる用途。
+// 交差軸は既定の AlignItemStretch で内側いっぱいに広がる。座標計算は furex に委譲し、
+// 自前の数式を持たない。
 func (c *Container) Layout(b image.Rectangle) {
 	c.rect = b
+	if len(c.children) == 0 {
+		return
+	}
 	inner := image.Rect(b.Min.X+c.pad, b.Min.Y+c.pad, b.Max.X-c.pad, b.Max.Y-c.pad)
 
-	stretchIdx, extra := -1, 0
+	dir := furex.Column
+	stretchIdx := -1
 	if c.dir == Horizontal {
-		total := 0
-		for _, s := range c.sizes {
-			total += s
-		}
+		dir = furex.Row
 		for i, s := range c.sizes {
 			if s == 0 {
 				stretchIdx = i
 				break
 			}
 		}
-		if stretchIdx == -1 && len(c.children) > 0 {
+		if stretchIdx == -1 {
 			// sizes と children の長さは Row・VBox の構築で一致する。万一 sizes が短くても
 			// 範囲外の子を伸ばして余り幅が消えないよう、幅を持つ末尾の子に上界を切る
 			stretchIdx = min(len(c.children), len(c.sizes)) - 1
 		}
-		extra = max(inner.Dx()-total, 0)
 	}
 
-	pos := inner.Min
+	root := &furex.View{
+		Left:      inner.Min.X,
+		Top:       inner.Min.Y,
+		Width:     inner.Dx(),
+		Height:    inner.Dy(),
+		Direction: dir,
+	}
 	for i, ch := range c.children {
 		size := 0
 		if i < len(c.sizes) {
 			size = c.sizes[i]
 		}
-		var cell image.Rectangle
+		child := &furex.View{Handler: frameTo{w: ch}}
 		if c.dir == Vertical {
-			cell = image.Rect(inner.Min.X, pos.Y, inner.Max.X, pos.Y+size)
-			pos.Y += size
+			child.Height = size
 		} else {
+			child.Width = size
 			if i == stretchIdx {
-				size += extra
+				child.Grow = 1
 			}
-			cell = image.Rect(pos.X, inner.Min.Y, pos.X+size, inner.Max.Y)
-			pos.X += size
 		}
-		ch.Layout(cell)
+		root.AddChild(child)
 	}
+	root.Layout()
+	root.Draw(layoutProbe())
 }
 
 // Draw は Container を実装する。テクスチャ背景、塗り、枠の順に敷いてから子を描く。

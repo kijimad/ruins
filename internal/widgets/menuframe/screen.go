@@ -43,17 +43,17 @@ func footerRow(footer, pager string, res resources.UIResources) *ui.Container {
 // 選択メニュー choice や設定メニューなど、項目数相応に伸びるパネル画面で使う。
 func PanelScreen(world w.World, res resources.UIResources, title string, content []ui.Widget, footer, pager string) ui.Widget {
 	face := res.Text.BodyFace
-	items := make([]flexItem, 0, len(content)+3)
+	items := make([]ui.FlexItem, 0, len(content)+3)
 	if title != "" {
-		items = append(items, flexItem{w: ui.NewText(title, face, theme.TextPrimary), height: theme.MenuPanelRowH})
+		items = append(items, ui.FlexItem{W: ui.NewText(title, face, theme.TextPrimary), Height: theme.MenuPanelRowH})
 	}
 	for _, c := range content {
-		items = append(items, flexItem{w: c, height: theme.MenuPanelRowH})
+		items = append(items, ui.FlexItem{W: c, Height: theme.MenuPanelRowH})
 	}
 	if footer != "" || pager != "" {
 		// フッタは内容から一行空けて置く。元のパネルと同じく内容と離す
-		items = append(items, flexItem{height: theme.MenuPanelRowH})
-		items = append(items, flexItem{w: footerRow(footer, pager, res), height: theme.MenuPanelRowH})
+		items = append(items, ui.FlexItem{Height: theme.MenuPanelRowH})
+		items = append(items, ui.FlexItem{W: footerRow(footer, pager, res), Height: theme.MenuPanelRowH})
 	}
 
 	// パネルの高さは内容に合わせる。横は画面中央、縦は上端を固定する。項目数が違っても
@@ -65,7 +65,7 @@ func PanelScreen(world w.World, res resources.UIResources, title string, content
 	y := crect.Min.Y
 	rect := image.Rect(x, y, x+panelW, y+panelH)
 	inner := image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
-	layoutFlexColumn(inner, items)
+	ui.FlexColumn(inner, items)
 
 	return groupWithPanelBG(rect, res, items)
 }
@@ -113,40 +113,40 @@ func TabScreen(world w.World, res resources.UIResources, header string, tabLabel
 	rect := ModalRect(world)
 	inner := image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
 
-	var items []flexItem
+	var items []ui.FlexItem
 	if header != "" {
 		h := ui.NewText(header, face, theme.TextPrimary)
 		h.Align = ui.AlignCenter
-		items = append(items, flexItem{w: h, height: theme.MenuTabRowH})
+		items = append(items, ui.FlexItem{W: h, Height: theme.MenuTabRowH})
 	}
 	if len(tabLabels) > 0 {
-		items = append(items, flexItem{w: tabBar(tabLabels, tabIndex, inner.Dx(), face, res.SelectionBar), height: theme.MenuTabRowH})
+		items = append(items, ui.FlexItem{W: tabBar(tabLabels, tabIndex, inner.Dx(), face, res.SelectionBar), Height: theme.MenuTabRowH})
 	}
 	// タブ帯と一覧を離す。詰まりすぎないよう一行空ける
 	if header != "" || len(tabLabels) > 0 {
-		items = append(items, flexItem{height: theme.MenuTabRowH})
+		items = append(items, ui.FlexItem{Height: theme.MenuTabRowH})
 	}
 	for _, c := range content {
-		items = append(items, flexItem{w: c, height: theme.MenuTabRowH})
+		items = append(items, ui.FlexItem{W: c, Height: theme.MenuTabRowH})
 	}
 	if footer != "" || pager != "" {
-		items = append(items, flexItem{grow: true})
-		items = append(items, flexItem{w: footerRow(footer, pager, res), height: theme.MenuTabRowH})
+		items = append(items, ui.FlexItem{Grow: true})
+		items = append(items, ui.FlexItem{W: footerRow(footer, pager, res), Height: theme.MenuTabRowH})
 	}
-	layoutFlexColumn(inner, items)
+	ui.FlexColumn(inner, items)
 
 	return groupWithPanelBG(rect, res, items)
 }
 
 // groupWithPanelBG はパネルテクスチャの背景と、配置済みの flex 行を1つの Group に束ねる。
-func groupWithPanelBG(rect image.Rectangle, res resources.UIResources, items []flexItem) ui.Widget {
+func groupWithPanelBG(rect image.Rectangle, res resources.UIResources, items []ui.FlexItem) ui.Widget {
 	bg := ui.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
 	bg.Layout(rect)
 	children := make([]ui.Widget, 0, len(items)+1)
 	children = append(children, bg)
 	for _, it := range items {
-		if it.w != nil {
-			children = append(children, it.w)
+		if it.W != nil {
+			children = append(children, it.W)
 		}
 	}
 	group := ui.NewGroup(children...)
