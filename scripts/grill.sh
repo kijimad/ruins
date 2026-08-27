@@ -42,7 +42,7 @@ while [ "$(date +%s)" -lt "$deadline" ]; do
 		>"$logdir/$tag.json" 2>"$logdir/$tag.stderr"; then
 		rm -f "$logdir/$tag.stderr"
 	elif grep -q "Failed to open display" "$logdir/$tag.json" "$logdir/$tag.stderr"; then
-		# X サーバの起動失敗はテスト失敗ではない。次ラウンドで新しいサーバを立てて続行する
+		# 次ラウンドが新しいサーバを立てるので続行する
 		echo "$tag: FAIL (X ディスプレイ異常。テスト失敗ではない)"
 	else
 		echo "$tag: FAIL"

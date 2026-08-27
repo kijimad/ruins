@@ -41,7 +41,6 @@ func TestGetEntityID(t *testing.T) {
 func TestNameMarkup(t *testing.T) {
 	t.Parallel()
 
-	// Ark の world は並行安全でないので、並列サブテストごとに自前の world を作る
 	t.Run("プレイヤーはplayerタグ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
