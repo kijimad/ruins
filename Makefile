@@ -33,12 +33,12 @@ updategolden: ## ゴールデンテスト用の基準画像を生成する
 	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
 
 .PHONY: grill-branch
-grill-branch: ## ブランチで変更したテストを反復実行してフレークを炙り出す。既定値と環境変数は scripts/grill_branch.sh 参照
+grill-branch: ## ブランチで変更したテストを反復実行してフレーキーを検査する
 	RUINS_LOG_LEVEL=ignore \
 	$(BWRAP_CMD) xvfb-run -a scripts/grill_branch.sh
 
 .PHONY: grill
-grill: ## 全テストを時間予算いっぱい反復してフレークを炙り出す。既定値と環境変数は scripts/grill.sh 参照
+grill: ## 全テストを時間予算いっぱい反復してフレーキーを検査する
 	RUINS_LOG_LEVEL=ignore \
 	$(BWRAP_CMD) xvfb-run -a scripts/grill.sh
 

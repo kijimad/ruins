@@ -26,5 +26,4 @@ echo "grill-branch: 次のパッケージを -race -count=${count} -shuffle=on �
 echo "$pkgs"
 
 # シャッフル seed は go test が冒頭に出力する。失敗時は -shuffle=<seed> で再現する
-# shellcheck disable=SC2086
 go test -race -count="$count" -shuffle=on -timeout=60m $pkgs
