@@ -10,9 +10,12 @@ set -eu
 base="${GRILL_BASE:-origin/main}"
 count="${GRILL_COUNT:-10}"
 
-# 変更のあったテストファイルからパッケージを求める。削除済みディレクトリと
-# テスト対象外のパッケージは除く
-pkgs=$(git diff --name-only "${base}...HEAD" -- '*_test.go' |
+# 変更のあったテストファイル。git diff の失敗は set -e でそのまま落とす
+changed=$(git diff --name-only "${base}...HEAD" -- '*_test.go')
+
+# パッケージへ変換する。削除済みディレクトリとテスト対象外のパッケージは除く。
+# grep の不一致は「対象なし」なので失敗にしない
+pkgs=$(echo "$changed" |
 	xargs -r -n1 dirname | sort -u |
 	grep -v -e '^editor-ui/' -e '^oapi$' |
 	while read -r d; do [ -d "$d" ] && echo "./$d"; done) || true
@@ -25,5 +28,7 @@ fi
 echo "grill-branch: 次のパッケージを -race -count=${count} -shuffle=on で反復する"
 echo "$pkgs"
 
-# シャッフル seed は go test が冒頭に出力する。失敗時は -shuffle=<seed> で再現する
+# シャッフル seed は go test が冒頭に出力する。失敗時は -shuffle=<seed> で再現する。
+# $pkgs は語分割させるため意図的にクォートしない
+# shellcheck disable=SC2086
 go test -race -count="$count" -shuffle=on -timeout=60m $pkgs

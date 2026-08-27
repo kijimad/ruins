@@ -101,7 +101,9 @@ jobs:
 
   grill-branch:
     # ブランチで変更したテストを反復実行し、フレーキーテストをマージ前に炙り出す。
-    # 変更されたテストが無ければ何もせず成功する
+    # 変更されたテストが無ければ何もせず成功する。main への push では diff が
+    # 常に空なので、PR のときだけ動かして全履歴 fetch を省く
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read

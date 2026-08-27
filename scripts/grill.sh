@@ -29,15 +29,14 @@ while [ "$(date +%s)" -lt "$deadline" ]; do
 	round=$((round + 1))
 	tag=$(printf 'round-%03d' "$round")
 
-	race=""
-	[ $((round % 3)) -eq 0 ] && race="-race"
 	case $((round % 3)) in
-	1) procs=1 ;;
-	2) procs=2 ;;
-	*) procs=$(nproc) ;;
+	1) race="" procs=1 ;;
+	2) race="" procs=2 ;;
+	*) race="-race" procs=$(nproc) ;;
 	esac
 
 	echo "$tag: race=${race:-off} GOMAXPROCS=$procs"
+	# $race と $pkgs は語分割させるため意図的にクォートしない
 	# shellcheck disable=SC2086
 	if GOMAXPROCS=$procs xvfb-run -a go test $race -shuffle=on -count=1 -timeout=60m -json $pkgs \
 		>"$logdir/$tag.json" 2>"$logdir/$tag.stderr"; then
@@ -49,6 +48,11 @@ while [ "$(date +%s)" -lt "$deadline" ]; do
 		echo "$tag: FAIL"
 	fi
 done
+
+if [ "$round" -eq 0 ]; then
+	echo "grill: 時間予算内に1ラウンドも開始しなかった"
+	exit 0
+fi
 
 echo "== grill 結果: ${round}ラウンド =="
 if command -v jq >/dev/null; then
