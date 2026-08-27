@@ -128,6 +128,17 @@ func toGCLightSource(ls *oapi.LightSource) *gc.LightSource {
 	}
 }
 
+// toGCHeatSource はoapi.HeatSourceからgc.HeatSourceに変換する
+func toGCHeatSource(hs *oapi.HeatSource) *gc.HeatSource {
+	if hs == nil {
+		return nil
+	}
+	return &gc.HeatSource{
+		Radius: consts.Tile(hs.Radius),
+		Warmth: hs.Warmth,
+	}
+}
+
 // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
 // enum値の妥当性はOpenAPIスキーマで検証済み
 func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.TargetType {
@@ -681,6 +692,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
+	entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)
 
 	if propRaw.Door != nil {
 		entitySpec.Door = &gc.Door{

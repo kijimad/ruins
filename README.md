@@ -108,6 +108,8 @@ $ make help
 | in-progress | [逓増: 危険と希少性の軸を深さから経過日数へ移す](docs/design/260822014350.md) | 8/10 | gamedesign, worldgen, ecs |
 | in-progress | [温度モデル: 前線を廃し、屋外の底冷えと屋内退避を持つ](docs/design/260822220253.md) | 10/10（見送り3） | gamedesign, worldgen, ecs |
 | in-progress | [コード監査: worldgen・Ark stale pointer・serde 2026-08-24](docs/design/260824001220.md) | 4/5 | worldgen, ecs, save |
+| in-progress | [熱源メカニクス: 焚き火をプレイヤーの体温へ直接効かせる](docs/design/260824095722.md) | 9/9 | gamedesign, ecs, worldgen |
+| accepted | [体温ステータスの導入](docs/design/260827091757.md) | 5/5 | gamedesign, ui |
 | draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
 | draft | [OSS 調査 2026-08](docs/design/260801002222.md) | 0/5 | meta, worldgen, combat, ui |
@@ -120,6 +122,7 @@ $ make help
 | draft | [身体の不調: 少数部位の負傷と、まとめて配る手当て](docs/design/260821232324.md) | 0/11 | gamedesign, combat, item, ecs |
 | draft | [初期言語を Steam のロケールから決める](docs/design/260823004406.md) | 5/5 | ui, steam, save |
 | draft | [すべての地物・施設を役割テンプレ骨格と content スロットで生成する](docs/design/260823165936.md) | 0/8 | worldgen, refactor, gamedesign |
+| draft | [並列テストの UI 競合を源で断つ: 状態をインスタンス所有にする](docs/design/260826085919.md) | 2/8（見送り3） | ci, ui |
 
 
 ## Reference

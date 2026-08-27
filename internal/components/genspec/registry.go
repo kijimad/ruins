@@ -48,6 +48,7 @@ var Registry = []Def{
 	{Field: "Interactable"},    // 相互作用可能であることを示す
 	{Field: "VisualEffects"},   // 紐づくビジュアルエフェクトを管理する
 	{Field: "TileTemperature"}, // タイルの気温修正値を保持する
+	{Field: "HeatSource"},      // 近接するキャラの低体温を回復する熱源の設定を保持する
 
 	// stage ================
 	{Field: "StageBound"},       // 束縛先ステージを保持する。往復するステージの同定に使う

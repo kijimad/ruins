@@ -11,6 +11,33 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
+// TempDirection は体温変化の向き
+type TempDirection string
+
+const (
+	// TempDirectionSteady は変化がほぼ無い状態
+	TempDirectionSteady TempDirection = "steady"
+	// TempDirectionUp は温まっている状態
+	TempDirectionUp TempDirection = "up"
+	// TempDirectionDown は冷えている状態
+	TempDirectionDown TempDirection = "down"
+)
+
+// TemperatureArrow は体温の変化方向を示す矢印。HP バーの左に出す。
+// 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ
+type TemperatureArrow struct {
+	Visible   bool
+	Direction TempDirection
+	Color     color.RGBA
+}
+
+// 体温矢印の寸法
+const (
+	tempArrowSlotW = 26.0 // HP バーの左に確保するスロット幅
+	tempArrowW     = 16.0 // 三角形の幅
+	tempArrowH     = 16.0 // 三角形の高さ
+)
+
 // GameInfo はHUDの基本ゲーム情報エリア
 type GameInfo struct {
 	bodyFace    text.Face
@@ -40,8 +67,13 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
 		return
 	}
 
+	info.drawTemperatureArrow(screen, data.TempArrow)
+
 	// HP情報
 	info.drawHealthBar(screen, data.PlayerHP, data.PlayerMaxHP)
+
+	// 体温数値
+	info.drawBodyTemperature(screen, data)
 
 	// 所持重量表示（右下）
 	info.drawWeightDisplay(screen, data)
@@ -75,9 +107,96 @@ const (
 	gaugeSpacing    = 4.0                            // ゲージ間の間隔
 )
 
+// arrowOutlineOffsets は三角形の縁取りを描く8方向のオフセット。OutlinedText と同じ考え方
+var arrowOutlineOffsets = [8][2]float32{
+	{-1, -1}, {0, -1}, {1, -1},
+	{-1, 0}, {1, 0},
+	{-1, 1}, {0, 1}, {1, 1},
+}
+
+// drawTemperatureArrow は体温変化の矢印を HP バーの左にベクター三角形で描く。
+// 温まると上向き、冷えると下向き、一定は右向き。多様な背景でも読めるよう縁取りを重ねる
+func (info *GameInfo) drawTemperatureArrow(screen *ebiten.Image, arrow TemperatureArrow) {
+	if !arrow.Visible {
+		return
+	}
+
+	// HP ゲージの縦中心にそろえる
+	left := float32(gaugeBaseX)
+	cy := float32(gaugeBaseY) + float32(gaugeHeight)/2
+	top := cy - tempArrowH/2
+	bottom := cy + tempArrowH/2
+	midX := left + tempArrowW/2
+	right := left + tempArrowW
+
+	var pts [3][2]float32
+	switch arrow.Direction {
+	case TempDirectionUp:
+		pts = [3][2]float32{{midX, top}, {left, bottom}, {right, bottom}}
+	case TempDirectionDown:
+		pts = [3][2]float32{{midX, bottom}, {left, top}, {right, top}}
+	default:
+		// 一定は右向き
+		pts = [3][2]float32{{right, cy}, {left, top}, {left, bottom}}
+	}
+
+	for _, o := range arrowOutlineOffsets {
+		fillTriangle(screen, offsetTriangle(pts, o[0], o[1]), theme.HUDTextOutline)
+	}
+	fillTriangle(screen, pts, arrow.Color)
+}
+
+// offsetTriangle は三角形の全頂点を平行移動した新しい三角形を返す
+func offsetTriangle(pts [3][2]float32, dx, dy float32) [3][2]float32 {
+	for i := range pts {
+		pts[i][0] += dx
+		pts[i][1] += dy
+	}
+	return pts
+}
+
+// fillTriangle は3頂点の塗り三角形を描く
+func fillTriangle(screen *ebiten.Image, pts [3][2]float32, clr color.Color) {
+	var p vector.Path
+	p.MoveTo(pts[0][0], pts[0][1])
+	p.LineTo(pts[1][0], pts[1][1])
+	p.LineTo(pts[2][0], pts[2][1])
+	p.Close()
+	op := &vector.DrawPathOptions{AntiAlias: true}
+	op.ColorScale.ScaleWithColor(clr)
+	vector.FillPath(screen, &p, nil, op)
+}
+
 // drawHealthBar はプレイヤーの体力ゲージを描画する
+
+// drawBodyTemperature は体温ゲージを HP ゲージの下に描く。中央が平熱で、左へ冷え、右へ火照る
+func (info *GameInfo) drawBodyTemperature(screen *ebiten.Image, data GameInfoData) {
+	if !data.BodyTempVisible {
+		return
+	}
+	x := gaugeBaseX + tempArrowSlotW
+	y := gaugeBaseY + gaugeHeight + gaugeSpacing
+	info.drawGaugeBar(screen, x, y, gaugeWidth, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio), theme.HUDGaugeBorder)
+}
+
+// bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青、火照るほど赤へ寄る
+func bodyTempFillColor(ratio float64) color.RGBA {
+	neutral := color.RGBA{235, 235, 235, 255}
+	if ratio < 0.5 {
+		return lerpTempColor(neutral, color.RGBA{40, 90, 230, 255}, (0.5-ratio)*2)
+	}
+	return lerpTempColor(neutral, color.RGBA{230, 50, 40, 255}, (ratio-0.5)*2)
+}
+
+// lerpTempColor は2色を t (0..1) で線形補間する
+func lerpTempColor(a, b color.RGBA, t float64) color.RGBA {
+	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
+	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
+}
+
 func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) {
-	x := gaugeBaseX
+	// 矢印スロットぶん右へ寄せる
+	x := gaugeBaseX + tempArrowSlotW
 	y := gaugeBaseY
 
 	// HP比率を計算

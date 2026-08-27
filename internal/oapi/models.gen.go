@@ -1150,6 +1150,21 @@ type HealRatio = float64
 // HealingValueType 回復量の計算方式
 type HealingValueType string
 
+// HeatRadius 熱の到達半径。チェビシェフ距離、タイル単位
+type HeatRadius = int
+
+// HeatSource 熱源設定。近接するキャラの低体温を毎ターン回復する
+type HeatSource struct {
+	// Radius 熱の到達半径。チェビシェフ距離、タイル単位
+	Radius HeatRadius `json:"radius"`
+
+	// Warmth 熱源が毎ターン下げる低体温タイマーの量
+	Warmth HeatWarmth `json:"warmth"`
+}
+
+// HeatWarmth 熱源が毎ターン下げる低体温タイマーの量
+type HeatWarmth = float64
+
 // HitPoints 耐久値。設定すると破壊可能になる
 type HitPoints = int
 
@@ -1532,6 +1547,9 @@ type Prop struct {
 	// Door 扉ローデータ
 	Door *DoorRaw `json:"door,omitempty"`
 
+	// HeatSource 熱源設定。近接するキャラの低体温を毎ターン回復する
+	HeatSource *HeatSource `json:"heatSource,omitempty"`
+
 	// Hp 耐久値。設定すると破壊可能になる
 	Hp *HitPoints `json:"hp,omitempty"`
 
@@ -1806,6 +1824,9 @@ type SaveDataComponentsMap struct {
 	// HealthStatus 部位ごとの健康状態
 	HealthStatus *SaveDataHealthStatusComponent `json:"HealthStatus,omitempty"`
 
+	// HeatSource 熱源設定
+	HeatSource *SaveDataHeatSourceComponent `json:"HeatSource,omitempty"`
+
 	// InflictsDamage ダメージ効果
 	InflictsDamage *SaveDataInflictsDamageComponent `json:"InflictsDamage,omitempty"`
 
@@ -2028,8 +2049,20 @@ type SaveDataHealthCondition struct {
 
 // SaveDataHealthStatusComponent 部位ごとの健康状態
 type SaveDataHealthStatusComponent struct {
+	// BodyTempOffset 平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く
+	BodyTempOffset float64 `json:"BodyTempOffset"`
+
 	// Parts 部位ごとの健康情報の配列
 	Parts []SaveDataBodyPartHealth `json:"Parts"`
+}
+
+// SaveDataHeatSourceComponent 熱源設定
+type SaveDataHeatSourceComponent struct {
+	// Radius 熱の到達半径。チェビシェフ距離、タイル単位
+	Radius HeatRadius `json:"Radius"`
+
+	// Warmth 毎ターン下げる低体温タイマーの量
+	Warmth HeatWarmth `json:"Warmth"`
 }
 
 // SaveDataInflictsDamageComponent ダメージ効果

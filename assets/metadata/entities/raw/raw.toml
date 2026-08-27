@@ -13207,6 +13207,10 @@ b = 70
 g = 150
 r = 255
 
+[props.heatSource]
+radius = 2
+warmth = 0.75
+
 [[props]]
 blockPass = true
 blockView = false

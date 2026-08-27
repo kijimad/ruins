@@ -44,6 +44,9 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP int
 	var playerWeight, playerMaxWeight consts.Milligram
+	var tempArrow hud.TemperatureArrow
+	var bodyTempRatio float64
+	var bodyTempVisible bool
 	playerQuery := ecs.NewFilter3[gc.Player, gc.HP, gc.WeightCapacity](world.ECS).Query()
 	for playerQuery.Next() {
 		entity := playerQuery.Entity()
@@ -53,6 +56,13 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		playerMaxHP = hp.Max
 		playerWeight = cw.Current
 		playerMaxWeight = cw.Max
+		tempArrow = temperatureArrow(world, entity)
+		if world.Components.HealthStatus.Has(entity) {
+			// セーブ由来のオフセットはクランプ幅の外でありうるので、割合を 0..1 に収める
+			offset := world.Components.HealthStatus.Get(entity).BodyTempOffset
+			bodyTempRatio = math.Max(0, math.Min(1, (offset-bodyTempMin)/(bodyTempMax-bodyTempMin)))
+			bodyTempVisible = true
+		}
 	}
 
 	// 画面サイズを取得
@@ -68,6 +78,9 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		PlayerMaxHP:       playerMaxHP,
 		PlayerWeight:      playerWeight,
 		PlayerMaxWeight:   playerMaxWeight,
+		TempArrow:         tempArrow,
+		BodyTempRatio:     bodyTempRatio,
+		BodyTempVisible:   bodyTempVisible,
 		MessageAreaHeight: messageAreaHeight,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
@@ -378,6 +391,14 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 		}
 	}
 
+	// プレイヤーの体温状態バッジ
+	tempQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
+	for tempQuery.Next() {
+		if badge, ok := temperatureStateBadge(world, tempQuery.Entity()); ok {
+			badges = append(badges, badge)
+		}
+	}
+
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
@@ -393,6 +414,68 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 			Height: screenHeight,
 		},
 	}
+}
+
+// temperatureSteadyThreshold はこれ未満の変化量を一定とみなす境界
+const temperatureSteadyThreshold = 0.05
+
+// temperatureIntensityMax は矢印の色が最も濃くなる変化量
+const temperatureIntensityMax = 0.5
+
+// temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温か高体温の状態があるとき ok=true。
+// 表示名で状態と重症度を、色で寒暖を示す。変化の向きは矢印が別に担う
+func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
+	hs := world.Components.HealthStatus.Get(entity)
+	part := &hs.Parts[gc.BodyPartWholeBody]
+	cold := part.GetCondition(gc.ConditionHypothermia)
+	hot := part.GetCondition(gc.ConditionHyperthermia)
+	switch {
+	case hot != nil && (cold == nil || hot.Timer >= cold.Timer):
+		return hud.StatusBadge{Text: hot.DisplayName(), Color: color.RGBA{230, 90, 60, 255}}, true
+	case cold != nil:
+		return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true
+	default:
+		return hud.StatusBadge{}, false
+	}
+}
+
+// temperatureArrow はプレイヤーの体温変化の矢印を返す。HealthStatus を持つ間は常時出す。
+// 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ。
+// 変化は実処理と同じ bodyTempRate を読むので、環境が変われば即座に反映される
+func temperatureArrow(world w.World, entity ecs.Entity) hud.TemperatureArrow {
+	if !world.Components.HealthStatus.Has(entity) {
+		return hud.TemperatureArrow{}
+	}
+
+	delta := bodyTempRate(world, entity)
+
+	dir := hud.TempDirectionSteady
+	switch {
+	case delta > temperatureSteadyThreshold:
+		dir = hud.TempDirectionUp
+	case delta < -temperatureSteadyThreshold:
+		dir = hud.TempDirectionDown
+	}
+	return hud.TemperatureArrow{Visible: true, Direction: dir, Color: temperatureDirectionColor(dir, delta)}
+}
+
+// temperatureDirectionColor は変化の向きと速さの色を返す。温まると赤、冷えると青、一定は黄。
+// 変化が速いほど濃い。向きの判定は呼び出し側と共有し、横矢印が必ず黄になるようにする
+func temperatureDirectionColor(dir hud.TempDirection, delta float64) color.RGBA {
+	if dir == hud.TempDirectionSteady {
+		return color.RGBA{255, 200, 0, 255}
+	}
+	intensity := math.Min(math.Abs(delta)/temperatureIntensityMax, 1.0)
+	if dir == hud.TempDirectionUp {
+		return lerpRGBA(color.RGBA{255, 170, 120, 255}, color.RGBA{230, 50, 40, 255}, intensity)
+	}
+	return lerpRGBA(color.RGBA{150, 190, 255, 255}, color.RGBA{40, 90, 230, 255}, intensity)
+}
+
+// lerpRGBA は2色を t (0..1) で線形補間する
+func lerpRGBA(a, b color.RGBA, t float64) color.RGBA {
+	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
+	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
 }
 
 // getHungerBadgeColor は空腹度に応じたバッジ色を返す

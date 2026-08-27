@@ -25,6 +25,7 @@ func TestPlannerTypeDebugTown_テンプレが読めて街用NPCと収納箱を�
 		propNames = append(propNames, p.Name)
 	}
 	assert.Contains(t, propNames, "wooden_crate", "収納箱が配置される")
+	assert.Contains(t, propNames, "bonfire", "熱源テスト用の焚き火が配置される")
 
 	assert.NotEmpty(t, chain.PlanData.SpawnPoints, "スポーン地点がある")
 }

@@ -150,3 +150,12 @@ func (gt *GameTime) Advance() {
 func (gt *GameTime) AdvanceToNextTimeOfDay() {
 	gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay
 }
+
+// turnsPerSeason は1季節ぶんのターン数
+const turnsPerSeason consts.Turn = consts.Turn(daysPerYear/4) * turnsPerDay
+
+// AdvanceToNextSeason は次の季節の開始まで進める。季節による世界温度を切り替える。
+// 冬からは翌年の春へ折り返す
+func (gt *GameTime) AdvanceToNextSeason() {
+	gt.TotalTurns = (gt.TotalTurns/turnsPerSeason + 1) * turnsPerSeason
+}
