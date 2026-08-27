@@ -43,29 +43,31 @@ func footerRow(footer, pager string, res resources.UIResources) *ui.Container {
 // 選択メニュー choice や設定メニューなど、項目数相応に伸びるパネル画面で使う。
 func PanelScreen(world w.World, res resources.UIResources, title string, content []ui.Widget, footer, pager string) ui.Widget {
 	face := res.Text.BodyFace
-	items := make([]ui.Widget, 0, len(content)+3)
+	items := make([]flexItem, 0, len(content)+3)
 	if title != "" {
-		items = append(items, ui.NewText(title, face, theme.TextPrimary))
+		items = append(items, flexItem{w: ui.NewText(title, face, theme.TextPrimary), height: theme.MenuPanelRowH})
 	}
-	items = append(items, content...)
+	for _, c := range content {
+		items = append(items, flexItem{w: c, height: theme.MenuPanelRowH})
+	}
 	if footer != "" || pager != "" {
-		// フッタは内容から一行空けて置く。元のパネルと同じく内容と離す。
-		// 空行は文字を持たせない。高さは行高が確保する
-		items = append(items, ui.NewText("", face, theme.TextPrimary))
-		items = append(items, footerRow(footer, pager, res))
+		// フッタは内容から一行空けて置く。元のパネルと同じく内容と離す
+		items = append(items, flexItem{height: theme.MenuPanelRowH})
+		items = append(items, flexItem{w: footerRow(footer, pager, res), height: theme.MenuPanelRowH})
 	}
 
+	// パネルの高さは内容に合わせる。横は画面中央、縦は上端を固定する。項目数が違っても
+	// パネルの開始位置がそろい、メニュー間でタイトル・先頭項目の位置がずれない
 	panelW := theme.MenuRowWidth + theme.MenuPad*2
 	panelH := len(items)*theme.MenuPanelRowH + theme.MenuPad*2
-	panel := panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, items...), res).SetPadding(theme.MenuPad)
-
-	// 横は画面中央、縦は上端を固定する。項目数が違ってもパネルの開始位置がそろい、メニュー間で
-	// タイトル・ページ表示・先頭項目の位置がずれない。全パネルを同じ規則で置く。
 	crect := CenterWindowRect(world)
 	x := crect.Min.X + (crect.Dx()-panelW)/2
 	y := crect.Min.Y
-	panel.Layout(image.Rect(x, y, x+panelW, y+panelH))
-	return panel
+	rect := image.Rect(x, y, x+panelW, y+panelH)
+	inner := image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
+	layoutFlexColumn(inner, items)
+
+	return groupWithPanelBG(rect, res, items)
 }
 
 // tabBar はタブ帯を組む。ラベルを等幅で横に並べ、選択中のタブは金色の選択バーを敷き主色で、
@@ -104,39 +106,50 @@ func tabSelCell(child ui.Widget, selBar *resources.NineSliceTex) *ui.Container {
 
 // TabScreen は見出し・タブ帯・内容行・フッタを1枚のモーダルに縦へ並べて返す。
 // モーダルは中央固定枠 ModalRect いっぱいに広げる。タブ帯と一覧の間に一行の余白を空ける。
-// フッタは常に下端へ固定し、内容の量によらずヘルプの位置がぶれないようにする。空行埋めの容量は
-// ListCapacity と同じ ModalRect・行高・余白から算出するため、両者は同じパッケージで一貫する。
-// ページ表示はフッタ行の右端に置く。
+// フッタは flex-grow のスペーサで常に下端へ固定し、内容の量によらずヘルプの位置がぶれない。
+// 容量の逆算や空行埋めは要らない。ページ表示はフッタ行の右端に置く。
 func TabScreen(world w.World, res resources.UIResources, header string, tabLabels []string, tabIndex int, content []ui.Widget, footer, pager string) ui.Widget {
 	face := res.Text.BodyFace
 	rect := ModalRect(world)
-	innerW := rect.Dx() - theme.MenuPad*2
+	inner := image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
 
-	var items []ui.Widget
+	var items []flexItem
 	if header != "" {
 		h := ui.NewText(header, face, theme.TextPrimary)
 		h.Align = ui.AlignCenter
-		items = append(items, ui.Row([]int{innerW}, h))
+		items = append(items, flexItem{w: h, height: theme.MenuTabRowH})
 	}
 	if len(tabLabels) > 0 {
-		items = append(items, tabBar(tabLabels, tabIndex, innerW, face, res.SelectionBar))
+		items = append(items, flexItem{w: tabBar(tabLabels, tabIndex, inner.Dx(), face, res.SelectionBar), height: theme.MenuTabRowH})
 	}
 	// タブ帯と一覧を離す。詰まりすぎないよう一行空ける
 	if header != "" || len(tabLabels) > 0 {
-		items = append(items, ui.NewText("", face, theme.TextPrimary))
+		items = append(items, flexItem{height: theme.MenuTabRowH})
 	}
-	items = append(items, content...)
-
-	// フッタは下端へ寄せる。内容の下を空行で埋め、最下段にフッタ行を置く。ヘルプの位置を固定する
+	for _, c := range content {
+		items = append(items, flexItem{w: c, height: theme.MenuTabRowH})
+	}
 	if footer != "" || pager != "" {
-		capacity := (rect.Dy() - theme.MenuPad*2) / theme.MenuTabRowH
-		for len(items) < capacity-1 {
-			items = append(items, ui.NewText("", face, theme.TextPrimary))
-		}
-		items = append(items, footerRow(footer, pager, res))
+		items = append(items, flexItem{grow: true})
+		items = append(items, flexItem{w: footerRow(footer, pager, res), height: theme.MenuTabRowH})
 	}
+	layoutFlexColumn(inner, items)
 
-	panel := panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuTabRowH, items...), res).SetPadding(theme.MenuPad)
-	panel.Layout(rect)
-	return panel
+	return groupWithPanelBG(rect, res, items)
+}
+
+// groupWithPanelBG はパネルテクスチャの背景と、配置済みの flex 行を1つの Group に束ねる。
+func groupWithPanelBG(rect image.Rectangle, res resources.UIResources, items []flexItem) ui.Widget {
+	bg := ui.NewNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+	bg.Layout(rect)
+	children := make([]ui.Widget, 0, len(items)+1)
+	children = append(children, bg)
+	for _, it := range items {
+		if it.w != nil {
+			children = append(children, it.w)
+		}
+	}
+	group := ui.NewGroup(children...)
+	group.Layout(rect)
+	return group
 }
