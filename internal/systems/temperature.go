@@ -2,11 +2,13 @@ package systems
 
 import (
 	"errors"
+	"math"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -45,6 +47,9 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 // 屋内なので屋外の世界温度をそのままでなく割って受け、揺れを和らげる。値は実プレイで調整する。
 const dungeonWorldInfluenceDivisor = 2
 
+// naturalRecoveryPerTurn は悪化方向でないときに体温状態タイマーが1ターンで下がる量
+const naturalRecoveryPerTurn = 0.25
+
 // AmbientTemperatureAt はタイルの周囲気温を返す。オーバーワールドは屋外なので季節の世界温度
 // そのもの、ダンジョンは屋内なのでステージの基本気温に世界温度の影響を緩和して足した値。
 // どちらもタイルの熱源補正を足す。屋内外はステージ種別で決まり、タイルごとの判定はしない。
@@ -75,7 +80,19 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 	return def.BaseTemperature() + worldTemp/dungeonWorldInfluenceDivisor + tileModifier, nil
 }
 
-// Update は健康状態のタイマーを更新する
+// 体温の定数。値は実プレイで調整する
+const (
+	// bodyTempBand は平熱からこの範囲内を正常帯とみなす。外れるとタイマーが進む
+	bodyTempBand = 2.0
+	// bodyTempMin はオフセットの下限クランプ
+	bodyTempMin = -5.0
+	// bodyTempMax はオフセットの上限クランプ
+	bodyTempMax = 5.0
+	// bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
+	bodyTempHomeostasisPerTurn = 0.1
+)
+
+// Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める
 func (sys *TemperatureSystem) Update(world w.World) error {
 	if query.GetDungeon(world) == nil {
 		return errors.New("dungeon resource is not set")
@@ -87,20 +104,14 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
 		hs := world.Components.HealthStatus.Get(entity)
-		gridElement := world.Components.GridElement.Get(entity)
 
-		// 周囲気温を計算
-		ambientTemp, err := AmbientTemperatureAt(world, gridElement.X, gridElement.Y)
-		if err != nil {
-			continue
-		}
-
-		// 装備から断熱値を計算する
-		insulation := CalculateEquippedInsulation(world, entity)
+		// 体温を環境レートぶん動かす
+		rate := bodyTempRate(world, entity)
+		hs.BodyTempOffset = math.Max(bodyTempMin, math.Min(bodyTempMax, hs.BodyTempOffset+rate))
 
 		isPlayer := world.Components.Player.Has(entity)
 
-		// 体温進行倍率を取得する
+		// 体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける
 		coldProgressPct, heatProgressPct := consts.PercentBase, consts.PercentBase
 		if world.Components.CharModifiers.Has(entity) {
 			mods := world.Components.CharModifiers.Get(entity)
@@ -108,10 +119,10 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 			heatProgressPct = mods.HeatProgress
 		}
 
-		// 各部位の健康状態を更新
-		hasChange := updateTemperatureConditions(world, hs, ambientTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
+		// 体温の帯判定から健康状態を更新
+		hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct, heatProgressPct)
 
-		// プレイヤーで状態変化があれば属性を再計算
+		// 状態変化があれば属性を再計算
 		if isPlayer && hasChange {
 			toMark = append(toMark, entity)
 		}
@@ -124,6 +135,42 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 	}
 
 	return nil
+}
+
+// bodyTempRate は現在地の環境が1ターンに動かす体温の変化量を返す。温まる向きが正。
+// Update の適用と HUD のトレンド矢印が同じこの関数を読む
+func bodyTempRate(world w.World, entity ecs.Entity) float64 {
+	if !world.Components.HealthStatus.Has(entity) || !world.Components.GridElement.Has(entity) {
+		return 0
+	}
+	grid := world.Components.GridElement.Get(entity)
+	ambientTemp, err := AmbientTemperatureAt(world, grid.X, grid.Y)
+	if err != nil {
+		return 0
+	}
+	insulation := CalculateEquippedInsulation(world, entity)
+	offset := world.Components.HealthStatus.Get(entity).BodyTempOffset
+
+	var rate float64
+	if cold := calcBodyTempRate(ambientTemp + insulation.Cold); cold < 0 {
+		rate += cold
+	}
+	if heat := calcBodyTempRate(ambientTemp - insulation.Heat); heat > 0 {
+		rate += heat
+	}
+	// 熱源は冷えた体だけを温める。平熱以上では効かせず、焚き火の常用で高体温にならない
+	if offset < 0 {
+		rate += heatSourceWarmthAt(world, grid.X, grid.Y)
+	}
+	// 外因が無ければ恒常性で平熱へ戻る
+	if rate == 0 && offset != 0 {
+		step := math.Min(bodyTempHomeostasisPerTurn, math.Abs(offset))
+		if offset > 0 {
+			return -step
+		}
+		return step
+	}
+	return rate
 }
 
 // CalculateEquippedInsulation はエンティティの装備から全身の断熱値を計算する。
@@ -162,37 +209,52 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 	return modifier
 }
 
-// updateTemperatureConditions は環境気温から全身の体温状態タイマーを更新する。
-// - 断熱値は装備全体の合算値を使う。
+// heatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。
+// 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する
+func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
+	at := consts.Coord[consts.Tile]{X: x, Y: y}
+	var warmth float64
+	heatQuery := query.ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()
+	for heatQuery.Next() {
+		entity := heatQuery.Entity()
+		src := world.Components.HeatSource.Get(entity)
+		grid := world.Components.GridElement.Get(entity)
+		if d := geometry.ChebyshevDistance(at, grid.Coord); d <= int(src.Radius) {
+			reach := int(src.Radius) + 1
+			warmth += src.Warmth * float64(reach-d) / float64(reach)
+		}
+	}
+	return warmth
+}
+
+// updateTemperatureConditions は体温の正常帯判定から全身の体温状態タイマーを更新する。
+// - 帯の外では超過に応じてタイマーが進み、帯の中では自然回復する。
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
 // - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, ambientTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
+func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
 	hasChange := false
 	partHealth := &hs.Parts[gc.BodyPartWholeBody]
-
-	// 耐寒を適用した有効温度（寒さ判定用）: 耐寒が高いほど暖かく感じる
-	effectiveTempCold := ambientTemp + insulation.Cold
-	// 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
-	effectiveTempHeat := ambientTemp - insulation.Heat
-
-	coldDelta := coldProgressPct.ApplyFloat(calcTimerDelta(effectiveTempCold))
-	heatDelta := heatProgressPct.ApplyFloat(calcTimerDelta(effectiveTempHeat))
+	offset := hs.BodyTempOffset
 
 	var changes []gc.SeverityChange
 
-	// 低体温の処理（寒さ判定）
-	if coldDelta < 0 {
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -coldDelta))
-	} else {
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -0.25))
+	// 低体温の処理
+	switch {
+	case offset < -bodyTempBand:
+		delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempBand))
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, delta))
+	case partHealth.GetCondition(gc.ConditionHypothermia) != nil:
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -naturalRecoveryPerTurn))
 	}
 
-	// 高体温の処理（暑さ判定）
-	if heatDelta > 0 {
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, heatDelta))
-	} else {
-		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -0.25))
+	// 高体温の処理
+	switch {
+	case offset > bodyTempBand:
+		delta := heatProgressPct.ApplyFloat(timerProgress(offset - bodyTempBand))
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, delta))
+	case partHealth.GetCondition(gc.ConditionHyperthermia) != nil:
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -naturalRecoveryPerTurn))
 	}
 
 	for _, change := range changes {
@@ -210,16 +272,22 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, ambientTemp
 	return hasChange
 }
 
-// calcTimerDelta は有効温度からタイマー変化量を計算する
-// 負の値は低体温方向、正の値は高体温方向
-func calcTimerDelta(effectiveTemp int) float64 {
+// timerProgress は正常帯からの超過 excess °C に応じたタイマー進行量を返す。
+// 帯の縁で 0.25、超過1°Cごとに +0.25、上限 1.0
+func timerProgress(excess float64) float64 {
+	return math.Min(naturalRecoveryPerTurn+0.25*excess, 1.0)
+}
+
+// calcBodyTempRate は有効温度から体温の変化量を計算する
+// 負の値は冷える方向、正の値は温まる方向
+func calcBodyTempRate(effectiveTemp int) float64 {
 	switch {
 	case effectiveTemp <= -50:
-		return -1.0 // 極寒。最も厳しい区分で、居座れば急速に凍える
+		return -0.5 // 極寒。最も厳しい区分で、居座れば急速に凍える
 	case effectiveTemp <= 0:
-		return -0.5 // 非常に寒い
+		return -0.2 // 非常に寒い
 	case effectiveTemp <= 10:
-		return -0.25 // 寒い
+		return -0.1 // 寒い
 	case effectiveTemp <= 15:
 		return 0 // やや寒い（現状維持）
 	case effectiveTemp <= 25:
@@ -227,9 +295,9 @@ func calcTimerDelta(effectiveTemp int) float64 {
 	case effectiveTemp <= 30:
 		return 0 // やや暑い（現状維持）
 	case effectiveTemp <= 35:
-		return 0.25 // 暑い
+		return 0.1 // 暑い
 	default:
-		return 0.5 // 非常に暑い
+		return 0.2 // 非常に暑い
 	}
 }
 

@@ -219,6 +219,8 @@ func (bph *BodyPartHealth) UpdateConditionTimer(condType ConditionType, delta fl
 // HealthStatus は部位ごとの健康状態を管理するコンポーネント
 type HealthStatus struct {
 	Parts [BodyPartCount]BodyPartHealth
+	// BodyTempOffset は平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く。
+	BodyTempOffset float64
 }
 
 // GetStatModifier は指定したステータスへの合計修正値を返す

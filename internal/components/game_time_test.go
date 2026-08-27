@@ -241,3 +241,19 @@ func TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む(t *testing.T) {
 		assert.Equal(t, want, after, "start=%d では1つ次の時間帯になるべき", start)
 	}
 }
+
+func TestGameTime_AdvanceToNextSeason_季節を1つ進める(t *testing.T) {
+	t.Parallel()
+
+	gt := &GameTime{}
+	assert.Equal(t, SeasonSpring, gt.GetSeason(), "初期は春")
+
+	gt.AdvanceToNextSeason()
+	assert.Equal(t, SeasonSummer, gt.GetSeason())
+	gt.AdvanceToNextSeason()
+	assert.Equal(t, SeasonAutumn, gt.GetSeason())
+	gt.AdvanceToNextSeason()
+	assert.Equal(t, SeasonWinter, gt.GetSeason())
+	gt.AdvanceToNextSeason()
+	assert.Equal(t, SeasonSpring, gt.GetSeason(), "冬の次は翌年の春へ折り返す")
+}

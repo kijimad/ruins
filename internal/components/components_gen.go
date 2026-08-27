@@ -42,6 +42,7 @@ type EntitySpec struct {
 	Interactable       *Interactable
 	VisualEffects      *VisualEffects
 	TileTemperature    *TileTemperature
+	HeatSource         *HeatSource
 	StageBound         *StageBound
 	StageField         *StageField
 	SeamlessBand       *SeamlessBand
@@ -125,6 +126,7 @@ type Components struct {
 	Interactable       *ecs.Map[Interactable]
 	VisualEffects      *ecs.Map[VisualEffects]
 	TileTemperature    *ecs.Map[TileTemperature]
+	HeatSource         *ecs.Map[HeatSource]
 	StageBound         *ecs.Map[StageBound]
 	StageField         *ecs.Map[StageField]
 	SeamlessBand       *ecs.Map[SeamlessBand]
@@ -208,6 +210,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.Interactable = ecs.NewMap[Interactable](world)
 	c.VisualEffects = ecs.NewMap[VisualEffects](world)
 	c.TileTemperature = ecs.NewMap[TileTemperature](world)
+	c.HeatSource = ecs.NewMap[HeatSource](world)
 	c.StageBound = ecs.NewMap[StageBound](world)
 	c.StageField = ecs.NewMap[StageField](world)
 	c.SeamlessBand = ecs.NewMap[SeamlessBand](world)
@@ -293,6 +296,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.Interactable, entity, spec.Interactable)
 	addComp(c.VisualEffects, entity, spec.VisualEffects)
 	addComp(c.TileTemperature, entity, spec.TileTemperature)
+	addComp(c.HeatSource, entity, spec.HeatSource)
 	addComp(c.StageBound, entity, spec.StageBound)
 	addComp(c.StageField, entity, spec.StageField)
 	addComp(c.SeamlessBand, entity, spec.SeamlessBand)

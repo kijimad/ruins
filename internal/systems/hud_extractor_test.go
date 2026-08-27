@@ -11,6 +11,8 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -700,4 +702,131 @@ func TestExtractHUDData_全カテゴリのデータを集約する(t *testing.T)
 	assert.Equal(t, consts.Currency(500), data.CurrencyData.Currency)
 	require.Len(t, data.WeaponSlotsData.Slots, 5)
 	assert.Equal(t, 800, data.MinimapData.ScreenDimensions.Width)
+}
+
+// newColdPlayer は基本気温0度のダンジョンに体が冷えた低体温状態のプレイヤーを作る。
+// 矢印の向きは環境から導出されるので、この時点では冷える向きになる
+func newColdPlayer(t *testing.T) (w.World, ecs.Entity) {
+	t.Helper()
+	world := testutil.InitTestWorld(t)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Dead forest", 1)
+	e, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	hs := world.Components.HealthStatus.Get(e)
+	hs.BodyTempOffset = -3.0
+	hs.Parts[gc.BodyPartWholeBody].UpdateConditionTimer(gc.ConditionHypothermia, 40)
+	return world, e
+}
+
+func TestExtractGameInfo_体温ゲージの割合を返す(t *testing.T) {
+	t.Parallel()
+	world, _ := newColdPlayer(t)
+
+	info := extractGameInfo(world)
+
+	require.True(t, info.BodyTempVisible)
+	assert.InDelta(t, 0.2, info.BodyTempRatio, 1e-9, "オフセット-3はクランプ幅-5..+5の 0.2 に写る")
+}
+
+func TestExtractGameInfo_異常な体温オフセットでも割合を0から1に収める(t *testing.T) {
+	t.Parallel()
+	world, e := newColdPlayer(t)
+
+	// セーブの編集などでクランプ幅の外の値が入っても、ゲージ描画が枠外へ出ない
+	world.Components.HealthStatus.Get(e).BodyTempOffset = -100
+	assert.InDelta(t, 0.0, extractGameInfo(world).BodyTempRatio, 1e-9)
+
+	world.Components.HealthStatus.Get(e).BodyTempOffset = 100
+	assert.InDelta(t, 1.0, extractGameInfo(world).BodyTempRatio, 1e-9)
+}
+
+func TestTemperatureArrow_冷えると青の下向き(t *testing.T) {
+	t.Parallel()
+	world, e := newColdPlayer(t)
+
+	arrow := temperatureArrow(world, e)
+	require.True(t, arrow.Visible, "体温状態があれば矢印を出す")
+	assert.Equal(t, hud.TempDirectionDown, arrow.Direction, "冷えるので下向き")
+	assert.Greater(t, arrow.Color.B, arrow.Color.R, "冷える向きは青が強い")
+}
+
+func TestTemperatureArrow_熱源のそばでは赤の上向き(t *testing.T) {
+	t.Parallel()
+	world, e := newColdPlayer(t)
+
+	// 環境の冷えを上回る暖かさになるよう焚き火を2つ隣接させる
+	_, err := lifecycle.SpawnProp(world, "bonfire", 6, 5)
+	require.NoError(t, err)
+	_, err = lifecycle.SpawnProp(world, "bonfire", 4, 5)
+	require.NoError(t, err)
+
+	arrow := temperatureArrow(world, e)
+	require.True(t, arrow.Visible)
+	assert.Equal(t, hud.TempDirectionUp, arrow.Direction, "温まるので上向き")
+	assert.Greater(t, arrow.Color.R, arrow.Color.B, "温まる向きは赤が強い")
+}
+
+func TestTemperatureArrow_快適時は黄色の右向きを常時出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	e := world.ECS.NewEntity()
+	world.Components.Player.Add(e, &gc.Player{})
+	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
+
+	arrow := temperatureArrow(world, e)
+	require.True(t, arrow.Visible, "矢印は常時出す")
+	assert.Equal(t, hud.TempDirectionSteady, arrow.Direction, "変化が無ければ一定")
+	assert.Equal(t, color.RGBA{255, 200, 0, 255}, arrow.Color, "一定は黄色")
+}
+
+func TestTemperatureArrow_状態が無くても寒い環境なら早期警告を出す(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Dead forest", 1)
+	e, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	arrow := temperatureArrow(world, e)
+	require.True(t, arrow.Visible, "環境が冷やす向きなら状態の確定前から矢印を出す")
+	assert.Equal(t, hud.TempDirectionDown, arrow.Direction, "冷える向き")
+}
+
+func TestTemperatureArrow_境界の変化量でも横矢印は黄色(t *testing.T) {
+	t.Parallel()
+	// 恒常性の最終ステップなどで一定判定の境界値ちょうどになっても、横矢印が青や赤にならない
+	yellow := color.RGBA{255, 200, 0, 255}
+	assert.Equal(t, yellow, temperatureDirectionColor(hud.TempDirectionSteady, 0))
+	assert.Equal(t, yellow, temperatureDirectionColor(hud.TempDirectionSteady, -temperatureSteadyThreshold))
+	assert.Equal(t, yellow, temperatureDirectionColor(hud.TempDirectionSteady, temperatureSteadyThreshold))
+}
+
+func TestTemperatureDirectionColor_変化が速いほど濃くなる(t *testing.T) {
+	t.Parallel()
+	slow := temperatureDirectionColor(hud.TempDirectionUp, 0.25)
+	fast := temperatureDirectionColor(hud.TempDirectionUp, 1.0)
+	assert.Greater(t, slow.G, fast.G, "温まる向きは速いほど濃い赤になる")
+
+	slowCool := temperatureDirectionColor(hud.TempDirectionDown, -0.25)
+	fastCool := temperatureDirectionColor(hud.TempDirectionDown, -1.0)
+	assert.Greater(t, slowCool.R, fastCool.R, "冷える向きは速いほど濃い青になる")
+}
+
+func TestTemperatureStateBadge_低体温は寒色バッジ(t *testing.T) {
+	t.Parallel()
+	world, e := newColdPlayer(t)
+
+	badge, ok := temperatureStateBadge(world, e)
+	require.True(t, ok, "体温状態があればバッジを出す")
+	assert.Greater(t, badge.Color.B, badge.Color.R, "低体温は寒色")
+}
+
+func TestTemperatureStateBadge_快適時は出さない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	e := world.ECS.NewEntity()
+	world.Components.Player.Add(e, &gc.Player{})
+	world.Components.HealthStatus.Add(e, &gc.HealthStatus{})
+
+	_, ok := temperatureStateBadge(world, e)
+	assert.False(t, ok, "体温状態が無ければバッジを出さない")
 }

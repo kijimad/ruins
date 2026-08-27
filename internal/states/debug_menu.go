@@ -104,6 +104,10 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			query.GetVisionState(world).RequestUpdate()
 			return nil
 		})},
+		Choice{Label: "Advance season", Run: popAfter(func(world w.World) error {
+			query.GetGameTime(world).AdvanceToNextSeason()
+			return nil
+		})},
 		Choice{Label: "Opening", Run: pushChoice(NewOpeningState)},
 		Choice{Label: "Name input", Run: pushChoice(NewCharacterNamingState)},
 		Choice{Label: "Job selection", Run: pushChoice(NewCharacterJobState("Ash"))},

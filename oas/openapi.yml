@@ -2313,6 +2313,27 @@ components:
         - ABSOLUTE
         - NUMERAL
       description: 回復量の計算方式
+    HeatRadius:
+      type: integer
+      minimum: 1
+      maximum: 100
+      description: 熱の到達半径。チェビシェフ距離、タイル単位
+    HeatSource:
+      type: object
+      required:
+        - radius
+        - warmth
+      properties:
+        radius:
+          $ref: '#/components/schemas/HeatRadius'
+        warmth:
+          $ref: '#/components/schemas/HeatWarmth'
+      description: 熱源設定。近接するキャラの低体温を毎ターン回復する
+    HeatWarmth:
+      type: number
+      format: double
+      minimum: 0
+      description: 熱源が毎ターン下げる低体温タイマーの量
     HitPoints:
       type: integer
       minimum: 1
@@ -2843,6 +2864,8 @@ components:
           $ref: '#/components/schemas/HitPoints'
         lightSource:
           $ref: '#/components/schemas/LightSource'
+        heatSource:
+          $ref: '#/components/schemas/HeatSource'
         door:
           $ref: '#/components/schemas/DoorRaw'
         warpNextTrigger:
@@ -3225,6 +3248,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.LightSourceComponent'
           description: 光源設定
+        HeatSource:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.HeatSourceComponent'
+          description: 熱源設定
         Wearable:
           allOf:
             - $ref: '#/components/schemas/SaveData.WearableComponent'
@@ -3511,13 +3538,33 @@ components:
       type: object
       required:
         - Parts
+        - BodyTempOffset
       properties:
         Parts:
           type: array
           items:
             $ref: '#/components/schemas/SaveData.BodyPartHealth'
           description: 部位ごとの健康情報の配列
+        BodyTempOffset:
+          type: number
+          format: double
+          description: 平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く
       description: 部位ごとの健康状態
+    SaveData.HeatSourceComponent:
+      type: object
+      required:
+        - Radius
+        - Warmth
+      properties:
+        Radius:
+          allOf:
+            - $ref: '#/components/schemas/HeatRadius'
+          description: 熱の到達半径。チェビシェフ距離、タイル単位
+        Warmth:
+          allOf:
+            - $ref: '#/components/schemas/HeatWarmth'
+          description: 毎ターン下げる低体温タイマーの量
+      description: 熱源設定
     SaveData.InflictsDamageComponent:
       type: object
       required:

@@ -146,6 +146,15 @@ scalar LightEnabled extends boolean;
 @maxValue(100)
 scalar LightRadius extends integer;
 
+/** 熱の到達半径。チェビシェフ距離、タイル単位 */
+@minValue(1)
+@maxValue(100)
+scalar HeatRadius extends integer;
+
+/** 熱源が毎ターン下げる低体温タイマーの量 */
+@minValue(0)
+scalar HeatWarmth extends float64;
+
 /** マガジン容量 */
 @minValue(1)
 @maxValue(100)
