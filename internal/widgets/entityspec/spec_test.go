@@ -330,6 +330,7 @@ func TestUpdateSpec_落札済みのオークション情報を表示する(t *te
 	assert.Contains(t, labels, "#9", "出品番号が表示される")
 	assert.Contains(t, labels, query.T(world, "Won"), "落札済みステータスが表示される")
 	assert.Contains(t, labels, consts.Currency(5000).String(), "落札額が表示される")
+	assert.Contains(t, labels, query.T(world, "Ship by turn"), "出荷期限ラベルが表示される")
 	assert.Contains(t, labels, "42", "出荷期限のターンが表示される")
 }
 
