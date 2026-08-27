@@ -728,6 +728,18 @@ func TestExtractGameInfo_体温ゲージの割合を返す(t *testing.T) {
 	assert.InDelta(t, 0.2, info.BodyTempRatio, 1e-9, "オフセット-3はクランプ幅-5..+5の 0.2 に写る")
 }
 
+func TestExtractGameInfo_異常な体温オフセットでも割合を0から1に収める(t *testing.T) {
+	t.Parallel()
+	world, e := newColdPlayer(t)
+
+	// セーブの編集などでクランプ幅の外の値が入っても、ゲージ描画が枠外へ出ない
+	world.Components.HealthStatus.Get(e).BodyTempOffset = -100
+	assert.InDelta(t, 0.0, extractGameInfo(world).BodyTempRatio, 1e-9)
+
+	world.Components.HealthStatus.Get(e).BodyTempOffset = 100
+	assert.InDelta(t, 1.0, extractGameInfo(world).BodyTempRatio, 1e-9)
+}
+
 func TestTemperatureArrow_冷えると青の下向き(t *testing.T) {
 	t.Parallel()
 	world, e := newColdPlayer(t)

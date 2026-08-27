@@ -58,8 +58,9 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		playerMaxWeight = cw.Max
 		tempArrow = temperatureArrow(world, entity)
 		if world.Components.HealthStatus.Has(entity) {
+			// セーブ由来のオフセットはクランプ幅の外でありうるので、割合を 0..1 に収める
 			offset := world.Components.HealthStatus.Get(entity).BodyTempOffset
-			bodyTempRatio = (offset - bodyTempMin) / (bodyTempMax - bodyTempMin)
+			bodyTempRatio = math.Max(0, math.Min(1, (offset-bodyTempMin)/(bodyTempMax-bodyTempMin)))
 			bodyTempVisible = true
 		}
 	}
