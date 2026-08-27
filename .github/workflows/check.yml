@@ -99,6 +99,20 @@ jobs:
         # race検出付きで実行し、データ競合を検出する。
         run: make test RACE=-race
 
+  grill-branch:
+    # ブランチで変更したテストを反復実行し、フレーキーテストをマージ前に炙り出す。
+    # 変更されたテストが無ければ何もせず成功する
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # origin/main との diff に履歴が要る
+      - uses: ./.github/actions/setup-go-with-x
+      - name: grill changed tests
+        run: make grill-branch
+
   bench-compare:
     # mainとPRでベンチを比較し、結果を sticky コメント表示、sec/opが2倍以上悪化したら失敗させる。
     if: github.event_name == 'pull_request'
