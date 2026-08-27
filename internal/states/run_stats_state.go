@@ -123,17 +123,17 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 		tabIndex = 0
 	}
 	content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
-	return buildTabScreenUI(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world), pager)
+	return menuframe.TabScreen(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world), pager)
 }
 
 // buildStatsTableUI は buildStatsTable の internal/ui 版。ラベル左・値右の2列表とフッタ右端のページ表示を返す。
 func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	cols := styled.Cols(styled.Name(180), styled.Num(90))
-	rows := make([]menuRow, len(items))
+	rows := make([]menuframe.Row, len(items))
 	for i, it := range items {
-		rows[i] = menuRow{Cells: styled.TextCells(it.Label, it.Value)}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(it.Label, it.Value)}
 	}
-	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{
 		EmptyText:    query.T(world, "No entries"),
 		ItemsPerPage: menuframe.ListCapacity(world, true, true),
 	}, res)

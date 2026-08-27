@@ -12,8 +12,8 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/render3d"
+	"github.com/kijimaD/ruins/internal/widgets/framedbg"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -168,7 +168,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
 	// パネル背景をメニュー枠と同じ共通 chrome に揃える
-	styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())
+	framedbg.Draw(screen, panelX, panelY, panelWidth, panelHeight, framedbg.PanelStyle())
 
 	// テキスト描画ヘルパー
 	textX := float64(panelX + 10)

@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -129,12 +130,12 @@ func (st *MainMenuState) handleSelection(world w.World) (es.Transition[w.World],
 func (st *MainMenuState) ViewUI(world w.World, props MainMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	sd := world.Resources.ScreenDimensions
 
-	rows := make([]menuRow, len(props.Items))
+	rows := make([]menuframe.Row, len(props.Items))
 	for i, item := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(item.Label)}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(item.Label)}
 	}
 	// メインメニューは単一ページで独自レイアウト。ページ表示は使わないので捨てる
-	listRows, _ := renderMenuListUI(cursor.ItemIndex, rows, styled.Cols(styled.Name(theme.MenuRowWidth)), menuListOpts{Spaced: true}, res)
+	listRows, _ := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Name(theme.MenuRowWidth)), menuframe.ListOpts{Spaced: true}, res)
 	menu := ui.VBox(theme.MenuPanelRowH, listRows...)
 	menuH := len(listRows) * theme.MenuPanelRowH
 	menu.Layout(image.Rect(64, sd.Height-72-menuH, 64+theme.MenuRowWidth, sd.Height-72))

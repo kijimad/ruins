@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -407,7 +408,7 @@ func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor m
 		}
 	}
 	content, pager := st.buildItemListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
-	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
 // buildItemListUI は buildItemList の internal/ui 版。行列とフッタ右端のページ表示を返す。
@@ -417,11 +418,11 @@ func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps,
 	}
 	items := props.Tabs[tabIndex].Items
 	cols := itemMenuColumns(260, styled.Num(80))
-	rows := make([]menuRow, len(items))
+	rows := make([]menuframe.Row, len(items))
 	for i, it := range items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
-	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: query.T(world, "No matching items"), ItemsPerPage: perPage}, res)
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No matching items"), ItemsPerPage: perPage}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

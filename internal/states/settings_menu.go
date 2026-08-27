@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -187,10 +188,10 @@ func applyLanguage(world w.World, code string) {
 
 // ViewUI は View の internal/ui 版。設定項目の2列表を中央パネルに自前 UI で組む。
 func (st *SettingsMenuState) ViewUI(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
-	rows := make([]menuRow, len(props.Items))
+	rows := make([]menuframe.Row, len(props.Items))
 	for i, item := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(item.Label, item.Value)}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(item.Label, item.Value)}
 	}
-	content, pager := renderMenuListUI(cursor.ItemIndex, rows, styled.Cols(styled.Name(240), styled.Num(100)), menuListOpts{Spaced: true}, res)
-	return buildPanelScreenUI(world, res, query.T(world, "Settings"), content, keybind.HelpHint(world), pager)
+	content, pager := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Name(240), styled.Num(100)), menuframe.ListOpts{Spaced: true}, res)
+	return menuframe.PanelScreen(world, res, query.T(world, "Settings"), content, keybind.HelpHint(world), pager)
 }

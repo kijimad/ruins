@@ -6,7 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/framedbg"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -52,7 +52,7 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 
 	// ミニマップの背景を描画。メニュー枠と同じ共通 chrome に揃える
 	if minimapWidth > 0 && minimapHeight > 0 {
-		styled.DrawFramedBackground(screen, minimapX, minimapY, minimapWidth, minimapHeight, styled.PanelStyle())
+		framedbg.Draw(screen, minimapX, minimapY, minimapWidth, minimapHeight, framedbg.PanelStyle())
 	}
 
 	// ミニマップの中心をプレイヤー位置に合わせる
@@ -101,7 +101,7 @@ func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
 
 	// ミニマップの背景を描画。メニュー枠と同じ共通 chrome に揃える
 	if minimapWidth > 0 && minimapHeight > 0 {
-		styled.DrawFramedBackground(screen, minimapX, minimapY, minimapWidth, minimapHeight, styled.PanelStyle())
+		framedbg.Draw(screen, minimapX, minimapY, minimapWidth, minimapHeight, framedbg.PanelStyle())
 	}
 
 	// 中央に"No Data"テキストを表示（枠線付き）

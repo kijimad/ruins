@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -242,7 +243,7 @@ func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.
 		labels[i] = tab.Label
 	}
 	content, pager := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
-	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
 // buildItemListUI は buildItemContainer の internal/ui 版。行列とフッタ右端のページ表示を返す。
@@ -252,7 +253,7 @@ func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabI
 	}
 	currentTab := tabs[tabIndex]
 	cols := itemMenuColumns(0, styled.Num(80), styled.Num(90))
-	rows := make([]menuRow, len(currentTab.Items))
+	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
 		total := query.GetEntityWeight(world, it.Entity) * consts.Milligram(it.Count)
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Price.String(), total.KgString())
@@ -261,5 +262,5 @@ func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabI
 	if currentTab.ID == shopSellTabID {
 		emptyText = query.T(world, "No items to sell")
 	}
-	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: emptyText, ItemsPerPage: perPage}, res)
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: emptyText, ItemsPerPage: perPage}, res)
 }

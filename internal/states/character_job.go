@@ -17,6 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -160,18 +161,18 @@ func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor me
 	title.Layout(image.Rect(0, 24, sd.Width, 60))
 	children = append(children, title)
 
-	rows := make([]menuRow, len(props.Items))
+	rows := make([]menuframe.Row, len(props.Items))
 	for i := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(query.T(world, props.Items[i].Profession.Name))}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(query.T(world, props.Items[i].Profession.Name))}
 	}
 	// 職業選択は単一ページで独自レイアウト。ページ表示は使わないので捨てる
-	listRows, _ := renderMenuListUI(itemIndex, rows, styled.Cols(styled.Name(160)), menuListOpts{Spaced: true}, res)
+	listRows, _ := menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(160)), menuframe.ListOpts{Spaced: true}, res)
 	list := ui.VBox(theme.MenuPanelRowH, listRows...)
 	list.Layout(image.Rect(40, 80, 40+180, sd.Height-72))
 	children = append(children, list)
 
 	detailRows := buildJobDetailRowsUI(world, props, itemIndex, face)
-	detail := panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, detailRows...), res).SetPadding(theme.MenuPad)
+	detail := menuframe.PanelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, detailRows...), res).SetPadding(theme.MenuPad)
 	detail.Layout(image.Rect(240, 80, sd.Width-40, sd.Height-72))
 	children = append(children, detail)
 

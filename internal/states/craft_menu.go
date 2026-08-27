@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -236,7 +237,7 @@ func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloo
 		labels[i] = tab.Label
 	}
 	content, pager := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
-	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
 // buildItemListUI は buildItemContainer の internal/ui 版。行列とフッタ右端のページ表示を返す。
@@ -246,15 +247,15 @@ func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, ta
 	}
 	currentTab := tabs[tabIndex]
 	cols := styled.Cols(styled.Name(20), styled.Name(320))
-	rows := make([]menuRow, len(currentTab.Items))
+	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
 		mark := consts.IconClose
 		if it.CanCraft {
 			mark = consts.IconCheck
 		}
-		rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(mark, it.RecipeName)}
 	}
-	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: query.T(world, "No recipes"), ItemsPerPage: perPage}, res)
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No recipes"), ItemsPerPage: perPage}, res)
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点

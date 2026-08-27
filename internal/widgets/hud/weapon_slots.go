@@ -6,7 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/framedbg"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -79,7 +79,7 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
 // drawSlotBackground はスロット背景をNineSlice描画する
 func (ws *WeaponSlots) drawSlotBackground(screen *ebiten.Image, x, y, size int, selected bool) {
 	// スロット背景をメニュー枠と同じ共通 chrome に揃える
-	styled.DrawFramedBackground(screen, x, y, size, size, styled.PanelStyle())
+	framedbg.Draw(screen, x, y, size, size, framedbg.PanelStyle())
 
 	// 選択中のスロットには明るい枠線を重ねて描画する
 	if selected {

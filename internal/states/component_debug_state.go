@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
@@ -119,10 +120,10 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConf
 // ViewUI は View の internal/ui 版。コンポーネント数の2列表をタブ帯なしのモーダルに組む。
 func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	cols := styled.Cols(styled.Name(260), styled.Num(80))
-	rows := make([]menuRow, len(props.Items))
+	rows := make([]menuframe.Row, len(props.Items))
 	for i, it := range props.Items {
-		rows[i] = menuRow{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}
 	}
-	content, pager := renderMenuListUI(cursor.ItemIndex, rows, cols, menuListOpts{ItemsPerPage: cursor.PageSize}, res)
-	return buildTabScreenUI(world, res, fmt.Sprintf("Components total: %d", props.Total), nil, 0, content, keybind.HelpHint(world), pager)
+	content, pager := menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{ItemsPerPage: cursor.PageSize}, res)
+	return menuframe.TabScreen(world, res, fmt.Sprintf("Components total: %d", props.Total), nil, 0, content, keybind.HelpHint(world), pager)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -123,12 +124,12 @@ func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) 
 
 // buildEquipSelectUI は装備候補のモーダルを internal/ui で組む。アイコン付き候補一覧を中央パネルに置く。
 func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) ui.Widget {
-	rows := make([]menuRow, len(props.Items))
+	rows := make([]menuframe.Row, len(props.Items))
 	for i, entity := range props.Items {
 		icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(entity))
-		rows[i] = menuRow{Cells: []styled.Cell{styled.IconCell(icon), styled.TextCell(query.GetEntityName(entity, world))}}
+		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.IconCell(icon), styled.TextCell(query.GetEntityName(entity, world))}}
 	}
-	list, pager := renderMenuListUI(selectedIndex, rows, styled.Cols(styled.Icon(), styled.Name(240)),
-		menuListOpts{EmptyText: query.T(world, "Nothing to equip")}, res)
-	return buildPanelScreenUI(world, res, query.T(world, "Choose equipment"), list, "", pager)
+	list, pager := menuframe.RenderList(selectedIndex, rows, styled.Cols(styled.Icon(), styled.Name(240)),
+		menuframe.ListOpts{EmptyText: query.T(world, "Nothing to equip")}, res)
+	return menuframe.PanelScreen(world, res, query.T(world, "Choose equipment"), list, "", pager)
 }

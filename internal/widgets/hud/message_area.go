@@ -2,8 +2,8 @@ package hud
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/widgets/framedbg"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -100,7 +100,7 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	logAreaY := screenHeight - fixedHeight - boxMargin
 
 	// 背景を描画
-	styled.DrawFramedBackground(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, styled.PanelStyle())
+	framedbg.Draw(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, framedbg.PanelStyle())
 
 	// オフスクリーンサイズ
 	offscreenWidth := logAreaWidth - area.config.LogAreaMargin*2

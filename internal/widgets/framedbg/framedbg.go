@@ -1,4 +1,4 @@
-package styled
+package framedbg
 
 import (
 	"image/color"
@@ -8,8 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
-// BackgroundStyle は背景描画のスタイル設定を表す
-type BackgroundStyle struct {
+// Style は枠付き背景の描画スタイル。即時描画で HUD やゲームプレイ上のパネルに使う
+type Style struct {
 	BorderColor     color.RGBA // 枠線の色
 	BackgroundColor color.RGBA // 背景の色
 	BorderWidth     float32    // 枠線の太さ
@@ -17,9 +17,9 @@ type BackgroundStyle struct {
 	ShadowColor     color.RGBA // 下辺シャドウ線の色。ゼロ値なら描画しない
 }
 
-// DrawFramedBackground は枠線付きの背景を描画する。
+// Draw は枠線付きの背景を即時描画する。ui.Canvas の保持描画とは別系統で、HUD など毎フレーム直接描く用途に使う。
 // HighlightColor/ShadowColorが設定されている場合、上辺/下辺に1pxの線を追加して立体感を出す
-func DrawFramedBackground(screen *ebiten.Image, x, y, width, height int, style BackgroundStyle) {
+func Draw(screen *ebiten.Image, x, y, width, height int, style Style) {
 	// 枠線を描画
 	if style.BorderWidth > 0 {
 		vector.StrokeRect(screen,
@@ -67,8 +67,8 @@ func DrawFramedBackground(screen *ebiten.Image, x, y, width, height int, style B
 }
 
 // PanelStyle はゲーム内パネルの標準スタイルを返す
-func PanelStyle() BackgroundStyle {
-	return BackgroundStyle{
+func PanelStyle() Style {
+	return Style{
 		BackgroundColor: theme.PanelBackground,
 		BorderColor:     theme.PanelHighlight,
 		BorderWidth:     1,

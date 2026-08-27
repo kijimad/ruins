@@ -22,13 +22,13 @@ func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor men
 	} else if infoIdx := cursor.TabIndex - charFirstInfoTab; infoIdx >= 0 && infoIdx < len(props.InfoTabs) {
 		content, pager = buildInfoTableUI(world, props.InfoTabs[infoIdx], cursor.ItemIndex, res)
 	}
-	return buildTabScreenUI(world, res, props.TargetName, characterTabLabels(world), cursor.TabIndex, content, keybind.HelpHint(world), pager)
+	return menuframe.TabScreen(world, res, props.TargetName, characterTabLabels(world), cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
 // buildEquipListUI は buildEquipList の internal/ui 版。装備4列とフッタ右端のページ表示を返す。
 func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	cols := styled.Cols(styled.Name(130), styled.Icon(), styled.Name(140), styled.Num(70))
-	rows := make([]menuRow, len(slots))
+	rows := make([]menuframe.Row, len(slots))
 	for i, slot := range slots {
 		var icon *ebiten.Image
 		weight := ""
@@ -36,7 +36,7 @@ func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res r
 			icon, _ = resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(*slot.Entity))
 			weight = query.GetEntityWeight(world, *slot.Entity).KgString()
 		}
-		rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName), styled.TextCell(weight)}}
+		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName), styled.TextCell(weight)}}
 	}
-	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No equipment slots"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }

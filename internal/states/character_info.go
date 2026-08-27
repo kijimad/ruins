@@ -260,7 +260,7 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 	if hasModifier {
 		cols = styled.Cols(styled.Name(100), styled.Num(60), styled.Num(60))
 	}
-	rows := make([]menuRow, len(tab.Items))
+	rows := make([]menuframe.Row, len(tab.Items))
 	for i, it := range tab.Items {
 		cells := make([]string, len(cols))
 		cells[0] = it.Label
@@ -270,7 +270,7 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 				cells[2] = it.Modifier
 			}
 		}
-		rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader}
 	}
-	return renderMenuListUI(itemIndex, rows, cols, menuListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }

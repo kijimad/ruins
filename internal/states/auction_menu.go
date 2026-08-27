@@ -17,6 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -318,7 +319,7 @@ func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor men
 		labels[i] = tab.Label
 	}
 	content, pager := st.buildActiveUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
-	return buildTabScreenUI(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
 // buildActiveUI は buildActiveContainer の internal/ui 版。タブ種別で中身を振り分け、行列と
@@ -330,22 +331,22 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 	tab := props.Tabs[tabIndex]
 	switch tab.ID {
 	case auctionTabShip, auctionTabPending:
-		rows := make([]menuRow, len(tab.Items))
+		rows := make([]menuframe.Row, len(tab.Items))
 		for i, it := range tab.Items {
 			value := ""
 			if it.HasValue {
 				value = it.Value.String()
 			}
-			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value)}}
+			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(it.Name), styled.TextCell(it.Status), styled.TextCell(value)}}
 		}
 		empty := query.T(world, "No items to ship.")
 		if tab.ID == auctionTabPending {
 			empty = query.T(world, "Nothing awaiting pickup.")
 		}
-		return renderMenuListUI(itemIndex, rows, styled.Cols(styled.Name(200), styled.Name(90), styled.Num(110)),
-			menuListOpts{EmptyText: empty, ItemsPerPage: perPage}, res)
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(200), styled.Name(90), styled.Num(110)),
+			menuframe.ListOpts{EmptyText: empty, ItemsPerPage: perPage}, res)
 	case auctionTabFinance:
-		rows := make([]menuRow, len(tab.Entries))
+		rows := make([]menuframe.Row, len(tab.Entries))
 		for i, e := range tab.Entries {
 			kind := query.T(world, "Receipt")
 			name := e.Name
@@ -355,28 +356,28 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 				name = query.T(world, e.Name)
 				amount = (-e.Amount).String()
 			}
-			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount)}}
+			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount)}}
 		}
-		return renderMenuListUI(itemIndex, rows, styled.Cols(styled.Name(200), styled.Name(80), styled.Num(120)),
-			menuListOpts{EmptyText: query.T(world, "No bills or receipts."), ItemsPerPage: perPage}, res)
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(200), styled.Name(80), styled.Num(120)),
+			menuframe.ListOpts{EmptyText: query.T(world, "No bills or receipts."), ItemsPerPage: perPage}, res)
 	case auctionTabHistory:
-		rows := make([]menuRow, len(tab.Ledger))
+		rows := make([]menuframe.Row, len(tab.Ledger))
 		for i, r := range tab.Ledger {
-			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(r.Bid.String())}}
+			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(r.Bid.String())}}
 		}
-		return renderMenuListUI(itemIndex, rows, styled.Cols(styled.Name(50), styled.Name(200), styled.Num(120)),
-			menuListOpts{EmptyText: query.T(world, "No shipments yet."), ItemsPerPage: perPage}, res)
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(50), styled.Name(200), styled.Num(120)),
+			menuframe.ListOpts{EmptyText: query.T(world, "No shipments yet."), ItemsPerPage: perPage}, res)
 	default:
-		rows := make([]menuRow, len(tab.Ledger))
+		rows := make([]menuframe.Row, len(tab.Ledger))
 		for i, r := range tab.Ledger {
 			status := query.T(world, "Won")
 			if r.Ongoing {
 				status = query.T(world, "Bidding")
 			}
-			rows[i] = menuRow{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(status), styled.TextCell(r.Bid.String())}}
+			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(status), styled.TextCell(r.Bid.String())}}
 		}
-		return renderMenuListUI(itemIndex, rows, styled.Cols(styled.Name(50), styled.Name(170), styled.Name(70), styled.Num(110)),
-			menuListOpts{EmptyText: query.T(world, "No deals in progress."), ItemsPerPage: perPage}, res)
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(50), styled.Name(170), styled.Name(70), styled.Num(110)),
+			menuframe.ListOpts{EmptyText: query.T(world, "No deals in progress."), ItemsPerPage: perPage}, res)
 	}
 }
 

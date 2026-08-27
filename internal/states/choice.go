@@ -99,14 +99,14 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 // ViewUI は選択肢の一覧を中央パネルに internal/ui のツリーで組んで返す。
 // Screen はこれを EbitenCanvas で本体として描く。
 func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
-	rows := make([]menuRow, len(props.Choices))
+	rows := make([]menuframe.Row, len(props.Choices))
 	for i, c := range props.Choices {
-		rows[i] = menuRow{Cells: styled.TextCells(c.Label), Header: c.Header}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(c.Label), Header: c.Header}
 	}
 	perPage := menuframe.ListCapacity(world, false, true)
 	// ページ表示はフッタ行の右端に出す。1ページのメニューは内容を上端から並べる。
-	list, pager := renderMenuListUI(cursor.ItemIndex, rows, styled.Cols(styled.Name(theme.MenuRowWidth)), menuListOpts{Spaced: true, ItemsPerPage: perPage}, res)
-	return buildPanelScreenUI(world, res, props.Title, list, keybind.HelpHint(world), pager)
+	list, pager := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Name(theme.MenuRowWidth)), menuframe.ListOpts{Spaced: true, ItemsPerPage: perPage}, res)
+	return menuframe.PanelScreen(world, res, props.Title, list, keybind.HelpHint(world), pager)
 }
 
 // pushChoice は指定ファクトリの state を push する Choice.Run を返す。選択メニューの共通部品

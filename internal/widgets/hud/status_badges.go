@@ -7,7 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/framedbg"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
@@ -79,7 +79,7 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		// 背景矩形を描画。塗りはバッジの状態色を保ちつつ、枠はメニュー枠と同じ共通 chrome に揃える
 		bgX := theme.Space4
 		bgWidth := int(textWidth) + paddingX*2
-		styled.DrawFramedBackground(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(badge.Color))
+		framedbg.Draw(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(badge.Color))
 
 		// 白文字でテキストを描画
 		textY := badgeY + paddingY
@@ -100,7 +100,7 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		// グレーの背景。他バッジと同じ共通 chrome に揃える
 		bgX := theme.Space4
 		bgWidth := int(textWidth) + paddingX*2
-		styled.DrawFramedBackground(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(theme.HUDBadgeBg))
+		framedbg.Draw(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(theme.HUDBadgeBg))
 
 		textY := badgeY + paddingY
 		drawOutlinedText(screen, moreText, sb.bodyFace, theme.Space4F, textY, theme.TextPrimary)
@@ -109,8 +109,8 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 
 // badgeStyle はバッジの共通 chrome スタイルを返す。塗りはバッジごとの状態色を渡し、
 // 枠はメニュー枠と同じ PanelStyle に揃える
-func badgeStyle(fill color.RGBA) styled.BackgroundStyle {
-	s := styled.PanelStyle()
+func badgeStyle(fill color.RGBA) framedbg.Style {
+	s := framedbg.PanelStyle()
 	s.BackgroundColor = fill
 	return s
 }

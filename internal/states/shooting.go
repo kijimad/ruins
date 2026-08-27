@@ -13,8 +13,8 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/render3d"
+	"github.com/kijimaD/ruins/internal/widgets/framedbg"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -244,7 +244,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
 	// パネル背景をメニュー枠と同じ共通 chrome に揃える
-	styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())
+	framedbg.Draw(screen, panelX, panelY, panelWidth, panelHeight, framedbg.PanelStyle())
 
 	textX := float64(panelX + 10)
 	y := panelY + 10
