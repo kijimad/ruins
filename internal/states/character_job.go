@@ -172,7 +172,7 @@ func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor me
 	children = append(children, list)
 
 	detailRows := buildJobDetailRowsUI(world, props, itemIndex, face)
-	detail := menuframe.PanelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, detailRows...), res).SetPadding(theme.MenuPad)
+	detail := menuframe.PanelBox(res, detailRows...)
 	detail.Layout(image.Rect(240, 80, sd.Width-40, sd.Height-72))
 	children = append(children, detail)
 

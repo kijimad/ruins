@@ -11,9 +11,16 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// PanelBackground はパネル背景のテクスチャを敷く。ebitenui 時代の res.Panel.Image と同じ意匠。
-func PanelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
+// panelBackground はパネル背景のテクスチャを敷く。ebitenui 時代の res.Panel.Image と同じ意匠。
+func panelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
 	return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
+}
+
+// PanelBox はパネルテクスチャを敷いた縦積みの箱を返す。行高・余白・背景は標準の既定に従う。
+// TabScreen・PanelScreen に収まらない独自配置の画面が、意匠だけを部品へ合わせるのに使う。
+// 置き場所は呼び出し側が Layout で決める。
+func PanelBox(res resources.UIResources, content ...ui.Widget) *ui.Container {
+	return panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, content...), res).SetPadding(theme.MenuPad)
 }
 
 // footerRow はフッタ行を組む。左にヘルプ、右端にページ表示を並べる。
@@ -50,7 +57,7 @@ func PanelScreen(world w.World, res resources.UIResources, title string, content
 
 	panelW := theme.MenuRowWidth + theme.MenuPad*2
 	panelH := len(items)*theme.MenuPanelRowH + theme.MenuPad*2
-	panel := PanelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, items...), res).SetPadding(theme.MenuPad)
+	panel := panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, items...), res).SetPadding(theme.MenuPad)
 
 	// 横は画面中央、縦は上端を固定する。項目数が違ってもパネルの開始位置がそろい、メニュー間で
 	// タイトル・ページ表示・先頭項目の位置がずれない。全パネルを同じ規則で置く。
@@ -129,7 +136,7 @@ func TabScreen(world w.World, res resources.UIResources, header string, tabLabel
 		items = append(items, footerRow(footer, pager, res))
 	}
 
-	panel := PanelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuTabRowH, items...), res).SetPadding(theme.MenuPad)
+	panel := panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuTabRowH, items...), res).SetPadding(theme.MenuPad)
 	panel.Layout(rect)
 	return panel
 }
