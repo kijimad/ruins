@@ -131,11 +131,12 @@ func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, se
 	return row
 }
 
-// blankRow は高さを揃えるための空行を組む。
+// blankRow は高さを揃えるための空行を組む。高さは行高が確保するので文字は持たせず、
+// フォント測定と描画を省く。
 func blankRow(colWidths []int, face text.Face) *ui.Container {
 	cells := make([]ui.Widget, len(colWidths))
 	for i := range cells {
-		cells[i] = ui.NewText(" ", face, theme.TextPrimary)
+		cells[i] = ui.NewText("", face, theme.TextPrimary)
 	}
 	return ui.Row(colWidths, cells...)
 }

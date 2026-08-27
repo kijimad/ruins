@@ -65,8 +65,8 @@ func borrowRes() *resources.UIResources {
 }
 
 // countOpaque は screen 内の不透明画素を数える。実描画が起きたかの判定に使う。
-func countOpaque(t *testing.T, screen *ebiten.Image) int {
-	t.Helper()
+// ゴルーチンからも呼ぶので *testing.T は受けない。
+func countOpaque(screen *ebiten.Image) int {
 	b := screen.Bounds()
 	pix := make([]byte, b.Dx()*b.Dy()*4)
 	screen.ReadPixels(pix)
@@ -107,16 +107,7 @@ func drawRealPanel(res resources.UIResources) int {
 	u := ui.New(buildRealPanel(res))
 	u.Layout(image.Rect(0, 0, 220, 100))
 	u.Draw(cv)
-	b := screen.Bounds()
-	pix := make([]byte, b.Dx()*b.Dy()*4)
-	screen.ReadPixels(pix)
-	n := 0
-	for i := 3; i < len(pix); i += 4 {
-		if pix[i] > 0 {
-			n++
-		}
-	}
-	return n
+	return countOpaque(screen)
 }
 
 func TestEbitenCanvas_実フォントで描くと非空になる(t *testing.T) {
@@ -130,7 +121,7 @@ func TestEbitenCanvas_実フォントで描くと非空になる(t *testing.T) {
 	u.Layout(image.Rect(0, 0, 220, 100))
 	u.Draw(cv)
 
-	require.Positive(t, countOpaque(t, screen), "背景とテキストが描かれれば不透明画素が出る")
+	require.Positive(t, countOpaque(screen), "背景とテキストが描かれれば不透明画素が出る")
 }
 
 // TestEbitenCanvas_フェイスをインスタンス所有にすれば並列描画も競合しない は、各ゴルーチンが

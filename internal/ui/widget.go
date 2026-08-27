@@ -94,8 +94,8 @@ func NewGraphic(img *ebiten.Image) *Graphic { return &Graphic{Image: img} }
 // Layout は Graphic を実装する。
 func (g *Graphic) Layout(b image.Rectangle) { g.rect = b }
 
-// Draw は Graphic を実装する。矩形に収まるよう縮小し中央へ寄せて描く。一覧のアイコンを
-// 行の高さへ合わせ、文字と縦位置をそろえる。
+// Draw は Graphic を実装する。矩形に収まるよう縮小し、左寄せ・縦中央で描く。一覧のアイコンを
+// 行の高さへ合わせ、左に揃えて文字と縦位置をそろえる。
 func (g *Graphic) Draw(cv Canvas) {
 	if g.Image != nil {
 		cv.DrawImageRect(g.rect, g.Image)
@@ -228,7 +228,9 @@ func (c *Container) Layout(b image.Rectangle) {
 			}
 		}
 		if stretchIdx == -1 && len(c.children) > 0 {
-			stretchIdx = len(c.children) - 1
+			// sizes と children の長さは Row・VBox の構築で一致する。万一 sizes が短くても
+			// 範囲外の子を伸ばして余り幅が消えないよう、幅を持つ末尾の子に上界を切る
+			stretchIdx = min(len(c.children), len(c.sizes)) - 1
 		}
 		extra = max(inner.Dx()-total, 0)
 	}
@@ -324,6 +326,7 @@ func (u *UI) Layout(screen image.Rectangle) { u.root.Layout(screen) }
 
 // Update は入力を UI 自身の状態へ取り込む。パッケージグローバルには触れないので、
 // 別インスタンスの UI を並行に Update しても競合しない。
+// 先に Layout を呼ぶこと。Layout 前は各ウィジェットの矩形がゼロ値のため、ホバーは常に外れる。
 func (u *UI) Update(in Input) {
 	u.cursor = image.Pt(in.CursorX, in.CursorY)
 	u.hovered = hitTest(u.root, u.cursor)

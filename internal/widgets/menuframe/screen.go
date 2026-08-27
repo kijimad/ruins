@@ -43,7 +43,8 @@ func PanelScreen(world w.World, res resources.UIResources, title string, content
 	items = append(items, content...)
 	if footer != "" || pager != "" {
 		// フッタは内容から一行空けて置く。元のパネルと同じく内容と離す。
-		items = append(items, ui.NewText(" ", face, theme.TextPrimary))
+		// 空行は文字を持たせない。高さは行高が確保する
+		items = append(items, ui.NewText("", face, theme.TextPrimary))
 		items = append(items, footerRow(footer, pager, res))
 	}
 
@@ -115,7 +116,7 @@ func TabScreen(world w.World, res resources.UIResources, header string, tabLabel
 	}
 	// タブ帯と一覧を離す。詰まりすぎないよう一行空ける
 	if header != "" || len(tabLabels) > 0 {
-		items = append(items, ui.NewText(" ", face, theme.TextPrimary))
+		items = append(items, ui.NewText("", face, theme.TextPrimary))
 	}
 	items = append(items, content...)
 
@@ -123,7 +124,7 @@ func TabScreen(world w.World, res resources.UIResources, header string, tabLabel
 	if footer != "" || pager != "" {
 		capacity := (rect.Dy() - theme.MenuPad*2) / theme.MenuTabRowH
 		for len(items) < capacity-1 {
-			items = append(items, ui.NewText(" ", face, theme.TextPrimary))
+			items = append(items, ui.NewText("", face, theme.TextPrimary))
 		}
 		items = append(items, footerRow(footer, pager, res))
 	}
