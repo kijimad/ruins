@@ -13,8 +13,8 @@ import (
 
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 )
 
 // TestMain はebitenの描画コンテキスト内で全テストを実行する。

@@ -9,9 +9,9 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

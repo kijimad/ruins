@@ -19,15 +19,6 @@ import (
 // 意匠は menuframe の部品と theme のトークンが持つ。
 var screenLayerDirs = []string{"internal/states", "internal/menuloop"}
 
-// styleMutators は装飾を直接いじる ui.Container のメソッド名。画面層では呼ばない。
-// メソッド名の構文一致で拾う。この名前のメソッドは ui.Container にしか無い。
-var styleMutators = map[string]bool{
-	"SetStyle":               true,
-	"SetPadding":             true,
-	"SetBackgroundNineSlice": true,
-	"SetBottomLine":          true,
-}
-
 // colorLiteralTypes は theme を迂回する生の色リテラルの型名。色は theme のトークンで持つ。
 var colorLiteralTypes = map[string]bool{
 	"RGBA":   true,
@@ -38,11 +29,11 @@ var colorLiteralTypes = map[string]bool{
 }
 
 // TestScreenLayerStyleLint は画面層がスタイルを手組みしていないことを静的に検証する。
-// 装飾の直接指定はビルドを通っても見た目の一貫性を静かに壊し、レビューでは繰り返し
-// すり抜けてきたため、AST で fail-closed に検知する。
-// 禁止するのは装飾だけで、ui.Row・ui.VBox・ui.NewText・Layout などの構成は画面の自由にする。
-// 検知したら menuframe の部品 TabScreen・PanelScreen・PanelBox・RenderList か、
-// theme のトークンへ寄せて直す。
+// プリミティブ実体は widgets/internal/ui にあり、画面層は import 自体がコンパイル不能なので、
+// 枠・塗り・装飾ミューテータの手組みは API の面で既に不可能になっている。
+// ここでは型システムで塞げない残りだけを検知する。ui.NewText は color.Color を受けるため、
+// theme を迂回した生の色リテラルは構文上書けてしまう。それを AST で fail-closed に検知する。
+// 検知したら theme の色トークンへ寄せて直す。
 func TestScreenLayerStyleLint(t *testing.T) {
 	t.Parallel()
 
@@ -71,33 +62,20 @@ func TestScreenLayerStyleLint(t *testing.T) {
 			// ビルドが通れば必ずパースできる。失敗は検査漏れになるのでハードエラーにする
 			require.NoError(t, perr, "パースできない: %s", path)
 			ast.Inspect(f, func(n ast.Node) bool {
-				switch node := n.(type) {
-				case *ast.CallExpr:
-					sel, ok := node.Fun.(*ast.SelectorExpr)
-					if !ok {
-						return true
-					}
-					if ident, ok := sel.X.(*ast.Ident); ok && ident.Name == "ui" && sel.Sel.Name == "Panel" {
-						report(node, "ui.Panel の直接呼び出し。枠は menuframe.TabScreen/PanelScreen/PanelBox が持つ")
-					}
-					if styleMutators[sel.Sel.Name] {
-						report(node, sel.Sel.Name+" の呼び出し。装飾は menuframe の部品が持つ")
-					}
-				case *ast.CompositeLit:
-					sel, ok := node.Type.(*ast.SelectorExpr)
-					if !ok {
-						return true
-					}
-					ident, ok := sel.X.(*ast.Ident)
-					if !ok {
-						return true
-					}
-					if ident.Name == "ui" && sel.Sel.Name == "BoxStyle" {
-						report(node, "ui.BoxStyle の指定。塗りと枠は menuframe の部品が持つ")
-					}
-					if ident.Name == "color" && colorLiteralTypes[sel.Sel.Name] {
-						report(node, "生の色リテラル。色は theme のトークンで持つ")
-					}
+				lit, ok := n.(*ast.CompositeLit)
+				if !ok {
+					return true
+				}
+				sel, ok := lit.Type.(*ast.SelectorExpr)
+				if !ok {
+					return true
+				}
+				ident, ok := sel.X.(*ast.Ident)
+				if !ok {
+					return true
+				}
+				if ident.Name == "color" && colorLiteralTypes[sel.Sel.Name] {
+					report(lit, "生の色リテラル。色は theme のトークンで持つ")
 				}
 				return true
 			})

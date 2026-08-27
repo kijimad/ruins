@@ -6,7 +6,7 @@ import (
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )

@@ -6,7 +6,7 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -19,7 +19,7 @@ func panelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
 // PanelBox はパネルテクスチャを敷いた縦積みの箱を返す。行高・余白・背景は標準の既定に従う。
 // TabScreen・PanelScreen に収まらない独自配置の画面が、意匠だけを部品へ合わせるのに使う。
 // 置き場所は呼び出し側が Layout で決める。
-func PanelBox(res resources.UIResources, content ...ui.Widget) *ui.Container {
+func PanelBox(res resources.UIResources, content ...ui.Widget) ui.Widget {
 	return panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, content...), res).SetPadding(theme.MenuPad)
 }
 

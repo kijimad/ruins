@@ -11,10 +11,10 @@ import (
 	"github.com/kijimaD/ruins/internal/menuloop"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"

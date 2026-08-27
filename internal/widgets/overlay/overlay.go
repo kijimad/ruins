@@ -3,7 +3,7 @@ package overlay
 import (
 	"image"
 
-	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 

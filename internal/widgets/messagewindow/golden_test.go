@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 

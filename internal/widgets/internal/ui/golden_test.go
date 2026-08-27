@@ -6,8 +6,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 )
 
 // TestGolden_UISpecPanel は internal/ui で組んだスペックパネルの実ピクセルを golden で固定する。

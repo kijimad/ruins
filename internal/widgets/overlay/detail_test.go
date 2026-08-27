@@ -6,9 +6,9 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"

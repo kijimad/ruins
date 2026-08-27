@@ -5,7 +5,7 @@ import (
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
-	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 )
 
 // specPanelCols は spec パネルの列幅。ラベル列と値列。
@@ -45,6 +45,6 @@ func SpecRowWidgets(rows []SpecRow, face text.Face) []ui.Widget {
 // BuildSpecPanel は SpecRow の並びから internal/ui の保持型ツリーを組む。
 // 必要なのは本文フェイスだけなのでそれだけを受け取る。
 // パッケージグローバルの可変状態に触れないので、複数の UI を並行に組んでも競合しない。
-func BuildSpecPanel(rows []SpecRow, face text.Face) *ui.Container {
+func BuildSpecPanel(rows []SpecRow, face text.Face) ui.Widget {
 	return ui.VBox(specPanelRowH, SpecRowWidgets(rows, face)...)
 }

@@ -13,8 +13,9 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -244,13 +245,15 @@ func (st *CharacterNamingState) buildUI(world w.World) ui.Widget {
 		gap    = theme.Space6
 	)
 
-	// 入力枠の中身。空なら placeholder を薄色で、入力中は名前にキャレットを添える
+	// 入力枠の中身。空なら placeholder を薄色で、入力中は名前にキャレットを添える。
+	// 縦位置は VCenter で入力枠の中央へ合わせる
 	var content *ui.Text
 	if props.CurrentName == "" {
 		content = ui.NewText(query.T(world, "Name"), res.Text.BodyFace, theme.TextSecondary)
 	} else {
 		content = ui.NewText(props.CurrentName+"|", res.Text.BodyFace, theme.TextPrimary)
 	}
+	content.VCenter = true
 
 	// エラー行はメッセージがあるときだけ高さを取る
 	rowsH := titleH + gap + inputH + gap + lineH
@@ -268,13 +271,10 @@ func (st *CharacterNamingState) buildUI(world w.World) ui.Widget {
 	children = append(children, title)
 	y += titleH + gap
 
-	inputRect := image.Rect(x, y, x+boxW, y+inputH)
-	inputBG := ui.NewNineSlice(res.InputBG.Image, res.InputBG.BX, res.InputBG.BY)
-	inputBG.Layout(inputRect)
-	children = append(children, inputBG)
-	// 中身は枠の左に余白を取り、縦は中央寄せにする
-	content.Layout(image.Rect(x+10, y+(inputH-lineH)/2, x+boxW-10, y+inputH))
-	children = append(children, content)
+	// 入力欄の枠と余白の意匠は部品が持つ。ここでは置き場所だけ決める
+	input := menuframe.InputBox(res, content)
+	input.Layout(image.Rect(x, y, x+boxW, y+inputH))
+	children = append(children, input)
 	y += inputH + gap
 
 	if props.ErrorMessage != "" {
