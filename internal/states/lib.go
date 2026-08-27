@@ -20,14 +20,14 @@ type itemRowData struct {
 	Desc   string
 }
 
-// itemMenuColumns は アイコン列と名前列の共通の先頭2列に、メニュー固有の trailing 列を足した
+// itemMenuColumns はアイコン列と名前列の共通の先頭2列に、メニュー固有の trailing 列を足した
 // 列定義を返す。アイコン列と名前列を揃え、対象メニュー間でアイコンと名前の見た目を統一する。
 // trailing は数値列など画面ごとの追加列を意味的に渡す
 func itemMenuColumns(nameWidth int, trailing ...styled.Col) []styled.Col {
 	return append([]styled.Col{styled.Icon(), styled.Name(nameWidth)}, trailing...)
 }
 
-// itemMenuRow は アイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、
+// itemMenuRow はアイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、
 // メニュー固有の trailing 文字列セルを後続に付けた menuframe.Row を返す。
 // 個数は呼び出し側が GroupStacks で確定済みの値を渡す。ここで数え直すと一覧の行ごとに
 // 全走査が走るため、束ねた結果を持ち回って表示する

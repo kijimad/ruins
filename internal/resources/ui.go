@@ -60,8 +60,7 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		return UIResources{}, err
 	}
 
-	// 窓・タイトルバー・選択バーは中央サイズから対称に分割する。ebitenui 時代の
-	// loadImageNineSlice と同じ中央サイズにそろえ、見た目を保つ
+	// 窓・タイトルバー・選択バーは中央サイズから対称に分割する
 	windowBG, err := newNineSliceTex("assets/graphics/list-idle-trans.png", 40, 40)
 	if err != nil {
 		return UIResources{}, err
@@ -78,7 +77,7 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 	if err != nil {
 		return UIResources{}, err
 	}
-	// 入力枠は左右非対称の分割。ebitenui 時代の {9,14,6} をそのまま使う
+	// 入力枠は左右非対称の分割。枠の飾りを歪ませないよう左右で幅を変える
 	inputImg, err := newImageFromFile("assets/graphics/text-input-idle.png")
 	if err != nil {
 		return UIResources{}, err

@@ -100,7 +100,7 @@ func headerRow(texts []string, colWidths []int, face text.Face) *ui.Container {
 // dataRow はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。アイコンセルは画像で描く。
 func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, res resources.UIResources) *ui.Container {
 	selBar := res.SelectionBar
-	// 非選択は暗く、選択は明るく。元の NewTableRow と同じ色分けでカーソル位置を際立たせる
+	// 非選択は暗く、選択は明るくして、カーソル位置を際立たせる
 	var textColor color.Color = theme.TextSecondary
 	if selected {
 		textColor = theme.TextSelected
@@ -122,7 +122,7 @@ func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, se
 	if selected && selBar != nil {
 		row.SetBackgroundNineSlice(selBar.Image, selBar.BX, selBar.BY)
 	}
-	// 行の下にグラデーションの区切り線を敷く。元の NewTableRow と同じ意匠。
+	// 行の下にグラデーションの区切り線を敷く。
 	// RowDivider は非乗算済みの値なので NRGBA として色を掛ける
 	if res.GradientLine != nil {
 		row.SetBottomLine(res.GradientLine, color.NRGBA(theme.RowDivider))

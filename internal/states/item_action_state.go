@@ -397,7 +397,7 @@ func (st *ItemActionState) Menu(props ItemActionProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto, InitialTab: verbTabIndex(st.initialVerb)}
 }
 
-// ViewUI は View の internal/ui 版。動詞タブとアイコン付きアイテム一覧を自前 UI で組む。
+// ViewUI は動詞タブとアイコン付きアイテム一覧を組む。
 func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -411,7 +411,7 @@ func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor m
 	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildItemListUI は buildItemList の internal/ui 版。行列とフッタ右端のページ表示を返す。
+// buildItemListUI は行列とフッタ右端のページ表示を返す。
 func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(props.Tabs) {
 		return nil, ""

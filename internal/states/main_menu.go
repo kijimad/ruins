@@ -125,7 +125,7 @@ func (st *MainMenuState) handleSelection(world w.World) (es.Transition[w.World],
 // View
 // ================
 
-// ViewUI は View の internal/ui 版。メニューを左下へ左寄せで置き、バージョンを右下へ置く。
+// ViewUI はメニューを左下へ左寄せで置き、バージョンを右下へ置く。
 // パネル背景は付けず、タイトル背景を透かす。Screen が本体を internal/ui で描く。
 func (st *MainMenuState) ViewUI(world w.World, props MainMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	sd := world.Resources.ScreenDimensions

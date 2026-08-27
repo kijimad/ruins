@@ -190,7 +190,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 // View
 // ================
 
-// ViewUI は View の internal/ui 版。カテゴリタブとアイコン付きアイテム一覧を自前 UI で組む。
+// ViewUI はカテゴリタブとアイコン付きアイテム一覧を組む。
 // 詳細モーダルは ScreenRenderer として Screen が本体の上へ重ねる。
 func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
@@ -201,7 +201,7 @@ func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor men
 	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildActiveListUI は buildActiveListContainer の internal/ui 版。行列とフッタ右端のページ表示を返す。
+// buildActiveListUI は行列とフッタ右端のページ表示を返す。
 func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(props.Tabs) {
 		return nil, ""

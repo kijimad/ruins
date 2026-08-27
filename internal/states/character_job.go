@@ -149,7 +149,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 // View
 // ================
 
-// ViewUI は View の internal/ui 版。見出し・左の職業一覧・右の詳細パネル・下の説明を Group で絶対配置する。
+// ViewUI は見出し・左の職業一覧・右の詳細パネル・下の説明を Group で絶対配置する。
 func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	sd := world.Resources.ScreenDimensions
 	itemIndex := cursor.ItemIndex
@@ -193,7 +193,7 @@ func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor me
 	return root
 }
 
-// buildJobDetailRowsUI は buildDetailPanel の internal/ui 版。装備・所持品・スキルの見出しと行を返す。
+// buildJobDetailRowsUI は装備・所持品・スキルの見出しと行を返す。
 func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face text.Face) []ui.Widget {
 	if itemIndex >= len(props.Items) {
 		return nil

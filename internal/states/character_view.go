@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
-// ViewUI は View の internal/ui 版。人物画面のタブ本体を自前 UI で組む。
+// ViewUI は人物画面のタブ本体を組む。
 // 装備選択の入れ子モーダルは equip overlay が ScreenRenderer として本体の上へ重ねる。
 func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	var content []ui.Widget
@@ -25,7 +25,7 @@ func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor men
 	return menuframe.TabScreen(world, res, props.TargetName, characterTabLabels(world), cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildEquipListUI は buildEquipList の internal/ui 版。装備4列とフッタ右端のページ表示を返す。
+// buildEquipListUI は装備4列とフッタ右端のページ表示を返す。
 func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	cols := styled.Cols(styled.Name(130), styled.Icon(), styled.Name(140), styled.Num(70))
 	rows := make([]menuframe.Row, len(slots))

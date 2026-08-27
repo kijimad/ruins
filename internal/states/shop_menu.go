@@ -236,7 +236,7 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // View
 // ================
 
-// ViewUI は View の internal/ui 版。購入・売却タブとアイコン付き商品一覧を自前 UI で組む。
+// ViewUI は購入・売却タブとアイコン付き商品一覧を組む。
 func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -246,7 +246,7 @@ func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.
 	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildItemListUI は buildItemContainer の internal/ui 版。行列とフッタ右端のページ表示を返す。
+// buildItemListUI は行列とフッタ右端のページ表示を返す。
 func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(tabs) {
 		return nil, ""

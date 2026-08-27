@@ -312,7 +312,7 @@ func (st *AuctionMenuState) selectedItem(tab auctionTabData, index int) (ecs.Ent
 	return tab.Items[index].Entity, true
 }
 
-// ViewUI は View の internal/ui 版。オークションの各タブを自前 UI で組む。
+// ViewUI はオークションの各タブを組む。
 func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -322,7 +322,7 @@ func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor men
 	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildActiveUI は buildActiveContainer の internal/ui 版。タブ種別で中身を振り分け、行列と
+// buildActiveUI はタブ種別で中身を振り分け、行列と
 // フッタ右端のページ表示を返す。
 func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(props.Tabs) {

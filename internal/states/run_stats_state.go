@@ -112,7 +112,7 @@ func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}
 }
 
-// ViewUI は View の internal/ui 版。タブ帯つきのステータス表を自前 UI で組む。
+// ViewUI はタブ帯つきのステータス表を組む。
 func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -126,7 +126,7 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 	return menuframe.TabScreen(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildStatsTableUI は buildStatsTable の internal/ui 版。ラベル左・値右の2列表とフッタ右端のページ表示を返す。
+// buildStatsTableUI はラベル左・値右の2列表とフッタ右端のページ表示を返す。
 func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	cols := styled.Cols(styled.Name(180), styled.Num(90))
 	rows := make([]menuframe.Row, len(items))

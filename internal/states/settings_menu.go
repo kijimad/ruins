@@ -186,7 +186,7 @@ func applyLanguage(world w.World, code string) {
 // View
 // ================
 
-// ViewUI は View の internal/ui 版。設定項目の2列表を中央パネルに自前 UI で組む。
+// ViewUI は設定項目の2列表を中央パネルに組む。
 func (st *SettingsMenuState) ViewUI(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	rows := make([]menuframe.Row, len(props.Items))
 	for i, item := range props.Items {

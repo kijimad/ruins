@@ -11,7 +11,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// panelBackground はパネル背景のテクスチャを敷く。ebitenui 時代の res.Panel.Image と同じ意匠。
+// panelBackground はパネル背景のテクスチャを敷く。
 func panelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
 	return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)
 }
@@ -51,7 +51,7 @@ func PanelScreen(world w.World, res resources.UIResources, title string, content
 		items = append(items, ui.FlexItem{W: c, Height: theme.MenuPanelRowH})
 	}
 	if footer != "" || pager != "" {
-		// フッタは内容から一行空けて置く。元のパネルと同じく内容と離す
+		// フッタは内容から一行空けて置く
 		items = append(items, ui.FlexItem{Height: theme.MenuPanelRowH})
 		items = append(items, ui.FlexItem{W: footerRow(footer, pager, res), Height: theme.MenuPanelRowH})
 	}
@@ -71,7 +71,7 @@ func PanelScreen(world w.World, res resources.UIResources, title string, content
 }
 
 // tabBar はタブ帯を組む。ラベルを等幅で横に並べ、選択中のタブは金色の選択バーを敷き主色で、
-// 他は補助色で描く。ebitenui 時代の NewTabBar と同じ意匠。
+// 他は補助色で描く。
 func tabBar(labels []string, selected int, totalWidth int, face text.Face, selBar *resources.NineSliceTex) *ui.Container {
 	n := len(labels)
 	widths := make([]int, n)

@@ -117,7 +117,7 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConf
 // view
 // ================
 
-// ViewUI は View の internal/ui 版。コンポーネント数の2列表をタブ帯なしのモーダルに組む。
+// ViewUI はコンポーネント数の2列表をタブ帯なしのモーダルに組む。
 func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	cols := styled.Cols(styled.Name(260), styled.Num(80))
 	rows := make([]menuframe.Row, len(props.Items))

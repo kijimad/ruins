@@ -85,7 +85,7 @@ func (e *EbitenCanvas) DrawImageTintedRect(dst image.Rectangle, img *ebiten.Imag
 }
 
 // DrawNineSlice は EbitenCanvas を実装する。ソースを縦横3分割し、四隅は原寸、辺は片方向、
-// 中央は両方向へ伸ばして9セルを dst へ描く。ebitenui の NineSlice と同じ分割規則にそろえる。
+// 中央は両方向へ伸ばして9セルを dst へ描く。
 func (e *EbitenCanvas) DrawNineSlice(dst image.Rectangle, img *ebiten.Image, bx, by [3]int) {
 	if img == nil {
 		return

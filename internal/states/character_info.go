@@ -252,7 +252,7 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 	return rows
 }
 
-// buildInfoTableUI は buildInfoTable の internal/ui 版。情報タブの表とフッタ右端のページ表示を返す。
+// buildInfoTableUI は情報タブの表とフッタ右端のページ表示を返す。
 func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	hasModifier := tab.ID == tabAbilities
 	// 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ

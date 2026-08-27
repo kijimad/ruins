@@ -230,7 +230,7 @@ func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 // View
 // ================
 
-// ViewUI は View の internal/ui 版。カテゴリタブと合成可否印つきレシピ一覧を自前 UI で組む。
+// ViewUI はカテゴリタブと合成可否印つきレシピ一覧を組む。
 func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
@@ -240,7 +240,7 @@ func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloo
 	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildItemListUI は buildItemContainer の internal/ui 版。行列とフッタ右端のページ表示を返す。
+// buildItemListUI は行列とフッタ右端のページ表示を返す。
 func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(tabs) {
 		return nil, ""

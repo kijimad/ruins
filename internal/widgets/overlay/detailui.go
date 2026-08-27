@@ -12,17 +12,15 @@ import (
 )
 
 // detailModalPad はモーダルの内側余白。パネルテクスチャの枠を避けて内容を内側へ寄せる。
-// 元の NewWindowContainer の上下の余白 Space7 に合わせる。
 const detailModalPad = theme.Space7
 
 // buildDetailUI は性能行の並びから詳細モーダルを internal/ui のツリーとして組み、rect いっぱいに配置して返す。
 // name が空なら名前行を省き、desc が空なら説明行を省く。行が多いときは page でページ分割する。
 // 説明は最終ページにだけ出す。位置表示は1ページでも常に出す。page は範囲外なら内部でクランプする。
-// 背景はパネルテクスチャを rect 全体へ敷き、内容は上寄せにする。元の overlay ウィンドウと同じ意匠。
+// 背景はパネルテクスチャを rect 全体へ敷き、内容は上寄せにする。
 func buildDetailUI(res resources.UIResources, rect image.Rectangle, name, desc string, rows []entityspec.SpecRow, page int) ui.Widget {
 	face := res.Text.BodyFace
-	// 説明とページ番号は元の NewDescriptionText と同じ小さめのフェイスで補助色にする。
-	// 名前と性能行は本文フェイス。説明を小フェイスにすると幅に収まり折り返さない。
+	// 説明とページ番号は小さめのフェイスで補助色、名前と性能行は本文フェイスにする。
 	smallFace := res.Text.SmallFace
 	rowH := entityspec.SpecPanelRowH
 
