@@ -6,6 +6,7 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
 // specPanelCols は spec パネルの列幅。ラベル列と値列。
@@ -15,7 +16,7 @@ var specPanelCols = []int{70, 80}
 const specPanelRowH = 18
 
 // specLabelColor はラベルと見出しの色。
-var specLabelColor color.Color = color.White
+var specLabelColor color.Color = theme.SpecLabel
 
 // SpecPanelRowH は spec パネル1行の高さ。モーダル側が name や desc を同じ行高で並べるのに使う。
 const SpecPanelRowH = specPanelRowH

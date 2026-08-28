@@ -150,11 +150,6 @@ func TestResourceIntegration(t *testing.T) {
 		fonts := world.Resources.Fonts
 		assert.NotEmpty(t, fonts, "フォントが空")
 
-		// デフォルトフォントの確認
-		assert.NotNil(t, world.Resources.Faces, "デフォルトフェイスが設定されていない")
-		defaultFaces := world.Resources.Faces
-		assert.Contains(t, defaultFaces, "dougenzaka", "dougenzakaフォントが設定されていない")
-
 		// UIリソースの確認
 		assert.NotNil(t, world.Resources.UIResources, "UIリソースが初期化されていない")
 
@@ -172,15 +167,10 @@ func TestResourceIntegration(t *testing.T) {
 		world, err := InitWorld(cfg)
 		require.NoError(t, err)
 
-		// フォントとフェイスの整合性
+		// フォントの整合性
 		fonts := world.Resources.Fonts
-		defaultFaces := world.Resources.Faces
-
 		if dougenzakaFont, exists := fonts["dougenzaka"]; exists {
 			assert.NotNil(t, dougenzakaFont.Font, "dougenzakaフォントのFontフィールドがnil")
-			if dougenzakaFace, faceExists := defaultFaces["dougenzaka"]; faceExists {
-				assert.NotNil(t, dougenzakaFace, "dougenzakaフェイスがnil")
-			}
 		}
 
 		// スプライトシートの基本チェック
@@ -215,7 +205,6 @@ func validateResourceLoading(t *testing.T, world ew.World) {
 	}{
 		{"SpriteSheets", world.Resources.SpriteSheets},
 		{"Fonts", world.Resources.Fonts},
-		{"DefaultFaces", world.Resources.Faces},
 		{"UIResources", world.Resources.UIResources},
 		{"RawMaster", world.Resources.RawMaster},
 		{"Game", query.GetDungeon(world)},

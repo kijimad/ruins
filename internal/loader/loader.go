@@ -81,16 +81,6 @@ func LoadUIResources(fonts map[string]resources.Font) (resources.UIResources, er
 	return resources.NewUIResources(fontSources)
 }
 
-// BuildFaces はフォントマップからFaceマップを構築する
-func BuildFaces(fonts map[string]resources.Font) map[string]text.Face {
-	return map[string]text.Face{
-		"dougenzaka": &text.GoTextFace{
-			Source: fonts["dougenzaka"].FaceSource,
-			Size:   16,
-		},
-	}
-}
-
 // LoadRaws はRawデータを読み込む
 func LoadRaws() (oapi.Raws, error) {
 	return raw.LoadFromFile(rawsPath)

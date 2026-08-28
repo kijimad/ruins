@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
@@ -116,22 +115,6 @@ func TestLoadUIResources_正常にUIリソースを構築できる(t *testing.T)
 	assert.NotNil(t, ui.GradientLine)
 	assert.NotNil(t, ui.GaugeFill)
 	assert.NotNil(t, ui.Text)
-}
-
-func TestBuildFaces_フォントマップからFaceマップを構築できる(t *testing.T) {
-	t.Parallel()
-
-	fonts, err := LoadFonts()
-	require.NoError(t, err)
-
-	faces := BuildFaces(fonts)
-
-	require.Len(t, faces, 1)
-	require.Contains(t, faces, "dougenzaka")
-	face, ok := faces["dougenzaka"].(*text.GoTextFace)
-	require.True(t, ok, "dougenzakaがtext.GoTextFaceであること")
-	assert.Equal(t, fonts["dougenzaka"].FaceSource, face.Source)
-	assert.Equal(t, float64(16), face.Size)
 }
 
 func TestLoadRaws(t *testing.T) {

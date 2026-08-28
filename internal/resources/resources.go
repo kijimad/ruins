@@ -1,7 +1,6 @@
 package resources
 
 import (
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/i18n"
@@ -18,7 +17,6 @@ type Resources struct {
 	SpriteSheets     map[string]components.SpriteSheet
 	Icons            *IconStore // 一覧のアイコンを表示サイズで持つ置き場
 	Fonts            map[string]Font
-	Faces            map[string]text.Face
 	UIResources      UIResources
 	RawMaster        oapi.Raws
 	I18N             i18n.Catalog   // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
@@ -59,7 +57,6 @@ func InitGameResources() *Resources {
 	return &Resources{
 		SpriteSheets: map[string]components.SpriteSheet{},
 		Fonts:        map[string]Font{},
-		Faces:        map[string]text.Face{},
 		UIResources:  UIResources{},
 		Icons:        NewIconStore(),
 		// 全言語の訳を持つ不変マスタを常に持たせる。どのワールドでも res.I18N が非 nil になる。

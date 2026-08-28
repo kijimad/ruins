@@ -182,15 +182,14 @@ func (info *GameInfo) drawBodyTemperature(screen *ebiten.Image, data GameInfoDat
 
 // bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青、火照るほど赤へ寄る
 func bodyTempFillColor(ratio float64) color.RGBA {
-	neutral := color.RGBA{235, 235, 235, 255}
 	if ratio < 0.5 {
-		return lerpTempColor(neutral, color.RGBA{40, 90, 230, 255}, (0.5-ratio)*2)
+		return lerpColor(theme.HUDTempNeutral, theme.HUDTempCold, (0.5-ratio)*2)
 	}
-	return lerpTempColor(neutral, color.RGBA{230, 50, 40, 255}, (ratio-0.5)*2)
+	return lerpColor(theme.HUDTempNeutral, theme.HUDTempHot, (ratio-0.5)*2)
 }
 
-// lerpTempColor は2色を t (0..1) で線形補間する
-func lerpTempColor(a, b color.RGBA, t float64) color.RGBA {
+// lerpColor は2色を t (0..1) で線形補間する。ゲージの塗りを比率で連続に変えるのに使う
+func lerpColor(a, b color.RGBA, t float64) color.RGBA {
 	lerp := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t) }
 	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
 }
@@ -207,14 +206,12 @@ func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) 
 		hpRatio = max(0, min(1, hpRatio))
 	}
 
-	// HP残量に応じた塗り色を決定
+	// HP残量に応じた塗り色を決定する。半分を境に、緑から黄、黄から赤へ寄る
 	var fillColor color.RGBA
 	if hpRatio > 0.5 {
-		intensity := uint8((1.0 - hpRatio) * 2.0 * 255)
-		fillColor = color.RGBA{intensity, 255, 0, 255}
+		fillColor = lerpColor(theme.HUDHealthFull, theme.HUDHealthHalf, (1.0-hpRatio)*2)
 	} else {
-		intensity := uint8(hpRatio * 2.0 * 255)
-		fillColor = color.RGBA{255, intensity, 0, 255}
+		fillColor = lerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, hpRatio*2)
 	}
 
 	info.drawGaugeBar(screen, x, y, gaugeWidth, hpRatio, fillColor, theme.HUDGaugeBorder)

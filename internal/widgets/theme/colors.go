@@ -96,6 +96,20 @@ var (
 	HUDGaugeBg = color.RGBA{R: 100, G: 0, B: 0, A: 255}
 	// HUDGaugeBorder はHPゲージの白い枠線色
 	HUDGaugeBorder = color.RGBA{R: 220, G: 220, B: 220, A: 230}
+	// HUDTempNeutral は体温ゲージの平熱の色。ここを基準に寒暖へ寄る
+	HUDTempNeutral = color.RGBA{R: 235, G: 235, B: 235, A: 255}
+	// HUDTempCold は体温ゲージの冷えきった色
+	HUDTempCold = color.RGBA{R: 40, G: 90, B: 230, A: 255}
+	// HUDTempHot は体温ゲージの火照りきった色
+	HUDTempHot = color.RGBA{R: 230, G: 50, B: 40, A: 255}
+	// HUDHealthFull はHPが十分あるときのゲージの塗り色
+	HUDHealthFull = color.RGBA{R: 0, G: 255, B: 0, A: 255}
+	// HUDHealthHalf はHPが半分のときのゲージの塗り色。ここを境に緑と赤へ寄る
+	HUDHealthHalf = color.RGBA{R: 255, G: 255, B: 0, A: 255}
+	// HUDHealthEmpty はHPが尽きかけたときのゲージの塗り色
+	HUDHealthEmpty = color.RGBA{R: 255, G: 0, B: 0, A: 255}
+	// SpecLabel は spec パネルのラベルと見出しの色
+	SpecLabel = color.RGBA{R: 255, G: 255, B: 255, A: 255}
 	// HUDMinimapBg はミニマップの背景色
 	HUDMinimapBg = color.RGBA{R: 0, G: 0, B: 0, A: 128}
 	// HUDPlayerMarker はミニマップのプレイヤー表示色

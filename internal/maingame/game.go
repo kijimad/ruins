@@ -160,8 +160,6 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 	world.Resources.Fonts = fonts
 
-	world.Resources.Faces = loader.BuildFaces(fonts)
-
 	// UIリソースを読み込む
 	uir, err := loader.LoadUIResources(fonts)
 	if err != nil {
