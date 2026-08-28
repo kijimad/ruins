@@ -19,6 +19,6 @@ func TestInfoPanelLineHFitsFace(t *testing.T) {
 	res, err := loader.LoadUIResources(fonts)
 	require.NoError(t, err)
 
-	assert.GreaterOrEqual(t, infoPanelLineH, ui.LineHeight(res.Text.BodyFace),
+	assert.GreaterOrEqual(t, LineH, ui.LineHeight(res.Text.BodyFace),
 		"行送りがフェイスの字面より低い。行が重なる")
 }

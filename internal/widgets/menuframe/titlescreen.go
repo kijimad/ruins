@@ -15,7 +15,6 @@ const (
 	titleMenuLeft   = 64  // メニューの左端
 	titleMenuBottom = 72  // メニュー下端から画面下端までの高さ
 	titleNoteW      = 232 // 右下の注記の幅
-	titleNoteRowH   = 16  // 注記1行の高さ
 	titleNoteMargin = 8   // 注記と画面端の余白
 )
 
@@ -38,8 +37,8 @@ func TitleScreen(world w.World, res resources.UIResources, itemIndex int, rows [
 	for i, line := range notes {
 		t := ui.NewText(line, res.Text.SmallFace, theme.TextAccent)
 		t.Align = ui.AlignRight
-		y := sd.Height - titleNoteRowH*(len(notes)-i) - titleNoteMargin
-		t.Layout(image.Rect(sd.Width-titleNoteW-titleNoteMargin, y, sd.Width-titleNoteMargin, y+titleNoteRowH))
+		y := sd.Height - noteRowH*(len(notes)-i) - titleNoteMargin
+		t.Layout(image.Rect(sd.Width-titleNoteW-titleNoteMargin, y, sd.Width-titleNoteMargin, y+noteRowH))
 		children = append(children, t)
 	}
 

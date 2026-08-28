@@ -11,6 +11,10 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
+// noteRowH は画面下部に置く補助1行の高さ。操作ヒント・説明・版の注記に使う。
+// 補助フェイスを載せる行はどの画面でも同じ高さにして、画面をまたいだ見た目のずれを防ぐ
+const noteRowH = 16
+
 // panelBackground はパネル背景のテクスチャを敷く。
 func panelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
 	return c.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)

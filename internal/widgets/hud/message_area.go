@@ -25,11 +25,11 @@ func (c MessageAreaConfig) Height() int {
 
 // DefaultMessageAreaConfig はデフォルトのメッセージエリア設定
 var DefaultMessageAreaConfig = MessageAreaConfig{
-	LogAreaHeight: 120,          // 余裕を持たせて大きめに
-	MaxLogLines:   5,            // 表示する最大行数
-	LogAreaMargin: theme.Space3, // 余白
-	LineHeight:    20,           // 1行の高さ
-	YPadding:      12,           // 下端の追加パディング
+	LogAreaHeight: 120,            // 余裕を持たせて大きめに
+	MaxLogLines:   5,              // 表示する最大行数
+	LogAreaMargin: theme.Space3,   // 余白
+	LineHeight:    framedbg.LineH, // 1行の高さ。世界の上に重ねるパネルと揃える
+	YPadding:      12,             // 下端の追加パディング
 }
 
 // MessageArea はHUDメッセージエリア

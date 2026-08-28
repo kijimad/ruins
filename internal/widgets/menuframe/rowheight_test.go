@@ -31,8 +31,7 @@ func TestRowHeightsFitTheirFace(t *testing.T) {
 		{"入力画面の見出し", formTitleH, tx.TitleFontFace},
 		{"入力画面の入力欄", formInputH, tx.BodyFace},
 		{"入力画面の補足行", formLineH, tx.SmallFace},
-		{"左右2枠画面の下部の行", splitLineH, tx.SmallFace},
-		{"タイトル画面の注記行", titleNoteRowH, tx.SmallFace},
+		{"画面下部の補助行", noteRowH, tx.SmallFace},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

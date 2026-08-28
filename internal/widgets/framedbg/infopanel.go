@@ -12,7 +12,9 @@ const (
 	infoPanelWidth  = 300 // パネルの幅
 	infoPanelMargin = 10  // 画面端との余白
 	infoPanelPad    = 10  // パネル内側の余白
-	infoPanelLineH  = 20  // 1行の高さ
+	// LineH は即時描画のパネルに置く本文1行の高さ。ログ領域も同じ値を使い、
+	// 世界の上に重ねるパネルの行送りを揃える
+	LineH = 20
 )
 
 // InfoPanel は画面の右上へ置く情報パネル。枠付き背景を敷き、行を上から順に書き足す。
@@ -43,7 +45,7 @@ func (p *InfoPanel) Line(s string) {
 	op := &text.DrawOptions{}
 	op.GeoM.Translate(float64(p.rect.Min.X+infoPanelPad), float64(p.y))
 	text.Draw(p.screen, s, p.face, op)
-	p.y += infoPanelLineH
+	p.y += LineH
 }
 
 // Gap は書き込み位置を px ぶん送る。段落の切れ目に使う。

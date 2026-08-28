@@ -19,7 +19,6 @@ const (
 	splitLeftW        = 180 // 左枠の幅
 	splitGutter       = 20  // 左枠と右枠の間隔
 	splitFooterH      = 72  // 下に空ける高さ。説明とヒントの2行ぶん
-	splitLineH        = 16  // 下部の1行の高さ
 	splitLineGap      = 8   // 下部の行と行の間隔
 	splitBottomMargin = 16  // 画面下端の余白
 )
@@ -39,12 +38,12 @@ func SplitScreen(world w.World, res resources.UIResources, title string, left, r
 	right.Layout(image.Rect(leftX+splitLeftW+splitGutter, splitBodyTop, sd.Width-splitSideMargin, bodyBottom))
 
 	// 説明とヒントは下端から積み上げる
-	descTop := sd.Height - splitLineH*2 - splitLineGap - splitBottomMargin
+	descTop := sd.Height - noteRowH*2 - splitLineGap - splitBottomMargin
 	descText := newCenteredText(description, res.Text.SmallFace, theme.TextAccent)
-	descText.Layout(image.Rect(0, descTop, sd.Width, descTop+splitLineH))
-	hintTop := descTop + splitLineH + splitLineGap
+	descText.Layout(image.Rect(0, descTop, sd.Width, descTop+noteRowH))
+	hintTop := descTop + noteRowH + splitLineGap
 	hintText := newCenteredText(hint, res.Text.SmallFace, theme.TextAccent)
-	hintText.Layout(image.Rect(0, hintTop, sd.Width, hintTop+splitLineH))
+	hintText.Layout(image.Rect(0, hintTop, sd.Width, hintTop+noteRowH))
 
 	root := ui.NewGroup(titleText, left, right, descText, hintText)
 	root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
