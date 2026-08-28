@@ -56,3 +56,13 @@ func Row(colWidths []int, cells ...Widget) Widget { return core.Row(colWidths, c
 
 // NewEbitenCanvas は描画先スクリーンを与えて Canvas を作る。
 func NewEbitenCanvas(screen *ebiten.Image) *EbitenCanvas { return core.NewEbitenCanvas(screen) }
+
+// MeasureText は face で描いたときの s の送り幅と高さを画素で返す。
+// 寸法を内容から決めたい箇所はこれを通す。text/v2 を直に呼ぶと丸め方が箇所ごとに割れる。
+func MeasureText(s string, face text.Face) (int, int) { return core.MeasureText(s, face) }
+
+// MeasureTextWidth は MeasureText の幅だけを返す。
+func MeasureTextWidth(s string, face text.Face) int { return core.MeasureTextWidth(s, face) }
+
+// LineHeight は face の自然な行送りを画素で返す。行送りを固定値で持たずに済ませる。
+func LineHeight(face text.Face) int { return core.LineHeight(face) }

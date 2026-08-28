@@ -10,9 +10,7 @@ import (
 
 // logTopY はゲームログ領域の上端Yを返す。モーダルやパネルをログに被らせないための基準にする
 func logTopY(screenHeight int) int {
-	cfg := hud.DefaultMessageAreaConfig
-	logHeight := cfg.LogAreaMargin*2 + cfg.MaxLogLines*cfg.LineHeight + cfg.YPadding*2
-	return screenHeight - logHeight - theme.Space3
+	return screenHeight - hud.DefaultMessageAreaConfig.Height() - theme.Space3
 }
 
 // ModalRect は大きめモーダル、タブ画面など、の矩形を返す。画面をひと回り小さくし、ログ領域の

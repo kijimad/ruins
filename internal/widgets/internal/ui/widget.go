@@ -65,17 +65,17 @@ func (t *Text) Layout(b image.Rectangle) { t.rect = b }
 func (t *Text) Draw(cv Canvas) {
 	x, y := t.rect.Min.X, t.rect.Min.Y
 	if t.Face != nil {
-		width, height := text.Measure(t.Value, t.Face, 0)
+		width, height := MeasureText(t.Value, t.Face)
 		switch t.Align {
 		case AlignLeft:
 			// 左寄せは x をそのまま
 		case AlignRight:
-			x = t.rect.Max.X - int(width)
+			x = t.rect.Max.X - width
 		case AlignCenter:
-			x = t.rect.Min.X + (t.rect.Dx()-int(width))/2
+			x = t.rect.Min.X + (t.rect.Dx()-width)/2
 		}
 		if t.VCenter {
-			y = t.rect.Min.Y + (t.rect.Dy()-int(height))/2
+			y = t.rect.Min.Y + (t.rect.Dy()-height)/2
 		}
 	}
 	cv.DrawText(image.Pt(x, y), t.Value, t.Face, t.Color)
@@ -211,7 +211,7 @@ func (c *Container) SetBottomLine(img *ebiten.Image, tint color.Color) *Containe
 }
 
 // Layout は Container を実装する。余白を除いた内側に、furex の flexbox で子を並べる。
-// 縦は sizes の固定高で積む。横は sizes の固定幅で並べ、0 幅の最初の列、無ければ末尾の列が
+// 縦は sizes の固定高で積む。横は sizes の固定幅で並べ、0 幅の列すべて、1つも無ければ末尾の列が
 // flex-grow で余り幅を吸収して内側を埋める。名前列を伸ばし右の数値列を右端へ寄せる用途。
 // 交差軸は既定の AlignItemStretch で内側いっぱいに広がる。座標計算は furex に委譲し、
 // 自前の数式を持たない。

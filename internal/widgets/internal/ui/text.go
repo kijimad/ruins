@@ -28,8 +28,7 @@ func WrapText(s string, face text.Face, maxWidth int) []string {
 		chunk := string(line.Text)
 		candidate := cur + chunk
 		if cur != "" {
-			width, _ := text.Measure(strings.TrimRight(candidate, " "), face, 0)
-			if int(width) > maxWidth {
+			if MeasureTextWidth(strings.TrimRight(candidate, " "), face) > maxWidth {
 				lines = append(lines, strings.TrimRight(cur, " "))
 				candidate = chunk
 			}

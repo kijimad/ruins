@@ -10,6 +10,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -138,9 +139,9 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 	buf := ebiten.NewImage(screenW, screenH)
 
 	// テキストサイズを測定して中央揃え
-	textWidth, textHeight := text.Measure(effect.Text, effect.Face, 0)
-	x := effect.Offset.X - textWidth/2
-	y := effect.Offset.Y - textHeight/2
+	textWidth, textHeight := ui.MeasureText(effect.Text, effect.Face)
+	x := effect.Offset.X - float64(textWidth)/2
+	y := effect.Offset.Y - float64(textHeight)/2
 
 	// フル不透明でバッファに描画する
 	textColor := effect.Color
@@ -169,7 +170,7 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 	hud.OutlinedText(buf, effect.Text, effect.Face, x, y, textColor, outlineColor)
 
 	if effect.LineWidth > 0 {
-		lineY := y + textHeight + 2
+		lineY := y + float64(textHeight) + 2
 		lineLeft := effect.Offset.X - effect.LineWidth/2
 		sys.drawHorizontalLine(world, buf, lineLeft, lineY, int(effect.LineWidth), effect.Color)
 	}
@@ -192,8 +193,8 @@ func (sys *VisualEffectSystem) drawDamageText(screen *ebiten.Image, projector re
 	screenY := float64(anchor.Y) + effect.Offset.Y
 
 	// テキストサイズを測定して中央揃え
-	textWidth, _ := text.Measure(effect.Text, face, 0)
-	x := screenX - textWidth/2
+	textWidth := ui.MeasureTextWidth(effect.Text, face)
+	x := screenX - float64(textWidth)/2
 	y := screenY
 
 	// 透明度を適用した色

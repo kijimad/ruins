@@ -17,6 +17,12 @@ type MessageAreaConfig struct {
 	YPadding      int // 下端の追加パディング
 }
 
+// Height はログ領域の描画高さを返す。上下の余白と、最大行数ぶんの行高から決まる。
+// ログの上端を基準に置く側は、この高さを画面高から引いて求める
+func (c MessageAreaConfig) Height() int {
+	return c.LogAreaMargin*2 + c.MaxLogLines*c.LineHeight + c.YPadding*2
+}
+
 // DefaultMessageAreaConfig はデフォルトのメッセージエリア設定
 var DefaultMessageAreaConfig = MessageAreaConfig{
 	LogAreaHeight: 120,          // 余裕を持たせて大きめに
@@ -96,7 +102,7 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	logAreaWidth := screenWidth - boxMargin*2
 
 	// 設定を使用してサイズを計算
-	fixedHeight := area.config.LogAreaMargin*2 + area.config.MaxLogLines*area.config.LineHeight + area.config.YPadding*2
+	fixedHeight := area.config.Height()
 	logAreaY := screenHeight - fixedHeight - boxMargin
 
 	// 背景を描画

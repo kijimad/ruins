@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -87,10 +88,10 @@ func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) {
 	floorText := fmt.Sprintf("%3dF", data.FloorNumber)
 
 	// テキストの幅を測定
-	textWidth, _ := text.Measure(floorText, info.headingFace, 0)
+	textWidth := ui.MeasureTextWidth(floorText, info.headingFace)
 
 	// 右上に配置
-	x := float64(data.ScreenDimensions.Width) - textWidth - theme.Space4F
+	x := float64(data.ScreenDimensions.Width-textWidth) - theme.Space4F
 	y := theme.Space4F
 
 	drawOutlinedText(screen, floorText, info.headingFace, x, y, theme.TextPrimary)
@@ -253,7 +254,7 @@ func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData)
 	weightText := fmt.Sprintf("%s / %s", data.PlayerWeight.KgString(), data.PlayerMaxWeight.KgString())
 
 	// テキストの幅を測定
-	textWidth, textHeight := text.Measure(weightText, info.bodyFace, 0)
+	textWidth, textHeight := ui.MeasureText(weightText, info.bodyFace)
 
 	// メッセージエリアの高さを取得
 	messageAreaHeight := float64(data.MessageAreaHeight)
@@ -261,8 +262,8 @@ func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData)
 	// 画面右下に配置（通貨表示の上に重ならないように2行分上げる）
 	screenWidth := float64(data.ScreenDimensions.Width)
 	screenHeight := float64(data.ScreenDimensions.Height)
-	x := screenWidth - textWidth - theme.Space4F
-	y := screenHeight - messageAreaHeight - theme.Space4F - textHeight*2 - theme.Space2F
+	x := screenWidth - float64(textWidth) - theme.Space4F
+	y := screenHeight - messageAreaHeight - theme.Space4F - float64(textHeight*2) - theme.Space2F
 
 	// 重量比率を計算して色を決定
 	var textColor color.RGBA

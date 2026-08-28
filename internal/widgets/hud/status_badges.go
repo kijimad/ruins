@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/widgets/framedbg"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
@@ -68,17 +69,17 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 	currentY := baseY
 	for _, badge := range slices.Backward(badges) {
 		// テキストサイズを測定
-		textWidth, textHeight := text.Measure(badge.Text, sb.bodyFace, 0)
+		textWidth, textHeight := ui.MeasureText(badge.Text, sb.bodyFace)
 
 		// バッジの高さ
-		badgeHeight := textHeight + paddingY*2
+		badgeHeight := float64(textHeight) + paddingY*2
 
 		// Y位置を計算（下から積み上げる）
 		badgeY := currentY - badgeHeight
 
 		// 背景矩形を描画。塗りはバッジの状態色を保ちつつ、枠はメニュー枠と同じ共通 chrome に揃える
 		bgX := theme.Space4
-		bgWidth := int(textWidth) + paddingX*2
+		bgWidth := textWidth + int(paddingX)*2
 		framedbg.Draw(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(badge.Color))
 
 		// 白文字でテキストを描画
@@ -93,13 +94,13 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 	if hasMore {
 		moreCount := len(data.Badges) - maxVisible
 		moreText := fmt.Sprintf("+%d", moreCount)
-		textWidth, textHeight := text.Measure(moreText, sb.bodyFace, 0)
-		badgeHeight := textHeight + paddingY*2
+		textWidth, textHeight := ui.MeasureText(moreText, sb.bodyFace)
+		badgeHeight := float64(textHeight) + paddingY*2
 		badgeY := currentY - badgeHeight
 
 		// グレーの背景。他バッジと同じ共通 chrome に揃える
 		bgX := theme.Space4
-		bgWidth := int(textWidth) + paddingX*2
+		bgWidth := textWidth + int(paddingX)*2
 		framedbg.Draw(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(theme.HUDBadgeBg))
 
 		textY := badgeY + paddingY

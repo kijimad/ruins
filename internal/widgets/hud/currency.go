@@ -3,6 +3,7 @@ package hud
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -45,15 +46,15 @@ func (c *CurrencyDisplay) Draw(screen *ebiten.Image, data CurrencyData) {
 	currencyText := data.Currency.String()
 
 	// テキストのサイズを計算
-	textWidth, textHeight := text.Measure(currencyText, c.face, 0)
+	textWidth, textHeight := ui.MeasureText(currencyText, c.face)
 
 	// メッセージウィンドウの位置を計算
-	fixedHeight := data.Config.LogAreaMargin*2 + data.Config.MaxLogLines*data.Config.LineHeight + data.Config.YPadding*2
+	fixedHeight := data.Config.Height()
 	logAreaY := screenHeight - fixedHeight
 
 	// メッセージウィンドウの上端の上に配置（テキスト下端がマージン分上になるように）
-	currencyX := float64(screenWidth-data.Config.LogAreaMargin) - textWidth
-	currencyY := float64(logAreaY) - textHeight - theme.Space4F
+	currencyX := float64(screenWidth - data.Config.LogAreaMargin - textWidth)
+	currencyY := float64(logAreaY-textHeight) - theme.Space4F
 
 	drawOutlinedText(screen, currencyText, c.face, currencyX, currencyY, theme.TextPrimary)
 }

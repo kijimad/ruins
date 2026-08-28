@@ -4,7 +4,6 @@ import (
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -110,8 +109,8 @@ func (widget *Widget) buildTree(width, height int) ui.Widget {
 			t := ui.NewText(fragment.Text, face, fragment.Color)
 			t.Layout(image.Rect(x, y, width, y+widget.config.LineHeight))
 			children = append(children, t)
-			adv, _ := text.Measure(fragment.Text, face, 0)
-			x += int(adv)
+			adv := ui.MeasureTextWidth(fragment.Text, face)
+			x += adv
 		}
 		visible++
 		y += widget.config.LineHeight + widget.config.Spacing

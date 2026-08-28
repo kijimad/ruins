@@ -21,12 +21,6 @@ const (
 	choiceMinWidth = 120          // 選択肢の塊の最小幅
 )
 
-// measure はフェイスでの文字列の幅と高さを返す。水平フローの送り幅と縦中央寄せに使う
-func measure(s string, face text.Face) (int, int) {
-	wpx, hpx := text.Measure(s, face, 0)
-	return int(wpx), int(hpx)
-}
-
 // buildTree は現在の状態からウィンドウ全体を internal/ui のツリーへ組み、画面上に配置して返す。
 // 枠・タイトルバー・メッセージ・選択肢またはEnterプロンプトを絶対座標で重ねる
 func (win *Window) buildTree() ui.Widget {
@@ -78,7 +72,7 @@ func (win *Window) buildTree() ui.Widget {
 		choiceRect := image.Rect(cx-cw/2, blockTop, cx-cw/2+cw, rect.Max.Y-theme.Space5)
 		children = append(children, renderChoiceList(win.choiceConfig, win.choiceState, win.world, choiceRect))
 	} else {
-		lw, th := measure("Enter", res.Text.BodyFace)
+		lw, th := ui.MeasureText("Enter", res.Text.BodyFace)
 		// 選択肢と同じ最小幅を確保し、文字幅ぴったりでボタンが痩せないようにする
 		cw := max(choicePadL*2+lw, choiceMinWidth)
 		bx := cx - cw/2
@@ -101,7 +95,7 @@ func (win *Window) buildTree() ui.Widget {
 // 各行は左端から測定幅ぶん右へセグメントを連ね、空行は行高ぶん送る。背景色付きは帯を敷く
 func (win *Window) segmentedLineWidgets(padL, padR, top int, face text.Face) []ui.Widget {
 	// 行送りはフェイスの自然な行高から取る。固定値だと本文の行間が字面に対して間延びする
-	_, lineH := measure("Ag", face)
+	lineH := ui.LineHeight(face)
 	var out []ui.Widget
 	yy := top
 	for _, line := range win.content.TextSegmentLines {
@@ -114,7 +108,7 @@ func (win *Window) segmentedLineWidgets(padL, padR, top int, face text.Face) []u
 			if seg.Text == "" {
 				continue
 			}
-			wpx, _ := measure(seg.Text, face)
+			wpx, _ := ui.MeasureText(seg.Text, face)
 			if seg.BackgroundColor != nil {
 				bg := ui.Panel(ui.BoxStyle{Fill: *seg.BackgroundColor}, lineH)
 				bg.Layout(image.Rect(xx, yy, xx+wpx, yy+lineH))
@@ -166,7 +160,7 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 	items, indices := getVisibleItems(config, state)
 	for i, it := range items {
 		focused := indices[i] == state.ItemIndex
-		_, textH := measure(it.Label, face)
+		_, textH := ui.MeasureText(it.Label, face)
 		off := (choiceRowH - textH) / 2
 
 		// 選択中は行いっぱいに金色の選択バーを敷く
@@ -185,14 +179,14 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 		lbl := ui.NewText(it.Label, face, col)
 		lbl.Layout(image.Rect(x, yy+off, rect.Max.X, yy+choiceRowH))
 		children = append(children, lbl)
-		lw, _ := measure(it.Label, face)
+		lw, _ := ui.MeasureText(it.Label, face)
 		x += lw
 		for _, a := range it.AdditionalLabels {
 			x += choiceLabelGap
 			at := ui.NewText(a, face, col)
 			at.Layout(image.Rect(x, yy+off, rect.Max.X, yy+choiceRowH))
 			children = append(children, at)
-			aw, _ := measure(a, face)
+			aw, _ := ui.MeasureText(a, face)
 			x += aw
 		}
 
@@ -219,10 +213,10 @@ func choiceBlockWidth(config tabMenuConfig, state viewState, world w.World) int 
 	items, _ := getVisibleItems(config, state)
 	maxW := 0
 	for _, it := range items {
-		lw, _ := measure(it.Label, face)
+		lw, _ := ui.MeasureText(it.Label, face)
 		w := choicePadL*2 + lw
 		for _, a := range it.AdditionalLabels {
-			aw, _ := measure(a, face)
+			aw, _ := ui.MeasureText(a, face)
 			w += choiceLabelGap + aw
 		}
 		if w > maxW {

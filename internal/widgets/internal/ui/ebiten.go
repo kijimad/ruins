@@ -47,7 +47,7 @@ func (e *EbitenCanvas) DrawImage(pos image.Point, img *ebiten.Image) {
 	e.screen.DrawImage(img, op)
 }
 
-// DrawImageRect は EbitenCanvas を実装する。dst に収まるよう縦横比を保って縮小し、中央へ寄せて描く。
+// DrawImageRect は EbitenCanvas を実装する。dst に収まるよう縦横比を保って縮小し、左寄せ・縦中央で描く。
 func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
 	if img == nil {
 		return
