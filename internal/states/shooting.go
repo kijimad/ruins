@@ -7,7 +7,6 @@ import (
 	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -233,31 +232,12 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) e
 func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) error {
 	face := world.Resources.UIResources.Text.BodyFace
 
-	const (
-		panelWidth  = 300
-		panelHeight = 250
-		marginX     = 10
-		marginY     = 10
-		lineHeight  = 20
-	)
-
-	panelX := screen.Bounds().Dx() - panelWidth - marginX
-	panelY := marginY
-	// パネル背景をメニュー枠と同じ共通 chrome に揃える
-	framedbg.Draw(screen, panelX, panelY, panelWidth, panelHeight, framedbg.PanelStyle())
-
-	textX := float64(panelX + 10)
-	y := panelY + 10
-
-	drawText := func(str string) {
-		op := &text.DrawOptions{}
-		op.GeoM.Translate(textX, float64(y))
-		text.Draw(screen, str, face, op)
-		y += lineHeight
-	}
+	const panelHeight = 250
+	panel := framedbg.NewInfoPanel(screen, face, panelHeight)
+	drawText := panel.Line
 
 	drawText(query.T(world, "== Shooting Mode =="))
-	y += 5
+	panel.Gap(5)
 
 	// 武器・残弾情報
 	playerEntity, err := query.GetPlayerEntity(world)
@@ -267,7 +247,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 	}
 
 	st.drawWeaponInfo(world, playerEntity, drawText)
-	y += 5
+	panel.Gap(5)
 
 	// ターゲット情報
 	if msg := st.checkFireWeaponStatus(world); msg != "" {
@@ -280,7 +260,8 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 	}
 
 	// 操作説明
-	y = panelY + panelHeight - 30
+	// 操作説明は内容の量によらず下端へ置く
+	panel.SeekBottom(30)
 	drawText(query.T(world, "Tab: Switch  Enter: Fire  R: Reload  Esc: Back"))
 
 	return nil

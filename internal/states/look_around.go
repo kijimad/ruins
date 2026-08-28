@@ -5,7 +5,6 @@ import (
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -157,33 +156,13 @@ func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) error
 func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) error {
 	face := world.Resources.UIResources.Text.BodyFace
 
-	const (
-		panelWidth  = 300
-		panelHeight = 200
-		marginX     = 10
-		marginY     = 10
-		lineHeight  = 20
-	)
-
-	panelX := screen.Bounds().Dx() - panelWidth - marginX
-	panelY := marginY
-	// パネル背景をメニュー枠と同じ共通 chrome に揃える
-	framedbg.Draw(screen, panelX, panelY, panelWidth, panelHeight, framedbg.PanelStyle())
-
-	// テキスト描画ヘルパー
-	textX := float64(panelX + 10)
-	y := panelY + 10
-
-	drawText := func(str string) {
-		op := &text.DrawOptions{}
-		op.GeoM.Translate(textX, float64(y))
-		text.Draw(screen, str, face, op)
-		y += lineHeight
-	}
+	const panelHeight = 200
+	panel := framedbg.NewInfoPanel(screen, face, panelHeight)
+	drawText := panel.Line
 
 	// 座標表示
 	drawText(fmt.Sprintf("%s: %s", query.T(world, "Coord"), st.cursor))
-	y += 5
+	panel.Gap(5)
 
 	// 視界内かどうかをチェック
 	playerEntity, err := query.GetPlayerEntity(world)
@@ -211,13 +190,13 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	}
 
 	// 移動コストを表示
-	st.drawPassCost(world, entities, &y, drawText)
+	st.drawPassCost(world, entities, panel)
 
 	// タイル温度を表示（TileTemperatureコンポーネントを持つエンティティ）
-	st.drawTileTemperature(world, entities, &y, drawText)
+	st.drawTileTemperature(world, entities, panel)
 
-	// 操作説明
-	y = panelY + panelHeight - 30
+	// 操作説明は内容の量によらず下端へ置く
+	panel.SeekBottom(30)
 	drawText(query.T(world, "Arrows: Move  X/Esc: Close"))
 
 	return nil
@@ -255,7 +234,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, coun
 }
 
 // drawPassCost は移動コストを描画する
-func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y *int, drawText func(string)) {
+func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, panel *framedbg.InfoPanel) {
 	blocked := false
 	totalAdd := 0
 	for _, entity := range entities {
@@ -267,30 +246,30 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y 
 			totalAdd += mc.Value
 		}
 	}
-	*y += 5
+	panel.Gap(5)
 	if blocked {
-		drawText(query.T(world, "Move cost") + ": " + query.T(world, "Impassable"))
+		panel.Line(query.T(world, "Move cost") + ": " + query.T(world, "Impassable"))
 	} else {
 		cost := consts.StandardActionCost + totalAdd
-		drawText(fmt.Sprintf("%s: %d", query.T(world, "Move cost"), cost))
+		panel.Line(fmt.Sprintf("%s: %d", query.T(world, "Move cost"), cost))
 	}
 }
 
 // drawTileTemperature はタイル温度修正値を描画する
-func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Entity, y *int, drawText func(string)) {
+func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Entity, panel *framedbg.InfoPanel) {
 	for _, entity := range entities {
 		if world.Components.TileTemperature.Has(entity) {
 			temp := world.Components.TileTemperature.Get(entity)
-			*y += 5
-			drawText(fmt.Sprintf("%s: %+d", query.T(world, "Temperature modifier"), temp.Total()))
+			panel.Gap(5)
+			panel.Line(fmt.Sprintf("%s: %+d", query.T(world, "Temperature modifier"), temp.Total()))
 			if temp.Shelter != 0 {
-				drawText(fmt.Sprintf("  %s: %+d", query.T(world, "Indoor"), temp.Shelter))
+				panel.Line(fmt.Sprintf("  %s: %+d", query.T(world, "Indoor"), temp.Shelter))
 			}
 			if temp.Water != 0 {
-				drawText(fmt.Sprintf("  %s: %+d", query.T(world, "Waterside"), temp.Water))
+				panel.Line(fmt.Sprintf("  %s: %+d", query.T(world, "Waterside"), temp.Water))
 			}
 			if temp.Foliage != 0 {
-				drawText(fmt.Sprintf("  %s: %+d", query.T(world, "Foliage"), temp.Foliage))
+				panel.Line(fmt.Sprintf("  %s: %+d", query.T(world, "Foliage"), temp.Foliage))
 			}
 			return
 		}
