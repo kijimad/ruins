@@ -41,7 +41,7 @@ var keyHelpBindings = []keybind.Binding{
 }
 
 // OnStart は一覧の UI を組む。束縛表は state の寿命の間変わらないので1度だけ組めばよい。
-// キー列の隣に説明を左寄せで並べ、キーと説明の対応を読み取りやすくする。キーは1粒ずつ描き、
+// キー列の隣に説明を右寄せで並べ、行の右端で説明の終端を揃える。キーは1粒ずつ描き、
 // 箱を持たないグリフには白い箱を敷いて、全キーを白背景に黒グリフのキーキャップで統一する。
 // 枠・行高・余白・配置は密行パネル menuframe.PanelScreenDense の既定に従う
 func (st *KeyHelpState) OnStart(world w.World) error {
@@ -54,7 +54,7 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 	}
 
 	// キーキャップ列の幅は最長のキーキャップ並びの実測から導く。px を直接決めず、
-	// キー表記が変わっても列幅が内容へ追随する。説明列は残り幅を伸ばして左寄せにする
+	// キー表記が変わっても列幅が内容へ追随する。説明列は残り幅を伸ばして右寄せにする
 	caps := make([]*ebiten.Image, len(entries))
 	keyColW := 0
 	for i, e := range entries {
@@ -66,6 +66,7 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 	content := make([]ui.Widget, 0, len(entries))
 	for i, e := range entries {
 		label := ui.NewText(e.Label, face, theme.TextPrimary)
+		label.Align = ui.AlignRight
 		label.VCenter = true
 		content = append(content, ui.Row([]int{keyColW, 0}, ui.NewGraphic(caps[i]), label))
 	}
