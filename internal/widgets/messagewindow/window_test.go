@@ -142,7 +142,7 @@ func Test_calculateWindowSize(t *testing.T) {
 		assert.Equal(t, windowSize{Width: MinWidth, Height: MinHeight}, size)
 	})
 
-	t.Run("選択肢のみの場合は選択肢数から高さを算出する", func(t *testing.T) {
+	t.Run("内容が最小高に収まるなら最小高のままにする", func(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
@@ -157,8 +157,8 @@ func Test_calculateWindowSize(t *testing.T) {
 
 		size := win.calculateWindowSize()
 
-		// メッセージ0 + 選択肢40*1 + top20 + bottom15 + タイトル0 + spacing0 = 75
-		assert.Equal(t, 75, size.Height)
+		// 余白36 + 選択肢26*1 = 62 で最小高300に収まるので、窓は痩せず最小高のまま
+		assert.Equal(t, MinHeight, size.Height)
 		assert.Equal(t, MinWidth, size.Width)
 	})
 
@@ -179,8 +179,8 @@ func Test_calculateWindowSize(t *testing.T) {
 
 		size := win.calculateWindowSize()
 
-		// メッセージ150 + 選択肢40*2 + top20 + bottom15 + タイトル40 + spacing10 = 315
-		assert.Equal(t, 315, size.Height)
+		// 本文150 + タイトル25 + 余白52 + 選択肢26*2 = 279 で最小高300に収まる
+		assert.Equal(t, MinHeight, size.Height)
 	})
 
 	t.Run("画面高さの80%を超える場合は上限で頭打ちになる", func(t *testing.T) {
@@ -280,9 +280,9 @@ func Test_calculateItemsPerPage(t *testing.T) {
 
 		got := win.calculateItemsPerPage(100)
 
-		// 画面高720*0.8=576 から overhead 265 を引いた 311 を choiceItemHeight40 で割ると 7 になる。
-		// overhead の内訳は message150 top20 bottom15 title40 spacing10 indicator30
-		assert.Equal(t, 7, got)
+		// 画面高720*0.8=576 から取り分を引いた残りを選択肢の行高26で割る。
+		// 取り分は本文150 + タイトル25 + 余白52 + ページ表示24 = 251 で、(576-251)/26 は 12
+		assert.Equal(t, 12, got)
 	})
 
 	t.Run("画面が小さいと最低3件は確保する", func(t *testing.T) {

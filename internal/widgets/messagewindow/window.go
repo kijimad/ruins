@@ -192,42 +192,15 @@ func (w *Window) calculateWindowPosition(windowSize windowSize) (x, y int) {
 
 // calculateWindowSize は選択肢に応じてウィンドウサイズを計算する
 func (w *Window) calculateWindowSize() windowSize {
-	baseHeight := w.config.Size.Height
-
-	// 選択肢がある場合は高さを再計算
-	if w.hasChoices && len(w.content.Choices) > 0 {
-		numChoices := len(w.content.Choices)
-
-		// 構成要素の高さ
-		messageHeight := 0 // メッセージの高さ
-		if w.hasMessage() {
-			messageHeight = 150 // メッセージがある場合のみ固定高さ
-		}
-		choiceItemHeight := 40 // 選択肢1つあたりの高さ
-		choiceHeight := numChoices * choiceItemHeight
-		topPadding := 20    // 上部パディング
-		bottomPadding := 15 // 下部パディング
-		titleBarH := 0      // タイトルバーの高さ
-		if w.content.SpeakerName != "" {
-			titleBarH = 40
-		}
-		spacingHeight := 10 // スペーサー間隔（メッセージがある場合のみ）
-		if !w.hasMessage() {
-			spacingHeight = 0
-		}
-
-		// 合計高さを計算
-		calculatedHeight := messageHeight + choiceHeight + topPadding + bottomPadding + titleBarH + spacingHeight
-
-		// 最大高さを画面高さの80%に制限
-		maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)
-
-		baseHeight = min(calculatedHeight, maxHeightWithChoices)
-	}
+	// 内容が収まる高さと設定の最小高の大きいほうを採る。内容が少なくても窓は痩せず、
+	// 選択肢が増えれば必要なぶんだけ伸びる
+	height := max(w.config.Size.Height, w.requiredHeight())
+	// 画面高の8割で頭を打つ。窓が画面を覆い尽くさないようにする
+	height = min(height, int(float64(w.world.Resources.ScreenDimensions.Height)*maxHeightRatio))
 
 	return windowSize{
 		Width:  w.config.Size.Width,
-		Height: baseHeight,
+		Height: height,
 	}
 }
 
@@ -347,44 +320,18 @@ var choiceBindings = []keybind.Binding{
 	{Key: ebiten.KeyEscape, Action: inputmapper.ActionMenuCancel},
 }
 
-// calculateItemsPerPage は1ページあたりのアイテム数を計算する
+// calculateItemsPerPage は1ページあたりの選択肢の件数を返す。窓の上限高から選択肢以外の
+// 取り分を引いた残りを、実際に描く行高で割る。取り分と行高は描画と同じ値を使うので、
+// 計算した件数がそのまま収まる。
 func (w *Window) calculateItemsPerPage(totalItems int) int {
-	maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)
+	maxHeight := int(float64(w.world.Resources.ScreenDimensions.Height) * maxHeightRatio)
 
-	// ウィンドウ内のオーバーヘッドを計算する
-	messageHeight := 0
-	if w.hasMessage() {
-		messageHeight = 150
-	}
-	topPadding := 20
-	bottomPadding := 15
-	titleBarH := 0
-	if w.content.SpeakerName != "" {
-		titleBarH = 40
-	}
-	spacingHeight := 0
-	if w.hasMessage() {
-		spacingHeight = 10
-	}
-	pageIndicatorHeight := 30
+	// 選択肢の塊を除いた取り分。requiredHeight から選択肢1行ぶんを引いて求める
+	overhead := w.chromeHeight() + pageRowH
+	perPage := (maxHeight - overhead) / choiceRowH
+	perPage = min(max(perPage, minItemsPerPage), maxItemsPerPage)
 
-	overhead := messageHeight + topPadding + bottomPadding + titleBarH + spacingHeight + pageIndicatorHeight
-	availableHeight := maxHeightWithChoices - overhead
-
-	choiceItemHeight := 40
-	maxItemsPerPage := availableHeight / choiceItemHeight
-
-	if maxItemsPerPage < 3 {
-		maxItemsPerPage = 3
-	} else if maxItemsPerPage > 15 {
-		maxItemsPerPage = 15
-	}
-
-	if totalItems <= maxItemsPerPage {
-		return totalItems
-	}
-
-	return maxItemsPerPage
+	return min(totalItems, perPage)
 }
 
 // selectChoice は選択肢を選択する

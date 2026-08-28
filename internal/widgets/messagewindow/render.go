@@ -19,7 +19,38 @@ const (
 	choiceLabelGap = theme.Space2 // ラベルと追加ラベルの間隔
 	pageRowH       = 24           // ページ表示の高さ
 	choiceMinWidth = 120          // 選択肢の塊の最小幅
+	// messageAreaHeight は本文に確保する高さ。行数で伸縮させず、窓の大きさを一定に保つ
+	messageAreaHeight = 150
 )
+
+// chromeHeight は選択肢の塊を除いた窓の取り分を返す。タイトルバー・本文欄・上下の余白の合計で、
+// 選択肢が何件でも変わらない。窓の高さの算出と、1ページに入る件数の逆算が同じ値を使う。
+func (win *Window) chromeHeight() int {
+	h := theme.Space6 + theme.Space5 // 本文上の余白と、選択肢の塊の下の余白
+	if win.content.SpeakerName != "" {
+		h += titleBarHeight
+	}
+	if win.hasMessage() {
+		h += messageAreaHeight + theme.Space5 // 本文欄と、その下の間隔
+	}
+	return h
+}
+
+// requiredHeight は内容を収めるのに要る窓の高さを返す。実際に描くときと同じ寸法で積み上げるので、
+// 計算した高さと描いた中身がずれない。窓の高さはこれと設定の最小高の大きいほうになる。
+func (win *Window) requiredHeight() int {
+	// ページ分割が決まっていれば実際に描く件数を、決まる前は全件を見込む。
+	// 選択肢が無くても Enter プロンプトが1行ぶん要る
+	rows := len(win.content.Choices)
+	if items, _ := getVisibleItems(win.choiceConfig, win.choiceState); len(items) > 0 {
+		rows = len(items)
+	}
+	h := win.chromeHeight() + choiceTopPad + max(rows, 1)*choiceRowH
+	if win.hasChoices && pageIndicatorText(win.choiceConfig, win.choiceState) != "" {
+		h += pageRowH
+	}
+	return h
+}
 
 // buildTree は現在の状態からウィンドウ全体を internal/ui のツリーへ組み、画面上に配置して返す。
 // 枠・タイトルバー・メッセージ・選択肢またはEnterプロンプトを絶対座標で重ねる
