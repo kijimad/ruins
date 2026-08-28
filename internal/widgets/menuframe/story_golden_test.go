@@ -128,6 +128,15 @@ func TestGolden_Story_PanelScreen(t *testing.T) {
 	drawWidget(t, "TestGolden_Story_PanelScreen", image.Pt(screenW, screenH), panel)
 }
 
+func TestGolden_Story_PanelScreenDense(t *testing.T) {
+	t.Parallel()
+	world := vrt.InitUIWorld(t)
+	res := world.Resources.UIResources
+	screenW, screenH := storyScreenSize(world)
+	panel := PanelScreenDense(world, res, "Key bindings", storyRows(res), "", "")
+	drawWidget(t, "TestGolden_Story_PanelScreenDense", image.Pt(screenW, screenH), panel)
+}
+
 func TestGolden_Story_TabScreen(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitUIWorld(t)

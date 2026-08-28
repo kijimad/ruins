@@ -42,24 +42,36 @@ func footerRow(footer, pager string, res resources.UIResources) *ui.Container {
 // フッタ行の右端に置く。上端固定により、項目数が違ってもタイトル・先頭項目が常に同じ位置に来る。
 // 選択メニュー choice や設定メニューなど、項目数相応に伸びるパネル画面で使う。
 func PanelScreen(world w.World, res resources.UIResources, title string, content []ui.Widget, footer, pager string) ui.Widget {
+	return panelScreen(world, res, title, content, footer, pager, theme.MenuPanelRowH)
+}
+
+// PanelScreenDense は PanelScreen の密行版。行間を空けるコマンドメニューと違い、
+// キー一覧のような表を詰まった行高で項目数相応の小さなパネルに収める。
+// 項目が多くてもログ領域に被らずに収まる。
+func PanelScreenDense(world w.World, res resources.UIResources, title string, content []ui.Widget, footer, pager string) ui.Widget {
+	return panelScreen(world, res, title, content, footer, pager, theme.MenuTabRowH)
+}
+
+// panelScreen はパネル画面の実体。行高だけを密度の変種として受け取る。
+func panelScreen(world w.World, res resources.UIResources, title string, content []ui.Widget, footer, pager string, rowH int) ui.Widget {
 	face := res.Text.BodyFace
 	items := make([]ui.FlexItem, 0, len(content)+3)
 	if title != "" {
-		items = append(items, ui.FlexItem{W: ui.NewText(title, face, theme.TextPrimary), Height: theme.MenuPanelRowH})
+		items = append(items, ui.FlexItem{W: ui.NewText(title, face, theme.TextPrimary), Height: rowH})
 	}
 	for _, c := range content {
-		items = append(items, ui.FlexItem{W: c, Height: theme.MenuPanelRowH})
+		items = append(items, ui.FlexItem{W: c, Height: rowH})
 	}
 	if footer != "" || pager != "" {
 		// フッタは内容から一行空けて置く
-		items = append(items, ui.FlexItem{Height: theme.MenuPanelRowH})
-		items = append(items, ui.FlexItem{W: footerRow(footer, pager, res), Height: theme.MenuPanelRowH})
+		items = append(items, ui.FlexItem{Height: rowH})
+		items = append(items, ui.FlexItem{W: footerRow(footer, pager, res), Height: rowH})
 	}
 
 	// パネルの高さは内容に合わせる。横は画面中央、縦は上端を固定する。項目数が違っても
 	// パネルの開始位置がそろい、メニュー間でタイトル・先頭項目の位置がずれない
 	panelW := theme.MenuRowWidth + theme.MenuPad*2
-	panelH := len(items)*theme.MenuPanelRowH + theme.MenuPad*2
+	panelH := len(items)*rowH + theme.MenuPad*2
 	crect := CenterWindowRect(world)
 	x := crect.Min.X + (crect.Dx()-panelW)/2
 	y := crect.Min.Y
