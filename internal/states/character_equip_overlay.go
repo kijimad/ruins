@@ -122,7 +122,7 @@ func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) 
 	return buildEquipSelectUI(world, props, ms.ItemIndex, world.Resources.UIResources)
 }
 
-// buildEquipSelectUI は装備候補のモーダルを internal/ui で組む。アイコン付き候補一覧を中央パネルに置く。
+// buildEquipSelectUI はアイコン付きの候補一覧を中央パネルへ組む。
 func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) ui.Widget {
 	rows := make([]menuframe.Row, len(props.Items))
 	for i, entity := range props.Items {

@@ -92,8 +92,8 @@ func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face te
 					continue
 				}
 				if cell := r.Cells[i]; cell.Icon != nil {
-					// アイコンセルは画像の実幅で測る。一覧のアイコンは正方へ縮小済みで
-					// 従来どおり収まり、キーキャップのような横長の画像もそのまま測れる
+					// アイコンセルは画像の実幅で測る。正方の一覧アイコンも
+					// 横長のキーキャップも同じ規則で測れる
 					contents = append(contents, cell.Icon.Bounds().Dx())
 				} else {
 					contents = append(contents, ui.MeasureTextWidth(cell.Text, face))

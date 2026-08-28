@@ -32,8 +32,6 @@ func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []by
 }
 
 // renderStates は world を作りステートを構築し、本番の MainGame.Draw で screen へ描いて NRGBA を返す。
-//
-// world は自前の独立フェイスを持つので、描画は共有無しにロック無しで並列に走れる。
 func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
 	t.Helper()
 	world := InitVRTWorld(t)

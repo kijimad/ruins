@@ -195,7 +195,6 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	// タイル温度を表示（TileTemperatureコンポーネントを持つエンティティ）
 	st.drawTileTemperature(world, entities, panel)
 
-	// 操作説明は内容の量によらず下端へ置く
 	panel.SeekBottom(30)
 	drawText(query.T(world, "Arrows: Move  X/Esc: Close"))
 

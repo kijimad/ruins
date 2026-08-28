@@ -260,7 +260,6 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 	}
 
 	// 操作説明
-	// 操作説明は内容の量によらず下端へ置く
 	panel.SeekBottom(30)
 	drawText(query.T(world, "Tab: Switch  Enter: Fire  R: Reload  Esc: Back"))
 
