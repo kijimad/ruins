@@ -22,11 +22,8 @@ func TestBuildSpecPanel_見出しとデータ行を組む(t *testing.T) {
 	panel := entityspec.BuildSpecPanel(rows, nil)
 	labels := ui.CollectLabels(panel)
 
-	assert.Contains(t, labels, "Attack", "見出しラベルが出る")
-	assert.Contains(t, labels, "Damage", "データ行のラベルが出る")
-	assert.Contains(t, labels, "25", "データ行の値が出る")
-	assert.Contains(t, labels, "Element", "色付き行のラベルが出る")
-	assert.Contains(t, labels, "Fire", "色付き行の値が出る")
+	// 見出し・データ行のラベルと値・色付き行が、この並びどおりに出る
+	assert.Equal(t, []string{"Attack", "Damage", "25", "Element", "Fire"}, labels)
 }
 
 func TestBuildSpecPanel_空でも落ちない(t *testing.T) {
