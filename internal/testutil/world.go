@@ -46,21 +46,17 @@ func WithStageLevel(level gc.Level) Option {
 // WithUI はフォントフェイス込みの UIResources を積む。UI を描くテストはこれを付ける。
 // フェイスはテストが排他所有する。text/v2 は GoTextFaceSource 内に可変キャッシュを持ち、
 // 共有フェイスを並行描画すると競合するが、排他所有ならロック無しで並列に実描画できる。
-// フルゲームを構築する重い vrt.InitReplayWorld は、実プレイどおりフルフレームを駆動する
-// states の golden_replay だけに使う。
 func WithUI() Option {
 	return func(c *initConfig) { c.ui = true }
 }
 
-// InitTestWorld は軽量なテスト用Worldを初期化する
-// フォントやスプライトシートなどの重いリソースは読み込まず、
-// ECSとRawMasterのみを初期化します。
+// InitTestWorld はテスト用 world の唯一の入り口。選び方はこの2行で尽きる。
 //
-// この関数は以下のようなテストに適しています：
-//   - エンティティ操作のテスト
-//   - ゲームロジックのテスト
-//   - アイテムやレシピのテスト
-//   - UIを必要としないテスト
+//   - 描かないテスト: InitTestWorld(t)。ECS と RawMaster だけの軽量 world
+//   - UI を描くテスト: InitTestWorld(t, WithUI())。独立フォントフェイス込み
+//
+// 付け忘れて描くとフェイスが nil で即座に落ちるので、静かに壊れることはない。
+// 例外は states の golden_replay だけで、実プレイ再現のため vrt.InitReplayWorld を使う。
 func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	tb.Helper()
 
