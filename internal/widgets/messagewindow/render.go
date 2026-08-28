@@ -79,7 +79,8 @@ func (win *Window) buildTree() ui.Widget {
 		children = append(children, renderChoiceList(win.choiceConfig, win.choiceState, win.world, choiceRect))
 	} else {
 		lw, th := measure("Enter", res.Text.BodyFace)
-		cw := choicePadL*2 + lw
+		// 選択肢と同じ最小幅を確保し、文字幅ぴったりでボタンが痩せないようにする
+		cw := max(choicePadL*2+lw, choiceMinWidth)
 		bx := cx - cw/2
 		py := rect.Max.Y - theme.Space5 - choiceRowH
 		hl := ui.NewNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
