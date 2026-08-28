@@ -63,10 +63,10 @@ func label(s string) *ui.Text { return ui.NewText(s, nil, color.White) }
 
 // drawFixture は i 番目のパネルを組んで描画し、記録を返す。
 func drawFixture(i int) *recordCanvas {
-	u := ui.New(buildSpecPanel(specFixture(i)))
-	u.Layout(image.Rect(0, 0, 300, 400))
+	panel := buildSpecPanel(specFixture(i))
+	panel.Layout(image.Rect(0, 0, 300, 400))
 	cv := &recordCanvas{}
-	u.Draw(cv)
+	panel.Draw(cv)
 	return cv
 }
 
@@ -97,9 +97,9 @@ func TestSpecPanel_背景を塗り枠を描く(t *testing.T) {
 
 func TestSpecPanel_行数ぶんのラベルが出る(t *testing.T) {
 	t.Parallel()
-	u := ui.New(buildSpecPanel(specFixture(2)))
-	u.Layout(image.Rect(0, 0, 300, 400))
-	assert.Len(t, ui.CollectLabels(u.Root()), 8, "4行 かける ラベルと値の2列")
+	panel := buildSpecPanel(specFixture(2))
+	panel.Layout(image.Rect(0, 0, 300, 400))
+	assert.Len(t, ui.CollectLabels(panel), 8, "4行 かける ラベルと値の2列")
 }
 
 func TestSpecPanel_異なる入力は独立する(t *testing.T) {
@@ -109,14 +109,6 @@ func TestSpecPanel_異なる入力は独立する(t *testing.T) {
 	assert.Contains(t, a.texts, "10")
 	assert.Contains(t, b.texts, "110")
 	assert.NotContains(t, a.texts, "110", "別インスタンスの値が混ざらない")
-}
-
-func TestSpecPanel_ホバー判定はUIごとに独立する(t *testing.T) {
-	t.Parallel()
-	u := ui.New(buildSpecPanel(specFixture(0)))
-	u.Layout(image.Rect(0, 0, 300, 400))
-	u.Update(ui.Input{CursorX: 10, CursorY: 8})
-	assert.NotNil(t, u.Hovered(), "先頭行の上にカーソルがあればホバーする")
 }
 
 func TestSpecPanel_多数の並列構築(t *testing.T) {
@@ -130,9 +122,9 @@ func TestSpecPanel_多数の並列構築(t *testing.T) {
 	}
 }
 
-// フレーム駆動を模す。別インスタンスの UI を多数ゴルーチンで同時に Update・Draw し続ける。
+// フレーム駆動を模す。別インスタンスのツリーを多数ゴルーチンで同時に配置・描画し続ける。
 // ミューテックスでは意味が壊れたケース。インスタンス所有ならロック無しで競合しない。
-func TestConcurrentUpdateDraw_インスタンスごとに独立(t *testing.T) {
+func TestConcurrentLayoutDraw_インスタンスごとに独立(t *testing.T) {
 	t.Parallel()
 	const workers = 32
 	var wg sync.WaitGroup
@@ -140,11 +132,10 @@ func TestConcurrentUpdateDraw_インスタンスごとに独立(t *testing.T) {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
-			u := ui.New(buildSpecPanel(specFixture(id)))
-			u.Layout(image.Rect(0, 0, 300, 400))
-			for f := range 50 {
-				u.Update(ui.Input{CursorX: id % 300, CursorY: (f * 3) % 400})
-				u.Draw(&recordCanvas{})
+			panel := buildSpecPanel(specFixture(id))
+			for range 50 {
+				panel.Layout(image.Rect(0, 0, 300, 400))
+				panel.Draw(&recordCanvas{})
 			}
 		}(w)
 	}

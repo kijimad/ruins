@@ -104,9 +104,9 @@ func buildRealPanel(res resources.UIResources) *ui.Container {
 func drawRealPanel(res resources.UIResources) int {
 	screen := ebiten.NewImage(220, 100)
 	cv := ui.NewEbitenCanvas(screen)
-	u := ui.New(buildRealPanel(res))
-	u.Layout(image.Rect(0, 0, 220, 100))
-	u.Draw(cv)
+	panel := buildRealPanel(res)
+	panel.Layout(image.Rect(0, 0, 220, 100))
+	panel.Draw(cv)
 	return countOpaque(screen)
 }
 
@@ -117,9 +117,9 @@ func TestEbitenCanvas_実フォントで描くと非空になる(t *testing.T) {
 
 	screen := ebiten.NewImage(220, 100)
 	cv := ui.NewEbitenCanvas(screen)
-	u := ui.New(buildRealPanel(*res))
-	u.Layout(image.Rect(0, 0, 220, 100))
-	u.Draw(cv)
+	panel := buildRealPanel(*res)
+	panel.Layout(image.Rect(0, 0, 220, 100))
+	panel.Draw(cv)
 
 	require.Positive(t, countOpaque(screen), "背景とテキストが描かれれば不透明画素が出る")
 }

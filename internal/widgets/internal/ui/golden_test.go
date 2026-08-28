@@ -21,9 +21,9 @@ func TestGolden_UISpecPanel(t *testing.T) {
 
 	const w, h = 240, 160
 	screen := ebiten.NewImage(w, h)
-	u := ui.New(buildRealPanel(*res))
-	u.Layout(image.Rect(0, 0, w, h))
-	u.Draw(ui.NewEbitenCanvas(screen))
+	panel := buildRealPanel(*res)
+	panel.Layout(image.Rect(0, 0, w, h))
+	panel.Draw(ui.NewEbitenCanvas(screen))
 
 	vrt.AssertFrameGolden(t, "TestGolden_UISpecPanel", screen)
 }

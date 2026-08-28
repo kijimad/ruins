@@ -16,19 +16,15 @@ type Widget interface {
 	Layout(bounds image.Rectangle)
 	// Draw は確定済みの矩形で Canvas に描く。
 	Draw(cv Canvas)
-	// Children は子を返す。ラベル収集やヒットテストに使う。
+	// Children は子を返す。ツリーの検査に使う。
 	Children() []Widget
-	// Bounds は確定済みの矩形を返す。
-	Bounds() image.Rectangle
 }
 
-// base は矩形を保持する共通部。各ウィジェットが埋め込む。
+// base は確定済みの矩形を保持する共通部。各ウィジェットが埋め込む。
+// Layout が書き、Draw が読む。この受け渡しが配置と描画を2段に分ける。
 type base struct {
 	rect image.Rectangle
 }
-
-// Bounds は確定済みの矩形を返す。
-func (b *base) Bounds() image.Rectangle { return b.rect }
 
 // Align はテキストの横方向の寄せ。
 type Align int
@@ -308,54 +304,6 @@ func Panel(style BoxStyle, rowH int, children ...Widget) *Container {
 	c := VBox(rowH, children...)
 	c.style = style
 	return c
-}
-
-// Input は1フレームの生入力。UI.Update に渡す。
-type Input struct {
-	CursorX, CursorY int
-}
-
-// UI は1つの画面。全状態を所有する。パッケージグローバルには一切置かない。
-type UI struct {
-	root    Widget
-	cursor  image.Point
-	hovered Widget
-}
-
-// New はルートを与えて UI を作る。
-func New(root Widget) *UI { return &UI{root: root} }
-
-// Root はルートウィジェットを返す。
-func (u *UI) Root() Widget { return u.root }
-
-// Layout はルートに画面矩形を与える。
-func (u *UI) Layout(screen image.Rectangle) { u.root.Layout(screen) }
-
-// Update は入力を UI 自身の状態へ取り込む。パッケージグローバルには触れないので、
-// 別インスタンスの UI を並行に Update しても競合しない。
-// 先に Layout を呼ぶこと。Layout 前は各ウィジェットの矩形がゼロ値のため、ホバーは常に外れる。
-func (u *UI) Update(in Input) {
-	u.cursor = image.Pt(in.CursorX, in.CursorY)
-	u.hovered = hitTest(u.root, u.cursor)
-}
-
-// Draw はルートを描く。
-func (u *UI) Draw(cv Canvas) { u.root.Draw(cv) }
-
-// Hovered は現在ホバー中のウィジェットを返す。UI ごとに独立する。
-func (u *UI) Hovered() Widget { return u.hovered }
-
-// hitTest は点を含む最も内側のウィジェットを返す。含むものが無ければ nil。
-func hitTest(w Widget, p image.Point) Widget {
-	if !p.In(w.Bounds()) {
-		return nil
-	}
-	for _, ch := range w.Children() {
-		if hit := hitTest(ch, p); hit != nil {
-			return hit
-		}
-	}
-	return w
 }
 
 // CollectLabels はツリー内の Text.Value を出現順に集める。
