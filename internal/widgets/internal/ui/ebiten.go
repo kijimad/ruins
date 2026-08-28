@@ -65,6 +65,12 @@ func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(scale, scale)
 	op.GeoM.Translate(ox, oy)
+	// 端数スケールの nearest はサンプル点が周期的にテクセル境界へ乗り、どちらを拾うかが
+	// 内部アトラスの配置座標、つまり画像の生成順に依存して揺れる。縮小時は linear にして
+	// 境界の二択を連続な重み付き混合へ変え、配置によらず同じ画に固定する
+	if scale != 1 {
+		op.Filter = ebiten.FilterLinear
+	}
 	e.screen.DrawImage(img, op)
 }
 

@@ -2,6 +2,7 @@ package menuframe
 
 import (
 	"image/color"
+	"math"
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
@@ -83,8 +84,7 @@ func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face te
 		case styled.ColFit:
 			maxW := 0
 			if i < len(headerRow) {
-				w, _ := text.Measure(headerRow[i], face, 0)
-				maxW = max(maxW, int(w))
+				maxW = max(maxW, measureCellWidth(headerRow[i], face))
 			}
 			for _, r := range rows {
 				if i >= len(r.Cells) {
@@ -95,8 +95,7 @@ func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face te
 					maxW = max(maxW, theme.MenuIconW)
 					continue
 				}
-				w, _ := text.Measure(cell.Text, face, 0)
-				maxW = max(maxW, int(w))
+				maxW = max(maxW, measureCellWidth(cell.Text, face))
 			}
 			widths[i] = maxW + theme.Space3
 		case styled.ColGrow:
@@ -104,6 +103,14 @@ func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face te
 		}
 	}
 	return widths
+}
+
+// measureCellWidth はセル文字列の描画幅を整数へ丸めて返す。フォントの送り幅はほぼ整数で、
+// ビルド設定による浮動小数の微差で切り捨てると幅が1px揺れて列全体がずれるため、
+// 切り捨てでなく四捨五入で境界から遠ざける。
+func measureCellWidth(s string, face text.Face) int {
+	w, _ := text.Measure(s, face, 0)
+	return int(math.Round(w))
 }
 
 // cellTexts は見出し行のセルから文字列を取り出す。見出しはアイコンを持たない前提で Text を並べる。
