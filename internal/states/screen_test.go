@@ -29,7 +29,7 @@ func newTestChoiceMenu(ran *bool) *gs.ChoiceMenuState {
 
 func TestScreen_ChoiceMenu_選択で先頭のRunが走りその遷移を返す(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitVRTWorld(t)
+	world := vrt.InitReplayWorld(t)
 	var ran bool
 	st := newTestChoiceMenu(&ran)
 
@@ -47,7 +47,7 @@ func TestScreen_ChoiceMenu_選択で先頭のRunが走りその遷移を返す(t
 
 func TestScreen_ChoiceMenu_キャンセルでPop(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitVRTWorld(t)
+	world := vrt.InitReplayWorld(t)
 	var ran bool
 	st := newTestChoiceMenu(&ran)
 
@@ -60,7 +60,7 @@ func TestScreen_ChoiceMenu_キャンセルでPop(t *testing.T) {
 
 func TestScreen_ChoiceMenu_UpdateとDrawが通る(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitVRTWorld(t)
+	world := vrt.InitReplayWorld(t)
 	var ran bool
 	st := newTestChoiceMenu(&ran)
 
@@ -77,7 +77,7 @@ func TestScreen_ChoiceMenu_UpdateとDrawが通る(t *testing.T) {
 
 func TestScreen_ChoiceMenu_見出し行はカーソルが飛ばされる(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitVRTWorld(t)
+	world := vrt.InitReplayWorld(t)
 	var ran bool
 	st := gs.NewChoiceMenu(func(_ w.World) (string, []gs.Choice) {
 		return "", []gs.Choice{

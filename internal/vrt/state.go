@@ -34,7 +34,7 @@ func RenderPNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []by
 // renderStates は world を作りステートを構築し、本番の MainGame.Draw で screen へ描いて NRGBA を返す。
 func renderStates(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
 	t.Helper()
-	world := InitVRTWorld(t)
+	world := InitReplayWorld(t)
 
 	sm := SetupStateMachine(t, world, buildStates)
 	game, err := maingame.NewMainGame(world, sm)
@@ -65,11 +65,12 @@ func SetupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []
 	return stateMachine
 }
 
-// InitVRTWorld はVRT用のワールドを固定シードで初期化する。テスト・ベンチ双方で使えるよう testing.TB を受ける。
+// InitReplayWorld は実プレイの再現に使うフルゲーム構成のワールドを固定シードで初期化する。
+// テスト・ベンチ双方で使えるよう testing.TB を受ける。
 //
 // maingame.InitWorld はフォント読み込みなど並行安全でない構築を含むため loadMu で直列化する。
 // 構築後の world は自前の独立フェイスを持つので、以降の設定と描画はロック無しで並列に走れる。
-func InitVRTWorld(tb testing.TB) w.World {
+func InitReplayWorld(tb testing.TB) w.World {
 	tb.Helper()
 
 	cfg := &config.Config{Profile: config.ProfileDevelopment}

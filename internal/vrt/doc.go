@@ -9,7 +9,7 @@
 // # ワールド・ステート構築
 //
 //   - InitUIWorld: widget や画面の描画テスト用の world。ECS シングルトンとフェイス込みで軽い。UI テストはこれを使う
-//   - InitVRTWorld: フルゲームを構築する重い world。states の golden_replay がフルフレームを駆動するときだけに使う
+//   - InitReplayWorld: フルゲームを構築する重い world。states の golden_replay がフルフレームを駆動するときだけに使う
 //   - SetupStateMachine: ステートを構築しレイアウト確定までフレームを回す
 //
 // # ゴールデン比較。ピクセル差分で pass/fail を判定する

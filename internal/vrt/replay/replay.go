@@ -40,7 +40,7 @@ func PlayScenario(
 	capture func(frame int, world w.World, screen *ebiten.Image),
 ) *maingame.MainGame {
 	t.Helper()
-	world := vrt.InitVRTWorld(t)
+	world := vrt.InitReplayWorld(t)
 
 	// レイアウト確定フレームは供給源を差す前に回す。Action を消費させない
 	sm := vrt.SetupStateMachine(t, world, buildStates)

@@ -22,7 +22,7 @@ var loadMu sync.Mutex
 // 呼び出しごとに独立して構築する。text/v2 は GoTextFaceSource 内に可変キャッシュを持ち、
 // 共有フェイスを並行描画すると競合するが、独立所有ならロック無しで並列に実描画できる。
 // 読み込み自体は並行安全でないので loadMu で直列化する。
-// フルゲームを構築する重い InitVRTWorld は、実プレイどおりフルフレームを駆動する
+// フルゲームを構築する重い InitReplayWorld は、実プレイどおりフルフレームを駆動する
 // states の golden_replay だけに使う。
 func InitUIWorld(t *testing.T) w.World {
 	t.Helper()

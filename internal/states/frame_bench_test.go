@@ -35,7 +35,7 @@ func BenchmarkDungeonFrame(b *testing.B) {
 	}
 
 	for _, bld := range builders {
-		world := vrt.InitVRTWorld(b)
+		world := vrt.InitReplayWorld(b)
 		sm, err := es.Init(&gs.DungeonState{Depth: 1, DefinitionName: dungeon.DungeonDebug.Name(), BuilderType: bld.bt}, world)
 		require.NoError(b, err)
 		for range 5 {
