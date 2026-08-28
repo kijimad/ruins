@@ -20,6 +20,7 @@ require (
 	github.com/urfave/cli/v3 v3.11.0
 	github.com/yohamta/furex/v2 v2.4.9
 	golang.org/x/image v0.45.0
+	golang.org/x/tools v0.48.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -69,7 +70,6 @@ require (
 	golang.org/x/telemetry v0.0.0-20260708182218-49f421fb7959 // indirect
 	golang.org/x/term v0.45.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
-	golang.org/x/tools v0.48.0 // indirect
 	golang.org/x/vuln v1.6.0 // indirect
 )
 

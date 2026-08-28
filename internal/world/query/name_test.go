@@ -12,9 +12,7 @@ import (
 func TestGetEntityID(t *testing.T) {
 	t.Parallel()
 
-	// ECS のエンティティ生成とコンポーネント追加は並行安全でないので、
-	// 並列サブテストは共有 world を持たず各自で world を作る
-
+	// Ark の world は並行安全でないので、並列サブテストごとに自前の world を作る
 	t.Run("RawIDを持てばそのIDを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -42,9 +40,6 @@ func TestGetEntityID(t *testing.T) {
 
 func TestNameMarkup(t *testing.T) {
 	t.Parallel()
-
-	// ECS のエンティティ生成とコンポーネント追加は並行安全でないので、
-	// 並列サブテストは共有 world を持たず各自で world を作る
 
 	t.Run("プレイヤーはplayerタグ", func(t *testing.T) {
 		t.Parallel()
