@@ -16,9 +16,9 @@ import (
 // menuframe.RenderList の検証はツリー構造で行う。CollectLabels は描画せず Value を集めるだけなので
 // フェイスも ebiten も要らず、完全に並列でよい。選択の背景強調はピクセルなので golden 側で見る。
 
-func labelsOf(items []ui.Widget) []string {
+func labelsOf(items []ui.Drawable) []string {
 	labels := make([]string, 0, len(items))
-	for _, it := range items {
+	for _, it := range ui.Placeable(items) {
 		labels = append(labels, ui.CollectLabels(it)...)
 	}
 	return labels

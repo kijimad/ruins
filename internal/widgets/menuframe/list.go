@@ -36,7 +36,7 @@ type ListOpts struct {
 // 1ページの件数は呼び出し側が opts.ItemsPerPage に解決して渡す。0 なら全行を1ページに収める。
 // 列幅は CSS Grid のトラックと同じ規則で解決する。Fit の列は全行の内容の実測から、
 // Grow の列は余り幅から決まり、表全体で列が揃う。呼び出し側は幅の数値を書かない。
-func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res resources.UIResources) ([]ui.Widget, string) {
+func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res resources.UIResources) ([]ui.Drawable, string) {
 	face := res.Text.BodyFace
 	colWidths := resolveColWidths(cols, opts.HeaderRow, rows, face)
 	aligns := styled.Aligns(cols)
@@ -46,7 +46,7 @@ func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res
 	}
 	pg := pagination.New(itemIndex, len(rows), perPage)
 
-	var items []ui.Widget
+	var items []ui.Drawable
 	if opts.HeaderRow != nil {
 		items = append(items, headerRow(opts.HeaderRow, colWidths, face))
 	}

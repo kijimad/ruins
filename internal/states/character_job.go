@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -149,48 +148,22 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 // View
 // ================
 
-// ViewUI は見出し・左の職業一覧・右の詳細パネル・下の説明を Group で絶対配置する。
+// ViewUI は見出し・左の職業一覧・右の詳細パネル・下の説明を左右2枠の画面へ載せる。
 func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
-	sd := world.Resources.ScreenDimensions
 	itemIndex := cursor.ItemIndex
-	face := res.Text.BodyFace
-	children := make([]ui.Widget, 0, 5)
-
-	title := ui.NewText(query.T(world, "Profession"), res.Text.TitleFontFace, theme.TextPrimary)
-	title.Align = ui.AlignCenter
-	title.Layout(image.Rect(0, 24, sd.Width, 60))
-	children = append(children, title)
 
 	rows := make([]menuframe.Row, len(props.Items))
 	for i := range props.Items {
 		rows[i] = menuframe.Row{Cells: styled.TextCells(query.T(world, props.Items[i].Profession.Name))}
 	}
-	// 職業選択は単一ページで独自レイアウト。ページ表示は使わないので捨てる
-	listRows, _ := menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name()), menuframe.ListOpts{}, res)
-	list := ui.VBox(theme.MenuPanelRowH, listRows...)
-	list.Layout(image.Rect(40, 80, 40+180, sd.Height-72))
-	children = append(children, list)
-
-	detailRows := buildJobDetailRowsUI(world, props, itemIndex, face)
-	detail := menuframe.PanelBox(res, detailRows...)
-	detail.Layout(image.Rect(240, 80, sd.Width-40, sd.Height-72))
-	children = append(children, detail)
+	list := menuframe.SplitList(itemIndex, rows, res)
+	detail := menuframe.PanelBox(res, buildJobDetailRowsUI(world, props, itemIndex, res.Text.BodyFace)...)
 
 	description := ""
 	if itemIndex < len(props.Items) {
 		description = query.T(world, props.Items[itemIndex].Profession.Description)
 	}
-	desc := ui.NewText(description, res.Text.SmallFace, theme.TextAccent)
-	desc.Align = ui.AlignCenter
-	desc.Layout(image.Rect(0, sd.Height-56, sd.Width, sd.Height-40))
-	hint := ui.NewText(keybind.HelpHint(world), res.Text.SmallFace, theme.TextAccent)
-	hint.Align = ui.AlignCenter
-	hint.Layout(image.Rect(0, sd.Height-32, sd.Width, sd.Height-16))
-	children = append(children, desc, hint)
-
-	root := ui.NewGroup(children...)
-	root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
-	return root
+	return menuframe.SplitScreen(world, res, query.T(world, "Profession"), list, detail, description, keybind.HelpHint(world))
 }
 
 // buildJobDetailRowsUI は装備・所持品・スキルの見出しと行を返す。

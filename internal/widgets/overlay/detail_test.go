@@ -184,7 +184,7 @@ func TestDetailRenderOverlay_対象があれば名前とページ位置を表示
 	tree := d.RenderOverlay(world, image.Rect(0, 0, 400, 400))
 
 	require.NotNil(t, tree)
-	labels := ui.CollectLabels(tree)
+	labels := ui.CollectLabels(ui.Placeable([]ui.Drawable{tree})[0])
 	assert.Contains(t, labels, "回復薬")
 	assert.Contains(t, labels, "1/1")
 }

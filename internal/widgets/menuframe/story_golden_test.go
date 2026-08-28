@@ -27,7 +27,7 @@ func storyIcon() *ebiten.Image {
 }
 
 // storyRows はカタログ用の一覧。見出し・選択中・非選択・アイコン・右寄せ数値を1組に収める。
-func storyRows(res resources.UIResources) []ui.Widget {
+func storyRows(res resources.UIResources) []ui.Drawable {
 	cols := styled.Cols(styled.Icon(), styled.Name(), styled.Num())
 	rows := []Row{
 		{Cells: styled.TextCells("Weapons", "", ""), Header: true},
@@ -39,10 +39,10 @@ func storyRows(res resources.UIResources) []ui.Widget {
 }
 
 // drawStory は widget 群を縦に積んで実描画し、golden と比較する。
-func drawStory(t *testing.T, name string, size image.Point, rowH int, ws []ui.Widget) {
+func drawStory(t *testing.T, name string, size image.Point, rowH int, ws []ui.Drawable) {
 	t.Helper()
 	items := make([]ui.FlexItem, len(ws))
-	for i, wgt := range ws {
+	for i, wgt := range ui.Placeable(ws) {
 		items[i] = ui.FlexItem{W: wgt, Height: rowH}
 	}
 	ui.FlexColumn(image.Rect(0, 0, size.X, size.Y), items)

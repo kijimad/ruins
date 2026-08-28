@@ -10,6 +10,43 @@ import (
 	"github.com/yohamta/furex/v2"
 )
 
+// Drawable は描くことだけができるツリー。配置は済んでいる前提で、画面にはこの面を見せる。
+// 画面が絶対座標で組めないよう、Layout をここに置かない。
+type Drawable interface {
+	Draw(cv Canvas)
+}
+
+// Placeable は描くだけの面で受け取ったツリーを、配置もできる Widget へ戻す。
+// このパッケージの型はすべて配置を持つので、通常はそのまま通る。
+// 配置を持たないものは、与えられた矩形を無視して描くだけの葉として包む。
+func Placeable(ds []Drawable) []Widget {
+	out := make([]Widget, len(ds))
+	for i, d := range ds {
+		if w, ok := d.(Widget); ok {
+			out[i] = w
+			continue
+		}
+		out[i] = &drawOnly{d: d}
+	}
+	return out
+}
+
+// drawOnly は配置を持たないツリーを Widget として扱う包み。行や列の枠は占めるが、
+// 与えられた矩形は中身へ伝わらない。
+type drawOnly struct {
+	base
+	d Drawable
+}
+
+// Layout は Widget を実装する。矩形は自身の記録だけに使う。
+func (o *drawOnly) Layout(b image.Rectangle) { o.rect = b }
+
+// Draw は Widget を実装する。
+func (o *drawOnly) Draw(cv Canvas) { o.d.Draw(cv) }
+
+// Children は Widget を実装する。子は持たない。
+func (o *drawOnly) Children() []Widget { return nil }
+
 // Widget は保持型 UI ツリーの要素。
 type Widget interface {
 	// Layout は与えられた矩形内で自身と子の矩形を確定する。

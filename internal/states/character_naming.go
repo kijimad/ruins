@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image"
 	"time"
 	"unicode/utf8"
 
@@ -235,15 +234,6 @@ func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {
 func (st *CharacterNamingState) buildUI(world w.World) ui.Widget {
 	res := world.Resources.UIResources
 	props := st.mount.GetProps()
-	sd := world.Resources.ScreenDimensions
-
-	const (
-		boxW   = 320
-		titleH = 36
-		inputH = 44
-		lineH  = 22
-		gap    = theme.Space6
-	)
 
 	// 入力枠の中身。空なら placeholder を薄色で、入力中は名前にキャレットを添える。
 	// 縦位置は VCenter で入力枠の中央へ合わせる
@@ -255,42 +245,6 @@ func (st *CharacterNamingState) buildUI(world w.World) ui.Widget {
 	}
 	content.VCenter = true
 
-	// エラー行はメッセージがあるときだけ高さを取る
-	rowsH := titleH + gap + inputH + gap + lineH
-	if props.ErrorMessage != "" {
-		rowsH += lineH + gap
-	}
-	y := (sd.Height - rowsH) / 2
-	x := (sd.Width - boxW) / 2
-
-	var children []ui.Widget
-
-	title := ui.NewText(query.T(world, "Name"), res.Text.TitleFontFace, theme.TextPrimary)
-	title.Align = ui.AlignCenter
-	title.Layout(image.Rect(x, y, x+boxW, y+titleH))
-	children = append(children, title)
-	y += titleH + gap
-
-	// 入力欄の枠と余白の意匠は部品が持つ。ここでは置き場所だけ決める
-	input := menuframe.InputBox(res, content)
-	input.Layout(image.Rect(x, y, x+boxW, y+inputH))
-	children = append(children, input)
-	y += inputH + gap
-
-	if props.ErrorMessage != "" {
-		errText := ui.NewText(props.ErrorMessage, res.Text.SmallFace, theme.StatusDanger)
-		errText.Align = ui.AlignCenter
-		errText.Layout(image.Rect(x, y, x+boxW, y+lineH))
-		children = append(children, errText)
-		y += lineH + gap
-	}
-
-	hint := ui.NewText(consts.IconKeyEnter+" "+query.T(world, "Confirm")+" / "+consts.IconKeyEsc+" "+query.T(world, "Back"), res.Text.SmallFace, theme.TextAccent)
-	hint.Align = ui.AlignCenter
-	hint.Layout(image.Rect(x, y, x+boxW, y+lineH))
-	children = append(children, hint)
-
-	root := ui.NewGroup(children...)
-	root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
-	return root
+	hint := consts.IconKeyEnter + " " + query.T(world, "Confirm") + " / " + consts.IconKeyEsc + " " + query.T(world, "Back")
+	return menuframe.FormScreen(world, res, query.T(world, "Name"), content, props.ErrorMessage, hint)
 }

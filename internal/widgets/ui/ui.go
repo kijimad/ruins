@@ -18,8 +18,15 @@ import (
 	core "github.com/kijimaD/ruins/internal/widgets/internal/ui"
 )
 
-// Widget は UI ツリーの1ノード。配置と描画だけを持つ。
-type Widget = core.Widget
+// Widget は画面が受け取る UI ツリー。描くことだけができる。
+//
+// 配置は部品が済ませてから渡すので、画面には Layout の面を見せない。
+// 見せると絶対座標で画面を組めてしまい、レイアウトエンジンを迂回する経路が型に開く。
+// 部品はプリミティブ実体の Widget を扱い、そちらは Layout を持つ。
+type Widget = core.Drawable
+
+// Canvas は描画先。画面は EbitenCanvas を作ってツリーへ渡す。
+type Canvas = core.Canvas
 
 // Text は1行テキスト。Align・VCenter は内容のそろえで、画面が自由に指定してよい。
 type Text = core.Text
@@ -46,13 +53,15 @@ func NewText(value string, face text.Face, c color.Color) *Text {
 func NewGraphic(img *ebiten.Image) Widget { return core.NewGraphic(img) }
 
 // NewGroup は子を絶対配置で束ねる。ページ合成のルートに使う。
-func NewGroup(children ...Widget) Widget { return core.NewGroup(children...) }
+func NewGroup(children ...Widget) Widget { return core.NewGroup(core.Placeable(children)...) }
 
 // VBox は子を縦に積む。rowH は各行の高さ。
-func VBox(rowH int, children ...Widget) Widget { return core.VBox(rowH, children...) }
+func VBox(rowH int, children ...Widget) Widget { return core.VBox(rowH, core.Placeable(children)...) }
 
 // Row は子を横に並べる。colWidths は各列の幅。0 の列は余り幅を吸って伸びる。
-func Row(colWidths []int, cells ...Widget) Widget { return core.Row(colWidths, cells...) }
+func Row(colWidths []int, cells ...Widget) Widget {
+	return core.Row(colWidths, core.Placeable(cells)...)
+}
 
 // NewEbitenCanvas は描画先スクリーンを与えて Canvas を作る。
 func NewEbitenCanvas(screen *ebiten.Image) *EbitenCanvas { return core.NewEbitenCanvas(screen) }

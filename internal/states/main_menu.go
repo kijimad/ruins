@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -12,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -125,43 +123,25 @@ func (st *MainMenuState) handleSelection(world w.World) (es.Transition[w.World],
 // View
 // ================
 
-// ViewUI はメニューを左下へ左寄せで置き、バージョンを右下へ置く。
-// パネル背景は付けず、タイトル背景を透かす。Screen が本体を internal/ui で描く。
+// ViewUI はメニューと版の注記をタイトル画面の枠へ載せる。パネル背景は付けず、
+// タイトル背景を透かす。Screen が本体を internal/ui で描く。
 func (st *MainMenuState) ViewUI(world w.World, props MainMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
-	sd := world.Resources.ScreenDimensions
-
 	rows := make([]menuframe.Row, len(props.Items))
 	for i, item := range props.Items {
 		rows[i] = menuframe.Row{Cells: styled.TextCells(item.Label)}
 	}
-	// メインメニューは単一ページで独自レイアウト。ページ表示は使わないので捨てる
-	listRows, _ := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Name()), menuframe.ListOpts{}, res)
-	menu := ui.VBox(theme.MenuPanelRowH, listRows...)
-	menuH := len(listRows) * theme.MenuPanelRowH
-	menu.Layout(image.Rect(64, sd.Height-72-menuH, 64+theme.MenuRowWidth, sd.Height-72))
 
-	var lines []string
+	// 既定値のままの項目は未設定なので出さない
+	var notes []string
 	if consts.AppVersion != "v0.0.0" {
-		lines = append(lines, consts.AppVersion)
+		notes = append(notes, consts.AppVersion)
 	}
 	if consts.AppCommit != "0000000" {
-		lines = append(lines, consts.AppCommit)
+		notes = append(notes, consts.AppCommit)
 	}
 	if consts.AppDate != "0000-00-00" {
-		lines = append(lines, consts.AppDate)
-	}
-	children := make([]ui.Widget, 0, 1+len(lines))
-	children = append(children, menu)
-	const versionRowH = 16
-	for i, line := range lines {
-		t := ui.NewText(line, res.Text.SmallFace, theme.TextAccent)
-		t.Align = ui.AlignRight
-		y := sd.Height - versionRowH*(len(lines)-i) - 8
-		t.Layout(image.Rect(sd.Width-240, y, sd.Width-8, y+versionRowH))
-		children = append(children, t)
+		notes = append(notes, consts.AppDate)
 	}
 
-	root := ui.NewGroup(children...)
-	root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
-	return root
+	return menuframe.TitleScreen(world, res, cursor.ItemIndex, rows, notes)
 }

@@ -19,8 +19,8 @@ func panelBackground(c *ui.Container, res resources.UIResources) *ui.Container {
 // PanelBox はパネルテクスチャを敷いた縦積みの箱を返す。行高・余白・背景は標準の既定に従う。
 // TabScreen・PanelScreen に収まらない独自配置の画面が、意匠だけを部品へ合わせるのに使う。
 // 置き場所は呼び出し側が Layout で決める。
-func PanelBox(res resources.UIResources, content ...ui.Widget) ui.Widget {
-	return panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, content...), res).SetPadding(theme.MenuPad)
+func PanelBox(res resources.UIResources, content ...ui.Drawable) ui.Widget {
+	return panelBackground(ui.Panel(ui.BoxStyle{}, theme.MenuPanelRowH, ui.Placeable(content)...), res).SetPadding(theme.MenuPad)
 }
 
 // footerRow はフッタ行を組む。左にヘルプ、右端にページ表示を並べる。
@@ -41,25 +41,25 @@ func footerRow(footer, pager string, res resources.UIResources) *ui.Container {
 // 背景はパネルテクスチャを敷く。内容は RenderList が返す行をそのまま渡す。ページ表示は
 // フッタ行の右端に置く。上端固定により、項目数が違ってもタイトル・先頭項目が常に同じ位置に来る。
 // 選択メニュー choice や設定メニューなど、項目数相応に伸びるパネル画面で使う。
-func PanelScreen(world w.World, res resources.UIResources, title string, content []ui.Widget, footer, pager string) ui.Widget {
+func PanelScreen(world w.World, res resources.UIResources, title string, content []ui.Drawable, footer, pager string) ui.Widget {
 	return panelScreen(world, res, title, content, footer, pager, theme.MenuPanelRowH)
 }
 
 // PanelScreenDense は PanelScreen の密行版。行間を空けるコマンドメニューと違い、
 // キー一覧のような表を詰まった行高で項目数相応の小さなパネルに収める。
 // 項目が多くてもログ領域に被らずに収まる。
-func PanelScreenDense(world w.World, res resources.UIResources, title string, content []ui.Widget, footer, pager string) ui.Widget {
+func PanelScreenDense(world w.World, res resources.UIResources, title string, content []ui.Drawable, footer, pager string) ui.Widget {
 	return panelScreen(world, res, title, content, footer, pager, theme.MenuTabRowH)
 }
 
 // panelScreen はパネル画面の実体。行高だけを密度の変種として受け取る。
-func panelScreen(world w.World, res resources.UIResources, title string, content []ui.Widget, footer, pager string, rowH int) ui.Widget {
+func panelScreen(world w.World, res resources.UIResources, title string, content []ui.Drawable, footer, pager string, rowH int) ui.Widget {
 	face := res.Text.BodyFace
 	items := make([]ui.FlexItem, 0, len(content)+3)
 	if title != "" {
 		items = append(items, ui.FlexItem{W: ui.NewText(title, face, theme.TextPrimary), Height: rowH})
 	}
-	for _, c := range content {
+	for _, c := range ui.Placeable(content) {
 		items = append(items, ui.FlexItem{W: c, Height: rowH})
 	}
 	if footer != "" || pager != "" {
@@ -120,7 +120,7 @@ func tabSelCell(child ui.Widget, selBar *resources.NineSliceTex) *ui.Container {
 // モーダルは中央固定枠 ModalRect いっぱいに広げる。タブ帯と一覧の間に一行の余白を空ける。
 // フッタは flex-grow のスペーサで常に下端へ固定し、内容の量によらずヘルプの位置がぶれない。
 // 容量の逆算や空行埋めは要らない。ページ表示はフッタ行の右端に置く。
-func TabScreen(world w.World, res resources.UIResources, header string, tabLabels []string, tabIndex int, content []ui.Widget, footer, pager string) ui.Widget {
+func TabScreen(world w.World, res resources.UIResources, header string, tabLabels []string, tabIndex int, content []ui.Drawable, footer, pager string) ui.Widget {
 	face := res.Text.BodyFace
 	rect := ModalRect(world)
 	inner := image.Rect(rect.Min.X+theme.MenuPad, rect.Min.Y+theme.MenuPad, rect.Max.X-theme.MenuPad, rect.Max.Y-theme.MenuPad)
@@ -138,7 +138,7 @@ func TabScreen(world w.World, res resources.UIResources, header string, tabLabel
 	if header != "" || len(tabLabels) > 0 {
 		items = append(items, ui.FlexItem{Height: theme.MenuTabRowH})
 	}
-	for _, c := range content {
+	for _, c := range ui.Placeable(content) {
 		items = append(items, ui.FlexItem{W: c, Height: theme.MenuTabRowH})
 	}
 	if footer != "" || pager != "" {

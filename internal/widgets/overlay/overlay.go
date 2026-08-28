@@ -21,7 +21,7 @@ type Layer interface {
 // ScreenRenderer は自身を internal/ui のツリーとして描く overlay。Screen は本体を描いたあと、
 // このツリーを画面の上へ重ねて描く。ツリーは rect に配置済みで返す。表示するものが無ければ nil を返す。
 type ScreenRenderer interface {
-	RenderOverlay(world w.World, rect image.Rectangle) ui.Widget
+	RenderOverlay(world w.World, rect image.Rectangle) ui.Drawable
 }
 
 var _ Layer = (*Detail)(nil)

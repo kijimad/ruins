@@ -117,7 +117,7 @@ func (d *Detail) HandleInput(world w.World) error {
 
 // RenderOverlay は現在の内容から詳細モーダルを internal/ui のツリーへ組み、rect 内に配置して返す。
 // 対象が無ければ nil を返す。Screen はこれを本体の上へ重ねて描く。
-func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) ui.Widget {
+func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) ui.Drawable {
 	content, ok := d.provide(world)
 	if !ok {
 		return nil
