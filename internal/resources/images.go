@@ -1,10 +1,13 @@
 package resources
 
 import (
+	"image"
 	"log"
 
+	// UI テクスチャは PNG。image.Decode が読めるよう復号器を登録する
+	_ "image/png"
+
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 func newImageFromFile(path string) (*ebiten.Image, error) {
@@ -19,8 +22,13 @@ func newImageFromFile(path string) (*ebiten.Image, error) {
 			log.Print(err)
 		}
 	}()
-	i, _, err := ebitenutil.NewImageFromReader(f)
-	return i, err
+	src, _, err := image.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+	// unmanaged にして内部テクスチャアトラスへ載せない。拡縮を伴うサンプリングが
+	// アトラス上の配置座標に依存せず、同じ画面が常に同じ画素になる
+	return ebiten.NewImageFromImageWithOptions(src, &ebiten.NewImageFromImageOptions{Unmanaged: true}), nil
 }
 
 // newNineSliceTex はテクスチャを読み込み、中央サイズから9スライスの分割幅を導いて返す。

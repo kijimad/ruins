@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"image"
 
+	// テクスチャは PNG。image.Decode が読めるよう復号器を登録する
+	_ "image/png"
+
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/kijimaD/ruins/assets"
 )
 
@@ -43,11 +45,14 @@ func (t *Texture) UnmarshalText(text []byte) error {
 	if err != nil {
 		return err
 	}
-	textureImage, sourceImage, err := ebitenutil.NewImageFromReader(bytes.NewReader(bs))
+	sourceImage, _, err := image.Decode(bytes.NewReader(bs))
 	if err != nil {
 		return err
 	}
-	t.Image = textureImage
+	// unmanaged にして内部テクスチャアトラスへ載せない。透視投影の nearest サンプリングは
+	// テクセル境界の読み分けがアトラス上の配置座標に依存し、配置は画像の生成順で変わる。
+	// 自前のテクスチャなら座標が生成順に依存せず、同じ場面が常に同じ画素になる
+	t.Image = ebiten.NewImageFromImageWithOptions(sourceImage, &ebiten.NewImageFromImageOptions{Unmanaged: true})
 	t.Source = sourceImage
 	return nil
 }
