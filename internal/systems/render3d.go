@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"image"
 	"image/color"
 	"math"
 	"sort"
@@ -118,9 +119,11 @@ var (
 )
 
 // whitePixel はフラット塗り用の白1pxを返す。頂点色をそのまま出すために使う。
+// unmanaged にして内部テクスチャアトラスへ載せない。1×1 のテクセルは縁を踏む
+// サンプリングだらけで、アトラス上の配置座標や移住のタイミングで読みが揺れる
 func whitePixel() *ebiten.Image {
 	r3whiteOnce.Do(func() {
-		r3whiteImg = ebiten.NewImage(1, 1)
+		r3whiteImg = ebiten.NewImageWithOptions(image.Rect(0, 0, 1, 1), &ebiten.NewImageOptions{Unmanaged: true})
 		r3whiteImg.Fill(color.White)
 	})
 	return r3whiteImg
