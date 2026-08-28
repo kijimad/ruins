@@ -1,8 +1,9 @@
 package hud
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/widgets/framedbg"
+	"image"
+
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -25,17 +26,18 @@ func (c MessageAreaConfig) Height() int {
 
 // DefaultMessageAreaConfig はデフォルトのメッセージエリア設定
 var DefaultMessageAreaConfig = MessageAreaConfig{
-	LogAreaHeight: 120,            // 余裕を持たせて大きめに
-	MaxLogLines:   5,              // 表示する最大行数
-	LogAreaMargin: theme.Space3,   // 余白
-	LineHeight:    framedbg.LineH, // 1行の高さ。世界の上に重ねるパネルと揃える
-	YPadding:      12,             // 下端の追加パディング
+	LogAreaHeight: 120,          // 余裕を持たせて大きめに
+	MaxLogLines:   5,            // 表示する最大行数
+	LogAreaMargin: theme.Space3, // 余白
+	LineHeight:    LineH,        // 1行の高さ。世界の上に重ねるパネルと揃える
+	YPadding:      12,           // 下端の追加パディング
 }
 
 // MessageArea はHUDメッセージエリア
 type MessageArea struct {
 	widget  *messagelog.Widget
 	config  MessageAreaConfig
+	chrome  Chrome
 	enabled bool
 }
 
@@ -60,6 +62,7 @@ func NewMessageArea(world w.World) *MessageArea {
 	return &MessageArea{
 		widget:  widget,
 		config:  config,
+		chrome:  NewChrome(world.Resources.UIResources),
 		enabled: true,
 	}
 }
@@ -87,7 +90,7 @@ func (area *MessageArea) Update() {
 }
 
 // Draw はメッセージエリアを描画する
-func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
+func (area *MessageArea) Draw(cv ui.Canvas, data MessageData) {
 	if !area.enabled || area.widget == nil {
 		return
 	}
@@ -106,7 +109,7 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	logAreaY := screenHeight - fixedHeight - boxMargin
 
 	// 背景を描画
-	framedbg.Draw(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, framedbg.PanelStyle())
+	area.chrome.Panel(cv, image.Rect(logAreaX, logAreaY, logAreaX+logAreaWidth, logAreaY+fixedHeight))
 
 	// オフスクリーンサイズ
 	offscreenWidth := logAreaWidth - area.config.LogAreaMargin*2
@@ -115,5 +118,5 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	// メッセージウィジェットを描画
 	drawX := logAreaX + area.config.LogAreaMargin
 	drawY := logAreaY + area.config.LogAreaMargin
-	area.widget.Draw(screen, drawX, drawY, offscreenWidth, offscreenHeight)
+	area.widget.Draw(cv, drawX, drawY, offscreenWidth, offscreenHeight)
 }

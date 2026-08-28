@@ -2,11 +2,12 @@ package hud
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -63,38 +64,36 @@ func (info *GameInfo) Update(_ w.World) {
 }
 
 // Draw はゲーム情報エリアを描画する
-func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
+func (info *GameInfo) Draw(cv ui.Canvas, data GameInfoData) {
 	if !info.enabled {
 		return
 	}
 
-	info.drawTemperatureArrow(screen, data.TempArrow)
+	info.drawTemperatureArrow(cv, data.TempArrow)
 
 	// HP情報
-	info.drawHealthBar(screen, data.PlayerHP, data.PlayerMaxHP)
+	info.drawHealthBar(cv, data.PlayerHP, data.PlayerMaxHP)
 
 	// 体温数値
-	info.drawBodyTemperature(screen, data)
+	info.drawBodyTemperature(cv, data)
 
 	// 所持重量表示（右下）
-	info.drawWeightDisplay(screen, data)
+	info.drawWeightDisplay(cv, data)
 
 	// フロア情報（最後に描画して最前面に表示）
-	info.drawFloorNumber(screen, data)
+	info.drawFloorNumber(cv, data)
 }
 
 // drawFloorNumber は階層番号を描画する
-func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) {
+func (info *GameInfo) drawFloorNumber(cv ui.Canvas, data GameInfoData) {
 	floorText := fmt.Sprintf("%3dF", data.FloorNumber)
 
 	// テキストの幅を測定
 	textWidth := ui.MeasureTextWidth(floorText, info.headingFace)
 
 	// 右上に配置
-	x := float64(data.ScreenDimensions.Width-textWidth) - theme.Space4F
-	y := theme.Space4F
-
-	drawOutlinedText(screen, floorText, info.headingFace, x, y, theme.TextPrimary)
+	x := data.ScreenDimensions.Width - textWidth - theme.Space4
+	drawOutlinedText(cv, floorText, info.headingFace, image.Pt(x, theme.Space4), theme.TextPrimary)
 }
 
 // ゲージ共通のレイアウト定数
@@ -108,76 +107,42 @@ const (
 	gaugeSpacing    = 4.0                            // ゲージ間の間隔
 )
 
-// arrowOutlineOffsets は三角形の縁取りを描く8方向のオフセット。OutlinedText と同じ考え方
-var arrowOutlineOffsets = [8][2]float32{
-	{-1, -1}, {0, -1}, {1, -1},
-	{-1, 0}, {1, 0},
-	{-1, 1}, {0, 1}, {1, 1},
-}
-
-// drawTemperatureArrow は体温変化の矢印を HP バーの左にベクター三角形で描く。
-// 温まると上向き、冷えると下向き、一定は右向き。多様な背景でも読めるよう縁取りを重ねる
-func (info *GameInfo) drawTemperatureArrow(screen *ebiten.Image, arrow TemperatureArrow) {
+// drawTemperatureArrow は体温変化の矢印を HP バーの左に描く。
+// 温まると上向き、冷えると下向き、一定は右向き。
+//
+// 三角形を組むのでなくアイコンフォントの字で描く。キーキャップの記号と同じ出どころにすれば、
+// 矢印の意匠が字体の差し替えで揃い、描画も文字と同じ経路に乗る
+func (info *GameInfo) drawTemperatureArrow(cv ui.Canvas, arrow TemperatureArrow) {
 	if !arrow.Visible {
 		return
 	}
 
-	// HP ゲージの縦中心にそろえる
-	left := float32(gaugeBaseX)
-	cy := float32(gaugeBaseY) + float32(gaugeHeight)/2
-	top := cy - tempArrowH/2
-	bottom := cy + tempArrowH/2
-	midX := left + tempArrowW/2
-	right := left + tempArrowW
-
-	var pts [3][2]float32
+	var glyph string
 	switch arrow.Direction {
 	case TempDirectionUp:
-		pts = [3][2]float32{{midX, top}, {left, bottom}, {right, bottom}}
+		glyph = consts.IconArrowUp
 	case TempDirectionDown:
-		pts = [3][2]float32{{midX, bottom}, {left, top}, {right, top}}
-	default:
-		// 一定は右向き
-		pts = [3][2]float32{{right, cy}, {left, top}, {left, bottom}}
+		glyph = consts.IconArrowDown
+	case TempDirectionSteady:
+		glyph = consts.IconArrowRight
 	}
 
-	for _, o := range arrowOutlineOffsets {
-		fillTriangle(screen, offsetTriangle(pts, o[0], o[1]), theme.HUDTextOutline)
-	}
-	fillTriangle(screen, pts, arrow.Color)
-}
-
-// offsetTriangle は三角形の全頂点を平行移動した新しい三角形を返す
-func offsetTriangle(pts [3][2]float32, dx, dy float32) [3][2]float32 {
-	for i := range pts {
-		pts[i][0] += dx
-		pts[i][1] += dy
-	}
-	return pts
-}
-
-// fillTriangle は3頂点の塗り三角形を描く
-func fillTriangle(screen *ebiten.Image, pts [3][2]float32, clr color.Color) {
-	var p vector.Path
-	p.MoveTo(pts[0][0], pts[0][1])
-	p.LineTo(pts[1][0], pts[1][1])
-	p.LineTo(pts[2][0], pts[2][1])
-	p.Close()
-	op := &vector.DrawPathOptions{AntiAlias: true}
-	op.ColorScale.ScaleWithColor(clr)
-	vector.FillPath(screen, &p, nil, op)
+	// HP ゲージの縦中心にそろえる
+	_, gh := ui.MeasureText(glyph, info.bodyFace)
+	y := int(gaugeBaseY+gaugeHeight/2) - gh/2
+	drawOutlinedText(cv, glyph, info.bodyFace, image.Pt(int(gaugeBaseX), y), arrow.Color)
 }
 
 // drawHealthBar はプレイヤーの体力ゲージを描画する
 
 // drawBodyTemperature は体温ゲージを HP ゲージの下に描く。中央が平熱で、左へ冷え、右へ火照る
-func (info *GameInfo) drawBodyTemperature(screen *ebiten.Image, data GameInfoData) {
+func (info *GameInfo) drawBodyTemperature(cv ui.Canvas, data GameInfoData) {
 	if !data.BodyTempVisible {
 		return
 	}
 	x := gaugeBaseX + tempArrowSlotW
 	y := gaugeBaseY + gaugeHeight + gaugeSpacing
-	info.drawGaugeBar(screen, x, y, gaugeWidth, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio), theme.HUDGaugeBorder)
+	info.drawGaugeBar(cv, x, y, gaugeWidth, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio), theme.HUDGaugeBorder)
 }
 
 // bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青、火照るほど赤へ寄る
@@ -194,7 +159,7 @@ func lerpColor(a, b color.RGBA, t float64) color.RGBA {
 	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
 }
 
-func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) {
+func (info *GameInfo) drawHealthBar(cv ui.Canvas, currentHP, maxHP int) {
 	// 矢印スロットぶん右へ寄せる
 	x := gaugeBaseX + tempArrowSlotW
 	y := gaugeBaseY
@@ -214,7 +179,7 @@ func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) 
 		fillColor = lerpColor(theme.HUDHealthEmpty, theme.HUDHealthHalf, hpRatio*2)
 	}
 
-	info.drawGaugeBar(screen, x, y, gaugeWidth, hpRatio, fillColor, theme.HUDGaugeBorder)
+	info.drawGaugeBar(cv, x, y, gaugeWidth, hpRatio, fillColor, theme.HUDGaugeBorder)
 }
 
 // セパレーターライン・枠線がゲージ塗りから左右にはみ出す量
@@ -223,30 +188,26 @@ const gaugeOverhang = 6.0
 // drawGaugeBar はゲージバーを描画する。
 // 上下にグラデーションセパレーターライン、その間に白枠線で囲まれたグラデーション塗りを描画する。
 // セパレーターラインと枠線はゲージ塗りより左右に少しはみ出す
-func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio float64, fillColor, borderColor color.RGBA) {
-	fy := float32(y)
-	frameX := float32(x - gaugeOverhang)
-	frameW := float32(width + gaugeOverhang*2)
-	fillAreaH := float32(gaugeBorderH + gaugeFillHeight)
+func (info *GameInfo) drawGaugeBar(cv ui.Canvas, x, y, width, ratio float64, fillColor, borderColor color.RGBA) {
+	top := int(y)
+	frameX := int(x - gaugeOverhang)
+	frameW := int(width + gaugeOverhang*2)
+	fillAreaH := int(gaugeBorderH + gaugeFillHeight)
 
-	// 白い枠線（上辺と下辺のみ）
-	vector.FillRect(screen, frameX, fy, frameW, 1, borderColor, false)
-	vector.FillRect(screen, frameX, fy+fillAreaH-1, frameW, 1, borderColor, false)
+	// 白い枠線は上辺と下辺だけ引く
+	cv.FillRect(image.Rect(frameX, top, frameX+frameW, top+1), borderColor)
+	cv.FillRect(image.Rect(frameX, top+fillAreaH-1, frameX+frameW, top+fillAreaH), borderColor)
 
-	// 塗り（縦方向グラデーション: 上が明るく下が暗い光沢効果）
+	// 塗りは縦のグラデーションのテクスチャを伸ばして色を掛ける。上が明るく下が暗い光沢になる
 	if ratio > 0 && info.gaugeFill != nil {
-		fillW := width * ratio
-		srcH := float64(info.gaugeFill.Bounds().Dy())
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(fillW, gaugeFillHeight/srcH)
-		op.GeoM.Translate(x, float64(fy)+1)
-		op.ColorScale.ScaleWithColor(color.NRGBA(fillColor))
-		screen.DrawImage(info.gaugeFill, op)
+		fillW := int(width * ratio)
+		dst := image.Rect(int(x), top+1, int(x)+fillW, top+1+int(gaugeFillHeight))
+		cv.DrawImageTintedRect(dst, info.gaugeFill, color.NRGBA(fillColor))
 	}
 }
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する
-func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData) {
+func (info *GameInfo) drawWeightDisplay(cv ui.Canvas, data GameInfoData) {
 	// 所持重量テキストを作成する
 	weightText := fmt.Sprintf("%s / %s", data.PlayerWeight.KgString(), data.PlayerMaxWeight.KgString())
 
@@ -281,5 +242,5 @@ func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData)
 		textColor = theme.TextPrimary
 	}
 
-	drawOutlinedText(screen, weightText, info.bodyFace, x, y, textColor)
+	drawOutlinedText(cv, weightText, info.bodyFace, image.Pt(int(x), int(y)), textColor)
 }

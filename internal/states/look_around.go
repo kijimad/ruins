@@ -11,9 +11,9 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/render3d"
-	"github.com/kijimaD/ruins/internal/widgets/framedbg"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -157,7 +157,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	face := world.Resources.UIResources.Text.BodyFace
 
 	const panelHeight = 200
-	panel := framedbg.NewInfoPanel(screen, face, panelHeight)
+	panel := hud.NewInfoPanel(ui.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)
 	drawText := panel.Line
 
 	// 座標表示
@@ -234,7 +234,7 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, coun
 }
 
 // drawPassCost は移動コストを描画する
-func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, panel *framedbg.InfoPanel) {
+func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, panel *hud.InfoPanel) {
 	blocked := false
 	totalAdd := 0
 	for _, entity := range entities {
@@ -256,7 +256,7 @@ func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, pa
 }
 
 // drawTileTemperature はタイル温度修正値を描画する
-func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Entity, panel *framedbg.InfoPanel) {
+func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Entity, panel *hud.InfoPanel) {
 	for _, entity := range entities {
 		if world.Components.TileTemperature.Has(entity) {
 			temp := world.Components.TileTemperature.Get(entity)

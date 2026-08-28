@@ -54,7 +54,7 @@ func (widget *Widget) Update() {
 }
 
 // Draw はウィジェットを指定位置に描画する
-func (widget *Widget) Draw(screen *ebiten.Image, x, y, width, height int) {
+func (widget *Widget) Draw(cv ui.Canvas, x, y, width, height int) {
 	// モーダルなど別 state が前面にある間、このウィジェットを所有する state は Update されない。
 	// それでも最新ログを映すため、描画時にも取り込みを行う。version 一致時は即座に戻るため軽量
 	widget.refresh()
@@ -63,12 +63,10 @@ func (widget *Widget) Draw(screen *ebiten.Image, x, y, width, height int) {
 		return
 	}
 
+	// いったん別の画へ組んでから貼る。行が枠をはみ出しても外へ漏れない
 	offscreen := ebiten.NewImage(width, height)
 	widget.buildTree(width, height).Draw(ui.NewEbitenCanvas(offscreen))
-
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(x), float64(y))
-	screen.DrawImage(offscreen, op)
+	cv.DrawImage(image.Pt(x, y), offscreen)
 }
 
 // refresh はログのバージョンが変わったときだけ最新エントリを取り込む

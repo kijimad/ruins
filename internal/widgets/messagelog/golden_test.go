@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/vrt"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -23,7 +24,7 @@ func TestGolden_EmptyLog(t *testing.T) {
 		w := messagelog.NewWidget(defaultConfig(), world)
 		w.Update()
 		return func(screen *ebiten.Image) {
-			w.Draw(screen, 0, 0, 400, 120)
+			w.Draw(ui.NewEbitenCanvas(screen), 0, 0, 400, 120)
 		}
 	}, 400, 120)
 }
@@ -37,7 +38,7 @@ func TestGolden_SingleEntry(t *testing.T) {
 		w := messagelog.NewWidget(defaultConfig(), world)
 		w.Update()
 		return func(screen *ebiten.Image) {
-			w.Draw(screen, 0, 0, 400, 120)
+			w.Draw(ui.NewEbitenCanvas(screen), 0, 0, 400, 120)
 		}
 	}, 400, 120)
 }
@@ -53,7 +54,7 @@ func TestGolden_MultipleEntries(t *testing.T) {
 		w := messagelog.NewWidget(defaultConfig(), world)
 		w.Update()
 		return func(screen *ebiten.Image) {
-			w.Draw(screen, 0, 0, 400, 120)
+			w.Draw(ui.NewEbitenCanvas(screen), 0, 0, 400, 120)
 		}
 	}, 400, 120)
 }
@@ -74,7 +75,7 @@ func TestGolden_MaxLinesExceeded(t *testing.T) {
 		}, world)
 		w.Update()
 		return func(screen *ebiten.Image) {
-			w.Draw(screen, 0, 0, 400, 80)
+			w.Draw(ui.NewEbitenCanvas(screen), 0, 0, 400, 80)
 		}
 	}, 400, 80)
 }
@@ -90,7 +91,7 @@ func TestGolden_ColoredEntries(t *testing.T) {
 		w := messagelog.NewWidget(defaultConfig(), world)
 		w.Update()
 		return func(screen *ebiten.Image) {
-			w.Draw(screen, 0, 0, 400, 120)
+			w.Draw(ui.NewEbitenCanvas(screen), 0, 0, 400, 120)
 		}
 	}, 400, 120)
 }

@@ -167,7 +167,7 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 		text.Draw(buf, effect.Text, effect.Face, shadowOp)
 	}
 
-	hud.OutlinedText(buf, effect.Text, effect.Face, x, y, textColor, outlineColor)
+	hud.OutlinedText(ui.NewEbitenCanvas(buf), effect.Text, effect.Face, image.Pt(int(x), int(y)), textColor, outlineColor)
 
 	if effect.LineWidth > 0 {
 		lineY := y + float64(textHeight) + 2
@@ -203,7 +203,7 @@ func (sys *VisualEffectSystem) drawDamageText(screen *ebiten.Image, projector re
 	outlineColor := color.RGBA{0, 0, 0, alpha}
 
 	// アウトライン付きテキストを描画
-	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
+	hud.OutlinedText(ui.NewEbitenCanvas(screen), effect.Text, face, image.Pt(int(x), int(y)), textColor, outlineColor)
 }
 
 // drawHorizontalLine は両端がグラデーションで透明になる水平線を描画する

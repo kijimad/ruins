@@ -1,40 +1,29 @@
 package hud
 
 import (
+	"image"
 	"image/color"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
-// OutlinedText は枠線付きテキストを描画する
-// 8方向にオフセットして枠線を描画した後、本体のテキストを描画する
-func OutlinedText(screen *ebiten.Image, str string, face text.Face, x, y float64, textColor, outlineColor color.Color) {
-	offsets := []struct{ dx, dy float64 }{
-		{-1, -1}, {0, -1}, {1, -1},
-		{-1, 0}, {1, 0},
-		{-1, 1}, {0, 1}, {1, 1},
+// OutlinedText は枠線付きテキストを描く。8方向へずらして枠を描いてから本体を重ねる。
+// 世界の上に文字を置くので、背景の明暗によらず読めるようにする
+func OutlinedText(cv ui.Canvas, str string, face text.Face, pos image.Point, textColor, outlineColor color.Color) {
+	offsets := []image.Point{
+		{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
+		{X: -1, Y: 0}, {X: 1, Y: 0},
+		{X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1},
 	}
-
-	op := &text.DrawOptions{}
-	for _, offset := range offsets {
-		op.GeoM.Reset()
-		op.GeoM.Translate(x+offset.dx, y+offset.dy)
-		op.ColorScale.Reset()
-		op.ColorScale.ScaleWithColor(outlineColor)
-		text.Draw(screen, str, face, op)
+	for _, off := range offsets {
+		cv.DrawText(pos.Add(off), str, face, outlineColor)
 	}
-
-	op.GeoM.Reset()
-	op.GeoM.Translate(x, y)
-	op.ColorScale.Reset()
-	op.ColorScale.ScaleWithColor(textColor)
-	text.Draw(screen, str, face, op)
+	cv.DrawText(pos, str, face, textColor)
 }
 
-// drawOutlinedText は枠線付きテキストを描画する
-// textColorを指定することで任意の色でテキストを描画できる
-func drawOutlinedText(screen *ebiten.Image, textStr string, face text.Face, x, y float64, textColor color.Color) {
-	OutlinedText(screen, textStr, face, x, y, textColor, theme.HUDTextOutline)
+// drawOutlinedText は共通の縁色で枠線付きテキストを描く。HUD の文字はすべてこれを通す
+func drawOutlinedText(cv ui.Canvas, textStr string, face text.Face, pos image.Point, textColor color.Color) {
+	OutlinedText(cv, textStr, face, pos, textColor, theme.HUDTextOutline)
 }

@@ -19,6 +19,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 )
 
 func TestMain(m *testing.M) {
@@ -45,7 +46,7 @@ func TestGolden_Story_GameInfoGauges(t *testing.T) {
 	vrt.AssertScreenGolden(t, func() func(screen *ebiten.Image) {
 		info := hud.NewGameInfo(res.Text.SmallFace, res.Text.TitleFontFace, res.GaugeFill)
 		return func(screen *ebiten.Image) {
-			info.Draw(screen, hud.GameInfoData{
+			info.Draw(ui.NewEbitenCanvas(screen), hud.GameInfoData{
 				FloorNumber:       3,
 				PlayerHP:          42,
 				PlayerMaxHP:       80,
@@ -66,7 +67,7 @@ func TestGolden_Story_StatusBadges(t *testing.T) {
 	vrt.AssertScreenGolden(t, func() func(screen *ebiten.Image) {
 		badges := hud.NewStatusBadges(res.Text.SmallFace)
 		return func(screen *ebiten.Image) {
-			badges.Draw(screen, hud.StatusBadgesData{
+			badges.Draw(ui.NewEbitenCanvas(screen), hud.StatusBadgesData{
 				Badges: []hud.StatusBadge{
 					{Text: "Hungry", Color: color.RGBA{R: 150, G: 90, B: 30, A: 255}},
 					{Text: "Cold", Color: color.RGBA{R: 40, G: 90, B: 160, A: 255}},
@@ -85,7 +86,7 @@ func TestGolden_Story_Currency(t *testing.T) {
 	vrt.AssertScreenGolden(t, func() func(screen *ebiten.Image) {
 		cur := hud.NewCurrencyDisplay(res.Text.SmallFace)
 		return func(screen *ebiten.Image) {
-			cur.Draw(screen, hud.CurrencyData{
+			cur.Draw(ui.NewEbitenCanvas(screen), hud.CurrencyData{
 				Currency:         consts.Currency(10000),
 				ScreenDimensions: storyScreen,
 				Config:           hud.DefaultMessageAreaConfig,

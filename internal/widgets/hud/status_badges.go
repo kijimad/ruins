@@ -2,12 +2,11 @@ package hud
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"slices"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/widgets/framedbg"
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 )
@@ -40,7 +39,7 @@ func NewStatusBadges(bodyFace text.Face) *StatusBadges {
 }
 
 // Draw はステータスバッジを描画する
-func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
+func (sb *StatusBadges) Draw(cv ui.Canvas, data StatusBadgesData) {
 	if !sb.enabled || len(data.Badges) == 0 {
 		return
 	}
@@ -80,11 +79,11 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		// 背景矩形を描画。塗りはバッジの状態色を保ちつつ、枠はメニュー枠と同じ共通 chrome に揃える
 		bgX := theme.Space4
 		bgWidth := ui.FitWidth([]int{textWidth}, int(paddingX)*2, 0)
-		framedbg.Draw(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(badge.Color))
+		badgeChrome(cv, image.Rect(bgX, int(badgeY), bgX+bgWidth, int(badgeY+badgeHeight)), badge.Color)
 
 		// 白文字でテキストを描画
 		textY := badgeY + paddingY
-		drawOutlinedText(screen, badge.Text, sb.bodyFace, theme.Space4F+paddingX, textY, theme.TextPrimary)
+		drawOutlinedText(cv, badge.Text, sb.bodyFace, image.Pt(int(theme.Space4F+paddingX), int(textY)), theme.TextPrimary)
 
 		// 次のバッジの位置を更新
 		currentY = badgeY - badgeGap
@@ -101,17 +100,19 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		// グレーの背景。他バッジと同じ共通 chrome に揃える
 		bgX := theme.Space4
 		bgWidth := ui.FitWidth([]int{textWidth}, int(paddingX)*2, 0)
-		framedbg.Draw(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(theme.HUDBadgeBg))
+		badgeChrome(cv, image.Rect(bgX, int(badgeY), bgX+bgWidth, int(badgeY+badgeHeight)), theme.HUDBadgeBg)
 
 		textY := badgeY + paddingY
-		drawOutlinedText(screen, moreText, sb.bodyFace, theme.Space4F, textY, theme.TextPrimary)
+		drawOutlinedText(cv, moreText, sb.bodyFace, image.Pt(int(theme.Space4F+paddingX), int(textY)), theme.TextPrimary)
 	}
 }
 
-// badgeStyle はバッジの共通 chrome スタイルを返す。塗りはバッジごとの状態色を渡し、
-// 枠はメニュー枠と同じ PanelStyle に揃える
-func badgeStyle(fill color.RGBA) framedbg.Style {
-	s := framedbg.PanelStyle()
-	s.BackgroundColor = fill
-	return s
+// badgeChrome はバッジの箱を描く。塗りの色は状態を表すデータなので、意匠のテクスチャでなく
+// 塗りと枠で表す。枠の色はパネルと同じにして、HUD の他の箱と質感を揃える
+func badgeChrome(cv ui.Canvas, r image.Rectangle, fill color.RGBA) {
+	cv.StrokeRect(r, 1, theme.PanelHighlight)
+	inner := image.Rect(r.Min.X+1, r.Min.Y+1, r.Max.X-1, r.Max.Y-1)
+	cv.FillRect(inner, fill)
+	cv.FillRect(image.Rect(inner.Min.X, inner.Min.Y, inner.Max.X, inner.Min.Y+1), theme.PanelHighlight)
+	cv.FillRect(image.Rect(inner.Min.X, inner.Max.Y-1, inner.Max.X, inner.Max.Y), theme.PanelShadow)
 }

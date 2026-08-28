@@ -88,13 +88,22 @@ func (e *EbitenCanvas) DrawImageTintedRect(dst image.Rectangle, img *ebiten.Imag
 	op.GeoM.Scale(sx, sy)
 	op.GeoM.Translate(float64(dst.Min.X), float64(dst.Min.Y))
 	op.ColorScale.ScaleWithColor(tint)
-	// 引き伸ばすときは linear にする。用途はグラデーションを敷くことなので滑らかに混ぜるのが
-	// 正しく、加えて等倍でない nearest はテクセル境界の取り合いがテクスチャの配置に依存して
-	// 揺れる。連続な補間にすればどの配置でも同じ画になる
-	if sx != 1 || sy != 1 {
+	// 伸ばす軸がどれも2テクセル以上あるときだけ linear にする。
+	//
+	// 等倍でない nearest はテクセル境界の取り合いがテクスチャの配置に依存して揺れるので、
+	// 混ぜられるなら混ぜたい。ただし伸ばす軸が1テクセルしかない場合、混ぜる相手は
+	// 画像の外側の透明で、端がぼやけるだけになる。その軸は元から1色なので nearest が厳密で、
+	// 境界をまたがないため揺れも起きない
+	if stretchNeedsBlend(sx, b.Dx()) && stretchNeedsBlend(sy, b.Dy()) {
 		op.Filter = ebiten.FilterLinear
 	}
 	e.screen.DrawImage(img, op)
+}
+
+// stretchNeedsBlend はその軸を混ぜるべきかを返す。等倍なら混ぜる必要が無く、
+// 1テクセルしか無い軸は混ぜる相手が画像の外側しかないので、どちらも混ぜない。
+func stretchNeedsBlend(scale float64, srcLen int) bool {
+	return scale == 1 || srcLen > 1
 }
 
 // DrawNineSlice は EbitenCanvas を実装する。ソースを縦横3分割し、四隅は原寸、辺は片方向、
