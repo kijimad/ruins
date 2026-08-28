@@ -32,12 +32,11 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Contains(t, labels, query.T(world, gc.AttackSword.Label), "武器種別ラベルが表示される")
-	assert.Contains(t, labels, "25", "攻撃力の値が表示される")
-	assert.Contains(t, labels, "80", "命中率の値が表示される")
-	assert.Contains(t, labels, "2", "攻撃回数の値が表示される")
-	assert.Contains(t, labels, "100", "コストの値が表示される")
-	assert.Contains(t, labels, query.T(world, gc.ElementTypeFire.String()), "属性名が表示される")
+	assert.Equal(t, []string{
+		query.T(world, gc.AttackSword.Label),
+		"Attack power", "25", "Accuracy", "80", "Hits", "2", "Attack cost", "100",
+		"Element", query.T(world, gc.ElementTypeFire.String()),
+	}, labels)
 }
 
 func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *testing.T) {
@@ -52,7 +51,11 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.NotContains(t, labels, "Element", "無属性の場合は属性行が表示されない")
+	// 無属性は Element 行が出ない
+	assert.Equal(t, []string{
+		query.T(world, gc.AttackFist.Label),
+		"Attack power", "8", "Accuracy", "100", "Hits", "1", "Attack cost", "50",
+	}, labels)
 }
 
 func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する(t *testing.T) {
@@ -69,12 +72,11 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Contains(t, labels, "Optimal range", "適正射程ラベルが表示される")
-	assert.Contains(t, labels, "Max range", "最大射程ラベルが表示される")
-	assert.Contains(t, labels, "Magazine", "弾数ラベルが表示される")
-	assert.Contains(t, labels, "3/5", "現在弾数/最大弾数が表示される")
-	assert.Contains(t, labels, "Reload", "装填ラベルが表示される")
-	assert.Contains(t, labels, "20", "リロード工数が表示される")
+	assert.Equal(t, []string{
+		query.T(world, gc.AttackRifle.Label),
+		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "150",
+		"Optimal range", "8", "Max range", "16", "Magazine", "3/5", "Reload", "20",
+	}, labels)
 }
 
 func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t *testing.T) {
@@ -90,8 +92,12 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.NotContains(t, labels, "Magazine", "マガジンサイズが0の場合は弾数行が表示されない")
-	assert.NotContains(t, labels, "Reload", "マガジンサイズが0の場合は装填行が表示されない")
+	// マガジンサイズ0は Magazine と Reload の行が出ない
+	assert.Equal(t, []string{
+		query.T(world, gc.AttackBow.Label),
+		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "80",
+		"Optimal range", "4", "Max range", "10",
+	}, labels)
 }
 
 func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
@@ -112,16 +118,12 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Contains(t, labels, "+15", "防御力が符号付きで表示される")
-	assert.Contains(t, labels, "Cold resist", "耐寒ラベルが表示される")
-	assert.Contains(t, labels, "+3", "耐寒値が表示される")
-	assert.Contains(t, labels, "Heat resist", "耐熱ラベルが表示される")
-	assert.Contains(t, labels, "+2", "耐熱値が表示される")
-	assert.Contains(t, labels, "+6", "体力ボーナスが表示される")
-	assert.Contains(t, labels, "+1", "筋力ボーナスが表示される")
-	assert.Contains(t, labels, "+4", "器用ボーナスが表示される")
-	assert.Contains(t, labels, "-1", "敏捷ボーナスが負値でも表示される")
-	assert.NotContains(t, labels, "Sensation", "ゼロの装備ボーナスは表示されない")
+	// ゼロの装備ボーナス Sensation は行が出ない
+	assert.Equal(t, []string{
+		query.T(world, gc.EquipmentTorso.String()),
+		"Defense", "+15", "Cold resist", "+3", "Heat resist", "+2",
+		"Vitality", "+6", "Strength", "+1", "Dexterity", "+4", "Agility", "-1",
+	}, labels)
 }
 
 func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t *testing.T) {
@@ -136,8 +138,8 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.NotContains(t, labels, "Cold resist", "耐寒0の場合は行が表示されない")
-	assert.NotContains(t, labels, "Heat resist", "耐熱0の場合は行が表示されない")
+	// 耐寒・耐熱0は行が出ない
+	assert.Equal(t, []string{query.T(world, gc.EquipmentHead.String()), "Defense", "+5"}, labels)
 }
 
 func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testing.T) {
@@ -149,8 +151,7 @@ func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testi
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Contains(t, labels, "Vitality", "回復量ラベルが表示される")
-	assert.Contains(t, labels, "42", "絶対量がそのまま表示される")
+	assert.Equal(t, []string{"Vitality", "42"}, labels)
 }
 
 func TestUpdateSpec_回復量は割合指定ならパーセントで表示する(t *testing.T) {
@@ -162,7 +163,7 @@ func TestUpdateSpec_回復量は割合指定ならパーセントで表示する
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Contains(t, labels, "30%", "割合が百分率表示される")
+	assert.Equal(t, []string{"Vitality", "30%"}, labels)
 }
 
 func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する(t *testing.T) {
@@ -176,7 +177,8 @@ func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Contains(t, labels, "-", "未知の種別はハイフン表示にフォールバックする")
+	// 未知の種別はハイフン表示にフォールバックする
+	assert.Equal(t, []string{"Vitality", "-"}, labels)
 }
 
 func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
@@ -190,11 +192,7 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Contains(t, labels, "Nutrition", "栄養ラベルが表示される")
-	assert.Contains(t, labels, "25", "栄養量が表示される")
-	assert.Contains(t, labels, "Value", "価値ラベルが表示される")
-	assert.Contains(t, labels, consts.Currency(1200).String(), "価値がカンマ区切りの通貨表記で表示される")
-	assert.Contains(t, labels, "Weight", "重量ラベルが表示される")
+	assert.Equal(t, []string{"Nutrition", "25", "Value", consts.Currency(1200).String(), "Weight", "0㎎"}, labels)
 }
 
 func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) {
@@ -213,12 +211,10 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Contains(t, labels, "Book", "本ヘッダーが表示される")
-	assert.Contains(t, labels, "Skill", "スキルラベルが表示される")
-	assert.Contains(t, labels, query.T(world, gc.SkillName(gc.SkillSword)), "対象スキル名が表示される")
-	assert.Contains(t, labels, "Lv", "レベルラベルが表示される")
-	assert.Contains(t, labels, "Progress", "進捗ラベルが表示される")
-	assert.Contains(t, labels, "30%", "現在工数から進捗率が計算される")
+	assert.Equal(t, []string{
+		"Book", "Skill", query.T(world, gc.SkillName(gc.SkillSword)),
+		"Lv", "2 " + consts.IconArrowRight + " 5", "Progress", "30%",
+	}, labels)
 }
 
 func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T) {
@@ -232,9 +228,8 @@ func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T)
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
-	assert.Contains(t, labels, "Book", "本ヘッダーは表示される")
-	assert.NotContains(t, labels, "Progress", "工数が未設定の場合は進捗行が表示されない")
-	assert.NotContains(t, labels, "Skill", "スキル効果未設定の場合はスキル行が表示されない")
+	// 工数未設定の Progress 行とスキル未設定の Skill 行は出ない
+	assert.Equal(t, []string{"Book"}, labels)
 }
 
 func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の性能を表示する(t *testing.T) {
@@ -250,9 +245,11 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
-	assert.Contains(t, labels, query.T(world, gc.AttackSpear.Label), "武器種別ラベルが表示される")
-	assert.Contains(t, labels, "12", "攻撃力の値が表示される")
-	assert.Contains(t, labels, query.T(world, gc.ElementTypeThunder.String()), "属性名が表示される")
+	assert.Equal(t, []string{
+		query.T(world, gc.AttackSpear.Label),
+		"Attack power", "12", "Accuracy", "90", "Hits", "1", "Attack cost", "80",
+		"Element", query.T(world, gc.ElementTypeThunder.String()),
+	}, labels)
 }
 
 func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポーネントを同時に表示する(t *testing.T) {
@@ -281,12 +278,17 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 
 	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
-	assert.Contains(t, labels, "Magazine", "Fire由来の弾数行が表示される")
-	assert.Contains(t, labels, "+15", "Wearable由来の防御力が表示される")
-	assert.Contains(t, labels, "Cold resist", "Wearable由来の耐寒行が表示される")
-	assert.Contains(t, labels, "42", "ProvidesHealing由来の回復量が表示される")
-	assert.Contains(t, labels, "Nutrition", "ProvidesNutrition由来のラベルが表示される")
-	assert.Contains(t, labels, "Progress", "Book由来の進捗行が表示される")
-	assert.Contains(t, labels, consts.Currency(1200).String(), "Value由来の価値が表示される")
-	assert.Contains(t, labels, "Weight", "Weight由来のラベルが表示される")
+	// Fire・Wearable・Healing・Nutrition・Book・Value・Weight の行がこの並びで連結される
+	assert.Equal(t, []string{
+		query.T(world, gc.AttackRifle.Label),
+		"Attack power", "30", "Accuracy", "70", "Hits", "1", "Attack cost", "150",
+		"Optimal range", "8", "Max range", "16", "Magazine", "3/5", "Reload", "20",
+		query.T(world, gc.EquipmentTorso.String()),
+		"Defense", "+15", "Cold resist", "+3",
+		"Vitality", "42",
+		"Nutrition", "25",
+		"Book", "Progress", "30%",
+		"Value", consts.Currency(1200).String(),
+		"Weight", "0㎎",
+	}, labels)
 }

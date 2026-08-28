@@ -34,9 +34,7 @@ func TestRenderMenuListUI_単一ページは見出しと行を並べる(t *testi
 	items, _ := menuframe.RenderList(1, rows, styled.Cols(styled.Name()), menuframe.ListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
 	labels := labelsOf(items)
 
-	assert.Contains(t, labels, "見出し", "見出し行が出る")
-	assert.Contains(t, labels, "項目A")
-	assert.Contains(t, labels, "項目B")
+	assert.Equal(t, []string{"見出し", "項目A", "項目B"}, labels)
 }
 
 func TestRenderMenuListUI_多数行はページ送りし空行で高さを保つ(t *testing.T) {
@@ -48,7 +46,10 @@ func TestRenderMenuListUI_多数行はページ送りし空行で高さを保つ
 	items, pager := menuframe.RenderList(0, rows, styled.Cols(styled.Name()), menuframe.ListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
 	labels := labelsOf(items)
 
-	assert.Contains(t, labels, "Item 1", "先頭ページの先頭が出る")
-	assert.NotContains(t, labels, "Item 11", "2ページ目の行は出さない")
+	// 先頭ページの10件だけが出て、2ページ目の行は出ない
+	assert.Equal(t, []string{
+		"Item 1", "Item 2", "Item 3", "Item 4", "Item 5",
+		"Item 6", "Item 7", "Item 8", "Item 9", "Item 10",
+	}, labels)
 	assert.Contains(t, pager, "/", "複数ページはページ表示をフッタ向けに返す")
 }
