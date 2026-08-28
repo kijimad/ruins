@@ -7,6 +7,7 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -194,12 +195,10 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 		_, textH := ui.MeasureText(it.Label, face)
 		off := (choiceRowH - textH) / 2
 
-		// 選択中は行いっぱいに金色の選択バーを敷く
-		if focused {
-			hl := ui.NewNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
-			hl.Layout(image.Rect(rect.Min.X, yy, rect.Max.X, yy+choiceRowH))
-			children = append(children, hl)
-		}
+		// 選択の強調と下端の区切り線は一覧の行と同じ意匠を使う
+		chrome := menuframe.SelectionRow(res, focused)
+		chrome.Layout(image.Rect(rect.Min.X, yy, rect.Max.X, yy+choiceRowH))
+		children = append(children, chrome)
 
 		col := theme.TextSecondary
 		if focused {
@@ -221,13 +220,6 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 			x += aw
 		}
 
-		// 行の下に薄いグラデーションの区切り線を敷く。一覧の行と同じ意匠。
-		// RowDivider は非乗算済みの値なので NRGBA として色を掛ける
-		if res.GradientLine != nil {
-			dv := ui.Row(nil).SetBottomLine(res.GradientLine, color.NRGBA(theme.RowDivider))
-			dv.Layout(image.Rect(rect.Min.X, yy, rect.Max.X, yy+choiceRowH))
-			children = append(children, dv)
-		}
 		yy += choiceRowH
 	}
 

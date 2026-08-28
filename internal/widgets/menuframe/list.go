@@ -134,7 +134,6 @@ func headerRow(texts []string, colWidths []int, face text.Face) *ui.Container {
 
 // dataRow はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。アイコンセルは画像で描く。
 func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, res resources.UIResources) *ui.Container {
-	selBar := res.SelectionBar
 	// 非選択は暗く、選択は明るくして、カーソル位置を際立たせる
 	var textColor color.Color = theme.TextSecondary
 	if selected {
@@ -153,11 +152,21 @@ func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, se
 		}
 		cellWidgets[i] = t
 	}
-	row := ui.Row(colWidths, cellWidgets...)
-	if selected && selBar != nil {
-		row.SetBackgroundNineSlice(selBar.Image, selBar.BX, selBar.BY)
+	return rowChrome(ui.Row(colWidths, cellWidgets...), res, selected)
+}
+
+// SelectionRow は中身を持たない1行ぶんの意匠を返す。選択中の強調と下端の区切り線だけを持ち、
+// 中身は呼び出し側が別に重ねる。行の内容を列で表せない一覧が、意匠だけを共有するのに使う。
+func SelectionRow(res resources.UIResources, selected bool) ui.Widget {
+	return rowChrome(ui.Row(nil), res, selected)
+}
+
+// rowChrome は一覧の1行に共通の意匠を着せる。選択中は金色のバーを敷き、下端に区切り線を引く。
+// この2つが一覧の行の見た目を決めるので、定義をここ1箇所に置く。
+func rowChrome(row *ui.Container, res resources.UIResources, selected bool) *ui.Container {
+	if selected && res.SelectionBar != nil {
+		row.SetBackgroundNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
 	}
-	// 行の下にグラデーションの区切り線を敷く。
 	// RowDivider は非乗算済みの値なので NRGBA として色を掛ける
 	if res.GradientLine != nil {
 		row.SetBottomLine(res.GradientLine, color.NRGBA(theme.RowDivider))
