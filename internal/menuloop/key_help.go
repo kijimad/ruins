@@ -43,9 +43,7 @@ var keyHelpBindings = []keybind.Binding{
 
 // OnStart は一覧の UI を組む。束縛表は state の寿命の間変わらないので1度だけ組めばよい。
 // キーは1粒ずつ描き、箱を持たないグリフには白い箱を敷いて、全キーを白背景に黒グリフの
-// キーキャップで統一する。行は RenderList で組み、キーキャップ列は実測の Fit、説明列は
-// 余り幅の右寄せにする。選択強調と下線の行の意匠も他の一覧と同じものが着く。
-// 枠・行高・余白・配置は密行パネル menuframe.PanelScreenDense の既定に従う
+// キーキャップで統一する。枠・行高・余白・行の意匠は menuframe の部品の既定に従う
 func (st *KeyHelpState) OnStart(world w.World) error {
 	res := world.Resources.UIResources
 	entries := keybind.HintEntries(world, st.table)

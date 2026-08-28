@@ -65,9 +65,9 @@ func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(scale, scale)
 	op.GeoM.Translate(ox, oy)
-	// 収まりきらない画像だけがここで縮む。等倍でない nearest はテクセル境界の取り合いが
-	// テクスチャの配置に依存して揺れるので linear にする。一覧のアイコンは表示サイズで
-	// 渡ってくるため等倍で通り、この分岐には入らない
+	// 収まりきらない画像だけがここで縮む。端数倍率の nearest はテクセル境界の画素が
+	// 揺れるので linear にする。一覧のアイコンは表示サイズで渡ってくるため等倍で通り、
+	// この分岐には入らない
 	if scale != 1 {
 		op.Filter = ebiten.FilterLinear
 	}
@@ -88,20 +88,16 @@ func (e *EbitenCanvas) DrawImageTintedRect(dst image.Rectangle, img *ebiten.Imag
 	op.GeoM.Scale(sx, sy)
 	op.GeoM.Translate(float64(dst.Min.X), float64(dst.Min.Y))
 	op.ColorScale.ScaleWithColor(tint)
-	// 伸ばす軸がどれも2テクセル以上あるときだけ linear にする。
-	//
-	// 等倍でない nearest はテクセル境界の取り合いがテクスチャの配置に依存して揺れるので、
-	// 混ぜられるなら混ぜたい。ただし伸ばす軸が1テクセルしかない場合、混ぜる相手は
-	// 画像の外側の透明で、端がぼやけるだけになる。その軸は元から1色なので nearest が厳密で、
-	// 境界をまたがないため揺れも起きない
+	// 伸ばす軸がどれも2テクセル以上あるときだけ linear にする。判定の理由は stretchNeedsBlend を参照
 	if stretchNeedsBlend(sx, b.Dx()) && stretchNeedsBlend(sy, b.Dy()) {
 		op.Filter = ebiten.FilterLinear
 	}
 	e.screen.DrawImage(img, op)
 }
 
-// stretchNeedsBlend はその軸を混ぜるべきかを返す。等倍なら混ぜる必要が無く、
-// 1テクセルしか無い軸は混ぜる相手が画像の外側しかないので、どちらも混ぜない。
+// stretchNeedsBlend はその軸を混ぜるべきかを返す。端数倍率の nearest はテクセル境界の
+// 画素が揺れるので、混ぜられる軸は linear で混ぜたい。等倍なら境界をまたがず混ぜる必要が無い。
+// 1テクセルしか無い軸は混ぜる相手が画像の外側の透明しかなく、端がぼやけるだけなので混ぜない。
 func stretchNeedsBlend(scale float64, srcLen int) bool {
 	return scale == 1 || srcLen > 1
 }
@@ -136,8 +132,8 @@ func (e *EbitenCanvas) DrawNineSlice(dst image.Rectangle, img *ebiten.Image, bx,
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Scale(ssx, ssy)
 			op.GeoM.Translate(float64(dx[c]), float64(dy[r]))
-			// 四隅は原寸で通り、伸びるのは辺と中央だけ。等倍でない nearest はテクセル境界の
-			// 取り合いがテクスチャの配置に依存して揺れるので linear にする
+			// 四隅は原寸で通り、伸びるのは辺と中央だけ。端数倍率の nearest は
+			// テクセル境界の画素が揺れるので linear にする
 			if ssx != 1 || ssy != 1 {
 				op.Filter = ebiten.FilterLinear
 			}

@@ -49,9 +49,9 @@ func (t *Texture) UnmarshalText(text []byte) error {
 	if err != nil {
 		return err
 	}
-	// unmanaged にして内部テクスチャアトラスへ載せない。透視投影の nearest サンプリングは
-	// テクセル境界の読み分けがアトラス上の配置座標に依存し、配置は画像の生成順で変わる。
-	// 自前のテクスチャなら座標が生成順に依存せず、同じ場面が常に同じ画素になる
+	// unmanaged にして内部テクスチャアトラスへ載せない。nearest サンプリングのテクセル境界の
+	// 読み分けはアトラス上の配置座標に依存し、配置は画像の生成順で変わるため、managed のままだと
+	// 同じ場面でも画素が揺れる。他の描画ソースの unmanaged 化もこの機構が理由で、説明はここへ集約する
 	t.Image = ebiten.NewImageFromImageWithOptions(sourceImage, &ebiten.NewImageFromImageOptions{Unmanaged: true})
 	t.Source = sourceImage
 	return nil

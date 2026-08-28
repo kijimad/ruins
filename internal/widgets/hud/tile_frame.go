@@ -13,9 +13,8 @@ import (
 // 透視投影ではタイルが台形になるため、正方形の画像を貼ると形が合わない。
 // 投影済みの4点をそのまま線で結ぶことで、実際に描かれたタイルの輪郭と一致する。
 //
-// アンチエイリアスは使わない。ebiten の vector は AA のマスクを managed な画像へ描くので、
-// 枠の縁の合成が共有テクスチャアトラスの配置に依存する。AA なしの線は素の三角形として描かれ、
-// この経路を通らない。ドット絵の画面では見た目の差も出ない
+// アンチエイリアスは使わない。ebiten の vector は AA のマスクを managed な画像へ描き、
+// 枠の縁の合成がアトラス配置に左右されるため。ドット絵の画面では見た目の差も出ない
 func TileFrame(screen *ebiten.Image, corners [4]consts.Coord[consts.ScreenPixel], width float32, clr color.Color) {
 	for i := range corners {
 		from, to := corners[i], corners[(i+1)%len(corners)]

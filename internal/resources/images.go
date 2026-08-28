@@ -26,8 +26,7 @@ func newImageFromFile(path string) (*ebiten.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	// unmanaged にして内部テクスチャアトラスへ載せない。拡縮を伴うサンプリングが
-	// アトラス上の配置座標に依存せず、同じ画面が常に同じ画素になる
+	// アトラス配置に画素が左右されないよう unmanaged で作る。機構は components.Texture を参照
 	return ebiten.NewImageFromImageWithOptions(src, &ebiten.NewImageFromImageOptions{Unmanaged: true}), nil
 }
 
