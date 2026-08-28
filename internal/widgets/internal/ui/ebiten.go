@@ -65,9 +65,9 @@ func (e *EbitenCanvas) DrawImageRect(dst image.Rectangle, img *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(scale, scale)
 	op.GeoM.Translate(ox, oy)
-	// 端数スケールの nearest はサンプル点が周期的にテクセル境界へ乗り、どちらを拾うかが
-	// 内部アトラスの配置座標、つまり画像の生成順に依存して揺れる。縮小時は linear にして
-	// 境界の二択を連続な重み付き混合へ変え、配置によらず同じ画に固定する
+	// 収まりきらない画像だけがここで縮む。等倍でない nearest はテクセル境界の取り合いが
+	// テクスチャの配置に依存して揺れるので linear にする。一覧のアイコンは表示サイズで
+	// 渡ってくるため等倍で通り、この分岐には入らない
 	if scale != 1 {
 		op.Filter = ebiten.FilterLinear
 	}
@@ -83,10 +83,17 @@ func (e *EbitenCanvas) DrawImageTintedRect(dst image.Rectangle, img *ebiten.Imag
 	if b.Dx() <= 0 || b.Dy() <= 0 || dst.Dx() <= 0 || dst.Dy() <= 0 {
 		return
 	}
+	sx, sy := float64(dst.Dx())/float64(b.Dx()), float64(dst.Dy())/float64(b.Dy())
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(float64(dst.Dx())/float64(b.Dx()), float64(dst.Dy())/float64(b.Dy()))
+	op.GeoM.Scale(sx, sy)
 	op.GeoM.Translate(float64(dst.Min.X), float64(dst.Min.Y))
 	op.ColorScale.ScaleWithColor(tint)
+	// 引き伸ばすときは linear にする。用途はグラデーションを敷くことなので滑らかに混ぜるのが
+	// 正しく、加えて等倍でない nearest はテクセル境界の取り合いがテクスチャの配置に依存して
+	// 揺れる。連続な補間にすればどの配置でも同じ画になる
+	if sx != 1 || sy != 1 {
+		op.Filter = ebiten.FilterLinear
+	}
 	e.screen.DrawImage(img, op)
 }
 
@@ -116,9 +123,15 @@ func (e *EbitenCanvas) DrawNineSlice(dst image.Rectangle, img *ebiten.Image, bx,
 			if !ok {
 				continue
 			}
+			ssx, ssy := float64(dw)/float64(sw), float64(dh)/float64(sh)
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Scale(float64(dw)/float64(sw), float64(dh)/float64(sh))
+			op.GeoM.Scale(ssx, ssy)
 			op.GeoM.Translate(float64(dx[c]), float64(dy[r]))
+			// 四隅は原寸で通り、伸びるのは辺と中央だけ。等倍でない nearest はテクセル境界の
+			// 取り合いがテクスチャの配置に依存して揺れるので linear にする
+			if ssx != 1 || ssy != 1 {
+				op.Filter = ebiten.FilterLinear
+			}
 			e.screen.DrawImage(sub, op)
 		}
 	}

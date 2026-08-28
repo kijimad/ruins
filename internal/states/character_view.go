@@ -33,7 +33,7 @@ func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res r
 		var icon *ebiten.Image
 		weight := ""
 		if slot.Entity != nil {
-			icon, _ = resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(*slot.Entity))
+			icon = menuIcon(world, *slot.Entity)
 			weight = query.GetEntityWeight(world, *slot.Entity).KgString()
 		}
 		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(slot.SlotLabel), styled.IconCell(icon), styled.TextCell(slot.ItemName), styled.TextCell(weight)}}

@@ -32,6 +32,9 @@ type Sprite struct {
 // Texture は複数のスプライトが格納された画像ファイル
 type Texture struct {
 	Image *ebiten.Image
+	// Source は復号したままの CPU 側の画像。GPU のテクスチャはゲームループが始まるまで
+	// 画素を読み出せないため、縮小など画素を触る処理はこちらを源にする
+	Source image.Image
 }
 
 // UnmarshalText fills structure fields from text data
@@ -40,11 +43,12 @@ func (t *Texture) UnmarshalText(text []byte) error {
 	if err != nil {
 		return err
 	}
-	textureImage, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(bs))
+	textureImage, sourceImage, err := ebitenutil.NewImageFromReader(bytes.NewReader(bs))
 	if err != nil {
 		return err
 	}
 	t.Image = textureImage
+	t.Source = sourceImage
 	return nil
 }
 

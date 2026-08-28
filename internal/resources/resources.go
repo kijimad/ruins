@@ -16,6 +16,7 @@ import (
 type Resources struct {
 	ScreenDimensions ScreenDimensions
 	SpriteSheets     map[string]components.SpriteSheet
+	Icons            *IconStore // 一覧のアイコンを表示サイズで持つ置き場
 	Fonts            map[string]Font
 	Faces            map[string]text.Face
 	UIResources      UIResources
@@ -60,6 +61,7 @@ func InitGameResources() *Resources {
 		Fonts:        map[string]Font{},
 		Faces:        map[string]text.Face{},
 		UIResources:  UIResources{},
+		Icons:        NewIconStore(),
 		// 全言語の訳を持つ不変マスタを常に持たせる。どのワールドでも res.I18N が非 nil になる。
 		I18N: i18n.NewCatalog(),
 	}

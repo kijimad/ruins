@@ -1,9 +1,10 @@
 package states
 
 import (
-	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -27,13 +28,19 @@ func itemMenuColumns(trailing ...styled.Col) []styled.Col {
 	return append([]styled.Col{styled.Icon(), styled.Name()}, trailing...)
 }
 
+// menuIcon は entity のスプライトを一覧のアイコン列の大きさで返す。縮小はリソース側が
+// 一度だけ済ませるので、描画は等倍になる
+func menuIcon(world w.World, e ecs.Entity) *ebiten.Image {
+	return world.Resources.Icons.Sized(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e), theme.MenuIconW)
+}
+
 // itemMenuRow はアイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、
 // メニュー固有の trailing 文字列セルを後続に付けた menuframe.Row を返す。
 // 個数は呼び出し側が GroupStacks で確定済みの値を渡す。ここで数え直すと一覧の行ごとに
 // 全走査が走るため、束ねた結果を持ち回って表示する
 func itemMenuRow(world w.World, e ecs.Entity, count int, trailing ...string) menuframe.Row {
 	name := query.GetEntityName(e, world)
-	icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e))
+	icon := menuIcon(world, e)
 	label := query.FormatNameCount(name, count)
 	// 腐敗食は新鮮以外のとき鮮度を名前に添え、状態を見て食べるか捨てるか判断できるようにする
 	if marker := query.FreshnessMarker(world, e); marker != "" {

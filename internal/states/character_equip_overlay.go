@@ -126,7 +126,7 @@ func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) 
 func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) ui.Widget {
 	rows := make([]menuframe.Row, len(props.Items))
 	for i, entity := range props.Items {
-		icon, _ := resources.SpriteImage(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(entity))
+		icon := menuIcon(world, entity)
 		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.IconCell(icon), styled.TextCell(query.GetEntityName(entity, world))}}
 	}
 	list, pager := menuframe.RenderList(selectedIndex, rows, styled.Cols(styled.Icon(), styled.Name()),
