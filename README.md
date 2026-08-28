@@ -109,6 +109,7 @@ $ make help
 | in-progress | [温度モデル: 前線を廃し、屋外の底冷えと屋内退避を持つ](docs/design/260822220253.md) | 10/10（見送り3） | gamedesign, worldgen, ecs |
 | in-progress | [コード監査: worldgen・Ark stale pointer・serde 2026-08-24](docs/design/260824001220.md) | 4/5 | worldgen, ecs, save |
 | in-progress | [熱源メカニクス: 焚き火をプレイヤーの体温へ直接効かせる](docs/design/260824095722.md) | 9/9 | gamedesign, ecs, worldgen |
+| in-progress | [並列テストの UI 競合を源で断つ: 状態をインスタンス所有にする](docs/design/260826085919.md) | 24/25（見送り7） | ci, ui |
 | accepted | [体温ステータスの導入](docs/design/260827091757.md) | 5/5 | gamedesign, ui |
 | draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
 | draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
