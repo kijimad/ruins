@@ -26,11 +26,10 @@ func TestRowHeightsFitTheirFace(t *testing.T) {
 		{"ページ表示の行", pageRowH, tx.SmallFace},
 		{"タイトルバー", titleBarHeight, tx.SmallFace},
 	}
+	// 下位テストに割らず1つの中で回す。フェイスは world ごとに独立するが、この world の中では
+	// 共有で、text/v2 のフェイスは内部に可変キャッシュを持つため並行に測ると競合する
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.GreaterOrEqual(t, tt.rowH, ui.LineHeight(tt.face),
-				"行高がフェイスの字面より低い。文字の上下が切れる")
-		})
+		assert.GreaterOrEqual(t, tt.rowH, ui.LineHeight(tt.face),
+			"%s の行高がフェイスの字面より低い。文字の上下が切れる", tt.name)
 	}
 }
