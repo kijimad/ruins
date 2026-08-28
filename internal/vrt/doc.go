@@ -5,7 +5,6 @@
 // # ホスト・リソース
 //
 //   - RunTestMain: TestMain から呼ぶ。ebiten ループ内で全テストを走らせ ebiten.NewImage 等を使えるようにする
-//   - LoadTestUIResources: テストごとに独立したUIリソースを読み込んで返す。フェイスを共有しないので並列に描ける
 //
 // # ワールド・ステート構築
 //
