@@ -24,6 +24,7 @@ var (
 type initConfig struct {
 	stageKey   gc.StageKey
 	stageLevel gc.Level
+	ui         bool
 }
 
 // Option は InitTestWorld の初期化オプション。
@@ -39,6 +40,15 @@ func WithCurrentStage(key gc.StageKey) Option {
 // 実ゲームではフィールド寸法はステージ生成時に一度決まるため、テストも生成相当の初期化時に与える。
 func WithStageLevel(level gc.Level) Option {
 	return func(c *initConfig) { c.stageLevel = level }
+}
+
+// WithUI はフォントフェイス込みの UIResources を積む。UI を描くテストはこれを付ける。
+// フェイスは呼び出しごとに独立して構築する。text/v2 は GoTextFaceSource 内に可変キャッシュを
+// 持ち、共有フェイスを並行描画すると競合するが、独立所有ならロック無しで並列に実描画できる。
+// フルゲームを構築する重い vrt.InitReplayWorld は、実プレイどおりフルフレームを駆動する
+// states の golden_replay だけに使う。
+func WithUI() Option {
+	return func(c *initConfig) { c.ui = true }
 }
 
 // InitTestWorld は軽量なテスト用Worldを初期化する
@@ -108,6 +118,14 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	field := gc.NewStageField()
 	field.Level = cfg.stageLevel
 	world.Components.StageField.Add(fieldEntity, field)
+
+	if cfg.ui {
+		fonts, err := loader.LoadFonts()
+		require.NoError(tb, err)
+		uir, err := loader.LoadUIResources(fonts)
+		require.NoError(tb, err)
+		world.Resources.UIResources = uir
+	}
 
 	return world
 }

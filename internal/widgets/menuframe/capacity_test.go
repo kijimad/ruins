@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +17,7 @@ func TestMain(m *testing.M) {
 
 func TestListCapacity_同じ構成では同じ結果を返す(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 
 	first := ListCapacity(world, true, true)
 	second := ListCapacity(world, true, true)
@@ -27,7 +28,7 @@ func TestListCapacity_同じ構成では同じ結果を返す(t *testing.T) {
 
 func TestListCapacity_見出しとタブ帯が増えると収まる行数が減る(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 
 	bare := ListCapacity(world, false, false)
 	headerOnly := ListCapacity(world, true, false)

@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	ui "github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -64,7 +65,7 @@ func drawWidget(t *testing.T, name string, size image.Point, wgt ui.Widget) {
 
 func TestGolden_Story_FooterRow(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	row := footerRow("? Help", "", res)
 	row.Layout(image.Rect(0, 0, 360, theme.MenuTabRowH))
@@ -73,7 +74,7 @@ func TestGolden_Story_FooterRow(t *testing.T) {
 
 func TestGolden_Story_FooterRowWithPager(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	row := footerRow("? Help", "3/7", res)
 	row.Layout(image.Rect(0, 0, 360, theme.MenuTabRowH))
@@ -82,7 +83,7 @@ func TestGolden_Story_FooterRowWithPager(t *testing.T) {
 
 func TestGolden_Story_TabBar(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	bar := tabBar([]string{"Equipment", "Skills", "Health"}, 1, 360, res.Text.BodyFace, res.SelectionBar)
 	bar.Layout(image.Rect(0, 0, 360, theme.MenuTabRowH))
@@ -91,14 +92,14 @@ func TestGolden_Story_TabBar(t *testing.T) {
 
 func TestGolden_Story_ListRows(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	drawStory(t, "TestGolden_Story_ListRows", image.Pt(300, theme.MenuTabRowH*3), theme.MenuTabRowH, storyRows(res))
 }
 
 func TestGolden_Story_InputBox(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	body := ui.NewText("Ash|", res.Text.BodyFace, theme.TextPrimary)
 	body.VCenter = true
@@ -109,7 +110,7 @@ func TestGolden_Story_InputBox(t *testing.T) {
 
 func TestGolden_Story_PanelBox(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	box := PanelBox(res,
 		ui.NewText("Vitality 10", res.Text.BodyFace, theme.TextPrimary),
@@ -121,7 +122,7 @@ func TestGolden_Story_PanelBox(t *testing.T) {
 
 func TestGolden_Story_PanelScreen(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	screenW, screenH := storyScreenSize(world)
 	panel := PanelScreen(world, res, "Settings", storyRows(res), "? Help", "2/5")
@@ -130,7 +131,7 @@ func TestGolden_Story_PanelScreen(t *testing.T) {
 
 func TestGolden_Story_PanelScreenDense(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	screenW, screenH := storyScreenSize(world)
 	panel := PanelScreenDense(world, res, "Key bindings", storyRows(res), "", "")
@@ -139,7 +140,7 @@ func TestGolden_Story_PanelScreenDense(t *testing.T) {
 
 func TestGolden_Story_TabScreen(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	screenW, screenH := storyScreenSize(world)
 	screen := TabScreen(world, res, "Ash", []string{"Equipment", "Skills", "Health"}, 1, storyRows(res), "? Help", "1/2")

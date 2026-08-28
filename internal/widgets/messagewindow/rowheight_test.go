@@ -6,7 +6,7 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kijimaD/ruins/internal/vrt"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 )
 
@@ -14,7 +14,7 @@ import (
 // 行高とフェイスは独立に変えられるので、フォントを大きくしたときに気づけるよう下限を固定する。
 func TestRowHeightsFitTheirFace(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	tx := world.Resources.UIResources.Text
 
 	tests := []struct {

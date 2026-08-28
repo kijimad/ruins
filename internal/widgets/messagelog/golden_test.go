@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
@@ -19,7 +20,7 @@ func TestMain(m *testing.M) {
 
 func TestGolden_EmptyLog(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	vrt.AssertScreenGolden(t, func() func(*ebiten.Image) {
 		w := messagelog.NewWidget(defaultConfig(), world)
 		w.Update()
@@ -31,7 +32,7 @@ func TestGolden_EmptyLog(t *testing.T) {
 
 func TestGolden_SingleEntry(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	store := query.GetGameLog(world)
 	store.Push("テストメッセージ")
 	vrt.AssertScreenGolden(t, func() func(*ebiten.Image) {
@@ -45,7 +46,7 @@ func TestGolden_SingleEntry(t *testing.T) {
 
 func TestGolden_MultipleEntries(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	store := query.GetGameLog(world)
 	store.Push("1行目のメッセージ")
 	store.Push("2行目のメッセージ")
@@ -61,7 +62,7 @@ func TestGolden_MultipleEntries(t *testing.T) {
 
 func TestGolden_MaxLinesExceeded(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	store := query.GetGameLog(world)
 	for range 10 {
 		store.Push("メッセージ行")
@@ -82,7 +83,7 @@ func TestGolden_MaxLinesExceeded(t *testing.T) {
 
 func TestGolden_ColoredEntries(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	store := query.GetGameLog(world)
 	gamelog.New(store).Markup(gamelog.Tag("error", "ダメージ")).Log()
 	gamelog.New(store).Markup(gamelog.Tag("success", "回復")).Log()

@@ -7,7 +7,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -148,7 +147,7 @@ func TestNewShopMenuState(t *testing.T) {
 func TestShopMenuState_buildItemListUI_商品ありで行を組む(t *testing.T) {
 	t.Parallel()
 
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 
 	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "ash")
 	require.NoError(t, err)

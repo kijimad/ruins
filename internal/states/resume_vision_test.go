@@ -9,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/overworld"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -24,7 +23,7 @@ func TestDungeonResume_視界を強制再計算する(t *testing.T) {
 	t.Parallel()
 
 	// OnStart は通常ダンジョンではタイトルエフェクトで UI リソースに触れるので、フェイス込みの world を使う
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	// ロード直後を模す。現ステージは通常ダンジョンで、視界フラグは未設定
 	query.GetDungeon(world).CurrentStage = gc.NewDungeonStage(dungeon.DungeonDebug.Name(), 3)
 	query.GetVisionState(world).ConsumePendingUpdate()

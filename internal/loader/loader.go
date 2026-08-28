@@ -2,6 +2,7 @@ package loader
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/BurntSushi/toml"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -17,8 +18,15 @@ const (
 	rawsPath  = "metadata/entities/raw/raw.toml"
 )
 
+// fontMu はフォントと UI リソースの構築を直列化する。font source の構築は共有状態を持ち
+// 並行安全でない。呼び出し側がどこから並行に読み込んでも安全なよう、守りはこの package が持つ。
+// 構築後のフェイスは呼び出しごとに独立するので、利用側はロック無しで並列に描ける
+var fontMu sync.Mutex
+
 // LoadFonts はフォントリソースを読み込む
 func LoadFonts() (map[string]resources.Font, error) {
+	fontMu.Lock()
+	defer fontMu.Unlock()
 	// TOML にはフォントパスのみが入る。ロード済みの resources.Font はパスから構築する
 	type fontEntry struct {
 		Font string `toml:"font"`
@@ -73,6 +81,8 @@ func LoadSpriteSheets(raws oapi.Raws) (map[string]components.SpriteSheet, error)
 
 // LoadUIResources はフォントマップからUIリソースを初期化する
 func LoadUIResources(fonts map[string]resources.Font) (resources.UIResources, error) {
+	fontMu.Lock()
+	defer fontMu.Unlock()
 	fontSources := []*text.GoTextFaceSource{
 		fonts["dougenzaka"].FaceSource,
 		fonts["nerd"].FaceSource,

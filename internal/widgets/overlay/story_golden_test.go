@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	ui "github.com/kijimaD/ruins/internal/widgets/internal/ui"
@@ -25,7 +26,7 @@ func storySpecRows() []entityspec.SpecRow {
 
 func drawDetailStory(t *testing.T, name string, page int) {
 	t.Helper()
-	res := vrt.InitUIWorld(t).Resources.UIResources
+	res := testutil.InitTestWorld(t, testutil.WithUI()).Resources.UIResources
 	rect := image.Rect(0, 0, 400, 400)
 	modal := buildDetailUI(res, rect, "Biscuit", "A hard biscuit that keeps well as a preserved food.", storySpecRows(), page)
 	screen := ebiten.NewImage(400, 400)

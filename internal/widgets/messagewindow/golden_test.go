@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -31,7 +32,7 @@ func assertChoiceGolden(t *testing.T, config tabMenuConfig, state viewState, wor
 
 func TestGolden_SingleItem(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	assertChoiceGolden(t, tabMenuConfig{
 		Tabs: []tabItem{
 			{ID: "tab", Label: "タブ", Items: []item{
@@ -43,7 +44,7 @@ func TestGolden_SingleItem(t *testing.T) {
 
 func TestGolden_MultipleItems_FirstSelected(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	assertChoiceGolden(t, tabMenuConfig{
 		Tabs: []tabItem{
 			{ID: "tab", Label: "タブ", Items: []item{
@@ -57,7 +58,7 @@ func TestGolden_MultipleItems_FirstSelected(t *testing.T) {
 
 func TestGolden_MultipleItems_MiddleSelected(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	assertChoiceGolden(t, tabMenuConfig{
 		Tabs: []tabItem{
 			{ID: "tab", Label: "タブ", Items: []item{
@@ -73,7 +74,7 @@ func TestGolden_MultipleItems_MiddleSelected(t *testing.T) {
 
 func TestGolden_EmptyItems(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	assertChoiceGolden(t, tabMenuConfig{
 		Tabs: []tabItem{
 			{ID: "tab", Label: "タブ", Items: []item{}},
@@ -83,7 +84,7 @@ func TestGolden_EmptyItems(t *testing.T) {
 
 func TestGolden_WithPagination(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	items := make([]item, 10)
 	for i := range items {
 		items[i] = item{
@@ -99,7 +100,7 @@ func TestGolden_WithPagination(t *testing.T) {
 
 func TestGolden_WithAdditionalLabels(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	assertChoiceGolden(t, tabMenuConfig{
 		Tabs: []tabItem{
 			{ID: "tab", Label: "タブ", Items: []item{
@@ -113,7 +114,7 @@ func TestGolden_WithAdditionalLabels(t *testing.T) {
 
 func TestGolden_ManyItems_LastPage(t *testing.T) {
 	t.Parallel()
-	world := vrt.InitUIWorld(t)
+	world := testutil.InitTestWorld(t, testutil.WithUI())
 	items := make([]item, 8)
 	for i := range items {
 		items[i] = item{

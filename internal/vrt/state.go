@@ -3,6 +3,7 @@ package vrt
 import (
 	"image"
 	"math/rand/v2"
+	"sync"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -65,11 +66,15 @@ func SetupStateMachine(t *testing.T, world w.World, buildStates func(w.World) []
 	return stateMachine
 }
 
+// loadMu は maingame.InitWorld の構築を直列化する。フォント以外にもスプライトシートや
+// システム登録など多数の構築を含み、並行実行の安全は保証されない。
+var loadMu sync.Mutex
+
 // InitReplayWorld は実プレイの再現に使うフルゲーム構成のワールドを固定シードで初期化する。
 // テスト・ベンチ双方で使えるよう testing.TB を受ける。
 //
-// maingame.InitWorld はフォント読み込みなど並行安全でない構築を含むため loadMu で直列化する。
-// 構築後の world は自前の独立フェイスを持つので、以降の設定と描画はロック無しで並列に走れる。
+// 構築は loadMu で直列化する。構築後の world は自前の独立フェイスを持つので、
+// 以降の設定と描画はロック無しで並列に走れる。
 func InitReplayWorld(tb testing.TB) w.World {
 	tb.Helper()
 
