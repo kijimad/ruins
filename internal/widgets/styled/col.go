@@ -1,16 +1,16 @@
 package styled
 
 // ColMode は列の幅の決め方。
-type ColMode int
+type ColMode string
 
 // 列の幅の決め方。
 const (
 	// ColGrow は余り幅を吸収して伸びる列。名前列に使う
-	ColGrow ColMode = iota
+	ColGrow ColMode = "grow"
 	// ColFit は内容の実測幅に合わせる列。数値やタグに使う
-	ColFit
+	ColFit ColMode = "fit"
 	// ColIcon はアイコン用の正方の固定列
-	ColIcon
+	ColIcon ColMode = "icon"
 )
 
 // Col は一覧の1列の定義。幅は宣言せず、伸縮 Grow・内容実測 Fit・正方 Icon の様式だけを持つ。
