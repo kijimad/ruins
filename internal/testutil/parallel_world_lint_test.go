@@ -7,6 +7,7 @@ import (
 	"go/types"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"testing"
@@ -25,7 +26,7 @@ const worldTypePath = "github.com/kijimaD/ruins/internal/world"
 // 型情報で判定するので、変数名やヘルパ経由の取得によらず w.World 型の共有を拾う
 func TestNoSharedWorldInParallelSubtests(t *testing.T) {
 	t.Parallel()
-	if raceEnabled {
+	if raceEnabled() {
 		// packages.Load の並列型チェックが Go 1.27 の go/types 内部で競合し、
 		// 上流由来の race 検出が出る。静的検査なので race なしの実行が担えば十分
 		t.Skip("go/types の上流競合を避けるため -race では実行しない")
@@ -242,6 +243,21 @@ func callsParallel(lit *ast.FuncLit) bool {
 		sel, ok := call.Fun.(*ast.SelectorExpr)
 		if ok && sel.Sel.Name == "Parallel" {
 			return true
+		}
+	}
+	return false
+}
+
+// raceEnabled は -race 付きでビルドされているかをビルド情報から返す。
+// race 無効時は -race キー自体が載らない
+func raceEnabled() bool {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return false
+	}
+	for _, s := range info.Settings {
+		if s.Key == "-race" {
+			return s.Value == "true"
 		}
 	}
 	return false
