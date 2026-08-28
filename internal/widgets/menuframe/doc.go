@@ -19,6 +19,6 @@
 //
 // # 寸法
 //
-// モーダルの矩形 ModalRect・CenterWindowRect と、1ページに収められる行数 ListCapacity を持つ。
+// モーダルの矩形 ModalRect・WindowRect と、1ページに収められる行数 ListCapacity を持つ。
 // カーソルの改ページと描画のページングが同じ値を使い、ずれない。
 package menuframe

@@ -186,7 +186,7 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	if dirty {
 		s.bodyTree = m.ViewUI(world, props, sel, world.Resources.UIResources)
 		s.pendingOverlays = s.pendingOverlays[:0]
-		rect := menuframe.CenterWindowRect(world)
+		rect := menuframe.WindowRect(world)
 		// overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、
 		// 描画は逆順に溜め、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に
 		// 隠れて操作不能になるのを防ぐ。ツリーは Draw で本体の上へ重ねる

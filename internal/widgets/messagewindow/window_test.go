@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -211,7 +212,7 @@ func Test_calculateWindowSize(t *testing.T) {
 func Test_calculateWindowPosition(t *testing.T) {
 	t.Parallel()
 
-	t.Run("通常サイズは画面中央かつ上から1/4に配置される", func(t *testing.T) {
+	t.Run("通常サイズは画面中央かつ上端はMenuWindowTopに揃う", func(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
@@ -221,7 +222,7 @@ func Test_calculateWindowPosition(t *testing.T) {
 		x, y := win.calculateWindowPosition(windowSize{Width: 600, Height: 300})
 
 		assert.Equal(t, 180, x)
-		assert.Equal(t, 180, y)
+		assert.Equal(t, theme.MenuWindowTop, y)
 	})
 
 	t.Run("下端をはみ出す場合は下マージンに合わせて引き上げる", func(t *testing.T) {
@@ -231,9 +232,9 @@ func Test_calculateWindowPosition(t *testing.T) {
 		world.Resources.SetScreenDimensions(960, 720)
 		win := &Window{world: world}
 
-		_, y := win.calculateWindowPosition(windowSize{Width: 600, Height: 550})
+		_, y := win.calculateWindowPosition(windowSize{Width: 600, Height: 660})
 
-		assert.Equal(t, 140, y)
+		assert.Equal(t, 30, y)
 	})
 
 	t.Run("引き上げてもなお上マージンを割る場合は上マージンに固定する", func(t *testing.T) {

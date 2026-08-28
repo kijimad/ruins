@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -170,13 +171,13 @@ func (w *Window) updateContentFromMessage(msg *messagedata.MessageData) {
 }
 
 // calculateWindowPosition はウィンドウの表示位置を計算する。
-// 上端を画面高さの約1/4の位置に統一して配置する
+// 横は画面中央、上端は他のウィンドウと同じ MenuWindowTop で揃える
 func (w *Window) calculateWindowPosition(windowSize windowSize) (x, y int) {
 	screenWidth := w.world.Resources.ScreenDimensions.Width
 	screenHeight := w.world.Resources.ScreenDimensions.Height
 
 	x = (screenWidth - windowSize.Width) / 2
-	y = screenHeight / 4
+	y = theme.MenuWindowTop
 
 	margin := 30
 	if y+windowSize.Height > screenHeight-margin {

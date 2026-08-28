@@ -9,6 +9,11 @@ const (
 	MenuPagerW    = 60  // フッタ右端のページ表示列の幅。数字を右寄せで収める
 	MenuRowWidth  = 340 // 全幅メニューの行の総幅。画面ごとにエントリ幅がぶれないよう揃える
 	MenuIconW     = 20  // アイテム一覧のアイコン列の幅。行高と同じ正方でアイコンを収める
+	// MenuWindowTop はウィンドウの上端。モーダル・パネル・メッセージ窓で揃え、
+	// どの画面でも窓が同じ高さから始まるようにする
+	MenuWindowTop = 48
+	// MenuModalMarginX は全画面モーダルの左右余白
+	MenuModalMarginX = 96
 	// MenuFooterGap は最終エントリとフッタの間に空ける行数。近すぎないよう余白を確保する
 	MenuFooterGap = 2
 )

@@ -72,7 +72,7 @@ func panelScreen(world w.World, res resources.UIResources, title string, content
 	// パネルの開始位置がそろい、メニュー間でタイトル・先頭項目の位置がずれない
 	panelW := theme.MenuRowWidth + theme.MenuPad*2
 	panelH := len(items)*rowH + theme.MenuPad*2
-	crect := CenterWindowRect(world)
+	crect := WindowRect(world)
 	x := crect.Min.X + (crect.Dx()-panelW)/2
 	y := crect.Min.Y
 	rect := image.Rect(x, y, x+panelW, y+panelH)
