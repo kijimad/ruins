@@ -9,9 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
-// specPanelCols は spec パネルの列幅。ラベル列と値列。
-var specPanelCols = []int{70, 80}
-
 // specPanelRowH は spec パネルの行高。
 const specPanelRowH = 18
 
@@ -22,14 +19,22 @@ var specLabelColor color.Color = theme.SpecLabel
 const SpecPanelRowH = specPanelRowH
 
 // SpecRowWidgets は SpecRow の並びを internal/ui の行ウィジェット列にする。
-// ラベルは左寄せ、値は右寄せ。見出し行はラベルのみを2列ぶんの幅で描き、色付き行は値をその色で描く。
+// ラベルは左寄せ、値は右寄せ。見出し行はラベルを行の全幅で描き、色付き行は値をその色で描く。
+// ラベル列の幅は全行の実測から決め、値列が余り幅を吸って行の右端に揃う。幅の数値は持たない。
 // モーダルはこの列に name や desc の行を足して1枚のパネルに組む。
 func SpecRowWidgets(rows []SpecRow, face text.Face) []ui.Widget {
+	labels := make([]int, 0, len(rows))
+	for _, r := range rows {
+		if !r.Header {
+			labels = append(labels, ui.MeasureTextWidth(r.Label, face))
+		}
+	}
+	cols := []int{ui.FitWidth(labels, theme.Space3, 0), 0}
+
 	items := make([]ui.Widget, 0, len(rows))
 	for _, r := range rows {
 		if r.Header {
-			span := []int{specPanelCols[0] + specPanelCols[1]}
-			items = append(items, ui.Row(span, ui.NewText(r.Label, face, specLabelColor)))
+			items = append(items, ui.Row([]int{0}, ui.NewText(r.Label, face, specLabelColor)))
 			continue
 		}
 		valColor := specLabelColor
@@ -38,7 +43,7 @@ func SpecRowWidgets(rows []SpecRow, face text.Face) []ui.Widget {
 		}
 		value := ui.NewText(r.Value, face, valColor)
 		value.Align = ui.AlignRight
-		items = append(items, ui.Row(specPanelCols, ui.NewText(r.Label, face, specLabelColor), value))
+		items = append(items, ui.Row(cols, ui.NewText(r.Label, face, specLabelColor), value))
 	}
 	return items
 }
