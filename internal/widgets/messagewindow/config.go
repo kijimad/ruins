@@ -37,8 +37,7 @@ type windowStyle struct {
 
 // textStyle はテキストの外観設定
 type textStyle struct {
-	Color      color.RGBA
-	LineHeight int
+	Color color.RGBA
 }
 
 // actionStyle はアクション表示の外観設定
@@ -88,8 +87,7 @@ func defaultWindowConfig() windowConfig {
 		},
 
 		textStyle: textStyle{
-			Color:      theme.TextPrimary,
-			LineHeight: 24,
+			Color: theme.TextPrimary,
 		},
 
 		actionStyle: actionStyle{

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	titleBarHeight = 40           // タイトルバーの高さ
+	titleBarHeight = 25           // タイトルバーの高さ
 	choiceRowH     = 26           // 選択肢1行の高さ。本文 + 上下パディング + 区切り線
 	choiceTopPad   = 0            // 選択肢一覧の上パディング
 	choicePadL     = theme.Space3 // 選択肢の左パディング
@@ -51,7 +51,8 @@ func (win *Window) buildTree() ui.Widget {
 		children = append(children, bar)
 		name := ui.NewText(win.content.SpeakerName, res.Text.SmallFace, theme.TextPrimary)
 		name.Align = ui.AlignCenter
-		name.Layout(image.Rect(rect.Min.X, rect.Min.Y+12, rect.Max.X, rect.Min.Y+titleBarHeight))
+		name.VCenter = true
+		name.Layout(image.Rect(rect.Min.X, rect.Min.Y, rect.Max.X, rect.Min.Y+titleBarHeight))
 		children = append(children, name)
 		contentTop = rect.Min.Y + titleBarHeight
 	}
@@ -98,7 +99,8 @@ func (win *Window) buildTree() ui.Widget {
 // segmentedLineWidgets は TextSegmentLines を色付きの1行ずつへ組む。
 // 各行は左端から測定幅ぶん右へセグメントを連ね、空行は行高ぶん送る。背景色付きは帯を敷く
 func (win *Window) segmentedLineWidgets(padL, padR, top int, face text.Face) []ui.Widget {
-	lineH := win.config.textStyle.LineHeight
+	// 行送りはフェイスの自然な行高から取る。固定値だと本文の行間が字面に対して間延びする
+	_, lineH := measure("Ag", face)
 	var out []ui.Widget
 	yy := top
 	for _, line := range win.content.TextSegmentLines {
