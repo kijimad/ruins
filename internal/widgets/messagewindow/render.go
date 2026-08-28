@@ -193,10 +193,13 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 			x += aw
 		}
 
-		// 行の下に薄白の区切り線を敷く
-		dv := ui.Panel(ui.BoxStyle{Fill: theme.RowDivider}, 1)
-		dv.Layout(image.Rect(rect.Min.X, yy+choiceRowH-1, rect.Max.X, yy+choiceRowH))
-		children = append(children, dv)
+		// 行の下に薄いグラデーションの区切り線を敷く。一覧の行と同じ意匠。
+		// RowDivider は非乗算済みの値なので NRGBA として色を掛ける
+		if res.GradientLine != nil {
+			dv := ui.Row(nil).SetBottomLine(res.GradientLine, color.NRGBA(theme.RowDivider))
+			dv.Layout(image.Rect(rect.Min.X, yy, rect.Max.X, yy+choiceRowH))
+			children = append(children, dv)
+		}
 		yy += choiceRowH
 	}
 
