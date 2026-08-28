@@ -17,7 +17,6 @@ const (
 	formWidth  = 320          // 入力欄と見出しの幅
 	formTitleH = 36           // 見出し行の高さ
 	formInputH = 44           // 入力欄の高さ
-	formLineH  = 22           // 補足1行の高さ。エラーと操作ヒントに使う
 	formRowGap = theme.Space6 // 行と行の間隔
 )
 
@@ -35,11 +34,11 @@ func FormScreen(world w.World, res resources.UIResources, title string, body ui.
 	}
 	if errText != "" {
 		items = append(items,
-			ui.FlexItem{W: newCenteredText(errText, res.Text.SmallFace, theme.StatusDanger), Height: formLineH},
+			ui.FlexItem{W: newCenteredText(errText, res.Text.SmallFace, theme.StatusDanger), Height: noteRowH},
 			ui.FlexItem{Height: formRowGap},
 		)
 	}
-	items = append(items, ui.FlexItem{W: newCenteredText(hint, res.Text.SmallFace, theme.TextAccent), Height: formLineH})
+	items = append(items, ui.FlexItem{W: newCenteredText(hint, res.Text.SmallFace, theme.TextAccent), Height: noteRowH})
 
 	// 縦並びの総高を出し、画面の中央へ置く
 	total := 0
