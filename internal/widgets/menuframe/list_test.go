@@ -31,7 +31,7 @@ func TestRenderMenuListUI_単一ページは見出しと行を並べる(t *testi
 		{Cells: styled.TextCells("項目A")},
 		{Cells: styled.TextCells("項目B")},
 	}
-	items, _ := menuframe.RenderList(1, rows, styled.Cols(styled.Name(200)), menuframe.ListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
+	items, _ := menuframe.RenderList(1, rows, styled.Cols(styled.Name()), menuframe.ListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
 	labels := labelsOf(items)
 
 	assert.Contains(t, labels, "見出し", "見出し行が出る")
@@ -45,7 +45,7 @@ func TestRenderMenuListUI_多数行はページ送りし空行で高さを保つ
 	for i := range rows {
 		rows[i] = menuframe.Row{Cells: styled.TextCells(fmt.Sprintf("Item %d", i+1))}
 	}
-	items, pager := menuframe.RenderList(0, rows, styled.Cols(styled.Name(200)), menuframe.ListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
+	items, pager := menuframe.RenderList(0, rows, styled.Cols(styled.Name()), menuframe.ListOpts{ItemsPerPage: 10}, resources.UIResources{Text: &resources.TextResources{}})
 	labels := labelsOf(items)
 
 	assert.Contains(t, labels, "Item 1", "先頭ページの先頭が出る")

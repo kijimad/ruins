@@ -3,6 +3,7 @@ package ui
 import (
 	"image"
 	"image/color"
+	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -222,19 +223,15 @@ func (c *Container) Layout(b image.Rectangle) {
 	inner := image.Rect(b.Min.X+c.pad, b.Min.Y+c.pad, b.Max.X-c.pad, b.Max.Y-c.pad)
 
 	dir := furex.Column
-	stretchIdx := -1
+	fallbackIdx := -1
 	if c.dir == Horizontal {
 		dir = furex.Row
-		for i, s := range c.sizes {
-			if s == 0 {
-				stretchIdx = i
-				break
-			}
-		}
-		if stretchIdx == -1 {
-			// sizes と children の長さは Row・VBox の構築で一致する。万一 sizes が短くても
-			// 範囲外の子を伸ばして余り幅が消えないよう、幅を持つ末尾の子に上界を切る
-			stretchIdx = min(len(c.children), len(c.sizes)) - 1
+		hasZero := slices.Contains(c.sizes, 0)
+		if !hasZero {
+			// 0 幅の列が無ければ末尾の列が余り幅を吸収する。sizes と children の長さは
+			// Row・VBox の構築で一致する。万一 sizes が短くても範囲外の子を伸ばして
+			// 余り幅が消えないよう、幅を持つ末尾の子に上界を切る
+			fallbackIdx = min(len(c.children), len(c.sizes)) - 1
 		}
 	}
 
@@ -255,7 +252,8 @@ func (c *Container) Layout(b image.Rectangle) {
 			child.Height = size
 		} else {
 			child.Width = size
-			if i == stretchIdx {
+			// 0 幅の列はすべて余り幅を等分して伸びる。複数あれば均等割になる
+			if (size == 0 && i < len(c.sizes)) || i == fallbackIdx {
 				child.Grow = 1
 			}
 		}

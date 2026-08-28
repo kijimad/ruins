@@ -119,7 +119,7 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConf
 
 // ViewUI はコンポーネント数の2列表をタブ帯なしのモーダルに組む。
 func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
-	cols := styled.Cols(styled.Name(260), styled.Num(80))
+	cols := styled.Cols(styled.Name(), styled.Num())
 	rows := make([]menuframe.Row, len(props.Items))
 	for i, it := range props.Items {
 		rows[i] = menuframe.Row{Cells: styled.TextCells(it.Name, fmt.Sprintf("%d", it.Count))}

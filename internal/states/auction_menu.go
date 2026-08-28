@@ -343,7 +343,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 		if tab.ID == auctionTabPending {
 			empty = query.T(world, "Nothing awaiting pickup.")
 		}
-		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(200), styled.Name(90), styled.Num(110)),
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(), styled.Fit(), styled.Num()),
 			menuframe.ListOpts{EmptyText: empty, ItemsPerPage: perPage}, res)
 	case auctionTabFinance:
 		rows := make([]menuframe.Row, len(tab.Entries))
@@ -358,14 +358,14 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 			}
 			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell(name), styled.TextCell(kind), styled.TextCell(amount)}}
 		}
-		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(200), styled.Name(80), styled.Num(120)),
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(), styled.Fit(), styled.Num()),
 			menuframe.ListOpts{EmptyText: query.T(world, "No bills or receipts."), ItemsPerPage: perPage}, res)
 	case auctionTabHistory:
 		rows := make([]menuframe.Row, len(tab.Ledger))
 		for i, r := range tab.Ledger {
 			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(r.Bid.String())}}
 		}
-		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(50), styled.Name(200), styled.Num(120)),
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Fit(), styled.Name(), styled.Num()),
 			menuframe.ListOpts{EmptyText: query.T(world, "No shipments yet."), ItemsPerPage: perPage}, res)
 	default:
 		rows := make([]menuframe.Row, len(tab.Ledger))
@@ -376,7 +376,7 @@ func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tab
 			}
 			rows[i] = menuframe.Row{Cells: []styled.Cell{styled.TextCell("#" + strconv.Itoa(r.Number)), styled.TextCell(r.Name), styled.TextCell(status), styled.TextCell(r.Bid.String())}}
 		}
-		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(50), styled.Name(170), styled.Name(70), styled.Num(110)),
+		return menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Fit(), styled.Name(), styled.Fit(), styled.Num()),
 			menuframe.ListOpts{EmptyText: query.T(world, "No deals in progress."), ItemsPerPage: perPage}, res)
 	}
 }

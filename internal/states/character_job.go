@@ -166,7 +166,7 @@ func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor me
 		rows[i] = menuframe.Row{Cells: styled.TextCells(query.T(world, props.Items[i].Profession.Name))}
 	}
 	// 職業選択は単一ページで独自レイアウト。ページ表示は使わないので捨てる
-	listRows, _ := menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name(160)), menuframe.ListOpts{}, res)
+	listRows, _ := menuframe.RenderList(itemIndex, rows, styled.Cols(styled.Name()), menuframe.ListOpts{}, res)
 	list := ui.VBox(theme.MenuPanelRowH, listRows...)
 	list.Layout(image.Rect(40, 80, 40+180, sd.Height-72))
 	children = append(children, list)

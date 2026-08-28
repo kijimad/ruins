@@ -128,7 +128,7 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 
 // buildStatsTableUI はラベル左・値右の2列表とフッタ右端のページ表示を返す。
 func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
-	cols := styled.Cols(styled.Name(180), styled.Num(90))
+	cols := styled.Cols(styled.Name(), styled.Num())
 	rows := make([]menuframe.Row, len(items))
 	for i, it := range items {
 		rows[i] = menuframe.Row{Cells: styled.TextCells(it.Label, it.Value)}

@@ -246,7 +246,7 @@ func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, ta
 		return nil, ""
 	}
 	currentTab := tabs[tabIndex]
-	cols := styled.Cols(styled.Name(20), styled.Name(320))
+	cols := styled.Cols(styled.Fit(), styled.Name())
 	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
 		mark := consts.IconClose

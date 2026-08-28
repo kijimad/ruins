@@ -34,9 +34,11 @@ type ListOpts struct {
 // フッタ右端へ出すページ表示文字列を返す。ページ表示は複数ページのときだけ非空になる。
 // 呼び出し側は行を TabScreen/PanelScreen へ並べ、ページ表示をそのフッタへ渡す。
 // 1ページの件数は呼び出し側が opts.ItemsPerPage に解決して渡す。0 なら全行を1ページに収める。
+// 列幅は CSS Grid のトラックと同じ規則で解決する。Fit の列は全行の内容の実測から、
+// Grow の列は余り幅から決まり、表全体で列が揃う。呼び出し側は幅の数値を書かない。
 func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res resources.UIResources) ([]ui.Widget, string) {
 	face := res.Text.BodyFace
-	colWidths := styled.Widths(cols)
+	colWidths := resolveColWidths(cols, opts.HeaderRow, rows, face)
 	aligns := styled.Aligns(cols)
 	perPage := opts.ItemsPerPage
 	if perPage <= 0 {
@@ -67,6 +69,41 @@ func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res
 		items = append(items, ui.NewText(opts.EmptyText, face, theme.TextSecondary))
 	}
 	return items, pg.GetPageText()
+}
+
+// resolveColWidths は列のトラック幅を解決する。Fit の列は見出しと全行の内容の実測の最大値に
+// 列間の間隔を足した幅、Icon の列は正方の固定幅にする。Grow の列は 0 のままにし、
+// 行の flex が余り幅を割り当てる。
+func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face text.Face) []int {
+	widths := make([]int, len(cols))
+	for i, c := range cols {
+		switch c.Mode {
+		case styled.ColIcon:
+			widths[i] = theme.MenuIconW
+		case styled.ColFit:
+			maxW := 0
+			if i < len(headerRow) {
+				w, _ := text.Measure(headerRow[i], face, 0)
+				maxW = max(maxW, int(w))
+			}
+			for _, r := range rows {
+				if i >= len(r.Cells) {
+					continue
+				}
+				cell := r.Cells[i]
+				if cell.Icon != nil {
+					maxW = max(maxW, theme.MenuIconW)
+					continue
+				}
+				w, _ := text.Measure(cell.Text, face, 0)
+				maxW = max(maxW, int(w))
+			}
+			widths[i] = maxW + theme.Space3
+		case styled.ColGrow:
+			// 0 のままにする。行の flex が余り幅を割り当てる
+		}
+	}
+	return widths
 }
 
 // cellTexts は見出し行のセルから文字列を取り出す。見出しはアイコンを持たない前提で Text を並べる。

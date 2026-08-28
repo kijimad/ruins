@@ -28,7 +28,7 @@ func storyIcon() *ebiten.Image {
 
 // storyRows はカタログ用の一覧。見出し・選択中・非選択・アイコン・右寄せ数値を1組に収める。
 func storyRows(res resources.UIResources) []ui.Widget {
-	cols := styled.Cols(styled.Icon(), styled.Name(200), styled.Num(60))
+	cols := styled.Cols(styled.Icon(), styled.Name(), styled.Num())
 	rows := []Row{
 		{Cells: styled.TextCells("Weapons", "", ""), Header: true},
 		{Cells: []styled.Cell{styled.IconCell(storyIcon()), styled.TextCell("Long Sword"), styled.TextCell("1.20kg")}},

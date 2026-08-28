@@ -192,6 +192,6 @@ func (st *SettingsMenuState) ViewUI(world w.World, props SettingsMenuProps, curs
 	for i, item := range props.Items {
 		rows[i] = menuframe.Row{Cells: styled.TextCells(item.Label, item.Value)}
 	}
-	content, pager := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Name(240), styled.Num(100)), menuframe.ListOpts{}, res)
+	content, pager := menuframe.RenderList(cursor.ItemIndex, rows, styled.Cols(styled.Name(), styled.Num()), menuframe.ListOpts{}, res)
 	return menuframe.PanelScreen(world, res, query.T(world, "Settings"), content, keybind.HelpHint(world), pager)
 }

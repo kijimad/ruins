@@ -417,7 +417,7 @@ func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps,
 		return nil, ""
 	}
 	items := props.Tabs[tabIndex].Items
-	cols := itemMenuColumns(260, styled.Num(80))
+	cols := itemMenuColumns(styled.Num())
 	rows := make([]menuframe.Row, len(items))
 	for i, it := range items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)

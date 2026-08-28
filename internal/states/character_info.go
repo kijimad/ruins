@@ -256,9 +256,9 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	hasModifier := tab.ID == tabAbilities
 	// 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ
-	cols := styled.Cols(styled.Name(100), styled.Num(60))
+	cols := styled.Cols(styled.Name(), styled.Num())
 	if hasModifier {
-		cols = styled.Cols(styled.Name(100), styled.Num(60), styled.Num(60))
+		cols = styled.Cols(styled.Name(), styled.Num(), styled.Num())
 	}
 	rows := make([]menuframe.Row, len(tab.Items))
 	for i, it := range tab.Items {

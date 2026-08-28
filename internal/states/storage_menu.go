@@ -207,7 +207,7 @@ func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps,
 		return nil, ""
 	}
 	currentTab := props.Tabs[tabIndex]
-	cols := itemMenuColumns(260, styled.Num(80))
+	cols := itemMenuColumns(styled.Num())
 	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)

@@ -252,7 +252,7 @@ func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabI
 		return nil, ""
 	}
 	currentTab := tabs[tabIndex]
-	cols := itemMenuColumns(0, styled.Num(80), styled.Num(90))
+	cols := itemMenuColumns(styled.Num(), styled.Num())
 	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
 		total := query.GetEntityWeight(world, it.Entity) * consts.Milligram(it.Count)

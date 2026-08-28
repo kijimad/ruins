@@ -27,7 +27,7 @@ func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor men
 
 // buildEquipListUI は装備4列とフッタ右端のページ表示を返す。
 func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
-	cols := styled.Cols(styled.Name(130), styled.Icon(), styled.Name(140), styled.Num(70))
+	cols := styled.Cols(styled.Fit(), styled.Icon(), styled.Name(), styled.Num())
 	rows := make([]menuframe.Row, len(slots))
 	for i, slot := range slots {
 		var icon *ebiten.Image
