@@ -80,8 +80,9 @@ func encodePNG(t *testing.T, img image.Image) []byte {
 // 下回ると見逃す。文字単位の変化まで見たいならトレランスではなく専用の小さい golden を撮る。
 //
 // この係数を緩めすぎると実変化が静かに素通りする。上限の目安は2行ラベル変更 570画素の
-// 半分、係数0.34。TestToleranceForSize がこの上限を守らせる。以前の45.0は全画面で5.4%あり、
-// テキスト行が丸ごと別言語になっていた golden を見逃していた。
+// 半分、係数0.34。TestToleranceForSize がこの上限を守らせる。
+// 締める判断は推測でなく実測で行う。比較時に差分画素数をログへ出しているので、
+// CI を含む実行環境ごとの実マージンをそこから読める。
 const noiseScale = 0.3
 
 // toleranceForSize は画像のピクセル数からトレランス比率を算出する。
@@ -114,12 +115,14 @@ func assertPNGGolden(t *testing.T, name string, pngData []byte) {
 		return
 	}
 
+	// 直近の比較の差分画素数。EqualFn が書き、失敗時の DiffFn が報告へ使う
+	var lastDiff, lastAllowed int
 	g := newGoldie(t,
-		goldie.WithEqualFn(pngPixelEqualFn(toleranceRatio)),
+		goldie.WithEqualFn(pngPixelEqualFn(t, toleranceRatio, &lastDiff, &lastAllowed)),
 		goldie.WithDiffFn(func(_, _ string) string {
 			return fmt.Sprintf(
-				"pixel diff exceeds tolerance: image %dx%d, tolerance %.2f%%",
-				cfg.Width, cfg.Height, toleranceRatio*100,
+				"pixel diff exceeds tolerance: image %dx%d, diff %d px > allowed %d px",
+				cfg.Width, cfg.Height, lastDiff, lastAllowed,
 			)
 		}),
 	)
@@ -165,8 +168,11 @@ func absDiffU32(a, b uint32) uint32 {
 
 // pngPixelEqualFn は2つのPNGバイト列をピクセル単位で比較する。
 // toleranceRatio で許容する差分ピクセル比率を、channelTolerance16 で1画素内の許容振幅を指定する。
-// どのチャンネルも許容振幅以内なら同一画素とみなし、振幅を超えた画素数が比率を超えたら不一致とする
-func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {
+// どのチャンネルも許容振幅以内なら同一画素とみなし、振幅を超えた画素数が比率を超えたら不一致とする。
+// 差分画素数は成否によらずログへ出す。実行環境ごとの実マージンを可視化し、
+// トレランスを締める判断の実測根拠にする
+func pngPixelEqualFn(t *testing.T, toleranceRatio float64, lastDiff, lastAllowed *int) goldie.EqualFn {
+	t.Helper()
 	return func(actual, expected []byte) bool {
 		actualImg, err := png.Decode(bytes.NewReader(actual))
 		if err != nil {
@@ -195,12 +201,13 @@ func pngPixelEqualFn(toleranceRatio float64) goldie.EqualFn {
 					absDiffU32(ebl, abl) > channelTolerance16 ||
 					absDiffU32(ea, aa) > channelTolerance16 {
 					diffCount++
-					if diffCount > maxAllowed {
-						return false
-					}
 				}
 			}
 		}
-		return true
+		*lastDiff, *lastAllowed = diffCount, maxAllowed
+		if diffCount > 0 {
+			t.Logf("golden margin: diff %d px / allowed %d px", diffCount, maxAllowed)
+		}
+		return diffCount <= maxAllowed
 	}
 }
