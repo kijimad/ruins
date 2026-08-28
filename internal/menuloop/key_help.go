@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -41,8 +42,9 @@ var keyHelpBindings = []keybind.Binding{
 }
 
 // OnStart は一覧の UI を組む。束縛表は state の寿命の間変わらないので1度だけ組めばよい。
-// キー列の隣に説明を右寄せで並べ、行の右端で説明の終端を揃える。キーは1粒ずつ描き、
-// 箱を持たないグリフには白い箱を敷いて、全キーを白背景に黒グリフのキーキャップで統一する。
+// キーは1粒ずつ描き、箱を持たないグリフには白い箱を敷いて、全キーを白背景に黒グリフの
+// キーキャップで統一する。行は RenderList で組み、キーキャップ列は実測の Fit、説明列は
+// 余り幅の右寄せにする。選択強調と下線の行の意匠も他の一覧と同じものが着く。
 // 枠・行高・余白・配置は密行パネル menuframe.PanelScreenDense の既定に従う
 func (st *KeyHelpState) OnStart(world w.World) error {
 	res := world.Resources.UIResources
@@ -53,25 +55,16 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 		entries = append(entries, keybind.HintEntries(world, keyHelpBindings)...)
 	}
 
-	// キーキャップ列の幅は最長のキーキャップ並びの実測から導く。px を直接決めず、
-	// キー表記が変わっても列幅が内容へ追随する。説明列は残り幅を伸ばして右寄せにする
-	caps := make([]*ebiten.Image, len(entries))
-	capWidths := make([]int, len(entries))
+	rows := make([]menuframe.Row, len(entries))
 	for i, e := range entries {
-		caps[i] = renderKeycaps(e.Tokens, res)
-		capWidths[i] = caps[i].Bounds().Dx()
+		rows[i] = menuframe.Row{Cells: []styled.Cell{
+			styled.IconCell(renderKeycaps(e.Tokens, res)),
+			styled.TextCell(e.Label),
+		}}
 	}
-	// いちばん長いキーキャップ並びに、説明列との間隔を足した幅を列幅にする
-	keyColW := ui.FitWidth(capWidths, theme.Space3, 0)
-	face := res.Text.BodyFace
-	content := make([]ui.Widget, 0, len(entries))
-	for i, e := range entries {
-		label := ui.NewText(e.Label, face, theme.TextPrimary)
-		label.Align = ui.AlignRight
-		label.VCenter = true
-		content = append(content, ui.Row([]int{keyColW, 0}, ui.NewGraphic(caps[i]), label))
-	}
-	st.body = menuframe.PanelScreenDense(world, res, query.T(world, "Key bindings"), content, "", "")
+	// カーソルは持たないので負のインデックスを渡す
+	list, pager := menuframe.RenderList(-1, rows, styled.Cols(styled.Fit(), styled.Desc()), menuframe.ListOpts{}, res)
+	st.body = menuframe.PanelScreenDense(world, res, query.T(world, "Key bindings"), list, "", pager)
 	return nil
 }
 

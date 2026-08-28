@@ -32,6 +32,9 @@ func Num() Col { return Col{Mode: ColFit, Align: AlignRight} }
 // Icon はアイテムのアイコン用の正方の列を返す。
 func Icon() Col { return Col{Mode: ColIcon, Align: AlignLeft} }
 
+// Desc は説明文用の列を返す。余り幅を吸収して伸び、右寄せで行の右端に説明の終端を揃える。
+func Desc() Col { return Col{Mode: ColGrow, Align: AlignRight} }
+
 // Cols は列の並びをそのまま返す。呼び出し側の宣言を読みやすくする可変長版。
 func Cols(cs ...Col) []Col { return cs }
 

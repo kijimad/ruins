@@ -34,6 +34,7 @@ type ListOpts struct {
 // フッタ右端へ出すページ表示文字列を返す。ページ表示は複数ページのときだけ非空になる。
 // 呼び出し側は行を TabScreen/PanelScreen へ並べ、ページ表示をそのフッタへ渡す。
 // 1ページの件数は呼び出し側が opts.ItemsPerPage に解決して渡す。0 なら全行を1ページに収める。
+// itemIndex に負値を渡すとどの行も選択されず、カーソルを持たない表になる。
 // 列幅は CSS Grid のトラックと同じ規則で解決する。Fit の列は全行の内容の実測から、
 // Grow の列は余り幅から決まり、表全体で列が揃う。呼び出し側は幅の数値を書かない。
 func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res resources.UIResources) ([]ui.Drawable, string) {
@@ -91,7 +92,9 @@ func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face te
 					continue
 				}
 				if cell := r.Cells[i]; cell.Icon != nil {
-					contents = append(contents, theme.MenuIconW)
+					// アイコンセルは画像の実幅で測る。一覧のアイコンは正方へ縮小済みで
+					// 従来どおり収まり、キーキャップのような横長の画像もそのまま測れる
+					contents = append(contents, cell.Icon.Bounds().Dx())
 				} else {
 					contents = append(contents, ui.MeasureTextWidth(cell.Text, face))
 				}
