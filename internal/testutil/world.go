@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/require"
 )
@@ -43,8 +44,8 @@ func WithStageLevel(level gc.Level) Option {
 }
 
 // WithUI はフォントフェイス込みの UIResources を積む。UI を描くテストはこれを付ける。
-// フェイスは呼び出しごとに独立して構築する。text/v2 は GoTextFaceSource 内に可変キャッシュを
-// 持ち、共有フェイスを並行描画すると競合するが、独立所有ならロック無しで並列に実描画できる。
+// フェイスはテストが排他所有する。text/v2 は GoTextFaceSource 内に可変キャッシュを持ち、
+// 共有フェイスを並行描画すると競合するが、排他所有ならロック無しで並列に実描画できる。
 // フルゲームを構築する重い vrt.InitReplayWorld は、実プレイどおりフルフレームを駆動する
 // states の golden_replay だけに使う。
 func WithUI() Option {
@@ -120,12 +121,30 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	world.Components.StageField.Add(fieldEntity, field)
 
 	if cfg.ui {
-		fonts, err := loader.LoadFonts()
-		require.NoError(tb, err)
-		uir, err := loader.LoadUIResources(fonts)
-		require.NoError(tb, err)
-		world.Resources.UIResources = uir
+		world.Resources.UIResources = borrowUIResources(tb)
 	}
 
 	return world
+}
+
+// uiResPool は WithUI が積む UIResources の置き場。フェイスの構築は重く、描画は
+// フェイス内部のキャッシュへ書き込むため同時共有はできない。そこで排他所有で貸し出す。
+// 並行するテストは必ず別インスタンスを掴んで独立し、順に走るテストは温まった
+// キャッシュごと再利用して構築を省く。ポインタを入れるのは Put のボクシングを避けるため
+var uiResPool sync.Pool
+
+// borrowUIResources はプールから UIResources を借り、テスト終了時に返す。
+// 空なら独立したフェイス一式を構築する
+func borrowUIResources(tb testing.TB) resources.UIResources {
+	tb.Helper()
+	uir, ok := uiResPool.Get().(*resources.UIResources)
+	if !ok {
+		fonts, err := loader.LoadFonts()
+		require.NoError(tb, err)
+		fresh, err := loader.LoadUIResources(fonts)
+		require.NoError(tb, err)
+		uir = &fresh
+	}
+	tb.Cleanup(func() { uiResPool.Put(uir) })
+	return *uir
 }
