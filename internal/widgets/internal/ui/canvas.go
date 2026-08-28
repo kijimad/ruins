@@ -8,7 +8,7 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
-// Canvas は描画先を抽象化する seam。UI ツリーはこの seam 越しに描く。
+// Canvas は描画先の抽象。UI ツリーはこの面越しに描く。
 // テストは記録用の実装を渡し、ebiten の描画コンテキスト無しでレイアウトとテキストを検証できる。
 // 本番は ebiten 実装 EbitenCanvas を渡す。
 type Canvas interface {

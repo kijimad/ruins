@@ -19,6 +19,6 @@
 //   - 配置の計算は furex の flexbox へ委譲する。Container と FlexColumn が唯一の接続点で、
 //     depguard がレイアウトエンジンの import をこのパッケージだけに制限する
 //   - 行分割 WrapText は UAX#14 の segmenter へ委譲し、日本語も英語も同じ規則で折り返す
-//   - 描画は Canvas seam の裏に閉じる。テストは記録用の実装で ebiten 無しに
+//   - 描画は Canvas の裏に閉じる。テストは記録用の実装で ebiten 無しに
 //     レイアウトとテキストを検証できる
 package ui

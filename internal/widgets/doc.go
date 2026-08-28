@@ -12,7 +12,7 @@
 //
 //	widgets/     ← 業務ロジック付きの高レベルコンポーネント（このパッケージ）
 //	   ↓ 使用
-//	ui/          ← 保持型で宣言的な自前ツリー。Widget・Container・Text・Canvas seam
+//	ui/          ← 保持型で宣言的な自前ツリー。Widget・Container・Text・Canvas
 //	   ↓ 使用
 //	ebiten/      ← 描画の最下層。EbitenCanvas が仲介する
 //
@@ -37,7 +37,7 @@
 // ## internal/ui を直接使う場合
 //   - 保持型のツリーで画面を宣言的に組みたい
 //   - 状態管理は state 側が持ち、描画部品だけが要る
-//   - Canvas seam でテストしたい
+//   - Canvas を差し替えてテストしたい
 //
 // # Sub-packages
 //
