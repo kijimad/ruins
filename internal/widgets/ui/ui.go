@@ -75,3 +75,7 @@ func MeasureTextWidth(s string, face text.Face) int { return core.MeasureTextWid
 
 // LineHeight は face の自然な行送りを画素で返す。行送りを固定値で持たずに済ませる。
 func LineHeight(face text.Face) int { return core.LineHeight(face) }
+
+// FitWidth は中身に合わせた箱の幅を返す。最も広い中身に extra を足し、lower を下回らせない。
+// 内容ぴったりの幅がほしい箱はこれを通す。
+func FitWidth(contents []int, extra, lower int) int { return core.FitWidth(contents, extra, lower) }

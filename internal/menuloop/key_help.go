@@ -56,12 +56,13 @@ func (st *KeyHelpState) OnStart(world w.World) error {
 	// キーキャップ列の幅は最長のキーキャップ並びの実測から導く。px を直接決めず、
 	// キー表記が変わっても列幅が内容へ追随する。説明列は残り幅を伸ばして右寄せにする
 	caps := make([]*ebiten.Image, len(entries))
-	keyColW := 0
+	capWidths := make([]int, len(entries))
 	for i, e := range entries {
 		caps[i] = renderKeycaps(e.Tokens, res)
-		keyColW = max(keyColW, caps[i].Bounds().Dx())
+		capWidths[i] = caps[i].Bounds().Dx()
 	}
-	keyColW += theme.Space3 // 説明列との間隔
+	// いちばん長いキーキャップ並びに、説明列との間隔を足した幅を列幅にする
+	keyColW := ui.FitWidth(capWidths, theme.Space3, 0)
 	face := res.Text.BodyFace
 	content := make([]ui.Widget, 0, len(entries))
 	for i, e := range entries {

@@ -105,8 +105,8 @@ func (win *Window) buildTree() ui.Widget {
 		children = append(children, renderChoiceList(win.choiceConfig, win.choiceState, win.world, choiceRect))
 	} else {
 		lw, th := ui.MeasureText("Enter", res.Text.BodyFace)
-		// 選択肢と同じ最小幅を確保し、文字幅ぴったりでボタンが痩せないようにする
-		cw := max(choicePadL*2+lw, choiceMinWidth)
+		// 選択肢の塊と同じ規則で幅を決め、文字幅ぴったりでボタンが痩せないようにする
+		cw := ui.FitWidth([]int{lw}, choicePadL*2, choiceMinWidth)
 		bx := cx - cw/2
 		py := rect.Max.Y - theme.Space5 - choiceRowH
 		hl := ui.NewNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
@@ -228,26 +228,25 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 	return root
 }
 
+// choiceLabelsWidth は1項目のラベルと追加ラベルを連ねた送り幅を返す。
+// ラベルの右へ間隔を空けて追加ラベルを並べる、という描画のしかたと同じ足し方をする。
+func choiceLabelsWidth(it item, face text.Face) int {
+	w := ui.MeasureTextWidth(it.Label, face)
+	for _, a := range it.AdditionalLabels {
+		w += choiceLabelGap + ui.MeasureTextWidth(a, face)
+	}
+	return w
+}
+
 // choiceBlockWidth は選択肢一覧の自然幅を返す。窓では中央寄せ、テストでは左寄せの塊の幅に使う。
 // 各項目のラベルと追加ラベルの合計に左右パディングを足し、最大を採る
 func choiceBlockWidth(config tabMenuConfig, state viewState, world w.World) int {
 	res := world.Resources.UIResources
 	face := res.Text.BodyFace
 	items, _ := getVisibleItems(config, state)
-	maxW := 0
-	for _, it := range items {
-		lw, _ := ui.MeasureText(it.Label, face)
-		w := choicePadL*2 + lw
-		for _, a := range it.AdditionalLabels {
-			aw, _ := ui.MeasureText(a, face)
-			w += choiceLabelGap + aw
-		}
-		if w > maxW {
-			maxW = w
-		}
+	contents := make([]int, len(items))
+	for i, it := range items {
+		contents[i] = choiceLabelsWidth(it, face)
 	}
-	if maxW < choiceMinWidth {
-		maxW = choiceMinWidth
-	}
-	return maxW
+	return ui.FitWidth(contents, choicePadL*2, choiceMinWidth)
 }

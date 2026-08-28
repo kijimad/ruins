@@ -79,7 +79,7 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 
 		// 背景矩形を描画。塗りはバッジの状態色を保ちつつ、枠はメニュー枠と同じ共通 chrome に揃える
 		bgX := theme.Space4
-		bgWidth := textWidth + int(paddingX)*2
+		bgWidth := ui.FitWidth([]int{textWidth}, int(paddingX)*2, 0)
 		framedbg.Draw(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(badge.Color))
 
 		// 白文字でテキストを描画
@@ -100,7 +100,7 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 
 		// グレーの背景。他バッジと同じ共通 chrome に揃える
 		bgX := theme.Space4
-		bgWidth := textWidth + int(paddingX)*2
+		bgWidth := ui.FitWidth([]int{textWidth}, int(paddingX)*2, 0)
 		framedbg.Draw(screen, bgX, int(badgeY), bgWidth, int(badgeHeight), badgeStyle(theme.HUDBadgeBg))
 
 		textY := badgeY + paddingY

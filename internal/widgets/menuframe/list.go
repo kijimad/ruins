@@ -81,22 +81,22 @@ func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face te
 		case styled.ColIcon:
 			widths[i] = theme.MenuIconW
 		case styled.ColFit:
-			maxW := 0
+			// 見出しと全行のこの列の中身を並べ、いちばん広いものに列間の間隔を足す
+			contents := make([]int, 0, len(rows)+1)
 			if i < len(headerRow) {
-				maxW = max(maxW, ui.MeasureTextWidth(headerRow[i], face))
+				contents = append(contents, ui.MeasureTextWidth(headerRow[i], face))
 			}
 			for _, r := range rows {
 				if i >= len(r.Cells) {
 					continue
 				}
-				cell := r.Cells[i]
-				if cell.Icon != nil {
-					maxW = max(maxW, theme.MenuIconW)
-					continue
+				if cell := r.Cells[i]; cell.Icon != nil {
+					contents = append(contents, theme.MenuIconW)
+				} else {
+					contents = append(contents, ui.MeasureTextWidth(cell.Text, face))
 				}
-				maxW = max(maxW, ui.MeasureTextWidth(cell.Text, face))
 			}
-			widths[i] = maxW + theme.Space3
+			widths[i] = ui.FitWidth(contents, theme.Space3, 0)
 		case styled.ColGrow:
 			// 0 のままにする。行の flex が余り幅を割り当てる
 		}

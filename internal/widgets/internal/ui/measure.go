@@ -28,6 +28,21 @@ func MeasureTextWidth(s string, face text.Face) int {
 	return w
 }
 
+// FitWidth は中身に合わせた箱の幅を返す。最も広い中身に extra を足し、lower を下回らせない。
+//
+// extra は中身の外側に足す幅で、左右のパディングなら2つぶん、列と列の間隔ならその1つぶんを渡す。
+// lower は箱として痩せすぎる下限で、不要なら 0 を渡す。中身がひとつも無ければ lower になる。
+//
+// 内容ぴったりの幅を決める計算はこれ1つにする。表の列・選択肢の塊・ボタン・バッジ・
+// キーキャップと、同じ規則を要る箇所が散らばっており、別々に書くと下限や余白の扱いがずれる。
+func FitWidth(contents []int, extra, lower int) int {
+	widest := 0
+	for _, c := range contents {
+		widest = max(widest, c)
+	}
+	return max(widest+extra, lower)
+}
+
 // LineHeight は face の自然な行送りを画素で返す。アセンダとディセンダを含む字面の
 // 高さから取るので、固定値のように字面に対して間延びしない。
 func LineHeight(face text.Face) int {
