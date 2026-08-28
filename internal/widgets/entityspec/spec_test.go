@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
-	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,14 +20,9 @@ func TestMain(m *testing.M) {
 	os.Exit(vrt.RunTestMain(m))
 }
 
-func newSpecWorld(t *testing.T) w.World {
-	t.Helper()
-	return testutil.InitTestWorld(t)
-}
-
 func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
@@ -48,7 +42,7 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 
 func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.Melee.Add(e, &gc.Melee{
@@ -63,7 +57,7 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 
 func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	// AttackRifle は enum.go の rangeParams に登録済みなので、射程行が表示される前提が成り立つ
@@ -85,7 +79,7 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 
 func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.Fire.Add(e, &gc.Fire{
@@ -102,7 +96,7 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 
 func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.Wearable.Add(e, &gc.Wearable{
@@ -132,7 +126,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 
 func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.Wearable.Add(e, &gc.Wearable{
@@ -148,7 +142,7 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 
 func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 42})
@@ -161,7 +155,7 @@ func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testi
 
 func TestUpdateSpec_回復量は割合指定ならパーセントで表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: gc.HealRatio, Amount: 0.3})
@@ -173,7 +167,7 @@ func TestUpdateSpec_回復量は割合指定ならパーセントで表示する
 
 func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	// gc.HealAmountKind に現在定義されていない値を使い、default分岐を狙う
@@ -187,7 +181,7 @@ func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する
 
 func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.ProvidesNutrition.Add(e, &gc.ProvidesNutrition{Amount: 25})
@@ -205,7 +199,7 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 
 func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.Book.Add(e, &gc.Book{
@@ -229,7 +223,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 
 func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	e := world.ECS.NewEntity()
 	world.Components.Book.Add(e, &gc.Book{
@@ -245,7 +239,7 @@ func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T)
 
 func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の性能を表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	spec := gc.EntitySpec{
 		Melee: &gc.Melee{
@@ -263,7 +257,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 
 func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポーネントを同時に表示する(t *testing.T) {
 	t.Parallel()
-	world := newSpecWorld(t)
+	world := testutil.InitTestWorld(t)
 
 	spec := gc.EntitySpec{
 		Fire: &gc.Fire{
