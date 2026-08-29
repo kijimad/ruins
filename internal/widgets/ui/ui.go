@@ -5,7 +5,7 @@
 // API として強制する。塗り・枠・パディング・テクスチャ背景などの装飾は widgets 配下の
 // 部品だけが実体パッケージを import して扱える。画面層からは装飾の型と関数がそもそも
 // 見えないため、スタイルの手組みはコンパイルできない。
-// Row・VBox・Group は具象でなく Widget を返し、装飾メソッドを型の面からも隠す。
+// Group は具象でなく Widget を返し、装飾メソッドを型の面からも隠す。
 // 層の全体像は widgets/menuframe のパッケージコメントを参照。
 package ui
 
@@ -25,21 +25,8 @@ import (
 // 部品はプリミティブ実体の Widget を扱い、そちらは Layout を持つ。
 type Widget = core.Drawable
 
-// Canvas は描画先。画面は EbitenCanvas を作ってツリーへ渡す。
-type Canvas = core.Canvas
-
-// Text は1行テキスト。Align・VCenter は内容のそろえで、画面が自由に指定してよい。
+// Text は1行テキスト。画面が直接テキストを置くときに使う。
 type Text = core.Text
-
-// Align はテキストのそろえ方向。
-type Align = core.Align
-
-// そろえ方向の定数。
-const (
-	AlignLeft   = core.AlignLeft
-	AlignRight  = core.AlignRight
-	AlignCenter = core.AlignCenter
-)
 
 // EbitenCanvas は ebiten の画面へ描く Canvas 実装。State の Draw から使う。
 type EbitenCanvas = core.EbitenCanvas
@@ -49,19 +36,8 @@ func NewText(value string, face text.Face, c color.Color) *Text {
 	return core.NewText(value, face, c)
 }
 
-// NewGraphic は画像ウィジェットを作る。
-func NewGraphic(img *ebiten.Image) Widget { return core.NewGraphic(img) }
-
 // NewGroup は子を絶対配置で束ねる。ページ合成のルートに使う。
 func NewGroup(children ...Widget) Widget { return core.NewGroup(core.Placeable(children)...) }
-
-// VBox は子を縦に積む。rowH は各行の高さ。
-func VBox(rowH int, children ...Widget) Widget { return core.VBox(rowH, core.Placeable(children)...) }
-
-// Row は子を横に並べる。colWidths は各列の幅。0 の列は余り幅を吸って伸びる。
-func Row(colWidths []int, cells ...Widget) Widget {
-	return core.Row(colWidths, core.Placeable(cells)...)
-}
 
 // NewEbitenCanvas は描画先スクリーンを与えて Canvas を作る。
 func NewEbitenCanvas(screen *ebiten.Image) *EbitenCanvas { return core.NewEbitenCanvas(screen) }
@@ -72,10 +48,3 @@ func MeasureText(s string, face text.Face) (int, int) { return core.MeasureText(
 
 // MeasureTextWidth は MeasureText の幅だけを返す。
 func MeasureTextWidth(s string, face text.Face) int { return core.MeasureTextWidth(s, face) }
-
-// LineHeight は face の自然な行送りを画素で返す。行送りを固定値で持たずに済ませる。
-func LineHeight(face text.Face) int { return core.LineHeight(face) }
-
-// FitWidth は中身に合わせた箱の幅を返す。最も広い中身に extra を足し、lower を下回らせない。
-// 内容ぴったりの幅がほしい箱はこれを通す。
-func FitWidth(contents []int, extra, lower int) int { return core.FitWidth(contents, extra, lower) }
