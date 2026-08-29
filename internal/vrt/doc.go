@@ -2,20 +2,18 @@
 //
 // 公開APIは役割で5群に分かれる。
 //
-// # ホスト・ロック・リソース
+// # ホスト・リソース
 //
 //   - RunTestMain: TestMain から呼ぶ。ebiten ループ内で全テストを走らせ ebiten.NewImage 等を使えるようにする
-//   - WithUILock: ebitenui のグローバル状態への並行アクセスを直列化する
-//   - SharedUIResources: 共有のUIリソースを一度だけ読み込んで返す
 //
 // # ワールド・ステート構築
 //
-//   - InitVRTWorld: 固定シードの素の決定的ワールドを作る。画面のポスト処理は切って撮る
-//   - SetupStateMachine: ステートを構築しレイアウト確定までフレームを回す。WithUILock 区間から呼ぶ
+//   - InitReplayWorld: フルゲームを構築する重い world。states の golden_replay がフルフレームを駆動するときだけに使う。
+//     widget や画面の描画テストは testutil.InitTestWorld(t, testutil.WithUI()) の軽い world を使う
+//   - SetupStateMachine: ステートを構築しレイアウト確定までフレームを回す
 //
 // # ゴールデン比較。ピクセル差分で pass/fail を判定する
 //
-//   - AssertContainerGolden: ウィジェットのコンテナを固定する
 //   - AssertScreenGolden: 任意の画面描画を固定する
 //   - AssertFrameGolden: 描画済みの screen を固定する。再生ドライバが撮ったフレームに使う。screen は解放しない
 //

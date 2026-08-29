@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -19,6 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -389,26 +388,6 @@ func newItemActionEntry(world w.World, stack query.Stack) itemRowData {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *ItemActionState) View(world w.World, props ItemActionProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// タブ見出しに直達ショートカットを添える。調べる(X) 置く(d) の形
-	labels := make([]string, len(props.Tabs))
-	for i, tab := range props.Tabs {
-		if tab.Key != "" {
-			labels[i] = fmt.Sprintf("%s(%s)", tab.Label, tab.Key)
-		} else {
-			labels[i] = tab.Label
-		}
-	}
-	// タイトルは置かず、タブ帯から始める。詳細は x のモーダルで見る
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		TabLabels: labels,
-		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemList(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    keybind.HelpHint(world),
-	})
-}
-
 // Menu は一覧の構成を返す。menuloop.Model の Menu 部にあたる
 func (st *ItemActionState) Menu(props ItemActionProps) menuloop.MenuConfig {
 	itemCounts := make([]int, len(props.Tabs))
@@ -418,17 +397,32 @@ func (st *ItemActionState) Menu(props ItemActionProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: itemActionMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts, ItemsPerPage: menuloop.ItemsPerPageAuto, InitialTab: verbTabIndex(st.initialVerb)}
 }
 
-func (st *ItemActionState) buildItemList(world w.World, props ItemActionProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+// ViewUI は動詞タブとアイコン付きアイテム一覧を組む。
+func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+	labels := make([]string, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		if tab.Key != "" {
+			labels[i] = fmt.Sprintf("%s(%s)", tab.Label, tab.Key)
+		} else {
+			labels[i] = tab.Label
+		}
+	}
+	content, pager := st.buildItemListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
+	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+}
+
+// buildItemListUI は行列とフッタ右端のページ表示を返す。
+func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(props.Tabs) {
-		return styled.NewVerticalContainer()
+		return nil, ""
 	}
 	items := props.Tabs[tabIndex].Items
-	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
-	rows := make([]menuRow, len(items))
+	cols := itemMenuColumns(styled.Num())
+	rows := make([]menuframe.Row, len(items))
 	for i, it := range items {
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No matching items")}, res)
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No matching items"), ItemsPerPage: perPage}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す

@@ -2,6 +2,7 @@ package loader
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/BurntSushi/toml"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -17,8 +18,14 @@ const (
 	rawsPath  = "metadata/entities/raw/raw.toml"
 )
 
-// LoadFonts はフォントリソースを読み込む
-func LoadFonts() (map[string]resources.Font, error) {
+// fontMu は UI リソースの構築を直列化する。font source の構築は共有状態を持ち並行安全でない。
+// 呼び出し側がどこから並行に読み込んでも安全なよう、守りはこの package が持つ。
+// 構築後のフェイスは呼び出しごとに独立するので、利用側はロック無しで並列に描ける
+var fontMu sync.Mutex
+
+// loadFonts はフォントリソースを読み込む。font source を作るので LoadUIResources の
+// ロック下だけで呼ぶ。ロックはこの関数では取らない
+func loadFonts() (map[string]resources.Font, error) {
 	// TOML にはフォントパスのみが入る。ロード済みの resources.Font はパスから構築する
 	type fontEntry struct {
 		Font string `toml:"font"`
@@ -71,24 +78,21 @@ func LoadSpriteSheets(raws oapi.Raws) (map[string]components.SpriteSheet, error)
 	return spriteSheets, nil
 }
 
-// LoadUIResources はフォントマップからUIリソースを初期化する
-func LoadUIResources(fonts map[string]resources.Font) (resources.UIResources, error) {
+// LoadUIResources はフォントを読み込んで UI リソースを初期化する。
+// フォント読み込みと font source 構築をまとめて1つのロック下で行う。
+func LoadUIResources() (resources.UIResources, error) {
+	fontMu.Lock()
+	defer fontMu.Unlock()
+	fonts, err := loadFonts()
+	if err != nil {
+		return resources.UIResources{}, err
+	}
 	fontSources := []*text.GoTextFaceSource{
 		fonts["dougenzaka"].FaceSource,
 		fonts["nerd"].FaceSource,
 	}
 
 	return resources.NewUIResources(fontSources)
-}
-
-// BuildFaces はフォントマップからFaceマップを構築する
-func BuildFaces(fonts map[string]resources.Font) map[string]text.Face {
-	return map[string]text.Face{
-		"dougenzaka": &text.GoTextFace{
-			Source: fonts["dougenzaka"].FaceSource,
-			Size:   16,
-		},
-	}
 }
 
 // LoadRaws はRawデータを読み込む

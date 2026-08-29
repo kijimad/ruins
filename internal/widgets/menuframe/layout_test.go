@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 )
@@ -27,24 +28,13 @@ func TestLogTopY(t *testing.T) {
 	}
 }
 
-func TestCenterWindowRect_画面中央にログ領域を避けてウィンドウ矩形を配置する(t *testing.T) {
+func TestWindowRect_横は画面中央で上端はMenuWindowTopに揃える(t *testing.T) {
 	t.Parallel()
 	world := w.World{Resources: &resources.Resources{
 		ScreenDimensions: resources.ScreenDimensions{Width: 960, Height: 720},
 	}}
 
-	got := CenterWindowRect(world)
+	got := WindowRect(world)
 
-	assert.Equal(t, image.Rect(280, 86, 680, 486), got)
-}
-
-func TestCenterWindowRect_ログ領域が広く上端が窮屈なときはSpace3にクランプする(t *testing.T) {
-	t.Parallel()
-	world := w.World{Resources: &resources.Resources{
-		ScreenDimensions: resources.ScreenDimensions{Width: 800, Height: 100},
-	}}
-
-	got := CenterWindowRect(world)
-
-	assert.Equal(t, image.Rect(200, 8, 600, 408), got)
+	assert.Equal(t, image.Rect(280, theme.MenuWindowTop, 680, theme.MenuWindowTop+400), got)
 }

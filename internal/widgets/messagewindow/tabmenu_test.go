@@ -142,21 +142,31 @@ func TestTotalPages(t *testing.T) {
 func TestCurrentPage(t *testing.T) {
 	t.Parallel()
 
+	items := make([]item, 10)
+	for i := range items {
+		items[i] = item{ID: string(rune('A' + i)), Label: string(rune('A' + i))}
+	}
+	paged := tabMenuConfig{Tabs: []tabItem{{ID: "t1", Items: items}}, ItemsPerPage: 3}
+
 	t.Run("ItemsPerPageが0以下は0を返す", func(t *testing.T) {
 		t.Parallel()
-		config := tabMenuConfig{ItemsPerPage: 0}
+		config := tabMenuConfig{Tabs: []tabItem{{ID: "t1", Items: items}}, ItemsPerPage: 0}
 		assert.Equal(t, 0, currentPage(config, viewState{ItemIndex: 5}))
 	})
 
 	t.Run("ItemIndexが負は0を返す", func(t *testing.T) {
 		t.Parallel()
-		config := tabMenuConfig{ItemsPerPage: 3}
-		assert.Equal(t, 0, currentPage(config, viewState{ItemIndex: -1}))
+		assert.Equal(t, 0, currentPage(paged, viewState{ItemIndex: -1}))
 	})
 
 	t.Run("ItemIndexをItemsPerPageで割った値を返す", func(t *testing.T) {
 		t.Parallel()
+		assert.Equal(t, 2, currentPage(paged, viewState{ItemIndex: 7}))
+	})
+
+	t.Run("項目が無ければページは0にとどまる", func(t *testing.T) {
+		t.Parallel()
 		config := tabMenuConfig{ItemsPerPage: 3}
-		assert.Equal(t, 2, currentPage(config, viewState{ItemIndex: 7}))
+		assert.Equal(t, 0, currentPage(config, viewState{ItemIndex: 7}), "存在しない項目の位置でページを進めない")
 	})
 }

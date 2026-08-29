@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ebitenui/ebitenui/widget"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -252,22 +252,17 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 	return rows
 }
 
-// buildInfoTable は情報タブの一覧を組み立てる。能力タブは補正列を加える
-func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {
+// buildInfoTableUI は情報タブの表とフッタ右端のページ表示を返す。
+func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
 	hasModifier := tab.ID == tabAbilities
-	var columnWidths []int
-	var aligns []styled.TextAlign
+	// 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ
+	cols := styled.Cols(styled.Name(), styled.Num())
 	if hasModifier {
-		columnWidths = []int{100, 60, 60}
-		aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
-	} else {
-		columnWidths = []int{100, 60}
-		aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+		cols = styled.Cols(styled.Name(), styled.Num(), styled.Num())
 	}
-
-	rows := make([]menuRow, len(tab.Items))
+	rows := make([]menuframe.Row, len(tab.Items))
 	for i, it := range tab.Items {
-		cells := make([]string, len(columnWidths))
+		cells := make([]string, len(cols))
 		cells[0] = it.Label
 		if !it.IsHeader {
 			cells[1] = it.Value
@@ -275,8 +270,7 @@ func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resourc
 				cells[2] = it.Modifier
 			}
 		}
-		rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader}
 	}
-	// この画面は見出しとタブ帯の両方が縦を食うので、その構成での実測容量を使う
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No entries"), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)
 }

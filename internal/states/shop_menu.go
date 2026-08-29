@@ -3,8 +3,6 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -16,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -35,6 +34,10 @@ type ShopMenuState struct {
 // State interface ================
 
 var _ es.State[w.World] = &ShopMenuState{}
+
+// shopSellTabID は売却タブの識別子。空表示の文言分岐に使う。
+const shopSellTabID = "sell"
+
 var _ menuloop.KeyBindings = &ShopMenuState{}
 
 // OnStart はステートが開始される際に呼ばれる
@@ -122,7 +125,7 @@ func (st *ShopMenuState) Fetch(world w.World) (ShopProps, error) {
 	return ShopProps{
 		Tabs: []shopTabData{
 			{ID: "buy", Label: query.T(world, "Buy"), Items: st.createBuyItems(world, player, currency)},
-			{ID: "sell", Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
+			{ID: shopSellTabID, Label: query.T(world, "Sell"), Items: st.createSellItems(world, player)},
 		},
 	}, nil
 }
@@ -233,41 +236,31 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *ShopMenuState) View(world w.World, props ShopProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// 購入と売却をタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
+// ViewUI は購入・売却タブとアイコン付き商品一覧を組む。
+func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		TabLabels: labels,
-		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    keybind.HelpHint(world),
-	})
+	content, pager := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
+	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-func (st *ShopMenuState) buildItemContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+// buildItemListUI は行列とフッタ右端のページ表示を返す。
+func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(tabs) {
-		return styled.NewVerticalContainer()
+		return nil, ""
 	}
-
 	currentTab := tabs[tabIndex]
-	// アイコン、名前+個数、価格、重さの4列。名前を伸縮させ、価格・重さを右側にまとめる。
-	// 重さは最も重い値、15.00kg 相当、が収まる幅を固定で取り、値の桁数で価格位置がぶれないようにする。
-	// 売却の個数は名前に x個数 として添える。性能は x の詳細モーダルで見る
-	columnWidths, aligns := itemMenuColumns(0, menuColumn{Width: 80, Align: styled.AlignRight}, menuColumn{Width: 90, Align: styled.AlignRight})
-	rows := make([]menuRow, len(currentTab.Items))
+	cols := itemMenuColumns(styled.Num(), styled.Num())
+	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
-		// 名前・重量・アイコンは実体から都度出す。一覧の実体は毎フレーム集め直すので描画時も生存している。
-		// 1行は1スタックなので、重量は額と同じく個数分の合計にし、行内の値の粒度を揃える
 		total := query.GetEntityWeight(world, it.Entity) * consts.Milligram(it.Count)
 		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Price.String(), total.KgString())
 	}
 	emptyText := query.T(world, "No goods")
-	if currentTab.ID == "sell" {
+	if currentTab.ID == shopSellTabID {
 		emptyText = query.T(world, "No items to sell")
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: emptyText}, res)
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: emptyText, ItemsPerPage: perPage}, res)
 }

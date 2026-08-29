@@ -24,11 +24,7 @@ func TestInitGameResources_マップフィールドが空で初期化される(t
 	r := InitGameResources()
 
 	require.NotNil(t, r.SpriteSheets)
-	require.NotNil(t, r.Fonts)
-	require.NotNil(t, r.Faces)
 	assert.Empty(t, r.SpriteSheets)
-	assert.Empty(t, r.Fonts)
-	assert.Empty(t, r.Faces)
 	assert.Equal(t, ScreenDimensions{}, r.ScreenDimensions)
 }
 
@@ -43,8 +39,6 @@ func TestInitializeResources_エラーなくフィールドを置き換える(t 
 
 	require.NoError(t, err)
 	assert.NotNil(t, r.SpriteSheets)
-	assert.NotNil(t, r.Fonts)
-	assert.NotNil(t, r.Faces)
 	// SetScreenDimensions で設定した値は *r 全体の置き換えにより消える
 	w, h := r.GetScreenDimensions()
 	assert.Zero(t, w)

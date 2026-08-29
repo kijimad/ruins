@@ -1,12 +1,12 @@
 package hud
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
+	"image"
+
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -27,18 +27,23 @@ var defaultWeaponSlotsConfig = weaponSlotsConfig{
 
 // WeaponSlots は武器スロット表示ウィジェット
 type WeaponSlots struct {
-	face text.Face
+	face   text.Face
+	chrome Chrome
 }
 
 // NewWeaponSlots は新しいWeaponSlotsを作成する
-func NewWeaponSlots(face text.Face) *WeaponSlots {
+func NewWeaponSlots(face text.Face, chrome Chrome) *WeaponSlots {
 	return &WeaponSlots{
-		face: face,
+		face:   face,
+		chrome: chrome,
 	}
 }
 
+// slotNumberPad はスロット番号を左上へ置くときの余白
+const slotNumberPad = 4
+
 // Draw は武器スロットを画面上部中央に描画する
-func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.World) {
+func (ws *WeaponSlots) Draw(cv uicore.Canvas, data WeaponSlotsData, world w.World) {
 	if len(data.Slots) == 0 {
 		return
 	}
@@ -54,8 +59,7 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
 	// 画面上部に配置するためのY座標
 	startY := config.YOffset
 
-	// スプライトシートを取得
-	spriteSheets := world.Resources.SpriteSheets
+	sprites := world.Resources.Sprites
 
 	// 各スロットを描画
 	for i, slot := range data.Slots {
@@ -66,55 +70,47 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
 		isSelected := i == data.SelectedSlot
 
 		// スロットの背景を描画
-		ws.drawSlotBackground(screen, x, y, config.SlotSize, isSelected)
+		ws.drawSlotBackground(cv, x, y, config.SlotSize, isSelected)
 
 		// 武器スプライトを描画
-		drawWeaponSprite(screen, x, y, config.SlotSize, slot, spriteSheets)
+		drawWeaponSprite(cv, x, y, config.SlotSize, slot, sprites)
 
 		// スロット番号を描画
-		drawSlotNumber(screen, ws.face, x, y, config.SlotSize, i+1)
+		drawSlotNumber(cv, ws.face, x, y, config.SlotSize, i+1)
 	}
 }
 
 // drawSlotBackground はスロット背景をNineSlice描画する
-func (ws *WeaponSlots) drawSlotBackground(screen *ebiten.Image, x, y, size int, selected bool) {
-	// スロット背景をメニュー枠と同じ共通 chrome に揃える
-	styled.DrawFramedBackground(screen, x, y, size, size, styled.PanelStyle())
+func (ws *WeaponSlots) drawSlotBackground(cv uicore.Canvas, x, y, size int, selected bool) {
+	r := image.Rect(x, y, x+size, y+size)
+	ws.chrome.Panel(cv, r)
 
-	// 選択中のスロットには明るい枠線を重ねて描画する
+	// 選択中のスロットには明るい枠線を重ねる
 	if selected {
-		vector.StrokeRect(screen, float32(x), float32(y), float32(size), float32(size), 2, theme.HUDSlotSelectedBorder, false)
+		cv.StrokeRect(r, 2, theme.HUDSlotSelectedBorder)
 	}
 }
 
 // drawSlotNumber はスロット番号を左上に描画
-func drawSlotNumber(screen *ebiten.Image, face text.Face, x, y, _ int, number int) {
+func drawSlotNumber(cv uicore.Canvas, face text.Face, x, y, _ int, number int) {
 	numberText := string(rune('0' + number))
-	op := &text.DrawOptions{}
-	op.GeoM.Translate(float64(x+4), float64(y+4))
-	op.ColorScale.ScaleWithColor(theme.TextPrimary)
-	text.Draw(screen, numberText, face, op)
+	cv.DrawText(image.Pt(x+slotNumberPad, y+slotNumberPad), numberText, face, theme.TextPrimary)
 }
 
 // drawWeaponSprite は武器スプライトを中央に描画
-func drawWeaponSprite(screen *ebiten.Image, x, y, slotSize int, slot WeaponSlotInfo, spriteSheets map[string]gc.SpriteSheet) {
+func drawWeaponSprite(cv uicore.Canvas, x, y, slotSize int, slot WeaponSlotInfo, sprites *resources.SpriteStore) {
 	// 武器が装備されていない場合は何も描画しない
 	if slot.WeaponName == "" {
 		return
 	}
 
 	// スプライトを解決する。シートやキーが無ければ描画しない
-	img, err := resources.SpriteImage(spriteSheets, &gc.SpriteRender{SpriteSheetName: slot.SpriteSheet, SpriteKey: slot.SpriteName})
-	if err != nil {
+	img := sprites.Image(&gc.SpriteRender{SpriteSheetName: slot.SpriteSheet, SpriteKey: slot.SpriteName})
+	if img == nil {
 		return
 	}
 
-	// スプライトをスロットの中央に配置する
+	// スプライトをスロットの中央に置く
 	b := img.Bounds()
-	offsetX := float64(x) + (float64(slotSize)-float64(b.Dx()))/2
-	offsetY := float64(y) + (float64(slotSize)-float64(b.Dy()))/2
-
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(offsetX, offsetY)
-	screen.DrawImage(img, op)
+	cv.DrawImage(image.Pt(x+(slotSize-b.Dx())/2, y+(slotSize-b.Dy())/2), img)
 }

@@ -5,11 +5,8 @@ import (
 	"image/color"
 	"strconv"
 
-	"github.com/ebitenui/ebitenui/widget"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 
@@ -25,9 +22,6 @@ type SpecRow struct {
 	Header bool
 	Color  *color.RGBA
 }
-
-// specTableAligns はspec表示テーブルの揃え方向（ラベル左、値右）
-var specTableAligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 
 // SpecRows はエンティティの性能表示を行の並びとして返す。
 // 種別・攻撃・防具などコンポーネントごとに数行で、存在するものだけを含む
@@ -126,25 +120,6 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 		rows = append(rows, weightRows(world, spec.Weight)...)
 	}
 	return rows
-}
-
-// RenderSpecRows は行の並びをコンテナへ1つのテーブルとして描く
-func RenderSpecRows(targetContainer *widget.Container, rows []SpecRow, res resources.UIResources) {
-	targetContainer.RemoveChildren()
-	columnWidths := []int{70, 80}
-	table := styled.NewTableContainer(columnWidths, res)
-	for _, r := range rows {
-		if r.Header {
-			styled.NewTableHeaderRow(table, columnWidths, []string{r.Label, ""}, res)
-			continue
-		}
-		if r.Color != nil {
-			styled.NewTableRowColored(table, columnWidths, styled.TextCells(r.Label, r.Value), specTableAligns, *r.Color, res)
-			continue
-		}
-		styled.NewTableRow(table, columnWidths, styled.TextCells(r.Label, r.Value), specTableAligns, nil, res)
-	}
-	targetContainer.AddChild(table)
 }
 
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し

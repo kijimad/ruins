@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -19,6 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -231,39 +230,32 @@ func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *CraftMenuState) View(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// カテゴリはタブ帯に寄せ、本体は名前のみの1カラム一覧にする。性能・材料・説明は x の詳細モーダルで見る
+// ViewUI はカテゴリタブと合成可否印つきレシピ一覧を組む。
+func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		TabLabels: labels,
-		TabIndex:  cursor.TabIndex,
-		Content:   st.buildItemContainer(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    keybind.HelpHint(world),
-	})
+	content, pager := st.buildItemListUI(world, props.Tabs, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
+	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
 }
 
-func (st *CraftMenuState) buildItemContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+// buildItemListUI は行列とフッタ右端のページ表示を返す。
+func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
 	if tabIndex >= len(tabs) {
-		return styled.NewVerticalContainer()
+		return nil, ""
 	}
-
 	currentTab := tabs[tabIndex]
-	// 先頭に印の列を置き、合成できるレシピにはチェック、できないレシピにはバツを付ける。名前の開始位置は揃える
-	columnWidths := []int{20, 320}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft}
-	rows := make([]menuRow, len(currentTab.Items))
+	cols := styled.Cols(styled.Fit(), styled.Name())
+	rows := make([]menuframe.Row, len(currentTab.Items))
 	for i, it := range currentTab.Items {
 		mark := consts.IconClose
 		if it.CanCraft {
 			mark = consts.IconCheck
 		}
-		rows[i] = menuRow{Cells: styled.TextCells(mark, it.RecipeName)}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(mark, it.RecipeName)}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No recipes")}, res)
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No recipes"), ItemsPerPage: perPage}, res)
 }
 
 // detailContent は現在カーソルが当たっているレシピの性能・材料・説明を返す。詳細モーダルの唯一の定義点

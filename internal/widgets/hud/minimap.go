@@ -1,26 +1,31 @@
 package hud
 
 import (
+	"image"
+
 	"image/color"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
+// playerMarkerR はプレイヤーの印の半径。地図の粒に対して小さすぎず大きすぎない大きさ
+const playerMarkerR = 2
+
 // Minimap はHUDのミニマップエリア
 type Minimap struct {
 	face    text.Face
+	chrome  Chrome
 	enabled bool
 }
 
 // NewMinimap は新しいHUDMinimapを作成する
-func NewMinimap(face text.Face) *Minimap {
+func NewMinimap(face text.Face, chrome Chrome) *Minimap {
 	return &Minimap{
 		face:    face,
+		chrome:  chrome,
 		enabled: true,
 	}
 }
@@ -31,14 +36,14 @@ func (minimap *Minimap) Update(_ w.World) {
 }
 
 // Draw はミニマップを描画する
-func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
+func (minimap *Minimap) Draw(cv uicore.Canvas, data MinimapData) {
 	if !minimap.enabled {
 		return
 	}
 
 	// 探索済みタイルがない場合は空のミニマップを描画
 	if len(data.ExploredTiles) == 0 {
-		minimap.drawEmpty(screen, data)
+		minimap.drawEmpty(cv, data)
 		return
 	}
 
@@ -52,7 +57,7 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 
 	// ミニマップの背景を描画。メニュー枠と同じ共通 chrome に揃える
 	if minimapWidth > 0 && minimapHeight > 0 {
-		styled.DrawFramedBackground(screen, minimapX, minimapY, minimapWidth, minimapHeight, styled.PanelStyle())
+		minimap.chrome.Panel(cv, image.Rect(minimapX, minimapY, minimapX+minimapWidth, minimapY+minimapHeight))
 	}
 
 	// ミニマップの中心をプレイヤー位置に合わせる
@@ -80,19 +85,19 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 			// タイル色情報を取得
 			if colorInfo, exists := data.TileColors[gridElement]; exists {
 				tileColor := color.RGBA{colorInfo.R, colorInfo.G, colorInfo.B, colorInfo.A}
-				vector.FillRect(screen, mapX, mapY, float32(minimapScale), float32(minimapScale), tileColor, false)
+				// タイルの色は地形のデータから来るので、意匠のテクスチャでなく塗りで表す
+				cv.FillRect(image.Rect(int(mapX), int(mapY), int(mapX)+minimapScale, int(mapY)+minimapScale), tileColor)
 			}
 		}
 	}
 
-	// プレイヤーの位置を赤い点で表示
-	playerMapX := float32(centerX)
-	playerMapY := float32(centerY)
-	vector.FillCircle(screen, playerMapX, playerMapY, 2, theme.HUDPlayerMarker, false)
+	// プレイヤーの位置を印で示す。地図の粒と同じ大きさの四角にして、タイルの並びから浮かせない
+	cv.FillRect(image.Rect(centerX-playerMarkerR, centerY-playerMarkerR, centerX+playerMarkerR, centerY+playerMarkerR),
+		theme.HUDPlayerMarker)
 }
 
 // drawEmpty は空のミニマップを描画する
-func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
+func (minimap *Minimap) drawEmpty(cv uicore.Canvas, data MinimapData) {
 	minimapWidth := data.MinimapConfig.Width
 	minimapHeight := data.MinimapConfig.Height
 	screenWidth := data.ScreenDimensions.Width
@@ -101,7 +106,7 @@ func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
 
 	// ミニマップの背景を描画。メニュー枠と同じ共通 chrome に揃える
 	if minimapWidth > 0 && minimapHeight > 0 {
-		styled.DrawFramedBackground(screen, minimapX, minimapY, minimapWidth, minimapHeight, styled.PanelStyle())
+		minimap.chrome.Panel(cv, image.Rect(minimapX, minimapY, minimapX+minimapWidth, minimapY+minimapHeight))
 	}
 
 	// 中央に"No Data"テキストを表示（枠線付き）
@@ -109,5 +114,5 @@ func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
 	textY := float64(minimapY + 70)
 	noDataText := "No Data"
 
-	drawOutlinedText(screen, noDataText, minimap.face, textX, textY, theme.TextPrimary)
+	drawOutlinedText(cv, noDataText, minimap.face, image.Pt(int(textX), int(textY)), theme.TextPrimary)
 }

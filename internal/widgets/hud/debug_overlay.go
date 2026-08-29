@@ -2,12 +2,14 @@ package hud
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -30,16 +32,21 @@ func (overlay *DebugOverlay) Update(_ w.World) {
 	// 現在は更新処理なし
 }
 
-// Draw はデバッグオーバーレイを描画する
+// Draw はデバッグオーバーレイを描画する。
+//
+// これは意匠の chrome ではなく、世界に重ねる図形。敵の頭上の文字と視界の円で、
+// どちらも世界の座標に従う。円は多角形の帯で塗るので Canvas の語彙では表せず、
+// 描画先を直に受け取る。文字は Canvas 越しに描き、縁取りを HUD の他と揃える
 func (overlay *DebugOverlay) Draw(screen *ebiten.Image, data DebugOverlayData) {
 	if !overlay.enabled || !data.Enabled {
 		return
 	}
+	cv := ui.NewEbitenCanvas(screen)
 
 	// AI状態を描画
 	for _, aiState := range data.AIStates {
-		textOffsetY := 30.0
-		drawOutlinedText(screen, aiState.StateText, overlay.face, float64(int(aiState.Screen.X)-20), float64(aiState.Screen.Y)-textOffsetY, theme.TextPrimary)
+		const textOffsetY = 30
+		drawOutlinedText(cv, aiState.StateText, overlay.face, image.Pt(int(aiState.Screen.X)-20, int(aiState.Screen.Y)-textOffsetY), theme.TextPrimary)
 	}
 
 	// 視界範囲を描画
@@ -50,8 +57,8 @@ func (overlay *DebugOverlay) Draw(screen *ebiten.Image, data DebugOverlayData) {
 	// HP情報を描画
 	for _, hpDisplay := range data.HPDisplays {
 		hpText := fmt.Sprintf("%d/%d", hpDisplay.CurrentHP, hpDisplay.MaxHP)
-		textOffsetY := 15.0 // AI状態テキスト（30.0）より上に表示して重複を避ける
-		drawOutlinedText(screen, hpText, overlay.face, float64(int(hpDisplay.Screen.X)-15), float64(hpDisplay.Screen.Y)-textOffsetY, theme.TextPrimary)
+		const textOffsetY = 15 // AI状態の文字より上に置いて重ならないようにする
+		drawOutlinedText(cv, hpText, overlay.face, image.Pt(int(hpDisplay.Screen.X)-15, int(hpDisplay.Screen.Y)-textOffsetY), theme.TextPrimary)
 	}
 }
 

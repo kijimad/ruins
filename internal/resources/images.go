@@ -1,13 +1,13 @@
 package resources
 
 import (
+	"image"
 	"log"
 
-	"github.com/ebitenui/ebitenui/image"
-	"github.com/ebitenui/ebitenui/widget"
+	// UI テクスチャは PNG。image.Decode が読めるよう復号器を登録する
+	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 func newImageFromFile(path string) (*ebiten.Image, error) {
@@ -22,39 +22,25 @@ func newImageFromFile(path string) (*ebiten.Image, error) {
 			log.Print(err)
 		}
 	}()
-	i, _, err := ebitenutil.NewImageFromReader(f)
-	return i, err
-}
-
-func loadGraphicImages(idle string, disabled string) (*widget.GraphicImage, error) {
-	idleImage, err := newImageFromFile(idle)
+	src, _, err := image.Decode(f)
 	if err != nil {
 		return nil, err
 	}
+	// アトラス配置に画素が左右されないよう unmanaged で作る。機構は components.Texture を参照
+	return ebiten.NewImageFromImageWithOptions(src, &ebiten.NewImageFromImageOptions{Unmanaged: true}), nil
+}
 
-	var disabledImage *ebiten.Image
-	if disabled != "" {
-		disabledImage, err = newImageFromFile(disabled)
-		if err != nil {
-			return nil, err
-		}
+// newNineSliceTex はテクスチャを読み込み、中央サイズから9スライスの分割幅を導いて返す。
+// 両端の幅は画像サイズと中央サイズの差を半分ずつに割り、端数は右下側へ寄せる
+func newNineSliceTex(path string, centerW, centerH int) (*NineSliceTex, error) {
+	img, err := newImageFromFile(path)
+	if err != nil {
+		return nil, err
 	}
-
-	return &widget.GraphicImage{
-		Idle:     idleImage,
-		Disabled: disabledImage,
+	w, h := img.Bounds().Dx(), img.Bounds().Dy()
+	return &NineSliceTex{
+		Image: img,
+		BX:    [3]int{(w - centerW) / 2, centerW, w - (w-centerW)/2 - centerW},
+		BY:    [3]int{(h - centerH) / 2, centerH, h - (h-centerH)/2 - centerH},
 	}, nil
-}
-
-func loadImageNineSlice(path string, centerWidth int, centerHeight int) (*image.NineSlice, error) {
-	i, err := newImageFromFile(path)
-	if err != nil {
-		return nil, err
-	}
-	w := i.Bounds().Dx()
-	h := i.Bounds().Dy()
-	return image.NewNineSlice(i,
-			[3]int{(w - centerWidth) / 2, centerWidth, w - (w-centerWidth)/2 - centerWidth},
-			[3]int{(h - centerHeight) / 2, centerHeight, h - (h-centerHeight)/2 - centerHeight}),
-		nil
 }

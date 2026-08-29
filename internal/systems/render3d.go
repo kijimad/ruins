@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"image"
 	"image/color"
 	"math"
 	"sort"
@@ -64,18 +65,11 @@ func normalizeLight(c color.RGBA) [3]float64 {
 
 // spriteRect は SpriteRender からアトラス画像と切り出し矩形を解決する。見つからなければ ok=false。
 func (sys *Render3DSystem) spriteRect(world w.World, sr *gc.SpriteRender) (atlas *ebiten.Image, x, y, ww, hh float64, ok bool) {
-	if world.Resources.SpriteSheets == nil {
+	tex, rect, ok := world.Resources.Sprites.Rect(sr)
+	if !ok {
 		return nil, 0, 0, 0, 0, false
 	}
-	sheet, exists := world.Resources.SpriteSheets[sr.SpriteSheetName]
-	if !exists || sheet.Texture.Image == nil {
-		return nil, 0, 0, 0, 0, false
-	}
-	sp, exists := sheet.Sprites[sr.SpriteKey]
-	if !exists {
-		return nil, 0, 0, 0, 0, false
-	}
-	return sheet.Texture.Image, float64(sp.X), float64(sp.Y), float64(sp.Width), float64(sp.Height), true
+	return tex.Image, float64(rect.Min.X), float64(rect.Min.Y), float64(rect.Dx()), float64(rect.Dy()), true
 }
 
 // scaleCol は色に係数を掛ける。面ごとのシェードを乗算色へ乗せるのに使う。
@@ -118,9 +112,10 @@ var (
 )
 
 // whitePixel はフラット塗り用の白1pxを返す。頂点色をそのまま出すために使う。
+// アトラス配置に画素が左右されないよう unmanaged で作る。機構は components.Texture を参照
 func whitePixel() *ebiten.Image {
 	r3whiteOnce.Do(func() {
-		r3whiteImg = ebiten.NewImage(1, 1)
+		r3whiteImg = ebiten.NewImageWithOptions(image.Rect(0, 0, 1, 1), &ebiten.NewImageOptions{Unmanaged: true})
 		r3whiteImg.Fill(color.White)
 	})
 	return r3whiteImg

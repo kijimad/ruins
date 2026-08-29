@@ -9,7 +9,6 @@
 //
 //   - Store: 状態とreducerを保持する
 //   - UseState: 状態を取得・登録する
-//   - UseRef: 再レンダリングしても保持される参照を提供する
 //   - UseTimer: タイマー状態を管理する
 //   - UseTabMenu: タブメニュー用の状態を一括登録する
 //   - Mount: Propsの変更を検出する

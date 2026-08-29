@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -141,7 +142,7 @@ func Test_calculateWindowSize(t *testing.T) {
 		assert.Equal(t, windowSize{Width: MinWidth, Height: MinHeight}, size)
 	})
 
-	t.Run("選択肢のみの場合は選択肢数から高さを算出する", func(t *testing.T) {
+	t.Run("内容が最小高に収まるなら最小高のままにする", func(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
@@ -156,8 +157,8 @@ func Test_calculateWindowSize(t *testing.T) {
 
 		size := win.calculateWindowSize()
 
-		// メッセージ0 + 選択肢40*1 + top20 + bottom15 + タイトル0 + spacing0 = 75
-		assert.Equal(t, 75, size.Height)
+		// 余白36 + 選択肢26*1 = 62 で最小高300に収まるので、窓は痩せず最小高のまま
+		assert.Equal(t, MinHeight, size.Height)
 		assert.Equal(t, MinWidth, size.Width)
 	})
 
@@ -178,8 +179,8 @@ func Test_calculateWindowSize(t *testing.T) {
 
 		size := win.calculateWindowSize()
 
-		// メッセージ150 + 選択肢40*2 + top20 + bottom15 + タイトル40 + spacing10 = 315
-		assert.Equal(t, 315, size.Height)
+		// 本文150 + タイトル25 + 余白52 + 選択肢26*2 = 279 で最小高300に収まる
+		assert.Equal(t, MinHeight, size.Height)
 	})
 
 	t.Run("画面高さの80%を超える場合は上限で頭打ちになる", func(t *testing.T) {
@@ -211,7 +212,7 @@ func Test_calculateWindowSize(t *testing.T) {
 func Test_calculateWindowPosition(t *testing.T) {
 	t.Parallel()
 
-	t.Run("通常サイズは画面中央かつ上から1/4に配置される", func(t *testing.T) {
+	t.Run("通常サイズは画面中央かつ上端はMenuWindowTopに揃う", func(t *testing.T) {
 		t.Parallel()
 
 		world := testutil.InitTestWorld(t)
@@ -221,7 +222,7 @@ func Test_calculateWindowPosition(t *testing.T) {
 		x, y := win.calculateWindowPosition(windowSize{Width: 600, Height: 300})
 
 		assert.Equal(t, 180, x)
-		assert.Equal(t, 180, y)
+		assert.Equal(t, theme.MenuWindowTop, y)
 	})
 
 	t.Run("下端をはみ出す場合は下マージンに合わせて引き上げる", func(t *testing.T) {
@@ -231,9 +232,9 @@ func Test_calculateWindowPosition(t *testing.T) {
 		world.Resources.SetScreenDimensions(960, 720)
 		win := &Window{world: world}
 
-		_, y := win.calculateWindowPosition(windowSize{Width: 600, Height: 550})
+		_, y := win.calculateWindowPosition(windowSize{Width: 600, Height: 660})
 
-		assert.Equal(t, 140, y)
+		assert.Equal(t, 30, y)
 	})
 
 	t.Run("引き上げてもなお上マージンを割る場合は上マージンに固定する", func(t *testing.T) {
@@ -279,9 +280,9 @@ func Test_calculateItemsPerPage(t *testing.T) {
 
 		got := win.calculateItemsPerPage(100)
 
-		// 画面高720*0.8=576 から overhead 265 を引いた 311 を choiceItemHeight40 で割ると 7 になる。
-		// overhead の内訳は message150 top20 bottom15 title40 spacing10 indicator30
-		assert.Equal(t, 7, got)
+		// 画面高720*0.8=576 から取り分を引いた残りを選択肢の行高26で割る。
+		// 取り分は本文150 + タイトル25 + 余白52 + ページ表示24 = 251 で、(576-251)/26 は 12
+		assert.Equal(t, 12, got)
 	})
 
 	t.Run("画面が小さいと最低3件は確保する", func(t *testing.T) {

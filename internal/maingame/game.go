@@ -151,19 +151,10 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	if err != nil {
 		return w.World{}, err
 	}
-	world.Resources.SpriteSheets = spriteSheets
-
-	// フォントを読み込む
-	fonts, err := loader.LoadFonts()
-	if err != nil {
-		return w.World{}, err
-	}
-	world.Resources.Fonts = fonts
-
-	world.Resources.Faces = loader.BuildFaces(fonts)
+	world.Resources.SetSpriteSheets(spriteSheets)
 
 	// UIリソースを読み込む
-	uir, err := loader.LoadUIResources(fonts)
+	uir, err := loader.LoadUIResources()
 	if err != nil {
 		return w.World{}, err
 	}

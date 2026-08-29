@@ -457,7 +457,7 @@ func TestExtractGameInfo(t *testing.T) {
 		assert.Equal(t, 600, info.ScreenDimensions.Height)
 
 		config := hud.DefaultMessageAreaConfig
-		expectedHeight := config.LogAreaMargin*2 + config.MaxLogLines*config.LineHeight + config.YPadding*2
+		expectedHeight := config.Height()
 		assert.Equal(t, expectedHeight, info.MessageAreaHeight)
 	})
 

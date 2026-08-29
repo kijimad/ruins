@@ -32,6 +32,16 @@ updategolden: ## ゴールデンテスト用の基準画像を生成する
 	GOLDIE_UPDATE=1 RUINS_LOG_LEVEL=ignore \
 	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
 
+.PHONY: grill-branch
+grill-branch: ## ブランチで変更したテストを反復実行してフレーキーを検査する
+	RUINS_LOG_LEVEL=ignore \
+	$(BWRAP_CMD) xvfb-run -a scripts/grill_branch.sh
+
+.PHONY: grill
+grill: ## 全テストを時間予算いっぱい反復してフレーキーを検査する
+	RUINS_LOG_LEVEL=ignore \
+	$(BWRAP_CMD) scripts/grill.sh
+
 .PHONY: bench
 bench: ## ベンチマークを全て実行する
 	RUINS_LOG_LEVEL=ignore \
