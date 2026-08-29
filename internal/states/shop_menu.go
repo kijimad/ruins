@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -237,7 +237,7 @@ func (st *ShopMenuState) selectedShopItem() (shopItemData, bool) {
 // ================
 
 // ViewUI は購入・売却タブとアイコン付き商品一覧を組む。
-func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
@@ -247,7 +247,7 @@ func (st *ShopMenuState) ViewUI(world w.World, props ShopProps, cursor menuloop.
 }
 
 // buildItemListUI は行列とフッタ右端のページ表示を返す。
-func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
+func (st *ShopMenuState) buildItemListUI(world w.World, tabs []shopTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]uicore.Drawable, string) {
 	if tabIndex >= len(tabs) {
 		return nil, ""
 	}

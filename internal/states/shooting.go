@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -233,7 +233,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 	face := world.Resources.UIResources.Text.BodyFace
 
 	const panelHeight = 250
-	panel := hud.NewInfoPanel(ui.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)
+	panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)
 	drawText := panel.Line
 
 	drawText(query.T(world, "== Shooting Mode =="))

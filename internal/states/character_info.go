@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -253,7 +253,7 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 }
 
 // buildInfoTableUI は情報タブの表とフッタ右端のページ表示を返す。
-func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
+func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {
 	hasModifier := tab.ID == tabAbilities
 	// 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ
 	cols := styled.Cols(styled.Name(), styled.Num())

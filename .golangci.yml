@@ -139,9 +139,8 @@ linters:
               desc: 部品は画面制御に依存しない
             - pkg: "github.com/kijimaD/ruins/internal/maingame"
               desc: 部品は組み立て層に依存しない
-        # UI の基盤層の依存辺を層図どおりに固定する。theme は依存ゼロ、styled は theme のみ、
-        # 画面向けファサードはプリミティブ実体の再輸出のみ。層の全体像は
-        # internal/widgets/menuframe のパッケージコメントを参照
+        # UI の基盤層の依存辺を層図どおりに固定する。theme は依存ゼロ、styled は theme のみ。
+        # 層の全体像は internal/widgets/menuframe のパッケージコメントを参照
         ui_theme_guard:
           list-mode: strict
           files:
@@ -158,15 +157,6 @@ linters:
             - "$gostd"
             - "github.com/hajimehoshi/ebiten/v2"
             - "github.com/kijimaD/ruins/internal/widgets/theme"
-        ui_facade_guard:
-          list-mode: strict
-          files:
-            - "**/internal/widgets/ui/**"
-            - "!$test"
-          allow:
-            - "$gostd"
-            - "github.com/hajimehoshi/ebiten/v2"
-            - "github.com/kijimaD/ruins/internal/widgets/uicore"
         ui_core_guard:
           list-mode: strict
           files:
@@ -177,19 +167,22 @@ linters:
             - "github.com/hajimehoshi/ebiten/v2"
             - "github.com/yohamta/furex"
             - "github.com/go-text/typesetting"
-        # プリミティブ実体を直接使えるのは widgets の内側だけにする。画面 states と画面制御
-        # menuloop は再輸出だけを持つファサード widgets/ui を通す。組み立てたツリーを描く
-        # 統合検証のテストも widgets の外には置かないので、テストの除外は要らない。
-        # widgets 配下ならどの部品からでも使える。uicore は部品が組み上げる atom なので、
-        # 部品ごとに許可を絞る意味が無い
+        # プリミティブ実体を import できるパッケージを列挙する。UI ツリーを組む widgets の
+        # 部品と、組んだツリーを画面へ描く states・menuloop・systems だけに限る。ここに無い層は
+        # UI ツリーに触れない。widgets 配下はどの部品からでも使える。uicore は部品が組み上げる
+        # atom なので、部品ごとに絞る意味が無い。
+        # 画面層が装飾のシンボルを名指ししないことは menuframe の TestScreenLayerStyleLint が見る
         ui_core_inbound_guard:
           list-mode: lax
           files:
             - "$all"
             - "!**/internal/widgets/**"
+            - "!**/internal/states/**"
+            - "!**/internal/menuloop/**"
+            - "!**/internal/systems/**"
           deny:
             - pkg: "github.com/kijimaD/ruins/internal/widgets/uicore"
-              desc: プリミティブ実体は widgets の部品だけが使う。画面はファサード widgets/ui を使う
+              desc: UI ツリーを触れるのは widgets の部品と states・menuloop・systems だけ
         # キー読み取り能力への import 許可制。読み取り API を持つパッケージを
         # 使える場所を列挙し、それ以外からは新旧問わず全シンボルを塞ぐ。
         # 入力を束縛表へ集約し、デバイス層とごく少数の例外だけが直接読む。テストは

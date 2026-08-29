@@ -3,7 +3,7 @@ package systems
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -85,7 +85,7 @@ func (sys *HUDRenderingSystem) Run(world w.World, screen *ebiten.Image) {
 
 	// worldから全HUDデータを一括抽出
 	hudData := ExtractHUDData(world)
-	cv := ui.NewEbitenCanvas(screen)
+	cv := uicore.NewEbitenCanvas(screen)
 
 	// 各ウィジェットにデータを渡して描画する。描画順がある
 	if sys.minimap != nil {

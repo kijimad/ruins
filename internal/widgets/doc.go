@@ -16,7 +16,6 @@
 //	   ↓ 使用
 //	ebiten/      ← 描画の最下層。EbitenCanvas が仲介する
 //
-// 画面層から見た面はこの上にもう1枚あり、widgets/ui が uicore の構成面だけを再輸出する。
 // theme・styled を含めた層の全体像は widgets/menuframe のパッケージコメントを参照。
 //
 // # Responsibilities
@@ -37,13 +36,15 @@
 //   - ビジネスロジックとの連携が必要
 //   - 単体テストを書きたい
 //
-// ## widgets の部品が widgets/uicore を直接使う場合
+// ## widgets/uicore を直接使う場合
 //   - 保持型のツリーを宣言的に組みたい
 //   - 状態管理は呼び出し元が持ち、描画部品だけが要る
 //   - Canvas を差し替えてテストしたい
 //
-// uicore を import できるのは widgets 配下の部品だけで、画面層からの import は
-// depguard の ui_core_inbound_guard が弾く。画面はファサード widgets/ui を使う。
+// uicore を import できるパッケージは depguard の ui_core_inbound_guard が列挙する。
+// widgets の部品はツリーを組むために全面を使い、画面 states・menuloop・systems は
+// 組み上がったツリーを受け取って描くだけなので、名指しできる面を
+// menuframe の TestScreenLayerUICoreSurface が許可制に絞る。
 //
 // # Sub-packages
 //

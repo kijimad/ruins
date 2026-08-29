@@ -17,7 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -60,7 +60,7 @@ type Model[P any] interface {
 	Fetch(world w.World) (P, error)
 	Menu(props P) MenuConfig
 	// ViewUI は props とカーソルから本体を internal/uicore のツリーへ組み、画面へ配置済みで返す
-	ViewUI(world w.World, props P, cursor Selection, res resources.UIResources) ui.Widget
+	ViewUI(world w.World, props P, cursor Selection, res resources.UIResources) uicore.Drawable
 }
 
 // KeyBindings は共通キーに加える独自キーを持つ state が満たす任意契約。キーと Action の
@@ -81,12 +81,12 @@ type Screen[P any] struct {
 	// 実行時に表を重ねる階層は無い。重なりは MustMerge が構築時に拒否する
 	table           []keybind.Binding
 	mount           *hooks.Mount[P]
-	bodyTree        ui.Widget // 本体の internal/uicore ツリー。dirty なフレームだけ組み直す
+	bodyTree        uicore.Drawable // 本体の internal/uicore ツリー。dirty なフレームだけ組み直す
 	overlays        []overlay.Layer
-	pendingOverlays []ui.Widget // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる
-	lastSelection   Selection   // 直近フレームで確定したカーソル位置。DoAction から参照する
-	seeded          bool        // 初期タブへ寄せたか
-	pageSize        int         // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
+	pendingOverlays []uicore.Drawable // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる
+	lastSelection   Selection         // 直近フレームで確定したカーソル位置。DoAction から参照する
+	seeded          bool              // 初期タブへ寄せたか
+	pageSize        int               // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
@@ -260,7 +260,7 @@ func (s *Screen[P]) selection(cfg MenuConfig) Selection {
 // Draw は保持中の UI を描き、その上に ScreenRenderer な overlay を重ねる。
 // 各 state の Draw はこれへ委譲する
 func (s *Screen[P]) Draw(screen *ebiten.Image) {
-	cv := ui.NewEbitenCanvas(screen)
+	cv := uicore.NewEbitenCanvas(screen)
 	if s.bodyTree != nil {
 		s.bodyTree.Draw(cv)
 	}

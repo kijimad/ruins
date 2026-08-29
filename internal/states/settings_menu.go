@@ -13,7 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -187,7 +187,7 @@ func applyLanguage(world w.World, code string) {
 // ================
 
 // ViewUI は設定項目の2列表を中央パネルに組む。
-func (st *SettingsMenuState) ViewUI(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *SettingsMenuState) ViewUI(world w.World, props SettingsMenuProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	rows := make([]menuframe.Row, len(props.Items))
 	for i, item := range props.Items {
 		rows[i] = menuframe.Row{Cells: styled.TextCells(item.Label, item.Value)}

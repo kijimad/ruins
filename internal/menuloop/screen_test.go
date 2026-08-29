@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -32,9 +32,9 @@ func (m *dirtyTestModel) Fetch(_ w.World) (int, error) { return m.props, nil }
 
 func (m *dirtyTestModel) Menu(_ int) MenuConfig { return MenuConfig{Key: "test", TabCount: 0} }
 
-func (m *dirtyTestModel) ViewUI(_ w.World, _ int, _ Selection, _ resources.UIResources) ui.Widget {
+func (m *dirtyTestModel) ViewUI(_ w.World, _ int, _ Selection, _ resources.UIResources) uicore.Drawable {
 	m.viewCount++
-	return ui.NewGroup()
+	return uicore.NewGroup()
 }
 
 // flexModel は DoAction の挙動を差し替えられる Model[int] のテストダブル。
@@ -60,8 +60,8 @@ func (m *flexModel) Fetch(_ w.World) (int, error) { return m.props, nil }
 
 func (m *flexModel) Menu(_ int) MenuConfig { return m.menu }
 
-func (m *flexModel) ViewUI(_ w.World, _ int, _ Selection, _ resources.UIResources) ui.Widget {
-	return ui.NewGroup()
+func (m *flexModel) ViewUI(_ w.World, _ int, _ Selection, _ resources.UIResources) uicore.Drawable {
+	return uicore.NewGroup()
 }
 
 // testOverlay は overlay.Layer のテストダブル。Active・HandleInput の呼び出しを観測する

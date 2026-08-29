@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -97,7 +97,7 @@ func (st *ChoiceMenuState) Menu(props ChoiceProps) menuloop.MenuConfig {
 
 // ViewUI は選択肢の一覧を中央パネルに internal/uicore のツリーで組んで返す。
 // Screen はこれを EbitenCanvas で本体として描く。
-func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	rows := make([]menuframe.Row, len(props.Choices))
 	for i, c := range props.Choices {
 		rows[i] = menuframe.Row{Cells: styled.TextCells(c.Label), Header: c.Header}
