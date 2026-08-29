@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.4&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">163</td>
-            <td class="headerCovTableEntry">131</td>
+            <td class="headerCovTableEntry">163</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 11:23:01</td>
+            <td class="headerValue">2026-08-29 11:47:32</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,9 +90,9 @@
 <span id="L28"><span class="lineNum">      28</span>              : func SpecRows(world w.World, entity ecs.Entity) []SpecRow {</span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 :         var rows []SpecRow</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         if world.Components.Abilities.Has(entity) {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 :                 rows = append(rows, abilityRows(world, world.Components.Abilities.Get(entity))...)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 :         if world.Components.Melee.Has(entity) {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 rows = append(rows, abilityRows(world, world.Components.Abilities.Get(entity))...)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if world.Components.Melee.Has(entity) {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 rows = append(rows, attackerRows(world, world.Components.Melee.Get(entity))...)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if world.Components.Fire.Has(entity) {</span></span>
@@ -110,9 +110,9 @@
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 rows = append(rows, nutritionRows(world, world.Components.ProvidesNutrition.Get(entity))...)</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         if world.Components.Perishable.Has(entity) {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC tlaBgUNC">           0 :                 rows = append(rows, freshnessRow(world, entity))</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 :         if world.Components.Book.Has(entity) {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 rows = append(rows, freshnessRow(world, entity))</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         if world.Components.Book.Has(entity) {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 rows = append(rows, bookRows(world, world.Components.Book.Get(entity))...)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         if world.Components.Value.Has(entity) {</span></span>
@@ -122,39 +122,39 @@
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 rows = append(rows, weightRows(world, world.Components.Weight.Get(entity))...)</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         if world.Components.AuctionListing.Has(entity) {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 :                 rows = append(rows, auctionListingRows(world, world.Components.AuctionListing.Get(entity))...)</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :         if world.Components.AuctionSold.Has(entity) {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC tlaBgUNC">           0 :                 rows = append(rows, auctionSoldRows(world, world.Components.AuctionSold.Get(entity))...)</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC tlaBgGNC">           1 :         return rows</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 rows = append(rows, auctionListingRows(world, world.Components.AuctionListing.Get(entity))...)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         if world.Components.AuctionSold.Has(entity) {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 rows = append(rows, auctionSoldRows(world, world.Components.AuctionSold.Get(entity))...)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         return rows</span></span>
 <span id="L69"><span class="lineNum">      69</span>              : }</span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
 <span id="L71"><span class="lineNum">      71</span>              : // auctionListingRows は出品中の品の番号と現在値を返す。先頭は見出し</span>
 <span id="L72"><span class="lineNum">      72</span>              : func auctionListingRows(world w.World, l *gc.AuctionListing) []SpecRow {</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC tlaBgUNC">           0 :         return []SpecRow{</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Auction&quot;), Header: true},</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Number&quot;), Value: &quot;#&quot; + strconv.Itoa(l.Number)},</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Status&quot;), Value: query.T(world, &quot;Bidding&quot;)},</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Current bid&quot;), Value: l.CurrentBid.String()},</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         return []SpecRow{</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Auction&quot;), Header: true},</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Number&quot;), Value: &quot;#&quot; + strconv.Itoa(l.Number)},</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Status&quot;), Value: query.T(world, &quot;Bidding&quot;)},</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Current bid&quot;), Value: l.CurrentBid.String()},</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L79"><span class="lineNum">      79</span>              : }</span>
 <span id="L80"><span class="lineNum">      80</span>              : </span>
 <span id="L81"><span class="lineNum">      81</span>              : // auctionSoldRows は落札済みの品の番号と落札額、出荷期限を返す。先頭は見出し</span>
 <span id="L82"><span class="lineNum">      82</span>              : func auctionSoldRows(world w.World, s *gc.AuctionSold) []SpecRow {</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         return []SpecRow{</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Auction&quot;), Header: true},</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Number&quot;), Value: &quot;#&quot; + strconv.Itoa(s.Number)},</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Status&quot;), Value: query.T(world, &quot;Won&quot;)},</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Bid&quot;), Value: s.Bid.String()},</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Ship by turn&quot;), Value: strconv.Itoa(s.DueTurn)},</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return []SpecRow{</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Auction&quot;), Header: true},</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Number&quot;), Value: &quot;#&quot; + strconv.Itoa(s.Number)},</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Status&quot;), Value: query.T(world, &quot;Won&quot;)},</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Bid&quot;), Value: s.Bid.String()},</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Ship by turn&quot;), Value: strconv.Itoa(s.DueTurn)},</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L90"><span class="lineNum">      90</span>              : }</span>
 <span id="L91"><span class="lineNum">      91</span>              : </span>
 <span id="L92"><span class="lineNum">      92</span>              : // SpecRowsFromSpec は EntitySpec の性能表示を行の並びとして返す。</span>
 <span id="L93"><span class="lineNum">      93</span>              : // エンティティを生成せず raw 定義から詳細を出す商店などで使う</span>
 <span id="L94"><span class="lineNum">      94</span>              : func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {</span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC tlaBgGNC">           1 :         var rows []SpecRow</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         var rows []SpecRow</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         if spec.Melee != nil {</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 rows = append(rows, attackerRows(world, spec.Melee)...)</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -220,18 +220,18 @@
 <span id="L158"><span class="lineNum">     158</span>              : // wearableRows は防具の行を返す。先頭は装備部位の見出し</span>
 <span id="L159"><span class="lineNum">     159</span>              : // abilityRows は能力値をキャラ画面と同じラベルで縦に並べる。能力を持つ実体の詳細で使う</span>
 <span id="L160"><span class="lineNum">     160</span>              : func abilityRows(world w.World, a *gc.Abilities) []SpecRow {</span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC tlaBgUNC">           0 :         return []SpecRow{</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Vitality&quot;), Value: strconv.Itoa(a.Vitality.Base)},</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Strength&quot;), Value: strconv.Itoa(a.Strength.Base)},</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Sensation&quot;), Value: strconv.Itoa(a.Sensation.Base)},</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Dexterity&quot;), Value: strconv.Itoa(a.Dexterity.Base)},</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Agility&quot;), Value: strconv.Itoa(a.Agility.Base)},</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 {Label: query.T(world, &quot;Defense&quot;), Value: strconv.Itoa(a.Defense.Base)},</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         return []SpecRow{</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Vitality&quot;), Value: strconv.Itoa(a.Vitality.Base)},</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Strength&quot;), Value: strconv.Itoa(a.Strength.Base)},</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Sensation&quot;), Value: strconv.Itoa(a.Sensation.Base)},</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Dexterity&quot;), Value: strconv.Itoa(a.Dexterity.Base)},</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Agility&quot;), Value: strconv.Itoa(a.Agility.Base)},</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Defense&quot;), Value: strconv.Itoa(a.Defense.Base)},</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L169"><span class="lineNum">     169</span>              : }</span>
 <span id="L170"><span class="lineNum">     170</span>              : </span>
 <span id="L171"><span class="lineNum">     171</span>              : func wearableRows(world w.World, wearable *gc.Wearable) []SpecRow {</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC tlaBgGNC">           1 :         rows := []SpecRow{</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         rows := []SpecRow{</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, wearable.EquipmentCategory.String()), Header: true},</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 {Label: query.T(world, &quot;Defense&quot;), Value: fmt.Sprintf(&quot;%+d&quot;, wearable.Defense)},</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -282,13 +282,13 @@
 <span id="L220"><span class="lineNum">     220</span>              : </span>
 <span id="L221"><span class="lineNum">     221</span>              : // freshnessRow は鮮度の1行を返す。鮮度の算出は query.FreshnessStageOf に委ねる</span>
 <span id="L222"><span class="lineNum">     222</span>              : func freshnessRow(world w.World, entity ecs.Entity) SpecRow {</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC tlaBgUNC">           0 :         stage, _ := query.FreshnessStageOf(world, entity)</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :         return SpecRow{Label: query.T(world, &quot;Freshness&quot;), Value: query.T(world, stage.Label())}</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         stage, _ := query.FreshnessStageOf(world, entity)</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         return SpecRow{Label: query.T(world, &quot;Freshness&quot;), Value: query.T(world, stage.Label())}</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L226"><span class="lineNum">     226</span>              : </span>
 <span id="L227"><span class="lineNum">     227</span>              : // valueRows は価値の行を返す</span>
 <span id="L228"><span class="lineNum">     228</span>              : func valueRows(world w.World, value *gc.Value) []SpecRow {</span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">           1 :         return []SpecRow{{Label: query.T(world, &quot;Value&quot;), Value: consts.Currency(value.Value).String()}}</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         return []SpecRow{{Label: query.T(world, &quot;Value&quot;), Value: consts.Currency(value.Value).String()}}</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L231"><span class="lineNum">     231</span>              : </span>
 <span id="L232"><span class="lineNum">     232</span>              : // weightRows は重量の行を返す</span>
