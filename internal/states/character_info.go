@@ -163,7 +163,6 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
 	items = append(items,
 		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
-		statusItemData{Label: query.T(world, "Hyperthermia progress"), Value: fmt.Sprintf("%d%%", e.HeatProgress), Description: query.T(world, "Hyperthermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHeatProgress)},
 		statusItemData{Label: query.T(world, "Hunger progress"), Value: fmt.Sprintf("%d%%", e.HungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},
 		statusItemData{Label: query.T(world, "Healing effect"), Value: fmt.Sprintf("%d%%", e.HealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},
 	)

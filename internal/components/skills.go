@@ -28,7 +28,6 @@ const (
 	SkillNightVision SkillID = "night_vision" // 暗視
 
 	SkillColdResist   SkillID = "cold_resist"   // 耐寒
-	SkillHeatResist   SkillID = "heat_resist"   // 耐暑
 	SkillHungerResist SkillID = "hunger_resist" // 耐餓
 	SkillHealing      SkillID = "healing"       // 治療
 
@@ -63,7 +62,6 @@ var skillAbility = map[SkillID]AbilityID{
 	SkillNightVision: AblAGI,
 
 	SkillColdResist:   AblVIT,
-	SkillHeatResist:   AblVIT,
 	SkillHungerResist: AblVIT,
 	SkillHealing:      AblVIT,
 
@@ -102,7 +100,6 @@ var skillName = map[SkillID]string{
 	SkillStealth:       "Stealth",
 	SkillNightVision:   "Night vision",
 	SkillColdResist:    "Cold resistance",
-	SkillHeatResist:    "Heat resistance",
 	SkillHungerResist:  "Hunger resistance",
 	SkillHealing:       "Healing",
 	SkillHeavyArmor:    "Heavy armor",
@@ -156,7 +153,6 @@ var skillDescription = map[SkillID]SkillInfo{
 	SkillStealth:       {Summary: "Technique for acting unnoticed by enemies", GainedBy: gainedByEquipmentOrBook, Effect: "Shortens the distance at which enemies detect you"},
 	SkillNightVision:   {Summary: "Ability to see in the dark", GainedBy: gainedByEquipmentOrBook, Effect: "Widens vision in the dark"},
 	SkillColdResist:    {Summary: "Resistance to cold", GainedBy: gainedByEquipmentOrBook, Effect: "Slows hypothermia progress"},
-	SkillHeatResist:    {Summary: "Resistance to heat", GainedBy: gainedByEquipmentOrBook, Effect: "Slows hyperthermia progress"},
 	SkillHungerResist:  {Summary: "Resistance to hunger", GainedBy: gainedByEquipmentOrBook, Effect: "Slows hunger progress"},
 	SkillHealing:       {Summary: "Medical technique for healing wounds", GainedBy: "Raised by using healing items", Effect: "Increases healing item effect"},
 	SkillHeavyArmor:    {Summary: "Technique for wearing heavy armor", GainedBy: "Raised by taking hits in heavy armor", Effect: "Increases maximum load"},
@@ -188,7 +184,7 @@ var SkillCategories = []SkillCategory{
 	{Name: "Ranged", IDs: []SkillID{SkillBow, SkillHandgun, SkillRifle, SkillCannon}},
 	{Name: "Craft", IDs: []SkillID{SkillCrafting, SkillSmithing, SkillNegotiation, SkillMechanic}},
 	{Name: "Mobility", IDs: []SkillID{SkillSprinting, SkillStealth, SkillNightVision, SkillWeightBearing}},
-	{Name: "Survival", IDs: []SkillID{SkillColdResist, SkillHeatResist, SkillHungerResist, SkillHealing, SkillExploration}},
+	{Name: "Survival", IDs: []SkillID{SkillColdResist, SkillHungerResist, SkillHealing, SkillExploration}},
 	{Name: "Defense", IDs: []SkillID{SkillHeavyArmor, SkillFireResist, SkillThunderResist, SkillChillResist, SkillPhotonResist}},
 }
 

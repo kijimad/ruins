@@ -293,12 +293,6 @@ msgstr "低体温進行"
 msgid "Hypothermia progress rate. Lower is slower"
 msgstr "低体温の進行速度。低いほど遅くなる"
 
-msgid "Hyperthermia progress"
-msgstr "高体温進行"
-
-msgid "Hyperthermia progress rate. Lower is slower"
-msgstr "高体温の進行速度。低いほど遅くなる"
-
 msgid "Hunger progress"
 msgstr "空腹進行"
 
@@ -935,9 +929,6 @@ msgstr "飢餓"
 msgid "Hypothermia"
 msgstr "低体温"
 
-msgid "Hyperthermia"
-msgstr "高体温"
-
 msgid "Minor"
 msgstr "軽"
 
@@ -1085,9 +1076,6 @@ msgstr "売買の価格が有利になる"
 msgid "Slows hypothermia progress"
 msgstr "低体温の進行が遅くなる"
 
-msgid "Slows hyperthermia progress"
-msgstr "高体温の進行が遅くなる"
-
 msgid "Persuasion for favorable deals"
 msgstr "有利な取引をする話術"
 
@@ -1201,9 +1189,6 @@ msgstr "隠密"
 
 msgid "Cold resistance"
 msgstr "耐寒"
-
-msgid "Heat resistance"
-msgstr "耐暑"
 
 msgid "Hunger resistance"
 msgstr "耐餓"

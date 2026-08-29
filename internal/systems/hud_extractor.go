@@ -422,21 +422,16 @@ const temperatureSteadyThreshold = 0.05
 // temperatureIntensityMax は矢印の色が最も濃くなる変化量
 const temperatureIntensityMax = 0.5
 
-// temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温か高体温の状態があるとき ok=true。
-// 表示名で状態と重症度を、色で寒暖を示す。変化の向きは矢印が別に担う
+// temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温の状態があるとき ok=true。
+// 表示名で状態と重症度を、色で寒さを示す。変化の向きは矢印が別に担う。
+// 本作は寒さ専用なので高体温のバッジは持たない
 func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
 	hs := world.Components.HealthStatus.Get(entity)
 	part := &hs.Parts[gc.BodyPartWholeBody]
-	cold := part.GetCondition(gc.ConditionHypothermia)
-	hot := part.GetCondition(gc.ConditionHyperthermia)
-	switch {
-	case hot != nil && (cold == nil || hot.Timer >= cold.Timer):
-		return hud.StatusBadge{Text: hot.DisplayName(), Color: color.RGBA{230, 90, 60, 255}}, true
-	case cold != nil:
+	if cold := part.GetCondition(gc.ConditionHypothermia); cold != nil {
 		return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true
-	default:
-		return hud.StatusBadge{}, false
 	}
+	return hud.StatusBadge{}, false
 }
 
 // temperatureArrow はプレイヤーの体温変化の矢印を返す。HealthStatus を持つ間は常時出す。

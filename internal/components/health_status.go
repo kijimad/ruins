@@ -71,8 +71,7 @@ type ConditionType string
 
 // 状態種類定数
 const (
-	ConditionHypothermia  ConditionType = "Hypothermia"  // 低体温
-	ConditionHyperthermia ConditionType = "Hyperthermia" // 高体温
+	ConditionHypothermia ConditionType = "Hypothermia" // 低体温
 )
 
 // ConditionTypeDisplayName は状態種類の表示名を返す
@@ -80,8 +79,6 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 	switch ct {
 	case ConditionHypothermia:
 		return "Hypothermia"
-	case ConditionHyperthermia:
-		return "Hyperthermia"
 	default:
 		return string(ct)
 	}

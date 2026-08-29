@@ -725,7 +725,7 @@ func TestExtractGameInfo_体温ゲージの割合を返す(t *testing.T) {
 	info := extractGameInfo(world)
 
 	require.True(t, info.BodyTempVisible)
-	assert.InDelta(t, 0.2, info.BodyTempRatio, 1e-9, "オフセット-3はクランプ幅-5..+5の 0.2 に写る")
+	assert.InDelta(t, 0.4, info.BodyTempRatio, 1e-9, "オフセット-3はクランプ幅-5..0の 0.4 に写る")
 }
 
 func TestExtractGameInfo_異常な体温オフセットでも割合を0から1に収める(t *testing.T) {
