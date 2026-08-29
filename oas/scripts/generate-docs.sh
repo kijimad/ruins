@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eux
 
-cd $(dirname $0)
+cd "$(dirname "$0")"
 cd ../..
 
 OUT=${1:-oas/redoc/index.html}

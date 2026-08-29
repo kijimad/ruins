@@ -5,7 +5,7 @@ set -eu
 # Git hooksを無効化するスクリプト
 ##################################
 
-cd $(dirname $0)
+cd "$(dirname "$0")"
 cd ../
 
 echo "🔧 Removing Git hooks configuration..."

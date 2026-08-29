@@ -18,16 +18,13 @@ LDFLAGS="-X github.com/kijimaD/ruins/internal/consts.AppVersion=$APP_VERSION -X 
 # Windowsではフリーズ対策を追加する
 WINDOWS_LDFLAGS="$LDFLAGS -X=runtime.godebugDefault=asyncpreemptoff=1 -H=windowsgui"
 
-cd $(dirname $0)
+cd "$(dirname "$0")"
 cd ../
 
 # ================
 
-function is_git_repo {
-	echo $(git rev-parse --is-inside-work-tree)
-}
-
-if [ $(is_git_repo) = "true" ]; then
+# tarball から展開したソースなど、リポジトリ外でビルドするときは既定値のまま進める
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 	APP_VERSION=$(git describe --tag --abbrev=0)
 	APP_COMMIT=$(git rev-parse --short HEAD)
 	# ldflags再構築
@@ -48,16 +45,16 @@ SNIPER_BASE=https://repo.steampowered.com/steamrt-images-sniper/snapshots/${STEA
 SNIPER_DIR=.cache/${STEAM_RUNTIME_VERSION}
 
 (
-	cd $SNIPER_DIR
+	cd "$SNIPER_DIR"
 	$CURL ${SNIPER_BASE}/com.valvesoftware.SteamRuntime.Sdk-amd64,i386-sniper-sysroot.Dockerfile
 )
 (
-	cd $SNIPER_DIR
+	cd "$SNIPER_DIR"
 	$CURL ${SNIPER_BASE}/com.valvesoftware.SteamRuntime.Sdk-amd64,i386-sniper-sysroot.tar.gz
 )
 (
 	cd .cache
-	$CURL https://golang.org/dl/${GO_VERSION}.linux-amd64.tar.gz
+	$CURL "https://golang.org/dl/${GO_VERSION}.linux-amd64.tar.gz"
 )
 
 # ================
@@ -68,15 +65,15 @@ SNIPER_DIR=.cache/${STEAM_RUNTIME_VERSION}
 	docker build -f com.valvesoftware.SteamRuntime.Sdk-amd64,i386-sniper-sysroot.Dockerfile -t steamrt_sniper_amd64:latest .
 )
 
-mkdir -p $HOME/go/pkg/mod
-mkdir -p $HOME/.cache/go-build
+mkdir -p "$HOME/go/pkg/mod"
+mkdir -p "$HOME/.cache/go-build"
 
 docker run --rm \
 	-u "$(id -u):$(id -g)" \
 	--workdir=/work \
-	--volume $(pwd):/work \
-	--volume $HOME/go/pkg/mod:/tmp/gopath/pkg/mod \
-	--volume $HOME/.cache/go-build:/tmp/gocache \
+	--volume "$(pwd):/work" \
+	--volume "$HOME/go/pkg/mod:/tmp/gopath/pkg/mod" \
+	--volume "$HOME/.cache/go-build:/tmp/gocache" \
 	--tmpfs /tmp/go:exec \
 	steamrt_sniper_amd64:latest /bin/sh -c "
 tar -C /tmp/go -xzf .cache/${GO_VERSION}.linux-amd64.tar.gz
@@ -98,9 +95,9 @@ docker run \
 	--rm \
 	-u "$(id -u):$(id -g)" \
 	-w /work \
-	-v $PWD:/work \
-	-v $HOME/go/pkg/mod:/go/pkg/mod \
-	-v $HOME/.cache/go-build:/tmp/go-build \
+	-v "$PWD:/work" \
+	-v "$HOME/go/pkg/mod:/go/pkg/mod" \
+	-v "$HOME/.cache/go-build:/tmp/go-build" \
 	--env GOCACHE=/tmp/go-build \
 	--env GOOS=windows \
 	--env GOARCH=amd64 \

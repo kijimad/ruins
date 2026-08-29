@@ -1,11 +1,11 @@
 #!/bin/bash
 set -eux
 
-cd $(dirname $0)
+cd "$(dirname "$0")"
 cd ../..
 
 docker run --rm \
-	-v $PWD:/workdir \
+	-v "$PWD:/workdir" \
 	-w /workdir \
 	-u "$(id -u):$(id -g)" \
 	openapitools/openapi-generator-cli:v7.22.0 generate \

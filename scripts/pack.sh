@@ -5,7 +5,7 @@
 
 set -eu
 
-cd $(dirname $0)
+cd "$(dirname "$0")"
 cd ../assets/file/textures
 
 # Asepriteでスプライトシートをパッキングする関数

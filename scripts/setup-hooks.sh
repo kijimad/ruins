@@ -5,7 +5,7 @@ set -eu
 # Git hooksをセットアップするスクリプト
 ##################################
 
-cd $(dirname $0)
+cd "$(dirname "$0")"
 cd ../
 
 # 定数
@@ -22,12 +22,12 @@ if [ ! -d "$HOOKS_DIR" ]; then
 fi
 
 # Git設定でhooksディレクトリを指定（プロジェクトレベル）
-git config core.hooksPath $HOOKS_DIR
+git config core.hooksPath "$HOOKS_DIR"
 
 echo "✅ Git hooks configured successfully!"
 echo ""
 echo "Available hooks:"
-for hook in $HOOKS_DIR/*; do
+for hook in "$HOOKS_DIR"/*; do
 	if [ -f "$hook" ]; then
 		echo "  - $(basename "$hook")"
 	fi
