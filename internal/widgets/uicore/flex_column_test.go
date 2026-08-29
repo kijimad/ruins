@@ -30,6 +30,7 @@ func TestFlexColumn_Growの行が余り高さを吸収する(t *testing.T) {
 	body.Draw(cv)
 	footer.Draw(cv)
 
+	// header, body, footerの順でDrawしているのでcv.fillsも0:header 1:body 2:footerの順で積まれる
 	require.Len(t, cv.fills, 3)
 	assert.Equal(t, 20, cv.fills[0].Dy(), "先頭行は固定高で確定する")
 	assert.Equal(t, 70, cv.fills[1].Dy(), "Growの行が余り高さを吸収する")

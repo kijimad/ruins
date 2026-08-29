@@ -2,7 +2,6 @@ package uicore_test
 
 import (
 	"image"
-	"image/color"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -61,8 +60,8 @@ func TestNineSlice_画像が無ければ何も描かない(t *testing.T) {
 
 func TestGroup_子を配置し直さず順に描く(t *testing.T) {
 	t.Parallel()
-	a := uicore.NewText("a", nil, color.White)
-	b := uicore.NewText("b", nil, color.White)
+	a := label("a")
+	b := label("b")
 	g := uicore.NewGroup(a, b)
 
 	require.Equal(t, []uicore.Widget{a, b}, g.Children(), "渡した子をそのまま返す")

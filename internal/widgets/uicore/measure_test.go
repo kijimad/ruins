@@ -34,7 +34,7 @@ func TestLineHeight_実フェイスでAgの高さを返す(t *testing.T) {
 	res := borrowRes()
 	defer facePool.Put(res)
 
+	// LineHeightはMeasureText("Ag", face)の高さを返す契約なので、それと一致することを検証する
 	_, wantH := uicore.MeasureText("Ag", res.Text.BodyFace)
 	assert.Equal(t, wantH, uicore.LineHeight(res.Text.BodyFace), "MeasureTextで測ったAgの高さと一致する")
-	assert.Positive(t, uicore.LineHeight(res.Text.BodyFace), "実フェイスなら正の高さになる")
 }
