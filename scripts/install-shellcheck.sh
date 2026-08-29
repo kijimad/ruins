@@ -11,18 +11,18 @@ set -eu
 VERSION=v0.11.0
 
 case "$(uname -s)/$(uname -m)" in
-	Linux/x86_64)
-		PLATFORM=linux.x86_64
-		SHA256=8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
-		;;
-	Linux/aarch64)
-		PLATFORM=linux.aarch64
-		SHA256=12b331c1d2db6b9eb13cfca64306b1b157a86eb69db83023e261eaa7e7c14588
-		;;
-	*)
-		echo "❌ shellcheckの配布物を用意していない環境: $(uname -s)/$(uname -m)" >&2
-		exit 1
-		;;
+Linux/x86_64)
+	PLATFORM=linux.x86_64
+	SHA256=8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+	;;
+Linux/aarch64)
+	PLATFORM=linux.aarch64
+	SHA256=12b331c1d2db6b9eb13cfca64306b1b157a86eb69db83023e261eaa7e7c14588
+	;;
+*)
+	echo "❌ shellcheckの配布物を用意していない環境: $(uname -s)/$(uname -m)" >&2
+	exit 1
+	;;
 esac
 
 INSTALLED=$(shellcheck --version 2>/dev/null | awk '$1 == "version:" { print "v" $2 }')

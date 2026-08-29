@@ -5,13 +5,13 @@ cd $(dirname $0)
 cd ../..
 
 docker run --rm \
-       -v $PWD:/workdir \
-       -w /workdir \
-       -u "$(id -u):$(id -g)" \
-       openapitools/openapi-generator-cli:v7.22.0 generate \
-         -i oas/openapi.yml \
-         -g typescript-axios \
-         -o oas/ts-axios
+	-v $PWD:/workdir \
+	-w /workdir \
+	-u "$(id -u):$(id -g)" \
+	openapitools/openapi-generator-cli:v7.22.0 generate \
+	-i oas/openapi.yml \
+	-g typescript-axios \
+	-o oas/ts-axios
 
 mkdir -p editor-ui/src/generated
 mv oas/ts-axios/*.ts editor-ui/src/generated/
