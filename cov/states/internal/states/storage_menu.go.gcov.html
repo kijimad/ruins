@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,7 +76,7 @@
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/overlay&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
-<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L18"><span class="lineNum">      18</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
@@ -254,7 +254,7 @@
 <span id="L192"><span class="lineNum">     192</span>              : </span>
 <span id="L193"><span class="lineNum">     193</span>              : // ViewUI はカテゴリタブとアイコン付きアイテム一覧を組む。</span>
 <span id="L194"><span class="lineNum">     194</span>              : // 詳細モーダルは ScreenRenderer として Screen が本体の上へ重ねる。</span>
-<span id="L195"><span class="lineNum">     195</span>              : func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {</span>
+<span id="L195"><span class="lineNum">     195</span>              : func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC tlaBgGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         for i, tab := range props.Tabs {</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 labels[i] = tab.Label</span></span>
@@ -264,7 +264,7 @@
 <span id="L202"><span class="lineNum">     202</span>              : }</span>
 <span id="L203"><span class="lineNum">     203</span>              : </span>
 <span id="L204"><span class="lineNum">     204</span>              : // buildActiveListUI は行列とフッタ右端のページ表示を返す。</span>
-<span id="L205"><span class="lineNum">     205</span>              : func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {</span>
+<span id="L205"><span class="lineNum">     205</span>              : func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]uicore.Drawable, string) {</span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;</span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :         }</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,8 +67,8 @@
 <span id="L5"><span class="lineNum">       5</span>              : </span>
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/internal/uicore&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              : </span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
@@ -92,7 +92,7 @@
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // Widget はメッセージログ表示ウィジェット。</span>
 <span id="L32"><span class="lineNum">      32</span>              : //</span>
-<span id="L33"><span class="lineNum">      33</span>              : // 各エントリを1行とし、行内の色付きフラグメントを水平に連ねて描く。描画は internal/uicore の</span>
+<span id="L33"><span class="lineNum">      33</span>              : // 各エントリを1行とし、行内の色付きフラグメントを水平に連ねて描く。描画は uicore の</span>
 <span id="L34"><span class="lineNum">      34</span>              : // ツリーで組み、グローバル可変状態に触れない。フラグメント幅はフェイスの測定で決める</span>
 <span id="L35"><span class="lineNum">      35</span>              : type Widget struct {</span>
 <span id="L36"><span class="lineNum">      36</span>              :         config      WidgetConfig</span>
@@ -146,7 +146,7 @@
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         widget.loaded = true</span></span>
 <span id="L85"><span class="lineNum">      85</span>              : }</span>
 <span id="L86"><span class="lineNum">      86</span>              : </span>
-<span id="L87"><span class="lineNum">      87</span>              : // buildTree はエントリ列を internal/uicore のツリーへ組む。</span>
+<span id="L87"><span class="lineNum">      87</span>              : // buildTree はエントリ列を uicore のツリーへ組む。</span>
 <span id="L88"><span class="lineNum">      88</span>              : // 各行を Padding.Top から LineHeight+Spacing 刻みで下へ、行内フラグメントは測定幅ぶん右へ並べる</span>
 <span id="L89"><span class="lineNum">      89</span>              : func (widget *Widget) buildTree(width, height int) uicore.Widget {</span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         res := widget.world.Resources.UIResources</span></span>

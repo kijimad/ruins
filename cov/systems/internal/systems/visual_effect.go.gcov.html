@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,7 +72,7 @@
 <span id="L10"><span class="lineNum">      10</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/render3d&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/hud&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
@@ -201,7 +201,7 @@
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         buf := ebiten.NewImage(screenW, screenH)</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L141"><span class="lineNum">     141</span>              :         // テキストサイズを測定して中央揃え</span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         textWidth, textHeight := ui.MeasureText(effect.Text, effect.Face)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         textWidth, textHeight := uicore.MeasureText(effect.Text, effect.Face)</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         x := effect.Offset.X - float64(textWidth)/2</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         y := effect.Offset.Y - float64(textHeight)/2</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 : </span></span>
@@ -229,7 +229,7 @@
 <span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 text.Draw(buf, effect.Text, effect.Face, shadowOp)</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L169"><span class="lineNum">     169</span>              : </span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         hud.OutlinedText(ui.NewEbitenCanvas(buf), effect.Text, effect.Face, image.Pt(int(x), int(y)), textColor, outlineColor)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         hud.OutlinedText(uicore.NewEbitenCanvas(buf), effect.Text, effect.Face, image.Pt(int(x), int(y)), textColor, outlineColor)</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         if effect.LineWidth &gt; 0 {</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 lineY := y + float64(textHeight) + 2</span></span>
@@ -255,7 +255,7 @@
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :         screenY := float64(anchor.Y) + effect.Offset.Y</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L195"><span class="lineNum">     195</span>              :         // テキストサイズを測定して中央揃え</span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         textWidth := ui.MeasureTextWidth(effect.Text, face)</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         textWidth := uicore.MeasureTextWidth(effect.Text, face)</span></span>
 <span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         x := screenX - float64(textWidth)/2</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         y := screenY</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 : </span></span>
@@ -265,7 +265,7 @@
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         outlineColor := color.RGBA{0, 0, 0, alpha}</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L205"><span class="lineNum">     205</span>              :         // アウトライン付きテキストを描画</span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         hud.OutlinedText(ui.NewEbitenCanvas(screen), effect.Text, face, image.Pt(int(x), int(y)), textColor, outlineColor)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         hud.OutlinedText(uicore.NewEbitenCanvas(screen), effect.Text, face, image.Pt(int(x), int(y)), textColor, outlineColor)</span></span>
 <span id="L207"><span class="lineNum">     207</span>              : }</span>
 <span id="L208"><span class="lineNum">     208</span>              : </span>
 <span id="L209"><span class="lineNum">     209</span>              : // drawHorizontalLine は両端がグラデーションで透明になる水平線を描画する</span>

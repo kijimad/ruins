@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,15 +69,15 @@
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              : )</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // ViewUI は人物画面のタブ本体を組む。</span>
 <span id="L16"><span class="lineNum">      16</span>              : // 装備選択の入れ子モーダルは equip overlay が ScreenRenderer として本体の上へ重ねる。</span>
-<span id="L17"><span class="lineNum">      17</span>              : func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 :         var content []ui.Widget</span></span>
+<span id="L17"><span class="lineNum">      17</span>              : func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 :         var content []uicore.Drawable</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         var pager string</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         if charTabAt(cursor.TabIndex) == charTabEquip {</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 content, pager = buildEquipListUI(world, props.EquipSlots, cursor.ItemIndex, res)</span></span>
@@ -88,7 +88,7 @@
 <span id="L26"><span class="lineNum">      26</span>              : }</span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
 <span id="L28"><span class="lineNum">      28</span>              : // buildEquipListUI は装備4列とフッタ右端のページ表示を返す。</span>
-<span id="L29"><span class="lineNum">      29</span>              : func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {</span>
+<span id="L29"><span class="lineNum">      29</span>              : func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {</span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         cols := styled.Cols(styled.Fit(), styled.Icon(), styled.Name(), styled.Num())</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(slots))</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         for i, slot := range slots {</span></span>

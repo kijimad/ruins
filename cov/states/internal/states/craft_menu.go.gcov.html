@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,7 +79,7 @@
 <span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/overlay&quot;</span>
 <span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
-<span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L21"><span class="lineNum">      21</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              :         &quot;github.com/kijimaD/ruins/internal/world/gameaction&quot;</span>
@@ -293,7 +293,7 @@
 <span id="L231"><span class="lineNum">     231</span>              : // ================</span>
 <span id="L232"><span class="lineNum">     232</span>              : </span>
 <span id="L233"><span class="lineNum">     233</span>              : // ViewUI はカテゴリタブと合成可否印つきレシピ一覧を組む。</span>
-<span id="L234"><span class="lineNum">     234</span>              : func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {</span>
+<span id="L234"><span class="lineNum">     234</span>              : func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           1 :         labels := make([]string, len(props.Tabs))</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         for i, tab := range props.Tabs {</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 labels[i] = tab.Label</span></span>
@@ -303,7 +303,7 @@
 <span id="L241"><span class="lineNum">     241</span>              : }</span>
 <span id="L242"><span class="lineNum">     242</span>              : </span>
 <span id="L243"><span class="lineNum">     243</span>              : // buildItemListUI は行列とフッタ右端のページ表示を返す。</span>
-<span id="L244"><span class="lineNum">     244</span>              : func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {</span>
+<span id="L244"><span class="lineNum">     244</span>              : func (st *CraftMenuState) buildItemListUI(world w.World, tabs []craftTabData, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]uicore.Drawable, string) {</span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         if tabIndex &gt;= len(tabs) {</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         }</span></span>

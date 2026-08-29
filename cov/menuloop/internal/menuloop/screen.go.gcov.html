@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,7 +79,7 @@
 <span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
 <span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/overlay&quot;</span>
-<span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L21"><span class="lineNum">      21</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L22"><span class="lineNum">      22</span>              : )</span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
@@ -121,8 +121,8 @@
 <span id="L59"><span class="lineNum">      59</span>              :         // Screen.Update がそのままフレームのエラーとして表面化させる</span>
 <span id="L60"><span class="lineNum">      60</span>              :         Fetch(world w.World) (P, error)</span>
 <span id="L61"><span class="lineNum">      61</span>              :         Menu(props P) MenuConfig</span>
-<span id="L62"><span class="lineNum">      62</span>              :         // ViewUI は props とカーソルから本体を internal/uicore のツリーへ組み、画面へ配置済みで返す</span>
-<span id="L63"><span class="lineNum">      63</span>              :         ViewUI(world w.World, props P, cursor Selection, res resources.UIResources) ui.Widget</span>
+<span id="L62"><span class="lineNum">      62</span>              :         // ViewUI は props とカーソルから本体を uicore のツリーへ組み、画面へ配置済みで返す</span>
+<span id="L63"><span class="lineNum">      63</span>              :         ViewUI(world w.World, props P, cursor Selection, res resources.UIResources) uicore.Drawable</span>
 <span id="L64"><span class="lineNum">      64</span>              : }</span>
 <span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span>              : // KeyBindings は共通キーに加える独自キーを持つ state が満たす任意契約。キーと Action の</span>
@@ -135,7 +135,7 @@
 <span id="L73"><span class="lineNum">      73</span>              : </span>
 <span id="L74"><span class="lineNum">      74</span>              : // Screen はメニューの UI ランタイム。mount・widget と overlay を保持し、毎フレームの</span>
 <span id="L75"><span class="lineNum">      75</span>              : // 手順を回す。state は構造体にこれをポインタで持ち、Update と Draw を委譲する。</span>
-<span id="L76"><span class="lineNum">      76</span>              : // widget は internal/uicore のツリーを retained として扱い、props・カーソル・overlay が変わった</span>
+<span id="L76"><span class="lineNum">      76</span>              : // widget は uicore のツリーを retained として扱い、props・カーソル・overlay が変わった</span>
 <span id="L77"><span class="lineNum">      77</span>              : // フレームだけ組み直す。変化が無ければ前フレームのツリーを再利用する</span>
 <span id="L78"><span class="lineNum">      78</span>              : type Screen[P any] struct {</span>
 <span id="L79"><span class="lineNum">      79</span>              :         model Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く</span>
@@ -143,12 +143,12 @@
 <span id="L81"><span class="lineNum">      81</span>              :         // 実行時に表を重ねる階層は無い。重なりは MustMerge が構築時に拒否する</span>
 <span id="L82"><span class="lineNum">      82</span>              :         table           []keybind.Binding</span>
 <span id="L83"><span class="lineNum">      83</span>              :         mount           *hooks.Mount[P]</span>
-<span id="L84"><span class="lineNum">      84</span>              :         bodyTree        ui.Widget // 本体の internal/uicore ツリー。dirty なフレームだけ組み直す</span>
+<span id="L84"><span class="lineNum">      84</span>              :         bodyTree        uicore.Drawable // 本体のツリー。dirty なフレームだけ組み直す</span>
 <span id="L85"><span class="lineNum">      85</span>              :         overlays        []overlay.Layer</span>
-<span id="L86"><span class="lineNum">      86</span>              :         pendingOverlays []ui.Widget // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる</span>
-<span id="L87"><span class="lineNum">      87</span>              :         lastSelection   Selection   // 直近フレームで確定したカーソル位置。DoAction から参照する</span>
-<span id="L88"><span class="lineNum">      88</span>              :         seeded          bool        // 初期タブへ寄せたか</span>
-<span id="L89"><span class="lineNum">      89</span>              :         pageSize        int         // ItemsPerPageAuto の解決値。Update が最初のフレームで測る</span>
+<span id="L86"><span class="lineNum">      86</span>              :         pendingOverlays []uicore.Drawable // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる</span>
+<span id="L87"><span class="lineNum">      87</span>              :         lastSelection   Selection         // 直近フレームで確定したカーソル位置。DoAction から参照する</span>
+<span id="L88"><span class="lineNum">      88</span>              :         seeded          bool              // 初期タブへ寄せたか</span>
+<span id="L89"><span class="lineNum">      89</span>              :         pageSize        int               // ItemsPerPageAuto の解決値。Update が最初のフレームで測る</span>
 <span id="L90"><span class="lineNum">      90</span>              : }</span>
 <span id="L91"><span class="lineNum">      91</span>              : </span>
 <span id="L92"><span class="lineNum">      92</span>              : // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は</span>
@@ -322,7 +322,7 @@
 <span id="L260"><span class="lineNum">     260</span>              : // Draw は保持中の UI を描き、その上に ScreenRenderer な overlay を重ねる。</span>
 <span id="L261"><span class="lineNum">     261</span>              : // 各 state の Draw はこれへ委譲する</span>
 <span id="L262"><span class="lineNum">     262</span>              : func (s *Screen[P]) Draw(screen *ebiten.Image) {</span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         cv := ui.NewEbitenCanvas(screen)</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         cv := uicore.NewEbitenCanvas(screen)</span></span>
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         if s.bodyTree != nil {</span></span>
 <span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 s.bodyTree.Draw(cv)</span></span>
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         }</span></span>

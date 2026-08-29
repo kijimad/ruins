@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,7 +81,7 @@
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
 <span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/overlay&quot;</span>
 <span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
-<span id="L22"><span class="lineNum">      22</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L22"><span class="lineNum">      22</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L23"><span class="lineNum">      23</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L24"><span class="lineNum">      24</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
 <span id="L25"><span class="lineNum">      25</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
@@ -375,7 +375,7 @@
 <span id="L313"><span class="lineNum">     313</span>              : }</span>
 <span id="L314"><span class="lineNum">     314</span>              : </span>
 <span id="L315"><span class="lineNum">     315</span>              : // ViewUI はオークションの各タブを組む。</span>
-<span id="L316"><span class="lineNum">     316</span>              : func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {</span>
+<span id="L316"><span class="lineNum">     316</span>              : func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
 <span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :         labels := make([]string, len(props.Tabs))</span></span>
 <span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :         for i, tab := range props.Tabs {</span></span>
 <span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                 labels[i] = tab.Label</span></span>
@@ -386,7 +386,7 @@
 <span id="L324"><span class="lineNum">     324</span>              : </span>
 <span id="L325"><span class="lineNum">     325</span>              : // buildActiveUI はタブ種別で中身を振り分け、行列と</span>
 <span id="L326"><span class="lineNum">     326</span>              : // フッタ右端のページ表示を返す。</span>
-<span id="L327"><span class="lineNum">     327</span>              : func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {</span>
+<span id="L327"><span class="lineNum">     327</span>              : func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]uicore.Drawable, string) {</span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
 <span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                 return nil, &quot;&quot;</span></span>
 <span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :         }</span></span>

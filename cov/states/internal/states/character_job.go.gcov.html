@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,7 +80,7 @@
 <span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
 <span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
-<span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L22"><span class="lineNum">      22</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              :         &quot;github.com/kijimaD/ruins/internal/world/gameaction&quot;</span>
@@ -211,7 +211,7 @@
 <span id="L149"><span class="lineNum">     149</span>              : // ================</span>
 <span id="L150"><span class="lineNum">     150</span>              : </span>
 <span id="L151"><span class="lineNum">     151</span>              : // ViewUI は見出し・左の職業一覧・右の詳細パネル・下の説明を左右2枠の画面へ載せる。</span>
-<span id="L152"><span class="lineNum">     152</span>              : func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {</span>
+<span id="L152"><span class="lineNum">     152</span>              : func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC tlaBgGNC">           1 :         itemIndex := cursor.ItemIndex</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(props.Items))</span></span>
@@ -229,17 +229,17 @@
 <span id="L167"><span class="lineNum">     167</span>              : }</span>
 <span id="L168"><span class="lineNum">     168</span>              : </span>
 <span id="L169"><span class="lineNum">     169</span>              : // buildJobDetailRowsUI は装備・所持品・スキルの見出しと行を返す。</span>
-<span id="L170"><span class="lineNum">     170</span>              : func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face text.Face) []ui.Widget {</span>
+<span id="L170"><span class="lineNum">     170</span>              : func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face text.Face) []uicore.Drawable {</span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         if itemIndex &gt;= len(props.Items) {</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC tlaBgGNC">           1 :         prof := props.Items[itemIndex].Profession</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         var items []ui.Widget</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         var items []uicore.Drawable</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         section := func(title string) {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 items = append(items, ui.NewText(title, face, theme.TextSecondary))</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 items = append(items, uicore.NewText(title, face, theme.TextSecondary))</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         line := func(s string) {</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 items = append(items, ui.NewText(s, face, theme.TextPrimary))</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 items = append(items, uicore.NewText(s, face, theme.TextPrimary))</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         if len(prof.Equips) &gt; 0 {</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 section(query.T(world, &quot;Equipment&quot;))</span></span>

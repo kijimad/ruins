@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,7 +75,7 @@
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/render3d&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/hud&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
@@ -219,7 +219,7 @@
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         face := world.Resources.UIResources.Text.BodyFace</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         const panelHeight = 200</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         panel := hud.NewInfoPanel(ui.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         panel := hud.NewInfoPanel(uicore.NewEbitenCanvas(screen), hud.NewChrome(world.Resources.UIResources), face, screen.Bounds().Dx(), panelHeight)</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         drawText := panel.Line</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L163"><span class="lineNum">     163</span>              :         // 座標表示</span>

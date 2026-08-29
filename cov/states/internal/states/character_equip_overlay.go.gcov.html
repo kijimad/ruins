@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,7 +73,7 @@
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/overlay&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/world/lifecycle&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
@@ -174,8 +174,8 @@
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L113"><span class="lineNum">     113</span>              : }</span>
 <span id="L114"><span class="lineNum">     114</span>              : </span>
-<span id="L115"><span class="lineNum">     115</span>              : // RenderOverlay は装備候補のモーダルを internal/uicore のツリーへ組む。Screen が本体の上へ重ねる。</span>
-<span id="L116"><span class="lineNum">     116</span>              : func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) ui.Widget {</span>
+<span id="L115"><span class="lineNum">     115</span>              : // RenderOverlay は装備候補のモーダルを uicore のツリーへ組む。Screen が本体の上へ重ねる。</span>
+<span id="L116"><span class="lineNum">     116</span>              : func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) uicore.Drawable {</span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         if !o.active {</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -185,7 +185,7 @@
 <span id="L123"><span class="lineNum">     123</span>              : }</span>
 <span id="L124"><span class="lineNum">     124</span>              : </span>
 <span id="L125"><span class="lineNum">     125</span>              : // buildEquipSelectUI はアイコン付きの候補一覧を中央パネルへ組む。</span>
-<span id="L126"><span class="lineNum">     126</span>              : func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) ui.Widget {</span>
+<span id="L126"><span class="lineNum">     126</span>              : func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) uicore.Drawable {</span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(props.Items))</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         for i, entity := range props.Items {</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 icon := menuIcon(world, entity)</span></span>

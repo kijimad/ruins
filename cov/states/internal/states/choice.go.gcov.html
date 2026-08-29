@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,7 +74,7 @@
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              : )</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
@@ -157,9 +157,9 @@
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         return menuloop.MenuConfig{Key: &quot;choice&quot;, TabCount: 1, ItemCounts: []int{len(props.Choices)}, ItemsPerPage: menuloop.ItemsPerPageAuto, Skips: [][]bool{skips}}</span></span>
 <span id="L96"><span class="lineNum">      96</span>              : }</span>
 <span id="L97"><span class="lineNum">      97</span>              : </span>
-<span id="L98"><span class="lineNum">      98</span>              : // ViewUI は選択肢の一覧を中央パネルに internal/uicore のツリーで組んで返す。</span>
+<span id="L98"><span class="lineNum">      98</span>              : // ViewUI は選択肢の一覧を中央パネルに uicore のツリーで組んで返す。</span>
 <span id="L99"><span class="lineNum">      99</span>              : // Screen はこれを EbitenCanvas で本体として描く。</span>
-<span id="L100"><span class="lineNum">     100</span>              : func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {</span>
+<span id="L100"><span class="lineNum">     100</span>              : func (st *ChoiceMenuState) ViewUI(world w.World, props ChoiceProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(props.Choices))</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         for i, c := range props.Choices {</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 rows[i] = menuframe.Row{Cells: styled.TextCells(c.Label), Header: c.Header}</span></span>

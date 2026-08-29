@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,7 +68,7 @@
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/keybind&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/entityspec&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/internal/uicore&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
@@ -177,7 +177,7 @@
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L116"><span class="lineNum">     116</span>              : }</span>
 <span id="L117"><span class="lineNum">     117</span>              : </span>
-<span id="L118"><span class="lineNum">     118</span>              : // RenderOverlay は現在の内容から詳細モーダルを internal/uicore のツリーへ組み、rect 内に配置して返す。</span>
+<span id="L118"><span class="lineNum">     118</span>              : // RenderOverlay は現在の内容から詳細モーダルを uicore のツリーへ組み、rect 内に配置して返す。</span>
 <span id="L119"><span class="lineNum">     119</span>              : // 対象が無ければ nil を返す。Screen はこれを本体の上へ重ねて描く。</span>
 <span id="L120"><span class="lineNum">     120</span>              : func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawable {</span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC tlaBgGNC">           1 :         content, ok := d.provide(world)</span></span>

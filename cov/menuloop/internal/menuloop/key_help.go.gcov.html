@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 16:17:03</td>
+            <td class="headerValue">2026-08-29 17:05:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,7 +73,7 @@
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              : )</span>
@@ -85,7 +85,7 @@
 <span id="L23"><span class="lineNum">      23</span>              : type KeyHelpState struct {</span>
 <span id="L24"><span class="lineNum">      24</span>              :         es.BaseState[w.World]</span>
 <span id="L25"><span class="lineNum">      25</span>              :         table []keybind.Binding</span>
-<span id="L26"><span class="lineNum">      26</span>              :         body  ui.Widget</span>
+<span id="L26"><span class="lineNum">      26</span>              :         body  uicore.Drawable</span>
 <span id="L27"><span class="lineNum">      27</span>              : }</span>
 <span id="L28"><span class="lineNum">      28</span>              : </span>
 <span id="L29"><span class="lineNum">      29</span>              : var _ es.State[w.World] = &amp;KeyHelpState{}</span>
@@ -159,7 +159,7 @@
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         total := 0</span></span>
 <span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         face := res.Text.KeycapFace</span></span>
 <span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         for i, tok := range tokens {</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 w, h := ui.MeasureText(tok, face)</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 w, h := uicore.MeasureText(tok, face)</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 cw := w + chipPad*2</span></span>
 <span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 caps = append(caps, keycap{text: tok, face: face, w: cw, h: h})</span></span>
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 total += cw</span></span>
@@ -215,7 +215,7 @@
 <span id="L153"><span class="lineNum">     153</span>              : </span>
 <span id="L154"><span class="lineNum">     154</span>              : // Draw は保持中の一覧を描く</span>
 <span id="L155"><span class="lineNum">     155</span>              : func (st *KeyHelpState) Draw(_ w.World, screen *ebiten.Image) error {</span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         st.body.Draw(ui.NewEbitenCanvas(screen))</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         st.body.Draw(uicore.NewEbitenCanvas(screen))</span></span>
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
