@@ -14,7 +14,8 @@ func TestStateChangeRequest_Constructors(t *testing.T) {
 	// 各コンストラクタが正しい種別のペイロードを生成することを確認
 	assert.IsType(t, WarpDescend{}, WarpDescendEvent().Payload)
 	assert.IsType(t, WarpAscend{}, WarpAscendEvent().Payload)
-	assert.IsType(t, GameClear{}, GameClearEvent().Payload)
+	assert.IsType(t, WarpCubeExit{}, WarpCubeExitEvent().Payload)
+	assert.IsType(t, OpenCubePanel{}, OpenCubePanelEvent().Payload)
 
 	// 遺跡進入は遺跡定義名を運ぶ
 	dungeonEnter := WarpDungeonEnterEvent("ancient_ruin")

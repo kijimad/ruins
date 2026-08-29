@@ -47,11 +47,11 @@ func TestRequestStateChange(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		err := RequestStateChange(world, gc.GameClearEvent())
+		err := RequestStateChange(world, gc.WarpAscendEvent())
 		require.NoError(t, err)
 
 		req := ConsumeStateChange(world)
-		assert.IsType(t, gc.GameClear{}, req.Payload)
+		assert.IsType(t, gc.WarpAscend{}, req.Payload)
 
 		err = RequestStateChange(world, gc.WarpDescendEvent())
 		require.NoError(t, err)
