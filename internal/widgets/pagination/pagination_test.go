@@ -21,6 +21,20 @@ func TestNew(t *testing.T) {
 	assert.Equal(t, 1, p2.Page)
 }
 
+func TestNew_カーソルを持たない負のインデックスは先頭ページになる(t *testing.T) {
+	t.Parallel()
+
+	// 1ページあたり1件だと負のインデックスがそのままページ番号になり、
+	// 表示範囲の開始が負へ回って要素の取り出しが範囲外になる
+	p := New(-1, 1, 1)
+
+	assert.Equal(t, 0, p.Page)
+	start, end := p.GetVisibleRange()
+	assert.Equal(t, 0, start)
+	assert.Equal(t, 1, end)
+	assert.Equal(t, []IndexedItem[string]{{Index: 0, Item: "a"}}, VisibleEntries([]string{"a"}, p))
+}
+
 func TestPagination_GetCurrentPage(t *testing.T) {
 	t.Parallel()
 

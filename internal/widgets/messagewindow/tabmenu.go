@@ -30,7 +30,7 @@ func pageOf(config tabMenuConfig, state viewState) ([]item, pagination.Paginatio
 		return nil, pagination.New(0, 0, config.ItemsPerPage)
 	}
 	items := config.Tabs[state.TabIndex].Items
-	return items, pagination.New(max(state.ItemIndex, 0), len(items), config.ItemsPerPage)
+	return items, pagination.New(state.ItemIndex, len(items), config.ItemsPerPage)
 }
 
 // getVisibleItems は指定ページで表示される項目とその元のインデックスを返す
