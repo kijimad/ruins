@@ -5,22 +5,29 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/kijimaD/ruins/internal/lintrule"
 )
 
-// moduleRoot は go.mod を上位へ辿ってリポジトリルートを返す。
-// 検査はリポジトリ全体を歩くので、テストの実行位置に依存しない起点が要る。
+// moduleRoot は各検査がリポジトリを歩く起点を返す。
 func moduleRoot(t *testing.T) string {
 	t.Helper()
 
-	dir, err := os.Getwd()
+	root, err := lintrule.ModuleRoot()
 	require.NoError(t, err)
-	for {
-		if _, statErr := os.Stat(filepath.Join(dir, "go.mod")); statErr == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		require.NotEqual(t, parent, dir, "go.mod が見つからない")
-		dir = parent
-	}
+
+	return root
+}
+
+func TestModuleRoot_go_modのあるディレクトリを返す(t *testing.T) {
+	t.Parallel()
+
+	root, err := lintrule.ModuleRoot()
+	require.NoError(t, err)
+
+	info, err := os.Stat(filepath.Join(root, "go.mod"))
+	require.NoError(t, err)
+	assert.False(t, info.IsDir())
 }
