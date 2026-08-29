@@ -26,9 +26,9 @@ func (sys *TemperatureSystem) String() string {
 
 // 温度閾値の定数
 const (
-	// ComfortableTempLower は快適温度の下限。これより寒いと体が冷える
+	// ComfortableTempLower は快適温度の下限
 	ComfortableTempLower = 11
-	// ComfortableTempUpper は快適温度の上限。これより暑くても害はなく、快適帯の目安として持つ
+	// ComfortableTempUpper は快適温度の上限
 	ComfortableTempUpper = 30
 )
 
@@ -82,12 +82,11 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 
 // 体温の定数。値は実プレイで調整する
 const (
-	// bodyTempColdBand は平熱からこれだけ下がるまでを正常とみなす下方向の帯。
-	// これより冷えると低体温タイマーが進む。本作は寒さ専用なので上方向の帯は持たない
+	// bodyTempColdBand は平熱からこれだけ下がるまでを正常とみなす帯。これより冷えると低体温タイマーが進む
 	bodyTempColdBand = 2.0
 	// bodyTempMin はオフセットの下限クランプ
 	bodyTempMin = -5.0
-	// bodyTempMax はオフセットの上限クランプ。平熱を上限とし、これ以上は温めても上がらない
+	// bodyTempMax はオフセットの上限クランプ。平熱が上限
 	bodyTempMax = 0.0
 	// bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
 	bodyTempHomeostasisPerTurn = 0.1
@@ -154,11 +153,11 @@ func bodyTempRate(world w.World, entity ecs.Entity) float64 {
 	if cold := calcBodyTempRate(ambientTemp + insulation.Cold); cold < 0 {
 		rate += cold
 	}
-	// 熱源は冷えた体だけを温める。平熱以上では効かせず、焚き火の常用で適温を超えない
+	// 熱源は冷えた体だけを温める。平熱以上では効かせない
 	if offset < 0 {
 		rate += heatSourceWarmthAt(world, grid.X, grid.Y)
 	}
-	// 外因が無ければ恒常性で平熱へ戻る。体温は適温を上限に負側だけへ動くので、戻りは温める向きだけ
+	// 外因が無ければ恒常性で平熱へ戻る
 	if rate == 0 && offset < 0 {
 		return math.Min(bodyTempHomeostasisPerTurn, -offset)
 	}
@@ -231,7 +230,7 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bo
 
 	var changes []gc.SeverityChange
 
-	// 低体温の処理。本作は寒さ専用なので下方向だけを見る
+	// 低体温の処理
 	switch {
 	case offset < -bodyTempColdBand:
 		delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempColdBand))
@@ -261,8 +260,7 @@ func timerProgress(excess float64) float64 {
 	return math.Min(naturalRecoveryPerTurn+0.25*excess, 1.0)
 }
 
-// calcBodyTempRate は有効温度から体温の変化量を計算する。
-// 寒いほど負へ大きくなり、適温以上は0。本作は寒さ専用なので暑い側のペナルティを持たず正の値は返さない
+// calcBodyTempRate は有効温度から体温の変化量を計算する。寒いほど負へ大きく、適温以上は0で正の値は返さない
 func calcBodyTempRate(effectiveTemp int) float64 {
 	switch {
 	case effectiveTemp <= -50:
@@ -272,7 +270,7 @@ func calcBodyTempRate(effectiveTemp int) float64 {
 	case effectiveTemp <= 10:
 		return -0.1 // 寒い
 	default:
-		return 0 // 適温以上。暑くても害はない
+		return 0 // 適温以上
 	}
 }
 

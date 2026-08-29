@@ -423,8 +423,7 @@ const temperatureSteadyThreshold = 0.05
 const temperatureIntensityMax = 0.5
 
 // temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温の状態があるとき ok=true。
-// 表示名で状態と重症度を、色で寒さを示す。変化の向きは矢印が別に担う。
-// 本作は寒さ専用なので高体温のバッジは持たない
+// 表示名で状態と重症度を、色で寒さを示す。変化の向きは矢印が別に担う
 func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
 	hs := world.Components.HealthStatus.Get(entity)
 	part := &hs.Parts[gc.BodyPartWholeBody]
