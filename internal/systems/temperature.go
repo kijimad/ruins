@@ -26,9 +26,9 @@ func (sys *TemperatureSystem) String() string {
 
 // 温度閾値の定数
 const (
-	// ComfortableTempLower は快適温度の下限（これより低いと寒さダメージ）
+	// ComfortableTempLower は快適温度の下限。これより寒いと体が冷える
 	ComfortableTempLower = 11
-	// ComfortableTempUpper は快適温度の上限（これより高いと暑さダメージ）
+	// ComfortableTempUpper は快適温度の上限。これより暑くても害はなく、快適帯の目安として持つ
 	ComfortableTempUpper = 30
 )
 
@@ -158,13 +158,9 @@ func bodyTempRate(world w.World, entity ecs.Entity) float64 {
 	if offset < 0 {
 		rate += heatSourceWarmthAt(world, grid.X, grid.Y)
 	}
-	// 外因が無ければ恒常性で平熱へ戻る
-	if rate == 0 && offset != 0 {
-		step := math.Min(bodyTempHomeostasisPerTurn, math.Abs(offset))
-		if offset > 0 {
-			return -step
-		}
-		return step
+	// 外因が無ければ恒常性で平熱へ戻る。体温は適温を上限に負側だけへ動くので、戻りは温める向きだけ
+	if rate == 0 && offset < 0 {
+		return math.Min(bodyTempHomeostasisPerTurn, -offset)
 	}
 	return rate
 }

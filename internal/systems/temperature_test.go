@@ -571,9 +571,6 @@ func TestBodyTempRate_外因が無ければ平熱へ戻る(t *testing.T) {
 	hs.BodyTempOffset = -1.0
 	assert.InDelta(t, 0.1, bodyTempRate(world, player), 1e-9, "冷えていれば平熱へ向けて上がる")
 
-	hs.BodyTempOffset = 1.0
-	assert.InDelta(t, -0.1, bodyTempRate(world, player), 1e-9, "火照っていれば平熱へ向けて下がる")
-
 	hs.BodyTempOffset = -0.05
 	assert.InDelta(t, 0.05, bodyTempRate(world, player), 1e-9, "残りが小さければ平熱ちょうどで止まる")
 }
