@@ -1,10 +1,10 @@
-// Package ui は画面層に公開する UI の構成面。プリミティブ実体 widgets/internal/uicore のうち、
+// Package ui は画面層に公開する UI の構成面。プリミティブ実体 widgets/uicore のうち、
 // 構成に必要な最小の面だけを再輸出する。
 //
-// Atomic Design の page は atom のスタイルに触れない。その境界を Go の internal 可視性で
-// API として強制する。塗り・枠・パディング・テクスチャ背景などの装飾は widgets 配下の
-// 部品だけが実体パッケージを import して扱える。画面層からは装飾の型と関数がそもそも
-// 見えないため、スタイルの手組みはコンパイルできない。
+// Atomic Design の page は atom のスタイルに触れない。その境界は2段で守る。実体パッケージへの
+// import は depguard の ui_core_inbound_guard が widgets 配下だけに許し、画面が受け取る型からは
+// 装飾の面を外す。塗り・枠・パディング・テクスチャ背景などの装飾は widgets 配下の部品だけが
+// 実体パッケージを import して扱える。
 // Group は具象でなく Widget を返し、装飾メソッドを型の面からも隠す。
 // 層の全体像は widgets/menuframe のパッケージコメントを参照。
 package ui
@@ -15,7 +15,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
-	core "github.com/kijimaD/ruins/internal/widgets/internal/uicore"
+	core "github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // Widget は画面が受け取る UI ツリー。描くことだけができる。

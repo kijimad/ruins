@@ -5,8 +5,8 @@ import (
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // specLabelColor はラベルと見出しの色。

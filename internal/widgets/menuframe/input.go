@@ -4,8 +4,8 @@ import (
 	"image"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // inputBox は1行入力欄の箱。テクスチャ枠を全面に敷き、中身は左右に余白を取って同じ矩形へ載せる。
