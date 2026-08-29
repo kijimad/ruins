@@ -103,7 +103,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| | 未完了のドキュメントなし | | |
+| accepted | [焚き火と直交的な火: 寒さを生き延びる熱源](docs/design/260829215021.md) | 0/11 | gamedesign, ecs, item |
 
 
 ## Reference
