@@ -6,10 +6,10 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // Row は一覧の1行。Cells は各列のセルで、アイコンと文字列が混ざってよい。
@@ -116,7 +116,7 @@ func cellTexts(cells []styled.Cell) []string {
 	return texts
 }
 
-// toAlign は styled のそろえを internal/uicore のそろえへ写す。
+// toAlign は styled のそろえを uicore のそろえへ写す。
 func toAlign(a styled.TextAlign) uicore.Align {
 	if a == styled.AlignRight {
 		return uicore.AlignRight

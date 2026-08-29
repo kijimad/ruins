@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -41,7 +41,7 @@ func (overlay *DebugOverlay) Draw(screen *ebiten.Image, data DebugOverlayData) {
 	if !overlay.enabled || !data.Enabled {
 		return
 	}
-	cv := ui.NewEbitenCanvas(screen)
+	cv := uicore.NewEbitenCanvas(screen)
 
 	// AI状態を描画
 	for _, aiState := range data.AIStates {

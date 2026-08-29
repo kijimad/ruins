@@ -1,11 +1,10 @@
-package testutil
+package lintrule_test
 
 import (
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"go/types"
-	"os"
 	"path/filepath"
 	"runtime/debug"
 	"strconv"
@@ -31,7 +30,7 @@ func TestNoSharedWorldInParallelSubtests(t *testing.T) {
 		// 上流由来の race 検出が出る。静的検査なので race なしの実行が担えば十分
 		t.Skip("go/types の上流競合を避けるため -race では実行しない")
 	}
-	root := moduleRootForLint(t)
+	root := moduleRoot(t)
 	cfg := &packages.Config{
 		Mode: packages.NeedName | packages.NeedCompiledGoFiles | packages.NeedImports |
 			packages.NeedTypes | packages.NeedSyntax | packages.NeedTypesInfo,
@@ -261,19 +260,4 @@ func raceEnabled() bool {
 		}
 	}
 	return false
-}
-
-// moduleRootForLint は go.mod のあるモジュールルートを返す
-func moduleRootForLint(t *testing.T) string {
-	t.Helper()
-	dir, err := os.Getwd()
-	require.NoError(t, err)
-	for {
-		if _, statErr := os.Stat(filepath.Join(dir, "go.mod")); statErr == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		require.NotEqual(t, parent, dir, "go.mod が見つからない")
-		dir = parent
-	}
 }

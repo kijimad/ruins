@@ -2,11 +2,9 @@
 //
 // # 層の位置と可視性
 //
-// ここは Atomic Design の atom にあたり、widgets 配下の部品だけが import できる。
-// 画面層 states・menuloop からは Go の internal 可視性でコンパイル不能になっており、
-// 画面には構成専用のファサード widgets/ui だけが見える。塗り BoxStyle・枠 Panel・
-// テクスチャ NineSlice・装飾ミューテータはこの実体にしか無く、意匠の手組みは
-// API の面で不可能になっている。
+// ここは Atomic Design の atom にあたる。import できるパッケージは depguard の
+// ui_core_inbound_guard が列挙し、画面が名指しできるシンボルは lintrule の
+// TestScreenLayerUICoreSurface が許可制で絞る。
 //
 // 面は2つに分ける。配置もできる Widget は部品が扱い、描くだけの Drawable を画面へ見せる。
 // 画面に Layout を見せると絶対座標で画面を組めてしまい、レイアウトエンジンを迂回する経路が

@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -192,7 +192,7 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 
 // ViewUI はカテゴリタブとアイコン付きアイテム一覧を組む。
 // 詳細モーダルは ScreenRenderer として Screen が本体の上へ重ねる。
-func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
@@ -202,7 +202,7 @@ func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor men
 }
 
 // buildActiveListUI は行列とフッタ右端のページ表示を返す。
-func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
+func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]uicore.Drawable, string) {
 	if tabIndex >= len(props.Tabs) {
 		return nil, ""
 	}

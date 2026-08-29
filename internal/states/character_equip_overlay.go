@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -112,8 +112,8 @@ func (o *characterEquipOverlay) execute(world w.World) error {
 	return nil
 }
 
-// RenderOverlay は装備候補のモーダルを internal/uicore のツリーへ組む。Screen が本体の上へ重ねる。
-func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) ui.Widget {
+// RenderOverlay は装備候補のモーダルを uicore のツリーへ組む。Screen が本体の上へ重ねる。
+func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) uicore.Drawable {
 	if !o.active {
 		return nil
 	}
@@ -123,7 +123,7 @@ func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) 
 }
 
 // buildEquipSelectUI はアイコン付きの候補一覧を中央パネルへ組む。
-func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) ui.Widget {
+func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) uicore.Drawable {
 	rows := make([]menuframe.Row, len(props.Items))
 	for i, entity := range props.Items {
 		icon := menuIcon(world, entity)

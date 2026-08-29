@@ -115,16 +115,15 @@ linters:
             - pkg: "github.com/hajimehoshi/ebiten$"
               desc: ebiten/v2を使う
         # レイアウトエンジンの接続点は UI プリミティブ実体の1箇所に限る。画面はもちろん、
-        # widgets の部品も直接は使わない。プリミティブ実体は internal 可視性で画面から
-        # 遮断済みだが、furex は通常の依存なので import 規則で封じ込める
+        # widgets の部品も直接は使わない
         layout_engine_guard:
           list-mode: lax
           files:
             - "$all"
-            - "!**/internal/widgets/internal/uicore/**"
+            - "!**/internal/widgets/uicore/**"
           deny:
             - pkg: "github.com/yohamta/furex"
-              desc: レイアウトエンジンは widgets/internal/uicore だけが使う。部品と画面は Container・FlexColumn を使う
+              desc: レイアウトエンジンは widgets/uicore だけが使う。部品と画面は Container・FlexColumn を使う
         # 部品は自分を使う上位層を知らない。widgets から 画面 states・画面制御 menuloop・
         # 組み立て maingame への逆依存を禁じ、上位が部品を使う一方向を保つ。Go は import 循環を
         # 弾くが循環しない一方向の逆依存は許すため、import 規則で塞ぐ。統合検証のテストは除外する
@@ -140,9 +139,8 @@ linters:
               desc: 部品は画面制御に依存しない
             - pkg: "github.com/kijimaD/ruins/internal/maingame"
               desc: 部品は組み立て層に依存しない
-        # UI の基盤層の依存辺を層図どおりに固定する。theme は依存ゼロ、styled は theme のみ、
-        # 画面向けファサードはプリミティブ実体の再輸出のみ。層の全体像は
-        # internal/widgets/menuframe のパッケージコメントを参照
+        # UI の基盤層の依存辺を層図どおりに固定する。theme は依存ゼロ、styled は theme のみ。
+        # 層の全体像は internal/widgets/menuframe のパッケージコメントを参照
         ui_theme_guard:
           list-mode: strict
           files:
@@ -159,25 +157,30 @@ linters:
             - "$gostd"
             - "github.com/hajimehoshi/ebiten/v2"
             - "github.com/kijimaD/ruins/internal/widgets/theme"
-        ui_facade_guard:
-          list-mode: strict
-          files:
-            - "**/internal/widgets/ui/**"
-            - "!$test"
-          allow:
-            - "$gostd"
-            - "github.com/hajimehoshi/ebiten/v2"
-            - "github.com/kijimaD/ruins/internal/widgets/internal/uicore"
         ui_core_guard:
           list-mode: strict
           files:
-            - "**/internal/widgets/internal/uicore/**"
+            - "**/internal/widgets/uicore/**"
             - "!$test"
           allow:
             - "$gostd"
             - "github.com/hajimehoshi/ebiten/v2"
             - "github.com/yohamta/furex"
             - "github.com/go-text/typesetting"
+        # プリミティブ実体を import できるパッケージを列挙する。widgets 配下を部品ごとに
+        # 絞らないのは、uicore が部品の組み上げる atom で境界がそこに無いため。
+        # 画面が名指しできるシンボルは internal/lintrule の TestScreenLayerUICoreSurface が絞る
+        ui_core_inbound_guard:
+          list-mode: lax
+          files:
+            - "$all"
+            - "!**/internal/widgets/**"
+            - "!**/internal/states/**"
+            - "!**/internal/menuloop/**"
+            - "!**/internal/systems/**"
+          deny:
+            - pkg: "github.com/kijimaD/ruins/internal/widgets/uicore"
+              desc: UI ツリーを触れるのは widgets の部品と states・menuloop・systems だけ
         # キー読み取り能力への import 許可制。読み取り API を持つパッケージを
         # 使える場所を列挙し、それ以外からは新旧問わず全シンボルを塞ぐ。
         # 入力を束縛表へ集約し、デバイス層とごく少数の例外だけが直接読む。テストは

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

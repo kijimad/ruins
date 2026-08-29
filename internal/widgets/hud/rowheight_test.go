@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/kijimaD/ruins/internal/loader"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // TestLogLineHeightFitsFace はログ領域の行送りが本文フェイスの字面を切らないかを検査する。

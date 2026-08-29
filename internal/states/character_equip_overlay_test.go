@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -131,6 +131,6 @@ func TestGolden_EquipSelect(t *testing.T) {
 	props := charEquipProps{Items: []ecs.Entity{sword, gun}, SlotNumber: gc.SlotWeapon1}
 	tree := buildEquipSelectUI(world, props, 0, world.Resources.UIResources)
 	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-	tree.Draw(ui.NewEbitenCanvas(screen))
+	tree.Draw(uicore.NewEbitenCanvas(screen))
 	vrt.AssertFrameGolden(t, "TestGolden_EquipSelect", screen)
 }

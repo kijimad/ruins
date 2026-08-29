@@ -6,9 +6,9 @@ import (
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -53,7 +53,7 @@ func (win *Window) requiredHeight() int {
 	return h
 }
 
-// buildTree は現在の状態からウィンドウ全体を internal/uicore のツリーへ組み、画面上に配置して返す。
+// buildTree は現在の状態からウィンドウ全体を uicore のツリーへ組み、画面上に配置して返す。
 // 枠・タイトルバー・メッセージ・選択肢またはEnterプロンプトを絶対座標で重ねる
 func (win *Window) buildTree() uicore.Widget {
 	res := win.world.Resources.UIResources

@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -23,7 +23,7 @@ import (
 type KeyHelpState struct {
 	es.BaseState[w.World]
 	table []keybind.Binding
-	body  ui.Widget
+	body  uicore.Drawable
 }
 
 var _ es.State[w.World] = &KeyHelpState{}
@@ -97,7 +97,7 @@ func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
 	total := 0
 	face := res.Text.KeycapFace
 	for i, tok := range tokens {
-		w, h := ui.MeasureText(tok, face)
+		w, h := uicore.MeasureText(tok, face)
 		cw := w + chipPad*2
 		caps = append(caps, keycap{text: tok, face: face, w: cw, h: h})
 		total += cw
@@ -153,6 +153,6 @@ func (st *KeyHelpState) Update(world w.World) (es.Transition[w.World], error) {
 
 // Draw は保持中の一覧を描く
 func (st *KeyHelpState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.body.Draw(ui.NewEbitenCanvas(screen))
+	st.body.Draw(uicore.NewEbitenCanvas(screen))
 	return nil
 }

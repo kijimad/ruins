@@ -5,8 +5,8 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // OutlinedText は枠線付きテキストを描く。8方向へずらして枠を描いてから本体を重ねる。

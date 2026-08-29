@@ -4,7 +4,7 @@ import (
 	"image"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // Chrome は世界の上に重ねるパネルの意匠。メニューと同じテクスチャを使い、

@@ -18,7 +18,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/gameaction"
@@ -149,7 +149,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 // ================
 
 // ViewUI は見出し・左の職業一覧・右の詳細パネル・下の説明を左右2枠の画面へ載せる。
-func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	itemIndex := cursor.ItemIndex
 
 	rows := make([]menuframe.Row, len(props.Items))
@@ -167,17 +167,17 @@ func (st *CharacterJobState) ViewUI(world w.World, props JobMenuProps, cursor me
 }
 
 // buildJobDetailRowsUI は装備・所持品・スキルの見出しと行を返す。
-func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face text.Face) []ui.Widget {
+func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face text.Face) []uicore.Drawable {
 	if itemIndex >= len(props.Items) {
 		return nil
 	}
 	prof := props.Items[itemIndex].Profession
-	var items []ui.Widget
+	var items []uicore.Drawable
 	section := func(title string) {
-		items = append(items, ui.NewText(title, face, theme.TextSecondary))
+		items = append(items, uicore.NewText(title, face, theme.TextSecondary))
 	}
 	line := func(s string) {
-		items = append(items, ui.NewText(s, face, theme.TextPrimary))
+		items = append(items, uicore.NewText(s, face, theme.TextPrimary))
 	}
 	if len(prof.Equips) > 0 {
 		section(query.T(world, "Equipment"))
