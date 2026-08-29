@@ -22,14 +22,6 @@ func TestMain(m *testing.M) {
 	os.Exit(vrt.RunTestMain(m))
 }
 
-// newKeyHelpWorld はキー一覧ヘルプのテスト用に実UIリソースを積んだworldを返す
-func newKeyHelpWorld(t *testing.T) w.World {
-	t.Helper()
-	world := testutil.InitTestWorld(t)
-	world.Resources.UIResources = vrt.SharedUIResources(t)
-	return world
-}
-
 func TestHasEscapeLabel(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -107,7 +99,7 @@ func TestRenderKeycaps(t *testing.T) {
 	})
 }
 
-func TestNewKeyHelpState(t *testing.T) {
+func TestNewKeyHelpState_渡した表を保持したstateを返す(t *testing.T) {
 	t.Parallel()
 	table := []keybind.Binding{{Key: ebiten.KeyEnter, Label: "Confirm"}}
 	factory := NewKeyHelpState(table)
@@ -133,7 +125,8 @@ func TestKeyHelpState_OnStart(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			world := newKeyHelpWorld(t)
+			world := testutil.InitTestWorld(t)
+			world.Resources.UIResources = vrt.SharedUIResources(t)
 			st := &KeyHelpState{table: tt.table}
 
 			var err error
@@ -150,55 +143,47 @@ func TestKeyHelpState_OnStart(t *testing.T) {
 func TestKeyHelpState_Update(t *testing.T) {
 	t.Parallel()
 
-	t.Run("閉じるActionならPopの遷移を返す", func(t *testing.T) {
-		t.Parallel()
-		world := newKeyHelpWorld(t)
-		world.Resources.InputSource = func() (inputmapper.ActionID, bool) {
-			return inputmapper.ActionCloseMenu, true
-		}
-		st := &KeyHelpState{table: []keybind.Binding{{Key: ebiten.KeyEscape, Action: inputmapper.ActionMenuCancel, Label: "Back"}}}
+	tests := []struct {
+		name   string
+		action inputmapper.ActionID
+		ok     bool
+		want   es.TransType
+	}{
+		{"閉じるActionならPopの遷移を返す", inputmapper.ActionCloseMenu, true, es.TransPop},
+		{"閉じるAction以外なら遷移せずUIを更新する", "", false, es.TransNone},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			world := testutil.InitTestWorld(t)
+			world.Resources.UIResources = vrt.SharedUIResources(t)
+			world.Resources.InputSource = func() (inputmapper.ActionID, bool) {
+				return tt.action, tt.ok
+			}
+			st := &KeyHelpState{table: []keybind.Binding{{Key: ebiten.KeyEscape, Action: inputmapper.ActionMenuCancel, Label: "Back"}}}
 
-		var trans es.Transition[w.World]
-		var err error
-		vrt.WithUILock(func() {
-			require.NoError(t, st.OnStart(world))
-			trans, err = st.Update(world)
+			var trans es.Transition[w.World]
+			var err error
+			// 遷移しない経路は Update が ebitenui の UI を更新するため、OnStart と同じロック内で呼ぶ
+			vrt.WithUILock(func() {
+				require.NoError(t, st.OnStart(world))
+				trans, err = st.Update(world)
+			})
+
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, trans.Type)
 		})
-
-		require.NoError(t, err)
-		assert.Equal(t, es.TransPop, trans.Type)
-	})
-
-	t.Run("閉じるAction以外なら遷移せずUIを更新する", func(t *testing.T) {
-		t.Parallel()
-		world := newKeyHelpWorld(t)
-		world.Resources.InputSource = func() (inputmapper.ActionID, bool) {
-			return "", false
-		}
-		st := &KeyHelpState{table: []keybind.Binding{{Key: ebiten.KeyEscape, Action: inputmapper.ActionMenuCancel, Label: "Back"}}}
-
-		var trans es.Transition[w.World]
-		var err error
-		vrt.WithUILock(func() {
-			require.NoError(t, st.OnStart(world))
-			trans, err = st.Update(world)
-		})
-
-		require.NoError(t, err)
-		assert.Equal(t, es.TransNone, trans.Type)
-	})
+	}
 }
 
-func TestKeyHelpState_Draw(t *testing.T) {
+func TestKeyHelpState_Draw_組んだ一覧を描く(t *testing.T) {
 	t.Parallel()
-	world := newKeyHelpWorld(t)
+	world := testutil.InitTestWorld(t)
+	world.Resources.UIResources = vrt.SharedUIResources(t)
 	st := &KeyHelpState{table: []keybind.Binding{{Key: ebiten.KeyEscape, Action: inputmapper.ActionMenuCancel, Label: "Back"}}}
 
 	vrt.WithUILock(func() {
 		require.NoError(t, st.OnStart(world))
-
-		assert.NotPanics(t, func() {
-			require.NoError(t, st.Draw(world, ebiten.NewImage(10, 10)))
-		})
+		require.NoError(t, st.Draw(world, ebiten.NewImage(10, 10)))
 	})
 }
