@@ -125,6 +125,21 @@ linters:
           deny:
             - pkg: "github.com/yohamta/furex"
               desc: レイアウトエンジンは widgets/internal/uicore だけが使う。部品と画面は Container・FlexColumn を使う
+        # 部品は自分を使う上位層を知らない。widgets から 画面 states・画面制御 menuloop・
+        # 組み立て maingame への逆依存を禁じ、上位が部品を使う一方向を保つ。Go は import 循環を
+        # 弾くが循環しない一方向の逆依存は許すため、import 規則で塞ぐ。統合検証のテストは除外する
+        widget_no_upper_guard:
+          list-mode: lax
+          files:
+            - "**/internal/widgets/**"
+            - "!$test"
+          deny:
+            - pkg: "github.com/kijimaD/ruins/internal/states"
+              desc: 部品は画面層に依存しない。上位が部品を使う一方向を保つ
+            - pkg: "github.com/kijimaD/ruins/internal/menuloop"
+              desc: 部品は画面制御に依存しない
+            - pkg: "github.com/kijimaD/ruins/internal/maingame"
+              desc: 部品は組み立て層に依存しない
         # UI の基盤層の依存辺を層図どおりに固定する。theme は依存ゼロ、styled は theme のみ、
         # 画面向けファサードはプリミティブ実体の再輸出のみ。層の全体像は
         # internal/widgets/menuframe のパッケージコメントを参照
