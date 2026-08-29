@@ -27,34 +27,45 @@ Linux/aarch64)
 	;;
 esac
 
-INSTALLED=$(shellcheck --version 2>/dev/null | awk '$1 == "version:" { print "v" $2 }')
-if [ "$INSTALLED" = "$VERSION" ]; then
-	echo "✅ shellcheck $VERSION は導入済み"
-	exit 0
-fi
-
 # golangci-lintと同じ場所に置く。go installの出力先なのでPATHの通り方が揃う
 BIN_DIR=$(go env GOBIN)
 if [ -z "$BIN_DIR" ]; then
 	BIN_DIR="$(go env GOPATH)/bin"
 fi
 
-TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"' EXIT
+version_at() {
+	"$1" --version 2>/dev/null | awk '$1 == "version:" { print "v" $2 }'
+}
 
-ARCHIVE="$TMP_DIR/shellcheck.tar.xz"
-URL="https://github.com/koalaman/shellcheck/releases/download/$VERSION/shellcheck-$VERSION.$PLATFORM.tar.xz"
+# PATHの解決結果ではなく設置先を直接見る。システムに別版が入っていてPATHで先に
+# 見つかると、PATH基準では毎回「未導入」と判定して同じものを入れ直し続ける
+if [ "$(version_at "$BIN_DIR/shellcheck")" = "$VERSION" ]; then
+	echo "✅ shellcheck $VERSION は導入済み"
+else
+	TMP_DIR=$(mktemp -d)
+	trap 'rm -rf "$TMP_DIR"' EXIT
 
-echo "📦 shellcheck $VERSION を取得する: $URL"
-curl -fsSL "$URL" -o "$ARCHIVE"
+	ARCHIVE="$TMP_DIR/shellcheck.tar.xz"
+	URL="https://github.com/koalaman/shellcheck/releases/download/$VERSION/shellcheck-$VERSION.$PLATFORM.tar.xz"
 
-if ! echo "$SHA256  $ARCHIVE" | sha256sum --check --status; then
-	echo "❌ 取得したアーカイブのsha256が期待値と一致しない" >&2
-	exit 1
+	echo "📦 shellcheck $VERSION を取得する: $URL"
+	curl -fsSL "$URL" -o "$ARCHIVE"
+
+	if ! echo "$SHA256  $ARCHIVE" | sha256sum --check --status; then
+		echo "❌ 取得したアーカイブのsha256が期待値と一致しない" >&2
+		exit 1
+	fi
+
+	tar -xJf "$ARCHIVE" -C "$TMP_DIR"
+	mkdir -p "$BIN_DIR"
+	install -m 0755 "$TMP_DIR/shellcheck-$VERSION/shellcheck" "$BIN_DIR/shellcheck"
+
+	echo "✅ $BIN_DIR/shellcheck に導入した"
 fi
 
-tar -xJf "$ARCHIVE" -C "$TMP_DIR"
-mkdir -p "$BIN_DIR"
-install -m 0755 "$TMP_DIR/shellcheck-$VERSION/shellcheck" "$BIN_DIR/shellcheck"
-
-echo "✅ $BIN_DIR/shellcheck に導入した"
+# make lint は PATH 上の shellcheck を呼ぶ。別版が先に見つかると指摘が増減して
+# ローカルとCIでずれ、版を固定した意味が消える。黙って進まないよう警告する
+FOUND=$(command -v shellcheck || true)
+if [ -z "$FOUND" ] || [ "$(version_at "$FOUND")" != "$VERSION" ]; then
+	echo "⚠️  PATH上のshellcheckが $VERSION ではない。$BIN_DIR をPATHの先頭に置く" >&2
+fi
