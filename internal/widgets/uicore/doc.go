@@ -3,11 +3,8 @@
 // # 層の位置と可視性
 //
 // ここは Atomic Design の atom にあたる。import できるパッケージは depguard の
-// ui_core_inbound_guard が列挙し、ツリーを組む widgets の部品と、組み上がったツリーを
-// 描く画面 states・menuloop・systems だけに限る。
-// 画面が名指しできる面はさらに狭い。塗り BoxStyle・枠 Panel・テクスチャ NineSlice・
-// 装飾ミューテータ・レイアウトの面を画面から使わせないよう、menuframe の
-// TestScreenLayerUICoreSurface が画面側の参照シンボルを許可制で検査する。
+// ui_core_inbound_guard が列挙し、画面が名指しできるシンボルは menuframe の
+// TestScreenLayerUICoreSurface が許可制で絞る。
 //
 // 面は2つに分ける。配置もできる Widget は部品が扱い、描くだけの Drawable を画面へ見せる。
 // 画面に Layout を見せると絶対座標で画面を組めてしまい、レイアウトエンジンを迂回する経路が

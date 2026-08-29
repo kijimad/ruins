@@ -6,7 +6,7 @@ import (
 )
 
 // UIResources はUIリソースを管理する。フォントのフェイスと、直接描画で使う素材画像を持つ。
-// ウィジェットの組み立ては internal/uicore のツリーが担うので、ここは描画の土台になる
+// ウィジェットの組み立ては uicore のツリーが担うので、ここは描画の土台になる
 // フェイスと画像だけを提供する
 type UIResources struct {
 	Fonts *fonts

@@ -179,7 +179,7 @@ func TestDetailRenderOverlay_対象があれば名前とページ位置を表示
 	})
 	d.Open(world)
 
-	// internal/uicore のツリーを組むだけ。独立フェイスなのでロックは要らない
+	// uicore のツリーを組むだけ。独立フェイスなのでロックは要らない
 	tree := d.RenderOverlay(world, image.Rect(0, 0, 400, 400))
 
 	require.NotNil(t, tree)

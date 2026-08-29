@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
-// buildDetailUI は性能行の並びから詳細モーダルを internal/uicore のツリーとして組み、rect いっぱいに配置して返す。
+// buildDetailUI は性能行の並びから詳細モーダルを uicore のツリーとして組み、rect いっぱいに配置して返す。
 // name が空なら名前行を省き、desc が空なら説明行を省く。行が多いときは page でページ分割する。
 // 説明は最終ページにだけ出す。位置表示は1ページでも常に出す。page は範囲外なら内部でクランプする。
 // 背景はパネルテクスチャを rect 全体へ敷き、内容は上寄せにする。

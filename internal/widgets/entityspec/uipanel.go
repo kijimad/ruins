@@ -12,7 +12,7 @@ import (
 // specLabelColor はラベルと見出しの色。
 var specLabelColor color.Color = theme.SpecLabel
 
-// SpecRowWidgets は SpecRow の並びを internal/uicore の行ウィジェット列にする。
+// SpecRowWidgets は SpecRow の並びを uicore の行ウィジェット列にする。
 // ラベルは左寄せ、値は右寄せ。見出し行はラベルを行の全幅で描き、色付き行は値をその色で描く。
 // ラベル列の幅は全行の実測から決め、値列が余り幅を吸って行の右端に揃う。幅の数値は持たない。
 // モーダルはこの列に name や desc の行を足して1枚のパネルに組む。
@@ -42,7 +42,7 @@ func SpecRowWidgets(rows []SpecRow, face text.Face) []uicore.Widget {
 	return items
 }
 
-// BuildSpecPanel は SpecRow の並びから internal/uicore の保持型ツリーを組む。
+// BuildSpecPanel は SpecRow の並びから uicore の保持型ツリーを組む。
 // 必要なのは本文フェイスだけなのでそれだけを受け取る。行高は渡されたフェイスの行送りにする。
 // 行は文字を収める箱なので、字面を切らない高さはフェイスから導ける。固定値では持たない。
 // パッケージグローバルの可変状態に触れないので、複数の UI を並行に組んでも競合しない。

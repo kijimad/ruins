@@ -33,12 +33,8 @@ var colorLiteralTypes = map[string]bool{
 var uiCoreConsumerDirs = []string{"internal/states", "internal/menuloop", "internal/systems"}
 
 // screenUICoreSymbols は画面側が名指ししてよい uicore のシンボル。組み上がったツリーを
-// 受け取って描くのに要るものだけを並べる。許可制なので、uicore に面が増えても画面へは
-// 自動的には開かない。
-//
-// ここに無い装飾とレイアウトの面、BoxStyle・Panel・NineSlice・Container・Row・FlexColumn
-// などを画面が名指しすると、意匠の手組みとレイアウトエンジンの迂回が画面へ漏れる。
-// 配置は部品が済ませてから画面へ渡す。
+// 受け取って描くのに要るものだけを並べる。許可制なので uicore に面が増えても画面へは開かない。
+// 装飾とレイアウトの面が画面へ漏れると、意匠の手組みとレイアウトエンジンの迂回を招く。
 var screenUICoreSymbols = map[string]bool{
 	"Drawable":         true,
 	"Text":             true,
@@ -51,9 +47,8 @@ var screenUICoreSymbols = map[string]bool{
 }
 
 // TestScreenLayerStyleLint は画面層がスタイルを手組みしていないことを静的に検証する。
-// 意匠は menuframe の部品と theme のトークンが持ち、画面はデータと配置だけを書く。
 // uicore.NewText は color.Color を受けるため、theme を迂回した生の色リテラルは構文上
-// 書けてしまう。それを AST で fail-closed に検知する。検知したら theme の色トークンへ寄せて直す。
+// 書けてしまう。検知したら theme の色トークンへ寄せて直す。
 func TestScreenLayerStyleLint(t *testing.T) {
 	t.Parallel()
 

@@ -112,7 +112,7 @@ func (o *characterEquipOverlay) execute(world w.World) error {
 	return nil
 }
 
-// RenderOverlay は装備候補のモーダルを internal/uicore のツリーへ組む。Screen が本体の上へ重ねる。
+// RenderOverlay は装備候補のモーダルを uicore のツリーへ組む。Screen が本体の上へ重ねる。
 func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) uicore.Drawable {
 	if !o.active {
 		return nil

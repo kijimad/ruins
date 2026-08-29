@@ -30,7 +30,7 @@ type WidgetConfig struct {
 
 // Widget はメッセージログ表示ウィジェット。
 //
-// 各エントリを1行とし、行内の色付きフラグメントを水平に連ねて描く。描画は internal/uicore の
+// 各エントリを1行とし、行内の色付きフラグメントを水平に連ねて描く。描画は uicore の
 // ツリーで組み、グローバル可変状態に触れない。フラグメント幅はフェイスの測定で決める
 type Widget struct {
 	config      WidgetConfig
@@ -84,7 +84,7 @@ func (widget *Widget) refresh() {
 	widget.loaded = true
 }
 
-// buildTree はエントリ列を internal/uicore のツリーへ組む。
+// buildTree はエントリ列を uicore のツリーへ組む。
 // 各行を Padding.Top から LineHeight+Spacing 刻みで下へ、行内フラグメントは測定幅ぶん右へ並べる
 func (widget *Widget) buildTree(width, height int) uicore.Widget {
 	res := widget.world.Resources.UIResources

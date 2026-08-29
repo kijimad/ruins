@@ -42,8 +42,7 @@ func staleDepguardPaths(config []byte, module string, exists func(string) bool) 
 	for name, rule := range cfg.Linters.Settings.Depguard.Rules {
 		for _, pattern := range rule.Files {
 			// 先頭の ! は除外指定、前後の ** は任意階層のワイルドカード。実在確認にかける
-			// リポジトリ相対パスだけを取り出す。ディレクトリ指定は前後に ** が付き、
-			// ファイル直指定は先頭だけに付く。$all・$test・$gostd は golangci の特殊トークン
+			// リポジトリ相対パスだけを取り出す。$all・$test・$gostd は golangci の特殊トークン
 			rel := strings.TrimPrefix(pattern, "!")
 			if strings.HasPrefix(rel, "$") {
 				continue

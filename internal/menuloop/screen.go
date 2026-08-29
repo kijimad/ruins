@@ -59,7 +59,7 @@ type Model[P any] interface {
 	// Screen.Update がそのままフレームのエラーとして表面化させる
 	Fetch(world w.World) (P, error)
 	Menu(props P) MenuConfig
-	// ViewUI は props とカーソルから本体を internal/uicore のツリーへ組み、画面へ配置済みで返す
+	// ViewUI は props とカーソルから本体を uicore のツリーへ組み、画面へ配置済みで返す
 	ViewUI(world w.World, props P, cursor Selection, res resources.UIResources) uicore.Drawable
 }
 
@@ -73,7 +73,7 @@ type KeyBindings interface {
 
 // Screen はメニューの UI ランタイム。mount・widget と overlay を保持し、毎フレームの
 // 手順を回す。state は構造体にこれをポインタで持ち、Update と Draw を委譲する。
-// widget は internal/uicore のツリーを retained として扱い、props・カーソル・overlay が変わった
+// widget は uicore のツリーを retained として扱い、props・カーソル・overlay が変わった
 // フレームだけ組み直す。変化が無ければ前フレームのツリーを再利用する
 type Screen[P any] struct {
 	model Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
@@ -81,7 +81,7 @@ type Screen[P any] struct {
 	// 実行時に表を重ねる階層は無い。重なりは MustMerge が構築時に拒否する
 	table           []keybind.Binding
 	mount           *hooks.Mount[P]
-	bodyTree        uicore.Drawable // 本体の internal/uicore ツリー。dirty なフレームだけ組み直す
+	bodyTree        uicore.Drawable // 本体のツリー。dirty なフレームだけ組み直す
 	overlays        []overlay.Layer
 	pendingOverlays []uicore.Drawable // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる
 	lastSelection   Selection         // 直近フレームで確定したカーソル位置。DoAction から参照する

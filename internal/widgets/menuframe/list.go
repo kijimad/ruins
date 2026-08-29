@@ -116,7 +116,7 @@ func cellTexts(cells []styled.Cell) []string {
 	return texts
 }
 
-// toAlign は styled のそろえを internal/uicore のそろえへ写す。
+// toAlign は styled のそろえを uicore のそろえへ写す。
 func toAlign(a styled.TextAlign) uicore.Align {
 	if a == styled.AlignRight {
 		return uicore.AlignRight

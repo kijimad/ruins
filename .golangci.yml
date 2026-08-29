@@ -167,11 +167,9 @@ linters:
             - "github.com/hajimehoshi/ebiten/v2"
             - "github.com/yohamta/furex"
             - "github.com/go-text/typesetting"
-        # プリミティブ実体を import できるパッケージを列挙する。UI ツリーを組む widgets の
-        # 部品と、組んだツリーを画面へ描く states・menuloop・systems だけに限る。ここに無い層は
-        # UI ツリーに触れない。widgets 配下はどの部品からでも使える。uicore は部品が組み上げる
-        # atom なので、部品ごとに絞る意味が無い。
-        # 画面層が装飾のシンボルを名指ししないことは menuframe の TestScreenLayerStyleLint が見る
+        # プリミティブ実体を import できるパッケージを列挙する。widgets 配下を部品ごとに
+        # 絞らないのは、uicore が部品の組み上げる atom で境界がそこに無いため。
+        # 画面が名指しできるシンボルは menuframe の TestScreenLayerUICoreSurface が絞る
         ui_core_inbound_guard:
           list-mode: lax
           files:

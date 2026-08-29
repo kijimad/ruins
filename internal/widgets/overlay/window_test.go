@@ -60,7 +60,7 @@ func TestDetailPageCount_実体の性能行数からページ数を算出する(
 	assert.Equal(t, 1, DetailPageCount(world, withAbilities), "Abilitiesの6行は1ページに収まる")
 }
 
-// buildDetailUI は internal/uicore のツリーを組むだけでグローバル状態に触れないので、フェイス無し・
+// buildDetailUI は uicore のツリーを組むだけでグローバル状態に触れないので、フェイス無し・
 // ロック無しで検証できる。Text は参照するので空の実体を渡す。フェイスが nil なら WrapText は
 // 測定せず desc を1行で返す。
 func TestBuildDetailUI_説明は最終ページにだけ表示する(t *testing.T) {
