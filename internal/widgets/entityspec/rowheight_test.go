@@ -14,6 +14,6 @@ import (
 func TestSpecPanelRowHFitsFace(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t, testutil.WithUI())
-	assert.GreaterOrEqual(t, specPanelRowH, ui.LineHeight(world.Resources.UIResources.Text.SmallFace),
+	assert.GreaterOrEqual(t, SpecPanelRowH, ui.LineHeight(world.Resources.UIResources.Text.SmallFace),
 		"行高がフェイスの字面より低い。文字の上下が切れる")
 }

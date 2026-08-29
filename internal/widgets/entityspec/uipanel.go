@@ -9,14 +9,13 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
-// specPanelRowH は spec パネルの行高。
-const specPanelRowH = 18
+// SpecPanelRowH は spec パネル1行の高さ。補助フェイス SmallFace の字面が収まる下限として置く。
+// メニューの行高が本文フェイス基準なのと違い、spec 行はこのフェイスに紐づくので独自に持つ。
+// モーダル側も name や desc をこの行高で並べる。下限は TestSpecPanelRowHFitsFace が守る。
+const SpecPanelRowH = 18
 
 // specLabelColor はラベルと見出しの色。
 var specLabelColor color.Color = theme.SpecLabel
-
-// SpecPanelRowH は spec パネル1行の高さ。モーダル側が name や desc を同じ行高で並べるのに使う。
-const SpecPanelRowH = specPanelRowH
 
 // SpecRowWidgets は SpecRow の並びを internal/ui の行ウィジェット列にする。
 // ラベルは左寄せ、値は右寄せ。見出し行はラベルを行の全幅で描き、色付き行は値をその色で描く。
@@ -52,5 +51,5 @@ func SpecRowWidgets(rows []SpecRow, face text.Face) []ui.Widget {
 // 必要なのは本文フェイスだけなのでそれだけを受け取る。
 // パッケージグローバルの可変状態に触れないので、複数の UI を並行に組んでも競合しない。
 func BuildSpecPanel(rows []SpecRow, face text.Face) ui.Widget {
-	return ui.VBox(specPanelRowH, SpecRowWidgets(rows, face)...)
+	return ui.VBox(SpecPanelRowH, SpecRowWidgets(rows, face)...)
 }
