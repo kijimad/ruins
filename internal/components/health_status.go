@@ -71,8 +71,7 @@ type ConditionType string
 
 // 状態種類定数
 const (
-	ConditionHypothermia  ConditionType = "Hypothermia"  // 低体温
-	ConditionHyperthermia ConditionType = "Hyperthermia" // 高体温
+	ConditionHypothermia ConditionType = "Hypothermia" // 低体温
 )
 
 // ConditionTypeDisplayName は状態種類の表示名を返す
@@ -80,8 +79,6 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 	switch ct {
 	case ConditionHypothermia:
 		return "Hypothermia"
-	case ConditionHyperthermia:
-		return "Hyperthermia"
 	default:
 		return string(ct)
 	}
@@ -219,7 +216,7 @@ func (bph *BodyPartHealth) UpdateConditionTimer(condType ConditionType, delta fl
 // HealthStatus は部位ごとの健康状態を管理するコンポーネント
 type HealthStatus struct {
 	Parts [BodyPartCount]BodyPartHealth
-	// BodyTempOffset は平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く。
+	// BodyTempOffset は平熱からの体温のずれ。摂氏。0 が平熱かつ上限で、寒さで負へ動く
 	BodyTempOffset float64
 }
 

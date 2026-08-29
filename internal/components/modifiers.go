@@ -16,7 +16,6 @@ const (
 	ModChillResist    ModifierKey = "chill_resist"
 	ModPhotonResist   ModifierKey = "photon_resist"
 	ModColdProgress   ModifierKey = "cold_progress"
-	ModHeatProgress   ModifierKey = "heat_progress"
 	ModHungerProgress ModifierKey = "hunger_progress"
 	ModHealingEffect  ModifierKey = "healing_effect"
 	ModMaxWeight      ModifierKey = "max_weight"
@@ -111,7 +110,6 @@ const (
 	coeffWeaponAccuracy = 3  // 武器命中: スキルLv1あたり+3%
 	coeffElementResist  = -3 // 元素耐性: スキルLv1あたり-3%（被ダメージ軽減）
 	coeffColdProgress   = -3 // 低体温進行: スキルLv1あたり-3%
-	coeffHeatProgress   = -3 // 高体温進行: スキルLv1あたり-3%
 	coeffHungerProgress = -2 // 空腹進行: スキルLv1あたり-2%
 	coeffHealingEffect  = 5  // 回復効果: スキルLv1あたり+5%
 	coeffMaxWeight      = 4  // 最大所持重量: スキルLv1あたり+4%
@@ -140,7 +138,6 @@ type CharModifiers struct {
 	WeaponAccuracy map[SkillID]consts.Percent     // 武器命中倍率
 	ElementResist  map[ElementType]consts.Percent // 元素耐性倍率
 	ColdProgress   consts.Percent                 // 低体温進行倍率
-	HeatProgress   consts.Percent                 // 高体温進行倍率
 	HungerProgress consts.Percent                 // 空腹進行倍率
 	HealingEffect  consts.Percent                 // 回復効果倍率
 	MaxWeight      consts.Percent                 // 最大所持重量倍率
@@ -208,7 +205,6 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	}
 
 	e.ColdProgress = calcEffect(ModColdProgress, SkillColdResist, coeffColdProgress)
-	e.HeatProgress = calcEffect(ModHeatProgress, SkillHeatResist, coeffHeatProgress)
 	e.HungerProgress = calcEffect(ModHungerProgress, SkillHungerResist, coeffHungerProgress)
 	e.HealingEffect = calcEffect(ModHealingEffect, SkillHealing, coeffHealingEffect)
 	e.MaxWeight = calcEffect(ModMaxWeight, SkillWeightBearing, coeffMaxWeight)
