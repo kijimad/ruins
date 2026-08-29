@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -543,7 +543,7 @@
 				
 				<option value="file243">github.com/kijimaD/ruins/internal/systems/helper.go (0.0%)</option>
 				
-				<option value="file244">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (95.0%)</option>
+				<option value="file244">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (95.3%)</option>
 				
 				<option value="file245">github.com/kijimaD/ruins/internal/systems/hud_rendering.go (0.0%)</option>
 				
@@ -555,7 +555,7 @@
 				
 				<option value="file249">github.com/kijimaD/ruins/internal/systems/stats_changed.go (94.1%)</option>
 				
-				<option value="file250">github.com/kijimaD/ruins/internal/systems/temperature.go (88.3%)</option>
+				<option value="file250">github.com/kijimaD/ruins/internal/systems/temperature.go (90.7%)</option>
 				
 				<option value="file251">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.6%)</option>
 				
@@ -1622,7 +1622,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -9580,8 +9580,7 @@ type ConditionType string
 
 // 状態種類定数
 const (
-        ConditionHypothermia  ConditionType = "Hypothermia"  // 低体温
-        ConditionHyperthermia ConditionType = "Hyperthermia" // 高体温
+        ConditionHypothermia ConditionType = "Hypothermia" // 低体温
 )
 
 // ConditionTypeDisplayName は状態種類の表示名を返す
@@ -9589,8 +9588,6 @@ func ConditionTypeDisplayName(ct ConditionType) string {
         <span class="cov8" title="1">switch ct </span>{
         case ConditionHypothermia:
                 <span class="cov8" title="1">return "Hypothermia"</span>
-        case ConditionHyperthermia:
-                <span class="cov8" title="1">return "Hyperthermia"</span>
         default:
                 <span class="cov8" title="1">return string(ct)</span>
         }
@@ -9728,7 +9725,7 @@ func (bph *BodyPartHealth) UpdateConditionTimer(condType ConditionType, delta fl
 // HealthStatus は部位ごとの健康状態を管理するコンポーネント
 type HealthStatus struct {
         Parts [BodyPartCount]BodyPartHealth
-        // BodyTempOffset は平熱からの体温のずれ。摂氏。0 が平熱で、寒さで負、暑さで正へ動く。
+        // BodyTempOffset は平熱からの体温のずれ。摂氏。0 が平熱かつ上限で、寒さで負へ動く
         BodyTempOffset float64
 }
 
@@ -10188,7 +10185,6 @@ const (
         ModChillResist    ModifierKey = "chill_resist"
         ModPhotonResist   ModifierKey = "photon_resist"
         ModColdProgress   ModifierKey = "cold_progress"
-        ModHeatProgress   ModifierKey = "heat_progress"
         ModHungerProgress ModifierKey = "hunger_progress"
         ModHealingEffect  ModifierKey = "healing_effect"
         ModMaxWeight      ModifierKey = "max_weight"
@@ -10283,7 +10279,6 @@ const (
         coeffWeaponAccuracy = 3  // 武器命中: スキルLv1あたり+3%
         coeffElementResist  = -3 // 元素耐性: スキルLv1あたり-3%（被ダメージ軽減）
         coeffColdProgress   = -3 // 低体温進行: スキルLv1あたり-3%
-        coeffHeatProgress   = -3 // 高体温進行: スキルLv1あたり-3%
         coeffHungerProgress = -2 // 空腹進行: スキルLv1あたり-2%
         coeffHealingEffect  = 5  // 回復効果: スキルLv1あたり+5%
         coeffMaxWeight      = 4  // 最大所持重量: スキルLv1あたり+4%
@@ -10312,7 +10307,6 @@ type CharModifiers struct {
         WeaponAccuracy map[SkillID]consts.Percent     // 武器命中倍率
         ElementResist  map[ElementType]consts.Percent // 元素耐性倍率
         ColdProgress   consts.Percent                 // 低体温進行倍率
-        HeatProgress   consts.Percent                 // 高体温進行倍率
         HungerProgress consts.Percent                 // 空腹進行倍率
         HealingEffect  consts.Percent                 // 回復効果倍率
         MaxWeight      consts.Percent                 // 最大所持重量倍率
@@ -10380,7 +10374,6 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 </span>        }
 
         <span class="cov8" title="1">e.ColdProgress = calcEffect(ModColdProgress, SkillColdResist, coeffColdProgress)
-        e.HeatProgress = calcEffect(ModHeatProgress, SkillHeatResist, coeffHeatProgress)
         e.HungerProgress = calcEffect(ModHungerProgress, SkillHungerResist, coeffHungerProgress)
         e.HealingEffect = calcEffect(ModHealingEffect, SkillHealing, coeffHealingEffect)
         e.MaxWeight = calcEffect(ModMaxWeight, SkillWeightBearing, coeffMaxWeight)
@@ -10525,7 +10518,6 @@ const (
         SkillNightVision SkillID = "night_vision" // 暗視
 
         SkillColdResist   SkillID = "cold_resist"   // 耐寒
-        SkillHeatResist   SkillID = "heat_resist"   // 耐暑
         SkillHungerResist SkillID = "hunger_resist" // 耐餓
         SkillHealing      SkillID = "healing"       // 治療
 
@@ -10560,7 +10552,6 @@ var skillAbility = map[SkillID]AbilityID{
         SkillNightVision: AblAGI,
 
         SkillColdResist:   AblVIT,
-        SkillHeatResist:   AblVIT,
         SkillHungerResist: AblVIT,
         SkillHealing:      AblVIT,
 
@@ -10599,7 +10590,6 @@ var skillName = map[SkillID]string{
         SkillStealth:       "Stealth",
         SkillNightVision:   "Night vision",
         SkillColdResist:    "Cold resistance",
-        SkillHeatResist:    "Heat resistance",
         SkillHungerResist:  "Hunger resistance",
         SkillHealing:       "Healing",
         SkillHeavyArmor:    "Heavy armor",
@@ -10653,7 +10643,6 @@ var skillDescription = map[SkillID]SkillInfo{
         SkillStealth:       {Summary: "Technique for acting unnoticed by enemies", GainedBy: gainedByEquipmentOrBook, Effect: "Shortens the distance at which enemies detect you"},
         SkillNightVision:   {Summary: "Ability to see in the dark", GainedBy: gainedByEquipmentOrBook, Effect: "Widens vision in the dark"},
         SkillColdResist:    {Summary: "Resistance to cold", GainedBy: gainedByEquipmentOrBook, Effect: "Slows hypothermia progress"},
-        SkillHeatResist:    {Summary: "Resistance to heat", GainedBy: gainedByEquipmentOrBook, Effect: "Slows hyperthermia progress"},
         SkillHungerResist:  {Summary: "Resistance to hunger", GainedBy: gainedByEquipmentOrBook, Effect: "Slows hunger progress"},
         SkillHealing:       {Summary: "Medical technique for healing wounds", GainedBy: "Raised by using healing items", Effect: "Increases healing item effect"},
         SkillHeavyArmor:    {Summary: "Technique for wearing heavy armor", GainedBy: "Raised by taking hits in heavy armor", Effect: "Increases maximum load"},
@@ -10685,7 +10674,7 @@ var SkillCategories = []SkillCategory{
         {Name: "Ranged", IDs: []SkillID{SkillBow, SkillHandgun, SkillRifle, SkillCannon}},
         {Name: "Craft", IDs: []SkillID{SkillCrafting, SkillSmithing, SkillNegotiation, SkillMechanic}},
         {Name: "Mobility", IDs: []SkillID{SkillSprinting, SkillStealth, SkillNightVision, SkillWeightBearing}},
-        {Name: "Survival", IDs: []SkillID{SkillColdResist, SkillHeatResist, SkillHungerResist, SkillHealing, SkillExploration}},
+        {Name: "Survival", IDs: []SkillID{SkillColdResist, SkillHungerResist, SkillHealing, SkillExploration}},
         {Name: "Defense", IDs: []SkillID{SkillHeavyArmor, SkillFireResist, SkillThunderResist, SkillChillResist, SkillPhotonResist}},
 }
 
@@ -30666,7 +30655,6 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
         <span class="cov8" title="1">items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
         items = append(items,
                 statusItemData{Label: query.T(world, "Hypothermia progress"), Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
-                statusItemData{Label: query.T(world, "Hyperthermia progress"), Value: fmt.Sprintf("%d%%", e.HeatProgress), Description: query.T(world, "Hyperthermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHeatProgress)},
                 statusItemData{Label: query.T(world, "Hunger progress"), Value: fmt.Sprintf("%d%%", e.HungerProgress), Description: query.T(world, "Hunger progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},
                 statusItemData{Label: query.T(world, "Healing effect"), Value: fmt.Sprintf("%d%%", e.HealingEffect), Description: query.T(world, "Healing item effect multiplier. Higher heals more"), Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},
         )
@@ -38083,21 +38071,15 @@ const temperatureSteadyThreshold = 0.05
 // temperatureIntensityMax は矢印の色が最も濃くなる変化量
 const temperatureIntensityMax = 0.5
 
-// temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温か高体温の状態があるとき ok=true。
-// 表示名で状態と重症度を、色で寒暖を示す。変化の向きは矢印が別に担う
+// temperatureStateBadge はプレイヤーの体温状態バッジを返す。低体温の状態があるとき ok=true。
+// 表示名で状態と重症度を、色で寒さを示す。変化の向きは矢印が別に担う
 func temperatureStateBadge(world w.World, entity ecs.Entity) (hud.StatusBadge, bool) {
         <span class="cov8" title="1">hs := world.Components.HealthStatus.Get(entity)
         part := &amp;hs.Parts[gc.BodyPartWholeBody]
-        cold := part.GetCondition(gc.ConditionHypothermia)
-        hot := part.GetCondition(gc.ConditionHyperthermia)
-        switch </span>{
-        case hot != nil &amp;&amp; (cold == nil || hot.Timer &gt;= cold.Timer):
-                <span class="cov0" title="0">return hud.StatusBadge{Text: hot.DisplayName(), Color: color.RGBA{230, 90, 60, 255}}, true</span>
-        case cold != nil:
-                <span class="cov8" title="1">return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true</span>
-        default:
-                <span class="cov8" title="1">return hud.StatusBadge{}, false</span>
-        }
+        if cold := part.GetCondition(gc.ConditionHypothermia); cold != nil </span>{
+                <span class="cov8" title="1">return hud.StatusBadge{Text: cold.DisplayName(), Color: color.RGBA{80, 140, 235, 255}}, true
+</span>        }
+        <span class="cov8" title="1">return hud.StatusBadge{}, false</span>
 }
 
 // temperatureArrow はプレイヤーの体温変化の矢印を返す。HealthStatus を持つ間は常時出す。
@@ -39358,9 +39340,9 @@ func (sys *TemperatureSystem) String() string {
 
 // 温度閾値の定数
 const (
-        // ComfortableTempLower は快適温度の下限（これより低いと寒さダメージ）
+        // ComfortableTempLower は快適温度の下限
         ComfortableTempLower = 11
-        // ComfortableTempUpper は快適温度の上限（これより高いと暑さダメージ）
+        // ComfortableTempUpper は快適温度の上限
         ComfortableTempUpper = 30
 )
 
@@ -39414,12 +39396,12 @@ func AmbientTemperatureAt(world w.World, x, y consts.Tile) (int, error) {
 
 // 体温の定数。値は実プレイで調整する
 const (
-        // bodyTempBand は平熱からこの範囲内を正常帯とみなす。外れるとタイマーが進む
-        bodyTempBand = 2.0
+        // bodyTempColdBand は平熱からこれだけ下がるまでを正常とみなす帯。これより冷えると低体温タイマーが進む
+        bodyTempColdBand = 2.0
         // bodyTempMin はオフセットの下限クランプ
         bodyTempMin = -5.0
-        // bodyTempMax はオフセットの上限クランプ
-        bodyTempMax = 5.0
+        // bodyTempMax はオフセットの上限クランプ。平熱が上限
+        bodyTempMax = 0.0
         // bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
         bodyTempHomeostasisPerTurn = 0.1
 )
@@ -39443,16 +39425,14 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 </span>
                 <span class="cov8" title="1">isPlayer := world.Components.Player.Has(entity)
 </span>
-                // 体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける
-                <span class="cov8" title="1">coldProgressPct, heatProgressPct := consts.PercentBase, consts.PercentBase
+                // 低体温進行倍率を取得する。体温の物理には掛けず、タイマー進行にだけ掛ける
+                <span class="cov8" title="1">coldProgressPct := consts.PercentBase
                 if world.Components.CharModifiers.Has(entity) </span>{
-                        <span class="cov8" title="1">mods := world.Components.CharModifiers.Get(entity)
-                        coldProgressPct = mods.ColdProgress
-                        heatProgressPct = mods.HeatProgress
+                        <span class="cov8" title="1">coldProgressPct = world.Components.CharModifiers.Get(entity).ColdProgress
 </span>                }
 
                 // 体温の帯判定から健康状態を更新
-                <span class="cov8" title="1">hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct, heatProgressPct)
+                <span class="cov8" title="1">hasChange := updateTemperatureConditions(world, hs, isPlayer, coldProgressPct)
 </span>
                 // 状態変化があれば属性を再計算
                 <span class="cov8" title="1">if isPlayer &amp;&amp; hasChange </span>{
@@ -39487,21 +39467,14 @@ func bodyTempRate(world w.World, entity ecs.Entity) float64 {
         if cold := calcBodyTempRate(ambientTemp + insulation.Cold); cold &lt; 0 </span>{
                 <span class="cov8" title="1">rate += cold
 </span>        }
-        <span class="cov8" title="1">if heat := calcBodyTempRate(ambientTemp - insulation.Heat); heat &gt; 0 </span>{
-                <span class="cov0" title="0">rate += heat
-</span>        }
-        // 熱源は冷えた体だけを温める。平熱以上では効かせず、焚き火の常用で高体温にならない
+        // 熱源は冷えた体だけを温める。平熱以上では効かせない
         <span class="cov8" title="1">if offset &lt; 0 </span>{
                 <span class="cov8" title="1">rate += heatSourceWarmthAt(world, grid.X, grid.Y)
 </span>        }
         // 外因が無ければ恒常性で平熱へ戻る
-        <span class="cov8" title="1">if rate == 0 &amp;&amp; offset != 0 </span>{
-                <span class="cov8" title="1">step := math.Min(bodyTempHomeostasisPerTurn, math.Abs(offset))
-                if offset &gt; 0 </span>{
-                        <span class="cov8" title="1">return -step
-</span>                }
-                <span class="cov8" title="1">return step</span>
-        }
+        <span class="cov8" title="1">if rate == 0 &amp;&amp; offset &lt; 0 </span>{
+                <span class="cov8" title="1">return math.Min(bodyTempHomeostasisPerTurn, -offset)
+</span>        }
         <span class="cov8" title="1">return rate</span>
 }
 
@@ -39562,9 +39535,9 @@ func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 // updateTemperatureConditions は体温の正常帯判定から全身の体温状態タイマーを更新する。
 // - 帯の外では超過に応じてタイマーが進み、帯の中では自然回復する。
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
-// - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
+// - coldProgressPctは低体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bool, coldProgressPct, heatProgressPct consts.Percent) bool {
+func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bool, coldProgressPct consts.Percent) bool {
         <span class="cov8" title="1">hasChange := false
         partHealth := &amp;hs.Parts[gc.BodyPartWholeBody]
         offset := hs.BodyTempOffset
@@ -39573,20 +39546,11 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bo
 </span>
         // 低体温の処理
         <span class="cov8" title="1">switch </span>{
-        case offset &lt; -bodyTempBand:
-                <span class="cov8" title="1">delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempBand))
+        case offset &lt; -bodyTempColdBand:
+                <span class="cov8" title="1">delta := coldProgressPct.ApplyFloat(timerProgress(-offset - bodyTempColdBand))
                 changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, delta))</span>
         case partHealth.GetCondition(gc.ConditionHypothermia) != nil:
                 <span class="cov8" title="1">changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -naturalRecoveryPerTurn))</span>
-        }
-
-        // 高体温の処理
-        <span class="cov8" title="1">switch </span>{
-        case offset &gt; bodyTempBand:
-                <span class="cov8" title="1">delta := heatProgressPct.ApplyFloat(timerProgress(offset - bodyTempBand))
-                changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, delta))</span>
-        case partHealth.GetCondition(gc.ConditionHyperthermia) != nil:
-                <span class="cov0" title="0">changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -naturalRecoveryPerTurn))</span>
         }
 
         <span class="cov8" title="1">for _, change := range changes </span>{
@@ -39610,8 +39574,7 @@ func timerProgress(excess float64) float64 {
         <span class="cov8" title="1">return math.Min(naturalRecoveryPerTurn+0.25*excess, 1.0)
 </span>}
 
-// calcBodyTempRate は有効温度から体温の変化量を計算する
-// 負の値は冷える方向、正の値は温まる方向
+// calcBodyTempRate は有効温度から体温の変化量を計算する。寒いほど負へ大きく、適温以上は0で正の値は返さない
 func calcBodyTempRate(effectiveTemp int) float64 {
         <span class="cov8" title="1">switch </span>{
         case effectiveTemp &lt;= -50:
@@ -39620,16 +39583,8 @@ func calcBodyTempRate(effectiveTemp int) float64 {
                 <span class="cov8" title="1">return -0.2</span> // 非常に寒い
         case effectiveTemp &lt;= 10:
                 <span class="cov8" title="1">return -0.1</span> // 寒い
-        case effectiveTemp &lt;= 15:
-                <span class="cov8" title="1">return 0</span> // やや寒い（現状維持）
-        case effectiveTemp &lt;= 25:
-                <span class="cov8" title="1">return 0</span> // 快適
-        case effectiveTemp &lt;= 30:
-                <span class="cov8" title="1">return 0</span> // やや暑い（現状維持）
-        case effectiveTemp &lt;= 35:
-                <span class="cov8" title="1">return 0.1</span> // 暑い
         default:
-                <span class="cov8" title="1">return 0.2</span> // 非常に暑い
+                <span class="cov8" title="1">return 0</span> // 適温以上
         }
 }
 
@@ -39637,9 +39592,6 @@ func calcBodyTempRate(effectiveTemp int) float64 {
 func updateConditionEffects(partHealth *gc.BodyPartHealth) {
         <span class="cov8" title="1">if cond := partHealth.GetCondition(gc.ConditionHypothermia); cond != nil </span>{
                 <span class="cov8" title="1">cond.Effects = calculateHypothermiaEffects(cond.Severity)
-</span>        }
-        <span class="cov8" title="1">if cond := partHealth.GetCondition(gc.ConditionHyperthermia); cond != nil </span>{
-                <span class="cov8" title="1">cond.Effects = calculateHyperthermiaEffects(cond.Severity)
 </span>        }
 }
 
@@ -39661,8 +39613,7 @@ func logTemperatureChange(world w.World, condType gc.ConditionType, current, pre
 
 // getWorseningMessage は悪化時のメッセージを返す
 func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string {
-        <span class="cov8" title="1">switch condType </span>{
-        case gc.ConditionHypothermia:
+        <span class="cov8" title="1">if condType == gc.ConditionHypothermia </span>{
                 <span class="cov8" title="1">switch severity </span>{
                 case gc.SeverityNone:
                         <span class="cov8" title="1">return ""</span>
@@ -39673,25 +39624,13 @@ func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string
                 case gc.SeveritySevere:
                         <span class="cov8" title="1">return "The cold is dangerous"</span>
                 }
-        case gc.ConditionHyperthermia:
-                <span class="cov8" title="1">switch severity </span>{
-                case gc.SeverityNone:
-                        <span class="cov0" title="0">return ""</span>
-                case gc.SeverityMinor:
-                        <span class="cov8" title="1">return "The heat is flushing you"</span>
-                case gc.SeverityMedium:
-                        <span class="cov0" title="0">return "The heat is wearing you down"</span>
-                case gc.SeveritySevere:
-                        <span class="cov0" title="0">return "The heat is dangerous"</span>
-                }
         }
         <span class="cov0" title="0">return ""</span>
 }
 
 // getRecoveryMessage は回復時のメッセージを返す
 func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string {
-        <span class="cov8" title="1">switch condType </span>{
-        case gc.ConditionHypothermia:
+        <span class="cov8" title="1">if condType == gc.ConditionHypothermia </span>{
                 <span class="cov8" title="1">switch severity </span>{
                 case gc.SeverityNone:
                         <span class="cov8" title="1">return "You have warmed up"</span>
@@ -39701,17 +39640,6 @@ func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string 
                         <span class="cov0" title="0">return "Still cold, but a little better"</span>
                 case gc.SeveritySevere:
                         <span class="cov8" title="1">return ""</span>
-                }
-        case gc.ConditionHyperthermia:
-                <span class="cov8" title="1">switch severity </span>{
-                case gc.SeverityNone:
-                        <span class="cov8" title="1">return "You have cooled down"</span>
-                case gc.SeverityMinor:
-                        <span class="cov0" title="0">return "You are cooling down a little"</span>
-                case gc.SeverityMedium:
-                        <span class="cov0" title="0">return "Still hot, but a little better"</span>
-                case gc.SeveritySevere:
-                        <span class="cov0" title="0">return ""</span>
                 }
         }
         <span class="cov0" title="0">return ""</span>
@@ -39729,20 +39657,6 @@ func calculateHypothermiaEffects(severity gc.Severity) []gc.StatEffect {
                 {Stat: gc.StatVitality, Value: -1 * m},
                 {Stat: gc.StatDexterity, Value: -1 * m},
                 {Stat: gc.StatAgility, Value: -1 * m},
-</span>        }
-}
-
-// calculateHyperthermiaEffects は高体温による全身への効果を計算する
-func calculateHyperthermiaEffects(severity gc.Severity) []gc.StatEffect {
-        <span class="cov8" title="1">m := severityToMultiplier(severity)
-        if m == 0 </span>{
-                <span class="cov8" title="1">return nil
-</span>        }
-
-        <span class="cov8" title="1">return []gc.StatEffect{
-                {Stat: gc.StatStrength, Value: -1 * m},
-                {Stat: gc.StatSensation, Value: -1 * m},
-                {Stat: gc.StatVitality, Value: -1 * m},
 </span>        }
 }
 
