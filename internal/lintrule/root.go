@@ -7,7 +7,7 @@ import (
 )
 
 // ErrModuleRootNotFound は go.mod を上位へ辿っても見つからないことを表す。
-var ErrModuleRootNotFound = errors.New("go.mod が見つからない")
+var ErrModuleRootNotFound = errors.New("go.mod not found in any parent directory")
 
 // ModuleRoot は go.mod のあるディレクトリを現在位置から上位へ辿って返す。
 // 検査はリポジトリ全体を歩くので、テストの実行位置に依存しない起点が要る。
