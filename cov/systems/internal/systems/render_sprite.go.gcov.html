@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">7.7&nbsp;%</td>
-            <td class="headerCovTableEntry">298</td>
-            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntryLo">7.0&nbsp;%</td>
+            <td class="headerCovTableEntry">284</td>
+            <td class="headerCovTableEntry">20</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-28 01:00:41</td>
+            <td class="headerValue">2026-08-29 11:08:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,493 +74,465 @@
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/colorm&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/ebitenutil&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L17"><span class="lineNum">      17</span>              : </span>
-<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
-<span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
-<span id="L21"><span class="lineNum">      21</span>              : )</span>
-<span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              : var (</span>
-<span id="L24"><span class="lineNum">      24</span>              :         wallShadowImage  *ebiten.Image // 壁が落とす影</span>
-<span id="L25"><span class="lineNum">      25</span>              :         moverShadowImage *ebiten.Image // 動く物体が落とす影</span>
-<span id="L26"><span class="lineNum">      26</span>              :         shadowImageOnce  sync.Once     // 影画像の初期化を1度だけにし、並列描画のデータレースを防ぐ</span>
-<span id="L27"><span class="lineNum">      27</span>              : )</span>
-<span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span>              : // 記憶タイルの退色パラメータ。彩度を大きく落として明度を少し下げ、記憶らしい見た目にする</span>
-<span id="L30"><span class="lineNum">      30</span>              : const (</span>
-<span id="L31"><span class="lineNum">      31</span>              :         memorySaturation = 0.18 // 記憶タイルの彩度。0で完全グレー</span>
-<span id="L32"><span class="lineNum">      32</span>              :         memoryValue      = 0.9  // 記憶タイルの明度。わずかに暗くする</span>
-<span id="L33"><span class="lineNum">      33</span>              : )</span>
-<span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span>              : // spriteImageCacheKey はスプライト画像キャッシュのキー</span>
-<span id="L36"><span class="lineNum">      36</span>              : // SpriteRenderには比較不能なフィールドが含まれていて直接使えないので定義する</span>
-<span id="L37"><span class="lineNum">      37</span>              : type spriteImageCacheKey struct {</span>
-<span id="L38"><span class="lineNum">      38</span>              :         SpriteSheetName string</span>
-<span id="L39"><span class="lineNum">      39</span>              :         SpriteKey       string</span>
-<span id="L40"><span class="lineNum">      40</span>              : }</span>
-<span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span>              : // RenderSpriteSystem はスプライト描画システム</span>
-<span id="L43"><span class="lineNum">      43</span>              : // キャッシュを保持し、描画処理を行う</span>
-<span id="L44"><span class="lineNum">      44</span>              : type RenderSpriteSystem struct {</span>
-<span id="L45"><span class="lineNum">      45</span>              :         spriteImageCache map[spriteImageCacheKey]*ebiten.Image</span>
-<span id="L46"><span class="lineNum">      46</span>              :         // darknessMap は1タイル1テクセルの暗さマップ。FilterNearest でタイルサイズへ拡大し、タイル整列の暗闇を描く</span>
-<span id="L47"><span class="lineNum">      47</span>              :         darknessMap *ebiten.Image</span>
-<span id="L48"><span class="lineNum">      48</span>              :         // darknessPix は darknessMap へ書き込む画素バッファ。毎フレームの確保を避けて使い回す</span>
-<span id="L49"><span class="lineNum">      49</span>              :         darknessPix []byte</span>
-<span id="L50"><span class="lineNum">      50</span>              : }</span>
-<span id="L51"><span class="lineNum">      51</span>              : </span>
-<span id="L52"><span class="lineNum">      52</span>              : // NewRenderSpriteSystem はRenderSpriteSystemを初期化する</span>
-<span id="L53"><span class="lineNum">      53</span>              : func NewRenderSpriteSystem() *RenderSpriteSystem {</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC tlaBgGNC">           1 :         return &amp;RenderSpriteSystem{</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 spriteImageCache: make(map[spriteImageCacheKey]*ebiten.Image),</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L57"><span class="lineNum">      57</span>              : }</span>
-<span id="L58"><span class="lineNum">      58</span>              : </span>
-<span id="L59"><span class="lineNum">      59</span>              : // setTranslate は真上から見下ろす2D描画の画像配置オプションをセットする。</span>
-<span id="L60"><span class="lineNum">      60</span>              : // 取得済みカメラを受け取り、per-sprite/per-shadow のホットループでもカメラ取得を1フレーム1回に抑える</span>
-<span id="L61"><span class="lineNum">      61</span>              : func setTranslate(world w.World, op *ebiten.DrawImageOptions, camera *gc.Camera) {</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC tlaBgUNC">           0 :         cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L64"><span class="lineNum">      64</span>              :         // カメラ位置の設定</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         if camera != nil {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(-float64(camera.Pos.X), -float64(camera.Pos.Y))</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 op.GeoM.Scale(camera.Scale, camera.Scale)</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L69"><span class="lineNum">      69</span>              :         // 画面の中央</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(cx, cy)</span></span>
-<span id="L71"><span class="lineNum">      71</span>              : }</span>
-<span id="L72"><span class="lineNum">      72</span>              : </span>
-<span id="L73"><span class="lineNum">      73</span>              : // viewportTileBounds はカメラの可視範囲をタイル座標の矩形で返す。margin タイル分だけ外側に広げる。</span>
-<span id="L74"><span class="lineNum">      74</span>              : // 画面外のタイル/スプライト描画をスキップするための可視カリングに使う。</span>
-<span id="L75"><span class="lineNum">      75</span>              : func viewportTileBounds(world w.World, margin consts.Tile, camera *gc.Camera) (minX, maxX, minY, maxY int) {</span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC tlaBgGNC">           1 :         var cameraX, cameraY float64</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         cameraScale := 1.0</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         if camera != nil {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 cameraX, cameraY, cameraScale = float64(camera.Pos.X), float64(camera.Pos.Y), camera.Scale</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         if cameraScale &lt;= 0 {</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 cameraScale = 1.0</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         ts := int(consts.TileSize)</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         m := int(margin)</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         halfW := int(float64(world.Resources.ScreenDimensions.Width)/cameraScale) / 2</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         halfH := int(float64(world.Resources.ScreenDimensions.Height)/cameraScale) / 2</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         minX = (int(cameraX)-halfW)/ts - m</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         maxX = (int(cameraX)+halfW)/ts + m</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         minY = (int(cameraY)-halfH)/ts - m</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         maxY = (int(cameraY)+halfH)/ts + m</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         return minX, maxX, minY, maxY</span></span>
-<span id="L93"><span class="lineNum">      93</span>              : }</span>
-<span id="L94"><span class="lineNum">      94</span>              : </span>
-<span id="L95"><span class="lineNum">      95</span>              : // inViewport は指定タイルが可視範囲矩形内かを返す</span>
-<span id="L96"><span class="lineNum">      96</span>              : func inViewport(grid *gc.GridElement, minX, maxX, minY, maxY int) bool {</span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         x, y := int(grid.X), int(grid.Y)</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         return x &gt;= minX &amp;&amp; x &lt;= maxX &amp;&amp; y &gt;= minY &amp;&amp; y &lt;= maxY</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L100"><span class="lineNum">     100</span>              : </span>
-<span id="L101"><span class="lineNum">     101</span>              : // viewportCullMargin は可視カリングの外側マージン。単位はタイル。</span>
-<span id="L102"><span class="lineNum">     102</span>              : // スプライト/影が画面端を跨いでも欠けないよう余裕を持たせる</span>
-<span id="L103"><span class="lineNum">     103</span>              : const viewportCullMargin consts.Tile = 2</span>
-<span id="L104"><span class="lineNum">     104</span>              : </span>
-<span id="L105"><span class="lineNum">     105</span>              : // String はシステム名を返す</span>
-<span id="L106"><span class="lineNum">     106</span>              : // w.Renderer interfaceを実装</span>
-<span id="L107"><span class="lineNum">     107</span>              : func (sys RenderSpriteSystem) String() string {</span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;RenderSpriteSystem&quot;</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L110"><span class="lineNum">     110</span>              : </span>
-<span id="L111"><span class="lineNum">     111</span>              : // Draw は (下) タイル -&gt; 影 -&gt; スプライト -&gt; 暗闇 (上) の順に表示する。</span>
-<span id="L112"><span class="lineNum">     112</span>              : // 暗闇を最後に重ねることで、床だけでなく影もスプライトも同じ暗さで減光する。</span>
-<span id="L113"><span class="lineNum">     113</span>              : // w.Renderer interfaceを実装</span>
-<span id="L114"><span class="lineNum">     114</span>              : func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {</span>
-<span id="L115"><span class="lineNum">     115</span>              :         // VisionSystemが計算した光源情報を取得する</span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         tileRenderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :         initializeShadowImages()</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L120"><span class="lineNum">     120</span>              :         // カメラはフレーム内で不変。ここで1回だけ取得し各描画関数へ渡す。</span>
-<span id="L121"><span class="lineNum">     121</span>              :         // 描画するスプライト/影の数だけフィルタ生成が走るのを防ぐ</span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         camera := query.GetPlayerCamera(world)</span></span>
+<span id="L15"><span class="lineNum">      15</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : )</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : var (</span>
+<span id="L23"><span class="lineNum">      23</span>              :         wallShadowImage  *ebiten.Image // 壁が落とす影</span>
+<span id="L24"><span class="lineNum">      24</span>              :         moverShadowImage *ebiten.Image // 動く物体が落とす影</span>
+<span id="L25"><span class="lineNum">      25</span>              :         shadowImageOnce  sync.Once     // 影画像の初期化を1度だけにし、並列描画のデータレースを防ぐ</span>
+<span id="L26"><span class="lineNum">      26</span>              : )</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // 記憶タイルの退色パラメータ。彩度を大きく落として明度を少し下げ、記憶らしい見た目にする</span>
+<span id="L29"><span class="lineNum">      29</span>              : const (</span>
+<span id="L30"><span class="lineNum">      30</span>              :         memorySaturation = 0.18 // 記憶タイルの彩度。0で完全グレー</span>
+<span id="L31"><span class="lineNum">      31</span>              :         memoryValue      = 0.9  // 記憶タイルの明度。わずかに暗くする</span>
+<span id="L32"><span class="lineNum">      32</span>              : )</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // RenderSpriteSystem はスプライト描画システム。</span>
+<span id="L35"><span class="lineNum">      35</span>              : // スプライト画像の解決とキャッシュは world.Resources.Sprites が持つ。</span>
+<span id="L36"><span class="lineNum">      36</span>              : type RenderSpriteSystem struct {</span>
+<span id="L37"><span class="lineNum">      37</span>              :         // darknessMap は1タイル1テクセルの暗さマップ。FilterNearest でタイルサイズへ拡大し、タイル整列の暗闇を描く</span>
+<span id="L38"><span class="lineNum">      38</span>              :         darknessMap *ebiten.Image</span>
+<span id="L39"><span class="lineNum">      39</span>              :         // darknessPix は darknessMap へ書き込む画素バッファ。毎フレームの確保を避けて使い回す</span>
+<span id="L40"><span class="lineNum">      40</span>              :         darknessPix []byte</span>
+<span id="L41"><span class="lineNum">      41</span>              : }</span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              : // NewRenderSpriteSystem はRenderSpriteSystemを初期化する</span>
+<span id="L44"><span class="lineNum">      44</span>              : func NewRenderSpriteSystem() *RenderSpriteSystem {</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :         return &amp;RenderSpriteSystem{}</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : // setTranslate は真上から見下ろす2D描画の画像配置オプションをセットする。</span>
+<span id="L49"><span class="lineNum">      49</span>              : // 取得済みカメラを受け取り、per-sprite/per-shadow のホットループでもカメラ取得を1フレーム1回に抑える</span>
+<span id="L50"><span class="lineNum">      50</span>              : func setTranslate(world w.World, op *ebiten.DrawImageOptions, camera *gc.Camera) {</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L53"><span class="lineNum">      53</span>              :         // カメラ位置の設定</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         if camera != nil {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(-float64(camera.Pos.X), -float64(camera.Pos.Y))</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                 op.GeoM.Scale(camera.Scale, camera.Scale)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L58"><span class="lineNum">      58</span>              :         // 画面の中央</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(cx, cy)</span></span>
+<span id="L60"><span class="lineNum">      60</span>              : }</span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span>              : // viewportTileBounds はカメラの可視範囲をタイル座標の矩形で返す。margin タイル分だけ外側に広げる。</span>
+<span id="L63"><span class="lineNum">      63</span>              : // 画面外のタイル/スプライト描画をスキップするための可視カリングに使う。</span>
+<span id="L64"><span class="lineNum">      64</span>              : func viewportTileBounds(world w.World, margin consts.Tile, camera *gc.Camera) (minX, maxX, minY, maxY int) {</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC tlaBgGNC">           1 :         var cameraX, cameraY float64</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         cameraScale := 1.0</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         if camera != nil {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 cameraX, cameraY, cameraScale = float64(camera.Pos.X), float64(camera.Pos.Y), camera.Scale</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         if cameraScale &lt;= 0 {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 cameraScale = 1.0</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         ts := int(consts.TileSize)</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         m := int(margin)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         halfW := int(float64(world.Resources.ScreenDimensions.Width)/cameraScale) / 2</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         halfH := int(float64(world.Resources.ScreenDimensions.Height)/cameraScale) / 2</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         minX = (int(cameraX)-halfW)/ts - m</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         maxX = (int(cameraX)+halfW)/ts + m</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         minY = (int(cameraY)-halfH)/ts - m</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         maxY = (int(cameraY)+halfH)/ts + m</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         return minX, maxX, minY, maxY</span></span>
+<span id="L82"><span class="lineNum">      82</span>              : }</span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span>              : // inViewport は指定タイルが可視範囲矩形内かを返す</span>
+<span id="L85"><span class="lineNum">      85</span>              : func inViewport(grid *gc.GridElement, minX, maxX, minY, maxY int) bool {</span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         x, y := int(grid.X), int(grid.Y)</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         return x &gt;= minX &amp;&amp; x &lt;= maxX &amp;&amp; y &gt;= minY &amp;&amp; y &lt;= maxY</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L89"><span class="lineNum">      89</span>              : </span>
+<span id="L90"><span class="lineNum">      90</span>              : // viewportCullMargin は可視カリングの外側マージン。単位はタイル。</span>
+<span id="L91"><span class="lineNum">      91</span>              : // スプライト/影が画面端を跨いでも欠けないよう余裕を持たせる</span>
+<span id="L92"><span class="lineNum">      92</span>              : const viewportCullMargin consts.Tile = 2</span>
+<span id="L93"><span class="lineNum">      93</span>              : </span>
+<span id="L94"><span class="lineNum">      94</span>              : // String はシステム名を返す</span>
+<span id="L95"><span class="lineNum">      95</span>              : // w.Renderer interfaceを実装</span>
+<span id="L96"><span class="lineNum">      96</span>              : func (sys RenderSpriteSystem) String() string {</span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;RenderSpriteSystem&quot;</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L99"><span class="lineNum">      99</span>              : </span>
+<span id="L100"><span class="lineNum">     100</span>              : // Draw は (下) タイル -&gt; 影 -&gt; スプライト -&gt; 暗闇 (上) の順に表示する。</span>
+<span id="L101"><span class="lineNum">     101</span>              : // 暗闇を最後に重ねることで、床だけでなく影もスプライトも同じ暗さで減光する。</span>
+<span id="L102"><span class="lineNum">     102</span>              : // w.Renderer interfaceを実装</span>
+<span id="L103"><span class="lineNum">     103</span>              : func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {</span>
+<span id="L104"><span class="lineNum">     104</span>              :         // VisionSystemが計算した光源情報を取得する</span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         tileRenderMap := computeTileRenderMap(world, query.GetVisionState(world).LightSourceCache)</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :         initializeShadowImages()</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L109"><span class="lineNum">     109</span>              :         // カメラはフレーム内で不変。ここで1回だけ取得し各描画関数へ渡す。</span>
+<span id="L110"><span class="lineNum">     110</span>              :         // 描画するスプライト/影の数だけフィルタ生成が走るのを防ぐ</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         camera := query.GetPlayerCamera(world)</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :         if err := sys.renderFloorLayer(world, screen, tileRenderMap, camera); err != nil {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         sys.renderShadows(world, screen, tileRenderMap, camera)</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         if err := sys.renderObjectLayer(world, screen, tileRenderMap, camera); err != nil {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L120"><span class="lineNum">     120</span>              :         // 暗闇は最後に重ねる。床だけでなく影・スプライトも同じ暗さで沈み、光源から離れた</span>
+<span id="L121"><span class="lineNum">     121</span>              :         // オブジェクトも暗くなる。per-tile の暗さを重ねるのでオブジェクトもタイル単位で減光する</span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         sys.renderDarkness(world, screen, tileRenderMap, camera)</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         if err := sys.renderFloorLayer(world, screen, tileRenderMap, camera); err != nil {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         sys.renderShadows(world, screen, tileRenderMap, camera)</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         if err := sys.renderObjectLayer(world, screen, tileRenderMap, camera); err != nil {</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L131"><span class="lineNum">     131</span>              :         // 暗闇は最後に重ねる。床だけでなく影・スプライトも同じ暗さで沈み、光源から離れた</span>
-<span id="L132"><span class="lineNum">     132</span>              :         // オブジェクトも暗くなる。per-tile の暗さを重ねるのでオブジェクトもタイル単位で減光する</span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         sys.renderDarkness(world, screen, tileRenderMap, camera)</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L136"><span class="lineNum">     136</span>              : }</span>
-<span id="L137"><span class="lineNum">     137</span>              : </span>
-<span id="L138"><span class="lineNum">     138</span>              : // initializeShadowImages は影画像を初期化する</span>
-<span id="L139"><span class="lineNum">     139</span>              : func initializeShadowImages() {</span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         shadowImageOnce.Do(func() {</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 wallWidth := int(consts.TileSize)</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 wallHeight := int(consts.TileSize / 2)</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 if wallWidth &gt; 0 &amp;&amp; wallHeight &gt; 0 {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                         wallShadowImage = ebiten.NewImage(wallWidth, wallHeight)</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                         wallShadowImage.Fill(color.RGBA{0, 0, 0, 80})</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 moverWidth := int(consts.TileSize - 6 - 2)</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 moverHeight := int(consts.TileSize / 2)</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 if moverWidth &gt; 0 &amp;&amp; moverHeight &gt; 0 {</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                         moverShadowImage = ebiten.NewImage(moverWidth, moverHeight)</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                         moverShadowImage.Fill(color.RGBA{0, 0, 0, 120})</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L153"><span class="lineNum">     153</span>              :         })</span>
-<span id="L154"><span class="lineNum">     154</span>              : }</span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span>              : // renderFloorLayer は床レイヤー（タイル）を描画する</span>
-<span id="L157"><span class="lineNum">     157</span>              : func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) error {</span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         iSprite := 0</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         // タイル総数を上限に確保する。viewport カリングで実際に詰めるのは一部だけ</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         countQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         entities := make([]ecs.Entity, countQuery.Count())</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         countQuery.Close()</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         tileQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         for tileQuery.Next() {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :                 entity := tileQuery.Entity()</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 // 画面外のタイルはソートも描画もしない</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                 if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L170"><span class="lineNum">     170</span>              :                 }</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :                 entities[iSprite] = entity</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :                 iSprite++</span></span>
-<span id="L173"><span class="lineNum">     173</span>              :         }</span>
-<span id="L174"><span class="lineNum">     174</span>              : </span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         slices.SortStableFunc(entities[:iSprite], func(a, b ecs.Entity) int {</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L178"><span class="lineNum">     178</span>              : </span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         for i := range iSprite {</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 entity := entities[i]</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                 info, exists := tileRenderMap[*gridElement]</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                 if !exists {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L186"><span class="lineNum">     186</span>              :                 }</span>
-<span id="L187"><span class="lineNum">     187</span>              :                 // 記憶タイルの床は退色させて描く。今見えているタイルと区別して「記憶している」と</span>
-<span id="L188"><span class="lineNum">     188</span>              :                 // 分かる見た目にする。フルカラーのまま暗くすると平坦な暗い部屋に見えるのを避ける</span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                 _, remembered := info.(TileRenderRemembered)</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                 pos := &amp;gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, remembered); err != nil {</span></span>
-<span id="L194"><span class="lineNum">     194</span>              :                         // エンティティ情報を追加してエラーを詳細化</span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                         var entityInfo string</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                         if world.Components.Name.Has(entity) {</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                                 name := world.Components.Name.Get(entity)</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                                 entityInfo = fmt.Sprintf(&quot;Name: %s&quot;, name.Name)</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;entity %d at (%d,%d), SpriteSheet: '%s', SpriteKey: '%s', %s: %w&quot;,</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                                 entity, gridElement.X, gridElement.Y, spriteRender.SpriteSheetName, spriteRender.SpriteKey, entityInfo, err)</span></span>
-<span id="L202"><span class="lineNum">     202</span>              :                 }</span>
-<span id="L203"><span class="lineNum">     203</span>              :         }</span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L205"><span class="lineNum">     205</span>              : }</span>
-<span id="L206"><span class="lineNum">     206</span>              : </span>
-<span id="L207"><span class="lineNum">     207</span>              : // renderObjectLayer はタイル以外のオブジェクトレイヤーを描画する</span>
-<span id="L208"><span class="lineNum">     208</span>              : func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) error {</span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :         var entities []ecs.Entity</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :         minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L212"><span class="lineNum">     212</span>              :         // タイル以外のスプライトを収集する。フィールド上のオブジェクトとMoversを含む</span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         objectQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :         for objectQuery.Next() {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                 entity := objectQuery.Entity()</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                 // 画面外は描画しない</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L219"><span class="lineNum">     219</span>              :                 }</span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                 entities = append(entities, entity)</span></span>
-<span id="L221"><span class="lineNum">     221</span>              :         }</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L125"><span class="lineNum">     125</span>              : }</span>
+<span id="L126"><span class="lineNum">     126</span>              : </span>
+<span id="L127"><span class="lineNum">     127</span>              : // initializeShadowImages は影画像を初期化する</span>
+<span id="L128"><span class="lineNum">     128</span>              : func initializeShadowImages() {</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         shadowImageOnce.Do(func() {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 wallWidth := int(consts.TileSize)</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                 wallHeight := int(consts.TileSize / 2)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 if wallWidth &gt; 0 &amp;&amp; wallHeight &gt; 0 {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                         wallShadowImage = ebiten.NewImage(wallWidth, wallHeight)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                         wallShadowImage.Fill(color.RGBA{0, 0, 0, 80})</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 moverWidth := int(consts.TileSize - 6 - 2)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 moverHeight := int(consts.TileSize / 2)</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 if moverWidth &gt; 0 &amp;&amp; moverHeight &gt; 0 {</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                         moverShadowImage = ebiten.NewImage(moverWidth, moverHeight)</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                         moverShadowImage.Fill(color.RGBA{0, 0, 0, 120})</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :         })</span>
+<span id="L143"><span class="lineNum">     143</span>              : }</span>
+<span id="L144"><span class="lineNum">     144</span>              : </span>
+<span id="L145"><span class="lineNum">     145</span>              : // renderFloorLayer は床レイヤー（タイル）を描画する</span>
+<span id="L146"><span class="lineNum">     146</span>              : func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) error {</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         iSprite := 0</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         // タイル総数を上限に確保する。viewport カリングで実際に詰めるのは一部だけ</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         countQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         entities := make([]ecs.Entity, countQuery.Count())</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         countQuery.Close()</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         tileQuery := query.ActiveFilter3[gc.SpriteRender, gc.GridElement, gc.Tile](world).Query()</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         for tileQuery.Next() {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                 entity := tileQuery.Entity()</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                 // 画面外のタイルはソートも描画もしない</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :                 if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L159"><span class="lineNum">     159</span>              :                 }</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                 entities[iSprite] = entity</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 iSprite++</span></span>
+<span id="L162"><span class="lineNum">     162</span>              :         }</span>
+<span id="L163"><span class="lineNum">     163</span>              : </span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         slices.SortStableFunc(entities[:iSprite], func(a, b ecs.Entity) int {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         for i := range iSprite {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                 entity := entities[i]</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :                 info, exists := tileRenderMap[*gridElement]</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 if !exists {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L175"><span class="lineNum">     175</span>              :                 }</span>
+<span id="L176"><span class="lineNum">     176</span>              :                 // 記憶タイルの床は退色させて描く。今見えているタイルと区別して「記憶している」と</span>
+<span id="L177"><span class="lineNum">     177</span>              :                 // 分かる見た目にする。フルカラーのまま暗くすると平坦な暗い部屋に見えるのを避ける</span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                 _, remembered := info.(TileRenderRemembered)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 pos := &amp;gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, remembered); err != nil {</span></span>
+<span id="L183"><span class="lineNum">     183</span>              :                         // エンティティ情報を追加してエラーを詳細化</span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                         var entityInfo string</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                         if world.Components.Name.Has(entity) {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                                 name := world.Components.Name.Get(entity)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                                 entityInfo = fmt.Sprintf(&quot;Name: %s&quot;, name.Name)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;entity %d at (%d,%d), SpriteSheet: '%s', SpriteKey: '%s', %s: %w&quot;,</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                                 entity, gridElement.X, gridElement.Y, spriteRender.SpriteSheetName, spriteRender.SpriteKey, entityInfo, err)</span></span>
+<span id="L191"><span class="lineNum">     191</span>              :                 }</span>
+<span id="L192"><span class="lineNum">     192</span>              :         }</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L194"><span class="lineNum">     194</span>              : }</span>
+<span id="L195"><span class="lineNum">     195</span>              : </span>
+<span id="L196"><span class="lineNum">     196</span>              : // renderObjectLayer はタイル以外のオブジェクトレイヤーを描画する</span>
+<span id="L197"><span class="lineNum">     197</span>              : func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) error {</span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         var entities []ecs.Entity</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L201"><span class="lineNum">     201</span>              :         // タイル以外のスプライトを収集する。フィールド上のオブジェクトとMoversを含む</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         objectQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Without(ecs.C[gc.Tile]()).Query()</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         for objectQuery.Next() {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 entity := objectQuery.Entity()</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :                 // 画面外は描画しない</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 if !inViewport(world.Components.GridElement.Get(entity), minX, maxX, minY, maxY) {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L208"><span class="lineNum">     208</span>              :                 }</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 entities = append(entities, entity)</span></span>
+<span id="L210"><span class="lineNum">     210</span>              :         }</span>
+<span id="L211"><span class="lineNum">     211</span>              : </span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         slices.SortStableFunc(entities, func(a, b ecs.Entity) int {</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                 return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         for _, entity := range entities {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L221"><span class="lineNum">     221</span>              :                 }</span>
 <span id="L222"><span class="lineNum">     222</span>              : </span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         slices.SortStableFunc(entities, func(a, b ecs.Entity) int {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 return cmp.Compare(world.Components.SpriteRender.Get(a).Depth, world.Components.SpriteRender.Get(b).Depth)</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L226"><span class="lineNum">     226</span>              : </span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         for _, entity := range entities {</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L232"><span class="lineNum">     232</span>              :                 }</span>
-<span id="L233"><span class="lineNum">     233</span>              : </span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 pos := &amp;gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, false); err != nil {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L239"><span class="lineNum">     239</span>              :         }</span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L241"><span class="lineNum">     241</span>              : }</span>
-<span id="L242"><span class="lineNum">     242</span>              : </span>
-<span id="L243"><span class="lineNum">     243</span>              : // renderShadows は物体と壁の影を描画する</span>
-<span id="L244"><span class="lineNum">     244</span>              : func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {</span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 pos := &amp;gc.Position{Coord: consts.TileCenterToWorld(gridElement.Coord)}</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                 if err := sys.drawImage(world, screen, spriteRender, pos, 0, camera, false); err != nil {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L228"><span class="lineNum">     228</span>              :         }</span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L230"><span class="lineNum">     230</span>              : }</span>
+<span id="L231"><span class="lineNum">     231</span>              : </span>
+<span id="L232"><span class="lineNum">     232</span>              : // renderShadows は物体と壁の影を描画する</span>
+<span id="L233"><span class="lineNum">     233</span>              : func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {</span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L236"><span class="lineNum">     236</span>              :         // 物体の影</span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :         moverShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Query()</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         for moverShadowQuery.Next() {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                 entity := moverShadowQuery.Entity()</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 // TurnBased または Fixed を持つエンティティのみ</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                 if !world.Components.TurnBased.Has(entity) &amp;&amp; !world.Components.Fixed.Has(entity) {</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L243"><span class="lineNum">     243</span>              :                 }</span>
+<span id="L244"><span class="lineNum">     244</span>              : </span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L247"><span class="lineNum">     247</span>              :         // 物体の影</span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         moverShadowQuery := query.ActiveFilter2[gc.SpriteRender, gc.GridElement](world).Query()</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         for moverShadowQuery.Next() {</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                 entity := moverShadowQuery.Entity()</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                 // TurnBased または Fixed を持つエンティティのみ</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                 if !world.Components.TurnBased.Has(entity) &amp;&amp; !world.Components.Fixed.Has(entity) {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L254"><span class="lineNum">     254</span>              :                 }</span>
-<span id="L255"><span class="lineNum">     255</span>              : </span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L258"><span class="lineNum">     258</span>              :                 // 高さのあるものだけが影を落とす</span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :                 if spriteRender.Depth &lt;= gc.DepthNumRug {</span></span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L261"><span class="lineNum">     261</span>              :                 }</span>
-<span id="L262"><span class="lineNum">     262</span>              : </span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                 if !inViewport(gridElement, minX, maxX, minY, maxY) {</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L267"><span class="lineNum">     267</span>              :                 }</span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                 if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L270"><span class="lineNum">     270</span>              :                 }</span>
-<span id="L271"><span class="lineNum">     271</span>              : </span>
-<span id="L272"><span class="lineNum">     272</span>              :                 // グリッド座標をタイル中心のピクセル座標に変換。X はスプライト幅ぶん左へずらす</span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 center := consts.TileCenterToWorld(gridElement.Coord)</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 pixelX := float64(center.X) - 12</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                 pixelY := float64(center.Y)</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(pixelX, pixelY)</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                 setTranslate(world, op, camera)</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                 if moverShadowImage != nil {</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                         screen.DrawImage(moverShadowImage, op)</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L283"><span class="lineNum">     283</span>              :         }</span>
-<span id="L284"><span class="lineNum">     284</span>              : </span>
-<span id="L285"><span class="lineNum">     285</span>              :         // 下タイルが床の場合のみ壁の影。</span>
-<span id="L286"><span class="lineNum">     286</span>              :         // 下タイル参照用のマップは viewport 内（+margin）だけ構築する。大マップで全タイルを</span>
-<span id="L287"><span class="lineNum">     287</span>              :         // 毎フレーム map 化するのを避ける</span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         tileMap := make(map[gc.GridElement]ecs.Entity)</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         // 下タイル参照は床タイルのみが対象。gc.Tile で絞りキャラ/固定物を走査から除く</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         tileMapQuery := query.ActiveFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world).Query()</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :         for tileMapQuery.Next() {</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 e := tileMapQuery.Entity()</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 ge := world.Components.GridElement.Get(e)</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 if !inViewport(ge, minX, maxX, minY, maxY) {</span></span>
+<span id="L247"><span class="lineNum">     247</span>              :                 // 高さのあるものだけが影を落とす</span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                 if spriteRender.Depth &lt;= gc.DepthNumRug {</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L250"><span class="lineNum">     250</span>              :                 }</span>
+<span id="L251"><span class="lineNum">     251</span>              : </span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                 gridElement := world.Components.GridElement.Get(entity)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                 if !inViewport(gridElement, minX, maxX, minY, maxY) {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L256"><span class="lineNum">     256</span>              :                 }</span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                 if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L259"><span class="lineNum">     259</span>              :                 }</span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span>              :                 // グリッド座標をタイル中心のピクセル座標に変換。X はスプライト幅ぶん左へずらす</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                 center := consts.TileCenterToWorld(gridElement.Coord)</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                 pixelX := float64(center.X) - 12</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                 pixelY := float64(center.Y)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                 op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(pixelX, pixelY)</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                 setTranslate(world, op, camera)</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                 if moverShadowImage != nil {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                         screen.DrawImage(moverShadowImage, op)</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L272"><span class="lineNum">     272</span>              :         }</span>
+<span id="L273"><span class="lineNum">     273</span>              : </span>
+<span id="L274"><span class="lineNum">     274</span>              :         // 下タイルが床の場合のみ壁の影。</span>
+<span id="L275"><span class="lineNum">     275</span>              :         // 下タイル参照用のマップは viewport 内（+margin）だけ構築する。大マップで全タイルを</span>
+<span id="L276"><span class="lineNum">     276</span>              :         // 毎フレーム map 化するのを避ける</span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :         tileMap := make(map[gc.GridElement]ecs.Entity)</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         // 下タイル参照は床タイルのみが対象。gc.Tile で絞りキャラ/固定物を走査から除く</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         tileMapQuery := query.ActiveFilter3[gc.GridElement, gc.SpriteRender, gc.Tile](world).Query()</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :         for tileMapQuery.Next() {</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :                 e := tileMapQuery.Entity()</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :                 ge := world.Components.GridElement.Get(e)</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :                 if !inViewport(ge, minX, maxX, minY, maxY) {</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L285"><span class="lineNum">     285</span>              :                 }</span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                 tileMap[*ge] = e</span></span>
+<span id="L287"><span class="lineNum">     287</span>              :         }</span>
+<span id="L288"><span class="lineNum">     288</span>              : </span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         wallShadowQuery := query.ActiveFilter4[gc.SpriteRender, gc.GridElement, gc.BlockView, gc.BlockPass](world).Query()</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         for wallShadowQuery.Next() {</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                 entity := wallShadowQuery.Entity()</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 grid := world.Components.GridElement.Get(entity)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                 if !inViewport(grid, minX, maxX, minY, maxY) {</span></span>
 <span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L296"><span class="lineNum">     296</span>              :                 }</span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                 tileMap[*ge] = e</span></span>
-<span id="L298"><span class="lineNum">     298</span>              :         }</span>
-<span id="L299"><span class="lineNum">     299</span>              : </span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :         wallShadowQuery := query.ActiveFilter4[gc.SpriteRender, gc.GridElement, gc.BlockView, gc.BlockPass](world).Query()</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :         for wallShadowQuery.Next() {</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                 entity := wallShadowQuery.Entity()</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                 grid := world.Components.GridElement.Get(entity)</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                 if !inViewport(grid, minX, maxX, minY, maxY) {</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L307"><span class="lineNum">     307</span>              :                 }</span>
-<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L310"><span class="lineNum">     310</span>              :                 }</span>
-<span id="L311"><span class="lineNum">     311</span>              : </span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L314"><span class="lineNum">     314</span>              :                 // 高さのあるものだけが影を落とす</span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :                 if spriteRender.Depth &lt;= gc.DepthNumRug {</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L317"><span class="lineNum">     317</span>              :                 }</span>
-<span id="L318"><span class="lineNum">     318</span>              : </span>
-<span id="L319"><span class="lineNum">     319</span>              :                 // 下のタイルを検索</span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 belowPos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y + 1}}</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                 belowTileEntity, foundBelow := tileMap[belowPos]</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                 if !foundBelow {</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L325"><span class="lineNum">     325</span>              :                 }</span>
-<span id="L326"><span class="lineNum">     326</span>              : </span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :                 if !world.Components.SpriteRender.Has(belowTileEntity) {</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :                         continue // 下が床でなければ影を描画しない</span></span>
-<span id="L329"><span class="lineNum">     329</span>              :                 }</span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                 belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                 if belowSpriteRender.Depth != gc.DepthNumFloor {</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                         continue // 下が床でなければ影を描画しない</span></span>
-<span id="L333"><span class="lineNum">     333</span>              :                 }</span>
-<span id="L334"><span class="lineNum">     334</span>              : </span>
-<span id="L335"><span class="lineNum">     335</span>              :                 // 下のタイルが壁でないことも確認（壁-&gt;床-&gt;壁の場合は影を描画しない）</span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 if world.Components.BlockView.Has(belowTileEntity) &amp;&amp; world.Components.BlockPass.Has(belowTileEntity) {</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                         continue</span></span>
-<span id="L338"><span class="lineNum">     338</span>              :                 }</span>
-<span id="L339"><span class="lineNum">     339</span>              : </span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                 setTranslate(world, op, camera)</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 if wallShadowImage != nil {</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                         screen.DrawImage(wallShadowImage, op)</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L346"><span class="lineNum">     346</span>              :         }</span>
-<span id="L347"><span class="lineNum">     347</span>              : }</span>
-<span id="L348"><span class="lineNum">     348</span>              : </span>
-<span id="L349"><span class="lineNum">     349</span>              : func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRender) (*ebiten.Image, error) {</span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :         key := spriteImageCacheKey{</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :                 SpriteSheetName: spriteRender.SpriteSheetName,</span></span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 SpriteKey:       spriteRender.SpriteKey,</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         if v, ok := sys.spriteImageCache[key]; ok {</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                 return v, nil</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L357"><span class="lineNum">     357</span>              :         // 解決は resources.SpriteImage に集約する。ここは毎フレームのホットパスなので結果をキャッシュする</span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :         img, err := resources.SpriteImage(world.Resources.SpriteSheets, spriteRender)</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         sys.spriteImageCache[key] = img</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :         return img, nil</span></span>
-<span id="L364"><span class="lineNum">     364</span>              : }</span>
-<span id="L365"><span class="lineNum">     365</span>              : </span>
-<span id="L366"><span class="lineNum">     366</span>              : func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera, desaturate bool) error {</span>
-<span id="L367"><span class="lineNum">     367</span>              :         // Resourcesからスプライトシートを取得</span>
-<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :         if world.Resources.SpriteSheets == nil {</span></span>
-<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;sprite sheets are nil&quot;)</span></span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;sprite sheet '%s' not found&quot;, spriteRender.SpriteSheetName)</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L375"><span class="lineNum">     375</span>              : </span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :         sprite, exists := spriteSheet.Sprites[spriteRender.SpriteKey]</span></span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;sprite key '%s' does not exist in sprite sheet '%s'&quot;, spriteRender.SpriteKey, spriteRender.SpriteSheetName)</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L380"><span class="lineNum">     380</span>              : </span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         op := &amp;spriteRender.Options</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :         op.GeoM.Reset()                                                       // FIXME: Resetがないと非表示になる。なぜ?</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(float64(-sprite.Width/2), float64(-sprite.Width/2)) // 回転軸を画像の中心にする</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         op.GeoM.Rotate(angle)</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(float64(pos.X), float64(pos.Y))</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         setTranslate(world, op, camera)</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :         img, err := sys.getImage(world, spriteRender)</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         if desaturate {</span></span>
-<span id="L393"><span class="lineNum">     393</span>              :                 // 記憶タイルは彩度を落として退色させる。色行列で彩度を下げ明度を少し落とし、</span>
-<span id="L394"><span class="lineNum">     394</span>              :                 // 「今見ている」タイルと区別する。減光は後段の暗闇オーバーレイが担う</span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                 var cm colorm.ColorM</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                 cm.ChangeHSV(0, memorySaturation, memoryValue)</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                 dop := &amp;colorm.DrawImageOptions{GeoM: op.GeoM, Blend: op.Blend, Filter: op.Filter}</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 colorm.DrawImage(screen, img, cm, dop)</span></span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :         } else {</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :                 screen.DrawImage(img, op)</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L402"><span class="lineNum">     402</span>              : </span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :         if world.Resources.Config.ShowMapDebug {</span></span>
-<span id="L404"><span class="lineNum">     404</span>              :                 // デバッグ用：スプライト番号表示(dirt, dwall)</span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :                 if spriteRender.SpriteSheetName == &quot;tile&quot; {</span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :                         var number string</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :                         var prefix string</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :                         if after, ok := strings.CutPrefix(spriteRender.SpriteKey, &quot;dirt_&quot;); ok {</span></span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :                                 number = after</span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                                 prefix = &quot;d&quot;</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :                         } else if after, ok := strings.CutPrefix(spriteRender.SpriteKey, &quot;dwall_&quot;); ok {</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                                 number = after</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :                                 prefix = &quot;w&quot;</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L415"><span class="lineNum">     415</span>              : </span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :                         if number != &quot;&quot; {</span></span>
-<span id="L417"><span class="lineNum">     417</span>              :                                 // カメラ変換を考慮したテキスト位置を計算</span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                                 textOp := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :                                 textOp.GeoM.Translate(float64(pos.X-8), float64(pos.Y-8)) // タイルの左上付近に表示</span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :                                 setTranslate(world, textOp, camera)</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L422"><span class="lineNum">     422</span>              :                                 // テキスト表示位置を逆変換で求める</span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :                                 screenX, screenY := textOp.GeoM.Apply(0, 0)</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :                                 ebitenutil.DebugPrintAt(screen, prefix+number, int(screenX), int(screenY))</span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L426"><span class="lineNum">     426</span>              :                 }</span>
-<span id="L427"><span class="lineNum">     427</span>              :         }</span>
-<span id="L428"><span class="lineNum">     428</span>              : </span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L430"><span class="lineNum">     430</span>              : }</span>
-<span id="L431"><span class="lineNum">     431</span>              : </span>
-<span id="L432"><span class="lineNum">     432</span>              : // renderDarkness は per-tile の暗さをタイル整列でそのまま描く暗闇オーバーレイ。</span>
-<span id="L433"><span class="lineNum">     433</span>              : // vision が壁遮蔽込みで計算した per-tile の暗さを1タイル1テクセルの小画像へ詰め、</span>
-<span id="L434"><span class="lineNum">     434</span>              : // FilterNearest でタイルサイズへ拡大する。補間しないのでタイル単位の一様な明るさになり、</span>
-<span id="L435"><span class="lineNum">     435</span>              : // ドット絵と質感が揃う。暗さは連続値なので段差ジャンプ(チカチカ)は出ない。</span>
-<span id="L436"><span class="lineNum">     436</span>              : func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {</span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :         var cameraX, cameraY float64</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :         cameraScale := 1.0</span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :         if camera != nil {</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :                 cameraX = float64(camera.Pos.X)</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :                 cameraY = float64(camera.Pos.Y)</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :                 cameraScale = camera.Scale</span></span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L444"><span class="lineNum">     444</span>              : </span>
-<span id="L445"><span class="lineNum">     445</span>              :         // 床レイヤのカリング余白に合わせてタイルを拾う。描き漏れを防ぐ</span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :         minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :         mw := maxX - minX + 1</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :         mh := maxY - minY + 1</span></span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :         if mw &lt;= 0 || mh &lt;= 0 {</span></span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :         sys.ensureDarknessMap(mw, mh)</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L454"><span class="lineNum">     454</span>              :         // 1タイル1テクセル。黒 rgb=0、アルファに暗さを連続値で詰める。バッファは使い回す。</span>
-<span id="L455"><span class="lineNum">     455</span>              :         // rgb は常に0のままで、各テクセルのアルファは毎フレーム全て上書きするのでクリア不要。</span>
-<span id="L456"><span class="lineNum">     456</span>              :         // 3状態を tileRenderAt で網羅する。未探索は完全な闇、可視/記憶はそれぞれの暗さ</span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :         pix := sys.darknessPix</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :         for j := range mh {</span></span>
-<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :                 for i := range mw {</span></span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :                         grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(minX + i), Y: consts.Tile(minY + j)}}</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :                         var darkness float64</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :                         switch v := tileRenderAt(tileRenderMap, grid).(type) {</span></span>
-<span id="L463"><span class="lineNum">     463</span>              :                         case TileRenderVisible:</span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :                                 darkness = float64(v.Darkness)</span></span>
-<span id="L465"><span class="lineNum">     465</span>              :                         case TileRenderRemembered:</span>
-<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :                                 darkness = float64(v.Darkness)</span></span>
-<span id="L467"><span class="lineNum">     467</span>              :                         case TileRenderUnexplored:</span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :                                 darkness = 1.0</span></span>
-<span id="L469"><span class="lineNum">     469</span>              :                         default:</span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :                                 panic(fmt.Sprintf(&quot;unknown TileRenderInfo: %T&quot;, v))</span></span>
-<span id="L471"><span class="lineNum">     471</span>              :                         }</span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :                         pix[(j*mw+i)*4+3] = byte(max(0.0, min(1.0, darkness)) * 255)</span></span>
-<span id="L473"><span class="lineNum">     473</span>              :                 }</span>
-<span id="L474"><span class="lineNum">     474</span>              :         }</span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :         sys.darknessMap.WritePixels(pix)</span></span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L477"><span class="lineNum">     477</span>              :         // タイルグリッドへ合わせて拡大する。texel(0,0) の左上をタイル(minX,minY)の左上へ置く。</span>
-<span id="L478"><span class="lineNum">     478</span>              :         // FilterNearest なので各テクセルは1タイルの一様な四角として描かれる</span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :         ts := float64(consts.TileSize)</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :         offsetX := (float64(minX)*ts-cameraX)*cameraScale + float64(world.Resources.ScreenDimensions.Width)/2</span></span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :         offsetY := (float64(minY)*ts-cameraY)*cameraScale + float64(world.Resources.ScreenDimensions.Height)/2</span></span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :         op.GeoM.Scale(ts*cameraScale, ts*cameraScale)</span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(offsetX, offsetY)</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :         op.Filter = ebiten.FilterNearest</span></span>
-<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :         screen.DrawImage(sys.darknessMap, op)</span></span>
-<span id="L488"><span class="lineNum">     488</span>              : }</span>
-<span id="L489"><span class="lineNum">     489</span>              : </span>
-<span id="L490"><span class="lineNum">     490</span>              : // ensureDarknessMap は per-tile 暗さマップの小画像を用意する。サイズが変わったら作り直す。</span>
-<span id="L491"><span class="lineNum">     491</span>              : func (sys *RenderSpriteSystem) ensureDarknessMap(width, height int) {</span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :         if sys.darknessMap != nil {</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :                 b := sys.darknessMap.Bounds()</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :                 if b.Dx() == width &amp;&amp; b.Dy() == height {</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :                         return</span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :                 sys.darknessMap.Deallocate()</span></span>
-<span id="L498"><span class="lineNum">     498</span>              :         }</span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :         sys.darknessMap = ebiten.NewImage(width, height)</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :         sys.darknessPix = make([]byte, width*height*4)</span></span>
-<span id="L501"><span class="lineNum">     501</span>              : }</span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                 if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L299"><span class="lineNum">     299</span>              :                 }</span>
+<span id="L300"><span class="lineNum">     300</span>              : </span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity)</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L303"><span class="lineNum">     303</span>              :                 // 高さのあるものだけが影を落とす</span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 if spriteRender.Depth &lt;= gc.DepthNumRug {</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L306"><span class="lineNum">     306</span>              :                 }</span>
+<span id="L307"><span class="lineNum">     307</span>              : </span>
+<span id="L308"><span class="lineNum">     308</span>              :                 // 下のタイルを検索</span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                 belowPos := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: grid.X, Y: grid.Y + 1}}</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                 belowTileEntity, foundBelow := tileMap[belowPos]</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                 if !foundBelow {</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L314"><span class="lineNum">     314</span>              :                 }</span>
+<span id="L315"><span class="lineNum">     315</span>              : </span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                 if !world.Components.SpriteRender.Has(belowTileEntity) {</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                         continue // 下が床でなければ影を描画しない</span></span>
+<span id="L318"><span class="lineNum">     318</span>              :                 }</span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                 belowSpriteRender := world.Components.SpriteRender.Get(belowTileEntity)</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 if belowSpriteRender.Depth != gc.DepthNumFloor {</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                         continue // 下が床でなければ影を描画しない</span></span>
+<span id="L322"><span class="lineNum">     322</span>              :                 }</span>
+<span id="L323"><span class="lineNum">     323</span>              : </span>
+<span id="L324"><span class="lineNum">     324</span>              :                 // 下のタイルが壁でないことも確認（壁-&gt;床-&gt;壁の場合は影を描画しない）</span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 if world.Components.BlockView.Has(belowTileEntity) &amp;&amp; world.Components.BlockPass.Has(belowTileEntity) {</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L327"><span class="lineNum">     327</span>              :                 }</span>
+<span id="L328"><span class="lineNum">     328</span>              : </span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                 op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                 setTranslate(world, op, camera)</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                 if wallShadowImage != nil {</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                         screen.DrawImage(wallShadowImage, op)</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L335"><span class="lineNum">     335</span>              :         }</span>
+<span id="L336"><span class="lineNum">     336</span>              : }</span>
+<span id="L337"><span class="lineNum">     337</span>              : </span>
+<span id="L338"><span class="lineNum">     338</span>              : func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera, desaturate bool) error {</span>
+<span id="L339"><span class="lineNum">     339</span>              :         // Resourcesからスプライトシートを取得</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         if world.Resources.SpriteSheets == nil {</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;sprite sheets are nil&quot;)</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :         spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;sprite sheet '%s' not found&quot;, spriteRender.SpriteSheetName)</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L347"><span class="lineNum">     347</span>              : </span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :         sprite, exists := spriteSheet.Sprites[spriteRender.SpriteKey]</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;sprite key '%s' does not exist in sprite sheet '%s'&quot;, spriteRender.SpriteKey, spriteRender.SpriteSheetName)</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L352"><span class="lineNum">     352</span>              : </span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :         op := &amp;spriteRender.Options</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         op.GeoM.Reset()                                                       // FIXME: Resetがないと非表示になる。なぜ?</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(float64(-sprite.Width/2), float64(-sprite.Width/2)) // 回転軸を画像の中心にする</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :         op.GeoM.Rotate(angle)</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(float64(pos.X), float64(pos.Y))</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :         setTranslate(world, op, camera)</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :         img := world.Resources.Sprites.Image(spriteRender)</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         if img == nil {</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :         if desaturate {</span></span>
+<span id="L365"><span class="lineNum">     365</span>              :                 // 記憶タイルは彩度を落として退色させる。色行列で彩度を下げ明度を少し落とし、</span>
+<span id="L366"><span class="lineNum">     366</span>              :                 // 「今見ている」タイルと区別する。減光は後段の暗闇オーバーレイが担う</span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                 var cm colorm.ColorM</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                 cm.ChangeHSV(0, memorySaturation, memoryValue)</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                 dop := &amp;colorm.DrawImageOptions{GeoM: op.GeoM, Blend: op.Blend, Filter: op.Filter}</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :                 colorm.DrawImage(screen, img, cm, dop)</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         } else {</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                 screen.DrawImage(img, op)</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L374"><span class="lineNum">     374</span>              : </span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :         if world.Resources.Config.ShowMapDebug {</span></span>
+<span id="L376"><span class="lineNum">     376</span>              :                 // デバッグ用：スプライト番号表示(dirt, dwall)</span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                 if spriteRender.SpriteSheetName == &quot;tile&quot; {</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :                         var number string</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                         var prefix string</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                         if after, ok := strings.CutPrefix(spriteRender.SpriteKey, &quot;dirt_&quot;); ok {</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                                 number = after</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                                 prefix = &quot;d&quot;</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                         } else if after, ok := strings.CutPrefix(spriteRender.SpriteKey, &quot;dwall_&quot;); ok {</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                                 number = after</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                                 prefix = &quot;w&quot;</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L387"><span class="lineNum">     387</span>              : </span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                         if number != &quot;&quot; {</span></span>
+<span id="L389"><span class="lineNum">     389</span>              :                                 // カメラ変換を考慮したテキスト位置を計算</span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                                 textOp := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                                 textOp.GeoM.Translate(float64(pos.X-8), float64(pos.Y-8)) // タイルの左上付近に表示</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                                 setTranslate(world, textOp, camera)</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L394"><span class="lineNum">     394</span>              :                                 // テキスト表示位置を逆変換で求める</span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                                 screenX, screenY := textOp.GeoM.Apply(0, 0)</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                                 ebitenutil.DebugPrintAt(screen, prefix+number, int(screenX), int(screenY))</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L398"><span class="lineNum">     398</span>              :                 }</span>
+<span id="L399"><span class="lineNum">     399</span>              :         }</span>
+<span id="L400"><span class="lineNum">     400</span>              : </span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L402"><span class="lineNum">     402</span>              : }</span>
+<span id="L403"><span class="lineNum">     403</span>              : </span>
+<span id="L404"><span class="lineNum">     404</span>              : // renderDarkness は per-tile の暗さをタイル整列でそのまま描く暗闇オーバーレイ。</span>
+<span id="L405"><span class="lineNum">     405</span>              : // vision が壁遮蔽込みで計算した per-tile の暗さを1タイル1テクセルの小画像へ詰め、</span>
+<span id="L406"><span class="lineNum">     406</span>              : // FilterNearest でタイルサイズへ拡大する。補間しないのでタイル単位の一様な明るさになり、</span>
+<span id="L407"><span class="lineNum">     407</span>              : // ドット絵と質感が揃う。暗さは連続値なので段差ジャンプ(チカチカ)は出ない。</span>
+<span id="L408"><span class="lineNum">     408</span>              : func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo, camera *gc.Camera) {</span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :         var cameraX, cameraY float64</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         cameraScale := 1.0</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :         if camera != nil {</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :                 cameraX = float64(camera.Pos.X)</span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :                 cameraY = float64(camera.Pos.Y)</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :                 cameraScale = camera.Scale</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L416"><span class="lineNum">     416</span>              : </span>
+<span id="L417"><span class="lineNum">     417</span>              :         // 床レイヤのカリング余白に合わせてタイルを拾う。描き漏れを防ぐ</span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :         minX, maxX, minY, maxY := viewportTileBounds(world, viewportCullMargin, camera)</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :         mw := maxX - minX + 1</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         mh := maxY - minY + 1</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :         if mw &lt;= 0 || mh &lt;= 0 {</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :         sys.ensureDarknessMap(mw, mh)</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L426"><span class="lineNum">     426</span>              :         // 1タイル1テクセル。黒 rgb=0、アルファに暗さを連続値で詰める。バッファは使い回す。</span>
+<span id="L427"><span class="lineNum">     427</span>              :         // rgb は常に0のままで、各テクセルのアルファは毎フレーム全て上書きするのでクリア不要。</span>
+<span id="L428"><span class="lineNum">     428</span>              :         // 3状態を tileRenderAt で網羅する。未探索は完全な闇、可視/記憶はそれぞれの暗さ</span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :         pix := sys.darknessPix</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :         for j := range mh {</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                 for i := range mw {</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :                         grid := gc.GridElement{Coord: consts.Coord[consts.Tile]{X: consts.Tile(minX + i), Y: consts.Tile(minY + j)}}</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :                         var darkness float64</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :                         switch v := tileRenderAt(tileRenderMap, grid).(type) {</span></span>
+<span id="L435"><span class="lineNum">     435</span>              :                         case TileRenderVisible:</span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :                                 darkness = float64(v.Darkness)</span></span>
+<span id="L437"><span class="lineNum">     437</span>              :                         case TileRenderRemembered:</span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :                                 darkness = float64(v.Darkness)</span></span>
+<span id="L439"><span class="lineNum">     439</span>              :                         case TileRenderUnexplored:</span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :                                 darkness = 1.0</span></span>
+<span id="L441"><span class="lineNum">     441</span>              :                         default:</span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :                                 panic(fmt.Sprintf(&quot;unknown TileRenderInfo: %T&quot;, v))</span></span>
+<span id="L443"><span class="lineNum">     443</span>              :                         }</span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                         pix[(j*mw+i)*4+3] = byte(max(0.0, min(1.0, darkness)) * 255)</span></span>
+<span id="L445"><span class="lineNum">     445</span>              :                 }</span>
+<span id="L446"><span class="lineNum">     446</span>              :         }</span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :         sys.darknessMap.WritePixels(pix)</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L449"><span class="lineNum">     449</span>              :         // タイルグリッドへ合わせて拡大する。texel(0,0) の左上をタイル(minX,minY)の左上へ置く。</span>
+<span id="L450"><span class="lineNum">     450</span>              :         // FilterNearest なので各テクセルは1タイルの一様な四角として描かれる</span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :         ts := float64(consts.TileSize)</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :         offsetX := (float64(minX)*ts-cameraX)*cameraScale + float64(world.Resources.ScreenDimensions.Width)/2</span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :         offsetY := (float64(minY)*ts-cameraY)*cameraScale + float64(world.Resources.ScreenDimensions.Height)/2</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :         op.GeoM.Scale(ts*cameraScale, ts*cameraScale)</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(offsetX, offsetY)</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :         op.Filter = ebiten.FilterNearest</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :         screen.DrawImage(sys.darknessMap, op)</span></span>
+<span id="L460"><span class="lineNum">     460</span>              : }</span>
+<span id="L461"><span class="lineNum">     461</span>              : </span>
+<span id="L462"><span class="lineNum">     462</span>              : // ensureDarknessMap は per-tile 暗さマップの小画像を用意する。サイズが変わったら作り直す。</span>
+<span id="L463"><span class="lineNum">     463</span>              : func (sys *RenderSpriteSystem) ensureDarknessMap(width, height int) {</span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :         if sys.darknessMap != nil {</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :                 b := sys.darknessMap.Bounds()</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :                 if b.Dx() == width &amp;&amp; b.Dy() == height {</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :                 sys.darknessMap.Deallocate()</span></span>
+<span id="L470"><span class="lineNum">     470</span>              :         }</span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :         sys.darknessMap = ebiten.NewImage(width, height)</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :         sys.darknessPix = make([]byte, width*height*4)</span></span>
+<span id="L473"><span class="lineNum">     473</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - widgets/menuframe/internal/widgets/menuframe/split.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">widgets/menuframe/internal/widgets/menuframe</a> - split.go<span style="font-size: 80%;"> (source / <a href="split.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-08-29 11:08:59</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package menuframe</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;image&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/internal/uicore&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              : )</span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              : // 見出しと左右2枠を持つ全画面の寸法。画面はこれらを知らない</span>
+<span id="L14"><span class="lineNum">      14</span>              : const (</span>
+<span id="L15"><span class="lineNum">      15</span>              :         splitTitleTop     = 24  // 見出しの上端</span>
+<span id="L16"><span class="lineNum">      16</span>              :         splitTitleH       = 36  // 見出し行の高さ</span>
+<span id="L17"><span class="lineNum">      17</span>              :         splitBodyTop      = 80  // 左右の枠の上端</span>
+<span id="L18"><span class="lineNum">      18</span>              :         splitSideMargin   = 40  // 画面左右の余白</span>
+<span id="L19"><span class="lineNum">      19</span>              :         splitLeftW        = 180 // 左枠の幅</span>
+<span id="L20"><span class="lineNum">      20</span>              :         splitGutter       = 20  // 左枠と右枠の間隔</span>
+<span id="L21"><span class="lineNum">      21</span>              :         splitFooterH      = 72  // 下に空ける高さ。説明とヒントの2行ぶん</span>
+<span id="L22"><span class="lineNum">      22</span>              :         splitLineGap      = 8   // 下部の行と行の間隔</span>
+<span id="L23"><span class="lineNum">      23</span>              :         splitBottomMargin = 16  // 画面下端の余白</span>
+<span id="L24"><span class="lineNum">      24</span>              : )</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // SplitScreen は見出し・左の一覧・右の詳細枠・下の説明とヒントを持つ全画面を組む。</span>
+<span id="L27"><span class="lineNum">      27</span>              : // 左右の枠は上端をそろえ、下は説明の手前で止まる。寸法と余白は部品が持ち、</span>
+<span id="L28"><span class="lineNum">      28</span>              : // 画面は中身の widget と文言だけを渡す。</span>
+<span id="L29"><span class="lineNum">      29</span>              : func SplitScreen(world w.World, res resources.UIResources, title string, left, right uicore.Widget, description, hint string) uicore.Widget {</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC tlaBgUNC">           0 :         sd := world.Resources.ScreenDimensions</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         titleText := newCenteredText(title, res.Text.TitleFontFace, theme.TextPrimary)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         titleText.Layout(image.Rect(0, splitTitleTop, sd.Width, splitTitleTop+splitTitleH))</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         bodyBottom := sd.Height - splitFooterH</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         leftX := splitSideMargin</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         left.Layout(image.Rect(leftX, splitBodyTop, leftX+splitLeftW, bodyBottom))</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         right.Layout(image.Rect(leftX+splitLeftW+splitGutter, splitBodyTop, sd.Width-splitSideMargin, bodyBottom))</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L40"><span class="lineNum">      40</span>              :         // 説明とヒントは下端から積み上げる</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         descTop := sd.Height - noteRowH*2 - splitLineGap - splitBottomMargin</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         descText := newCenteredText(description, res.Text.SmallFace, theme.TextAccent)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         descText.Layout(image.Rect(0, descTop, sd.Width, descTop+noteRowH))</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         hintTop := descTop + noteRowH + splitLineGap</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         hintText := newCenteredText(hint, res.Text.SmallFace, theme.TextAccent)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         hintText.Layout(image.Rect(0, hintTop, sd.Width, hintTop+noteRowH))</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         root := uicore.NewGroup(titleText, left, right, descText, hintText)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         root.Layout(image.Rect(0, 0, sd.Width, sd.Height))</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         return root</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span>              : // SplitList は SplitScreen の左枠に載せる一覧を組む。単一ページの一覧で、ページ表示は持たない。</span>
+<span id="L54"><span class="lineNum">      54</span>              : func SplitList(itemIndex int, rows []Row, res resources.UIResources) uicore.Widget {</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         listRows, _ := RenderList(itemIndex, rows, styled.Cols(styled.Name()), ListOpts{}, res)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         return uicore.VBox(theme.MenuPanelRowH, uicore.Placeable(listRows)...)</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

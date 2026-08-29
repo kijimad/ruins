@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">33.0&nbsp;%</td>
-            <td class="headerCovTableEntry">103</td>
-            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryLo">29.5&nbsp;%</td>
+            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntry">28</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-28 01:00:41</td>
+            <td class="headerValue">2026-08-29 11:08:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -213,28 +213,19 @@
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC tlaBgGNC">           1 :         world.Resources.SpriteSheets = spriteSheets</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC tlaBgGNC">           1 :         world.Resources.SetSpriteSheets(spriteSheets)</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L156"><span class="lineNum">     156</span>              :         // フォントを読み込む</span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         fonts, err := loader.LoadFonts()</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :         // UIリソースを読み込む</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         uir, err := loader.LoadUIResources()</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC tlaBgGNC">           1 :         world.Resources.Fonts = fonts</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC tlaBgGNC">           1 :         world.Resources.UIResources = uir</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         world.Resources.Faces = loader.BuildFaces(fonts)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         world.Updaters, world.Renderers = gs.InitializeSystems(world)</span></span>
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L165"><span class="lineNum">     165</span>              :         // UIリソースを読み込む</span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         uir, err := loader.LoadUIResources(fonts)</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC tlaBgUNC">           0 :                 return w.World{}, err</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           1 :         world.Resources.UIResources = uir</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         world.Updaters, world.Renderers = gs.InitializeSystems(world)</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         return world, nil</span></span>
-<span id="L175"><span class="lineNum">     175</span>              : }</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         return world, nil</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : }</span>
         </pre>
               </td>
             </tr>

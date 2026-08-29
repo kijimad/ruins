@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - widgets/hud/internal/widgets/hud/infopanel.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">widgets/hud/internal/widgets/hud</a> - infopanel.go<span style="font-size: 80%;"> (source / <a href="infopanel.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-08-29 11:08:59</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package hud</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;image&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         text &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/internal/uicore&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              : )</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // 画面右上へ置く情報パネルの寸法</span>
+<span id="L13"><span class="lineNum">      13</span>              : const (</span>
+<span id="L14"><span class="lineNum">      14</span>              :         infoPanelWidth  = 300 // パネルの幅</span>
+<span id="L15"><span class="lineNum">      15</span>              :         infoPanelMargin = 10  // 画面端との余白</span>
+<span id="L16"><span class="lineNum">      16</span>              :         infoPanelPad    = 10  // パネル内側の余白</span>
+<span id="L17"><span class="lineNum">      17</span>              :         // LineH は世界の上に重ねるパネルに置く本文1行の高さ。ログ領域も同じ値を使い、行送りを揃える</span>
+<span id="L18"><span class="lineNum">      18</span>              :         LineH = 20</span>
+<span id="L19"><span class="lineNum">      19</span>              : )</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              : // InfoPanel は画面の右上へ置く情報パネル。パネルの意匠を敷き、行を上から順に書き足す。</span>
+<span id="L22"><span class="lineNum">      22</span>              : // 見回しや射撃のように、ゲーム世界の上へ一時的に情報を出す画面で使う。</span>
+<span id="L23"><span class="lineNum">      23</span>              : type InfoPanel struct {</span>
+<span id="L24"><span class="lineNum">      24</span>              :         cv   uicore.Canvas</span>
+<span id="L25"><span class="lineNum">      25</span>              :         face text.Face</span>
+<span id="L26"><span class="lineNum">      26</span>              :         rect image.Rectangle</span>
+<span id="L27"><span class="lineNum">      27</span>              :         y    int // 次に書き込む行の上端</span>
+<span id="L28"><span class="lineNum">      28</span>              : }</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // NewInfoPanel は高さ height のパネルを画面右上へ敷き、書き込み位置を先頭に置く。</span>
+<span id="L31"><span class="lineNum">      31</span>              : func NewInfoPanel(cv uicore.Canvas, chrome Chrome, face text.Face, screenWidth, height int) *InfoPanel {</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :         x := screenWidth - infoPanelWidth - infoPanelMargin</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         rect := image.Rect(x, infoPanelMargin, x+infoPanelWidth, infoPanelMargin+height)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         chrome.Panel(cv, rect)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         return &amp;InfoPanel{</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 cv:   cv,</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 face: face,</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 rect: rect,</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 y:    rect.Min.Y + infoPanelPad,</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span>              : }</span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              : // Line は1行書き、書き込み位置を1行ぶん送る。</span>
+<span id="L44"><span class="lineNum">      44</span>              : func (p *InfoPanel) Line(s string) {</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         p.cv.DrawText(image.Pt(p.rect.Min.X+infoPanelPad, p.y), s, p.face, theme.TextPrimary)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         p.y += LineH</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              : // Gap は書き込み位置を px ぶん送る。段落の切れ目に使う。</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 : func (p *InfoPanel) Gap(px int) { p.y += px }</span></span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span>              : // SeekBottom は書き込み位置をパネル下端から fromBottom だけ上へ移す。</span>
+<span id="L53"><span class="lineNum">      53</span>              : // 操作説明のように、内容の量によらず下端に置きたい行に使う。</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 : func (p *InfoPanel) SeekBottom(fromBottom int) { p.y = p.rect.Max.Y - fromBottom }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

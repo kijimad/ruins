@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">93.8&nbsp;%</td>
-            <td class="headerCovTableEntry">176</td>
-            <td class="headerCovTableEntry">165</td>
+            <td class="headerCovTableEntryHi">93.6&nbsp;%</td>
+            <td class="headerCovTableEntry">172</td>
+            <td class="headerCovTableEntry">161</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-28 01:00:41</td>
+            <td class="headerValue">2026-08-29 11:08:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,12 +66,12 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;strings&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/ebitenui/ebitenui/widget&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/ui&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
@@ -314,34 +314,28 @@
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         return rows</span></span>
 <span id="L253"><span class="lineNum">     253</span>              : }</span>
 <span id="L254"><span class="lineNum">     254</span>              : </span>
-<span id="L255"><span class="lineNum">     255</span>              : // buildInfoTable は情報タブの一覧を組み立てる。能力タブは補正列を加える</span>
-<span id="L256"><span class="lineNum">     256</span>              : func buildInfoTable(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) *widget.Container {</span>
+<span id="L255"><span class="lineNum">     255</span>              : // buildInfoTableUI は情報タブの表とフッタ右端のページ表示を返す。</span>
+<span id="L256"><span class="lineNum">     256</span>              : func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {</span>
 <span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         hasModifier := tab.ID == tabAbilities</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         var columnWidths []int</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         var aligns []styled.TextAlign</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         // 能力タブは 名前・値・修正値 の3列、他は 名前・値 の2列。値と修正値は右寄せ</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         cols := styled.Cols(styled.Name(), styled.Num())</span></span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         if hasModifier {</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 columnWidths = []int{100, 60, 60}</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :                 aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         } else {</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 columnWidths = []int{100, 60}</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L267"><span class="lineNum">     267</span>              : </span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         rows := make([]menuRow, len(tab.Items))</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         for i, it := range tab.Items {</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 cells := make([]string, len(columnWidths))</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 cells[0] = it.Label</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 if !it.IsHeader {</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                         cells[1] = it.Value</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                         if hasModifier {</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                                 cells[2] = it.Modifier</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L277"><span class="lineNum">     277</span>              :                 }</span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 rows[i] = menuRow{Cells: styled.TextCells(cells...), Header: it.IsHeader}</span></span>
-<span id="L279"><span class="lineNum">     279</span>              :         }</span>
-<span id="L280"><span class="lineNum">     280</span>              :         // この画面は見出しとタブ帯の両方が縦を食うので、その構成での実測容量を使う</span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, &quot;No entries&quot;), ItemsPerPage: menuframe.ListCapacity(res, true, true)}, res)</span></span>
-<span id="L282"><span class="lineNum">     282</span>              : }</span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :                 cols = styled.Cols(styled.Name(), styled.Num(), styled.Num())</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(tab.Items))</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         for i, it := range tab.Items {</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 cells := make([]string, len(cols))</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 cells[0] = it.Label</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 if !it.IsHeader {</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                         cells[1] = it.Value</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                         if hasModifier {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                                 cells[2] = it.Modifier</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L272"><span class="lineNum">     272</span>              :                 }</span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 rows[i] = menuframe.Row{Cells: styled.TextCells(cells...), Header: it.IsHeader}</span></span>
+<span id="L274"><span class="lineNum">     274</span>              :         }</span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, &quot;No entries&quot;), ItemsPerPage: menuframe.ListCapacity(world, true, true)}, res)</span></span>
+<span id="L276"><span class="lineNum">     276</span>              : }</span>
         </pre>
               </td>
             </tr>

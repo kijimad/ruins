@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.6&nbsp;%</td>
-            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntryMed">89.7&nbsp;%</td>
             <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">26</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-28 01:00:41</td>
+            <td class="headerValue">2026-08-29 11:08:59</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,7 +91,7 @@
 <span id="L29"><span class="lineNum">      29</span>              : // 戻ったところで解放するので、抱え込まずその場で読み切る。</span>
 <span id="L30"><span class="lineNum">      30</span>              : //</span>
 <span id="L31"><span class="lineNum">      31</span>              : // state 側に再生用の口は要らない。入力供給源は world が持ち、押し込んだ先の state にも同じ源が</span>
-<span id="L32"><span class="lineNum">      32</span>              : // 効く。ebitenui グローバルに触れるため一連の駆動を vrt.WithUILock で直列化する。</span>
+<span id="L32"><span class="lineNum">      32</span>              : // 効く。world は自前の独立フェイスを持つので、駆動と描画はロック無しで並列に走れる。</span>
 <span id="L33"><span class="lineNum">      33</span>              : //</span>
 <span id="L34"><span class="lineNum">      34</span>              : // overlay が Active な間は Screen の入力ゲートが overlay へ入力を渡すが、overlay も</span>
 <span id="L35"><span class="lineNum">      35</span>              : // keybind.ReadInput で同じ供給源から読むので、詳細モーダルを開いた先も Action 列で駆動できる。</span>
@@ -102,55 +102,51 @@
 <span id="L40"><span class="lineNum">      40</span>              :         capture func(frame int, world w.World, screen *ebiten.Image),</span>
 <span id="L41"><span class="lineNum">      41</span>              : ) *maingame.MainGame {</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :         t.Helper()</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         world := vrt.InitVRTWorld(t)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         world := vrt.InitReplayWorld(t)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         var game *maingame.MainGame</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         vrt.WithUILock(func() {</span></span>
-<span id="L47"><span class="lineNum">      47</span>              :                 // レイアウト確定フレームは供給源を差す前に回す。Action を消費させない</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 sm := vrt.SetupStateMachine(t, world, buildStates)</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 var err error</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 game, err = maingame.NewMainGame(world, sm)</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 require.NoError(t, err)</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 world.Resources.InputSource = actionSource(actions)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 for frame := range len(actions) + 1 {</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                         if err := game.Update(); err != nil {</span></span>
-<span id="L57"><span class="lineNum">      57</span>              :                                 // 全ての state が Pop されたときの正常終了。以降は駆動するものが無い</span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :                                 require.ErrorIs(t, err, ebiten.Termination, &quot;frame %d update failed&quot;, frame)</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                                 return</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 :                         if capture == nil {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                                 continue</span></span>
-<span id="L63"><span class="lineNum">      63</span>              :                         }</span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                         screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                         game.Draw(screen)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                         capture(frame, world, screen)</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                         screen.Deallocate()</span></span>
-<span id="L68"><span class="lineNum">      68</span>              :                 }</span>
-<span id="L69"><span class="lineNum">      69</span>              :         })</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         return game</span></span>
-<span id="L71"><span class="lineNum">      71</span>              : }</span>
-<span id="L72"><span class="lineNum">      72</span>              : </span>
-<span id="L73"><span class="lineNum">      73</span>              : // NoInput は入力の無いフレームを表す。本番はキーを押していないフレームが大半なので、</span>
-<span id="L74"><span class="lineNum">      74</span>              : // 待ちが要る場面ではこれを並べる。state を push した直後のフレームは新しい Screen の</span>
-<span id="L75"><span class="lineNum">      75</span>              : // タブ登録がまだ済んでいないため、続けて操作するなら1つ挟む</span>
-<span id="L76"><span class="lineNum">      76</span>              : const NoInput inputmapper.ActionID = &quot;&quot;</span>
-<span id="L77"><span class="lineNum">      77</span>              : </span>
-<span id="L78"><span class="lineNum">      78</span>              : // actionSource は Action 列を1フレーム1件で吐く供給源を作る。NoInput と列が尽きたあとは</span>
-<span id="L79"><span class="lineNum">      79</span>              : // 偽を返す。供給源は非 nil のままなので ReadInput はキーボードへ戻らず、そのフレームは</span>
-<span id="L80"><span class="lineNum">      80</span>              : // 入力なしとして扱われる</span>
-<span id="L81"><span class="lineNum">      81</span>              : func actionSource(actions []inputmapper.ActionID) inputmapper.Source {</span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         rest := actions</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return func() (inputmapper.ActionID, bool) {</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 if len(rest) == 0 {</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                         return NoInput, false</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                 action := rest[0]</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                 rest = rest[1:]</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 return action, action != NoInput</span></span>
-<span id="L90"><span class="lineNum">      90</span>              :         }</span>
-<span id="L91"><span class="lineNum">      91</span>              : }</span>
+<span id="L45"><span class="lineNum">      45</span>              :         // レイアウト確定フレームは供給源を差す前に回す。Action を消費させない</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         sm := vrt.SetupStateMachine(t, world, buildStates)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         game, err := maingame.NewMainGame(world, sm)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         require.NoError(t, err)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         world.Resources.InputSource = actionSource(actions)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         for frame := range len(actions) + 1 {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 if err := game.Update(); err != nil {</span></span>
+<span id="L54"><span class="lineNum">      54</span>              :                         // 全ての state が Pop されたときの正常終了。以降は駆動するものが無い</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :                         require.ErrorIs(t, err, ebiten.Termination, &quot;frame %d update failed&quot;, frame)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                         return game</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC tlaBgGNC">           1 :                 if capture == nil {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L60"><span class="lineNum">      60</span>              :                 }</span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 game.Draw(screen)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 capture(frame, world, screen)</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 screen.Deallocate()</span></span>
+<span id="L65"><span class="lineNum">      65</span>              :         }</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         return game</span></span>
+<span id="L67"><span class="lineNum">      67</span>              : }</span>
+<span id="L68"><span class="lineNum">      68</span>              : </span>
+<span id="L69"><span class="lineNum">      69</span>              : // NoInput は入力の無いフレームを表す。本番はキーを押していないフレームが大半なので、</span>
+<span id="L70"><span class="lineNum">      70</span>              : // 待ちが要る場面ではこれを並べる。state を push した直後のフレームは新しい Screen の</span>
+<span id="L71"><span class="lineNum">      71</span>              : // タブ登録がまだ済んでいないため、続けて操作するなら1つ挟む</span>
+<span id="L72"><span class="lineNum">      72</span>              : const NoInput inputmapper.ActionID = &quot;&quot;</span>
+<span id="L73"><span class="lineNum">      73</span>              : </span>
+<span id="L74"><span class="lineNum">      74</span>              : // actionSource は Action 列を1フレーム1件で吐く供給源を作る。NoInput と列が尽きたあとは</span>
+<span id="L75"><span class="lineNum">      75</span>              : // 偽を返す。供給源は非 nil のままなので ReadInput はキーボードへ戻らず、そのフレームは</span>
+<span id="L76"><span class="lineNum">      76</span>              : // 入力なしとして扱われる</span>
+<span id="L77"><span class="lineNum">      77</span>              : func actionSource(actions []inputmapper.ActionID) inputmapper.Source {</span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         rest := actions</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         return func() (inputmapper.ActionID, bool) {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 if len(rest) == 0 {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                         return NoInput, false</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                 action := rest[0]</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :                 rest = rest[1:]</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 return action, action != NoInput</span></span>
+<span id="L86"><span class="lineNum">      86</span>              :         }</span>
+<span id="L87"><span class="lineNum">      87</span>              : }</span>
         </pre>
               </td>
             </tr>

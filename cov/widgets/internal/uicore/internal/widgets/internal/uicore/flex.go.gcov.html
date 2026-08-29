@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - widgets/internal/uicore/internal/widgets/internal/uicore/flex.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../../../index.html">top level</a> - <a href="index.html">widgets/internal/uicore/internal/widgets/internal/uicore</a> - flex.go<span style="font-size: 80%;"> (source / <a href="flex.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">22.7&nbsp;%</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">5</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-08-29 11:08:59</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package uicore</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;image&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;sync&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/yohamta/furex/v2&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : )</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // layoutProbe は furex から確定 frame を受け取るための捨て描画先。furex は frame を</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 描画コールバック経由でしか渡さないため、1×1 の画像へ空描画して記録させる。</span>
+<span id="L13"><span class="lineNum">      13</span>              : // ハンドラは画像へ何も描かないので読み書きが無く、全コンテナで共有できる。</span>
+<span id="L14"><span class="lineNum">      14</span>              : // 生成に ebiten の描画コンテキストが要るので遅延して一度だけ作る。</span>
+<span id="L15"><span class="lineNum">      15</span>              : var (</span>
+<span id="L16"><span class="lineNum">      16</span>              :         probeOnce sync.Once</span>
+<span id="L17"><span class="lineNum">      17</span>              :         probe     *ebiten.Image</span>
+<span id="L18"><span class="lineNum">      18</span>              : )</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : func layoutProbe() *ebiten.Image {</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           2 :         probeOnce.Do(func() { probe = ebiten.NewImage(1, 1) })</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return probe</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : }</span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : // frameTo は furex.Drawer を実装し、確定 frame を widget の Layout へ流す。</span>
+<span id="L26"><span class="lineNum">      26</span>              : // furex はレイアウト計算にだけ使い、描画は保持ツリーが Canvas 経由で行う。</span>
+<span id="L27"><span class="lineNum">      27</span>              : type frameTo struct{ w Widget }</span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : // Draw は furex.Drawer を実装する。画面へは何も描かず、frame の記録だけを行う。</span>
+<span id="L30"><span class="lineNum">      30</span>              : func (f frameTo) Draw(_ *ebiten.Image, frame image.Rectangle, _ *furex.View) {</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         if f.w != nil {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 f.w.Layout(frame)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : }</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : // FlexItem は縦 flex の1行。W が nil の行は間隔だけを占めるスペーサ。</span>
+<span id="L37"><span class="lineNum">      37</span>              : // Grow が真の行は余り高さを吸収し、後続の行を下端へ押し付ける。</span>
+<span id="L38"><span class="lineNum">      38</span>              : type FlexItem struct {</span>
+<span id="L39"><span class="lineNum">      39</span>              :         W      Widget</span>
+<span id="L40"><span class="lineNum">      40</span>              :         Height int</span>
+<span id="L41"><span class="lineNum">      41</span>              :         Grow   bool</span>
+<span id="L42"><span class="lineNum">      42</span>              : }</span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : // FlexColumn は items を flexbox の縦方向で inner に配置し、各 widget の矩形を確定する。</span>
+<span id="L45"><span class="lineNum">      45</span>              : // 幅は既定の AlignItemStretch で inner いっぱいに伸びる。Container の固定高の積み上げと</span>
+<span id="L46"><span class="lineNum">      46</span>              : // 違い、Grow の行で余り高さを吸収できる。画面の枠組みがフッタを下端へ固定するのに使う。</span>
+<span id="L47"><span class="lineNum">      47</span>              : func FlexColumn(inner image.Rectangle, items []FlexItem) {</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC tlaBgUNC">           0 :         root := &amp;furex.View{</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 Left:      inner.Min.X,</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 Top:       inner.Min.Y,</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :                 Width:     inner.Dx(),</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 Height:    inner.Dy(),</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 Direction: furex.Column,</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         for _, it := range items {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                 child := &amp;furex.View{Handler: frameTo{w: it.W}}</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 if it.Grow {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                         child.Grow = 1</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 } else {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                         child.Height = it.Height</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                 root.AddChild(child)</span></span>
+<span id="L63"><span class="lineNum">      63</span>              :         }</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         root.Layout()</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         root.Draw(layoutProbe())</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

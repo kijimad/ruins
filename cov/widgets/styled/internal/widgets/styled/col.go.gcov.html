@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - widgets/styled/internal/widgets/styled/col.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">widgets/styled/internal/widgets/styled</a> - col.go<span style="font-size: 80%;"> (source / <a href="col.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-08-29 11:08:59</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package styled</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : // ColMode は列の幅の決め方。</span>
+<span id="L4"><span class="lineNum">       4</span>              : type ColMode string</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              : // 列の幅の決め方。</span>
+<span id="L7"><span class="lineNum">       7</span>              : const (</span>
+<span id="L8"><span class="lineNum">       8</span>              :         // ColGrow は余り幅を吸収して伸びる列。名前列に使う</span>
+<span id="L9"><span class="lineNum">       9</span>              :         ColGrow ColMode = &quot;grow&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         // ColFit は内容の実測幅に合わせる列。数値やタグに使う</span>
+<span id="L11"><span class="lineNum">      11</span>              :         ColFit ColMode = &quot;fit&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         // ColIcon はアイコン用の正方の固定列</span>
+<span id="L13"><span class="lineNum">      13</span>              :         ColIcon ColMode = &quot;icon&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              : )</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // Col は一覧の1列の定義。幅は宣言せず、伸縮 Grow・内容実測 Fit・正方 Icon の様式だけを持つ。</span>
+<span id="L17"><span class="lineNum">      17</span>              : // 実測は行データを知る一覧側が行う。</span>
+<span id="L18"><span class="lineNum">      18</span>              : type Col struct {</span>
+<span id="L19"><span class="lineNum">      19</span>              :         Mode  ColMode</span>
+<span id="L20"><span class="lineNum">      20</span>              :         Align TextAlign</span>
+<span id="L21"><span class="lineNum">      21</span>              : }</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // Name は名前やラベル用の列を返す。余り幅を吸収して伸び、左寄せで描く。</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 : func Name() Col { return Col{Mode: ColGrow, Align: AlignLeft} }</span></span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              : // Fit はタグや状態表示用の列を返す。内容の実測幅に合わせ、左寄せで描く。</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 : func Fit() Col { return Col{Mode: ColFit, Align: AlignLeft} }</span></span>
+<span id="L28"><span class="lineNum">      28</span>              : </span>
+<span id="L29"><span class="lineNum">      29</span>              : // Num は数値・重量・価格用の列を返す。内容の実測幅に合わせ、右寄せで桁を揃える。</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 : func Num() Col { return Col{Mode: ColFit, Align: AlignRight} }</span></span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : // Icon はアイテムのアイコン用の正方の列を返す。</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : func Icon() Col { return Col{Mode: ColIcon, Align: AlignLeft} }</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : // Desc は説明文用の列を返す。余り幅を吸収して伸び、右寄せで行の右端に説明の終端を揃える。</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 : func Desc() Col { return Col{Mode: ColGrow, Align: AlignRight} }</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : // Cols は列の並びをそのまま返す。呼び出し側の宣言を読みやすくする可変長版。</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : func Cols(cs ...Col) []Col { return cs }</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : // Aligns は列の並びから揃えだけを取り出す。</span>
+<span id="L42"><span class="lineNum">      42</span>              : func Aligns(cols []Col) []TextAlign {</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         as := make([]TextAlign, len(cols))</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         for i, c := range cols {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 as[i] = c.Align</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         return as</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
