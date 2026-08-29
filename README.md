@@ -104,7 +104,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | in-progress | [通信販売: オークション形式の販売機構](docs/design/260814170822.md) | 5/6（見送り2） | gamedesign, item, ui |
-| in-progress | [終端: run を死で締め、統計を記録して見せる](docs/design/260822014348.md) | 5/7（見送り1） | gamedesign, ecs, ui |
+| in-progress | [終端: run を死で締め、統計を記録して見せる](docs/design/260822014348.md) | 6/7（見送り1） | gamedesign, ecs, ui |
 | in-progress | [逓増: 危険と希少性の軸を深さから経過日数へ移す](docs/design/260822014350.md) | 8/10 | gamedesign, worldgen, ecs |
 | in-progress | [コード監査: worldgen・Ark stale pointer・serde 2026-08-24](docs/design/260824001220.md) | 4/5 | worldgen, ecs, save |
 | draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
