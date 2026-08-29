@@ -92,21 +92,6 @@ func isMsgidCall(fun ast.Expr) bool {
 	return false
 }
 
-// moduleRoot は go.mod を上位へ辿ってリポジトリルートを返す。
-func moduleRoot(t *testing.T) string {
-	t.Helper()
-	dir, err := os.Getwd()
-	require.NoError(t, err)
-	for {
-		if _, statErr := os.Stat(filepath.Join(dir, "go.mod")); statErr == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		require.NotEqual(t, parent, dir, "go.mod が見つからない")
-		dir = parent
-	}
-}
-
 // parsePoMsgids は埋め込み ja.po から定義済み msgid の集合を作る。
 // msgid は複数行に分かれることがあるので、続く "..." 行を連結する。
 func parsePoMsgids(t *testing.T) map[string]bool {
@@ -141,4 +126,20 @@ func unquotePo(s string) string {
 		return u
 	}
 	return strings.Trim(s, `"`)
+}
+
+// moduleRoot は go.mod を上位へ辿ってリポジトリルートを返す。
+func moduleRoot(t *testing.T) string {
+	t.Helper()
+
+	dir, err := os.Getwd()
+	require.NoError(t, err)
+	for {
+		if _, statErr := os.Stat(filepath.Join(dir, "go.mod")); statErr == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		require.NotEqual(t, parent, dir, "go.mod が見つからない")
+		dir = parent
+	}
 }

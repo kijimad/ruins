@@ -1,4 +1,4 @@
-package main
+package lintrule_test
 
 import (
 	"os"
@@ -76,10 +76,10 @@ func staleDepguardPaths(config []byte, module string, exists func(string) bool) 
 }
 
 // modulePath は go.mod の module 行からモジュールパスを読む
-func modulePath(t *testing.T) string {
+func modulePath(t *testing.T, root string) string {
 	t.Helper()
 
-	body, err := os.ReadFile("go.mod")
+	body, err := os.ReadFile(filepath.Join(root, "go.mod"))
 	require.NoError(t, err)
 	for line := range strings.Lines(string(body)) {
 		if after, ok := strings.CutPrefix(strings.TrimSpace(line), "module "); ok {
@@ -94,11 +94,12 @@ func modulePath(t *testing.T) string {
 func TestStaleDepguardPaths_設定が指すパスがすべて実在する(t *testing.T) {
 	t.Parallel()
 
-	config, err := os.ReadFile(".golangci.yml")
+	root := moduleRoot(t)
+	config, err := os.ReadFile(filepath.Join(root, ".golangci.yml"))
 	require.NoError(t, err)
 
-	stale, err := staleDepguardPaths(config, modulePath(t), func(rel string) bool {
-		_, err := os.Stat(filepath.FromSlash(rel))
+	stale, err := staleDepguardPaths(config, modulePath(t, root), func(rel string) bool {
+		_, err := os.Stat(filepath.Join(root, filepath.FromSlash(rel)))
 
 		return err == nil
 	})

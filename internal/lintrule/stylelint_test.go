@@ -1,4 +1,4 @@
-package menuframe_test
+package lintrule_test
 
 import (
 	"go/ast"
@@ -106,7 +106,7 @@ func TestScreenLayerUICoreSurface(t *testing.T) {
 func inspectScreenFiles(t *testing.T, dirs []string, visit func(report func(ast.Node, string), f *ast.File)) []string {
 	t.Helper()
 
-	root := moduleRootDir(t)
+	root := moduleRoot(t)
 	fset := token.NewFileSet()
 	var violations []string
 
@@ -139,19 +139,4 @@ func inspectScreenFiles(t *testing.T, dirs []string, visit func(report func(ast.
 	sort.Strings(violations)
 
 	return violations
-}
-
-// moduleRootDir は go.mod のあるモジュールルートを返す。テストの実行位置に依存しない。
-func moduleRootDir(t *testing.T) string {
-	t.Helper()
-	dir, err := os.Getwd()
-	require.NoError(t, err)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		require.NotEqual(t, dir, parent, "go.mod が見つからない")
-		dir = parent
-	}
 }
