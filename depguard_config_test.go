@@ -41,7 +41,9 @@ func staleDepguardPaths(config []byte, module string, exists func(string) bool) 
 	var stale []string
 	for name, rule := range cfg.Linters.Settings.Depguard.Rules {
 		for _, pattern := range rule.Files {
-			// $all・$test・$gostd は golangci が解釈する特殊トークン
+			// 先頭の ! は除外指定、前後の ** は任意階層のワイルドカード。実在確認にかける
+			// リポジトリ相対パスだけを取り出す。ディレクトリ指定は前後に ** が付き、
+			// ファイル直指定は先頭だけに付く。$all・$test・$gostd は golangci の特殊トークン
 			rel := strings.TrimPrefix(pattern, "!")
 			if strings.HasPrefix(rel, "$") {
 				continue
@@ -52,21 +54,22 @@ func staleDepguardPaths(config []byte, module string, exists func(string) bool) 
 			}
 		}
 
-		pkgs := append([]string{}, rule.Allow...)
-		for _, deny := range rule.Deny {
-			pkgs = append(pkgs, deny.Pkg)
-		}
-		for _, pkg := range pkgs {
-			// 他モジュールと $gostd は自リポジトリに実体が無いので確認できない。
-			// 末尾の $ は正規表現のアンカーなので外す
+		// 他モジュールと $gostd は自リポジトリに実体が無いので確認できない。
+		// 末尾の $ は正規表現のアンカーなので外す
+		checkPkg := func(pkg string) {
 			if !strings.HasPrefix(pkg, module) {
-				continue
+				return
 			}
-			rel := strings.TrimPrefix(strings.TrimSuffix(pkg, "$"), module)
-			rel = strings.Trim(rel, "/")
+			rel := strings.Trim(strings.TrimPrefix(strings.TrimSuffix(pkg, "$"), module), "/")
 			if rel != "" && !exists(rel) {
 				stale = append(stale, name+".pkg: "+pkg)
 			}
+		}
+		for _, pkg := range rule.Allow {
+			checkPkg(pkg)
+		}
+		for _, deny := range rule.Deny {
+			checkPkg(deny.Pkg)
 		}
 	}
 

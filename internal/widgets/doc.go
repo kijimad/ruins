@@ -12,9 +12,12 @@
 //
 //	widgets/     ← 業務ロジック付きの高レベルコンポーネント（このパッケージ）
 //	   ↓ 使用
-//	ui/          ← 保持型で宣言的な自前ツリー。Widget・Container・Text・Canvas
+//	uicore/      ← 保持型で宣言的な自前ツリー。Widget・Container・Text・Canvas
 //	   ↓ 使用
 //	ebiten/      ← 描画の最下層。EbitenCanvas が仲介する
+//
+// 画面層から見た面はこの上にもう1枚あり、widgets/ui が uicore の構成面だけを再輸出する。
+// theme・styled を含めた層の全体像は widgets/menuframe のパッケージコメントを参照。
 //
 // # Responsibilities
 //
@@ -34,10 +37,13 @@
 //   - ビジネスロジックとの連携が必要
 //   - 単体テストを書きたい
 //
-// ## widgets/uicore を直接使う場合
-//   - 保持型のツリーで画面を宣言的に組みたい
-//   - 状態管理は state 側が持ち、描画部品だけが要る
+// ## widgets の部品が widgets/uicore を直接使う場合
+//   - 保持型のツリーを宣言的に組みたい
+//   - 状態管理は呼び出し元が持ち、描画部品だけが要る
 //   - Canvas を差し替えてテストしたい
+//
+// uicore を import できるのは widgets 配下の部品だけで、画面層からの import は
+// depguard の ui_core_inbound_guard が弾く。画面はファサード widgets/ui を使う。
 //
 // # Sub-packages
 //
