@@ -11,7 +11,6 @@ import (
 
 // MessageAreaConfig はメッセージエリアの設定
 type MessageAreaConfig struct {
-	LogAreaHeight int // ログエリアの高さ
 	MaxLogLines   int // 表示する最大行数
 	LogAreaMargin int // 余白
 	LineHeight    int // 1行の高さ
@@ -26,7 +25,6 @@ func (c MessageAreaConfig) Height() int {
 
 // DefaultMessageAreaConfig はデフォルトのメッセージエリア設定
 var DefaultMessageAreaConfig = MessageAreaConfig{
-	LogAreaHeight: 120,          // 余裕を持たせて大きめに
 	MaxLogLines:   5,            // 表示する最大行数
 	LogAreaMargin: theme.Space3, // 余白
 	LineHeight:    LineH,        // 1行の高さ。世界の上に重ねるパネルと揃える
@@ -65,19 +63,6 @@ func NewMessageArea(world w.World) *MessageArea {
 		chrome:  NewChrome(world.Resources.UIResources),
 		enabled: true,
 	}
-}
-
-// SetConfig は設定を変更する
-func (area *MessageArea) SetConfig(config MessageAreaConfig) {
-	area.config = config
-	// 注意: messagelog.Widget に設定更新メソッドがない場合は、
-	// 新しいwidgetを作成する必要があります
-	// ここでは設定値を保存するだけにしています
-}
-
-// GetConfig は現在の設定を取得する
-func (area *MessageArea) GetConfig() MessageAreaConfig {
-	return area.config
 }
 
 // Update はメッセージエリアを更新する
