@@ -31,7 +31,7 @@ func itemMenuColumns(trailing ...styled.Col) []styled.Col {
 // menuIcon は entity のスプライトを一覧のアイコン列の大きさで返す。縮小はリソース側が
 // 一度だけ済ませるので、描画は等倍になる
 func menuIcon(world w.World, e ecs.Entity) *ebiten.Image {
-	return world.Resources.Icons.Sized(world.Resources.SpriteSheets, world.Components.SpriteRender.Get(e), theme.MenuIconW)
+	return world.Resources.Sprites.Sized(world.Components.SpriteRender.Get(e), theme.MenuIconW)
 }
 
 // itemMenuRow はアイテム entity から共通の先頭部 [アイコンセル + 名前×個数セル] を組み、

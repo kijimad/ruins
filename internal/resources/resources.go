@@ -15,7 +15,7 @@ import (
 type Resources struct {
 	ScreenDimensions ScreenDimensions
 	SpriteSheets     map[string]components.SpriteSheet
-	Icons            *IconStore // 一覧のアイコンを表示サイズで持つ置き場
+	Sprites          *SpriteStore // スプライトから解決した画像のキャッシュ。等倍と縮小の両方を持つ
 	UIResources      UIResources
 	RawMaster        oapi.Raws
 	I18N             i18n.Catalog   // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
@@ -45,6 +45,13 @@ func (r *Resources) SetScreenDimensions(width, height int) {
 	r.ScreenDimensions.Height = height
 }
 
+// SetSpriteSheets はスプライトシートを設定し、解決キャッシュにも同じシートを渡す。
+// 元画像と解決キャッシュがずれないよう、設定はこの1経路にまとめる。
+func (r *Resources) SetSpriteSheets(sheets map[string]components.SpriteSheet) {
+	r.SpriteSheets = sheets
+	r.Sprites.SetSheets(sheets)
+}
+
 // InitializeResources は engine/resources.ResourceInitializer インターフェースを実装する
 func (r *Resources) InitializeResources() error {
 	*r = *InitGameResources()
@@ -56,7 +63,7 @@ func InitGameResources() *Resources {
 	return &Resources{
 		SpriteSheets: map[string]components.SpriteSheet{},
 		UIResources:  UIResources{},
-		Icons:        NewIconStore(),
+		Sprites:      NewSpriteStore(),
 		// 全言語の訳を持つ不変マスタを常に持たせる。どのワールドでも res.I18N が非 nil になる。
 		I18N: i18n.NewCatalog(),
 	}

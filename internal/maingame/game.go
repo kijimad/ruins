@@ -151,7 +151,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	if err != nil {
 		return w.World{}, err
 	}
-	world.Resources.SpriteSheets = spriteSheets
+	world.Resources.SetSpriteSheets(spriteSheets)
 
 	// UIリソースを読み込む
 	uir, err := loader.LoadUIResources()

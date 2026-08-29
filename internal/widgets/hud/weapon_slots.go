@@ -59,8 +59,7 @@ func (ws *WeaponSlots) Draw(cv ui.Canvas, data WeaponSlotsData, world w.World) {
 	// 画面上部に配置するためのY座標
 	startY := config.YOffset
 
-	// スプライトシートを取得
-	spriteSheets := world.Resources.SpriteSheets
+	sprites := world.Resources.Sprites
 
 	// 各スロットを描画
 	for i, slot := range data.Slots {
@@ -74,7 +73,7 @@ func (ws *WeaponSlots) Draw(cv ui.Canvas, data WeaponSlotsData, world w.World) {
 		ws.drawSlotBackground(cv, x, y, config.SlotSize, isSelected)
 
 		// 武器スプライトを描画
-		drawWeaponSprite(cv, x, y, config.SlotSize, slot, spriteSheets)
+		drawWeaponSprite(cv, x, y, config.SlotSize, slot, sprites)
 
 		// スロット番号を描画
 		drawSlotNumber(cv, ws.face, x, y, config.SlotSize, i+1)
@@ -99,15 +98,15 @@ func drawSlotNumber(cv ui.Canvas, face text.Face, x, y, _ int, number int) {
 }
 
 // drawWeaponSprite は武器スプライトを中央に描画
-func drawWeaponSprite(cv ui.Canvas, x, y, slotSize int, slot WeaponSlotInfo, spriteSheets map[string]gc.SpriteSheet) {
+func drawWeaponSprite(cv ui.Canvas, x, y, slotSize int, slot WeaponSlotInfo, sprites *resources.SpriteStore) {
 	// 武器が装備されていない場合は何も描画しない
 	if slot.WeaponName == "" {
 		return
 	}
 
 	// スプライトを解決する。シートやキーが無ければ描画しない
-	img, err := resources.SpriteImage(spriteSheets, &gc.SpriteRender{SpriteSheetName: slot.SpriteSheet, SpriteKey: slot.SpriteName})
-	if err != nil {
+	img := sprites.Image(&gc.SpriteRender{SpriteSheetName: slot.SpriteSheet, SpriteKey: slot.SpriteName})
+	if img == nil {
 		return
 	}
 

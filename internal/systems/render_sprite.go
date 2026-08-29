@@ -12,7 +12,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -32,17 +31,9 @@ const (
 	memoryValue      = 0.9  // 記憶タイルの明度。わずかに暗くする
 )
 
-// spriteImageCacheKey はスプライト画像キャッシュのキー
-// SpriteRenderには比較不能なフィールドが含まれていて直接使えないので定義する
-type spriteImageCacheKey struct {
-	SpriteSheetName string
-	SpriteKey       string
-}
-
-// RenderSpriteSystem はスプライト描画システム
-// キャッシュを保持し、描画処理を行う
+// RenderSpriteSystem はスプライト描画システム。
+// スプライト画像の解決とキャッシュは world.Resources.Sprites が持つ。
 type RenderSpriteSystem struct {
-	spriteImageCache map[spriteImageCacheKey]*ebiten.Image
 	// darknessMap は1タイル1テクセルの暗さマップ。FilterNearest でタイルサイズへ拡大し、タイル整列の暗闇を描く
 	darknessMap *ebiten.Image
 	// darknessPix は darknessMap へ書き込む画素バッファ。毎フレームの確保を避けて使い回す
@@ -51,9 +42,7 @@ type RenderSpriteSystem struct {
 
 // NewRenderSpriteSystem はRenderSpriteSystemを初期化する
 func NewRenderSpriteSystem() *RenderSpriteSystem {
-	return &RenderSpriteSystem{
-		spriteImageCache: make(map[spriteImageCacheKey]*ebiten.Image),
-	}
+	return &RenderSpriteSystem{}
 }
 
 // setTranslate は真上から見下ろす2D描画の画像配置オプションをセットする。
@@ -346,23 +335,6 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 	}
 }
 
-func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRender) (*ebiten.Image, error) {
-	key := spriteImageCacheKey{
-		SpriteSheetName: spriteRender.SpriteSheetName,
-		SpriteKey:       spriteRender.SpriteKey,
-	}
-	if v, ok := sys.spriteImageCache[key]; ok {
-		return v, nil
-	}
-	// 解決は resources.SpriteImage に集約する。ここは毎フレームのホットパスなので結果をキャッシュする
-	img, err := resources.SpriteImage(world.Resources.SpriteSheets, spriteRender)
-	if err != nil {
-		return nil, err
-	}
-	sys.spriteImageCache[key] = img
-	return img, nil
-}
-
 func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64, camera *gc.Camera, desaturate bool) error {
 	// Resourcesからスプライトシートを取得
 	if world.Resources.SpriteSheets == nil {
@@ -385,9 +357,9 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	op.GeoM.Translate(float64(pos.X), float64(pos.Y))
 	setTranslate(world, op, camera)
 
-	img, err := sys.getImage(world, spriteRender)
-	if err != nil {
-		return err
+	img := world.Resources.Sprites.Image(spriteRender)
+	if img == nil {
+		return nil
 	}
 	if desaturate {
 		// 記憶タイルは彩度を落として退色させる。色行列で彩度を下げ明度を少し落とし、

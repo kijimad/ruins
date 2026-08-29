@@ -99,7 +99,7 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 			},
 		},
 	}
-	world.Resources.SpriteSheets = spriteSheets
+	world.Resources.SetSpriteSheets(spriteSheets)
 
 	// テスト用の現ステージを用意する。フィールド寸法は現ステージの StageField が持つため、
 	// 現ステージを cfg.stageKey に確定し、そのキーに束縛した StageField を Level 付きで作る。
