@@ -18,7 +18,6 @@ func TestRecalculateCharModifiers_AllSkillsZero(t *testing.T) {
 		assert.Equal(t, 100, int(mods.WeaponAccuracy[id]), "武器命中 %s は100", id)
 	}
 	assert.Equal(t, 100, int(mods.ColdProgress))
-	assert.Equal(t, 100, int(mods.HeatProgress))
 	assert.Equal(t, 100, int(mods.HungerProgress))
 	assert.Equal(t, 100, int(mods.HealingEffect))
 	assert.Equal(t, 100, int(mods.MaxWeight))

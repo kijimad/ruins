@@ -155,19 +155,12 @@ func TestHealthCondition_DisplayName(t *testing.T) {
 		hc := &HealthCondition{Type: ConditionHypothermia, Severity: SeverityMinor}
 		assert.Equal(t, "Hypothermia(Minor)", hc.DisplayName())
 	})
-
-	t.Run("高体温で重度", func(t *testing.T) {
-		t.Parallel()
-		hc := &HealthCondition{Type: ConditionHyperthermia, Severity: SeveritySevere}
-		assert.Equal(t, "Hyperthermia(Severe)", hc.DisplayName())
-	})
 }
 
 func TestConditionTypeDisplayName(t *testing.T) {
 	t.Parallel()
 
 	assert.Equal(t, "Hypothermia", ConditionTypeDisplayName(ConditionHypothermia))
-	assert.Equal(t, "Hyperthermia", ConditionTypeDisplayName(ConditionHyperthermia))
 	assert.Equal(t, "Unknown", ConditionTypeDisplayName(ConditionType("Unknown")))
 }
 
@@ -200,12 +193,12 @@ func TestBodyPartHealth_RemoveCondition(t *testing.T) {
 		bph := &BodyPartHealth{
 			Conditions: []HealthCondition{
 				{Type: ConditionHypothermia},
-				{Type: ConditionHyperthermia},
+				{Type: ConditionType("test")},
 			},
 		}
 		bph.RemoveCondition(ConditionHypothermia)
 		require.Len(t, bph.Conditions, 1)
-		assert.Equal(t, ConditionHyperthermia, bph.Conditions[0].Type)
+		assert.Equal(t, ConditionType("test"), bph.Conditions[0].Type)
 	})
 
 	t.Run("存在しない状態の削除は何もしない", func(t *testing.T) {
@@ -229,7 +222,7 @@ func TestBodyPartHealth_GetCondition(t *testing.T) {
 	require.NotNil(t, cond)
 	assert.InDelta(t, 50.0, cond.Timer, 0.001)
 
-	assert.Nil(t, bph.GetCondition(ConditionHyperthermia))
+	assert.Nil(t, bph.GetCondition(ConditionType("test")))
 }
 
 func TestBodyPartHealth_GetOrCreateCondition(t *testing.T) {
