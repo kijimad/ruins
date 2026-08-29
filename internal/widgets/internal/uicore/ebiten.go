@@ -99,7 +99,7 @@ func (e *EbitenCanvas) DrawImageTintedRect(dst image.Rectangle, img *ebiten.Imag
 // 画素が揺れるので、混ぜられる軸は linear で混ぜたい。等倍なら境界をまたがず混ぜる必要が無い。
 // 1テクセルしか無い軸は混ぜる相手が画像の外側の透明しかなく、端がぼやけるだけなので混ぜない。
 func stretchNeedsBlend(scale float64, srcLen int) bool {
-	return scale == 1 || srcLen > 1
+	return scale != 1 && srcLen > 1
 }
 
 // DrawNineSlice は EbitenCanvas を実装する。ソースを縦横3分割し、四隅は原寸、辺は片方向、
