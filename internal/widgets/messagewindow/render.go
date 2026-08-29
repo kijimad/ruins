@@ -6,7 +6,7 @@ import (
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -53,9 +53,9 @@ func (win *Window) requiredHeight() int {
 	return h
 }
 
-// buildTree は現在の状態からウィンドウ全体を internal/ui のツリーへ組み、画面上に配置して返す。
+// buildTree は現在の状態からウィンドウ全体を internal/uicore のツリーへ組み、画面上に配置して返す。
 // 枠・タイトルバー・メッセージ・選択肢またはEnterプロンプトを絶対座標で重ねる
-func (win *Window) buildTree() ui.Widget {
+func (win *Window) buildTree() uicore.Widget {
 	res := win.world.Resources.UIResources
 	sd := win.world.Resources.ScreenDimensions
 
@@ -63,20 +63,20 @@ func (win *Window) buildTree() ui.Widget {
 	x, y := win.calculateWindowPosition(size)
 	rect := image.Rect(x, y, x+size.Width, y+size.Height)
 
-	var children []ui.Widget
+	var children []uicore.Widget
 
-	frame := ui.NewNineSlice(res.WindowBG.Image, res.WindowBG.BX, res.WindowBG.BY)
+	frame := uicore.NewNineSlice(res.WindowBG.Image, res.WindowBG.BX, res.WindowBG.BY)
 	frame.Layout(rect)
 	children = append(children, frame)
 
 	// タイトルバー
 	contentTop := rect.Min.Y
 	if win.content.SpeakerName != "" {
-		bar := ui.NewNineSlice(res.TitleBar.Image, res.TitleBar.BX, res.TitleBar.BY)
+		bar := uicore.NewNineSlice(res.TitleBar.Image, res.TitleBar.BX, res.TitleBar.BY)
 		bar.Layout(image.Rect(rect.Min.X, rect.Min.Y, rect.Max.X, rect.Min.Y+titleBarHeight))
 		children = append(children, bar)
-		name := ui.NewText(win.content.SpeakerName, res.Text.SmallFace, theme.TextPrimary)
-		name.Align = ui.AlignCenter
+		name := uicore.NewText(win.content.SpeakerName, res.Text.SmallFace, theme.TextPrimary)
+		name.Align = uicore.AlignCenter
 		name.VCenter = true
 		name.Layout(image.Rect(rect.Min.X, rect.Min.Y, rect.Max.X, rect.Min.Y+titleBarHeight))
 		children = append(children, name)
@@ -104,31 +104,31 @@ func (win *Window) buildTree() ui.Widget {
 		choiceRect := image.Rect(cx-cw/2, blockTop, cx-cw/2+cw, rect.Max.Y-theme.Space5)
 		children = append(children, renderChoiceList(win.choiceConfig, win.choiceState, win.world, choiceRect))
 	} else {
-		lw, th := ui.MeasureText("Enter", res.Text.BodyFace)
+		lw, th := uicore.MeasureText("Enter", res.Text.BodyFace)
 		// 選択肢の塊と同じ規則で幅を決め、文字幅ぴったりでボタンが痩せないようにする
-		cw := ui.FitWidth([]int{lw}, choicePadL*2, choiceMinWidth)
+		cw := uicore.FitWidth([]int{lw}, choicePadL*2, choiceMinWidth)
 		bx := cx - cw/2
 		py := rect.Max.Y - theme.Space5 - choiceRowH
-		hl := ui.NewNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
+		hl := uicore.NewNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
 		hl.Layout(image.Rect(bx, py, bx+cw, py+choiceRowH))
 		children = append(children, hl)
-		prompt := ui.NewText("Enter", res.Text.BodyFace, theme.TextPrimary)
-		prompt.Align = ui.AlignCenter
+		prompt := uicore.NewText("Enter", res.Text.BodyFace, theme.TextPrimary)
+		prompt.Align = uicore.AlignCenter
 		prompt.Layout(image.Rect(bx, py+(choiceRowH-th)/2, bx+cw, py+choiceRowH))
 		children = append(children, prompt)
 	}
 
-	root := ui.NewGroup(children...)
+	root := uicore.NewGroup(children...)
 	root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
 	return root
 }
 
 // segmentedLineWidgets は TextSegmentLines を色付きの1行ずつへ組む。
 // 各行は左端から測定幅ぶん右へセグメントを連ね、空行は行高ぶん送る。背景色付きは帯を敷く
-func (win *Window) segmentedLineWidgets(padL, padR, top int, face text.Face) []ui.Widget {
+func (win *Window) segmentedLineWidgets(padL, padR, top int, face text.Face) []uicore.Widget {
 	// 行送りはフェイスの自然な行高から取る。固定値だと本文の行間が字面に対して間延びする
-	lineH := ui.LineHeight(face)
-	var out []ui.Widget
+	lineH := uicore.LineHeight(face)
+	var out []uicore.Widget
 	yy := top
 	for _, line := range win.content.TextSegmentLines {
 		if lineIsBlank(line) {
@@ -140,9 +140,9 @@ func (win *Window) segmentedLineWidgets(padL, padR, top int, face text.Face) []u
 			if seg.Text == "" {
 				continue
 			}
-			wpx, _ := ui.MeasureText(seg.Text, face)
+			wpx, _ := uicore.MeasureText(seg.Text, face)
 			if seg.BackgroundColor != nil {
-				bg := ui.Panel(ui.BoxStyle{Fill: *seg.BackgroundColor}, lineH)
+				bg := uicore.Panel(uicore.BoxStyle{Fill: *seg.BackgroundColor}, lineH)
 				bg.Layout(image.Rect(xx, yy, xx+wpx, yy+lineH))
 				out = append(out, bg)
 			}
@@ -150,7 +150,7 @@ func (win *Window) segmentedLineWidgets(padL, padR, top int, face text.Face) []u
 			if seg.Color != nil {
 				col = *seg.Color
 			}
-			t := ui.NewText(seg.Text, face, col)
+			t := uicore.NewText(seg.Text, face, col)
 			t.Layout(image.Rect(xx, yy, padR, yy+lineH))
 			out = append(out, t)
 			xx += wpx
@@ -174,15 +174,15 @@ func lineIsBlank(line []messagedata.TextSegment) bool {
 
 // renderChoiceList は選択肢一覧を rect 内へ組む。上端にページ表示、以降を1行ずつ下へ並べる。
 // 各行はウィンドウ中央に文字を寄せ、選択中は背景を強調する。窓とテスト双方から使う
-func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect image.Rectangle) ui.Widget {
+func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect image.Rectangle) uicore.Widget {
 	res := world.Resources.UIResources
 	face := res.Text.BodyFace
 
-	var children []ui.Widget
+	var children []uicore.Widget
 	yy := rect.Min.Y
 	if pageText := pageIndicatorText(config, state); pageText != "" {
-		pi := ui.NewText(pageText, res.Text.SmallFace, theme.TextPrimary)
-		pi.Align = ui.AlignCenter
+		pi := uicore.NewText(pageText, res.Text.SmallFace, theme.TextPrimary)
+		pi.Align = uicore.AlignCenter
 		pi.Layout(image.Rect(rect.Min.X, yy, rect.Max.X, yy+pageRowH))
 		children = append(children, pi)
 		yy += pageRowH
@@ -192,7 +192,7 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 	items, indices := getVisibleItems(config, state)
 	for i, it := range items {
 		focused := indices[i] == state.ItemIndex
-		_, textH := ui.MeasureText(it.Label, face)
+		_, textH := uicore.MeasureText(it.Label, face)
 		off := (choiceRowH - textH) / 2
 
 		// 選択の強調と下端の区切り線は一覧の行と同じ意匠を使う
@@ -206,24 +206,24 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 		}
 		// ラベルは左寄せ。追加ラベルはラベルの右に間隔を空けて連ねる
 		x := rect.Min.X + choicePadL
-		lbl := ui.NewText(it.Label, face, col)
+		lbl := uicore.NewText(it.Label, face, col)
 		lbl.Layout(image.Rect(x, yy+off, rect.Max.X, yy+choiceRowH))
 		children = append(children, lbl)
-		lw, _ := ui.MeasureText(it.Label, face)
+		lw, _ := uicore.MeasureText(it.Label, face)
 		x += lw
 		for _, a := range it.AdditionalLabels {
 			x += choiceLabelGap
-			at := ui.NewText(a, face, col)
+			at := uicore.NewText(a, face, col)
 			at.Layout(image.Rect(x, yy+off, rect.Max.X, yy+choiceRowH))
 			children = append(children, at)
-			aw, _ := ui.MeasureText(a, face)
+			aw, _ := uicore.MeasureText(a, face)
 			x += aw
 		}
 
 		yy += choiceRowH
 	}
 
-	root := ui.NewGroup(children...)
+	root := uicore.NewGroup(children...)
 	root.Layout(rect)
 	return root
 }
@@ -231,9 +231,9 @@ func renderChoiceList(config tabMenuConfig, state viewState, world w.World, rect
 // choiceLabelsWidth は1項目のラベルと追加ラベルを連ねた送り幅を返す。
 // ラベルの右へ間隔を空けて追加ラベルを並べる、という描画のしかたと同じ足し方をする。
 func choiceLabelsWidth(it item, face text.Face) int {
-	w := ui.MeasureTextWidth(it.Label, face)
+	w := uicore.MeasureTextWidth(it.Label, face)
 	for _, a := range it.AdditionalLabels {
-		w += choiceLabelGap + ui.MeasureTextWidth(a, face)
+		w += choiceLabelGap + uicore.MeasureTextWidth(a, face)
 	}
 	return w
 }
@@ -248,5 +248,5 @@ func choiceBlockWidth(config tabMenuConfig, state viewState, world w.World) int 
 	for i, it := range items {
 		contents[i] = choiceLabelsWidth(it, face)
 	}
-	return ui.FitWidth(contents, choicePadL*2, choiceMinWidth)
+	return uicore.FitWidth(contents, choicePadL*2, choiceMinWidth)
 }

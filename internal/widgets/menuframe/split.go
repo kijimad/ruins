@@ -4,7 +4,7 @@ import (
 	"image"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -26,7 +26,7 @@ const (
 // SplitScreen は見出し・左の一覧・右の詳細枠・下の説明とヒントを持つ全画面を組む。
 // 左右の枠は上端をそろえ、下は説明の手前で止まる。寸法と余白は部品が持ち、
 // 画面は中身の widget と文言だけを渡す。
-func SplitScreen(world w.World, res resources.UIResources, title string, left, right ui.Widget, description, hint string) ui.Widget {
+func SplitScreen(world w.World, res resources.UIResources, title string, left, right uicore.Widget, description, hint string) uicore.Widget {
 	sd := world.Resources.ScreenDimensions
 
 	titleText := newCenteredText(title, res.Text.TitleFontFace, theme.TextPrimary)
@@ -45,13 +45,13 @@ func SplitScreen(world w.World, res resources.UIResources, title string, left, r
 	hintText := newCenteredText(hint, res.Text.SmallFace, theme.TextAccent)
 	hintText.Layout(image.Rect(0, hintTop, sd.Width, hintTop+noteRowH))
 
-	root := ui.NewGroup(titleText, left, right, descText, hintText)
+	root := uicore.NewGroup(titleText, left, right, descText, hintText)
 	root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
 	return root
 }
 
 // SplitList は SplitScreen の左枠に載せる一覧を組む。単一ページの一覧で、ページ表示は持たない。
-func SplitList(itemIndex int, rows []Row, res resources.UIResources) ui.Widget {
+func SplitList(itemIndex int, rows []Row, res resources.UIResources) uicore.Widget {
 	listRows, _ := RenderList(itemIndex, rows, styled.Cols(styled.Name()), ListOpts{}, res)
-	return ui.VBox(theme.MenuPanelRowH, ui.Placeable(listRows)...)
+	return uicore.VBox(theme.MenuPanelRowH, uicore.Placeable(listRows)...)
 }

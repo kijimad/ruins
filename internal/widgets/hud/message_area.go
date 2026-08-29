@@ -3,7 +3,7 @@ package hud
 import (
 	"image"
 
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -75,7 +75,7 @@ func (area *MessageArea) Update() {
 }
 
 // Draw はメッセージエリアを描画する
-func (area *MessageArea) Draw(cv ui.Canvas, data MessageData) {
+func (area *MessageArea) Draw(cv uicore.Canvas, data MessageData) {
 	if !area.enabled || area.widget == nil {
 		return
 	}

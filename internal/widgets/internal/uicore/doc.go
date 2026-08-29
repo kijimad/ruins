@@ -1,4 +1,4 @@
-// Package ui は UI プリミティブの実体。保持型ツリーの Widget と、その配置・描画を提供する。
+// Package uicore は UI プリミティブの実体。保持型ツリーの Widget と、その配置・描画を提供する。
 //
 // # 層の位置と可視性
 //
@@ -21,4 +21,4 @@
 //   - 行分割 WrapText は UAX#14 の segmenter へ委譲し、日本語も英語も同じ規則で折り返す
 //   - 描画は Canvas の裏に閉じる。テストは記録用の実装で ebiten 無しに
 //     レイアウトとテキストを検証できる
-package ui
+package uicore

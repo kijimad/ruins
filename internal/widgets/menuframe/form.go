@@ -7,7 +7,7 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -23,10 +23,10 @@ const (
 // FormScreen は1項目の入力画面を組む。見出し・入力欄・エラー・操作ヒントを画面中央の
 // 縦並びに置く。errText が空ならエラー行は高さを取らない。
 // 幅・行高・間隔は部品が持ち、画面は文言と入力欄の中身だけを渡す。
-func FormScreen(world w.World, res resources.UIResources, title string, body ui.Widget, errText, hint string) ui.Widget {
+func FormScreen(world w.World, res resources.UIResources, title string, body uicore.Widget, errText, hint string) uicore.Widget {
 	sd := world.Resources.ScreenDimensions
 
-	items := []ui.FlexItem{
+	items := []uicore.FlexItem{
 		{W: newCenteredText(title, res.Text.TitleFontFace, theme.TextPrimary), Height: formTitleH},
 		{Height: formRowGap},
 		{W: InputBox(res, body), Height: formInputH},
@@ -34,11 +34,11 @@ func FormScreen(world w.World, res resources.UIResources, title string, body ui.
 	}
 	if errText != "" {
 		items = append(items,
-			ui.FlexItem{W: newCenteredText(errText, res.Text.SmallFace, theme.StatusDanger), Height: noteRowH},
-			ui.FlexItem{Height: formRowGap},
+			uicore.FlexItem{W: newCenteredText(errText, res.Text.SmallFace, theme.StatusDanger), Height: noteRowH},
+			uicore.FlexItem{Height: formRowGap},
 		)
 	}
-	items = append(items, ui.FlexItem{W: newCenteredText(hint, res.Text.SmallFace, theme.TextAccent), Height: noteRowH})
+	items = append(items, uicore.FlexItem{W: newCenteredText(hint, res.Text.SmallFace, theme.TextAccent), Height: noteRowH})
 
 	// 縦並びの総高を出し、画面の中央へ置く
 	total := 0
@@ -51,22 +51,22 @@ func FormScreen(world w.World, res resources.UIResources, title string, body ui.
 		(sd.Width-formWidth)/2+formWidth,
 		(sd.Height-total)/2+total,
 	)
-	ui.FlexColumn(rect, items)
+	uicore.FlexColumn(rect, items)
 
-	widgets := make([]ui.Widget, 0, len(items))
+	widgets := make([]uicore.Widget, 0, len(items))
 	for _, it := range items {
 		if it.W != nil {
 			widgets = append(widgets, it.W)
 		}
 	}
-	root := ui.NewGroup(widgets...)
+	root := uicore.NewGroup(widgets...)
 	root.Layout(image.Rect(0, 0, sd.Width, sd.Height))
 	return root
 }
 
 // newCenteredText は中央寄せの1行を作る。入力画面の各行はすべて中央へそろえる
-func newCenteredText(s string, face text.Face, c color.Color) *ui.Text {
-	t := ui.NewText(s, face, c)
-	t.Align = ui.AlignCenter
+func newCenteredText(s string, face text.Face, c color.Color) *uicore.Text {
+	t := uicore.NewText(s, face, c)
+	t.Align = uicore.AlignCenter
 	return t
 }

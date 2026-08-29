@@ -4,7 +4,7 @@ import (
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -34,7 +34,7 @@ func (c *CurrencyDisplay) Update(_ w.World) {
 }
 
 // Draw は地髄を描画する
-func (c *CurrencyDisplay) Draw(cv ui.Canvas, data CurrencyData) {
+func (c *CurrencyDisplay) Draw(cv uicore.Canvas, data CurrencyData) {
 	if !c.enabled {
 		return
 	}
@@ -47,7 +47,7 @@ func (c *CurrencyDisplay) Draw(cv ui.Canvas, data CurrencyData) {
 	currencyText := data.Currency.String()
 
 	// テキストのサイズを計算
-	textWidth, textHeight := ui.MeasureText(currencyText, c.face)
+	textWidth, textHeight := uicore.MeasureText(currencyText, c.face)
 
 	// メッセージウィンドウの位置を計算
 	fixedHeight := data.Config.Height()

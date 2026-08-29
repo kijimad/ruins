@@ -7,7 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
@@ -179,10 +179,10 @@ func TestDetailRenderOverlay_対象があれば名前とページ位置を表示
 	})
 	d.Open(world)
 
-	// internal/ui のツリーを組むだけ。独立フェイスなのでロックは要らない
+	// internal/uicore のツリーを組むだけ。独立フェイスなのでロックは要らない
 	tree := d.RenderOverlay(world, image.Rect(0, 0, 400, 400))
 
 	require.NotNil(t, tree)
-	labels := ui.CollectLabels(ui.Placeable([]ui.Drawable{tree})[0])
+	labels := uicore.CollectLabels(uicore.Placeable([]uicore.Drawable{tree})[0])
 	assert.Equal(t, []string{"回復薬", "効果", "10", "1/1"}, labels)
 }

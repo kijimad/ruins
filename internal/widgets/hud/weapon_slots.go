@@ -6,7 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -43,7 +43,7 @@ func NewWeaponSlots(face text.Face, chrome Chrome) *WeaponSlots {
 const slotNumberPad = 4
 
 // Draw は武器スロットを画面上部中央に描画する
-func (ws *WeaponSlots) Draw(cv ui.Canvas, data WeaponSlotsData, world w.World) {
+func (ws *WeaponSlots) Draw(cv uicore.Canvas, data WeaponSlotsData, world w.World) {
 	if len(data.Slots) == 0 {
 		return
 	}
@@ -81,7 +81,7 @@ func (ws *WeaponSlots) Draw(cv ui.Canvas, data WeaponSlotsData, world w.World) {
 }
 
 // drawSlotBackground はスロット背景をNineSlice描画する
-func (ws *WeaponSlots) drawSlotBackground(cv ui.Canvas, x, y, size int, selected bool) {
+func (ws *WeaponSlots) drawSlotBackground(cv uicore.Canvas, x, y, size int, selected bool) {
 	r := image.Rect(x, y, x+size, y+size)
 	ws.chrome.Panel(cv, r)
 
@@ -92,13 +92,13 @@ func (ws *WeaponSlots) drawSlotBackground(cv ui.Canvas, x, y, size int, selected
 }
 
 // drawSlotNumber はスロット番号を左上に描画
-func drawSlotNumber(cv ui.Canvas, face text.Face, x, y, _ int, number int) {
+func drawSlotNumber(cv uicore.Canvas, face text.Face, x, y, _ int, number int) {
 	numberText := string(rune('0' + number))
 	cv.DrawText(image.Pt(x+slotNumberPad, y+slotNumberPad), numberText, face, theme.TextPrimary)
 }
 
 // drawWeaponSprite は武器スプライトを中央に描画
-func drawWeaponSprite(cv ui.Canvas, x, y, slotSize int, slot WeaponSlotInfo, sprites *resources.SpriteStore) {
+func drawWeaponSprite(cv uicore.Canvas, x, y, slotSize int, slot WeaponSlotInfo, sprites *resources.SpriteStore) {
 	// 武器が装備されていない場合は何も描画しない
 	if slot.WeaponName == "" {
 		return

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 )
 
 // BuildSpecPanel の検証はツリー構造で行う。CollectLabels は描画せず Value を集めるだけなので
@@ -20,7 +20,7 @@ func TestBuildSpecPanel_見出しとデータ行を組む(t *testing.T) {
 		{Label: "Element", Value: "Fire", Color: &color.RGBA{R: 0xff, A: 0xff}},
 	}
 	panel := entityspec.BuildSpecPanel(rows, nil)
-	labels := ui.CollectLabels(panel)
+	labels := uicore.CollectLabels(panel)
 
 	// 見出し・データ行のラベルと値・色付き行が、この並びどおりに出る
 	assert.Equal(t, []string{"Attack", "Damage", "25", "Element", "Fire"}, labels)
@@ -29,5 +29,5 @@ func TestBuildSpecPanel_見出しとデータ行を組む(t *testing.T) {
 func TestBuildSpecPanel_空でも落ちない(t *testing.T) {
 	t.Parallel()
 	panel := entityspec.BuildSpecPanel(nil, nil)
-	assert.Empty(t, ui.CollectLabels(panel), "行が無ければラベルも無い")
+	assert.Empty(t, uicore.CollectLabels(panel), "行が無ければラベルも無い")
 }

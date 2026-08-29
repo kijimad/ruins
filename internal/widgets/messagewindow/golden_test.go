@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -25,7 +25,7 @@ func assertChoiceGolden(t *testing.T, config tabMenuConfig, state viewState, wor
 		cw := min(choiceBlockWidth(config, state, world), width)
 		tree := renderChoiceList(config, state, world, image.Rect(0, 0, cw, height))
 		return func(screen *ebiten.Image) {
-			tree.Draw(ui.NewEbitenCanvas(screen))
+			tree.Draw(uicore.NewEbitenCanvas(screen))
 		}
 	}, width, height)
 }

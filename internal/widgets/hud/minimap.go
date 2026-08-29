@@ -6,7 +6,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -36,7 +36,7 @@ func (minimap *Minimap) Update(_ w.World) {
 }
 
 // Draw はミニマップを描画する
-func (minimap *Minimap) Draw(cv ui.Canvas, data MinimapData) {
+func (minimap *Minimap) Draw(cv uicore.Canvas, data MinimapData) {
 	if !minimap.enabled {
 		return
 	}
@@ -97,7 +97,7 @@ func (minimap *Minimap) Draw(cv ui.Canvas, data MinimapData) {
 }
 
 // drawEmpty は空のミニマップを描画する
-func (minimap *Minimap) drawEmpty(cv ui.Canvas, data MinimapData) {
+func (minimap *Minimap) drawEmpty(cv uicore.Canvas, data MinimapData) {
 	minimapWidth := data.MinimapConfig.Width
 	minimapHeight := data.MinimapConfig.Height
 	screenWidth := data.ScreenDimensions.Width

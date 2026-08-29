@@ -121,10 +121,10 @@ linters:
           list-mode: lax
           files:
             - "$all"
-            - "!**/internal/widgets/internal/ui/**"
+            - "!**/internal/widgets/internal/uicore/**"
           deny:
             - pkg: "github.com/yohamta/furex"
-              desc: レイアウトエンジンは widgets/internal/ui だけが使う。部品と画面は Container・FlexColumn を使う
+              desc: レイアウトエンジンは widgets/internal/uicore だけが使う。部品と画面は Container・FlexColumn を使う
         # UI の基盤層の依存辺を層図どおりに固定する。theme は依存ゼロ、styled は theme のみ、
         # 画面向けファサードはプリミティブ実体の再輸出のみ。層の全体像は
         # internal/widgets/menuframe のパッケージコメントを参照
@@ -152,11 +152,11 @@ linters:
           allow:
             - "$gostd"
             - "github.com/hajimehoshi/ebiten/v2"
-            - "github.com/kijimaD/ruins/internal/widgets/internal/ui"
+            - "github.com/kijimaD/ruins/internal/widgets/internal/uicore"
         ui_core_guard:
           list-mode: strict
           files:
-            - "**/internal/widgets/internal/ui/**"
+            - "**/internal/widgets/internal/uicore/**"
             - "!$test"
           allow:
             - "$gostd"

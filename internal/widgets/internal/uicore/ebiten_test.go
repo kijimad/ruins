@@ -1,4 +1,4 @@
-package ui_test
+package uicore_test
 
 import (
 	"image"
@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/vrt"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 )
 
 // TestMain はebitenの描画コンテキスト内で全テストを実行する。
@@ -69,7 +69,7 @@ func countOpaque(screen *ebiten.Image) int {
 }
 
 // buildRealPanel は実フォントで entityspec 相当のパネルを宣言的に組む。
-func buildRealPanel(res resources.UIResources) *ui.Container {
+func buildRealPanel(res resources.UIResources) *uicore.Container {
 	face := res.Text.BodyFace
 	white := color.White
 	cols := []int{90, 90}
@@ -78,21 +78,21 @@ func buildRealPanel(res resources.UIResources) *ui.Container {
 		{"Strength", "11"},
 		{"Defense", "15"},
 	}
-	items := make([]ui.Widget, 0, len(rows))
+	items := make([]uicore.Widget, 0, len(rows))
 	for _, r := range rows {
 		// ラベルは左寄せ、値は右寄せ。実 spec パネルの specTableAligns に合わせる
-		val := ui.NewText(r.value, face, white)
-		val.Align = ui.AlignRight
-		items = append(items, ui.Row(cols, ui.NewText(r.label, face, white), val))
+		val := uicore.NewText(r.value, face, white)
+		val.Align = uicore.AlignRight
+		items = append(items, uicore.Row(cols, uicore.NewText(r.label, face, white), val))
 	}
-	style := ui.BoxStyle{Fill: color.Gray{Y: 30}, Border: color.White, BorderWidth: 1}
-	return ui.Panel(style, 20, items...)
+	style := uicore.BoxStyle{Fill: color.Gray{Y: 30}, Border: color.White, BorderWidth: 1}
+	return uicore.Panel(style, 20, items...)
 }
 
 // drawRealPanel は独自フェイスで1枚描き、不透明画素数を返す。
 func drawRealPanel(res resources.UIResources) int {
 	screen := ebiten.NewImage(220, 100)
-	cv := ui.NewEbitenCanvas(screen)
+	cv := uicore.NewEbitenCanvas(screen)
 	panel := buildRealPanel(res)
 	panel.Layout(image.Rect(0, 0, 220, 100))
 	panel.Draw(cv)
@@ -105,7 +105,7 @@ func TestEbitenCanvas_実フォントで描くと非空になる(t *testing.T) {
 	defer facePool.Put(res)
 
 	screen := ebiten.NewImage(220, 100)
-	cv := ui.NewEbitenCanvas(screen)
+	cv := uicore.NewEbitenCanvas(screen)
 	panel := buildRealPanel(*res)
 	panel.Layout(image.Rect(0, 0, 220, 100))
 	panel.Draw(cv)

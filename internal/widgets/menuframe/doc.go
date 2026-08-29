@@ -2,7 +2,7 @@
 //
 // # 層の位置
 //
-// UI は theme(トークン)→ styled(一覧のデータ型)→ widgets/internal/ui(プリミティブ実体)→
+// UI は theme(トークン)→ styled(一覧のデータ型)→ widgets/internal/uicore(プリミティブ実体)→
 // 本パッケージなどの部品 → widgets/ui(画面向けファサード)→ 画面 states・menuloop の順に積む。
 // 意匠(枠・行高・余白・色・テクスチャ)は部品と theme が持ち、画面はデータ・列の宣言・文言・
 // 配置だけを書く。プリミティブ実体は internal 可視性で画面から遮断され、レイアウトエンジンの

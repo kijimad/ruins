@@ -1,4 +1,4 @@
-package ui_test
+package uicore_test
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 )
 
 // recordCanvas は描画呼び出しを記録する Canvas。ebiten の描画コンテキスト無しで検証できる。
@@ -48,18 +48,18 @@ type specRow struct {
 
 // buildSpecPanel は ruins の RenderSpecRows を模す。宣言的にツリーを式として組む。
 // グローバルに触れないので、複数ゴルーチンから同時に呼んでも安全。
-func buildSpecPanel(rows []specRow) *ui.Container {
+func buildSpecPanel(rows []specRow) *uicore.Container {
 	cols := []int{70, 80}
-	items := make([]ui.Widget, 0, len(rows))
+	items := make([]uicore.Widget, 0, len(rows))
 	for _, r := range rows {
-		items = append(items, ui.Row(cols, label(r.label), label(r.value)))
+		items = append(items, uicore.Row(cols, label(r.label), label(r.value)))
 	}
-	style := ui.BoxStyle{Fill: color.Gray{Y: 20}, Border: color.White, BorderWidth: 1}
-	return ui.Panel(style, 16, items...)
+	style := uicore.BoxStyle{Fill: color.Gray{Y: 20}, Border: color.White, BorderWidth: 1}
+	return uicore.Panel(style, 16, items...)
 }
 
 // label は既定のフェイス無しでラベルを作る。fake canvas はフェイスを無視する。
-func label(s string) *ui.Text { return ui.NewText(s, nil, color.White) }
+func label(s string) *uicore.Text { return uicore.NewText(s, nil, color.White) }
 
 // drawFixture は i 番目のパネルを組んで描画し、記録を返す。
 func drawFixture(i int) *recordCanvas {
@@ -99,7 +99,7 @@ func TestSpecPanel_行数ぶんのラベルが出る(t *testing.T) {
 	t.Parallel()
 	panel := buildSpecPanel(specFixture(2))
 	panel.Layout(image.Rect(0, 0, 300, 400))
-	assert.Len(t, ui.CollectLabels(panel), 8, "4行 かける ラベルと値の2列")
+	assert.Len(t, uicore.CollectLabels(panel), 8, "4行 かける ラベルと値の2列")
 }
 
 func TestSpecPanel_異なる入力は独立する(t *testing.T) {

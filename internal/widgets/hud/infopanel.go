@@ -5,7 +5,7 @@ import (
 
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
@@ -21,14 +21,14 @@ const (
 // InfoPanel は画面の右上へ置く情報パネル。パネルの意匠を敷き、行を上から順に書き足す。
 // 見回しや射撃のように、ゲーム世界の上へ一時的に情報を出す画面で使う。
 type InfoPanel struct {
-	cv   ui.Canvas
+	cv   uicore.Canvas
 	face text.Face
 	rect image.Rectangle
 	y    int // 次に書き込む行の上端
 }
 
 // NewInfoPanel は高さ height のパネルを画面右上へ敷き、書き込み位置を先頭に置く。
-func NewInfoPanel(cv ui.Canvas, chrome Chrome, face text.Face, screenWidth, height int) *InfoPanel {
+func NewInfoPanel(cv uicore.Canvas, chrome Chrome, face text.Face, screenWidth, height int) *InfoPanel {
 	x := screenWidth - infoPanelWidth - infoPanelMargin
 	rect := image.Rect(x, infoPanelMargin, x+infoPanelWidth, infoPanelMargin+height)
 	chrome.Panel(cv, rect)

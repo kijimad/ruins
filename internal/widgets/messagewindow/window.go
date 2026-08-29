@@ -8,14 +8,14 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
 // Window はメッセージウィンドウを表す。
 //
-// 描画は internal/ui のツリーで組み、グローバル可変状態に触れない。UI は保持せず
+// 描画は internal/uicore のツリーで組み、グローバル可変状態に触れない。UI は保持せず
 // 毎フレーム buildTree で組み直す。フォーカスやページの差分追跡は不要で、現在の状態から都度描く
 type Window struct {
 	config      windowConfig
@@ -25,7 +25,7 @@ type Window struct {
 	onChoice    func(choice choiceOption)
 	isOpen      bool
 	initialized bool
-	body        ui.Widget
+	body        uicore.Widget
 
 	// 選択肢がある場合、ページング可能な選択肢一覧を表示する。ナビゲーションは hooks Store が持ち、
 	// 描画に要る現在位置を choiceState に写す
@@ -77,7 +77,7 @@ func (w *Window) Draw(screen *ebiten.Image) {
 	if !w.isOpen || w.body == nil {
 		return
 	}
-	w.body.Draw(ui.NewEbitenCanvas(screen))
+	w.body.Draw(uicore.NewEbitenCanvas(screen))
 }
 
 // IsOpen はウィンドウが開いているかを返す

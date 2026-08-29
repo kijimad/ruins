@@ -4,7 +4,7 @@ import (
 	"image"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 )
 
 // Chrome は世界の上に重ねるパネルの意匠。メニューと同じテクスチャを使い、
@@ -20,7 +20,7 @@ func NewChrome(res resources.UIResources) Chrome {
 }
 
 // Panel は矩形へパネルの枠と背景を敷く。
-func (c Chrome) Panel(cv ui.Canvas, r image.Rectangle) {
+func (c Chrome) Panel(cv uicore.Canvas, r image.Rectangle) {
 	if c.panel == nil {
 		return
 	}

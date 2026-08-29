@@ -1,4 +1,4 @@
-// Package ui は画面層に公開する UI の構成面。プリミティブ実体 widgets/internal/ui のうち、
+// Package ui は画面層に公開する UI の構成面。プリミティブ実体 widgets/internal/uicore のうち、
 // 構成に必要な最小の面だけを再輸出する。
 //
 // Atomic Design の page は atom のスタイルに触れない。その境界を Go の internal 可視性で
@@ -15,7 +15,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
-	core "github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	core "github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 )
 
 // Widget は画面が受け取る UI ツリー。描くことだけができる。

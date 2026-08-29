@@ -124,7 +124,7 @@ func (st *MainMenuState) handleSelection(world w.World) (es.Transition[w.World],
 // ================
 
 // ViewUI はメニューと版の注記をタイトル画面の枠へ載せる。パネル背景は付けず、
-// タイトル背景を透かす。Screen が本体を internal/ui で描く。
+// タイトル背景を透かす。Screen が本体を internal/uicore で描く。
 func (st *MainMenuState) ViewUI(world w.World, props MainMenuProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	rows := make([]menuframe.Row, len(props.Items))
 	for i, item := range props.Items {

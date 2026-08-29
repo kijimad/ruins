@@ -6,7 +6,7 @@ import (
 	text "github.com/hajimehoshi/ebiten/v2/text/v2"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
@@ -37,7 +37,7 @@ type ListOpts struct {
 // itemIndex に負値を渡すとどの行も選択されず、カーソルを持たない表になる。
 // 列幅は CSS Grid のトラックと同じ規則で解決する。Fit の列は全行の内容の実測から、
 // Grow の列は余り幅から決まり、表全体で列が揃う。呼び出し側は幅の数値を書かない。
-func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res resources.UIResources) ([]ui.Drawable, string) {
+func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res resources.UIResources) ([]uicore.Drawable, string) {
 	face := res.Text.BodyFace
 	colWidths := resolveColWidths(cols, opts.HeaderRow, rows, face)
 	aligns := styled.Aligns(cols)
@@ -47,7 +47,7 @@ func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res
 	}
 	pg := pagination.New(itemIndex, len(rows), perPage)
 
-	var items []ui.Drawable
+	var items []uicore.Drawable
 	if opts.HeaderRow != nil {
 		items = append(items, headerRow(opts.HeaderRow, colWidths, face))
 	}
@@ -67,7 +67,7 @@ func RenderList(itemIndex int, rows []Row, cols []styled.Col, opts ListOpts, res
 	}
 	// 行が無いときの空表示を一覧側で持つ。各メニューが同じ後処理を書かずに済む
 	if len(rows) == 0 && opts.EmptyText != "" {
-		items = append(items, ui.NewText(opts.EmptyText, face, theme.TextSecondary))
+		items = append(items, uicore.NewText(opts.EmptyText, face, theme.TextSecondary))
 	}
 	return items, pg.GetPageText()
 }
@@ -85,7 +85,7 @@ func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face te
 			// 見出しと全行のこの列の中身を並べ、いちばん広いものに列間の間隔を足す
 			contents := make([]int, 0, len(rows)+1)
 			if i < len(headerRow) {
-				contents = append(contents, ui.MeasureTextWidth(headerRow[i], face))
+				contents = append(contents, uicore.MeasureTextWidth(headerRow[i], face))
 			}
 			for _, r := range rows {
 				if i >= len(r.Cells) {
@@ -96,10 +96,10 @@ func resolveColWidths(cols []styled.Col, headerRow []string, rows []Row, face te
 					// 横長のキーキャップも同じ規則で測れる
 					contents = append(contents, cell.Icon.Bounds().Dx())
 				} else {
-					contents = append(contents, ui.MeasureTextWidth(cell.Text, face))
+					contents = append(contents, uicore.MeasureTextWidth(cell.Text, face))
 				}
 			}
-			widths[i] = ui.FitWidth(contents, theme.Space3, 0)
+			widths[i] = uicore.FitWidth(contents, theme.Space3, 0)
 		case styled.ColGrow:
 			// 0 のままにする。行の flex が余り幅を割り当てる
 		}
@@ -116,57 +116,57 @@ func cellTexts(cells []styled.Cell) []string {
 	return texts
 }
 
-// toAlign は styled のそろえを internal/ui のそろえへ写す。
-func toAlign(a styled.TextAlign) ui.Align {
+// toAlign は styled のそろえを internal/uicore のそろえへ写す。
+func toAlign(a styled.TextAlign) uicore.Align {
 	if a == styled.AlignRight {
-		return ui.AlignRight
+		return uicore.AlignRight
 	}
-	return ui.AlignLeft
+	return uicore.AlignLeft
 }
 
 // headerRow は見出し行を組む。カーソルは止まらず、補助色で描く。
-func headerRow(texts []string, colWidths []int, face text.Face) *ui.Container {
-	cells := make([]ui.Widget, len(texts))
+func headerRow(texts []string, colWidths []int, face text.Face) *uicore.Container {
+	cells := make([]uicore.Widget, len(texts))
 	for i, s := range texts {
-		t := ui.NewText(s, face, theme.TextSecondary)
+		t := uicore.NewText(s, face, theme.TextSecondary)
 		t.VCenter = true
 		cells[i] = t
 	}
-	return ui.Row(colWidths, cells...)
+	return uicore.Row(colWidths, cells...)
 }
 
 // dataRow はデータ行を組む。選択中なら金色の選択バーを敷き文字色を選択色にする。アイコンセルは画像で描く。
-func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, res resources.UIResources) *ui.Container {
+func dataRow(cells []styled.Cell, colWidths []int, aligns []styled.TextAlign, selected bool, face text.Face, res resources.UIResources) *uicore.Container {
 	// 非選択は暗く、選択は明るくして、カーソル位置を際立たせる
 	var textColor color.Color = theme.TextSecondary
 	if selected {
 		textColor = theme.TextSelected
 	}
-	cellWidgets := make([]ui.Widget, len(cells))
+	cellWidgets := make([]uicore.Widget, len(cells))
 	for i, c := range cells {
 		if c.Icon != nil {
-			cellWidgets[i] = ui.NewGraphic(c.Icon)
+			cellWidgets[i] = uicore.NewGraphic(c.Icon)
 			continue
 		}
-		t := ui.NewText(c.Text, face, textColor)
+		t := uicore.NewText(c.Text, face, textColor)
 		t.VCenter = true
 		if i < len(aligns) {
 			t.Align = toAlign(aligns[i])
 		}
 		cellWidgets[i] = t
 	}
-	return rowChrome(ui.Row(colWidths, cellWidgets...), res, selected)
+	return rowChrome(uicore.Row(colWidths, cellWidgets...), res, selected)
 }
 
 // SelectionRow は中身を持たない1行ぶんの意匠を返す。選択中の強調と下端の区切り線だけを持ち、
 // 中身は呼び出し側が別に重ねる。行の内容を列で表せない一覧が、意匠だけを共有するのに使う。
-func SelectionRow(res resources.UIResources, selected bool) ui.Widget {
-	return rowChrome(ui.Row(nil), res, selected)
+func SelectionRow(res resources.UIResources, selected bool) uicore.Widget {
+	return rowChrome(uicore.Row(nil), res, selected)
 }
 
 // rowChrome は一覧の1行に共通の意匠を着せる。選択中は金色のバーを敷き、下端に区切り線を引く。
 // この2つが一覧の行の見た目を決めるので、定義をここ1箇所に置く。
-func rowChrome(row *ui.Container, res resources.UIResources, selected bool) *ui.Container {
+func rowChrome(row *uicore.Container, res resources.UIResources, selected bool) *uicore.Container {
 	if selected && res.SelectionBar != nil {
 		row.SetBackgroundNineSlice(res.SelectionBar.Image, res.SelectionBar.BX, res.SelectionBar.BY)
 	}
@@ -179,10 +179,10 @@ func rowChrome(row *ui.Container, res resources.UIResources, selected bool) *ui.
 
 // blankRow は高さを揃えるための空行を組む。高さは行高が確保するので文字は持たせず、
 // フォント測定と描画を省く。
-func blankRow(colWidths []int, face text.Face) *ui.Container {
-	cells := make([]ui.Widget, len(colWidths))
+func blankRow(colWidths []int, face text.Face) *uicore.Container {
+	cells := make([]uicore.Widget, len(colWidths))
 	for i := range cells {
-		cells[i] = ui.NewText("", face, theme.TextPrimary)
+		cells[i] = uicore.NewText("", face, theme.TextPrimary)
 	}
-	return ui.Row(colWidths, cells...)
+	return uicore.Row(colWidths, cells...)
 }

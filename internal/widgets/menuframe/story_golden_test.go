@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
-	ui "github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -28,7 +28,7 @@ func storyIcon() *ebiten.Image {
 }
 
 // storyRows はカタログ用の一覧。見出し・選択中・非選択・アイコン・右寄せ数値を1組に収める。
-func storyRows(res resources.UIResources) []ui.Drawable {
+func storyRows(res resources.UIResources) []uicore.Drawable {
 	cols := styled.Cols(styled.Icon(), styled.Name(), styled.Num())
 	rows := []Row{
 		{Cells: styled.TextCells("Weapons", "", ""), Header: true},
@@ -40,15 +40,15 @@ func storyRows(res resources.UIResources) []ui.Drawable {
 }
 
 // drawStory は widget 群を縦に積んで実描画し、golden と比較する。
-func drawStory(t *testing.T, name string, size image.Point, rowH int, ws []ui.Drawable) {
+func drawStory(t *testing.T, name string, size image.Point, rowH int, ws []uicore.Drawable) {
 	t.Helper()
-	items := make([]ui.FlexItem, len(ws))
-	for i, wgt := range ui.Placeable(ws) {
-		items[i] = ui.FlexItem{W: wgt, Height: rowH}
+	items := make([]uicore.FlexItem, len(ws))
+	for i, wgt := range uicore.Placeable(ws) {
+		items[i] = uicore.FlexItem{W: wgt, Height: rowH}
 	}
-	ui.FlexColumn(image.Rect(0, 0, size.X, size.Y), items)
+	uicore.FlexColumn(image.Rect(0, 0, size.X, size.Y), items)
 	screen := ebiten.NewImage(size.X, size.Y)
-	cv := ui.NewEbitenCanvas(screen)
+	cv := uicore.NewEbitenCanvas(screen)
 	for _, wgt := range ws {
 		wgt.Draw(cv)
 	}
@@ -56,10 +56,10 @@ func drawStory(t *testing.T, name string, size image.Point, rowH int, ws []ui.Dr
 }
 
 // drawWidget は配置済みの widget を1枚だけ実描画し、golden と比較する。
-func drawWidget(t *testing.T, name string, size image.Point, wgt ui.Widget) {
+func drawWidget(t *testing.T, name string, size image.Point, wgt uicore.Widget) {
 	t.Helper()
 	screen := ebiten.NewImage(size.X, size.Y)
-	wgt.Draw(ui.NewEbitenCanvas(screen))
+	wgt.Draw(uicore.NewEbitenCanvas(screen))
 	vrt.AssertFrameGolden(t, name, screen)
 }
 
@@ -101,7 +101,7 @@ func TestGolden_Story_InputBox(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
-	body := ui.NewText("Ash|", res.Text.BodyFace, theme.TextPrimary)
+	body := uicore.NewText("Ash|", res.Text.BodyFace, theme.TextPrimary)
 	body.VCenter = true
 	box := InputBox(res, body)
 	box.Layout(image.Rect(0, 0, 320, 44))
@@ -113,8 +113,8 @@ func TestGolden_Story_PanelBox(t *testing.T) {
 	world := testutil.InitTestWorld(t, testutil.WithUI())
 	res := world.Resources.UIResources
 	box := PanelBox(res,
-		ui.NewText("Vitality 10", res.Text.BodyFace, theme.TextPrimary),
-		ui.NewText("Strength 12", res.Text.BodyFace, theme.TextPrimary),
+		uicore.NewText("Vitality 10", res.Text.BodyFace, theme.TextPrimary),
+		uicore.NewText("Strength 12", res.Text.BodyFace, theme.TextPrimary),
 	)
 	box.Layout(image.Rect(0, 0, 200, theme.MenuPanelRowH*2+theme.MenuPad*2))
 	drawWidget(t, "TestGolden_Story_PanelBox", image.Pt(200, theme.MenuPanelRowH*2+theme.MenuPad*2), box)

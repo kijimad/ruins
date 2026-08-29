@@ -5,7 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -30,7 +30,7 @@ type WidgetConfig struct {
 
 // Widget はメッセージログ表示ウィジェット。
 //
-// 各エントリを1行とし、行内の色付きフラグメントを水平に連ねて描く。描画は internal/ui の
+// 各エントリを1行とし、行内の色付きフラグメントを水平に連ねて描く。描画は internal/uicore の
 // ツリーで組み、グローバル可変状態に触れない。フラグメント幅はフェイスの測定で決める
 type Widget struct {
 	config      WidgetConfig
@@ -54,7 +54,7 @@ func (widget *Widget) Update() {
 }
 
 // Draw はウィジェットを指定位置に描画する
-func (widget *Widget) Draw(cv ui.Canvas, x, y, width, height int) {
+func (widget *Widget) Draw(cv uicore.Canvas, x, y, width, height int) {
 	// モーダルなど別 state が前面にある間、このウィジェットを所有する state は Update されない。
 	// それでも最新ログを映すため、描画時にも取り込みを行う。version 一致時は即座に戻るため軽量
 	widget.refresh()
@@ -65,7 +65,7 @@ func (widget *Widget) Draw(cv ui.Canvas, x, y, width, height int) {
 
 	// いったん別の画へ組んでから貼る。行が枠をはみ出しても外へ漏れない
 	offscreen := ebiten.NewImage(width, height)
-	widget.buildTree(width, height).Draw(ui.NewEbitenCanvas(offscreen))
+	widget.buildTree(width, height).Draw(uicore.NewEbitenCanvas(offscreen))
 	cv.DrawImage(image.Pt(x, y), offscreen)
 }
 
@@ -84,13 +84,13 @@ func (widget *Widget) refresh() {
 	widget.loaded = true
 }
 
-// buildTree はエントリ列を internal/ui のツリーへ組む。
+// buildTree はエントリ列を internal/uicore のツリーへ組む。
 // 各行を Padding.Top から LineHeight+Spacing 刻みで下へ、行内フラグメントは測定幅ぶん右へ並べる
-func (widget *Widget) buildTree(width, height int) ui.Widget {
+func (widget *Widget) buildTree(width, height int) uicore.Widget {
 	res := widget.world.Resources.UIResources
 	face := res.Text.BodyFace
 
-	var children []ui.Widget
+	var children []uicore.Widget
 	x0 := widget.config.Padding.Left
 	y := widget.config.Padding.Top
 
@@ -104,10 +104,10 @@ func (widget *Widget) buildTree(width, height int) ui.Widget {
 			if fragment.Text == "" {
 				continue
 			}
-			t := ui.NewText(fragment.Text, face, fragment.Color)
+			t := uicore.NewText(fragment.Text, face, fragment.Color)
 			t.Layout(image.Rect(x, y, width, y+widget.config.LineHeight))
 			children = append(children, t)
-			adv := ui.MeasureTextWidth(fragment.Text, face)
+			adv := uicore.MeasureTextWidth(fragment.Text, face)
 			x += adv
 		}
 		visible++
@@ -116,12 +116,12 @@ func (widget *Widget) buildTree(width, height int) ui.Widget {
 
 	// エントリが無いときは案内文を出す
 	if visible == 0 {
-		t := ui.NewText(query.T(widget.world, "No log messages"), face, theme.TextSecondary)
+		t := uicore.NewText(query.T(widget.world, "No log messages"), face, theme.TextSecondary)
 		t.Layout(image.Rect(x0, widget.config.Padding.Top, width, widget.config.Padding.Top+widget.config.LineHeight))
 		children = append(children, t)
 	}
 
-	root := ui.NewGroup(children...)
+	root := uicore.NewGroup(children...)
 	root.Layout(image.Rect(0, 0, width, height))
 	return root
 }

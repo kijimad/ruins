@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 )
@@ -16,10 +16,10 @@ import (
 // menuframe.RenderList の検証はツリー構造で行う。CollectLabels は描画せず Value を集めるだけなので
 // フェイスも ebiten も要らず、完全に並列でよい。選択の背景強調はピクセルなので golden 側で見る。
 
-func labelsOf(items []ui.Drawable) []string {
+func labelsOf(items []uicore.Drawable) []string {
 	labels := make([]string, 0, len(items))
-	for _, it := range ui.Placeable(items) {
-		labels = append(labels, ui.CollectLabels(it)...)
+	for _, it := range uicore.Placeable(items) {
+		labels = append(labels, uicore.CollectLabels(it)...)
 	}
 	return labels
 }

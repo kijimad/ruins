@@ -29,7 +29,7 @@ var colorLiteralTypes = map[string]bool{
 }
 
 // TestScreenLayerStyleLint は画面層がスタイルを手組みしていないことを静的に検証する。
-// プリミティブ実体は widgets/internal/ui にあり、画面層は import 自体がコンパイル不能なので、
+// プリミティブ実体は widgets/internal/uicore にあり、画面層は import 自体がコンパイル不能なので、
 // 枠・塗り・装飾ミューテータの手組みは API の面で既に不可能になっている。
 // ここでは型システムで塞げない残りだけを検知する。ui.NewText は color.Color を受けるため、
 // theme を迂回した生の色リテラルは構文上書けてしまう。それを AST で fail-closed に検知する。

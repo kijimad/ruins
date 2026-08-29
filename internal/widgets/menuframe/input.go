@@ -4,7 +4,7 @@ import (
 	"image"
 
 	"github.com/kijimaD/ruins/internal/resources"
-	ui "github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
@@ -12,15 +12,15 @@ import (
 // 中身の縦位置は Text の VCenter で枠の中央へ合わせる。
 type inputBox struct {
 	rect  image.Rectangle
-	frame ui.Widget
-	body  ui.Widget
+	frame uicore.Widget
+	body  uicore.Widget
 }
 
 // InputBox は1行入力欄の箱を組む。名前入力のように、テクスチャ枠の上へ入力中の文字列を
 // 載せる画面で使う。枠と余白の意匠は部品が持ち、置き場所は呼び出し側が Layout で決める。
-func InputBox(res resources.UIResources, body ui.Widget) ui.Widget {
+func InputBox(res resources.UIResources, body uicore.Widget) uicore.Widget {
 	return &inputBox{
-		frame: ui.NewNineSlice(res.InputBG.Image, res.InputBG.BX, res.InputBG.BY),
+		frame: uicore.NewNineSlice(res.InputBG.Image, res.InputBG.BX, res.InputBG.BY),
 		body:  body,
 	}
 }
@@ -33,13 +33,13 @@ func (b *inputBox) Layout(r image.Rectangle) {
 }
 
 // Draw は Widget を実装する。枠を敷いてから中身を描く。
-func (b *inputBox) Draw(cv ui.Canvas) {
+func (b *inputBox) Draw(cv uicore.Canvas) {
 	b.frame.Draw(cv)
 	b.body.Draw(cv)
 }
 
 // Children は Widget を実装する。
-func (b *inputBox) Children() []ui.Widget { return []ui.Widget{b.frame, b.body} }
+func (b *inputBox) Children() []uicore.Widget { return []uicore.Widget{b.frame, b.body} }
 
 // Bounds は Widget を実装する。
 func (b *inputBox) Bounds() image.Rectangle { return b.rect }

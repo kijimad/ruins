@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -64,7 +64,7 @@ func (info *GameInfo) Update(_ w.World) {
 }
 
 // Draw はゲーム情報エリアを描画する
-func (info *GameInfo) Draw(cv ui.Canvas, data GameInfoData) {
+func (info *GameInfo) Draw(cv uicore.Canvas, data GameInfoData) {
 	if !info.enabled {
 		return
 	}
@@ -85,11 +85,11 @@ func (info *GameInfo) Draw(cv ui.Canvas, data GameInfoData) {
 }
 
 // drawFloorNumber は階層番号を描画する
-func (info *GameInfo) drawFloorNumber(cv ui.Canvas, data GameInfoData) {
+func (info *GameInfo) drawFloorNumber(cv uicore.Canvas, data GameInfoData) {
 	floorText := fmt.Sprintf("%3dF", data.FloorNumber)
 
 	// テキストの幅を測定
-	textWidth := ui.MeasureTextWidth(floorText, info.headingFace)
+	textWidth := uicore.MeasureTextWidth(floorText, info.headingFace)
 
 	// 右上に配置
 	x := data.ScreenDimensions.Width - textWidth - theme.Space4
@@ -112,7 +112,7 @@ const (
 //
 // 三角形を組むのでなくアイコンフォントの字で描く。キーキャップの記号と同じ出どころにすれば、
 // 矢印の意匠が字体の差し替えで揃い、描画も文字と同じ経路に乗る
-func (info *GameInfo) drawTemperatureArrow(cv ui.Canvas, arrow TemperatureArrow) {
+func (info *GameInfo) drawTemperatureArrow(cv uicore.Canvas, arrow TemperatureArrow) {
 	if !arrow.Visible {
 		return
 	}
@@ -128,7 +128,7 @@ func (info *GameInfo) drawTemperatureArrow(cv ui.Canvas, arrow TemperatureArrow)
 	}
 
 	// HP ゲージの縦中心にそろえる
-	_, gh := ui.MeasureText(glyph, info.bodyFace)
+	_, gh := uicore.MeasureText(glyph, info.bodyFace)
 	y := int(gaugeBaseY+gaugeHeight/2) - gh/2
 	drawOutlinedText(cv, glyph, info.bodyFace, image.Pt(int(gaugeBaseX), y), arrow.Color)
 }
@@ -136,7 +136,7 @@ func (info *GameInfo) drawTemperatureArrow(cv ui.Canvas, arrow TemperatureArrow)
 // drawHealthBar はプレイヤーの体力ゲージを描画する
 
 // drawBodyTemperature は体温ゲージを HP ゲージの下に描く。中央が平熱で、左へ冷え、右へ火照る
-func (info *GameInfo) drawBodyTemperature(cv ui.Canvas, data GameInfoData) {
+func (info *GameInfo) drawBodyTemperature(cv uicore.Canvas, data GameInfoData) {
 	if !data.BodyTempVisible {
 		return
 	}
@@ -159,7 +159,7 @@ func lerpColor(a, b color.RGBA, t float64) color.RGBA {
 	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
 }
 
-func (info *GameInfo) drawHealthBar(cv ui.Canvas, currentHP, maxHP int) {
+func (info *GameInfo) drawHealthBar(cv uicore.Canvas, currentHP, maxHP int) {
 	// 矢印スロットぶん右へ寄せる
 	x := gaugeBaseX + tempArrowSlotW
 	y := gaugeBaseY
@@ -188,7 +188,7 @@ const gaugeOverhang = 6.0
 // drawGaugeBar はゲージバーを描画する。
 // 上下にグラデーションセパレーターライン、その間に白枠線で囲まれたグラデーション塗りを描画する。
 // セパレーターラインと枠線はゲージ塗りより左右に少しはみ出す
-func (info *GameInfo) drawGaugeBar(cv ui.Canvas, x, y, width, ratio float64, fillColor, borderColor color.RGBA) {
+func (info *GameInfo) drawGaugeBar(cv uicore.Canvas, x, y, width, ratio float64, fillColor, borderColor color.RGBA) {
 	top := int(y)
 	frameX := int(x - gaugeOverhang)
 	frameW := int(width + gaugeOverhang*2)
@@ -207,12 +207,12 @@ func (info *GameInfo) drawGaugeBar(cv ui.Canvas, x, y, width, ratio float64, fil
 }
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する
-func (info *GameInfo) drawWeightDisplay(cv ui.Canvas, data GameInfoData) {
+func (info *GameInfo) drawWeightDisplay(cv uicore.Canvas, data GameInfoData) {
 	// 所持重量テキストを作成する
 	weightText := fmt.Sprintf("%s / %s", data.PlayerWeight.KgString(), data.PlayerMaxWeight.KgString())
 
 	// テキストの幅を測定
-	textWidth, textHeight := ui.MeasureText(weightText, info.bodyFace)
+	textWidth, textHeight := uicore.MeasureText(weightText, info.bodyFace)
 
 	// メッセージエリアの高さを取得
 	messageAreaHeight := float64(data.MessageAreaHeight)

@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
-	ui "github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 )
 
 // 詳細モーダルの部品カタログ。固定入力で実描画し、見た目を部品の粒度で golden に固定する。
@@ -30,7 +30,7 @@ func drawDetailStory(t *testing.T, name string, page int) {
 	rect := image.Rect(0, 0, 400, 400)
 	modal := buildDetailUI(res, rect, "Biscuit", "A hard biscuit that keeps well as a preserved food.", storySpecRows(), page)
 	screen := ebiten.NewImage(400, 400)
-	modal.Draw(ui.NewEbitenCanvas(screen))
+	modal.Draw(uicore.NewEbitenCanvas(screen))
 	vrt.AssertFrameGolden(t, name, screen)
 }
 

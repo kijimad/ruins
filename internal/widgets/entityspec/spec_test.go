@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,7 +30,7 @@ func TestUpdateSpec_近接武器の攻撃性能を表示する(t *testing.T) {
 		Element: gc.ElementTypeFire, AttackCategory: gc.AttackSword, Cost: 100,
 	})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
 		query.T(world, gc.AttackSword.Label),
@@ -49,7 +49,7 @@ func TestUpdateSpec_無属性の近接武器は属性行を表示しない(t *te
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackFist, Cost: 50,
 	})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 無属性は Element 行が出ない
 	assert.Equal(t, []string{
@@ -70,7 +70,7 @@ func TestUpdateSpec_マガジンのある火器は弾数と射程を表示する
 		Magazine: 3, MagazineSize: 5, ReloadEffort: 20,
 	})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
 		query.T(world, gc.AttackRifle.Label),
@@ -90,7 +90,7 @@ func TestUpdateSpec_マガジンサイズ0の火器は弾数を表示しない(t
 		MagazineSize: 0,
 	})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// マガジンサイズ0は Magazine と Reload の行が出ない
 	assert.Equal(t, []string{
@@ -116,7 +116,7 @@ func TestUpdateSpec_防具は防御力と耐性を表示する(t *testing.T) {
 		},
 	})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// ゼロの装備ボーナス Sensation は行が出ない
 	assert.Equal(t, []string{
@@ -136,7 +136,7 @@ func TestUpdateSpec_耐性のない防具は耐寒耐熱行を表示しない(t 
 		EquipmentCategory: gc.EquipmentHead,
 	})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 耐寒・耐熱0は行が出ない
 	assert.Equal(t, []string{query.T(world, gc.EquipmentHead.String()), "Defense", "+5"}, labels)
@@ -149,7 +149,7 @@ func TestUpdateSpec_回復量は数値指定なら整数で表示する(t *testi
 	e := world.ECS.NewEntity()
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: gc.HealNumeral, Amount: 42})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{"Vitality", "42"}, labels)
 }
@@ -161,7 +161,7 @@ func TestUpdateSpec_回復量は割合指定ならパーセントで表示する
 	e := world.ECS.NewEntity()
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: gc.HealRatio, Amount: 0.3})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{"Vitality", "30%"}, labels)
 }
@@ -175,7 +175,7 @@ func TestUpdateSpec_回復量は未知の種別ならハイフンで表示する
 	const unknownKind = gc.HealAmountKind(99)
 	world.Components.ProvidesHealing.Add(e, &gc.ProvidesHealing{Kind: unknownKind, Amount: 10})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 未知の種別はハイフン表示にフォールバックする
 	assert.Equal(t, []string{"Vitality", "-"}, labels)
@@ -190,7 +190,7 @@ func TestUpdateSpec_栄養と価値と重量を表示する(t *testing.T) {
 	world.Components.Value.Add(e, &gc.Value{Value: 1200})
 	world.Components.Weight.Add(e, &gc.Weight{})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{"Nutrition", "25", "Value", consts.Currency(1200).String(), "Weight", "0㎎"}, labels)
 }
@@ -209,7 +209,7 @@ func TestUpdateSpec_本はスキル情報と進捗を表示する(t *testing.T) 
 		},
 	})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	assert.Equal(t, []string{
 		"Book", "Skill", query.T(world, gc.SkillName(gc.SkillSword)),
@@ -226,7 +226,7 @@ func TestUpdateSpec_進捗が0の本は進捗行を表示しない(t *testing.T)
 		Effort: gc.IntPool{Current: 0, Max: 0},
 	})
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRows(world, e), nil))
 
 	// 工数未設定の Progress 行とスキル未設定の Skill 行は出ない
 	assert.Equal(t, []string{"Book"}, labels)
@@ -243,7 +243,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに近接武器の�
 		},
 	}
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
 	assert.Equal(t, []string{
 		query.T(world, gc.AttackSpear.Label),
@@ -276,7 +276,7 @@ func TestUpdateSpecFromSpec_エンティティを生成せずに複数コンポ�
 		Weight: &gc.Weight{},
 	}
 
-	labels := ui.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
+	labels := uicore.CollectLabels(entityspec.BuildSpecPanel(entityspec.SpecRowsFromSpec(world, spec), nil))
 
 	// Fire・Wearable・Healing・Nutrition・Book・Value・Weight の行がこの並びで連結される
 	assert.Equal(t, []string{

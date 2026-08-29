@@ -229,7 +229,7 @@ func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {
 // buildUI
 // ================
 
-// buildUI は名前入力画面を internal/ui のツリーとして組む。
+// buildUI は名前入力画面を internal/uicore のツリーとして組む。
 // タイトル・入力枠・エラー・ヒントを画面中央へ縦に並べる。入力枠には現在名とキャレットを描く
 func (st *CharacterNamingState) buildUI(world w.World) ui.Widget {
 	res := world.Resources.UIResources

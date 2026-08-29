@@ -7,7 +7,7 @@ import (
 	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
@@ -39,7 +39,7 @@ func NewStatusBadges(bodyFace text.Face) *StatusBadges {
 }
 
 // Draw はステータスバッジを描画する
-func (sb *StatusBadges) Draw(cv ui.Canvas, data StatusBadgesData) {
+func (sb *StatusBadges) Draw(cv uicore.Canvas, data StatusBadgesData) {
 	if !sb.enabled || len(data.Badges) == 0 {
 		return
 	}
@@ -68,7 +68,7 @@ func (sb *StatusBadges) Draw(cv ui.Canvas, data StatusBadgesData) {
 	currentY := baseY
 	for _, badge := range slices.Backward(badges) {
 		// テキストサイズを測定
-		textWidth, textHeight := ui.MeasureText(badge.Text, sb.bodyFace)
+		textWidth, textHeight := uicore.MeasureText(badge.Text, sb.bodyFace)
 
 		// バッジの高さ
 		badgeHeight := float64(textHeight) + paddingY*2
@@ -78,7 +78,7 @@ func (sb *StatusBadges) Draw(cv ui.Canvas, data StatusBadgesData) {
 
 		// 背景矩形を描画。塗りはバッジの状態色を保ちつつ、枠はメニュー枠と同じ共通 chrome に揃える
 		bgX := theme.Space4
-		bgWidth := ui.FitWidth([]int{textWidth}, int(paddingX)*2, 0)
+		bgWidth := uicore.FitWidth([]int{textWidth}, int(paddingX)*2, 0)
 		badgeChrome(cv, image.Rect(bgX, int(badgeY), bgX+bgWidth, int(badgeY+badgeHeight)), badge.Color)
 
 		// 白文字でテキストを描画
@@ -93,13 +93,13 @@ func (sb *StatusBadges) Draw(cv ui.Canvas, data StatusBadgesData) {
 	if hasMore {
 		moreCount := len(data.Badges) - maxVisible
 		moreText := fmt.Sprintf("+%d", moreCount)
-		textWidth, textHeight := ui.MeasureText(moreText, sb.bodyFace)
+		textWidth, textHeight := uicore.MeasureText(moreText, sb.bodyFace)
 		badgeHeight := float64(textHeight) + paddingY*2
 		badgeY := currentY - badgeHeight
 
 		// グレーの背景。他バッジと同じ共通 chrome に揃える
 		bgX := theme.Space4
-		bgWidth := ui.FitWidth([]int{textWidth}, int(paddingX)*2, 0)
+		bgWidth := uicore.FitWidth([]int{textWidth}, int(paddingX)*2, 0)
 		badgeChrome(cv, image.Rect(bgX, int(badgeY), bgX+bgWidth, int(badgeY+badgeHeight)), theme.HUDBadgeBg)
 
 		textY := badgeY + paddingY
@@ -109,7 +109,7 @@ func (sb *StatusBadges) Draw(cv ui.Canvas, data StatusBadgesData) {
 
 // badgeChrome はバッジの箱を描く。塗りの色は状態を表すデータなので、意匠のテクスチャでなく
 // 塗りと枠で表す。枠の色はパネルと同じにして、HUD の他の箱と質感を揃える
-func badgeChrome(cv ui.Canvas, r image.Rectangle, fill color.RGBA) {
+func badgeChrome(cv uicore.Canvas, r image.Rectangle, fill color.RGBA) {
 	cv.StrokeRect(r, 1, theme.PanelHighlight)
 	inner := image.Rect(r.Min.X+1, r.Min.Y+1, r.Max.X-1, r.Max.Y-1)
 	cv.FillRect(inner, fill)

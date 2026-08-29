@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
-	"github.com/kijimaD/ruins/internal/widgets/internal/ui"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -60,7 +60,7 @@ func TestDetailPageCount_実体の性能行数からページ数を算出する(
 	assert.Equal(t, 1, DetailPageCount(world, withAbilities), "Abilitiesの6行は1ページに収まる")
 }
 
-// buildDetailUI は internal/ui のツリーを組むだけでグローバル状態に触れないので、フェイス無し・
+// buildDetailUI は internal/uicore のツリーを組むだけでグローバル状態に触れないので、フェイス無し・
 // ロック無しで検証できる。Text は参照するので空の実体を渡す。フェイスが nil なら WrapText は
 // 測定せず desc を1行で返す。
 func TestBuildDetailUI_説明は最終ページにだけ表示する(t *testing.T) {
@@ -73,8 +73,8 @@ func TestBuildDetailUI_説明は最終ページにだけ表示する(t *testing.
 	firstPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0)
 	lastPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1)
 
-	firstLabels := ui.CollectLabels(firstPage)
-	lastLabels := ui.CollectLabels(lastPage)
+	firstLabels := uicore.CollectLabels(firstPage)
+	lastLabels := uicore.CollectLabels(lastPage)
 	assert.NotContains(t, firstLabels, "説明文", "最終ページ以外には説明を出さない")
 	assert.Contains(t, lastLabels, "説明文", "最終ページには説明を出す")
 	assert.Contains(t, firstLabels, "項目00")
@@ -96,6 +96,6 @@ func TestBuildDetailUI_ページ番号は範囲外を先頭と末尾にクラン
 
 	require.NotNil(t, negative)
 	require.NotNil(t, overflow)
-	assert.Contains(t, ui.CollectLabels(negative), "1/2", "負のページは先頭にクランプする")
-	assert.Contains(t, ui.CollectLabels(overflow), "2/2", "範囲外の大きいページは末尾にクランプする")
+	assert.Contains(t, uicore.CollectLabels(negative), "1/2", "負のページは先頭にクランプする")
+	assert.Contains(t, uicore.CollectLabels(overflow), "2/2", "範囲外の大きいページは末尾にクランプする")
 }
