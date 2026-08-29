@@ -169,7 +169,7 @@ linters:
             - "github.com/go-text/typesetting"
         # プリミティブ実体を import できるパッケージを列挙する。widgets 配下を部品ごとに
         # 絞らないのは、uicore が部品の組み上げる atom で境界がそこに無いため。
-        # 画面が名指しできるシンボルは menuframe の TestScreenLayerUICoreSurface が絞る
+        # 画面が名指しできるシンボルは internal/lintrule の TestScreenLayerUICoreSurface が絞る
         ui_core_inbound_guard:
           list-mode: lax
           files:

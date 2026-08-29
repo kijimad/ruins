@@ -3,7 +3,7 @@
 // # 層の位置と可視性
 //
 // ここは Atomic Design の atom にあたる。import できるパッケージは depguard の
-// ui_core_inbound_guard が列挙し、画面が名指しできるシンボルは menuframe の
+// ui_core_inbound_guard が列挙し、画面が名指しできるシンボルは lintrule の
 // TestScreenLayerUICoreSurface が許可制で絞る。
 //
 // 面は2つに分ける。配置もできる Widget は部品が扱い、描くだけの Drawable を画面へ見せる。

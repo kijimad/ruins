@@ -16,7 +16,7 @@
 //
 // uicore を import できるパッケージは depguard の ui_core_inbound_guard が列挙する。
 // 部品はツリーを組むので全面を使う。画面 states・menuloop・systems は組み上がった
-// ツリーを受け取って描くだけなので、名指しできるシンボルを menuframe の
+// ツリーを受け取って描くだけなので、名指しできるシンボルを lintrule の
 // TestScreenLayerUICoreSurface が許可制に絞る。
 //
 // # サブパッケージ
