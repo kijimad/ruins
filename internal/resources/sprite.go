@@ -47,11 +47,11 @@ func (s *SpriteStore) Image(sr *components.SpriteRender) *ebiten.Image {
 	if img, ok := s.images[key]; ok {
 		return img
 	}
-	sheet, rect, err := spriteRect(s.sheets, sr)
-	if err != nil {
+	tex, rect, ok := s.Rect(sr)
+	if !ok {
 		return nil
 	}
-	img := components.SubImage(sheet.Texture.Image, rect)
+	img := components.SubImage(tex.Image, rect)
 	s.images[key] = img
 	return img
 }
@@ -65,16 +65,27 @@ func (s *SpriteStore) Sized(sr *components.SpriteRender, size int) *ebiten.Image
 	if img, ok := s.images[key]; ok {
 		return img
 	}
-	sheet, rect, err := spriteRect(s.sheets, sr)
-	if err != nil {
+	tex, rect, ok := s.Rect(sr)
+	if !ok {
 		return nil
 	}
-	img := shrinkToFit(sheet.Texture, rect, size)
+	img := shrinkToFit(tex, rect, size)
 	if img == nil {
 		return nil
 	}
 	s.images[key] = img
 	return img
+}
+
+// Rect は sr が指すスプライトのテクスチャと、その中の切り出し矩形を返す。解決できなければ ok=false。
+// 矩形はテクスチャ範囲へクランプした絶対座標で、SubImage の切り出しにも、アトラス全体を
+// 使うときの UV 座標にも使える。スプライトの矩形を求める箇所はこれを通し、解決を1つに保つ。
+func (s *SpriteStore) Rect(sr *components.SpriteRender) (components.Texture, image.Rectangle, bool) {
+	sheet, rect, err := spriteRect(s.sheets, sr)
+	if err != nil {
+		return components.Texture{}, image.Rectangle{}, false
+	}
+	return sheet.Texture, rect, true
 }
 
 // spriteRect は SpriteRender が指すシートと、その中のスプライトの矩形を返す。

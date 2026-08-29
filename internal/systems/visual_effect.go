@@ -246,27 +246,12 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 		}
 	}
 
-	// スプライトシートを取得
-	spriteSheet, exists := world.Resources.SpriteSheets[effect.SpriteSheetName]
-	if !exists {
+	// スプライトの矩形とテクスチャを解決し、その部分を切り出す
+	tex, rect, ok := world.Resources.Sprites.Rect(&gc.SpriteRender{SpriteSheetName: effect.SpriteSheetName, SpriteKey: effect.SpriteKey})
+	if !ok {
 		return nil
 	}
-
-	// スプライトを取得
-	sprite, exists := spriteSheet.Sprites[effect.SpriteKey]
-	if !exists {
-		return nil
-	}
-
-	// スプライト画像を切り出す
-	texture := spriteSheet.Texture
-	textureWidth := texture.Image.Bounds().Dx()
-	textureHeight := texture.Image.Bounds().Dy()
-	left := max(0, sprite.X)
-	right := min(textureWidth, sprite.X+sprite.Width)
-	top := max(0, sprite.Y)
-	bottom := min(textureHeight, sprite.Y+sprite.Height)
-	img := gc.SubImage(texture.Image, image.Rect(left, top, right, bottom))
+	img := gc.SubImage(tex.Image, rect)
 
 	// 立て板と同じ位置・大きさで重ねる。スプライトの高さが立て板1枚分になるよう拡大率を決め、
 	// 立て板の中心へ合わせる
@@ -279,13 +264,13 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 		return nil
 	}
 	// 高さ0のスプライトは拡大率が定まらず描けない。ゼロ除算を避けて描画をやめる
-	if sprite.Height == 0 {
+	if rect.Dy() == 0 {
 		return nil
 	}
-	zoom := scale / float64(sprite.Height)
+	zoom := scale / float64(rect.Dy())
 
 	op := &ebiten.DrawRectShaderOptions{}
-	op.GeoM.Translate(float64(-sprite.Width)/2, float64(-sprite.Height)/2)
+	op.GeoM.Translate(float64(-rect.Dx())/2, float64(-rect.Dy())/2)
 	op.GeoM.Scale(zoom, zoom)
 	op.GeoM.Translate(float64(center.X), float64(center.Y))
 
@@ -296,6 +281,6 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	op.ColorScale.ScaleAlpha(float32(effect.Alpha))
 
 	// シェーダーで白シルエットを描画
-	screen.DrawRectShader(sprite.Width, sprite.Height, sys.silhouetteShader, op)
+	screen.DrawRectShader(rect.Dx(), rect.Dy(), sys.silhouetteShader, op)
 	return nil
 }
