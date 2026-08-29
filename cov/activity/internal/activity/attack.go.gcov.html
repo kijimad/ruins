@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">74.6&nbsp;%</td>
+            <td class="headerCovTableEntryMed">75.2&nbsp;%</td>
             <td class="headerCovTableEntry">307</td>
-            <td class="headerCovTableEntry">229</td>
+            <td class="headerCovTableEntry">231</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 11:08:59</td>
+            <td class="headerValue">2026-08-29 11:23:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -447,10 +447,10 @@
 <span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :         baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)</span></span>
 <span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         if critical {</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC tlaBgUNC">           0 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :                 baseDamage = formula.ApplyCritical(baseDamage)</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L390"><span class="lineNum">     390</span>              : </span>
-<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC tlaBgGNC">           1 :         if attack.GetElement() != gc.ElementTypeNone {</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :         if attack.GetElement() != gc.ElementTypeNone {</span></span>
 <span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :                 baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)</span></span>
 <span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L394"><span class="lineNum">     394</span>              : </span>
