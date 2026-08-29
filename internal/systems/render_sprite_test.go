@@ -9,56 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSpriteImageCache(t *testing.T) {
-	t.Parallel()
-	t.Run("sprite image cache initialization", func(t *testing.T) {
-		t.Parallel()
-		sys := NewRenderSpriteSystem()
-		assert.NotNil(t, sys.spriteImageCache, "spriteImageCacheがnilになっている")
-		assert.Empty(t, sys.spriteImageCache, "新規作成時はキャッシュが空のはず")
-	})
-}
-
-// spriteImageCache の set/get/delete と len の map 操作を検証する。格納する画像の中身は本テストの対象外なので、
-// キーの存在と件数だけを見る。値には画像を用意せず nil を入れ、キー操作の意味論だけを確かめる。
-func TestSpriteImageCacheOperations(t *testing.T) {
-	t.Parallel()
-	t.Run("cache operations", func(t *testing.T) {
-		t.Parallel()
-		// 各テストで独立したシステムインスタンスを作成
-		sys := NewRenderSpriteSystem()
-
-		// 初期状態の確認
-		initialLen := len(sys.spriteImageCache)
-		assert.Equal(t, 0, initialLen, "新規作成時はキャッシュが空のはず")
-
-		testKey := spriteImageCacheKey{
-			SpriteSheetName: "test_sheet",
-			SpriteKey:       "test_sprite",
-		}
-
-		// キーが存在しないことを確認
-		_, exists := sys.spriteImageCache[testKey]
-		assert.False(t, exists, "存在しないキーがtrueを返している")
-
-		// キーを登録する。値の画像は本テストの対象外なので nil を入れ、存在と件数だけを見る
-		sys.spriteImageCache[testKey] = nil
-
-		// キーが存在することを確認
-		_, exists = sys.spriteImageCache[testKey]
-		assert.True(t, exists, "設定したキーが存在しない")
-
-		// サイズが増えたことを確認
-		assert.Len(t, sys.spriteImageCache, initialLen+1, "キャッシュサイズが正しくない")
-
-		// キャッシュをクリア（テスト後の処理）
-		delete(sys.spriteImageCache, testKey)
-
-		// 元の状態に戻ったことを確認
-		assert.Len(t, sys.spriteImageCache, initialLen, "キャッシュクリア後のサイズが正しくない")
-	})
-}
-
 // 期待値の根拠。testutil.InitTestWorld が画面を 960x720 に固定し、consts.TileSize は 32。
 // scale=1 では halfW=480 halfH=360 で、maxX=480/32+margin、maxY=360/32+margin になる。
 // margin=2 なら maxX=17 maxY=13 で、min は原点対称に符号反転する。scale=2 では画面幅を半分に見るので

@@ -70,7 +70,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 
 	// メッセージエリアの高さを計算（message_area.goのDefaultMessageAreaConfigと同じ）
 	messageAreaConfig := hud.DefaultMessageAreaConfig
-	messageAreaHeight := messageAreaConfig.LogAreaMargin*2 + messageAreaConfig.MaxLogLines*messageAreaConfig.LineHeight + messageAreaConfig.YPadding*2
+	messageAreaHeight := messageAreaConfig.Height()
 
 	return hud.GameInfoData{
 		FloorNumber:       floorNumber,
@@ -404,7 +404,7 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 
 	// メッセージエリアの高さを計算
 	messageAreaConfig := hud.DefaultMessageAreaConfig
-	messageAreaHeight := messageAreaConfig.LogAreaMargin*2 + messageAreaConfig.MaxLogLines*messageAreaConfig.LineHeight + messageAreaConfig.YPadding*2
+	messageAreaHeight := messageAreaConfig.Height()
 
 	return hud.StatusBadgesData{
 		Badges:            badges,

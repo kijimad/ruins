@@ -14,12 +14,14 @@
 #   GRILL_MINUTES 時間予算(分)。既定 360 で6時間
 #   GRILL_LOG_DIR ログ出力先。既定 /tmp/ruins-grill/<開始時刻>
 set -u
+set -o pipefail
 
 minutes="${GRILL_MINUTES:-360}"
 logdir="${GRILL_LOG_DIR:-/tmp/ruins-grill/$(date +%Y%m%d-%H%M%S)}"
 mkdir -p "$logdir"
 
-pkgs=$(go list ./... | grep -v -e /editor-ui/ -e '/oapi$')
+all_pkgs=$(go list ./...) || { echo "grill: go list に失敗した。中止する" >&2; exit 1; }
+pkgs=$(printf '%s\n' "$all_pkgs" | grep -v -e /editor-ui/ -e '/oapi$')
 deadline=$(($(date +%s) + minutes * 60))
 round=0
 

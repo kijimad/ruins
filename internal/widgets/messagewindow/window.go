@@ -2,23 +2,21 @@ package messagewindow
 
 import (
 	"fmt"
-	"image"
-	"strings"
 
-	"github.com/ebitenui/ebitenui"
-	eui_image "github.com/ebitenui/ebitenui/image"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// Window はメッセージウィンドウを表す
+// Window はメッセージウィンドウを表す。
+//
+// 描画は internal/uicore のツリーで組み、グローバル可変状態に触れない。UI は保持せず
+// 毎フレーム buildTree で組み直す。フォーカスやページの差分追跡は不要で、現在の状態から都度描く
 type Window struct {
 	config      windowConfig
 	content     messageContent
@@ -26,16 +24,15 @@ type Window struct {
 	onClose     func()
 	onChoice    func(choice choiceOption)
 	isOpen      bool
-	ui          *ebitenui.UI
 	initialized bool
-	window      *widget.Window
+	body        uicore.Widget
 
-	// 選択肢がある場合、メニューシステムでページング可能な選択肢一覧を表示
-	choiceMenuView  *view
-	choiceStore     *hooks.Store
-	hasChoices      bool
-	currentMenuPage int
-	needsUIRebuild  bool // ページ変更時のUI再構築フラグ
+	// 選択肢がある場合、ページング可能な選択肢一覧を表示する。ナビゲーションは hooks Store が持ち、
+	// 描画に要る現在位置を choiceState に写す
+	hasChoices   bool
+	choiceConfig tabMenuConfig
+	choiceState  viewState
+	choiceStore  *hooks.Store
 
 	// 複数メッセージを順番に表示
 	queueManager   *queueManager
@@ -53,18 +50,12 @@ func (w *Window) Update() error {
 		if w.hasChoices {
 			w.initChoiceMenu()
 		}
-		w.initUI()
 		w.initialized = true
 	}
 
-	if w.hasChoices && w.choiceMenuView != nil {
+	if w.hasChoices {
 		if err := w.handleChoiceInput(); err != nil {
 			return err
-		}
-
-		if w.needsUIRebuild {
-			w.rebuildUI()
-			w.needsUIRebuild = false
 		}
 	} else {
 		if action, ok := w.HandleInput(); ok {
@@ -72,8 +63,10 @@ func (w *Window) Update() error {
 		}
 	}
 
-	if w.ui != nil {
-		w.ui.Update()
+	// 状態が確定してから現在の見た目を組み直す。閉じた、または次メッセージへ切り替えた直後は
+	// 組まずに次フレームの再初期化へ譲る
+	if w.isOpen && w.initialized {
+		w.body = w.buildTree()
 	}
 
 	return nil
@@ -81,11 +74,10 @@ func (w *Window) Update() error {
 
 // Draw はウィンドウを描画する
 func (w *Window) Draw(screen *ebiten.Image) {
-	if !w.isOpen || w.ui == nil {
+	if !w.isOpen || w.body == nil {
 		return
 	}
-
-	w.ui.Draw(screen)
+	w.body.Draw(uicore.NewEbitenCanvas(screen))
 }
 
 // IsOpen はウィンドウが開いているかを返す
@@ -144,11 +136,9 @@ func (w *Window) showNextMessage() {
 	w.currentMessage = nextMessage
 	w.updateContentFromMessage(nextMessage)
 
-	// UI再初期化
+	// 次フレームで再初期化させる
 	w.initialized = false
-	w.ui = nil
-	w.window = nil
-	w.choiceMenuView = nil
+	w.body = nil
 	w.choiceStore = nil
 }
 
@@ -180,60 +170,14 @@ func (w *Window) updateContentFromMessage(msg *messagedata.MessageData) {
 	}
 }
 
-// initUI はUIを初期化する
-func (w *Window) initUI() {
-	mainContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
-	w.ui = &ebitenui.UI{
-		Container: mainContainer,
-	}
-	w.createAndAddWindow()
-}
-
-// createAndAddWindow はウィンドウを作成してUIに追加する
-func (w *Window) createAndAddWindow() {
-	// ウィンドウコンテナ
-	windowContainer := w.createWindowContainer()
-
-	// ウィンドウサイズを選択肢に応じて調整
-	windowSize := w.calculateWindowSize()
-
-	// タイトルバー付きウィンドウを作成
-	titleContainer := w.createTitleContainer()
-	w.window = styled.NewSmallWindow(
-		titleContainer,
-		windowContainer,
-		widget.WindowOpts.CloseMode(widget.NONE), // クリックで閉じない
-		widget.WindowOpts.Draggable(),
-		widget.WindowOpts.MinSize(windowSize.Width, windowSize.Height),
-		widget.WindowOpts.MaxSize(windowSize.Width, windowSize.Height), // 固定サイズ
-	)
-
-	// ウィンドウ位置を計算
-	x, y := w.calculateWindowPosition(windowSize)
-	w.window.SetLocation(image.Rect(x, y, x+windowSize.Width, y+windowSize.Height))
-
-	// UIにウィンドウを追加
-	w.ui.AddWindow(w.window)
-}
-
-// createTitleContainer はタイトルコンテナを作成する。タイトルが空の場合は空コンテナを返す
-func (w *Window) createTitleContainer() *widget.Container {
-	if w.content.SpeakerName == "" {
-		return widget.NewContainer()
-	}
-	return styled.NewWindowHeaderContainer(w.content.SpeakerName, w.world.Resources.UIResources)
-}
-
 // calculateWindowPosition はウィンドウの表示位置を計算する。
-// 上端を画面高さの約1/4の位置に統一して配置する
+// 横は画面中央、上端は他のウィンドウと同じ MenuWindowTop で揃える
 func (w *Window) calculateWindowPosition(windowSize windowSize) (x, y int) {
 	screenWidth := w.world.Resources.ScreenDimensions.Width
 	screenHeight := w.world.Resources.ScreenDimensions.Height
 
 	x = (screenWidth - windowSize.Width) / 2
-	y = screenHeight / 4
+	y = theme.MenuWindowTop
 
 	margin := 30
 	if y+windowSize.Height > screenHeight-margin {
@@ -248,236 +192,26 @@ func (w *Window) calculateWindowPosition(windowSize windowSize) (x, y int) {
 
 // calculateWindowSize は選択肢に応じてウィンドウサイズを計算する
 func (w *Window) calculateWindowSize() windowSize {
-	baseHeight := w.config.Size.Height
-
-	// 選択肢がある場合は高さを再計算
-	if w.hasChoices && len(w.content.Choices) > 0 {
-		numChoices := len(w.content.Choices)
-
-		// 構成要素の高さ
-		messageHeight := 0 // メッセージの高さ
-		if w.hasMessage() {
-			messageHeight = 150 // メッセージがある場合のみ固定高さ
-		}
-		choiceItemHeight := 40 // 選択肢1つあたりの高さ
-		choiceHeight := numChoices * choiceItemHeight
-		topPadding := 20    // 上部パディング
-		bottomPadding := 15 // 下部パディング
-		titleBarHeight := 0 // タイトルバーの高さ
-		if w.content.SpeakerName != "" {
-			titleBarHeight = 40
-		}
-		spacingHeight := 10 // スペーサー間隔（メッセージがある場合のみ）
-		if !w.hasMessage() {
-			spacingHeight = 0
-		}
-
-		// 合計高さを計算
-		calculatedHeight := messageHeight + choiceHeight + topPadding + bottomPadding + titleBarHeight + spacingHeight
-
-		// 最大高さを画面高さの80%に制限
-		maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)
-
-		baseHeight = min(calculatedHeight, maxHeightWithChoices)
-	}
+	// 内容が収まる高さと設定の最小高の大きいほうを採る。内容が少なくても窓は痩せず、
+	// 選択肢が増えれば必要なぶんだけ伸びる
+	height := max(w.config.Size.Height, w.requiredHeight())
+	// 画面高の8割で頭を打つ。窓が画面を覆い尽くさないようにする
+	height = min(height, int(float64(w.world.Resources.ScreenDimensions.Height)*maxHeightRatio))
 
 	return windowSize{
 		Width:  w.config.Size.Width,
-		Height: baseHeight,
+		Height: height,
 	}
 }
 
 // hasMessage はメッセージがあるかどうかを判定する
 func (w *Window) hasMessage() bool {
-	if len(w.content.TextSegmentLines) == 0 {
-		return false
-	}
-
-	// すべての行が空かどうかをチェック
 	for _, lineSegments := range w.content.TextSegmentLines {
-		for _, seg := range lineSegments {
-			// 空白文字以外があればメッセージありと判定
-			for _, r := range seg.Text {
-				if r != ' ' && r != '\t' && r != '\n' && r != '\r' {
-					return true
-				}
-			}
+		if !lineIsBlank(lineSegments) {
+			return true
 		}
 	}
-
 	return false
-}
-
-// createWindowContainer はウィンドウコンテナを作成する
-func (w *Window) createWindowContainer() *widget.Container {
-	windowContainer := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(w.world.Resources.UIResources.Panel.ImageTrans),
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.GridLayoutData{
-				MaxHeight: 500,
-			}),
-		),
-	)
-
-	// 選択肢の有無でパディングを調整
-	bottomPadding := 60
-	if w.hasChoices && w.choiceMenuView != nil {
-		bottomPadding = 15 // 選択肢がある場合は下部パディングを少なく
-	}
-
-	contentArea := widget.NewContainer(
-		widget.ContainerOpts.Layout(
-			widget.NewRowLayout(
-				widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-				widget.RowLayoutOpts.Padding(&widget.Insets{
-					Top:    theme.Space6,
-					Bottom: bottomPadding,
-					Left:   theme.Space4,
-					Right:  theme.Space4,
-				}),
-				widget.RowLayoutOpts.Spacing(theme.Space4),
-			),
-		),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionStart,
-				VerticalPosition:   widget.AnchorLayoutPositionStart,
-				StretchHorizontal:  true,
-				StretchVertical:    true,
-			}),
-		),
-	)
-
-	if w.hasChoices && w.choiceMenuView != nil {
-		// 選択肢がある場合
-		if w.hasMessage() {
-			// メッセージがある場合: メッセージコンテナを表示
-			messageContainer := widget.NewContainer(
-				widget.ContainerOpts.Layout(
-					widget.NewRowLayout(
-						widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-						widget.RowLayoutOpts.Spacing(0),
-					),
-				),
-				widget.ContainerOpts.WidgetOpts(
-					widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-						Stretch:   false,
-						MaxHeight: 150, // 固定高さ
-					}),
-					widget.WidgetOpts.MinSize(0, 150),
-				),
-			)
-			messageWidget := w.createSegmentedTextLines()
-			messageContainer.AddChild(messageWidget)
-			contentArea.AddChild(messageContainer)
-
-			// スペーサー: メッセージと選択肢の間の空間を埋める
-			spacer := widget.NewContainer(
-				widget.ContainerOpts.WidgetOpts(
-					widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-						Stretch: true,
-					}),
-				),
-			)
-			contentArea.AddChild(spacer)
-		}
-
-		// 選択肢コンテナ（自然な高さ、選択肢数に応じて伸びる）
-		choicesContainer := w.createChoicesItemsContainer()
-		contentArea.AddChild(choicesContainer)
-	} else {
-		// 選択肢がない場合: メッセージのみ表示
-		messageWidget := w.createSegmentedTextLines()
-		contentArea.AddChild(messageWidget)
-	}
-
-	windowContainer.AddChild(contentArea)
-
-	if !w.hasChoices || w.choiceMenuView == nil {
-		enterPrompt := w.createEnterPrompt()
-		windowContainer.AddChild(enterPrompt)
-	}
-
-	return windowContainer
-}
-
-// createChoicesItemsContainer は選択肢アイテムのコンテナを作成する
-func (w *Window) createChoicesItemsContainer() *widget.Container {
-	var itemsContainer *widget.Container
-
-	if w.choiceMenuView != nil {
-		itemsContainer = w.choiceMenuView.BuildUI()
-	} else {
-		// 選択肢アイテムのコンテナ（縦並び、各アイテムを中央寄せ）
-		itemsContainer = widget.NewContainer(
-			widget.ContainerOpts.Layout(
-				widget.NewRowLayout(
-					widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-					widget.RowLayoutOpts.Spacing(5),
-					widget.RowLayoutOpts.Padding(&widget.Insets{Top: 10, Bottom: 0}),
-				),
-			),
-		)
-
-		for i, choice := range w.content.Choices {
-			// 各選択肢を中央配置するコンテナでラップ
-			choiceWrapper := widget.NewContainer(
-				widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-				widget.ContainerOpts.WidgetOpts(
-					widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-						Stretch: true,
-					}),
-				),
-			)
-
-			choiceText := w.createChoiceText(choice.Text, i == 0)
-			choiceText.GetWidget().LayoutData = widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionCenter,
-				StretchHorizontal:  false, // 水平方向に引き伸ばさない
-			}
-			choiceWrapper.AddChild(choiceText)
-			itemsContainer.AddChild(choiceWrapper)
-		}
-	}
-
-	// RowLayout内での配置（中央寄せ）
-	itemsContainer.GetWidget().LayoutData = widget.RowLayoutData{
-		Stretch:  false,
-		Position: widget.RowLayoutPositionCenter,
-	}
-
-	return itemsContainer
-}
-
-// createEnterPrompt はEnterプロンプトを作成する
-func (w *Window) createEnterPrompt() *widget.Container {
-	container := widget.NewContainer(
-		widget.ContainerOpts.Layout(
-			widget.NewRowLayout(
-				widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-				widget.RowLayoutOpts.Spacing(0),
-			),
-		),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionEnd,
-				Padding:            &widget.Insets{Bottom: 15},
-			}),
-		),
-	)
-
-	prompt := styled.NewListItem(nil,
-		"Enter",
-		theme.TextPrimary,
-		true,
-		w.world.Resources.UIResources,
-	)
-
-	container.AddChild(prompt)
-	return container
 }
 
 // HandleInput はキーボード入力をActionに変換する。束縛表は設定の SkippableKeys から導出し、
@@ -526,7 +260,7 @@ func (w *Window) initChoiceMenu() {
 
 	itemsPerPage := w.calculateItemsPerPage(len(w.content.Choices))
 
-	config := tabMenuConfig{
+	w.choiceConfig = tabMenuConfig{
 		Tabs: []tabItem{
 			{ID: "choices", Label: "", Items: items},
 		},
@@ -547,15 +281,13 @@ func (w *Window) initChoiceMenu() {
 		Skips:        [][]bool{skips},
 	})
 
-	w.choiceMenuView = newView(config, w.world)
-	w.choiceMenuView.SetState(viewState{
+	w.choiceState = viewState{
 		TabIndex:  menuState.TabIndex,
 		ItemIndex: menuState.ItemIndex,
-	})
-	w.currentMenuPage = 1
+	}
 }
 
-// handleChoiceInput はキー入力を hooks Store にディスパッチし、view を同期する
+// handleChoiceInput はキー入力を hooks Store にディスパッチし、描画状態を同期する
 func (w *Window) handleChoiceInput() error {
 	action, ok := keybind.ReadInput(w.world, choiceBindings)
 	if !ok {
@@ -572,16 +304,9 @@ func (w *Window) handleChoiceInput() error {
 	default:
 		w.choiceStore.Dispatch(action)
 		menuState, _ := hooks.GetStoreState[hooks.TabMenuState](w.choiceStore, "choices")
-		w.choiceMenuView.SetState(viewState{
+		w.choiceState = viewState{
 			TabIndex:  menuState.TabIndex,
 			ItemIndex: menuState.ItemIndex,
-		})
-		w.choiceMenuView.UpdateFocus()
-
-		newPage := w.choiceMenuView.GetCurrentPage()
-		if newPage != w.currentMenuPage {
-			w.currentMenuPage = newPage
-			w.needsUIRebuild = true
 		}
 		return nil
 	}
@@ -595,51 +320,18 @@ var choiceBindings = []keybind.Binding{
 	{Key: ebiten.KeyEscape, Action: inputmapper.ActionMenuCancel},
 }
 
-// rebuildUI はUIを再構築する
-func (w *Window) rebuildUI() {
-	w.ui = nil
-	w.window = nil
-	w.initUI()
-}
-
-// calculateItemsPerPage は1ページあたりのアイテム数を計算する
+// calculateItemsPerPage は1ページあたりの選択肢の件数を返す。窓の上限高から選択肢以外の
+// 取り分を引いた残りを、実際に描く行高で割る。取り分と行高は描画と同じ値を使うので、
+// 計算した件数がそのまま収まる。
 func (w *Window) calculateItemsPerPage(totalItems int) int {
-	maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)
+	maxHeight := int(float64(w.world.Resources.ScreenDimensions.Height) * maxHeightRatio)
 
-	// ウィンドウ内のオーバーヘッドを計算する
-	messageHeight := 0
-	if w.hasMessage() {
-		messageHeight = 150
-	}
-	topPadding := 20
-	bottomPadding := 15
-	titleBarHeight := 0
-	if w.content.SpeakerName != "" {
-		titleBarHeight = 40
-	}
-	spacingHeight := 0
-	if w.hasMessage() {
-		spacingHeight = 10
-	}
-	pageIndicatorHeight := 30
+	// 選択肢の塊を除いた取り分。requiredHeight から選択肢1行ぶんを引いて求める
+	overhead := w.chromeHeight() + pageRowH
+	perPage := (maxHeight - overhead) / choiceRowH
+	perPage = min(max(perPage, minItemsPerPage), maxItemsPerPage)
 
-	overhead := messageHeight + topPadding + bottomPadding + titleBarHeight + spacingHeight + pageIndicatorHeight
-	availableHeight := maxHeightWithChoices - overhead
-
-	choiceItemHeight := 40
-	maxItemsPerPage := availableHeight / choiceItemHeight
-
-	if maxItemsPerPage < 3 {
-		maxItemsPerPage = 3
-	} else if maxItemsPerPage > 15 {
-		maxItemsPerPage = 15
-	}
-
-	if totalItems <= maxItemsPerPage {
-		return totalItems
-	}
-
-	return maxItemsPerPage
+	return min(totalItems, perPage)
 }
 
 // selectChoice は選択肢を選択する
@@ -665,159 +357,4 @@ func (w *Window) selectChoice(index int) error {
 	// ウィンドウを閉じる
 	w.Close()
 	return nil
-}
-
-// createSegmentedTextLines はTextSegmentLinesから色付きテキストウィジェットを作成する（改行対応）
-func (w *Window) createSegmentedTextLines() *widget.Container {
-	// メインコンテナは縦方向（行を縦に並べる）
-	mainContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(
-			widget.NewRowLayout(
-				widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-				widget.RowLayoutOpts.Spacing(0),
-				widget.RowLayoutOpts.Padding(&widget.Insets{
-					Top:    0,
-					Bottom: 0,
-					Left:   theme.Space3,
-					Right:  theme.Space3,
-				}),
-			),
-		),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Stretch: true,
-			}),
-		),
-	)
-
-	res := w.world.Resources.UIResources
-
-	// 各行を処理
-	for _, lineSegments := range w.content.TextSegmentLines {
-		// 空行かどうかを判定（全セグメントが空白文字のみ）
-		isEmptyLine := true
-		for _, seg := range lineSegments {
-			var trimmed strings.Builder
-			for _, r := range seg.Text {
-				if r != ' ' && r != '\t' && r != '\n' && r != '\r' {
-					trimmed.WriteRune(r)
-				}
-			}
-			if trimmed.String() != "" {
-				isEmptyLine = false
-				break
-			}
-		}
-
-		// 空行の場合は固定高さのスペーサーを追加
-		if isEmptyLine {
-			spacer := widget.NewText(
-				widget.TextOpts.Text(" ", &res.Text.BodyFace, w.config.textStyle.Color),
-				widget.TextOpts.WidgetOpts(
-					widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
-				),
-			)
-			mainContainer.AddChild(spacer)
-			continue
-		}
-
-		// 行コンテナ（横方向）
-		lineContainer := widget.NewContainer(
-			widget.ContainerOpts.Layout(
-				widget.NewRowLayout(
-					widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-					widget.RowLayoutOpts.Spacing(0),
-				),
-			),
-			widget.ContainerOpts.WidgetOpts(
-				widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-					Stretch: true,
-				}),
-			),
-		)
-
-		// 行内の各セグメントを処理
-		for _, segment := range lineSegments {
-			segmentColor := w.config.textStyle.Color
-			if segment.Color != nil {
-				segmentColor = *segment.Color
-			}
-
-			// セグメント用のコンテナオプション
-			var segmentOpts []widget.ContainerOpt
-			segmentOpts = append(segmentOpts,
-				widget.ContainerOpts.Layout(
-					widget.NewRowLayout(
-						widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-						widget.RowLayoutOpts.Spacing(0),
-					),
-				),
-			)
-
-			// 背景色の設定
-			if segment.BackgroundColor != nil {
-				segmentOpts = append(segmentOpts,
-					widget.ContainerOpts.BackgroundImage(eui_image.NewNineSliceColor(*segment.BackgroundColor)),
-				)
-			}
-
-			segmentContainer := widget.NewContainer(segmentOpts...)
-
-			// テキストウィジェット
-			textWidget := widget.NewText(
-				widget.TextOpts.Text(segment.Text, &res.Text.BodyFace, segmentColor),
-				widget.TextOpts.WidgetOpts(
-					widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
-				),
-			)
-
-			segmentContainer.AddChild(textWidget)
-			lineContainer.AddChild(segmentContainer)
-		}
-
-		mainContainer.AddChild(lineContainer)
-	}
-
-	return mainContainer
-}
-
-// createChoiceText は選択肢用のテキストウィジェットを作成する（自然な幅で中央寄せ用）
-func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Container {
-	res := w.world.Resources.UIResources
-
-	// 背景色の設定
-	var backgroundColor *eui_image.NineSlice
-	if isSelected {
-		// 選択中は背景色を付ける
-		backgroundColor = eui_image.NewNineSliceColor(theme.ChoiceSelectedBg)
-	} else {
-		// 非選択は透明
-		backgroundColor = eui_image.NewNineSliceColor(theme.Transparent)
-	}
-
-	// コンテナ（自然な幅を保持）
-	container := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(backgroundColor),
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-	)
-
-	// テキストウィジェット
-	textWidget := widget.NewText(
-		widget.TextOpts.Text(choiceText, &res.Text.BodyFace, w.config.textStyle.Color),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionCenter,
-				Padding: &widget.Insets{
-					Top:    theme.Space2,
-					Bottom: theme.Space2,
-					Left:   theme.Space5,
-					Right:  theme.Space5,
-				},
-			}),
-		),
-	)
-
-	container.AddChild(textWidget)
-	return container
 }

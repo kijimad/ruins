@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/require"
 )
@@ -24,6 +25,7 @@ var (
 type initConfig struct {
 	stageKey   gc.StageKey
 	stageLevel gc.Level
+	ui         bool
 }
 
 // Option は InitTestWorld の初期化オプション。
@@ -41,15 +43,20 @@ func WithStageLevel(level gc.Level) Option {
 	return func(c *initConfig) { c.stageLevel = level }
 }
 
-// InitTestWorld は軽量なテスト用Worldを初期化する
-// フォントやスプライトシートなどの重いリソースは読み込まず、
-// ECSとRawMasterのみを初期化します。
+// WithUI はフォントフェイス込みの UIResources を積む。UI を描くテストはこれを付ける。
+// フェイスはテストが排他所有する。text/v2 は GoTextFaceSource 内に可変キャッシュを持ち、
+// 共有フェイスを並行描画すると競合するが、排他所有ならロック無しで並列に実描画できる。
+func WithUI() Option {
+	return func(c *initConfig) { c.ui = true }
+}
+
+// InitTestWorld はテスト用 world の唯一の入り口。選び方はこの2行で尽きる。
 //
-// この関数は以下のようなテストに適しています：
-//   - エンティティ操作のテスト
-//   - ゲームロジックのテスト
-//   - アイテムやレシピのテスト
-//   - UIを必要としないテスト
+//   - 描かないテスト: InitTestWorld(t)。ECS と RawMaster だけの軽量 world
+//   - UI を描くテスト: InitTestWorld(t, WithUI())。独立フォントフェイス込み
+//
+// 付け忘れて描くとフェイスが nil で即座に落ちるので、静かに壊れることはない。
+// 例外は states の golden_replay だけで、実プレイ再現のため vrt.InitReplayWorld を使う。
 func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	tb.Helper()
 
@@ -92,7 +99,7 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 			},
 		},
 	}
-	world.Resources.SpriteSheets = spriteSheets
+	world.Resources.SetSpriteSheets(spriteSheets)
 
 	// テスト用の現ステージを用意する。フィールド寸法は現ステージの StageField が持つため、
 	// 現ステージを cfg.stageKey に確定し、そのキーに束縛した StageField を Level 付きで作る。
@@ -109,5 +116,29 @@ func InitTestWorld(tb testing.TB, opts ...Option) w.World {
 	field.Level = cfg.stageLevel
 	world.Components.StageField.Add(fieldEntity, field)
 
+	if cfg.ui {
+		world.Resources.UIResources = borrowUIResources(tb)
+	}
+
 	return world
+}
+
+// uiResPool は WithUI が積む UIResources の置き場。フェイスの構築は重く、描画は
+// フェイス内部のキャッシュへ書き込むため同時共有はできない。そこで排他所有で貸し出す。
+// 並行するテストは必ず別インスタンスを掴んで独立し、順に走るテストは温まった
+// キャッシュごと再利用して構築を省く。ポインタを入れるのは Put のボクシングを避けるため
+var uiResPool sync.Pool
+
+// borrowUIResources はプールから UIResources を借り、テスト終了時に返す。
+// 空なら独立したフェイス一式を構築する
+func borrowUIResources(tb testing.TB) resources.UIResources {
+	tb.Helper()
+	uir, ok := uiResPool.Get().(*resources.UIResources)
+	if !ok {
+		fresh, err := loader.LoadUIResources()
+		require.NoError(tb, err)
+		uir = &fresh
+	}
+	tb.Cleanup(func() { uiResPool.Put(uir) })
+	return *uir
 }

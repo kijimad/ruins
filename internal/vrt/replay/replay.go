@@ -29,7 +29,7 @@ import (
 // 戻ったところで解放するので、抱え込まずその場で読み切る。
 //
 // state 側に再生用の口は要らない。入力供給源は world が持ち、押し込んだ先の state にも同じ源が
-// 効く。ebitenui グローバルに触れるため一連の駆動を vrt.WithUILock で直列化する。
+// 効く。world は自前の独立フェイスを持つので、駆動と描画はロック無しで並列に走れる。
 //
 // overlay が Active な間は Screen の入力ゲートが overlay へ入力を渡すが、overlay も
 // keybind.ReadInput で同じ供給源から読むので、詳細モーダルを開いた先も Action 列で駆動できる。
@@ -40,33 +40,29 @@ func PlayScenario(
 	capture func(frame int, world w.World, screen *ebiten.Image),
 ) *maingame.MainGame {
 	t.Helper()
-	world := vrt.InitVRTWorld(t)
+	world := vrt.InitReplayWorld(t)
 
-	var game *maingame.MainGame
-	vrt.WithUILock(func() {
-		// レイアウト確定フレームは供給源を差す前に回す。Action を消費させない
-		sm := vrt.SetupStateMachine(t, world, buildStates)
+	// レイアウト確定フレームは供給源を差す前に回す。Action を消費させない
+	sm := vrt.SetupStateMachine(t, world, buildStates)
 
-		var err error
-		game, err = maingame.NewMainGame(world, sm)
-		require.NoError(t, err)
-		world.Resources.InputSource = actionSource(actions)
+	game, err := maingame.NewMainGame(world, sm)
+	require.NoError(t, err)
+	world.Resources.InputSource = actionSource(actions)
 
-		for frame := range len(actions) + 1 {
-			if err := game.Update(); err != nil {
-				// 全ての state が Pop されたときの正常終了。以降は駆動するものが無い
-				require.ErrorIs(t, err, ebiten.Termination, "frame %d update failed", frame)
-				return
-			}
-			if capture == nil {
-				continue
-			}
-			screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
-			game.Draw(screen)
-			capture(frame, world, screen)
-			screen.Deallocate()
+	for frame := range len(actions) + 1 {
+		if err := game.Update(); err != nil {
+			// 全ての state が Pop されたときの正常終了。以降は駆動するものが無い
+			require.ErrorIs(t, err, ebiten.Termination, "frame %d update failed", frame)
+			return game
 		}
-	})
+		if capture == nil {
+			continue
+		}
+		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
+		game.Draw(screen)
+		capture(frame, world, screen)
+		screen.Deallocate()
+	}
 	return game
 }
 

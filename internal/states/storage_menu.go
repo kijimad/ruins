@@ -3,8 +3,6 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -16,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -191,19 +190,29 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 // View
 // ================
 
-// View は props を UI へ組む純粋な描画。menuloop.Model の View 部にあたる
-func (st *StorageMenuState) View(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
-	// カテゴリをタブ帯に寄せ、本体は1カラムの一覧にする。性能は x の詳細モーダルで見る
+// ViewUI はカテゴリタブとアイコン付きアイテム一覧を組む。
+// 詳細モーダルは ScreenRenderer として Screen が本体の上へ重ねる。
+func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
 	}
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		TabLabels: labels,
-		TabIndex:  cursor.TabIndex,
-		Content:   st.buildActiveListContainer(world, props, cursor.TabIndex, cursor.ItemIndex, res),
-		Footer:    keybind.HelpHint(world),
-	})
+	content, pager := st.buildActiveListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
+	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+}
+
+// buildActiveListUI は行列とフッタ右端のページ表示を返す。
+func (st *StorageMenuState) buildActiveListUI(world w.World, props StorageProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
+	if tabIndex >= len(props.Tabs) {
+		return nil, ""
+	}
+	currentTab := props.Tabs[tabIndex]
+	cols := itemMenuColumns(styled.Num())
+	rows := make([]menuframe.Row, len(currentTab.Items))
+	for i, it := range currentTab.Items {
+		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
+	}
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No items"), ItemsPerPage: perPage}, res)
 }
 
 // selectedEntity は現在カーソルが当たっているアイテムのエンティティを返す
@@ -218,18 +227,4 @@ func (st *StorageMenuState) selectedEntity() (ecs.Entity, bool) {
 		return ecs.Entity{}, false
 	}
 	return items[cursor.ItemIndex].Entity, true
-}
-
-func (st *StorageMenuState) buildActiveListContainer(world w.World, props StorageProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
-	if tabIndex >= len(props.Tabs) {
-		return styled.NewVerticalContainer()
-	}
-
-	currentTab := props.Tabs[tabIndex]
-	columnWidths, aligns := itemMenuColumns(260, menuColumn{Width: 80, Align: styled.AlignRight})
-	rows := make([]menuRow, len(currentTab.Items))
-	for i, it := range currentTab.Items {
-		rows[i] = itemMenuRow(world, it.Entity, it.Count, it.Weight)
-	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{AlwaysIndicator: true, EmptyText: query.T(world, "No items")}, res)
 }

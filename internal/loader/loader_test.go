@@ -7,24 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestLoadFonts(t *testing.T) {
-	t.Parallel()
-	t.Run("正常にフォントを読み込める", func(t *testing.T) {
-		t.Parallel()
-		fonts, err := LoadFonts()
-
-		require.NoError(t, err)
-		assert.NotNil(t, fonts)
-		assert.NotEmpty(t, fonts)
-	})
-}
 
 func TestLoadSpriteSheets(t *testing.T) {
 	t.Parallel()
@@ -104,37 +91,13 @@ func TestLoadSpriteSheets(t *testing.T) {
 func TestLoadUIResources_正常にUIリソースを構築できる(t *testing.T) {
 	t.Parallel()
 
-	fonts, err := LoadFonts()
-	require.NoError(t, err)
-	require.Contains(t, fonts, "dougenzaka")
-	require.Contains(t, fonts, "nerd")
-
-	ui, err := LoadUIResources(fonts)
+	ui, err := LoadUIResources()
 
 	require.NoError(t, err)
 	assert.NotNil(t, ui.Fonts)
-	assert.NotNil(t, ui.Background)
-	assert.NotNil(t, ui.Button)
-	assert.NotNil(t, ui.Label)
-	assert.NotNil(t, ui.Checkbox)
-	assert.NotNil(t, ui.ComboButton)
-	assert.NotNil(t, ui.List)
-}
-
-func TestBuildFaces_フォントマップからFaceマップを構築できる(t *testing.T) {
-	t.Parallel()
-
-	fonts, err := LoadFonts()
-	require.NoError(t, err)
-
-	faces := BuildFaces(fonts)
-
-	require.Len(t, faces, 1)
-	require.Contains(t, faces, "dougenzaka")
-	face, ok := faces["dougenzaka"].(*text.GoTextFace)
-	require.True(t, ok, "dougenzakaがtext.GoTextFaceであること")
-	assert.Equal(t, fonts["dougenzaka"].FaceSource, face.Source)
-	assert.Equal(t, float64(16), face.Size)
+	assert.NotNil(t, ui.GradientLine)
+	assert.NotNil(t, ui.GaugeFill)
+	assert.NotNil(t, ui.Text)
 }
 
 func TestLoadRaws(t *testing.T) {

@@ -3,8 +3,6 @@ package states
 import (
 	"fmt"
 
-	"github.com/ebitenui/ebitenui"
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -15,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -113,8 +112,8 @@ func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
 	return menuloop.MenuConfig{Key: runStatsMenuKey, TabCount: len(props.Tabs), ItemCounts: itemCounts}
 }
 
-// View は見出しとタブ帯と現在タブのテーブルを menuframe のタブ画面枠へ組む。ラベルの訳のみ world から引く
-func (st *RunStatsState) View(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) *ebitenui.UI {
+// ViewUI はタブ帯つきのステータス表を組む。
+func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
@@ -123,29 +122,20 @@ func (st *RunStatsState) View(world w.World, props RunStatsProps, cursor menuloo
 	if tabIndex >= len(props.Tabs) {
 		tabIndex = 0
 	}
-	content := buildStatsTable(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
-	return menuframe.NewTabScreen(res, menuframe.TabScreen{
-		Header:    query.T(world, st.headerMsgid),
-		TabLabels: labels,
-		TabIndex:  tabIndex,
-		Content:   content,
-		Footer:    keybind.HelpHint(world),
-	})
+	content, pager := buildStatsTableUI(world, props.Tabs[tabIndex].Items, cursor.ItemIndex, res)
+	return menuframe.TabScreen(world, res, query.T(world, st.headerMsgid), labels, tabIndex, content, keybind.HelpHint(world), pager)
 }
 
-// buildStatsTable は統計を Label と Value の2列テーブルに組む。ラベルが長いので
-// character 情報タブより広い列幅を取り、値は右寄せの数値にする
-func buildStatsTable(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) *widget.Container {
-	columnWidths := []int{180, 90}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
-	rows := make([]menuRow, len(items))
+// buildStatsTableUI はラベル左・値右の2列表とフッタ右端のページ表示を返す。
+func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
+	cols := styled.Cols(styled.Name(), styled.Num())
+	rows := make([]menuframe.Row, len(items))
 	for i, it := range items {
-		rows[i] = menuRow{Cells: styled.TextCells(it.Label, it.Value)}
+		rows[i] = menuframe.Row{Cells: styled.TextCells(it.Label, it.Value)}
 	}
-	return renderMenuList(itemIndex, rows, columnWidths, aligns, menuListOpts{
-		AlwaysIndicator: true,
-		EmptyText:       query.T(world, "No entries"),
-		ItemsPerPage:    menuframe.ListCapacity(res, true, true),
+	return menuframe.RenderList(itemIndex, rows, cols, menuframe.ListOpts{
+		EmptyText:    query.T(world, "No entries"),
+		ItemsPerPage: menuframe.ListCapacity(world, true, true),
 	}, res)
 }
 

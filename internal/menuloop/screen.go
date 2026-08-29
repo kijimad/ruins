@@ -9,7 +9,6 @@ package menuloop
 import (
 	"slices"
 
-	"github.com/ebitenui/ebitenui"
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
@@ -18,13 +17,17 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
+	"github.com/kijimaD/ruins/internal/widgets/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// Selection は描画に要るカーソル位置。どのタブのどの行を強調するかを表す
+// Selection は描画に要るカーソル位置。どのタブのどの行を強調するかを表す。
+// PageSize は解決済みの1ページ件数。ItemsPerPageAuto を使う画面の描画が、カーソルと同じ
+// ページ件数でページ送りできるよう渡す。0 はページ送りなし
 type Selection struct {
 	TabIndex  int
 	ItemIndex int
+	PageSize  int
 }
 
 // ItemsPerPageAuto は ItemsPerPage に、タブ帯つきモーダルの1ページへ収まる実測行数を
@@ -56,7 +59,8 @@ type Model[P any] interface {
 	// Screen.Update がそのままフレームのエラーとして表面化させる
 	Fetch(world w.World) (P, error)
 	Menu(props P) MenuConfig
-	View(world w.World, props P, cursor Selection, res resources.UIResources) *ebitenui.UI
+	// ViewUI は props とカーソルから本体を internal/uicore のツリーへ組み、画面へ配置済みで返す
+	ViewUI(world w.World, props P, cursor Selection, res resources.UIResources) ui.Widget
 }
 
 // KeyBindings は共通キーに加える独自キーを持つ state が満たす任意契約。キーと Action の
@@ -69,19 +73,20 @@ type KeyBindings interface {
 
 // Screen はメニューの UI ランタイム。mount・widget と overlay を保持し、毎フレームの
 // 手順を回す。state は構造体にこれをポインタで持ち、Update と Draw を委譲する。
-// widget は ebitenui を retained として扱い、props・カーソル・overlay が変わったフレームだけ組み直す。
-// 変化が無ければ前フレームのツリーを再利用する
+// widget は internal/uicore のツリーを retained として扱い、props・カーソル・overlay が変わった
+// フレームだけ組み直す。変化が無ければ前フレームのツリーを再利用する
 type Screen[P any] struct {
 	model Model[P] // メニュー画面本体。state 自身を指し、ループはこれ越しに部品を引く
 	// table はこの画面のキー束縛。state 固有の断片と共通表を構築時に1枚へ合成済みで、
 	// 実行時に表を重ねる階層は無い。重なりは MustMerge が構築時に拒否する
-	table         []keybind.Binding
-	mount         *hooks.Mount[P]
-	widget        *ebitenui.UI
-	overlays      []overlay.Layer
-	lastSelection Selection // 直近フレームで確定したカーソル位置。DoAction から参照する
-	seeded        bool      // 初期タブへ寄せたか
-	pageSize      int       // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
+	table           []keybind.Binding
+	mount           *hooks.Mount[P]
+	bodyTree        ui.Widget // 本体の internal/uicore ツリー。dirty なフレームだけ組み直す
+	overlays        []overlay.Layer
+	pendingOverlays []ui.Widget // ScreenRenderer な overlay の配置済みツリー。Draw で本体の上へ重ねる
+	lastSelection   Selection   // 直近フレームで確定したカーソル位置。DoAction から参照する
+	seeded          bool        // 初期タブへ寄せたか
+	pageSize        int         // ItemsPerPageAuto の解決値。Update が最初のフレームで測る
 }
 
 // NewScreen は model と overlay を束ねて Screen を作る。model には state 自身を渡す。overlay は
@@ -177,23 +182,27 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 	// hooks の外にある overlay だけ別途 OR する。overlay が開閉・表示中のフレームは窓内容が
 	// 入力で変わりうるので常に組み直す
 	overlayInvolved := ovBefore != nil || s.activeOverlay() != nil
-	dirty := s.widget == nil || overlayInvolved || changed
+	dirty := s.bodyTree == nil || overlayInvolved || changed
 	if dirty {
-		s.widget = m.View(world, props, sel, world.Resources.UIResources)
+		s.bodyTree = m.ViewUI(world, props, sel, world.Resources.UIResources)
+		s.pendingOverlays = s.pendingOverlays[:0]
+		rect := menuframe.WindowRect(world)
 		// overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、
-		// 描画は逆順に重ね、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に
-		// 隠れて操作不能になるのを防ぐ
+		// 描画は逆順に溜め、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に
+		// 隠れて操作不能になるのを防ぐ。ツリーは Draw で本体の上へ重ねる
 		for _, ov := range slices.Backward(s.overlays) {
-			if ov.Active() {
-				if win := ov.Window(world, menuframe.CenterWindowRect(world)); win != nil {
-					s.widget.AddWindow(win)
+			if !ov.Active() {
+				continue
+			}
+			if r, ok := ov.(overlay.ScreenRenderer); ok {
+				if tree := r.RenderOverlay(world, rect); tree != nil {
+					s.pendingOverlays = append(s.pendingOverlays, tree)
 				}
 			}
 		}
 	}
 
 	s.lastSelection = sel
-	s.widget.Update()
 	return m.ConsumeTransition(), nil
 }
 
@@ -215,7 +224,7 @@ func (s *Screen[P]) SetTab(tab int) {
 func (s *Screen[P]) resolveConfig(world w.World, cfg MenuConfig) MenuConfig {
 	if cfg.ItemsPerPage == ItemsPerPageAuto {
 		if s.pageSize == 0 {
-			s.pageSize = menuframe.ListCapacity(world.Resources.UIResources, false, true)
+			s.pageSize = menuframe.ListCapacity(world, false, true)
 		}
 		cfg.ItemsPerPage = s.pageSize
 	}
@@ -245,12 +254,17 @@ func (s *Screen[P]) selection(cfg MenuConfig) Selection {
 		return Selection{}
 	}
 	ms, _ := hooks.GetState[hooks.TabMenuState](s.mount, cfg.Key)
-	return Selection{TabIndex: ms.TabIndex, ItemIndex: ms.ItemIndex}
+	return Selection{TabIndex: ms.TabIndex, ItemIndex: ms.ItemIndex, PageSize: cfg.ItemsPerPage}
 }
 
-// Draw は保持中の UI を描く。各 state の Draw はこれへ委譲する
+// Draw は保持中の UI を描き、その上に ScreenRenderer な overlay を重ねる。
+// 各 state の Draw はこれへ委譲する
 func (s *Screen[P]) Draw(screen *ebiten.Image) {
-	if s.widget != nil {
-		s.widget.Draw(screen)
+	cv := ui.NewEbitenCanvas(screen)
+	if s.bodyTree != nil {
+		s.bodyTree.Draw(cv)
+	}
+	for _, tree := range s.pendingOverlays {
+		tree.Draw(cv)
 	}
 }

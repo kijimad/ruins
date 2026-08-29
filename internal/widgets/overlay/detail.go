@@ -3,14 +3,16 @@ package overlay
 import (
 	"image"
 
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
+	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
+
+var _ ScreenRenderer = (*Detail)(nil)
 
 // DetailContent は詳細モーダルに出す1件分の内容。名前・説明・性能行をそのまま持つ。
 // 実体から組むなら EntityDetailContent を使い、独自の行を出すなら Rows を直接与える。
@@ -113,11 +115,12 @@ func (d *Detail) HandleInput(world w.World) error {
 	return nil
 }
 
-// Window は現在の内容から詳細ウィンドウを rect の位置へ組み立てる。対象が無ければ nil を返す
-func (d *Detail) Window(world w.World, rect image.Rectangle) *widget.Window {
+// RenderOverlay は現在の内容から詳細モーダルを internal/uicore のツリーへ組み、rect 内に配置して返す。
+// 対象が無ければ nil を返す。Screen はこれを本体の上へ重ねて描く。
+func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawable {
 	content, ok := d.provide(world)
 	if !ok {
 		return nil
 	}
-	return buildDetailFromRows(world, rect, content.Name, content.Desc, content.Rows, d.page)
+	return buildDetailUI(world.Resources.UIResources, rect, content.Name, content.Desc, content.Rows, d.page)
 }

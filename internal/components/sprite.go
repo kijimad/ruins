@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"image"
 
+	// テクスチャは PNG。image.Decode が読めるよう復号器を登録する
+	_ "image/png"
+
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/kijimaD/ruins/assets"
 )
 
@@ -32,6 +34,9 @@ type Sprite struct {
 // Texture は複数のスプライトが格納された画像ファイル
 type Texture struct {
 	Image *ebiten.Image
+	// Source は復号したままの CPU 側の画像。GPU のテクスチャはゲームループが始まるまで
+	// 画素を読み出せないため、縮小など画素を触る処理はこちらを源にする
+	Source image.Image
 }
 
 // UnmarshalText fills structure fields from text data
@@ -40,11 +45,15 @@ func (t *Texture) UnmarshalText(text []byte) error {
 	if err != nil {
 		return err
 	}
-	textureImage, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(bs))
+	sourceImage, _, err := image.Decode(bytes.NewReader(bs))
 	if err != nil {
 		return err
 	}
-	t.Image = textureImage
+	// unmanaged にして内部テクスチャアトラスへ載せない。nearest サンプリングのテクセル境界の
+	// 読み分けはアトラス上の配置座標に依存し、配置は画像の生成順で変わるため、managed のままだと
+	// 同じ場面でも画素が揺れる。他の描画ソースの unmanaged 化もこの機構が理由で、説明はここへ集約する
+	t.Image = ebiten.NewImageFromImageWithOptions(sourceImage, &ebiten.NewImageFromImageOptions{Unmanaged: true})
+	t.Source = sourceImage
 	return nil
 }
 
