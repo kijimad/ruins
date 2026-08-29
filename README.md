@@ -103,20 +103,7 @@ $ make help
 
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
-| in-progress | [通信販売: オークション形式の販売機構](docs/design/260814170822.md) | 5/6（見送り2） | gamedesign, item, ui |
-| in-progress | [逓増: 危険と希少性の軸を深さから経過日数へ移す](docs/design/260822014350.md) | 8/10 | gamedesign, worldgen, ecs |
-| in-progress | [コード監査: worldgen・Ark stale pointer・serde 2026-08-24](docs/design/260824001220.md) | 4/5 | worldgen, ecs, save |
-| draft | [難所調査から抽出した自走可能な改善のバックログ](docs/design/260724224417.md) | 0/11（見送り3） | refactor, ci, ecs, combat, meta |
-| draft | [施設内装の生成 —— doc 260725201431.md の未着手バックログ](docs/design/260731225939.md) | 1/33 | worldgen |
-| draft | [OSS 調査 2026-08](docs/design/260801002222.md) | 0/5 | meta, worldgen, combat, ui |
-| draft | [天気システムを設計する](docs/design/260805144630.md) | 0/7 | gamedesign, worldgen, ecs |
-| draft | [コード監査: ダンジョン生成・戦闘継続・UI描画 2026-08-10](docs/design/260810001803.md) | 0/5 | worldgen, combat, item, ui, ecs |
-| draft | [使う・送る・捨てる: 通信販売による第二の需要をコアに足す](docs/design/260813235334.md) | 0/0 | gamedesign, narrative |
-| draft | [背の低い家具を通行可能にして移動コストで体系化する](docs/design/260814140548.md) | 0/7（見送り1） | movement, combat, gamedesign |
-| draft | [腐敗システムの将来拡張](docs/design/260815125506.md) | 0/4 | item, gamedesign |
-| draft | [コード監査: 通信販売・食料鮮度・AI追跡・命中判定 2026-08-17](docs/design/260817001843.md) | 0/5（見送り1） | item, combat, ecs |
-| draft | [身体の不調: 少数部位の負傷と、まとめて配る手当て](docs/design/260821232324.md) | 0/11 | gamedesign, combat, item, ecs |
-| draft | [すべての地物・施設を役割テンプレ骨格と content スロットで生成する](docs/design/260823165936.md) | 0/8 | worldgen, refactor, gamedesign |
+| | 未完了のドキュメントなし | | |
 
 
 ## Reference
