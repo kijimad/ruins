@@ -34,20 +34,10 @@ func TestMain(m *testing.M) {
 // プールにはポインタを入れる。値を入れると Put でインタフェースへボクシングされ割り当てが増える。
 var facePool = sync.Pool{New: func() any { return mustLoadResources() }}
 
-// loadMu はリソース読み込みを直列化する。loader.LoadUIResources は共有状態を持ち並行安全でない。
-// 本番は起動時に1回だけ読むので無害だが、プールが複数ゴルーチンから同時に補充すると競合する。
-// 読み込みは一度きりの setup なのでここを直列化しても実描画の並列は損なわない。
-var loadMu sync.Mutex
-
 // mustLoadResources は独自フォントソースの UIResources を新しく作る。プールの補充に使う。
+// 読み込みの直列化は loader.LoadUIResources が内部で持つので、ここでは守らない。
 func mustLoadResources() *resources.UIResources {
-	loadMu.Lock()
-	defer loadMu.Unlock()
-	fonts, err := loader.LoadFonts()
-	if err != nil {
-		panic(err)
-	}
-	res, err := loader.LoadUIResources(fonts)
+	res, err := loader.LoadUIResources()
 	if err != nil {
 		panic(err)
 	}

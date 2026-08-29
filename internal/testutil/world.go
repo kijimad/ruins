@@ -135,9 +135,7 @@ func borrowUIResources(tb testing.TB) resources.UIResources {
 	tb.Helper()
 	uir, ok := uiResPool.Get().(*resources.UIResources)
 	if !ok {
-		fonts, err := loader.LoadFonts()
-		require.NoError(tb, err)
-		fresh, err := loader.LoadUIResources(fonts)
+		fresh, err := loader.LoadUIResources()
 		require.NoError(tb, err)
 		uir = &fresh
 	}

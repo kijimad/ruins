@@ -145,12 +145,7 @@ func TestResourceIntegration(t *testing.T) {
 		spriteSheets := world.Resources.SpriteSheets
 		assert.NotEmpty(t, spriteSheets, "スプライトシートが空")
 
-		// フォントの確認
-		assert.NotNil(t, world.Resources.Fonts, "フォントが読み込まれていない")
-		fonts := world.Resources.Fonts
-		assert.NotEmpty(t, fonts, "フォントが空")
-
-		// UIリソースの確認
+		// UIリソースの確認。フォントの読み込みは UIResources 構築の前提なので、これで併せて確かめる
 		assert.NotNil(t, world.Resources.UIResources, "UIリソースが初期化されていない")
 
 		// Rawデータの確認
@@ -166,12 +161,6 @@ func TestResourceIntegration(t *testing.T) {
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
 		require.NoError(t, err)
-
-		// フォントの整合性
-		fonts := world.Resources.Fonts
-		if dougenzakaFont, exists := fonts["dougenzaka"]; exists {
-			assert.NotNil(t, dougenzakaFont.Font, "dougenzakaフォントのFontフィールドがnil")
-		}
 
 		// スプライトシートの基本チェック
 		spriteSheets := world.Resources.SpriteSheets
@@ -204,7 +193,6 @@ func validateResourceLoading(t *testing.T, world ew.World) {
 		resource any
 	}{
 		{"SpriteSheets", world.Resources.SpriteSheets},
-		{"Fonts", world.Resources.Fonts},
 		{"UIResources", world.Resources.UIResources},
 		{"RawMaster", world.Resources.RawMaster},
 		{"Game", query.GetDungeon(world)},

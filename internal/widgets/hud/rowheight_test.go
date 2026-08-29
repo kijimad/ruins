@@ -14,9 +14,7 @@ import (
 // 行送りとフェイスは独立に変えられるので、フォントを大きくしたときに気づけるよう下限を固定する。
 func TestLogLineHeightFitsFace(t *testing.T) {
 	t.Parallel()
-	fonts, err := loader.LoadFonts()
-	require.NoError(t, err)
-	res, err := loader.LoadUIResources(fonts)
+	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
 
 	assert.GreaterOrEqual(t, DefaultMessageAreaConfig.LineHeight, ui.LineHeight(res.Text.BodyFace),

@@ -29,9 +29,7 @@ func TestMain(m *testing.M) {
 // storyRes はカタログ用のフォントと素材を読む。world は要らないので loader から直に読む。
 func storyRes(t *testing.T) resources.UIResources {
 	t.Helper()
-	fonts, err := loader.LoadFonts()
-	require.NoError(t, err)
-	res, err := loader.LoadUIResources(fonts)
+	res, err := loader.LoadUIResources()
 	require.NoError(t, err)
 	return res
 }

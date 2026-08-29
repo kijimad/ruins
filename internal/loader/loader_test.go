@@ -13,18 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLoadFonts(t *testing.T) {
-	t.Parallel()
-	t.Run("正常にフォントを読み込める", func(t *testing.T) {
-		t.Parallel()
-		fonts, err := LoadFonts()
-
-		require.NoError(t, err)
-		assert.NotNil(t, fonts)
-		assert.NotEmpty(t, fonts)
-	})
-}
-
 func TestLoadSpriteSheets(t *testing.T) {
 	t.Parallel()
 	t.Run("正常にスプライトシートを読み込める", func(t *testing.T) {
@@ -103,12 +91,7 @@ func TestLoadSpriteSheets(t *testing.T) {
 func TestLoadUIResources_正常にUIリソースを構築できる(t *testing.T) {
 	t.Parallel()
 
-	fonts, err := LoadFonts()
-	require.NoError(t, err)
-	require.Contains(t, fonts, "dougenzaka")
-	require.Contains(t, fonts, "nerd")
-
-	ui, err := LoadUIResources(fonts)
+	ui, err := LoadUIResources()
 
 	require.NoError(t, err)
 	assert.NotNil(t, ui.Fonts)

@@ -12,5 +12,5 @@
 //
 //	rw, err := loader.LoadRaws()
 //	sprites, err := loader.LoadSpriteSheets(rw)
-//	fonts, err := loader.LoadFonts()
+//	uir, err := loader.LoadUIResources()
 package loader

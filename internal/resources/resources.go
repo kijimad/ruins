@@ -16,7 +16,6 @@ type Resources struct {
 	ScreenDimensions ScreenDimensions
 	SpriteSheets     map[string]components.SpriteSheet
 	Icons            *IconStore // 一覧のアイコンを表示サイズで持つ置き場
-	Fonts            map[string]Font
 	UIResources      UIResources
 	RawMaster        oapi.Raws
 	I18N             i18n.Catalog   // 国際化のマスタ。全言語の訳を持つ読み取り専用データ。現在言語は UserSettings が持ち query.T が引く
@@ -56,7 +55,6 @@ func (r *Resources) InitializeResources() error {
 func InitGameResources() *Resources {
 	return &Resources{
 		SpriteSheets: map[string]components.SpriteSheet{},
-		Fonts:        map[string]Font{},
 		UIResources:  UIResources{},
 		Icons:        NewIconStore(),
 		// 全言語の訳を持つ不変マスタを常に持たせる。どのワールドでも res.I18N が非 nil になる。
