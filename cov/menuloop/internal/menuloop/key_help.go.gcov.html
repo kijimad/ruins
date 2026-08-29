@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">84</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">84</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-29 11:47:32</td>
+            <td class="headerValue">2026-08-29 11:54:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,9 +92,9 @@
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              : // NewKeyHelpState は合成済みの表のキー一覧を表示するヘルプのファクトリを返す</span>
 <span id="L32"><span class="lineNum">      32</span>              : func NewKeyHelpState(table []keybind.Binding) es.StateFactory[w.World] {</span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC tlaBgUNC">           0 :         return func() (es.State[w.World], error) {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return &amp;KeyHelpState{table: table}, nil</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 :         return func() (es.State[w.World], error) {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 return &amp;KeyHelpState{table: table}, nil</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L36"><span class="lineNum">      36</span>              : }</span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // keyHelpBindings はヘルプ画面自身の束縛表。Esc か開いたときと同じ ? で閉じる</span>
@@ -107,34 +107,34 @@
 <span id="L45"><span class="lineNum">      45</span>              : // キーは1粒ずつ描き、箱を持たないグリフには白い箱を敷いて、全キーを白背景に黒グリフの</span>
 <span id="L46"><span class="lineNum">      46</span>              : // キーキャップで統一する。枠・行高・余白・行の意匠は menuframe の部品の既定に従う</span>
 <span id="L47"><span class="lineNum">      47</span>              : func (st *KeyHelpState) OnStart(world w.World) error {</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         entries := keybind.HintEntries(world, st.table)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         // 開いた画面の表に Esc の表示行が無ければ、ヘルプ自身の閉じ方を末尾に足す。</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         res := world.Resources.UIResources</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         entries := keybind.HintEntries(world, st.table)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         // 開いた画面の表に Esc の表示行が無ければ、ヘルプ自身の閉じ方を末尾に足す。</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :         // メニューは共通表の Back 行が既にあり、ダンジョンのような表には無いので補う</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         if !hasEscapeLabel(st.table) {</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 entries = append(entries, keybind.HintEntries(world, keyHelpBindings)...)</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         if !hasEscapeLabel(st.table) {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 entries = append(entries, keybind.HintEntries(world, keyHelpBindings)...)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L55"><span class="lineNum">      55</span>              : </span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         rows := make([]menuframe.Row, len(entries))</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         for i, e := range entries {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 rows[i] = menuframe.Row{Cells: []styled.Cell{</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                         styled.IconCell(renderKeycaps(e.Tokens, res)),</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                         styled.TextCell(e.Label),</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                 }}</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(entries))</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         for i, e := range entries {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 rows[i] = menuframe.Row{Cells: []styled.Cell{</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         styled.IconCell(renderKeycaps(e.Tokens, res)),</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                         styled.TextCell(e.Label),</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 }}</span></span>
 <span id="L62"><span class="lineNum">      62</span>              :         }</span>
 <span id="L63"><span class="lineNum">      63</span>              :         // カーソルは持たないので負のインデックスを渡す</span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         list, pager := menuframe.RenderList(-1, rows, styled.Cols(styled.Fit(), styled.Desc()), menuframe.ListOpts{}, res)</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         st.body = menuframe.PanelScreenDense(world, res, query.T(world, &quot;Key bindings&quot;), list, &quot;&quot;, pager)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         list, pager := menuframe.RenderList(-1, rows, styled.Cols(styled.Fit(), styled.Desc()), menuframe.ListOpts{}, res)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         st.body = menuframe.PanelScreenDense(world, res, query.T(world, &quot;Key bindings&quot;), list, &quot;&quot;, pager)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L67"><span class="lineNum">      67</span>              : }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
 <span id="L69"><span class="lineNum">      69</span>              : func hasEscapeLabel(table []keybind.Binding) bool {</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         for _, b := range table {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                 if b.Key == ebiten.KeyEscape &amp;&amp; b.Label != &quot;&quot; {</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                         return true</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         for _, b := range table {</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 if b.Key == ebiten.KeyEscape &amp;&amp; b.Label != &quot;&quot; {</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                         return true</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L74"><span class="lineNum">      74</span>              :         }</span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         return false</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         return false</span></span>
 <span id="L76"><span class="lineNum">      76</span>              : }</span>
 <span id="L77"><span class="lineNum">      77</span>              : </span>
 <span id="L78"><span class="lineNum">      78</span>              : // renderKeycaps はキーの粒の並びを1枚の画像へ描く。全トークンへ一律に角丸の箱を敷き、</span>
@@ -143,81 +143,81 @@
 <span id="L81"><span class="lineNum">      81</span>              : // widget の入れ子で組むと preferred 幅の計算で潰れるため、画像にして寸法を確定させる</span>
 <span id="L82"><span class="lineNum">      82</span>              : func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {</span>
 <span id="L83"><span class="lineNum">      83</span>              :         // 箱の高さは一覧アイコンの正方と同じにして、行内の見た目の粒を揃える</span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         const height = theme.MenuIconW</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         // 箱内の左右余白とチップ間の間隔は最小間隔で統一する</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         const chipPad = theme.Space2</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         // 角丸の半径。キーキャップの箱の意匠</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         const radius = 4</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         type keycap struct {</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :                 text string</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :                 face text.Face</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                 w    int</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                 h    int</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :         caps := make([]keycap, 0, len(tokens))</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :         total := 0</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         face := res.Text.KeycapFace</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :         for i, tok := range tokens {</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :                 w, h := ui.MeasureText(tok, face)</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :                 cw := w + chipPad*2</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :                 caps = append(caps, keycap{text: tok, face: face, w: cw, h: h})</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :                 total += cw</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                 if i &gt; 0 {</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :                         total += theme.Space2</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         const height = theme.MenuIconW</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         // 箱内の左右余白とチップ間の間隔は最小間隔で統一する</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         const chipPad = theme.Space2</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :         // 角丸の半径。キーキャップの箱の意匠</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         const radius = 4</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         type keycap struct {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :                 text string</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :                 face text.Face</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                 w    int</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 h    int</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         caps := make([]keycap, 0, len(tokens))</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         total := 0</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         face := res.Text.KeycapFace</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         for i, tok := range tokens {</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 w, h := ui.MeasureText(tok, face)</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 cw := w + chipPad*2</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 caps = append(caps, keycap{text: tok, face: face, w: cw, h: h})</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 total += cw</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 if i &gt; 0 {</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                         total += theme.Space2</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L107"><span class="lineNum">     107</span>              :         }</span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :         if total &lt;= 0 {</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 total = 1</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         if total &lt;= 0 {</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 total = 1</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L111"><span class="lineNum">     111</span>              : </span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         img := ebiten.NewImage(total, height)</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :         x := 0</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         for i, c := range caps {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 if i &gt; 0 {</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                         x += theme.Space2</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                 fillRoundedRect(img, float32(x), 0, float32(c.w), height, radius)</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 op := &amp;text.DrawOptions{}</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(float64(x+chipPad), float64(height-c.h)/2)</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                 op.ColorScale.ScaleWithColor(theme.ScreenBackground)</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 text.Draw(img, c.text, c.face, op)</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                 x += c.w</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         img := ebiten.NewImage(total, height)</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         x := 0</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         for i, c := range caps {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 if i &gt; 0 {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                         x += theme.Space2</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 fillRoundedRect(img, float32(x), 0, float32(c.w), height, radius)</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 op := &amp;text.DrawOptions{}</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 op.GeoM.Translate(float64(x+chipPad), float64(height-c.h)/2)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                 op.ColorScale.ScaleWithColor(theme.ScreenBackground)</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 text.Draw(img, c.text, c.face, op)</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 x += c.w</span></span>
 <span id="L124"><span class="lineNum">     124</span>              :         }</span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         return img</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         return img</span></span>
 <span id="L126"><span class="lineNum">     126</span>              : }</span>
 <span id="L127"><span class="lineNum">     127</span>              : </span>
 <span id="L128"><span class="lineNum">     128</span>              : // fillRoundedRect は角丸の塗り矩形を描く。キーキャップの箱に使う</span>
 <span id="L129"><span class="lineNum">     129</span>              : func fillRoundedRect(dst *ebiten.Image, x, y, w, h, r float32) {</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         var p vector.Path</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         p.MoveTo(x+r, y)</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         p.LineTo(x+w-r, y)</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         p.ArcTo(x+w, y, x+w, y+r, r)</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         p.LineTo(x+w, y+h-r)</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         p.ArcTo(x+w, y+h, x+w-r, y+h, r)</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         p.LineTo(x+r, y+h)</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         p.ArcTo(x, y+h, x, y+h-r, r)</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         p.LineTo(x, y+r)</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         p.ArcTo(x, y, x+r, y, r)</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         p.Close()</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         op := &amp;vector.DrawPathOptions{AntiAlias: true}</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         op.ColorScale.ScaleWithColor(theme.TextPrimary)</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         vector.FillPath(dst, &amp;p, nil, op)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         var p vector.Path</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         p.MoveTo(x+r, y)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         p.LineTo(x+w-r, y)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         p.ArcTo(x+w, y, x+w, y+r, r)</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         p.LineTo(x+w, y+h-r)</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         p.ArcTo(x+w, y+h, x+w-r, y+h, r)</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         p.LineTo(x+r, y+h)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         p.ArcTo(x, y+h, x, y+h-r, r)</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         p.LineTo(x, y+r)</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         p.ArcTo(x, y, x+r, y, r)</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         p.Close()</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         op := &amp;vector.DrawPathOptions{AntiAlias: true}</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         op.ColorScale.ScaleWithColor(theme.TextPrimary)</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         vector.FillPath(dst, &amp;p, nil, op)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L145"><span class="lineNum">     145</span>              : </span>
 <span id="L146"><span class="lineNum">     146</span>              : // Update は閉じる入力だけを読む。ヘルプ表示中は時間を進めない</span>
 <span id="L147"><span class="lineNum">     147</span>              : func (st *KeyHelpState) Update(world w.World) (es.Transition[w.World], error) {</span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         if action, ok := keybind.ReadInput(world, keyHelpBindings); ok &amp;&amp; action == inputmapper.ActionCloseMenu {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         return st.ConsumeTransition(), nil</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         if action, ok := keybind.ReadInput(world, keyHelpBindings); ok &amp;&amp; action == inputmapper.ActionCloseMenu {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         return st.ConsumeTransition(), nil</span></span>
 <span id="L152"><span class="lineNum">     152</span>              : }</span>
 <span id="L153"><span class="lineNum">     153</span>              : </span>
 <span id="L154"><span class="lineNum">     154</span>              : // Draw は保持中の一覧を描く</span>
 <span id="L155"><span class="lineNum">     155</span>              : func (st *KeyHelpState) Draw(_ w.World, screen *ebiten.Image) error {</span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         st.body.Draw(ui.NewEbitenCanvas(screen))</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         st.body.Draw(ui.NewEbitenCanvas(screen))</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

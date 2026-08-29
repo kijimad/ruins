@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -383,7 +383,7 @@
 				
 				<option value="file163">github.com/kijimaD/ruins/internal/maptemplate/template.go (95.3%)</option>
 				
-				<option value="file164">github.com/kijimaD/ruins/internal/menuloop/key_help.go (0.0%)</option>
+				<option value="file164">github.com/kijimaD/ruins/internal/menuloop/key_help.go (100.0%)</option>
 				
 				<option value="file165">github.com/kijimaD/ruins/internal/menuloop/screen.go (85.9%)</option>
 				
@@ -1622,7 +1622,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1779,8 +1779,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -23887,8 +23887,8 @@ var _ es.State[w.World] = &amp;KeyHelpState{}
 
 // NewKeyHelpState は合成済みの表のキー一覧を表示するヘルプのファクトリを返す
 func NewKeyHelpState(table []keybind.Binding) es.StateFactory[w.World] {
-        <span class="cov0" title="0">return func() (es.State[w.World], error) </span>{
-                <span class="cov0" title="0">return &amp;KeyHelpState{table: table}, nil
+        <span class="cov8" title="1">return func() (es.State[w.World], error) </span>{
+                <span class="cov8" title="1">return &amp;KeyHelpState{table: table}, nil
 </span>        }
 }
 
@@ -23902,34 +23902,34 @@ var keyHelpBindings = []keybind.Binding{
 // キーは1粒ずつ描き、箱を持たないグリフには白い箱を敷いて、全キーを白背景に黒グリフの
 // キーキャップで統一する。枠・行高・余白・行の意匠は menuframe の部品の既定に従う
 func (st *KeyHelpState) OnStart(world w.World) error {
-        <span class="cov0" title="0">res := world.Resources.UIResources
+        <span class="cov8" title="1">res := world.Resources.UIResources
         entries := keybind.HintEntries(world, st.table)
 </span>        // 開いた画面の表に Esc の表示行が無ければ、ヘルプ自身の閉じ方を末尾に足す。
         // メニューは共通表の Back 行が既にあり、ダンジョンのような表には無いので補う
-        <span class="cov0" title="0">if !hasEscapeLabel(st.table) </span>{
-                <span class="cov0" title="0">entries = append(entries, keybind.HintEntries(world, keyHelpBindings)...)
+        <span class="cov8" title="1">if !hasEscapeLabel(st.table) </span>{
+                <span class="cov8" title="1">entries = append(entries, keybind.HintEntries(world, keyHelpBindings)...)
 </span>        }
 
-        <span class="cov0" title="0">rows := make([]menuframe.Row, len(entries))
+        <span class="cov8" title="1">rows := make([]menuframe.Row, len(entries))
         for i, e := range entries </span>{
-                <span class="cov0" title="0">rows[i] = menuframe.Row{Cells: []styled.Cell{
+                <span class="cov8" title="1">rows[i] = menuframe.Row{Cells: []styled.Cell{
                         styled.IconCell(renderKeycaps(e.Tokens, res)),
                         styled.TextCell(e.Label),
 </span>                }}
         }
         // カーソルは持たないので負のインデックスを渡す
-        <span class="cov0" title="0">list, pager := menuframe.RenderList(-1, rows, styled.Cols(styled.Fit(), styled.Desc()), menuframe.ListOpts{}, res)
+        <span class="cov8" title="1">list, pager := menuframe.RenderList(-1, rows, styled.Cols(styled.Fit(), styled.Desc()), menuframe.ListOpts{}, res)
         st.body = menuframe.PanelScreenDense(world, res, query.T(world, "Key bindings"), list, "", pager)
         return nil</span>
 }
 
 func hasEscapeLabel(table []keybind.Binding) bool {
-        <span class="cov0" title="0">for _, b := range table </span>{
-                <span class="cov0" title="0">if b.Key == ebiten.KeyEscape &amp;&amp; b.Label != "" </span>{
-                        <span class="cov0" title="0">return true
+        <span class="cov8" title="1">for _, b := range table </span>{
+                <span class="cov8" title="1">if b.Key == ebiten.KeyEscape &amp;&amp; b.Label != "" </span>{
+                        <span class="cov8" title="1">return true
 </span>                }
         }
-        <span class="cov0" title="0">return false</span>
+        <span class="cov8" title="1">return false</span>
 }
 
 // renderKeycaps はキーの粒の並びを1枚の画像へ描く。全トークンへ一律に角丸の箱を敷き、
@@ -23938,53 +23938,53 @@ func hasEscapeLabel(table []keybind.Binding) bool {
 // widget の入れ子で組むと preferred 幅の計算で潰れるため、画像にして寸法を確定させる
 func renderKeycaps(tokens []string, res resources.UIResources) *ebiten.Image {
         // 箱の高さは一覧アイコンの正方と同じにして、行内の見た目の粒を揃える
-        <span class="cov0" title="0">const height = theme.MenuIconW
+        <span class="cov8" title="1">const height = theme.MenuIconW
 </span>        // 箱内の左右余白とチップ間の間隔は最小間隔で統一する
-        <span class="cov0" title="0">const chipPad = theme.Space2
+        <span class="cov8" title="1">const chipPad = theme.Space2
 </span>        // 角丸の半径。キーキャップの箱の意匠
-        <span class="cov0" title="0">const radius = 4
+        <span class="cov8" title="1">const radius = 4
 </span>
-        <span class="cov0" title="0">type keycap struct {
+        <span class="cov8" title="1">type keycap struct {
                 text string
                 face text.Face
                 w    int
                 h    int
 </span>        }
-        <span class="cov0" title="0">caps := make([]keycap, 0, len(tokens))
+        <span class="cov8" title="1">caps := make([]keycap, 0, len(tokens))
         total := 0
         face := res.Text.KeycapFace
         for i, tok := range tokens </span>{
-                <span class="cov0" title="0">w, h := ui.MeasureText(tok, face)
+                <span class="cov8" title="1">w, h := ui.MeasureText(tok, face)
                 cw := w + chipPad*2
                 caps = append(caps, keycap{text: tok, face: face, w: cw, h: h})
                 total += cw
                 if i &gt; 0 </span>{
-                        <span class="cov0" title="0">total += theme.Space2
+                        <span class="cov8" title="1">total += theme.Space2
 </span>                }
         }
-        <span class="cov0" title="0">if total &lt;= 0 </span>{
-                <span class="cov0" title="0">total = 1
+        <span class="cov8" title="1">if total &lt;= 0 </span>{
+                <span class="cov8" title="1">total = 1
 </span>        }
 
-        <span class="cov0" title="0">img := ebiten.NewImage(total, height)
+        <span class="cov8" title="1">img := ebiten.NewImage(total, height)
         x := 0
         for i, c := range caps </span>{
-                <span class="cov0" title="0">if i &gt; 0 </span>{
-                        <span class="cov0" title="0">x += theme.Space2
+                <span class="cov8" title="1">if i &gt; 0 </span>{
+                        <span class="cov8" title="1">x += theme.Space2
 </span>                }
-                <span class="cov0" title="0">fillRoundedRect(img, float32(x), 0, float32(c.w), height, radius)
+                <span class="cov8" title="1">fillRoundedRect(img, float32(x), 0, float32(c.w), height, radius)
                 op := &amp;text.DrawOptions{}
                 op.GeoM.Translate(float64(x+chipPad), float64(height-c.h)/2)
                 op.ColorScale.ScaleWithColor(theme.ScreenBackground)
                 text.Draw(img, c.text, c.face, op)
                 x += c.w</span>
         }
-        <span class="cov0" title="0">return img</span>
+        <span class="cov8" title="1">return img</span>
 }
 
 // fillRoundedRect は角丸の塗り矩形を描く。キーキャップの箱に使う
 func fillRoundedRect(dst *ebiten.Image, x, y, w, h, r float32) {
-        <span class="cov0" title="0">var p vector.Path
+        <span class="cov8" title="1">var p vector.Path
         p.MoveTo(x+r, y)
         p.LineTo(x+w-r, y)
         p.ArcTo(x+w, y, x+w, y+r, r)
@@ -24002,15 +24002,15 @@ func fillRoundedRect(dst *ebiten.Image, x, y, w, h, r float32) {
 
 // Update は閉じる入力だけを読む。ヘルプ表示中は時間を進めない
 func (st *KeyHelpState) Update(world w.World) (es.Transition[w.World], error) {
-        <span class="cov0" title="0">if action, ok := keybind.ReadInput(world, keyHelpBindings); ok &amp;&amp; action == inputmapper.ActionCloseMenu </span>{
-                <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil
+        <span class="cov8" title="1">if action, ok := keybind.ReadInput(world, keyHelpBindings); ok &amp;&amp; action == inputmapper.ActionCloseMenu </span>{
+                <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransPop}, nil
 </span>        }
-        <span class="cov0" title="0">return st.ConsumeTransition(), nil</span>
+        <span class="cov8" title="1">return st.ConsumeTransition(), nil</span>
 }
 
 // Draw は保持中の一覧を描く
 func (st *KeyHelpState) Draw(_ w.World, screen *ebiten.Image) error {
-        <span class="cov0" title="0">st.body.Draw(ui.NewEbitenCanvas(screen))
+        <span class="cov8" title="1">st.body.Draw(ui.NewEbitenCanvas(screen))
         return nil
 </span>}
 </pre>
@@ -44694,7 +44694,7 @@ func pageOf(config tabMenuConfig, state viewState) ([]item, pagination.Paginatio
                 <span class="cov8" title="1">return nil, pagination.New(0, 0, config.ItemsPerPage)
 </span>        }
         <span class="cov8" title="1">items := config.Tabs[state.TabIndex].Items
-        return items, pagination.New(max(state.ItemIndex, 0), len(items), config.ItemsPerPage)</span>
+        return items, pagination.New(state.ItemIndex, len(items), config.ItemsPerPage)</span>
 }
 
 // getVisibleItems は指定ページで表示される項目とその元のインデックスを返す
@@ -45314,10 +45314,11 @@ type Pagination struct {
 }
 
 // New はPaginationを作成する
-// pageはitemIndexから自動計算される
+// pageはitemIndexから自動計算される。
+// カーソルを持たない一覧は負の itemIndex を渡す。どのページにも属さないので先頭ページを返す
 func New(itemIndex, itemCount, itemsPerPage int) Pagination {
         <span class="cov8" title="1">page := 0
-        if itemsPerPage &gt; 0 &amp;&amp; itemCount &gt; 0 </span>{
+        if itemsPerPage &gt; 0 &amp;&amp; itemCount &gt; 0 &amp;&amp; itemIndex &gt; 0 </span>{
                 <span class="cov8" title="1">page = itemIndex / itemsPerPage
 </span>        }
         <span class="cov8" title="1">return Pagination{
