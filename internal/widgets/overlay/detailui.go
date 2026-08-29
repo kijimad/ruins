@@ -22,7 +22,8 @@ func buildDetailUI(res resources.UIResources, rect image.Rectangle, name, desc s
 	face := res.Text.BodyFace
 	// 説明とページ番号は小さめのフェイスで補助色、名前と性能行は本文フェイスにする。
 	smallFace := res.Text.SmallFace
-	rowH := entityspec.SpecPanelRowH
+	// 行高は本文フェイスの行送りにする。全行を同じ高さで並べ、いちばん背の高い本文が字面を切らない。
+	rowH := ui.LineHeight(face)
 
 	total := detailPageCount(len(rows))
 	if page < 0 {
