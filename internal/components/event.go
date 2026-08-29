@@ -37,9 +37,6 @@ type WarpCubeExit struct{}
 // OpenCubePanel はキューブ内部のコントロールパネルを開く
 type OpenCubePanel struct{}
 
-// GameClear はゲームクリア
-type GameClear struct{}
-
 // ShowDialog は会話メッセージの表示
 type ShowDialog struct {
 	MessageKey    string
@@ -63,7 +60,6 @@ func (WarpDungeonEnter) isStatePayload() {}
 func (WarpCubeEnter) isStatePayload()    {}
 func (WarpCubeExit) isStatePayload()     {}
 func (OpenCubePanel) isStatePayload()    {}
-func (GameClear) isStatePayload()        {}
 func (ShowDialog) isStatePayload()       {}
 func (OpenStorage) isStatePayload()      {}
 func (OpenAuction) isStatePayload()      {}
@@ -102,9 +98,6 @@ func WarpCubeExitEvent() StateChangeRequest { return StateChangeRequest{Payload:
 
 // OpenCubePanelEvent はキューブ内部のコントロールパネルを開くリクエストを生成する
 func OpenCubePanelEvent() StateChangeRequest { return StateChangeRequest{Payload: OpenCubePanel{}} }
-
-// GameClearEvent はゲームクリアリクエストを生成する
-func GameClearEvent() StateChangeRequest { return StateChangeRequest{Payload: GameClear{}} }
 
 // ShowDialogEvent は会話メッセージ表示リクエストを生成する
 func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {
