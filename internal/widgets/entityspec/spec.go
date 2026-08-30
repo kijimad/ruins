@@ -41,6 +41,9 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	if world.Components.Burning.Has(entity) {
 		rows = append(rows, burningRows(world, entity)...)
 	}
+	if world.Components.Material.Has(entity) {
+		rows = append(rows, materialRow(world, world.Components.Material.Get(entity)))
+	}
 	if world.Components.Fuel.Has(entity) {
 		rows = append(rows, fuelRows(world, world.Components.Fuel.Get(entity))...)
 	}
@@ -106,6 +109,9 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 		rows = append(rows, attackerRows(world, spec.Fire)...)
 		rows = append(rows, fireAmmoRows(world, spec.Fire)...)
 	}
+	if spec.Material != nil {
+		rows = append(rows, materialRow(world, spec.Material))
+	}
 	if spec.Fuel != nil {
 		rows = append(rows, fuelRows(world, spec.Fuel)...)
 	}
@@ -129,6 +135,52 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 		rows = append(rows, weightRows(world, spec.Weight)...)
 	}
 	return rows
+}
+
+// materialRow は材質の1行を返す。可燃性と燃焼熱量の根拠で、不燃の材質も見せて燃える/燃えないを読み取れる
+func materialRow(world w.World, material *gc.Material) SpecRow {
+	return SpecRow{Label: query.T(world, "Material"), Value: query.T(world, materialDisplayName(material.Kind))}
+}
+
+// materialDisplayName は raw の Material enum 値を表示名へ写す。表示名は query.T で各言語へ訳す。
+// default に enum 値をそのまま返し、未知の材質でも空欄にしない
+func materialDisplayName(kind string) string {
+	switch kind {
+	case "WOOD":
+		return "Wood"
+	case "PAPER":
+		return "Paper"
+	case "CLOTH":
+		return "Cloth"
+	case "LEATHER":
+		return "Leather"
+	case "PLANT":
+		return "Plant fiber"
+	case "FOOD":
+		return "Food"
+	case "BONE":
+		return "Bone"
+	case "OIL":
+		return "Oil"
+	case "COAL":
+		return "Coal"
+	case "PLASTIC":
+		return "Plastic"
+	case "METAL":
+		return "Metal"
+	case "STONE":
+		return "Stone"
+	case "GLASS":
+		return "Glass"
+	case "CRYSTAL":
+		return "Crystal"
+	case "CERAMIC":
+		return "Ceramic"
+	case "LIQUID":
+		return "Liquid"
+	default:
+		return kind
+	}
 }
 
 // fuelRows は燃料の熱量を返す。燃やしたとき火へ移す熱量で、燃焼時間の目安になる。先頭は見出し

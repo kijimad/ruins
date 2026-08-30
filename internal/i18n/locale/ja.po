@@ -5757,6 +5757,48 @@ msgstr "燃焼中 残り約%dターン"
 msgid "No fuel to add"
 msgstr "くべる燃料がない"
 
+msgid "Wood"
+msgstr "木材"
+
+msgid "Paper"
+msgstr "紙"
+
+msgid "Cloth"
+msgstr "布"
+
+msgid "Leather"
+msgstr "革"
+
+msgid "Plant fiber"
+msgstr "植物繊維"
+
+msgid "Food"
+msgstr "食料"
+
+msgid "Bone"
+msgstr "骨"
+
+msgid "Oil"
+msgstr "油"
+
+msgid "Plastic"
+msgstr "樹脂"
+
+msgid "Metal"
+msgstr "金属"
+
+msgid "Glass"
+msgstr "ガラス"
+
+msgid "Crystal"
+msgstr "結晶"
+
+msgid "Ceramic"
+msgstr "陶磁器"
+
+msgid "Liquid"
+msgstr "液体"
+
 msgid "Fuel"
 msgstr "燃料"
 

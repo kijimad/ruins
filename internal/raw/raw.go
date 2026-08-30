@@ -392,6 +392,11 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
 	entitySpec.LightSource = toGCLightSource(item.LightSource)
 
+	// 材質。可燃性と燃焼熱量の算出根拠。観察メニューで見せるためエンティティに保持する
+	if item.Material != nil {
+		entitySpec.Material = &gc.Material{Kind: string(*item.Material)}
+	}
+
 	// 燃料。可燃性はこの有無で判定する。材質のkgあたり熱量へ重量を掛けて燃焼熱量を導く。
 	// 材質は raw で明示し、不燃の材質や軽すぎる物は燃料にならない
 	entitySpec.Fuel = toGCFuel(item.Material, entitySpec.Weight)

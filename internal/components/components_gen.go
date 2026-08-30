@@ -13,6 +13,7 @@ type EntitySpec struct {
 	HP                 *HP
 	Consumable         *Consumable
 	Fuel               *Fuel
+	Material           *Material
 	FireStarter        *FireStarter
 	Perishable         *Perishable
 	WeightCapacity     *WeightCapacity
@@ -100,6 +101,7 @@ type Components struct {
 	HP                 *ecs.Map[HP]
 	Consumable         *ecs.Map[Consumable]
 	Fuel               *ecs.Map[Fuel]
+	Material           *ecs.Map[Material]
 	FireStarter        *ecs.Map[FireStarter]
 	Perishable         *ecs.Map[Perishable]
 	WeightCapacity     *ecs.Map[WeightCapacity]
@@ -187,6 +189,7 @@ func (c *Components) InitializeComponents(world *ecs.World) error {
 	c.HP = ecs.NewMap[HP](world)
 	c.Consumable = ecs.NewMap[Consumable](world)
 	c.Fuel = ecs.NewMap[Fuel](world)
+	c.Material = ecs.NewMap[Material](world)
 	c.FireStarter = ecs.NewMap[FireStarter](world)
 	c.Perishable = ecs.NewMap[Perishable](world)
 	c.WeightCapacity = ecs.NewMap[WeightCapacity](world)
@@ -276,6 +279,7 @@ func (c *Components) AddEntity(world *ecs.World, spec *EntitySpec) ecs.Entity {
 	addComp(c.HP, entity, spec.HP)
 	addComp(c.Consumable, entity, spec.Consumable)
 	addComp(c.Fuel, entity, spec.Fuel)
+	addComp(c.Material, entity, spec.Material)
 	addComp(c.FireStarter, entity, spec.FireStarter)
 	addComp(c.Perishable, entity, spec.Perishable)
 	addComp(c.WeightCapacity, entity, spec.WeightCapacity)
