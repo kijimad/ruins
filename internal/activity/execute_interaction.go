@@ -163,6 +163,9 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 		return nil, fmt.Errorf("no fuel to ignite at tile")
 	}
 
+	// 火は光源を持つ。灯りを即反映するため視界の再計算を要求する
+	query.GetVisionState(world).RequestUpdate()
+
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorIgnite, Message: "lit a fire"}, nil
 }
 

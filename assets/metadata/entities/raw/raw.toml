@@ -13718,7 +13718,7 @@ spriteSheetName = "field"
 [[props]]
 blockPass = true
 blockView = false
-description = "地面で燃える火。燃料を継がなければ燃え尽きて消える。暖を取れるが照らしはしない"
+description = "地面で燃える火。燃料を継がなければ燃え尽きて消える。暖を取り、周囲を照らす"
 name = "Fire"
 id = "fire"
 animKeys = [ "fire_0", "fire_1" ]
@@ -13731,6 +13731,16 @@ spriteSheetName = "field"
 [props.heatSource]
 radius = 2
 warmth = 0.75
+
+[props.lightSource]
+enabled = true
+radius = 5
+
+[props.lightSource.color]
+a = 255
+r = 255
+g = 180
+b = 90
 
 [[props]]
 blockPass = true
