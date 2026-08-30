@@ -87,7 +87,7 @@ func (st *FeedFuelMenuState) DoAction(world w.World, action inputmapper.ActionID
 
 // Fetch は世界から表示 props を構築する
 func (st *FeedFuelMenuState) Fetch(world w.World) (FeedFuelProps, error) {
-	title := query.T(world, "Burning, %s left", query.FormatTurns(query.EstimateBurnTurns(world, st.fire)))
+	title := query.T(world, "Burning, %s left", query.EstimateBurnTurns(world, st.fire).String())
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return FeedFuelProps{Title: title}, err
@@ -117,7 +117,7 @@ func (st *FeedFuelMenuState) ViewUI(world w.World, props FeedFuelProps, cursor m
 	cols := itemMenuColumns(styled.Num())
 	rows := make([]menuframe.Row, len(props.Rows))
 	for i, r := range props.Rows {
-		rows[i] = itemMenuRow(world, r.Entity, r.Count, query.FormatTurnsDelta(r.Turns))
+		rows[i] = itemMenuRow(world, r.Entity, r.Count, r.Turns.StringDelta())
 	}
 	perPage := menuframe.ListCapacity(world, false, true)
 	list, pager := menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No fuel to add"), ItemsPerPage: perPage}, res)

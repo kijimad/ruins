@@ -1,25 +1,10 @@
 package query
 
 import (
-	"fmt"
-
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
-
-// FormatTurns はターン数へ時計アイコンを添える。燃焼の残ターンや給油で増えるターンの表示に使い、
-// 数字だけで読みにくいのを防ぐ。単位をここに集約し表記を揃える。
-// 通貨表記と同じく記号を先頭にし半角スペースで区切る
-func FormatTurns(turns consts.Turn) string {
-	return fmt.Sprintf("%s %d", consts.IconClock, int(turns))
-}
-
-// FormatTurnsDelta は給油で増えるターン数を符号付きで整形する。記号は先頭、符号は数字側に付け、
-// くべると何ターン延びるかを示す。給油メニューの右寄せ列に使う
-func FormatTurnsDelta(turns consts.Turn) string {
-	return fmt.Sprintf("%s +%d", consts.IconClock, int(turns))
-}
 
 // groundBurnEfficiency は地面直の火の燃焼効率をパーセント。100 が等倍で、地面直は低効率で薪をすぐ食う。
 // 効率は熱の強さでなく燃焼時間に効く。良い火の見返りは暖かさでなく薪の節約になる
