@@ -5757,6 +5757,9 @@ msgstr "燃焼中 残り%dターン"
 msgid "No fuel to add"
 msgstr "くべる燃料がない"
 
+msgid "Hearth"
+msgstr "石組"
+
 msgid "Wood"
 msgstr "木材"
 

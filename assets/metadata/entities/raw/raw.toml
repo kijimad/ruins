@@ -13703,28 +13703,17 @@ spriteKey = "bench"
 spriteSheetName = "field"
 
 [[props]]
-animKeys = [ "bonfire_0", "bonfire_1", "bonfire_2", "bonfire_3", "bonfire_4", "bonfire_5", "bonfire_6", "bonfire_7", "bonfire_8", "bonfire_9", "bonfire_10", "bonfire_11", "bonfire_12", "bonfire_13", "bonfire_14", "bonfire_15" ]
+animKeys = [ "fire_0", "fire_1" ]
 blockPass = true
 blockView = false
-description = "石で囲った中でオレンジから黄に揺れる炎。屋外や野営の光源"
-hp = 15
-name = "Bonfire"
+description = "あらかじめ点いている火。燃料を継がなければ燃え尽きて消える。石組の上に立つ"
+name = "Fire"
 id = "bonfire"
 
 [props.spriteRender]
 depth = 1
-spriteKey = "bonfire_0"
+spriteKey = "fire_0"
 spriteSheetName = "field"
-
-[props.lightSource]
-enabled = true
-radius = 3
-
-[props.lightSource.color]
-a = 200
-b = 70
-g = 150
-r = 255
 
 [props.heatSource]
 radius = 2
@@ -13732,6 +13721,19 @@ warmth = 0.75
 
 [props.burning]
 remaining = 999
+
+[[props]]
+blockPass = true
+blockView = false
+description = "焚き火の石組。火を囲う据え付けの構造物。火が消えても残る"
+hp = 20
+name = "Hearth"
+id = "hearth"
+
+[props.spriteRender]
+depth = 0
+spriteKey = "hearth"
+spriteSheetName = "field"
 
 [[props]]
 blockPass = true
