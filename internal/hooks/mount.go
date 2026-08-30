@@ -1,18 +1,17 @@
 package hooks
 
-import (
-	"reflect"
+import "github.com/kijimaD/ruins/internal/inputmapper"
 
-	"github.com/kijimaD/ruins/internal/inputmapper"
-)
+// mountPropsKey は Mount が props を Store に保持するときの予約キー。props も view を決める状態なので
+// Store の version 追跡に載せ、変更検知を1系統へ集約する。利用側の UseState キーと衝突しないよう
+// 制御文字始まりの予約名にする。
+const mountPropsKey = "\x00mount.props"
 
-// Mount はProps + Stateを管理し、変更を検出する
-// 描画は担当しない。描画はアプリケーション層の責務である
+// Mount はProps + Stateを管理し、変更を検出する。
+// 描画は担当しない。描画はアプリケーション層の責務である。
+// props も store の予約キーに載せるので、変更検知は store.Version の差だけで済む。
 type Mount[Props any] struct {
-	props Props
-	store *Store
-	// dirty は props 変化と初回描画の要因を持つ。store 状態の変化は store.Version で別に追う。
-	dirty            bool
+	store            *Store
 	lastStoreVersion uint64
 }
 
@@ -20,22 +19,20 @@ type Mount[Props any] struct {
 func NewMount[Props any]() *Mount[Props] {
 	return &Mount[Props]{
 		store: NewStore(),
-		dirty: true, // 初回は必ず描画する
+		// 初回は必ず描画させる。実在しない version にしておき、最初の Update で必ず差を出す
+		lastStoreVersion: ^uint64(0),
 	}
 }
 
-// SetProps は外部からPropsを設定する
-// 値が変わった場合はdirtyフラグを立てる
+// SetProps は外部からPropsを設定する。値が実際に変わったときだけ store の version が動く
 func (m *Mount[Props]) SetProps(props Props) {
-	if !reflect.DeepEqual(m.props, props) {
-		m.dirty = true
-	}
-	m.props = props
+	m.store.set(mountPropsKey, props)
 }
 
-// GetProps は現在のPropsを返す
+// GetProps は現在のPropsを返す。未設定ならゼロ値
 func (m *Mount[Props]) GetProps() Props {
-	return m.props
+	v, _ := GetStoreState[Props](m.store, mountPropsKey)
+	return v
 }
 
 // Store はStoreを返す
@@ -52,25 +49,15 @@ func (m *Mount[Props]) Dispatch(action inputmapper.ActionID) {
 
 // GetState は指定したキーのStateを取得する
 func GetState[T any, Props any](m *Mount[Props], key string) (T, bool) {
-	v, ok := m.store.states[key]
-	if !ok {
-		var zero T
-		return zero, false
-	}
-	typed, ok := v.(T)
-	if !ok {
-		var zero T
-		return zero, false
-	}
-	return typed, true
+	return GetStoreState[T](m.store, key)
 }
 
-// Update は変更の有無を返す
-// 初回は常にtrue、以降はpropsまたはstateが変わった場合にtrueを返す。
-// store 状態の変化は version の差で検知するので、Dispatch でも SetTab でも書き込み経路に依らず拾える
+// Update は前回からの変更の有無を返す。props も store 状態も store.Version に集約されるので、
+// version の差だけで判定できる。Dispatch でも SetTab でも書き込み経路に依らず拾える。
+// 初回は sentinel 初期化により必ず true になる。
 func (m *Mount[Props]) Update() bool {
-	changed := m.dirty || m.store.Version() != m.lastStoreVersion
-	m.dirty = false
-	m.lastStoreVersion = m.store.Version()
+	v := m.store.Version()
+	changed := v != m.lastStoreVersion
+	m.lastStoreVersion = v
 	return changed
 }
