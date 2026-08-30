@@ -217,6 +217,7 @@ func runTurnEndSystems(world w.World) error {
 	for _, updater := range []w.Updater{
 		&AutoInteractionSystem{},
 		&TemperatureSystem{},
+		&HealthRegenSystem{},
 		&FireSystem{},
 		&DeadCleanupSystem{},
 	} {
