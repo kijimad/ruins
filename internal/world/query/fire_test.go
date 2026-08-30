@@ -18,7 +18,7 @@ func TestEstimateBurnTurns_残量がそのままターン数になる(t *testing
 	fire := world.ECS.NewEntity()
 	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 17})
 
-	// 火は燃料を貯めず残量だけを持つ。fireBurnPerTurn は1なので残量=ターン数
+	// 火は燃料を貯めず残量だけを持つ。残量は毎ターン1ずつ減るので残量=ターン数
 	assert.Equal(t, consts.Turn(17), query.EstimateBurnTurns(world, fire))
 }
 

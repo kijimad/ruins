@@ -33,7 +33,7 @@ func BurnEfficiency(_ w.World, _ ecs.Entity) int {
 }
 
 // EstimateBurnTurns は火があと何ターン燃えるかを返す。
-// 火は燃料を貯めず残量だけを持ち、fireBurnPerTurn は1なので残量がそのままターン数になる。
+// 火は燃料を貯めず残量だけを持ち、残量は毎ターン1ずつ減るので残量がそのままターン数になる。
 // 燃えていなければ0
 func EstimateBurnTurns(world w.World, fire ecs.Entity) consts.Turn {
 	if !world.Components.Burning.Has(fire) {

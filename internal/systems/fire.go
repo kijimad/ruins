@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -22,9 +21,6 @@ func (sys *FireSystem) String() string {
 	return "FireSystem"
 }
 
-// fireBurnPerTurn は1ターンで減る燃焼ターン数。残量は毎ターンこれだけ減る
-const fireBurnPerTurn consts.Turn = 1
-
 // Update は火の残量を減らし、尽きたら鎮火する
 func (sys *FireSystem) Update(world w.World) error {
 	// 反復中の構造変更を避けるため、火を集めてからループ後に処理する
@@ -36,7 +32,7 @@ func (sys *FireSystem) Update(world w.World) error {
 
 	for _, fire := range fires {
 		burning := world.Components.Burning.Get(fire)
-		burning.Remaining -= fireBurnPerTurn
+		burning.Remaining--
 		if burning.Remaining <= 0 {
 			// 燃料が尽きた。燃え尽きた跡へ灰を残してから、暖房を切り火のエンティティごと消す。
 			// 灰は火のあった座標へ落とすフィールドアイテムで、拾って素材に使える。
