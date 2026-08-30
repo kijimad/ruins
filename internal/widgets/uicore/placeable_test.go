@@ -35,6 +35,7 @@ func TestPlaceable_非Widgetは描画専用として包む(t *testing.T) {
 	assert.Nil(t, w.Children(), "包んだ葉は子を持たない")
 
 	w.Layout(image.Rect(0, 0, 10, 10))
+	// 委譲が起きることだけを検証する。recordDrawable.Draw は Canvas を参照しないので nil でよい
 	w.Draw(nil)
 	assert.Equal(t, 1, d.drawCount, "DrawはPlaceableで包んだ中身へ委譲される")
 }
