@@ -649,13 +649,13 @@
 				
 				<option value="file296">github.com/kijimaD/ruins/internal/widgets/uicore/ebiten.go (6.7%)</option>
 				
-				<option value="file297">github.com/kijimaD/ruins/internal/widgets/uicore/flex.go (31.2%)</option>
+				<option value="file297">github.com/kijimaD/ruins/internal/widgets/uicore/flex.go (100.0%)</option>
 				
-				<option value="file298">github.com/kijimaD/ruins/internal/widgets/uicore/measure.go (41.7%)</option>
+				<option value="file298">github.com/kijimaD/ruins/internal/widgets/uicore/measure.go (100.0%)</option>
 				
 				<option value="file299">github.com/kijimaD/ruins/internal/widgets/uicore/text.go (92.9%)</option>
 				
-				<option value="file300">github.com/kijimaD/ruins/internal/widgets/uicore/widget.go (60.7%)</option>
+				<option value="file300">github.com/kijimaD/ruins/internal/widgets/uicore/widget.go (98.1%)</option>
 				
 				<option value="file301">github.com/kijimaD/ruins/internal/world/gameaction/craft.go (84.7%)</option>
 				
@@ -45122,23 +45122,23 @@ type FlexItem struct {
 // 幅は既定の AlignItemStretch で inner いっぱいに伸びる。Container の固定高の積み上げと
 // 違い、Grow の行で余り高さを吸収できる。画面の枠組みがフッタを下端へ固定するのに使う。
 func FlexColumn(inner image.Rectangle, items []FlexItem) {
-        <span class="cov0" title="0">root := &amp;furex.View{
+        <span class="cov8" title="1">root := &amp;furex.View{
                 Left:      inner.Min.X,
                 Top:       inner.Min.Y,
                 Width:     inner.Dx(),
                 Height:    inner.Dy(),
                 Direction: furex.Column,
 </span>        }
-        <span class="cov0" title="0">for _, it := range items </span>{
-                <span class="cov0" title="0">child := &amp;furex.View{Handler: frameTo{w: it.W}}
+        <span class="cov8" title="1">for _, it := range items </span>{
+                <span class="cov8" title="1">child := &amp;furex.View{Handler: frameTo{w: it.W}}
                 if it.Grow </span>{
-                        <span class="cov0" title="0">child.Grow = 1
+                        <span class="cov8" title="1">child.Grow = 1
 </span>                } else {
-                        <span class="cov0" title="0">child.Height = it.Height
+                        <span class="cov8" title="1">child.Height = it.Height
 </span>                }
-                <span class="cov0" title="0">root.AddChild(child)</span>
+                <span class="cov8" title="1">root.AddChild(child)</span>
         }
-        <span class="cov0" title="0">root.Layout()
+        <span class="cov8" title="1">root.Layout()
         root.Draw(layoutProbe())</span>
 }
 </pre>
@@ -45161,7 +45161,7 @@ import (
 // 退避をとる。
 func MeasureText(s string, face text.Face) (int, int) {
         <span class="cov8" title="1">if face == nil </span>{
-                <span class="cov0" title="0">return 0, 0
+                <span class="cov8" title="1">return 0, 0
 </span>        }
         <span class="cov8" title="1">w, h := text.Measure(s, face, 0)
         return int(math.Round(w)), int(math.Round(h))</span>
@@ -45181,18 +45181,18 @@ func MeasureTextWidth(s string, face text.Face) int {
 // 内容ぴったりの幅を決める計算はこれ1つにする。表の列・選択肢の塊・ボタン・バッジ・
 // キーキャップと、同じ規則を要る箇所が散らばっており、別々に書くと下限や余白の扱いがずれる。
 func FitWidth(contents []int, extra, lower int) int {
-        <span class="cov0" title="0">widest := 0
+        <span class="cov8" title="1">widest := 0
         for _, c := range contents </span>{
-                <span class="cov0" title="0">widest = max(widest, c)
+                <span class="cov8" title="1">widest = max(widest, c)
 </span>        }
-        <span class="cov0" title="0">return max(widest+extra, lower)</span>
+        <span class="cov8" title="1">return max(widest+extra, lower)</span>
 }
 
 // LineHeight は face の自然な行送りを画素で返す。アセンダとディセンダを含む字面の
 // 高さから取るので、固定値のように字面に対して間延びしない。
 func LineHeight(face text.Face) int {
         // アセンダとディセンダを両方持つ字を測り、フェイスの縦の広がりを代表させる
-        <span class="cov0" title="0">_, h := MeasureText("Ag", face)
+        <span class="cov8" title="1">_, h := MeasureText("Ag", face)
         return h
 </span>}
 </pre>
@@ -45267,15 +45267,15 @@ type Drawable interface {
 // このパッケージの型はすべて配置を持つので、通常はそのまま通る。
 // 配置を持たないものは、与えられた矩形を無視して描くだけの葉として包む。
 func Placeable(ds []Drawable) []Widget {
-        <span class="cov0" title="0">out := make([]Widget, len(ds))
+        <span class="cov8" title="1">out := make([]Widget, len(ds))
         for i, d := range ds </span>{
-                <span class="cov0" title="0">if w, ok := d.(Widget); ok </span>{
-                        <span class="cov0" title="0">out[i] = w
+                <span class="cov8" title="1">if w, ok := d.(Widget); ok </span>{
+                        <span class="cov8" title="1">out[i] = w
                         continue</span>
                 }
-                <span class="cov0" title="0">out[i] = &amp;drawOnly{d: d}</span>
+                <span class="cov8" title="1">out[i] = &amp;drawOnly{d: d}</span>
         }
-        <span class="cov0" title="0">return out</span>
+        <span class="cov8" title="1">return out</span>
 }
 
 // drawOnly は配置を持たないツリーを Widget として扱う包み。行や列の枠は占めるが、
@@ -45286,13 +45286,13 @@ type drawOnly struct {
 }
 
 // Layout は Widget を実装する。矩形は自身の記録だけに使う。
-func (o *drawOnly) Layout(b image.Rectangle) { <span class="cov0" title="0">o.rect = b }</span>
+func (o *drawOnly) Layout(b image.Rectangle) { <span class="cov8" title="1">o.rect = b }</span>
 
 // Draw は Widget を実装する。
-func (o *drawOnly) Draw(cv Canvas) { <span class="cov0" title="0">o.d.Draw(cv) }</span>
+func (o *drawOnly) Draw(cv Canvas) { <span class="cov8" title="1">o.d.Draw(cv) }</span>
 
 // Children は Widget を実装する。子は持たない。
-func (o *drawOnly) Children() []Widget { <span class="cov0" title="0">return nil }</span>
+func (o *drawOnly) Children() []Widget { <span class="cov8" title="1">return nil }</span>
 
 // Widget は保持型 UI ツリーの要素。
 type Widget interface {
@@ -45371,21 +45371,21 @@ type Graphic struct {
 }
 
 // NewGraphic は画像ウィジェットを作る。
-func NewGraphic(img *ebiten.Image) *Graphic { <span class="cov0" title="0">return &amp;Graphic{Image: img} }</span>
+func NewGraphic(img *ebiten.Image) *Graphic { <span class="cov8" title="1">return &amp;Graphic{Image: img} }</span>
 
 // Layout は Graphic を実装する。
-func (g *Graphic) Layout(b image.Rectangle) { <span class="cov0" title="0">g.rect = b }</span>
+func (g *Graphic) Layout(b image.Rectangle) { <span class="cov8" title="1">g.rect = b }</span>
 
 // Draw は Graphic を実装する。矩形に収まるよう縮小し、左寄せ・縦中央で描く。一覧のアイコンを
 // 行の高さへ合わせ、左に揃えて文字と縦位置をそろえる。
 func (g *Graphic) Draw(cv Canvas) {
-        <span class="cov0" title="0">if g.Image != nil </span>{
-                <span class="cov0" title="0">cv.DrawImageRect(g.rect, g.Image)
+        <span class="cov8" title="1">if g.Image != nil </span>{
+                <span class="cov8" title="1">cv.DrawImageRect(g.rect, g.Image)
 </span>        }
 }
 
 // Children は Graphic を実装する。子は持たない。
-func (g *Graphic) Children() []Widget { <span class="cov0" title="0">return nil }</span>
+func (g *Graphic) Children() []Widget { <span class="cov8" title="1">return nil }</span>
 
 // NineSlice はテクスチャを9スライスで矩形いっぱいに引き伸ばして描くウィジェット。
 // 枠付きの背景、窓・タイトルバー・入力枠・選択バー、に使う。BX・BY はソースの左中右・上中下の幅。
@@ -45398,21 +45398,21 @@ type NineSlice struct {
 
 // NewNineSlice はテクスチャとスライス幅から NineSlice を作る。
 func NewNineSlice(img *ebiten.Image, bx, by [3]int) *NineSlice {
-        <span class="cov0" title="0">return &amp;NineSlice{Image: img, BX: bx, BY: by}
+        <span class="cov8" title="1">return &amp;NineSlice{Image: img, BX: bx, BY: by}
 </span>}
 
 // Layout は NineSlice を実装する。
-func (n *NineSlice) Layout(b image.Rectangle) { <span class="cov0" title="0">n.rect = b }</span>
+func (n *NineSlice) Layout(b image.Rectangle) { <span class="cov8" title="1">n.rect = b }</span>
 
 // Draw は NineSlice を実装する。
 func (n *NineSlice) Draw(cv Canvas) {
-        <span class="cov0" title="0">if n.Image != nil </span>{
-                <span class="cov0" title="0">cv.DrawNineSlice(n.rect, n.Image, n.BX, n.BY)
+        <span class="cov8" title="1">if n.Image != nil </span>{
+                <span class="cov8" title="1">cv.DrawNineSlice(n.rect, n.Image, n.BX, n.BY)
 </span>        }
 }
 
 // Children は NineSlice を実装する。子は持たない。
-func (n *NineSlice) Children() []Widget { <span class="cov0" title="0">return nil }</span>
+func (n *NineSlice) Children() []Widget { <span class="cov8" title="1">return nil }</span>
 
 // Group は配置済みの子をそのまま束ねて描く。子の矩形は各自が確定済みで、Group は再配置しない。
 // 自前の絶対配置レイアウトを組むときに使う。
@@ -45422,20 +45422,20 @@ type Group struct {
 }
 
 // NewGroup は配置済みの子を束ねる。子は呼び出し側が Layout 済みにしておく。
-func NewGroup(children ...Widget) *Group { <span class="cov0" title="0">return &amp;Group{children: children} }</span>
+func NewGroup(children ...Widget) *Group { <span class="cov8" title="1">return &amp;Group{children: children} }</span>
 
 // Layout は Group を実装する。子は再配置しない。
-func (g *Group) Layout(b image.Rectangle) { <span class="cov0" title="0">g.rect = b }</span>
+func (g *Group) Layout(b image.Rectangle) { <span class="cov8" title="1">g.rect = b }</span>
 
 // Draw は Group を実装する。子を順に描く。
 func (g *Group) Draw(cv Canvas) {
-        <span class="cov0" title="0">for _, c := range g.children </span>{
-                <span class="cov0" title="0">c.Draw(cv)
+        <span class="cov8" title="1">for _, c := range g.children </span>{
+                <span class="cov8" title="1">c.Draw(cv)
 </span>        }
 }
 
 // Children は Group を実装する。
-func (g *Group) Children() []Widget { <span class="cov0" title="0">return g.children }</span>
+func (g *Group) Children() []Widget { <span class="cov8" title="1">return g.children }</span>
 
 // Dir はコンテナの主軸方向。
 type Dir int
@@ -45464,19 +45464,19 @@ type Container struct {
 
 // SetPadding は内側余白を設定する。子を余白ぶん内側へ寄せる。
 func (c *Container) SetPadding(pad int) *Container {
-        <span class="cov0" title="0">c.pad = pad
+        <span class="cov8" title="1">c.pad = pad
         return c
 </span>}
 
 // SetStyle は背景の塗りと枠を設定する。選択行の強調などに使う。
 func (c *Container) SetStyle(s BoxStyle) *Container {
-        <span class="cov0" title="0">c.style = s
+        <span class="cov8" title="1">c.style = s
         return c
 </span>}
 
 // SetBackgroundNineSlice はテクスチャ背景を9スライスで敷く。パネルや選択行の意匠に使う。
 func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Container {
-        <span class="cov0" title="0">c.bgImage = img
+        <span class="cov8" title="1">c.bgImage = img
         c.bgBX = bx
         c.bgBY = by
         return c
@@ -45485,7 +45485,7 @@ func (c *Container) SetBackgroundNineSlice(img *ebiten.Image, bx, by [3]int) *Co
 // SetBottomLine は下端に区切り線のテクスチャを敷く。横グラデを行幅へ伸ばし tint で着色する。
 // 一覧行の下線に使う。
 func (c *Container) SetBottomLine(img *ebiten.Image, tint color.Color) *Container {
-        <span class="cov0" title="0">c.lineImg = img
+        <span class="cov8" title="1">c.lineImg = img
         c.lineTint = tint
         return c
 </span>}
@@ -45498,7 +45498,7 @@ func (c *Container) SetBottomLine(img *ebiten.Image, tint color.Color) *Containe
 func (c *Container) Layout(b image.Rectangle) {
         <span class="cov8" title="1">c.rect = b
         if len(c.children) == 0 </span>{
-                <span class="cov0" title="0">return
+                <span class="cov8" title="1">return
 </span>        }
         <span class="cov8" title="1">inner := image.Rect(b.Min.X+c.pad, b.Min.Y+c.pad, b.Max.X-c.pad, b.Max.Y-c.pad)
 </span>
@@ -45546,7 +45546,7 @@ func (c *Container) Layout(b image.Rectangle) {
 // Draw は Container を実装する。テクスチャ背景、塗り、枠の順に敷いてから子を描く。
 func (c *Container) Draw(cv Canvas) {
         <span class="cov8" title="1">if c.bgImage != nil </span>{
-                <span class="cov0" title="0">cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)
+                <span class="cov8" title="1">cv.DrawNineSlice(c.rect, c.bgImage, c.bgBX, c.bgBY)
 </span>        }
         <span class="cov8" title="1">if c.style.Fill != nil </span>{
                 <span class="cov8" title="1">cv.FillRect(c.rect, c.style.Fill)
@@ -45558,7 +45558,7 @@ func (c *Container) Draw(cv Canvas) {
                 <span class="cov8" title="1">ch.Draw(cv)
 </span>        }
         <span class="cov8" title="1">if c.lineImg != nil </span>{
-                <span class="cov0" title="0">h := c.lineImg.Bounds().Dy()
+                <span class="cov8" title="1">h := c.lineImg.Bounds().Dy()
                 cv.DrawImageTintedRect(image.Rect(c.rect.Min.X, c.rect.Max.Y-h, c.rect.Max.X, c.rect.Max.Y), c.lineImg, c.lineTint)
 </span>        }
 }
