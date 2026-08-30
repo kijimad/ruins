@@ -320,7 +320,7 @@ func NewFeedFuelMenuState(fire ecs.Entity) (es.State[w.World], error) {
 // 選ぶと1つくべて残ターン数へ畳み込み、メニューに留まって続けてくべられる
 func feedFuelChoices(fire ecs.Entity) func(world w.World) (string, []Choice) {
 	return func(world w.World) (string, []Choice) {
-		title := query.T(world, "Burning · about %d turns left", query.EstimateBurnTurns(world, fire))
+		title := query.T(world, "Burning, about %d turns left", query.EstimateBurnTurns(world, fire))
 		player, err := query.GetPlayerEntity(world)
 		if err != nil {
 			return title, nil
@@ -337,6 +337,10 @@ func feedFuelChoices(fire ecs.Entity) func(world w.World) (string, []Choice) {
 				feedOneFuel(world, fire, rep)
 				return nil
 			})})
+		}
+		// 燃料が無いときは非選択の見出し行で空メッセージを出す。火の残ターン数だけ確認できる
+		if len(choices) == 0 {
+			choices = append(choices, Choice{Label: query.T(world, "No fuel to add"), Header: true})
 		}
 		return title, choices
 	}

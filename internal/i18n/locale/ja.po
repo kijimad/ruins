@@ -5754,8 +5754,11 @@ msgstr " (+%dターン)"
 msgid "Burning"
 msgstr "燃焼中"
 
-msgid "Burning · about %d turns left"
+msgid "Burning, about %d turns left"
 msgstr "燃焼中 残り約%dターン"
+
+msgid "No fuel to add"
+msgstr "くべる燃料がない"
 
 msgid "Fuel"
 msgstr "燃料"
