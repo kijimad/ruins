@@ -45,6 +45,26 @@ func TestApplyProfileDefaults_UnknownProfile(t *testing.T) {
 	assert.False(t, cfg.SkipOpening)
 }
 
+// make test は RUINS_LOG_LEVEL=ignore を設定して実行するため、未設定時のデフォルト分岐は
+// 明示的に空へ上書きしないと踏めない。t.Setenv を使うため t.Parallel は呼ばない。
+func TestApplyProfileDefaults_LogLevel未設定なら本番はinfoになる(t *testing.T) {
+	t.Setenv("RUINS_LOG_LEVEL", "")
+
+	cfg := &Config{Profile: ProfileProduction}
+	cfg.ApplyProfileDefaults()
+
+	assert.Equal(t, "info", cfg.LogLevel)
+}
+
+func TestApplyProfileDefaults_LogLevel未設定なら開発もinfoになる(t *testing.T) {
+	t.Setenv("RUINS_LOG_LEVEL", "")
+
+	cfg := &Config{Profile: ProfileDevelopment}
+	cfg.ApplyProfileDefaults()
+
+	assert.Equal(t, "info", cfg.LogLevel)
+}
+
 func TestConfig_StringGolden(t *testing.T) {
 	t.Parallel()
 
