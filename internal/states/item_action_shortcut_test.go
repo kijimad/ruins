@@ -21,25 +21,19 @@ func TestItemActionShortcut_文字キーが動詞Actionへ変換される(t *tes
 	t.Parallel()
 
 	table := keybind.MustMerge(itemActionBindings, keybind.MenuCommon)
-	tests := []struct {
-		name string
-		key  ebiten.Key
-		want inputmapper.ActionID
-	}{
-		{"e は食べる", ebiten.KeyE, inputmapper.ActionVerbConsume},
-		{"r は読む", ebiten.KeyR, inputmapper.ActionVerbRead},
-		{"t は使う", ebiten.KeyT, inputmapper.ActionVerbUse},
-		{"s は一覧", ebiten.KeyS, inputmapper.ActionVerbList},
-		{"d は置く", ebiten.KeyD, inputmapper.ActionVerbPlace},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	// ケースは verbList から導く。動詞を1つ足したら自動でここも網羅する。ハードコードだと
+	// 追加された動詞、例えば調べる X+Shift、の取りこぼしに気づけない
+	for _, v := range verbList {
+		t.Run(string(v.ID), func(t *testing.T) {
 			t.Parallel()
 			mock := input.NewMockKeyboardInput()
-			mock.SetKeyJustPressed(tt.key, true)
+			mock.SetKeyJustPressed(v.Key, true)
+			if v.Shift {
+				mock.SetKeyPressed(ebiten.KeyShift, true)
+			}
 			got, ok := keybind.Convert(mock, table)
-			require.True(t, ok, "キーが Action へ変換される")
-			assert.Equal(t, tt.want, got)
+			require.True(t, ok, "%s のキーが Action へ変換される", v.ID)
+			assert.Equal(t, v.Action, got)
 		})
 	}
 }
