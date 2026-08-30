@@ -187,7 +187,7 @@ func materialDisplayName(kind string) string {
 // 値の無い見出し行は置かず、材質の行と並べて読ませる
 func fuelRow(world w.World, fuel *gc.Fuel) SpecRow {
 	// 熱量は炎アイコンで見せる。満burn時の燃焼ターン数に等しく、地面直の火では効率で減る
-	return SpecRow{Label: query.T(world, "Fuel"), Value: query.FormatHeat(fuel.HeatContent)}
+	return SpecRow{Label: query.T(world, "Fuel"), Value: fuel.HeatContent.String()}
 }
 
 // burningRow は燃えている火の予想残ターン数の1行を返す

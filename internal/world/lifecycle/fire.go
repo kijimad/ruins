@@ -12,6 +12,6 @@ import (
 func AddFuel(world w.World, fire ecs.Entity, fuel ecs.Entity) {
 	eff := query.BurnEfficiency(world, fire)
 	burning := world.Components.Burning.Get(fire)
-	burning.Remaining += world.Components.Fuel.Get(fuel).HeatContent * eff / 100
+	burning.Remaining += world.Components.Fuel.Get(fuel).HeatContent.BurnTurns(eff)
 	world.ECS.RemoveEntity(fuel)
 }

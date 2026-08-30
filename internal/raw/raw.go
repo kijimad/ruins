@@ -181,7 +181,7 @@ func toGCFuel(material *oapi.Material, weight *gc.Weight) *gc.Fuel {
 	if heat <= 0 {
 		return nil
 	}
-	return &gc.Fuel{HeatContent: heat}
+	return &gc.Fuel{HeatContent: consts.Heat(heat)}
 }
 
 // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする

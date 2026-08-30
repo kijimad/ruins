@@ -1104,7 +1104,7 @@ weight = "1 kg"
 	wood, err := NewItemSpec(raws, "wood_log")
 	require.NoError(t, err)
 	require.NotNil(t, wood.Fuel, "可燃な材質は燃料になる")
-	assert.Equal(t, 600, wood.Fuel.HeatContent, "WOOD 200/kg × 3kg = 600")
+	assert.Equal(t, consts.Heat(600), wood.Fuel.HeatContent, "WOOD 200/kg × 3kg = 600")
 
 	iron, err := NewItemSpec(raws, "iron_bar")
 	require.NoError(t, err)

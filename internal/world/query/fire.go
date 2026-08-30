@@ -21,12 +21,6 @@ func FormatTurnsDelta(turns int) string {
 	return fmt.Sprintf("%s +%d", consts.IconClock, turns)
 }
 
-// FormatHeat は燃料の熱量へ炎アイコンを添える。ターンと区別して熱量だと分かるようにする。
-// 通貨表記と同じく記号を先頭にし半角スペースで区切る
-func FormatHeat(heat int) string {
-	return fmt.Sprintf("%s %d", consts.IconFire, heat)
-}
-
 // groundBurnEfficiency は地面直の火の燃焼効率をパーセント。100 が等倍で、地面直は低効率で薪をすぐ食う。
 // 効率は熱の強さでなく燃焼時間に効く。良い火の見返りは暖かさでなく薪の節約になる
 const groundBurnEfficiency = 50
@@ -54,5 +48,5 @@ func FuelBurnTurns(world w.World, fire ecs.Entity, fuel ecs.Entity) int {
 	if !world.Components.Fuel.Has(fuel) {
 		return 0
 	}
-	return world.Components.Fuel.Get(fuel).HeatContent * BurnEfficiency(world, fire) / 100
+	return world.Components.Fuel.Get(fuel).HeatContent.BurnTurns(BurnEfficiency(world, fire))
 }

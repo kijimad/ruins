@@ -46,7 +46,7 @@ func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数
 	addFieldFuel := func(name string, heat int) ecs.Entity {
 		e := world.ECS.NewEntity()
 		world.Components.Name.Add(e, &gc.Name{Name: name})
-		world.Components.Fuel.Add(e, &gc.Fuel{HeatContent: heat})
+		world.Components.Fuel.Add(e, &gc.Fuel{HeatContent: consts.Heat(heat)})
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: tile})
 		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
 		return e
