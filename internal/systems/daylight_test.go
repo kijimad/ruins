@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -97,4 +98,27 @@ func TestOverworldDaylight_連続補間(t *testing.T) {
 		overworldDaylight(&gc.GameTime{TotalTurns: 400}), "夕は進むほど暗くなる")
 	assert.Greater(t, overworldDaylight(&gc.GameTime{TotalTurns: 400}),
 		overworldDaylight(&gc.GameTime{TotalTurns: 500}), "夜へ向けてさらに暗くなる")
+}
+
+// TestOverworldDaylight_一日を通して単調に増減する は、昼の中心から深夜の中心までは単調に暗くなり、
+// 深夜から翌日の昼までは単調に明るくなることを、細かく刻んで検証する。特定の遷移だけでなく
+// 全時間帯にわたって傾きが正しい向きであることを保証し、アンカー値を誤って上下させた回帰を捕まえる。
+func TestOverworldDaylight_一日を通して単調に増減する(t *testing.T) {
+	t.Parallel()
+
+	daylightAt := func(turn consts.Turn) float64 {
+		return overworldDaylight(&gc.GameTime{TotalTurns: turn})
+	}
+
+	// 昼の中心 125 から深夜の中心 875 まで、暗くなり続ける
+	for turn := consts.Turn(125); turn < 875; turn += 25 {
+		assert.Greater(t, daylightAt(turn), daylightAt(turn+25),
+			"昼から深夜へ向かう %d→%d は暗くなる", turn, turn+25)
+	}
+
+	// 深夜の中心 875 から翌日の昼の中心 1625 まで、明るくなり続ける
+	for turn := consts.Turn(875); turn < 1625; turn += 25 {
+		assert.Less(t, daylightAt(turn), daylightAt(turn+25),
+			"深夜から翌昼へ向かう %d→%d は明るくなる", turn, turn+25)
+	}
 }
