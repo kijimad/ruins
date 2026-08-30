@@ -394,7 +394,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	// 材質。可燃性と燃焼熱量の算出根拠。観察メニューで見せるためエンティティに保持する
 	if item.Material != nil {
-		entitySpec.Material = &gc.Material{Kind: string(*item.Material)}
+		entitySpec.Material = &gc.Material{Kind: *item.Material}
 	}
 
 	// 燃料。可燃性はこの有無で判定する。材質のkgあたり熱量へ重量を掛けて燃焼熱量を導く。

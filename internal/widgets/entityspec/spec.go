@@ -7,6 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 
@@ -144,42 +145,42 @@ func materialRow(world w.World, material *gc.Material) SpecRow {
 
 // materialDisplayName は raw の Material enum 値を表示名へ写す。表示名は query.T で各言語へ訳す。
 // default に enum 値をそのまま返し、未知の材質でも空欄にしない
-func materialDisplayName(kind string) string {
+func materialDisplayName(kind oapi.Material) string {
 	switch kind {
-	case "WOOD":
+	case oapi.WOOD:
 		return "Wood"
-	case "PAPER":
+	case oapi.PAPER:
 		return "Paper"
-	case "CLOTH":
+	case oapi.CLOTH:
 		return "Cloth"
-	case "LEATHER":
+	case oapi.LEATHER:
 		return "Leather"
-	case "PLANT":
+	case oapi.PLANT:
 		return "Plant fiber"
-	case "FOOD":
+	case oapi.FOOD:
 		return "Food"
-	case "BONE":
+	case oapi.BONE:
 		return "Bone"
-	case "OIL":
+	case oapi.OIL:
 		return "Oil"
-	case "COAL":
+	case oapi.COAL:
 		return "Coal"
-	case "PLASTIC":
+	case oapi.PLASTIC:
 		return "Plastic"
-	case "METAL":
+	case oapi.METAL:
 		return "Metal"
-	case "STONE":
+	case oapi.STONE:
 		return "Stone"
-	case "GLASS":
+	case oapi.GLASS:
 		return "Glass"
-	case "CRYSTAL":
+	case oapi.CRYSTAL:
 		return "Crystal"
-	case "CERAMIC":
+	case oapi.CERAMIC:
 		return "Ceramic"
-	case "LIQUID":
+	case oapi.LIQUID:
 		return "Liquid"
 	default:
-		return kind
+		return string(kind)
 	}
 }
 
