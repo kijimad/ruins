@@ -1887,18 +1887,6 @@ components:
         skill:
           $ref: '#/components/schemas/SkillBook'
       description: 本の設定
-    BurnRemaining:
-      type: integer
-      minimum: 1
-      description: 着火状態で最初に燃えている残量。毎ターン減り、0以下で鎮火する
-    Burning:
-      type: object
-      required:
-        - remaining
-      properties:
-        remaining:
-          $ref: '#/components/schemas/BurnRemaining'
-      description: 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す
     ColorChannel:
       type: integer
       format: uint8
@@ -2911,8 +2899,6 @@ components:
           $ref: '#/components/schemas/LightSource'
         heatSource:
           $ref: '#/components/schemas/HeatSource'
-        burning:
-          $ref: '#/components/schemas/Burning'
         door:
           $ref: '#/components/schemas/DoorRaw'
         warpNextTrigger:

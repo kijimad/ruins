@@ -155,10 +155,6 @@ scalar HeatRadius extends integer;
 @minValue(0)
 scalar HeatWarmth extends float64;
 
-/** 着火状態で最初に燃えている残量。毎ターン減り、0以下で鎮火する */
-@minValue(1)
-scalar BurnRemaining extends integer;
-
 /** マガジン容量 */
 @minValue(1)
 @maxValue(100)

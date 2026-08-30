@@ -139,16 +139,6 @@ func toGCHeatSource(hs *oapi.HeatSource) *gc.HeatSource {
 	}
 }
 
-// toGCBurning はoapi.Burningからgc.Burningに変換する。あらかじめ火がついた prop を着火状態で生成する
-func toGCBurning(b *oapi.Burning) *gc.Burning {
-	if b == nil {
-		return nil
-	}
-	return &gc.Burning{
-		Remaining: consts.Turn(b.Remaining),
-	}
-}
-
 // materialHeatPerKg は材質のkgあたり燃焼熱量。ここに載らない材質は不燃で0とみなし燃料にならない。
 // 燃料熱量は重量kgへ掛けて導く。石炭・油が高く、食料・骨が低い。金属・石・ガラス・結晶・陶磁器・液体は不燃。
 // 係数は balance 値なので schema でなくここで持つ。地面効率50%で hardwood 3kg が約300ターン、
@@ -752,7 +742,6 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 	entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)
-	entitySpec.Burning = toGCBurning(propRaw.Burning)
 
 	if propRaw.Door != nil {
 		entitySpec.Door = &gc.Door{

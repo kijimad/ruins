@@ -507,7 +507,7 @@ func TestTemperatureSystem_Update_熱源のそばは体温の低下が緩む(t *
 		require.NoError(t, err)
 		if withBonfire {
 			// プレイヤーの隣に焚き火。raw の heatSource から熱源になる
-			_, err := lifecycle.SpawnProp(world, "bonfire", 6, 5)
+			_, err := lifecycle.SpawnProp(world, "fire", 6, 5)
 			require.NoError(t, err)
 		}
 		sys := &TemperatureSystem{}
@@ -541,9 +541,9 @@ func TestBodyTempRate_冷えた体は熱源のそばで温まる(t *testing.T) {
 	world.Components.HealthStatus.Get(player).BodyTempOffset = -3.0
 
 	// 環境の冷えを上回る暖かさになるよう焚き火を2つ隣接させる
-	_, err = lifecycle.SpawnProp(world, "bonfire", 6, 5)
+	_, err = lifecycle.SpawnProp(world, "fire", 6, 5)
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnProp(world, "bonfire", 4, 5)
+	_, err = lifecycle.SpawnProp(world, "fire", 4, 5)
 	require.NoError(t, err)
 
 	assert.Positive(t, bodyTempRate(world, player), "熱源の暖かさが冷えを上回れば体温が上昇する")
@@ -556,7 +556,7 @@ func TestBodyTempRate_平熱以上では熱源が効かない(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	_, err = lifecycle.SpawnProp(world, "bonfire", 6, 5)
+	_, err = lifecycle.SpawnProp(world, "fire", 6, 5)
 	require.NoError(t, err)
 
 	assert.Zero(t, bodyTempRate(world, player), "平熱の体は熱源で温まらない")

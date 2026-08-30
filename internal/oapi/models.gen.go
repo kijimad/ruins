@@ -930,15 +930,6 @@ type Book struct {
 	TotalEffort ReadingEffort `json:"totalEffort"`
 }
 
-// BurnRemaining 着火状態で最初に燃えている残量。毎ターン減り、0以下で鎮火する
-type BurnRemaining = int
-
-// Burning 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す
-type Burning struct {
-	// Remaining 着火状態で最初に燃えている残量。毎ターン減り、0以下で鎮火する
-	Remaining BurnRemaining `json:"remaining"`
-}
-
 // ColorChannel RGBA色チャネル値 (0-255)
 type ColorChannel = uint8
 
@@ -1616,9 +1607,6 @@ type Prop struct {
 
 	// BlockView 視線を遮るかどうか
 	BlockView BlocksView `json:"blockView"`
-
-	// Burning 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す
-	Burning *Burning `json:"burning,omitempty"`
 
 	// CubePanelTrigger 移動拠点キューブのコントロールパネルトリガー
 	CubePanelTrigger *CubePanelTriggerRaw `json:"cubePanelTrigger,omitempty"`

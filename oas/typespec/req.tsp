@@ -145,11 +145,6 @@ model HeatSource {
   warmth: HeatWarmth;
 }
 
-/** 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す */
-model Burning {
-  remaining: BurnRemaining;
-}
-
 /** 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す */
 model FireStarter {}
 
@@ -348,7 +343,6 @@ model Prop {
   hp?: HitPoints;
   lightSource?: LightSource;
   heatSource?: HeatSource;
-  burning?: Burning;
   door?: DoorRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;
