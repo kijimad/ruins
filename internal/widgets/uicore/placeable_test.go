@@ -18,7 +18,7 @@ func (d *recordDrawable) Draw(_ uicore.Canvas) { d.drawCount++ }
 
 func TestPlaceable_Widget実装はそのまま通す(t *testing.T) {
 	t.Parallel()
-	w := uicore.NewText("a", nil, nil)
+	w := label("a")
 	out := uicore.Placeable([]uicore.Drawable{w})
 
 	require.Len(t, out, 1)
