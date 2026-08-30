@@ -106,6 +106,10 @@ model Item {
   disassemblyTool?: DisassemblyTool;
   /** 携行光源。装備すると owner を照らす */
   lightSource?: LightSource;
+  /** 燃料。地面に置いて火をつけたり、火の収納へ入れて燃やせる */
+  fuel?: Fuel;
+  /** 火種。所持していると隣接の燃焼物に着火できる */
+  fireStarter?: FireStarter;
 }
 
 // ================== メンバー ==================
@@ -140,6 +144,19 @@ model HeatSource {
   radius: HeatRadius;
   warmth: HeatWarmth;
 }
+
+/** 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す */
+model Burning {
+  remaining: BurnRemaining;
+}
+
+/** 燃料設定。燃やせるアイテムに付ける。可燃性はこの有無で判定し、熱量を heatContent で持つ */
+model Fuel {
+  heatContent: HeatContent;
+}
+
+/** 火種設定。所持していると隣接タイルの燃焼物に火をつけられる再利用可能な道具を表す */
+model FireStarter {}
 
 /** 会話データ */
 model Dialog {
@@ -336,6 +353,7 @@ model Prop {
   hp?: HitPoints;
   lightSource?: LightSource;
   heatSource?: HeatSource;
+  burning?: Burning;
   door?: DoorRaw;
   warpNextTrigger?: WarpNextTriggerRaw;
   warpPrevTrigger?: WarpPrevTriggerRaw;

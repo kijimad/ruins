@@ -1,11 +1,14 @@
 [[items]]
-description = "A lit torch. Serves as both light and weapon."
+description = "A lit torch. Serves as light, weapon, and a way to set fuel alight."
 name = "Torch"
 id = "torch"
 spriteKey = "torch"
 spriteSheetName = "field"
 value = 15
 weight = "500 g"
+
+# 火種。松明で隣接タイルの燃焼物に火をつけられる。着火しても消費されない
+[items.fireStarter]
 
 [items.melee]
 accuracy = 90
@@ -7838,6 +7841,10 @@ spriteSheetName = "field"
 value = 10
 weight = "1 kg"
 
+# 燃料。地面に置いて着火したり火の収納で燃やせる。石炭はよく持つ
+[items.fuel]
+heatContent = 40
+
 [[items]]
 description = "A jar packed with fine sand, a material for clocks."
 name = "Jar of Sand"
@@ -7855,6 +7862,10 @@ spriteKey = "heavy_wood"
 spriteSheetName = "field"
 value = 30
 weight = "3 kg"
+
+# 燃料。建材にも薪にもなる。石炭より熱量は控えめ
+[items.fuel]
+heatContent = 30
 
 [[items]]
 description = "An energy core of plant origin."
@@ -13210,6 +13221,36 @@ r = 255
 [props.heatSource]
 radius = 2
 warmth = 0.75
+
+# あらかじめ火がついた集落の焚き火。プレイヤーの火と同じ仕組みで燃え、燃料が尽きれば消える
+[props.burning]
+remaining = 999
+
+# 燃料の収納。隣接して収納メニューを開き燃料を継げる
+[props.storage]
+maxWeight = "20 kg"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "地面に薪を組んで熾した焚き火。燃料を継がなければ燃え尽きる。暖を取れるが照らしはしない"
+hp = 10
+name = "Campfire"
+id = "campfire"
+
+[props.spriteRender]
+depth = 1
+spriteKey = "bonfire_0"
+spriteSheetName = "field"
+
+# 熱の profile は全ての火で共通の固定値。着火時に Burning を付けて暖房を有効にする
+[props.heatSource]
+radius = 2
+warmth = 0.75
+
+# 燃料の収納。ここへ地面の燃焼物を移し、隣接して燃料を継ぐ
+[props.storage]
+maxWeight = "20 kg"
 
 [[props]]
 blockPass = true

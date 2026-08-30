@@ -24,6 +24,18 @@ func (sys DeadCleanupSystem) String() string {
 	return "DeadCleanupSystem"
 }
 
+// spillDeadStorages は死亡エンティティの収納内アイテムをフィールドへ落とす。
+// 収納家具や焚き火が壊れても中身を孤児化させず、燃え残りの燃料などを地面から回収できるようにする
+func spillDeadStorages(world w.World, toDelete []ecs.Entity) {
+	for _, entity := range toDelete {
+		if !world.Components.WeightCapacity.Has(entity) || !world.Components.GridElement.Has(entity) {
+			continue
+		}
+		coord := world.Components.GridElement.Get(entity).Coord
+		lifecycle.SpillStorageItems(world, entity, coord.X, coord.Y)
+	}
+}
+
 // Update はDeadコンポーネントを持つ敵エンティティを削除する
 // w.Updater interfaceを実装
 func (sys *DeadCleanupSystem) Update(world w.World) error {
@@ -131,6 +143,8 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 		lifecycle.MoveMembersToField(world, items, coord, owner)
 	}
+
+	spillDeadStorages(world, toDelete)
 
 	// エンティティを削除する
 	for _, entity := range toDelete {

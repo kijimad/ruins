@@ -139,6 +139,26 @@ func toGCHeatSource(hs *oapi.HeatSource) *gc.HeatSource {
 	}
 }
 
+// toGCBurning はoapi.Burningからgc.Burningに変換する。あらかじめ火がついた prop を着火状態で生成する
+func toGCBurning(b *oapi.Burning) *gc.Burning {
+	if b == nil {
+		return nil
+	}
+	return &gc.Burning{
+		Remaining: b.Remaining,
+	}
+}
+
+// toGCFuel はoapi.Fuelからgc.Fuelに変換する。燃やせるアイテムに熱量を持たせる
+func toGCFuel(f *oapi.Fuel) *gc.Fuel {
+	if f == nil {
+		return nil
+	}
+	return &gc.Fuel{
+		HeatContent: f.HeatContent,
+	}
+}
+
 // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
 // enum値の妥当性はOpenAPIスキーマで検証済み
 func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.TargetType {
@@ -346,6 +366,14 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	// 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
 	entitySpec.LightSource = toGCLightSource(item.LightSource)
+
+	// 燃料。地面に置いて着火したり火の収納で燃やせる。可燃性はこの有無で判定する
+	entitySpec.Fuel = toGCFuel(item.Fuel)
+
+	// 火種。所持していると隣接の燃焼物に着火できる再利用可能な道具
+	if item.FireStarter != nil {
+		entitySpec.FireStarter = &gc.FireStarter{}
+	}
 
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
@@ -693,6 +721,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 	entitySpec.HeatSource = toGCHeatSource(propRaw.HeatSource)
+	entitySpec.Burning = toGCBurning(propRaw.Burning)
 
 	if propRaw.Door != nil {
 		entitySpec.Door = &gc.Door{

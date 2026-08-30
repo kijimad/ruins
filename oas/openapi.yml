@@ -1887,6 +1887,18 @@ components:
         skill:
           $ref: '#/components/schemas/SkillBook'
       description: 本の設定
+    BurnRemaining:
+      type: integer
+      minimum: 1
+      description: 着火状態で最初に燃えている残量。毎ターン減り、0以下で収納の次の燃料へ移り、無ければ鎮火する
+    Burning:
+      type: object
+      required:
+        - remaining
+      properties:
+        remaining:
+          $ref: '#/components/schemas/BurnRemaining'
+      description: 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す
     ColorChannel:
       type: integer
       format: uint8
@@ -2288,6 +2300,9 @@ components:
         ammoTag:
           $ref: '#/components/schemas/AmmoTag'
       description: 遠距離攻撃設定
+    FireStarter:
+      type: object
+      description: 火種設定。所持していると隣接タイルの燃焼物に火をつけられる再利用可能な道具を表す
     FoliageType:
       type: number
       enum:
@@ -2295,6 +2310,14 @@ components:
         - -1
         - -3
       description: 植生タイプ
+    Fuel:
+      type: object
+      required:
+        - heatContent
+      properties:
+        heatContent:
+          $ref: '#/components/schemas/HeatContent'
+      description: 燃料設定。燃やせるアイテムに付ける。可燃性はこの有無で判定し、熱量を heatContent で持つ
     HealAmount:
       type: integer
       minimum: 0
@@ -2313,6 +2336,10 @@ components:
         - ABSOLUTE
         - NUMERAL
       description: 回復量の計算方式
+    HeatContent:
+      type: integer
+      minimum: 1
+      description: 燃やしたときに火へ移す熱量。fireBurnPerTurn を単位に、1 が1ターンぶんの燃焼に相当する
     HeatRadius:
       type: integer
       minimum: 1
@@ -2418,6 +2445,14 @@ components:
           allOf:
             - $ref: '#/components/schemas/LightSource'
           description: 携行光源。装備すると owner を照らす
+        fuel:
+          allOf:
+            - $ref: '#/components/schemas/Fuel'
+          description: 燃料。地面に置いて火をつけたり、火の収納へ入れて燃やせる
+        fireStarter:
+          allOf:
+            - $ref: '#/components/schemas/FireStarter'
+          description: 火種。所持していると隣接の燃焼物に着火できる
       description: アイテム
     ItemCount:
       type: integer
@@ -2866,6 +2901,8 @@ components:
           $ref: '#/components/schemas/LightSource'
         heatSource:
           $ref: '#/components/schemas/HeatSource'
+        burning:
+          $ref: '#/components/schemas/Burning'
         door:
           $ref: '#/components/schemas/DoorRaw'
         warpNextTrigger:

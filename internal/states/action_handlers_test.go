@@ -8,8 +8,10 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -639,5 +641,83 @@ func TestGetSameTileManualActions(t *testing.T) {
 
 		actions := GetSameTileManualActions(world)
 		assert.Nil(t, actions)
+	})
+}
+
+// TestGetInteractionActions_着火 は、火種の所持と隣接の燃焼物を条件に着火アクションが
+// タイル単位で1つ出ること、足元や遠いタイルは対象外になることを確認する。
+func TestGetInteractionActions_着火(t *testing.T) {
+	t.Parallel()
+
+	// 火種の有無だけを見るため、初期装備の松明が付く SpawnPlayer は使わず素のプレイヤーを組む。
+	// 松明は火種を兼ねるので標準装備では常に着火できてしまい、火種なしの検証ができない
+	setup := func(t *testing.T) (w.World, ecs.Entity) {
+		t.Helper()
+		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		return world, player
+	}
+	addFieldFuel := func(world w.World, x, y consts.Tile, name string) {
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: name})
+		world.Components.Fuel.Add(e, &gc.Fuel{HeatContent: 10})
+		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
+	}
+	giveFireStarter := func(world w.World, player ecs.Entity) {
+		s := world.ECS.NewEntity()
+		world.Components.FireStarter.Add(s, &gc.FireStarter{})
+		world.Components.LocationInBackpack.Add(s, &gc.LocationInBackpack{Owner: player})
+	}
+	countIgnite := func(actions []InteractionAction) int {
+		n := 0
+		for _, a := range actions {
+			if a.Interaction == gc.InteractionIgnite {
+				n++
+			}
+		}
+		return n
+	}
+
+	t.Run("火種が無ければ着火は出ない", func(t *testing.T) {
+		t.Parallel()
+		world, _ := setup(t)
+		addFieldFuel(world, 6, 5, "wood")
+		assert.Equal(t, 0, countIgnite(GetInteractionActions(world)))
+	})
+
+	t.Run("火種を持ち隣接に燃料があれば着火が1つ出る", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFireStarter(world, player)
+		addFieldFuel(world, 6, 5, "wood")
+		assert.Equal(t, 1, countIgnite(GetInteractionActions(world)))
+	})
+
+	t.Run("同じタイルに複数の燃料があっても着火は1つに束ねる", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFireStarter(world, player)
+		addFieldFuel(world, 6, 5, "a_wood")
+		addFieldFuel(world, 6, 5, "b_wood")
+		assert.Equal(t, 1, countIgnite(GetInteractionActions(world)))
+	})
+
+	t.Run("足元の燃料は着火の対象にしない", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFireStarter(world, player)
+		addFieldFuel(world, 5, 5, "wood")
+		assert.Equal(t, 0, countIgnite(GetInteractionActions(world)))
+	})
+
+	t.Run("2タイル離れた燃料は隣接でないので着火は出ない", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFireStarter(world, player)
+		addFieldFuel(world, 7, 5, "wood")
+		assert.Equal(t, 0, countIgnite(GetInteractionActions(world)))
 	})
 }

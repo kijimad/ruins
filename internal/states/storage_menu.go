@@ -198,7 +198,16 @@ func (st *StorageMenuState) ViewUI(world w.World, props StorageProps, cursor men
 		labels[i] = tab.Label
 	}
 	content, pager := st.buildActiveListUI(world, props, cursor.TabIndex, cursor.ItemIndex, cursor.PageSize, res)
-	return menuframe.TabScreen(world, res, "", labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+	return menuframe.TabScreen(world, res, fireStatusHeader(world, st.storageEntity), labels, cursor.TabIndex, content, keybind.HelpHint(world), pager)
+}
+
+// fireStatusHeader は収納が燃えている火なら燃焼状態の一行を返す。火でなければ空文字にして通常の収納と同じ見た目にする。
+// 予想燃焼時間は今の残量と収納の燃料を効率で割り引いた合計から出す。専用UIを持たず収納メニューの状態行に集約する
+func fireStatusHeader(world w.World, entity ecs.Entity) string {
+	if !world.Components.Burning.Has(entity) {
+		return ""
+	}
+	return query.T(world, "Burning · about %d turns left", query.EstimateBurnTurns(world, entity))
 }
 
 // buildActiveListUI は行列とフッタ右端のページ表示を返す。

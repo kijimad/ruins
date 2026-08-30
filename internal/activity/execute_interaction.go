@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -54,6 +55,8 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executePortal(world, gc.OpenCubePanelEvent(), "control panel state change request error", "opened control panel")
 	case gc.InteractionAuction:
 		return executePortal(world, gc.OpenAuctionEvent(target), "auction menu state change request error", "opened shipping station")
+	case gc.InteractionIgnite:
+		return executeIgnite(target, world)
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす
@@ -125,6 +128,55 @@ func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 	}
 	gridElement := world.Components.GridElement.Get(actor)
 	return Execute(NewPickupTileActivity(world, gridElement.Coord), actor, world)
+}
+
+// executeIgnite は隣接タイルの燃焼物に火をつける。target はそのタイルにある燃料の代表。
+// タイルへ campfire を立て、タイル上の燃焼物をすべて火の収納へ移し、最上段から燃やし始める。
+// 足元でなく隣接タイルに火が立つのは、足元だと自分が燃えるため。火種の所持は呼び出し側が判定済み。
+func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
+	if !world.Components.GridElement.Has(target) {
+		return nil, fmt.Errorf("ignite target has no position")
+	}
+	coord := world.Components.GridElement.Get(target).Coord
+
+	fire, err := lifecycle.SpawnProp(world, "campfire", coord.X, coord.Y)
+	if err != nil {
+		return nil, fmt.Errorf("spawn campfire: %w", err)
+	}
+
+	// タイル上の燃焼物をすべて火の収納へ移す。以後は収納の上から順に燃える
+	moveFieldFuelToStorage(world, coord, fire)
+
+	// 着火する。Burning を付けてから最上段の燃料を燃やし始める
+	world.Components.Burning.Add(fire, &gc.Burning{})
+	if !lifecycle.LoadNextFuel(world, fire) {
+		// 収納へ移せる燃料が無かった。火にならないので後始末する。
+		// 呼び出し側が燃料のあるタイルだけを対象にするので通常は起きない
+		world.Components.Burning.Remove(fire)
+		world.ECS.RemoveEntity(fire)
+		return nil, fmt.Errorf("no fuel to ignite at tile")
+	}
+
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorIgnite, Message: "lit a fire"}, nil
+}
+
+// moveFieldFuelToStorage は指定タイルの地面にある燃焼物をすべて火の収納へ移す。
+// 走査中の構造変更を避けるため、先に集めてから移す。火自身は燃料でないので混ざらない
+func moveFieldFuelToStorage(world w.World, coord consts.Coord[consts.Tile], fire ecs.Entity) {
+	var fuels []ecs.Entity
+	q := ecs.NewFilter2[gc.Fuel, gc.LocationOnField](world.ECS).Query()
+	for q.Next() {
+		e := q.Entity()
+		if !world.Components.GridElement.Has(e) {
+			continue
+		}
+		if world.Components.GridElement.Get(e).Coord == coord {
+			fuels = append(fuels, e)
+		}
+	}
+	for _, f := range fuels {
+		_ = lifecycle.MoveToStorage(world, f, fire)
+	}
 }
 
 func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {

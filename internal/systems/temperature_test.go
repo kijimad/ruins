@@ -469,6 +469,8 @@ func TestHeatSourceWarmthAt_距離に応じて減衰し半径外は無視する(
 		e := world.ECS.NewEntity()
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 		world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: radius, Warmth: warmth})
+		// Burning を持つ熱源だけが暖房として数えられる
+		world.Components.Burning.Add(e, &gc.Burning{Remaining: 1})
 	}
 	addHeatSource(5, 5, 2, 0.6)
 	addHeatSource(20, 20, 1, 9.9) // 遠く、どの検証点からも圏外
@@ -488,6 +490,8 @@ func TestHeatSourceWarmthAt_複数の熱源を加算する(t *testing.T) {
 		e := world.ECS.NewEntity()
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
 		world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: radius, Warmth: warmth})
+		// Burning を持つ熱源だけが暖房として数えられる
+		world.Components.Burning.Add(e, &gc.Burning{Remaining: 1})
 	}
 	addHeatSource(5, 5, 1, 0.5)
 	addHeatSource(6, 6, 2, 0.3)

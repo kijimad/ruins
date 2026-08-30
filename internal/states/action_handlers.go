@@ -3,6 +3,8 @@ package states
 import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -56,7 +58,46 @@ func GetInteractionActions(world w.World) []InteractionAction {
 		}
 	}
 
-	return appendItemPickupActions(world, actions, itemEntities)
+	actions = appendItemPickupActions(world, actions, itemEntities)
+	return appendIgniteActions(world, playerEntity, gridElement, actions)
+}
+
+// appendIgniteActions は火種を持つとき、隣接タイルの燃焼物へ着火するアクションをタイルごとに1つ足す。
+// 足元は自分が燃えるため対象にしない。同じタイルに複数の燃料があっても着火は1タイル1回にまとめる。
+// 火種の道具は再利用できるので消費しない。
+func appendIgniteActions(world w.World, player ecs.Entity, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
+	if !query.HoldsFireStarter(world, player) {
+		return actions
+	}
+	// タイルごとに代表の燃料を1つ選ぶ。map の走査順に依存しないよう出現順を別に記録する
+	repByTile := map[consts.Coord[consts.Tile]]ecs.Entity{}
+	var order []consts.Coord[consts.Tile]
+	fuelQuery := query.ActiveFilter2[gc.Fuel, gc.LocationOnField](world).Query()
+	for fuelQuery.Next() {
+		entity := fuelQuery.Entity()
+		if !world.Components.GridElement.Has(entity) {
+			continue
+		}
+		coord := world.Components.GridElement.Get(entity).Coord
+		if !geometry.IsAdjacent(playerGrid.Coord, coord) {
+			continue
+		}
+		if _, seen := repByTile[coord]; !seen {
+			repByTile[coord] = entity
+			order = append(order, coord)
+		}
+	}
+	for _, coord := range order {
+		rep := repByTile[coord]
+		grid := world.Components.GridElement.Get(rep)
+		dirLabel := query.T(world, activity.GetDirectionLabel(playerGrid, grid))
+		actions = append(actions, InteractionAction{
+			Label:       query.T(world, "Light fire (%s)", dirLabel),
+			Target:      rep,
+			Interaction: gc.InteractionIgnite,
+		})
+	}
+	return actions
 }
 
 // GetSameTileManualActions はプレイヤー直上のManual発動アクションを全て取得する
@@ -253,6 +294,9 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		case gc.InteractionItemAll:
 			// アクションメニューに出さない種類。default を置かず exhaustive に全種別を
 			// 明示させ、新しい InteractionKind の対応漏れを lint で検知する
+		case gc.InteractionIgnite:
+			// 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で
+			// タイル単位に組む。ここには来ないが exhaustive のため case を明示する
 		}
 	}
 

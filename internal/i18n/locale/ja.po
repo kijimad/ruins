@@ -5735,3 +5735,27 @@ msgstr "ヘルプ"
 
 msgid "Key bindings"
 msgstr "キー一覧"
+
+msgid "Campfire"
+msgstr "焚き火"
+
+msgid "A lit torch. Serves as light, weapon, and a way to set fuel alight."
+msgstr "灯りにも武器にもなり、燃料に火をつけられる松明。"
+
+msgid "Light fire (%s)"
+msgstr "火をつける(%s)"
+
+msgid "Burning"
+msgstr "燃焼中"
+
+msgid "Burning · about %d turns left"
+msgstr "燃焼中 残り約%dターン"
+
+msgid "Fuel"
+msgstr "燃料"
+
+msgid "Heat"
+msgstr "熱量"
+
+msgid "Turns left"
+msgstr "残りターン"

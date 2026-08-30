@@ -38,6 +38,12 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 		rows = append(rows, attackerRows(world, fire)...)
 		rows = append(rows, fireAmmoRows(world, fire)...)
 	}
+	if world.Components.Burning.Has(entity) {
+		rows = append(rows, burningRows(world, entity)...)
+	}
+	if world.Components.Fuel.Has(entity) {
+		rows = append(rows, fuelRows(world, world.Components.Fuel.Get(entity))...)
+	}
 	if world.Components.Wearable.Has(entity) {
 		rows = append(rows, wearableRows(world, world.Components.Wearable.Get(entity))...)
 	}
@@ -100,6 +106,9 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 		rows = append(rows, attackerRows(world, spec.Fire)...)
 		rows = append(rows, fireAmmoRows(world, spec.Fire)...)
 	}
+	if spec.Fuel != nil {
+		rows = append(rows, fuelRows(world, spec.Fuel)...)
+	}
 	if spec.Wearable != nil {
 		rows = append(rows, wearableRows(world, spec.Wearable)...)
 	}
@@ -120,6 +129,22 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 		rows = append(rows, weightRows(world, spec.Weight)...)
 	}
 	return rows
+}
+
+// fuelRows は燃料の熱量を返す。燃やしたとき火へ移す熱量で、燃焼時間の目安になる。先頭は見出し
+func fuelRows(world w.World, fuel *gc.Fuel) []SpecRow {
+	return []SpecRow{
+		{Label: query.T(world, "Fuel"), Header: true},
+		{Label: query.T(world, "Heat"), Value: strconv.Itoa(fuel.HeatContent)},
+	}
+}
+
+// burningRows は燃えている火の予想残ターン数を返す。今の残量と収納の燃料を効率で割り引いた合計。先頭は見出し
+func burningRows(world w.World, entity ecs.Entity) []SpecRow {
+	return []SpecRow{
+		{Label: query.T(world, "Burning"), Header: true},
+		{Label: query.T(world, "Turns left"), Value: strconv.Itoa(query.EstimateBurnTurns(world, entity))},
+	}
 }
 
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し

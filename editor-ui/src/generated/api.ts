@@ -422,6 +422,15 @@ export interface Book {
     'skill'?: SkillBook;
 }
 /**
+ * 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す
+ */
+export interface Burning {
+    /**
+     * 着火状態で最初に燃えている残量。毎ターン減り、0以下で収納の次の燃料へ移り、無ければ鎮火する
+     */
+    'remaining': number;
+}
+/**
  * 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
  */
 
@@ -768,6 +777,15 @@ export type FoliageType = typeof FoliageType[keyof typeof FoliageType];
 
 
 /**
+ * 燃料設定。燃やせるアイテムに付ける。可燃性はこの有無で判定し、熱量を heatContent で持つ
+ */
+export interface Fuel {
+    /**
+     * 燃やしたときに火へ移す熱量。fireBurnPerTurn を単位に、1 が1ターンぶんの燃焼に相当する
+     */
+    'heatContent': number;
+}
+/**
  * 回復量の計算方式
  */
 
@@ -852,6 +870,14 @@ export interface Item {
      * 携行光源。装備すると owner を照らす
      */
     'lightSource'?: LightSource;
+    /**
+     * 燃料。地面に置いて火をつけたり、火の収納へ入れて燃やせる
+     */
+    'fuel'?: Fuel;
+    /**
+     * 火種。所持していると隣接の燃焼物に着火できる
+     */
+    'fireStarter'?: object;
 }
 /**
  * アイテムグループ。アイテムの出現セットを定義する
@@ -1213,6 +1239,7 @@ export interface Prop {
     'hp'?: number;
     'lightSource'?: LightSource;
     'heatSource'?: HeatSource;
+    'burning'?: Burning;
     /**
      * 扉ローデータ
      */

@@ -870,6 +870,15 @@ type Book struct {
 	TotalEffort ReadingEffort `json:"totalEffort"`
 }
 
+// BurnRemaining 着火状態で最初に燃えている残量。毎ターン減り、0以下で収納の次の燃料へ移り、無ければ鎮火する
+type BurnRemaining = int
+
+// Burning 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す
+type Burning struct {
+	// Remaining 着火状態で最初に燃えている残量。毎ターン減り、0以下で収納の次の燃料へ移り、無ければ鎮火する
+	Remaining BurnRemaining `json:"remaining"`
+}
+
 // ColorChannel RGBA色チャネル値 (0-255)
 type ColorChannel = uint8
 
@@ -1138,8 +1147,17 @@ type Fire struct {
 	TargetNum TargetNum `json:"targetNum"`
 }
 
+// FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる再利用可能な道具を表す
+type FireStarter = map[string]interface{}
+
 // FoliageType 植生タイプ
 type FoliageType float32
+
+// Fuel 燃料設定。燃やせるアイテムに付ける。可燃性はこの有無で判定し、熱量を heatContent で持つ
+type Fuel struct {
+	// HeatContent 燃やしたときに火へ移す熱量。fireBurnPerTurn を単位に、1 が1ターンぶんの燃焼に相当する
+	HeatContent HeatContent `json:"heatContent"`
+}
 
 // HealAmount 回復固定量
 type HealAmount = int
@@ -1149,6 +1167,9 @@ type HealRatio = float64
 
 // HealingValueType 回復量の計算方式
 type HealingValueType string
+
+// HeatContent 燃やしたときに火へ移す熱量。fireBurnPerTurn を単位に、1 が1ターンぶんの燃焼に相当する
+type HeatContent = int
 
 // HeatRadius 熱の到達半径。チェビシェフ距離、タイル単位
 type HeatRadius = int
@@ -1206,6 +1227,12 @@ type Item struct {
 
 	// Fire 遠距離攻撃設定
 	Fire *Fire `json:"fire,omitempty"`
+
+	// FireStarter 火種。所持していると隣接の燃焼物に着火できる
+	FireStarter *FireStarter `json:"fireStarter,omitempty"`
+
+	// Fuel 燃料。地面に置いて火をつけたり、火の収納へ入れて燃やせる
+	Fuel *Fuel `json:"fuel,omitempty"`
 
 	// Id エンティティの英語 id
 	Id EntityID `json:"id"`
@@ -1534,6 +1561,9 @@ type Prop struct {
 
 	// BlockView 視線を遮るかどうか
 	BlockView BlocksView `json:"blockView"`
+
+	// Burning 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す
+	Burning *Burning `json:"burning,omitempty"`
 
 	// CubePanelTrigger 移動拠点キューブのコントロールパネルトリガー
 	CubePanelTrigger *CubePanelTriggerRaw `json:"cubePanelTrigger,omitempty"`

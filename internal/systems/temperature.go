@@ -201,11 +201,12 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 }
 
 // heatSourceWarmthAt はタイル座標に届く全熱源の暖かさ合計を返す。
-// 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する
+// 各熱源はチェビシェフ距離に応じて線形に減衰し、半径外は効かない。複数の熱源は加算する。
+// Burning を持つ、すなわち今燃えている熱源だけを数える。火が消えたタイルは HeatSource を持っても暖房にならない
 func heatSourceWarmthAt(world w.World, x, y consts.Tile) float64 {
 	at := consts.Coord[consts.Tile]{X: x, Y: y}
 	var warmth float64
-	heatQuery := query.ActiveFilter2[gc.HeatSource, gc.GridElement](world).Query()
+	heatQuery := query.ActiveFilter3[gc.HeatSource, gc.GridElement, gc.Burning](world).Query()
 	for heatQuery.Next() {
 		entity := heatQuery.Entity()
 		src := world.Components.HeatSource.Get(entity)

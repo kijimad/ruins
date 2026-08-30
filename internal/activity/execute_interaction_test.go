@@ -10,6 +10,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,6 +34,55 @@ func TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せ
 	payload, ok := req.Payload.(gc.WarpDungeonEnter)
 	require.True(t, ok, "WarpDungeonEnter が要求される")
 	assert.Equal(t, "森", payload.DefinitionName, "進入先の遺跡名が要求に載る")
+}
+
+// TestExecuteInteraction_Ignite_隣接タイルの燃焼物を火の収納へ移し着火する は、着火が対象タイルの
+// 燃焼物をすべて火の収納へ移し、最上段を効率で割り引いて燃やし始めることを確認する。
+func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を火の収納へ移し着火する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
+	addFieldFuel := func(name string, heat int) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: name})
+		world.Components.Fuel.Add(e, &gc.Fuel{HeatContent: heat})
+		world.Components.GridElement.Add(e, &gc.GridElement{Coord: tile})
+		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
+		return e
+	}
+	// 名前順で "a_wood" が先に燃える。両方とも収納へ移る
+	first := addFieldFuel("a_wood", 10)
+	second := addFieldFuel("b_wood", 10)
+
+	// actor は executeIgnite では使わないが、相互作用の入口が要求するので渡す
+	actor := world.ECS.NewEntity()
+	res, err := ExecuteInteraction(actor, first, gc.InteractionIgnite, world)
+	require.NoError(t, err)
+	require.True(t, res.Success)
+
+	// 隣接タイルに火が立ち Burning と HeatSource を持つ
+	var fire ecs.Entity
+	found := false
+	fireQuery := query.ActiveFilter2[gc.Burning, gc.GridElement](world).Query()
+	for fireQuery.Next() {
+		if world.Components.GridElement.Get(fireQuery.Entity()).Coord == tile {
+			fire = fireQuery.Entity()
+			found = true
+		}
+	}
+	require.True(t, found, "隣接タイルに火が立つ")
+	assert.True(t, world.Components.HeatSource.Has(fire), "火は熱源を持つ")
+
+	// 最上段の a_wood が燃え始めて消費され、効率50%で 10*50/100 = 5 になる
+	assert.False(t, world.ECS.Alive(first), "燃やし始めた燃料は消費される")
+	assert.Equal(t, 5, world.Components.Burning.Get(fire).Remaining)
+
+	// b_wood は火の収納に残り、補充なしでも次に燃える
+	assert.True(t, world.ECS.Alive(second), "残りの燃料は収納に残る")
+	stored := query.GetStorageItems(world, fire)
+	require.Len(t, stored, 1)
+	assert.Equal(t, second, stored[0])
 }
 
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。
