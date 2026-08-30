@@ -1,9 +1,12 @@
 package systems
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -34,9 +37,16 @@ func (sys *FireSystem) Update(world w.World) error {
 		burning := world.Components.Burning.Get(fire)
 		burning.Remaining -= fireBurnPerTurn
 		if burning.Remaining <= 0 {
-			// 燃料が尽きた。暖房を切り、火のエンティティごと消す。Burning を外すと
-			// heatSourceWarmthAt が数えなくなり暖房が切れる。Dead にすると dead_cleanup が
-			// スプライトのフェードアウトを出して除去し、燃え尽きた火が残らない
+			// 燃料が尽きた。燃え尽きた跡へ灰を残してから、暖房を切り火のエンティティごと消す。
+			// 灰は火のあった座標へ落とすフィールドアイテムで、拾って素材に使える。
+			// Burning を外すと heatSourceWarmthAt が数えなくなり暖房が切れる。Dead にすると
+			// dead_cleanup がスプライトのフェードアウトを出して除去し、燃え尽きた火は残らない
+			if world.Components.GridElement.Has(fire) {
+				coord := world.Components.GridElement.Get(fire).Coord
+				if _, err := lifecycle.SpawnFieldItem(world, "ashes", coord.X, coord.Y, 1); err != nil {
+					return fmt.Errorf("spawn ashes: %w", err)
+				}
+			}
 			world.Components.Burning.Remove(fire)
 			if !world.Components.Dead.Has(fire) {
 				world.Components.Dead.Add(fire, &gc.Dead{})
