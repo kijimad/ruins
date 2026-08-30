@@ -40,6 +40,7 @@ require (
 	github.com/go-openapi/swag/jsonname v0.25.5 // indirect
 	github.com/goccy/go-json v0.10.6 // indirect
 	github.com/google/pprof v0.0.0-20211214055906-6f57359322fd // indirect
+	github.com/google/renameio/v2 v2.0.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
@@ -71,6 +72,8 @@ require (
 	golang.org/x/term v0.45.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
 	golang.org/x/vuln v1.6.0 // indirect
+	mvdan.cc/editorconfig v0.3.0 // indirect
+	mvdan.cc/sh/v3 v3.14.0 // indirect
 )
 
 tool (
@@ -79,4 +82,5 @@ tool (
 	golang.org/x/tools/cmd/deadcode
 	golang.org/x/tools/cmd/goimports
 	golang.org/x/vuln/cmd/govulncheck
+	mvdan.cc/sh/v3/cmd/shfmt
 )
