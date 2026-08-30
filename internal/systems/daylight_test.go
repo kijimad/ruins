@@ -42,6 +42,16 @@ func TestOverworldDaylightAnchor_昼夜の大小関係(t *testing.T) {
 		"昼は夜より明るい")
 	assert.Greater(t, overworldDaylightAnchor(gc.TimeNight), overworldDaylightAnchor(gc.TimeMidnight),
 		"夜は深夜より明るい")
+
+	// 薄暮の夕・夜明けは昼より暗く夜より明るい。逆転させる誤りを検知する
+	assert.Greater(t, overworldDaylightAnchor(gc.TimeDay), overworldDaylightAnchor(gc.TimeEvening),
+		"昼は夕より明るい")
+	assert.Greater(t, overworldDaylightAnchor(gc.TimeEvening), overworldDaylightAnchor(gc.TimeNight),
+		"夕は夜より明るい")
+	assert.Greater(t, overworldDaylightAnchor(gc.TimeMorning), overworldDaylightAnchor(gc.TimeDawn),
+		"朝は夜明けより明るい")
+	assert.Greater(t, overworldDaylightAnchor(gc.TimeDawn), overworldDaylightAnchor(gc.TimeMidnight),
+		"夜明けは深夜より明るい")
 }
 
 // TestOverworldAmbientColorAnchor は時間帯の中心での環境光の色を固定する。
@@ -74,6 +84,7 @@ func TestOverworldAmbientColor_連続補間(t *testing.T) {
 
 	// 夕の入り口(turn 250)は昼(無彩色)と夕の中間。まだ暖色寄りだが夕ほど濃くない
 	c := overworldAmbientColor(&gc.GameTime{TotalTurns: 250})
+	assert.InDelta(t, (1.0+1.0)/2, c[0], 1e-9, "赤は昼と夕の中間")
 	assert.InDelta(t, (1.0+0.72)/2, c[1], 1e-9, "緑は昼と夕の中間")
 	assert.Greater(t, c[2], 0.52, "夕の入り口は夕の中心より青が残り色が薄い")
 }

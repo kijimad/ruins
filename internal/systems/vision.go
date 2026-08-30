@@ -348,7 +348,8 @@ func overworldDaylightAnchor(t gc.TimeOfDay) float64 {
 func overworldDaylight(gt *gc.GameTime) float64 {
 	from, to, t := gt.GetDaylightLerp()
 	a := overworldDaylightAnchor(from)
-	return a + (overworldDaylightAnchor(to)-a)*t
+	b := overworldDaylightAnchor(to)
+	return a + (b-a)*t
 }
 
 // overworldAmbientColorAnchor は各時間帯の中心での地上の環境光の色。昼は無彩色、朝夕は暖色、夜は寒色。
