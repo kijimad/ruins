@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -151,7 +151,7 @@
 				
 				<option value="file47">github.com/kijimaD/ruins/internal/components/field.go (97.6%)</option>
 				
-				<option value="file48">github.com/kijimaD/ruins/internal/components/game_time.go (85.4%)</option>
+				<option value="file48">github.com/kijimaD/ruins/internal/components/game_time.go (70.7%)</option>
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/components/health_status.go (100.0%)</option>
 				
@@ -495,7 +495,7 @@
 				
 				<option value="file219">github.com/kijimaD/ruins/internal/states/demo_start.go (65.5%)</option>
 				
-				<option value="file220">github.com/kijimaD/ruins/internal/states/dungeon.go (76.4%)</option>
+				<option value="file220">github.com/kijimaD/ruins/internal/states/dungeon.go (81.9%)</option>
 				
 				<option value="file221">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
@@ -569,7 +569,7 @@
 				
 				<option value="file256">github.com/kijimaD/ruins/internal/systems/turn_system.go (91.0%)</option>
 				
-				<option value="file257">github.com/kijimaD/ruins/internal/systems/vision.go (69.9%)</option>
+				<option value="file257">github.com/kijimaD/ruins/internal/systems/vision.go (70.0%)</option>
 				
 				<option value="file258">github.com/kijimaD/ruins/internal/systems/visual_effect.go (14.8%)</option>
 				
@@ -683,7 +683,7 @@
 				
 				<option value="file313">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (75.0%)</option>
 				
-				<option value="file314">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (88.5%)</option>
+				<option value="file314">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (88.1%)</option>
 				
 				<option value="file315">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.4%)</option>
 				
@@ -1636,7 +1636,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1793,8 +1793,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -9517,6 +9517,23 @@ type GameTime struct {
 // GetTimeOfDay は現在の時間帯を返す
 func (gt *GameTime) GetTimeOfDay() TimeOfDay {
         <span class="cov8" title="1">return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)
+</span>}
+
+// numTimeOfDay は時間帯の区分数
+const numTimeOfDay = int(turnsPerDay / turnsPerTimeOfDay)
+
+// GetDaylightLerp は日照や色味を連続に補間するための、前後のアンカー時間帯とその間の位置 0..1 を返す。
+// 各時間帯を区間の中心にアンカーする。境界で段差にせず中心の代表値へなだらかに寄せるため。
+// 値表は systems 側が持ち、時間の割り出しだけをここに置く。時間帯の区切りに要る turnsPerDay と
+// turnsPerTimeOfDay が components にあるため。補間そのものは呼び出し側が行う。
+func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {
+        // 中心へアンカーするため半区間ずらす。turnsPerTimeOfDay=250 は偶数で端数は出ない
+        <span class="cov0" title="0">half := turnsPerTimeOfDay / 2
+</span>        // 中心より前は1つ前の区間へ回り込むので turnsPerDay を足して正へ寄せる
+        <span class="cov0" title="0">rel := (gt.TotalTurns%turnsPerDay - half + turnsPerDay) % turnsPerDay
+        idx := int(rel / turnsPerTimeOfDay)
+        t = float64(rel%turnsPerTimeOfDay) / float64(turnsPerTimeOfDay)
+        return TimeOfDay(idx), TimeOfDay((idx + 1) % numTimeOfDay), t
 </span>}
 
 // GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる
@@ -32909,8 +32926,6 @@ func (st *DemoStartState) Draw(_ w.World, screen *ebiten.Image) error {
 
 import (
         "fmt"
-        "image/color"
-        "sync"
 
         "github.com/hajimehoshi/ebiten/v2"
         gc "github.com/kijimaD/ruins/internal/components"
@@ -33178,74 +33193,10 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
         <span class="cov8" title="1">if err := st.three.draw(world, screen); err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        // 地上は時間帯の色フィルタを世界レイヤへ一様に掛ける。朝夕は暖色、夜は寒色へ寄せる。
-        // ダンジョンは地下で昼夜がないので掛けない
-        <span class="cov8" title="1">if query.IsOnOverworld(world) </span>{
-                <span class="cov8" title="1">applyTimeOfDayTint(screen, query.GetGameTime(world).GetTimeOfDay())
-</span>        }
-        // HUD レイヤは screen へ等倍で描く。色フィルタを避けて文字やバーの読みやすさを保つ
+        // 時間帯の色は vision の環境光として per-tile に効く。全画面フィルタは松明で照らした
+        // タイルまで暗くするので掛けない。HUD レイヤは screen へ等倍で描き読みやすさを保つ
         <span class="cov8" title="1">return drawRenderers(world, screen,
                 &amp;gs.HUDRenderingSystem{}, &amp;gs.VisualEffectSystem{})</span>
-}
-
-// blendMultiply は乗算合成。結果 = src.rgb × dst.rgb。時間帯の色を世界へ掛けるのに使う。
-// アルファは src をそのまま通す。screen は不透明なので実効には影響しない。
-var blendMultiply = ebiten.Blend{
-        BlendFactorSourceRGB:        ebiten.BlendFactorDestinationColor,
-        BlendFactorSourceAlpha:      ebiten.BlendFactorOne,
-        BlendFactorDestinationRGB:   ebiten.BlendFactorZero,
-        BlendFactorDestinationAlpha: ebiten.BlendFactorZero,
-        BlendOperationRGB:           ebiten.BlendOperationAdd,
-        BlendOperationAlpha:         ebiten.BlendOperationAdd,
-}
-
-var (
-        tintPixel     *ebiten.Image
-        tintPixelOnce sync.Once
-)
-
-// whiteTintPixel は色フィルタ用の白1px。全画面へ拡大し ColorScale で時間帯の色を掛ける。
-// 生成は初回だけ行い、並列描画やテストでのデータレースを防ぐ。
-func whiteTintPixel() *ebiten.Image {
-        <span class="cov0" title="0">tintPixelOnce.Do(func() </span>{
-                <span class="cov0" title="0">tintPixel = ebiten.NewImage(1, 1)
-                tintPixel.Fill(color.White)
-</span>        })
-        <span class="cov0" title="0">return tintPixel</span>
-}
-
-// applyTimeOfDayTint は時間帯の色を screen 全体へ乗算する。昼は白で素通しなので何もしない。
-func applyTimeOfDayTint(screen *ebiten.Image, t gc.TimeOfDay) {
-        <span class="cov8" title="1">r, g, b := timeOfDayTint(t)
-        if r == 1 &amp;&amp; g == 1 &amp;&amp; b == 1 </span>{
-                <span class="cov8" title="1">return
-</span>        }
-        <span class="cov0" title="0">bounds := screen.Bounds()
-        op := &amp;ebiten.DrawImageOptions{Blend: blendMultiply}
-        op.GeoM.Scale(float64(bounds.Dx()), float64(bounds.Dy()))
-        op.ColorScale.Scale(r, g, b, 1)
-        screen.DrawImage(whiteTintPixel(), op)</span>
-}
-
-// timeOfDayTint は時間帯を世界へ掛ける乗算色へ写す。昼は白で素通し、朝夕は暖色、夜は寒色。
-// 乗算なので各成分は 1 以下。小さいほど暗く色濃くなる。
-// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
-func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) {
-        <span class="cov8" title="1">switch t </span>{
-        case gc.TimeDawn:
-                <span class="cov8" title="1">return 1.0, 0.80, 0.72</span>
-        case gc.TimeMorning:
-                <span class="cov0" title="0">return 1.0, 0.96, 0.90</span>
-        case gc.TimeDay:
-                <span class="cov8" title="1">return 1.0, 1.0, 1.0</span>
-        case gc.TimeEvening:
-                <span class="cov8" title="1">return 1.0, 0.72, 0.52</span>
-        case gc.TimeNight:
-                <span class="cov8" title="1">return 0.55, 0.60, 0.85</span>
-        case gc.TimeMidnight:
-                <span class="cov8" title="1">return 0.42, 0.48, 0.78</span>
-        }
-        <span class="cov0" title="0">panic(fmt.Sprintf("unknown TimeOfDay: %d", t))</span>
 }
 
 // drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。
@@ -40334,18 +40285,19 @@ func logEnvironmentChange(world w.World) {
                         Log()
 </span>        }
 
-        // 知らせるのは日の出と日の入りだけにする。夜明け入りが日の出、夕入りが日の入りに当たる。
+        // 知らせるのは日の出と日の入りだけ。夜明け入りが日の出、夜入りが日の入り。
+        // 夕は太陽がまだ空にある薄暮なので、沈み切って夜になった瞬間を日の入りとする。
         <span class="cov8" title="1">if tod, changed := gt.TimeOfDayJustChanged(); changed </span>{
                 <span class="cov8" title="1">switch tod </span>{
                 case gc.TimeDawn:
                         <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                                 Markup(gamelog.Tag("system", query.T(world, "The sun rises."))).
                                 Log()</span>
-                case gc.TimeEvening:
+                case gc.TimeNight:
                         <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
                                 Markup(gamelog.Tag("system", query.T(world, "The sun sets."))).
                                 Log()</span>
-                default:<span class="cov0" title="0"></span>
+                default:<span class="cov8" title="1"></span>
                         // ほかの区分は日の出入りではないので出さない
                 }
         }
@@ -40551,9 +40503,13 @@ func (sys *VisionSystem) Update(world w.World) error {
         // マップ外座標はデータに含めない。
         // 環境光は屋内なら微小、地上なら時間帯の日照。昼の屋外は全体が明るく松明が要らず、
         // 地下や深夜は松明の届く範囲だけが見える
+        // 環境光は明るさと色を持つ。屋内は微小で無彩色、地上は時間帯の日照と色
         <span class="cov0" title="0">ambient := dungeonAmbient
+        ambientColor := [3]float64{1, 1, 1}
         if query.IsOnOverworld(world) </span>{
-                <span class="cov0" title="0">ambient = overworldDaylight(query.GetGameTime(world).GetTimeOfDay())
+                <span class="cov0" title="0">gt := query.GetGameTime(world)
+                ambient = overworldDaylight(gt)
+                ambientColor = overworldAmbientColor(gt)
 </span>        }
         <span class="cov0" title="0">visibleTiles := make(map[gc.GridElement]bool)
         for _, tileData := range visibilityData </span>{
@@ -40565,7 +40521,7 @@ func (sys *VisionSystem) Update(world w.World) error {
                         <span class="cov0" title="0">continue</span>
                 }
 
-                <span class="cov0" title="0">info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, ambient)
+                <span class="cov0" title="0">info := calculateLightSourceDarkness(world, consts.Coord[int]{X: tileData.Col, Y: tileData.Row}, blockViewIndex, ambient, ambientColor)
 </span>                // 明るさが閾値未満なら見えない。視界を光の届く範囲へ寄せる。
                 // 見えないタイルは記憶側へ回るので、暗所の敵やアイテムは自然に隠れる
                 <span class="cov0" title="0">if 1.0-info.Darkness &lt; visibilityThreshold </span>{
@@ -40781,18 +40737,18 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
         }
 }
 
-// overworldDaylight は地上の時間帯ごとの日照の明るさを返す。昼が最も明るく深夜が最も暗い。
+// overworldDaylightAnchor は各時間帯の中心での地上日照の明るさ。昼が最も明るく深夜が最も暗い。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
-func overworldDaylight(t gc.TimeOfDay) float64 {
+func overworldDaylightAnchor(t gc.TimeOfDay) float64 {
         <span class="cov8" title="1">switch t </span>{
         case gc.TimeDawn:
-                <span class="cov8" title="1">return 0.40</span>
+                <span class="cov8" title="1">return 0.55</span>
         case gc.TimeMorning:
                 <span class="cov8" title="1">return 0.72</span>
         case gc.TimeDay:
                 <span class="cov8" title="1">return 0.95</span>
         case gc.TimeEvening:
-                <span class="cov8" title="1">return 0.38</span>
+                <span class="cov8" title="1">return 0.55</span>
         case gc.TimeNight:
                 <span class="cov8" title="1">return 0.14</span>
         case gc.TimeMidnight:
@@ -40801,16 +40757,58 @@ func overworldDaylight(t gc.TimeOfDay) float64 {
         <span class="cov0" title="0">panic(fmt.Sprintf("unknown TimeOfDay: %d", t))</span>
 }
 
+// overworldDaylight は地上の日照の明るさを、隣接する時間帯の中心値の間を線形補間して連続に返す。
+// 段差だと夕へ入った瞬間に暗くなり夜のように見えるので、代表値をなだらかにつないで徐々に変える。
+func overworldDaylight(gt *gc.GameTime) float64 {
+        <span class="cov8" title="1">from, to, t := gt.GetDaylightLerp()
+        a := overworldDaylightAnchor(from)
+        b := overworldDaylightAnchor(to)
+        return a + (b-a)*t
+</span>}
+
+// overworldAmbientColorAnchor は各時間帯の中心での地上の環境光の色。昼は無彩色、朝夕は暖色、夜は寒色。
+// 明るさは overworldDaylight が持つので、ここは色味だけを表す。
+// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
+func overworldAmbientColorAnchor(t gc.TimeOfDay) [3]float64 {
+        <span class="cov8" title="1">switch t </span>{
+        case gc.TimeDawn:
+                <span class="cov8" title="1">return [3]float64{1.0, 0.80, 0.72}</span>
+        case gc.TimeMorning:
+                <span class="cov0" title="0">return [3]float64{1.0, 0.96, 0.90}</span>
+        case gc.TimeDay:
+                <span class="cov8" title="1">return [3]float64{1.0, 1.0, 1.0}</span>
+        case gc.TimeEvening:
+                <span class="cov8" title="1">return [3]float64{1.0, 0.72, 0.52}</span>
+        case gc.TimeNight:
+                <span class="cov8" title="1">return [3]float64{0.55, 0.60, 0.85}</span>
+        case gc.TimeMidnight:
+                <span class="cov8" title="1">return [3]float64{0.42, 0.48, 0.78}</span>
+        }
+        <span class="cov0" title="0">panic(fmt.Sprintf("unknown TimeOfDay: %d", t))</span>
+}
+
+// overworldAmbientColor は地上の環境光の色を、隣接する時間帯の中心色の間を線形補間して連続に返す。
+// 段差だと夕焼け色が一瞬で寒色の夜へ切り替わるので、代表色をなだらかにつないで徐々に変える。
+func overworldAmbientColor(gt *gc.GameTime) [3]float64 {
+        <span class="cov8" title="1">from, to, t := gt.GetDaylightLerp()
+        a := overworldAmbientColorAnchor(from)
+        b := overworldAmbientColorAnchor(to)
+        return [3]float64{a[0] + (b[0]-a[0])*t, a[1] + (b[1]-a[1])*t, a[2] + (b[2]-a[2])*t}
+</span>}
+
 // calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。
 // 各光源は逆二乗ベースで減衰し、半径の外縁で滑らかに0へ落ちる。複数光源は加算し、
 // 環境光 ambient を下駄として足す。壁で視線が遮られた光源は寄与しない。壁の裏へ光が漏れない。
 // 色は各光源の寄与で加重平均する。
-func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64) gc.LightInfo {
+func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {
         <span class="cov8" title="1">brightness := ambient
 </span>
-        // 色は光源の寄与で加重平均する
-        <span class="cov8" title="1">var totalR, totalG, totalB float64
-        var totalWeight float64
+        // 色は環境光と各光源の寄与で加重平均する。環境光を重み ambient の基底色として入れると、
+        // 無照明のタイルは環境光の色になり、松明の届くタイルは寄与の大きい松明色が勝つ。
+        <span class="cov8" title="1">totalR := ambientColor[0] * 255 * ambient
+        totalG := ambientColor[1] * 255 * ambient
+        totalB := ambientColor[2] * 255 * ambient
+        totalWeight := ambient
 </span>
         // 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない。
         // 火は燃え尽きると自分の LightSource を外すので照らさなくなる
@@ -47118,7 +47116,7 @@ var (
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() consts.Tile {
         <span class="cov8" title="1">if rand.IntN(2) == 0 </span>{
-                <span class="cov8" title="1">return 1
+                <span class="cov0" title="0">return 1
 </span>        }
         <span class="cov8" title="1">return -1</span>
 }
