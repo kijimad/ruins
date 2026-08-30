@@ -151,7 +151,7 @@
 				
 				<option value="file47">github.com/kijimaD/ruins/internal/components/field.go (97.6%)</option>
 				
-				<option value="file48">github.com/kijimaD/ruins/internal/components/game_time.go (82.1%)</option>
+				<option value="file48">github.com/kijimaD/ruins/internal/components/game_time.go (85.4%)</option>
 				
 				<option value="file49">github.com/kijimaD/ruins/internal/components/health_status.go (100.0%)</option>
 				
@@ -559,7 +559,7 @@
 				
 				<option value="file251">github.com/kijimaD/ruins/internal/systems/temperature.go (90.7%)</option>
 				
-				<option value="file252">github.com/kijimaD/ruins/internal/systems/turn_system.go (88.6%)</option>
+				<option value="file252">github.com/kijimaD/ruins/internal/systems/turn_system.go (90.2%)</option>
 				
 				<option value="file253">github.com/kijimaD/ruins/internal/systems/vision.go (69.9%)</option>
 				
@@ -9463,6 +9463,26 @@ func (gt *GameTime) GetSeason() Season {
         dayOfYear := (gt.GetDayNumber() - 1) % daysPerYear
         return Season(dayOfYear / daysPerSeason)
 </span>}
+
+// SeasonJustChanged は直前のターンから季節が変わったかを返す。Advance の直後に呼ぶ想定。
+func (gt *GameTime) SeasonJustChanged() bool {
+        <span class="cov8" title="1">if gt.TotalTurns == 0 </span>{
+                <span class="cov8" title="1">return false
+</span>        }
+        <span class="cov8" title="1">prev := GameTime{TotalTurns: gt.TotalTurns - 1}
+        return gt.GetSeason() != prev.GetSeason()</span>
+}
+
+// TimeOfDayJustChanged は現在の時間帯と、直前のターンから変わったかを返す。
+// 呼び出し側が入った先で日の出入りを見分けられるよう時間帯も返す。
+func (gt *GameTime) TimeOfDayJustChanged() (TimeOfDay, bool) {
+        <span class="cov8" title="1">cur := gt.GetTimeOfDay()
+        if gt.TotalTurns == 0 </span>{
+                <span class="cov8" title="1">return cur, false
+</span>        }
+        <span class="cov8" title="1">prev := GameTime{TotalTurns: gt.TotalTurns - 1}
+        return cur, prev.GetTimeOfDay() != cur</span>
+}
 
 // GetTemperatureModifier は時間帯による気温修正値を返す。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
@@ -39713,6 +39733,7 @@ import (
         "github.com/kijimaD/ruins/internal/aiinput"
         gc "github.com/kijimaD/ruins/internal/components"
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/gamelog"
         "github.com/kijimaD/ruins/internal/logger"
         w "github.com/kijimaD/ruins/internal/world"
 
@@ -39823,7 +39844,38 @@ func runEndPhase(world w.World, turnState *gc.TurnState) error {
 </span>        // ゲーム内時間を1ターン進める。昼夜・気温の時間修正がこれに依存する。
         // GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
         <span class="cov8" title="1">query.GetGameTime(world).Advance()
+</span>        // 季節や日の出入りが変わったらログへ出す
+        <span class="cov8" title="1">logEnvironmentChange(world)
         return nil</span>
+}
+
+// logEnvironmentChange は季節や日の出入りが変わったらゲームログへ出す。
+// 変化は現在ターンと直前ターンの導出値の差で判定するので、GameTime.Advance の直後に呼ぶ。
+func logEnvironmentChange(world w.World) {
+        <span class="cov8" title="1">gt := query.GetGameTime(world)
+</span>
+        <span class="cov8" title="1">if gt.SeasonJustChanged() </span>{
+                <span class="cov8" title="1">name := query.T(world, gt.GetSeason().String())
+                gamelog.New(query.GetGameLog(world)).
+                        Markup(gamelog.Tag("system", query.T(world, "The season changed to %s.", name))).
+                        Log()
+</span>        }
+
+        // 知らせるのは日の出と日の入りだけにする。夜明け入りが日の出、夕入りが日の入りに当たる。
+        <span class="cov8" title="1">if tod, changed := gt.TimeOfDayJustChanged(); changed </span>{
+                <span class="cov8" title="1">switch tod </span>{
+                case gc.TimeDawn:
+                        <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
+                                Markup(gamelog.Tag("system", query.T(world, "The sun rises."))).
+                                Log()</span>
+                case gc.TimeEvening:
+                        <span class="cov8" title="1">gamelog.New(query.GetGameLog(world)).
+                                Markup(gamelog.Tag("system", query.T(world, "The sun sets."))).
+                                Log()</span>
+                default:<span class="cov0" title="0"></span>
+                        // ほかの区分は日の出入りではないので出さない
+                }
+        }
 }
 
 // playerHasActivity はプレイヤーが継続アクティビティ中かを返す。

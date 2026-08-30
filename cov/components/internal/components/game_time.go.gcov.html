@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.7&nbsp;%</td>
-            <td class="headerCovTableEntry">43</td>
-            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntryMed">87.0&nbsp;%</td>
+            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntry">47</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-30 01:25:51</td>
+            <td class="headerValue">2026-08-30 08:35:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -180,47 +180,67 @@
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         return Season(dayOfYear / daysPerSeason)</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L120"><span class="lineNum">     120</span>              : </span>
-<span id="L121"><span class="lineNum">     121</span>              : // GetTemperatureModifier は時間帯による気温修正値を返す。</span>
-<span id="L122"><span class="lineNum">     122</span>              : // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。</span>
-<span id="L123"><span class="lineNum">     123</span>              : func (gt *GameTime) GetTemperatureModifier() int {</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         tod := gt.GetTimeOfDay()</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         switch tod {</span></span>
-<span id="L126"><span class="lineNum">     126</span>              :         case TimeDawn:</span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 return 0 // 夜明け: +0°C</span></span>
-<span id="L128"><span class="lineNum">     128</span>              :         case TimeMorning:</span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 return 5 // 朝: +5°C</span></span>
-<span id="L130"><span class="lineNum">     130</span>              :         case TimeDay:</span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 return 10 // 昼: +10°C</span></span>
-<span id="L132"><span class="lineNum">     132</span>              :         case TimeEvening:</span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 return 5 // 夕: +5°C</span></span>
-<span id="L134"><span class="lineNum">     134</span>              :         case TimeNight:</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 return -5 // 夜: -5°C</span></span>
-<span id="L136"><span class="lineNum">     136</span>              :         case TimeMidnight:</span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 return -10 // 深夜: -10°C</span></span>
-<span id="L138"><span class="lineNum">     138</span>              :         }</span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(fmt.Sprintf(&quot;unknown TimeOfDay: %d&quot;, tod))</span></span>
-<span id="L140"><span class="lineNum">     140</span>              : }</span>
-<span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span>              : // Advance はターンを進める</span>
-<span id="L143"><span class="lineNum">     143</span>              : func (gt *GameTime) Advance() {</span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC tlaBgGNC">           1 :         gt.TotalTurns++</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L146"><span class="lineNum">     146</span>              : </span>
-<span id="L147"><span class="lineNum">     147</span>              : // AdvanceToNextTimeOfDay は次の時間帯の開始ターンまで進める。</span>
-<span id="L148"><span class="lineNum">     148</span>              : // 現在のフェーズの残りターンを飛ばし、常にちょうど1つ次の時間帯にする。</span>
-<span id="L149"><span class="lineNum">     149</span>              : // 深夜からは翌日の夜明けへ折り返す。</span>
-<span id="L150"><span class="lineNum">     150</span>              : func (gt *GameTime) AdvanceToNextTimeOfDay() {</span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L153"><span class="lineNum">     153</span>              : </span>
-<span id="L154"><span class="lineNum">     154</span>              : // turnsPerSeason は1季節ぶんのターン数</span>
-<span id="L155"><span class="lineNum">     155</span>              : const turnsPerSeason consts.Turn = consts.Turn(daysPerYear/4) * turnsPerDay</span>
-<span id="L156"><span class="lineNum">     156</span>              : </span>
-<span id="L157"><span class="lineNum">     157</span>              : // AdvanceToNextSeason は次の季節の開始まで進める。季節による世界温度を切り替える。</span>
-<span id="L158"><span class="lineNum">     158</span>              : // 冬からは翌年の春へ折り返す</span>
-<span id="L159"><span class="lineNum">     159</span>              : func (gt *GameTime) AdvanceToNextSeason() {</span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         gt.TotalTurns = (gt.TotalTurns/turnsPerSeason + 1) * turnsPerSeason</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L121"><span class="lineNum">     121</span>              : // SeasonJustChanged は直前のターンから季節が変わったかを返す。Advance の直後に呼ぶ想定。</span>
+<span id="L122"><span class="lineNum">     122</span>              : func (gt *GameTime) SeasonJustChanged() bool {</span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         if gt.TotalTurns == 0 {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         prev := GameTime{TotalTurns: gt.TotalTurns - 1}</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         return gt.GetSeason() != prev.GetSeason()</span></span>
+<span id="L128"><span class="lineNum">     128</span>              : }</span>
+<span id="L129"><span class="lineNum">     129</span>              : </span>
+<span id="L130"><span class="lineNum">     130</span>              : // TimeOfDayJustChanged は現在の時間帯と、直前のターンから変わったかを返す。</span>
+<span id="L131"><span class="lineNum">     131</span>              : // 呼び出し側が入った先で日の出入りを見分けられるよう時間帯も返す。</span>
+<span id="L132"><span class="lineNum">     132</span>              : func (gt *GameTime) TimeOfDayJustChanged() (TimeOfDay, bool) {</span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :         cur := gt.GetTimeOfDay()</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         if gt.TotalTurns == 0 {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 return cur, false</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         prev := GameTime{TotalTurns: gt.TotalTurns - 1}</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         return cur, prev.GetTimeOfDay() != cur</span></span>
+<span id="L139"><span class="lineNum">     139</span>              : }</span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span>              : // GetTemperatureModifier は時間帯による気温修正値を返す。</span>
+<span id="L142"><span class="lineNum">     142</span>              : // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。</span>
+<span id="L143"><span class="lineNum">     143</span>              : func (gt *GameTime) GetTemperatureModifier() int {</span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         tod := gt.GetTimeOfDay()</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         switch tod {</span></span>
+<span id="L146"><span class="lineNum">     146</span>              :         case TimeDawn:</span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 return 0 // 夜明け: +0°C</span></span>
+<span id="L148"><span class="lineNum">     148</span>              :         case TimeMorning:</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 return 5 // 朝: +5°C</span></span>
+<span id="L150"><span class="lineNum">     150</span>              :         case TimeDay:</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 return 10 // 昼: +10°C</span></span>
+<span id="L152"><span class="lineNum">     152</span>              :         case TimeEvening:</span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 return 5 // 夕: +5°C</span></span>
+<span id="L154"><span class="lineNum">     154</span>              :         case TimeNight:</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 return -5 // 夜: -5°C</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :         case TimeMidnight:</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 return -10 // 深夜: -10°C</span></span>
+<span id="L158"><span class="lineNum">     158</span>              :         }</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC tlaBgUNC">           0 :         panic(fmt.Sprintf(&quot;unknown TimeOfDay: %d&quot;, tod))</span></span>
+<span id="L160"><span class="lineNum">     160</span>              : }</span>
+<span id="L161"><span class="lineNum">     161</span>              : </span>
+<span id="L162"><span class="lineNum">     162</span>              : // Advance はターンを進める</span>
+<span id="L163"><span class="lineNum">     163</span>              : func (gt *GameTime) Advance() {</span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC tlaBgGNC">           1 :         gt.TotalTurns++</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : </span>
+<span id="L167"><span class="lineNum">     167</span>              : // AdvanceToNextTimeOfDay は次の時間帯の開始ターンまで進める。</span>
+<span id="L168"><span class="lineNum">     168</span>              : // 現在のフェーズの残りターンを飛ばし、常にちょうど1つ次の時間帯にする。</span>
+<span id="L169"><span class="lineNum">     169</span>              : // 深夜からは翌日の夜明けへ折り返す。</span>
+<span id="L170"><span class="lineNum">     170</span>              : func (gt *GameTime) AdvanceToNextTimeOfDay() {</span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         gt.TotalTurns = (gt.TotalTurns/turnsPerTimeOfDay + 1) * turnsPerTimeOfDay</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L173"><span class="lineNum">     173</span>              : </span>
+<span id="L174"><span class="lineNum">     174</span>              : // turnsPerSeason は1季節ぶんのターン数</span>
+<span id="L175"><span class="lineNum">     175</span>              : const turnsPerSeason consts.Turn = consts.Turn(daysPerYear/4) * turnsPerDay</span>
+<span id="L176"><span class="lineNum">     176</span>              : </span>
+<span id="L177"><span class="lineNum">     177</span>              : // AdvanceToNextSeason は次の季節の開始まで進める。季節による世界温度を切り替える。</span>
+<span id="L178"><span class="lineNum">     178</span>              : // 冬からは翌年の春へ折り返す</span>
+<span id="L179"><span class="lineNum">     179</span>              : func (gt *GameTime) AdvanceToNextSeason() {</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         gt.TotalTurns = (gt.TotalTurns/turnsPerSeason + 1) * turnsPerSeason</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
