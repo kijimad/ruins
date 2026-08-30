@@ -8,7 +8,6 @@ cd "$PROJECT_DIR"
 
 # 未完了タスクがある設計ドキュメントを探す
 find_next_design_doc() {
-	# glob はシェルが辞書順に展開する。ls をパースするとファイル名の空白で壊れる
 	for doc in "$DESIGN_DIR"/*.md; do
 		[ -f "$doc" ] || continue
 		if grep -q '^\- \[ \]' "$doc"; then

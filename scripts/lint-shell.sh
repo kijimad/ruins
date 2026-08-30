@@ -4,16 +4,14 @@ set -eu
 ##################################
 # シェルスクリプトをshellcheckで検査するスクリプト
 #
-# 対象はgitの追跡ファイルをshfmt -fに通して選別する。shebangで判別するので拡張子なしの
-# hooksも拾え、未追跡のCataclysm-DDAやnode_modulesは外れる。shfmt自身は.gitignoreを
-# 読まないので、ディレクトリを直接歩かせるとそれらを巻き込む
+# 対象はgit経由で集める。shfmtは.gitignoreを読まないため、ディレクトリを直接歩かせると
+# Cataclysm-DDAやnode_modulesを巻き込む。shfmt -fはshebangで判別するので拡張子なしも拾う
 ##################################
 
 cd "$(dirname "$0")"
 cd ../
 
-# go installに乗らない配布バイナリなので.cache/binに置き、明示パスで呼ぶ。
-# PATHを見ないので、システムに別版が入っていても横取りされない
+# 明示パスで呼ぶ。PATH上の別版に横取りされず、固定した版がそのまま効く
 SHELLCHECK=.cache/bin/shellcheck
 if [ ! -x "$SHELLCHECK" ]; then
 	echo "❌ $SHELLCHECK が無い。make toolsinstall を実行する" >&2

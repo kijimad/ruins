@@ -23,7 +23,7 @@ cd ../
 
 # ================
 
-# tarball から展開したソースなど、リポジトリ外でビルドするときは既定値のまま進める
+# リポジトリ外ではgitが失敗するので、既定値のまま進める
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 	APP_VERSION=$(git describe --tag --abbrev=0)
 	APP_COMMIT=$(git rev-parse --short HEAD)
