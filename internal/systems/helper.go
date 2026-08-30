@@ -37,6 +37,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	healthRegenSystem := &HealthRegenSystem{}
 	updaters[healthRegenSystem.String()] = healthRegenSystem
 
+	conditionSystem := &ConditionSystem{}
+	updaters[conditionSystem.String()] = conditionSystem
+
 	fireSystem := &FireSystem{}
 	updaters[fireSystem.String()] = fireSystem
 

@@ -1,5 +1,7 @@
 package components
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // Severity は状態の重症度
 type Severity int
 
@@ -71,7 +73,10 @@ type ConditionType string
 
 // 状態種類定数
 const (
-	ConditionHypothermia ConditionType = "Hypothermia" // 低体温
+	ConditionHypothermia  ConditionType = "Hypothermia"  // 低体温
+	ConditionFracture     ConditionType = "Fracture"     // 骨折
+	ConditionLaceration   ConditionType = "Laceration"   // 切り傷
+	ConditionLiverIllness ConditionType = "LiverIllness" // 肝疾患
 )
 
 // ConditionTypeDisplayName は状態種類の表示名を返す
@@ -79,6 +84,12 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 	switch ct {
 	case ConditionHypothermia:
 		return "Hypothermia"
+	case ConditionFracture:
+		return "Fracture"
+	case ConditionLaceration:
+		return "Laceration"
+	case ConditionLiverIllness:
+		return "Liver illness"
 	default:
 		return string(ct)
 	}
@@ -90,6 +101,9 @@ type HealthCondition struct {
 	Severity Severity      // 重症度
 	Timer    float64       // 進行度タイマー (0-100)
 	Effects  []StatEffect  // この状態による影響
+	// TendQuality は治療の質。0 なら未治療、正なら治療済みで 100 が標準、150 なら回復1.5倍。
+	// 適した薬の Potency が入り、回復速度を左右する
+	TendQuality consts.Percent
 }
 
 // DisplayName は状態の表示名を返す

@@ -218,6 +218,7 @@ func runTurnEndSystems(world w.World) error {
 		&AutoInteractionSystem{},
 		&TemperatureSystem{},
 		&HealthRegenSystem{},
+		&ConditionSystem{},
 		&FireSystem{},
 		&DeadCleanupSystem{},
 	} {

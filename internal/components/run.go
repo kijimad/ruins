@@ -7,6 +7,8 @@ import "github.com/kijimaD/ruins/internal/consts"
 const (
 	// CauseFrozen は低体温で凍死したときの死因
 	CauseFrozen = "frozen"
+	// CauseIllness は病気で死んだときの死因
+	CauseIllness = "illness"
 )
 
 // RunStats は run を通じて貯める統計を保持するシングルトン。run 中ずっと存在し serde 保存する。
