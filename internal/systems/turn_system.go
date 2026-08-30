@@ -115,7 +115,7 @@ func runEndPhase(world w.World, turnState *gc.TurnState) error {
 	// ゲーム内時間を1ターン進める。昼夜・気温の時間修正がこれに依存する。
 	// GameTime は Dungeon 内で永続なのでセーブ/ロードでも一貫する
 	query.GetGameTime(world).Advance()
-	// 季節や日の出入りが変わったらログへ出す。直前ターンとの差で判定するので Advance の後に呼ぶ
+	// 季節や日の出入りが変わったらログへ出す
 	logEnvironmentChange(world)
 	return nil
 }

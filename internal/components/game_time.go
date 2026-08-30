@@ -119,7 +119,6 @@ func (gt *GameTime) GetSeason() Season {
 }
 
 // SeasonJustChanged は直前のターンから季節が変わったかを返す。Advance の直後に呼ぶ想定。
-// 季節は TotalTurns から導くので、現在と1つ前の導出値を比べれば判定でき、前回値を保持する状態はいらない。
 func (gt *GameTime) SeasonJustChanged() bool {
 	if gt.TotalTurns == 0 {
 		return false
@@ -128,8 +127,8 @@ func (gt *GameTime) SeasonJustChanged() bool {
 	return gt.GetSeason() != prev.GetSeason()
 }
 
-// TimeOfDayJustChanged は現在の時間帯と、直前のターンから時間帯が変わったかを返す。
-// どの時間帯へ入ったかで日の出入りを見分けられるよう、変わった先の時間帯も返す。
+// TimeOfDayJustChanged は現在の時間帯と、直前のターンから変わったかを返す。
+// 呼び出し側が入った先で日の出入りを見分けられるよう時間帯も返す。
 func (gt *GameTime) TimeOfDayJustChanged() (TimeOfDay, bool) {
 	cur := gt.GetTimeOfDay()
 	if gt.TotalTurns == 0 {
