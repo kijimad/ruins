@@ -86,7 +86,7 @@ func (st *FeedFuelMenuState) DoAction(world w.World, action inputmapper.ActionID
 
 // Fetch は世界から表示 props を構築する
 func (st *FeedFuelMenuState) Fetch(world w.World) (FeedFuelProps, error) {
-	title := query.T(world, "Burning, %d turns left", query.EstimateBurnTurns(world, st.fire))
+	title := query.T(world, "Burning, %s left", query.FormatTurns(query.EstimateBurnTurns(world, st.fire)))
 	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return FeedFuelProps{Title: title}, err
