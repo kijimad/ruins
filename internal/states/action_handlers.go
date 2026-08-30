@@ -60,13 +60,13 @@ func GetInteractionActions(world w.World) []InteractionAction {
 
 	actions = appendItemPickupActions(world, actions, itemEntities)
 	actions = appendIgniteActions(world, playerEntity, gridElement, actions)
-	return appendFeedFuelActions(world, playerEntity, gridElement, actions)
+	return appendFeedFuelActions(world, gridElement, actions)
 }
 
-// appendFeedFuelActions は隣接の燃えている火へ給油するアクションを足す。
-// 燃料の有無に関わらず出し、火の残ターン数を確認しつつ持っていればくべられるようにする。
-// 火でないタイルや燃えていない火には出さない。player は将来の火種条件などに備えて受ける
-func appendFeedFuelActions(world w.World, _ ecs.Entity, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
+// appendFeedFuelActions は隣接する、燃えている火へ給油するアクションを足す。
+// 対象は Burning を持つ火だけ。着火した火は必ず Burning を持つので、これが火であることの判定を兼ねる。
+// 燃料の有無に関わらず出し、残ターン数を確認しつつ、燃料を持っていればくべられるようにする。
+func appendFeedFuelActions(world w.World, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
 	fireQuery := query.ActiveFilter2[gc.Burning, gc.GridElement](world).Query()
 	for fireQuery.Next() {
 		fire := fireQuery.Entity()
