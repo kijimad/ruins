@@ -41913,7 +41913,7 @@ const (
         TempDirectionDown TempDirection = "down"
 )
 
-// TemperatureArrow は体温の変化方向を示す矢印。HP バーの左に出す。
+// TemperatureArrow は体温の変化方向を示す矢印。体温ゲージの左に出す。
 // 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ
 type TemperatureArrow struct {
         Visible   bool
@@ -41959,11 +41959,11 @@ func (info *GameInfo) Draw(cv uicore.Canvas, data GameInfoData) {
 
         <span class="cov8" title="1">info.drawTemperatureArrow(cv, data.TempArrow)
 </span>
-        // HP情報
-        <span class="cov8" title="1">info.drawHealthBar(cv, data.PlayerHP, data.PlayerMaxHP)
-</span>
-        // 体温数値
+        // 体温ゲージ。矢印の隣となる最上段
         <span class="cov8" title="1">info.drawBodyTemperature(cv, data)
+</span>
+        // HPゲージ。体温ゲージの下段
+        <span class="cov8" title="1">info.drawHealthBar(cv, data.PlayerHP, data.PlayerMaxHP)
 </span>
         // 所持重量表示（右下）
         <span class="cov8" title="1">info.drawWeightDisplay(cv, data)
@@ -41995,7 +41995,7 @@ const (
         gaugeSpacing    = 4.0                            // ゲージ間の間隔
 )
 
-// drawTemperatureArrow は体温変化の矢印を HP バーの左に描く。
+// drawTemperatureArrow は体温変化の矢印を体温ゲージの左に描く。
 // 温まると上向き、冷えると下向き、一定は右向き。
 //
 // 三角形を組むのでなくアイコンフォントの字で描く。キーキャップの記号と同じ出どころにすれば、
@@ -42015,21 +42015,19 @@ func (info *GameInfo) drawTemperatureArrow(cv uicore.Canvas, arrow TemperatureAr
                 <span class="cov0" title="0">glyph = consts.IconArrowRight</span>
         }
 
-        // HP ゲージの縦中心にそろえる
+        // 体温ゲージの縦中心にそろえる
         <span class="cov0" title="0">_, gh := uicore.MeasureText(glyph, info.bodyFace)
         y := int(gaugeBaseY+gaugeHeight/2) - gh/2
         drawOutlinedText(cv, glyph, info.bodyFace, image.Pt(int(gaugeBaseX), y), arrow.Color)</span>
 }
 
-// drawHealthBar はプレイヤーの体力ゲージを描画する
-
-// drawBodyTemperature は体温ゲージを HP ゲージの下に描く。中央が平熱で、左へ冷え、右へ火照る
+// drawBodyTemperature は体温ゲージを最上段に描く。中央が平熱で、左へ冷え、右へ火照る
 func (info *GameInfo) drawBodyTemperature(cv uicore.Canvas, data GameInfoData) {
         <span class="cov8" title="1">if !data.BodyTempVisible </span>{
                 <span class="cov0" title="0">return
 </span>        }
         <span class="cov8" title="1">x := gaugeBaseX + tempArrowSlotW
-        y := gaugeBaseY + gaugeHeight + gaugeSpacing
+        y := gaugeBaseY
         info.drawGaugeBar(cv, x, y, gaugeWidth, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio), theme.HUDGaugeBorder)</span>
 }
 
@@ -42047,10 +42045,11 @@ func lerpColor(a, b color.RGBA, t float64) color.RGBA {
         <span class="cov8" title="1">return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}</span>
 }
 
+// drawHealthBar はプレイヤーの体力ゲージを描画する
 func (info *GameInfo) drawHealthBar(cv uicore.Canvas, currentHP, maxHP int) {
         // 矢印スロットぶん右へ寄せる
         <span class="cov8" title="1">x := gaugeBaseX + tempArrowSlotW
-        y := gaugeBaseY
+        y := gaugeBaseY + gaugeHeight + gaugeSpacing
 </span>
         // HP比率を計算
         <span class="cov8" title="1">hpRatio := float64(0)
