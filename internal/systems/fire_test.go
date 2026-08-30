@@ -37,9 +37,9 @@ func TestFireSystem_Update(t *testing.T) {
 		fire := world.ECS.NewEntity()
 		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 1})
 
-		// 残量1が0になり Burning が外れ、火のエンティティは Dead になって除去される
+		// 残量1が0になり火は Dead になる。turn-end の dead_cleanup が Burning ごとエンティティを除去する
 		require.NoError(t, sys.Update(world))
-		assert.False(t, world.Components.Burning.Has(fire), "残量が尽きれば鎮火する")
+		assert.Equal(t, consts.Turn(0), world.Components.Burning.Get(fire).Remaining, "残量が尽きる")
 		assert.True(t, world.Components.Dead.Has(fire), "燃え尽きた火は Dead になり dead_cleanup が消す")
 	})
 
@@ -99,10 +99,10 @@ func TestFireSystem_Update(t *testing.T) {
 
 		for range 2 {
 			require.NoError(t, sys.Update(world))
-			assert.True(t, world.Components.Burning.Has(fire))
+			assert.False(t, world.Components.Dead.Has(fire), "まだ燃えている")
 		}
-		// 3ターン目で残量0になり鎮火する
+		// 3ターン目で残量0になり Dead になる
 		require.NoError(t, sys.Update(world))
-		assert.False(t, world.Components.Burning.Has(fire))
+		assert.True(t, world.Components.Dead.Has(fire), "燃え尽きて Dead になる")
 	})
 }
