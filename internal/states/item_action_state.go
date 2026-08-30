@@ -17,7 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -398,7 +398,7 @@ func (st *ItemActionState) Menu(props ItemActionProps) menuloop.MenuConfig {
 }
 
 // ViewUI は動詞タブとアイコン付きアイテム一覧を組む。
-func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		if tab.Key != "" {
@@ -412,7 +412,7 @@ func (st *ItemActionState) ViewUI(world w.World, props ItemActionProps, cursor m
 }
 
 // buildItemListUI は行列とフッタ右端のページ表示を返す。
-func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
+func (st *ItemActionState) buildItemListUI(world w.World, props ItemActionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]uicore.Drawable, string) {
 	if tabIndex >= len(props.Tabs) {
 		return nil, ""
 	}

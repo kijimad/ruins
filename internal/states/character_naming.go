@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -35,7 +35,7 @@ const (
 type CharacterNamingState struct {
 	es.BaseState[w.World]
 	mount *hooks.Mount[namingProps]
-	body  ui.Widget
+	body  uicore.Drawable
 }
 
 // NewCharacterNamingState は名付けステートのファクトリを返す
@@ -142,7 +142,7 @@ func readTextInput(current string) (string, bool) {
 func (st *CharacterNamingState) Draw(_ w.World, screen *ebiten.Image) error {
 	screen.Fill(theme.ScreenBackground)
 	if st.body != nil {
-		st.body.Draw(ui.NewEbitenCanvas(screen))
+		st.body.Draw(uicore.NewEbitenCanvas(screen))
 	}
 	return nil
 }
@@ -229,19 +229,19 @@ func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {
 // buildUI
 // ================
 
-// buildUI は名前入力画面を internal/uicore のツリーとして組む。
+// buildUI は名前入力画面を uicore のツリーとして組む。
 // タイトル・入力枠・エラー・ヒントを画面中央へ縦に並べる。入力枠には現在名とキャレットを描く
-func (st *CharacterNamingState) buildUI(world w.World) ui.Widget {
+func (st *CharacterNamingState) buildUI(world w.World) uicore.Drawable {
 	res := world.Resources.UIResources
 	props := st.mount.GetProps()
 
 	// 入力枠の中身。空なら placeholder を薄色で、入力中は名前にキャレットを添える。
 	// 縦位置は VCenter で入力枠の中央へ合わせる
-	var content *ui.Text
+	var content *uicore.Text
 	if props.CurrentName == "" {
-		content = ui.NewText(query.T(world, "Name"), res.Text.BodyFace, theme.TextSecondary)
+		content = uicore.NewText(query.T(world, "Name"), res.Text.BodyFace, theme.TextSecondary)
 	} else {
-		content = ui.NewText(props.CurrentName+"|", res.Text.BodyFace, theme.TextPrimary)
+		content = uicore.NewText(props.CurrentName+"|", res.Text.BodyFace, theme.TextPrimary)
 	}
 	content.VCenter = true
 

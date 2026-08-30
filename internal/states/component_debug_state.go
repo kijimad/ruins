@@ -13,7 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -118,7 +118,7 @@ func (st *ComponentDebugState) Menu(props ComponentDebugProps) menuloop.MenuConf
 // ================
 
 // ViewUI はコンポーネント数の2列表をタブ帯なしのモーダルに組む。
-func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	cols := styled.Cols(styled.Name(), styled.Num())
 	rows := make([]menuframe.Row, len(props.Items))
 	for i, it := range props.Items {

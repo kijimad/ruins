@@ -10,7 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // 詳細モーダルの部品カタログ。固定入力で実描画し、見た目を部品の粒度で golden に固定する。

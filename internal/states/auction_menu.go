@@ -19,7 +19,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -313,7 +313,7 @@ func (st *AuctionMenuState) selectedItem(tab auctionTabData, index int) (ecs.Ent
 }
 
 // ViewUI はオークションの各タブを組む。
-func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
@@ -324,7 +324,7 @@ func (st *AuctionMenuState) ViewUI(world w.World, props AuctionProps, cursor men
 
 // buildActiveUI はタブ種別で中身を振り分け、行列と
 // フッタ右端のページ表示を返す。
-func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]ui.Widget, string) {
+func (st *AuctionMenuState) buildActiveUI(world w.World, props AuctionProps, tabIndex, itemIndex, perPage int, res resources.UIResources) ([]uicore.Drawable, string) {
 	if tabIndex >= len(props.Tabs) {
 		return nil, ""
 	}

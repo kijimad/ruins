@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -112,7 +112,7 @@ func (st *FeedFuelMenuState) Menu(props FeedFuelProps) menuloop.MenuConfig {
 
 // ViewUI は燃料一覧を収納やインベントリと同じ item-row 形式で組む。
 // アイコン・名前の共通先頭に、右寄せの追加ターン数列を足す
-func (st *FeedFuelMenuState) ViewUI(world w.World, props FeedFuelProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *FeedFuelMenuState) ViewUI(world w.World, props FeedFuelProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	cols := itemMenuColumns(styled.Num())
 	rows := make([]menuframe.Row, len(props.Rows))
 	for i, r := range props.Rows {

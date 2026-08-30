@@ -14,7 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/vrt"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // TestMain はebitenの描画コンテキスト内で全テストを実行する。

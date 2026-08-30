@@ -10,7 +10,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/render3d"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -139,7 +139,7 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 	buf := ebiten.NewImage(screenW, screenH)
 
 	// テキストサイズを測定して中央揃え
-	textWidth, textHeight := ui.MeasureText(effect.Text, effect.Face)
+	textWidth, textHeight := uicore.MeasureText(effect.Text, effect.Face)
 	x := effect.Offset.X - float64(textWidth)/2
 	y := effect.Offset.Y - float64(textHeight)/2
 
@@ -167,7 +167,7 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 		text.Draw(buf, effect.Text, effect.Face, shadowOp)
 	}
 
-	hud.OutlinedText(ui.NewEbitenCanvas(buf), effect.Text, effect.Face, image.Pt(int(x), int(y)), textColor, outlineColor)
+	hud.OutlinedText(uicore.NewEbitenCanvas(buf), effect.Text, effect.Face, image.Pt(int(x), int(y)), textColor, outlineColor)
 
 	if effect.LineWidth > 0 {
 		lineY := y + float64(textHeight) + 2
@@ -193,7 +193,7 @@ func (sys *VisualEffectSystem) drawDamageText(screen *ebiten.Image, projector re
 	screenY := float64(anchor.Y) + effect.Offset.Y
 
 	// テキストサイズを測定して中央揃え
-	textWidth := ui.MeasureTextWidth(effect.Text, face)
+	textWidth := uicore.MeasureTextWidth(effect.Text, face)
 	x := screenX - float64(textWidth)/2
 	y := screenY
 
@@ -203,7 +203,7 @@ func (sys *VisualEffectSystem) drawDamageText(screen *ebiten.Image, projector re
 	outlineColor := color.RGBA{0, 0, 0, alpha}
 
 	// アウトライン付きテキストを描画
-	hud.OutlinedText(ui.NewEbitenCanvas(screen), effect.Text, face, image.Pt(int(x), int(y)), textColor, outlineColor)
+	hud.OutlinedText(uicore.NewEbitenCanvas(screen), effect.Text, face, image.Pt(int(x), int(y)), textColor, outlineColor)
 }
 
 // drawHorizontalLine は両端がグラデーションで透明になる水平線を描画する

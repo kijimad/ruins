@@ -1,4 +1,4 @@
-package gamelog
+package lintrule_test
 
 import (
 	"go/ast"
@@ -20,7 +20,7 @@ import (
 // Markup は gamelog.Logger 固有のメソッド名なので、型情報なしの構文一致で拾える。
 func TestNoAdjacentMarkup(t *testing.T) {
 	t.Parallel()
-	root := moduleRootForLint(t)
+	root := moduleRoot(t)
 	fset := token.NewFileSet()
 	var found []string
 
@@ -73,19 +73,4 @@ func markupSelector(c *ast.CallExpr) (*ast.SelectorExpr, bool) {
 		return nil, false
 	}
 	return sel, true
-}
-
-// moduleRootForLint は go.mod を上位へ辿ってリポジトリルートを返す。
-func moduleRootForLint(t *testing.T) string {
-	t.Helper()
-	dir, err := os.Getwd()
-	require.NoError(t, err)
-	for {
-		if _, statErr := os.Stat(filepath.Join(dir, "go.mod")); statErr == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		require.NotEqual(t, parent, dir, "go.mod が見つからない")
-		dir = parent
-	}
 }

@@ -3,7 +3,7 @@ package overlay
 import (
 	"image"
 
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -18,7 +18,7 @@ type Layer interface {
 	HandleInput(world w.World) error
 }
 
-// ScreenRenderer は自身を internal/uicore のツリーとして描く overlay。Screen は本体を描いたあと、
+// ScreenRenderer は自身を uicore のツリーとして描く overlay。Screen は本体を描いたあと、
 // このツリーを画面の上へ重ねて描く。ツリーは rect に配置済みで返す。表示するものが無ければ nil を返す。
 type ScreenRenderer interface {
 	RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawable

@@ -13,7 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -113,7 +113,7 @@ func (st *RunStatsState) Menu(props RunStatsProps) menuloop.MenuConfig {
 }
 
 // ViewUI はタブ帯つきのステータス表を組む。
-func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
+func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		labels[i] = tab.Label
@@ -127,7 +127,7 @@ func (st *RunStatsState) ViewUI(world w.World, props RunStatsProps, cursor menul
 }
 
 // buildStatsTableUI はラベル左・値右の2列表とフッタ右端のページ表示を返す。
-func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
+func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {
 	cols := styled.Cols(styled.Name(), styled.Num())
 	rows := make([]menuframe.Row, len(items))
 	for i, it := range items {

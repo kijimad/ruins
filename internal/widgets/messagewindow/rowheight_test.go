@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
 // TestRowHeightsFitTheirFace は窓の各行の高さが、その行へ載せるフェイスの字面を切らないかを検査する。

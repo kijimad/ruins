@@ -6,7 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
-	"github.com/kijimaD/ruins/internal/widgets/internal/uicore"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
@@ -115,7 +115,7 @@ func (d *Detail) HandleInput(world w.World) error {
 	return nil
 }
 
-// RenderOverlay は現在の内容から詳細モーダルを internal/uicore のツリーへ組み、rect 内に配置して返す。
+// RenderOverlay は現在の内容から詳細モーダルを uicore のツリーへ組み、rect 内に配置して返す。
 // 対象が無ければ nil を返す。Screen はこれを本体の上へ重ねて描く。
 func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawable {
 	content, ok := d.provide(world)

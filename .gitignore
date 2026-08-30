@@ -16,7 +16,6 @@ wasm/game.wasm
 saves/*.json.gz
 
 # AI
-.claude-task-state
 .claude/*
 !.claude/skills/
 

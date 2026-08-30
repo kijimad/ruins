@@ -7,15 +7,15 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/ui"
+	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // ViewUI は人物画面のタブ本体を組む。
 // 装備選択の入れ子モーダルは equip overlay が ScreenRenderer として本体の上へ重ねる。
-func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) ui.Widget {
-	var content []ui.Widget
+func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
+	var content []uicore.Drawable
 	var pager string
 	if charTabAt(cursor.TabIndex) == charTabEquip {
 		content, pager = buildEquipListUI(world, props.EquipSlots, cursor.ItemIndex, res)
@@ -26,7 +26,7 @@ func (st *CharacterState) ViewUI(world w.World, props CharacterProps, cursor men
 }
 
 // buildEquipListUI は装備4列とフッタ右端のページ表示を返す。
-func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]ui.Widget, string) {
+func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res resources.UIResources) ([]uicore.Drawable, string) {
 	cols := styled.Cols(styled.Fit(), styled.Icon(), styled.Name(), styled.Num())
 	rows := make([]menuframe.Row, len(slots))
 	for i, slot := range slots {
