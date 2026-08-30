@@ -5751,8 +5751,8 @@ msgstr "燃料をくべる(%s)"
 msgid "Burning"
 msgstr "燃焼中"
 
-msgid "Burning, about %d turns left"
-msgstr "燃焼中 残り約%dターン"
+msgid "Burning, %d turns left"
+msgstr "燃焼中 残り%dターン"
 
 msgid "No fuel to add"
 msgstr "くべる燃料がない"
