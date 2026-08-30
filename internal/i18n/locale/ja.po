@@ -5735,3 +5735,12 @@ msgstr "ヘルプ"
 
 msgid "Key bindings"
 msgstr "キー一覧"
+
+msgid "The season changed to %s."
+msgstr "季節が%sになった。"
+
+msgid "The sun rises."
+msgstr "日が昇った。"
+
+msgid "The sun sets."
+msgstr "日が沈んだ。"
