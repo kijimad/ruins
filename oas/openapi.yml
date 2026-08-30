@@ -2288,6 +2288,9 @@ components:
         ammoTag:
           $ref: '#/components/schemas/AmmoTag'
       description: 遠距離攻撃設定
+    FireStarter:
+      type: object
+      description: 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
     FoliageType:
       type: number
       enum:
@@ -2418,6 +2421,14 @@ components:
           allOf:
             - $ref: '#/components/schemas/LightSource'
           description: 携行光源。装備すると owner を照らす
+        material:
+          allOf:
+            - $ref: '#/components/schemas/Material'
+          description: 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
+        fireStarter:
+          allOf:
+            - $ref: '#/components/schemas/FireStarter'
+          description: 火種。所持していると隣接の燃焼物に着火できる
       description: アイテム
     ItemCount:
       type: integer
@@ -2573,6 +2584,28 @@ components:
       minimum: 1
       maximum: 100
       description: マガジン容量
+    Material:
+      type: string
+      enum:
+        - WOOD
+        - PAPER
+        - CLOTH
+        - LEATHER
+        - PLANT
+        - FOOD
+        - BONE
+        - OIL
+        - COAL
+        - PLASTIC
+        - METAL
+        - STONE
+        - GLASS
+        - CRYSTAL
+        - CERAMIC
+        - LIQUID
+      description: |-
+        材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
+        不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
     MaterialAmount:
       type: integer
       minimum: 1

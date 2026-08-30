@@ -209,11 +209,16 @@ func processTurnEnd(world w.World) error {
 	return runTurnEndSystems(world)
 }
 
-// runTurnEndSystems はターン終了時に実行するシステム群を呼び出す
+// runTurnEndSystems はターン終了時に実行するシステム群を呼び出す。
+// DeadCleanupSystem を末尾に置き、そのターンに死んだものを同じターンで回収する。
+// 死は必ずターン処理で起きるので回収もターンに閉じる。fast-forward は毎ターンこれを回すため、
+// 燃え尽きた火が数ターン残って暖め・照らし続けることがない。
 func runTurnEndSystems(world w.World) error {
 	for _, updater := range []w.Updater{
 		&AutoInteractionSystem{},
 		&TemperatureSystem{},
+		&FireSystem{},
+		&DeadCleanupSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			if err := sys.Update(world); err != nil {

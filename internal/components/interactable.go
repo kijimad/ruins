@@ -83,6 +83,10 @@ const (
 	InteractionCubePanel InteractionKind = "CUBE_PANEL"
 	// InteractionAuction は通信販売の出荷場所。専用メニューを開いて積荷の出荷と状況確認をする
 	InteractionAuction InteractionKind = "AUCTION"
+	// InteractionIgnite は隣接タイルの燃焼物に火をつける相互作用。火種の所持を条件にメニューへ出す
+	InteractionIgnite InteractionKind = "IGNITE"
+	// InteractionFeedFuel は隣接の火へ燃料をくべる相互作用。給油メニューを開く。燃料の所持を条件に出す
+	InteractionFeedFuel InteractionKind = "FEED_FUEL"
 )
 
 // Config は種類に応じた相互作用設定を返す。未知の種類はゼロ値の無効な Config を返す。
@@ -96,7 +100,7 @@ func (k InteractionKind) Config() InteractionConfig {
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	case InteractionDoor, InteractionTalk, InteractionMelee, InteractionCubePanel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayOnCollision, MenuUnit: MenuUnitEntity}
-	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionAuction:
+	case InteractionStorage, InteractionDisassemble, InteractionEnterCube, InteractionPullCube, InteractionAuction, InteractionIgnite, InteractionFeedFuel:
 		return InteractionConfig{ActivationRange: ActivationRangeAdjacent, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}
 	case InteractionExitCube:
 		return InteractionConfig{ActivationRange: ActivationRangeSameTile, ActivationWay: ActivationWayManual, MenuUnit: MenuUnitEntity}

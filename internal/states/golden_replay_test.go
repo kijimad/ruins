@@ -331,6 +331,18 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "Store"},
 			},
 		},
+		// FeedFuelMenu は火への給油メニューを固定する。収納やインベントリと同じ item-row 形式で、
+		// アイコン・名前の先頭に右寄せの追加ターン数列が並ぶ。プレイヤーの初期バックパックの食料が燃料になる。
+		{
+			name: "FeedFuelMenu",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				fire := world.ECS.NewEntity()
+				world.Components.Burning.Add(fire, &gc.Burning{Remaining: 300})
+				s, err := gs.NewFeedFuelMenuState(fire)
+				return []es.State[w.World]{s}, err
+			},
+			steps: []replayStep{{shot: true}},
+		},
 		// ChoiceMenuMany は共通の選択メニューが多数の選択肢でもモーダルに収まりページ送りすることを覆う。
 		{
 			name: "ChoiceMenuMany",

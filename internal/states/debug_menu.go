@@ -120,7 +120,8 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		Choice{Label: "Spawn enemy: skeleton soldier (patrol)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "skeleton_soldier") })},
 		Choice{Label: "Spawn enemy: stray dog (territorial)", Run: stayAfter(func(world w.World) error { return spawnEnemyNearPlayer(world, "stray_dog") })},
 		Choice{Label: "Spawn prop: moving_stone (PassCost)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "moving_stone") })},
-		Choice{Label: "Spawn prop: bonfire (light source)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "bonfire") })},
+		Choice{Label: "Spawn prop: fire", Run: stayAfter(spawnLitFireNearPlayer)},
+		Choice{Label: "Spawn prop: hearth", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "hearth") })},
 		Choice{Label: "Spawn prop: barrel (destructible)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "barrel") })},
 		Choice{Label: "Spawn prop: construction_sign (impassable)", Run: stayAfter(func(world w.World) error { return spawnPropNearPlayer(world, "construction_sign") })},
 		Choice{Label: "Spawn prop: wooden crate (storage, with items)", Run: stayAfter(spawnStorageWithItems)},
@@ -152,6 +153,21 @@ func spawnPropNearPlayer(world w.World, name string) error {
 	}
 	_, err = lifecycle.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
 	return err
+}
+
+// spawnLitFireNearPlayer はプレイヤーの隣に燃えている火をスポーンする。
+// 本番の着火と同じく fire prop へ Burning を付ける
+func spawnLitFireNearPlayer(world w.World) error {
+	playerGrid, err := playerGridElement(world)
+	if err != nil {
+		return err
+	}
+	fire, err := lifecycle.SpawnProp(world, "fire", playerGrid.X+2, playerGrid.Y)
+	if err != nil {
+		return err
+	}
+	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 999})
+	return nil
 }
 
 // spawnStorageWithItems はプレイヤーの隣にアイテム入り木箱をスポーンする

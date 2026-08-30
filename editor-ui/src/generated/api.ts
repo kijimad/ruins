@@ -422,6 +422,15 @@ export interface Book {
     'skill'?: SkillBook;
 }
 /**
+ * 着火状態設定。あらかじめ火がついた prop に付ける。集落の焚き火のように最初から燃えている火を表す
+ */
+export interface Burning {
+    /**
+     * 着火状態で最初に燃えている残量。毎ターン減り、0以下で鎮火する
+     */
+    'remaining': number;
+}
+/**
  * 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
  */
 
@@ -852,7 +861,17 @@ export interface Item {
      * 携行光源。装備すると owner を照らす
      */
     'lightSource'?: LightSource;
+    /**
+     * 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
+     */
+    'material'?: Material;
+    /**
+     * 火種。所持していると隣接の燃焼物に着火できる
+     */
+    'fireStarter'?: object;
 }
+
+
 /**
  * アイテムグループ。アイテムの出現セットを定義する
  */
@@ -969,6 +988,32 @@ export interface LightSource {
      */
     'enabled': boolean;
 }
+/**
+ * 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。 不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
+ */
+
+export const Material = {
+    Wood: 'WOOD',
+    Paper: 'PAPER',
+    Cloth: 'CLOTH',
+    Leather: 'LEATHER',
+    Plant: 'PLANT',
+    Food: 'FOOD',
+    Bone: 'BONE',
+    Oil: 'OIL',
+    Coal: 'COAL',
+    Plastic: 'PLASTIC',
+    Metal: 'METAL',
+    Stone: 'STONE',
+    Glass: 'GLASS',
+    Crystal: 'CRYSTAL',
+    Ceramic: 'CERAMIC',
+    Liquid: 'LIQUID',
+} as const;
+
+export type Material = typeof Material[keyof typeof Material];
+
+
 /**
  * 近接攻撃設定
  */
@@ -1213,6 +1258,7 @@ export interface Prop {
     'hp'?: number;
     'lightSource'?: LightSource;
     'heatSource'?: HeatSource;
+    'burning'?: Burning;
     /**
      * 扉ローデータ
      */

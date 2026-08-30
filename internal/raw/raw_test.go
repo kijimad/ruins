@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -1074,4 +1075,46 @@ Defense = 2
 	require.NoError(t, err)
 	require.NotNil(t, entitySpec.SoloAI)
 	assert.Empty(t, entitySpec.SoloAI.Movement)
+}
+
+// TestNewItemSpec_材質と重さから燃料を導く は、可燃な材質のアイテムが材質のkgあたり熱量×重量kgで
+// 燃料になり、不燃の材質や材質未指定は燃料を持たないことを確認する。
+func TestNewItemSpec_材質と重さから燃料を導く(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Items]]
+name = "wood log"
+id = "wood_log"
+weight = "3 kg"
+material = "WOOD"
+
+[[Items]]
+name = "iron bar"
+id = "iron_bar"
+weight = "2 kg"
+material = "METAL"
+
+[[Items]]
+name = "no material"
+id = "no_mat"
+weight = "1 kg"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	// 熱量は保持せず材質と重量から導くので、ここでは材質の付与だけを確かめる。
+	// 熱量の算出は query.HeatOf のテストで担う
+	wood, err := NewItemSpec(raws, "wood_log")
+	require.NoError(t, err)
+	require.NotNil(t, wood.Material, "材質を明示したアイテムは Material を持つ")
+	assert.Equal(t, oapi.WOOD, wood.Material.Kind)
+
+	iron, err := NewItemSpec(raws, "iron_bar")
+	require.NoError(t, err)
+	require.NotNil(t, iron.Material, "不燃の材質も Material は付く")
+	assert.Equal(t, oapi.METAL, iron.Material.Kind)
+
+	none, err := NewItemSpec(raws, "no_mat")
+	require.NoError(t, err)
+	assert.Nil(t, none.Material, "材質未指定は Material を持たない")
 }

@@ -755,9 +755,9 @@ func TestTemperatureArrow_熱源のそばでは赤の上向き(t *testing.T) {
 	world, e := newColdPlayer(t)
 
 	// 環境の冷えを上回る暖かさになるよう焚き火を2つ隣接させる
-	_, err := lifecycle.SpawnProp(world, "bonfire", 6, 5)
+	_, err := lifecycle.SpawnProp(world, "fire", 6, 5)
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnProp(world, "bonfire", 4, 5)
+	_, err = lifecycle.SpawnProp(world, "fire", 4, 5)
 	require.NoError(t, err)
 
 	arrow := temperatureArrow(world, e)

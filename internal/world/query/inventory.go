@@ -37,6 +37,26 @@ func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool)
 	return gc.InvalidEntity, false
 }
 
+// HoldsFireStarter は owner が火種の道具を所持しているかを返す。
+// バックパックと装備の両方を見る。着火の可否を所持の有無だけで判定する。消費はこの関数の関心ではない
+func HoldsFireStarter(world w.World, owner ecs.Entity) bool {
+	backpack := ecs.NewFilter2[gc.LocationInBackpack, gc.FireStarter](world.ECS).Query()
+	for backpack.Next() {
+		if world.Components.LocationInBackpack.Get(backpack.Entity()).Owner == owner {
+			backpack.Close()
+			return true
+		}
+	}
+	equipped := ecs.NewFilter2[gc.LocationEquipped, gc.FireStarter](world.ECS).Query()
+	for equipped.Next() {
+		if world.Components.LocationEquipped.Get(equipped.Entity()).Owner == owner {
+			equipped.Close()
+			return true
+		}
+	}
+	return false
+}
+
 // GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ
 // 同じ位置にある同一スタックのエンティティを数えて導出する。位置が無ければ1になる。
 func GetEntityCount(world w.World, entity ecs.Entity) int {

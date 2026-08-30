@@ -32,12 +32,12 @@ var hamletNPCs = []relSpot{
 // villageProps と hamletProps は集落の生活感を出す prop。NPC の座標と重ねない。
 var (
 	villageProps = []relSpot{
-		{"bonfire", 2, -2},
+		{"hearth", 2, -2}, // 火は据えない。暖を取るにはプレイヤーが燃料と火種で着火する
 		{"bench", 3, 1},
 		{"wooden_sign", 0, -3},
 	}
 	hamletProps = []relSpot{
-		{"bonfire", 2, -2},
+		{"hearth", 2, -2},
 		{"crate", 1, 2},
 	}
 )

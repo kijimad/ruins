@@ -34,6 +34,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	temperatureSystem := &TemperatureSystem{}
 	updaters[temperatureSystem.String()] = temperatureSystem
 
+	fireSystem := &FireSystem{}
+	updaters[fireSystem.String()] = fireSystem
+
 	visionSystem := NewVisionSystem()
 	updaters[visionSystem.String()] = visionSystem
 

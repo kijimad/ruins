@@ -1227,7 +1227,7 @@ msgid "Goods"
 msgstr "道具"
 
 msgid "Material"
-msgstr "素材"
+msgstr "材質"
 
 msgid "Ammunition"
 msgstr "弾薬"
@@ -5735,6 +5735,78 @@ msgstr "ヘルプ"
 
 msgid "Key bindings"
 msgstr "キー一覧"
+
+msgid "Campfire"
+msgstr "焚き火"
+
+msgid "A lit torch. Serves as light, weapon, and a way to set fuel alight."
+msgstr "灯りにも武器にもなり、燃料に火をつけられる松明。"
+
+msgid "Light fire (%s)"
+msgstr "火をつける(%s)"
+
+msgid "Feed fire (%s)"
+msgstr "燃料をくべる(%s)"
+
+msgid "Burning, %s left"
+msgstr "燃焼中 残り%s"
+
+msgid "No fuel to add"
+msgstr "くべる燃料がない"
+
+msgid "Hearth"
+msgstr "石組"
+
+msgid "Wood"
+msgstr "木材"
+
+msgid "Paper"
+msgstr "紙"
+
+msgid "Cloth"
+msgstr "布"
+
+msgid "Leather"
+msgstr "革"
+
+msgid "Plant fiber"
+msgstr "植物繊維"
+
+msgid "Food"
+msgstr "食料"
+
+msgid "Bone"
+msgstr "骨"
+
+msgid "Oil"
+msgstr "油"
+
+msgid "Plastic"
+msgstr "樹脂"
+
+msgid "Metal"
+msgstr "金属"
+
+msgid "Glass"
+msgstr "ガラス"
+
+msgid "Crystal"
+msgstr "結晶"
+
+msgid "Ceramic"
+msgstr "陶磁器"
+
+msgid "Liquid"
+msgstr "液体"
+
+msgid "Fuel"
+msgstr "燃料"
+
+msgid "Heat"
+msgstr "熱量"
+
+msgid "Turns left"
+msgstr "残りターン"
 
 msgid "The season changed to %s."
 msgstr "季節が%sになった。"

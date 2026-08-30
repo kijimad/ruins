@@ -468,6 +468,7 @@ func TestHeatSourceWarmthAt_距離に応じて減衰し半径外は無視する(
 	addHeatSource := func(x, y, radius consts.Tile, warmth float64) {
 		e := world.ECS.NewEntity()
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		// 暖房は HeatSource だけで決まる。Burning が無くても、電熱のように暖房になる
 		world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: radius, Warmth: warmth})
 	}
 	addHeatSource(5, 5, 2, 0.6)
@@ -487,6 +488,7 @@ func TestHeatSourceWarmthAt_複数の熱源を加算する(t *testing.T) {
 	addHeatSource := func(x, y, radius consts.Tile, warmth float64) {
 		e := world.ECS.NewEntity()
 		world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		// 暖房は HeatSource だけで決まる。Burning が無くても、電熱のように暖房になる
 		world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: radius, Warmth: warmth})
 	}
 	addHeatSource(5, 5, 1, 0.5)
@@ -505,7 +507,7 @@ func TestTemperatureSystem_Update_熱源のそばは体温の低下が緩む(t *
 		require.NoError(t, err)
 		if withBonfire {
 			// プレイヤーの隣に焚き火。raw の heatSource から熱源になる
-			_, err := lifecycle.SpawnProp(world, "bonfire", 6, 5)
+			_, err := lifecycle.SpawnProp(world, "fire", 6, 5)
 			require.NoError(t, err)
 		}
 		sys := &TemperatureSystem{}
@@ -539,9 +541,9 @@ func TestBodyTempRate_冷えた体は熱源のそばで温まる(t *testing.T) {
 	world.Components.HealthStatus.Get(player).BodyTempOffset = -3.0
 
 	// 環境の冷えを上回る暖かさになるよう焚き火を2つ隣接させる
-	_, err = lifecycle.SpawnProp(world, "bonfire", 6, 5)
+	_, err = lifecycle.SpawnProp(world, "fire", 6, 5)
 	require.NoError(t, err)
-	_, err = lifecycle.SpawnProp(world, "bonfire", 4, 5)
+	_, err = lifecycle.SpawnProp(world, "fire", 4, 5)
 	require.NoError(t, err)
 
 	assert.Positive(t, bodyTempRate(world, player), "熱源の暖かさが冷えを上回れば体温が上昇する")
@@ -554,7 +556,7 @@ func TestBodyTempRate_平熱以上では熱源が効かない(t *testing.T) {
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	_, err = lifecycle.SpawnProp(world, "bonfire", 6, 5)
+	_, err = lifecycle.SpawnProp(world, "fire", 6, 5)
 	require.NoError(t, err)
 
 	assert.Zero(t, bodyTempRate(world, player), "平熱の体は熱源で温まらない")

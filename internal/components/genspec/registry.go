@@ -16,6 +16,8 @@ var Registry = []Def{
 	// item ================
 	{Field: "HP"},                 // 生命力を表す。尽きると死亡する
 	{Field: "Consumable"},         // 一度使うと消費される消耗品を表す
+	{Field: "Material"},           // 材質を保持する。可燃性と燃焼熱量の算出根拠。不燃の材質も持つ
+	{Field: "FireStarter"},        // 火種の道具のマーカー。所持で隣接の燃焼物に着火できる
 	{Field: "Perishable"},         // 腐敗する食料の生成時刻と保存期間を保持する
 	{Field: "WeightCapacity"},     // 所持・格納の重量容量を表す
 	{Field: "Melee"},              // 近接攻撃の性能を保持する
@@ -49,6 +51,7 @@ var Registry = []Def{
 	{Field: "VisualEffects"},   // 紐づくビジュアルエフェクトを管理する
 	{Field: "TileTemperature"}, // タイルの気温修正値を保持する
 	{Field: "HeatSource"},      // 近接するキャラの低体温を回復する熱源の設定を保持する
+	{Field: "Burning"},         // 燃えている状態と残りの燃焼ターン数を保持する。暖房のゲートを兼ねる
 
 	// stage ================
 	{Field: "StageBound"},       // 束縛先ステージを保持する。往復するステージの同定に使う
