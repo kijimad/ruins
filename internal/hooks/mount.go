@@ -11,7 +11,9 @@ import (
 type Mount[Props any] struct {
 	props Props
 	store *Store
-	dirty bool
+	// dirty は props 変化と初回描画の要因を持つ。store 状態の変化は store.Version で別に追う。
+	dirty            bool
+	lastStoreVersion uint64
 }
 
 // NewMount は新しいMountを生成する
@@ -42,16 +44,10 @@ func (m *Mount[Props]) Store() *Store {
 	return m.store
 }
 
-// Dispatch は全てのStateにActionを送りdirtyフラグを立てる
+// Dispatch は全てのStateにActionを送る。実際に状態が変われば store.Version が動き、
+// 次の Update が再描画と判定する。手動で dirty を立てる必要はない
 func (m *Mount[Props]) Dispatch(action inputmapper.ActionID) {
 	m.store.Dispatch(action)
-	m.dirty = true
-}
-
-// MarkDirty は次の Update で再描画させる。Store を Dispatch を介さず直接変えたときに呼ぶ。
-// SetTab でカーソルを飛ばした変更が描画へ反映されるようにする。
-func (m *Mount[Props]) MarkDirty() {
-	m.dirty = true
 }
 
 // GetState は指定したキーのStateを取得する
@@ -70,9 +66,11 @@ func GetState[T any, Props any](m *Mount[Props], key string) (T, bool) {
 }
 
 // Update は変更の有無を返す
-// 初回は常にtrue、以降はpropsまたはstateが変わった場合にtrueを返す
+// 初回は常にtrue、以降はpropsまたはstateが変わった場合にtrueを返す。
+// store 状態の変化は version の差で検知するので、Dispatch でも SetTab でも書き込み経路に依らず拾える
 func (m *Mount[Props]) Update() bool {
-	changed := m.dirty
+	changed := m.dirty || m.store.Version() != m.lastStoreVersion
 	m.dirty = false
+	m.lastStoreVersion = m.store.Version()
 	return changed
 }

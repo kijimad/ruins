@@ -31,17 +31,17 @@ func UseTimerAt(store *Store, key string, duration time.Duration, now time.Time)
 	expired = state.Active && !state.StartedAt.IsZero() && now.Sub(state.StartedAt) >= duration
 
 	start = func() {
-		store.states[key] = timerState{
+		store.set(key, timerState{
 			StartedAt: now,
 			Active:    true,
-		}
+		})
 	}
 
 	reset = func() {
-		store.states[key] = timerState{
+		store.set(key, timerState{
 			StartedAt: time.Time{},
 			Active:    false,
-		}
+		})
 	}
 
 	return
