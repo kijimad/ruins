@@ -94,13 +94,11 @@ func appendIgniteActions(world w.World, player ecs.Entity, playerGrid *gc.GridEl
 	// タイルごとに代表の燃料を1つ選ぶ。map の走査順に依存しないよう出現順を別に記録する
 	repByTile := map[consts.Coord[consts.Tile]]ecs.Entity{}
 	var order []consts.Coord[consts.Tile]
-	fuelQuery := query.ActiveFilter2[gc.Material, gc.LocationOnField](world).Query()
+	// 地面の燃焼物を隣接タイルで絞るので GridElement も条件に入れる。フィルタで保証されるので Get は安全
+	fuelQuery := query.ActiveFilter3[gc.Material, gc.LocationOnField, gc.GridElement](world).Query()
 	for fuelQuery.Next() {
 		entity := fuelQuery.Entity()
 		if !query.IsCombustible(world, entity) {
-			continue
-		}
-		if !world.Components.GridElement.Has(entity) {
 			continue
 		}
 		coord := world.Components.GridElement.Get(entity).Coord

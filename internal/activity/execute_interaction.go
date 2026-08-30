@@ -173,13 +173,11 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 // 走査中の構造変更を避けるため、先に集めてから呼び出し側が処理する。火自身は燃料でないので混ざらない
 func fieldFuelOnTile(world w.World, coord consts.Coord[consts.Tile]) []ecs.Entity {
 	var fuels []ecs.Entity
-	q := ecs.NewFilter2[gc.Material, gc.LocationOnField](world.ECS).Query()
+	// 地面の燃焼物は座標で絞るので GridElement も条件に入れる。フィルタで保証されるので Get は安全
+	q := ecs.NewFilter3[gc.Material, gc.LocationOnField, gc.GridElement](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
 		if !query.IsCombustible(world, e) {
-			continue
-		}
-		if !world.Components.GridElement.Has(e) {
 			continue
 		}
 		if world.Components.GridElement.Get(e).Coord == coord {
