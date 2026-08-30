@@ -25,8 +25,9 @@ import (
 //
 // フレーム数は len(actions)+1 になる。StateMachine は state が返した遷移を次フレーム冒頭で
 // 適用するので、最後の Action の Push/Pop を確定させる1フレームを足す。capture は各フレームの
-// 描画後に0起点のフレーム番号で呼ぶ。nil なら駆動のみで描画しない。screen は capture から
-// 戻ったところで解放するので、抱え込まずその場で読み切る。
+// 描画後に0起点のフレーム番号で呼ぶ。nil なら駆動のみで描画しない。screen はフレームごとに
+// 作るので、抱え込まずその場で読み切る。明示的な解放はしない。別 goroutine から ebiten 画像を
+// Deallocate すると、裏で回るレンダーループの atlas 処理と競合するため、解放は GC に委ねる。
 //
 // state 側に再生用の口は要らない。入力供給源は world が持ち、押し込んだ先の state にも同じ源が
 // 効く。world は自前の独立フェイスを持つので、駆動と描画はロック無しで並列に走れる。
@@ -61,7 +62,6 @@ func PlayScenario(
 		screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
 		game.Draw(screen)
 		capture(frame, world, screen)
-		screen.Deallocate()
 	}
 	return game
 }
