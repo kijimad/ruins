@@ -8,15 +8,6 @@ BWRAP_CMD := $(shell bwrap --dev-bind / / --tmpfs /dev/input -- true 2>/dev/null
 # - /oapi: OpenAPI生成コード。カバレッジ母数やdeadcodeの偽陽性ノイズを避けるため除外
 GO_TEST_PKGS = $$(go list ./... | grep -v -e /editor-ui/ -e '/oapi$$')
 
-# shfmt/shellcheck の対象シェルスクリプトを列挙する。git の追跡ファイルを shfmt -f に渡し、
-# 拡張子ではなく shebang で選別させる。scripts/hooks/pre-commit のような拡張子なしも拾える。
-# 未追跡の Cataclysm-DDA や node_modules は git 側で外れる
-SH_FILES = git ls-files -z | xargs -0 go tool shfmt -f
-
-# shellcheck は go install に乗らない配布バイナリなので .cache/bin へ入れ、明示パスで呼ぶ。
-# PATH 上の別版に横取りされないので、版を固定した効果がそのまま効く
-SHELLCHECK ?= .cache/bin/shellcheck
-
 .PHONY: run
 run: ## 実行する。スクショのキーを指定している
 	RUINS_PROFILE=development \
@@ -74,13 +65,12 @@ fmt: ## フォーマットする
 	go tool goimports -w .
 	go fix -embedlit=false ./...
 	npx @taplo/cli format
-	@$(SH_FILES) | xargs -r go tool shfmt -w
+	./scripts/format-shell.sh
 
 .PHONY: lint
 lint: ## Linterを実行する
 	# シェルスクリプトの検査はGoのビルドに依らないので最初に回し、速く失敗させる
-	@test -x $(SHELLCHECK) || { echo "$(SHELLCHECK) が無い。make toolsinstall を実行する" >&2; exit 1; }
-	@$(SH_FILES) | xargs -r $(SHELLCHECK)
+	@./scripts/lint-shell.sh
 	# buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
 	@go build -o /dev/null .
 	@golangci-lint run -v ./...
@@ -101,8 +91,7 @@ aseprite: ## asepriteでパッキングする。画像の変更を反映した�
 toolsinstall: ## 開発ツールをインストールする
 	# golangci-lint は依存が巨大でアプリの依存グラフを汚すため tool 化せず版固定でインストールする。
 	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.1
-	# shellcheck は Haskell 製で go install に乗らないので配布バイナリを .cache/bin へ入れる。
-	# apt の版は環境ごとに違い、検出されるルールがローカルと CI でずれる
+	# apt の shellcheck は環境ごとに版が違い、検出されるルールがローカルと CI でずれる
 	@./scripts/install-shellcheck.sh
 	@sudo apt-get install -y bubblewrap
 	@npm install
