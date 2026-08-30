@@ -333,6 +333,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },
 		}}, nil
+	case gc.OpenFeedFuel:
+		// 火への給油メニューを開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() (es.State[w.World], error) { return NewFeedFuelMenuState(p.FireEntity) },
+		}}, nil
 	case gc.OpenAuction:
 		// 出荷場所のメニューを開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{

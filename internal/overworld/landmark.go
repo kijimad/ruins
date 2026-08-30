@@ -93,7 +93,7 @@ func (wildernessLandmarkFeature) place(world w.World, runSeed uint64, c consts.C
 		})
 	case landmarkCampsite:
 		return spawnLandmarkProps(world, origin, []relSpot{
-			{"bonfire", 0, 0},
+			{"hearth", 0, 0}, // 火は据えない。暖を取るにはプレイヤーが燃料と火種で着火する
 			{"crate", 1, 1},
 			{"bench", -1, 0},
 		})

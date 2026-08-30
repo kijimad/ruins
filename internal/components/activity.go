@@ -60,6 +60,10 @@ const (
 	BehaviorPush BehaviorName = "Push"
 	// BehaviorPull は隣接する移動拠点キューブを自分の側へ引いて動かす
 	BehaviorPull BehaviorName = "Pull"
+	// BehaviorIgnite は火種で隣接の燃焼物に火をつけて焚き火を熾す。ExecuteInteraction が直接処理する
+	BehaviorIgnite BehaviorName = "Ignite"
+	// BehaviorFeedFuel は隣接の火へ燃料をくべる給油メニューを開く。ExecuteInteraction が直接処理する
+	BehaviorFeedFuel BehaviorName = "FeedFuel"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント

@@ -6,10 +6,12 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,6 +35,52 @@ func TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せ
 	payload, ok := req.Payload.(gc.WarpDungeonEnter)
 	require.True(t, ok, "WarpDungeonEnter が要求される")
 	assert.Equal(t, "森", payload.DefinitionName, "進入先の遺跡名が要求に載る")
+}
+
+// TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数へ畳み着火する は、着火が対象タイルの
+// 燃焼物をすべて残ターン数へ畳み込んで消費し、隣接タイルに火を立てることを確認する。
+func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数へ畳み着火する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	tile := consts.Coord[consts.Tile]{X: 6, Y: 5}
+	// 熱量は保持せず材質×重量から導く。WOOD は 200/kg なので heat*5000 mg で狙った熱量になる
+	addFieldFuel := func(name string, heat int) ecs.Entity {
+		e := world.ECS.NewEntity()
+		world.Components.Name.Add(e, &gc.Name{Name: name})
+		world.Components.Material.Add(e, &gc.Material{Kind: oapi.WOOD})
+		world.Components.Weight.Add(e, &gc.Weight{Milligram: consts.Milligram(heat * 5000)})
+		world.Components.GridElement.Add(e, &gc.GridElement{Coord: tile})
+		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
+		return e
+	}
+	// タイルの燃焼物はすべて残ターン数へ畳まれて消費される
+	first := addFieldFuel("a_wood", 10)
+	second := addFieldFuel("b_wood", 10)
+
+	// actor は executeIgnite では使わないが、相互作用の入口が要求するので渡す
+	actor := world.ECS.NewEntity()
+	res, err := ExecuteInteraction(actor, first, gc.InteractionIgnite, world)
+	require.NoError(t, err)
+	require.True(t, res.Success)
+
+	// 隣接タイルに火が立ち Burning と HeatSource を持つ
+	var fire ecs.Entity
+	found := false
+	fireQuery := query.ActiveFilter2[gc.Burning, gc.GridElement](world).Query()
+	for fireQuery.Next() {
+		if world.Components.GridElement.Get(fireQuery.Entity()).Coord == tile {
+			fire = fireQuery.Entity()
+			found = true
+		}
+	}
+	require.True(t, found, "隣接タイルに火が立つ")
+	assert.True(t, world.Components.HeatSource.Has(fire), "火は熱源を持つ")
+
+	// タイルの燃料2つが効率50%で残ターン数へ畳まれる。10*50/100 + 10*50/100 = 10
+	assert.Equal(t, consts.Turn(10), world.Components.Burning.Get(fire).Remaining)
+	assert.False(t, world.ECS.Alive(first), "くべた燃料は消費される")
+	assert.False(t, world.ECS.Alive(second), "くべた燃料は消費される")
 }
 
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。
@@ -445,4 +493,25 @@ func TestExecuteInteraction_Fixed(t *testing.T) {
 
 		require.Error(t, err)
 	})
+}
+
+// TestExecuteInteraction_FeedFuel_給油メニューを開くイベントを積む は、給油の相互作用が
+// くべる先の火を載せた OpenFeedFuel リクエストを積むことを確認する。
+func TestExecuteInteraction_FeedFuel_給油メニューを開くイベントを積む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	fire := world.ECS.NewEntity()
+	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 5})
+
+	actor := world.ECS.NewEntity()
+	res, err := ExecuteInteraction(actor, fire, gc.InteractionFeedFuel, world)
+	require.NoError(t, err)
+	require.True(t, res.Success)
+
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req, "給油メニューを開くリクエストが積まれる")
+	payload, ok := req.Payload.(gc.OpenFeedFuel)
+	require.True(t, ok, "OpenFeedFuel が要求される")
+	assert.Equal(t, fire, payload.FireEntity, "くべる先の火が載る")
 }

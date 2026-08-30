@@ -212,7 +212,6 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	if err := runUpdaters(world,
 		&gs.AnimationSystem{},
-		&gs.DeadCleanupSystem{},
 		&gs.TurnSystem{},
 		&gs.VisionSystem{},
 		&gs.CameraSystem{},

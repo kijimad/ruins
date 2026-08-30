@@ -347,6 +347,16 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
 	entitySpec.LightSource = toGCLightSource(item.LightSource)
 
+	// 材質。可燃性と燃焼熱量の算出根拠。観察メニューで見せるためエンティティに保持する
+	if item.Material != nil {
+		entitySpec.Material = &gc.Material{Kind: *item.Material}
+	}
+
+	// 火種。所持していると隣接の燃焼物に着火できる道具
+	if item.FireStarter != nil {
+		entitySpec.FireStarter = &gc.FireStarter{}
+	}
+
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
 	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionKind{gc.InteractionItem}}
 
