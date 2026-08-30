@@ -13742,7 +13742,7 @@ id = "campfire"
 
 [props.spriteRender]
 depth = 1
-spriteKey = "bonfire_0"
+spriteKey = "fire"
 spriteSheetName = "field"
 
 [props.heatSource]
