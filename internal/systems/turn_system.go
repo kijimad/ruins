@@ -133,14 +133,16 @@ func logEnvironmentChange(world w.World) {
 			Log()
 	}
 
-	// 知らせるのは日の出と日の入りだけにする。夜明け入りが日の出、夕入りが日の入りに当たる。
+	// 知らせるのは日の出と日の入りだけにする。夜明け入りが日の出に当たる。日の入りは夜入りに当たる。
+	// 夕は太陽がまだ空にある薄暮で、沈み切って夜になった瞬間が日の入り。夕入りに出すと薄暮で
+	// 「日が沈んだ」と矛盾するため夜入りで出す。
 	if tod, changed := gt.TimeOfDayJustChanged(); changed {
 		switch tod {
 		case gc.TimeDawn:
 			gamelog.New(query.GetGameLog(world)).
 				Markup(gamelog.Tag("system", query.T(world, "The sun rises."))).
 				Log()
-		case gc.TimeEvening:
+		case gc.TimeNight:
 			gamelog.New(query.GetGameLog(world)).
 				Markup(gamelog.Tag("system", query.T(world, "The sun sets."))).
 				Log()
