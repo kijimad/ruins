@@ -95,8 +95,7 @@ generate_capsule() {
 # 各カプセルのクロップサイズはマスターのアスペクト比に合わせて計算する。
 # すべて横マスター1枚から中央で切り出す。キューブがマスター中央にあるので、縦長も中央クロップで
 # キューブが真ん中に来る。
-# 引数は w h filename crop_w crop_h logo_gravity の順に並べる。
-# 空白で桁揃えはしない。shfmt が引数間の連続空白を1個に詰める
+# generate_capsule w h filename crop_w crop_h logo_gravity
 generate_capsule 462 174 small_capsule.png 3840 1446 center
 generate_capsule 920 430 header_capsule.png 3840 1794 center
 generate_capsule 920 430 library_header.png 3840 1794 center
