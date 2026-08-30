@@ -318,7 +318,7 @@ func NewFeedFuelMenuState(fire ecs.Entity) (es.State[w.World], error) {
 // feedOneFuel は rep を火へ1つくべる。走査時の rep は消費されるので、
 // 次フレームの Fetch が新しい代表で一覧を組み直す。火が消えていれば何もしない
 func feedOneFuel(world w.World, fire ecs.Entity, rep ecs.Entity) {
-	if !world.ECS.Alive(rep) || !world.Components.Fuel.Has(rep) {
+	if !world.ECS.Alive(rep) || !query.IsCombustible(world, rep) {
 		return
 	}
 	if !world.Components.Burning.Has(fire) {

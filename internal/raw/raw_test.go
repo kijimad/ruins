@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -1101,16 +1102,19 @@ weight = "1 kg"
 	raws, err := DecodeRaws(str)
 	require.NoError(t, err)
 
+	// 熱量は保持せず材質と重量から導くので、ここでは材質の付与だけを確かめる。
+	// 熱量の算出は query.HeatOf のテストで担う
 	wood, err := NewItemSpec(raws, "wood_log")
 	require.NoError(t, err)
-	require.NotNil(t, wood.Fuel, "可燃な材質は燃料になる")
-	assert.Equal(t, consts.Heat(600), wood.Fuel.HeatContent, "WOOD 200/kg × 3kg = 600")
+	require.NotNil(t, wood.Material, "材質を明示したアイテムは Material を持つ")
+	assert.Equal(t, oapi.WOOD, wood.Material.Kind)
 
 	iron, err := NewItemSpec(raws, "iron_bar")
 	require.NoError(t, err)
-	assert.Nil(t, iron.Fuel, "金属は不燃で燃料を持たない")
+	require.NotNil(t, iron.Material, "不燃の材質も Material は付く")
+	assert.Equal(t, oapi.METAL, iron.Material.Kind)
 
 	none, err := NewItemSpec(raws, "no_mat")
 	require.NoError(t, err)
-	assert.Nil(t, none.Fuel, "材質未指定は燃料を持たない")
+	assert.Nil(t, none.Material, "材質未指定は Material を持たない")
 }

@@ -8,6 +8,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -169,9 +170,12 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 // 走査中の構造変更を避けるため、先に集めてから呼び出し側が処理する。火自身は燃料でないので混ざらない
 func fieldFuelOnTile(world w.World, coord consts.Coord[consts.Tile]) []ecs.Entity {
 	var fuels []ecs.Entity
-	q := ecs.NewFilter2[gc.Fuel, gc.LocationOnField](world.ECS).Query()
+	q := ecs.NewFilter2[gc.Material, gc.LocationOnField](world.ECS).Query()
 	for q.Next() {
 		e := q.Entity()
+		if !query.IsCombustible(world, e) {
+			continue
+		}
 		if !world.Components.GridElement.Has(e) {
 			continue
 		}

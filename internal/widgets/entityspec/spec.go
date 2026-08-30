@@ -45,8 +45,8 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 	if world.Components.Material.Has(entity) {
 		rows = append(rows, materialRow(world, world.Components.Material.Get(entity)))
 	}
-	if world.Components.Fuel.Has(entity) {
-		rows = append(rows, fuelRow(world, world.Components.Fuel.Get(entity)))
+	if heat := query.HeatContent(world, entity); heat > 0 {
+		rows = append(rows, fuelRow(world, heat))
 	}
 	if world.Components.Wearable.Has(entity) {
 		rows = append(rows, wearableRows(world, world.Components.Wearable.Get(entity))...)
@@ -113,8 +113,10 @@ func SpecRowsFromSpec(world w.World, spec gc.EntitySpec) []SpecRow {
 	if spec.Material != nil {
 		rows = append(rows, materialRow(world, spec.Material))
 	}
-	if spec.Fuel != nil {
-		rows = append(rows, fuelRow(world, spec.Fuel))
+	if spec.Material != nil && spec.Weight != nil {
+		if heat := query.HeatOf(spec.Material.Kind, spec.Weight.Milligram); heat > 0 {
+			rows = append(rows, fuelRow(world, heat))
+		}
 	}
 	if spec.Wearable != nil {
 		rows = append(rows, wearableRows(world, spec.Wearable)...)
@@ -185,10 +187,10 @@ func materialDisplayName(kind oapi.Material) string {
 }
 
 // fuelRow は燃料の熱量の1行を返す。燃やしたとき火へ移す熱量で、燃焼時間の目安になる。
-// 値の無い見出し行は置かず、材質の行と並べて読ませる
-func fuelRow(world w.World, fuel *gc.Fuel) SpecRow {
+// 値の無い見出し行は置かず、材質の行と並べて読ませる。熱量は保持せず材質と重量から導く
+func fuelRow(world w.World, heat consts.Heat) SpecRow {
 	// 熱量は炎アイコンで見せる。満burn時の燃焼ターン数に等しく、地面直の火では効率で減る
-	return SpecRow{Label: query.T(world, "Fuel"), Value: fuel.HeatContent.String()}
+	return SpecRow{Label: query.T(world, "Fuel"), Value: heat.String()}
 }
 
 // burningRow は燃えている火の予想残ターン数の1行を返す

@@ -94,7 +94,7 @@ func (st *FeedFuelMenuState) Fetch(world w.World) (FeedFuelProps, error) {
 	}
 	var rows []feedFuelRow
 	for _, stack := range query.BackpackStacks(world, player) {
-		if !world.Components.Fuel.Has(stack.Rep) {
+		if !query.IsCombustible(world, stack.Rep) {
 			continue
 		}
 		rows = append(rows, feedFuelRow{

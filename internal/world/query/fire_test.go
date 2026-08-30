@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -36,7 +37,9 @@ func TestFuelBurnTurns_熱量を効率で割り引く(t *testing.T) {
 	fire := world.ECS.NewEntity()
 	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 1})
 	fuel := world.ECS.NewEntity()
-	world.Components.Fuel.Add(fuel, &gc.Fuel{HeatContent: 40})
+	// 熱量は材質×重量から導く。WOOD 200/kg × 200g = 40
+	world.Components.Material.Add(fuel, &gc.Material{Kind: oapi.WOOD})
+	world.Components.Weight.Add(fuel, &gc.Weight{Milligram: 200 * consts.MilligramPerGram})
 
 	// 地面直の効率50%で 40*50/100 = 20 ターン
 	assert.Equal(t, consts.Turn(20), query.FuelBurnTurns(world, fire, fuel))

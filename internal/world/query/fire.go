@@ -45,8 +45,5 @@ func EstimateBurnTurns(world w.World, fire ecs.Entity) consts.Turn {
 // FuelBurnTurns は fuel を fire へくべたとき増える燃焼ターン数を返す。
 // 熱量を火の場所の効率で割り引いた値で、給油メニューの「+Nターン」表示に使う
 func FuelBurnTurns(world w.World, fire ecs.Entity, fuel ecs.Entity) consts.Turn {
-	if !world.Components.Fuel.Has(fuel) {
-		return 0
-	}
-	return world.Components.Fuel.Get(fuel).HeatContent.BurnTurns(BurnEfficiency(world, fire))
+	return HeatContent(world, fuel).BurnTurns(BurnEfficiency(world, fire))
 }
