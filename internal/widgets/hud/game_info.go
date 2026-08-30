@@ -25,7 +25,7 @@ const (
 	TempDirectionDown TempDirection = "down"
 )
 
-// TemperatureArrow は体温の変化方向を示す矢印。HP バーの左に出す。
+// TemperatureArrow は体温の変化方向を示す矢印。体温ゲージの左に出す。
 // 温まると赤の上向き、冷えると青の下向き、一定は黄の右向き。色の濃さが変化の速さ
 type TemperatureArrow struct {
 	Visible   bool
@@ -71,11 +71,11 @@ func (info *GameInfo) Draw(cv uicore.Canvas, data GameInfoData) {
 
 	info.drawTemperatureArrow(cv, data.TempArrow)
 
-	// HP情報
-	info.drawHealthBar(cv, data.PlayerHP, data.PlayerMaxHP)
-
-	// 体温数値
+	// 体温ゲージ。矢印の隣となる最上段
 	info.drawBodyTemperature(cv, data)
+
+	// HPゲージ。体温ゲージの下段
+	info.drawHealthBar(cv, data.PlayerHP, data.PlayerMaxHP)
 
 	// 所持重量表示（右下）
 	info.drawWeightDisplay(cv, data)
@@ -107,7 +107,7 @@ const (
 	gaugeSpacing    = 4.0                            // ゲージ間の間隔
 )
 
-// drawTemperatureArrow は体温変化の矢印を HP バーの左に描く。
+// drawTemperatureArrow は体温変化の矢印を体温ゲージの左に描く。
 // 温まると上向き、冷えると下向き、一定は右向き。
 //
 // 三角形を組むのでなくアイコンフォントの字で描く。キーキャップの記号と同じ出どころにすれば、
@@ -127,7 +127,7 @@ func (info *GameInfo) drawTemperatureArrow(cv uicore.Canvas, arrow TemperatureAr
 		glyph = consts.IconArrowRight
 	}
 
-	// HP ゲージの縦中心にそろえる
+	// 体温ゲージの縦中心にそろえる
 	_, gh := uicore.MeasureText(glyph, info.bodyFace)
 	y := int(gaugeBaseY+gaugeHeight/2) - gh/2
 	drawOutlinedText(cv, glyph, info.bodyFace, image.Pt(int(gaugeBaseX), y), arrow.Color)
@@ -135,13 +135,13 @@ func (info *GameInfo) drawTemperatureArrow(cv uicore.Canvas, arrow TemperatureAr
 
 // drawHealthBar はプレイヤーの体力ゲージを描画する
 
-// drawBodyTemperature は体温ゲージを HP ゲージの下に描く。中央が平熱で、左へ冷え、右へ火照る
+// drawBodyTemperature は体温ゲージを最上段に描く。中央が平熱で、左へ冷え、右へ火照る
 func (info *GameInfo) drawBodyTemperature(cv uicore.Canvas, data GameInfoData) {
 	if !data.BodyTempVisible {
 		return
 	}
 	x := gaugeBaseX + tempArrowSlotW
-	y := gaugeBaseY + gaugeHeight + gaugeSpacing
+	y := gaugeBaseY
 	info.drawGaugeBar(cv, x, y, gaugeWidth, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio), theme.HUDGaugeBorder)
 }
 
@@ -162,7 +162,7 @@ func lerpColor(a, b color.RGBA, t float64) color.RGBA {
 func (info *GameInfo) drawHealthBar(cv uicore.Canvas, currentHP, maxHP int) {
 	// 矢印スロットぶん右へ寄せる
 	x := gaugeBaseX + tempArrowSlotW
-	y := gaugeBaseY
+	y := gaugeBaseY + gaugeHeight + gaugeSpacing
 
 	// HP比率を計算
 	hpRatio := float64(0)
