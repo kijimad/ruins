@@ -13,6 +13,10 @@ GO_TEST_PKGS = $$(go list ./... | grep -v -e /editor-ui/ -e '/oapi$$')
 # 未追跡の Cataclysm-DDA や node_modules は git 側で外れる
 SH_FILES = git ls-files -z | xargs -0 go tool shfmt -f
 
+# shellcheck は go install に乗らない配布バイナリなので .cache/bin へ入れ、明示パスで呼ぶ。
+# PATH 上の別版に横取りされないので、版を固定した効果がそのまま効く
+SHELLCHECK ?= .cache/bin/shellcheck
+
 .PHONY: run
 run: ## 実行する。スクショのキーを指定している
 	RUINS_PROFILE=development \
@@ -75,7 +79,8 @@ fmt: ## フォーマットする
 .PHONY: lint
 lint: ## Linterを実行する
 	# シェルスクリプトの検査はGoのビルドに依らないので最初に回し、速く失敗させる
-	@$(SH_FILES) | xargs -r shellcheck
+	@test -x $(SHELLCHECK) || { echo "$(SHELLCHECK) が無い。make toolsinstall を実行する" >&2; exit 1; }
+	@$(SH_FILES) | xargs -r $(SHELLCHECK)
 	# buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
 	@go build -o /dev/null .
 	@golangci-lint run -v ./...
@@ -96,7 +101,7 @@ aseprite: ## asepriteでパッキングする。画像の変更を反映した�
 toolsinstall: ## 開発ツールをインストールする
 	# golangci-lint は依存が巨大でアプリの依存グラフを汚すため tool 化せず版固定でインストールする。
 	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.1
-	# shellcheck は Haskell 製で go install に乗らない。版と sha256 はスクリプト内で固定する。
+	# shellcheck は Haskell 製で go install に乗らないので配布バイナリを .cache/bin へ入れる。
 	# apt の版は環境ごとに違い、検出されるルールがローカルと CI でずれる
 	@./scripts/install-shellcheck.sh
 	@sudo apt-get install -y bubblewrap
