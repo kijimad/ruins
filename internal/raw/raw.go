@@ -145,7 +145,7 @@ func toGCBurning(b *oapi.Burning) *gc.Burning {
 		return nil
 	}
 	return &gc.Burning{
-		Remaining: b.Remaining,
+		Remaining: consts.Turn(b.Remaining),
 	}
 }
 

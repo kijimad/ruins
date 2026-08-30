@@ -23,10 +23,10 @@ func TestFireSystem_Update(t *testing.T) {
 		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 3})
 
 		require.NoError(t, sys.Update(world))
-		assert.Equal(t, 2, world.Components.Burning.Get(fire).Remaining)
+		assert.Equal(t, consts.Turn(2), world.Components.Burning.Get(fire).Remaining)
 
 		require.NoError(t, sys.Update(world))
-		assert.Equal(t, 1, world.Components.Burning.Get(fire).Remaining)
+		assert.Equal(t, consts.Turn(1), world.Components.Burning.Get(fire).Remaining)
 	})
 
 	t.Run("残量が尽きると鎮火して火が消える", func(t *testing.T) {

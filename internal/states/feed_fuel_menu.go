@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
@@ -41,7 +42,7 @@ type FeedFuelProps struct {
 type feedFuelRow struct {
 	Entity ecs.Entity
 	Count  int
-	Turns  int
+	Turns  consts.Turn
 }
 
 // OnStart はステートが開始される際に呼ばれる

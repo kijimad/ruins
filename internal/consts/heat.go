@@ -15,7 +15,7 @@ func (h Heat) String() string {
 }
 
 // BurnTurns は効率パーセントで割り引いた燃焼ターン数を返す。
-// 熱量から実際に燃える時間への変換をここへ集約し、ターン数との境界を型で明示する。
-func (h Heat) BurnTurns(efficiencyPct int) int {
-	return int(h) * efficiencyPct / 100
+// 熱量から実際に燃える時間への変換をここへ集約し、Turn を返して熱量との境界を型で明示する。
+func (h Heat) BurnTurns(efficiencyPct int) Turn {
+	return Turn(int(h) * efficiencyPct / 100)
 }

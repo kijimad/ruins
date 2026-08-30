@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,7 @@ func TestEstimateBurnTurns_残量がそのままターン数になる(t *testing
 	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 17})
 
 	// 火は燃料を貯めず残量だけを持つ。fireBurnPerTurn は1なので残量=ターン数
-	assert.Equal(t, 17, query.EstimateBurnTurns(world, fire))
+	assert.Equal(t, consts.Turn(17), query.EstimateBurnTurns(world, fire))
 }
 
 func TestEstimateBurnTurns_燃えていなければ0(t *testing.T) {
@@ -25,7 +26,7 @@ func TestEstimateBurnTurns_燃えていなければ0(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	notFire := world.ECS.NewEntity()
-	assert.Equal(t, 0, query.EstimateBurnTurns(world, notFire))
+	assert.Equal(t, consts.Turn(0), query.EstimateBurnTurns(world, notFire))
 }
 
 func TestFuelBurnTurns_熱量を効率で割り引く(t *testing.T) {
@@ -38,7 +39,7 @@ func TestFuelBurnTurns_熱量を効率で割り引く(t *testing.T) {
 	world.Components.Fuel.Add(fuel, &gc.Fuel{HeatContent: 40})
 
 	// 地面直の効率50%で 40*50/100 = 20 ターン
-	assert.Equal(t, 20, query.FuelBurnTurns(world, fire, fuel))
+	assert.Equal(t, consts.Turn(20), query.FuelBurnTurns(world, fire, fuel))
 }
 
 func TestHoldsFireStarter_バックパックと装備の火種を見て他人の物は除く(t *testing.T) {

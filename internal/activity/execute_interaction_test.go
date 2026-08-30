@@ -75,7 +75,7 @@ func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数
 	assert.True(t, world.Components.HeatSource.Has(fire), "火は熱源を持つ")
 
 	// タイルの燃料2つが効率50%で残ターン数へ畳まれる。10*50/100 + 10*50/100 = 10
-	assert.Equal(t, 10, world.Components.Burning.Get(fire).Remaining)
+	assert.Equal(t, consts.Turn(10), world.Components.Burning.Get(fire).Remaining)
 	assert.False(t, world.ECS.Alive(first), "くべた燃料は消費される")
 	assert.False(t, world.ECS.Alive(second), "くべた燃料は消費される")
 }

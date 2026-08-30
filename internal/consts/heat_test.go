@@ -33,7 +33,7 @@ func TestHeat_BurnTurns_効率で割り引いた燃焼ターン数を返す(t *t
 		name       string
 		heat       Heat
 		efficiency int
-		expected   int
+		expected   Turn
 	}{
 		{"効率100%は等倍", 20, 100, 20},
 		{"効率50%は半分", 20, 50, 10},

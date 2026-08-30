@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -21,8 +22,8 @@ func (sys *FireSystem) String() string {
 	return "FireSystem"
 }
 
-// fireBurnPerTurn は1ターンで燃える量。燃料の HeatContent はこの単位で釣り合わせる
-const fireBurnPerTurn = 1
+// fireBurnPerTurn は1ターンで減る燃焼ターン数。残量は毎ターンこれだけ減る
+const fireBurnPerTurn consts.Turn = 1
 
 // Update は火の残量を減らし、尽きたら鎮火する
 func (sys *FireSystem) Update(world w.World) error {
