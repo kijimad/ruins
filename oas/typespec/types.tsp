@@ -155,13 +155,9 @@ scalar HeatRadius extends integer;
 @minValue(0)
 scalar HeatWarmth extends float64;
 
-/** 着火状態で最初に燃えている残量。毎ターン減り、0以下で収納の次の燃料へ移り、無ければ鎮火する */
+/** 着火状態で最初に燃えている残量。毎ターン減り、0以下で鎮火する */
 @minValue(1)
 scalar BurnRemaining extends integer;
-
-/** 燃やしたときに火へ移す熱量。fireBurnPerTurn を単位に、1 が1ターンぶんの燃焼に相当する */
-@minValue(1)
-scalar HeatContent extends integer;
 
 /** マガジン容量 */
 @minValue(1)
@@ -303,6 +299,43 @@ enum Element {
   CHILL,
   /** 光属性 */
   PHOTON,
+}
+
+/** 材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
+不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ */
+enum Material {
+  /** 木材 */
+  WOOD,
+  /** 紙 */
+  PAPER,
+  /** 布 */
+  CLOTH,
+  /** 革 */
+  LEATHER,
+  /** 植物繊維。縄・藁・乾いた草 */
+  PLANT,
+  /** 食料 */
+  FOOD,
+  /** 骨 */
+  BONE,
+  /** 油 */
+  OIL,
+  /** 石炭 */
+  COAL,
+  /** 樹脂・プラスチック */
+  PLASTIC,
+  /** 金属。不燃 */
+  METAL,
+  /** 石。不燃 */
+  STONE,
+  /** ガラス。不燃 */
+  GLASS,
+  /** 結晶・宝石。不燃 */
+  CRYSTAL,
+  /** 陶磁器。不燃 */
+  CERAMIC,
+  /** 液体。水や薬品。不燃。油は OIL で別に扱う */
+  LIQUID,
 }
 
 /** 攻撃種別 */

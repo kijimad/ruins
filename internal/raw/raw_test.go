@@ -1075,3 +1075,42 @@ Defense = 2
 	require.NotNil(t, entitySpec.SoloAI)
 	assert.Empty(t, entitySpec.SoloAI.Movement)
 }
+
+// TestNewItemSpec_材質と重さから燃料を導く は、可燃な材質のアイテムが材質のkgあたり熱量×重量kgで
+// 燃料になり、不燃の材質や材質未指定は燃料を持たないことを確認する。
+func TestNewItemSpec_材質と重さから燃料を導く(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Items]]
+name = "wood log"
+id = "wood_log"
+weight = "3 kg"
+material = "WOOD"
+
+[[Items]]
+name = "iron bar"
+id = "iron_bar"
+weight = "2 kg"
+material = "METAL"
+
+[[Items]]
+name = "no material"
+id = "no_mat"
+weight = "1 kg"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	wood, err := NewItemSpec(raws, "wood_log")
+	require.NoError(t, err)
+	require.NotNil(t, wood.Fuel, "可燃な材質は燃料になる")
+	assert.Equal(t, 600, wood.Fuel.HeatContent, "WOOD 200/kg × 3kg = 600")
+
+	iron, err := NewItemSpec(raws, "iron_bar")
+	require.NoError(t, err)
+	assert.Nil(t, iron.Fuel, "金属は不燃で燃料を持たない")
+
+	none, err := NewItemSpec(raws, "no_mat")
+	require.NoError(t, err)
+	assert.Nil(t, none.Fuel, "材質未指定は燃料を持たない")
+}

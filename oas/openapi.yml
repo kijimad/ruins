@@ -1890,7 +1890,7 @@ components:
     BurnRemaining:
       type: integer
       minimum: 1
-      description: 着火状態で最初に燃えている残量。毎ターン減り、0以下で収納の次の燃料へ移り、無ければ鎮火する
+      description: 着火状態で最初に燃えている残量。毎ターン減り、0以下で鎮火する
     Burning:
       type: object
       required:
@@ -2310,14 +2310,6 @@ components:
         - -1
         - -3
       description: 植生タイプ
-    Fuel:
-      type: object
-      required:
-        - heatContent
-      properties:
-        heatContent:
-          $ref: '#/components/schemas/HeatContent'
-      description: 燃料設定。燃やせるアイテムに付ける。可燃性はこの有無で判定し、熱量を heatContent で持つ
     HealAmount:
       type: integer
       minimum: 0
@@ -2336,10 +2328,6 @@ components:
         - ABSOLUTE
         - NUMERAL
       description: 回復量の計算方式
-    HeatContent:
-      type: integer
-      minimum: 1
-      description: 燃やしたときに火へ移す熱量。fireBurnPerTurn を単位に、1 が1ターンぶんの燃焼に相当する
     HeatRadius:
       type: integer
       minimum: 1
@@ -2445,10 +2433,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/LightSource'
           description: 携行光源。装備すると owner を照らす
-        fuel:
+        material:
           allOf:
-            - $ref: '#/components/schemas/Fuel'
-          description: 燃料。地面に置いて火をつけたり、火の収納へ入れて燃やせる
+            - $ref: '#/components/schemas/Material'
+          description: 材質。可燃性と燃焼熱量を導く。可燃な材質のアイテムは地面に置いて着火したり火にくべて燃やせる
         fireStarter:
           allOf:
             - $ref: '#/components/schemas/FireStarter'
@@ -2608,6 +2596,28 @@ components:
       minimum: 1
       maximum: 100
       description: マガジン容量
+    Material:
+      type: string
+      enum:
+        - WOOD
+        - PAPER
+        - CLOTH
+        - LEATHER
+        - PLANT
+        - FOOD
+        - BONE
+        - OIL
+        - COAL
+        - PLASTIC
+        - METAL
+        - STONE
+        - GLASS
+        - CRYSTAL
+        - CERAMIC
+        - LIQUID
+      description: |-
+        材質。可燃性と燃焼熱量の算出に使う。燃料熱量は材質のkgあたり熱量へ重量を掛けて導く。
+        不燃の材質は係数0で燃料にならない。係数は balance 値なので Go 側が持つ
     MaterialAmount:
       type: integer
       minimum: 1

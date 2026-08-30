@@ -149,14 +149,39 @@ func toGCBurning(b *oapi.Burning) *gc.Burning {
 	}
 }
 
-// toGCFuel はoapi.Fuelからgc.Fuelに変換する。燃やせるアイテムに熱量を持たせる
-func toGCFuel(f *oapi.Fuel) *gc.Fuel {
-	if f == nil {
+// materialHeatPerKg は材質のkgあたり燃焼熱量。ここに載らない材質は不燃で0とみなし燃料にならない。
+// 燃料熱量は重量kgへ掛けて導く。石炭・油が高く、食料・骨が低い。金属・石・ガラス・結晶・陶磁器・液体は不燃。
+// 係数は balance 値なので schema でなくここで持つ。地面効率50%で hardwood 3kg が約300ターン、
+// coal 1kg が約400ターン燃えるよう釣り合わせる。火を絶やさぬ手触りに合わせて全体をここで振る
+var materialHeatPerKg = map[oapi.Material]int{
+	oapi.OIL:     1000,
+	oapi.COAL:    800,
+	oapi.PAPER:   300,
+	oapi.PLASTIC: 240,
+	oapi.WOOD:    200,
+	oapi.CLOTH:   160,
+	oapi.LEATHER: 120,
+	oapi.PLANT:   120,
+	oapi.FOOD:    60,
+	oapi.BONE:    40,
+}
+
+// toGCFuel は材質と重量から燃料を導く。可燃な材質のアイテムに、材質のkgあたり熱量へ重量を掛けた
+// 燃焼熱量を持たせる。不燃の材質・材質未指定・熱量0へ丸める軽い物は Fuel を持たず燃えない
+func toGCFuel(material *oapi.Material, weight *gc.Weight) *gc.Fuel {
+	if material == nil || weight == nil {
 		return nil
 	}
-	return &gc.Fuel{
-		HeatContent: f.HeatContent,
+	perKg, ok := materialHeatPerKg[*material]
+	if !ok {
+		return nil
 	}
+	// 重量は Milligram。整数で閉じるため mg 基準で計算し 1kg=1_000_000mg で割って kg 換算する
+	heat := perKg * int(weight.Milligram) / 1_000_000
+	if heat <= 0 {
+		return nil
+	}
+	return &gc.Fuel{HeatContent: heat}
 }
 
 // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
@@ -367,8 +392,9 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 携行光源。装備すると StatsChangedSystem が owner の LightSource へ転写する
 	entitySpec.LightSource = toGCLightSource(item.LightSource)
 
-	// 燃料。地面に置いて着火したり火の収納で燃やせる。可燃性はこの有無で判定する
-	entitySpec.Fuel = toGCFuel(item.Fuel)
+	// 燃料。可燃性はこの有無で判定する。材質のkgあたり熱量へ重量を掛けて燃焼熱量を導く。
+	// 材質は raw で明示し、不燃の材質や軽すぎる物は燃料にならない
+	entitySpec.Fuel = toGCFuel(item.Material, entitySpec.Weight)
 
 	// 火種。所持していると隣接の燃焼物に着火できる再利用可能な道具
 	if item.FireStarter != nil {
