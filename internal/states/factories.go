@@ -309,45 +309,14 @@ func sameTileActionChoices(world w.World) (string, []Choice) {
 	return "", interactionActionChoices(GetSameTileManualActions(world))
 }
 
-// NewFeedFuelMenuState は火への給油メニューを選択メニューとして作る。
-// くべる先の火を閉じ込め、選ぶたびに現在のバックパックの燃料から選択肢を組み直す
+// NewFeedFuelMenuState は火への給油メニューを作る。収納やインベントリと同じ item-row 形式で、
+// くべる先の火を閉じ込める。表示と操作は FeedFuelMenuState が担う
 func NewFeedFuelMenuState(fire ecs.Entity) (es.State[w.World], error) {
-	return NewChoiceMenu(feedFuelChoices(fire)), nil
-}
-
-// feedFuelChoices は火 fire への給油の選択肢を返す provide を組む。
-// タイトルに予想残ターン数、各行にバックパックの燃料と増える燃焼ターン数を出す。
-// 選ぶと1つくべて残ターン数へ畳み込み、メニューに留まって続けてくべられる
-func feedFuelChoices(fire ecs.Entity) func(world w.World) (string, []Choice) {
-	return func(world w.World) (string, []Choice) {
-		title := query.T(world, "Burning, about %d turns left", query.EstimateBurnTurns(world, fire))
-		player, err := query.GetPlayerEntity(world)
-		if err != nil {
-			return title, nil
-		}
-		var choices []Choice
-		for _, stack := range query.BackpackStacks(world, player) {
-			if !world.Components.Fuel.Has(stack.Rep) {
-				continue
-			}
-			rep := stack.Rep
-			label := query.FormatNameCount(query.GetEntityName(rep, world), stack.Count)
-			label += query.T(world, " (+%d turns)", query.FuelBurnTurns(world, fire, rep))
-			choices = append(choices, Choice{Label: label, Run: stayAfter(func(world w.World) error {
-				feedOneFuel(world, fire, rep)
-				return nil
-			})})
-		}
-		// 燃料が無いときは非選択の見出し行で空メッセージを出す。火の残ターン数だけ確認できる
-		if len(choices) == 0 {
-			choices = append(choices, Choice{Label: query.T(world, "No fuel to add"), Header: true})
-		}
-		return title, choices
-	}
+	return &FeedFuelMenuState{fire: fire}, nil
 }
 
 // feedOneFuel は rep を火へ1つくべる。走査時の rep は消費されるので、
-// 次フレームの provide が新しい代表で選択肢を組み直す。火が消えていれば何もしない
+// 次フレームの Fetch が新しい代表で一覧を組み直す。火が消えていれば何もしない
 func feedOneFuel(world w.World, fire ecs.Entity, rep ecs.Entity) {
 	if !world.ECS.Alive(rep) || !world.Components.Fuel.Has(rep) {
 		return
