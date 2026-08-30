@@ -37,7 +37,7 @@ var (
 		{"wooden_sign", 0, -3},
 	}
 	hamletProps = []relSpot{
-		{"hearth", 2, -2}, // 火は据えない。暖を取るにはプレイヤーが燃料と火種で着火する
+		{"hearth", 2, -2},
 		{"crate", 1, 2},
 	}
 )

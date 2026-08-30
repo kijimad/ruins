@@ -155,8 +155,8 @@ func spawnPropNearPlayer(world w.World, name string) error {
 	return err
 }
 
-// spawnLitFireNearPlayer はプレイヤーの隣に燃えている火をスポーンする。本番の着火と同じく
-// fire prop へ Burning を付ける。事前点火の prop は廃したので、デバッグでもこの形で火を作る
+// spawnLitFireNearPlayer はプレイヤーの隣に燃えている火をスポーンする。
+// 本番の着火と同じく fire prop へ Burning を付ける
 func spawnLitFireNearPlayer(world w.World) error {
 	playerGrid, err := playerGridElement(world)
 	if err != nil {
