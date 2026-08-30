@@ -401,7 +401,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 材質は raw で明示し、不燃の材質や軽すぎる物は燃料にならない
 	entitySpec.Fuel = toGCFuel(item.Material, entitySpec.Weight)
 
-	// 火種。所持していると隣接の燃焼物に着火できる再利用可能な道具
+	// 火種。所持していると隣接の燃焼物に着火できる道具
 	if item.FireStarter != nil {
 		entitySpec.FireStarter = &gc.FireStarter{}
 	}

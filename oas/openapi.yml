@@ -2302,7 +2302,7 @@ components:
       description: 遠距離攻撃設定
     FireStarter:
       type: object
-      description: 火種設定。所持していると隣接タイルの燃焼物に火をつけられる再利用可能な道具を表す
+      description: 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
     FoliageType:
       type: number
       enum:

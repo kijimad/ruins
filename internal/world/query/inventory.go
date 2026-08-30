@@ -38,7 +38,7 @@ func FindAmmoInInventory(world w.World, ammoTag oapi.AmmoTag) (ecs.Entity, bool)
 }
 
 // HoldsFireStarter は owner が火種の道具を所持しているかを返す。
-// バックパックと装備の両方を見る。着火の可否判定に使い、再利用できる火種なので消費はしない
+// バックパックと装備の両方を見る。着火の可否を所持の有無だけで判定する。消費はこの関数の関心ではない
 func HoldsFireStarter(world w.World, owner ecs.Entity) bool {
 	backpack := ecs.NewFilter2[gc.LocationInBackpack, gc.FireStarter](world.ECS).Query()
 	for backpack.Next() {

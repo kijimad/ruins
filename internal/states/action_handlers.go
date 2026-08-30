@@ -86,7 +86,7 @@ func appendFeedFuelActions(world w.World, _ ecs.Entity, playerGrid *gc.GridEleme
 
 // appendIgniteActions は火種を持つとき、隣接タイルの燃焼物へ着火するアクションをタイルごとに1つ足す。
 // 足元は自分が燃えるため対象にしない。同じタイルに複数の燃料があっても着火は1タイル1回にまとめる。
-// 火種の道具は再利用できるので消費しない。
+// 着火の可否は火種の所持だけで判定する。火種を消費するかは別の関心で、ここでは扱わない。
 func appendIgniteActions(world w.World, player ecs.Entity, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
 	if !query.HoldsFireStarter(world, player) {
 		return actions

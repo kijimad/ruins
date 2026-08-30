@@ -1207,7 +1207,7 @@ type Fire struct {
 	TargetNum TargetNum `json:"targetNum"`
 }
 
-// FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる再利用可能な道具を表す
+// FireStarter 火種設定。所持していると隣接タイルの燃焼物に火をつけられる道具を表す
 type FireStarter = map[string]interface{}
 
 // FoliageType 植生タイプ
