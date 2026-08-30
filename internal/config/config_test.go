@@ -94,6 +94,7 @@ func TestLoad(t *testing.T) {
 	assert.Positive(t, cfg.User.WindowHeight)
 	assert.Positive(t, cfg.TargetFPS)
 }
+
 func TestValidate(t *testing.T) {
 	t.Parallel()
 
