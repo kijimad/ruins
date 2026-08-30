@@ -350,8 +350,9 @@ func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIn
 	var totalR, totalG, totalB float64
 	var totalWeight float64
 
-	// 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない
-	lightQuery := query.ActiveFilter2[gc.LightSource, gc.GridElement](world).Query()
+	// 全ての光源をチェック。退避中ステージの光源は現ステージを照らさない。
+	// Dead は照らさない。燃え尽きた火は Dead になり除去待ちの間も灯りを出さない
+	lightQuery := query.ActiveFilter2[gc.LightSource, gc.GridElement](world).Without(ecs.C[gc.Dead]()).Query()
 	for lightQuery.Next() {
 		lightEntity := lightQuery.Entity()
 		lightSource := world.Components.LightSource.Get(lightEntity)

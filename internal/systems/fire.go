@@ -13,7 +13,7 @@ import (
 
 // FireSystem は燃えている火を毎ターン進める。残量を一定量減らし、尽きたら Burning を外して火が消える。
 // 火は燃料を貯めず残量だけを持つ。燃料は着火や給油のときに残ターン数へ畳み込まれる。
-// 燃え尽きたら火の HeatSource と LightSource を外し、暖房と灯りを同時に切る。
+// 燃え尽きたら Dead にする。暖房と灯りのクエリは Dead を除外するので、Dead にした時点で止まる。
 type FireSystem struct{}
 
 // String はシステム名を返す
@@ -36,9 +36,9 @@ func (sys *FireSystem) Update(world w.World) error {
 		if burning.Remaining <= 0 {
 			// 燃料が尽きた。燃え尽きた跡へ灰を残してから、暖房を切り火のエンティティごと消す。
 			// 灰は火のあった座標へ落とすフィールドアイテムで、拾って素材に使える。
-			// 暖房と灯りを切るのは HeatSource と LightSource を外すこと。どちらも Burning と独立で、
-			// 火が燃え尽きた側で自分の熱源と光源を落とす。Dead にすると dead_cleanup がスプライトの
-			// フェードアウトを出して除去し、燃え尽きた火は残らない
+			// 燃え尽きた跡へ灰を残し、Burning を外して Dead にする。暖房と灯りは HeatSource・LightSource
+			// クエリが Dead を除外するので、Dead にした時点で止まる。Dead にすると dead_cleanup が
+			// スプライトのフェードアウトを出して除去し、燃え尽きた火は残らない
 			if world.Components.GridElement.Has(fire) {
 				coord := world.Components.GridElement.Get(fire).Coord
 				if _, err := lifecycle.SpawnFieldItem(world, "ashes", coord.X, coord.Y, 1); err != nil {
@@ -46,12 +46,6 @@ func (sys *FireSystem) Update(world w.World) error {
 				}
 			}
 			world.Components.Burning.Remove(fire)
-			if world.Components.HeatSource.Has(fire) {
-				world.Components.HeatSource.Remove(fire)
-			}
-			if world.Components.LightSource.Has(fire) {
-				world.Components.LightSource.Remove(fire)
-			}
 			if !world.Components.Dead.Has(fire) {
 				world.Components.Dead.Add(fire, &gc.Dead{})
 			}

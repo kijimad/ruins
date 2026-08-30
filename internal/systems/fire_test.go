@@ -43,22 +43,6 @@ func TestFireSystem_Update(t *testing.T) {
 		assert.True(t, world.Components.Dead.Has(fire), "燃え尽きた火は Dead になり dead_cleanup が消す")
 	})
 
-	t.Run("燃え尽きると自分の HeatSource と LightSource を外す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		sys := &FireSystem{}
-
-		// 火は熱源と光源を持つ。暖房も灯りも component だけで決まるので、燃え尽きたら火の側で両方落とす
-		fire := world.ECS.NewEntity()
-		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 1})
-		world.Components.HeatSource.Add(fire, &gc.HeatSource{Radius: 2, Warmth: 0.75})
-		world.Components.LightSource.Add(fire, &gc.LightSource{Enabled: true, Radius: 5})
-
-		require.NoError(t, sys.Update(world))
-		assert.False(t, world.Components.HeatSource.Has(fire), "燃え尽きた火は熱源を外して暖房を止める")
-		assert.False(t, world.Components.LightSource.Has(fire), "燃え尽きた火は光源を外して灯りを止める")
-	})
-
 	t.Run("燃え尽きると火のあった場所に灰が残る", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
