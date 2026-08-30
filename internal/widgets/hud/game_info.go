@@ -133,8 +133,6 @@ func (info *GameInfo) drawTemperatureArrow(cv uicore.Canvas, arrow TemperatureAr
 	drawOutlinedText(cv, glyph, info.bodyFace, image.Pt(int(gaugeBaseX), y), arrow.Color)
 }
 
-// drawHealthBar はプレイヤーの体力ゲージを描画する
-
 // drawBodyTemperature は体温ゲージを最上段に描く。中央が平熱で、左へ冷え、右へ火照る
 func (info *GameInfo) drawBodyTemperature(cv uicore.Canvas, data GameInfoData) {
 	if !data.BodyTempVisible {
@@ -159,6 +157,7 @@ func lerpColor(a, b color.RGBA, t float64) color.RGBA {
 	return color.RGBA{lerp(a.R, b.R), lerp(a.G, b.G), lerp(a.B, b.B), 255}
 }
 
+// drawHealthBar はプレイヤーの体力ゲージを描画する
 func (info *GameInfo) drawHealthBar(cv uicore.Canvas, currentHP, maxHP int) {
 	// 矢印スロットぶん右へ寄せる
 	x := gaugeBaseX + tempArrowSlotW
