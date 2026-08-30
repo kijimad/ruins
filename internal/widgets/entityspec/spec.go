@@ -39,7 +39,7 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 		rows = append(rows, fireAmmoRows(world, fire)...)
 	}
 	if world.Components.Burning.Has(entity) {
-		rows = append(rows, burningRows(world, entity)...)
+		rows = append(rows, burningRow(world, entity))
 	}
 	if world.Components.Material.Has(entity) {
 		rows = append(rows, materialRow(world, world.Components.Material.Get(entity)))
@@ -186,15 +186,13 @@ func materialDisplayName(kind string) string {
 // fuelRow は燃料の熱量の1行を返す。燃やしたとき火へ移す熱量で、燃焼時間の目安になる。
 // 値の無い見出し行は置かず、材質の行と並べて読ませる
 func fuelRow(world w.World, fuel *gc.Fuel) SpecRow {
-	return SpecRow{Label: query.T(world, "Heat"), Value: strconv.Itoa(fuel.HeatContent)}
+	// 熱量は炎アイコンで見せる。満burn時の燃焼ターン数に等しく、地面直の火では効率で減る
+	return SpecRow{Label: query.T(world, "Fuel"), Value: query.FormatHeat(fuel.HeatContent)}
 }
 
-// burningRows は燃えている火の予想残ターン数を返す。今の残量と収納の燃料を効率で割り引いた合計。先頭は見出し
-func burningRows(world w.World, entity ecs.Entity) []SpecRow {
-	return []SpecRow{
-		{Label: query.T(world, "Burning"), Header: true},
-		{Label: query.T(world, "Turns left"), Value: strconv.Itoa(query.EstimateBurnTurns(world, entity))},
-	}
+// burningRow は燃えている火の予想残ターン数の1行を返す
+func burningRow(world w.World, entity ecs.Entity) SpecRow {
+	return SpecRow{Label: query.T(world, "Burning"), Value: query.FormatTurns(query.EstimateBurnTurns(world, entity))}
 }
 
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し
