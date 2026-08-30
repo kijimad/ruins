@@ -192,9 +192,9 @@ var externallyReferencedSprites = []string{
 // knownOrphanSprites は raw からも Go からも参照されない既存スプライトの逃げ道。
 // やむを得ず孤児化したものだけをここに載せ、原則は空を保つ。
 var knownOrphanSprites = []string{
-	// 灰は専用スプライトへ移したが、この黄色い粉の絵は別アイテムに転用できるので残す。
-	// 転用して raw から参照したらこの行を消す
-	"yellow_powder",
+	// Yellow Herb が緑の汎用回復瓶をやめて yellow_powder へ移った跡に空いた絵。
+	// 緑の回復瓶として別アイテムに転用できるので残す。転用して raw から参照したらこの行を消す
+	"heal_item",
 }
 
 // TestSpriteOrphan は field/tile シートの全スプライトが raw から参照されることを検証する。
