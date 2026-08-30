@@ -18,10 +18,10 @@ func TestOverworldDaylightAnchor(t *testing.T) {
 		tod  gc.TimeOfDay
 		want float64
 	}{
-		{"夜明けは薄暗い", gc.TimeDawn, 0.40},
+		{"夜明けは薄明るい", gc.TimeDawn, 0.55},
 		{"朝は明るい", gc.TimeMorning, 0.72},
 		{"昼は最も明るい", gc.TimeDay, 0.95},
-		{"夕は薄暗い", gc.TimeEvening, 0.38},
+		{"夕は薄明るい", gc.TimeEvening, 0.55},
 		{"夜は暗い", gc.TimeNight, 0.14},
 		{"深夜は最も暗い", gc.TimeMidnight, 0.06},
 	}
@@ -85,12 +85,12 @@ func TestOverworldDaylight_連続補間(t *testing.T) {
 
 	// turnsPerTimeOfDay=250。各時間帯の中心は 125 + 250*idx
 	eveningCenter := &gc.GameTime{TotalTurns: 375} // 夕の中心
-	assert.InDelta(t, 0.38, overworldDaylight(eveningCenter), 1e-9, "夕の中心は夕の代表値")
+	assert.InDelta(t, 0.55, overworldDaylight(eveningCenter), 1e-9, "夕の中心は夕の代表値")
 
-	// 夕の入り口(turn 250)は昼と夕の中間。フラットな夕(0.38)より明るく、夜っぽくない
+	// 夕の入り口(turn 250)は昼と夕の中間。フラットな夕より明るく、夜っぽくない
 	eveningStart := &gc.GameTime{TotalTurns: 250}
 	got := overworldDaylight(eveningStart)
-	assert.InDelta(t, (0.95+0.38)/2, got, 1e-9, "夕の入り口は昼と夕の中間")
+	assert.InDelta(t, (0.95+0.55)/2, got, 1e-9, "夕の入り口は昼と夕の中間")
 	assert.Greater(t, got, overworldDaylightAnchor(gc.TimeEvening), "夕の入り口はフラットな夕より明るい")
 
 	// 夕の入り口から夜の入り口へ向けて単調に暗くなる

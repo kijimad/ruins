@@ -328,13 +328,13 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 func overworldDaylightAnchor(t gc.TimeOfDay) float64 {
 	switch t {
 	case gc.TimeDawn:
-		return 0.40
+		return 0.55
 	case gc.TimeMorning:
 		return 0.72
 	case gc.TimeDay:
 		return 0.95
 	case gc.TimeEvening:
-		return 0.38
+		return 0.55
 	case gc.TimeNight:
 		return 0.14
 	case gc.TimeMidnight:
