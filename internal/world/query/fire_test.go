@@ -41,25 +41,6 @@ func TestFuelBurnTurns_熱量を効率で割り引く(t *testing.T) {
 	assert.Equal(t, 20, query.FuelBurnTurns(world, fire, fuel))
 }
 
-func TestHoldsAnyFuel_バックパックの燃料を見て他人の物は除く(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	player := world.ECS.NewEntity()
-	assert.False(t, query.HoldsAnyFuel(world, player), "初期状態では燃料を持たない")
-
-	other := world.ECS.NewEntity()
-	othersFuel := world.ECS.NewEntity()
-	world.Components.Fuel.Add(othersFuel, &gc.Fuel{HeatContent: 10})
-	world.Components.LocationInBackpack.Add(othersFuel, &gc.LocationInBackpack{Owner: other})
-	assert.False(t, query.HoldsAnyFuel(world, player), "他人の燃料は数えない")
-
-	fuel := world.ECS.NewEntity()
-	world.Components.Fuel.Add(fuel, &gc.Fuel{HeatContent: 10})
-	world.Components.LocationInBackpack.Add(fuel, &gc.LocationInBackpack{Owner: player})
-	assert.True(t, query.HoldsAnyFuel(world, player), "バックパックの燃料を見る")
-}
-
 func TestHoldsFireStarter_バックパックと装備の火種を見て他人の物は除く(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

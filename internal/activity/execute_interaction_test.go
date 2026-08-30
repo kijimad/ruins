@@ -491,3 +491,24 @@ func TestExecuteInteraction_Fixed(t *testing.T) {
 		require.Error(t, err)
 	})
 }
+
+// TestExecuteInteraction_FeedFuel_給油メニューを開くイベントを積む は、給油の相互作用が
+// くべる先の火を載せた OpenFeedFuel リクエストを積むことを確認する。
+func TestExecuteInteraction_FeedFuel_給油メニューを開くイベントを積む(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	fire := world.ECS.NewEntity()
+	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 5})
+
+	actor := world.ECS.NewEntity()
+	res, err := ExecuteInteraction(actor, fire, gc.InteractionFeedFuel, world)
+	require.NoError(t, err)
+	require.True(t, res.Success)
+
+	req := lifecycle.ConsumeStateChange(world)
+	require.NotNil(t, req, "給油メニューを開くリクエストが積まれる")
+	payload, ok := req.Payload.(gc.OpenFeedFuel)
+	require.True(t, ok, "OpenFeedFuel が要求される")
+	assert.Equal(t, fire, payload.FireEntity, "くべる先の火が載る")
+}

@@ -755,11 +755,12 @@ func TestGetInteractionActions_給油(t *testing.T) {
 		return n
 	}
 
-	t.Run("燃料が無ければ給油は出ない", func(t *testing.T) {
+	t.Run("燃料が無くても隣接の火なら給油メニューを開ける", func(t *testing.T) {
 		t.Parallel()
 		world, _ := setup(t)
 		addBurningFire(world, 6, 5)
-		assert.Equal(t, 0, countFeed(GetInteractionActions(world)))
+		// 火の残ターン数を確認できるよう、燃料の有無に関わらずメニューは開ける
+		assert.Equal(t, 1, countFeed(GetInteractionActions(world)))
 	})
 
 	t.Run("燃料を持ち隣接に火があれば給油が出る", func(t *testing.T) {

@@ -63,12 +63,10 @@ func GetInteractionActions(world w.World) []InteractionAction {
 	return appendFeedFuelActions(world, playerEntity, gridElement, actions)
 }
 
-// appendFeedFuelActions はバックパックに燃料を持つとき、隣接の燃えている火へ給油するアクションを足す。
-// 給油メニューでどの燃料をくべるか選ぶ。火でないタイルや燃えていない火には出さない
-func appendFeedFuelActions(world w.World, player ecs.Entity, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
-	if !query.HoldsAnyFuel(world, player) {
-		return actions
-	}
+// appendFeedFuelActions は隣接の燃えている火へ給油するアクションを足す。
+// 燃料の有無に関わらず出し、火の残ターン数を確認しつつ持っていればくべられるようにする。
+// 火でないタイルや燃えていない火には出さない。player は将来の火種条件などに備えて受ける
+func appendFeedFuelActions(world w.World, _ ecs.Entity, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
 	fireQuery := query.ActiveFilter2[gc.Burning, gc.GridElement](world).Query()
 	for fireQuery.Next() {
 		fire := fireQuery.Entity()
