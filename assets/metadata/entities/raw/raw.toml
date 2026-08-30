@@ -13736,9 +13736,8 @@ remaining = 999
 [[props]]
 blockPass = true
 blockView = false
-description = "地面に薪を組んで熾した焚き火。燃料を継がなければ燃え尽きる。暖を取れるが照らしはしない"
-hp = 10
-name = "Campfire"
+description = "地面で燃える火。燃料を継がなければ燃え尽きて消える。暖を取れるが照らしはしない"
+name = "Fire"
 id = "campfire"
 
 [props.spriteRender]

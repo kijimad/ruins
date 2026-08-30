@@ -34,8 +34,13 @@ func (sys *FireSystem) Update(world w.World) error {
 		burning := world.Components.Burning.Get(fire)
 		burning.Remaining -= fireBurnPerTurn
 		if burning.Remaining <= 0 {
-			// 燃料が尽きた。Burning を外すと heatSourceWarmthAt が数えなくなり暖房が切れる
+			// 燃料が尽きた。暖房を切り、火のエンティティごと消す。Burning を外すと
+			// heatSourceWarmthAt が数えなくなり暖房が切れる。Dead にすると dead_cleanup が
+			// スプライトのフェードアウトを出して除去し、燃え尽きた火が残らない
 			world.Components.Burning.Remove(fire)
+			if !world.Components.Dead.Has(fire) {
+				world.Components.Dead.Add(fire, &gc.Dead{})
+			}
 		}
 	}
 
