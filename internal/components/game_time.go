@@ -68,17 +68,12 @@ const numTimeOfDay = int(turnsPerDay / turnsPerTimeOfDay)
 
 // GetDaylightLerp は日照や色味を連続に補間するための、前後のアンカー時間帯とその間の位置 0..1 を返す。
 // 各時間帯を区間の中心にアンカーする。境界で段差にせず中心の代表値へなだらかに寄せるため。
-// 例えば夕へ入った直後は昼と夕の中間になり、夕の終わりにかけて夜へ寄る。
-// これで見た目が離散に切り替わらず、色味と暗さが徐々に変わる。
-//
-// 明るさ・色味の値表は presentation の systems 側が持つ。ここが返すのは時間の割り出しだけで、
-// 時間帯の区切りに必要な turnsPerDay と turnsPerTimeOfDay を持つ components に置く。
-// 値の補間そのものは呼び出し側が行う。
+// 値表は systems 側が持ち、時間の割り出しだけをここに置く。時間帯の区切りに要る turnsPerDay と
+// turnsPerTimeOfDay が components にあるため。補間そのものは呼び出し側が行う。
 func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {
-	// 区間の中心へアンカーするため半区間ずらす。turnsPerTimeOfDay は 1500/6=250 で偶数なので
-	// half に端数は出ない。区分数を変えて奇数になると中心が半ターンずれるが、実害は無視できる
+	// 中心へアンカーするため半区間ずらす。turnsPerTimeOfDay=250 は偶数で端数は出ない
 	half := turnsPerTimeOfDay / 2
-	// 中心を原点に取り直す。中心より前は1つ前の区間へ回り込むので turnsPerDay を足して正へ寄せる
+	// 中心より前は1つ前の区間へ回り込むので turnsPerDay を足して正へ寄せる
 	rel := (gt.TotalTurns%turnsPerDay - half + turnsPerDay) % turnsPerDay
 	idx := int(rel / turnsPerTimeOfDay)
 	t = float64(rel%turnsPerTimeOfDay) / float64(turnsPerTimeOfDay)

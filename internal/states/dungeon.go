@@ -270,9 +270,8 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 	if err := st.three.draw(world, screen); err != nil {
 		return err
 	}
-	// 時間帯の色は vision の環境光として per-tile ライティングに混ざる。ここで全画面へ
-	// 乗算すると松明で照らしたタイルまで一律に暗くなるので、全画面フィルタは掛けない。
-	// HUD レイヤは screen へ等倍で描く。文字やバーの読みやすさを保つ
+	// 時間帯の色は vision の環境光として per-tile に効く。全画面フィルタは松明で照らした
+	// タイルまで暗くするので掛けない。HUD レイヤは screen へ等倍で描き読みやすさを保つ
 	return drawRenderers(world, screen,
 		&gs.HUDRenderingSystem{}, &gs.VisualEffectSystem{})
 }

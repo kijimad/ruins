@@ -89,8 +89,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 	// マップ外座標はデータに含めない。
 	// 環境光は屋内なら微小、地上なら時間帯の日照。昼の屋外は全体が明るく松明が要らず、
 	// 地下や深夜は松明の届く範囲だけが見える
-	// 環境光は明るさと色を持つ。屋内は微小で無彩色、地上は時間帯の日照と色。
-	// 色は無照明のタイルを染め、松明の届くタイルは松明色が勝つ
+	// 環境光は明るさと色を持つ。屋内は微小で無彩色、地上は時間帯の日照と色
 	ambient := dungeonAmbient
 	ambientColor := [3]float64{1, 1, 1}
 	if query.IsOnOverworld(world) {
@@ -353,8 +352,7 @@ func overworldDaylight(gt *gc.GameTime) float64 {
 }
 
 // overworldAmbientColorAnchor は各時間帯の中心での地上の環境光の色。昼は無彩色、朝夕は暖色、夜は寒色。
-// この色は per-tile ライティングの基底として使う。松明で照らしたタイルは松明色が勝つので、
-// 無照明のタイルだけがこの色に染まる。明るさは overworldDaylight が持つのでここは色味だけを表す。
+// 明るさは overworldDaylight が持つので、ここは色味だけを表す。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
 func overworldAmbientColorAnchor(t gc.TimeOfDay) [3]float64 {
 	switch t {
@@ -390,9 +388,8 @@ func overworldAmbientColor(gt *gc.GameTime) [3]float64 {
 func calculateLightSourceDarkness(world w.World, tile consts.Coord[int], blockIndex map[gc.GridElement]bool, ambient float64, ambientColor [3]float64) gc.LightInfo {
 	brightness := ambient
 
-	// 色は環境光と各光源の寄与で加重平均する。環境光を基底の色として重み ambient で入れると、
+	// 色は環境光と各光源の寄与で加重平均する。環境光を重み ambient の基底色として入れると、
 	// 無照明のタイルは環境光の色になり、松明の届くタイルは寄与の大きい松明色が勝つ。
-	// 全画面へ一律に色を掛けると照らしたタイルまで暗くなるが、この方式なら照らした所は明るいまま。
 	totalR := ambientColor[0] * 255 * ambient
 	totalG := ambientColor[1] * 255 * ambient
 	totalB := ambientColor[2] * 255 * ambient

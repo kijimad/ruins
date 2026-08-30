@@ -100,9 +100,8 @@ func TestOverworldDaylight_連続補間(t *testing.T) {
 		overworldDaylight(&gc.GameTime{TotalTurns: 500}), "夜へ向けてさらに暗くなる")
 }
 
-// TestOverworldDaylight_一日を通して単調に増減する は、昼の中心から深夜の中心までは単調に暗くなり、
-// 深夜から翌日の昼までは単調に明るくなることを、細かく刻んで検証する。特定の遷移だけでなく
-// 全時間帯にわたって傾きが正しい向きであることを保証し、アンカー値を誤って上下させた回帰を捕まえる。
+// TestOverworldDaylight_一日を通して単調に増減する は、昼の中心から深夜の中心まで単調に暗くなり、
+// 深夜から翌昼まで単調に明るくなることを、細かく刻んで検証する。
 func TestOverworldDaylight_一日を通して単調に増減する(t *testing.T) {
 	t.Parallel()
 

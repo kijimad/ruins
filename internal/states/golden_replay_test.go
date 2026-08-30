@@ -374,11 +374,9 @@ func TestGolden(t *testing.T) {
 			},
 			steps: []replayStep{{shot: true}},
 		},
-		// Overworld_<n>_* は時間帯ごとの地上の見た目を固定する。日照と色味は経過ターンから連続に
-		// 補間されるので、各時間帯の中心を1枚ずつ撮って回帰検知する。turnsPerDay=1500、
-		// 各時間帯250ターンで、中心は 125 + 250*idx。区間内の傾斜は単体テストで担保する。
-		// 名前の番号は朝を起点にした1日の並び順。ファイル名とギャラリーが時刻順に並ぶ。
-		// 昼は新規開始の Overworld と近いが、6時間帯を揃えると一覧が読みやすいので中心を撮る。
+		// Overworld_<n>_* は時間帯ごとの地上の見た目を固定する。各時間帯の中心を1枚ずつ撮り、
+		// 連続補間が段差にならないことを回帰検知する。区間内の傾斜は単体テストで担保する。
+		// 番号は朝を起点にした1日の並び順で、ファイル名とギャラリーが時刻順に並ぶ。
 		{name: "Overworld_1_Morning", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 朝の中心
 		{name: "Overworld_2_Day", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 昼の中心。最も明るく無彩色
 		{name: "Overworld_3_Evening", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},  // 夕の中心。暖色
