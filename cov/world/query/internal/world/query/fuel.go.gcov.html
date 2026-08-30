@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - world/query/internal/world/query/fuel.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">world/query/internal/world/query</a> - fuel.go<span style="font-size: 80%;"> (source / <a href="fuel.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">69.2&nbsp;%</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">9</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-08-30 14:14:31</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package query</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              : )</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : // materialHeatPerKg は材質のkgあたり燃焼熱量。ここに載らない材質は不燃で0とみなし燃料にならない。</span>
+<span id="L11"><span class="lineNum">      11</span>              : // 燃料熱量は重量kgへ掛けて導く。石炭・油が高く、食料・骨が低い。金属・石・ガラス・結晶・陶磁器・液体は不燃。</span>
+<span id="L12"><span class="lineNum">      12</span>              : // 係数は balance 値なので schema でなくここで持つ。地面効率50%で hardwood 3kg が約300ターン、</span>
+<span id="L13"><span class="lineNum">      13</span>              : // coal 1kg が約400ターン燃えるよう釣り合わせる。火を絶やさぬ手触りに合わせて全体をここで振る</span>
+<span id="L14"><span class="lineNum">      14</span>              : var materialHeatPerKg = map[oapi.Material]int{</span>
+<span id="L15"><span class="lineNum">      15</span>              :         oapi.OIL:     1000,</span>
+<span id="L16"><span class="lineNum">      16</span>              :         oapi.COAL:    800,</span>
+<span id="L17"><span class="lineNum">      17</span>              :         oapi.PAPER:   300,</span>
+<span id="L18"><span class="lineNum">      18</span>              :         oapi.PLASTIC: 240,</span>
+<span id="L19"><span class="lineNum">      19</span>              :         oapi.WOOD:    200,</span>
+<span id="L20"><span class="lineNum">      20</span>              :         oapi.CLOTH:   160,</span>
+<span id="L21"><span class="lineNum">      21</span>              :         oapi.LEATHER: 120,</span>
+<span id="L22"><span class="lineNum">      22</span>              :         oapi.PLANT:   120,</span>
+<span id="L23"><span class="lineNum">      23</span>              :         oapi.FOOD:    60,</span>
+<span id="L24"><span class="lineNum">      24</span>              :         oapi.BONE:    40,</span>
+<span id="L25"><span class="lineNum">      25</span>              : }</span>
+<span id="L26"><span class="lineNum">      26</span>              : </span>
+<span id="L27"><span class="lineNum">      27</span>              : // HeatOf は材質と重量から燃焼熱量を導く純関数。不燃の材質は0を返す。</span>
+<span id="L28"><span class="lineNum">      28</span>              : // 整数で閉じるため mg 基準で計算し 1kg=1_000_000mg で割って kg 換算する。切り捨てで軽い物は0になる</span>
+<span id="L29"><span class="lineNum">      29</span>              : func HeatOf(material oapi.Material, weight consts.Milligram) consts.Heat {</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         perKg, ok := materialHeatPerKg[material]</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return consts.Heat(perKg * int(weight) / consts.MilligramPerKg)</span></span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : // HeatContent はエンティティの燃焼熱量を Material と Weight から導く。</span>
+<span id="L38"><span class="lineNum">      38</span>              : // 値を保持せず読み取り時に算出する。どちらかの component を欠けば0</span>
+<span id="L39"><span class="lineNum">      39</span>              : func HeatContent(world w.World, entity ecs.Entity) consts.Heat {</span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if !world.Components.Material.Has(entity) || !world.Components.Weight.Has(entity) {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           1 :         kind := world.Components.Material.Get(entity).Kind</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         weight := world.Components.Weight.Get(entity).Milligram</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         return HeatOf(kind, weight)</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : }</span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : // IsCombustible は燃やせるか、すなわち燃焼熱量が正かを返す。可燃マーカーの代わりに使う</span>
+<span id="L49"><span class="lineNum">      49</span>              : func IsCombustible(world w.World, entity ecs.Entity) bool {</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC tlaBgUNC">           0 :         return HeatContent(world, entity) &gt; 0</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

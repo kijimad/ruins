@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">27</td>
-            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntry">40</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-30 10:54:45</td>
+            <td class="headerValue">2026-08-30 14:14:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -99,31 +99,51 @@
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return gc.InvalidEntity, false</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : }</span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
-<span id="L40"><span class="lineNum">      40</span>              : // GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ</span>
-<span id="L41"><span class="lineNum">      41</span>              : // 同じ位置にある同一スタックのエンティティを数えて導出する。位置が無ければ1になる。</span>
-<span id="L42"><span class="lineNum">      42</span>              : func GetEntityCount(world w.World, entity ecs.Entity) int {</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return len(StackMembers(world, entity))</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span>              : // FormatNameCount は個数が2以上のとき名前の前に個数を置く。1個や非スタックは名前だけを返す。</span>
-<span id="L47"><span class="lineNum">      47</span>              : // メニュー行とログの両方がこの1関数を通し、&quot;個数 名前&quot; の表記を揃える</span>
-<span id="L48"><span class="lineNum">      48</span>              : func FormatNameCount(name string, count int) string {</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         if count &gt; 1 {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;%d %s&quot;, count, name)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         return name</span></span>
-<span id="L53"><span class="lineNum">      53</span>              : }</span>
-<span id="L54"><span class="lineNum">      54</span>              : </span>
-<span id="L55"><span class="lineNum">      55</span>              : // FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする。</span>
-<span id="L56"><span class="lineNum">      56</span>              : // 名前はNameコンポーネントから取得し、見つからない場合は &quot;Unknown Item&quot; を返す。</span>
-<span id="L57"><span class="lineNum">      57</span>              : // 表記は FormatNameCount に委ね、個数が2以上のとき &quot;個数 名前&quot; になる</span>
-<span id="L58"><span class="lineNum">      58</span>              : func FormatItemName(world w.World, itemEntity ecs.Entity) string {</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         name := T(world, &quot;Unknown Item&quot;)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 name = T(world, nameComp.Name)</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return FormatNameCount(name, GetEntityCount(world, itemEntity))</span></span>
-<span id="L64"><span class="lineNum">      64</span>              : }</span>
+<span id="L40"><span class="lineNum">      40</span>              : // HoldsFireStarter は owner が火種の道具を所持しているかを返す。</span>
+<span id="L41"><span class="lineNum">      41</span>              : // バックパックと装備の両方を見る。着火の可否を所持の有無だけで判定する。消費はこの関数の関心ではない</span>
+<span id="L42"><span class="lineNum">      42</span>              : func HoldsFireStarter(world w.World, owner ecs.Entity) bool {</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         backpack := ecs.NewFilter2[gc.LocationInBackpack, gc.FireStarter](world.ECS).Query()</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         for backpack.Next() {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 if world.Components.LocationInBackpack.Get(backpack.Entity()).Owner == owner {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                         backpack.Close()</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                         return true</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :         }</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         equipped := ecs.NewFilter2[gc.LocationEquipped, gc.FireStarter](world.ECS).Query()</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         for equipped.Next() {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 if world.Components.LocationEquipped.Get(equipped.Entity()).Owner == owner {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         equipped.Close()</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                         return true</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L56"><span class="lineNum">      56</span>              :         }</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         return false</span></span>
+<span id="L58"><span class="lineNum">      58</span>              : }</span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : // GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ</span>
+<span id="L61"><span class="lineNum">      61</span>              : // 同じ位置にある同一スタックのエンティティを数えて導出する。位置が無ければ1になる。</span>
+<span id="L62"><span class="lineNum">      62</span>              : func GetEntityCount(world w.World, entity ecs.Entity) int {</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return len(StackMembers(world, entity))</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
+<span id="L66"><span class="lineNum">      66</span>              : // FormatNameCount は個数が2以上のとき名前の前に個数を置く。1個や非スタックは名前だけを返す。</span>
+<span id="L67"><span class="lineNum">      67</span>              : // メニュー行とログの両方がこの1関数を通し、&quot;個数 名前&quot; の表記を揃える</span>
+<span id="L68"><span class="lineNum">      68</span>              : func FormatNameCount(name string, count int) string {</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         if count &gt; 1 {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;%d %s&quot;, count, name)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         return name</span></span>
+<span id="L73"><span class="lineNum">      73</span>              : }</span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span>              : // FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする。</span>
+<span id="L76"><span class="lineNum">      76</span>              : // 名前はNameコンポーネントから取得し、見つからない場合は &quot;Unknown Item&quot; を返す。</span>
+<span id="L77"><span class="lineNum">      77</span>              : // 表記は FormatNameCount に委ね、個数が2以上のとき &quot;個数 名前&quot; になる</span>
+<span id="L78"><span class="lineNum">      78</span>              : func FormatItemName(world w.World, itemEntity ecs.Entity) string {</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         name := T(world, &quot;Unknown Item&quot;)</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                 name = T(world, nameComp.Name)</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return FormatNameCount(name, GetEntityCount(world, itemEntity))</span></span>
+<span id="L84"><span class="lineNum">      84</span>              : }</span>
         </pre>
               </td>
             </tr>

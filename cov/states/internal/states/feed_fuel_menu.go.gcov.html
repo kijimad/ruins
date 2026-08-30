@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - states/internal/states/feed_fuel_menu.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">states/internal/states</a> - feed_fuel_menu.go<span style="font-size: 80%;"> (source / <a href="feed_fuel_menu.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">68.0&nbsp;%</td>
+            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntry">34</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-08-30 14:14:31</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package states</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/keybind&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/menuloop&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/menuframe&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/overlay&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/mlange-42/ark/ecs&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              : )</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // FeedFuelMenuState は火への給油メニュー。隣接の火に持ち物の燃料をくべる。</span>
+<span id="L23"><span class="lineNum">      23</span>              : // 収納やインベントリと同じ item-row 形式で、アイコン・名前・右寄せの追加ターン数を出す。</span>
+<span id="L24"><span class="lineNum">      24</span>              : // くべても閉じず、続けて足せる。タイトルに予想残ターン数を出す。</span>
+<span id="L25"><span class="lineNum">      25</span>              : type FeedFuelMenuState struct {</span>
+<span id="L26"><span class="lineNum">      26</span>              :         es.BaseState[w.World]</span>
+<span id="L27"><span class="lineNum">      27</span>              :         fire   ecs.Entity</span>
+<span id="L28"><span class="lineNum">      28</span>              :         detail overlay.Detail</span>
+<span id="L29"><span class="lineNum">      29</span>              :         screen *menuloop.Screen[FeedFuelProps]</span>
+<span id="L30"><span class="lineNum">      30</span>              : }</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : var _ es.State[w.World] = &amp;FeedFuelMenuState{}</span>
+<span id="L33"><span class="lineNum">      33</span>              : var _ menuloop.KeyBindings = &amp;FeedFuelMenuState{}</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : // FeedFuelProps は給油メニューの表示 props</span>
+<span id="L36"><span class="lineNum">      36</span>              : type FeedFuelProps struct {</span>
+<span id="L37"><span class="lineNum">      37</span>              :         Title string</span>
+<span id="L38"><span class="lineNum">      38</span>              :         Rows  []feedFuelRow</span>
+<span id="L39"><span class="lineNum">      39</span>              : }</span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : // feedFuelRow は給油一覧の1行。燃料スタックの代表と個数、くべると増える燃焼ターン数を持つ</span>
+<span id="L42"><span class="lineNum">      42</span>              : type feedFuelRow struct {</span>
+<span id="L43"><span class="lineNum">      43</span>              :         Entity ecs.Entity</span>
+<span id="L44"><span class="lineNum">      44</span>              :         Count  int</span>
+<span id="L45"><span class="lineNum">      45</span>              :         Turns  consts.Turn</span>
+<span id="L46"><span class="lineNum">      46</span>              : }</span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span>              : // OnStart はステートが開始される際に呼ばれる</span>
+<span id="L49"><span class="lineNum">      49</span>              : func (st *FeedFuelMenuState) OnStart(_ w.World) error {</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 :         st.detail = overlay.NewEntityDetail(st.selectedEntity)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         st.screen = menuloop.NewScreen[FeedFuelProps](st, &amp;st.detail)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              : // Update はゲームステートの更新処理を行う</span>
+<span id="L56"><span class="lineNum">      56</span>              : func (st *FeedFuelMenuState) Update(world w.World) (es.Transition[w.World], error) {</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         return st.screen.Update(world)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span>              : // Draw はゲームステートの描画処理を行う</span>
+<span id="L61"><span class="lineNum">      61</span>              : func (st *FeedFuelMenuState) Draw(_ w.World, screen *ebiten.Image) error {</span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         st.screen.Draw(screen)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
+<span id="L66"><span class="lineNum">      66</span>              : // KeyBindings は x の詳細表示を共通入力に足す</span>
+<span id="L67"><span class="lineNum">      67</span>              : func (st *FeedFuelMenuState) KeyBindings() []keybind.Binding {</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         return detailOpenBindings</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : // DoAction はActionを実行する。選択で1つくべてメニューに留まり、続けて足せる</span>
+<span id="L72"><span class="lineNum">      72</span>              : func (st *FeedFuelMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC tlaBgUNC">           0 :         switch action {</span></span>
+<span id="L74"><span class="lineNum">      74</span>              :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPop}, nil</span></span>
+<span id="L76"><span class="lineNum">      76</span>              :         case inputmapper.ActionOpenItemDetail:</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                 st.detail.Open(world)</span></span>
+<span id="L78"><span class="lineNum">      78</span>              :         case inputmapper.ActionMenuSelect:</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 if entity, ok := st.selectedEntity(); ok {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                         feedOneFuel(world, st.fire, entity)</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L82"><span class="lineNum">      82</span>              :         default:</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;feedFuelMenu: unsupported action: %s&quot;, action)</span></span>
+<span id="L84"><span class="lineNum">      84</span>              :         }</span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L86"><span class="lineNum">      86</span>              : }</span>
+<span id="L87"><span class="lineNum">      87</span>              : </span>
+<span id="L88"><span class="lineNum">      88</span>              : // Fetch は世界から表示 props を構築する</span>
+<span id="L89"><span class="lineNum">      89</span>              : func (st *FeedFuelMenuState) Fetch(world w.World) (FeedFuelProps, error) {</span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC tlaBgGNC">           1 :         title := query.T(world, &quot;Burning, %s left&quot;, query.EstimateBurnTurns(world, st.fire).String())</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         player, err := query.GetPlayerEntity(world)</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC tlaBgUNC">           0 :                 return FeedFuelProps{Title: title}, err</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC tlaBgGNC">           1 :         var rows []feedFuelRow</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         for _, stack := range query.BackpackStacks(world, player) {</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 if !query.IsCombustible(world, stack.Rep) {</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L99"><span class="lineNum">      99</span>              :                 }</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 rows = append(rows, feedFuelRow{</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                         Entity: stack.Rep,</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                         Count:  stack.Count,</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                         Turns:  query.FuelBurnTurns(world, st.fire, stack.Rep),</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L105"><span class="lineNum">     105</span>              :         }</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         return FeedFuelProps{Title: title, Rows: rows}, nil</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : }</span>
+<span id="L108"><span class="lineNum">     108</span>              : </span>
+<span id="L109"><span class="lineNum">     109</span>              : // Menu は単一リストの構成を返す</span>
+<span id="L110"><span class="lineNum">     110</span>              : func (st *FeedFuelMenuState) Menu(props FeedFuelProps) menuloop.MenuConfig {</span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         return menuloop.MenuConfig{Key: &quot;feedfuel&quot;, TabCount: 1, ItemCounts: []int{len(props.Rows)}, ItemsPerPage: menuloop.ItemsPerPageAuto}</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L113"><span class="lineNum">     113</span>              : </span>
+<span id="L114"><span class="lineNum">     114</span>              : // ViewUI は燃料一覧を収納やインベントリと同じ item-row 形式で組む。</span>
+<span id="L115"><span class="lineNum">     115</span>              : // アイコン・名前の共通先頭に、右寄せの追加ターン数列を足す</span>
+<span id="L116"><span class="lineNum">     116</span>              : func (st *FeedFuelMenuState) ViewUI(world w.World, props FeedFuelProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {</span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         cols := itemMenuColumns(styled.Num())</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         rows := make([]menuframe.Row, len(props.Rows))</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         for i, r := range props.Rows {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 rows[i] = itemMenuRow(world, r.Entity, r.Count, r.Turns.String())</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         perPage := menuframe.ListCapacity(world, false, true)</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         list, pager := menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, &quot;No fuel to add&quot;), ItemsPerPage: perPage}, res)</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         return menuframe.PanelScreen(world, res, props.Title, list, keybind.HelpHint(world), pager)</span></span>
+<span id="L125"><span class="lineNum">     125</span>              : }</span>
+<span id="L126"><span class="lineNum">     126</span>              : </span>
+<span id="L127"><span class="lineNum">     127</span>              : // selectedEntity は現在カーソルが当たっている燃料の代表エンティティを返す</span>
+<span id="L128"><span class="lineNum">     128</span>              : func (st *FeedFuelMenuState) selectedEntity() (ecs.Entity, bool) {</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC tlaBgUNC">           0 :         props := st.screen.Props()</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         if cursor.ItemIndex &lt; 0 || cursor.ItemIndex &gt;= len(props.Rows) {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 return ecs.Entity{}, false</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         return props.Rows[cursor.ItemIndex].Entity, true</span></span>
+<span id="L135"><span class="lineNum">     135</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

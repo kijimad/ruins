@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">25.3&nbsp;%</td>
-            <td class="headerCovTableEntry">166</td>
+            <td class="headerCovTableEntryLo">25.0&nbsp;%</td>
+            <td class="headerCovTableEntry">168</td>
             <td class="headerCovTableEntry">42</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-30 10:54:45</td>
+            <td class="headerValue">2026-08-30 14:14:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -395,38 +395,43 @@
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewStorageMenuState(p.StorageEntity) },</span></span>
 <span id="L335"><span class="lineNum">     335</span>              :                 }}, nil</span>
-<span id="L336"><span class="lineNum">     336</span>              :         case gc.OpenAuction:</span>
-<span id="L337"><span class="lineNum">     337</span>              :                 // 出荷場所のメニューを開く</span>
+<span id="L336"><span class="lineNum">     336</span>              :         case gc.OpenFeedFuel:</span>
+<span id="L337"><span class="lineNum">     337</span>              :                 // 火への給油メニューを開く</span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewAuctionMenuState(p.StationEntity) },</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewFeedFuelMenuState(p.FireEntity) },</span></span>
 <span id="L340"><span class="lineNum">     340</span>              :                 }}, nil</span>
-<span id="L341"><span class="lineNum">     341</span>              :         default:</span>
-<span id="L342"><span class="lineNum">     342</span>              :                 // この switch で扱わない種別。未実装の scaffold もここに落ちる</span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unhandled StateChangeRequest: %T&quot;, req.Payload)</span></span>
-<span id="L344"><span class="lineNum">     344</span>              :         }</span>
-<span id="L345"><span class="lineNum">     345</span>              : }</span>
-<span id="L346"><span class="lineNum">     346</span>              : </span>
-<span id="L347"><span class="lineNum">     347</span>              : // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える</span>
-<span id="L348"><span class="lineNum">     348</span>              : func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {</span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         query.GetWeaponSelection(world).Slot = slotNumber</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L351"><span class="lineNum">     351</span>              :         // プレイヤーの武器スロット情報を取得してログメッセージを出力</span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :                 weapons := query.GetWeapons(world, playerEntity)</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 weaponIndex := slotNumber - 1 // 1-based to 0-based</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                 weapon := weapons[weaponIndex]</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                 if weapon != nil {</span></span>
-<span id="L358"><span class="lineNum">     358</span>              :                         // 武器が装備されている場合は武器名を表示</span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                         if world.Components.Name.Has(*weapon) {</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                                 weaponName := query.GetEntityName(*weapon, world)</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;Readied %s.&quot;, gamelog.Tag(&quot;item&quot;, weaponName))).</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L365"><span class="lineNum">     365</span>              :                 }</span>
-<span id="L366"><span class="lineNum">     366</span>              :         })</span>
-<span id="L367"><span class="lineNum">     367</span>              : }</span>
+<span id="L341"><span class="lineNum">     341</span>              :         case gc.OpenAuction:</span>
+<span id="L342"><span class="lineNum">     342</span>              :                 // 出荷場所のメニューを開く</span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                         func() (es.State[w.World], error) { return NewAuctionMenuState(p.StationEntity) },</span></span>
+<span id="L345"><span class="lineNum">     345</span>              :                 }}, nil</span>
+<span id="L346"><span class="lineNum">     346</span>              :         default:</span>
+<span id="L347"><span class="lineNum">     347</span>              :                 // この switch で扱わない種別。未実装の scaffold もここに落ちる</span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unhandled StateChangeRequest: %T&quot;, req.Payload)</span></span>
+<span id="L349"><span class="lineNum">     349</span>              :         }</span>
+<span id="L350"><span class="lineNum">     350</span>              : }</span>
+<span id="L351"><span class="lineNum">     351</span>              : </span>
+<span id="L352"><span class="lineNum">     352</span>              : // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える</span>
+<span id="L353"><span class="lineNum">     353</span>              : func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {</span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         query.GetWeaponSelection(world).Slot = slotNumber</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L356"><span class="lineNum">     356</span>              :         // プレイヤーの武器スロット情報を取得してログメッセージを出力</span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         query.Player(world, func(playerEntity ecs.Entity) {</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                 weapons := query.GetWeapons(world, playerEntity)</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                 weaponIndex := slotNumber - 1 // 1-based to 0-based</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :                 weapon := weapons[weaponIndex]</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 if weapon != nil {</span></span>
+<span id="L363"><span class="lineNum">     363</span>              :                         // 武器が装備されている場合は武器名を表示</span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                         if world.Components.Name.Has(*weapon) {</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                                 weaponName := query.GetEntityName(*weapon, world)</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                                         Markup(query.T(world, &quot;Readied %s.&quot;, gamelog.Tag(&quot;item&quot;, weaponName))).</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L370"><span class="lineNum">     370</span>              :                 }</span>
+<span id="L371"><span class="lineNum">     371</span>              :         })</span>
+<span id="L372"><span class="lineNum">     372</span>              : }</span>
         </pre>
               </td>
             </tr>
