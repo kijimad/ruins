@@ -39,9 +39,6 @@ func SpecRows(world w.World, entity ecs.Entity) []SpecRow {
 		rows = append(rows, attackerRows(world, fire)...)
 		rows = append(rows, fireAmmoRows(world, fire)...)
 	}
-	if world.Components.Burning.Has(entity) {
-		rows = append(rows, burningRow(world, entity))
-	}
 	if world.Components.Material.Has(entity) {
 		rows = append(rows, materialRow(world, world.Components.Material.Get(entity)))
 	}
@@ -191,11 +188,6 @@ func materialDisplayName(kind oapi.Material) string {
 func fuelRow(world w.World, heat consts.Heat) SpecRow {
 	// 熱量は炎アイコンで見せる。満burn時の燃焼ターン数に等しく、地面直の火では効率で減る
 	return SpecRow{Label: query.T(world, "Fuel"), Value: heat.String()}
-}
-
-// burningRow は燃えている火の予想残ターン数の1行を返す
-func burningRow(world w.World, entity ecs.Entity) SpecRow {
-	return SpecRow{Label: query.T(world, "Burning"), Value: query.FormatTurns(query.EstimateBurnTurns(world, entity))}
 }
 
 // attackerRows は攻撃パラメータの行を返す。先頭は攻撃種別の見出し

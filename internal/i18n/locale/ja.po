@@ -5748,9 +5748,6 @@ msgstr "火をつける(%s)"
 msgid "Feed fire (%s)"
 msgstr "燃料をくべる(%s)"
 
-msgid "Burning"
-msgstr "燃焼中"
-
 msgid "Burning, %s left"
 msgstr "燃焼中 残り%s"
 
