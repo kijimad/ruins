@@ -117,7 +117,7 @@ func (st *FeedFuelMenuState) ViewUI(world w.World, props FeedFuelProps, cursor m
 	cols := itemMenuColumns(styled.Num())
 	rows := make([]menuframe.Row, len(props.Rows))
 	for i, r := range props.Rows {
-		rows[i] = itemMenuRow(world, r.Entity, r.Count, r.Turns.StringDelta())
+		rows[i] = itemMenuRow(world, r.Entity, r.Count, r.Turns.String())
 	}
 	perPage := menuframe.ListCapacity(world, false, true)
 	list, pager := menuframe.RenderList(cursor.ItemIndex, rows, cols, menuframe.ListOpts{EmptyText: query.T(world, "No fuel to add"), ItemsPerPage: perPage}, res)
