@@ -91,7 +91,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 	// 地下や深夜は松明の届く範囲だけが見える
 	ambient := dungeonAmbient
 	if query.IsOnOverworld(world) {
-		ambient = overworldDaylight(query.GetGameTime(world).GetTimeOfDay())
+		ambient = overworldDaylight(query.GetGameTime(world))
 	}
 	visibleTiles := make(map[gc.GridElement]bool)
 	for _, tileData := range visibilityData {
@@ -319,9 +319,9 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 	}
 }
 
-// overworldDaylight は地上の時間帯ごとの日照の明るさを返す。昼が最も明るく深夜が最も暗い。
+// overworldDaylightAnchor は各時間帯の中心での地上日照の明るさ。昼が最も明るく深夜が最も暗い。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
-func overworldDaylight(t gc.TimeOfDay) float64 {
+func overworldDaylightAnchor(t gc.TimeOfDay) float64 {
 	switch t {
 	case gc.TimeDawn:
 		return 0.40
@@ -337,6 +337,14 @@ func overworldDaylight(t gc.TimeOfDay) float64 {
 		return 0.06
 	}
 	panic(fmt.Sprintf("unknown TimeOfDay: %d", t))
+}
+
+// overworldDaylight は地上の日照の明るさを、隣接する時間帯の中心値の間を線形補間して連続に返す。
+// 段差だと夕へ入った瞬間に暗くなり夜のように見えるので、代表値をなだらかにつないで徐々に変える。
+func overworldDaylight(gt *gc.GameTime) float64 {
+	from, to, t := gt.GetDaylightLerp()
+	a := overworldDaylightAnchor(from)
+	return a + (overworldDaylightAnchor(to)-a)*t
 }
 
 // calculateLightSourceDarkness はタイルの明るさを光源の加算合成で求め、暗さ=1-明るさで返す。

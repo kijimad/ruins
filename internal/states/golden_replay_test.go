@@ -41,6 +41,23 @@ type replayStep struct {
 //
 // 撮るのは互いに異なる画だけにする。既存 golden と同一の画を
 // 別名で残しても、資産が増えて README のギャラリーが重複するだけで検出力は上がらない
+// overworldAtTurn は指定した経過ターンのオーバーワールド実画面を撮るビルド関数を返す。
+// 時間帯ごとの日照と色味を狙って GameTime を差し替える。GameTime は world 生成時に1度だけ
+// 初期化され、新規ゲームでリセットされないので、ここで設定した値が描画に効く。
+func overworldAtTurn(turns consts.Turn) func(world w.World) ([]es.State[w.World], error) {
+	return func(world w.World) ([]es.State[w.World], error) {
+		s, err := gs.NewOverworldState(
+			mapplanner.PlannerTypeOverworldField,
+			dungeon.NewOverworldDefinition("オーバーワールド", 0, 30, 20, 3, 1),
+			&overworld.NewGameParams{},
+		)()
+		if gt := query.GetGameTime(world); gt != nil {
+			gt.TotalTurns = turns
+		}
+		return []es.State[w.World]{s}, err
+	}
+}
+
 func TestGolden(t *testing.T) {
 	t.Parallel()
 
@@ -357,6 +374,15 @@ func TestGolden(t *testing.T) {
 			},
 			steps: []replayStep{{shot: true}},
 		},
+		// Overworld_* は時間帯ごとの地上の見た目を固定する。日照と色味は経過ターンから連続に
+		// 補間されるので、代表点を撮って段差でなく徐々に変わることを回帰検知する。turnsPerDay=1500、
+		// 各時間帯250ターンで、中心は 125 + 250*idx。夕は入り口と中心を撮り傾斜を捉える。
+		{name: "Overworld_DuskStart", build: overworldAtTurn(250), steps: []replayStep{{shot: true}}}, // 夕の入り口。昼寄りで明るい
+		{name: "Overworld_Evening", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},   // 夕の中心。暖色
+		{name: "Overworld_Night", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},     // 夜の中心。寒色で暗い
+		{name: "Overworld_Midnight", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}},  // 深夜の中心。最も暗い
+		{name: "Overworld_Dawn", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},     // 夜明けの中心
+		{name: "Overworld_Morning", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}},  // 朝の中心
 		// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
 		// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
 		{

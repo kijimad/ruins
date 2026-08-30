@@ -275,7 +275,7 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 	// 地上は時間帯の色フィルタを世界レイヤへ一様に掛ける。朝夕は暖色、夜は寒色へ寄せる。
 	// ダンジョンは地下で昼夜がないので掛けない
 	if query.IsOnOverworld(world) {
-		applyTimeOfDayTint(screen, query.GetGameTime(world).GetTimeOfDay())
+		applyTimeOfDayTint(screen, query.GetGameTime(world))
 	}
 	// HUD レイヤは screen へ等倍で描く。色フィルタを避けて文字やバーの読みやすさを保つ
 	return drawRenderers(world, screen,
@@ -309,8 +309,8 @@ func whiteTintPixel() *ebiten.Image {
 }
 
 // applyTimeOfDayTint は時間帯の色を screen 全体へ乗算する。昼は白で素通しなので何もしない。
-func applyTimeOfDayTint(screen *ebiten.Image, t gc.TimeOfDay) {
-	r, g, b := timeOfDayTint(t)
+func applyTimeOfDayTint(screen *ebiten.Image, gt *gc.GameTime) {
+	r, g, b := timeOfDayTint(gt)
 	if r == 1 && g == 1 && b == 1 {
 		return
 	}
@@ -321,10 +321,10 @@ func applyTimeOfDayTint(screen *ebiten.Image, t gc.TimeOfDay) {
 	screen.DrawImage(whiteTintPixel(), op)
 }
 
-// timeOfDayTint は時間帯を世界へ掛ける乗算色へ写す。昼は白で素通し、朝夕は暖色、夜は寒色。
+// timeOfDayTintAnchor は各時間帯の中心で世界へ掛ける乗算色。昼は白で素通し、朝夕は暖色、夜は寒色。
 // 乗算なので各成分は 1 以下。小さいほど暗く色濃くなる。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
-func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) {
+func timeOfDayTintAnchor(t gc.TimeOfDay) (r, g, b float32) {
 	switch t {
 	case gc.TimeDawn:
 		return 1.0, 0.80, 0.72
@@ -340,6 +340,16 @@ func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) {
 		return 0.42, 0.48, 0.78
 	}
 	panic(fmt.Sprintf("unknown TimeOfDay: %d", t))
+}
+
+// timeOfDayTint は世界へ掛ける乗算色を、隣接する時間帯の中心色の間を線形補間して連続に返す。
+// 段差だと夕焼け色が一瞬で寒色の夜へ切り替わるので、代表色をなだらかにつないで徐々に変える。
+func timeOfDayTint(gt *gc.GameTime) (r, g, b float32) {
+	from, to, tf := gt.GetDaylightLerp()
+	t := float32(tf)
+	fr, fg, fb := timeOfDayTintAnchor(from)
+	tr, tg, tb := timeOfDayTintAnchor(to)
+	return fr + (tr-fr)*t, fg + (tg-fg)*t, fb + (tb-fb)*t
 }
 
 // drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。
