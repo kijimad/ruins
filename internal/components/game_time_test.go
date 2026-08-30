@@ -257,3 +257,53 @@ func TestGameTime_AdvanceToNextSeason_季節を1つ進める(t *testing.T) {
 	gt.AdvanceToNextSeason()
 	assert.Equal(t, SeasonSpring, gt.GetSeason(), "冬の次は翌年の春へ折り返す")
 }
+
+func TestGameTime_SeasonJustChanged(t *testing.T) {
+	t.Parallel()
+
+	// 春から夏へ切り替わるのは経過ターン11500。ここで GetDayNumber が8から9へ繰り上がる
+	tests := []struct {
+		name  string
+		turns consts.Turn
+		want  bool
+	}{
+		{"開始ターンは変化なし", 0, false},
+		{"季節が切り替わるターン", 11500, true},
+		{"切り替わりの直前は変化なし", 11499, false},
+		{"切り替わりの次は変化なし", 11501, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gt := &GameTime{TotalTurns: tt.turns}
+			assert.Equal(t, tt.want, gt.SeasonJustChanged())
+		})
+	}
+}
+
+func TestGameTime_TimeOfDayJustChanged(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		turns       consts.Turn
+		wantTOD     TimeOfDay
+		wantChanged bool
+	}{
+		{"開始ターンは変化なし", 0, TimeDay, false},
+		{"夕へ入るターンは日の入り", 250, TimeEvening, true},
+		{"夜明けへ入るターンは日の出", 1000, TimeDawn, true},
+		{"時間帯の途中は変化なし", 1001, TimeDawn, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			gt := &GameTime{TotalTurns: tt.turns}
+			tod, changed := gt.TimeOfDayJustChanged()
+			assert.Equal(t, tt.wantTOD, tod)
+			assert.Equal(t, tt.wantChanged, changed)
+		})
+	}
+}

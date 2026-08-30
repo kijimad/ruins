@@ -118,6 +118,26 @@ func (gt *GameTime) GetSeason() Season {
 	return Season(dayOfYear / daysPerSeason)
 }
 
+// SeasonJustChanged は直前のターンから季節が変わったかを返す。Advance の直後に呼ぶ想定。
+func (gt *GameTime) SeasonJustChanged() bool {
+	if gt.TotalTurns == 0 {
+		return false
+	}
+	prev := GameTime{TotalTurns: gt.TotalTurns - 1}
+	return gt.GetSeason() != prev.GetSeason()
+}
+
+// TimeOfDayJustChanged は現在の時間帯と、直前のターンから変わったかを返す。
+// 呼び出し側が入った先で日の出入りを見分けられるよう時間帯も返す。
+func (gt *GameTime) TimeOfDayJustChanged() (TimeOfDay, bool) {
+	cur := gt.GetTimeOfDay()
+	if gt.TotalTurns == 0 {
+		return cur, false
+	}
+	prev := GameTime{TotalTurns: gt.TotalTurns - 1}
+	return cur, prev.GetTimeOfDay() != cur
+}
+
 // GetTemperatureModifier は時間帯による気温修正値を返す。
 // default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
 func (gt *GameTime) GetTemperatureModifier() int {
