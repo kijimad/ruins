@@ -63,6 +63,23 @@ func (gt *GameTime) GetTimeOfDay() TimeOfDay {
 	return TimeOfDay(gt.TotalTurns % turnsPerDay / turnsPerTimeOfDay)
 }
 
+// numTimeOfDay は時間帯の区分数
+const numTimeOfDay = int(turnsPerDay / turnsPerTimeOfDay)
+
+// GetDaylightLerp は日照や色味を連続に補間するための、前後のアンカー時間帯とその間の位置 0..1 を返す。
+// 各時間帯を区間の中心にアンカーする。境界で段差にせず中心の代表値へなだらかに寄せるため。
+// 値表は systems 側が持ち、時間の割り出しだけをここに置く。時間帯の区切りに要る turnsPerDay と
+// turnsPerTimeOfDay が components にあるため。補間そのものは呼び出し側が行う。
+func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {
+	// 中心へアンカーするため半区間ずらす。turnsPerTimeOfDay=250 は偶数で端数は出ない
+	half := turnsPerTimeOfDay / 2
+	// 中心より前は1つ前の区間へ回り込むので turnsPerDay を足して正へ寄せる
+	rel := (gt.TotalTurns%turnsPerDay - half + turnsPerDay) % turnsPerDay
+	idx := int(rel / turnsPerTimeOfDay)
+	t = float64(rel%turnsPerTimeOfDay) / float64(turnsPerTimeOfDay)
+	return TimeOfDay(idx), TimeOfDay((idx + 1) % numTimeOfDay), t
+}
+
 // GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる
 func (gt *GameTime) GetDayNumber() int {
 	return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1

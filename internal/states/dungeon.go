@@ -2,8 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image/color"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -271,74 +269,10 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 	if err := st.three.draw(world, screen); err != nil {
 		return err
 	}
-	// 地上は時間帯の色フィルタを世界レイヤへ一様に掛ける。朝夕は暖色、夜は寒色へ寄せる。
-	// ダンジョンは地下で昼夜がないので掛けない
-	if query.IsOnOverworld(world) {
-		applyTimeOfDayTint(screen, query.GetGameTime(world).GetTimeOfDay())
-	}
-	// HUD レイヤは screen へ等倍で描く。色フィルタを避けて文字やバーの読みやすさを保つ
+	// 時間帯の色は vision の環境光として per-tile に効く。全画面フィルタは松明で照らした
+	// タイルまで暗くするので掛けない。HUD レイヤは screen へ等倍で描き読みやすさを保つ
 	return drawRenderers(world, screen,
 		&gs.HUDRenderingSystem{}, &gs.VisualEffectSystem{})
-}
-
-// blendMultiply は乗算合成。結果 = src.rgb × dst.rgb。時間帯の色を世界へ掛けるのに使う。
-// アルファは src をそのまま通す。screen は不透明なので実効には影響しない。
-var blendMultiply = ebiten.Blend{
-	BlendFactorSourceRGB:        ebiten.BlendFactorDestinationColor,
-	BlendFactorSourceAlpha:      ebiten.BlendFactorOne,
-	BlendFactorDestinationRGB:   ebiten.BlendFactorZero,
-	BlendFactorDestinationAlpha: ebiten.BlendFactorZero,
-	BlendOperationRGB:           ebiten.BlendOperationAdd,
-	BlendOperationAlpha:         ebiten.BlendOperationAdd,
-}
-
-var (
-	tintPixel     *ebiten.Image
-	tintPixelOnce sync.Once
-)
-
-// whiteTintPixel は色フィルタ用の白1px。全画面へ拡大し ColorScale で時間帯の色を掛ける。
-// 生成は初回だけ行い、並列描画やテストでのデータレースを防ぐ。
-func whiteTintPixel() *ebiten.Image {
-	tintPixelOnce.Do(func() {
-		tintPixel = ebiten.NewImage(1, 1)
-		tintPixel.Fill(color.White)
-	})
-	return tintPixel
-}
-
-// applyTimeOfDayTint は時間帯の色を screen 全体へ乗算する。昼は白で素通しなので何もしない。
-func applyTimeOfDayTint(screen *ebiten.Image, t gc.TimeOfDay) {
-	r, g, b := timeOfDayTint(t)
-	if r == 1 && g == 1 && b == 1 {
-		return
-	}
-	bounds := screen.Bounds()
-	op := &ebiten.DrawImageOptions{Blend: blendMultiply}
-	op.GeoM.Scale(float64(bounds.Dx()), float64(bounds.Dy()))
-	op.ColorScale.Scale(r, g, b, 1)
-	screen.DrawImage(whiteTintPixel(), op)
-}
-
-// timeOfDayTint は時間帯を世界へ掛ける乗算色へ写す。昼は白で素通し、朝夕は暖色、夜は寒色。
-// 乗算なので各成分は 1 以下。小さいほど暗く色濃くなる。
-// default を置かず全 case を列挙する。時間帯を足したら exhaustive linter がここの漏れを検知する。
-func timeOfDayTint(t gc.TimeOfDay) (r, g, b float32) {
-	switch t {
-	case gc.TimeDawn:
-		return 1.0, 0.80, 0.72
-	case gc.TimeMorning:
-		return 1.0, 0.96, 0.90
-	case gc.TimeDay:
-		return 1.0, 1.0, 1.0
-	case gc.TimeEvening:
-		return 1.0, 0.72, 0.52
-	case gc.TimeNight:
-		return 0.55, 0.60, 0.85
-	case gc.TimeMidnight:
-		return 0.42, 0.48, 0.78
-	}
-	panic(fmt.Sprintf("unknown TimeOfDay: %d", t))
 }
 
 // drawRenderers は登録済みのレンダラを順に target へ描く。未登録のものは飛ばす。

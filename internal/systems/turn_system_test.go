@@ -928,16 +928,27 @@ func TestTerritorialMovement(t *testing.T) {
 func TestLogEnvironmentChange(t *testing.T) {
 	t.Parallel()
 
-	t.Run("日の入りのターンは日が沈んだログを出す", func(t *testing.T) {
+	t.Run("夜へ入るターンは日が沈んだログを出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetGameTime(world).TotalTurns = 250
+		// 夜の開始ターン。夕は薄暮で太陽がまだ空にあり、沈み切って夜になった瞬間が日の入り
+		query.GetGameTime(world).TotalTurns = 500
 
 		logEnvironmentChange(world)
 
 		hist := query.GetGameLog(world).GetHistory()
 		require.Len(t, hist, 1)
 		assert.Contains(t, hist[0], "The sun sets.")
+	})
+
+	t.Run("夕へ入るターンは薄暮なので日の入りログを出さない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetGameTime(world).TotalTurns = 250 // 夕の開始
+
+		logEnvironmentChange(world)
+
+		assert.Equal(t, 0, query.GetGameLog(world).Count())
 	})
 
 	t.Run("日の出のターンは日が昇ったログを出す", func(t *testing.T) {
