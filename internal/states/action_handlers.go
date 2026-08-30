@@ -59,7 +59,31 @@ func GetInteractionActions(world w.World) []InteractionAction {
 	}
 
 	actions = appendItemPickupActions(world, actions, itemEntities)
-	return appendIgniteActions(world, playerEntity, gridElement, actions)
+	actions = appendIgniteActions(world, playerEntity, gridElement, actions)
+	return appendFeedFuelActions(world, playerEntity, gridElement, actions)
+}
+
+// appendFeedFuelActions はバックパックに燃料を持つとき、隣接の燃えている火へ給油するアクションを足す。
+// 給油メニューでどの燃料をくべるか選ぶ。火でないタイルや燃えていない火には出さない
+func appendFeedFuelActions(world w.World, player ecs.Entity, playerGrid *gc.GridElement, actions []InteractionAction) []InteractionAction {
+	if !query.HoldsAnyFuel(world, player) {
+		return actions
+	}
+	fireQuery := query.ActiveFilter2[gc.Burning, gc.GridElement](world).Query()
+	for fireQuery.Next() {
+		fire := fireQuery.Entity()
+		grid := world.Components.GridElement.Get(fire)
+		if !geometry.IsAdjacent(playerGrid.Coord, grid.Coord) {
+			continue
+		}
+		dirLabel := query.T(world, activity.GetDirectionLabel(playerGrid, grid))
+		actions = append(actions, InteractionAction{
+			Label:       query.T(world, "Feed fire (%s)", dirLabel),
+			Target:      fire,
+			Interaction: gc.InteractionFeedFuel,
+		})
+	}
+	return actions
 }
 
 // appendIgniteActions は火種を持つとき、隣接タイルの燃焼物へ着火するアクションをタイルごとに1つ足す。
@@ -297,6 +321,9 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		case gc.InteractionIgnite:
 			// 着火はエンティティの Interactable でなく appendIgniteActions が隣接タイル走査で
 			// タイル単位に組む。ここには来ないが exhaustive のため case を明示する
+		case gc.InteractionFeedFuel:
+			// 給油も Interactable でなく appendFeedFuelActions が隣接の火を走査して組む。
+			// ここには来ないが exhaustive のため case を明示する
 		}
 	}
 

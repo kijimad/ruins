@@ -721,3 +721,70 @@ func TestGetInteractionActions_着火(t *testing.T) {
 		assert.Equal(t, 0, countIgnite(GetInteractionActions(world)))
 	})
 }
+
+// TestGetInteractionActions_給油 は、バックパックに燃料を持ち隣接に燃えている火があるとき
+// 給油アクションが出ること、燃料なし・非隣接・非燃焼では出ないことを確認する。
+func TestGetInteractionActions_給油(t *testing.T) {
+	t.Parallel()
+
+	setup := func(t *testing.T) (w.World, ecs.Entity) {
+		t.Helper()
+		world := testutil.InitTestWorld(t)
+		player := world.ECS.NewEntity()
+		world.Components.Player.Add(player, &gc.Player{})
+		world.Components.GridElement.Add(player, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		return world, player
+	}
+	addBurningFire := func(world w.World, x, y consts.Tile) {
+		fire := world.ECS.NewEntity()
+		world.Components.GridElement.Add(fire, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
+		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 5})
+	}
+	giveFuel := func(world w.World, player ecs.Entity) {
+		f := world.ECS.NewEntity()
+		world.Components.Fuel.Add(f, &gc.Fuel{HeatContent: 10})
+		world.Components.LocationInBackpack.Add(f, &gc.LocationInBackpack{Owner: player})
+	}
+	countFeed := func(actions []InteractionAction) int {
+		n := 0
+		for _, a := range actions {
+			if a.Interaction == gc.InteractionFeedFuel {
+				n++
+			}
+		}
+		return n
+	}
+
+	t.Run("燃料が無ければ給油は出ない", func(t *testing.T) {
+		t.Parallel()
+		world, _ := setup(t)
+		addBurningFire(world, 6, 5)
+		assert.Equal(t, 0, countFeed(GetInteractionActions(world)))
+	})
+
+	t.Run("燃料を持ち隣接に火があれば給油が出る", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFuel(world, player)
+		addBurningFire(world, 6, 5)
+		assert.Equal(t, 1, countFeed(GetInteractionActions(world)))
+	})
+
+	t.Run("2タイル離れた火には給油しない", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFuel(world, player)
+		addBurningFire(world, 7, 5)
+		assert.Equal(t, 0, countFeed(GetInteractionActions(world)))
+	})
+
+	t.Run("燃えていない火には給油しない", func(t *testing.T) {
+		t.Parallel()
+		world, player := setup(t)
+		giveFuel(world, player)
+		// Burning を持たない冷えた火エンティティ
+		cold := world.ECS.NewEntity()
+		world.Components.GridElement.Add(cold, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 6, Y: 5}})
+		assert.Equal(t, 0, countFeed(GetInteractionActions(world)))
+	})
+}

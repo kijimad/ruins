@@ -5745,6 +5745,12 @@ msgstr "灯りにも武器にもなり、燃料に火をつけられる松明。
 msgid "Light fire (%s)"
 msgstr "火をつける(%s)"
 
+msgid "Feed fire (%s)"
+msgstr "燃料をくべる(%s)"
+
+msgid " (+%d turns)"
+msgstr " (+%dターン)"
+
 msgid "Burning"
 msgstr "燃焼中"
 

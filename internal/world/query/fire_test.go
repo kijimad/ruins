@@ -5,30 +5,18 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
-	"github.com/mlange-42/ark/ecs"
 	"github.com/stretchr/testify/assert"
 )
 
-// addStorageFuel は fire の収納へ Fuel を持つアイテムを1つ足す
-func addStorageFuel(world w.World, fire ecs.Entity, name string, heat int) {
-	item := world.ECS.NewEntity()
-	world.Components.Name.Add(item, &gc.Name{Name: name})
-	world.Components.Fuel.Add(item, &gc.Fuel{HeatContent: heat})
-	world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: fire})
-}
-
-func TestEstimateBurnTurns_現残量と収納燃料を効率で割り引いて合算する(t *testing.T) {
+func TestEstimateBurnTurns_残量がそのままターン数になる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
 	fire := world.ECS.NewEntity()
-	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 3})
-	// 効率50%で 20*50/100=10 と 8*50/100=4。現残量3と合わせて 3+10+4 = 17
-	addStorageFuel(world, fire, "coal", 20)
-	addStorageFuel(world, fire, "wood", 8)
+	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 17})
 
+	// 火は燃料を貯めず残量だけを持つ。fireBurnPerTurn は1なので残量=ターン数
 	assert.Equal(t, 17, query.EstimateBurnTurns(world, fire))
 }
 
@@ -38,6 +26,38 @@ func TestEstimateBurnTurns_燃えていなければ0(t *testing.T) {
 
 	notFire := world.ECS.NewEntity()
 	assert.Equal(t, 0, query.EstimateBurnTurns(world, notFire))
+}
+
+func TestFuelBurnTurns_熱量を効率で割り引く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	fire := world.ECS.NewEntity()
+	world.Components.Burning.Add(fire, &gc.Burning{Remaining: 1})
+	fuel := world.ECS.NewEntity()
+	world.Components.Fuel.Add(fuel, &gc.Fuel{HeatContent: 40})
+
+	// 地面直の効率50%で 40*50/100 = 20 ターン
+	assert.Equal(t, 20, query.FuelBurnTurns(world, fire, fuel))
+}
+
+func TestHoldsAnyFuel_バックパックの燃料を見て他人の物は除く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player := world.ECS.NewEntity()
+	assert.False(t, query.HoldsAnyFuel(world, player), "初期状態では燃料を持たない")
+
+	other := world.ECS.NewEntity()
+	othersFuel := world.ECS.NewEntity()
+	world.Components.Fuel.Add(othersFuel, &gc.Fuel{HeatContent: 10})
+	world.Components.LocationInBackpack.Add(othersFuel, &gc.LocationInBackpack{Owner: other})
+	assert.False(t, query.HoldsAnyFuel(world, player), "他人の燃料は数えない")
+
+	fuel := world.ECS.NewEntity()
+	world.Components.Fuel.Add(fuel, &gc.Fuel{HeatContent: 10})
+	world.Components.LocationInBackpack.Add(fuel, &gc.LocationInBackpack{Owner: player})
+	assert.True(t, query.HoldsAnyFuel(world, player), "バックパックの燃料を見る")
 }
 
 func TestHoldsFireStarter_バックパックと装備の火種を見て他人の物は除く(t *testing.T) {

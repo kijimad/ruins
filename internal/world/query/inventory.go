@@ -57,6 +57,18 @@ func HoldsFireStarter(world w.World, owner ecs.Entity) bool {
 	return false
 }
 
+// HoldsAnyFuel は owner がバックパックに燃料を持っているかを返す。火への給油を出す条件に使う
+func HoldsAnyFuel(world w.World, owner ecs.Entity) bool {
+	q := ecs.NewFilter2[gc.LocationInBackpack, gc.Fuel](world.ECS).Query()
+	for q.Next() {
+		if world.Components.LocationInBackpack.Get(q.Entity()).Owner == owner {
+			q.Close()
+			return true
+		}
+	}
+	return false
+}
+
 // GetEntityCount は entity が属するスタックの個数を返す。個数は保存せず、同じ所有者かつ
 // 同じ位置にある同一スタックのエンティティを数えて導出する。位置が無ければ1になる。
 func GetEntityCount(world w.World, entity ecs.Entity) int {

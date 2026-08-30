@@ -57,6 +57,8 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 		return executePortal(world, gc.OpenAuctionEvent(target), "auction menu state change request error", "opened shipping station")
 	case gc.InteractionIgnite:
 		return executeIgnite(target, world)
+	case gc.InteractionFeedFuel:
+		return executeFeedFuel(target, world)
 	}
 	// default を置かず exhaustive に全種別を強制する。未知入力は raw/save 由来でありうるので
 	// panic せず error で loud に落とす
@@ -131,7 +133,7 @@ func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 }
 
 // executeIgnite は隣接タイルの燃焼物に火をつける。target はそのタイルにある燃料の代表。
-// タイルへ campfire を立て、タイル上の燃焼物をすべて火の収納へ移し、最上段から燃やし始める。
+// タイルへ campfire を立て、タイル上の燃焼物をすべて残ターン数へ畳み込んで燃やし始める。
 // 足元でなく隣接タイルに火が立つのは、足元だと自分が燃えるため。火種の所持は呼び出し側が判定済み。
 func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 	if !world.Components.GridElement.Has(target) {
@@ -144,13 +146,15 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 		return nil, fmt.Errorf("spawn campfire: %w", err)
 	}
 
-	// タイル上の燃焼物をすべて火の収納へ移す。以後は収納の上から順に燃える
-	moveFieldFuelToStorage(world, coord, fire)
-
-	// 着火する。Burning を付けてから最上段の燃料を燃やし始める
+	// 着火する。Burning を付けてから、タイル上の燃焼物をすべて残ターン数へ畳み込む
 	world.Components.Burning.Add(fire, &gc.Burning{})
-	if !lifecycle.LoadNextFuel(world, fire) {
-		// 収納へ移せる燃料が無かった。火にならないので後始末する。
+	burned := 0
+	for _, f := range fieldFuelOnTile(world, coord) {
+		lifecycle.AddFuel(world, fire, f)
+		burned++
+	}
+	if burned == 0 {
+		// くべる燃料が無かった。火にならないので後始末する。
 		// 呼び出し側が燃料のあるタイルだけを対象にするので通常は起きない
 		world.Components.Burning.Remove(fire)
 		world.ECS.RemoveEntity(fire)
@@ -160,9 +164,9 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorIgnite, Message: "lit a fire"}, nil
 }
 
-// moveFieldFuelToStorage は指定タイルの地面にある燃焼物をすべて火の収納へ移す。
-// 走査中の構造変更を避けるため、先に集めてから移す。火自身は燃料でないので混ざらない
-func moveFieldFuelToStorage(world w.World, coord consts.Coord[consts.Tile], fire ecs.Entity) {
+// fieldFuelOnTile は指定タイルの地面にある燃焼物を集めて返す。
+// 走査中の構造変更を避けるため、先に集めてから呼び出し側が処理する。火自身は燃料でないので混ざらない
+func fieldFuelOnTile(world w.World, coord consts.Coord[consts.Tile]) []ecs.Entity {
 	var fuels []ecs.Entity
 	q := ecs.NewFilter2[gc.Fuel, gc.LocationOnField](world.ECS).Query()
 	for q.Next() {
@@ -174,9 +178,16 @@ func moveFieldFuelToStorage(world w.World, coord consts.Coord[consts.Tile], fire
 			fuels = append(fuels, e)
 		}
 	}
-	for _, f := range fuels {
-		_ = lifecycle.MoveToStorage(world, f, fire)
+	return fuels
+}
+
+// executeFeedFuel は隣接の火への給油メニューを開く。target は燃料をくべる火。
+// 実際のくべる操作はメニューが担い、選んだ燃料を残ターン数へ畳み込む
+func executeFeedFuel(fire ecs.Entity, world w.World) (*ActionResult, error) {
+	if err := lifecycle.RequestStateChange(world, gc.OpenFeedFuelEvent(fire)); err != nil {
+		return nil, fmt.Errorf("feed fuel menu state change request error: %w", err)
 	}
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorFeedFuel, Message: "opened fuel feeding"}, nil
 }
 
 func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {

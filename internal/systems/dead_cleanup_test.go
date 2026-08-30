@@ -309,31 +309,3 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 		assert.Equal(t, consts.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
 	}
 }
-
-// TestDeadCleanupSystem_収納の中身をフィールドへ落とす は、収納を持つ prop が壊れたとき
-// 中身が孤児化せずタイルの地面へ落ちることを確認する。焚き火を壊すと燃え残りの燃料を回収できる。
-func TestDeadCleanupSystem_収納の中身をフィールドへ落とす(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-	sys := &DeadCleanupSystem{}
-
-	coord := consts.Coord[consts.Tile]{X: 4, Y: 7}
-	storage := world.ECS.NewEntity()
-	world.Components.GridElement.Add(storage, &gc.GridElement{Coord: coord})
-	world.Components.WeightCapacity.Add(storage, &gc.WeightCapacity{Max: consts.MustParseWeight("20 kg")})
-
-	item := world.ECS.NewEntity()
-	world.Components.Name.Add(item, &gc.Name{Name: "hardwood"})
-	world.Components.Fuel.Add(item, &gc.Fuel{HeatContent: 10})
-	world.Components.LocationInStorage.Add(item, &gc.LocationInStorage{Owner: storage})
-
-	world.Components.Dead.Add(storage, &gc.Dead{})
-	require.NoError(t, sys.Update(world))
-
-	// 中身は地面へ落ち、収納を指したまま孤児化しない
-	require.True(t, world.ECS.Alive(item), "中身は削除されず地面へ落ちる")
-	assert.True(t, world.Components.LocationOnField.Has(item), "中身はフィールドへ移る")
-	assert.False(t, world.Components.LocationInStorage.Has(item), "壊れた収納を指したまま残らない")
-	require.True(t, world.Components.GridElement.Has(item))
-	assert.Equal(t, coord, world.Components.GridElement.Get(item).Coord, "落ちる先は壊れた prop のタイル")
-}

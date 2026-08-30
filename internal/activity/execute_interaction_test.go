@@ -36,9 +36,9 @@ func TestExecuteInteraction_DungeonEnter_進入先の遺跡名を要求に載せ
 	assert.Equal(t, "森", payload.DefinitionName, "進入先の遺跡名が要求に載る")
 }
 
-// TestExecuteInteraction_Ignite_隣接タイルの燃焼物を火の収納へ移し着火する は、着火が対象タイルの
-// 燃焼物をすべて火の収納へ移し、最上段を効率で割り引いて燃やし始めることを確認する。
-func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を火の収納へ移し着火する(t *testing.T) {
+// TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数へ畳み着火する は、着火が対象タイルの
+// 燃焼物をすべて残ターン数へ畳み込んで消費し、隣接タイルに火を立てることを確認する。
+func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を残ターン数へ畳み着火する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -51,7 +51,7 @@ func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を火の収納へ
 		world.Components.LocationOnField.Add(e, &gc.LocationOnField{})
 		return e
 	}
-	// 名前順で "a_wood" が先に燃える。両方とも収納へ移る
+	// タイルの燃焼物はすべて残ターン数へ畳まれて消費される
 	first := addFieldFuel("a_wood", 10)
 	second := addFieldFuel("b_wood", 10)
 
@@ -74,15 +74,10 @@ func TestExecuteInteraction_Ignite_隣接タイルの燃焼物を火の収納へ
 	require.True(t, found, "隣接タイルに火が立つ")
 	assert.True(t, world.Components.HeatSource.Has(fire), "火は熱源を持つ")
 
-	// 最上段の a_wood が燃え始めて消費され、効率50%で 10*50/100 = 5 になる
-	assert.False(t, world.ECS.Alive(first), "燃やし始めた燃料は消費される")
-	assert.Equal(t, 5, world.Components.Burning.Get(fire).Remaining)
-
-	// b_wood は火の収納に残り、補充なしでも次に燃える
-	assert.True(t, world.ECS.Alive(second), "残りの燃料は収納に残る")
-	stored := query.GetStorageItems(world, fire)
-	require.Len(t, stored, 1)
-	assert.Equal(t, second, stored[0])
+	// タイルの燃料2つが効率50%で残ターン数へ畳まれる。10*50/100 + 10*50/100 = 10
+	assert.Equal(t, 10, world.Components.Burning.Get(fire).Remaining)
+	assert.False(t, world.ECS.Alive(first), "くべた燃料は消費される")
+	assert.False(t, world.ECS.Alive(second), "くべた燃料は消費される")
 }
 
 // TestExecuteInteraction_UnknownKind は未知の種類が無効なConfigとして弾かれることを確認。

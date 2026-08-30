@@ -16,19 +16,21 @@ func BurnEfficiency(_ w.World, _ ecs.Entity) int {
 	return groundBurnEfficiency
 }
 
-// EstimateBurnTurns は火があと何ターン燃えるかの見積もりを返す。
-// 今燃えている残量に、収納の各燃料を効率で割り引いた燃焼時間を足す。
-// fireBurnPerTurn は1なので残量がそのままターン数になる。燃えていなければ0
+// EstimateBurnTurns は火があと何ターン燃えるかを返す。
+// 火は燃料を貯めず残量だけを持ち、fireBurnPerTurn は1なので残量がそのままターン数になる。
+// 燃えていなければ0
 func EstimateBurnTurns(world w.World, fire ecs.Entity) int {
 	if !world.Components.Burning.Has(fire) {
 		return 0
 	}
-	total := world.Components.Burning.Get(fire).Remaining
-	eff := BurnEfficiency(world, fire)
-	for _, item := range GetStorageItems(world, fire) {
-		if world.Components.Fuel.Has(item) {
-			total += world.Components.Fuel.Get(item).HeatContent * eff / 100
-		}
+	return world.Components.Burning.Get(fire).Remaining
+}
+
+// FuelBurnTurns は fuel を fire へくべたとき増える燃焼ターン数を返す。
+// 熱量を火の場所の効率で割り引いた値で、給油メニューの「+Nターン」表示に使う
+func FuelBurnTurns(world w.World, fire ecs.Entity, fuel ecs.Entity) int {
+	if !world.Components.Fuel.Has(fuel) {
+		return 0
 	}
-	return total
+	return world.Components.Fuel.Get(fuel).HeatContent * BurnEfficiency(world, fire) / 100
 }

@@ -54,6 +54,11 @@ type OpenAuction struct {
 	StationEntity ecs.Entity // 積荷の収納を持つ出荷場所
 }
 
+// OpenFeedFuel は火への給油メニューを開く。くべる先の火 FireEntity を運ぶ
+type OpenFeedFuel struct {
+	FireEntity ecs.Entity // 燃料をくべる火
+}
+
 func (WarpDescend) isStatePayload()      {}
 func (WarpAscend) isStatePayload()       {}
 func (WarpDungeonEnter) isStatePayload() {}
@@ -63,6 +68,7 @@ func (OpenCubePanel) isStatePayload()    {}
 func (ShowDialog) isStatePayload()       {}
 func (OpenStorage) isStatePayload()      {}
 func (OpenAuction) isStatePayload()      {}
+func (OpenFeedFuel) isStatePayload()     {}
 
 // StateChangeRequest はステート遷移リクエストを運ぶコンポーネント。
 // Ark は具体型でコンポーネントを格納するため、Payload interface を包む薄いラッパーにする。
@@ -107,6 +113,11 @@ func ShowDialogEvent(messageKey string, speaker ecs.Entity) StateChangeRequest {
 // OpenStorageEvent は収納メニューを開くリクエストを生成する
 func OpenStorageEvent(storage ecs.Entity) StateChangeRequest {
 	return StateChangeRequest{Payload: OpenStorage{StorageEntity: storage}}
+}
+
+// OpenFeedFuelEvent は火への給油メニューを開くリクエストを生成する
+func OpenFeedFuelEvent(fire ecs.Entity) StateChangeRequest {
+	return StateChangeRequest{Payload: OpenFeedFuel{FireEntity: fire}}
 }
 
 // OpenAuctionEvent は出荷場所のメニューを開くリクエストを生成する

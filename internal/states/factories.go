@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -306,6 +307,51 @@ func interactionChoices(world w.World) (string, []Choice) {
 // sameTileActionChoices は足元タイルの手動アクションを選択肢にする。ダンジョンの相互作用キーで使う
 func sameTileActionChoices(world w.World) (string, []Choice) {
 	return "", interactionActionChoices(GetSameTileManualActions(world))
+}
+
+// NewFeedFuelMenuState は火への給油メニューを選択メニューとして作る。
+// くべる先の火を閉じ込め、選ぶたびに現在のバックパックの燃料から選択肢を組み直す
+func NewFeedFuelMenuState(fire ecs.Entity) (es.State[w.World], error) {
+	return NewChoiceMenu(feedFuelChoices(fire)), nil
+}
+
+// feedFuelChoices は火 fire への給油の選択肢を返す provide を組む。
+// タイトルに予想残ターン数、各行にバックパックの燃料と増える燃焼ターン数を出す。
+// 選ぶと1つくべて残ターン数へ畳み込み、メニューに留まって続けてくべられる
+func feedFuelChoices(fire ecs.Entity) func(world w.World) (string, []Choice) {
+	return func(world w.World) (string, []Choice) {
+		title := query.T(world, "Burning · about %d turns left", query.EstimateBurnTurns(world, fire))
+		player, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return title, nil
+		}
+		var choices []Choice
+		for _, stack := range query.BackpackStacks(world, player) {
+			if !world.Components.Fuel.Has(stack.Rep) {
+				continue
+			}
+			rep := stack.Rep
+			label := query.FormatNameCount(query.GetEntityName(rep, world), stack.Count)
+			label += query.T(world, " (+%d turns)", query.FuelBurnTurns(world, fire, rep))
+			choices = append(choices, Choice{Label: label, Run: stayAfter(func(world w.World) error {
+				feedOneFuel(world, fire, rep)
+				return nil
+			})})
+		}
+		return title, choices
+	}
+}
+
+// feedOneFuel は rep を火へ1つくべる。走査時の rep は消費されるので、
+// 次フレームの provide が新しい代表で選択肢を組み直す。火が消えていれば何もしない
+func feedOneFuel(world w.World, fire ecs.Entity, rep ecs.Entity) {
+	if !world.ECS.Alive(rep) || !world.Components.Fuel.Has(rep) {
+		return
+	}
+	if !world.Components.Burning.Has(fire) {
+		return
+	}
+	lifecycle.AddFuel(world, fire, rep)
 }
 
 // NewMerchantDialogState は商人との会話ステートを作成。merchant はこの商人の実体で、店を開くとき在庫の持ち主として渡す

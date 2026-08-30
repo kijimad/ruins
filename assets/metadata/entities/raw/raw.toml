@@ -13222,9 +13222,6 @@ warmth = 0.75
 [props.burning]
 remaining = 999
 
-[props.storage]
-maxWeight = "20 kg"
-
 [[props]]
 blockPass = true
 blockView = false
@@ -13241,9 +13238,6 @@ spriteSheetName = "field"
 [props.heatSource]
 radius = 2
 warmth = 0.75
-
-[props.storage]
-maxWeight = "20 kg"
 
 [[props]]
 blockPass = true
