@@ -133,7 +133,8 @@ func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 }
 
 // executeIgnite は隣接タイルの燃焼物に火をつける。target はそのタイルにある燃料の代表。
-// タイルへ campfire を立て、タイル上の燃焼物をすべて残ターン数へ畳み込んで燃やし始める。
+// タイルへ炎だけを立て、タイル上の燃焼物をすべて残ターン数へ畳み込んで燃やし始める。
+// 石組などの構造物は伴わず、地面で燃える火そのものを生む。
 // 足元でなく隣接タイルに火が立つのは、足元だと自分が燃えるため。火種の所持は呼び出し側が判定済み。
 func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 	if !world.Components.GridElement.Has(target) {
@@ -141,9 +142,9 @@ func executeIgnite(target ecs.Entity, world w.World) (*ActionResult, error) {
 	}
 	coord := world.Components.GridElement.Get(target).Coord
 
-	fire, err := lifecycle.SpawnProp(world, "campfire", coord.X, coord.Y)
+	fire, err := lifecycle.SpawnProp(world, "fire", coord.X, coord.Y)
 	if err != nil {
-		return nil, fmt.Errorf("spawn campfire: %w", err)
+		return nil, fmt.Errorf("spawn fire: %w", err)
 	}
 
 	// 着火する。Burning を付けてから、タイル上の燃焼物をすべて残ターン数へ畳み込む
