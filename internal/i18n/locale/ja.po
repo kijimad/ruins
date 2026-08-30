@@ -1227,7 +1227,7 @@ msgid "Goods"
 msgstr "道具"
 
 msgid "Material"
-msgstr "素材"
+msgstr "材質"
 
 msgid "Ammunition"
 msgstr "弾薬"
