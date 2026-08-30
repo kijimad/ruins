@@ -14,10 +14,6 @@ APP_DATE=$(date +%Y-%m-%d)
 STEAM_RUNTIME_VERSION=3.0.20250108.112707
 GO_VERSION=$(go env GOVERSION)
 
-LDFLAGS="-X github.com/kijimaD/ruins/internal/consts.AppVersion=$APP_VERSION -X github.com/kijimaD/ruins/internal/consts.AppCommit=$APP_COMMIT -X github.com/kijimaD/ruins/internal/consts.AppDate=$APP_DATE"
-# Windowsではフリーズ対策を追加する
-WINDOWS_LDFLAGS="$LDFLAGS -X=runtime.godebugDefault=asyncpreemptoff=1 -H=windowsgui"
-
 cd "$(dirname "$0")"
 cd ../
 
@@ -27,10 +23,11 @@ cd ../
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 	APP_VERSION=$(git describe --tag --abbrev=0)
 	APP_COMMIT=$(git rev-parse --short HEAD)
-	# ldflags再構築
-	LDFLAGS="-X github.com/kijimaD/ruins/internal/consts.AppVersion=$APP_VERSION -X github.com/kijimaD/ruins/internal/consts.AppCommit=$APP_COMMIT -X github.com/kijimaD/ruins/internal/consts.AppDate=$APP_DATE"
-	WINDOWS_LDFLAGS="$LDFLAGS -X=runtime.godebugDefault=asyncpreemptoff=1 -H=windowsgui"
 fi
+
+LDFLAGS="-X github.com/kijimaD/ruins/internal/consts.AppVersion=$APP_VERSION -X github.com/kijimaD/ruins/internal/consts.AppCommit=$APP_COMMIT -X github.com/kijimaD/ruins/internal/consts.AppDate=$APP_DATE"
+# Windowsではフリーズ対策を追加する
+WINDOWS_LDFLAGS="$LDFLAGS -X=runtime.godebugDefault=asyncpreemptoff=1 -H=windowsgui"
 
 # ================
 # Steam Runtime Sniperイメージのキャッシュとビルド
