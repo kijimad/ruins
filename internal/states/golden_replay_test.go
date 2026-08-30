@@ -374,16 +374,17 @@ func TestGolden(t *testing.T) {
 			},
 			steps: []replayStep{{shot: true}},
 		},
-		// Overworld_* は時間帯ごとの地上の見た目を固定する。日照と色味は経過ターンから連続に
+		// Overworld_<n>_* は時間帯ごとの地上の見た目を固定する。日照と色味は経過ターンから連続に
 		// 補間されるので、各時間帯の中心を1枚ずつ撮って回帰検知する。turnsPerDay=1500、
 		// 各時間帯250ターンで、中心は 125 + 250*idx。区間内の傾斜は単体テストで担保する。
+		// 名前の番号は朝を起点にした1日の並び順。ファイル名とギャラリーが時刻順に並ぶ。
 		// 昼は新規開始の Overworld と近いが、6時間帯を揃えると一覧が読みやすいので中心を撮る。
-		{name: "Overworld_Day", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 昼の中心。最も明るく無彩色
-		{name: "Overworld_Evening", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},  // 夕の中心。暖色
-		{name: "Overworld_Night", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},    // 夜の中心。寒色で暗い
-		{name: "Overworld_Midnight", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}}, // 深夜の中心。最も暗い
-		{name: "Overworld_Dawn", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},    // 夜明けの中心
-		{name: "Overworld_Morning", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 朝の中心
+		{name: "Overworld_1_Morning", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 朝の中心
+		{name: "Overworld_2_Day", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 昼の中心。最も明るく無彩色
+		{name: "Overworld_3_Evening", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},  // 夕の中心。暖色
+		{name: "Overworld_4_Night", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},    // 夜の中心。寒色で暗い
+		{name: "Overworld_5_Midnight", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}}, // 深夜の中心。最も暗い
+		{name: "Overworld_6_Dawn", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},    // 夜明けの中心。次の朝へ続く
 		// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
 		// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
 		{
