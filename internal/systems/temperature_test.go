@@ -497,20 +497,6 @@ func TestHeatSourceWarmthAt_複数の熱源を加算する(t *testing.T) {
 	assert.InDelta(t, 0.7, heatSourceWarmthAt(world, 5, 5), 1e-9)
 }
 
-func TestHeatSourceWarmthAt_Deadの熱源は数えない(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	// 燃え尽きた火は Dead になり除去待ちになる。除去される前でも暖房に数えてはいけない
-	e := world.ECS.NewEntity()
-	world.Components.GridElement.Add(e, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
-	world.Components.HeatSource.Add(e, &gc.HeatSource{Radius: 2, Warmth: 0.6})
-	assert.InDelta(t, 0.6, heatSourceWarmthAt(world, 5, 5), 1e-9, "Dead でなければ暖める")
-
-	world.Components.Dead.Add(e, &gc.Dead{})
-	assert.InDelta(t, 0.0, heatSourceWarmthAt(world, 5, 5), 1e-9, "Dead の熱源は暖房に数えない")
-}
-
 func TestTemperatureSystem_Update_熱源のそばは体温の低下が緩む(t *testing.T) {
 	t.Parallel()
 

@@ -258,6 +258,27 @@ func TestProcessTurnEnd(t *testing.T) {
 		err := processTurnEnd(world)
 		require.NoError(t, err)
 	})
+
+	t.Run("燃え尽きた火は同じターンで除去される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// FireSystem が燃え尽きで Dead にし、末尾の DeadCleanup が同じターンで回収する。
+		// fast-forward でも毎ターンこれを回すので、死んだ火が次ターンへ持ち越さない
+		world.Updaters = make(map[string]w.Updater)
+		fireSys := &FireSystem{}
+		world.Updaters[fireSys.String()] = fireSys
+		deadCleanup := &DeadCleanupSystem{}
+		world.Updaters[deadCleanup.String()] = deadCleanup
+
+		fire := world.ECS.NewEntity()
+		world.Components.Burning.Add(fire, &gc.Burning{Remaining: 1})
+		world.Components.GridElement.Add(fire, &gc.GridElement{Coord: consts.Coord[consts.Tile]{X: 5, Y: 5}})
+		world.Components.HeatSource.Add(fire, &gc.HeatSource{Radius: 2, Warmth: 0.75})
+
+		require.NoError(t, processTurnEnd(world))
+		assert.False(t, world.ECS.Alive(fire), "燃え尽きた火は同じターンの turn-end で除去される")
+	})
 }
 
 func TestShouldAutoEndTurn(t *testing.T) {
