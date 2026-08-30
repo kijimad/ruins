@@ -242,6 +242,9 @@ func (s *Screen[P]) setTab(cfg MenuConfig, tab int) {
 		ItemsPerPage: cfg.ItemsPerPage,
 		Skips:        cfg.Skips,
 	}, tab)
+	// Store を Dispatch を介さず直接変えたので、View を組み直させるため dirty を立てる。
+	// これが無いと動詞キーでのタブ移動が反映されず、カーソルは移るのに画面が古いままになる
+	s.mount.MarkDirty()
 }
 
 // Selection は前フレームで確定したカーソル位置を返す。カーソルは DoAction のあとの

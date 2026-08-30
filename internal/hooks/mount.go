@@ -48,6 +48,12 @@ func (m *Mount[Props]) Dispatch(action inputmapper.ActionID) {
 	m.dirty = true
 }
 
+// MarkDirty は次の Update で再描画させる。Store を Dispatch を介さず直接変えたときに呼ぶ。
+// SetTab でカーソルを飛ばした変更が描画へ反映されるようにする。
+func (m *Mount[Props]) MarkDirty() {
+	m.dirty = true
+}
+
 // GetState は指定したキーのStateを取得する
 func GetState[T any, Props any](m *Mount[Props], key string) (T, bool) {
 	v, ok := m.store.states[key]
