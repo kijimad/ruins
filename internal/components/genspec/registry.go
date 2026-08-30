@@ -52,7 +52,7 @@ var Registry = []Def{
 	{Field: "VisualEffects"},   // 紐づくビジュアルエフェクトを管理する
 	{Field: "TileTemperature"}, // タイルの気温修正値を保持する
 	{Field: "HeatSource"},      // 近接するキャラの低体温を回復する熱源の設定を保持する
-	{Field: "Burning"},         // 燃えている状態と最上段の燃料の残量を保持する。暖房のゲートを兼ねる
+	{Field: "Burning"},         // 燃えている状態と残りの燃焼ターン数を保持する。暖房のゲートを兼ねる
 
 	// stage ================
 	{Field: "StageBound"},       // 束縛先ステージを保持する。往復するステージの同定に使う
