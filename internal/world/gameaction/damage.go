@@ -9,9 +9,9 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// ApplyDamage は共通のダメージ処理を実行する
-// source から target へダメージを与え、死亡判定とログ出力を行う
-func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity) {
+// dealHP は HP を damage ぶん削り、致死なら Dead を付けて died を返す。
+// ログや死因記録は呼び出し側が状況に応じて行う。
+func dealHP(world w.World, target ecs.Entity, damage int) (died bool) {
 	hp := world.Components.HP.Get(target)
 
 	beforeHP := hp.Current
@@ -20,13 +20,40 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 		hp.Current = 0
 	}
 
+	if hp.Current <= 0 && beforeHP > 0 {
+		world.Components.Dead.Add(target, &gc.Dead{})
+		return true
+	}
+	return false
+}
+
+// ApplyDamage は共通のダメージ処理を実行する
+// source から target へダメージを与え、死亡判定とログ出力を行う
+func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity) {
+	died := dealHP(world, target, damage)
+
 	// 被ダメージによる態度変化
 	reactToHostileAction(world, target)
 
-	// 死亡チェック
-	if hp.Current <= 0 && beforeHP > 0 {
-		world.Components.Dead.Add(target, &gc.Dead{})
+	if died {
 		logDeath(world, target, source)
+	}
+}
+
+// ApplyConditionDamage は低体温や病気など発生源のない不調から target の HP を削る。
+// 死因ラベルを受け取り、プレイヤーが倒れたら RunStats へ記録する。
+// 攻撃者がいないので AI の敵対反応は起こさない。
+func ApplyConditionDamage(world w.World, target ecs.Entity, damage int, cause string) {
+	died := dealHP(world, target, damage)
+
+	if died {
+		if isPlayerEntity(target, world) {
+			if rs := query.GetRunStats(world); rs != nil {
+				rs.Cause = cause
+			}
+		}
+		// 発生源が無いので source は target 自身を渡す。プレイヤー関与のログ判定はこれで足りる
+		logDeath(world, target, target)
 	}
 }
 

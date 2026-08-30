@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -90,6 +91,8 @@ const (
 	bodyTempMax = 0.0
 	// bodyTempHomeostasisPerTurn は外因が無いときに平熱へ戻る1ターンの量
 	bodyTempHomeostasisPerTurn = 0.1
+	// hypothermiaSevereHPDamagePerTurn は重症の低体温が毎ターン与える HP ダメージ。値は実プレイで調整する
+	hypothermiaSevereHPDamagePerTurn = 3
 )
 
 // Update は環境から体温を動かし、正常帯を外れた体温で健康状態のタイマーを進める
@@ -100,6 +103,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 	// HealthStatusとGridElementを持つエンティティを処理。
 	var toMark []ecs.Entity
+	var toFreeze []ecs.Entity
 	healthQuery := query.ActiveFilter2[gc.HealthStatus, gc.GridElement](world).Query()
 	for healthQuery.Next() {
 		entity := healthQuery.Entity()
@@ -124,6 +128,11 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		if isPlayer && hasChange {
 			toMark = append(toMark, entity)
 		}
+
+		// 重症の低体温は毎ターン HP を削る。反復中に Dead を付けないようループ後へ回す
+		if world.Components.HP.Has(entity) && isSevereHypothermia(hs) {
+			toFreeze = append(toFreeze, entity)
+		}
 	}
 
 	for _, entity := range toMark {
@@ -132,7 +141,17 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		}
 	}
 
+	for _, entity := range toFreeze {
+		gameaction.ApplyConditionDamage(world, entity, hypothermiaSevereHPDamagePerTurn, gc.CauseFrozen)
+	}
+
 	return nil
+}
+
+// isSevereHypothermia は全身の低体温が重症かを返す
+func isSevereHypothermia(hs *gc.HealthStatus) bool {
+	cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
+	return cond != nil && cond.Severity == gc.SeveritySevere
 }
 
 // bodyTempRate は現在地の環境が1ターンに動かす体温の変化量を返す。温まる向きが正。

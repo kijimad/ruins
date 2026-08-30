@@ -576,3 +576,44 @@ func TestBodyTempRate_外因が無ければ平熱へ戻る(t *testing.T) {
 	hs.BodyTempOffset = -0.05
 	assert.InDelta(t, 0.05, bodyTempRate(world, player), 1e-9, "残りが小さければ平熱ちょうどで止まる")
 }
+
+func TestTemperatureSystem_重症低体温はHPを削る(t *testing.T) {
+	t.Parallel()
+
+	// Timer を 100 にすると1ターンの体温変動後も必ず Severe に留まるので、環境に依らず判定できる。
+	setHypothermiaTimer := func(hs *gc.HealthStatus, timer float64) {
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHypothermia,
+			Severity: gc.TimerToSeverity(timer),
+			Timer:    timer,
+		})
+	}
+
+	t.Run("重症なら毎ターンHPが減る", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Debug town", 1)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		setHypothermiaTimer(world.Components.HealthStatus.Get(player), 100)
+		hpBefore := world.Components.HP.Get(player).Current
+
+		require.NoError(t, (&TemperatureSystem{}).Update(world))
+
+		assert.Equal(t, hpBefore-hypothermiaSevereHPDamagePerTurn, world.Components.HP.Get(player).Current)
+	})
+
+	t.Run("中度では減らない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		query.GetDungeon(world).CurrentStage = gc.NewDungeonStage("Debug town", 1)
+		player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+		require.NoError(t, err)
+		setHypothermiaTimer(world.Components.HealthStatus.Get(player), 60)
+		hpBefore := world.Components.HP.Get(player).Current
+
+		require.NoError(t, (&TemperatureSystem{}).Update(world))
+
+		assert.Equal(t, hpBefore, world.Components.HP.Get(player).Current)
+	})
+}
