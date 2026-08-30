@@ -4,8 +4,8 @@ set -eu
 ##################################
 # シェルスクリプトをshellcheckで検査するスクリプト
 #
-# 対象はgit経由で集める。shfmtは.gitignoreを読まないため、ディレクトリを直接歩かせると
-# Cataclysm-DDAやnode_modulesを巻き込む。shfmt -fはshebangで判別するので拡張子なしも拾う
+# 対象はgit経由で集める。shfmtは.gitignoreを読まないため、ディレクトリを直接走査すると
+# node_modulesを巻き込む。shfmt -fはshebangで判別するので拡張子なしも拾う
 ##################################
 
 cd "$(dirname "$0")"
