@@ -127,13 +127,10 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 	// Linux のタスクバーや Steam Deck は SetWindowTitle でなく X11 の WM_CLASS でアプリを同定する。
-	// 既定のままだと "Ebitengine-Application" と表示されるため、クラス名と instance 名を明示する。
-	if err := ebiten.RunGameWithOptions(game, &ebiten.RunGameOptions{
+	// 既定のままだと "Ebitengine-Application" と表示される。WM_CLASS の class 側は表示・グルーピングに
+	// 使われるので表示名の Coldward、instance 側は実行体の同定子なので内部名の ruins にする。
+	return ebiten.RunGameWithOptions(game, &ebiten.RunGameOptions{
 		X11ClassName:    "Coldward",
-		X11InstanceName: "coldward",
-	}); err != nil {
-		return err
-	}
-
-	return nil
+		X11InstanceName: "ruins",
+	})
 }
