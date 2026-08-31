@@ -43,7 +43,7 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 // ApplyConditionDamage は低体温や病気など発生源のない不調から target の HP を削る。
 // 死因ラベルを受け取り、プレイヤーが倒れたら RunStats へ記録する。
 // 攻撃者がいないので AI の敵対反応は起こさない。
-func ApplyConditionDamage(world w.World, target ecs.Entity, damage int, cause string) {
+func ApplyConditionDamage(world w.World, target ecs.Entity, damage int, cause gc.DeathCause) {
 	died := dealHP(world, target, damage)
 
 	if died {

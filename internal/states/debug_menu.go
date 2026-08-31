@@ -49,7 +49,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		{Label: "Run result (death screen)", Run: func(world w.World) (es.Transition[w.World], error) {
 			// 死因に目印の debug を入れて結果画面を確認する
 			if s := query.GetRunStats(world); s != nil {
-				s.Cause = "debug"
+				s.Cause = gc.CauseDebug
 			}
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewRunResultState}}, nil
 		}},

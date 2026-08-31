@@ -29,11 +29,11 @@ const conditionMinorNaturalRecoveryPerTurn = 1
 // conditionSpec は不調の種類ごとの固定パラメータ。ConditionSystem が扱う怪我と病気を定める。
 // 低体温は TemperatureSystem が担うのでこのカタログには載せない。
 type conditionSpec struct {
-	Recovery   RecoveryMode // 未治療の振る舞いと治し方
-	WorsenPer  int          // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
-	RecoverPer int          // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
-	HPDamage   int          // 重症で毎ターン与える HP ダメージ。0 なら無害
-	Cause      string       // HPDamage で倒したときの死因。HPDamage が0なら未使用
+	Recovery   RecoveryMode  // 未治療の振る舞いと治し方
+	WorsenPer  int           // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
+	RecoverPer int           // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
+	HPDamage   int           // 重症で毎ターン与える HP ダメージ。0 なら無害
+	Cause      gc.DeathCause // HPDamage で倒したときの死因。HPDamage が0なら未使用
 }
 
 // conditionCatalog は ConditionSystem が扱う不調の種類を網羅する実行時定数。
@@ -69,7 +69,7 @@ func (sys *ConditionSystem) String() string {
 type conditionDamage struct {
 	entity ecs.Entity
 	amount int
-	cause  string
+	cause  gc.DeathCause
 }
 
 // Update は怪我と病気の回復軌道を進め、重症の不調で HP を削る
