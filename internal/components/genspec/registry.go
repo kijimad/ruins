@@ -24,7 +24,7 @@ var Registry = []Def{
 	{Field: "Fire"},               // 遠距離攻撃の性能と弾薬を保持する
 	{Field: "Value"},              // アイテムの基本価値を表す
 	{Field: "Weight"},             // アイテムの重量を表す
-	{Field: "Recipe"},             // 合成に必要な素材を保持する
+	{Field: "Recipe"},             // クラフトに必要な素材を保持する
 	{Field: "Wearable"},           // 装備品の性能を保持する
 	{Field: "Abilities"},          // エンティティの能力値を保持する
 	{Field: "Ammo"},               // 弾薬アイテムの性能を保持する

@@ -448,7 +448,7 @@ func TestSpawnNeutralNPC_商人以外は在庫を積まない(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	npc, err := SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "suspicious_scientist")
+	npc, err := SpawnNeutralNPC(world, consts.Coord[consts.Tile]{X: 1, Y: 1}, "old_soldier")
 	require.NoError(t, err)
 
 	require.True(t, world.Components.FactionNeutral.Has(npc))

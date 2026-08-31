@@ -18,7 +18,7 @@ const (
 	SkillCannon      SkillID = "cannon"      // 砲撃
 	SkillExploration SkillID = "exploration" // 探索
 
-	SkillCrafting    SkillID = "crafting"    // 合成
+	SkillCrafting    SkillID = "crafting"    // クラフト
 	SkillSmithing    SkillID = "smithing"    // 調合
 	SkillNegotiation SkillID = "negotiation" // 交渉
 	SkillMechanic    SkillID = "mechanic"    // 機械

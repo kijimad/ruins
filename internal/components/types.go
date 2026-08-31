@@ -32,7 +32,7 @@ type TargetType struct {
 	TargetNum   TargetNumType   // 対象数（単体、複数、全体）
 }
 
-// RecipeInput は合成の元になる素材
+// RecipeInput はクラフトの元になる素材
 type RecipeInput struct {
 	ID     string // 素材アイテムの id
 	Amount int    // 必要量

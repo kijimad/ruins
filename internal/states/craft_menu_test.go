@@ -62,19 +62,19 @@ func TestCraftMenuState_DoAction_CloseMenu(t *testing.T) {
 	assert.Equal(t, es.TransPop, transition.Type, "CloseMenuでTransPop")
 }
 
-func TestCraftMenuState_DoAction_未選択のSelectは合成せず何もしない(t *testing.T) {
+func TestCraftMenuState_DoAction_未選択のSelectはクラフトせず何もしない(t *testing.T) {
 	t.Parallel()
 
 	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	// Update を回していないのでカーソルは未確定。未選択の Select は合成せず結果モーダルも開かない。
-	// カーソルを載せてからの合成の副作用は結合テストで別途検証する
+	// Update を回していないのでカーソルは未確定。未選択の Select はクラフトせず結果モーダルも開かない。
+	// カーソルを載せてからのクラフトの副作用は結合テストで別途検証する
 	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
 	require.NoError(t, err)
 	assert.Equal(t, es.TransNone, transition.Type, "未選択の選択はTransNone")
-	assert.False(t, state.result.Active(), "合成できなければ結果モーダルは開かない")
+	assert.False(t, state.result.Active(), "クラフトできなければ結果モーダルは開かない")
 }
 
 func TestCraftMenuState_detailContent_選択なしは表示しない(t *testing.T) {
@@ -88,7 +88,7 @@ func TestCraftMenuState_detailContent_選択なしは表示しない(t *testing.
 	assert.False(t, ok, "レシピ未選択では詳細モーダルを出さない")
 }
 
-func TestCraftMenuState_resultDetailContent_合成前は表示しない(t *testing.T) {
+func TestCraftMenuState_resultDetailContent_クラフト前は表示しない(t *testing.T) {
 	t.Parallel()
 
 	state := &CraftMenuState{}
@@ -96,7 +96,7 @@ func TestCraftMenuState_resultDetailContent_合成前は表示しない(t *testi
 	require.NoError(t, state.OnStart(world))
 
 	state.result.Open(world)
-	assert.False(t, state.result.Active(), "合成前は結果モーダルを出さない")
+	assert.False(t, state.result.Active(), "クラフト前は結果モーダルを出さない")
 }
 
 func TestNewCraftMenuState(t *testing.T) {

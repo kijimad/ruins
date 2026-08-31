@@ -345,10 +345,10 @@ msgid "Material cost"
 msgstr "素材消費"
 
 msgid "Material consumption multiplier when crafting. Lower saves materials"
-msgstr "合成時の素材消費量倍率。低いほど素材が節約できる"
+msgstr "クラフト時の素材消費量倍率。低いほど素材が節約できる"
 
 msgid "Craft quality"
-msgstr "合成品質"
+msgstr "クラフト品質"
 
 msgid "Quality multiplier when crafting. Higher makes better goods"
 msgstr "調合時の品質倍率。高いほど良い品ができる"
@@ -595,12 +595,6 @@ msgstr "見る"
 
 msgid "No business"
 msgstr "用は無い"
-
-msgid "I want to craft"
-msgstr "合成したい"
-
-msgid "Heh heh... I'll reconstruct matter with my secret technique.\n\nBring me core and materials!"
-msgstr "フフフ...わしの秘密の技術で物質再構築してやろう\n\n地髄と素材を持ってくるのじゃ!"
 
 msgid "A vast wasteland, with a single great hole gaping open."
 msgstr "見渡すかぎりの荒野に、大穴がひとつ、口を開けている。"
@@ -1008,10 +1002,10 @@ msgid "Raised by acting with heavy equipment"
 msgstr "重い装備で行動すると上がる"
 
 msgid "Raised by crafting items"
-msgstr "アイテムを合成すると上がる"
+msgstr "アイテムをクラフトすると上がる"
 
 msgid "Reduces material consumption when crafting"
-msgstr "合成時の素材消費が減少する"
+msgstr "クラフト時の素材消費が減少する"
 
 msgid "Speeds up disassembly and increases yield"
 msgstr "分解が速くなり産出が増える"
@@ -1173,7 +1167,7 @@ msgid "Exploration"
 msgstr "探索"
 
 msgid "Crafting"
-msgstr "合成"
+msgstr "クラフト"
 
 msgid "Smithing"
 msgstr "調合"

@@ -9387,37 +9387,6 @@ strength = 1
 vitality = 1
 
 [[members]]
-animKeys = [ "doctor_0", "doctor_1" ]
-factionType = "FactionNeutral"
-combatPolicy = "ignore"
-movementPattern = "wander"
-name = "Suspicious Scientist"
-id = "suspicious_scientist"
-spriteKey = "doctor_0"
-spriteSheetName = "field"
-
-[members.abilities]
-agility = 7
-defense = 5
-dexterity = 10
-sensation = 15
-strength = 5
-vitality = 10
-
-[members.lightSource]
-enabled = true
-radius = 3
-
-[members.lightSource.color]
-a = 255
-b = 100
-g = 175
-r = 255
-
-[members.dialog]
-messageKey = "doctor_greeting"
-
-[[members]]
 animKeys = [ "old_tank" ]
 commandTableId = "old_tank"
 dropTableId = "old_tank"

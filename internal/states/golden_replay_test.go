@@ -190,7 +190,7 @@ func TestGolden(t *testing.T) {
 		{
 			name: "CraftMenu",
 			build: func(world w.World) ([]es.State[w.World], error) {
-				// 回復薬の材料を持たせ、合成可能な行にチェックが付く様子を確認する
+				// 回復薬の材料を持たせ、クラフト可能な行にチェックが付く様子を確認する
 				if _, err := lifecycle.SpawnBackpackItem(world, "green_herb", 1); err != nil {
 					return nil, err
 				}
@@ -465,6 +465,21 @@ func TestGolden(t *testing.T) {
 			steps: []replayStep{
 				{action: inputmapper.ActionOpenKeyHelp}, // ヘルプを push する。反映は次フレーム
 				{shot: true},                            // 押し込まれたヘルプを撮る
+			},
+		},
+		// DungeonMenu は M で開く選択メニューの項目を固定する。クラフトを含む項目の並びを覆う
+		{
+			name: "DungeonMenu",
+			build: func(w.World) ([]es.State[w.World], error) {
+				return []es.State[w.World]{&gs.DungeonState{
+					Depth:          1,
+					DefinitionName: dungeon.DungeonDebug.Name(),
+					BuilderType:    mapplanner.PlannerTypeSmallRoom,
+				}}, nil
+			},
+			steps: []replayStep{
+				{action: inputmapper.ActionOpenDungeonMenu}, // M でメニューを push する。反映は次フレーム
+				{shot: true}, // 押し込まれたメニューを撮る
 			},
 		},
 		// x で開く詳細モーダルの描画を固定する。個数とタイトルバーが無く、性能・性質と説明が

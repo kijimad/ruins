@@ -29,6 +29,7 @@ func dungeonMenuChoices(world w.World) (string, []Choice) {
 	return "", []Choice{
 		{Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
 		{Label: query.T(world, "Character"), Run: pushChoice(NewCharacterState)},
+		{Label: query.T(world, "Crafting"), Run: pushChoice(NewCraftMenuState)},
 		{Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
 		{Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)},
 		{Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) {
@@ -338,29 +339,6 @@ func NewMerchantDialogState(speakerName string, merchant ecs.Entity) (es.State[w
 					NewStateFuncs: []es.StateFactory[w.World]{
 						func() (es.State[w.World], error) { return NewShopMenuState(merchant) },
 					},
-				})
-				return nil
-			}).
-			WithChoice(query.T(world, "No business"), func(_ w.World) error {
-				persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-				return nil
-			})
-	}
-
-	return persistentState, nil
-}
-
-// NewDoctorDialogState は怪しい科学者との会話ステートを作成
-func NewDoctorDialogState(speakerName string) (es.State[w.World], error) {
-	persistentState := &PersistentMessageState{}
-
-	persistentState.build = func(world w.World) *messagedata.MessageData {
-		return messagedata.NewDialogMessage("", speakerName).
-			AddText(query.T(world, "Heh heh... I'll reconstruct matter with my secret technique.\n\nBring me core and materials!")).
-			WithChoice(query.T(world, "I want to craft"), func(_ w.World) error {
-				persistentState.SetTransition(es.Transition[w.World]{
-					Type:          es.TransPush,
-					NewStateFuncs: []es.StateFactory[w.World]{NewCraftMenuState},
 				})
 				return nil
 			}).

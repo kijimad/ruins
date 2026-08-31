@@ -29,8 +29,8 @@ import (
 type CraftMenuState struct {
 	es.BaseState[w.World]
 	detail       overlay.Detail // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
-	result       overlay.Detail // 合成結果の詳細モーダル。overlay として Screen に登録する
-	resultEntity ecs.Entity     // 直近で合成したアイテム
+	result       overlay.Detail // クラフト結果の詳細モーダル。overlay として Screen に登録する
+	resultEntity ecs.Entity     // 直近でクラフトしたアイテム
 	screen       *menuloop.Screen[CraftProps]
 }
 
@@ -43,7 +43,7 @@ var _ menuloop.KeyBindings = &CraftMenuState{}
 func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.detail = overlay.NewDetail(st.detailContent)
 	st.result = overlay.NewEntityDetail(func() (ecs.Entity, bool) { return st.resultEntity, true })
-	// result を先に登録する。合成結果が開いている間はそちらが入力を専有する
+	// result を先に登録する。クラフト結果が開いている間はそちらが入力を専有する
 	st.screen = menuloop.NewScreen[CraftProps](st, &st.result, &st.detail)
 	return nil
 }
@@ -99,7 +99,7 @@ type craftTabData struct {
 }
 
 type craftItemData struct {
-	RecipeID   string // 合成の同定キー。NewRecipeSpec/CanCraft/Craft はこれで引く
+	RecipeID   string // クラフトの同定キー。NewRecipeSpec/CanCraft/Craft はこれで引く
 	RecipeName string // 表示名
 	CanCraft   bool
 }
@@ -193,11 +193,11 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 }
 
 // ================
-// 合成
+// クラフト
 // ================
 
-// craftSelected は現在カーソルが当たっているレシピを合成し、結果モーダルを開く。
-// 合成不可のレシピは何もしない。決定で即実行し、途中のアクション選択は挟まない
+// craftSelected は現在カーソルが当たっているレシピをクラフトし、結果モーダルを開く。
+// クラフト不可のレシピは何もしない。決定で即実行し、途中のアクション選択は挟まない
 func (st *CraftMenuState) craftSelected(world w.World) error {
 	item, ok := st.selectedRecipe()
 	if !ok || !item.CanCraft {
@@ -230,7 +230,7 @@ func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 // View
 // ================
 
-// ViewUI はカテゴリタブと合成可否印つきレシピ一覧を組む。
+// ViewUI はカテゴリタブとクラフト可否印つきレシピ一覧を組む。
 func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
 	labels := make([]string, len(props.Tabs))
 	for i, tab := range props.Tabs {

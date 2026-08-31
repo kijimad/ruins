@@ -22,14 +22,13 @@ func namesInWorld(world w.World) map[string]int {
 	return counts
 }
 
-func TestSpawnSettlement_村は全サービスのNPCが揃う(t *testing.T) {
+func TestSpawnSettlement_村には商人がいる(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, spawnSettlement(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, true))
 	counts := namesInWorld(world)
 	assert.Equal(t, 1, counts["Merchant"], "交易と雇用")
-	assert.Equal(t, 1, counts["Suspicious Scientist"], "合成")
 }
 
 func TestSpawnSettlement_一軒家は商人だけの行商拠点(t *testing.T) {
@@ -39,5 +38,4 @@ func TestSpawnSettlement_一軒家は商人だけの行商拠点(t *testing.T) {
 	require.NoError(t, spawnSettlement(world, consts.Coord[consts.Tile]{X: 25, Y: 25}, false))
 	counts := namesInWorld(world)
 	assert.Equal(t, 1, counts["Merchant"], "行商の商人はいる")
-	assert.Zero(t, counts["Suspicious Scientist"], "合成サービスは村にしかない")
 }
