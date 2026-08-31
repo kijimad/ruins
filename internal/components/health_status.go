@@ -95,6 +95,22 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 	}
 }
 
+// ConditionTypeDescription は状態種類の概要説明を返す。何であるかと未治療の振る舞いを1文で伝える
+func ConditionTypeDescription(ct ConditionType) string {
+	switch ct {
+	case ConditionHypothermia:
+		return "Hypothermia. The body is dangerously cold. Warm up to recover."
+	case ConditionFracture:
+		return "Fracture. A broken bone. It will not heal until treated."
+	case ConditionLaceration:
+		return "Laceration. An open wound. It will not heal until treated."
+	case ConditionLiverIllness:
+		return "Liver illness. It worsens while untreated and drains HP when severe."
+	default:
+		return ""
+	}
+}
+
 // HealthCondition は部位に付与される1つの状態
 type HealthCondition struct {
 	Type     ConditionType // 状態の種類

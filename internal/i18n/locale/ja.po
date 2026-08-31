@@ -938,6 +938,18 @@ msgstr "切り傷"
 msgid "Liver illness"
 msgstr "肝疾患"
 
+msgid "Hypothermia. The body is dangerously cold. Warm up to recover."
+msgstr "低体温。体が危険なほど冷えている。暖まれば回復する。"
+
+msgid "Fracture. A broken bone. It will not heal until treated."
+msgstr "骨折。骨が折れている。治療するまで回復しない。"
+
+msgid "Laceration. An open wound. It will not heal until treated."
+msgstr "切り傷。傷口が開いている。治療するまで回復しない。"
+
+msgid "Liver illness. It worsens while untreated and drains HP when severe."
+msgstr "肝疾患。放置すると悪化し、重症になると HP を削る。"
+
 msgid "Minor"
 msgstr "軽"
 

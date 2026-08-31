@@ -45,8 +45,9 @@ type statusItemData struct {
 }
 
 type statusDetailRow struct {
-	Label string
-	Value string
+	Label  string
+	Value  string
+	Header bool // セクション見出し行かどうか。見出しは Value を持たない
 }
 
 // fetchInfoTabs は能力・スキル・効果・健康・基本の読み取り専用タブを構築する
@@ -207,6 +208,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 		part := gc.BodyPart(i)
 		var conditionStr strings.Builder
 		var details []statusDetailRow
+		var descParts []string
 		if hs != nil {
 			conditions := hs.Parts[i].Conditions
 			for j, cond := range conditions {
@@ -214,17 +216,25 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 					conditionStr.WriteString(", ")
 				}
 				conditionStr.WriteString(translatedConditionName(world, cond))
-				details = append(details, statusDetailRow{
-					Label: query.T(world, gc.ConditionTypeDisplayName(cond.Type)),
-					Value: query.T(world, cond.Severity.String()),
-				})
+
+				// 概要は不調ごとに1文。詳細モーダルの説明段落にまとめる
+				descParts = append(descParts, query.T(world, gc.ConditionTypeDescription(cond.Type)))
+
+				// 影響は不調を見出しに、能力デバフを内訳として並べる
+				details = append(details, statusDetailRow{Label: translatedConditionName(world, cond), Header: true})
+				for _, eff := range cond.Effects {
+					details = append(details, statusDetailRow{
+						Label: query.T(world, eff.Stat.String()),
+						Value: fmt.Sprintf("%+d", eff.Value),
+					})
+				}
 			}
 		}
 		value := conditionStr.String()
 		if value == "" {
 			value = query.T(world, "Normal")
 		}
-		items = append(items, statusItemData{Label: query.T(world, part.String()), Value: value, BodyPart: part, Details: details})
+		items = append(items, statusItemData{Label: query.T(world, part.String()), Value: value, Description: strings.Join(descParts, "\n"), BodyPart: part, Details: details})
 	}
 	return items
 }

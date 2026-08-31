@@ -96,6 +96,56 @@ func TestCharacterState_スキルタブはカテゴリ見出しを含む(t *test
 	assert.True(t, hasHeader, "スキルタブはカテゴリ見出し行を持つ")
 }
 
+func TestCharacterState_健康タブは不調の概要と影響を詳細に持つ(t *testing.T) {
+	t.Parallel()
+
+	state := &CharacterState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{
+		Type:     gc.ConditionFracture,
+		Timer:    60,
+		Severity: gc.SeverityMedium,
+		Effects:  []gc.StatEffect{{Stat: gc.StatDexterity, Value: -4}, {Stat: gc.StatAgility, Value: -2}},
+	})
+
+	props, err := state.Fetch(world)
+	require.NoError(t, err)
+
+	var health statusTabData
+	for _, tab := range props.InfoTabs {
+		if tab.ID == tabHealth {
+			health = tab
+		}
+	}
+	var arms statusItemData
+	for _, it := range health.Items {
+		if it.BodyPart == gc.BodyPartArms {
+			arms = it
+		}
+	}
+
+	assert.Contains(t, arms.Value, "Fracture", "行の値に不調名が出る")
+	assert.Contains(t, arms.Description, "broken bone", "詳細に概要説明を持つ")
+	require.NotEmpty(t, arms.Details)
+	assert.True(t, arms.Details[0].Header, "影響の先頭は不調の見出し")
+
+	var foundDex, foundAgi bool
+	for _, d := range arms.Details {
+		if d.Label == "Dexterity" && d.Value == "-4" {
+			foundDex = true
+		}
+		if d.Label == "Agility" && d.Value == "-2" {
+			foundAgi = true
+		}
+	}
+	assert.True(t, foundDex, "影響に器用のデバフが出る")
+	assert.True(t, foundAgi, "影響に敏捷のデバフが出る")
+}
+
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

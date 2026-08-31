@@ -375,10 +375,10 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 	}
 	rows := []entityspec.SpecRow{}
 	for _, d := range item.Details {
-		if d.Value == "" {
+		if d.Value == "" && !d.Header {
 			continue
 		}
-		rows = append(rows, entityspec.SpecRow{Label: d.Label, Value: d.Value})
+		rows = append(rows, entityspec.SpecRow{Label: d.Label, Value: d.Value, Header: d.Header})
 	}
 	return overlay.DetailContent{Name: heading, Desc: item.Description, Rows: rows}
 }
