@@ -142,8 +142,7 @@ func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawa
 	}
 	res := world.Resources.UIResources
 	if len(contents) == 1 {
-		c := contents[0]
-		return buildDetailUI(res, rect, c.Name, c.Desc, c.Rows, d.page)
+		return buildPanelUI(res, rect, contents[0], d.page)
 	}
 	// 複数枚は狭い WindowRect でなく画面幅の大半へ横並びで描く。上下は rect と揃える
 	sw := world.Resources.ScreenDimensions.Width

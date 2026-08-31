@@ -60,18 +60,18 @@ func TestDetailPageCount_実体の性能行数からページ数を算出する(
 	assert.Equal(t, 1, DetailPageCount(world, withAbilities), "Abilitiesの6行は1ページに収まる")
 }
 
-// buildDetailUI は uicore のツリーを組むだけでグローバル状態に触れないので、フェイス無し・
+// buildPanelUI は uicore のツリーを組むだけでグローバル状態に触れないので、フェイス無し・
 // ロック無しで検証できる。Text は参照するので空の実体を渡す。フェイスが nil なら WrapText は
 // 測定せず desc を1行で返す。
-func TestBuildDetailUI_説明は最終ページにだけ表示する(t *testing.T) {
+func TestBuildPanelUI_説明は最終ページにだけ表示する(t *testing.T) {
 	t.Parallel()
 	rows := make([]entityspec.SpecRow, 15)
 	for i := range rows {
 		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	firstPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0)
-	lastPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1)
+	firstPage := buildPanelUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), DetailContent{Name: "名前", Desc: "説明文", Rows: rows}, 0)
+	lastPage := buildPanelUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), DetailContent{Name: "名前", Desc: "説明文", Rows: rows}, 1)
 
 	firstLabels := uicore.CollectLabels(firstPage)
 	lastLabels := uicore.CollectLabels(lastPage)
@@ -84,15 +84,15 @@ func TestBuildDetailUI_説明は最終ページにだけ表示する(t *testing.
 	assert.Contains(t, lastLabels, "2/2")
 }
 
-func TestBuildDetailUI_ページ番号は範囲外を先頭と末尾にクランプする(t *testing.T) {
+func TestBuildPanelUI_ページ番号は範囲外を先頭と末尾にクランプする(t *testing.T) {
 	t.Parallel()
 	rows := make([]entityspec.SpecRow, 15)
 	for i := range rows {
 		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	negative := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "", "", rows, -1)
-	overflow := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "", "", rows, 99)
+	negative := buildPanelUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), DetailContent{Rows: rows}, -1)
+	overflow := buildPanelUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), DetailContent{Rows: rows}, 99)
 
 	require.NotNil(t, negative)
 	require.NotNil(t, overflow)
