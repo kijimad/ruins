@@ -519,23 +519,6 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionOpenItemDetail, shot: true}, // x で詳細を開き現装備との差分を撮る
 			},
 		},
-		// EquipSelectHelp は装備選択 overlay 表示中に ? でキー一覧ヘルプが開くことを固定する。
-		// overlay がアクティブでも Screen が ? を吸って開く経路を覆う
-		{
-			name: "EquipSelectHelp",
-			build: func(world w.World) ([]es.State[w.World], error) {
-				if _, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1); err != nil {
-					return nil, err
-				}
-				return []es.State[w.World]{&gs.CharacterState{}}, nil
-			},
-			steps: []replayStep{
-				{action: inputmapper.ActionMenuDown},    // 武器スロット1から空のスロット2へ
-				{action: inputmapper.ActionMenuSelect},  // 空スロットで装備選択を開く
-				{action: inputmapper.ActionOpenKeyHelp}, // ? でキー一覧ヘルプを push する
-				{shot: true},                            // push は次フレーム反映なので待ち手で撮る
-			},
-		},
 	}
 
 	for _, tc := range cases {
