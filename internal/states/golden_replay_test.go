@@ -501,8 +501,8 @@ func TestGolden(t *testing.T) {
 				{shot: true},                           // push は次フレーム反映なので待ち手で撮る
 			},
 		},
-		// EquipCompare は装備済みスロットの装備選択から詳細を開き、現装備との性能差が色分けで
-		// 併記される画を撮る。武器スロット1は初期装備で埋まるので、そこで装備選択を開き、
+		// EquipCompare は装備済みスロットの装備選択から詳細を開き、現装備と候補を2枚並べて
+		// 比較する画を撮る。武器スロット1は初期装備で埋まるので、そこで装備選択を開き、
 		// 先頭の「外す」を1つ飛ばした候補へカーソルを移してから詳細を開く
 		{
 			name: "EquipCompare",
@@ -516,7 +516,7 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuSelect}, // 武器スロット1の初期装備で装備選択を push する
 				{},                                     // push した装備選択メニューをシードさせる待ち手
 				{action: inputmapper.ActionMenuDown},   // 先頭「外す」から候補クレイモアへ
-				{action: inputmapper.ActionOpenItemDetail, shot: true}, // x で詳細を開き現装備との差分を撮る
+				{action: inputmapper.ActionOpenItemDetail, shot: true}, // x で詳細を開き現装備との比較を撮る
 			},
 		},
 	}
