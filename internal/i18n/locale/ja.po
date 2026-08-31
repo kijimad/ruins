@@ -473,6 +473,9 @@ msgstr "%s は %s を装備した。"
 msgid "%s unequipped %s."
 msgstr "%s は %s を外した。"
 
+msgid "Unequip"
+msgstr "外す"
+
 msgid "Readied %s."
 msgstr "%sを構えた"
 

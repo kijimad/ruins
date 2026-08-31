@@ -15,7 +15,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -86,8 +85,7 @@ func characterTabLabels(world w.World) []string {
 // CharacterState は画面タブメニューのステート。主人公の装備と情報を閲覧・編集する
 type CharacterState struct {
 	es.BaseState[w.World]
-	detail overlay.Detail        // 詳細モーダル。overlay として Screen に登録する
-	equip  characterEquipOverlay // 装備選択。overlay として Screen に登録する
+	detail overlay.Detail // 詳細モーダル。overlay として Screen に登録する
 	screen *menuloop.Screen[CharacterProps]
 }
 
@@ -97,9 +95,7 @@ var _ menuloop.KeyBindings = &CharacterState{}
 // OnStart はステートが開始される際に呼ばれる
 func (st *CharacterState) OnStart(_ w.World) error {
 	st.detail = overlay.NewDetail(st.detailContent)
-	st.equip = newCharacterEquipOverlay(&st.detail)
-	// detail を equip より前に登録する。装備選択中に x で開いた詳細が入力を優先する
-	st.screen = menuloop.NewScreen[CharacterProps](st, &st.detail, &st.equip)
+	st.screen = menuloop.NewScreen[CharacterProps](st, &st.detail)
 	return nil
 }
 
@@ -118,8 +114,7 @@ func (st *CharacterState) Draw(_ w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く。
-// 装備選択中は overlay が入力を専有するため Screen はこれを読まない
+// KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く
 func (st *CharacterState) KeyBindings() []keybind.Binding {
 	return detailOpenBindings
 }
@@ -133,47 +128,30 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 		st.detail.Open(world)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
-		return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)
+		return st.onBrowseSelect(world), nil
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
 	}
 }
 
-// onBrowseSelect は閲覧中の Enter を処理する。装備タブは外す・装備選択、情報タブは詳細を開く
-func (st *CharacterState) onBrowseSelect(world w.World) error {
+// onBrowseSelect は閲覧中の Enter を処理する。装備タブは装備選択を別 state として push し、
+// 情報タブは詳細を開く
+func (st *CharacterState) onBrowseSelect(world w.World) es.Transition[w.World] {
 	cursor := st.screen.Selection()
 	props := st.screen.Props()
 	switch charTabAt(cursor.TabIndex) {
 	case charTabEquip:
 		if cursor.ItemIndex >= len(props.EquipSlots) {
-			return nil
+			return es.Transition[w.World]{Type: es.TransNone}
 		}
-		slot := props.EquipSlots[cursor.ItemIndex]
-		// 装備済みスロットは Enter で外す。空スロットは Enter で装備選択を開く
-		if slot.Entity != nil {
-			if err := st.unequipSlot(world, slot); err != nil {
-				return err
-			}
-		} else {
-			st.equip.Open(world, slot)
+		return es.Transition[w.World]{
+			Type:          es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{newEquipSelectState(props.EquipSlots[cursor.ItemIndex])},
 		}
 	default:
 		st.detail.Open(world)
+		return es.Transition[w.World]{Type: es.TransNone}
 	}
-	return nil
-}
-
-// unequipSlot は装備済みスロットのアイテムを外して持ち物へ戻す
-func (st *CharacterState) unequipSlot(world w.World, slot equipItemData) error {
-	if slot.Entity == nil {
-		return nil
-	}
-	itemName := query.GetEntityName(*slot.Entity, world)
-	if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Character); err != nil {
-		return err
-	}
-	logEquipChange(world, slot.Character, itemName, query.T(world, "%s unequipped %s."))
-	return nil
 }
 
 // logEquipChange は装備の着脱をゲームログに出す。format は対象キャラ名とアイテム名を差し込む
@@ -227,16 +205,8 @@ func (st *CharacterState) Menu(props CharacterProps) menuloop.MenuConfig {
 }
 
 // detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
-// 装備選択中は候補、閲覧中は装備中アイテム・空スロット・情報行を出し分ける
+// 閲覧中は装備中アイテム・空スロット・情報行を出し分ける
 func (st *CharacterState) detailContent(world w.World) (overlay.DetailContent, bool) {
-	if st.equip.Active() {
-		item, ok := st.equip.selectedItem()
-		if !ok {
-			return overlay.DetailContent{}, false
-		}
-		return overlay.EntityDetailContent(world, item), true
-	}
-
 	cursor := st.screen.Selection()
 	props := st.screen.Props()
 	switch charTabAt(cursor.TabIndex) {
@@ -281,14 +251,6 @@ type equipItemData struct {
 	SlotNumber gc.EquipmentSlotNumber
 	Entity     *ecs.Entity // 装備中エンティティ。空きなら nil
 	Character  ecs.Entity  // 装備スロットを持つキャラ本体
-}
-
-// charEquipProps は装備選択の Props
-type charEquipProps struct {
-	Items             []ecs.Entity
-	SlotNumber        gc.EquipmentSlotNumber
-	PreviousEquipment *ecs.Entity
-	TargetCharacter   ecs.Entity
 }
 
 // characterEquipSlots は指定したキャラクターの全装備スロットを列挙する

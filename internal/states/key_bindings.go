@@ -11,7 +11,3 @@ import (
 var detailOpenBindings = []keybind.Binding{
 	{Key: ebiten.KeyX, Shift: keybind.ShiftForbidden, Action: inputmapper.ActionOpenItemDetail, Label: "Details"},
 }
-
-// equipSelectTable は装備選択 overlay の合成済み束縛表。詳細の x と共通キーで読む。
-// 合成は起動時に1度だけ済ませ、毎フレームの HandleInput では読むだけにする
-var equipSelectTable = keybind.MustMerge(detailOpenBindings, keybind.MenuCommon)

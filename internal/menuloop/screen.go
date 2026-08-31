@@ -140,6 +140,8 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 
 	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を dispatch の連鎖へ流す。
 	// overlay が絡んだフレームは内容が入力で変わりうるので後段で必ず dirty にする
+	// 入力ゲート。Active な最上位 overlay が入力を専有し、無ければ通常入力を dispatch の連鎖へ流す。
+	// overlay と Screen が同一フレームで二度読まないよう、どちらか一方だけが読む
 	ovBefore := s.activeOverlay()
 	if ovBefore != nil {
 		if err := ovBefore.HandleInput(world); err != nil {

@@ -27,14 +27,13 @@ func TestEquipableForSlot_所持する装備品が候補に出る(t *testing.T) 
 	assert.NotEmpty(t, equipableForSlot(world, gc.SlotHead), "頭防具を所持していれば頭スロットの候補に出る")
 }
 
-func TestCharacterState_OnStartが成功し閲覧から始まる(t *testing.T) {
+func TestCharacterState_OnStartが成功する(t *testing.T) {
 	t.Parallel()
 
 	state := &CharacterState{}
 	world := testutil.InitTestWorld(t)
 
 	require.NoError(t, state.OnStart(world))
-	assert.False(t, state.equip.Active(), "初期状態は閲覧で装備選択は開いていない")
 }
 
 func TestCharacterState_装備スロットは武器5と防具7の合計12(t *testing.T) {
