@@ -133,8 +133,7 @@ func TestGolden(t *testing.T) {
 			},
 		},
 		// ItemAction_VerbJump は動詞キーでのタブジャンプが画面へ反映されることを固定する。
-		// 矢印は DispatchNav で mount を dirty にするが、動詞は SetTab で store を直接変えるため、
-		// dirty 漏れがあるとカーソルは移るのに画面が古いままになる。調べるから食べるへ跳んだ画を撮る。
+		// 動詞は SetTab で store を直接変えるので、再描画漏れがあると画面が古いままになる経路を撮る。
 		{
 			name: "ItemAction_VerbJump",
 			build: func(world w.World) ([]es.State[w.World], error) {

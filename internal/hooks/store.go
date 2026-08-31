@@ -24,9 +24,8 @@ func NewStore() *Store {
 	}
 }
 
-// set は状態を書き、値が実際に変わったときだけ version を上げる。states への書き込みは
-// すべてここを通し、変更検知を1点へ集約する。Dispatch と SetTab で経路が分かれても、
-// 実際に変わったかで一貫して dirty を導ける。毎フレーム同値を書く UseTabMenu では版が動かない。
+// set は状態を書き、値が実際に変わったときだけ version を上げる。states への書き込みは全て
+// ここを通し、変更検知を1点へ集約する。毎フレーム同値を書く UseTabMenu では版が動かない。
 func (store *Store) set(key string, val any) {
 	if old, ok := store.states[key]; ok && reflect.DeepEqual(old, val) {
 		return

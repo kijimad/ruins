@@ -14,15 +14,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestItemActionShortcut_文字キーが動詞Actionへ変換される は、メニューの合成済み束縛表で
-// 各動詞の文字キーが対応する動詞 Action へ変換されることを固定する。Screen が組む表と同じ
-// MustMerge で合成し、キー読みの Convert をモックキーボードで通す。
+// TestItemActionShortcut_文字キーが動詞Actionへ変換される は、Screen が組む表と同じ MustMerge で
+// 合成し、各動詞のキー→Action をモックキーボードで検証する。
 func TestItemActionShortcut_文字キーが動詞Actionへ変換される(t *testing.T) {
 	t.Parallel()
 
 	table := keybind.MustMerge(itemActionBindings, keybind.MenuCommon)
-	// ケースは verbList から導く。動詞を1つ足したら自動でここも網羅する。ハードコードだと
-	// 追加された動詞、例えば調べる X+Shift、の取りこぼしに気づけない
+	// ケースは verbList から導き、動詞を足したら自動で網羅する。ハードコードだと取りこぼす
 	for _, v := range verbList {
 		t.Run(string(v.ID), func(t *testing.T) {
 			t.Parallel()
@@ -38,9 +36,8 @@ func TestItemActionShortcut_文字キーが動詞Actionへ変換される(t *tes
 	}
 }
 
-// TestItemActionShortcut_動詞Actionでタブへジャンプする は、動詞メニューを本番と同じ
-// Screen.Update ループで駆動し、動詞 Action が対応タブへカーソルを移すことを固定する。
-// 置くタブ選択中に食べるの Action を流すと食べるタブへ飛ぶ、というユーザー操作を再現する。
+// TestItemActionShortcut_動詞Actionでタブへジャンプする は、動詞メニューを本番の Screen.Update
+// ループで駆動し、動詞 Action が対応タブへカーソルを移すことを固定する。
 func TestItemActionShortcut_動詞Actionでタブへジャンプする(t *testing.T) {
 	t.Parallel()
 
