@@ -151,6 +151,10 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	assert.True(t, foundTended, "治療済みと質を出す")
 	assert.True(t, foundDex, "影響に器用のデバフが出る")
 	assert.True(t, foundAgi, "影響に敏捷のデバフが出る")
+
+	// 症状が見出し行に出るので、モーダルの見出しは部位名だけにして重複を避ける
+	content := infoDetailContent(arms)
+	assert.Equal(t, "Arm", content.Name, "見出しは部位名のみで症状を重ねない")
 }
 
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {

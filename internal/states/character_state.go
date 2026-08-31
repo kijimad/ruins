@@ -369,16 +369,23 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 
 // infoDetailContent は情報タブの1行を詳細内容にする。見出しと説明、内訳の行を出す
 func infoDetailContent(item statusItemData) overlay.DetailContent {
-	heading := item.Label
-	if item.Value != "" {
-		heading = fmt.Sprintf("%s  %s", item.Label, item.Value)
-	}
 	rows := []entityspec.SpecRow{}
+	sectioned := false
 	for _, d := range item.Details {
+		if d.Header {
+			sectioned = true
+		}
 		if d.Value == "" && !d.Header {
 			continue
 		}
 		rows = append(rows, entityspec.SpecRow{Label: d.Label, Value: d.Value, Header: d.Header})
+	}
+
+	// 見出しに値を重ねるのは内訳がフラットなときだけにする。
+	// 内訳が見出し行を持つなら値はそちらに出るので、見出しはラベルだけにして重複を避ける
+	heading := item.Label
+	if item.Value != "" && !sectioned {
+		heading = fmt.Sprintf("%s  %s", item.Label, item.Value)
 	}
 	return overlay.DetailContent{Name: heading, Desc: item.Description, Rows: rows}
 }
