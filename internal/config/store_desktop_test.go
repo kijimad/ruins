@@ -260,7 +260,7 @@ func TestWriteSettingsTo_リネームに失敗するとエラーを返す(t *tes
 	err := writeSettingsTo(path, []byte("x"))
 
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "failed to replace config file")
+	require.ErrorContains(t, err, "failed to replace config file")
 	assert.NoFileExists(t, path+".tmp") // 失敗時は一時ファイルを削除する
 }
 
