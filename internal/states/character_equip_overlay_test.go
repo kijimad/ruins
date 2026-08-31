@@ -6,9 +6,13 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/hooks"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -64,35 +68,97 @@ func TestCharacterEquipOverlay_executeで空きスロットに候補を装着す
 	assert.False(t, world.Components.LocationInBackpack.Has(sword), "装着後は持ち物から外れる")
 }
 
-func TestCharacterEquipOverlay_executeで既存装備を持ち物へ戻す(t *testing.T) {
+// moveEquipCursor は装備選択のカーソルを steps 回だけ下へ動かす。UseTabMenu で reducer を
+// 登録してから nav を流す。DispatchNav は reducer を即時適用するので Update は要らない
+func moveEquipCursor(o *characterEquipOverlay, steps int) {
+	props := o.mount.GetProps()
+	hooks.UseTabMenu(o.mount.Store(), "char_equip", hooks.TabMenuConfig{TabCount: 1, ItemCounts: []int{equipChoiceCount(props)}})
+	for range steps {
+		o.mount.DispatchNav(inputmapper.ActionMenuDown)
+	}
+}
+
+func TestCharacterEquipOverlay_装備済みは先頭が外すで実行すると外れる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	// 先に1本装備しておく。これが差し替えで持ち物へ戻る旧装備になる
-	old, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
-	require.NoError(t, err)
-	lifecycle.MoveToEquip(world, old, player, gc.SlotWeapon1)
-	require.False(t, world.Components.LocationInBackpack.Has(old), "旧装備は一旦持ち物から外れている")
+	// SpawnPlayer が武器1スロットに初期装備を着ける。これを外す対象にする
+	weapons := query.GetWeapons(world, player)
+	require.NotNil(t, weapons[0], "初期装備の武器がある")
+	equipped := *weapons[0]
 
-	// 別の武器を持ち、旧装備を PreviousEquipment に持つスロットで開く
+	o := newEquipOverlayForTest()
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Character: player, Entity: &equipped})
+
+	// 装備済みで開くとカーソルは先頭の「外す」に乗る
+	_, ok := o.selectedItem()
+	assert.False(t, ok, "先頭は候補でなく外すなので候補としては選べない")
+	choice, ok := o.selection()
+	require.True(t, ok)
+	assert.True(t, choice.unequip, "先頭の選択は外す")
+
+	require.NoError(t, o.execute(world))
+	assert.True(t, world.Components.LocationInBackpack.Has(equipped), "外すと装備が持ち物へ戻る")
+	weapons = query.GetWeapons(world, player)
+	assert.Nil(t, weapons[0], "外したので武器1スロットは空く")
+}
+
+func TestCharacterEquipOverlay_装備済みは候補を選ぶと差し替わる(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	// SpawnPlayer の初期装備を差し替えで持ち物へ戻る旧装備にする
+	weapons := query.GetWeapons(world, player)
+	require.NotNil(t, weapons[0], "初期装備の武器がある")
+	old := *weapons[0]
+
+	// 持ち物の武器が差し替え先の候補になる
 	fresh, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
 	require.NoError(t, err)
 	o := newEquipOverlayForTest()
 	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Character: player, Entity: &old})
 
+	// 先頭の「外す」を1つ飛ばして候補へカーソルを移す
+	moveEquipCursor(&o, 1)
 	got, ok := o.selectedItem()
-	require.True(t, ok)
+	require.True(t, ok, "候補にカーソルが乗る")
 	assert.Equal(t, fresh, got, "候補は持ち物に残る新しい武器だけ")
 
 	require.NoError(t, o.execute(world))
 
 	assert.True(t, world.Components.LocationInBackpack.Has(old), "旧装備が持ち物へ戻る")
 	assert.False(t, world.Components.LocationInBackpack.Has(fresh), "新装備が持ち物から外れる")
-	weapons := query.GetWeapons(world, player)
+	weapons = query.GetWeapons(world, player)
 	require.NotNil(t, weapons[0], "武器1スロットが埋まる")
 	assert.Equal(t, fresh, *weapons[0], "武器1スロットは差し替え後の武器")
+}
+
+func TestEquipChoiceAt_装備済みは先頭が外すで候補がずれる(t *testing.T) {
+	t.Parallel()
+	sword := ecs.Entity{}
+	prev := ecs.Entity{}
+
+	// 空スロットは先頭から候補が並ぶ
+	empty := charEquipProps{Items: []ecs.Entity{sword}}
+	c, ok := equipChoiceAt(empty, 0)
+	require.True(t, ok)
+	assert.False(t, c.unequip, "空スロットの index0 は候補")
+
+	// 装備済みは index0 が外す、index1 から候補
+	occupied := charEquipProps{Items: []ecs.Entity{sword}, PreviousEquipment: &prev}
+	c0, ok := equipChoiceAt(occupied, 0)
+	require.True(t, ok)
+	assert.True(t, c0.unequip, "装備済みの index0 は外す")
+	c1, ok := equipChoiceAt(occupied, 1)
+	require.True(t, ok)
+	assert.False(t, c1.unequip, "装備済みの index1 は候補")
+
+	_, ok = equipChoiceAt(occupied, 2)
+	assert.False(t, ok, "候補数を超えた index は選べない")
 }
 
 // TestCharacterEquipOverlay_候補が無ければ何もしない は空スロットでも候補ゼロなら execute が無害なことを検証する
@@ -133,4 +199,60 @@ func TestGolden_EquipSelect(t *testing.T) {
 	screen := ebiten.NewImage(consts.GameWidth, consts.GameHeight)
 	tree.Draw(uicore.NewEbitenCanvas(screen))
 	vrt.AssertFrameGolden(t, "TestGolden_EquipSelect", screen)
+}
+
+func TestEquipCompareRows_同項目に差分を色分けで併記する(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+
+	// クレイモアは鉄の剣より攻撃力が高く、命中と攻撃コストは不利
+	current, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
+	require.NoError(t, err)
+	candidate, err := lifecycle.SpawnBackpackItem(world, "claymore", 1)
+	require.NoError(t, err)
+
+	rows := equipCompareRows(world, candidate, &current)
+	byLabel := map[string]entityspec.SpecRow{}
+	for _, r := range rows {
+		if !r.Header {
+			byLabel[r.Label] = r
+		}
+	}
+
+	atk := byLabel[query.T(world, "Attack power")]
+	assert.Equal(t, "18 (+3)", atk.Value, "攻撃力は上がり差分を併記する")
+	require.NotNil(t, atk.Color, "変化した項目は色付き")
+	assert.Equal(t, theme.StatusSuccess, *atk.Color, "有利な変化は緑")
+
+	acc := byLabel[query.T(world, "Accuracy")]
+	assert.Equal(t, "75 (-15)", acc.Value, "命中は下がり差分を併記する")
+	require.NotNil(t, acc.Color)
+	assert.Equal(t, theme.StatusDanger, *acc.Color, "不利な変化は赤")
+
+	cost := byLabel[query.T(world, "Attack cost")]
+	assert.Equal(t, "3 (+1)", cost.Value, "攻撃コストは上がり差分を併記する")
+	require.NotNil(t, cost.Color)
+	assert.Equal(t, theme.StatusDanger, *cost.Color, "コストは小さいほど良いので増加は赤")
+
+	// 変化しない項目には差分も色も付けない
+	hits := byLabel[query.T(world, "Hits")]
+	assert.Equal(t, "1", hits.Value, "同値の項目は差分を出さない")
+	assert.Nil(t, hits.Color, "同値の項目は色を付けない")
+}
+
+func TestEquipCompareRows_現装備が無ければ差分を付けない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	require.NoError(t, err)
+	candidate, err := lifecycle.SpawnBackpackItem(world, "claymore", 1)
+	require.NoError(t, err)
+
+	rows := equipCompareRows(world, candidate, nil)
+	for _, r := range rows {
+		assert.Nil(t, r.Color, "現装備が無ければどの行も色を付けない: %s", r.Label)
+		assert.NotContains(t, r.Value, "(", "現装備が無ければ差分の括弧を出さない: %s", r.Label)
+	}
 }

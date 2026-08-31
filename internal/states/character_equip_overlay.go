@@ -1,16 +1,20 @@
 package states
 
 import (
+	"fmt"
 	"image"
+	"strconv"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -38,7 +42,8 @@ func newCharacterEquipOverlay(detail *overlay.Detail) characterEquipOverlay {
 // Active は装備選択中かを返す
 func (o *characterEquipOverlay) Active() bool { return o.active }
 
-// Open は空スロットに対する装備選択を開き、候補を読み込む
+// Open はスロットに対する装備選択を開き、候補を読み込む。
+// 装備済みスロットなら PreviousEquipment に現装備を持ち、候補一覧の先頭に「外す」が並ぶ
 func (o *characterEquipOverlay) Open(world w.World, slot equipItemData) {
 	// 開くたびに mount を作り直し、再オープン時はカーソルを先頭へ戻す
 	o.mount = hooks.NewMount[charEquipProps]()
@@ -51,14 +56,40 @@ func (o *characterEquipOverlay) Open(world w.World, slot equipItemData) {
 	o.active = true
 }
 
-// selectedItem は現在カーソルが指す候補を返す。候補が無ければ ok=false
-func (o *characterEquipOverlay) selectedItem() (ecs.Entity, bool) {
-	props := o.mount.GetProps()
+// equipChoice はカーソルが指す装備選択。unequip なら「外す」、そうでなければ entity が候補
+type equipChoice struct {
+	unequip bool
+	entity  ecs.Entity
+}
+
+// equipChoiceAt は候補一覧の index を選択へ写す。装備済みなら先頭が「外す」で、候補は1つ後ろへ詰まる。
+// 描画とロジックの両方がこの1つの写像を通り、先頭「外す」ぶんのずれを二重に数えない
+func equipChoiceAt(props charEquipProps, index int) (equipChoice, bool) {
+	if props.PreviousEquipment != nil {
+		if index == 0 {
+			return equipChoice{unequip: true}, true
+		}
+		index--
+	}
+	if index < 0 || index >= len(props.Items) {
+		return equipChoice{}, false
+	}
+	return equipChoice{entity: props.Items[index]}, true
+}
+
+// selection は現在カーソルが指す選択を返す
+func (o *characterEquipOverlay) selection() (equipChoice, bool) {
 	ms, _ := hooks.GetState[hooks.TabMenuState](o.mount, "char_equip")
-	if ms.ItemIndex < 0 || ms.ItemIndex >= len(props.Items) {
+	return equipChoiceAt(o.mount.GetProps(), ms.ItemIndex)
+}
+
+// selectedItem は現在カーソルが指す候補を返す。「外す」や候補外なら ok=false
+func (o *characterEquipOverlay) selectedItem() (ecs.Entity, bool) {
+	choice, ok := o.selection()
+	if !ok || choice.unequip {
 		return gc.InvalidEntity, false
 	}
-	return props.Items[ms.ItemIndex], true
+	return choice.entity, true
 }
 
 // HandleInput は装備選択中の入力を処理する。毎フレーム呼ばれるので自前カーソル mount の維持もここで行う。
@@ -70,7 +101,7 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 	props := o.mount.GetProps()
 	hooks.UseTabMenu(o.mount.Store(), "char_equip", hooks.TabMenuConfig{
 		TabCount:   1,
-		ItemCounts: []int{len(props.Items)},
+		ItemCounts: []int{equipChoiceCount(props)},
 	})
 
 	if action, ok := keybind.ReadInput(world, equipSelectTable); ok {
@@ -93,22 +124,39 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 	return nil
 }
 
-// execute は選んだ候補を装着する。既存の装備があれば持ち物へ戻す
+// execute は現在の選択を実行する。「外す」なら現装備を外し、候補なら装着する。
+// 既存の装備があれば持ち物へ戻す
 func (o *characterEquipOverlay) execute(world w.World) error {
-	props := o.mount.GetProps()
-	ms, _ := hooks.GetState[hooks.TabMenuState](o.mount, "char_equip")
-	if ms.ItemIndex < 0 || ms.ItemIndex >= len(props.Items) {
+	choice, ok := o.selection()
+	if !ok {
 		return nil
 	}
-	item := props.Items[ms.ItemIndex]
-	itemName := query.GetEntityName(item, world)
+	if choice.unequip {
+		return o.unequip(world)
+	}
+	props := o.mount.GetProps()
+	itemName := query.GetEntityName(choice.entity, world)
 	if props.PreviousEquipment != nil {
 		if err := lifecycle.MoveToBackpack(world, *props.PreviousEquipment, props.TargetCharacter); err != nil {
 			return err
 		}
 	}
-	lifecycle.MoveToEquip(world, item, props.TargetCharacter, props.SlotNumber)
+	lifecycle.MoveToEquip(world, choice.entity, props.TargetCharacter, props.SlotNumber)
 	logEquipChange(world, props.TargetCharacter, itemName, query.T(world, "%s equipped %s."))
+	return nil
+}
+
+// unequip は現装備を外して持ち物へ戻す。外す対象が無ければ何もしない
+func (o *characterEquipOverlay) unequip(world w.World) error {
+	props := o.mount.GetProps()
+	if props.PreviousEquipment == nil {
+		return nil
+	}
+	itemName := query.GetEntityName(*props.PreviousEquipment, world)
+	if err := lifecycle.MoveToBackpack(world, *props.PreviousEquipment, props.TargetCharacter); err != nil {
+		return err
+	}
+	logEquipChange(world, props.TargetCharacter, itemName, query.T(world, "%s unequipped %s."))
 	return nil
 }
 
@@ -122,14 +170,96 @@ func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) 
 	return buildEquipSelectUI(world, props, ms.ItemIndex, world.Resources.UIResources)
 }
 
-// buildEquipSelectUI はアイコン付きの候補一覧を中央パネルへ組む。
+// equipChoiceCount は選択できる項目数を返す。装備済みなら先頭の「外す」を1つ足す
+func equipChoiceCount(props charEquipProps) int {
+	if props.PreviousEquipment != nil {
+		return len(props.Items) + 1
+	}
+	return len(props.Items)
+}
+
+// buildEquipSelectUI はアイコン付きの候補一覧を中央パネルへ組む。装備済みなら先頭に「外す」が並ぶ。
+// 他のアイテムメニューと同じモーダル一覧で、性能の比較は x で開く詳細モーダルが受け持つ
 func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) uicore.Drawable {
-	rows := make([]menuframe.Row, len(props.Items))
-	for i, entity := range props.Items {
-		icon := menuIcon(world, entity)
-		rows[i] = menuframe.Row{Cells: []styled.Cell{styled.IconCell(icon), styled.TextCell(query.GetEntityName(entity, world))}}
+	var rows []menuframe.Row
+	if props.PreviousEquipment != nil {
+		rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(nil), styled.TextCell(query.T(world, "Unequip"))}})
+	}
+	for _, entity := range props.Items {
+		rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(menuIcon(world, entity)), styled.TextCell(query.GetEntityName(entity, world))}})
 	}
 	list, pager := menuframe.RenderList(selectedIndex, rows, styled.Cols(styled.Icon(), styled.Name()),
 		menuframe.ListOpts{EmptyText: query.T(world, "Nothing to equip")}, res)
 	return menuframe.PanelScreen(world, res, query.T(world, "Choose equipment"), list, "", pager)
+}
+
+// detailContent は装備選択中の詳細内容を返す。候補なら現装備との差分付き、
+// 「外す」なら外す対象の性能を出す。選択が無ければ ok=false。
+// 差分の色分けを詳細モーダルへ流し込み、他アイテムの詳細と同じ枠で比較を見せる
+func (o *characterEquipOverlay) detailContent(world w.World) (overlay.DetailContent, bool) {
+	choice, ok := o.selection()
+	if !ok {
+		return overlay.DetailContent{}, false
+	}
+	props := o.mount.GetProps()
+	if choice.unequip {
+		if props.PreviousEquipment == nil {
+			return overlay.DetailContent{}, false
+		}
+		return overlay.EntityDetailContent(world, *props.PreviousEquipment), true
+	}
+	// 名前と説明は実体から組み、性能行だけ現装備との差分に差し替える
+	dc := overlay.EntityDetailContent(world, choice.entity)
+	dc.Rows = equipCompareRows(world, choice.entity, props.PreviousEquipment)
+	return dc, true
+}
+
+// equipCompareRows は候補の性能行を返し、現装備 prev と同じ項目には差分を併記する。
+// prev が nil や死んだ実体なら差分を付けず候補単体の行を返す。数値として読める項目だけ差分を出し、
+// 重量や弾数のような複合値には付けない。有利な変化は緑、不利は赤で塗り、攻撃コストなど
+// 小さいほど良い項目は極性を反転する
+func equipCompareRows(world w.World, candidate ecs.Entity, prev *ecs.Entity) []entityspec.SpecRow {
+	rows := entityspec.SpecRows(world, candidate)
+	if prev == nil || !world.ECS.Alive(*prev) {
+		return rows
+	}
+	prevValues := map[string]string{}
+	for _, r := range entityspec.SpecRows(world, *prev) {
+		if !r.Header {
+			prevValues[r.Label] = r.Value
+		}
+	}
+	lowerIsBetter := map[string]bool{
+		query.T(world, "Attack cost"): true,
+		query.T(world, "Reload"):      true,
+	}
+	for i := range rows {
+		if rows[i].Header {
+			continue
+		}
+		prevVal, found := prevValues[rows[i].Label]
+		if !found {
+			continue
+		}
+		candN, err1 := strconv.Atoi(rows[i].Value)
+		prevN, err2 := strconv.Atoi(prevVal)
+		if err1 != nil || err2 != nil {
+			continue
+		}
+		delta := candN - prevN
+		if delta == 0 {
+			continue
+		}
+		rows[i].Value = fmt.Sprintf("%s (%+d)", rows[i].Value, delta)
+		better := delta > 0
+		if lowerIsBetter[rows[i].Label] {
+			better = delta < 0
+		}
+		rowColor := theme.StatusSuccess
+		if !better {
+			rowColor = theme.StatusDanger
+		}
+		rows[i].Color = &rowColor
+	}
+	return rows
 }

@@ -15,7 +15,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/mlange-42/ark/ecs"
 )
@@ -133,47 +132,27 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 		st.detail.Open(world)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMenuSelect:
-		return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)
+		st.onBrowseSelect(world)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)
 	}
 }
 
-// onBrowseSelect は閲覧中の Enter を処理する。装備タブは外す・装備選択、情報タブは詳細を開く
-func (st *CharacterState) onBrowseSelect(world w.World) error {
+// onBrowseSelect は閲覧中の Enter を処理する。装備タブは装備選択を開き、情報タブは詳細を開く。
+// 装備済みスロットでも即座に外さず装備選択を開く。外すは選択の先頭の項目として選ぶ
+func (st *CharacterState) onBrowseSelect(world w.World) {
 	cursor := st.screen.Selection()
 	props := st.screen.Props()
 	switch charTabAt(cursor.TabIndex) {
 	case charTabEquip:
 		if cursor.ItemIndex >= len(props.EquipSlots) {
-			return nil
+			return
 		}
-		slot := props.EquipSlots[cursor.ItemIndex]
-		// 装備済みスロットは Enter で外す。空スロットは Enter で装備選択を開く
-		if slot.Entity != nil {
-			if err := st.unequipSlot(world, slot); err != nil {
-				return err
-			}
-		} else {
-			st.equip.Open(world, slot)
-		}
+		st.equip.Open(world, props.EquipSlots[cursor.ItemIndex])
 	default:
 		st.detail.Open(world)
 	}
-	return nil
-}
-
-// unequipSlot は装備済みスロットのアイテムを外して持ち物へ戻す
-func (st *CharacterState) unequipSlot(world w.World, slot equipItemData) error {
-	if slot.Entity == nil {
-		return nil
-	}
-	itemName := query.GetEntityName(*slot.Entity, world)
-	if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Character); err != nil {
-		return err
-	}
-	logEquipChange(world, slot.Character, itemName, query.T(world, "%s unequipped %s."))
-	return nil
 }
 
 // logEquipChange は装備の着脱をゲームログに出す。format は対象キャラ名とアイテム名を差し込む
@@ -230,11 +209,7 @@ func (st *CharacterState) Menu(props CharacterProps) menuloop.MenuConfig {
 // 装備選択中は候補、閲覧中は装備中アイテム・空スロット・情報行を出し分ける
 func (st *CharacterState) detailContent(world w.World) (overlay.DetailContent, bool) {
 	if st.equip.Active() {
-		item, ok := st.equip.selectedItem()
-		if !ok {
-			return overlay.DetailContent{}, false
-		}
-		return overlay.EntityDetailContent(world, item), true
+		return st.equip.detailContent(world)
 	}
 
 	cursor := st.screen.Selection()
