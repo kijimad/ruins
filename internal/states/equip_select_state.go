@@ -55,9 +55,7 @@ func newEquipSelectState(slot equipItemData) es.StateFactory[w.World] {
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *EquipSelectState) OnStart(_ w.World) error {
-	st.detail = overlay.NewDetail(st.detailContent)
-	// 候補にカーソルがあるとき、詳細を現装備と候補の2枠で見せる
-	st.detail.SetCompare(st.compareContent)
+	st.detail = overlay.NewComparison(st.compareContents)
 	st.screen = menuloop.NewScreen[EquipSelectProps](st, &st.detail)
 	return nil
 }
@@ -123,29 +121,24 @@ func (st *EquipSelectState) selection() (equipChoice, bool) {
 	return equipChoiceAt(st.screen.Props(), st.screen.Selection().ItemIndex)
 }
 
-// detailContent は主たる詳細内容を返す。候補ならその性能、「外す」なら外す対象の性能を出す
-func (st *EquipSelectState) detailContent(world w.World) (overlay.DetailContent, bool) {
+// compareContents は詳細に出す内容を返す。候補にカーソルがあり装備済みなら現装備と候補の
+// 2枚、空スロットの候補なら候補1枚、「外す」なら外す対象1枚を返す。並びは左が現装備、右が候補
+func (st *EquipSelectState) compareContents(world w.World) ([]overlay.DetailContent, bool) {
 	choice, ok := st.selection()
 	if !ok {
-		return overlay.DetailContent{}, false
+		return nil, false
 	}
 	if choice.unequip {
 		if st.previousEquipment == nil {
-			return overlay.DetailContent{}, false
+			return nil, false
 		}
-		return overlay.EntityDetailContent(world, *st.previousEquipment), true
+		return []overlay.DetailContent{overlay.EntityDetailContent(world, *st.previousEquipment)}, true
 	}
-	return overlay.EntityDetailContent(world, choice.entity), true
-}
-
-// compareContent は詳細モーダルの左枠に並べる現装備を返す。候補にカーソルがあり装備済みの
-// ときだけ ok を返し、現装備と候補を2枠で見せる。空スロットや「外す」では ok=false で1枠に戻る
-func (st *EquipSelectState) compareContent(world w.World) (overlay.DetailContent, bool) {
-	choice, ok := st.selection()
-	if !ok || choice.unequip || st.previousEquipment == nil {
-		return overlay.DetailContent{}, false
+	candidate := overlay.EntityDetailContent(world, choice.entity)
+	if st.previousEquipment == nil {
+		return []overlay.DetailContent{candidate}, true
 	}
-	return overlay.EntityDetailContent(world, *st.previousEquipment), true
+	return []overlay.DetailContent{overlay.EntityDetailContent(world, *st.previousEquipment), candidate}, true
 }
 
 // equipChoice はカーソルが指す装備選択。unequip なら「外す」、そうでなければ entity が候補

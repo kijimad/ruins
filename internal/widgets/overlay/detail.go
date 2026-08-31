@@ -43,26 +43,30 @@ func EntityDetailContent(world w.World, e ecs.Entity) DetailContent {
 }
 
 // Detail は詳細モーダルの表示状態・ページ送り入力・ウィンドウ組み立てをまとめて担う。
-// 呼び出し側は「何を出すか」を返す provide 関数を渡すだけでよく、
+// provide が返す内容を描き、1件なら中央に1枚、複数なら横並びで並べる。比較は複数を返すだけで、
+// 特別な分岐は持たない。呼び出し側は「何を出すか」を返す provide を渡すだけでよく、
 // 入力・ページ数・描画といった内部には触れない。x で開き、左右でページを繰り、Esc・Enter で閉じる
 type Detail struct {
 	active  bool
 	page    int
-	provide func(world w.World) (DetailContent, bool)
-	// compare は左に並べる比較対象を返す。設定され ok を返すときだけ、provide の内容を右に、
-	// この内容を左に並べて2枚で描く。未設定や ok=false なら従来どおり1枚で描く
-	compare func(world w.World) (DetailContent, bool)
+	provide func(world w.World) ([]DetailContent, bool)
 }
 
-// SetCompare は比較対象を返す関数を設定する。設定すると、compare が ok を返すフレームだけ
-// 詳細モーダルを左右2枚で描く。装備選択で現装備と候補を並べる用途に使う
-func (d *Detail) SetCompare(compare func(world w.World) (DetailContent, bool)) {
-	d.compare = compare
-}
-
-// NewDetail は現在カーソルが指す対象の詳細内容を返す provide を受け取り Detail を作る。
+// NewDetail は1件の詳細内容を返す provide を受け取り Detail を作る。中央に1枚で描く。
 // provide は対象が無ければ ok=false を返す
 func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail {
+	return Detail{provide: func(world w.World) ([]DetailContent, bool) {
+		c, ok := provide(world)
+		if !ok {
+			return nil, false
+		}
+		return []DetailContent{c}, true
+	}}
+}
+
+// NewComparison は複数の詳細内容を返す provide を受け取り Detail を作る。返った内容を横並びで
+// 描く。装備選択で現装備と候補を並べる用途に使う
+func NewComparison(provide func(world w.World) ([]DetailContent, bool)) Detail {
 	return Detail{provide: provide}
 }
 
@@ -105,8 +109,13 @@ func (d *Detail) HandleInput(world w.World) error {
 		return nil
 	}
 	total := 1
-	if content, ok := d.provide(world); ok {
-		total = detailPageCount(len(content.Rows))
+	if contents, ok := d.provide(world); ok {
+		// 複数枚は行数の最も多い枚に合わせてページ数を決める
+		for _, c := range contents {
+			if p := detailPageCount(len(c.Rows)); p > total {
+				total = p
+			}
+		}
 	}
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionMenuSelect:
@@ -128,17 +137,17 @@ func (d *Detail) HandleInput(world w.World) error {
 // RenderOverlay は現在の内容から詳細モーダルを uicore のツリーへ組み、rect 内に配置して返す。
 // 対象が無ければ nil を返す。Screen はこれを本体の上へ重ねて描く。
 func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawable {
-	content, ok := d.provide(world)
-	if !ok {
+	contents, ok := d.provide(world)
+	if !ok || len(contents) == 0 {
 		return nil
 	}
-	if d.compare != nil {
-		if left, ok := d.compare(world); ok {
-			// 2枚並べるので狭い WindowRect でなく画面幅の大半を使う。上下は rect と揃える
-			sw := world.Resources.ScreenDimensions.Width
-			wide := image.Rect(theme.MenuModalMarginX, rect.Min.Y, sw-theme.MenuModalMarginX, rect.Max.Y)
-			return buildCompareUI(world.Resources.UIResources, wide, left, content, d.page)
-		}
+	res := world.Resources.UIResources
+	if len(contents) == 1 {
+		c := contents[0]
+		return buildDetailUI(res, rect, c.Name, c.Desc, c.Rows, d.page)
 	}
-	return buildDetailUI(world.Resources.UIResources, rect, content.Name, content.Desc, content.Rows, d.page)
+	// 複数枚は狭い WindowRect でなく画面幅の大半へ横並びで描く。上下は rect と揃える
+	sw := world.Resources.ScreenDimensions.Width
+	wide := image.Rect(theme.MenuModalMarginX, rect.Min.Y, sw-theme.MenuModalMarginX, rect.Max.Y)
+	return buildPanelsUI(res, wide, contents, d.page)
 }

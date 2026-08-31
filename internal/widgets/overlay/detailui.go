@@ -11,16 +11,19 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
-// buildCompareUI は2件の詳細内容を左右に並べて rect 内へ組む。左に現装備、右に候補を
-// 同じ密度で見せる。各枠は buildDetailUI と同じ組み方で、ページ番号も枠ごとに持つ。
-func buildCompareUI(res resources.UIResources, rect image.Rectangle, left, right DetailContent, page int) uicore.Widget {
+// buildPanelsUI は複数の詳細内容を rect 内へ等幅で横並びに組む。各枠は buildDetailUI と
+// 同じ組み方で、装備比較なら左に現装備・右に候補が並ぶ。枠間は一定の間隔を空ける。
+func buildPanelsUI(res resources.UIResources, rect image.Rectangle, contents []DetailContent, page int) uicore.Widget {
 	gap := theme.Space7
-	half := (rect.Dx() - gap) / 2
-	leftRect := image.Rect(rect.Min.X, rect.Min.Y, rect.Min.X+half, rect.Max.Y)
-	rightRect := image.Rect(rect.Max.X-half, rect.Min.Y, rect.Max.X, rect.Max.Y)
-	lw := buildDetailUI(res, leftRect, left.Name, left.Desc, left.Rows, page)
-	rw := buildDetailUI(res, rightRect, right.Name, right.Desc, right.Rows, page)
-	group := uicore.NewGroup(lw, rw)
+	n := len(contents)
+	panelW := (rect.Dx() - gap*(n-1)) / n
+	panels := make([]uicore.Widget, n)
+	for i, c := range contents {
+		x := rect.Min.X + i*(panelW+gap)
+		panelRect := image.Rect(x, rect.Min.Y, x+panelW, rect.Max.Y)
+		panels[i] = buildDetailUI(res, panelRect, c.Name, c.Desc, c.Rows, page)
+	}
+	group := uicore.NewGroup(panels...)
 	group.Layout(rect)
 	return group
 }
