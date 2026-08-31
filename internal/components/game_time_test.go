@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTimeOfDay_String(t *testing.T) {
@@ -256,6 +257,20 @@ func TestGameTime_AdvanceToNextSeason_季節を1つ進める(t *testing.T) {
 	assert.Equal(t, SeasonWinter, gt.GetSeason())
 	gt.AdvanceToNextSeason()
 	assert.Equal(t, SeasonSpring, gt.GetSeason(), "冬の次は翌年の春へ折り返す")
+}
+
+// TestGameTime_AdvanceToNextSeason_周期末尾でも季節が進む は、季節境界が noonOffsetFromDawn 分だけ
+// turnsPerSeason の倍数より手前にあるため、周期末尾の区間 [11500,12000) から呼んでも1度で
+// 季節が進むことを固定する。0起点のテストはこの区間を踏まないので別途押さえる。
+func TestGameTime_AdvanceToNextSeason_周期末尾でも季節が進む(t *testing.T) {
+	t.Parallel()
+
+	// 経過11700は夏の周期 [11500,23500) の入り口寄り。単純な12000丸めだと夏に留まってしまう
+	gt := &GameTime{TotalTurns: 11700}
+	require.Equal(t, SeasonSummer, gt.GetSeason(), "前提: 11700は夏")
+
+	gt.AdvanceToNextSeason()
+	assert.Equal(t, SeasonAutumn, gt.GetSeason(), "1度で次の季節へ進む")
 }
 
 func TestGameTime_SeasonJustChanged(t *testing.T) {

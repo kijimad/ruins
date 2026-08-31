@@ -192,7 +192,10 @@ func (gt *GameTime) AdvanceToNextTimeOfDay() {
 const turnsPerSeason consts.Turn = consts.Turn(daysPerYear/4) * turnsPerDay
 
 // AdvanceToNextSeason は次の季節の開始まで進める。季節による世界温度を切り替える。
-// 冬からは翌年の春へ折り返す
+// 冬からは翌年の春へ折り返す。
+// 季節境界は GetSeason が使う GetDayNumber 由来で k*turnsPerSeason - noonOffsetFromDawn の位置にある。
+// turnsPerSeason の倍数へ丸めると、周期末尾の noonOffsetFromDawn ぶんの区間で同じ季節に留まる
 func (gt *GameTime) AdvanceToNextSeason() {
-	gt.TotalTurns = (gt.TotalTurns/turnsPerSeason + 1) * turnsPerSeason
+	k := (gt.TotalTurns + noonOffsetFromDawn) / turnsPerSeason
+	gt.TotalTurns = (k+1)*turnsPerSeason - noonOffsetFromDawn
 }
