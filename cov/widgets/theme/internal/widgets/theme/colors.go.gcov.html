@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-31 01:14:37</td>
+            <td class="headerValue">2026-08-31 13:00:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -162,67 +162,65 @@
 <span id="L100"><span class="lineNum">     100</span>              :         HUDTempNeutral = color.RGBA{R: 235, G: 235, B: 235, A: 255}</span>
 <span id="L101"><span class="lineNum">     101</span>              :         // HUDTempCold は体温ゲージの冷えきった色</span>
 <span id="L102"><span class="lineNum">     102</span>              :         HUDTempCold = color.RGBA{R: 40, G: 90, B: 230, A: 255}</span>
-<span id="L103"><span class="lineNum">     103</span>              :         // HUDTempHot は体温ゲージの火照りきった色</span>
-<span id="L104"><span class="lineNum">     104</span>              :         HUDTempHot = color.RGBA{R: 230, G: 50, B: 40, A: 255}</span>
-<span id="L105"><span class="lineNum">     105</span>              :         // HUDHealthFull はHPが十分あるときのゲージの塗り色</span>
-<span id="L106"><span class="lineNum">     106</span>              :         HUDHealthFull = color.RGBA{R: 0, G: 255, B: 0, A: 255}</span>
-<span id="L107"><span class="lineNum">     107</span>              :         // HUDHealthHalf はHPが半分のときのゲージの塗り色。ここを境に緑と赤へ寄る</span>
-<span id="L108"><span class="lineNum">     108</span>              :         HUDHealthHalf = color.RGBA{R: 255, G: 255, B: 0, A: 255}</span>
-<span id="L109"><span class="lineNum">     109</span>              :         // HUDHealthEmpty はHPが尽きかけたときのゲージの塗り色</span>
-<span id="L110"><span class="lineNum">     110</span>              :         HUDHealthEmpty = color.RGBA{R: 255, G: 0, B: 0, A: 255}</span>
-<span id="L111"><span class="lineNum">     111</span>              :         // SpecLabel は spec パネルのラベルと見出しの色</span>
-<span id="L112"><span class="lineNum">     112</span>              :         SpecLabel = color.RGBA{R: 255, G: 255, B: 255, A: 255}</span>
-<span id="L113"><span class="lineNum">     113</span>              :         // HUDMinimapBg はミニマップの背景色</span>
-<span id="L114"><span class="lineNum">     114</span>              :         HUDMinimapBg = color.RGBA{R: 0, G: 0, B: 0, A: 128}</span>
-<span id="L115"><span class="lineNum">     115</span>              :         // HUDPlayerMarker はミニマップのプレイヤー表示色</span>
-<span id="L116"><span class="lineNum">     116</span>              :         HUDPlayerMarker = color.RGBA{R: 255, G: 0, B: 0, A: 255}</span>
-<span id="L117"><span class="lineNum">     117</span>              :         // HUDTextOutline はテキストのアウトライン色</span>
-<span id="L118"><span class="lineNum">     118</span>              :         HUDTextOutline = color.RGBA{R: 0, G: 0, B: 0, A: 255}</span>
-<span id="L119"><span class="lineNum">     119</span>              :         // HUDWeightDanger は重量超過時のテキスト色</span>
-<span id="L120"><span class="lineNum">     120</span>              :         HUDWeightDanger = color.RGBA{R: 255, G: 50, B: 50, A: 255}</span>
-<span id="L121"><span class="lineNum">     121</span>              :         // HUDWeightWarning は重量警告時のテキスト色</span>
-<span id="L122"><span class="lineNum">     122</span>              :         HUDWeightWarning = color.RGBA{R: 255, G: 200, B: 0, A: 255}</span>
-<span id="L123"><span class="lineNum">     123</span>              : )</span>
+<span id="L103"><span class="lineNum">     103</span>              :         // HUDHealthFull はHPが十分あるときのゲージの塗り色</span>
+<span id="L104"><span class="lineNum">     104</span>              :         HUDHealthFull = color.RGBA{R: 0, G: 255, B: 0, A: 255}</span>
+<span id="L105"><span class="lineNum">     105</span>              :         // HUDHealthHalf はHPが半分のときのゲージの塗り色。ここを境に緑と赤へ寄る</span>
+<span id="L106"><span class="lineNum">     106</span>              :         HUDHealthHalf = color.RGBA{R: 255, G: 255, B: 0, A: 255}</span>
+<span id="L107"><span class="lineNum">     107</span>              :         // HUDHealthEmpty はHPが尽きかけたときのゲージの塗り色</span>
+<span id="L108"><span class="lineNum">     108</span>              :         HUDHealthEmpty = color.RGBA{R: 255, G: 0, B: 0, A: 255}</span>
+<span id="L109"><span class="lineNum">     109</span>              :         // SpecLabel は spec パネルのラベルと見出しの色</span>
+<span id="L110"><span class="lineNum">     110</span>              :         SpecLabel = color.RGBA{R: 255, G: 255, B: 255, A: 255}</span>
+<span id="L111"><span class="lineNum">     111</span>              :         // HUDMinimapBg はミニマップの背景色</span>
+<span id="L112"><span class="lineNum">     112</span>              :         HUDMinimapBg = color.RGBA{R: 0, G: 0, B: 0, A: 128}</span>
+<span id="L113"><span class="lineNum">     113</span>              :         // HUDPlayerMarker はミニマップのプレイヤー表示色</span>
+<span id="L114"><span class="lineNum">     114</span>              :         HUDPlayerMarker = color.RGBA{R: 255, G: 0, B: 0, A: 255}</span>
+<span id="L115"><span class="lineNum">     115</span>              :         // HUDTextOutline はテキストのアウトライン色</span>
+<span id="L116"><span class="lineNum">     116</span>              :         HUDTextOutline = color.RGBA{R: 0, G: 0, B: 0, A: 255}</span>
+<span id="L117"><span class="lineNum">     117</span>              :         // HUDWeightDanger は重量超過時のテキスト色</span>
+<span id="L118"><span class="lineNum">     118</span>              :         HUDWeightDanger = color.RGBA{R: 255, G: 50, B: 50, A: 255}</span>
+<span id="L119"><span class="lineNum">     119</span>              :         // HUDWeightWarning は重量警告時のテキスト色</span>
+<span id="L120"><span class="lineNum">     120</span>              :         HUDWeightWarning = color.RGBA{R: 255, G: 200, B: 0, A: 255}</span>
+<span id="L121"><span class="lineNum">     121</span>              : )</span>
+<span id="L122"><span class="lineNum">     122</span>              : </span>
+<span id="L123"><span class="lineNum">     123</span>              : // ========== オーバーワールド俯瞰図色 ==========</span>
 <span id="L124"><span class="lineNum">     124</span>              : </span>
-<span id="L125"><span class="lineNum">     125</span>              : // ========== オーバーワールド俯瞰図色 ==========</span>
-<span id="L126"><span class="lineNum">     126</span>              : </span>
-<span id="L127"><span class="lineNum">     127</span>              : var (</span>
-<span id="L128"><span class="lineNum">     128</span>              :         // OverworldMapBackground は俯瞰図の全画面背景色。彩色したチャンクを際立たせる暗い地</span>
-<span id="L129"><span class="lineNum">     129</span>              :         OverworldMapBackground = color.RGBA{R: 12, G: 14, B: 18, A: 255}</span>
-<span id="L130"><span class="lineNum">     130</span>              :         // OverworldMapGlyphText はチャンクセルに重ねる種別記号の文字色</span>
-<span id="L131"><span class="lineNum">     131</span>              :         OverworldMapGlyphText = color.RGBA{R: 20, G: 20, B: 24, A: 255}</span>
-<span id="L132"><span class="lineNum">     132</span>              :         // OverworldMapPlayerMarker は現在地セルを囲む白枠の色</span>
-<span id="L133"><span class="lineNum">     133</span>              :         OverworldMapPlayerMarker = color.RGBA{R: 255, G: 255, B: 255, A: 255}</span>
-<span id="L134"><span class="lineNum">     134</span>              :         // OverworldMapCubeMarker は移動拠点キューブのチャンク位置を示すマーカー色。blue_cube に寄せた水色。</span>
-<span id="L135"><span class="lineNum">     135</span>              :         OverworldMapCubeMarker = color.RGBA{R: 90, G: 180, B: 255, A: 255}</span>
-<span id="L136"><span class="lineNum">     136</span>              :         // OverworldMapCubeOutline はキューブアイコンの縁取り色。地形を塗りつぶさず、アイコンだけに</span>
-<span id="L137"><span class="lineNum">     137</span>              :         // 暗い縁を付けてどの地形色の上でも読めるようにする</span>
-<span id="L138"><span class="lineNum">     138</span>              :         OverworldMapCubeOutline = color.RGBA{R: 10, G: 12, B: 16, A: 255}</span>
-<span id="L139"><span class="lineNum">     139</span>              :         // OverworldMapUnknownGlyph は色の割り当てが無い未知記号のフォールバック色</span>
-<span id="L140"><span class="lineNum">     140</span>              :         OverworldMapUnknownGlyph = color.RGBA{R: 90, G: 90, B: 90, A: 255}</span>
-<span id="L141"><span class="lineNum">     141</span>              : )</span>
+<span id="L125"><span class="lineNum">     125</span>              : var (</span>
+<span id="L126"><span class="lineNum">     126</span>              :         // OverworldMapBackground は俯瞰図の全画面背景色。彩色したチャンクを際立たせる暗い地</span>
+<span id="L127"><span class="lineNum">     127</span>              :         OverworldMapBackground = color.RGBA{R: 12, G: 14, B: 18, A: 255}</span>
+<span id="L128"><span class="lineNum">     128</span>              :         // OverworldMapGlyphText はチャンクセルに重ねる種別記号の文字色</span>
+<span id="L129"><span class="lineNum">     129</span>              :         OverworldMapGlyphText = color.RGBA{R: 20, G: 20, B: 24, A: 255}</span>
+<span id="L130"><span class="lineNum">     130</span>              :         // OverworldMapPlayerMarker は現在地セルを囲む白枠の色</span>
+<span id="L131"><span class="lineNum">     131</span>              :         OverworldMapPlayerMarker = color.RGBA{R: 255, G: 255, B: 255, A: 255}</span>
+<span id="L132"><span class="lineNum">     132</span>              :         // OverworldMapCubeMarker は移動拠点キューブのチャンク位置を示すマーカー色。blue_cube に寄せた水色。</span>
+<span id="L133"><span class="lineNum">     133</span>              :         OverworldMapCubeMarker = color.RGBA{R: 90, G: 180, B: 255, A: 255}</span>
+<span id="L134"><span class="lineNum">     134</span>              :         // OverworldMapCubeOutline はキューブアイコンの縁取り色。地形を塗りつぶさず、アイコンだけに</span>
+<span id="L135"><span class="lineNum">     135</span>              :         // 暗い縁を付けてどの地形色の上でも読めるようにする</span>
+<span id="L136"><span class="lineNum">     136</span>              :         OverworldMapCubeOutline = color.RGBA{R: 10, G: 12, B: 16, A: 255}</span>
+<span id="L137"><span class="lineNum">     137</span>              :         // OverworldMapUnknownGlyph は色の割り当てが無い未知記号のフォールバック色</span>
+<span id="L138"><span class="lineNum">     138</span>              :         OverworldMapUnknownGlyph = color.RGBA{R: 90, G: 90, B: 90, A: 255}</span>
+<span id="L139"><span class="lineNum">     139</span>              : )</span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span>              : // ========== ステータス色 ==========</span>
 <span id="L142"><span class="lineNum">     142</span>              : </span>
-<span id="L143"><span class="lineNum">     143</span>              : // ========== ステータス色 ==========</span>
-<span id="L144"><span class="lineNum">     144</span>              : </span>
-<span id="L145"><span class="lineNum">     145</span>              : var (</span>
-<span id="L146"><span class="lineNum">     146</span>              :         // StatusSuccess は成功色</span>
-<span id="L147"><span class="lineNum">     147</span>              :         StatusSuccess = rgb(0x198754)</span>
-<span id="L148"><span class="lineNum">     148</span>              :         // StatusDanger は危険色</span>
-<span id="L149"><span class="lineNum">     149</span>              :         StatusDanger = rgb(0xdc3545)</span>
-<span id="L150"><span class="lineNum">     150</span>              : )</span>
+<span id="L143"><span class="lineNum">     143</span>              : var (</span>
+<span id="L144"><span class="lineNum">     144</span>              :         // StatusSuccess は成功色</span>
+<span id="L145"><span class="lineNum">     145</span>              :         StatusSuccess = rgb(0x198754)</span>
+<span id="L146"><span class="lineNum">     146</span>              :         // StatusDanger は危険色</span>
+<span id="L147"><span class="lineNum">     147</span>              :         StatusDanger = rgb(0xdc3545)</span>
+<span id="L148"><span class="lineNum">     148</span>              : )</span>
+<span id="L149"><span class="lineNum">     149</span>              : </span>
+<span id="L150"><span class="lineNum">     150</span>              : // ========== 属性色 ==========</span>
 <span id="L151"><span class="lineNum">     151</span>              : </span>
-<span id="L152"><span class="lineNum">     152</span>              : // ========== 属性色 ==========</span>
-<span id="L153"><span class="lineNum">     153</span>              : </span>
-<span id="L154"><span class="lineNum">     154</span>              : var (</span>
-<span id="L155"><span class="lineNum">     155</span>              :         // ElementFire は炎属性色</span>
-<span id="L156"><span class="lineNum">     156</span>              :         ElementFire = rgb(0xc44303)</span>
-<span id="L157"><span class="lineNum">     157</span>              :         // ElementThunder は雷属性色</span>
-<span id="L158"><span class="lineNum">     158</span>              :         ElementThunder = rgb(0x4169e1)</span>
-<span id="L159"><span class="lineNum">     159</span>              :         // ElementChill は冷気属性色</span>
-<span id="L160"><span class="lineNum">     160</span>              :         ElementChill = rgb(0x00ffff)</span>
-<span id="L161"><span class="lineNum">     161</span>              :         // ElementPhoton は光子属性色</span>
-<span id="L162"><span class="lineNum">     162</span>              :         ElementPhoton = rgb(0xffff00)</span>
-<span id="L163"><span class="lineNum">     163</span>              : )</span>
+<span id="L152"><span class="lineNum">     152</span>              : var (</span>
+<span id="L153"><span class="lineNum">     153</span>              :         // ElementFire は炎属性色</span>
+<span id="L154"><span class="lineNum">     154</span>              :         ElementFire = rgb(0xc44303)</span>
+<span id="L155"><span class="lineNum">     155</span>              :         // ElementThunder は雷属性色</span>
+<span id="L156"><span class="lineNum">     156</span>              :         ElementThunder = rgb(0x4169e1)</span>
+<span id="L157"><span class="lineNum">     157</span>              :         // ElementChill は冷気属性色</span>
+<span id="L158"><span class="lineNum">     158</span>              :         ElementChill = rgb(0x00ffff)</span>
+<span id="L159"><span class="lineNum">     159</span>              :         // ElementPhoton は光子属性色</span>
+<span id="L160"><span class="lineNum">     160</span>              :         ElementPhoton = rgb(0xffff00)</span>
+<span id="L161"><span class="lineNum">     161</span>              : )</span>
         </pre>
               </td>
             </tr>

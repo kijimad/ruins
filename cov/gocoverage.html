@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -83,7 +83,7 @@
 				
 				<option value="file13">github.com/kijimaD/ruins/internal/activity/read.go (67.8%)</option>
 				
-				<option value="file14">github.com/kijimaD/ruins/internal/activity/reload.go (86.6%)</option>
+				<option value="file14">github.com/kijimaD/ruins/internal/activity/reload.go (87.4%)</option>
 				
 				<option value="file15">github.com/kijimaD/ruins/internal/activity/rest.go (93.1%)</option>
 				
@@ -541,7 +541,7 @@
 				
 				<option value="file242">github.com/kijimaD/ruins/internal/systems/animation_system.go (0.0%)</option>
 				
-				<option value="file243">github.com/kijimaD/ruins/internal/systems/auction.go (93.9%)</option>
+				<option value="file243">github.com/kijimaD/ruins/internal/systems/auction.go (97.0%)</option>
 				
 				<option value="file244">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (82.6%)</option>
 				
@@ -595,7 +595,7 @@
 				
 				<option value="file269">github.com/kijimaD/ruins/internal/widgets/hud/debug_overlay.go (0.0%)</option>
 				
-				<option value="file270">github.com/kijimaD/ruins/internal/widgets/hud/game_info.go (90.1%)</option>
+				<option value="file270">github.com/kijimaD/ruins/internal/widgets/hud/game_info.go (90.7%)</option>
 				
 				<option value="file271">github.com/kijimaD/ruins/internal/widgets/hud/infopanel.go (0.0%)</option>
 				
@@ -665,7 +665,7 @@
 				
 				<option value="file304">github.com/kijimaD/ruins/internal/widgets/uicore/widget.go (98.1%)</option>
 				
-				<option value="file305">github.com/kijimaD/ruins/internal/world/gameaction/craft.go (84.7%)</option>
+				<option value="file305">github.com/kijimaD/ruins/internal/world/gameaction/craft.go (86.6%)</option>
 				
 				<option value="file306">github.com/kijimaD/ruins/internal/world/gameaction/damage.go (100.0%)</option>
 				
@@ -1636,7 +1636,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1710,7 +1710,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 </span>
         <span class="cov8" title="1">baseAbil := attackerAbils.Strength.Total
         if attack.GetAttackCategory().Range == gc.AttackRangeRanged </span>{
-                <span class="cov0" title="0">baseAbil = attackerAbils.Sensation.Total
+                <span class="cov8" title="1">baseAbil = attackerAbils.Sensation.Total
 </span>        }
 
         <span class="cov8" title="1">targetDefense := 0
@@ -1726,7 +1726,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
@@ -1793,8 +1793,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov8" title="1">if withMethod </span>{
-                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov0" title="0">if withMethod </span>{
+                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -4077,6 +4077,11 @@ func NewReloadActivity(actor ecs.Entity, world w.World) *gc.Activity {
 
 // Validate はリロードの検証を行う
 func (rb *ReloadBehavior) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+        // 継続アクティビティ共通の周囲安全チェック。敵が近ければ装填を始めさせない
+        <span class="cov8" title="1">if !isAreaSafe(actor, world) </span>{
+                <span class="cov8" title="1">return &amp;UserError{Msg: query.T(world, "cannot reload because enemies are nearby")}
+</span>        }
+
         <span class="cov8" title="1">fire, _, err := getEquippedFire(actor, world)
         if err != nil </span>{
                 <span class="cov8" title="1">if errors.Is(err, ErrShootNoFireWeapon) </span>{
@@ -4107,6 +4112,12 @@ func (rb *ReloadBehavior) Start(_ *gc.Activity, _ ecs.Entity, world w.World) err
 
 // DoTurn はリロードの1ターン分の処理
 func (rb *ReloadBehavior) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+        // 装填中に敵が接近したら中断する。他の継続系と同じ契約
+        <span class="cov8" title="1">if !isAreaSafe(actor, world) </span>{
+                <span class="cov8" title="1">Cancel(comp, "reload interrupted because enemies are nearby")
+                return nil
+</span>        }
+
         <span class="cov8" title="1">fire, _, err := getEquippedFire(actor, world)
         if err != nil </span>{
                 <span class="cov0" title="0">Cancel(comp, "no ranged weapon equipped")
@@ -9466,16 +9477,16 @@ import (
 // TimeOfDay は時間帯を表す
 type TimeOfDay int
 
-// 時間帯定数。新規ゲームは昼から始まるので、経過ターンの区切り順に昼から並べる。
-// これで TotalTurns=0 が昼を無変換で指す。各時間帯は turnsPerTimeOfDay ずつ続き、
-// 深夜の次に翌日の夜明けへ折り返す。かっこ内は1周目の経過ターン範囲で、以降は1日ごとに繰り返す
+// 時間帯定数。暦の1日は夜明けで始まるので、区切り順に夜明けから並べる。
+// これで TotalTurns=0 が1日の始まりを無変換で指し、日数も季節もオフセットなしで導ける。
+// かっこ内は1周目の経過ターン範囲で、以降は1日ごとに繰り返す
 const (
-        TimeDay      TimeOfDay = iota // 昼 経過0-249
-        TimeEvening                   // 夕 経過250-499
-        TimeNight                     // 夜 経過500-749
-        TimeMidnight                  // 深夜 経過750-999
-        TimeDawn                      // 夜明け 経過1000-1249
-        TimeMorning                   // 朝 経過1250-1499
+        TimeDawn     TimeOfDay = iota // 夜明け 経過0-249
+        TimeMorning                   // 朝 経過250-499
+        TimeDay                       // 昼 経過500-749
+        TimeEvening                   // 夕 経過750-999
+        TimeNight                     // 夜 経過1000-1249
+        TimeMidnight                  // 深夜 経過1250-1499
 )
 
 // String は時間帯名を返す
@@ -9504,11 +9515,6 @@ const turnsPerDay consts.Turn = 1500
 // 時間帯ごとのターン数
 const turnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン
 
-// noonOffsetFromDawn は暦の1日、夜明け始まり、における昼の位置。夜明けから朝を経て昼までの2区切り。
-// 新規ゲームは昼から始まるので、暦では1日目のこのぶんが既に過ぎている。
-// 時間帯は昼始まりの定数順で無変換に導けるが、日数は暦の夜明けで繰り上がるため、ここだけオフセットが要る。
-const noonOffsetFromDawn consts.Turn = 2 * turnsPerTimeOfDay // 500ターン
-
 // GameTime はゲーム内時間を管理する
 type GameTime struct {
         TotalTurns consts.Turn // run 開始からの経過ターン数
@@ -9536,9 +9542,9 @@ func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {
         return TimeOfDay(idx), TimeOfDay((idx + 1) % numTimeOfDay), t
 </span>}
 
-// GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる
+// GetDayNumber は経過日数を返す（1日目から始まる）。turn 0 が1日目の夜明けなのでオフセットは要らない
 func (gt *GameTime) GetDayNumber() int {
-        <span class="cov8" title="1">return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1
+        <span class="cov8" title="1">return int(gt.TotalTurns/turnsPerDay) + 1
 </span>}
 
 // 季節による世界温度のパラメータ。夏ピークと冬底を持つ1年周期で、値は実プレイで調整する。
@@ -9648,7 +9654,7 @@ func (gt *GameTime) AdvanceToNextTimeOfDay() {
 const turnsPerSeason consts.Turn = consts.Turn(daysPerYear/4) * turnsPerDay
 
 // AdvanceToNextSeason は次の季節の開始まで進める。季節による世界温度を切り替える。
-// 冬からは翌年の春へ折り返す
+// 冬からは翌年の春へ折り返す。turn 0 が夜明け始まりなので、季節境界は turnsPerSeason の倍数に一致する
 func (gt *GameTime) AdvanceToNextSeason() {
         <span class="cov8" title="1">gt.TotalTurns = (gt.TotalTurns/turnsPerSeason + 1) * turnsPerSeason
 </span>}
@@ -37655,7 +37661,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 </span>
         // 入札が来る限り延長する。来たら現在値を上げる
         <span class="cov8" title="1">if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
-                <span class="cov0" title="0">l.CurrentBid += query.AuctionRaise(world, item)
+                <span class="cov8" title="1">l.CurrentBid += query.AuctionRaise(world, item)
                 return
 </span>        }
 
@@ -40747,7 +40753,7 @@ func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool
 func overworldDaylightAnchor(t gc.TimeOfDay) float64 {
         <span class="cov8" title="1">switch t </span>{
         case gc.TimeDawn:
-                <span class="cov8" title="1">return 0.55</span>
+                <span class="cov8" title="1">return 0.65</span>
         case gc.TimeMorning:
                 <span class="cov8" title="1">return 0.72</span>
         case gc.TimeDay:
@@ -42571,7 +42577,7 @@ func (info *GameInfo) drawTemperatureArrow(cv uicore.Canvas, arrow TemperatureAr
         drawOutlinedText(cv, glyph, info.bodyFace, image.Pt(int(gaugeBaseX), y), arrow.Color)</span>
 }
 
-// drawBodyTemperature は体温ゲージを最上段に描く。中央が平熱で、左へ冷え、右へ火照る
+// drawBodyTemperature は体温ゲージを最上段に描く。体温は片方向で、満タンが平熱、減って青くなるほど冷える
 func (info *GameInfo) drawBodyTemperature(cv uicore.Canvas, data GameInfoData) {
         <span class="cov8" title="1">if !data.BodyTempVisible </span>{
                 <span class="cov0" title="0">return
@@ -42581,13 +42587,11 @@ func (info *GameInfo) drawBodyTemperature(cv uicore.Canvas, data GameInfoData) {
         info.drawGaugeBar(cv, x, y, gaugeWidth, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio), theme.HUDGaugeBorder)</span>
 }
 
-// bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青、火照るほど赤へ寄る
+// bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青へ寄る片方向
 func bodyTempFillColor(ratio float64) color.RGBA {
-        <span class="cov8" title="1">if ratio &lt; 0.5 </span>{
-                <span class="cov8" title="1">return lerpColor(theme.HUDTempNeutral, theme.HUDTempCold, (0.5-ratio)*2)
-</span>        }
-        <span class="cov0" title="0">return lerpColor(theme.HUDTempNeutral, theme.HUDTempHot, (ratio-0.5)*2)</span>
-}
+        // 体温は片方向。0が平熱かつ上限で寒さ方向へ負に動くので、ratio=1 が平熱、下がるほど冷えの色へ寄る
+        <span class="cov8" title="1">return lerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)
+</span>}
 
 // lerpColor は2色を t (0..1) で線形補間する。ゲージの塗りを比率で連続に変えるのに使う
 func lerpColor(a, b color.RGBA, t float64) color.RGBA {
@@ -45468,8 +45472,6 @@ var (
         HUDTempNeutral = color.RGBA{R: 235, G: 235, B: 235, A: 255}
         // HUDTempCold は体温ゲージの冷えきった色
         HUDTempCold = color.RGBA{R: 40, G: 90, B: 230, A: 255}
-        // HUDTempHot は体温ゲージの火照りきった色
-        HUDTempHot = color.RGBA{R: 230, G: 50, B: 40, A: 255}
         // HUDHealthFull はHPが十分あるときのゲージの塗り色
         HUDHealthFull = color.RGBA{R: 0, G: 255, B: 0, A: 255}
         // HUDHealthHalf はHPが半分のときのゲージの塗り色。ここを境に緑と赤へ寄る
@@ -46229,12 +46231,12 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
                 <span class="cov8" title="1">return gc.InvalidEntity, fmt.Errorf("insufficient materials")
 </span>        }
 
-        <span class="cov8" title="1">craftCostPct, smithQualityPct := consts.PercentBase, consts.PercentBase
-        player, playerErr := query.GetPlayerEntity(world)
-        if playerErr == nil &amp;&amp; world.Components.CharModifiers.Has(player) </span>{
-                <span class="cov8" title="1">mods := world.Components.CharModifiers.Get(player)
-                craftCostPct = mods.CraftCost
-                smithQualityPct = mods.SmithQuality
+        <span class="cov8" title="1">craftCostPct, smithQualityPct := playerCraftMods(world)
+</span>
+        // 完成品を生成する前に素材を消費する。生成が先だと、CraftCost が100%を超えて消費が
+        // 失敗したとき完成品だけが手元に残る。CanCraft と同じ実消費量を先に引くことで整合させる
+        <span class="cov8" title="1">if err := consumeMaterials(world, name, craftCostPct); err != nil </span>{
+                <span class="cov0" title="0">return gc.InvalidEntity, fmt.Errorf("failed to consume materials: %w", err)
 </span>        }
 
         <span class="cov8" title="1">resultEntity, err := lifecycle.SpawnBackpackItem(world, name, 1)
@@ -46242,27 +46244,26 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
                 <span class="cov0" title="0">return gc.InvalidEntity, fmt.Errorf("failed to generate item: %w", err)
 </span>        }
         <span class="cov8" title="1">randomize(world, resultEntity, smithQualityPct)
-        if err := consumeMaterials(world, name, craftCostPct); err != nil </span>{
-                <span class="cov0" title="0">return gc.InvalidEntity, fmt.Errorf("failed to consume materials: %w", err)
-</span>        }
-
+</span>
         <span class="cov8" title="1">return resultEntity, nil</span>
 }
 
-// CanCraft は所持数と必要数を比較してクラフト可能か判定する
+// CanCraft は所持数と実消費量を比較してクラフト可能か判定する。実消費量は CraftCost 倍率込みで、
+// consumeMaterials と同じ式にして判定と消費のズレをなくす
 func CanCraft(world w.World, name string) (bool, error) {
         <span class="cov8" title="1">required := requiredMaterials(world, name)
         if len(required) == 0 </span>{
                 <span class="cov8" title="1">return false, fmt.Errorf("recipe not found: %s", name)
 </span>        }
 
-        <span class="cov8" title="1">for _, recipeInput := range required </span>{
+        <span class="cov8" title="1">craftCostPct, _ := playerCraftMods(world)
+        for _, recipeInput := range required </span>{
                 <span class="cov8" title="1">entity, found := query.FindStackInInventory(world, recipeInput.ID)
                 if !found </span>{
                         <span class="cov8" title="1">return false, nil
 </span>                }
                 <span class="cov8" title="1">count := query.GetEntityCount(world, entity)
-                if count &lt; recipeInput.Amount </span>{
+                if count &lt; craftConsumedAmount(craftCostPct, recipeInput.Amount) </span>{
                         <span class="cov8" title="1">return false, nil
 </span>                }
         }
@@ -46270,11 +46271,28 @@ func CanCraft(world w.World, name string) (bool, error) {
         <span class="cov8" title="1">return true, nil</span>
 }
 
+// playerCraftMods はプレイヤーのクラフト倍率を返す。プレイヤーや修正が無ければ基準値
+func playerCraftMods(world w.World) (craftCost, smithQuality consts.Percent) {
+        <span class="cov8" title="1">craftCost, smithQuality = consts.PercentBase, consts.PercentBase
+        player, err := query.GetPlayerEntity(world)
+        if err == nil &amp;&amp; world.Components.CharModifiers.Has(player) </span>{
+                <span class="cov8" title="1">mods := world.Components.CharModifiers.Get(player)
+                craftCost = mods.CraftCost
+                smithQuality = mods.SmithQuality
+</span>        }
+        <span class="cov8" title="1">return craftCost, smithQuality</span>
+}
+
+// craftConsumedAmount は CraftCost 倍率を掛けた実消費量。最低でも1は消費する
+func craftConsumedAmount(craftCostPct consts.Percent, amount int) int {
+        <span class="cov8" title="1">return max(craftCostPct.ApplyInt(amount), 1)
+</span>}
+
 // consumeMaterials はアイテム合成に必要な素材を消費する。
 // craftCostPctは素材消費量の倍率%で、100が基準。低いほど素材が節約できる。
 func consumeMaterials(world w.World, goal string, craftCostPct consts.Percent) error {
         <span class="cov8" title="1">for _, recipeInput := range requiredMaterials(world, goal) </span>{
-                <span class="cov8" title="1">consumed := max(craftCostPct.ApplyInt(recipeInput.Amount), 1)
+                <span class="cov8" title="1">consumed := craftConsumedAmount(craftCostPct, recipeInput.Amount)
                 err := lifecycle.ChangeStackCount(world, recipeInput.ID, -consumed)
                 if err != nil </span>{
                         <span class="cov0" title="0">return err
