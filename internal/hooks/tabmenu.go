@@ -150,7 +150,7 @@ func (n *tabMenuNav) right(s TabMenuState) TabMenuState {
 // キー再生を避けてタブを設定する用途に使う。UseTabMenu と同じ nav ロジックを通す
 func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) {
 	nav := &tabMenuNav{config: config}
-	store.states[keyPrefix] = nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)})
+	store.set(keyPrefix, nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)}))
 }
 
 // DispatchNav はカーソル移動系の Action なら Dispatch して真を返し、それ以外は何もせず偽を返す。
@@ -180,7 +180,7 @@ func UseTabMenu(store *Store, keyPrefix string, config TabMenuConfig) TabMenuSta
 	init := TabMenuState{ItemIndex: nav.firstSelectable(0)}
 	state := nav.clamp(UseState(store, keyPrefix, init, nav.reduce))
 	// クランプ後の値をstoreに反映して、UI側が参照する値と一致させる
-	store.states[keyPrefix] = state
+	store.set(keyPrefix, state)
 
 	// ページはitemIndexから派生する値として計算
 	itemCount := nav.itemCountForTab(state.TabIndex)

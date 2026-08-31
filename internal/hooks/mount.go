@@ -1,39 +1,36 @@
 package hooks
 
-import (
-	"reflect"
+import "github.com/kijimaD/ruins/internal/inputmapper"
 
-	"github.com/kijimaD/ruins/internal/inputmapper"
-)
+// mountPropsKey は props を Store に載せるときの予約キー。props も version 追跡に乗せ変更検知を
+// 1系統にする。UseState キーと衝突しないよう制御文字始まりにする。
+const mountPropsKey = "\x00mount.props"
 
-// Mount はProps + Stateを管理し、変更を検出する
-// 描画は担当しない。描画はアプリケーション層の責務である
+// Mount はProps + Stateを管理し変更を検出する。描画は担当しない。
+// props も store に載るので、変更検知は store.Version の差だけで済む。
 type Mount[Props any] struct {
-	props Props
-	store *Store
-	dirty bool
+	store            *Store
+	lastStoreVersion uint64
 }
 
 // NewMount は新しいMountを生成する
 func NewMount[Props any]() *Mount[Props] {
 	return &Mount[Props]{
 		store: NewStore(),
-		dirty: true, // 初回は必ず描画する
+		// 初回は必ず描画させる。実在しない version にしておき、最初の Update で必ず差を出す
+		lastStoreVersion: ^uint64(0),
 	}
 }
 
-// SetProps は外部からPropsを設定する
-// 値が変わった場合はdirtyフラグを立てる
+// SetProps は外部からPropsを設定する。値が実際に変わったときだけ store の version が動く
 func (m *Mount[Props]) SetProps(props Props) {
-	if !reflect.DeepEqual(m.props, props) {
-		m.dirty = true
-	}
-	m.props = props
+	m.store.set(mountPropsKey, props)
 }
 
-// GetProps は現在のPropsを返す
+// GetProps は現在のPropsを返す。未設定ならゼロ値
 func (m *Mount[Props]) GetProps() Props {
-	return m.props
+	v, _ := GetStoreState[Props](m.store, mountPropsKey)
+	return v
 }
 
 // Store はStoreを返す
@@ -42,31 +39,21 @@ func (m *Mount[Props]) Store() *Store {
 	return m.store
 }
 
-// Dispatch は全てのStateにActionを送りdirtyフラグを立てる
+// Dispatch は全ての State に Action を送る。状態が変われば store.Version が動き次の Update が拾う
 func (m *Mount[Props]) Dispatch(action inputmapper.ActionID) {
 	m.store.Dispatch(action)
-	m.dirty = true
 }
 
 // GetState は指定したキーのStateを取得する
 func GetState[T any, Props any](m *Mount[Props], key string) (T, bool) {
-	v, ok := m.store.states[key]
-	if !ok {
-		var zero T
-		return zero, false
-	}
-	typed, ok := v.(T)
-	if !ok {
-		var zero T
-		return zero, false
-	}
-	return typed, true
+	return GetStoreState[T](m.store, key)
 }
 
-// Update は変更の有無を返す
-// 初回は常にtrue、以降はpropsまたはstateが変わった場合にtrueを返す
+// Update は前回からの変更の有無を返す。props も store 状態も store.Version に集約されるので
+// 版差だけで判定する。初回は sentinel 初期化で必ず true になる。
 func (m *Mount[Props]) Update() bool {
-	changed := m.dirty
-	m.dirty = false
+	v := m.store.Version()
+	changed := v != m.lastStoreVersion
+	m.lastStoreVersion = v
 	return changed
 }

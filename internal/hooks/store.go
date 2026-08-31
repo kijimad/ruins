@@ -1,6 +1,10 @@
 package hooks
 
-import "github.com/kijimaD/ruins/internal/inputmapper"
+import (
+	"reflect"
+
+	"github.com/kijimaD/ruins/internal/inputmapper"
+)
 
 // Reducer は個別の状態を更新する関数の型
 type Reducer func(state any, action inputmapper.ActionID) any
@@ -9,6 +13,7 @@ type Reducer func(state any, action inputmapper.ActionID) any
 type Store struct {
 	states   map[string]any
 	reducers map[string]Reducer
+	version  uint64 // 状態が実際に変わるたびに増える。Mount が再描画要否をこれで判定する
 }
 
 // NewStore は新しいStoreを生成する
@@ -19,13 +24,26 @@ func NewStore() *Store {
 	}
 }
 
+// set は状態を書き、値が実際に変わったときだけ version を上げる。states への書き込みは全て
+// ここを通し、変更検知を1点へ集約する。毎フレーム同値を書く UseTabMenu では版が動かない。
+func (store *Store) set(key string, val any) {
+	if old, ok := store.states[key]; ok && reflect.DeepEqual(old, val) {
+		return
+	}
+	store.states[key] = val
+	store.version++
+}
+
+// Version は現在の状態版を返す。値が実際に変わるたびに増える
+func (store *Store) Version() uint64 { return store.version }
+
 // UseState は状態を取得・登録する
 // keyで状態を識別し、初回呼び出し時にinitで初期化する
 // reducer関数はDispatch時に呼ばれ、状態を更新する
 // reducerは毎回再登録される。これによりProps変化時に最新のクロージャが使われる
 func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapper.ActionID) T) T {
 	if _, ok := store.states[key]; !ok {
-		store.states[key] = init
+		store.set(key, init)
 	}
 	// 毎回reducerを再登録して最新のクロージャを反映する
 	store.reducers[key] = func(s any, a inputmapper.ActionID) any {
@@ -45,7 +63,7 @@ func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapp
 // Dispatch は全てのStateにActionを送る
 func (store *Store) Dispatch(action inputmapper.ActionID) {
 	for key, reducer := range store.reducers {
-		store.states[key] = reducer(store.states[key], action)
+		store.set(key, reducer(store.states[key], action))
 	}
 }
 

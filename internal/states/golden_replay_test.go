@@ -132,6 +132,20 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuTabNext, shot: true, suffix: "List"},
 			},
 		},
+		// ItemAction_VerbJump は動詞キーでのタブジャンプが画面へ反映されることを固定する。
+		// 動詞は SetTab で store を直接変えるので、再描画漏れがあると画面が古いままになる経路を撮る。
+		{
+			name: "ItemAction_VerbJump",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				if _, err := lifecycle.SpawnBackpackItem(world, "healing_potion", 3); err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{&gs.ItemActionState{}}, nil
+			},
+			steps: []replayStep{
+				{action: inputmapper.ActionVerbConsume, shot: true}, // 食べるタブへ跳んだ画
+			},
+		},
 		// Character は人物画面の全タブを撮る。装備は編集タブ、以降は読み取り専用の情報タブ。
 		// スキルはページ送りとカテゴリ見出しを含む
 		{
