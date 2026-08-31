@@ -73,7 +73,7 @@ type testOverlay struct {
 
 func (o *testOverlay) Active() bool { return o.active }
 
-func (o *testOverlay) HandleInput(_ w.World, _ inputmapper.ActionID, _ bool) error {
+func (o *testOverlay) HandleInput(_ w.World) error {
 	o.handleInputCalls++
 	return o.handleInputErr
 }

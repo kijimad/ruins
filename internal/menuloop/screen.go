@@ -140,18 +140,14 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 
 	// 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を dispatch の連鎖へ流す。
 	// overlay が絡んだフレームは内容が入力で変わりうるので後段で必ず dirty にする
-	// 入力は1フレーム1回だけ読む。replay の供給源は呼ぶたびに1手消費するので、二度読むとずれる
-	action, hasInput := keybind.ReadInput(world, s.table)
+	// 入力ゲート。Active な最上位 overlay が入力を専有し、無ければ通常入力を dispatch の連鎖へ流す。
+	// overlay と Screen が同一フレームで二度読まないよう、どちらか一方だけが読む
 	ovBefore := s.activeOverlay()
 	if ovBefore != nil {
-		// ? のキー一覧ヘルプは overlay 表示中でも Screen が吸う。overlay の入力より優先する
-		if hasInput && action == inputmapper.ActionOpenKeyHelp {
-			return s.dispatch(world, action)
-		}
-		if err := ovBefore.HandleInput(world, action, hasInput); err != nil {
+		if err := ovBefore.HandleInput(world); err != nil {
 			return es.Transition[w.World]{}, err
 		}
-	} else if hasInput {
+	} else if action, ok := keybind.ReadInput(world, s.table); ok {
 		if tr, err := s.dispatch(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if tr.Type != es.TransNone {
