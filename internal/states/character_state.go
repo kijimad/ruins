@@ -255,11 +255,15 @@ func (st *CharacterState) detailContent(world w.World) (overlay.DetailContent, b
 		if infoIdx < 0 || infoIdx >= len(props.InfoTabs) {
 			return overlay.DetailContent{}, false
 		}
-		items := props.InfoTabs[infoIdx].Items
-		if cursor.ItemIndex >= len(items) {
+		tab := props.InfoTabs[infoIdx]
+		if cursor.ItemIndex >= len(tab.Items) {
 			return overlay.DetailContent{}, false
 		}
-		return infoDetailContent(items[cursor.ItemIndex]), true
+		item := tab.Items[cursor.ItemIndex]
+		if tab.ID == tabHealth {
+			return healthDetailContent(item), true
+		}
+		return infoDetailContent(item), true
 	}
 }
 
@@ -369,23 +373,22 @@ func equipableForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.En
 
 // infoDetailContent は情報タブの1行を詳細内容にする。見出しと説明、内訳の行を出す
 func infoDetailContent(item statusItemData) overlay.DetailContent {
-	rows := []entityspec.SpecRow{}
-	sectioned := false
-	for _, d := range item.Details {
-		if d.Header {
-			sectioned = true
-		}
-		if d.Value == "" && !d.Header {
-			continue
-		}
-		rows = append(rows, entityspec.SpecRow{Label: d.Label, Value: d.Value, Header: d.Header})
-	}
-
-	// 見出しに値を重ねるのは内訳がフラットなときだけにする。
-	// 内訳が見出し行を持つなら値はそちらに出るので、見出しはラベルだけにして重複を避ける
 	heading := item.Label
-	if item.Value != "" && !sectioned {
+	if item.Value != "" {
 		heading = fmt.Sprintf("%s  %s", item.Label, item.Value)
 	}
+	rows := []entityspec.SpecRow{}
+	for _, d := range item.Details {
+		if d.Value == "" {
+			continue
+		}
+		rows = append(rows, entityspec.SpecRow{Label: d.Label, Value: d.Value})
+	}
 	return overlay.DetailContent{Name: heading, Desc: item.Description, Rows: rows}
+}
+
+// healthDetailContent は健康タブの部位の詳細を組む。症状ごとのブロックは Description が持つ。
+// 折り返す説明段落を扱うため Rows でなく Desc に載せ、見出しは部位名だけにする
+func healthDetailContent(item statusItemData) overlay.DetailContent {
+	return overlay.DetailContent{Name: item.Label, Desc: item.Description}
 }

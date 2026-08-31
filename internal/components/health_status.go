@@ -99,13 +99,13 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 func ConditionTypeDescription(ct ConditionType) string {
 	switch ct {
 	case ConditionHypothermia:
-		return "Hypothermia. The body is dangerously cold. Warm up to recover."
+		return "The body is dangerously cold. Warm up to recover."
 	case ConditionFracture:
-		return "Fracture. A broken bone. It will not heal until treated."
+		return "A broken bone. It will not heal until treated."
 	case ConditionLaceration:
-		return "Laceration. An open wound. It will not heal until treated."
+		return "An open wound. It will not heal until treated."
 	case ConditionLiverIllness:
-		return "Liver illness. It worsens while untreated and drains HP when severe."
+		return "It worsens while untreated and drains HP when severe."
 	default:
 		return ""
 	}

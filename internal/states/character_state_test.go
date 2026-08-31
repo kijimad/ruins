@@ -130,31 +130,18 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	}
 
 	assert.Contains(t, arms.Value, "Fracture", "行の値に不調名が出る")
-	assert.Contains(t, arms.Description, "broken bone", "詳細に概要説明を持つ")
-	require.NotEmpty(t, arms.Details)
-	assert.True(t, arms.Details[0].Header, "影響の先頭は不調の見出し")
 
-	var foundDex, foundAgi, foundProgress, foundTended bool
-	for _, d := range arms.Details {
-		switch {
-		case d.Label == "Dexterity" && d.Value == "-4":
-			foundDex = true
-		case d.Label == "Agility" && d.Value == "-2":
-			foundAgi = true
-		case d.Label == "Progress" && d.Value == "60%":
-			foundProgress = true
-		case d.Label == "Treatment" && d.Value == "Tended 150%":
-			foundTended = true
-		}
-	}
-	assert.True(t, foundProgress, "進行度をタイマーから出す")
-	assert.True(t, foundTended, "治療済みと質を出す")
-	assert.True(t, foundDex, "影響に器用のデバフが出る")
-	assert.True(t, foundAgi, "影響に敏捷のデバフが出る")
+	// 症状ごとに、見出しと進行度・概要・影響・治療を1ブロックにまとめて Description が持つ
+	assert.Contains(t, arms.Description, "Fracture(Medium): 60%", "見出しに症状名と進行度を出す")
+	assert.Contains(t, arms.Description, "broken bone", "概要説明を持つ")
+	assert.Contains(t, arms.Description, "Dexterity: -4", "影響に器用のデバフが出る")
+	assert.Contains(t, arms.Description, "Agility: -2", "影響に敏捷のデバフが出る")
+	assert.Contains(t, arms.Description, "Treatment: Tended 150%", "治療済みと質を出す")
 
-	// 症状が見出し行に出るので、モーダルの見出しは部位名だけにして重複を避ける
-	content := infoDetailContent(arms)
-	assert.Equal(t, "Arm", content.Name, "見出しは部位名のみで症状を重ねない")
+	// 詳細モーダルの見出しは部位名だけにして症状を重ねない
+	content := healthDetailContent(arms)
+	assert.Equal(t, "Arm", content.Name, "見出しは部位名のみ")
+	assert.Equal(t, arms.Description, content.Desc, "症状ブロックは説明段落として出す")
 }
 
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {
