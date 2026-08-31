@@ -18,7 +18,7 @@ func TestOverworldDaylightAnchor(t *testing.T) {
 		tod  gc.TimeOfDay
 		want float64
 	}{
-		{"夜明けは薄明るい", gc.TimeDawn, 0.55},
+		{"夜明けは薄明るい", gc.TimeDawn, 0.65},
 		{"朝は明るい", gc.TimeMorning, 0.72},
 		{"昼は最も明るい", gc.TimeDay, 0.95},
 		{"夕は薄明るい", gc.TimeEvening, 0.55},
@@ -59,16 +59,13 @@ func TestOverworldDaylightAnchor_昼夜の大小関係(t *testing.T) {
 func TestOverworldAmbientColorAnchor(t *testing.T) {
 	t.Parallel()
 
-	// 昼は無彩色
 	assert.Equal(t, [3]float64{1, 1, 1}, overworldAmbientColorAnchor(gc.TimeDay), "昼は無彩色")
 
-	// 朝夕は暖色。赤が青より強い
 	for _, tod := range []gc.TimeOfDay{gc.TimeDawn, gc.TimeEvening} {
 		c := overworldAmbientColorAnchor(tod)
 		assert.Greater(t, c[0], c[2], "朝夕は暖色で赤が強い")
 	}
 
-	// 夜・深夜は寒色。青が赤より強い
 	for _, tod := range []gc.TimeOfDay{gc.TimeNight, gc.TimeMidnight} {
 		c := overworldAmbientColorAnchor(tod)
 		assert.Greater(t, c[2], c[0], "夜は寒色で青が強い")

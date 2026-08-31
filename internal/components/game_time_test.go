@@ -38,7 +38,6 @@ func TestTimeOfDay_String_不正な値はpanicする(t *testing.T) {
 }
 
 // TestGameTime_startsAtDawn は新規ゲームの GameTime が経過0・夜明け・1日目から始まることを確認する。
-// turn 0 が暦の1日の始まりである夜明けなので、日数も季節もオフセットなしで導ける
 func TestGameTime_startsAtDawn(t *testing.T) {
 	t.Parallel()
 
@@ -84,7 +83,7 @@ func TestGameTime_GetTimeOfDay(t *testing.T) {
 }
 
 // TestGameTime_GetDayNumber は経過ターンから経過日数を導けることを確認する。
-// turn 0 が1日目の夜明けなので、日付は turnsPerDay ごと、経過1500 で2日目に繰り上がる
+// turn 0 が1日目の夜明けなので、日付は turnsPerDay ごとに繰り上がる
 func TestGameTime_GetDayNumber(t *testing.T) {
 	t.Parallel()
 
