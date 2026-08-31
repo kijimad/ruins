@@ -128,37 +128,12 @@ func TestRecalculateCharModifiers_HealthPenalty(t *testing.T) {
 
 	mods := RecalculateCharModifiers(skills, nil, hs)
 
-	// 中度低体温: MoveCost = 100 + 20
-	assert.Equal(t, 120, int(mods.MoveCost))
-
-	// Sourcesに低体温のペナルティが記録される
-	sources := mods.Sources[ModMoveCost]
-	found := false
-	for _, s := range sources {
-		if s.Label == "Hypothermia" {
-			assert.Equal(t, 20, s.Value)
-			found = true
-		}
-	}
-	assert.True(t, found, "MoveCostのSourcesに低体温が含まれる")
-}
-
-func TestTemperatureMovePenalty(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		severity Severity
-		expected int
-	}{
-		{SeverityNone, 0},
-		{SeverityMinor, 10},
-		{SeverityMedium, 20},
-		{SeveritySevere, 30},
-	}
-
-	for _, tt := range tests {
-		assert.Equal(t, tt.expected, temperatureMovePenalty(tt.severity))
-	}
+	// 不調は MoveCost へ直接足さず身体機能 Capacities に一本化する
+	assert.Equal(t, 100, int(mods.MoveCost), "低体温は MoveCost へ足さない")
+	// 中度の全身性低体温: 痛み12*2=24、意識=100-30-24/2=58、歩行=100*58/100=58
+	assert.Equal(t, 24, int(mods.Capacities.Pain))
+	assert.Equal(t, 58, int(mods.Capacities.Consciousness))
+	assert.Equal(t, 58, int(mods.Capacities.Moving))
 }
 
 func TestRecalculateCharModifiers_NilAbilsAndHS(t *testing.T) {
@@ -230,14 +205,14 @@ func TestRecalculateCharModifiers_AllFactors(t *testing.T) {
 
 	mods := RecalculateCharModifiers(skills, abils, hs)
 
-	// 走破Lv4 + AGI10: MoveCost = 100 + 4*(-2) + 10*(-1) = 82
-	// 重度低体温ペナルティ: +30
-	// 合計: 82 + 30 = 112
-	assert.Equal(t, 112, int(mods.MoveCost))
+	// 走破Lv4 + AGI10: MoveCost = 100 + 4*(-2) + 10*(-1) = 82。低体温は MoveCost へ足さない
+	assert.Equal(t, 82, int(mods.MoveCost))
+	// 重度の全身性低体温は身体機能へ効く。意識=100-45-36/2=37、歩行=100*37/100=37
+	assert.Equal(t, 37, int(mods.Capacities.Moving))
 
-	// Sourcesに3要因が記録される
+	// Sourcesはスキルと能力値の2要因。健康は Capacities 側なので MoveCost には載らない
 	sources := mods.Sources[ModMoveCost]
-	assert.Len(t, sources, 3, "スキル、能力値、健康状態の3つのソースがある")
+	assert.Len(t, sources, 2, "スキルと能力値の2つのソース")
 }
 
 func TestRecalculateCharModifiers_FireAbility(t *testing.T) {

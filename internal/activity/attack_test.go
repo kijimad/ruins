@@ -296,11 +296,11 @@ func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
 
 	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
-	// 再計算されたCharModifiersにHealthStatusのペナルティが反映されている
+	// 再計算されたCharModifiersにHealthStatusの身体機能が反映されている
 	mods := world.Components.CharModifiers.Get(actor)
 	require.NotNil(t, mods)
-	// MoveCost = 100 + 走破Lv0*(-2) + AGI0*(-1) + 軽度低体温10 = 110
-	assert.Equal(t, 110, int(mods.MoveCost), "HealthStatusのペナルティがCharModifiers再計算に反映されている")
+	// 低体温は MoveCost でなく身体機能へ効く。軽度の全身性: 意識=100-15-12/2=79、歩行=79
+	assert.Equal(t, 79, int(mods.Capacities.Moving), "HealthStatusが CharModifiers の身体機能へ反映される")
 }
 
 func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {

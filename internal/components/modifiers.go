@@ -151,6 +151,10 @@ type CharModifiers struct {
 	SellPrice      consts.Percent                 // 売値倍率
 	HeavyArmor     consts.Percent                 // 重装備AGIペナルティ倍率
 
+	// Capacities は不調から導いた身体機能。戦闘の命中と移動速度がここを経由し、
+	// Effects タブの効率一覧が同じ値を表示する。適用値と表示値を1つに揃える
+	Capacities BodyCapacities
+
 	// Sources は各効果の算出元を保持する。
 	// 1つの効果に複数の要因が影響しうるためスライスにしている。
 	// 派生データのためserde対象外とし、ロード時は再計算する
@@ -218,34 +222,13 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	e.SellPrice = calcEffect(ModSellPrice, SkillNegotiation, coeffSellPrice)
 	e.HeavyArmor = calcEffect(ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor)
 
-	// 健康状態によるペナルティ
+	// 不調による身体機能。命中と移動はこの Capacities を経由するので、低体温の移動
+	// ペナルティを MoveCost へ別途足さない。不調の影響は Capacities に一本化する
+	e.Capacities = (&HealthStatus{}).Capacities()
 	if hs != nil {
-		wb := &hs.Parts[BodyPartWholeBody]
-		for _, cond := range wb.Conditions {
-			if penalty := temperatureMovePenalty(cond.Severity); penalty != 0 {
-				e.MoveCost += consts.Percent(penalty)
-				src[ModMoveCost] = append(src[ModMoveCost], ModifierSource{
-					Label: ConditionTypeDisplayName(cond.Type),
-					Value: penalty,
-				})
-			}
-		}
+		e.Capacities = hs.Capacities()
 	}
 
 	e.Sources = src
 	return e
-}
-
-// temperatureMovePenalty は体温異常の重症度に応じた移動コスト増加量を返す
-func temperatureMovePenalty(severity Severity) int {
-	switch severity {
-	case SeveritySevere:
-		return 30
-	case SeverityMedium:
-		return 20
-	case SeverityMinor:
-		return 10
-	default:
-		return 0
-	}
 }

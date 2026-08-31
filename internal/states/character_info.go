@@ -164,6 +164,15 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 		}
 	}
 
+	items = append(items, statusItemData{Label: query.T(world, "Body function"), IsHeader: true, Description: query.T(world, "Body capacities lowered by injuries and illness")})
+	items = append(items,
+		statusItemData{Label: query.T(world, "Pain"), Value: fmt.Sprintf("%d%%", e.Capacities.Pain), Description: query.T(world, "Pain from conditions. Lowers consciousness")},
+		statusItemData{Label: query.T(world, "Consciousness"), Value: fmt.Sprintf("%d%%", e.Capacities.Consciousness), Description: query.T(world, "Master capacity. Multiplies all others")},
+		statusItemData{Label: query.T(world, "Manipulation"), Value: fmt.Sprintf("%d%%", e.Capacities.Manipulation), Description: query.T(world, "Affects melee accuracy and crafting")},
+		statusItemData{Label: query.T(world, "Moving"), Value: fmt.Sprintf("%d%%", e.Capacities.Moving), Description: query.T(world, "Affects move speed")},
+		statusItemData{Label: query.T(world, "Sight"), Value: fmt.Sprintf("%d%%", e.Capacities.Sight), Description: query.T(world, "Affects ranged accuracy and vision")},
+	)
+
 	items = append(items, statusItemData{Label: query.T(world, "Survival"), IsHeader: true, Description: query.T(world, "Survival effects")})
 	items = append(items,
 		statusItemData{Label: query.T(world, "Hypothermia progress"), Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: query.T(world, "Hypothermia progress rate. Lower is slower"), Details: sourceToDetails(e.Sources, gc.ModColdProgress)},

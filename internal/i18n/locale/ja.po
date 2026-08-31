@@ -980,6 +980,27 @@ msgstr "歩行"
 msgid "Sight"
 msgstr "視覚"
 
+msgid "Body function"
+msgstr "身体機能"
+
+msgid "Body capacities lowered by injuries and illness"
+msgstr "怪我や病気で下がる身体機能"
+
+msgid "Pain from conditions. Lowers consciousness"
+msgstr "不調による痛み。意識を下げる"
+
+msgid "Master capacity. Multiplies all others"
+msgstr "全機能に掛かる乗数"
+
+msgid "Affects melee accuracy and crafting"
+msgstr "近接命中と製作に効く"
+
+msgid "Affects move speed"
+msgstr "移動速度に効く"
+
+msgid "Affects ranged accuracy and vision"
+msgstr "遠隔命中と視界に効く"
+
 msgid "Minor"
 msgstr "軽"
 

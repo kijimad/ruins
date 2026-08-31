@@ -132,11 +132,9 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 		// MoveCost はコスト倍率なので速度へは逆適用する（高いほど遅い）。ApplyInt は使わない
 		moveCost := max(int(effects.MoveCost), 10)
 		speed = speed * 100 / moveCost
-	}
-
-	// 身体機能の歩行を掛ける。脚・足の怪我や意識低下で歩行が落ちると遅くなる
-	if world.Components.HealthStatus.Has(entity) {
-		speed = world.Components.HealthStatus.Get(entity).Capacities().Moving.ApplyInt(speed)
+		// 身体機能の歩行を掛ける。脚・足の怪我や意識低下で歩行が落ちると遅くなる。
+		// 効率は CharModifiers に集約し、Effects タブの表示と同じ値を経由する
+		speed = effects.Capacities.Moving.ApplyInt(speed)
 	}
 
 	// 最小値制限
