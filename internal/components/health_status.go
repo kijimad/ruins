@@ -156,6 +156,12 @@ func bodyPartCapacity(part BodyPart) capacityKind {
 	}
 }
 
+// HealthyCapacities は不調が無いときの身体機能を返す。全機能100で痛み0。
+// HealthStatus を持たない対象の既定として使う
+func HealthyCapacities() BodyCapacities {
+	return (&HealthStatus{}).Capacities()
+}
+
 // ConditionCapacityImpact は不調1件が身体機能へ与える影響を表示用に返す。
 // pain は加える痛み、capacityName は下げる機能の表示名 msgid、drop はその低下量。
 // 健康タブの症状詳細がこれを引いて「痛み +X」「操作 -Y」を出す

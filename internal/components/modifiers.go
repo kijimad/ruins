@@ -224,7 +224,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 
 	// 不調による身体機能。命中と移動はこの Capacities を経由するので、低体温の移動
 	// ペナルティを MoveCost へ別途足さない。不調の影響は Capacities に一本化する
-	e.Capacities = (&HealthStatus{}).Capacities()
+	e.Capacities = HealthyCapacities()
 	if hs != nil {
 		e.Capacities = hs.Capacities()
 	}
