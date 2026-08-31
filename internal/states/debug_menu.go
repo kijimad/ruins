@@ -10,6 +10,7 @@ import (
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -41,6 +42,12 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			_, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 			return err
 		})},
+		{Label: "Inflict fracture (arms)", Run: popAfter(debugSetCondition(gc.BodyPartArms, gc.ConditionFracture, 60))},
+		{Label: "Inflict laceration (arms)", Run: popAfter(debugSetCondition(gc.BodyPartArms, gc.ConditionLaceration, 60))},
+		{Label: "Inflict liver illness (torso)", Run: popAfter(debugSetCondition(gc.BodyPartTorso, gc.ConditionLiverIllness, 60))},
+		{Label: "Inflict severe hypothermia", Run: popAfter(debugSetCondition(gc.BodyPartWholeBody, gc.ConditionHypothermia, 90))},
+		{Label: "Treat all conditions", Run: popAfter(debugTreatAllConditions)},
+		{Label: "Damage self (-10 HP)", Run: popAfter(debugDamageSelf(10))},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
 		{Label: "Run result (death screen)", Run: func(world w.World) (es.Transition[w.World], error) {
 			// 死因に目印の debug を入れて結果画面を確認する
@@ -131,6 +138,54 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 		}},
 	)
 	return "", choices
+}
+
+// debugSetCondition はデバッグでプレイヤーの部位に不調を1つ付ける。Timer から重症度を決める。
+// 付けたあとキャラクター情報画面で確認し、ターンを進めて ConditionSystem の回復軌道を観察する
+func debugSetCondition(part gc.BodyPart, ct gc.ConditionType, timer float64) func(w.World) error {
+	return func(world w.World) error {
+		player, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return err
+		}
+		if !world.Components.HealthStatus.Has(player) {
+			return nil
+		}
+		hs := world.Components.HealthStatus.Get(player)
+		hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})
+		return nil
+	}
+}
+
+// debugTreatAllConditions はデバッグでプレイヤーの全不調を治療済みにする。回復軌道の確認用。
+// 低体温は TemperatureSystem が体温から進めるので TendQuality では治らない
+func debugTreatAllConditions(world w.World) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	if !world.Components.HealthStatus.Has(player) {
+		return nil
+	}
+	hs := world.Components.HealthStatus.Get(player)
+	for p := range hs.Parts {
+		for i := range hs.Parts[p].Conditions {
+			hs.Parts[p].Conditions[i].TendQuality = 150
+		}
+	}
+	return nil
+}
+
+// debugDamageSelf はデバッグでプレイヤーの HP を削る。HP の自然回復を観察する用
+func debugDamageSelf(amount int) func(w.World) error {
+	return func(world w.World) error {
+		player, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return err
+		}
+		gameaction.ApplyDamage(world, player, amount, player)
+		return nil
+	}
 }
 
 // playerGridElement はプレイヤーの GridElement を返す。位置を持たない文脈ではエラーにする。
