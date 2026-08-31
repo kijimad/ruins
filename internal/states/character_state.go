@@ -390,5 +390,5 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 // healthDetailContent は健康タブの部位の詳細を組む。症状ごとのブロックは Description が持つ。
 // 折り返す説明段落を扱うため Rows でなく Desc に載せ、見出しは部位名だけにする
 func healthDetailContent(item statusItemData) overlay.DetailContent {
-	return overlay.DetailContent{Name: item.Label, Desc: item.Description}
+	return overlay.DetailContent{Name: item.Label, Desc: item.Description, BodyDesc: true}
 }
