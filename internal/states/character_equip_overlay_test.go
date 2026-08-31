@@ -10,9 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/vrt"
-	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -201,58 +199,49 @@ func TestGolden_EquipSelect(t *testing.T) {
 	vrt.AssertFrameGolden(t, "TestGolden_EquipSelect", screen)
 }
 
-func TestEquipCompareRows_同項目に差分を色分けで併記する(t *testing.T) {
+func TestCompareContent_候補にカーソルがあり装備済みなら現装備を返す(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
 
-	// クレイモアは鉄の剣より攻撃力が高く、命中と攻撃コストは不利
-	current, err := lifecycle.SpawnBackpackItem(world, "iron_sword", 1)
+	// SpawnPlayer の初期装備を現装備にし、持ち物の武器を候補にする
+	weapons := query.GetWeapons(world, player)
+	require.NotNil(t, weapons[0], "初期装備の武器がある")
+	equipped := *weapons[0]
+	_, err = lifecycle.SpawnBackpackItem(world, "claymore", 1)
 	require.NoError(t, err)
-	candidate, err := lifecycle.SpawnBackpackItem(world, "claymore", 1)
-	require.NoError(t, err)
 
-	rows := equipCompareRows(world, candidate, &current)
-	byLabel := map[string]entityspec.SpecRow{}
-	for _, r := range rows {
-		if !r.Header {
-			byLabel[r.Label] = r
-		}
-	}
+	o := newEquipOverlayForTest()
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon1, Character: player, Entity: &equipped})
 
-	atk := byLabel[query.T(world, "Attack power")]
-	assert.Equal(t, "18 (+3)", atk.Value, "攻撃力は上がり差分を併記する")
-	require.NotNil(t, atk.Color, "変化した項目は色付き")
-	assert.Equal(t, theme.StatusSuccess, *atk.Color, "有利な変化は緑")
+	// 先頭の「外す」では比較しない
+	_, ok := o.compareContent(world)
+	assert.False(t, ok, "外すにカーソルがあるときは比較しない")
 
-	acc := byLabel[query.T(world, "Accuracy")]
-	assert.Equal(t, "75 (-15)", acc.Value, "命中は下がり差分を併記する")
-	require.NotNil(t, acc.Color)
-	assert.Equal(t, theme.StatusDanger, *acc.Color, "不利な変化は赤")
-
-	cost := byLabel[query.T(world, "Attack cost")]
-	assert.Equal(t, "3 (+1)", cost.Value, "攻撃コストは上がり差分を併記する")
-	require.NotNil(t, cost.Color)
-	assert.Equal(t, theme.StatusDanger, *cost.Color, "コストは小さいほど良いので増加は赤")
-
-	// 変化しない項目には差分も色も付けない
-	hits := byLabel[query.T(world, "Hits")]
-	assert.Equal(t, "1", hits.Value, "同値の項目は差分を出さない")
-	assert.Nil(t, hits.Color, "同値の項目は色を付けない")
+	// 候補へ移すと現装備を左枠として返す
+	moveEquipCursor(&o, 1)
+	cmp, ok := o.compareContent(world)
+	require.True(t, ok, "候補にカーソルがあると比較する")
+	assert.Equal(t, query.GetEntityName(equipped, world), cmp.Name, "左枠は現装備")
 }
 
-func TestEquipCompareRows_現装備が無ければ差分を付けない(t *testing.T) {
+func TestCompareContent_非アクティブや現装備なしでは比較しない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
-	_, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
+	player, err := lifecycle.SpawnPlayer(world, consts.Coord[consts.Tile]{X: 5, Y: 5}, "ash")
 	require.NoError(t, err)
-	candidate, err := lifecycle.SpawnBackpackItem(world, "claymore", 1)
+	_, err = lifecycle.SpawnBackpackItem(world, "claymore", 1)
 	require.NoError(t, err)
 
-	rows := equipCompareRows(world, candidate, nil)
-	for _, r := range rows {
-		assert.Nil(t, r.Color, "現装備が無ければどの行も色を付けない: %s", r.Label)
-		assert.NotContains(t, r.Value, "(", "現装備が無ければ差分の括弧を出さない: %s", r.Label)
-	}
+	o := newEquipOverlayForTest()
+	_, ok := o.compareContent(world)
+	assert.False(t, ok, "非アクティブでは比較しない")
+
+	// 空の武器スロット2で開く。候補は居るが現装備が無い
+	o.Open(world, equipItemData{SlotNumber: gc.SlotWeapon2, Character: player})
+	_, ok = o.selectedItem()
+	require.True(t, ok, "候補にカーソルがある")
+	_, ok = o.compareContent(world)
+	assert.False(t, ok, "現装備が無ければ比較しない")
 }

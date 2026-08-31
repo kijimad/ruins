@@ -97,6 +97,8 @@ var _ menuloop.KeyBindings = &CharacterState{}
 func (st *CharacterState) OnStart(_ w.World) error {
 	st.detail = overlay.NewDetail(st.detailContent)
 	st.equip = newCharacterEquipOverlay(&st.detail)
+	// 装備選択で候補にカーソルがあるとき、詳細を現装備と候補の2枠で見せる
+	st.detail.SetCompare(st.equip.compareContent)
 	// detail を equip より前に登録する。装備選択中に x で開いた詳細が入力を優先する
 	st.screen = menuloop.NewScreen[CharacterProps](st, &st.detail, &st.equip)
 	return nil

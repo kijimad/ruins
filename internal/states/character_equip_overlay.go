@@ -1,20 +1,16 @@
 package states
 
 import (
-	"fmt"
 	"image"
-	"strconv"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/menuframe"
 	"github.com/kijimaD/ruins/internal/widgets/overlay"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
@@ -191,8 +187,8 @@ func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, 
 	return menuframe.PanelScreen(world, res, query.T(world, "Choose equipment"), list, "", pager)
 }
 
-// detailContent は装備選択中の詳細内容を返す。候補なら現装備との差分付き、
-// 「外す」なら外す対象の性能を出す。選択が無ければ ok=false
+// detailContent は装備選択中の主たる詳細内容を返す。候補ならその性能、「外す」なら外す対象の
+// 性能を出す。選択が無ければ ok=false。現装備との比較は compareContent が左枠を補い2枚で見せる
 func (o *characterEquipOverlay) detailContent(world w.World) (overlay.DetailContent, bool) {
 	choice, ok := o.selection()
 	if !ok {
@@ -205,57 +201,22 @@ func (o *characterEquipOverlay) detailContent(world w.World) (overlay.DetailCont
 		}
 		return overlay.EntityDetailContent(world, *props.PreviousEquipment), true
 	}
-	dc := overlay.EntityDetailContent(world, choice.entity)
-	dc.Rows = equipCompareRows(world, choice.entity, props.PreviousEquipment)
-	return dc, true
+	return overlay.EntityDetailContent(world, choice.entity), true
 }
 
-// equipCompareRows は候補の性能行を返し、現装備 prev と同じ項目には差分を併記する。
-// prev が nil や死んだ実体なら差分を付けず候補単体の行を返す。数値として読める項目だけ差分を出し、
-// 重量や弾数のような複合値には付けない。有利な変化は緑、不利は赤で塗り、攻撃コストなど
-// 小さいほど良い項目は極性を反転する
-func equipCompareRows(world w.World, candidate ecs.Entity, prev *ecs.Entity) []entityspec.SpecRow {
-	rows := entityspec.SpecRows(world, candidate)
-	if prev == nil || !world.ECS.Alive(*prev) {
-		return rows
+// compareContent は詳細モーダルの左枠に並べる現装備を返す。候補にカーソルがあり装備済みの
+// ときだけ ok を返し、現装備と候補を2枠で見せる。空スロットや「外す」では ok=false で1枠に戻る
+func (o *characterEquipOverlay) compareContent(world w.World) (overlay.DetailContent, bool) {
+	if !o.active {
+		return overlay.DetailContent{}, false
 	}
-	prevValues := map[string]string{}
-	for _, r := range entityspec.SpecRows(world, *prev) {
-		if !r.Header {
-			prevValues[r.Label] = r.Value
-		}
+	choice, ok := o.selection()
+	if !ok || choice.unequip {
+		return overlay.DetailContent{}, false
 	}
-	lowerIsBetter := map[string]bool{
-		query.T(world, "Attack cost"): true,
-		query.T(world, "Reload"):      true,
+	props := o.mount.GetProps()
+	if props.PreviousEquipment == nil {
+		return overlay.DetailContent{}, false
 	}
-	for i := range rows {
-		if rows[i].Header {
-			continue
-		}
-		prevVal, found := prevValues[rows[i].Label]
-		if !found {
-			continue
-		}
-		candN, err1 := strconv.Atoi(rows[i].Value)
-		prevN, err2 := strconv.Atoi(prevVal)
-		if err1 != nil || err2 != nil {
-			continue
-		}
-		delta := candN - prevN
-		if delta == 0 {
-			continue
-		}
-		rows[i].Value = fmt.Sprintf("%s (%+d)", rows[i].Value, delta)
-		better := delta > 0
-		if lowerIsBetter[rows[i].Label] {
-			better = delta < 0
-		}
-		rowColor := theme.StatusSuccess
-		if !better {
-			rowColor = theme.StatusDanger
-		}
-		rows[i].Color = &rowColor
-	}
-	return rows
+	return overlay.EntityDetailContent(world, *props.PreviousEquipment), true
 }

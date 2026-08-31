@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -48,6 +49,15 @@ type Detail struct {
 	active  bool
 	page    int
 	provide func(world w.World) (DetailContent, bool)
+	// compare は左に並べる比較対象を返す。設定され ok を返すときだけ、provide の内容を右に、
+	// この内容を左に並べて2枚で描く。未設定や ok=false なら従来どおり1枚で描く
+	compare func(world w.World) (DetailContent, bool)
+}
+
+// SetCompare は比較対象を返す関数を設定する。設定すると、compare が ok を返すフレームだけ
+// 詳細モーダルを左右2枚で描く。装備選択で現装備と候補を並べる用途に使う
+func (d *Detail) SetCompare(compare func(world w.World) (DetailContent, bool)) {
+	d.compare = compare
 }
 
 // NewDetail は現在カーソルが指す対象の詳細内容を返す provide を受け取り Detail を作る。
@@ -121,6 +131,14 @@ func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawa
 	content, ok := d.provide(world)
 	if !ok {
 		return nil
+	}
+	if d.compare != nil {
+		if left, ok := d.compare(world); ok {
+			// 2枚並べるので狭い WindowRect でなく画面幅の大半を使う。上下は rect と揃える
+			sw := world.Resources.ScreenDimensions.Width
+			wide := image.Rect(theme.MenuModalMarginX, rect.Min.Y, sw-theme.MenuModalMarginX, rect.Max.Y)
+			return buildCompareUI(world.Resources.UIResources, wide, left, content, d.page)
+		}
 	}
 	return buildDetailUI(world.Resources.UIResources, rect, content.Name, content.Desc, content.Rows, d.page)
 }
