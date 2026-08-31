@@ -391,7 +391,7 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 // 能力デバフの性能行を返す。症状の無い部位のエントリは概要だけを出す
 func healthDetailContent(world w.World, item statusItemData) overlay.DetailContent {
 	if item.ConditionType == "" {
-		return overlay.DetailContent{Name: item.Label, Desc: query.T(world, "No injury or illness")}
+		return overlay.DetailContent{Name: query.T(world, item.BodyPart.String()), Desc: query.T(world, "No injury or illness")}
 	}
 	player, err := query.GetPlayerEntity(world)
 	if err != nil || !query.AliveHas(world, world.Components.HealthStatus, player) {
@@ -402,13 +402,18 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		return overlay.DetailContent{Name: item.Label}
 	}
 
-	rows := make([]entityspec.SpecRow, 0, 2+len(cond.Effects))
+	// この症状が身体機能へ与える影響を、部位と重症度から導いて出す
+	pain, capacityName, drop := gc.ConditionCapacityImpact(item.BodyPart, cond.Severity)
+	rows := make([]entityspec.SpecRow, 0, 4)
 	rows = append(rows,
 		entityspec.SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))},
 		entityspec.SpecRow{Label: query.T(world, "Treatment"), Value: treatmentStatus(world, *cond)},
 	)
-	for _, eff := range cond.Effects {
-		rows = append(rows, entityspec.SpecRow{Label: query.T(world, eff.Stat.String()), Value: fmt.Sprintf("%+d", eff.Value)})
+	if pain > 0 {
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Pain"), Value: fmt.Sprintf("+%d", pain)})
+	}
+	if drop > 0 {
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, capacityName), Value: fmt.Sprintf("-%d", drop)})
 	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, *cond),

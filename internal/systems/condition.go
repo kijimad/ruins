@@ -29,12 +29,11 @@ const conditionMinorNaturalRecoveryPerTurn = 1
 // conditionSpec は不調の種類ごとの固定パラメータ。ConditionSystem が扱う怪我と病気を定める。
 // 低体温は TemperatureSystem が担うのでこのカタログには載せない。
 type conditionSpec struct {
-	Recovery   RecoveryMode                          // 未治療の振る舞いと治し方
-	WorsenPer  int                                   // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
-	RecoverPer int                                   // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
-	HPDamage   int                                   // 重症で毎ターン与える HP ダメージ。0 なら無害
-	Cause      string                                // HPDamage で倒したときの死因。HPDamage が0なら未使用
-	Effect     func(sev gc.Severity) []gc.StatEffect // 重症度から能力デバフを出す
+	Recovery   RecoveryMode // 未治療の振る舞いと治し方
+	WorsenPer  int          // ProgressUntilTend で未治療のとき1ターン Timer を増やす量
+	RecoverPer int          // 治療済みで1ターン Timer を減らす基準量。質と代謝で増減する
+	HPDamage   int          // 重症で毎ターン与える HP ダメージ。0 なら無害
+	Cause      string       // HPDamage で倒したときの死因。HPDamage が0なら未使用
 }
 
 // conditionCatalog は ConditionSystem が扱う不調の種類を網羅する実行時定数。
@@ -43,29 +42,10 @@ var conditionCatalog = map[gc.ConditionType]conditionSpec{
 	gc.ConditionFracture: {
 		Recovery:   RecoverAfterTend,
 		RecoverPer: 3,
-		Effect: func(sev gc.Severity) []gc.StatEffect {
-			m := severityToMultiplier(sev)
-			if m == 0 {
-				return nil
-			}
-			return []gc.StatEffect{
-				{Stat: gc.StatDexterity, Value: -2 * m},
-				{Stat: gc.StatAgility, Value: -1 * m},
-			}
-		},
 	},
 	gc.ConditionLaceration: {
 		Recovery:   RecoverAfterTend,
 		RecoverPer: 4,
-		Effect: func(sev gc.Severity) []gc.StatEffect {
-			m := severityToMultiplier(sev)
-			if m == 0 {
-				return nil
-			}
-			return []gc.StatEffect{
-				{Stat: gc.StatStrength, Value: -1 * m},
-			}
-		},
 	},
 	gc.ConditionLiverIllness: {
 		Recovery:   ProgressUntilTend,
@@ -73,15 +53,6 @@ var conditionCatalog = map[gc.ConditionType]conditionSpec{
 		RecoverPer: 3,
 		HPDamage:   2,
 		Cause:      gc.CauseIllness,
-		Effect: func(sev gc.Severity) []gc.StatEffect {
-			m := severityToMultiplier(sev)
-			if m == 0 {
-				return nil
-			}
-			return []gc.StatEffect{
-				{Stat: gc.StatVitality, Value: -2 * m},
-			}
-		},
 	},
 }
 
@@ -128,7 +99,6 @@ func (sys *ConditionSystem) Update(world w.World) error {
 						changed = true
 					}
 				}
-				cond.Effects = spec.Effect(cond.Severity)
 
 				if cond.Severity == gc.SeveritySevere && spec.HPDamage > 0 && hasHP {
 					toDamage = append(toDamage, conditionDamage{entity: entity, amount: spec.HPDamage, cause: spec.Cause})

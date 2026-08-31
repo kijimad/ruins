@@ -111,12 +111,93 @@ func ConditionTypeDescription(ct ConditionType) string {
 	}
 }
 
+// BodyCapacities は身体機能の一式。すべて基準 100 の consts.Percent で、100 が正常、
+// 低いほど機能が落ちる。痛み Pain だけは 0 が無痛で、大きいほど痛い。
+// 不調から読み取り時に導出し、保存はしない
+type BodyCapacities struct {
+	Pain          consts.Percent // 0 が無痛。大きいほど痛い
+	Consciousness consts.Percent // 100 が正常。痛みと全身性の不調で下がる。全機能に掛かる乗数
+	Manipulation  consts.Percent // 腕・手の不調で下がる
+	Moving        consts.Percent // 脚・足の不調で下がる
+	Sight         consts.Percent // 頭の不調で下がる
+}
+
+// 身体機能の導出パラメータ。値は実プレイで調整する
+const (
+	// conditionPainPerSeverity は重症度1段あたりの痛み
+	conditionPainPerSeverity = 12
+	// conditionCapacityDropPerSeverity は重症度1段あたりの機能低下
+	conditionCapacityDropPerSeverity = 15
+	// painConsciousnessDivisor は痛みが意識を下げる割合。痛みをこれで割ったぶん意識が下がる
+	painConsciousnessDivisor = 2
+)
+
+// capacityKind は部位が下げる身体機能の区分
+type capacityKind int
+
+const (
+	capConsciousness capacityKind = iota // 胴・全身の全身性
+	capManipulation                      // 腕・手
+	capMoving                            // 脚・足
+	capSight                             // 頭
+)
+
+// bodyPartCapacity は部位が下げる身体機能を返す。部位階層を持たず固定表で対応づける
+func bodyPartCapacity(part BodyPart) capacityKind {
+	switch part {
+	case BodyPartHead:
+		return capSight
+	case BodyPartArms, BodyPartHands:
+		return capManipulation
+	case BodyPartLegs, BodyPartFeet:
+		return capMoving
+	default:
+		return capConsciousness
+	}
+}
+
+// ConditionCapacityImpact は不調1件が身体機能へ与える影響を表示用に返す。
+// pain は加える痛み、capacityName は下げる機能の表示名 msgid、drop はその低下量。
+// 健康タブの症状詳細がこれを引いて「痛み +X」「操作 -Y」を出す
+func ConditionCapacityImpact(part BodyPart, sev Severity) (pain int, capacityName string, drop int) {
+	m := conditionSeverityMultiplier(sev)
+	if m == 0 {
+		return 0, "", 0
+	}
+	pain = conditionPainPerSeverity * m
+	drop = conditionCapacityDropPerSeverity * m
+	switch bodyPartCapacity(part) {
+	case capManipulation:
+		capacityName = "Manipulation"
+	case capMoving:
+		capacityName = "Moving"
+	case capSight:
+		capacityName = "Sight"
+	default:
+		capacityName = "Consciousness"
+	}
+	return pain, capacityName, drop
+}
+
+// conditionSeverityMultiplier は重症度から効果倍率を返す
+func conditionSeverityMultiplier(sev Severity) int {
+	switch sev {
+	case SeveritySevere:
+		return 3
+	case SeverityMedium:
+		return 2
+	case SeverityMinor:
+		return 1
+	default:
+		return 0
+	}
+}
+
 // HealthCondition は部位に付与される1つの状態
 type HealthCondition struct {
 	Type     ConditionType // 状態の種類
 	Severity Severity      // 重症度
 	Timer    float64       // 進行度タイマー (0-100)
-	Effects  []StatEffect  // この状態による影響
 	// TendQuality は治療の質。0 なら未治療、正なら治療済みで 100 が標準、150 なら回復1.5倍。
 	// 適した薬の Potency が入り、回復速度を左右する
 	TendQuality consts.Percent
@@ -250,17 +331,45 @@ type HealthStatus struct {
 	BodyTempOffset float64
 }
 
-// GetStatModifier は指定したステータスへの合計修正値を返す
-func (hs *HealthStatus) GetStatModifier(stat StatType) int {
-	total := 0
-	for _, partHealth := range hs.Parts {
-		for _, cond := range partHealth.Conditions {
-			for _, effect := range cond.Effects {
-				if effect.Stat == stat {
-					total += effect.Value
-				}
+// Capacities は不調から身体機能の一式を導出する。保存済みの値でなく Timer と Severity から計算する。
+// 部位ごとの不調が対応機能を下げ、痛みと全身性の不調が意識を下げ、意識が全機能へ乗算される
+func (hs *HealthStatus) Capacities() BodyCapacities {
+	pain := 0
+	var manip, moving, sight, systemic int // 各機能の低下量
+	for i := range hs.Parts {
+		for _, cond := range hs.Parts[i].Conditions {
+			m := conditionSeverityMultiplier(cond.Severity)
+			if m == 0 {
+				continue
+			}
+			pain += conditionPainPerSeverity * m
+			drop := conditionCapacityDropPerSeverity * m
+			switch bodyPartCapacity(BodyPart(i)) {
+			case capManipulation:
+				manip += drop
+			case capMoving:
+				moving += drop
+			case capSight:
+				sight += drop
+			case capConsciousness:
+				systemic += drop
 			}
 		}
 	}
-	return total
+
+	pain = clamp(pain, 0, 100)
+	// 意識は全身性の低下と痛みで下がる
+	consciousness := clamp(100-systemic-pain/painConsciousnessDivisor, 0, 100)
+	// 局所機能は低下を引いたうえで、意識を全体乗数として掛ける
+	withConsciousness := func(local int) consts.Percent {
+		return consts.Percent(clamp(local, 0, 100) * consciousness / 100)
+	}
+
+	return BodyCapacities{
+		Pain:          consts.Percent(pain),
+		Consciousness: consts.Percent(consciousness),
+		Manipulation:  withConsciousness(100 - manip),
+		Moving:        withConsciousness(100 - moving),
+		Sight:         withConsciousness(100 - sight),
+	}
 }

@@ -274,29 +274,40 @@ func TestBodyPartHealth_UpdateConditionTimer(t *testing.T) {
 	})
 }
 
-func TestHealthStatus_GetStatModifier(t *testing.T) {
+func TestHealthStatus_Capacities(t *testing.T) {
 	t.Parallel()
 
-	t.Run("修正値なし", func(t *testing.T) {
+	t.Run("不調なしは全機能100で痛み0", func(t *testing.T) {
 		t.Parallel()
-		hs := &HealthStatus{}
-		assert.Equal(t, 0, hs.GetStatModifier(StatStrength))
+		caps := (&HealthStatus{}).Capacities()
+		assert.Equal(t, 0, int(caps.Pain))
+		assert.Equal(t, 100, int(caps.Consciousness))
+		assert.Equal(t, 100, int(caps.Manipulation))
+		assert.Equal(t, 100, int(caps.Moving))
+		assert.Equal(t, 100, int(caps.Sight))
 	})
 
-	t.Run("複数部位の修正値を合算", func(t *testing.T) {
+	t.Run("腕の骨折は操作を下げ痛みを与え意識を落とす", func(t *testing.T) {
 		t.Parallel()
 		hs := &HealthStatus{}
-		hs.Parts[BodyPartTorso].SetCondition(HealthCondition{
-			Type:    ConditionHypothermia,
-			Effects: []StatEffect{{Stat: StatStrength, Value: -2}},
-		})
-		hs.Parts[BodyPartArms].SetCondition(HealthCondition{
-			Type:    ConditionHypothermia,
-			Effects: []StatEffect{{Stat: StatStrength, Value: -1}, {Stat: StatAgility, Value: -1}},
-		})
-		assert.Equal(t, -3, hs.GetStatModifier(StatStrength))
-		assert.Equal(t, -1, hs.GetStatModifier(StatAgility))
-		assert.Equal(t, 0, hs.GetStatModifier(StatDefense))
+		hs.Parts[BodyPartArms].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMedium})
+		caps := hs.Capacities()
+		// 痛み = 12*2 = 24。意識 = 100 - 24/2 = 88
+		assert.Equal(t, 24, int(caps.Pain))
+		assert.Equal(t, 88, int(caps.Consciousness))
+		// 操作 = (100 - 15*2) * 意識88/100 = 70*88/100 = 61
+		assert.Equal(t, 61, int(caps.Manipulation))
+		// 歩行・視覚は局所低下なしだが意識が掛かる
+		assert.Equal(t, 88, int(caps.Moving))
+		assert.Equal(t, 88, int(caps.Sight))
+	})
+
+	t.Run("部位で下げる機能が変わる", func(t *testing.T) {
+		t.Parallel()
+		hs := &HealthStatus{}
+		hs.Parts[BodyPartLegs].SetCondition(HealthCondition{Type: ConditionFracture, Severity: SeverityMinor})
+		caps := hs.Capacities()
+		assert.Less(t, int(caps.Moving), int(caps.Sight), "脚の怪我は歩行を下げ視覚は下げない")
 	})
 }
 
@@ -315,5 +326,31 @@ func TestClamp(t *testing.T) {
 		assert.InDelta(t, 5.0, clamp(5.0, 0.0, 10.0), 0.001)
 		assert.InDelta(t, 0.0, clamp(-1.0, 0.0, 10.0), 0.001)
 		assert.InDelta(t, 10.0, clamp(15.0, 0.0, 10.0), 0.001)
+	})
+}
+
+func TestConditionCapacityImpact(t *testing.T) {
+	t.Parallel()
+
+	t.Run("腕の不調は操作を下げ痛みを与える", func(t *testing.T) {
+		t.Parallel()
+		pain, capacity, drop := ConditionCapacityImpact(BodyPartArms, SeverityMedium)
+		assert.Equal(t, 24, pain)
+		assert.Equal(t, "Manipulation", capacity)
+		assert.Equal(t, 30, drop)
+	})
+
+	t.Run("脚の不調は歩行を下げる", func(t *testing.T) {
+		t.Parallel()
+		_, capacity, _ := ConditionCapacityImpact(BodyPartFeet, SeverityMinor)
+		assert.Equal(t, "Moving", capacity)
+	})
+
+	t.Run("重症度なしは影響なし", func(t *testing.T) {
+		t.Parallel()
+		pain, capacity, drop := ConditionCapacityImpact(BodyPartArms, SeverityNone)
+		assert.Equal(t, 0, pain)
+		assert.Empty(t, capacity)
+		assert.Equal(t, 0, drop)
 	})
 }

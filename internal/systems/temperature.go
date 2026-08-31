@@ -269,9 +269,6 @@ func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, isPlayer bo
 		}
 	}
 
-	// 効果を更新
-	updateConditionEffects(partHealth)
-
 	return hasChange
 }
 
@@ -292,13 +289,6 @@ func calcBodyTempRate(effectiveTemp int) float64 {
 		return -0.1 // 寒い
 	default:
 		return 0 // 適温以上
-	}
-}
-
-// updateConditionEffects は全身の状態の効果を更新する
-func updateConditionEffects(partHealth *gc.BodyPartHealth) {
-	if cond := partHealth.GetCondition(gc.ConditionHypothermia); cond != nil {
-		cond.Effects = calculateHypothermiaEffects(cond.Severity)
 	}
 }
 
@@ -350,33 +340,4 @@ func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string 
 		}
 	}
 	return ""
-}
-
-// calculateHypothermiaEffects は低体温による全身への効果を計算する
-func calculateHypothermiaEffects(severity gc.Severity) []gc.StatEffect {
-	m := severityToMultiplier(severity)
-	if m == 0 {
-		return nil
-	}
-
-	return []gc.StatEffect{
-		{Stat: gc.StatStrength, Value: -1 * m},
-		{Stat: gc.StatVitality, Value: -1 * m},
-		{Stat: gc.StatDexterity, Value: -1 * m},
-		{Stat: gc.StatAgility, Value: -1 * m},
-	}
-}
-
-// severityToMultiplier はSeverityから効果倍率を返す
-func severityToMultiplier(severity gc.Severity) int {
-	switch severity {
-	case gc.SeveritySevere:
-		return 3
-	case gc.SeverityMedium:
-		return 2
-	case gc.SeverityMinor:
-		return 1
-	default:
-		return 0
-	}
 }

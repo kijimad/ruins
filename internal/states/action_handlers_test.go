@@ -207,18 +207,16 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		// APが0以上なら行動可能であることを確認
 		tb := world.Components.TurnBased.Get(player)
 		assert.GreaterOrEqual(t, tb.AP.Current, 0, "冷えた状態でもAPが0以上なら行動可能")
-		enemyHP := world.Components.HP.Get(enemy)
-		initialEnemyHP := enemyHP.Current
+		_ = enemy
 
 		// 攻撃を実行
 		err = activity.ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
 
-		// 検証: Attackが実行される
+		// 検証: 冷えていても近接攻撃が成立する。命中は身体機能で下がるので当否は問わない
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
-		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 
 	t.Run("冷えた状態で攻撃するとAPが消費される", func(t *testing.T) {
@@ -237,24 +235,21 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 			Timer:    90,
 		})
 
-		enemy, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
+		_, err = lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 9}, "fireball")
 		require.NoError(t, err)
 		turnBased := world.Components.TurnBased.Get(player)
 		initialAP := turnBased.AP.Current
-		enemyHP := world.Components.HP.Get(enemy)
-		initialEnemyHP := enemyHP.Current
 
 		// 攻撃を実行
 		err = activity.ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
 
-		// 検証: Attackが実行される
+		// 検証: 冷えていても近接攻撃が成立し AP を消費する。命中は身体機能で下がるので当否は問わない
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorMelee, result.BehaviorName)
 		assert.True(t, result.Success)
 		assert.Less(t, turnBased.AP.Current, initialAP)
-		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 }
 

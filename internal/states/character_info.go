@@ -27,6 +27,9 @@ const (
 	tabBasic     = "basic"
 )
 
+// healthEntryIndent は健康タブで症状エントリを部位カテゴリ見出しと見分けるための字下げ
+const healthEntryIndent = "  "
+
 type statusTabData struct {
 	ID    string
 	Label string
@@ -222,14 +225,14 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 			conds = hs.Parts[i].Conditions
 		}
 		if len(conds) == 0 {
-			// 症状の無い部位は健康の1エントリを置く
-			items = append(items, statusItemData{Label: query.T(world, "Normal"), BodyPart: part})
+			// 症状の無い部位は健康の1エントリを置く。見出しと区別するため字下げする
+			items = append(items, statusItemData{Label: healthEntryIndent + query.T(world, "Normal"), BodyPart: part})
 			continue
 		}
-		// 症状ごとに1エントリ。値に進行度を出し、詳細は healthDetailContent が1症状ぶん組む
+		// 症状ごとに1エントリ。見出しと区別するため字下げし、値に進行度を出す
 		for _, cond := range conds {
 			items = append(items, statusItemData{
-				Label:         translatedConditionName(world, cond),
+				Label:         healthEntryIndent + translatedConditionName(world, cond),
 				Value:         fmt.Sprintf("%d%%", int(cond.Timer)),
 				BodyPart:      part,
 				ConditionType: cond.Type,

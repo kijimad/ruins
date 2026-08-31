@@ -334,6 +334,16 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 	hitRate = getSkillMult(attacker, attack, world, false).ApplyInt(hitRate)
 	hitRate += modifier
 
+	// 攻撃者の身体機能を掛ける。近接は操作で振るい、遠隔は視覚で狙う。腕の怪我や意識低下で命中が落ちる
+	if world.Components.HealthStatus.Has(attacker) {
+		caps := world.Components.HealthStatus.Get(attacker).Capacities()
+		aim := caps.Manipulation
+		if _, ranged := gc.GetRangeParams(attack.GetAttackCategory()); ranged {
+			aim = caps.Sight
+		}
+		hitRate = aim.ApplyInt(hitRate)
+	}
+
 	if hitRate > formula.MaxHitRate {
 		hitRate = formula.MaxHitRate
 	}

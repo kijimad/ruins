@@ -98,16 +98,8 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			query.GetVisionState(world).RequestUpdate()
 		}
 
-		// 健康ペナルティを加算
-		if world.Components.HealthStatus.Has(entity) {
-			hs := world.Components.HealthStatus.Get(entity)
-			abils.Vitality.Modifier += hs.GetStatModifier(gc.StatVitality)
-			abils.Strength.Modifier += hs.GetStatModifier(gc.StatStrength)
-			abils.Sensation.Modifier += hs.GetStatModifier(gc.StatSensation)
-			abils.Dexterity.Modifier += hs.GetStatModifier(gc.StatDexterity)
-			abils.Agility.Modifier += hs.GetStatModifier(gc.StatAgility)
-			abils.Defense.Modifier += hs.GetStatModifier(gc.StatDefense)
-		}
+		// 不調は能力値を直接いじらず、身体機能 capacity として各行動の効率へ効かせる。
+		// capacity は HealthStatus.Capacities から読み取り時に導出する
 
 		// Total を計算
 		abils.Vitality.Total = abils.Vitality.Base + abils.Vitality.Modifier

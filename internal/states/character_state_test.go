@@ -110,7 +110,6 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 		Timer:       60,
 		Severity:    gc.SeverityMedium,
 		TendQuality: 150,
-		Effects:     []gc.StatEffect{{Stat: gc.StatDexterity, Value: -4}, {Stat: gc.StatAgility, Value: -2}},
 	})
 
 	props, err := state.Fetch(world)
@@ -143,23 +142,24 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	assert.Equal(t, "Fracture(Medium)", content.Name, "見出しは症状名")
 	assert.Contains(t, content.Desc, "broken bone", "概要説明を持つ")
 
-	var prog, tend, dex, agi string
+	var prog, tend, pain, manip string
 	for _, r := range content.Rows {
 		switch r.Label {
 		case "Progress":
 			prog = r.Value
 		case "Treatment":
 			tend = r.Value
-		case "Dexterity":
-			dex = r.Value
-		case "Agility":
-			agi = r.Value
+		case "Pain":
+			pain = r.Value
+		case "Manipulation":
+			manip = r.Value
 		}
 	}
 	assert.Equal(t, "60%", prog, "進行度をタイマーから出す")
 	assert.Equal(t, "Tended 150%", tend, "治療済みと質")
-	assert.Equal(t, "-4", dex, "影響に器用のデバフ")
-	assert.Equal(t, "-2", agi, "影響に敏捷のデバフ")
+	// 腕の骨折(中)は痛み +24、操作 -30。身体機能へ効かせる
+	assert.Equal(t, "+24", pain, "痛みを与える")
+	assert.Equal(t, "-30", manip, "腕の不調は操作を下げる")
 }
 
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {
