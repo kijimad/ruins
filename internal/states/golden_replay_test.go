@@ -515,8 +515,9 @@ func TestGolden(t *testing.T) {
 			steps: []replayStep{
 				{action: inputmapper.ActionMenuSelect}, // 武器スロット1の初期装備で装備選択を push する
 				{},                                     // push した装備選択メニューをシードさせる待ち手
+				{shot: true, suffix: "List"},           // 「外す」を先頭に置く候補一覧を撮る
 				{action: inputmapper.ActionMenuDown},   // 先頭「外す」から候補クレイモアへ
-				{action: inputmapper.ActionOpenItemDetail, shot: true}, // x で詳細を開き現装備との比較を撮る
+				{action: inputmapper.ActionOpenItemDetail, shot: true, suffix: "Detail"}, // x で詳細を開き現装備との比較を撮る
 			},
 		},
 	}

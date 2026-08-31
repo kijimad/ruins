@@ -128,10 +128,8 @@ func (st *EquipSelectState) compareContents(world w.World) ([]overlay.DetailCont
 	if !ok {
 		return nil, false
 	}
+	// 「外す」は装備済みのときだけ選べるので previousEquipment は非nil
 	if choice.unequip {
-		if st.previousEquipment == nil {
-			return nil, false
-		}
 		return []overlay.DetailContent{overlay.EntityDetailContent(world, *st.previousEquipment)}, true
 	}
 	candidate := overlay.EntityDetailContent(world, choice.entity)
