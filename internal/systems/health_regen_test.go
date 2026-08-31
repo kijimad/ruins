@@ -9,6 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// HealthRegenSystem は ActiveFilter1[HP] で回すだけなので裸エンティティで動作する。
+// あえて SpawnPlayer を使わないのは、能力値と満腹度を持たせず代謝を確定的に100%へ固定し、
+// 回復量を厳密に検証するため。
 func TestHealthRegenSystem_Update(t *testing.T) {
 	t.Parallel()
 

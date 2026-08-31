@@ -13,17 +13,17 @@ import (
 
 // RecoveryMode は不調が未治療のときどう振る舞い、治療でどう治るかを表す。
 // 低体温は TemperatureSystem が体温から進めるのでこの区分には入らない。
-type RecoveryMode int
+type RecoveryMode string
 
 const (
 	// RecoverAfterTend は治療して初めて回復する。未治療は保持し悪化しない。骨折・切り傷。
-	// ただし発症前の掠り傷相当は代謝で僅かに癒える。
-	RecoverAfterTend RecoveryMode = iota
+	// ただし発症前の掠り傷相当は固定量で僅かに癒える。
+	RecoverAfterTend RecoveryMode = "recover_after_tend"
 	// ProgressUntilTend は未治療なら悪化し続け、治療して初めて回復軌道へ乗る。病気。
-	ProgressUntilTend
+	ProgressUntilTend RecoveryMode = "progress_until_tend"
 )
 
-// conditionMinorNaturalRecoveryPerTurn は RecoverAfterTend の不調が発症前のとき代謝で癒える1ターンの量
+// conditionMinorNaturalRecoveryPerTurn は RecoverAfterTend の不調が発症前のとき代謝によらず固定で癒える1ターンの量
 const conditionMinorNaturalRecoveryPerTurn = 1
 
 // conditionSpec は不調の種類ごとの固定パラメータ。ConditionSystem が扱う怪我と病気を定める。
@@ -151,7 +151,7 @@ func conditionTimerDelta(spec conditionSpec, cond *gc.HealthCondition, metab con
 		rec := cond.TendQuality.ApplyInt(spec.RecoverPer)
 		rec = metab.ApplyInt(rec)
 		return -float64(rec)
-	default:
-		return 0
 	}
+	// default を置くと exhaustive linter が沈黙するので置かない。内部の信頼できる値なので未知は panic する
+	panic("unknown RecoveryMode: " + string(spec.Recovery))
 }

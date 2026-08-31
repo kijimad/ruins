@@ -207,7 +207,8 @@ type HealthCondition struct {
 func (hc *HealthCondition) DisplayName() string {
 	name := ConditionTypeDisplayName(hc.Type)
 	if hc.Severity != SeverityNone {
-		name += "(" + hc.Severity.String() + ")"
+		// 丸括弧を避け、重症度は空白で続ける
+		name += " " + hc.Severity.String()
 	}
 	return name
 }

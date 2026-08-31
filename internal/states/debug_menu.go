@@ -172,6 +172,7 @@ func debugTreatAllConditions(world w.World) error {
 	hs := world.Components.HealthStatus.Get(player)
 	for p := range hs.Parts {
 		for i := range hs.Parts[p].Conditions {
+			// 150% は回復1.5倍の良質な治療。回復軌道に乗る様子を確認する
 			hs.Parts[p].Conditions[i].TendQuality = 150
 		}
 	}

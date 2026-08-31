@@ -153,7 +153,7 @@ func TestHealthCondition_DisplayName(t *testing.T) {
 	t.Run("低体温で軽度", func(t *testing.T) {
 		t.Parallel()
 		hc := &HealthCondition{Type: ConditionHypothermia, Severity: SeverityMinor}
-		assert.Equal(t, "Hypothermia(Minor)", hc.DisplayName())
+		assert.Equal(t, "Hypothermia Minor", hc.DisplayName())
 	})
 }
 

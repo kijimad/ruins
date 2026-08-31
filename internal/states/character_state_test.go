@@ -139,7 +139,7 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 
 	// 詳細は選んだ1症状ぶんを組む。名前は症状名、概要と性能行を持つ
 	content := healthDetailContent(world, frac)
-	assert.Equal(t, "Fracture(Medium)", content.Name, "見出しは症状名")
+	assert.Equal(t, "Fracture Medium", content.Name, "見出しは症状名")
 	assert.Contains(t, content.Desc, "broken bone", "概要説明を持つ")
 
 	var prog, tend, pain, manip string

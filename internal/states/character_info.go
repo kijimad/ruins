@@ -196,7 +196,8 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 func translatedConditionName(world w.World, cond gc.HealthCondition) string {
 	name := query.T(world, gc.ConditionTypeDisplayName(cond.Type))
 	if cond.Severity != gc.SeverityNone {
-		name += "(" + query.T(world, cond.Severity.String()) + ")"
+		// 丸括弧を避け、重症度は空白で続ける
+		name += " " + query.T(world, cond.Severity.String())
 	}
 	return name
 }
