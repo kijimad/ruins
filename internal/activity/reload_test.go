@@ -282,3 +282,45 @@ func TestExecute_Reload(t *testing.T) {
 		assert.False(t, world.Components.Activity.Has(player))
 	})
 }
+
+func TestReloadBehavior_Validate_敵が隣接していると開始できない(t *testing.T) {
+	t.Parallel()
+	world, player, _, weaponEntity := setupShootingWorld(t)
+
+	fire := world.Components.Fire.Get(weaponEntity)
+	fire.Magazine = 0
+
+	// プレイヤー{10,10}の隣接タイルに敵を置く
+	_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 11, Y: 10}, "fireball")
+	require.NoError(t, err)
+
+	ra := &ReloadBehavior{}
+	comp := NewActivity(gc.BehaviorReload, 0)
+	err = ra.Validate(comp, player, world)
+	var ve *UserError
+	assert.ErrorAs(t, err, &ve, "敵が隣接していると装填を始められない")
+}
+
+func TestReloadBehavior_DoTurn_敵が接近すると中断する(t *testing.T) {
+	t.Parallel()
+	world, player, _, weaponEntity := setupShootingWorld(t)
+
+	fire := world.Components.Fire.Get(weaponEntity)
+	fire.Magazine = 0
+
+	ra := &ReloadBehavior{}
+	// 1ターンで完了しない大きな工数にして、途中で敵が接近する状況を作る
+	comp := NewActivity(gc.BehaviorReload, 1000)
+	require.NoError(t, ra.Validate(comp, player, world))
+	require.NoError(t, ra.Start(comp, player, world))
+	require.NoError(t, ra.DoTurn(comp, player, world))
+	require.Equal(t, gc.ActivityStateRunning, comp.State, "敵がいなければ装填を続ける")
+
+	// 装填の途中で敵が隣接タイルまで近づいてきた
+	_, err := lifecycle.SpawnEnemy(world, consts.Coord[consts.Tile]{X: 10, Y: 11}, "fireball")
+	require.NoError(t, err)
+
+	require.NoError(t, ra.DoTurn(comp, player, world))
+	assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	assert.Equal(t, "reload interrupted because enemies are nearby", comp.CancelReason)
+}

@@ -1470,6 +1470,12 @@ msgstr "装填完了（%d/%d）"
 msgid "interrupted reloading"
 msgstr "装填を中断した"
 
+msgid "cannot reload because enemies are nearby"
+msgstr "周囲に敵がいるため装填できない"
+
+msgid "reload interrupted because enemies are nearby"
+msgstr "周囲に敵がいるため装填を中断"
+
 msgid "rest interrupted because enemies are nearby"
 msgstr "周囲に敵がいるため休息を中断"
 
