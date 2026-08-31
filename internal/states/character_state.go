@@ -139,8 +139,7 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
 	}
 }
 
-// onBrowseSelect は閲覧中の Enter を処理する。装備タブは装備選択を開き、情報タブは詳細を開く。
-// 装備済みスロットでも即座に外さず装備選択を開く。外すは選択の先頭の項目として選ぶ
+// onBrowseSelect は閲覧中の Enter を処理する。装備タブは装備選択を開き、情報タブは詳細を開く
 func (st *CharacterState) onBrowseSelect(world w.World) {
 	cursor := st.screen.Selection()
 	props := st.screen.Props()

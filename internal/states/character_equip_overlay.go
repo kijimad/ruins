@@ -62,8 +62,7 @@ type equipChoice struct {
 	entity  ecs.Entity
 }
 
-// equipChoiceAt は候補一覧の index を選択へ写す。装備済みなら先頭が「外す」で、候補は1つ後ろへ詰まる。
-// 描画とロジックの両方がこの1つの写像を通り、先頭「外す」ぶんのずれを二重に数えない
+// equipChoiceAt は候補一覧の index を選択へ写す。装備済みなら先頭が「外す」で、候補は1つ後ろへ詰まる
 func equipChoiceAt(props charEquipProps, index int) (equipChoice, bool) {
 	if props.PreviousEquipment != nil {
 		if index == 0 {
@@ -178,8 +177,7 @@ func equipChoiceCount(props charEquipProps) int {
 	return len(props.Items)
 }
 
-// buildEquipSelectUI はアイコン付きの候補一覧を中央パネルへ組む。装備済みなら先頭に「外す」が並ぶ。
-// 他のアイテムメニューと同じモーダル一覧で、性能の比較は x で開く詳細モーダルが受け持つ
+// buildEquipSelectUI はアイコン付きの候補一覧を中央パネルへ組む。装備済みなら先頭に「外す」が並ぶ
 func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) uicore.Drawable {
 	var rows []menuframe.Row
 	if props.PreviousEquipment != nil {
@@ -194,8 +192,7 @@ func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, 
 }
 
 // detailContent は装備選択中の詳細内容を返す。候補なら現装備との差分付き、
-// 「外す」なら外す対象の性能を出す。選択が無ければ ok=false。
-// 差分の色分けを詳細モーダルへ流し込み、他アイテムの詳細と同じ枠で比較を見せる
+// 「外す」なら外す対象の性能を出す。選択が無ければ ok=false
 func (o *characterEquipOverlay) detailContent(world w.World) (overlay.DetailContent, bool) {
 	choice, ok := o.selection()
 	if !ok {
@@ -208,7 +205,6 @@ func (o *characterEquipOverlay) detailContent(world w.World) (overlay.DetailCont
 		}
 		return overlay.EntityDetailContent(world, *props.PreviousEquipment), true
 	}
-	// 名前と説明は実体から組み、性能行だけ現装備との差分に差し替える
 	dc := overlay.EntityDetailContent(world, choice.entity)
 	dc.Rows = equipCompareRows(world, choice.entity, props.PreviousEquipment)
 	return dc, true

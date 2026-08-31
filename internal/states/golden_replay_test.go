@@ -486,6 +486,23 @@ func TestGolden(t *testing.T) {
 				{action: inputmapper.ActionMenuSelect, shot: true}, // 空スロットで装備選択を開いた画を撮る
 			},
 		},
+		// EquipCompare は装備済みスロットの装備選択から詳細を開き、現装備との性能差が色分けで
+		// 併記される画を撮る。武器スロット1は初期装備で埋まるので、そこで装備選択を開き、
+		// 先頭の「外す」を1つ飛ばした候補へカーソルを移してから詳細を開く
+		{
+			name: "EquipCompare",
+			build: func(world w.World) ([]es.State[w.World], error) {
+				if _, err := lifecycle.SpawnBackpackItem(world, "claymore", 1); err != nil {
+					return nil, err
+				}
+				return []es.State[w.World]{&gs.CharacterState{}}, nil
+			},
+			steps: []replayStep{
+				{action: inputmapper.ActionMenuSelect},                 // 武器スロット1の初期装備で装備選択を開く
+				{action: inputmapper.ActionMenuDown},                   // 先頭「外す」から候補クレイモアへ
+				{action: inputmapper.ActionOpenItemDetail, shot: true}, // x で詳細を開き現装備との差分を撮る
+			},
+		},
 	}
 
 	for _, tc := range cases {
