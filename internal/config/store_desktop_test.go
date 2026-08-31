@@ -3,6 +3,7 @@
 package config
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -158,6 +159,109 @@ func TestLoadUserConfig_保存済み設定を読み込んで上書きする(t *t
 	require.NoError(t, err)
 	assert.Equal(t, 1280, c.User.WindowWidth)
 	assert.Equal(t, 720, c.User.WindowHeight) // 保存に無いフィールドはデフォルトが残る
+}
+
+func TestUserConfigPath_HOMEもXDG_CONFIG_HOMEも無ければエラーになる(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	_, err := userConfigPath()
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to get config directory")
+}
+
+func TestReadSettings_userConfigPathの解決に失敗するとエラーを返す(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	_, _, err := readSettings()
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to get config directory")
+}
+
+func TestWriteSettings_userConfigPathの解決に失敗するとエラーを返す(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+
+	err := writeSettings([]byte("x"))
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to get config directory")
+}
+
+func TestReadSettingsFrom_ファイル以外が原因の読み込み失敗はエラーを返す(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	// パスをファイルではなくディレクトリにして、ENOENT以外の理由で読み込みを失敗させる
+	adir := filepath.Join(dir, "adir")
+	require.NoError(t, os.Mkdir(adir, 0o755))
+
+	_, _, err := readSettingsFrom(adir)
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to read config file")
+}
+
+func TestSettingsExistAt_ファイル以外が原因の確認失敗はエラーを返す(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	// パス途中の要素をディレクトリではなくファイルにして、ENOENT以外の理由で確認を失敗させる
+	notADir := filepath.Join(dir, "notadir")
+	require.NoError(t, os.WriteFile(notADir, []byte("x"), 0o644))
+	path := filepath.Join(notADir, "settings.toml")
+
+	_, err := settingsExistAt(path)
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to check config file existence")
+}
+
+func TestWriteSettingsTo_ディレクトリ作成に失敗するとエラーを返す(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	// パス途中の要素をディレクトリではなくファイルにして、MkdirAllを失敗させる
+	notADir := filepath.Join(dir, "notadir")
+	require.NoError(t, os.WriteFile(notADir, []byte("x"), 0o644))
+	path := filepath.Join(notADir, "sub", "settings.toml")
+
+	err := writeSettingsTo(path, []byte("x"))
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to create config directory")
+}
+
+func TestWriteSettingsTo_一時ファイルの書き込みに失敗するとエラーを返す(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "settings.toml")
+	// 一時ファイルのパスを先にディレクトリとして作っておき、WriteFileを失敗させる
+	require.NoError(t, os.Mkdir(path+".tmp", 0o755))
+
+	err := writeSettingsTo(path, []byte("x"))
+
+	require.Error(t, err)
+	assert.ErrorContains(t, err, "failed to write config file")
+}
+
+func TestWriteSettingsTo_リネームに失敗するとエラーを返す(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "settings.toml")
+	// 置き換え先を既存のディレクトリにして、Renameを失敗させる
+	require.NoError(t, os.Mkdir(path, 0o755))
+
+	err := writeSettingsTo(path, []byte("x"))
+
+	// 想定どおりのエラーでなければ後続のファイル検査に意味がないので require で止める
+	require.ErrorContains(t, err, "failed to replace config file")
+	assert.NoFileExists(t, path+".tmp") // 失敗時は一時ファイルを削除する
 }
 
 func TestLoadUserConfig_不正なTOMLはエラーを返す(t *testing.T) {

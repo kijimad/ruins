@@ -18,7 +18,7 @@ func TestOverworldDaylightAnchor(t *testing.T) {
 		tod  gc.TimeOfDay
 		want float64
 	}{
-		{"夜明けは薄明るい", gc.TimeDawn, 0.55},
+		{"夜明けは薄明るい", gc.TimeDawn, 0.65},
 		{"朝は明るい", gc.TimeMorning, 0.72},
 		{"昼は最も明るい", gc.TimeDay, 0.95},
 		{"夕は薄明るい", gc.TimeEvening, 0.55},
@@ -59,16 +59,13 @@ func TestOverworldDaylightAnchor_昼夜の大小関係(t *testing.T) {
 func TestOverworldAmbientColorAnchor(t *testing.T) {
 	t.Parallel()
 
-	// 昼は無彩色
 	assert.Equal(t, [3]float64{1, 1, 1}, overworldAmbientColorAnchor(gc.TimeDay), "昼は無彩色")
 
-	// 朝夕は暖色。赤が青より強い
 	for _, tod := range []gc.TimeOfDay{gc.TimeDawn, gc.TimeEvening} {
 		c := overworldAmbientColorAnchor(tod)
 		assert.Greater(t, c[0], c[2], "朝夕は暖色で赤が強い")
 	}
 
-	// 夜・深夜は寒色。青が赤より強い
 	for _, tod := range []gc.TimeOfDay{gc.TimeNight, gc.TimeMidnight} {
 		c := overworldAmbientColorAnchor(tod)
 		assert.Greater(t, c[2], c[0], "夜は寒色で青が強い")
@@ -79,11 +76,11 @@ func TestOverworldAmbientColorAnchor(t *testing.T) {
 func TestOverworldAmbientColor_連続補間(t *testing.T) {
 	t.Parallel()
 
-	// 夕の中心(turn 375)は夕の代表色そのもの
-	assert.Equal(t, [3]float64{1.0, 0.72, 0.52}, overworldAmbientColor(&gc.GameTime{TotalTurns: 375}), "夕の中心は夕の色")
+	// 夕の中心(turn 875)は夕の代表色そのもの
+	assert.Equal(t, [3]float64{1.0, 0.72, 0.52}, overworldAmbientColor(&gc.GameTime{TotalTurns: 875}), "夕の中心は夕の色")
 
-	// 夕の入り口(turn 250)は昼(無彩色)と夕の中間。まだ暖色寄りだが夕ほど濃くない
-	c := overworldAmbientColor(&gc.GameTime{TotalTurns: 250})
+	// 夕の入り口(turn 750)は昼(無彩色)と夕の中間。まだ暖色寄りだが夕ほど濃くない
+	c := overworldAmbientColor(&gc.GameTime{TotalTurns: 750})
 	assert.InDelta(t, (1.0+1.0)/2, c[0], 1e-9, "赤は昼と夕の中間")
 	assert.InDelta(t, (1.0+0.72)/2, c[1], 1e-9, "緑は昼と夕の中間")
 	assert.Greater(t, c[2], 0.52, "夕の入り口は夕の中心より青が残り色が薄い")
@@ -94,21 +91,21 @@ func TestOverworldAmbientColor_連続補間(t *testing.T) {
 func TestOverworldDaylight_連続補間(t *testing.T) {
 	t.Parallel()
 
-	// turnsPerTimeOfDay=250。各時間帯の中心は 125 + 250*idx
-	eveningCenter := &gc.GameTime{TotalTurns: 375} // 夕の中心
+	// turnsPerTimeOfDay=250。夜明け始まりなので各時間帯の中心は 125 + 250*idx（昼=625, 夕=875）
+	eveningCenter := &gc.GameTime{TotalTurns: 875} // 夕の中心
 	assert.InDelta(t, 0.55, overworldDaylight(eveningCenter), 1e-9, "夕の中心は夕の代表値")
 
-	// 夕の入り口(turn 250)は昼と夕の中間。フラットな夕より明るく、夜っぽくない
-	eveningStart := &gc.GameTime{TotalTurns: 250}
+	// 夕の入り口(turn 750)は昼と夕の中間。フラットな夕より明るく、夜っぽくない
+	eveningStart := &gc.GameTime{TotalTurns: 750}
 	got := overworldDaylight(eveningStart)
 	assert.InDelta(t, (0.95+0.55)/2, got, 1e-9, "夕の入り口は昼と夕の中間")
 	assert.Greater(t, got, overworldDaylightAnchor(gc.TimeEvening), "夕の入り口はフラットな夕より明るい")
 
 	// 夕の入り口から夜の入り口へ向けて単調に暗くなる
-	assert.Greater(t, overworldDaylight(&gc.GameTime{TotalTurns: 250}),
-		overworldDaylight(&gc.GameTime{TotalTurns: 400}), "夕は進むほど暗くなる")
-	assert.Greater(t, overworldDaylight(&gc.GameTime{TotalTurns: 400}),
-		overworldDaylight(&gc.GameTime{TotalTurns: 500}), "夜へ向けてさらに暗くなる")
+	assert.Greater(t, overworldDaylight(&gc.GameTime{TotalTurns: 750}),
+		overworldDaylight(&gc.GameTime{TotalTurns: 900}), "夕は進むほど暗くなる")
+	assert.Greater(t, overworldDaylight(&gc.GameTime{TotalTurns: 900}),
+		overworldDaylight(&gc.GameTime{TotalTurns: 1000}), "夜へ向けてさらに暗くなる")
 }
 
 // TestOverworldDaylight_一日を通して単調に増減する は、昼の中心から深夜の中心まで単調に暗くなり、
@@ -120,14 +117,14 @@ func TestOverworldDaylight_一日を通して単調に増減する(t *testing.T)
 		return overworldDaylight(&gc.GameTime{TotalTurns: turn})
 	}
 
-	// 昼の中心 125 から深夜の中心 875 まで、暗くなり続ける
-	for turn := consts.Turn(125); turn < 875; turn += 25 {
+	// 昼の中心 625 から深夜の中心 1375 まで、暗くなり続ける
+	for turn := consts.Turn(625); turn < 1375; turn += 25 {
 		assert.Greater(t, daylightAt(turn), daylightAt(turn+25),
 			"昼から深夜へ向かう %d→%d は暗くなる", turn, turn+25)
 	}
 
-	// 深夜の中心 875 から翌日の昼の中心 1625 まで、明るくなり続ける
-	for turn := consts.Turn(875); turn < 1625; turn += 25 {
+	// 深夜の中心 1375 から翌日の昼の中心 2125 まで、明るくなり続ける
+	for turn := consts.Turn(1375); turn < 2125; turn += 25 {
 		assert.Less(t, daylightAt(turn), daylightAt(turn+25),
 			"深夜から翌昼へ向かう %d→%d は明るくなる", turn, turn+25)
 	}

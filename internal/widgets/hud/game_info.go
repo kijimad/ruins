@@ -133,7 +133,7 @@ func (info *GameInfo) drawTemperatureArrow(cv uicore.Canvas, arrow TemperatureAr
 	drawOutlinedText(cv, glyph, info.bodyFace, image.Pt(int(gaugeBaseX), y), arrow.Color)
 }
 
-// drawBodyTemperature は体温ゲージを最上段に描く。中央が平熱で、左へ冷え、右へ火照る
+// drawBodyTemperature は体温ゲージを最上段に描く。体温は片方向で、満タンが平熱、減って青くなるほど冷える
 func (info *GameInfo) drawBodyTemperature(cv uicore.Canvas, data GameInfoData) {
 	if !data.BodyTempVisible {
 		return
@@ -143,12 +143,10 @@ func (info *GameInfo) drawBodyTemperature(cv uicore.Canvas, data GameInfoData) {
 	info.drawGaugeBar(cv, x, y, gaugeWidth, data.BodyTempRatio, bodyTempFillColor(data.BodyTempRatio), theme.HUDGaugeBorder)
 }
 
-// bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青、火照るほど赤へ寄る
+// bodyTempFillColor は体温ゲージの塗り色を返す。平熱の白から、冷えるほど青へ寄る片方向
 func bodyTempFillColor(ratio float64) color.RGBA {
-	if ratio < 0.5 {
-		return lerpColor(theme.HUDTempNeutral, theme.HUDTempCold, (0.5-ratio)*2)
-	}
-	return lerpColor(theme.HUDTempNeutral, theme.HUDTempHot, (ratio-0.5)*2)
+	// 体温は片方向。0が平熱かつ上限で寒さ方向へ負に動くので、ratio=1 が平熱、下がるほど冷えの色へ寄る
+	return lerpColor(theme.HUDTempNeutral, theme.HUDTempCold, 1-ratio)
 }
 
 // lerpColor は2色を t (0..1) で線形補間する。ゲージの塗りを比率で連続に変えるのに使う
