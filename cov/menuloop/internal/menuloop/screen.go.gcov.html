@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-31 13:00:50</td>
+            <td class="headerValue">2026-08-31 15:00:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -202,134 +202,136 @@
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L141"><span class="lineNum">     141</span>              :         // 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を dispatch の連鎖へ流す。</span>
 <span id="L142"><span class="lineNum">     142</span>              :         // overlay が絡んだフレームは内容が入力で変わりうるので後段で必ず dirty にする</span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         ovBefore := s.activeOverlay()</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         if ovBefore != nil {</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 if err := ovBefore.HandleInput(world); err != nil {</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                         return es.Transition[w.World]{}, err</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         } else if action, ok := keybind.ReadInput(world, s.table); ok {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 if tr, err := s.dispatch(world, action); err != nil {</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                         return es.Transition[w.World]{}, err</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           2 :                 } else if tr.Type != es.TransNone {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         return tr, nil</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L154"><span class="lineNum">     154</span>              :         }</span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         props, err := m.Fetch(world)</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC tlaBgGNC">           1 :         s.mount.SetProps(props)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         cfg := s.resolveConfig(world, m.Menu(props))</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         if cfg.TabCount &gt; 0 {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 hooks.UseTabMenu(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         TabCount:     cfg.TabCount,</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                         ItemCounts:   cfg.ItemCounts,</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         ItemsPerPage: cfg.ItemsPerPage,</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                         Skips:        cfg.Skips,</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 if !s.seeded {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         if cfg.InitialTab &gt; 0 {</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC tlaBgUNC">           0 :                                 s.setTab(cfg, cfg.InitialTab)</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC tlaBgGNC">           1 :                         s.seeded = true</span></span>
-<span id="L174"><span class="lineNum">     174</span>              :                 }</span>
-<span id="L175"><span class="lineNum">     175</span>              :         }</span>
-<span id="L176"><span class="lineNum">     176</span>              : </span>
-<span id="L177"><span class="lineNum">     177</span>              :         // mount の dirty を読む。初回・props 変化・入力受理のいずれかで立つ。カーソルは Dispatch で更新済み</span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         changed := s.mount.Update()</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         sel := s.selection(cfg)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L181"><span class="lineNum">     181</span>              :         // dirty なフレームだけ widget ツリーを組み直す。mount の dirty を状態変化の答えとし、</span>
-<span id="L182"><span class="lineNum">     182</span>              :         // hooks の外にある overlay だけ別途 OR する。overlay が開閉・表示中のフレームは窓内容が</span>
-<span id="L183"><span class="lineNum">     183</span>              :         // 入力で変わりうるので常に組み直す</span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         overlayInvolved := ovBefore != nil || s.activeOverlay() != nil</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         dirty := s.bodyTree == nil || overlayInvolved || changed</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         if dirty {</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                 s.bodyTree = m.ViewUI(world, props, sel, world.Resources.UIResources)</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 s.pendingOverlays = s.pendingOverlays[:0]</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 rect := menuframe.WindowRect(world)</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 // overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、</span></span>
-<span id="L191"><span class="lineNum">     191</span>              :                 // 描画は逆順に溜め、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に</span>
-<span id="L192"><span class="lineNum">     192</span>              :                 // 隠れて操作不能になるのを防ぐ。ツリーは Draw で本体の上へ重ねる</span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 for _, ov := range slices.Backward(s.overlays) {</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                         if !ov.Active() {</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
-<span id="L196"><span class="lineNum">     196</span>              :                         }</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC tlaBgGNC">           1 :                         if r, ok := ov.(overlay.ScreenRenderer); ok {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC tlaBgUNC">           0 :                                 if tree := r.RenderOverlay(world, rect); tree != nil {</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                                         s.pendingOverlays = append(s.pendingOverlays, tree)</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                                 }</span></span>
-<span id="L201"><span class="lineNum">     201</span>              :                         }</span>
-<span id="L202"><span class="lineNum">     202</span>              :                 }</span>
-<span id="L203"><span class="lineNum">     203</span>              :         }</span>
-<span id="L204"><span class="lineNum">     204</span>              : </span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">           1 :         s.lastSelection = sel</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         return m.ConsumeTransition(), nil</span></span>
-<span id="L207"><span class="lineNum">     207</span>              : }</span>
-<span id="L208"><span class="lineNum">     208</span>              : </span>
-<span id="L209"><span class="lineNum">     209</span>              : // SetTab は指定タブへ直接カーソルを移す。キー入力を介さずにタブを設定する。</span>
-<span id="L210"><span class="lineNum">     210</span>              : // DoAction など入力処理の最中に呼ぶ。同じフレームの再構築で移動が反映される。</span>
-<span id="L211"><span class="lineNum">     211</span>              : // UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する。</span>
-<span id="L212"><span class="lineNum">     212</span>              : // 構成は model から導出するので呼び出し側は tab 番号だけを渡す</span>
-<span id="L213"><span class="lineNum">     213</span>              : func (s *Screen[P]) SetTab(tab int) {</span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         cfg := s.model.Menu(s.Props())</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         if cfg.ItemsPerPage == ItemsPerPageAuto {</span></span>
-<span id="L216"><span class="lineNum">     216</span>              :                 // SetTab は Update 後に呼ぶ前提なので、Update が測定済みの値をそのまま使う</span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC tlaBgUNC">           0 :                 cfg.ItemsPerPage = s.pageSize</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC tlaBgGNC">           1 :         s.setTab(cfg, tab)</span></span>
-<span id="L220"><span class="lineNum">     220</span>              : }</span>
-<span id="L221"><span class="lineNum">     221</span>              : </span>
-<span id="L222"><span class="lineNum">     222</span>              : // resolveConfig は MenuConfig の ItemsPerPageAuto を実測のページ行数へ解決する。</span>
-<span id="L223"><span class="lineNum">     223</span>              : // 測定は Auto 指定の画面が最初に通ったときだけ行い、以後は測定済みの値を使う</span>
-<span id="L224"><span class="lineNum">     224</span>              : func (s *Screen[P]) resolveConfig(world w.World, cfg MenuConfig) MenuConfig {</span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         if cfg.ItemsPerPage == ItemsPerPageAuto {</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC tlaBgUNC">           0 :                 if s.pageSize == 0 {</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                         s.pageSize = menuframe.ListCapacity(world, false, true)</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                 cfg.ItemsPerPage = s.pageSize</span></span>
-<span id="L230"><span class="lineNum">     230</span>              :         }</span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC tlaBgGNC">           1 :         return cfg</span></span>
-<span id="L232"><span class="lineNum">     232</span>              : }</span>
-<span id="L233"><span class="lineNum">     233</span>              : </span>
-<span id="L234"><span class="lineNum">     234</span>              : // setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する</span>
-<span id="L235"><span class="lineNum">     235</span>              : func (s *Screen[P]) setTab(cfg MenuConfig, tab int) {</span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         if cfg.TabCount == 0 || tab &lt; 0 || tab &gt;= cfg.TabCount {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         hooks.SetTab(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 TabCount:     cfg.TabCount,</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 ItemCounts:   cfg.ItemCounts,</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 ItemsPerPage: cfg.ItemsPerPage,</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 Skips:        cfg.Skips,</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         }, tab)</span></span>
-<span id="L245"><span class="lineNum">     245</span>              : }</span>
-<span id="L246"><span class="lineNum">     246</span>              : </span>
-<span id="L247"><span class="lineNum">     247</span>              : // Selection は前フレームで確定したカーソル位置を返す。カーソルは DoAction のあとの</span>
-<span id="L248"><span class="lineNum">     248</span>              : // Dispatch で更新されるため、DoAction 内で読むと更新前、つまり画面に見えている確定位置になる</span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 : func (s *Screen[P]) Selection() Selection { return s.lastSelection }</span></span>
-<span id="L250"><span class="lineNum">     250</span>              : </span>
-<span id="L251"><span class="lineNum">     251</span>              : // selection は現在のカーソル位置を mount から読む。一覧を持たない画面はゼロ値</span>
-<span id="L252"><span class="lineNum">     252</span>              : func (s *Screen[P]) selection(cfg MenuConfig) Selection {</span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         if cfg.TabCount == 0 {</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :                 return Selection{}</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         ms, _ := hooks.GetState[hooks.TabMenuState](s.mount, cfg.Key)</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         return Selection{TabIndex: ms.TabIndex, ItemIndex: ms.ItemIndex, PageSize: cfg.ItemsPerPage}</span></span>
-<span id="L258"><span class="lineNum">     258</span>              : }</span>
-<span id="L259"><span class="lineNum">     259</span>              : </span>
-<span id="L260"><span class="lineNum">     260</span>              : // Draw は保持中の UI を描き、その上に ScreenRenderer な overlay を重ねる。</span>
-<span id="L261"><span class="lineNum">     261</span>              : // 各 state の Draw はこれへ委譲する</span>
-<span id="L262"><span class="lineNum">     262</span>              : func (s *Screen[P]) Draw(screen *ebiten.Image) {</span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         cv := uicore.NewEbitenCanvas(screen)</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :         if s.bodyTree != nil {</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 s.bodyTree.Draw(cv)</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :         for _, tree := range s.pendingOverlays {</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC tlaBgUNC">           0 :                 tree.Draw(cv)</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L270"><span class="lineNum">     270</span>              : }</span>
+<span id="L143"><span class="lineNum">     143</span>              :         // 入力ゲート。Active な最上位 overlay が入力を専有し、無ければ通常入力を dispatch の連鎖へ流す。</span>
+<span id="L144"><span class="lineNum">     144</span>              :         // overlay と Screen が同一フレームで二度読まないよう、どちらか一方だけが読む</span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         ovBefore := s.activeOverlay()</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         if ovBefore != nil {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 if err := ovBefore.HandleInput(world); err != nil {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                         return es.Transition[w.World]{}, err</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         } else if action, ok := keybind.ReadInput(world, s.table); ok {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 if tr, err := s.dispatch(world, action); err != nil {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                         return es.Transition[w.World]{}, err</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           2 :                 } else if tr.Type != es.TransNone {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                         return tr, nil</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :         }</span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         props, err := m.Fetch(world)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, err</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC tlaBgGNC">           1 :         s.mount.SetProps(props)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         cfg := s.resolveConfig(world, m.Menu(props))</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         if cfg.TabCount &gt; 0 {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 hooks.UseTabMenu(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         TabCount:     cfg.TabCount,</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                         ItemCounts:   cfg.ItemCounts,</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                         ItemsPerPage: cfg.ItemsPerPage,</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                         Skips:        cfg.Skips,</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 if !s.seeded {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                         if cfg.InitialTab &gt; 0 {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC tlaBgUNC">           0 :                                 s.setTab(cfg, cfg.InitialTab)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC tlaBgGNC">           1 :                         s.seeded = true</span></span>
+<span id="L176"><span class="lineNum">     176</span>              :                 }</span>
+<span id="L177"><span class="lineNum">     177</span>              :         }</span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span>              :         // mount の dirty を読む。初回・props 変化・入力受理のいずれかで立つ。カーソルは Dispatch で更新済み</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         changed := s.mount.Update()</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         sel := s.selection(cfg)</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L183"><span class="lineNum">     183</span>              :         // dirty なフレームだけ widget ツリーを組み直す。mount の dirty を状態変化の答えとし、</span>
+<span id="L184"><span class="lineNum">     184</span>              :         // hooks の外にある overlay だけ別途 OR する。overlay が開閉・表示中のフレームは窓内容が</span>
+<span id="L185"><span class="lineNum">     185</span>              :         // 入力で変わりうるので常に組み直す</span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         overlayInvolved := ovBefore != nil || s.activeOverlay() != nil</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         dirty := s.bodyTree == nil || overlayInvolved || changed</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         if dirty {</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 s.bodyTree = m.ViewUI(world, props, sel, world.Resources.UIResources)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 s.pendingOverlays = s.pendingOverlays[:0]</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 rect := menuframe.WindowRect(world)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 // overlay は登録順で入力優先度が決まる。activeOverlay は先頭の Active を入力先にするので、</span></span>
+<span id="L193"><span class="lineNum">     193</span>              :                 // 描画は逆順に溜め、入力を受ける overlay を最前面にする。入れ子で開いた overlay が下に</span>
+<span id="L194"><span class="lineNum">     194</span>              :                 // 隠れて操作不能になるのを防ぐ。ツリーは Draw で本体の上へ重ねる</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 for _, ov := range slices.Backward(s.overlays) {</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                         if !ov.Active() {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
+<span id="L198"><span class="lineNum">     198</span>              :                         }</span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC tlaBgGNC">           1 :                         if r, ok := ov.(overlay.ScreenRenderer); ok {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC tlaBgUNC">           0 :                                 if tree := r.RenderOverlay(world, rect); tree != nil {</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                                         s.pendingOverlays = append(s.pendingOverlays, tree)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L203"><span class="lineNum">     203</span>              :                         }</span>
+<span id="L204"><span class="lineNum">     204</span>              :                 }</span>
+<span id="L205"><span class="lineNum">     205</span>              :         }</span>
+<span id="L206"><span class="lineNum">     206</span>              : </span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC tlaBgGNC">           1 :         s.lastSelection = sel</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         return m.ConsumeTransition(), nil</span></span>
+<span id="L209"><span class="lineNum">     209</span>              : }</span>
+<span id="L210"><span class="lineNum">     210</span>              : </span>
+<span id="L211"><span class="lineNum">     211</span>              : // SetTab は指定タブへ直接カーソルを移す。キー入力を介さずにタブを設定する。</span>
+<span id="L212"><span class="lineNum">     212</span>              : // DoAction など入力処理の最中に呼ぶ。同じフレームの再構築で移動が反映される。</span>
+<span id="L213"><span class="lineNum">     213</span>              : // UseTabMenu 登録後、つまり Update が1度回った後に呼ぶこと。範囲外の tab は無視する。</span>
+<span id="L214"><span class="lineNum">     214</span>              : // 構成は model から導出するので呼び出し側は tab 番号だけを渡す</span>
+<span id="L215"><span class="lineNum">     215</span>              : func (s *Screen[P]) SetTab(tab int) {</span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         cfg := s.model.Menu(s.Props())</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         if cfg.ItemsPerPage == ItemsPerPageAuto {</span></span>
+<span id="L218"><span class="lineNum">     218</span>              :                 // SetTab は Update 後に呼ぶ前提なので、Update が測定済みの値をそのまま使う</span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC tlaBgUNC">           0 :                 cfg.ItemsPerPage = s.pageSize</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC tlaBgGNC">           1 :         s.setTab(cfg, tab)</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : // resolveConfig は MenuConfig の ItemsPerPageAuto を実測のページ行数へ解決する。</span>
+<span id="L225"><span class="lineNum">     225</span>              : // 測定は Auto 指定の画面が最初に通ったときだけ行い、以後は測定済みの値を使う</span>
+<span id="L226"><span class="lineNum">     226</span>              : func (s *Screen[P]) resolveConfig(world w.World, cfg MenuConfig) MenuConfig {</span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         if cfg.ItemsPerPage == ItemsPerPageAuto {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC tlaBgUNC">           0 :                 if s.pageSize == 0 {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                         s.pageSize = menuframe.ListCapacity(world, false, true)</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                 cfg.ItemsPerPage = s.pageSize</span></span>
+<span id="L232"><span class="lineNum">     232</span>              :         }</span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC tlaBgGNC">           1 :         return cfg</span></span>
+<span id="L234"><span class="lineNum">     234</span>              : }</span>
+<span id="L235"><span class="lineNum">     235</span>              : </span>
+<span id="L236"><span class="lineNum">     236</span>              : // setTab は構成を渡してタブを設定する内部処理。Update の初期タブ寄せと公開 SetTab が共有する</span>
+<span id="L237"><span class="lineNum">     237</span>              : func (s *Screen[P]) setTab(cfg MenuConfig, tab int) {</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         if cfg.TabCount == 0 || tab &lt; 0 || tab &gt;= cfg.TabCount {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         hooks.SetTab(s.mount.Store(), cfg.Key, hooks.TabMenuConfig{</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 TabCount:     cfg.TabCount,</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 ItemCounts:   cfg.ItemCounts,</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                 ItemsPerPage: cfg.ItemsPerPage,</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 Skips:        cfg.Skips,</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         }, tab)</span></span>
+<span id="L247"><span class="lineNum">     247</span>              : }</span>
+<span id="L248"><span class="lineNum">     248</span>              : </span>
+<span id="L249"><span class="lineNum">     249</span>              : // Selection は前フレームで確定したカーソル位置を返す。カーソルは DoAction のあとの</span>
+<span id="L250"><span class="lineNum">     250</span>              : // Dispatch で更新されるため、DoAction 内で読むと更新前、つまり画面に見えている確定位置になる</span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 : func (s *Screen[P]) Selection() Selection { return s.lastSelection }</span></span>
+<span id="L252"><span class="lineNum">     252</span>              : </span>
+<span id="L253"><span class="lineNum">     253</span>              : // selection は現在のカーソル位置を mount から読む。一覧を持たない画面はゼロ値</span>
+<span id="L254"><span class="lineNum">     254</span>              : func (s *Screen[P]) selection(cfg MenuConfig) Selection {</span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         if cfg.TabCount == 0 {</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :                 return Selection{}</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         ms, _ := hooks.GetState[hooks.TabMenuState](s.mount, cfg.Key)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :         return Selection{TabIndex: ms.TabIndex, ItemIndex: ms.ItemIndex, PageSize: cfg.ItemsPerPage}</span></span>
+<span id="L260"><span class="lineNum">     260</span>              : }</span>
+<span id="L261"><span class="lineNum">     261</span>              : </span>
+<span id="L262"><span class="lineNum">     262</span>              : // Draw は保持中の UI を描き、その上に ScreenRenderer な overlay を重ねる。</span>
+<span id="L263"><span class="lineNum">     263</span>              : // 各 state の Draw はこれへ委譲する</span>
+<span id="L264"><span class="lineNum">     264</span>              : func (s *Screen[P]) Draw(screen *ebiten.Image) {</span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         cv := uicore.NewEbitenCanvas(screen)</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         if s.bodyTree != nil {</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 s.bodyTree.Draw(cv)</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         for _, tree := range s.pendingOverlays {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC tlaBgUNC">           0 :                 tree.Draw(cv)</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L272"><span class="lineNum">     272</span>              : }</span>
         </pre>
               </td>
             </tr>

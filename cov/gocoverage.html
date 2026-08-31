@@ -471,37 +471,37 @@
 				
 				<option value="file207">github.com/kijimaD/ruins/internal/states/auction_menu.go (0.0%)</option>
 				
-				<option value="file208">github.com/kijimaD/ruins/internal/states/character_equip_overlay.go (80.0%)</option>
+				<option value="file208">github.com/kijimaD/ruins/internal/states/character_info.go (94.7%)</option>
 				
-				<option value="file209">github.com/kijimaD/ruins/internal/states/character_info.go (94.7%)</option>
+				<option value="file209">github.com/kijimaD/ruins/internal/states/character_job.go (50.5%)</option>
 				
-				<option value="file210">github.com/kijimaD/ruins/internal/states/character_job.go (50.5%)</option>
+				<option value="file210">github.com/kijimaD/ruins/internal/states/character_naming.go (76.0%)</option>
 				
-				<option value="file211">github.com/kijimaD/ruins/internal/states/character_naming.go (76.0%)</option>
+				<option value="file211">github.com/kijimaD/ruins/internal/states/character_state.go (66.2%)</option>
 				
-				<option value="file212">github.com/kijimaD/ruins/internal/states/character_state.go (62.7%)</option>
+				<option value="file212">github.com/kijimaD/ruins/internal/states/character_view.go (100.0%)</option>
 				
-				<option value="file213">github.com/kijimaD/ruins/internal/states/character_view.go (100.0%)</option>
+				<option value="file213">github.com/kijimaD/ruins/internal/states/choice.go (79.5%)</option>
 				
-				<option value="file214">github.com/kijimaD/ruins/internal/states/choice.go (79.5%)</option>
+				<option value="file214">github.com/kijimaD/ruins/internal/states/component_debug_state.go (89.1%)</option>
 				
-				<option value="file215">github.com/kijimaD/ruins/internal/states/component_debug_state.go (89.1%)</option>
+				<option value="file215">github.com/kijimaD/ruins/internal/states/craft_menu.go (66.7%)</option>
 				
-				<option value="file216">github.com/kijimaD/ruins/internal/states/craft_menu.go (66.7%)</option>
+				<option value="file216">github.com/kijimaD/ruins/internal/states/cube_panel.go (85.7%)</option>
 				
-				<option value="file217">github.com/kijimaD/ruins/internal/states/cube_panel.go (85.7%)</option>
+				<option value="file217">github.com/kijimaD/ruins/internal/states/debug_menu.go (9.1%)</option>
 				
-				<option value="file218">github.com/kijimaD/ruins/internal/states/debug_menu.go (9.1%)</option>
+				<option value="file218">github.com/kijimaD/ruins/internal/states/demo_start.go (65.5%)</option>
 				
-				<option value="file219">github.com/kijimaD/ruins/internal/states/demo_start.go (65.5%)</option>
+				<option value="file219">github.com/kijimaD/ruins/internal/states/dungeon.go (81.9%)</option>
 				
-				<option value="file220">github.com/kijimaD/ruins/internal/states/dungeon.go (81.9%)</option>
+				<option value="file220">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
 				
-				<option value="file221">github.com/kijimaD/ruins/internal/states/dungeon_3d.go (79.2%)</option>
+				<option value="file221">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (85.2%)</option>
 				
-				<option value="file222">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (85.2%)</option>
+				<option value="file222">github.com/kijimaD/ruins/internal/states/dungeon_input.go (23.9%)</option>
 				
-				<option value="file223">github.com/kijimaD/ruins/internal/states/dungeon_input.go (23.9%)</option>
+				<option value="file223">github.com/kijimaD/ruins/internal/states/equip_select_state.go (82.5%)</option>
 				
 				<option value="file224">github.com/kijimaD/ruins/internal/states/factories.go (62.7%)</option>
 				
@@ -641,9 +641,9 @@
 				
 				<option value="file292">github.com/kijimaD/ruins/internal/widgets/messagewindow/window.go (68.0%)</option>
 				
-				<option value="file293">github.com/kijimaD/ruins/internal/widgets/overlay/detail.go (63.9%)</option>
+				<option value="file293">github.com/kijimaD/ruins/internal/widgets/overlay/detail.go (60.4%)</option>
 				
-				<option value="file294">github.com/kijimaD/ruins/internal/widgets/overlay/detailui.go (100.0%)</option>
+				<option value="file294">github.com/kijimaD/ruins/internal/widgets/overlay/detailui.go (81.7%)</option>
 				
 				<option value="file295">github.com/kijimaD/ruins/internal/widgets/overlay/window.go (100.0%)</option>
 				
@@ -24382,6 +24382,8 @@ func (s *Screen[P]) Update(world w.World) (es.Transition[w.World], error) {
 </span>
         // 入力ゲート。Active な最上位 overlay が専有し、無ければ通常入力を dispatch の連鎖へ流す。
         // overlay が絡んだフレームは内容が入力で変わりうるので後段で必ず dirty にする
+        // 入力ゲート。Active な最上位 overlay が入力を専有し、無ければ通常入力を dispatch の連鎖へ流す。
+        // overlay と Screen が同一フレームで二度読まないよう、どちらか一方だけが読む
         <span class="cov8" title="1">ovBefore := s.activeOverlay()
         if ovBefore != nil </span>{
                 <span class="cov8" title="1">if err := ovBefore.HandleInput(world); err != nil </span>{
@@ -30672,143 +30674,6 @@ func auctionLedgerDetail(world w.World, r auctionLedgerRow) overlay.DetailConten
 		<pre class="file" id="file208" style="display: none">package states
 
 import (
-        "image"
-
-        gc "github.com/kijimaD/ruins/internal/components"
-        "github.com/kijimaD/ruins/internal/hooks"
-        "github.com/kijimaD/ruins/internal/inputmapper"
-        "github.com/kijimaD/ruins/internal/keybind"
-        "github.com/kijimaD/ruins/internal/resources"
-        "github.com/kijimaD/ruins/internal/widgets/menuframe"
-        "github.com/kijimaD/ruins/internal/widgets/overlay"
-        "github.com/kijimaD/ruins/internal/widgets/styled"
-        "github.com/kijimaD/ruins/internal/widgets/uicore"
-        w "github.com/kijimaD/ruins/internal/world"
-        "github.com/kijimaD/ruins/internal/world/lifecycle"
-        "github.com/kijimaD/ruins/internal/world/query"
-        "github.com/mlange-42/ark/ecs"
-)
-
-// characterEquipOverlay は装備選択を Overlay として実装する。第2のカーソル mount を自前で持ち、
-// 装備選択という変則挙動を Screen 本体でなくこの overlay に閉じ込める。x で詳細モーダルを
-// 入れ子に開くため、共有の Detail への参照を持つ
-type characterEquipOverlay struct {
-        active bool
-        mount  *hooks.Mount[charEquipProps]
-        detail *overlay.Detail
-}
-
-var _ overlay.Layer = (*characterEquipOverlay)(nil)
-var _ overlay.ScreenRenderer = (*characterEquipOverlay)(nil)
-
-// newCharacterEquipOverlay は共有の詳細モーダルを参照する装備選択 overlay を作る
-func newCharacterEquipOverlay(detail *overlay.Detail) characterEquipOverlay {
-        <span class="cov8" title="1">return characterEquipOverlay{mount: hooks.NewMount[charEquipProps](), detail: detail}
-</span>}
-
-// Active は装備選択中かを返す
-func (o *characterEquipOverlay) Active() bool { <span class="cov8" title="1">return o.active }</span>
-
-// Open は空スロットに対する装備選択を開き、候補を読み込む
-func (o *characterEquipOverlay) Open(world w.World, slot equipItemData) {
-        // 開くたびに mount を作り直し、再オープン時はカーソルを先頭へ戻す
-        <span class="cov8" title="1">o.mount = hooks.NewMount[charEquipProps]()
-        o.mount.SetProps(charEquipProps{
-                Items:             equipableForSlot(world, slot.SlotNumber),
-                SlotNumber:        slot.SlotNumber,
-                PreviousEquipment: slot.Entity,
-                TargetCharacter:   slot.Character,
-        })
-        o.active = true
-</span>}
-
-// selectedItem は現在カーソルが指す候補を返す。候補が無ければ ok=false
-func (o *characterEquipOverlay) selectedItem() (ecs.Entity, bool) {
-        <span class="cov8" title="1">props := o.mount.GetProps()
-        ms, _ := hooks.GetState[hooks.TabMenuState](o.mount, "char_equip")
-        if ms.ItemIndex &lt; 0 || ms.ItemIndex &gt;= len(props.Items) </span>{
-                <span class="cov8" title="1">return gc.InvalidEntity, false
-</span>        }
-        <span class="cov8" title="1">return props.Items[ms.ItemIndex], true</span>
-}
-
-// HandleInput は装備選択中の入力を処理する。毎フレーム呼ばれるので自前カーソル mount の維持もここで行う。
-// x で詳細を入れ子に開き、Enter で装着して閉じ、Esc で閉じる
-func (o *characterEquipOverlay) HandleInput(world w.World) error {
-        <span class="cov8" title="1">if !o.active </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-        <span class="cov8" title="1">props := o.mount.GetProps()
-        hooks.UseTabMenu(o.mount.Store(), "char_equip", hooks.TabMenuConfig{
-                TabCount:   1,
-                ItemCounts: []int{len(props.Items)},
-        })
-</span>
-        <span class="cov8" title="1">if action, ok := keybind.ReadInput(world, equipSelectTable); ok </span>{
-                <span class="cov0" title="0">switch action </span>{
-                case inputmapper.ActionOpenItemDetail:
-                        <span class="cov0" title="0">o.detail.Open(world)</span>
-                case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-                        <span class="cov0" title="0">o.active = false</span>
-                case inputmapper.ActionMenuSelect:
-                        <span class="cov0" title="0">if err := o.execute(world); err != nil </span>{
-                                <span class="cov0" title="0">return err
-</span>                        }
-                        <span class="cov0" title="0">o.active = false</span>
-                default:
-                        // 移動系は自前カーソルの mount が消費する。それ以外は装備選択中は扱わない
-                        <span class="cov0" title="0">o.mount.DispatchNav(action)</span>
-                }
-        }
-        <span class="cov8" title="1">o.mount.Update()
-        return nil</span>
-}
-
-// execute は選んだ候補を装着する。既存の装備があれば持ち物へ戻す
-func (o *characterEquipOverlay) execute(world w.World) error {
-        <span class="cov8" title="1">props := o.mount.GetProps()
-        ms, _ := hooks.GetState[hooks.TabMenuState](o.mount, "char_equip")
-        if ms.ItemIndex &lt; 0 || ms.ItemIndex &gt;= len(props.Items) </span>{
-                <span class="cov8" title="1">return nil
-</span>        }
-        <span class="cov8" title="1">item := props.Items[ms.ItemIndex]
-        itemName := query.GetEntityName(item, world)
-        if props.PreviousEquipment != nil </span>{
-                <span class="cov8" title="1">if err := lifecycle.MoveToBackpack(world, *props.PreviousEquipment, props.TargetCharacter); err != nil </span>{
-                        <span class="cov0" title="0">return err
-</span>                }
-        }
-        <span class="cov8" title="1">lifecycle.MoveToEquip(world, item, props.TargetCharacter, props.SlotNumber)
-        logEquipChange(world, props.TargetCharacter, itemName, query.T(world, "%s equipped %s."))
-        return nil</span>
-}
-
-// RenderOverlay は装備候補のモーダルを uicore のツリーへ組む。Screen が本体の上へ重ねる。
-func (o *characterEquipOverlay) RenderOverlay(world w.World, _ image.Rectangle) uicore.Drawable {
-        <span class="cov8" title="1">if !o.active </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-        <span class="cov8" title="1">props := o.mount.GetProps()
-        ms, _ := hooks.GetState[hooks.TabMenuState](o.mount, "char_equip")
-        return buildEquipSelectUI(world, props, ms.ItemIndex, world.Resources.UIResources)</span>
-}
-
-// buildEquipSelectUI はアイコン付きの候補一覧を中央パネルへ組む。
-func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, res resources.UIResources) uicore.Drawable {
-        <span class="cov8" title="1">rows := make([]menuframe.Row, len(props.Items))
-        for i, entity := range props.Items </span>{
-                <span class="cov8" title="1">icon := menuIcon(world, entity)
-                rows[i] = menuframe.Row{Cells: []styled.Cell{styled.IconCell(icon), styled.TextCell(query.GetEntityName(entity, world))}}
-</span>        }
-        <span class="cov8" title="1">list, pager := menuframe.RenderList(selectedIndex, rows, styled.Cols(styled.Icon(), styled.Name()),
-                menuframe.ListOpts{EmptyText: query.T(world, "Nothing to equip")}, res)
-        return menuframe.PanelScreen(world, res, query.T(world, "Choose equipment"), list, "", pager)</span>
-}
-</pre>
-		
-		<pre class="file" id="file209" style="display: none">package states
-
-import (
         "fmt"
         "strings"
 
@@ -31083,7 +30948,7 @@ func buildInfoTableUI(world w.World, tab statusTabData, itemIndex int, res resou
 }
 </pre>
 		
-		<pre class="file" id="file210" style="display: none">package states
+		<pre class="file" id="file209" style="display: none">package states
 
 import (
         "fmt"
@@ -31295,7 +31160,7 @@ func buildJobDetailRowsUI(world w.World, props JobMenuProps, itemIndex int, face
 }
 </pre>
 		
-		<pre class="file" id="file211" style="display: none">package states
+		<pre class="file" id="file210" style="display: none">package states
 
 import (
         "fmt"
@@ -31547,7 +31412,7 @@ func (st *CharacterNamingState) buildUI(world w.World) uicore.Drawable {
 }
 </pre>
 		
-		<pre class="file" id="file212" style="display: none">package states
+		<pre class="file" id="file211" style="display: none">package states
 
 import (
         "fmt"
@@ -31564,7 +31429,6 @@ import (
         "github.com/kijimaD/ruins/internal/widgets/overlay"
         w "github.com/kijimaD/ruins/internal/world"
 
-        "github.com/kijimaD/ruins/internal/world/lifecycle"
         "github.com/kijimaD/ruins/internal/world/query"
         "github.com/mlange-42/ark/ecs"
 )
@@ -31635,8 +31499,7 @@ func characterTabLabels(world w.World) []string {
 // CharacterState は画面タブメニューのステート。主人公の装備と情報を閲覧・編集する
 type CharacterState struct {
         es.BaseState[w.World]
-        detail overlay.Detail        // 詳細モーダル。overlay として Screen に登録する
-        equip  characterEquipOverlay // 装備選択。overlay として Screen に登録する
+        detail overlay.Detail // 詳細モーダル。overlay として Screen に登録する
         screen *menuloop.Screen[CharacterProps]
 }
 
@@ -31646,9 +31509,7 @@ var _ menuloop.KeyBindings = &amp;CharacterState{}
 // OnStart はステートが開始される際に呼ばれる
 func (st *CharacterState) OnStart(_ w.World) error {
         <span class="cov8" title="1">st.detail = overlay.NewDetail(st.detailContent)
-        st.equip = newCharacterEquipOverlay(&amp;st.detail)
-</span>        // detail を equip より前に登録する。装備選択中に x で開いた詳細が入力を優先する
-        <span class="cov8" title="1">st.screen = menuloop.NewScreen[CharacterProps](st, &amp;st.detail, &amp;st.equip)
+        st.screen = menuloop.NewScreen[CharacterProps](st, &amp;st.detail)
         return nil
 </span>}
 
@@ -31667,8 +31528,7 @@ func (st *CharacterState) Draw(_ w.World, screen *ebiten.Image) error {
         return nil
 </span>}
 
-// KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く。
-// 装備選択中は overlay が入力を専有するため Screen はこれを読まない
+// KeyBindings は共通入力に加える独自キーの束縛表。x で選択中の詳細モーダルを開く
 func (st *CharacterState) KeyBindings() []keybind.Binding {
         <span class="cov8" title="1">return detailOpenBindings
 </span>}
@@ -31682,47 +31542,30 @@ func (st *CharacterState) DoAction(world w.World, action inputmapper.ActionID) (
                 <span class="cov0" title="0">st.detail.Open(world)
                 return es.Transition[w.World]{Type: es.TransNone}, nil</span>
         case inputmapper.ActionMenuSelect:
-                <span class="cov8" title="1">return es.Transition[w.World]{Type: es.TransNone}, st.onBrowseSelect(world)</span>
+                <span class="cov8" title="1">return st.onBrowseSelect(world), nil</span>
         default:
                 <span class="cov0" title="0">return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)</span>
         }
 }
 
-// onBrowseSelect は閲覧中の Enter を処理する。装備タブは外す・装備選択、情報タブは詳細を開く
-func (st *CharacterState) onBrowseSelect(world w.World) error {
+// onBrowseSelect は閲覧中の Enter を処理する。装備タブは装備選択を別 state として push し、
+// 情報タブは詳細を開く
+func (st *CharacterState) onBrowseSelect(world w.World) es.Transition[w.World] {
         <span class="cov8" title="1">cursor := st.screen.Selection()
         props := st.screen.Props()
         switch charTabAt(cursor.TabIndex) </span>{
         case charTabEquip:
                 <span class="cov8" title="1">if cursor.ItemIndex &gt;= len(props.EquipSlots) </span>{
-                        <span class="cov0" title="0">return nil
+                        <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransNone}
 </span>                }
-                <span class="cov8" title="1">slot := props.EquipSlots[cursor.ItemIndex]
-</span>                // 装備済みスロットは Enter で外す。空スロットは Enter で装備選択を開く
-                <span class="cov8" title="1">if slot.Entity != nil </span>{
-                        <span class="cov0" title="0">if err := st.unequipSlot(world, slot); err != nil </span>{
-                                <span class="cov0" title="0">return err
-</span>                        }
-                } else {
-                        <span class="cov8" title="1">st.equip.Open(world, slot)
+                <span class="cov8" title="1">return es.Transition[w.World]{
+                        Type:          es.TransPush,
+                        NewStateFuncs: []es.StateFactory[w.World]{newEquipSelectState(props.EquipSlots[cursor.ItemIndex])},
 </span>                }
         default:
-                <span class="cov0" title="0">st.detail.Open(world)</span>
+                <span class="cov0" title="0">st.detail.Open(world)
+                return es.Transition[w.World]{Type: es.TransNone}</span>
         }
-        <span class="cov8" title="1">return nil</span>
-}
-
-// unequipSlot は装備済みスロットのアイテムを外して持ち物へ戻す
-func (st *CharacterState) unequipSlot(world w.World, slot equipItemData) error {
-        <span class="cov0" title="0">if slot.Entity == nil </span>{
-                <span class="cov0" title="0">return nil
-</span>        }
-        <span class="cov0" title="0">itemName := query.GetEntityName(*slot.Entity, world)
-        if err := lifecycle.MoveToBackpack(world, *slot.Entity, slot.Character); err != nil </span>{
-                <span class="cov0" title="0">return err
-</span>        }
-        <span class="cov0" title="0">logEquipChange(world, slot.Character, itemName, query.T(world, "%s unequipped %s."))
-        return nil</span>
 }
 
 // logEquipChange は装備の着脱をゲームログに出す。format は対象キャラ名とアイテム名を差し込む
@@ -31776,16 +31619,8 @@ func (st *CharacterState) Menu(props CharacterProps) menuloop.MenuConfig {
 }
 
 // detailContent は現在の対象に応じた詳細内容を返す。詳細モーダルの唯一の定義点。
-// 装備選択中は候補、閲覧中は装備中アイテム・空スロット・情報行を出し分ける
+// 閲覧中は装備中アイテム・空スロット・情報行を出し分ける
 func (st *CharacterState) detailContent(world w.World) (overlay.DetailContent, bool) {
-        <span class="cov0" title="0">if st.equip.Active() </span>{
-                <span class="cov0" title="0">item, ok := st.equip.selectedItem()
-                if !ok </span>{
-                        <span class="cov0" title="0">return overlay.DetailContent{}, false
-</span>                }
-                <span class="cov0" title="0">return overlay.EntityDetailContent(world, item), true</span>
-        }
-
         <span class="cov0" title="0">cursor := st.screen.Selection()
         props := st.screen.Props()
         switch charTabAt(cursor.TabIndex) </span>{
@@ -31830,14 +31665,6 @@ type equipItemData struct {
         SlotNumber gc.EquipmentSlotNumber
         Entity     *ecs.Entity // 装備中エンティティ。空きなら nil
         Character  ecs.Entity  // 装備スロットを持つキャラ本体
-}
-
-// charEquipProps は装備選択の Props
-type charEquipProps struct {
-        Items             []ecs.Entity
-        SlotNumber        gc.EquipmentSlotNumber
-        PreviousEquipment *ecs.Entity
-        TargetCharacter   ecs.Entity
 }
 
 // characterEquipSlots は指定したキャラクターの全装備スロットを列挙する
@@ -31933,7 +31760,7 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 }
 </pre>
 		
-		<pre class="file" id="file213" style="display: none">package states
+		<pre class="file" id="file212" style="display: none">package states
 
 import (
         "github.com/hajimehoshi/ebiten/v2"
@@ -31977,7 +31804,7 @@ func buildEquipListUI(world w.World, slots []equipItemData, itemIndex int, res r
 }
 </pre>
 		
-		<pre class="file" id="file214" style="display: none">package states
+		<pre class="file" id="file213" style="display: none">package states
 
 import (
         "fmt"
@@ -32117,7 +31944,7 @@ func pushMessage(md *messagedata.MessageData) func(w.World) (es.Transition[w.Wor
 }
 </pre>
 		
-		<pre class="file" id="file215" style="display: none">package states
+		<pre class="file" id="file214" style="display: none">package states
 
 import (
         "cmp"
@@ -32248,7 +32075,7 @@ func (st *ComponentDebugState) ViewUI(world w.World, props ComponentDebugProps, 
 }
 </pre>
 		
-		<pre class="file" id="file216" style="display: none">package states
+		<pre class="file" id="file215" style="display: none">package states
 
 import (
         "fmt"
@@ -32547,7 +32374,7 @@ func (st *CraftMenuState) detailContent(world w.World) (overlay.DetailContent, b
 }
 </pre>
 		
-		<pre class="file" id="file217" style="display: none">package states
+		<pre class="file" id="file216" style="display: none">package states
 
 import (
         "fmt"
@@ -32631,7 +32458,7 @@ func (st *CubePanelState) Draw(world w.World, screen *ebiten.Image) error {
 }
 </pre>
 		
-		<pre class="file" id="file218" style="display: none">package states
+		<pre class="file" id="file217" style="display: none">package states
 
 import (
         "fmt"
@@ -32841,7 +32668,7 @@ func spawnEnemyNearPlayer(world w.World, name string) error {
 }
 </pre>
 		
-		<pre class="file" id="file219" style="display: none">package states
+		<pre class="file" id="file218" style="display: none">package states
 
 import (
         "fmt"
@@ -32933,7 +32760,7 @@ func (st *DemoStartState) Draw(_ w.World, screen *ebiten.Image) error {
 </span>}
 </pre>
 		
-		<pre class="file" id="file220" style="display: none">package states
+		<pre class="file" id="file219" style="display: none">package states
 
 import (
         "fmt"
@@ -33227,7 +33054,7 @@ func drawRenderers(world w.World, target *ebiten.Image, renderers ...w.Renderer)
 }
 </pre>
 		
-		<pre class="file" id="file221" style="display: none">package states
+		<pre class="file" id="file220" style="display: none">package states
 
 import (
         "github.com/hajimehoshi/ebiten/v2"
@@ -33304,7 +33131,7 @@ func (d *dungeon3D) draw(world w.World, screen *ebiten.Image) error {
 </span>}
 </pre>
 		
-		<pre class="file" id="file222" style="display: none">package states
+		<pre class="file" id="file221" style="display: none">package states
 
 import (
         "fmt"
@@ -33734,7 +33561,7 @@ func (st *DungeonState) enterDebugPlannerFloor(world w.World, defName string, bu
 }
 </pre>
 		
-		<pre class="file" id="file223" style="display: none">package states
+		<pre class="file" id="file222" style="display: none">package states
 
 import (
         "fmt"
@@ -34105,6 +33932,215 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 </span>                        }
                 }
         })
+}
+</pre>
+		
+		<pre class="file" id="file223" style="display: none">package states
+
+import (
+        "fmt"
+
+        "github.com/hajimehoshi/ebiten/v2"
+        gc "github.com/kijimaD/ruins/internal/components"
+        es "github.com/kijimaD/ruins/internal/engine/states"
+        "github.com/kijimaD/ruins/internal/inputmapper"
+        "github.com/kijimaD/ruins/internal/keybind"
+        "github.com/kijimaD/ruins/internal/menuloop"
+        "github.com/kijimaD/ruins/internal/resources"
+        "github.com/kijimaD/ruins/internal/widgets/menuframe"
+        "github.com/kijimaD/ruins/internal/widgets/overlay"
+        "github.com/kijimaD/ruins/internal/widgets/styled"
+        "github.com/kijimaD/ruins/internal/widgets/uicore"
+        w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/world/lifecycle"
+        "github.com/kijimaD/ruins/internal/world/query"
+        "github.com/mlange-42/ark/ecs"
+)
+
+// EquipSelectState はスロット1つの装備を選ぶメニュー。装備タブでスロットを選ぶと push される。
+// 装備済みなら一覧の先頭に「外す」が並ぶ。x の詳細は現装備と候補を2枚並べて比較する。
+type EquipSelectState struct {
+        es.BaseState[w.World]
+        slotNumber        gc.EquipmentSlotNumber
+        targetCharacter   ecs.Entity
+        previousEquipment *ecs.Entity // 装備中エンティティ。空きなら nil
+        detail            overlay.Detail
+        screen            *menuloop.Screen[EquipSelectProps]
+}
+
+var _ es.State[w.World] = &amp;EquipSelectState{}
+var _ menuloop.KeyBindings = &amp;EquipSelectState{}
+
+// EquipSelectProps は装備選択の表示 props
+type EquipSelectProps struct {
+        Items             []ecs.Entity
+        SlotNumber        gc.EquipmentSlotNumber
+        PreviousEquipment *ecs.Entity
+        TargetCharacter   ecs.Entity
+}
+
+// newEquipSelectState はスロットに対する装備選択を開くファクトリを返す
+func newEquipSelectState(slot equipItemData) es.StateFactory[w.World] {
+        <span class="cov8" title="1">return func() (es.State[w.World], error) </span>{
+                <span class="cov8" title="1">return &amp;EquipSelectState{
+                        slotNumber:        slot.SlotNumber,
+                        targetCharacter:   slot.Character,
+                        previousEquipment: slot.Entity,
+                }, nil
+</span>        }
+}
+
+// OnStart はステートが開始される際に呼ばれる
+func (st *EquipSelectState) OnStart(_ w.World) error {
+        <span class="cov8" title="1">st.detail = overlay.NewComparison(st.compareContents)
+        st.screen = menuloop.NewScreen[EquipSelectProps](st, &amp;st.detail)
+        return nil
+</span>}
+
+// Update はゲームステートの更新処理を行う
+func (st *EquipSelectState) Update(world w.World) (es.Transition[w.World], error) {
+        <span class="cov8" title="1">return st.screen.Update(world)
+</span>}
+
+// Draw はゲームステートの描画処理を行う
+func (st *EquipSelectState) Draw(_ w.World, screen *ebiten.Image) error {
+        <span class="cov8" title="1">st.screen.Draw(screen)
+        return nil
+</span>}
+
+// KeyBindings は x の詳細表示を共通入力に足す
+func (st *EquipSelectState) KeyBindings() []keybind.Binding {
+        <span class="cov8" title="1">return detailOpenBindings
+</span>}
+
+// DoAction はActionを実行する。選択で装着または外して閉じる
+func (st *EquipSelectState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+        <span class="cov8" title="1">switch action </span>{
+        case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+                <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil</span>
+        case inputmapper.ActionOpenItemDetail:
+                <span class="cov8" title="1">st.detail.Open(world)
+                return es.Transition[w.World]{Type: es.TransNone}, nil</span>
+        case inputmapper.ActionMenuSelect:
+                <span class="cov0" title="0">if choice, ok := st.selection(); ok </span>{
+                        <span class="cov0" title="0">if err := applyEquipChoice(world, choice, st.slotNumber, st.targetCharacter, st.previousEquipment); err != nil </span>{
+                                <span class="cov0" title="0">return es.Transition[w.World]{}, err
+</span>                        }
+                }
+                <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPop}, nil</span>
+        default:
+                <span class="cov0" title="0">return es.Transition[w.World]{}, fmt.Errorf("equipSelect: unsupported action: %s", action)</span>
+        }
+}
+
+// Fetch は世界から表示 props を構築する
+func (st *EquipSelectState) Fetch(world w.World) (EquipSelectProps, error) {
+        <span class="cov8" title="1">return EquipSelectProps{
+                Items:             equipableForSlot(world, st.slotNumber),
+                SlotNumber:        st.slotNumber,
+                PreviousEquipment: st.previousEquipment,
+                TargetCharacter:   st.targetCharacter,
+        }, nil
+</span>}
+
+// Menu は単一リストの構成を返す。装備済みなら先頭の「外す」ぶんを1つ足す
+func (st *EquipSelectState) Menu(props EquipSelectProps) menuloop.MenuConfig {
+        <span class="cov8" title="1">return menuloop.MenuConfig{Key: "equip_select", TabCount: 1, ItemCounts: []int{equipChoiceCount(props)}, ItemsPerPage: menuloop.ItemsPerPageAuto}
+</span>}
+
+// ViewUI は候補一覧を中央パネルへ組む
+func (st *EquipSelectState) ViewUI(world w.World, props EquipSelectProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
+        <span class="cov8" title="1">return buildEquipSelectUI(world, props, cursor.ItemIndex, res)
+</span>}
+
+// selection は現在カーソルが指す選択を返す
+func (st *EquipSelectState) selection() (equipChoice, bool) {
+        <span class="cov8" title="1">return equipChoiceAt(st.screen.Props(), st.screen.Selection().ItemIndex)
+</span>}
+
+// compareContents は詳細に出す内容を返す。候補にカーソルがあり装備済みなら現装備と候補の
+// 2枚、空スロットの候補なら候補1枚、「外す」なら外す対象1枚を返す。並びは左が現装備、右が候補
+func (st *EquipSelectState) compareContents(world w.World) ([]overlay.DetailContent, bool) {
+        <span class="cov8" title="1">choice, ok := st.selection()
+        if !ok </span>{
+                <span class="cov0" title="0">return nil, false
+</span>        }
+        // 「外す」は装備済みのときだけ選べるので previousEquipment は非nil
+        <span class="cov8" title="1">if choice.unequip </span>{
+                <span class="cov0" title="0">return []overlay.DetailContent{overlay.EntityDetailContent(world, *st.previousEquipment)}, true
+</span>        }
+        <span class="cov8" title="1">candidate := overlay.EntityDetailContent(world, choice.entity)
+        if st.previousEquipment == nil </span>{
+                <span class="cov0" title="0">return []overlay.DetailContent{candidate}, true
+</span>        }
+        <span class="cov8" title="1">return []overlay.DetailContent{overlay.EntityDetailContent(world, *st.previousEquipment), candidate}, true</span>
+}
+
+// equipChoice はカーソルが指す装備選択。unequip なら「外す」、そうでなければ entity が候補
+type equipChoice struct {
+        unequip bool
+        entity  ecs.Entity
+}
+
+// equipChoiceAt は候補一覧の index を選択へ写す。装備済みなら先頭が「外す」で、候補は1つ後ろへ詰まる
+func equipChoiceAt(props EquipSelectProps, index int) (equipChoice, bool) {
+        <span class="cov8" title="1">if props.PreviousEquipment != nil </span>{
+                <span class="cov8" title="1">if index == 0 </span>{
+                        <span class="cov8" title="1">return equipChoice{unequip: true}, true
+</span>                }
+                <span class="cov8" title="1">index--</span>
+        }
+        <span class="cov8" title="1">if index &lt; 0 || index &gt;= len(props.Items) </span>{
+                <span class="cov8" title="1">return equipChoice{}, false
+</span>        }
+        <span class="cov8" title="1">return equipChoice{entity: props.Items[index]}, true</span>
+}
+
+// equipChoiceCount は選択できる項目数を返す。装備済みなら先頭の「外す」を1つ足す
+func equipChoiceCount(props EquipSelectProps) int {
+        <span class="cov8" title="1">if props.PreviousEquipment != nil </span>{
+                <span class="cov8" title="1">return len(props.Items) + 1
+</span>        }
+        <span class="cov8" title="1">return len(props.Items)</span>
+}
+
+// applyEquipChoice は選択を実行する。「外す」なら現装備を外し、候補なら装着する。
+// 既存の装備があれば持ち物へ戻す
+func applyEquipChoice(world w.World, choice equipChoice, slotNumber gc.EquipmentSlotNumber, target ecs.Entity, previous *ecs.Entity) error {
+        <span class="cov8" title="1">if choice.unequip </span>{
+                <span class="cov8" title="1">if previous == nil </span>{
+                        <span class="cov8" title="1">return nil
+</span>                }
+                <span class="cov8" title="1">itemName := query.GetEntityName(*previous, world)
+                if err := lifecycle.MoveToBackpack(world, *previous, target); err != nil </span>{
+                        <span class="cov0" title="0">return err
+</span>                }
+                <span class="cov8" title="1">logEquipChange(world, target, itemName, query.T(world, "%s unequipped %s."))
+                return nil</span>
+        }
+        <span class="cov8" title="1">itemName := query.GetEntityName(choice.entity, world)
+        if previous != nil </span>{
+                <span class="cov8" title="1">if err := lifecycle.MoveToBackpack(world, *previous, target); err != nil </span>{
+                        <span class="cov0" title="0">return err
+</span>                }
+        }
+        <span class="cov8" title="1">lifecycle.MoveToEquip(world, choice.entity, target, slotNumber)
+        logEquipChange(world, target, itemName, query.T(world, "%s equipped %s."))
+        return nil</span>
+}
+
+// buildEquipSelectUI はアイコン付きの候補一覧を中央パネルへ組む。装備済みなら先頭に「外す」が並ぶ
+func buildEquipSelectUI(world w.World, props EquipSelectProps, selectedIndex int, res resources.UIResources) uicore.Drawable {
+        <span class="cov8" title="1">var rows []menuframe.Row
+        if props.PreviousEquipment != nil </span>{
+                <span class="cov8" title="1">rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(nil), styled.TextCell(query.T(world, "Unequip"))}})
+</span>        }
+        <span class="cov8" title="1">for _, entity := range props.Items </span>{
+                <span class="cov8" title="1">rows = append(rows, menuframe.Row{Cells: []styled.Cell{styled.IconCell(menuIcon(world, entity)), styled.TextCell(query.GetEntityName(entity, world))}})
+</span>        }
+        <span class="cov8" title="1">list, pager := menuframe.RenderList(selectedIndex, rows, styled.Cols(styled.Icon(), styled.Name()),
+                menuframe.ListOpts{EmptyText: query.T(world, "Nothing to equip")}, res)
+        return menuframe.PanelScreen(world, res, query.T(world, "Choose equipment"), list, keybind.HelpHint(world), pager)</span>
 }
 </pre>
 		
@@ -44976,6 +45012,7 @@ import (
         "github.com/kijimaD/ruins/internal/inputmapper"
         "github.com/kijimaD/ruins/internal/keybind"
         "github.com/kijimaD/ruins/internal/widgets/entityspec"
+        "github.com/kijimaD/ruins/internal/widgets/theme"
         "github.com/kijimaD/ruins/internal/widgets/uicore"
         w "github.com/kijimaD/ruins/internal/world"
         "github.com/kijimaD/ruins/internal/world/query"
@@ -45012,18 +45049,30 @@ func EntityDetailContent(world w.World, e ecs.Entity) DetailContent {
 }
 
 // Detail は詳細モーダルの表示状態・ページ送り入力・ウィンドウ組み立てをまとめて担う。
-// 呼び出し側は「何を出すか」を返す provide 関数を渡すだけでよく、
-// 入力・ページ数・描画といった内部には触れない。x で開き、左右でページを繰り、Esc・Enter で閉じる
+// provide が返す内容を描き、1件なら中央に1枚、複数なら横並びで並べる。呼び出し側は
+// 「何を出すか」を返す provide を渡すだけでよく、入力・ページ数・描画といった内部には触れない。
+// x で開き、左右でページを繰り、Esc・Enter で閉じる
 type Detail struct {
         active  bool
         page    int
-        provide func(world w.World) (DetailContent, bool)
+        provide func(world w.World) ([]DetailContent, bool)
 }
 
-// NewDetail は現在カーソルが指す対象の詳細内容を返す provide を受け取り Detail を作る。
+// NewDetail は1件の詳細内容を返す provide を受け取り Detail を作る。中央に1枚で描く。
 // provide は対象が無ければ ok=false を返す
 func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail {
-        <span class="cov8" title="1">return Detail{provide: provide}
+        <span class="cov8" title="1">return Detail{provide: func(world w.World) ([]DetailContent, bool) </span>{
+                <span class="cov8" title="1">c, ok := provide(world)
+                if !ok </span>{
+                        <span class="cov8" title="1">return nil, false
+</span>                }
+                <span class="cov8" title="1">return []DetailContent{c}, true</span>
+        }}
+}
+
+// NewComparison は複数の詳細内容を返す provide を受け取り Detail を作る。返った内容を横並びで描く
+func NewComparison(provide func(world w.World) ([]DetailContent, bool)) Detail {
+        <span class="cov0" title="0">return Detail{provide: provide}
 </span>}
 
 // NewEntityDetail は選択中の実体をそのまま詳細に出す Detail を作る。
@@ -45065,9 +45114,14 @@ func (d *Detail) HandleInput(world w.World) error {
                 <span class="cov0" title="0">return nil
 </span>        }
         <span class="cov0" title="0">total := 1
-        if content, ok := d.provide(world); ok </span>{
-                <span class="cov0" title="0">total = detailPageCount(len(content.Rows))
-</span>        }
+        if contents, ok := d.provide(world); ok </span>{
+                // 複数枚は行数の最も多い枚に合わせてページ数を決める
+                <span class="cov0" title="0">for _, c := range contents </span>{
+                        <span class="cov0" title="0">if p := detailPageCount(len(c.Rows)); p &gt; total </span>{
+                                <span class="cov0" title="0">total = p
+</span>                        }
+                }
+        }
         <span class="cov0" title="0">switch action </span>{
         case inputmapper.ActionMenuCancel, inputmapper.ActionMenuSelect:
                 <span class="cov0" title="0">d.active = false</span>
@@ -45088,11 +45142,18 @@ func (d *Detail) HandleInput(world w.World) error {
 // RenderOverlay は現在の内容から詳細モーダルを uicore のツリーへ組み、rect 内に配置して返す。
 // 対象が無ければ nil を返す。Screen はこれを本体の上へ重ねて描く。
 func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawable {
-        <span class="cov8" title="1">content, ok := d.provide(world)
-        if !ok </span>{
+        <span class="cov8" title="1">contents, ok := d.provide(world)
+        if !ok || len(contents) == 0 </span>{
                 <span class="cov8" title="1">return nil
 </span>        }
-        <span class="cov8" title="1">return buildDetailUI(world.Resources.UIResources, rect, content.Name, content.Desc, content.Rows, d.page)</span>
+        <span class="cov8" title="1">res := world.Resources.UIResources
+        if len(contents) == 1 </span>{
+                <span class="cov8" title="1">return buildPanelUI(res, rect, contents[0], d.page)
+</span>        }
+        // 複数枚は狭い WindowRect でなく画面幅の大半へ横並びで描く。上下は rect と揃える
+        <span class="cov0" title="0">sw := world.Resources.ScreenDimensions.Width
+        wide := image.Rect(theme.MenuModalMarginX, rect.Min.Y, sw-theme.MenuModalMarginX, rect.Max.Y)
+        return buildPanelsUI(res, wide, contents, d.page)</span>
 }
 </pre>
 		
@@ -45109,18 +45170,36 @@ import (
         "github.com/kijimaD/ruins/internal/widgets/uicore"
 )
 
-// buildDetailUI は性能行の並びから詳細モーダルを uicore のツリーとして組み、rect いっぱいに配置して返す。
-// name が空なら名前行を省き、desc が空なら説明行を省く。行が多いときは page でページ分割する。
+// buildPanelsUI は複数の詳細内容を rect 内へ等幅で横並びに組む。各枠は buildPanelUI と
+// 同じ組み方で、枠間は一定の間隔を空ける。
+func buildPanelsUI(res resources.UIResources, rect image.Rectangle, contents []DetailContent, page int) uicore.Widget {
+        <span class="cov0" title="0">gap := theme.Space7
+        n := len(contents)
+        panelW := (rect.Dx() - gap*(n-1)) / n
+        panels := make([]uicore.Widget, n)
+        for i, c := range contents </span>{
+                <span class="cov0" title="0">x := rect.Min.X + i*(panelW+gap)
+                panelRect := image.Rect(x, rect.Min.Y, x+panelW, rect.Max.Y)
+                panels[i] = buildPanelUI(res, panelRect, c, page)
+</span>        }
+        <span class="cov0" title="0">group := uicore.NewGroup(panels...)
+        group.Layout(rect)
+        return group</span>
+}
+
+// buildPanelUI は詳細内容1件を uicore のツリーとして組み、rect いっぱいに配置して返す。
+// 名前が空なら名前行を省き、説明が空なら説明行を省く。行が多いときは page でページ分割する。
 // 説明は最終ページにだけ出す。位置表示は1ページでも常に出す。page は範囲外なら内部でクランプする。
 // 背景はパネルテクスチャを rect 全体へ敷き、内容は上寄せにする。
-func buildDetailUI(res resources.UIResources, rect image.Rectangle, name, desc string, rows []entityspec.SpecRow, page int) uicore.Widget {
+func buildPanelUI(res resources.UIResources, rect image.Rectangle, content DetailContent, page int) uicore.Widget {
         <span class="cov8" title="1">face := res.Text.BodyFace
 </span>        // 説明とページ番号は小さめのフェイスで補助色、名前と性能行は本文フェイスにする。
         <span class="cov8" title="1">smallFace := res.Text.SmallFace
 </span>        // 行高は本文フェイスの行送りにする。全行を同じ高さで並べ、いちばん背の高い本文が字面を切らない。
         <span class="cov8" title="1">rowH := uicore.LineHeight(face)
 </span>
-        <span class="cov8" title="1">total := detailPageCount(len(rows))
+        <span class="cov8" title="1">rows := content.Rows
+        total := detailPageCount(len(rows))
         if page &lt; 0 </span>{
                 <span class="cov8" title="1">page = 0
 </span>        }
@@ -45131,12 +45210,12 @@ func buildDetailUI(res resources.UIResources, rect image.Rectangle, name, desc s
         start, end := pg.GetVisibleRange()
 </span>
         <span class="cov8" title="1">var items []uicore.Widget
-        if name != "" </span>{
-                <span class="cov8" title="1">items = append(items, uicore.NewText(name, face, theme.TextPrimary))
+        if content.Name != "" </span>{
+                <span class="cov8" title="1">items = append(items, uicore.NewText(content.Name, face, theme.TextPrimary))
 </span>        }
         <span class="cov8" title="1">items = append(items, entityspec.SpecRowWidgets(rows[start:end], face)...)
-        if desc != "" &amp;&amp; page == total-1 </span>{
-                <span class="cov8" title="1">for _, line := range uicore.WrapText(desc, smallFace, rect.Dx()-theme.Space7*2) </span>{
+        if content.Desc != "" &amp;&amp; page == total-1 </span>{
+                <span class="cov8" title="1">for _, line := range uicore.WrapText(content.Desc, smallFace, rect.Dx()-theme.Space7*2) </span>{
                         <span class="cov8" title="1">items = append(items, uicore.NewText(line, smallFace, theme.TextSecondary))
 </span>                }
         }

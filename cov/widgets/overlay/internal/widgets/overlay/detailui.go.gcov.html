@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">33</td>
-            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntryLo">73.9&nbsp;%</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntry">34</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-31 13:00:50</td>
+            <td class="headerValue">2026-08-31 15:00:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,47 +73,65 @@
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/uicore&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              : )</span>
 <span id="L13"><span class="lineNum">      13</span>              : </span>
-<span id="L14"><span class="lineNum">      14</span>              : // buildDetailUI は性能行の並びから詳細モーダルを uicore のツリーとして組み、rect いっぱいに配置して返す。</span>
-<span id="L15"><span class="lineNum">      15</span>              : // name が空なら名前行を省き、desc が空なら説明行を省く。行が多いときは page でページ分割する。</span>
-<span id="L16"><span class="lineNum">      16</span>              : // 説明は最終ページにだけ出す。位置表示は1ページでも常に出す。page は範囲外なら内部でクランプする。</span>
-<span id="L17"><span class="lineNum">      17</span>              : // 背景はパネルテクスチャを rect 全体へ敷き、内容は上寄せにする。</span>
-<span id="L18"><span class="lineNum">      18</span>              : func buildDetailUI(res resources.UIResources, rect image.Rectangle, name, desc string, rows []entityspec.SpecRow, page int) uicore.Widget {</span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         face := res.Text.BodyFace</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         // 説明とページ番号は小さめのフェイスで補助色、名前と性能行は本文フェイスにする。</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         smallFace := res.Text.SmallFace</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         // 行高は本文フェイスの行送りにする。全行を同じ高さで並べ、いちばん背の高い本文が字面を切らない。</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         rowH := uicore.LineHeight(face)</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         total := detailPageCount(len(rows))</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         if page &lt; 0 {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 page = 0</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         if page &gt;= total {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 page = total - 1</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         pg := pagination.New(page*detailRowsPerPage, len(rows), detailRowsPerPage)</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         start, end := pg.GetVisibleRange()</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         var items []uicore.Widget</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if name != &quot;&quot; {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 items = append(items, uicore.NewText(name, face, theme.TextPrimary))</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         items = append(items, entityspec.SpecRowWidgets(rows[start:end], face)...)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if desc != &quot;&quot; &amp;&amp; page == total-1 {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 for _, line := range uicore.WrapText(desc, smallFace, rect.Dx()-theme.Space7*2) {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                         items = append(items, uicore.NewText(line, smallFace, theme.TextSecondary))</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L44"><span class="lineNum">      44</span>              :         }</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         items = append(items, uicore.NewText(fmt.Sprintf(&quot;%d/%d&quot;, pg.GetCurrentPage(), pg.GetTotalPages()), smallFace, theme.TextSecondary))</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L47"><span class="lineNum">      47</span>              :         // 内側余白はパネルテクスチャの枠を避けて内容を内側へ寄せる</span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         panel := uicore.VBox(rowH, items...).SetPadding(theme.Space7)</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         if res.PanelBG != nil {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 panel.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         panel.Layout(rect)</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         return panel</span></span>
-<span id="L54"><span class="lineNum">      54</span>              : }</span>
+<span id="L14"><span class="lineNum">      14</span>              : // buildPanelsUI は複数の詳細内容を rect 内へ等幅で横並びに組む。各枠は buildPanelUI と</span>
+<span id="L15"><span class="lineNum">      15</span>              : // 同じ組み方で、枠間は一定の間隔を空ける。</span>
+<span id="L16"><span class="lineNum">      16</span>              : func buildPanelsUI(res resources.UIResources, rect image.Rectangle, contents []DetailContent, page int) uicore.Widget {</span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 :         gap := theme.Space7</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         n := len(contents)</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         panelW := (rect.Dx() - gap*(n-1)) / n</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         panels := make([]uicore.Widget, n)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         for i, c := range contents {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :                 x := rect.Min.X + i*(panelW+gap)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 panelRect := image.Rect(x, rect.Min.Y, x+panelW, rect.Max.Y)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                 panels[i] = buildPanelUI(res, panelRect, c, page)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         group := uicore.NewGroup(panels...)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         group.Layout(rect)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         return group</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : }</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : // buildPanelUI は詳細内容1件を uicore のツリーとして組み、rect いっぱいに配置して返す。</span>
+<span id="L32"><span class="lineNum">      32</span>              : // 名前が空なら名前行を省き、説明が空なら説明行を省く。行が多いときは page でページ分割する。</span>
+<span id="L33"><span class="lineNum">      33</span>              : // 説明は最終ページにだけ出す。位置表示は1ページでも常に出す。page は範囲外なら内部でクランプする。</span>
+<span id="L34"><span class="lineNum">      34</span>              : // 背景はパネルテクスチャを rect 全体へ敷き、内容は上寄せにする。</span>
+<span id="L35"><span class="lineNum">      35</span>              : func buildPanelUI(res resources.UIResources, rect image.Rectangle, content DetailContent, page int) uicore.Widget {</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           1 :         face := res.Text.BodyFace</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         // 説明とページ番号は小さめのフェイスで補助色、名前と性能行は本文フェイスにする。</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         smallFace := res.Text.SmallFace</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         // 行高は本文フェイスの行送りにする。全行を同じ高さで並べ、いちばん背の高い本文が字面を切らない。</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         rowH := uicore.LineHeight(face)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         rows := content.Rows</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         total := detailPageCount(len(rows))</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         if page &lt; 0 {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 page = 0</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         if page &gt;= total {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                 page = total - 1</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         pg := pagination.New(page*detailRowsPerPage, len(rows), detailRowsPerPage)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         start, end := pg.GetVisibleRange()</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         var items []uicore.Widget</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         if content.Name != &quot;&quot; {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 items = append(items, uicore.NewText(content.Name, face, theme.TextPrimary))</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         items = append(items, entityspec.SpecRowWidgets(rows[start:end], face)...)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         if content.Desc != &quot;&quot; &amp;&amp; page == total-1 {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 for _, line := range uicore.WrapText(content.Desc, smallFace, rect.Dx()-theme.Space7*2) {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                         items = append(items, uicore.NewText(line, smallFace, theme.TextSecondary))</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :         }</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         items = append(items, uicore.NewText(fmt.Sprintf(&quot;%d/%d&quot;, pg.GetCurrentPage(), pg.GetTotalPages()), smallFace, theme.TextSecondary))</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L65"><span class="lineNum">      65</span>              :         // 内側余白はパネルテクスチャの枠を避けて内容を内側へ寄せる</span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         panel := uicore.VBox(rowH, items...).SetPadding(theme.Space7)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         if res.PanelBG != nil {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 panel.SetBackgroundNineSlice(res.PanelBG.Image, res.PanelBG.BX, res.PanelBG.BY)</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         panel.Layout(rect)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return panel</span></span>
+<span id="L72"><span class="lineNum">      72</span>              : }</span>
         </pre>
               </td>
             </tr>
