@@ -10,16 +10,16 @@ import (
 // TimeOfDay は時間帯を表す
 type TimeOfDay int
 
-// 時間帯定数。新規ゲームは昼から始まるので、経過ターンの区切り順に昼から並べる。
-// これで TotalTurns=0 が昼を無変換で指す。各時間帯は turnsPerTimeOfDay ずつ続き、
-// 深夜の次に翌日の夜明けへ折り返す。かっこ内は1周目の経過ターン範囲で、以降は1日ごとに繰り返す
+// 時間帯定数。暦の1日は夜明けで始まるので、区切り順に夜明けから並べる。
+// これで TotalTurns=0 が1日の始まりを無変換で指し、日数も季節もオフセットなしで導ける。
+// かっこ内は1周目の経過ターン範囲で、以降は1日ごとに繰り返す
 const (
-	TimeDay      TimeOfDay = iota // 昼 経過0-249
-	TimeEvening                   // 夕 経過250-499
-	TimeNight                     // 夜 経過500-749
-	TimeMidnight                  // 深夜 経過750-999
-	TimeDawn                      // 夜明け 経過1000-1249
-	TimeMorning                   // 朝 経過1250-1499
+	TimeDawn     TimeOfDay = iota // 夜明け 経過0-249
+	TimeMorning                   // 朝 経過250-499
+	TimeDay                       // 昼 経過500-749
+	TimeEvening                   // 夕 経過750-999
+	TimeNight                     // 夜 経過1000-1249
+	TimeMidnight                  // 深夜 経過1250-1499
 )
 
 // String は時間帯名を返す
@@ -48,11 +48,6 @@ const turnsPerDay consts.Turn = 1500
 // 時間帯ごとのターン数
 const turnsPerTimeOfDay consts.Turn = turnsPerDay / 6 // 250ターン
 
-// noonOffsetFromDawn は暦の1日、夜明け始まり、における昼の位置。夜明けから朝を経て昼までの2区切り。
-// 新規ゲームは昼から始まるので、暦では1日目のこのぶんが既に過ぎている。
-// 時間帯は昼始まりの定数順で無変換に導けるが、日数は暦の夜明けで繰り上がるため、ここだけオフセットが要る。
-const noonOffsetFromDawn consts.Turn = 2 * turnsPerTimeOfDay // 500ターン
-
 // GameTime はゲーム内時間を管理する
 type GameTime struct {
 	TotalTurns consts.Turn // run 開始からの経過ターン数
@@ -80,9 +75,9 @@ func (gt *GameTime) GetDaylightLerp() (from, to TimeOfDay, t float64) {
 	return TimeOfDay(idx), TimeOfDay((idx + 1) % numTimeOfDay), t
 }
 
-// GetDayNumber は経過日数を返す（1日目から始まる）。日付は暦の夜明けで繰り上がる
+// GetDayNumber は経過日数を返す（1日目から始まる）。turn 0 が1日目の夜明けなのでオフセットは要らない
 func (gt *GameTime) GetDayNumber() int {
-	return int((gt.TotalTurns+noonOffsetFromDawn)/turnsPerDay) + 1
+	return int(gt.TotalTurns/turnsPerDay) + 1
 }
 
 // 季節による世界温度のパラメータ。夏ピークと冬底を持つ1年周期で、値は実プレイで調整する。
@@ -192,7 +187,7 @@ func (gt *GameTime) AdvanceToNextTimeOfDay() {
 const turnsPerSeason consts.Turn = consts.Turn(daysPerYear/4) * turnsPerDay
 
 // AdvanceToNextSeason は次の季節の開始まで進める。季節による世界温度を切り替える。
-// 冬からは翌年の春へ折り返す
+// 冬からは翌年の春へ折り返す。turn 0 が夜明け始まりなので、季節境界は turnsPerSeason の倍数に一致する
 func (gt *GameTime) AdvanceToNextSeason() {
 	gt.TotalTurns = (gt.TotalTurns/turnsPerSeason + 1) * turnsPerSeason
 }
