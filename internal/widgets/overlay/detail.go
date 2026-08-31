@@ -43,9 +43,9 @@ func EntityDetailContent(world w.World, e ecs.Entity) DetailContent {
 }
 
 // Detail は詳細モーダルの表示状態・ページ送り入力・ウィンドウ組み立てをまとめて担う。
-// provide が返す内容を描き、1件なら中央に1枚、複数なら横並びで並べる。比較は複数を返すだけで、
-// 特別な分岐は持たない。呼び出し側は「何を出すか」を返す provide を渡すだけでよく、
-// 入力・ページ数・描画といった内部には触れない。x で開き、左右でページを繰り、Esc・Enter で閉じる
+// provide が返す内容を描き、1件なら中央に1枚、複数なら横並びで並べる。呼び出し側は
+// 「何を出すか」を返す provide を渡すだけでよく、入力・ページ数・描画といった内部には触れない。
+// x で開き、左右でページを繰り、Esc・Enter で閉じる
 type Detail struct {
 	active  bool
 	page    int
@@ -64,8 +64,7 @@ func NewDetail(provide func(world w.World) (DetailContent, bool)) Detail {
 	}}
 }
 
-// NewComparison は複数の詳細内容を返す provide を受け取り Detail を作る。返った内容を横並びで
-// 描く。装備選択で現装備と候補を並べる用途に使う
+// NewComparison は複数の詳細内容を返す provide を受け取り Detail を作る。返った内容を横並びで描く
 func NewComparison(provide func(world w.World) ([]DetailContent, bool)) Detail {
 	return Detail{provide: provide}
 }

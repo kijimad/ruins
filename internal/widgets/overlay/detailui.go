@@ -12,7 +12,7 @@ import (
 )
 
 // buildPanelsUI は複数の詳細内容を rect 内へ等幅で横並びに組む。各枠は buildDetailUI と
-// 同じ組み方で、装備比較なら左に現装備・右に候補が並ぶ。枠間は一定の間隔を空ける。
+// 同じ組み方で、枠間は一定の間隔を空ける。
 func buildPanelsUI(res resources.UIResources, rect image.Rectangle, contents []DetailContent, page int) uicore.Widget {
 	gap := theme.Space7
 	n := len(contents)
