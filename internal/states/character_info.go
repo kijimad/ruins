@@ -206,6 +206,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 	for i := range int(gc.BodyPartCount) {
 		part := gc.BodyPart(i)
 		var conditionStr strings.Builder
+		var details []statusDetailRow
 		if hs != nil {
 			conditions := hs.Parts[i].Conditions
 			for j, cond := range conditions {
@@ -213,36 +214,19 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 					conditionStr.WriteString(", ")
 				}
 				conditionStr.WriteString(translatedConditionName(world, cond))
+				details = append(details, statusDetailRow{
+					Label: query.T(world, gc.ConditionTypeDisplayName(cond.Type)),
+					Value: query.T(world, cond.Severity.String()),
+				})
 			}
 		}
 		value := conditionStr.String()
 		if value == "" {
 			value = query.T(world, "Normal")
 		}
-		items = append(items, statusItemData{Label: query.T(world, part.String()), Value: value, Description: query.T(world, getHealthPartDescription(part)), BodyPart: part})
+		items = append(items, statusItemData{Label: query.T(world, part.String()), Value: value, BodyPart: part, Details: details})
 	}
 	return items
-}
-
-func getHealthPartDescription(part gc.BodyPart) string {
-	switch part {
-	case gc.BodyPartTorso:
-		return "Torso"
-	case gc.BodyPartHead:
-		return "Head"
-	case gc.BodyPartArms:
-		return "Arms"
-	case gc.BodyPartHands:
-		return "Hands"
-	case gc.BodyPartLegs:
-		return "Legs"
-	case gc.BodyPartFeet:
-		return "Feet"
-	case gc.BodyPartWholeBody:
-		return "Whole body"
-	default:
-		return ""
-	}
 }
 
 // sourceToDetails はModifierSourceのスライスから内訳表示用の行を生成する。変化量が0のソースは表示しない
