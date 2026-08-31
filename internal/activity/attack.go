@@ -329,31 +329,22 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 		targetAgility = targetAbilsComp.Agility.Total
 	}
 
-	// 攻撃種で命中の能力値と身体機能を分ける。近接は器用さで手を振るい操作が効き、
-	// 遠隔は感覚で狙い視覚が効く。効率は CharModifiers に集約し Effects タブと同じ値を経由する
-	caps := gc.HealthyCapacities()
-	if world.Components.CharModifiers.Has(attacker) {
-		caps = world.Components.CharModifiers.Get(attacker).Capacities
-	}
-	stat, aim := accuracyInputs(attack, attackerAbils, caps)
-
-	hitRate := formula.BaseHitRate + (stat-targetAgility)*formula.HitRatePerStatPoint
+	// 基礎命中は反射神経 DEX と対象の回避の対抗で決まる。武器習熟の適性能力値は
+	// WeaponAccuracy 側が畳むので、遠隔の SEN はそちらに任せ、ここでは二重計上しない
+	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAgility)*formula.HitRatePerStatPoint
 	hitRate += getWeaponAccuracyFromAttack(attack)
 	hitRate = getSkillMult(attacker, attack, world, false).ApplyInt(hitRate)
 	hitRate += modifier
-	hitRate = max(min(aim.ApplyInt(hitRate), formula.MaxHitRate), formula.MinHitRate)
+
+	// 体調由来の命中低下を掛ける。近接は操作、遠隔は視覚。CharModifiers に集約し Effects タブと同じ値を経由する
+	if world.Components.CharModifiers.Has(attacker) {
+		aim := world.Components.CharModifiers.Get(attacker).AccuracyCapacity(attack.GetAttackCategory())
+		hitRate = aim.ApplyInt(hitRate)
+	}
+
+	hitRate = max(min(hitRate, formula.MaxHitRate), formula.MinHitRate)
 
 	return hitRate
-}
-
-// accuracyInputs は攻撃種で命中の依拠を分ける。近接は器用さで手を振るい操作機能が効き、
-// 遠隔は感覚で狙い視覚機能が効く。ダメージが近接STR・遠隔SENと能力値を分けるのに揃える。
-// stat は基礎命中に効く能力値、aim は掛かる身体機能。武器スキル倍率は getSkillMult が別に持つ
-func accuracyInputs(attack gc.Attacker, abils *gc.Abilities, caps gc.BodyCapacities) (stat int, aim consts.Percent) {
-	if _, ranged := gc.GetRangeParams(attack.GetAttackCategory()); ranged {
-		return abils.Sensation.Total, caps.Sight
-	}
-	return abils.Dexterity.Total, caps.Manipulation
 }
 
 // rollHitCheckWithModifier は命中判定を行う。modifierは追加の命中率補正（負値でペナルティ）

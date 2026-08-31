@@ -161,6 +161,15 @@ type CharModifiers struct {
 	Sources map[ModifierKey][]ModifierSource `json:"-"`
 }
 
+// AccuracyCapacity は攻撃種の命中に効く身体機能の乗数を返す。近接は操作機能、遠隔は視覚機能。
+// 体調由来の命中低下を戦闘へ一点で渡す。値は Capacities の射影で、状態を二重に持たない
+func (e *CharModifiers) AccuracyCapacity(cat AttackType) consts.Percent {
+	if cat.Range == AttackRangeRanged {
+		return e.Capacities.Sight
+	}
+	return e.Capacities.Manipulation
+}
+
 // RecalculateCharModifiers はスキル、能力値、健康状態から全効果倍率を計算する。
 // abils, hs は nil でもよい。
 func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *CharModifiers {
