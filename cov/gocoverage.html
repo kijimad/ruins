@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.1%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -507,7 +507,7 @@
 				
 				<option value="file225">github.com/kijimaD/ruins/internal/states/feed_fuel_menu.go (64.9%)</option>
 				
-				<option value="file226">github.com/kijimaD/ruins/internal/states/item_action_state.go (62.9%)</option>
+				<option value="file226">github.com/kijimaD/ruins/internal/states/item_action_state.go (65.7%)</option>
 				
 				<option value="file227">github.com/kijimaD/ruins/internal/states/lib.go (92.3%)</option>
 				
@@ -1726,7 +1726,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
         <span class="cov8" title="1">baseDamage = getSkillMult(attacker, attack, world, true).ApplyInt(baseDamage)
 </span>
         <span class="cov8" title="1">if critical </span>{
-                <span class="cov0" title="0">baseDamage = formula.ApplyCritical(baseDamage)
+                <span class="cov8" title="1">baseDamage = formula.ApplyCritical(baseDamage)
 </span>        }
 
         <span class="cov8" title="1">if attack.GetElement() != gc.ElementTypeNone </span>{
@@ -14271,40 +14271,37 @@ func Abs[T consts.Numeric](x T) T {
 		
 		<pre class="file" id="file97" style="display: none">package hooks
 
-import (
-        "reflect"
+import "github.com/kijimaD/ruins/internal/inputmapper"
 
-        "github.com/kijimaD/ruins/internal/inputmapper"
-)
+// mountPropsKey は props を Store に載せるときの予約キー。props も version 追跡に乗せ変更検知を
+// 1系統にする。UseState キーと衝突しないよう制御文字始まりにする。
+const mountPropsKey = "\x00mount.props"
 
-// Mount はProps + Stateを管理し、変更を検出する
-// 描画は担当しない。描画はアプリケーション層の責務である
+// Mount はProps + Stateを管理し変更を検出する。描画は担当しない。
+// props も store に載るので、変更検知は store.Version の差だけで済む。
 type Mount[Props any] struct {
-        props Props
-        store *Store
-        dirty bool
+        store            *Store
+        lastStoreVersion uint64
 }
 
 // NewMount は新しいMountを生成する
 func NewMount[Props any]() *Mount[Props] {
         <span class="cov8" title="1">return &amp;Mount[Props]{
                 store: NewStore(),
-                dirty: true, // 初回は必ず描画する
+                // 初回は必ず描画させる。実在しない version にしておき、最初の Update で必ず差を出す
+                lastStoreVersion: ^uint64(0),
 </span>        }
 }
 
-// SetProps は外部からPropsを設定する
-// 値が変わった場合はdirtyフラグを立てる
+// SetProps は外部からPropsを設定する。値が実際に変わったときだけ store の version が動く
 func (m *Mount[Props]) SetProps(props Props) {
-        <span class="cov8" title="1">if !reflect.DeepEqual(m.props, props) </span>{
-                <span class="cov8" title="1">m.dirty = true
-</span>        }
-        <span class="cov8" title="1">m.props = props</span>
-}
+        <span class="cov8" title="1">m.store.set(mountPropsKey, props)
+</span>}
 
-// GetProps は現在のPropsを返す
+// GetProps は現在のPropsを返す。未設定ならゼロ値
 func (m *Mount[Props]) GetProps() Props {
-        <span class="cov8" title="1">return m.props
+        <span class="cov8" title="1">v, _ := GetStoreState[Props](m.store, mountPropsKey)
+        return v
 </span>}
 
 // Store はStoreを返す
@@ -14313,39 +14310,33 @@ func (m *Mount[Props]) Store() *Store {
         <span class="cov8" title="1">return m.store
 </span>}
 
-// Dispatch は全てのStateにActionを送りdirtyフラグを立てる
+// Dispatch は全ての State に Action を送る。状態が変われば store.Version が動き次の Update が拾う
 func (m *Mount[Props]) Dispatch(action inputmapper.ActionID) {
         <span class="cov8" title="1">m.store.Dispatch(action)
-        m.dirty = true
 </span>}
 
 // GetState は指定したキーのStateを取得する
 func GetState[T any, Props any](m *Mount[Props], key string) (T, bool) {
-        <span class="cov8" title="1">v, ok := m.store.states[key]
-        if !ok </span>{
-                <span class="cov8" title="1">var zero T
-                return zero, false
-</span>        }
-        <span class="cov8" title="1">typed, ok := v.(T)
-        if !ok </span>{
-                <span class="cov8" title="1">var zero T
-                return zero, false
-</span>        }
-        <span class="cov8" title="1">return typed, true</span>
-}
+        <span class="cov8" title="1">return GetStoreState[T](m.store, key)
+</span>}
 
-// Update は変更の有無を返す
-// 初回は常にtrue、以降はpropsまたはstateが変わった場合にtrueを返す
+// Update は前回からの変更の有無を返す。props も store 状態も store.Version に集約されるので
+// 版差だけで判定する。初回は sentinel 初期化で必ず true になる。
 func (m *Mount[Props]) Update() bool {
-        <span class="cov8" title="1">changed := m.dirty
-        m.dirty = false
+        <span class="cov8" title="1">v := m.store.Version()
+        changed := v != m.lastStoreVersion
+        m.lastStoreVersion = v
         return changed
 </span>}
 </pre>
 		
 		<pre class="file" id="file98" style="display: none">package hooks
 
-import "github.com/kijimaD/ruins/internal/inputmapper"
+import (
+        "reflect"
+
+        "github.com/kijimaD/ruins/internal/inputmapper"
+)
 
 // Reducer は個別の状態を更新する関数の型
 type Reducer func(state any, action inputmapper.ActionID) any
@@ -14354,6 +14345,7 @@ type Reducer func(state any, action inputmapper.ActionID) any
 type Store struct {
         states   map[string]any
         reducers map[string]Reducer
+        version  uint64 // 状態が実際に変わるたびに増える。Mount が再描画要否をこれで判定する
 }
 
 // NewStore は新しいStoreを生成する
@@ -14364,13 +14356,26 @@ func NewStore() *Store {
 </span>        }
 }
 
+// set は状態を書き、値が実際に変わったときだけ version を上げる。states への書き込みは全て
+// ここを通し、変更検知を1点へ集約する。毎フレーム同値を書く UseTabMenu では版が動かない。
+func (store *Store) set(key string, val any) {
+        <span class="cov8" title="1">if old, ok := store.states[key]; ok &amp;&amp; reflect.DeepEqual(old, val) </span>{
+                <span class="cov8" title="1">return
+</span>        }
+        <span class="cov8" title="1">store.states[key] = val
+        store.version++</span>
+}
+
+// Version は現在の状態版を返す。値が実際に変わるたびに増える
+func (store *Store) Version() uint64 { <span class="cov8" title="1">return store.version }</span>
+
 // UseState は状態を取得・登録する
 // keyで状態を識別し、初回呼び出し時にinitで初期化する
 // reducer関数はDispatch時に呼ばれ、状態を更新する
 // reducerは毎回再登録される。これによりProps変化時に最新のクロージャが使われる
 func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapper.ActionID) T) T {
         <span class="cov8" title="1">if _, ok := store.states[key]; !ok </span>{
-                <span class="cov8" title="1">store.states[key] = init
+                <span class="cov8" title="1">store.set(key, init)
 </span>        }
         // 毎回reducerを再登録して最新のクロージャを反映する
         <span class="cov8" title="1">store.reducers[key] = func(s any, a inputmapper.ActionID) any </span>{
@@ -14390,7 +14395,7 @@ func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapp
 // Dispatch は全てのStateにActionを送る
 func (store *Store) Dispatch(action inputmapper.ActionID) {
         <span class="cov8" title="1">for key, reducer := range store.reducers </span>{
-                <span class="cov8" title="1">store.states[key] = reducer(store.states[key], action)
+                <span class="cov8" title="1">store.set(key, reducer(store.states[key], action))
 </span>        }
 }
 
@@ -14562,7 +14567,7 @@ func (n *tabMenuNav) right(s TabMenuState) TabMenuState {
 // キー再生を避けてタブを設定する用途に使う。UseTabMenu と同じ nav ロジックを通す
 func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) {
         <span class="cov8" title="1">nav := &amp;tabMenuNav{config: config}
-        store.states[keyPrefix] = nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)})
+        store.set(keyPrefix, nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)}))
 </span>}
 
 // DispatchNav はカーソル移動系の Action なら Dispatch して真を返し、それ以外は何もせず偽を返す。
@@ -14592,7 +14597,7 @@ func UseTabMenu(store *Store, keyPrefix string, config TabMenuConfig) TabMenuSta
         <span class="cov8" title="1">init := TabMenuState{ItemIndex: nav.firstSelectable(0)}
         state := nav.clamp(UseState(store, keyPrefix, init, nav.reduce))
 </span>        // クランプ後の値をstoreに反映して、UI側が参照する値と一致させる
-        <span class="cov8" title="1">store.states[keyPrefix] = state
+        <span class="cov8" title="1">store.set(keyPrefix, state)
 </span>
         // ページはitemIndexから派生する値として計算
         <span class="cov8" title="1">itemCount := nav.itemCountForTab(state.TabIndex)
@@ -14637,18 +14642,18 @@ func UseTimerAt(store *Store, key string, duration time.Duration, now time.Time)
         <span class="cov8" title="1">expired = state.Active &amp;&amp; !state.StartedAt.IsZero() &amp;&amp; now.Sub(state.StartedAt) &gt;= duration
 </span>
         <span class="cov8" title="1">start = func() </span>{
-                <span class="cov8" title="1">store.states[key] = timerState{
+                <span class="cov8" title="1">store.set(key, timerState{
                         StartedAt: now,
                         Active:    true,
-</span>                }
-        }
+                })
+</span>        }
 
         <span class="cov8" title="1">reset = func() </span>{
-                <span class="cov8" title="1">store.states[key] = timerState{
+                <span class="cov8" title="1">store.set(key, timerState{
                         StartedAt: time.Time{},
                         Active:    false,
-</span>                }
-        }
+                })
+</span>        }
 
         <span class="cov8" title="1">return</span>
 }
@@ -34923,8 +34928,8 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
                 <span class="cov0" title="0">return st.executeSelected(world)</span>
         default:
                 // 動詞の直達キーは対応タブへジャンプする。verbList から導くので動詞追加で列挙は要らない
-                <span class="cov0" title="0">if v, ok := verbByAction(action); ok </span>{
-                        <span class="cov0" title="0">st.jumpToTab(v)
+                <span class="cov8" title="1">if v, ok := verbByAction(action); ok </span>{
+                        <span class="cov8" title="1">st.jumpToTab(v)
                         return es.Transition[w.World]{Type: es.TransNone}, nil
 </span>                }
                 <span class="cov0" title="0">return es.Transition[w.World]{}, fmt.Errorf("unknown action: %s", action)</span>
@@ -34932,7 +34937,7 @@ func (st *ItemActionState) DoAction(world w.World, action inputmapper.ActionID) 
 }
 
 func (st *ItemActionState) jumpToTab(target verbID) {
-        <span class="cov0" title="0">st.screen.SetTab(verbTabIndex(target))
+        <span class="cov8" title="1">st.screen.SetTab(verbTabIndex(target))
 </span>}
 
 // executeSelected は選択中アイテムへ現在の動詞を適用する。Exec を持たない調べるは詳細モーダルを開く

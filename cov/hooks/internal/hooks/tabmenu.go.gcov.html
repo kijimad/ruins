@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-30 15:22:11</td>
+            <td class="headerValue">2026-08-31 00:34:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -212,7 +212,7 @@
 <span id="L150"><span class="lineNum">     150</span>              : // キー再生を避けてタブを設定する用途に使う。UseTabMenu と同じ nav ロジックを通す</span>
 <span id="L151"><span class="lineNum">     151</span>              : func SetTab(store *Store, keyPrefix string, config TabMenuConfig, tab int) {</span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         nav := &amp;tabMenuNav{config: config}</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         store.states[keyPrefix] = nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)})</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         store.set(keyPrefix, nav.clamp(TabMenuState{TabIndex: tab, ItemIndex: nav.firstSelectable(tab)}))</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L155"><span class="lineNum">     155</span>              : </span>
 <span id="L156"><span class="lineNum">     156</span>              : // DispatchNav はカーソル移動系の Action なら Dispatch して真を返し、それ以外は何もせず偽を返す。</span>
@@ -242,7 +242,7 @@
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         init := TabMenuState{ItemIndex: nav.firstSelectable(0)}</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         state := nav.clamp(UseState(store, keyPrefix, init, nav.reduce))</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         // クランプ後の値をstoreに反映して、UI側が参照する値と一致させる</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         store.states[keyPrefix] = state</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         store.set(keyPrefix, state)</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L185"><span class="lineNum">     185</span>              :         // ページはitemIndexから派生する値として計算</span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         itemCount := nav.itemCountForTab(state.TabIndex)</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">58.8&nbsp;%</td>
+            <td class="headerCovTableEntryLo">62.1&nbsp;%</td>
             <td class="headerCovTableEntry">177</td>
-            <td class="headerCovTableEntry">104</td>
+            <td class="headerCovTableEntry">110</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-30 15:22:11</td>
+            <td class="headerValue">2026-08-31 00:34:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -343,21 +343,21 @@
 <span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC tlaBgUNC">           0 :                 return st.executeSelected(world)</span></span>
 <span id="L282"><span class="lineNum">     282</span>              :         default:</span>
 <span id="L283"><span class="lineNum">     283</span>              :                 // 動詞の直達キーは対応タブへジャンプする。verbList から導くので動詞追加で列挙は要らない</span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                 if v, ok := verbByAction(action); ok {</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                         st.jumpToTab(v)</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unknown action: %s&quot;, action)</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC tlaBgGNC">           1 :                 if v, ok := verbByAction(action); ok {</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :                         st.jumpToTab(v)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :                         return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC tlaBgUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;unknown action: %s&quot;, action)</span></span>
 <span id="L289"><span class="lineNum">     289</span>              :         }</span>
 <span id="L290"><span class="lineNum">     290</span>              : }</span>
 <span id="L291"><span class="lineNum">     291</span>              : </span>
 <span id="L292"><span class="lineNum">     292</span>              : func (st *ItemActionState) jumpToTab(target verbID) {</span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :         st.screen.SetTab(verbTabIndex(target))</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">           1 :         st.screen.SetTab(verbTabIndex(target))</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L295"><span class="lineNum">     295</span>              : </span>
 <span id="L296"><span class="lineNum">     296</span>              : // executeSelected は選択中アイテムへ現在の動詞を適用する。Exec を持たない調べるは詳細モーダルを開く</span>
 <span id="L297"><span class="lineNum">     297</span>              : func (st *ItemActionState) executeSelected(world w.World) (es.Transition[w.World], error) {</span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :         cursor := st.screen.Selection()</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC tlaBgUNC">           0 :         cursor := st.screen.Selection()</span></span>
 <span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :         vs := verbList</span></span>
 <span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :         if cursor.TabIndex &gt;= len(vs) {</span></span>
 <span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{Type: es.TransNone}, nil</span></span>
