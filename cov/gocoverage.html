@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.8%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -1636,7 +1636,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -7345,7 +7345,7 @@ func runPlay(_ context.Context, _ *cli.Command) error {
         // ウィンドウ設定
         <span class="cov0" title="0">ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
         ebiten.SetWindowSize(cfg.User.WindowWidth, cfg.User.WindowHeight)
-        ebiten.SetWindowTitle("ruins")
+        ebiten.SetWindowTitle("Coldward")
 </span>
         // FPS設定
         <span class="cov0" title="0">if cfg.TargetFPS != 60 </span>{
@@ -7411,11 +7411,13 @@ func runPlay(_ context.Context, _ *cli.Command) error {
         if err != nil </span>{
                 <span class="cov0" title="0">return err
 </span>        }
-        <span class="cov0" title="0">if err := ebiten.RunGame(game); err != nil </span>{
-                <span class="cov0" title="0">return err
-</span>        }
-
-        <span class="cov0" title="0">return nil</span>
+        // Linux のタスクバーや Steam Deck は SetWindowTitle でなく X11 の WM_CLASS でアプリを同定する。
+        // 既定のままだと "Ebitengine-Application" と表示される。WM_CLASS の class 側は表示・グルーピングに
+        // 使われるので表示名の Coldward、instance 側は実行体の同定子なので内部名の ruins にする。
+        <span class="cov0" title="0">return ebiten.RunGameWithOptions(game, &amp;ebiten.RunGameOptions{
+                X11ClassName:    "Coldward",
+                X11InstanceName: "ruins",
+        })</span>
 }
 </pre>
 		

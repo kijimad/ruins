@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-31 15:00:31</td>
+            <td class="headerValue">2026-08-31 15:41:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -122,7 +122,7 @@
 <span id="L60"><span class="lineNum">      60</span>              :         // ウィンドウ設定</span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         ebiten.SetWindowSize(cfg.User.WindowWidth, cfg.User.WindowHeight)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         ebiten.SetWindowTitle(&quot;ruins&quot;)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         ebiten.SetWindowTitle(&quot;Coldward&quot;)</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L65"><span class="lineNum">      65</span>              :         // FPS設定</span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         if cfg.TargetFPS != 60 {</span></span>
@@ -188,12 +188,14 @@
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         if err := ebiten.RunGame(game); err != nil {</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L132"><span class="lineNum">     132</span>              : </span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L134"><span class="lineNum">     134</span>              : }</span>
+<span id="L129"><span class="lineNum">     129</span>              :         // Linux のタスクバーや Steam Deck は SetWindowTitle でなく X11 の WM_CLASS でアプリを同定する。</span>
+<span id="L130"><span class="lineNum">     130</span>              :         // 既定のままだと &quot;Ebitengine-Application&quot; と表示される。WM_CLASS の class 側は表示・グルーピングに</span>
+<span id="L131"><span class="lineNum">     131</span>              :         // 使われるので表示名の Coldward、instance 側は実行体の同定子なので内部名の ruins にする。</span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         return ebiten.RunGameWithOptions(game, &amp;ebiten.RunGameOptions{</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                 X11ClassName:    &quot;Coldward&quot;,</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 X11InstanceName: &quot;ruins&quot;,</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L136"><span class="lineNum">     136</span>              : }</span>
         </pre>
               </td>
             </tr>
