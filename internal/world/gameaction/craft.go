@@ -23,12 +23,12 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 		return gc.InvalidEntity, fmt.Errorf("insufficient materials")
 	}
 
-	craftCostPct, smithQualityPct := consts.PercentBase, consts.PercentBase
-	player, playerErr := query.GetPlayerEntity(world)
-	if playerErr == nil && world.Components.CharModifiers.Has(player) {
-		mods := world.Components.CharModifiers.Get(player)
-		craftCostPct = mods.CraftCost
-		smithQualityPct = mods.SmithQuality
+	craftCostPct, smithQualityPct := playerCraftMods(world)
+
+	// 完成品を生成する前に素材を消費する。生成が先だと、CraftCost が100%を超えて消費が
+	// 失敗したとき完成品だけが手元に残る。CanCraft と同じ実消費量を先に引くことで整合させる
+	if err := consumeMaterials(world, name, craftCostPct); err != nil {
+		return gc.InvalidEntity, fmt.Errorf("failed to consume materials: %w", err)
 	}
 
 	resultEntity, err := lifecycle.SpawnBackpackItem(world, name, 1)
@@ -36,27 +36,26 @@ func Craft(world w.World, name string) (ecs.Entity, error) {
 		return gc.InvalidEntity, fmt.Errorf("failed to generate item: %w", err)
 	}
 	randomize(world, resultEntity, smithQualityPct)
-	if err := consumeMaterials(world, name, craftCostPct); err != nil {
-		return gc.InvalidEntity, fmt.Errorf("failed to consume materials: %w", err)
-	}
 
 	return resultEntity, nil
 }
 
-// CanCraft は所持数と必要数を比較してクラフト可能か判定する
+// CanCraft は所持数と実消費量を比較してクラフト可能か判定する。実消費量は CraftCost 倍率込みで、
+// consumeMaterials と同じ式にして判定と消費のズレをなくす
 func CanCraft(world w.World, name string) (bool, error) {
 	required := requiredMaterials(world, name)
 	if len(required) == 0 {
 		return false, fmt.Errorf("recipe not found: %s", name)
 	}
 
+	craftCostPct, _ := playerCraftMods(world)
 	for _, recipeInput := range required {
 		entity, found := query.FindStackInInventory(world, recipeInput.ID)
 		if !found {
 			return false, nil
 		}
 		count := query.GetEntityCount(world, entity)
-		if count < recipeInput.Amount {
+		if count < craftConsumedAmount(craftCostPct, recipeInput.Amount) {
 			return false, nil
 		}
 	}
@@ -64,11 +63,28 @@ func CanCraft(world w.World, name string) (bool, error) {
 	return true, nil
 }
 
+// playerCraftMods はプレイヤーのクラフト倍率を返す。プレイヤーや修正が無ければ基準値
+func playerCraftMods(world w.World) (craftCost, smithQuality consts.Percent) {
+	craftCost, smithQuality = consts.PercentBase, consts.PercentBase
+	player, err := query.GetPlayerEntity(world)
+	if err == nil && world.Components.CharModifiers.Has(player) {
+		mods := world.Components.CharModifiers.Get(player)
+		craftCost = mods.CraftCost
+		smithQuality = mods.SmithQuality
+	}
+	return craftCost, smithQuality
+}
+
+// craftConsumedAmount は CraftCost 倍率を掛けた実消費量。最低でも1は消費する
+func craftConsumedAmount(craftCostPct consts.Percent, amount int) int {
+	return max(craftCostPct.ApplyInt(amount), 1)
+}
+
 // consumeMaterials はアイテム合成に必要な素材を消費する。
 // craftCostPctは素材消費量の倍率%で、100が基準。低いほど素材が節約できる。
 func consumeMaterials(world w.World, goal string, craftCostPct consts.Percent) error {
 	for _, recipeInput := range requiredMaterials(world, goal) {
-		consumed := max(craftCostPct.ApplyInt(recipeInput.Amount), 1)
+		consumed := craftConsumedAmount(craftCostPct, recipeInput.Amount)
 		err := lifecycle.ChangeStackCount(world, recipeInput.ID, -consumed)
 		if err != nil {
 			return err
