@@ -929,6 +929,15 @@ msgstr "飢餓"
 msgid "Hypothermia"
 msgstr "低体温"
 
+msgid "Fracture"
+msgstr "骨折"
+
+msgid "Laceration"
+msgstr "切り傷"
+
+msgid "Liver illness"
+msgstr "肝疾患"
+
 msgid "Minor"
 msgstr "軽"
 

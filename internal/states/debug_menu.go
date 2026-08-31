@@ -42,10 +42,7 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 			_, err := lifecycle.SpawnBackpackItem(world, "ray_gun", 1)
 			return err
 		})},
-		{Label: "Inflict fracture (arms)", Run: popAfter(debugSetCondition(gc.BodyPartArms, gc.ConditionFracture, 60))},
-		{Label: "Inflict laceration (arms)", Run: popAfter(debugSetCondition(gc.BodyPartArms, gc.ConditionLaceration, 60))},
-		{Label: "Inflict liver illness (torso)", Run: popAfter(debugSetCondition(gc.BodyPartTorso, gc.ConditionLiverIllness, 60))},
-		{Label: "Inflict severe hypothermia", Run: popAfter(debugSetCondition(gc.BodyPartWholeBody, gc.ConditionHypothermia, 90))},
+		{Label: "Inflict conditions", Run: popAfter(debugInflictConditions)},
 		{Label: "Treat all conditions", Run: popAfter(debugTreatAllConditions)},
 		{Label: "Damage self (-10 HP)", Run: popAfter(debugDamageSelf(10))},
 		{Label: "Game over", Run: pushChoice(NewGameOverMessageState)},
@@ -140,21 +137,26 @@ func debugMenuChoices(_ w.World) (string, []Choice) {
 	return "", choices
 }
 
-// debugSetCondition はデバッグでプレイヤーの部位に不調を1つ付ける。Timer から重症度を決める。
-// 付けたあとキャラクター情報画面で確認し、ターンを進めて ConditionSystem の回復軌道を観察する
-func debugSetCondition(part gc.BodyPart, ct gc.ConditionType, timer float64) func(w.World) error {
-	return func(world w.World) error {
-		player, err := query.GetPlayerEntity(world)
-		if err != nil {
-			return err
-		}
-		if !world.Components.HealthStatus.Has(player) {
-			return nil
-		}
-		hs := world.Components.HealthStatus.Get(player)
-		hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})
+// debugInflictConditions はデバッグでプレイヤーへ怪我と病気と低体温をまとめて付ける。
+// 付けたあとキャラクター情報画面で確認し、ターンを進めて回復軌道と HP まわりを観察する。
+// 骨折・切り傷・肝疾患は中度、低体温は重症にして、悪化と重症の HP ダメージも一度に見られるようにする
+func debugInflictConditions(world w.World) error {
+	player, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	if !world.Components.HealthStatus.Has(player) {
 		return nil
 	}
+	hs := world.Components.HealthStatus.Get(player)
+	set := func(part gc.BodyPart, ct gc.ConditionType, timer float64) {
+		hs.Parts[part].SetCondition(gc.HealthCondition{Type: ct, Timer: timer, Severity: gc.TimerToSeverity(timer)})
+	}
+	set(gc.BodyPartArms, gc.ConditionFracture, 60)
+	set(gc.BodyPartArms, gc.ConditionLaceration, 60)
+	set(gc.BodyPartTorso, gc.ConditionLiverIllness, 60)
+	set(gc.BodyPartWholeBody, gc.ConditionHypothermia, 90)
+	return nil
 }
 
 // debugTreatAllConditions はデバッグでプレイヤーの全不調を治療済みにする。回復軌道の確認用。

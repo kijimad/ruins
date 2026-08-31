@@ -187,6 +187,16 @@ func (st *CharacterState) createEffectItems(world w.World, playerEntity ecs.Enti
 	return items
 }
 
+// translatedConditionName は不調の種類名と重症度をそれぞれ訳して組む。
+// DisplayName の複合文字列をそのまま訳すと po に組み合わせ分の訳が要るので、部分ごとに訳す
+func translatedConditionName(world w.World, cond gc.HealthCondition) string {
+	name := query.T(world, gc.ConditionTypeDisplayName(cond.Type))
+	if cond.Severity != gc.SeverityNone {
+		name += "(" + query.T(world, cond.Severity.String()) + ")"
+	}
+	return name
+}
+
 func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := make([]statusItemData, 0, int(gc.BodyPartCount))
 	var hs *gc.HealthStatus
@@ -202,7 +212,7 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 				if j > 0 {
 					conditionStr.WriteString(", ")
 				}
-				conditionStr.WriteString(query.T(world, cond.DisplayName()))
+				conditionStr.WriteString(translatedConditionName(world, cond))
 			}
 		}
 		value := conditionStr.String()
