@@ -106,6 +106,7 @@ $ make help
 | status | ドキュメント | 進捗 | tags |
 |---|---|---|---|
 | draft | [HPで気軽に戦い、部位の不調で緊張を足す: 怪我・病気・低体温ダメージと治療](docs/design/260830231055.md) | 0/12 | gamedesign, combat, ecs |
+| draft | [コード監査: 装填中断・季節進行・体温HUD・クラフト整合 2026-08-31](docs/design/260831001354.md) | 0/4 | combat, ui, item, gamedesign |
 
 
 ## Reference
