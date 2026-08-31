@@ -932,7 +932,7 @@ func TestLogEnvironmentChange(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// 夜の開始ターン。夕は薄暮で太陽がまだ空にあり、沈み切って夜になった瞬間が日の入り
-		query.GetGameTime(world).TotalTurns = 500
+		query.GetGameTime(world).TotalTurns = 1000
 
 		logEnvironmentChange(world)
 
@@ -944,7 +944,7 @@ func TestLogEnvironmentChange(t *testing.T) {
 	t.Run("夕へ入るターンは薄暮なので日の入りログを出さない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetGameTime(world).TotalTurns = 250 // 夕の開始
+		query.GetGameTime(world).TotalTurns = 750 // 夕の開始
 
 		logEnvironmentChange(world)
 
@@ -954,7 +954,8 @@ func TestLogEnvironmentChange(t *testing.T) {
 	t.Run("日の出のターンは日が昇ったログを出す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		query.GetGameTime(world).TotalTurns = 1000
+		// 2日目の夜明けの開始ターン。turn 0 は前ターンが無く変化判定が立たないため翌日で確かめる
+		query.GetGameTime(world).TotalTurns = 1500
 
 		logEnvironmentChange(world)
 
@@ -967,7 +968,7 @@ func TestLogEnvironmentChange(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		// 春から夏へ切り替わる経過ターン。日の始まりは夜明けなので日の出とも重なる
-		query.GetGameTime(world).TotalTurns = 11500
+		query.GetGameTime(world).TotalTurns = 12000
 
 		logEnvironmentChange(world)
 

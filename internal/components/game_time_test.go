@@ -37,20 +37,20 @@ func TestTimeOfDay_String_不正な値はpanicする(t *testing.T) {
 	})
 }
 
-// TestGameTime_startsAtNoon は新規ゲームの GameTime が経過0・昼・1日目から始まることを確認する。
-// TotalTurns は経過ターンで0始まり。昼開始は startOffsetTurns が時刻導出で表す
-func TestGameTime_startsAtNoon(t *testing.T) {
+// TestGameTime_startsAtDawn は新規ゲームの GameTime が経過0・夜明け・1日目から始まることを確認する。
+// turn 0 が暦の1日の始まりである夜明けなので、日数も季節もオフセットなしで導ける
+func TestGameTime_startsAtDawn(t *testing.T) {
 	t.Parallel()
 
 	gt := &GameTime{} // 新規ゲームの初期値
 	assert.Equal(t, consts.Turn(0), gt.TotalTurns, "経過ターンは0始まり")
-	assert.Equal(t, TimeDay, gt.GetTimeOfDay(), "昼から始まる")
+	assert.Equal(t, TimeDawn, gt.GetTimeOfDay(), "夜明けから始まる")
 	assert.Equal(t, 1, gt.GetDayNumber(), "1日目から始まる")
-	assert.Equal(t, 10, gt.GetTemperatureModifier(), "昼の気温修正")
+	assert.Equal(t, 0, gt.GetTemperatureModifier(), "夜明けの気温修正")
 }
 
 // TestGameTime_GetTimeOfDay は経過ターンから時間帯を導けることを確認する。
-// 経過0は昼で、そこから夕・夜・深夜・翌朝と進む
+// 経過0は夜明けで、そこから朝・昼・夕・夜・深夜と進む
 func TestGameTime_GetTimeOfDay(t *testing.T) {
 	t.Parallel()
 
@@ -59,19 +59,19 @@ func TestGameTime_GetTimeOfDay(t *testing.T) {
 		totalTurns consts.Turn
 		expected   TimeOfDay
 	}{
-		{"経過0は昼", 0, TimeDay},
-		{"経過249は昼", 249, TimeDay},
-		{"経過250は夕", 250, TimeEvening},
-		{"経過499は夕", 499, TimeEvening},
-		{"経過500は夜", 500, TimeNight},
-		{"経過749は夜", 749, TimeNight},
-		{"経過750は深夜", 750, TimeMidnight},
-		{"経過999は深夜", 999, TimeMidnight},
-		{"経過1000は夜明け（2日目）", 1000, TimeDawn},
-		{"経過1249は夜明け", 1249, TimeDawn},
-		{"経過1250は朝", 1250, TimeMorning},
-		{"経過1499は朝", 1499, TimeMorning},
-		{"経過1500は昼（2日目）", 1500, TimeDay},
+		{"経過0は夜明け", 0, TimeDawn},
+		{"経過249は夜明け", 249, TimeDawn},
+		{"経過250は朝", 250, TimeMorning},
+		{"経過499は朝", 499, TimeMorning},
+		{"経過500は昼", 500, TimeDay},
+		{"経過749は昼", 749, TimeDay},
+		{"経過750は夕", 750, TimeEvening},
+		{"経過999は夕", 999, TimeEvening},
+		{"経過1000は夜", 1000, TimeNight},
+		{"経過1249は夜", 1249, TimeNight},
+		{"経過1250は深夜", 1250, TimeMidnight},
+		{"経過1499は深夜", 1499, TimeMidnight},
+		{"経過1500は夜明け（2日目）", 1500, TimeDawn},
 	}
 
 	for _, tt := range tests {
@@ -84,7 +84,7 @@ func TestGameTime_GetTimeOfDay(t *testing.T) {
 }
 
 // TestGameTime_GetDayNumber は経過ターンから経過日数を導けることを確認する。
-// 日付は暦の夜明けで繰り上がる。昼開始なので翌日の夜明け、経過1000、で2日目に変わる
+// turn 0 が1日目の夜明けなので、日付は turnsPerDay ごと、経過1500 で2日目に繰り上がる
 func TestGameTime_GetDayNumber(t *testing.T) {
 	t.Parallel()
 
@@ -94,9 +94,9 @@ func TestGameTime_GetDayNumber(t *testing.T) {
 		expected   int
 	}{
 		{"経過0は1日目", 0, 1},
-		{"経過999は1日目", 999, 1},
-		{"経過1000は2日目", 1000, 2},
-		{"経過2500は3日目", 2500, 3},
+		{"経過1499は1日目", 1499, 1},
+		{"経過1500は2日目", 1500, 2},
+		{"経過3000は3日目", 3000, 3},
 	}
 
 	for _, tt := range tests {
@@ -117,12 +117,12 @@ func TestGameTime_GetTemperatureModifier(t *testing.T) {
 		totalTurns consts.Turn
 		expected   int
 	}{
-		{"昼は+10°C", 0, 10},
-		{"夕は+5°C", 250, 5},
-		{"夜は-5°C", 500, -5},
-		{"深夜は-10°C", 750, -10},
-		{"夜明けは+0°C", 1000, 0},
-		{"朝は+5°C", 1250, 5},
+		{"夜明けは+0°C", 0, 0},
+		{"朝は+5°C", 250, 5},
+		{"昼は+10°C", 500, 10},
+		{"夕は+5°C", 750, 5},
+		{"夜は-5°C", 1000, -5},
+		{"深夜は-10°C", 1250, -10},
 	}
 
 	for _, tt := range tests {
@@ -227,7 +227,7 @@ func TestGameTime_AdvanceToNextTimeOfDay(t *testing.T) {
 }
 
 // TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む はどの経過ターンから呼んでも
-// 時間帯がちょうど1つ進むことを保証する。昼開始のオフセットは一定なので前後の差は変わらない
+// 時間帯がちょうど1つ進むことを保証する。どの時間帯からでも差は変わらない
 func TestGameTime_AdvanceToNextTimeOfDay_常に1つ進む(t *testing.T) {
 	t.Parallel()
 
@@ -259,33 +259,32 @@ func TestGameTime_AdvanceToNextSeason_季節を1つ進める(t *testing.T) {
 	assert.Equal(t, SeasonSpring, gt.GetSeason(), "冬の次は翌年の春へ折り返す")
 }
 
-// TestGameTime_AdvanceToNextSeason_周期末尾でも季節が進む は、季節境界が noonOffsetFromDawn 分だけ
-// turnsPerSeason の倍数より手前にあるため、周期末尾の区間 [11500,12000) から呼んでも1度で
-// 季節が進むことを固定する。0起点のテストはこの区間を踏まないので別途押さえる。
-func TestGameTime_AdvanceToNextSeason_周期末尾でも季節が進む(t *testing.T) {
+// TestGameTime_AdvanceToNextSeason_周期途中から呼んでも1つ進む は、季節周期の境界ちょうどでない
+// 経過ターンから呼んでも、ちょうど次の季節の開始へ進むことを固定する。
+func TestGameTime_AdvanceToNextSeason_周期途中から呼んでも1つ進む(t *testing.T) {
 	t.Parallel()
 
-	// 経過11700は夏の周期 [11500,23500) の入り口寄り。単純な12000丸めだと夏に留まってしまう
-	gt := &GameTime{TotalTurns: 11700}
-	require.Equal(t, SeasonSummer, gt.GetSeason(), "前提: 11700は夏")
+	// 経過6000は春の周期 [0,12000) の途中（5日目）
+	gt := &GameTime{TotalTurns: 6000}
+	require.Equal(t, SeasonSpring, gt.GetSeason(), "前提: 6000は春")
 
 	gt.AdvanceToNextSeason()
-	assert.Equal(t, SeasonAutumn, gt.GetSeason(), "1度で次の季節へ進む")
+	assert.Equal(t, SeasonSummer, gt.GetSeason(), "1度で次の季節へ進む")
 }
 
 func TestGameTime_SeasonJustChanged(t *testing.T) {
 	t.Parallel()
 
-	// 春から夏へ切り替わるのは経過ターン11500。ここで GetDayNumber が8から9へ繰り上がる
+	// 春から夏へ切り替わるのは経過ターン12000。ここで GetDayNumber が8日目から9日目へ繰り上がる
 	tests := []struct {
 		name  string
 		turns consts.Turn
 		want  bool
 	}{
 		{"開始ターンは変化なし", 0, false},
-		{"季節が切り替わるターン", 11500, true},
-		{"切り替わりの直前は変化なし", 11499, false},
-		{"切り替わりの次は変化なし", 11501, false},
+		{"季節が切り替わるターン", 12000, true},
+		{"切り替わりの直前は変化なし", 11999, false},
+		{"切り替わりの次は変化なし", 12001, false},
 	}
 
 	for _, tt := range tests {
@@ -306,10 +305,10 @@ func TestGameTime_TimeOfDayJustChanged(t *testing.T) {
 		wantTOD     TimeOfDay
 		wantChanged bool
 	}{
-		{"開始ターンは変化なし", 0, TimeDay, false},
-		{"夕へ入るターンは日の入り", 250, TimeEvening, true},
-		{"夜明けへ入るターンは日の出", 1000, TimeDawn, true},
-		{"時間帯の途中は変化なし", 1001, TimeDawn, false},
+		{"開始ターンは変化なし", 0, TimeDawn, false},
+		{"朝へ入るターン", 250, TimeMorning, true},
+		{"昼へ入るターン", 500, TimeDay, true},
+		{"時間帯の途中は変化なし", 501, TimeDay, false},
 	}
 
 	for _, tt := range tests {

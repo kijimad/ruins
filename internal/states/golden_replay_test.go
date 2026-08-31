@@ -153,14 +153,14 @@ func TestGolden(t *testing.T) {
 		{
 			name: "RunStats",
 			build: func(world w.World) ([]es.State[w.World], error) {
-				// 見栄えのする統計値を仕込む。経過1240ターンで日数が2日目に乗る
+				// 見栄えのする統計値を仕込む。経過1740ターンで2日目の夜明けに乗る
 				if s := query.GetRunStats(world); s != nil {
 					s.EnemiesKilled = 12
 					s.ItemsScavenged = 8
 					s.SalesTotal = 3400
 				}
 				if gt := query.GetGameTime(world); gt != nil {
-					gt.TotalTurns = 1240
+					gt.TotalTurns = 1740
 				}
 				st, err := gs.NewRunStatsState()
 				if err != nil {
@@ -389,12 +389,12 @@ func TestGolden(t *testing.T) {
 		// Overworld_<n>_* は時間帯ごとの地上の見た目を固定する。各時間帯の中心を1枚ずつ撮り、
 		// 連続補間が段差にならないことを回帰検知する。区間内の傾斜は単体テストで担保する。
 		// 番号は朝を起点にした1日の並び順で、ファイル名とギャラリーが時刻順に並ぶ。
-		{name: "Overworld_1_Morning", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 朝の中心
-		{name: "Overworld_2_Day", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 昼の中心。最も明るく無彩色
-		{name: "Overworld_3_Evening", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},  // 夕の中心。暖色
-		{name: "Overworld_4_Night", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},    // 夜の中心。寒色で暗い
-		{name: "Overworld_5_Midnight", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}}, // 深夜の中心。最も暗い
-		{name: "Overworld_6_Dawn", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},    // 夜明けの中心。次の朝へ続く
+		{name: "Overworld_1_Morning", build: overworldAtTurn(375), steps: []replayStep{{shot: true}}},   // 朝の中心
+		{name: "Overworld_2_Day", build: overworldAtTurn(625), steps: []replayStep{{shot: true}}},       // 昼の中心。最も明るく無彩色
+		{name: "Overworld_3_Evening", build: overworldAtTurn(875), steps: []replayStep{{shot: true}}},   // 夕の中心。暖色
+		{name: "Overworld_4_Night", build: overworldAtTurn(1125), steps: []replayStep{{shot: true}}},    // 夜の中心。寒色で暗い
+		{name: "Overworld_5_Midnight", build: overworldAtTurn(1375), steps: []replayStep{{shot: true}}}, // 深夜の中心。最も暗い
+		{name: "Overworld_6_Dawn", build: overworldAtTurn(125), steps: []replayStep{{shot: true}}},      // 夜明けの中心。次の朝へ続く
 		// Dungeon は遺跡へ入った直後のダンジョン実画面を固定する。
 		// プレイヤーは上り階段の上に湧く実スポーンのまま撮る。
 		{
