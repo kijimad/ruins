@@ -79,36 +79,32 @@ const (
 	ConditionLiverIllness ConditionType = "LiverIllness" // 肝疾患
 )
 
-// ConditionTypeDisplayName は状態種類の表示名を返す
-func ConditionTypeDisplayName(ct ConditionType) string {
-	switch ct {
-	case ConditionHypothermia:
-		return "Hypothermia"
-	case ConditionFracture:
-		return "Fracture"
-	case ConditionLaceration:
-		return "Laceration"
-	case ConditionLiverIllness:
-		return "Liver illness"
-	default:
-		return string(ct)
-	}
+// conditionMeta は状態種類ごとの静的な表示情報。displayName と description を
+// 別々の switch に散らさず1つの表に畳む。値はいずれも英語 msgid で UI が query.T で訳す
+type conditionMeta struct {
+	displayName string // 表示名 msgid
+	description string // 概要説明 msgid。何であるかと未治療の振る舞いを1文で伝える
 }
 
-// ConditionTypeDescription は状態種類の概要説明を返す。何であるかと未治療の振る舞いを1文で伝える
-func ConditionTypeDescription(ct ConditionType) string {
-	switch ct {
-	case ConditionHypothermia:
-		return "The body is dangerously cold. Warm up to recover."
-	case ConditionFracture:
-		return "A broken bone. It will not heal until treated."
-	case ConditionLaceration:
-		return "An open wound. It will not heal until treated."
-	case ConditionLiverIllness:
-		return "It worsens while untreated and drains HP when severe."
-	default:
-		return ""
+// conditionMetas は状態種類ごとの表示情報。状態を足すときはここへ1行足す
+var conditionMetas = map[ConditionType]conditionMeta{
+	ConditionHypothermia:  {displayName: "Hypothermia", description: "The body is dangerously cold. Warm up to recover."},
+	ConditionFracture:     {displayName: "Fracture", description: "A broken bone. It will not heal until treated."},
+	ConditionLaceration:   {displayName: "Laceration", description: "An open wound. It will not heal until treated."},
+	ConditionLiverIllness: {displayName: "Liver illness", description: "It worsens while untreated and drains HP when severe."},
+}
+
+// ConditionTypeDisplayName は状態種類の表示名を返す。未登録なら素のIDを返す
+func ConditionTypeDisplayName(ct ConditionType) string {
+	if m, ok := conditionMetas[ct]; ok {
+		return m.displayName
 	}
+	return string(ct)
+}
+
+// ConditionTypeDescription は状態種類の概要説明を返す。未登録なら空文字を返す
+func ConditionTypeDescription(ct ConditionType) string {
+	return conditionMetas[ct].description
 }
 
 // BodyCapacities は身体機能の一式。すべて基準 100 の consts.Percent で、100 が正常、
@@ -132,27 +128,44 @@ const (
 	painConsciousnessDivisor = 2
 )
 
-// capacityKind は部位が下げる身体機能の区分
-type capacityKind int
+// CapacityKind は部位が下げる身体機能の区分
+type CapacityKind int
 
+// 身体機能の区分
 const (
-	capConsciousness capacityKind = iota // 胴・全身の全身性
-	capManipulation                      // 腕・手
-	capMoving                            // 脚・足
-	capSight                             // 頭
+	CapacityConsciousness CapacityKind = iota // 胴・全身の全身性
+	CapacityManipulation                      // 腕・手
+	CapacityMoving                            // 脚・足
+	CapacitySight                             // 頭
 )
 
+// String は身体機能の表示名 msgid を返す。UI は query.T でこれを訳す
+func (c CapacityKind) String() string {
+	switch c {
+	case CapacityConsciousness:
+		return "Consciousness"
+	case CapacityManipulation:
+		return "Manipulation"
+	case CapacityMoving:
+		return "Moving"
+	case CapacitySight:
+		return "Sight"
+	default:
+		panic("invalid CapacityKind value")
+	}
+}
+
 // bodyPartCapacity は部位が下げる身体機能を返す。部位階層を持たず固定表で対応づける
-func bodyPartCapacity(part BodyPart) capacityKind {
+func bodyPartCapacity(part BodyPart) CapacityKind {
 	switch part {
 	case BodyPartHead:
-		return capSight
+		return CapacitySight
 	case BodyPartArms, BodyPartHands:
-		return capManipulation
+		return CapacityManipulation
 	case BodyPartLegs, BodyPartFeet:
-		return capMoving
+		return CapacityMoving
 	default:
-		return capConsciousness
+		return CapacityConsciousness
 	}
 }
 
@@ -163,26 +176,18 @@ func HealthyCapacities() BodyCapacities {
 }
 
 // ConditionCapacityImpact は不調1件が身体機能へ与える影響を表示用に返す。
-// pain は加える痛み、capacityName は下げる機能の表示名 msgid、drop はその低下量。
-// 健康タブの症状詳細がこれを引いて「痛み +X」「操作 -Y」を出す
-func ConditionCapacityImpact(part BodyPart, sev Severity) (pain int, capacityName string, drop int) {
+// pain は加える痛み、capacity は下げる機能の区分、drop はその低下量。
+// capacity は部位で定まり重症度に依らない。drop が0なら影響なしで、健康タブの症状詳細は
+// drop>0 のときだけ「操作 -Y」を出す
+func ConditionCapacityImpact(part BodyPart, sev Severity) (pain int, capacity CapacityKind, drop int) {
+	capacity = bodyPartCapacity(part)
 	m := conditionSeverityMultiplier(sev)
 	if m == 0 {
-		return 0, "", 0
+		return 0, capacity, 0
 	}
 	pain = conditionPainPerSeverity * m
 	drop = conditionCapacityDropPerSeverity * m
-	switch bodyPartCapacity(part) {
-	case capManipulation:
-		capacityName = "Manipulation"
-	case capMoving:
-		capacityName = "Moving"
-	case capSight:
-		capacityName = "Sight"
-	default:
-		capacityName = "Consciousness"
-	}
-	return pain, capacityName, drop
+	return pain, capacity, drop
 }
 
 // conditionSeverityMultiplier は重症度から効果倍率を返す
@@ -352,13 +357,13 @@ func (hs *HealthStatus) Capacities() BodyCapacities {
 			pain += conditionPainPerSeverity * m
 			drop := conditionCapacityDropPerSeverity * m
 			switch bodyPartCapacity(BodyPart(i)) {
-			case capManipulation:
+			case CapacityManipulation:
 				manip += drop
-			case capMoving:
+			case CapacityMoving:
 				moving += drop
-			case capSight:
+			case CapacitySight:
 				sight += drop
-			case capConsciousness:
+			case CapacityConsciousness:
 				systemic += drop
 			}
 		}

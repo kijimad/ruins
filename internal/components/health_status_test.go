@@ -336,21 +336,22 @@ func TestConditionCapacityImpact(t *testing.T) {
 		t.Parallel()
 		pain, capacity, drop := ConditionCapacityImpact(BodyPartArms, SeverityMedium)
 		assert.Equal(t, 24, pain)
-		assert.Equal(t, "Manipulation", capacity)
+		assert.Equal(t, CapacityManipulation, capacity)
 		assert.Equal(t, 30, drop)
 	})
 
 	t.Run("脚の不調は歩行を下げる", func(t *testing.T) {
 		t.Parallel()
 		_, capacity, _ := ConditionCapacityImpact(BodyPartFeet, SeverityMinor)
-		assert.Equal(t, "Moving", capacity)
+		assert.Equal(t, CapacityMoving, capacity)
 	})
 
 	t.Run("重症度なしは影響なし", func(t *testing.T) {
 		t.Parallel()
+		// capacity は部位で定まり重症度に依らない。影響なしは drop と pain が0であることで表す
 		pain, capacity, drop := ConditionCapacityImpact(BodyPartArms, SeverityNone)
 		assert.Equal(t, 0, pain)
-		assert.Empty(t, capacity)
+		assert.Equal(t, CapacityManipulation, capacity)
 		assert.Equal(t, 0, drop)
 	})
 }

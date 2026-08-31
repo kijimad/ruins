@@ -365,7 +365,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 	}
 
 	// この症状が身体機能へ与える影響を、部位と重症度から導いて出す
-	pain, capacityName, drop := gc.ConditionCapacityImpact(item.BodyPart, cond.Severity)
+	pain, capacity, drop := gc.ConditionCapacityImpact(item.BodyPart, cond.Severity)
 	rows := make([]entityspec.SpecRow, 0, 4)
 	rows = append(rows,
 		entityspec.SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))},
@@ -375,7 +375,7 @@ func healthDetailContent(world w.World, item statusItemData) overlay.DetailConte
 		rows = append(rows, entityspec.SpecRow{Label: query.T(world, "Pain"), Value: fmt.Sprintf("+%d", pain)})
 	}
 	if drop > 0 {
-		rows = append(rows, entityspec.SpecRow{Label: query.T(world, capacityName), Value: fmt.Sprintf("-%d", drop)})
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, capacity.String()), Value: fmt.Sprintf("-%d", drop)})
 	}
 	return overlay.DetailContent{
 		Name: translatedConditionName(world, *cond),
