@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.7&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">42</td>
-            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">42</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-08-31 00:34:17</td>
+            <td class="headerValue">2026-08-31 01:14:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,11 +81,11 @@
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         if profile == &quot;&quot; {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 cfg.Profile = ProfileProduction</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         } else {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 :                 cfg.Profile = Profile(profile)</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 cfg.Profile = Profile(profile)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L24"><span class="lineNum">      24</span>              : </span>
 <span id="L25"><span class="lineNum">      25</span>              :         // プロファイルに基づくデフォルト値を設定</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         cfg.ApplyProfileDefaults()</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         cfg.ApplyProfileDefaults()</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L28"><span class="lineNum">      28</span>              :         // 永続化されたユーザー設定をファイルから読み込んで上書きする。</span>
 <span id="L29"><span class="lineNum">      29</span>              :         // 失敗してもデフォルト値で起動を継続する。ファイルの生成は EnsureUserConfigFile が担う</span>
@@ -95,21 +95,21 @@
 <span id="L33"><span class="lineNum">      33</span>              : </span>
 <span id="L34"><span class="lineNum">      34</span>              :         // 環境変数で明示的に設定された値で上書きする。優先順位はデフォルト &lt; ファイル &lt; 環境変数</span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         if err := env.Parse(cfg); err != nil {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to load config: %w&quot;, err)</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to load config: %w&quot;, err)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L38"><span class="lineNum">      38</span>              : </span>
 <span id="L39"><span class="lineNum">      39</span>              :         // Seedが未設定の場合はランダム値を生成</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC tlaBgGNC">           1 :         if os.Getenv(&quot;RUINS_SEED&quot;) == &quot;&quot; {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if os.Getenv(&quot;RUINS_SEED&quot;) == &quot;&quot; {</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 cfg.Seed = rand.Uint64()</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L43"><span class="lineNum">      43</span>              :         // SeedからRNGを生成</span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         if err := cfg.Validate(); err != nil {</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to validate config: %w&quot;, err)</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;failed to validate config: %w&quot;, err)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC tlaBgGNC">           1 :         return cfg, nil</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         return cfg, nil</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : }</span>
 <span id="L52"><span class="lineNum">      52</span>              : </span>
 <span id="L53"><span class="lineNum">      53</span>              : // String は設定の文字列表現を返す（デバッグ用）</span>

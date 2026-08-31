@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.1%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -189,13 +189,13 @@
 				
 				<option value="file66">github.com/kijimaD/ruins/internal/components/visual_effect_types.go (100.0%)</option>
 				
-				<option value="file67">github.com/kijimaD/ruins/internal/config/config.go (97.7%)</option>
+				<option value="file67">github.com/kijimaD/ruins/internal/config/config.go (100.0%)</option>
 				
-				<option value="file68">github.com/kijimaD/ruins/internal/config/manager.go (87.5%)</option>
+				<option value="file68">github.com/kijimaD/ruins/internal/config/manager.go (100.0%)</option>
 				
-				<option value="file69">github.com/kijimaD/ruins/internal/config/store.go (81.5%)</option>
+				<option value="file69">github.com/kijimaD/ruins/internal/config/store.go (88.9%)</option>
 				
-				<option value="file70">github.com/kijimaD/ruins/internal/config/store_desktop.go (73.0%)</option>
+				<option value="file70">github.com/kijimaD/ruins/internal/config/store_desktop.go (100.0%)</option>
 				
 				<option value="file71">github.com/kijimaD/ruins/internal/consts/chunk.go (100.0%)</option>
 				
@@ -541,7 +541,7 @@
 				
 				<option value="file242">github.com/kijimaD/ruins/internal/systems/animation_system.go (0.0%)</option>
 				
-				<option value="file243">github.com/kijimaD/ruins/internal/systems/auction.go (97.0%)</option>
+				<option value="file243">github.com/kijimaD/ruins/internal/systems/auction.go (93.9%)</option>
 				
 				<option value="file244">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (82.6%)</option>
 				
@@ -1636,7 +1636,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1710,7 +1710,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 </span>
         <span class="cov8" title="1">baseAbil := attackerAbils.Strength.Total
         if attack.GetAttackCategory().Range == gc.AttackRangeRanged </span>{
-                <span class="cov8" title="1">baseAbil = attackerAbils.Sensation.Total
+                <span class="cov0" title="0">baseAbil = attackerAbils.Sensation.Total
 </span>        }
 
         <span class="cov8" title="1">targetDefense := 0
@@ -1793,8 +1793,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
@@ -11831,7 +11831,7 @@ func (c *Config) applyProductionDefaults() {
                 <span class="cov8" title="1">c.Debug = false
 </span>        }
         <span class="cov8" title="1">if os.Getenv("RUINS_LOG_LEVEL") == "" </span>{
-                <span class="cov0" title="0">c.LogLevel = "info"
+                <span class="cov8" title="1">c.LogLevel = "info"
 </span>        }
         <span class="cov8" title="1">if os.Getenv("RUINS_LOG_CATEGORIES") == "" </span>{
                 <span class="cov8" title="1">c.LogCategories = ""
@@ -11893,7 +11893,7 @@ func (c *Config) applyDevelopmentDefaults() {
                 <span class="cov8" title="1">c.Debug = true
 </span>        }
         <span class="cov8" title="1">if os.Getenv("RUINS_LOG_LEVEL") == "" </span>{
-                <span class="cov0" title="0">c.LogLevel = "info"
+                <span class="cov8" title="1">c.LogLevel = "info"
 </span>        }
         <span class="cov8" title="1">if os.Getenv("RUINS_LOG_CATEGORIES") == "" </span>{
                 <span class="cov8" title="1">c.LogCategories = ""
@@ -12000,7 +12000,7 @@ func Load() (*Config, error) {
         if profile == "" </span>{
                 <span class="cov8" title="1">cfg.Profile = ProfileProduction
 </span>        } else {
-                <span class="cov0" title="0">cfg.Profile = Profile(profile)
+                <span class="cov8" title="1">cfg.Profile = Profile(profile)
 </span>        }
 
         // プロファイルに基づくデフォルト値を設定
@@ -12014,7 +12014,7 @@ func Load() (*Config, error) {
 
         // 環境変数で明示的に設定された値で上書きする。優先順位はデフォルト &lt; ファイル &lt; 環境変数
         <span class="cov8" title="1">if err := env.Parse(cfg); err != nil </span>{
-                <span class="cov0" title="0">return nil, fmt.Errorf("failed to load config: %w", err)
+                <span class="cov8" title="1">return nil, fmt.Errorf("failed to load config: %w", err)
 </span>        }
 
         // Seedが未設定の場合はランダム値を生成
@@ -12025,7 +12025,7 @@ func Load() (*Config, error) {
         <span class="cov8" title="1">cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
 </span>
         <span class="cov8" title="1">if err := cfg.Validate(); err != nil </span>{
-                <span class="cov0" title="0">return nil, fmt.Errorf("failed to validate config: %w", err)
+                <span class="cov8" title="1">return nil, fmt.Errorf("failed to validate config: %w", err)
 </span>        }
 
         <span class="cov8" title="1">return cfg, nil</span>
@@ -12075,7 +12075,7 @@ import (
 func (c *Config) loadUserConfig() error {
         <span class="cov8" title="1">data, ok, err := readSettings()
         if err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if !ok </span>{
                 <span class="cov8" title="1">return nil
@@ -12101,7 +12101,7 @@ func (c *Config) SaveUserConfig() error {
 func EnsureUserConfigFile() error {
         <span class="cov8" title="1">ok, err := settingsExist()
         if err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">if ok </span>{
                 <span class="cov8" title="1">return nil
@@ -12148,7 +12148,7 @@ const userConfigFileName = "settings.toml"
 func userConfigPath() (string, error) {
         <span class="cov8" title="1">dir, err := os.UserConfigDir()
         if err != nil </span>{
-                <span class="cov0" title="0">return "", fmt.Errorf("failed to get config directory: %w", err)
+                <span class="cov8" title="1">return "", fmt.Errorf("failed to get config directory: %w", err)
 </span>        }
         <span class="cov8" title="1">return filepath.Join(dir, userConfigDirName, userConfigFileName), nil</span>
 }
@@ -12157,7 +12157,7 @@ func userConfigPath() (string, error) {
 func readSettings() ([]byte, bool, error) {
         <span class="cov8" title="1">path, err := userConfigPath()
         if err != nil </span>{
-                <span class="cov0" title="0">return nil, false, err
+                <span class="cov8" title="1">return nil, false, err
 </span>        }
         <span class="cov8" title="1">return readSettingsFrom(path)</span>
 }
@@ -12169,7 +12169,7 @@ func readSettingsFrom(path string) ([]byte, bool, error) {
                 <span class="cov8" title="1">return nil, false, nil
 </span>        }
         <span class="cov8" title="1">if err != nil </span>{
-                <span class="cov0" title="0">return nil, false, fmt.Errorf("failed to read config file: %w", err)
+                <span class="cov8" title="1">return nil, false, fmt.Errorf("failed to read config file: %w", err)
 </span>        }
         <span class="cov8" title="1">return data, true, nil</span>
 }
@@ -12178,7 +12178,7 @@ func readSettingsFrom(path string) ([]byte, bool, error) {
 func writeSettings(data []byte) error {
         <span class="cov8" title="1">path, err := userConfigPath()
         if err != nil </span>{
-                <span class="cov0" title="0">return err
+                <span class="cov8" title="1">return err
 </span>        }
         <span class="cov8" title="1">return writeSettingsTo(path, data)</span>
 }
@@ -12187,14 +12187,14 @@ func writeSettings(data []byte) error {
 // 書き込み途中のクラッシュによる破損を防ぐ。パスを引数に取ることでテストできる。
 func writeSettingsTo(path string, data []byte) error {
         <span class="cov8" title="1">if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to create config directory: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("failed to create config directory: %w", err)
 </span>        }
         <span class="cov8" title="1">tmp := path + ".tmp"
         if err := os.WriteFile(tmp, data, 0o644); err != nil </span>{
-                <span class="cov0" title="0">return fmt.Errorf("failed to write config file: %w", err)
+                <span class="cov8" title="1">return fmt.Errorf("failed to write config file: %w", err)
 </span>        }
         <span class="cov8" title="1">if err := os.Rename(tmp, path); err != nil </span>{
-                <span class="cov0" title="0">_ = os.Remove(tmp)
+                <span class="cov8" title="1">_ = os.Remove(tmp)
                 return fmt.Errorf("failed to replace config file: %w", err)
 </span>        }
         <span class="cov8" title="1">return nil</span>
@@ -12204,7 +12204,7 @@ func writeSettingsTo(path string, data []byte) error {
 func settingsExist() (bool, error) {
         <span class="cov8" title="1">path, err := userConfigPath()
         if err != nil </span>{
-                <span class="cov0" title="0">return false, err
+                <span class="cov8" title="1">return false, err
 </span>        }
         <span class="cov8" title="1">return settingsExistAt(path)</span>
 }
@@ -12218,7 +12218,7 @@ func settingsExistAt(path string) (bool, error) {
         <span class="cov8" title="1">if errors.Is(err, os.ErrNotExist) </span>{
                 <span class="cov8" title="1">return false, nil
 </span>        }
-        <span class="cov0" title="0">return false, fmt.Errorf("failed to check config file existence: %w", err)</span>
+        <span class="cov8" title="1">return false, fmt.Errorf("failed to check config file existence: %w", err)</span>
 }
 </pre>
 		
@@ -37655,7 +37655,7 @@ func processAuctionItem(world w.World, item ecs.Entity, now int) {
 </span>
         // 入札が来る限り延長する。来たら現在値を上げる
         <span class="cov8" title="1">if world.Resources.Config.RNG.Float64() &lt; query.AuctionBidChance </span>{
-                <span class="cov8" title="1">l.CurrentBid += query.AuctionRaise(world, item)
+                <span class="cov0" title="0">l.CurrentBid += query.AuctionRaise(world, item)
                 return
 </span>        }
 
