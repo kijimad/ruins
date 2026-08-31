@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -61,7 +62,7 @@ func TestDetailHandleInput_非表示のときは何もしない(t *testing.T) {
 		return DetailContent{}, false
 	})
 
-	err := d.HandleInput(w.World{})
+	err := d.HandleInput(w.World{}, inputmapper.ActionMenuCancel, true)
 
 	require.NoError(t, err)
 	assert.False(t, called, "非表示のときprovideは呼ばれない")

@@ -4,7 +4,6 @@ import (
 	"image"
 
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/keybind"
 	"github.com/kijimaD/ruins/internal/widgets/entityspec"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
@@ -94,14 +93,8 @@ func (d *Detail) Open(world w.World) {
 // HandleInput は表示中のキー入力を処理する。ページ数は provide の内容から自身で算出する。
 // 表示中でなければ何もしない。
 // error は Layer の契約に合わせた戻り値で、詳細モーダルでは常に nil
-func (d *Detail) HandleInput(world w.World) error {
-	if !d.active {
-		return nil
-	}
-	// メニューと同じ入力供給源から読む。再生ドライバが差した Action もここに届くので、
-	// overlay 表示中も本番フローのまま駆動できる
-	action, ok := keybind.ReadInput(world, keybind.MenuCommon)
-	if !ok {
+func (d *Detail) HandleInput(world w.World, action inputmapper.ActionID, ok bool) error {
+	if !d.active || !ok {
 		return nil
 	}
 	total := 1

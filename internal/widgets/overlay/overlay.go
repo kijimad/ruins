@@ -3,6 +3,7 @@ package overlay
 import (
 	"image"
 
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/widgets/uicore"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -14,8 +15,10 @@ import (
 type Layer interface {
 	// Active は overlay を表示中かを返す
 	Active() bool
-	// HandleInput は表示中のキー入力を処理する。Screen は毎フレーム再構築するので dirty は返さない
-	HandleInput(world w.World) error
+	// HandleInput は表示中のキー入力を処理する。入力は Screen が1フレーム1回だけ読んで渡す。
+	// overlay 側で読み直すと replay の供給源が二重に消費されてずれるため、渡された action を使う。
+	// ok が偽なら入力なしのフレーム。Screen は毎フレーム再構築するので dirty は返さない
+	HandleInput(world w.World, action inputmapper.ActionID, ok bool) error
 }
 
 // ScreenRenderer は自身を uicore のツリーとして描く overlay。Screen は本体を描いたあと、

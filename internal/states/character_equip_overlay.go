@@ -89,7 +89,7 @@ func (o *characterEquipOverlay) selectedItem() (ecs.Entity, bool) {
 
 // HandleInput は装備選択中の入力を処理する。毎フレーム呼ばれるので自前カーソル mount の維持もここで行う。
 // x で詳細を入れ子に開き、Enter で装着して閉じ、Esc で閉じる
-func (o *characterEquipOverlay) HandleInput(world w.World) error {
+func (o *characterEquipOverlay) HandleInput(world w.World, action inputmapper.ActionID, ok bool) error {
 	if !o.active {
 		return nil
 	}
@@ -99,7 +99,7 @@ func (o *characterEquipOverlay) HandleInput(world w.World) error {
 		ItemCounts: []int{equipChoiceCount(props)},
 	})
 
-	if action, ok := keybind.ReadInput(world, equipSelectTable); ok {
+	if ok {
 		switch action {
 		case inputmapper.ActionOpenItemDetail:
 			o.detail.Open(world)
@@ -184,7 +184,7 @@ func buildEquipSelectUI(world w.World, props charEquipProps, selectedIndex int, 
 	}
 	list, pager := menuframe.RenderList(selectedIndex, rows, styled.Cols(styled.Icon(), styled.Name()),
 		menuframe.ListOpts{EmptyText: query.T(world, "Nothing to equip")}, res)
-	return menuframe.PanelScreen(world, res, query.T(world, "Choose equipment"), list, "", pager)
+	return menuframe.PanelScreen(world, res, query.T(world, "Choose equipment"), list, keybind.HelpHint(world), pager)
 }
 
 // detailContent は装備選択中の主たる詳細内容を返す。候補ならその性能、「外す」なら外す対象の
