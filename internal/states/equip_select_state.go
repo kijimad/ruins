@@ -22,7 +22,6 @@ import (
 
 // EquipSelectState はスロット1つの装備を選ぶメニュー。装備タブでスロットを選ぶと push される。
 // 装備済みなら一覧の先頭に「外す」が並ぶ。x の詳細は現装備と候補を2枚並べて比較する。
-// 独立した state なので ? のキー一覧ヘルプは標準の入力ゲートで効く。
 type EquipSelectState struct {
 	es.BaseState[w.World]
 	slotNumber        gc.EquipmentSlotNumber
@@ -178,7 +177,7 @@ func equipChoiceCount(props EquipSelectProps) int {
 }
 
 // applyEquipChoice は選択を実行する。「外す」なら現装備を外し、候補なら装着する。
-// 既存の装備があれば持ち物へ戻す。cursor に依存せず選択そのものを受け取るので単体で試せる
+// 既存の装備があれば持ち物へ戻す
 func applyEquipChoice(world w.World, choice equipChoice, slotNumber gc.EquipmentSlotNumber, target ecs.Entity, previous *ecs.Entity) error {
 	if choice.unequip {
 		if previous == nil {
