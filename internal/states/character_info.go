@@ -198,6 +198,14 @@ func translatedConditionName(world w.World, cond gc.HealthCondition) string {
 	return name
 }
 
+// treatmentStatus は不調の治療状態を表す。未治療か、治療済みならその質を出す
+func treatmentStatus(world w.World, cond gc.HealthCondition) string {
+	if cond.TendQuality <= 0 {
+		return query.T(world, "Untreated")
+	}
+	return fmt.Sprintf("%s %d%%", query.T(world, "Tended"), int(cond.TendQuality))
+}
+
 func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := make([]statusItemData, 0, int(gc.BodyPartCount))
 	var hs *gc.HealthStatus
@@ -220,8 +228,10 @@ func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Enti
 				// 概要は不調ごとに1文。詳細モーダルの説明段落にまとめる
 				descParts = append(descParts, query.T(world, gc.ConditionTypeDescription(cond.Type)))
 
-				// 影響は不調を見出しに、能力デバフを内訳として並べる
+				// 症状ごとに、見出し・進行度・治療状態・能力デバフを並べる
 				details = append(details, statusDetailRow{Label: translatedConditionName(world, cond), Header: true})
+				details = append(details, statusDetailRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))})
+				details = append(details, statusDetailRow{Label: query.T(world, "Treatment"), Value: treatmentStatus(world, cond)})
 				for _, eff := range cond.Effects {
 					details = append(details, statusDetailRow{
 						Label: query.T(world, eff.Stat.String()),

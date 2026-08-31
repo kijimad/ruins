@@ -950,6 +950,15 @@ msgstr "切り傷。傷口が開いている。治療するまで回復しない
 msgid "Liver illness. It worsens while untreated and drains HP when severe."
 msgstr "肝疾患。放置すると悪化し、重症になると HP を削る。"
 
+msgid "Treatment"
+msgstr "治療"
+
+msgid "Untreated"
+msgstr "未治療"
+
+msgid "Tended"
+msgstr "治療済み"
+
 msgid "Minor"
 msgstr "軽"
 

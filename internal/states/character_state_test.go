@@ -106,10 +106,11 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	require.NoError(t, err)
 
 	world.Components.HealthStatus.Get(player).Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{
-		Type:     gc.ConditionFracture,
-		Timer:    60,
-		Severity: gc.SeverityMedium,
-		Effects:  []gc.StatEffect{{Stat: gc.StatDexterity, Value: -4}, {Stat: gc.StatAgility, Value: -2}},
+		Type:        gc.ConditionFracture,
+		Timer:       60,
+		Severity:    gc.SeverityMedium,
+		TendQuality: 150,
+		Effects:     []gc.StatEffect{{Stat: gc.StatDexterity, Value: -4}, {Stat: gc.StatAgility, Value: -2}},
 	})
 
 	props, err := state.Fetch(world)
@@ -133,15 +134,21 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 	require.NotEmpty(t, arms.Details)
 	assert.True(t, arms.Details[0].Header, "影響の先頭は不調の見出し")
 
-	var foundDex, foundAgi bool
+	var foundDex, foundAgi, foundProgress, foundTended bool
 	for _, d := range arms.Details {
-		if d.Label == "Dexterity" && d.Value == "-4" {
+		switch {
+		case d.Label == "Dexterity" && d.Value == "-4":
 			foundDex = true
-		}
-		if d.Label == "Agility" && d.Value == "-2" {
+		case d.Label == "Agility" && d.Value == "-2":
 			foundAgi = true
+		case d.Label == "Progress" && d.Value == "60%":
+			foundProgress = true
+		case d.Label == "Treatment" && d.Value == "Tended 150%":
+			foundTended = true
 		}
 	}
+	assert.True(t, foundProgress, "進行度をタイマーから出す")
+	assert.True(t, foundTended, "治療済みと質を出す")
 	assert.True(t, foundDex, "影響に器用のデバフが出る")
 	assert.True(t, foundAgi, "影響に敏捷のデバフが出る")
 }
