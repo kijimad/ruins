@@ -21,8 +21,6 @@ type DetailContent struct {
 	Name string
 	Desc string
 	Rows []entityspec.SpecRow
-	// BodyDesc が真なら説明を本文フェイスと主色で描く。補助的でなく本文として読ませたいときに使う
-	BodyDesc bool
 }
 
 // EntityDetailContent は実体から名前・説明・性能行を組んだ詳細内容を返す。
@@ -124,5 +122,5 @@ func (d *Detail) RenderOverlay(world w.World, rect image.Rectangle) uicore.Drawa
 	if !ok {
 		return nil
 	}
-	return buildDetailUI(world.Resources.UIResources, rect, content.Name, content.Desc, content.Rows, d.page, content.BodyDesc)
+	return buildDetailUI(world.Resources.UIResources, rect, content.Name, content.Desc, content.Rows, d.page)
 }

@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"strings"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -41,7 +40,9 @@ type statusItemData struct {
 	Description string
 	IsHeader    bool // カテゴリヘッダー行かどうか
 	BodyPart    gc.BodyPart
-	Details     []statusDetailRow // 詳細に表示する内訳
+	// ConditionType は健康タブの症状エントリが指す不調の種類。空なら症状でない行
+	ConditionType gc.ConditionType
+	Details       []statusDetailRow // 詳細に表示する内訳
 }
 
 type statusDetailRow struct {
@@ -206,47 +207,36 @@ func treatmentStatus(world w.World, cond gc.HealthCondition) string {
 }
 
 func (st *CharacterState) createHealthItems(world w.World, playerEntity ecs.Entity) []statusItemData {
-	items := make([]statusItemData, 0, int(gc.BodyPartCount))
+	var items []statusItemData
 	var hs *gc.HealthStatus
 	if query.AliveHas(world, world.Components.HealthStatus, playerEntity) {
 		hs = world.Components.HealthStatus.Get(playerEntity)
 	}
 	for i := range int(gc.BodyPartCount) {
 		part := gc.BodyPart(i)
-		var summary strings.Builder
-		var detail strings.Builder
+		// 部位はカテゴリ見出し。カーソルは見出しを飛ばす
+		items = append(items, statusItemData{Label: query.T(world, part.String()), IsHeader: true, BodyPart: part})
+
+		var conds []gc.HealthCondition
 		if hs != nil {
-			for j, cond := range hs.Parts[i].Conditions {
-				if j > 0 {
-					summary.WriteString(", ")
-					detail.WriteString("\n\n")
-				}
-				name := translatedConditionName(world, cond)
-				summary.WriteString(name)
-				detail.WriteString(conditionDetailBlock(world, cond, name))
-			}
+			conds = hs.Parts[i].Conditions
 		}
-		value := summary.String()
-		if value == "" {
-			value = query.T(world, "Normal")
+		if len(conds) == 0 {
+			// 症状の無い部位は健康の1エントリを置く
+			items = append(items, statusItemData{Label: query.T(world, "Normal"), BodyPart: part})
+			continue
 		}
-		// 一覧の行は症状の要約、詳細モーダルは症状ごとのブロックを Description に持つ
-		items = append(items, statusItemData{Label: query.T(world, part.String()), Value: value, Description: detail.String(), BodyPart: part})
+		// 症状ごとに1エントリ。値に進行度を出し、詳細は healthDetailContent が1症状ぶん組む
+		for _, cond := range conds {
+			items = append(items, statusItemData{
+				Label:         translatedConditionName(world, cond),
+				Value:         fmt.Sprintf("%d%%", int(cond.Timer)),
+				BodyPart:      part,
+				ConditionType: cond.Type,
+			})
+		}
 	}
 	return items
-}
-
-// conditionDetailBlock は症状1件を詳細モーダル用のブロックへ組む。
-// 見出しと進行度、概要、能力デバフ、治療状態を1かたまりにまとめる
-func conditionDetailBlock(world w.World, cond gc.HealthCondition, name string) string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "%s: %d%%\n", name, int(cond.Timer))
-	b.WriteString(query.T(world, gc.ConditionTypeDescription(cond.Type)))
-	for _, eff := range cond.Effects {
-		fmt.Fprintf(&b, "\n  %s: %+d", query.T(world, eff.Stat.String()), eff.Value)
-	}
-	fmt.Fprintf(&b, "\n%s: %s", query.T(world, "Treatment"), treatmentStatus(world, cond))
-	return b.String()
 }
 
 // sourceToDetails はModifierSourceのスライスから内訳表示用の行を生成する。変化量が0のソースは表示しない

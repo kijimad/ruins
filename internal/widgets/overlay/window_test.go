@@ -70,8 +70,8 @@ func TestBuildDetailUI_説明は最終ページにだけ表示する(t *testing.
 		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	firstPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0, false)
-	lastPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1, false)
+	firstPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 0)
+	lastPage := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "名前", "説明文", rows, 1)
 
 	firstLabels := uicore.CollectLabels(firstPage)
 	lastLabels := uicore.CollectLabels(lastPage)
@@ -91,8 +91,8 @@ func TestBuildDetailUI_ページ番号は範囲外を先頭と末尾にクラン
 		rows[i] = entityspec.SpecRow{Label: fmt.Sprintf("項目%02d", i), Value: fmt.Sprintf("%d", i)}
 	}
 
-	negative := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "", "", rows, -1, false)
-	overflow := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "", "", rows, 99, false)
+	negative := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "", "", rows, -1)
+	overflow := buildDetailUI(resources.UIResources{Text: &resources.TextResources{}}, image.Rect(0, 0, 400, 400), "", "", rows, 99)
 
 	require.NotNil(t, negative)
 	require.NotNil(t, overflow)

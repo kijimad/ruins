@@ -122,26 +122,44 @@ func TestCharacterState_健康タブは不調の概要と影響を詳細に持�
 			health = tab
 		}
 	}
-	var arms statusItemData
+
+	// 部位はカテゴリ見出し、症状は1エントリ1件
+	var hasArmHeader bool
+	var frac statusItemData
 	for _, it := range health.Items {
-		if it.BodyPart == gc.BodyPartArms {
-			arms = it
+		if it.BodyPart == gc.BodyPartArms && it.IsHeader {
+			hasArmHeader = true
+		}
+		if it.BodyPart == gc.BodyPartArms && it.ConditionType == gc.ConditionFracture {
+			frac = it
 		}
 	}
+	assert.True(t, hasArmHeader, "部位はカテゴリ見出しになる")
+	require.Equal(t, gc.ConditionFracture, frac.ConditionType, "腕の骨折が1エントリとして並ぶ")
+	assert.Equal(t, "60%", frac.Value, "エントリの値に進行度")
 
-	assert.Contains(t, arms.Value, "Fracture", "行の値に不調名が出る")
+	// 詳細は選んだ1症状ぶんを組む。名前は症状名、概要と性能行を持つ
+	content := healthDetailContent(world, frac)
+	assert.Equal(t, "Fracture(Medium)", content.Name, "見出しは症状名")
+	assert.Contains(t, content.Desc, "broken bone", "概要説明を持つ")
 
-	// 症状ごとに、見出しと進行度・概要・影響・治療を1ブロックにまとめて Description が持つ
-	assert.Contains(t, arms.Description, "Fracture(Medium): 60%", "見出しに症状名と進行度を出す")
-	assert.Contains(t, arms.Description, "broken bone", "概要説明を持つ")
-	assert.Contains(t, arms.Description, "Dexterity: -4", "影響に器用のデバフが出る")
-	assert.Contains(t, arms.Description, "Agility: -2", "影響に敏捷のデバフが出る")
-	assert.Contains(t, arms.Description, "Treatment: Tended 150%", "治療済みと質を出す")
-
-	// 詳細モーダルの見出しは部位名だけにして症状を重ねない
-	content := healthDetailContent(arms)
-	assert.Equal(t, "Arm", content.Name, "見出しは部位名のみ")
-	assert.Equal(t, arms.Description, content.Desc, "症状ブロックは説明段落として出す")
+	var prog, tend, dex, agi string
+	for _, r := range content.Rows {
+		switch r.Label {
+		case "Progress":
+			prog = r.Value
+		case "Treatment":
+			tend = r.Value
+		case "Dexterity":
+			dex = r.Value
+		case "Agility":
+			agi = r.Value
+		}
+	}
+	assert.Equal(t, "60%", prog, "進行度をタイマーから出す")
+	assert.Equal(t, "Tended 150%", tend, "治療済みと質")
+	assert.Equal(t, "-4", dex, "影響に器用のデバフ")
+	assert.Equal(t, "-2", agi, "影響に敏捷のデバフ")
 }
 
 func TestDetailPageCount_componentが多いレイガンは複数ページになる(t *testing.T) {

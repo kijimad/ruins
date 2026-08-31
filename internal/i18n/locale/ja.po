@@ -959,6 +959,9 @@ msgstr "未治療"
 msgid "Tended"
 msgstr "治療済み"
 
+msgid "No injury or illness"
+msgstr "怪我や病気はない"
+
 msgid "Minor"
 msgstr "軽"
 

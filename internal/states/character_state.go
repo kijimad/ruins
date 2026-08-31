@@ -261,7 +261,7 @@ func (st *CharacterState) detailContent(world w.World) (overlay.DetailContent, b
 		}
 		item := tab.Items[cursor.ItemIndex]
 		if tab.ID == tabHealth {
-			return healthDetailContent(item), true
+			return healthDetailContent(world, item), true
 		}
 		return infoDetailContent(item), true
 	}
@@ -387,8 +387,32 @@ func infoDetailContent(item statusItemData) overlay.DetailContent {
 	return overlay.DetailContent{Name: heading, Desc: item.Description, Rows: rows}
 }
 
-// healthDetailContent は健康タブの部位の詳細を組む。症状ごとのブロックは Description が持つ。
-// 折り返す説明段落を扱うため Rows でなく Desc に載せ、見出しは部位名だけにする
-func healthDetailContent(item statusItemData) overlay.DetailContent {
-	return overlay.DetailContent{Name: item.Label, Desc: item.Description, BodyDesc: true}
+// healthDetailContent は健康タブで選んだ1症状の詳細を組む。名前と概要、進行度・治療・
+// 能力デバフの性能行を返す。症状の無い部位のエントリは概要だけを出す
+func healthDetailContent(world w.World, item statusItemData) overlay.DetailContent {
+	if item.ConditionType == "" {
+		return overlay.DetailContent{Name: item.Label, Desc: query.T(world, "No injury or illness")}
+	}
+	player, err := query.GetPlayerEntity(world)
+	if err != nil || !query.AliveHas(world, world.Components.HealthStatus, player) {
+		return overlay.DetailContent{Name: item.Label}
+	}
+	cond := world.Components.HealthStatus.Get(player).Parts[item.BodyPart].GetCondition(item.ConditionType)
+	if cond == nil {
+		return overlay.DetailContent{Name: item.Label}
+	}
+
+	rows := make([]entityspec.SpecRow, 0, 2+len(cond.Effects))
+	rows = append(rows,
+		entityspec.SpecRow{Label: query.T(world, "Progress"), Value: fmt.Sprintf("%d%%", int(cond.Timer))},
+		entityspec.SpecRow{Label: query.T(world, "Treatment"), Value: treatmentStatus(world, *cond)},
+	)
+	for _, eff := range cond.Effects {
+		rows = append(rows, entityspec.SpecRow{Label: query.T(world, eff.Stat.String()), Value: fmt.Sprintf("%+d", eff.Value)})
+	}
+	return overlay.DetailContent{
+		Name: translatedConditionName(world, *cond),
+		Desc: query.T(world, gc.ConditionTypeDescription(cond.Type)),
+		Rows: rows,
+	}
 }
