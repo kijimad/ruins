@@ -143,45 +143,38 @@ type BodyCapacities struct {
 // 症状に依らない集約側の係数。値は実プレイで調整する
 const painConsciousnessDivisor = 2
 
-// CapacityKind は部位が下げる身体機能の区分
-type CapacityKind int
+// CapacityKind は部位が下げる身体機能の区分。値は表示名 msgid で UI は query.T で訳す
+type CapacityKind string
 
 // 身体機能の区分
 const (
-	CapacityConsciousness CapacityKind = iota // 胴・全身の全身性
-	CapacityManipulation                      // 腕・手
-	CapacityMoving                            // 脚・足
-	CapacitySight                             // 頭
+	CapacityConsciousness CapacityKind = "Consciousness" // 胴・全身の全身性
+	CapacityManipulation  CapacityKind = "Manipulation"  // 腕・手
+	CapacityMoving        CapacityKind = "Moving"        // 脚・足
+	CapacitySight         CapacityKind = "Sight"         // 頭
 )
 
-// String は身体機能の表示名 msgid を返す。UI は query.T でこれを訳す
-func (c CapacityKind) String() string {
-	switch c {
-	case CapacityConsciousness:
-		return "Consciousness"
-	case CapacityManipulation:
-		return "Manipulation"
-	case CapacityMoving:
-		return "Moving"
-	case CapacitySight:
-		return "Sight"
-	default:
-		panic("invalid CapacityKind value")
-	}
+// bodyPartMeta は部位ごとの静的情報。表示名と、不調が下げる身体機能を1つの表に持つ
+type bodyPartMeta struct {
+	displayName string       // 表示名 msgid
+	capacity    CapacityKind // この部位の不調が下げる身体機能
 }
 
-// bodyPartCapacity は部位が下げる身体機能を返す。部位階層を持たず固定表で対応づける
+// bodyPartMetas は部位ごとの情報。部位階層は持たず、部位→機能の対応を平坦な固定表で示す。
+// 部位を足すときはここへ1行足す
+var bodyPartMetas = [BodyPartCount]bodyPartMeta{
+	BodyPartHead:      {displayName: "Head", capacity: CapacitySight},
+	BodyPartTorso:     {displayName: "Torso", capacity: CapacityConsciousness},
+	BodyPartArms:      {displayName: "Arm", capacity: CapacityManipulation},
+	BodyPartHands:     {displayName: "Hand", capacity: CapacityManipulation},
+	BodyPartLegs:      {displayName: "Leg", capacity: CapacityMoving},
+	BodyPartFeet:      {displayName: "Foot", capacity: CapacityMoving},
+	BodyPartWholeBody: {displayName: "Whole body", capacity: CapacityConsciousness},
+}
+
+// bodyPartCapacity は部位が下げる身体機能を返す
 func bodyPartCapacity(part BodyPart) CapacityKind {
-	switch part {
-	case BodyPartHead:
-		return CapacitySight
-	case BodyPartArms, BodyPartHands:
-		return CapacityManipulation
-	case BodyPartLegs, BodyPartFeet:
-		return CapacityMoving
-	default:
-		return CapacityConsciousness
-	}
+	return bodyPartMetas[part].capacity
 }
 
 // HealthyCapacities は不調が無いときの身体機能を返す。HealthStatus を持たない対象の既定
