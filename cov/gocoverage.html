@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (84.8%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (86.4%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -1636,7 +1636,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1793,8 +1793,8 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 </span>        }
         <span class="cov8" title="1">switch </span>{
         case !hit:
-                <span class="cov0" title="0">if withMethod </span>{
-                        <span class="cov0" title="0">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
+                <span class="cov8" title="1">if withMethod </span>{
+                        <span class="cov8" title="1">logger.Markup(query.T(world, "%s used %s to attack %s but missed.", attackerMarkup, methodName, targetMarkup))
 </span>                } else {
                         <span class="cov0" title="0">logger.Markup(query.T(world, "%s attacked %s but missed.", attackerMarkup, targetMarkup))
 </span>                }
