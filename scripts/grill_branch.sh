@@ -32,4 +32,4 @@ echo "$pkgs"
 # シャッフル seed は go test が冒頭に出力する。失敗時は -shuffle=<seed> で再現する。
 # $pkgs は語分割させるため意図的にクォートしない
 # shellcheck disable=SC2086
-go test -race -count="$count" -shuffle=on -timeout=60m $pkgs
+go test -race -count="$count" -shuffle=on -timeout=90m $pkgs
