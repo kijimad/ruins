@@ -399,6 +399,24 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 		}
 	}
 
+	// プレイヤーの不調バッジ。発症中の怪我と病気を並べる。低体温は体温バッジが担うので除く
+	condQuery := ecs.NewFilter2[gc.Player, gc.HealthStatus](world.ECS).Query()
+	for condQuery.Next() {
+		hs := world.Components.HealthStatus.Get(condQuery.Entity())
+		for i := range hs.Parts {
+			for j := range hs.Parts[i].Conditions {
+				c := &hs.Parts[i].Conditions[j]
+				if !c.IsActive() || c.Type == gc.ConditionHypothermia {
+					continue
+				}
+				badges = append(badges, hud.StatusBadge{
+					Text:  c.DisplayName(),
+					Color: color.RGBA{200, 80, 70, 255},
+				})
+			}
+		}
+	}
+
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 

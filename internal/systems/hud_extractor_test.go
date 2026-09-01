@@ -607,6 +607,30 @@ func TestExtractStatusBadgesData(t *testing.T) {
 	}
 }
 
+func TestExtractStatusBadgesData_不調バッジ(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Resources.SetScreenDimensions(640, 480)
+	player := world.ECS.NewEntity()
+	world.Components.Player.Add(player, &gc.Player{})
+	hs := &gc.HealthStatus{}
+	hs.Parts[gc.BodyPartArms].SetCondition(gc.HealthCondition{Type: gc.ConditionFracture, Timer: 60, Severity: gc.TimerToSeverity(60)})
+	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{Type: gc.ConditionHypothermia, Timer: 60, Severity: gc.TimerToSeverity(60)})
+	world.Components.HealthStatus.Add(player, hs)
+
+	data := extractStatusBadgesData(world)
+
+	// 骨折は不調バッジ、低体温は体温バッジ。低体温を不調バッジに二重で出さないので合計2つ
+	texts := make([]string, 0, len(data.Badges))
+	for _, b := range data.Badges {
+		texts = append(texts, b.Text)
+	}
+	require.Len(t, data.Badges, 2, "低体温は体温バッジの1つだけで二重に出さない")
+	assert.Contains(t, texts, "Fracture Medium", "骨折がバッジに出る")
+	assert.Contains(t, texts, "Hypothermia Medium", "低体温は体温バッジで出る")
+}
+
 func TestExtractMessageData_メッセージ履歴と画面情報を反映する(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
