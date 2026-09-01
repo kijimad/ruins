@@ -341,9 +341,7 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 		hitRate = aim.ApplyInt(hitRate)
 	}
 
-	hitRate = max(min(hitRate, formula.MaxHitRate), formula.MinHitRate)
-
-	return hitRate
+	return formula.ClampHitRate(hitRate)
 }
 
 // rollHitCheckWithModifier は命中判定を行う。modifierは追加の命中率補正（負値でペナルティ）
