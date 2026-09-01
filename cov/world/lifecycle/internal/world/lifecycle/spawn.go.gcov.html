@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.9&nbsp;%</td>
+            <td class="headerCovTableEntryMed">83.0&nbsp;%</td>
             <td class="headerCovTableEntry">223</td>
-            <td class="headerCovTableEntry">176</td>
+            <td class="headerCovTableEntry">185</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-09-01 15:07:17</td>
+            <td class="headerValue">2026-09-01 23:31:09</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -100,19 +100,19 @@
 <span id="L38"><span class="lineNum">      38</span>              : // SpawnTile はタイルを生成する</span>
 <span id="L39"><span class="lineNum">      39</span>              : // autoTileIndexが指定された場合、spriteKeyを動的に生成する（例: &quot;wall_5&quot;）</span>
 <span id="L40"><span class="lineNum">      40</span>              : func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, autoTileIndex *int) (ecs.Entity, error) {</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :         rawMaster := world.Resources.RawMaster</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         entitySpec, err := raw.NewTileSpec(rawMaster, tileName, x, y, autoTileIndex)</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return gc.InvalidEntity, err</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         rawMaster := world.Resources.RawMaster</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         entitySpec, err := raw.NewTileSpec(rawMaster, tileName, x, y, autoTileIndex)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 return gc.InvalidEntity, err</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         entity := world.Components.AddEntity(world.ECS, &amp;entitySpec)</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         return entity, nil</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         entity := world.Components.AddEntity(world.ECS, &amp;entitySpec)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         return entity, nil</span></span>
 <span id="L49"><span class="lineNum">      49</span>              : }</span>
 <span id="L50"><span class="lineNum">      50</span>              : </span>
 <span id="L51"><span class="lineNum">      51</span>              : // SpawnPlayer はプレイヤーキャラクターを生成する</span>
 <span id="L52"><span class="lineNum">      52</span>              : func SpawnPlayer(world w.World, pos consts.Coord[consts.Tile], name string) (ecs.Entity, error) {</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 :         entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.InvalidEntity, fmt.Errorf(&quot;%w: %w&quot;, ErrMemberGeneration, err)</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -372,9 +372,9 @@
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         for range count {</span></span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :                 item, err := spawnItemBase(world, itemName)</span></span>
 <span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC tlaBgUNC">           0 :                         return gc.InvalidEntity, err</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC tlaBgGNC">           1 :                 MoveToField(world, item, nil)</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                         return gc.InvalidEntity, err</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 MoveToField(world, item, nil)</span></span>
 <span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 world.Components.GridElement.Add(item, &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})</span></span>
 <span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                 last = item</span></span>
 <span id="L318"><span class="lineNum">     318</span>              :         }</span>

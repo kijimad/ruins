@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (82.8%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (85.7%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/disassemble.go (86.6%)</option>
 				
@@ -499,11 +499,11 @@
 				
 				<option value="file221">github.com/kijimaD/ruins/internal/states/dungeon_floor.go (85.2%)</option>
 				
-				<option value="file222">github.com/kijimaD/ruins/internal/states/dungeon_input.go (23.9%)</option>
+				<option value="file222">github.com/kijimaD/ruins/internal/states/dungeon_input.go (24.3%)</option>
 				
 				<option value="file223">github.com/kijimaD/ruins/internal/states/equip_select_state.go (82.5%)</option>
 				
-				<option value="file224">github.com/kijimaD/ruins/internal/states/factories.go (62.7%)</option>
+				<option value="file224">github.com/kijimaD/ruins/internal/states/factories.go (67.1%)</option>
 				
 				<option value="file225">github.com/kijimaD/ruins/internal/states/feed_fuel_menu.go (64.9%)</option>
 				
@@ -677,17 +677,17 @@
 				
 				<option value="file310">github.com/kijimaD/ruins/internal/world/gameaction/shop.go (63.6%)</option>
 				
-				<option value="file311">github.com/kijimaD/ruins/internal/world/lifecycle/disassembly.go (80.5%)</option>
+				<option value="file311">github.com/kijimaD/ruins/internal/world/lifecycle/disassembly.go (95.1%)</option>
 				
 				<option value="file312">github.com/kijimaD/ruins/internal/world/lifecycle/fire.go (100.0%)</option>
 				
-				<option value="file313">github.com/kijimaD/ruins/internal/world/lifecycle/inventory.go (74.5%)</option>
+				<option value="file313">github.com/kijimaD/ruins/internal/world/lifecycle/inventory.go (89.4%)</option>
 				
-				<option value="file314">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (85.4%)</option>
+				<option value="file314">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (95.1%)</option>
 				
 				<option value="file315">github.com/kijimaD/ruins/internal/world/lifecycle/merchant.go (75.0%)</option>
 				
-				<option value="file316">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (88.5%)</option>
+				<option value="file316">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (91.6%)</option>
 				
 				<option value="file317">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (96.4%)</option>
 				
@@ -1642,7 +1642,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
         if !hit </span>{
-                <span class="cov0" title="0">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+                <span class="cov8" title="1">logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
 </span>        }
@@ -1656,7 +1656,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 </span>
         // 被ダメージで中断可能なアクティビティをキャンセルする
         <span class="cov8" title="1">if comp := query.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span>{
-                <span class="cov8" title="1">CancelActivity(target, "took an attack", world)
+                <span class="cov0" title="0">CancelActivity(target, "took an attack", world)
 </span>        }
 
         <span class="cov8" title="1">return nil</span>
@@ -8235,7 +8235,7 @@ type Weight struct {
         consts.Milligram
 }
 
-// Recipe は合成に必要な素材
+// Recipe はクラフトに必要な素材
 type Recipe struct {
         Inputs []RecipeInput
 }
@@ -10636,7 +10636,7 @@ const (
         coeffNightVision    = 5  // 暗所視界: スキルLv1あたり+5%
         coeffMoveCost       = -2 // 移動コスト: スキルLv1あたり-2%
         coeffCraftCost      = -3 // 素材消費: スキルLv1あたり-3%
-        coeffSmithQuality   = 3  // 合成品質: スキルLv1あたり+3%
+        coeffSmithQuality   = 3  // クラフト品質: スキルLv1あたり+3%
         coeffBuyPrice       = -2 // 買値: スキルLv1あたり-2%
         coeffSellPrice      = 2  // 売値: スキルLv1あたり+2%
         coeffHeavyArmor     = -5 // 重装備ペナルティ: スキルLv1あたり-5%
@@ -10664,7 +10664,7 @@ type CharModifiers struct {
         NightVision    consts.Percent                 // TODO: 暗所視界システム実装時に適用する。暗所視界倍率
         MoveCost       consts.Percent                 // 移動APコスト倍率
         CraftCost      consts.Percent                 // 素材消費量倍率
-        SmithQuality   consts.Percent                 // 合成品質倍率
+        SmithQuality   consts.Percent                 // クラフト品質倍率
         BuyPrice       consts.Percent                 // 買値倍率
         SellPrice      consts.Percent                 // 売値倍率
         HeavyArmor     consts.Percent                 // 重装備AGIペナルティ倍率
@@ -10846,7 +10846,7 @@ const (
         SkillCannon      SkillID = "cannon"      // 砲撃
         SkillExploration SkillID = "exploration" // 探索
 
-        SkillCrafting    SkillID = "crafting"    // 合成
+        SkillCrafting    SkillID = "crafting"    // クラフト
         SkillSmithing    SkillID = "smithing"    // 調合
         SkillNegotiation SkillID = "negotiation" // 交渉
         SkillMechanic    SkillID = "mechanic"    // 機械
@@ -11522,7 +11522,7 @@ type TargetType struct {
         TargetNum   TargetNumType   // 対象数（単体、複数、全体）
 }
 
-// RecipeInput は合成の元になる素材
+// RecipeInput はクラフトの元になる素材
 type RecipeInput struct {
         ID     string // 素材アイテムの id
         Amount int    // 必要量
@@ -26680,12 +26680,11 @@ type relSpot struct {
         dy   consts.Tile
 }
 
-// villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店の売買と雇用を商人が、
-// 合成を怪しい科学者が開く。小集落は無状態の補給地で、stash となる収納は置かない。
+// villageNPCs は村に配置する会話NPC。会話 InteractionTalk で店の売買と雇用を商人が開く。
+// 小集落は無状態の補給地で、stash となる収納は置かない。
 // フィールドにアイテムを残さない方針のため、seed からの決定的再生成と整合する。
 var villageNPCs = []relSpot{
         {"merchant", -2, -1},
-        {"suspicious_scientist", -4, 0},
 }
 
 // hamletNPCs は一軒家に配置する会話NPC。行商の拠点という位置づけで商人だけがいる。
@@ -32345,8 +32344,8 @@ import (
 type CraftMenuState struct {
         es.BaseState[w.World]
         detail       overlay.Detail // レシピの性能・材料・説明を出す詳細モーダル。overlay として Screen に登録する
-        result       overlay.Detail // 合成結果の詳細モーダル。overlay として Screen に登録する
-        resultEntity ecs.Entity     // 直近で合成したアイテム
+        result       overlay.Detail // クラフト結果の詳細モーダル。overlay として Screen に登録する
+        resultEntity ecs.Entity     // 直近でクラフトしたアイテム
         screen       *menuloop.Screen[CraftProps]
 }
 
@@ -32359,7 +32358,7 @@ var _ menuloop.KeyBindings = &amp;CraftMenuState{}
 func (st *CraftMenuState) OnStart(_ w.World) error {
         <span class="cov8" title="1">st.detail = overlay.NewDetail(st.detailContent)
         st.result = overlay.NewEntityDetail(func() (ecs.Entity, bool) </span>{ <span class="cov8" title="1">return st.resultEntity, true }</span>)
-        // result を先に登録する。合成結果が開いている間はそちらが入力を専有する
+        // result を先に登録する。クラフト結果が開いている間はそちらが入力を専有する
         <span class="cov8" title="1">st.screen = menuloop.NewScreen[CraftProps](st, &amp;st.result, &amp;st.detail)
         return nil</span>
 }
@@ -32415,7 +32414,7 @@ type craftTabData struct {
 }
 
 type craftItemData struct {
-        RecipeID   string // 合成の同定キー。NewRecipeSpec/CanCraft/Craft はこれで引く
+        RecipeID   string // クラフトの同定キー。NewRecipeSpec/CanCraft/Craft はこれで引く
         RecipeName string // 表示名
         CanCraft   bool
 }
@@ -32509,11 +32508,11 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 }
 
 // ================
-// 合成
+// クラフト
 // ================
 
-// craftSelected は現在カーソルが当たっているレシピを合成し、結果モーダルを開く。
-// 合成不可のレシピは何もしない。決定で即実行し、途中のアクション選択は挟まない
+// craftSelected は現在カーソルが当たっているレシピをクラフトし、結果モーダルを開く。
+// クラフト不可のレシピは何もしない。決定で即実行し、途中のアクション選択は挟まない
 func (st *CraftMenuState) craftSelected(world w.World) error {
         <span class="cov8" title="1">item, ok := st.selectedRecipe()
         if !ok || !item.CanCraft </span>{
@@ -32546,7 +32545,7 @@ func (st *CraftMenuState) selectedRecipe() (craftItemData, bool) {
 // View
 // ================
 
-// ViewUI はカテゴリタブと合成可否印つきレシピ一覧を組む。
+// ViewUI はカテゴリタブとクラフト可否印つきレシピ一覧を組む。
 func (st *CraftMenuState) ViewUI(world w.World, props CraftProps, cursor menuloop.Selection, res resources.UIResources) uicore.Drawable {
         <span class="cov8" title="1">labels := make([]string, len(props.Tabs))
         for i, tab := range props.Tabs </span>{
@@ -34127,10 +34126,6 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
                                 func() (es.State[w.World], error) </span>{ <span class="cov0" title="0">return NewMerchantDialogState(speakerName, merchant) }</span>,
                         }}, nil
-                case "doctor_greeting":
-                        <span class="cov0" title="0">return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                                func() (es.State[w.World], error) </span>{ <span class="cov0" title="0">return NewDoctorDialogState(speakerName) }</span>,
-                        }}, nil
                 default:
                         // 通常の会話はdialoguesから取得
                         <span class="cov0" title="0">dialogMessage := messagedata.GetDialogue(world, p.MessageKey, speakerName)
@@ -34472,9 +34467,10 @@ func NewDungeonMenuState() (es.State[w.World], error) {
 </span>}
 
 func dungeonMenuChoices(world w.World) (string, []Choice) {
-        <span class="cov0" title="0">return "", []Choice{
+        <span class="cov8" title="1">return "", []Choice{
                 {Label: query.T(world, "Inventory"), Run: pushChoice(NewItemActionState(verbExamine))},
                 {Label: query.T(world, "Character"), Run: pushChoice(NewCharacterState)},
+                {Label: query.T(world, "Crafting"), Run: pushChoice(NewCraftMenuState)},
                 {Label: query.T(world, "Statistics"), Run: pushChoice(NewRunStatsState)},
                 {Label: query.T(world, "Save game"), Run: pushChoice(NewSaveMenuState)},
                 {Label: query.T(world, "Quit"), Run: func(_ w.World) (es.Transition[w.World], error) </span>{
@@ -34794,29 +34790,6 @@ func NewMerchantDialogState(speakerName string, merchant ecs.Entity) (es.State[w
         }
 
         <span class="cov8" title="1">return persistentState, nil</span>
-}
-
-// NewDoctorDialogState は怪しい科学者との会話ステートを作成
-func NewDoctorDialogState(speakerName string) (es.State[w.World], error) {
-        <span class="cov0" title="0">persistentState := &amp;PersistentMessageState{}
-</span>
-        <span class="cov0" title="0">persistentState.build = func(world w.World) *messagedata.MessageData </span>{
-                <span class="cov0" title="0">return messagedata.NewDialogMessage("", speakerName).
-                        AddText(query.T(world, "Heh heh... I'll reconstruct matter with my secret technique.\n\nBring me core and materials!")).
-                        WithChoice(query.T(world, "I want to craft"), func(_ w.World) error </span>{
-                                <span class="cov0" title="0">persistentState.SetTransition(es.Transition[w.World]{
-                                        Type:          es.TransPush,
-                                        NewStateFuncs: []es.StateFactory[w.World]{NewCraftMenuState},
-                                })
-                                return nil
-</span>                        }).
-                        WithChoice(query.T(world, "No business"), func(_ w.World) error {
-                                <span class="cov0" title="0">persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-                                return nil
-</span>                        })
-        }
-
-        <span class="cov0" title="0">return persistentState, nil</span>
 }
 
 // NewOpeningState はオープニングを表示するStateを作成するファクトリー関数
@@ -42380,7 +42353,7 @@ import (
 
 // SpecRow は性能表示の1行。Header が真ならカテゴリ見出し行、偽なら ラベル/値 のデータ行。
 // 詳細モーダルはこの行の並びを単位としてページ分割する。行の高さは一定なので行数が高さの目安になる。
-// Color が非 nil のデータ行はその色で描く。合成の必要素材を条件可否で色分けする用途に使う
+// Color が非 nil のデータ行はその色で描く。クラフトの必要素材を条件可否で色分けする用途に使う
 type SpecRow struct {
         Label  string
         Value  string
@@ -46833,7 +46806,7 @@ func craftConsumedAmount(craftCostPct consts.Percent, amount int) int {
         <span class="cov8" title="1">return max(craftCostPct.ApplyInt(amount), 1)
 </span>}
 
-// consumeMaterials はアイテム合成に必要な素材を消費する。
+// consumeMaterials はアイテムクラフトに必要な素材を消費する。
 // craftCostPctは素材消費量の倍率%で、100が基準。低いほど素材が節約できる。
 func consumeMaterials(world w.World, goal string, craftCostPct consts.Percent) error {
         <span class="cov8" title="1">for _, recipeInput := range requiredMaterials(world, goal) </span>{
@@ -47163,7 +47136,7 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
                         }
                         <span class="cov8" title="1">count, err := rollCount(rng, y.Count)
                         if err != nil </span>{
-                                <span class="cov0" title="0">return nil, err
+                                <span class="cov8" title="1">return nil, err
 </span>                        }
                         <span class="cov8" title="1">stacks = append(stacks, YieldStack{Name: y.Id, Count: count})
                         continue</span>
@@ -47211,19 +47184,19 @@ func RollDisassemblyYields(rng *rand.Rand, def *oapi.Disassembly, skillValue int
 func rollCount(rng *rand.Rand, count oapi.Dice) (int, error) {
         <span class="cov8" title="1">d, err := consts.ParseDice(count)
         if err != nil </span>{
-                <span class="cov0" title="0">return 0, fmt.Errorf("invalid disassembly yield count notation: %q: %w", count, err)
+                <span class="cov8" title="1">return 0, fmt.Errorf("invalid disassembly yield count notation: %q: %w", count, err)
 </span>        }
         <span class="cov8" title="1">return d.Roll(rng), nil</span>
 }
 
 // SpawnDisassemblyYields は産出一覧を指定タイルへフィールドアイテムとして生成する
 func SpawnDisassemblyYields(world w.World, stacks []YieldStack, x consts.Tile, y consts.Tile) error {
-        <span class="cov0" title="0">for _, s := range stacks </span>{
-                <span class="cov0" title="0">if _, err := SpawnFieldItem(world, s.Name, x, y, s.Count); err != nil </span>{
-                        <span class="cov0" title="0">return err
+        <span class="cov8" title="1">for _, s := range stacks </span>{
+                <span class="cov8" title="1">if _, err := SpawnFieldItem(world, s.Name, x, y, s.Count); err != nil </span>{
+                        <span class="cov8" title="1">return err
 </span>                }
         }
-        <span class="cov0" title="0">return nil</span>
+        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
@@ -47272,7 +47245,7 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 
         <span class="cov8" title="1">if delta &gt; 0 </span>{
                 <span class="cov8" title="1">if err := addToStack(world, entity, delta); err != nil </span>{
-                        <span class="cov0" title="0">return err
+                        <span class="cov8" title="1">return err
 </span>                }
         } else {
                 <span class="cov8" title="1">if err := removeFromStack(world, entity, -delta); err != nil </span>{
@@ -47322,18 +47295,18 @@ func addToStack(world w.World, entity ecs.Entity, n int) error {
 </span>                        }
                 }
         case world.Components.LocationInStorage.Has(entity):
-                <span class="cov0" title="0">owner := world.Components.LocationInStorage.Get(entity).Owner
+                <span class="cov8" title="1">owner := world.Components.LocationInStorage.Get(entity).Owner
                 for range n </span>{
-                        <span class="cov0" title="0">e, err := spawnItemBase(world, id)
+                        <span class="cov8" title="1">e, err := spawnItemBase(world, id)
                         if err != nil </span>{
                                 <span class="cov0" title="0">return err
 </span>                        }
-                        <span class="cov0" title="0">if err := MoveToStorage(world, e, owner); err != nil </span>{
+                        <span class="cov8" title="1">if err := MoveToStorage(world, e, owner); err != nil </span>{
                                 <span class="cov0" title="0">return err
 </span>                        }
                 }
         default:
-                <span class="cov0" title="0">return fmt.Errorf("cannot add to stack: entity has no backpack or storage location")</span>
+                <span class="cov8" title="1">return fmt.Errorf("cannot add to stack: entity has no backpack or storage location")</span>
         }
         <span class="cov8" title="1">return nil</span>
 }
@@ -47616,25 +47589,25 @@ func MovePlayerToPosition(world w.World, pos consts.Coord[consts.Tile]) error {
 // 消すときに一緒に消さないと、死んだ所有者を指す孤児として world に残り serde で蓄積する。
 // 反復中の削除を避け、収集してから削除する
 func RemoveOwnedStorage(world w.World, owners []ecs.Entity) {
-        <span class="cov0" title="0">if len(owners) == 0 </span>{
-                <span class="cov0" title="0">return
+        <span class="cov8" title="1">if len(owners) == 0 </span>{
+                <span class="cov8" title="1">return
 </span>        }
-        <span class="cov0" title="0">ownerSet := make(map[ecs.Entity]bool, len(owners))
+        <span class="cov8" title="1">ownerSet := make(map[ecs.Entity]bool, len(owners))
         for _, o := range owners </span>{
-                <span class="cov0" title="0">ownerSet[o] = true
+                <span class="cov8" title="1">ownerSet[o] = true
 </span>        }
 
-        <span class="cov0" title="0">var toRemove []ecs.Entity
+        <span class="cov8" title="1">var toRemove []ecs.Entity
         q := ecs.NewFilter1[gc.LocationInStorage](world.ECS).Query()
         for q.Next() </span>{
-                <span class="cov0" title="0">entity := q.Entity()
+                <span class="cov8" title="1">entity := q.Entity()
                 if ownerSet[world.Components.LocationInStorage.Get(entity).Owner] </span>{
-                        <span class="cov0" title="0">toRemove = append(toRemove, entity)
+                        <span class="cov8" title="1">toRemove = append(toRemove, entity)
 </span>                }
         }
-        <span class="cov0" title="0">for _, entity := range toRemove </span>{
-                <span class="cov0" title="0">if world.ECS.Alive(entity) </span>{
-                        <span class="cov0" title="0">world.ECS.RemoveEntity(entity)
+        <span class="cov8" title="1">for _, entity := range toRemove </span>{
+                <span class="cov8" title="1">if world.ECS.Alive(entity) </span>{
+                        <span class="cov8" title="1">world.ECS.RemoveEntity(entity)
 </span>                }
         }
 }
@@ -47719,13 +47692,13 @@ func initialPatrolDir() consts.Tile {
 // SpawnTile はタイルを生成する
 // autoTileIndexが指定された場合、spriteKeyを動的に生成する（例: "wall_5"）
 func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, autoTileIndex *int) (ecs.Entity, error) {
-        <span class="cov0" title="0">rawMaster := world.Resources.RawMaster
+        <span class="cov8" title="1">rawMaster := world.Resources.RawMaster
         entitySpec, err := raw.NewTileSpec(rawMaster, tileName, x, y, autoTileIndex)
         if err != nil </span>{
-                <span class="cov0" title="0">return gc.InvalidEntity, err
+                <span class="cov8" title="1">return gc.InvalidEntity, err
 </span>        }
 
-        <span class="cov0" title="0">entity := world.Components.AddEntity(world.ECS, &amp;entitySpec)
+        <span class="cov8" title="1">entity := world.Components.AddEntity(world.ECS, &amp;entitySpec)
         return entity, nil</span>
 }
 
@@ -47991,7 +47964,7 @@ func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile
         for range count </span>{
                 <span class="cov8" title="1">item, err := spawnItemBase(world, itemName)
                 if err != nil </span>{
-                        <span class="cov0" title="0">return gc.InvalidEntity, err
+                        <span class="cov8" title="1">return gc.InvalidEntity, err
 </span>                }
                 <span class="cov8" title="1">MoveToField(world, item, nil)
                 world.Components.GridElement.Add(item, &amp;gc.GridElement{Coord: consts.Coord[consts.Tile]{X: x, Y: y}})
