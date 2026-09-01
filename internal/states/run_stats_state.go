@@ -143,13 +143,18 @@ func buildStatsTableUI(world w.World, items []statusItemData, itemIndex int, res
 // Label と Value の2列で、値は右寄せの数値。到達度は経過ターンで示す
 func runStatsItems(world w.World) []statusItemData {
 	days, turns, kills, items, sales := runStatsFields(world)
-	return []statusItemData{
-		{Label: query.T(world, "Days"), Value: fmt.Sprintf("%d", days)},
-		{Label: query.T(world, "Turns"), Value: fmt.Sprintf("%d", turns)},
-		{Label: query.T(world, "Enemies killed"), Value: fmt.Sprintf("%d", kills)},
-		{Label: query.T(world, "Items scavenged"), Value: fmt.Sprintf("%d", items)},
-		{Label: query.T(world, "Sales"), Value: fmt.Sprintf("%d", sales)},
+	rows := make([]statusItemData, 0, 6)
+	// 死因は決着時にだけ記録される。道中の統計画面では空なので出さない
+	if s := query.GetRunStats(world); s != nil && s.Cause != "" {
+		rows = append(rows, statusItemData{Label: query.T(world, "Cause of death"), Value: query.T(world, s.Cause.DisplayName())})
 	}
+	return append(rows,
+		statusItemData{Label: query.T(world, "Days"), Value: fmt.Sprintf("%d", days)},
+		statusItemData{Label: query.T(world, "Turns"), Value: fmt.Sprintf("%d", turns)},
+		statusItemData{Label: query.T(world, "Enemies killed"), Value: fmt.Sprintf("%d", kills)},
+		statusItemData{Label: query.T(world, "Items scavenged"), Value: fmt.Sprintf("%d", items)},
+		statusItemData{Label: query.T(world, "Sales"), Value: fmt.Sprintf("%d", sales)},
+	)
 }
 
 // runStatsFields は現在の統計を返す。撃破・漁り・売上は RunStats、日数・ターンは GameTime から引く
